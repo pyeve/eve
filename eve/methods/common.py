@@ -1,3 +1,4 @@
+from eve import LAST_UPDATED
 from flask import current_app as app
 from flask import abort
 from ast import literal_eval
@@ -13,6 +14,8 @@ def get_document(resource, **lookup):
             # we don't allow editing unless the client provides an etag
             # for the document
             abort(403)
+
+        document[LAST_UPDATED] = document[LAST_UPDATED].replace(tzinfo=None)
         if req.if_match != document_etag(document):
             # client and server etags must match, or we don't allow editing
             # (ensures that client's version of the document is up to date)
@@ -25,8 +28,8 @@ def parse(value, resource):
 
     document = literal_eval(value)
 
-    schema_dates = app.config['DOMAIN'][resource]['dates']
-    document_dates = schema_dates.intersection(set(document.keys()))
+    dates = app.config['DOMAIN'][resource]['dates']
+    document_dates = dates.intersection(set(document.keys()))
     for date_field in document_dates:
         document[date_field] = str_to_date(document[date_field])
 

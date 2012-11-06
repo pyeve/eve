@@ -1,5 +1,4 @@
-# TODO validate json/xml
-from eva.tests import TestBase
+from eve.tests import TestBase
 
 
 class TestRenders(TestBase):

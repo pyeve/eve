@@ -31,15 +31,6 @@ def parse_request(args=None, headers=None):
         r = ParsedRequest()
 
         if args:
-            # TODO where and sort should probably be validated and return a
-            # 400 if the field is unknown. This validation however should
-            # probably be performed at the datalayer level since the format of
-            # these args will change depending on db being used. Would also
-            # be nice if the 'query syntax' could be decoupled from to the db
-            # being used (i.e. mongodb but we use standard old-style querydef
-            # syntax). Needs further thinking.
-            #
-            # Currently if an unknown field is passed, it is ignored
             r.where = args.get('where')
             r.sort = args.get('sort')
 
@@ -54,24 +45,27 @@ def parse_request(args=None, headers=None):
             # non-numeric
             if 'max_results' in args:
                 try:
-                    r.max_results = abs(int(args.get('max_results'))) or 1
+                    r.max_results = int(args.get('max_results'))
                     if r.max_results > config.PAGING_LIMIT:
                         r.max_results = config.PAGING_LIMIT
+                    elif r.max_results <= 0:
+                        r.max_results = config.PAGING_DEFAULT
                 except ValueError:
                     pass
 
         if headers:
-            r.if_none_match = headers.get('If-None-Match')
             r.if_modified_since = weak_date(headers.get('If-Modified-Since'))
+            # TODO if_none_match and if_match should probably be validated as
+            # valid etags, returning 400 on fail. Not sure however since
+            # we're just going to use these for string-type comparision
+            r.if_none_match = headers.get('If-None-Match')
             r.if_match = headers.get('If-Match')
 
         return r
 
 
 def weak_date(date):
-    # TODO handle the case of a date value which is not rounded to 1 second
     return str_to_date(date) + timedelta(seconds=1) if date else None
-    #return str_to_date(date) + timedelta()
 
 
 def str_to_date(string):
@@ -82,8 +76,6 @@ def date_to_str(date):
     return datetime.strftime(date, config.DATE_FORMAT) if date else None
 
 
-# TODO should 'title' in collection_link and document_link use url instead
-# of resource name?
 def collection_link(resource):
     return ("<link rel='collection' title='%s' href='%s' />" %
             (config.URLS[resource], resource_uri(resource)))

@@ -1,10 +1,12 @@
-import ast
-from eve import ID_FIELD, LAST_UPDATED
+from eve import ID_FIELD
 from eve.utils import config
+import ast
 import jsondatetime as json
-from base import DataLayer
+from ..base import DataLayer
+from flask import abort
 from flask.ext.pymongo import PyMongo
 from bson import ObjectId
+from parser import parse, ParseError
 
 
 class Mongo(DataLayer):
@@ -21,12 +23,23 @@ class Mongo(DataLayer):
         if req.page > 1:
             args['skip'] = (req.page - 1) * req.max_results
 
+        # TODO sort syntax must be coherent with 'where': either mongo-like
+        # or 'canonical' (see 'where' below)
+
+        # TODO should validate on unknown sort fields (mongo driver doesn't
+        # return an error, it just ignores the command)
         if req.sort:
             args['sort'] = ast.literal_eval(req.sort)
 
         spec = dict()
         if req.where:
-            spec = json.loads(req.where)
+            try:
+                spec = json.loads(req.where)
+            except:
+                try:
+                    spec = parse(req.where)
+                except ParseError:
+                    abort(400)
 
         if req.if_modified_since:
             spec[config.LAST_UPDATED] = \
@@ -35,10 +48,7 @@ class Mongo(DataLayer):
         if len(spec) > 0:
             args['spec'] = spec
 
-        cursor = self.driver.db[resource].find(**args)
-        for document in cursor:
-            self.fix_last_updated(document)
-            yield document
+        return self.driver.db[resource].find(**args)
 
     def find_one(self, resource, **lookup):
         try:
@@ -47,8 +57,8 @@ class Mongo(DataLayer):
         except:
             pass
         document = self.driver.db[resource].find_one(lookup)
-        if document:
-            self.fix_last_updated(document)
+        #if document:
+        #    self.fix_last_updated(document)
         return document
 
     def insert(self, resource, document):
@@ -60,11 +70,3 @@ class Mongo(DataLayer):
 
     def remove(self, resource, id_):
         return self.driver.db[resource].remove({ID_FIELD: ObjectId(id_)})
-
-    def fix_last_updated(self, document):
-        # flask-pymongo returns timezone-aware values, we strip it out
-        # because std lib datetime doesn't provide that and comparisions
-        # between the two values would fail
-        if document.get(LAST_UPDATED):
-            document[LAST_UPDATED] = document[LAST_UPDATED].replace(
-                tzinfo=None)

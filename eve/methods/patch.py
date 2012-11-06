@@ -33,7 +33,7 @@ def patch(resource, **lookup):
         updates = parse(value, resource)
         validation = validator.validate_update(updates, object_id)
         if validation:
-            last_modified = updates[LAST_UPDATED] = datetime.utcnow()
+            updates[LAST_UPDATED] = datetime.utcnow()
             app.data.update(resource, object_id, updates)
 
             # TODO computing etag without reloading the document
@@ -47,18 +47,21 @@ def patch(resource, **lookup):
             #
             # TL;DR: find a way to compute a reliable etag without reloading
             updated = app.data.find_one(resource, **{ID_FIELD: object_id})
+            updated[LAST_UPDATED] = updated[LAST_UPDATED].replace(tzinfo=None)
             etag = document_etag(updated)
 
-            response_item[ID_FIELD] = key
-            response_item[LAST_UPDATED] = last_modified
+            response_item[ID_FIELD] = object_id
+            last_modified = response_item[LAST_UPDATED] = updated[LAST_UPDATED]
             response_item['etag'] = etag
             response_item['link'] = document_link(resource, object_id)
         else:
             issues.append(validator.errors)
-    except ValidationError as e:
-        raise e
-    except Exception as e:
+    except ValidationError, e:
+        # TODO should probably log the error and abort 400 instead (when we
+        # got logging)
         issues.append(str(e))
+    except Exception, e:
+        abort(400)
 
     if len(issues):
         response_item['issues'] = issues

@@ -1,3 +1,5 @@
+# TODO there are lots of imports LAST_UPDATEd and DATE_CREATED from eve,
+# should be from config to allow for custom field values
 __version__ = '0.0.1-dev'
 
 DEBUG = True

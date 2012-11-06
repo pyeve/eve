@@ -1,8 +1,8 @@
 MONGO_HOST = 'localhost'
 MONGO_PORT = 27017
-MONGO_USERNAME = 'user'
-MONGO_PASSWORD = 'user'
-MONGO_DBNAME = 'apitest'
+MONGO_USERNAME = 'test_user'
+MONGO_PASSWORD = 'test_pw'
+MONGO_DBNAME = 'eve_test'
 ID_FIELD = '_id'
 
 
@@ -14,35 +14,36 @@ ITEM_LOOKUP_FIELD = ID_FIELD                    # defaults to '_id'
 ITEM_URL = '[a-f0-9]{24}'                       # defaults to _id regex
 
 contacts = {
-    'url': 'contatti',                      # defaults to resource key
+    'url': 'contactsurl',                      # defaults to resource key
     'cache_control': 'max-age=20,must-revalidate',
     'cache_expires': 20,
-    'item_title': 'contatto',
+    'item_title': 'contact',
     'additional_lookup': {
         'url': '[\w]+',   # to be unique field
-        'field': 'name'
+        'field': 'ref'
     },
     'schema': {
-        'name': {
+        'ref': {
             'type': 'string',
-            'minlength': 2,
-            #'maxlength': 5,
+            'minlength': 25,
+            'maxlength': 25,
             'unique': True,
+        },
+        'prog': {
+            'type': 'integer'
         },
         'role': {
             'type': 'list',
             'allowed': ["agent", "client", "vendor"],
         },
         'rows': {
-            #'readonly': True,
             'type': 'list',
             'items': {
-                'sku': {'type': 'string'},
+                'sku': {'type': 'string', 'maxlength': 10},
                 'price': {'type': 'integer'},
             }
         },
         'alist': {
-            #'readonly': True,
             'type': 'list',
             'items': [{'type': 'string'}, {'type': 'integer'}, ]
         },
@@ -56,19 +57,17 @@ contacts = {
         'born': {
             'type': 'datetime',
         },
-        'cin': {
-            'type': 'string',
-            'cin': True,
-        },
     }
 }
 
 invoices = {
     'item_lookup': False,
-    'schema': {},
+    'methods': ['GET'],
+    #'item_methods': ['GET'],
 }
 
 DOMAIN = {
     'contacts': contacts,
-    #'invoices': invoices,
+    'invoices': invoices,
+    #'others': {},
 }

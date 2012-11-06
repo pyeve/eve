@@ -16,25 +16,34 @@ class RegexConverter(BaseConverter):
 class Eve(Flask):
     def __init__(self, *args, **kwargs):
 
-        validator_cls = None
-        if 'validator' in kwargs:
-            validator_cls = kwargs['validator']
+        validator_cls = kwargs.get('validator', None)
+        try:
             kwargs.pop('validator')
+        except KeyError:
+            pass
 
-        datalayer_cls = None
-        if 'data' in kwargs:
-            datalayer_cls = kwargs['data']
+        datalayer_cls = kwargs.get('data', None)
+        try:
             kwargs.pop('data')
+        except KeyError:
+            pass
+
+        self.settings = kwargs.get('settings', 'settings.py')
+        try:
+            kwargs.pop('settings')
+        except KeyError:
+            pass
 
         super(Eve, self).__init__(__package__, **kwargs)
 
         self.url_map.converters['regex'] = RegexConverter
 
         self.load_config()
-        self.validate_config()
         self.set_defaults()
+        self.validate_config()
         self.add_url_rules()
 
+        # these must stay at the bottom
         self.validator = validator_cls if validator_cls else Validator
         self.data = datalayer_cls(self) if datalayer_cls else Mongo(self)
 
@@ -42,7 +51,7 @@ class Eve(Flask):
         self.config.from_object(eve)
 
         try:
-            self.config.from_pyfile('settings.py')
+            self.config.from_pyfile(self.settings)
             self.config.from_envvar('EVE_SETTINGS')
         except:
             pass
@@ -57,14 +66,52 @@ class Eve(Flask):
         if len(domain) == 0:
             raise ConfigException('DOMAIN must contain at least one resource.')
 
-        # TODO are there other mandatory settings items? Validate them.
-        # TODO DOMAIN methods must match the supported schema (res/item)
-        # TODO resources allowing POST and PATCH methods must have a schema{}
-        # definition
+        self.validate_config_methods()
+        #self.validate_schemas()
+
+    def validate_config_methods(self):
+        supported_resource_methods = ['GET', 'POST']
+        supported_item_methods = ['GET', 'PATCH', 'DELETE']
+
+        self.validate_methods(supported_resource_methods,
+                              self.config.get('RESOURCE_METHODS'),
+                              'resource')
+
+        self.validate_methods(supported_item_methods,
+                              self.config.get('ITEM_METHODS'),
+                              'item')
+
+        for resource, settings in self.config['DOMAIN'].items():
+            self.validate_methods(supported_resource_methods,
+                                  settings['methods'],
+                                  '[%s] resource ' % resource)
+            self.validate_methods(supported_item_methods,
+                                  settings['item_methods'],
+                                  '[%s] item ' % resource)
+
+            if 'POST' in settings['methods'] or \
+               'PATCH' in settings['item_methods']:
+                if len(settings['schema']) == 0:
+                    print settings['methods'], settings['item_methods']
+                    raise ConfigException('A resource schema must be provided '
+                                          'when POST or PATCH methods are '
+                                          'allowed for a resource (%s).' %
+                                          resource)
+
+    def validate_methods(self, allowed, proposed, word):
+        diff = set(proposed) - set(allowed)
+        if diff:
+            raise ConfigException('Unallowed %s method(s): %s. '
+                                  'Supported: %s' %
+                                  (word, ', '.join(diff),
+                                   ', '.join(allowed)))
+
+    def validate_schemas(self):
+        # TODO are there other mandatory settings items? Validate them here
+        pass
 
     def set_defaults(self):
-        # TODO fill schema{} defaults, such as DATE_CREATED, DATE_UPDATED,
-        # data_type, etc.
+        # TODO fill schema{} defaults, like data type, etc.
         for resource, settings in self.config['DOMAIN'].items():
             settings.setdefault('url', resource)
             settings.setdefault('methods',
@@ -73,22 +120,25 @@ class Eve(Flask):
                                 self.config['CACHE_CONTROL'])
             settings.setdefault('cache_expires',
                                 self.config['CACHE_EXPIRES'])
-            settings.setdefault('item_methods',
-                                self.config['ITEM_METHODS'])
-            settings.setdefault('item_lookup',
-                                self.config['ITEM_LOOKUP'])
             settings.setdefault('item_lookup_field',
                                 self.config['ITEM_LOOKUP_FIELD'])
             settings.setdefault('item_url',
                                 self.config['ITEM_URL'])
             settings.setdefault('item_cache_control',
                                 self.config['ITEM_CACHE_CONTROL'])
+            settings.setdefault('item_lookup',
+                                self.config['ITEM_LOOKUP'])
 
-            schema = settings.get('schema')
-            if schema:
-                settings['dates'] = \
-                    set(field for field, definition in schema.items()
-                        if definition.get('type') == 'datetime')
+            if settings['item_lookup']:
+                item_methods = self.config['ITEM_METHODS']
+            else:
+                item_methods = eve.ITEM_METHODS
+            settings.setdefault('item_methods', item_methods)
+
+            schema = settings.setdefault('schema', {})
+            settings['dates'] = \
+                set(field for field, definition in schema.items()
+                    if definition.get('type') == 'datetime')
 
     def add_url_rules(self):
         # helpers

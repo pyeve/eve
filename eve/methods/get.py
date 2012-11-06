@@ -13,7 +13,20 @@ def get(resource):
 
     req = parse_request()
     cursor = app.data.find(resource, req)
-    for index, document in enumerate(cursor):
+    for document in cursor:
+        # flask-pymongo returns timezone-aware value, we strip it out
+        # because std lib datetime doesn't provide that, and comparisions
+        # between the two values would fail
+
+        # TODO consider testing if the app.data is of type Mongo before
+        # replacing the tzinfo. On the other hand this could be handy for
+        # other drivers as well (think of it as a safety measure). A
+        # 'pythonic' alternative would be to perform the comparision in a
+        # try..catch statement.. performing the replace in case of an
+        # exception. However that would mean getting the exception at each
+        # execution under standard circumstances (the default driver being
+        # Mongo).
+        document[LAST_UPDATED] = document[LAST_UPDATED].replace(tzinfo=None)
         if document[LAST_UPDATED] > last_updated:
             last_updated = document[LAST_UPDATED]
 
@@ -29,7 +42,7 @@ def get(resource):
         status = 200
         last_modified = last_updated if last_updated > datetime.min else None
         response[resource] = documents
-        response['links'] = paging_links(resource, req, index)
+        response['links'] = paging_links(resource, req, cursor.count())
 
     etag = None
     return response, last_modified, etag, status
@@ -41,7 +54,11 @@ def getitem(resource, **lookup):
     req = parse_request()
     document = app.data.find_one(resource, **lookup)
     if document:
-        last_modified = document[LAST_UPDATED]
+        # need to update the document field as well since the etag must
+        # be computed on the same document representation that might have
+        # been used in the collection 'get' method
+        last_modified = document[LAST_UPDATED] = \
+            document[LAST_UPDATED].replace(tzinfo=None)
         etag = document_etag(document)
 
         if req.if_none_match and etag == req.if_none_match:

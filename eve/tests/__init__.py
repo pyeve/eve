@@ -1,26 +1,33 @@
+import eve
+from eve import Eve, STATUS_ERR
+from datetime import datetime
 import re
-import eva
 import unittest
 import simplejson as json
-from datetime import datetime
 
 
 class TestBase(unittest.TestCase):
 
     def setUp(self):
-        reload(eva)
-        self.app = eva.app
+        reload(eve)
+        self.app = Eve(settings='tests/testsettings.py')
         self.test_client = self.app.test_client()
 
-        #TODO provide a test DOMAIN so we don't rely on default_settings.py's
         self.domain = self.app.config['DOMAIN']
         self.known_resource = 'contacts'
-        self.known_item_by_id = '4f46445fc88e201858000000'
-        self.known_item_by_name = 'anna'
+        self.known_resource_url = ('/%s/' %
+                                   self.domain[self.known_resource]['url'])
         self.empty_resource = 'invoices'
         self.unknown_resource = 'unknown'
-        self.unknown_item_by_id = '4f46445fc88e201858000000'
-        self.unknown_item_by_name = 'unknown'
+        self.unknown_item_id = '4f46445fc88e201858000000'
+        self.unknown_item_name = 'unknown'
+
+        self.unknown_item_id_url = ('/%s/%s/' %
+                                    (self.domain[self.known_resource]['url'],
+                                     self.unknown_item_id))
+        self.unknown_item_name_url = ('/%s/%s/' %
+                                      (self.domain[self.known_resource]['url'],
+                                      self.unknown_item_name))
 
     def assert200(self, status):
         self.assertEqual(status, 200)
@@ -37,7 +44,22 @@ class TestBase(unittest.TestCase):
 
 class TestMethodsBase(TestBase):
 
-    def response(self, resource, query='', item=None):
+    def setUp(self):
+        super(TestMethodsBase, self).setUp()
+        response, status = self.get('contacts', '?max_results=2')
+        contact = response['contacts'][0]
+        self.item_id = contact[self.app.config['ID_FIELD']]
+        self.item_name = contact['ref']
+        self.item_etag = contact['etag']
+        self.item_id_url = ('/%s/%s/' %
+                            (self.domain[self.known_resource]['url'],
+                             self.item_id))
+        self.item_name_url = ('/%s/%s/' %
+                              (self.domain[self.known_resource]['url'],
+                               self.item_name))
+        self.alt_ref = response['contacts'][1]['ref']
+
+    def get(self, resource, query='', item=None):
         if resource in self.domain:
             resource = self.domain[resource]['url']
         if item:
@@ -46,10 +68,28 @@ class TestMethodsBase(TestBase):
             request = '/%s/%s' % (resource, query)
 
         r = self.test_client.get(request)
-        value = None
-        if r.status_code != 404:
-            value = json.loads(r.data)['response']
-        return value, r.status_code
+        return self.parse_response(r)
+
+    def patch(self, url, data, headers=None):
+        r = self.test_client.patch(url, self.content_type, data=data,
+                                   headers=headers)
+        return self.parse_response(r)
+
+    def parse_response(self, r):
+        v = json.loads(r.data)['response'] if r.status_code == 200 else None
+        return v, r.status_code
+
+    def assertValidationError(self, response, key, matches):
+        self.assertTrue(key in response)
+        k = response[key]
+        self.assertTrue('status' in k)
+        self.assertTrue(STATUS_ERR in k['status'])
+        self.assertTrue('issues' in k)
+        issues = k['issues']
+        self.assertTrue(len(issues))
+
+        for match in matches:
+            self.assertTrue(match in issues[0][0])
 
     def assertExpires(self, resource):
         # TODO if we ever get access to response.date (it is None), compare
@@ -137,3 +177,15 @@ class TestMethodsBase(TestBase):
 
     def assertItemLink(self, link, item_id):
         self.assertTrue("rel='self'" in link and '/%s/' % item_id in link)
+
+    def assert400(self, status):
+        self.assertEqual(status, 400)
+
+    def assert403(self, status):
+        self.assertEqual(status, 403)
+
+    def assert405(self, status):
+        self.assertEqual(status, 405)
+
+    def assert412(self, status):
+        self.assertEqual(status, 412)

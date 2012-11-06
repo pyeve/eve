@@ -28,6 +28,7 @@ def post(resource):
             validation = validator.validate(document)
             if validation:
                 document[LAST_UPDATED] = document[DATE_CREATED] = date_utc
+                # TODO err.. we want to switch the two lines below!
                 document[ID_FIELD] = key
                 #document[ID_FIELD] = app.data.insert(resource, document)
 

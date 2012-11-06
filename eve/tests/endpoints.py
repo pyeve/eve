@@ -1,4 +1,4 @@
-from eva.tests import TestBase
+from eve.tests import TestBase
 
 # TODO find a reliable way to test item endpoints
 # which are based on regex, maybe reverse them?
@@ -15,12 +15,10 @@ class TestEndPoints(TestBase):
 
     def test_resource_endpoint(self):
         for settings in self.domain.values():
-            resource_url = settings['url']
-
-            r = self.test_client.get('/%s/' % resource_url)
+            r = self.test_client.get('/%s/' % settings['url'])
             self.assert200(r.status_code)
 
-            r = self.test_client.get('/%s' % resource_url)
+            r = self.test_client.get('/%s' % settings['url'])
             self.assert301(r.status_code)
 
     def test_item_endpoint(self):
@@ -30,10 +28,8 @@ class TestEndPoints(TestBase):
         r = self.test_client.get('/%s/' % self.unknown_resource)
         self.assert404(r.status_code)
 
-        r = self.test_client.get('/%s/%s/' % (self.known_resource,
-                                              self.unknown_item_by_id))
+        r = self.test_client.get(self.unknown_item_id_url)
         self.assert404(r.status_code)
 
-        r = self.test_client.get('/%s/%s/' % (self.known_resource,
-                                              self.unknown_item_by_name))
+        r = self.test_client.get(self.unknown_item_name_url)
         self.assert404(r.status_code)
