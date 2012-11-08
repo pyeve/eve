@@ -1,0 +1,9 @@
+include CHANGES LICENSE AUTHORS run.py
+recursive-include tests *
+recursive-include docs *
+recursive-exclude docs *.pyc
+recursive-exclude docs *.pyo
+recursive-exclude tests *.pyc
+recursive-exclude tests *.pyo
+prune docs/_build
+prune docs/_themes/.git

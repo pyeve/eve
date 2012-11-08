@@ -1,6 +1,6 @@
 from utils import collection_link, config
 from methods import get, getitem, post, patch, delete
-from flask import request
+from flask import request, abort
 from render import send_response
 
 
@@ -30,6 +30,8 @@ def item_endpoint(url, **lookup):
         response = patch(resource, **lookup)
     elif request.method == 'DELETE':
         response = delete(resource, **lookup)
+    elif request.method == 'POST':
+        abort(405)
     if response:
         return send_response(resource, *response)
 

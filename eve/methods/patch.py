@@ -55,7 +55,7 @@ def patch(resource, **lookup):
             response_item['etag'] = etag
             response_item['link'] = document_link(resource, object_id)
         else:
-            issues.append(validator.errors)
+            issues.extend(validator.errors)
     except ValidationError, e:
         # TODO should probably log the error and abort 400 instead (when we
         # got logging)

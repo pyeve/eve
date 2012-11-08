@@ -28,16 +28,15 @@ def post(resource):
             validation = validator.validate(document)
             if validation:
                 document[LAST_UPDATED] = document[DATE_CREATED] = date_utc
-                # TODO err.. we want to switch the two lines below!
-                document[ID_FIELD] = key
-                #document[ID_FIELD] = app.data.insert(resource, document)
+                #document[ID_FIELD] = key
+                document[ID_FIELD] = app.data.insert(resource, document)
 
                 response_item[ID_FIELD] = document[ID_FIELD]
                 response_item[LAST_UPDATED] = document[LAST_UPDATED]
                 response_item['link'] = document_link(resource,
                                                       response_item[ID_FIELD])
             else:
-                issues.append(validator.errors)
+                issues.extend(validator.errors)
         except ValidationError as e:
             raise e
         except Exception as e:

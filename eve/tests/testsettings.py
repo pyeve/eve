@@ -6,15 +6,15 @@ MONGO_DBNAME = 'eve_test'
 ID_FIELD = '_id'
 
 
-RESOURCE_METHODS = ['GET', 'POST']               # defauts to GET
-ITEM_METHODS = ['GET', 'PATCH', 'DELETE']       # defaults to GET
-ITEM_CACHE_CONTROL = ''                         # TODO defaults to...
+RESOURCE_METHODS = ['GET', 'POST']
+ITEM_METHODS = ['GET', 'PATCH', 'DELETE']
+ITEM_CACHE_CONTROL = ''
 ITEM_LOOKUP = True
-ITEM_LOOKUP_FIELD = ID_FIELD                    # defaults to '_id'
-ITEM_URL = '[a-f0-9]{24}'                       # defaults to _id regex
+ITEM_LOOKUP_FIELD = ID_FIELD
+ITEM_URL = '[a-f0-9]{24}'
 
 contacts = {
-    'url': 'contactsurl',                      # defaults to resource key
+    'url': 'arbitraryurl',
     'cache_control': 'max-age=20,must-revalidate',
     'cache_expires': 20,
     'item_title': 'contact',
@@ -27,6 +27,7 @@ contacts = {
             'type': 'string',
             'minlength': 25,
             'maxlength': 25,
+            'required': True,
             'unique': True,
         },
         'prog': {
@@ -61,13 +62,19 @@ contacts = {
 }
 
 invoices = {
-    'item_lookup': False,
-    'methods': ['GET'],
+    #'item_lookup': False,
     #'item_methods': ['GET'],
+    'schema': {'inv_number': {'type': 'string'}, }
+}
+
+
+payments = {
+    'methods': ['GET'],
+    'item_methods': ['GET'],
 }
 
 DOMAIN = {
     'contacts': contacts,
     'invoices': invoices,
-    #'others': {},
+    'payments': payments,
 }

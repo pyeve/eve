@@ -1,9 +1,13 @@
 import eve
 from eve import Eve, STATUS_ERR
-from datetime import datetime
+from datetime import datetime, timedelta
 import re
 import unittest
 import simplejson as json
+from testsettings import MONGO_PASSWORD, MONGO_USERNAME, MONGO_DBNAME, DOMAIN
+from flask.ext.pymongo import Connection
+import string
+import random
 
 
 class TestBase(unittest.TestCase):
@@ -14,11 +18,15 @@ class TestBase(unittest.TestCase):
         self.test_client = self.app.test_client()
 
         self.domain = self.app.config['DOMAIN']
+
         self.known_resource = 'contacts'
         self.known_resource_url = ('/%s/' %
                                    self.domain[self.known_resource]['url'])
         self.empty_resource = 'invoices'
+        self.empty_resource_url = '/%s/' % self.empty_resource
+
         self.unknown_resource = 'unknown'
+        self.unknown_resource_url = '/%s/' % self.unknown_resource
         self.unknown_item_id = '4f46445fc88e201858000000'
         self.unknown_item_name = 'unknown'
 
@@ -28,6 +36,10 @@ class TestBase(unittest.TestCase):
         self.unknown_item_name_url = ('/%s/%s/' %
                                       (self.domain[self.known_resource]['url'],
                                       self.unknown_item_name))
+
+        self.readonly_resource = 'payments'
+        self.readonly_resource_url = (
+            '/%s/' % self.domain[self.readonly_resource]['url'])
 
     def assert200(self, status):
         self.assertEqual(status, 200)
@@ -59,6 +71,11 @@ class TestMethodsBase(TestBase):
                                self.item_name))
         self.alt_ref = response['contacts'][1]['ref']
 
+        response, status = self.get('payments', '?max_results=1')
+        self.readonly_id = response['payments'][0]['_id']
+        self.readonly_id_url = ('%s%s/' % (self.readonly_resource_url,
+                                           self.readonly_id))
+
     def get(self, resource, query='', item=None):
         if resource in self.domain:
             resource = self.domain[resource]['url']
@@ -68,11 +85,6 @@ class TestMethodsBase(TestBase):
             request = '/%s/%s' % (resource, query)
 
         r = self.test_client.get(request)
-        return self.parse_response(r)
-
-    def patch(self, url, data, headers=None):
-        r = self.test_client.patch(url, self.content_type, data=data,
-                                   headers=headers)
         return self.parse_response(r)
 
     def parse_response(self, r):
@@ -89,7 +101,7 @@ class TestMethodsBase(TestBase):
         self.assertTrue(len(issues))
 
         for match in matches:
-            self.assertTrue(match in issues[0][0])
+            self.assertTrue(match in issues[0])
 
     def assertExpires(self, resource):
         # TODO if we ever get access to response.date (it is None), compare
@@ -189,3 +201,88 @@ class TestMethodsBase(TestBase):
 
     def assert412(self, status):
         self.assertEqual(status, 412)
+
+    @classmethod
+    def setUpClass(cls):
+        cls._c = Connection()
+        cls._c.drop_database(MONGO_DBNAME)
+        cls._c[MONGO_DBNAME].add_user(MONGO_USERNAME, MONGO_PASSWORD)
+        cls.bulk_insert()
+        cls._c.close()
+
+    @classmethod
+    def tearDownModule(cls):
+        c = Connection()
+        c.drop_database(MONGO_DBNAME)
+        c.close()
+
+    @classmethod
+    def bulk_insert(cls):
+        cls._db = cls._c[MONGO_DBNAME]
+        cls._db.contacts.insert(cls.random_contacts(100))
+        cls._db.payments.insert(cls.random_payments(10))
+
+    @classmethod
+    def random_contacts(cls, num):
+        schema = DOMAIN['contacts']['schema']
+        contacts = []
+        for i in range(num):
+            dt = datetime.now()
+            contact = {
+                'ref':  cls.random_string(schema['ref']['maxlength']),
+                'prog': i,
+                'role': random.choice(schema['role']['allowed']),
+                'rows': cls.random_rows(random.randint(0, 5)),
+                'alist': cls.random_list(random.randint(0, 5)),
+                'location': {
+                    'address': 'address ' + cls.random_string(5),
+                    'city': 'city ' + cls.random_string(3),
+                },
+                'born': datetime.today() + timedelta(
+                    days=random.randint(-10, 10)),
+
+                eve.LAST_UPDATED: dt,
+                eve.DATE_CREATED: dt,
+
+            }
+            contacts.append(contact)
+        return contacts
+
+    @classmethod
+    def random_payments(cls, num):
+        payments = []
+        for i in range(num):
+            dt = datetime.now()
+            payment = {
+                'a_string':  cls.random_string(10),
+                'a_number': i,
+                eve.LAST_UPDATED: dt,
+                eve.DATE_CREATED: dt,
+            }
+            payments.append(payment)
+        return payments
+
+    @classmethod
+    def random_string(cls, num):
+        return (''.join(random.choice(string.ascii_uppercase + string.digits)
+                        for x in range(num)))
+
+    @classmethod
+    def random_list(cls, num):
+        alist = []
+        for i in range(num):
+            alist.append(['string' + str(i), random.randint(1000, 9999)])
+        return alist
+
+    @classmethod
+    def random_rows(cls, num):
+        schema = DOMAIN['contacts']['schema']['rows']['items']
+        rows = []
+        for i in range(num):
+            rows.append(
+                {
+                    'sku': cls.random_string(schema['sku']['maxlength']),
+                    'price': random.randint(100, 1000),
+                }
+            )
+        return rows

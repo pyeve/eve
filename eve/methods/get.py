@@ -1,3 +1,4 @@
+import unittest
 from flask import current_app as app
 from flask import abort
 from eve import LAST_UPDATED, ID_FIELD
