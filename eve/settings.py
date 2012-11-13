@@ -9,17 +9,11 @@
     :copyright: (c) 2012 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-#MONGO_HOST = 'localhost'
-#MONGO_PORT = 27017
-#MONGO_USERNAME = 'user'
-#MONGO_PASSWORD = 'user'
-#MONGO_DBNAME = 'apitest'
-#ID_FIELD = '_id'
-MONGO_HOST = 'alex.mongohq.com'
-MONGO_PORT = 10068
-MONGO_USERNAME = 'heroku'
-MONGO_PASSWORD = 'heroku'
-MONGO_DBNAME = 'app9195931'
+MONGO_HOST = 'localhost'
+MONGO_PORT = 27017
+MONGO_USERNAME = 'user'
+MONGO_PASSWORD = 'user'
+MONGO_DBNAME = 'apitest'
 ID_FIELD = '_id'
 
 
