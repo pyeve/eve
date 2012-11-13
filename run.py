@@ -1,5 +1,6 @@
 from eve import Eve
 from eve.io.mongo import Validator
+import os
 
 
 class Validator(Validator):
@@ -10,4 +11,5 @@ class Validator(Validator):
 
 if __name__ == '__main__':
     app = Eve(validator=Validator)
-    app.run()
+    port = int(os.environ.get('PORT', 5000))
+    app.run(port=port)
