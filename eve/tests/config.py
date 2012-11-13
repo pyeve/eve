@@ -3,8 +3,7 @@ from eve.flaskapp import Eve
 from eve.io.base import DataLayer
 from eve.tests import TestBase
 from eve.exceptions import ConfigException
-from eve.validation import Validator
-from eve.io import Mongo
+from eve.io.mongo import Mongo, Validator
 
 
 class TestConfig(TestBase):

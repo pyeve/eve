@@ -1,7 +1,21 @@
-from eve.utils import config
+"""
+    eve.io.base
+    ~~~~~~~~~~~
+
+    Standard interface implemented by Eve data layers.
+
+    :copyright: (c) 2012 by Nicola Iarocci.
+    :license: BSD, see LICENSE for more details.
+"""
+
+from ..utils import config
 
 
 class DataLayer(object):
+    """ Base data layer class. Defines the interface that actual data-access
+    classes, being subclasses, must implement. Admittedly, the interface is a
+    Mongo rip-off. See the io.mongo package for an implementation example.
+    """
 
     def __init__(self, app):
         if app is not None:

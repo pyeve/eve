@@ -1,13 +1,34 @@
-import unittest
+"""
+    eve.methods.get
+    ~~~~~~~~~~~~~~~
+
+    This module implements the API 'GET' methods, supported by both the
+    resources and single item endpoints.
+
+    :copyright: (c) 2012 by Nicola Iarocci.
+    :license: BSD, see LICENSE for more details.
+"""
+
+# TODO currently documents are returned 'as-stored', with no validation
+# against the domain model. Since validation happens when they are stored via
+# the API (PATCH/POST), validating them again seems overkill. However there
+# might be situations/scenarios where the stored document might different
+# from the domain model (ie: different API versions, or fields that should
+# be ignored by the API). Once versioning is properly implemented (or maybe
+# even before than that), a domain filter should probably be in place.
+
 from flask import current_app as app
 from flask import abort
-from eve import LAST_UPDATED, ID_FIELD
 from datetime import datetime
-from eve.utils import parse_request, document_etag, document_link, \
-    collection_link, home_link, querydef, resource_uri
+from ..utils import parse_request, document_etag, document_link, \
+    collection_link, home_link, querydef, resource_uri, config
 
 
 def get(resource):
+    """Retrieves the resource documents that match the current request.
+
+    :param resource: the name of the resource.
+    """
     documents = list()
     response = dict()
     last_updated = datetime.min
@@ -27,16 +48,22 @@ def get(resource):
         # exception. However that would mean getting the exception at each
         # execution under standard circumstances (the default driver being
         # Mongo).
-        document[LAST_UPDATED] = document[LAST_UPDATED].replace(tzinfo=None)
-        if document[LAST_UPDATED] > last_updated:
-            last_updated = document[LAST_UPDATED]
+        document[config.LAST_UPDATED] = \
+            document[config.LAST_UPDATED].replace(tzinfo=None)
 
+        if document[config.LAST_UPDATED] > last_updated:
+            last_updated = document[config.LAST_UPDATED]
+
+        # document metadata
         document['etag'] = document_etag(document)
-        document['link'] = document_link(resource, document[ID_FIELD])
+        document['link'] = document_link(resource, document[config.ID_FIELD])
 
         documents.append(document)
 
     if req.if_modified_since and len(documents) == 0:
+        # the if-modified-since conditional request returned no documents, we
+        # send back a 304 Not-Modified, which means that the client already
+        # has the up-to-date representation of the resultset.
         status = 304
         last_modified = None
     else:
@@ -50,6 +77,11 @@ def get(resource):
 
 
 def getitem(resource, **lookup):
+    """ Retrieves and returns a single document.
+
+    :param resource: the name of the resource to which the document belongs.
+    :param **lookup: the lookup query.
+    """
     response = dict()
 
     req = parse_request()
@@ -58,17 +90,22 @@ def getitem(resource, **lookup):
         # need to update the document field as well since the etag must
         # be computed on the same document representation that might have
         # been used in the collection 'get' method
-        last_modified = document[LAST_UPDATED] = \
-            document[LAST_UPDATED].replace(tzinfo=None)
+        last_modified = document[config.LAST_UPDATED] = \
+            document[config.LAST_UPDATED].replace(tzinfo=None)
         etag = document_etag(document)
 
         if req.if_none_match and etag == req.if_none_match:
+            # request etag matches the current server representation of the
+            # document, return a 304 Not-Modified.
             return response, last_modified, etag, 304
 
         if req.if_modified_since and last_modified <= req.if_modified_since:
+            # request If-Modified-Since conditional request match. We test
+            # this after the etag since Last-Modified dates have lower
+            # resolution (1 second).
             return response, last_modified, etag, 304
 
-        document['link'] = document_link(resource, document[ID_FIELD])
+        document['link'] = document_link(resource, document[config.ID_FIELD])
         response[resource] = document
         response['links'] = standard_links(resource)
         return response, last_modified, etag, 200
@@ -77,6 +114,13 @@ def getitem(resource, **lookup):
 
 
 def paging_links(resource, req, documents_count):
+    """Returns the appropriate set of resource links depending on the
+    current page and the total number of documents returned by the query.
+
+    :param resource: the resource name.
+    :param req: and instace of :class:`eve.utils.ParsedRequest`.
+    :param document_count: the number of documents returned by the query.
+    """
     paging_links = standard_links(resource)
 
     if documents_count:
@@ -96,4 +140,7 @@ def paging_links(resource, req, documents_count):
 
 
 def standard_links(resource):
+    """Returns the standard set of resource links that are included in every
+    kind of GET response.
+    """
     return [home_link(), collection_link(resource)]

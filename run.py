@@ -1,6 +1,5 @@
 from eve import Eve
-from eve.validation import Validator
-#from eve.io import Mongo
+from eve.io.mongo import Validator
 
 
 class Validator(Validator):

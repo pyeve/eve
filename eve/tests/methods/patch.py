@@ -1,9 +1,9 @@
-import unittest
+#import unittest
 from eve.tests import TestMethodsBase
 from eve import STATUS_OK, LAST_UPDATED, ID_FIELD
 
 
-#@unittest.skip("not needed now")
+#@unittest.skip("don't need no freakin' tests!")
 class TestPatch(TestMethodsBase):
 
     def test_patch_to_resource_endpoint(self):

@@ -1,4 +1,4 @@
-import unittest
+#import unittest
 from eve.tests import TestMethodsBase
 
 
@@ -68,6 +68,17 @@ class TestGet(TestMethodsBase):
 
     def test_get_where_mongo_syntax(self):
         where = '{"ref": "%s"}' % self.item_name
+        response, status = self.get(self.known_resource,
+                                    '?where=%s' % where)
+        self.assert200(status)
+
+        resource = response[self.known_resource]
+        self.assertEqual(len(resource), 1)
+
+    # TODO need more tests here, to verify that the parser is behaving
+    # correctly
+    def test_get_where_python_syntax(self):
+        where = 'ref == %s' % self.item_name
         response, status = self.get(self.known_resource,
                                     '?where=%s' % where)
         self.assert200(status)

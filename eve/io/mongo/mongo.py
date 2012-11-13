@@ -1,21 +1,48 @@
-from eve import ID_FIELD
-from eve.utils import config
+"""
+    eve.io.mongo.mongo (eve.io.mongo)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    The actual implementation of the MongoDB data layer.
+
+    :copyright: (c) 2012 by Nicola Iarocci.
+    :license: BSD, see LICENSE for more details.
+"""
+
 import ast
 import jsondatetime as json
-from ..base import DataLayer
 from flask import abort
 from flask.ext.pymongo import PyMongo
 from bson import ObjectId
 from parser import parse, ParseError
+from ..base import DataLayer
+from ... import ID_FIELD
+from ...utils import config
 
 
 class Mongo(DataLayer):
+    """ MongoDB data access layer for Eve REST API.
+    """
 
     def init_app(self, app):
         # mongod must be running or this will raise an exception
         self.driver = PyMongo(app)
 
     def find(self, resource, req):
+        """Retrieves a set of documents matching a given request. Queries can
+        be expressed in two different formats: the mongo query syntax, and the
+        python syntax. The first kind of query would look like: ::
+
+            ?where={"name": "john doe}
+
+        while the second would look like: ::
+
+            ?where=name=="john doe"
+
+        The resultset if paginated.
+
+        :param resource: resource name.
+        :param req: a :class:`ParsedRequest`instance.
+        """
         args = dict()
 
         args['limit'] = req.max_results
@@ -23,11 +50,12 @@ class Mongo(DataLayer):
         if req.page > 1:
             args['skip'] = (req.page - 1) * req.max_results
 
-        # TODO sort syntax must be coherent with 'where': either mongo-like
-        # or 'canonical' (see 'where' below)
+        # TODO sort syntax should probably be coherent with 'where': either
+        # mongo-like # or python-like. Currently accepts only mongo-like sort
+        # syntax.
 
         # TODO should validate on unknown sort fields (mongo driver doesn't
-        # return an error, it just ignores the command)
+        # return an error)
         if req.sort:
             args['sort'] = ast.literal_eval(req.sort)
 
@@ -51,6 +79,11 @@ class Mongo(DataLayer):
         return self.driver.db[resource].find(**args)
 
     def find_one(self, resource, **lookup):
+        """Retrieves a single document.
+
+        :param resource: resource name.
+        :param **lookup: lookup query.
+        """
         try:
             if config.ID_FIELD in lookup:
                 lookup[ID_FIELD] = ObjectId(lookup[ID_FIELD])
@@ -62,11 +95,17 @@ class Mongo(DataLayer):
         return document
 
     def insert(self, resource, document):
+        """Inserts a document into a resource collection.
+        """
         return  self.driver.db[resource].insert(document)
 
     def update(self, resource, id_, updates):
+        """Updates a collection document.
+        """
         return self.driver.db[resource].update({ID_FIELD: ObjectId(id_)},
                                                {"$set": updates})
 
     def remove(self, resource, id_):
+        """Removes a document from a collection.
+        """
         return self.driver.db[resource].remove({ID_FIELD: ObjectId(id_)})

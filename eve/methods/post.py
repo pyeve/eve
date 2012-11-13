@@ -1,13 +1,31 @@
-from eve import LAST_UPDATED, ID_FIELD, DATE_CREATED, STATUS_OK, STATUS_ERR
-from eve.validation import ValidationError
-from eve.utils import document_link
-from common import parse
+"""
+    eve.methods.post
+    ~~~~~~~~~~~~~~~~
+
+    This module imlements the POST method, supported by the resources
+    endopints.
+
+    :copyright: (c) 2012 by Nicola Iarocci.
+    :license: BSD, see LICENSE for more details.
+"""
+
 from datetime import datetime
 from flask import request, abort
 from flask import current_app as app
+from common import parse
+from ..utils import document_link, config
+from ..validation import ValidationError
 
 
 def post(resource):
+    """ Adds one or more documents to a resource. Each document is validated
+    against the domain schema. If validation passes the document is inserted
+    and ID_FIELD, LAST_UPDATED and DATE_CREATED along with a link to the
+    document are returned. If validation fails, a list of validation issues
+    is returned.
+
+    :param resource: name of the resource involved.
+    """
 
     if len(request.form) == 0:
         abort(400)
@@ -27,14 +45,15 @@ def post(resource):
             document = parse(value, resource)
             validation = validator.validate(document)
             if validation:
-                document[LAST_UPDATED] = document[DATE_CREATED] = date_utc
-                #document[ID_FIELD] = key
-                document[ID_FIELD] = app.data.insert(resource, document)
+                document[config.LAST_UPDATED] = \
+                    document[config.DATE_CREATED] = date_utc
+                document[config.ID_FIELD] = app.data.insert(resource, document)
 
-                response_item[ID_FIELD] = document[ID_FIELD]
-                response_item[LAST_UPDATED] = document[LAST_UPDATED]
-                response_item['link'] = document_link(resource,
-                                                      response_item[ID_FIELD])
+                response_item[config.ID_FIELD] = document[config.ID_FIELD]
+                response_item[config.LAST_UPDATED] = \
+                    document[config.LAST_UPDATED]
+                response_item['link'] = \
+                    document_link(resource, response_item[config.ID_FIELD])
             else:
                 issues.extend(validator.errors)
         except ValidationError as e:
@@ -44,9 +63,9 @@ def post(resource):
 
         if len(issues):
             response_item['issues'] = issues
-            response_item['status'] = STATUS_ERR
+            response_item['status'] = config.STATUS_ERR
         else:
-            response_item['status'] = STATUS_OK
+            response_item['status'] = config.STATUS_OK
 
         response[key] = response_item
 

@@ -1,3 +1,13 @@
+"""
+    Eve
+    ~~~
+
+    An out-of-the-box REST Web API that's as dangerous as you want it to be.
+
+    :copyright: (c) 2012 by Nicola Iarocci.
+    :license: BSD, see LICENSE for more details.
+"""
+
 # TODO there are lots of imports LAST_UPDATEd and DATE_CREATED from eve,
 # should be from config to allow for custom field values
 __version__ = '0.0.1-dev'
@@ -26,5 +36,6 @@ ITEM_URL = '[a-f0-9]{24}'
 
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"
+POWERED_BY = True
 
 from flaskapp import Eve
