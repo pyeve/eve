@@ -5,6 +5,7 @@ MONGO_PASSWORD = 'test_pw'
 MONGO_DBNAME = 'eve_test'
 ID_FIELD = '_id'
 
+SERVER_NAME = 'localhost:5000'
 
 RESOURCE_METHODS = ['GET', 'POST']
 ITEM_METHODS = ['GET', 'PATCH', 'DELETE']

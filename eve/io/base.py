@@ -11,10 +11,31 @@
 from ..utils import config
 
 
+class ConnectionException(Exception):
+    """Raised when DataLayer subclasses cannot find/activate to their
+    database connection
+
+    :param driver_exception: the original exception raised by the source db
+                             driver
+    """
+    def __init__(self, driver_exception=None):
+        self.driver_exception = driver_exception
+
+    def __str__(self):
+        msg = ("Error initializing the driver. Make sure the database server"
+               "is running. ")
+        if self.driver_exception:
+            msg += "Driver exception: %s" % repr(self.driver_exception)
+        return msg
+
+
 class DataLayer(object):
     """ Base data layer class. Defines the interface that actual data-access
-    classes, being subclasses, must implement. Admittedly, the interface is a
-    Mongo rip-off. See the io.mongo package for an implementation example.
+    classes, being subclasses, must implement. Implemented as a Flask
+    extension.
+
+    Admittedly, this interface is a Mongo rip-off. See the io.mongo
+    package for an implementation example.
     """
 
     def __init__(self, app):

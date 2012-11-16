@@ -14,7 +14,7 @@ from flask import abort
 from flask.ext.pymongo import PyMongo
 from bson import ObjectId
 from parser import parse, ParseError
-from ..base import DataLayer
+from ..base import DataLayer, ConnectionException
 from ... import ID_FIELD
 from ...utils import config
 
@@ -25,7 +25,10 @@ class Mongo(DataLayer):
 
     def init_app(self, app):
         # mongod must be running or this will raise an exception
-        self.driver = PyMongo(app)
+        try:
+            self.driver = PyMongo(app)
+        except Exception, e:
+            raise ConnectionException(e)
 
     def find(self, resource, req):
         """Retrieves a set of documents matching a given request. Queries can

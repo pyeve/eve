@@ -10,6 +10,8 @@
 """
 
 import eve
+import sys
+import os
 from io.mongo import Mongo, Validator
 from flask import Flask
 from werkzeug.routing import BaseConverter
@@ -59,12 +61,15 @@ class Eve(Flask):
         # enable regex routing
         self.url_map.converters['regex'] = RegexConverter
 
-        self.settings = settings
         self.validator = validator
 
+        self.settings = settings
+
         self.load_config()
-        self.set_defaults()
         self.validate_config()
+        self.set_defaults()
+        self.validate_config_methods()
+        self.validate_schemas()
         self.add_url_rules()
 
         # instantiate the data layer. Defaults to eve.io.Mongo
@@ -72,25 +77,33 @@ class Eve(Flask):
 
     def load_config(self):
         """API settings are loaded from standard python modules. First from
-        `settings.py`(or alternative name/path provided as class argument) and
-        then, when defined and if available, from the file specified in the
+        `settings.py`(or alternative name/path passed as an argument) and
+        then, when defined, from the file specified in the
         `EVE_SETTINGS` environment variable.
 
         Since we are a Flask subclass, any configuration value supported by
         Flask itself is available (besides Eve's proper settings).
         """
 
-        # load defaults
-        self.config.from_object(eve)
+        # TODO maybe move these to default_settings.py or package __init__
+        default_module = 'eve.default_settings'
+        envvar = 'EVE_SETTINGS'
 
-        try:
-            # settings in these files will replace the defaults. The same
-            # will happen to values loaded from `settings.py` and then
-            # overridden by the contents of the `EVE_SETTINGS` file.
-            self.config.from_pyfile(self.settings)
-            self.config.from_envvar('EVE_SETTINGS')
-        except:
-            pass
+        # load defaults
+        self.config.from_object(default_module)
+
+        # overwrite the defaults with custom user settings:
+
+        if os.path.isabs(self.settings):
+            pyfile = self.settings
+        else:
+            # assume the path is relative to the calling script folder
+            abspath = os.path.abspath(os.path.dirname(sys.argv[0]))
+            pyfile = os.path.join(abspath, self.settings)
+        self.config.from_pyfile(pyfile)
+
+        if os.environ.get(envvar):
+            self.config.from_envvar(envvar)
 
     def validate_config(self):
         """ Validates that Eve configuration settings conform to the
@@ -104,9 +117,6 @@ class Eve(Flask):
             raise ConfigException('DOMAIN must be a dict.')
         if len(domain) == 0:
             raise ConfigException('DOMAIN must contain at least one resource.')
-
-        self.validate_config_methods()
-        self.validate_schemas()
 
     def validate_config_methods(self):
         """ Makes sure that REST methods expressed in the configuration
@@ -140,7 +150,6 @@ class Eve(Flask):
             if 'POST' in settings['methods'] or \
                'PATCH' in settings['item_methods']:
                 if len(settings['schema']) == 0:
-                    print settings['methods'], settings['item_methods']
                     raise ConfigException('A resource schema must be provided '
                                           'when POST or PATCH methods are '
                                           'allowed for a resource (%s).' %
@@ -250,4 +259,5 @@ class Eve(Flask):
                     self.add_url_rule(item_url, view_func=item_endpoint,
                                       methods=['GET'])
         self.config['RESOURCES'] = resources
+        self.config['URLS'] = urls
         self.config['URLS'] = urls

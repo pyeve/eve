@@ -133,11 +133,12 @@ class TestPatch(TestMethodsBase):
             self.assertEqual(db_values[i], test_values[i])
 
     def test_patch_with_post_override(self):
+        headers = [('X-HTTP-Method-Override', True),
+                   ('If-Match', self.item_etag),
+                   ('Content-Type', 'application/x-www-form-urlencoded')]
         r = self.test_client.post(self.item_id_url,
-                                  'application/x-www-form-urlencoded',
                                   data={'key1': '{"prog": 1}'},
-                                  headers=[('X-HTTP-Method-Override', True),
-                                           ('If-Match', self.item_etag)])
+                                  headers=headers)
         self.assert200(r.status_code)
 
     def perform_patch(self, changes):
@@ -172,9 +173,9 @@ class TestPatch(TestMethodsBase):
         self.assertTrue('link') in k
         self.assertItemLink(k['link'], item_id)
 
-    def patch(self, url, data, headers=None):
+    def patch(self, url, data, headers=[]):
+        headers.append(('Content-Type', 'application/x-www-form-urlencoded'))
         r = self.test_client.patch(url,
-                                   'application/x-www-form-urlencoded',
                                    data=data,
                                    headers=headers)
         return self.parse_response(r)

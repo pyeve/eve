@@ -161,9 +161,9 @@ class TestPost(TestMethodsBase):
         else:
             return item[fields]
 
-    def post(self, url, data, headers=None):
+    def post(self, url, data, headers=[]):
+        headers.append(('Content-Type', 'application/x-www-form-urlencoded'))
         r = self.test_client.post(url,
-                                  'application/x-www-form-urlencoded',
                                   data=data,
                                   headers=headers)
         return self.parse_response(r)

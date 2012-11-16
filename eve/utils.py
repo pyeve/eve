@@ -147,7 +147,7 @@ def document_link(resource, document_id):
 def home_link():
     """ Returns a link to the API entry point/home page.
     """
-    return "<link rel='parent' title='home' href='%s' />" % config.BASE_URI
+    return "<link rel='parent' title='home' href='%s' />" % config.SERVER_NAME
 
 
 def resource_uri(resource):
@@ -155,7 +155,7 @@ def resource_uri(resource):
 
     :param resource: the resource name.
     """
-    return '%s/%s/' % (config.BASE_URI, config.URLS[resource])
+    return '%s/%s/' % (config.SERVER_NAME, config.URLS[resource])
 
 
 def querydef(max_results=config.PAGING_DEFAULT, where=None, sort=None,

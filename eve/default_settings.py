@@ -1,17 +1,14 @@
 """
-    Eve
-    ~~~
+    eve.settings
+    ~~~~~~~~~~~~
 
-    An out-of-the-box REST Web API that's as dangerous as you want it to be.
+    Default API settings. These can be overridden by editing this file or, more
+    appropriately, by using a custom settings module (see the optional
+    'settings' argument or the EVE_SETTING environment variable).
 
     :copyright: (c) 2012 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-
-# TODO there are lots of imports LAST_UPDATEd and DATE_CREATED from eve,
-# should be from config to allow for custom field values
-__version__ = '0.0.1-dev'
-
 DEBUG = True
 
 # RFC 1123 (ex RFC 822)
@@ -24,7 +21,7 @@ PAGING_LIMIT = 50
 PAGING_DEFAULT = 25
 LAST_UPDATED = 'updated'
 DATE_CREATED = 'date_created'
-DEFAULT_DB = 'mongo'
+#DEFAULT_DB = 'mongo'
 ID_FIELD = '_id'
 CACHE_CONTROL = 'max-age=10,must-revalidate'        # TODO confirm this value
 CACHE_EXPIRES = 10
@@ -38,4 +35,5 @@ ITEM_URL = '[a-f0-9]{24}'
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"
 
-from flaskapp import Eve
+SERVER_NAME = 'localhost:5000'
+ID_FIELD = '_id'

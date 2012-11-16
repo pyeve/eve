@@ -4,6 +4,7 @@ from eve.io.base import DataLayer
 from eve.tests import TestBase
 from eve.exceptions import ConfigException
 from eve.io.mongo import Mongo, Validator
+import os
 
 
 class TestConfig(TestBase):
@@ -19,13 +20,24 @@ class TestConfig(TestBase):
         self.assertIs(type(self.app.data), Mongo)
 
     def test_default_settings(self):
-        self.assertEqual(self.app.settings, 'tests/testsettings.py')
+        self.assertEqual(self.app.settings, self.settings_file)
+
+    def test_unexisting_pyfile_config(self):
+        self.assertRaises(IOError, Eve, settings='an_unexisting_pyfile.py')
+
+    def test_unexisting_env_config(self):
+        env = os.environ
+        try:
+            os.environ = {'EVE_SETTINGS': 'an_unexisting_pyfile.py'}
+            self.assertRaises(IOError, Eve)
+        finally:
+            os.environ = env
 
     def test_custom_validator(self):
         class MyTestValidator(Validator):
             pass
         self.app = Eve(validator=MyTestValidator,
-                       settings='tests/testsettings.py')
+                       settings=self.settings_file)
         self.assertIs(self.app.validator, MyTestValidator)
 
     def test_custom_datalayer(self):
@@ -33,7 +45,7 @@ class TestConfig(TestBase):
             def init_app(self, app):
                 pass
             pass
-        self.app = Eve(data=MyTestDataLayer, settings='tests/testsettings.py')
+        self.app = Eve(data=MyTestDataLayer, settings=self.settings_file)
         self.assertIs(type(self.app.data), MyTestDataLayer)
 
     def test_validate_config(self):
@@ -72,6 +84,8 @@ class TestConfig(TestBase):
     def assertValidateConfig(self, expected):
         try:
             self.app.validate_config()
+            self.app.validate_config_methods()
+            self.app.validate_schemas()
         except ConfigException, e:
             self.assertTrue(expected.lower() in str(e).lower())
         else:
@@ -140,7 +154,7 @@ class TestConfig(TestBase):
                              self.app.config['RESOURCES'][settings['url']])
 
     def test_url_rules(self):
-        map_adapter = self.app.url_map.bind(self.app.config['BASE_URI'])
+        map_adapter = self.app.url_map.bind(self.app.config['SERVER_NAME'])
 
         for resource, settings in self.domain.items():
             for method in settings['methods']:

@@ -13,8 +13,9 @@ import random
 class TestBase(unittest.TestCase):
 
     def setUp(self):
-        reload(eve)
-        self.app = Eve(settings='tests/testsettings.py')
+        #reload(eve)
+        self.settings_file = 'eve/tests/test_settings.py'
+        self.app = Eve(settings=self.settings_file)
         self.test_client = self.app.test_client()
 
         self.domain = self.app.config['DOMAIN']
@@ -154,7 +155,7 @@ class TestMethodsBase(TestBase):
         found = False
         for link in links:
             if "title='home'" in link and \
-               "href='%s'" % self.app.config['BASE_URI'] in link:
+               "href='%s'" % self.app.config['SERVER_NAME'] in link:
                 found = True
                 break
         self.assertTrue(found)
@@ -164,7 +165,7 @@ class TestMethodsBase(TestBase):
         found = False
         for link in links:
             if "title='%s'" % url in link and \
-               "href='%s/%s/" % (self.app.config['BASE_URI'], url) in link:
+               "href='%s/%s/" % (self.app.config['SERVER_NAME'], url) in link:
                 found = True
                 break
         self.assertTrue(found)
@@ -264,7 +265,7 @@ class TestMethodsBase(TestBase):
 
     @classmethod
     def random_string(cls, num):
-        return (''.join(random.choice(string.ascii_uppercase + string.digits)
+        return (''.join(random.choice(string.ascii_uppercase)
                         for x in range(num)))
 
     @classmethod

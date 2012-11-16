@@ -8,4 +8,4 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from base import DataLayer
+from base import DataLayer, ConnectionException
