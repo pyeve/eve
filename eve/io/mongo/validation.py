@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
     eve.io.mongo.validation
     ~~~~~~~~~~~~~~~~~~~~~~~
@@ -10,10 +12,12 @@
     :license: BSD, see LICENSE for more details.
 """
 
+import re
 from ...utils import config
 from bson import ObjectId
 from flask import current_app as app
 from cerberus import Validator, ValidationError, SchemaError
+from cerberus.errors import ERROR_BAD_TYPE
 
 
 class Validator(Validator):
@@ -54,3 +58,14 @@ class Validator(Validator):
             if app.data.find_one(self.resource, **query):
                 self._error("value '%s' for field '%s' not unique" %
                             (value, field))
+
+    def _validate_type_objectid(self, field, value):
+        """ Enables validation for `objectid` schema attribute.
+
+        :param unique: Boolean, wether the field value should be
+                       unique or not.
+        :param field: field name.
+        :param value: field value.
+        """
+        if not re.match('[a-f0-9]{24}', value):
+            self._error(ERROR_BAD_TYPE % (field, 'ObjectId'))

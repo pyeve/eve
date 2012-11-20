@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
     Eve
     ~~~
@@ -23,7 +25,7 @@ SERVER_NAME = 'localhost:5000'
 PAGING_LIMIT = 50
 PAGING_DEFAULT = 25
 LAST_UPDATED = 'updated'
-DATE_CREATED = 'date_created'
+DATE_CREATED = 'created'
 DEFAULT_DB = 'mongo'
 ID_FIELD = '_id'
 CACHE_CONTROL = 'max-age=10,must-revalidate'        # TODO confirm this value

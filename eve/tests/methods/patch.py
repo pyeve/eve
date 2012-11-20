@@ -122,6 +122,14 @@ class TestPatch(TestMethodsBase):
         db_value = self.compare_patch_with_get(field, r)
         self.assertEqual(db_value, test_value)
 
+    def test_patch_objectid(self):
+        field = "tid"
+        test_value = "4f71c129c88e2018d4000000"
+        changes = {'key1': '{"%s": "%s"}' % (field, test_value)}
+        r = self.perform_patch(changes)
+        db_value = self.compare_patch_with_get(field, r)
+        self.assertEqual(db_value, test_value)
+
     def test_patch_multiple_fields(self):
         fields = ['ref', 'prog', 'role']
         test_values = ["9876543210987654321054321", 123, ["agent"]]

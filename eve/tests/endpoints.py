@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from eve.tests import TestBase
 
 # TODO find a reliable way to test item endpoints

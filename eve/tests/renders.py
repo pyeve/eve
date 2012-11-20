@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from eve.tests import TestBase
 
 

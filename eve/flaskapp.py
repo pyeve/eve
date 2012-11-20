@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
     eve.flaskapp
     ~~~~~~~~~~~~
@@ -66,10 +68,10 @@ class Eve(Flask):
         self.settings = settings
 
         self.load_config()
-        self.validate_config()
+        self.validate_domain_struct()
         self.set_defaults()
-        self.validate_config_methods()
-        self.validate_schemas()
+        self.validate_config()
+        #self.validate_schemas()
         self.add_url_rules()
 
         # instantiate the data layer. Defaults to eve.io.Mongo
@@ -105,7 +107,7 @@ class Eve(Flask):
         if os.environ.get(envvar):
             self.config.from_envvar(envvar)
 
-    def validate_config(self):
+    def validate_domain_struct(self):
         """ Validates that Eve configuration settings conform to the
         requirements.
         """
@@ -118,7 +120,7 @@ class Eve(Flask):
         if len(domain) == 0:
             raise ConfigException('DOMAIN must contain at least one resource.')
 
-    def validate_config_methods(self):
+    def validate_config(self):
         """ Makes sure that REST methods expressed in the configuration
         settings are supported.
         """
@@ -155,6 +157,8 @@ class Eve(Flask):
                                           'allowed for a resource (%s).' %
                                           resource)
 
+            self.validate_schema(settings['schema'])
+
     def validate_methods(self, allowed, proposed, item):
         """ Compares allowed and proposed methods, raising a `ConfigException`
         when they don't match.
@@ -171,9 +175,18 @@ class Eve(Flask):
                                   (item, ', '.join(diff),
                                    ', '.join(allowed)))
 
-    def validate_schemas(self):
+    def validate_schema(self, schema):
         # TODO are there other mandatory settings items? Validate them here
-        pass
+        offender = None
+        if eve.DATE_CREATED in schema:
+            offender = eve.DATE_CREATED
+        if eve.LAST_UPDATED in schema:
+            offender = eve.LAST_UPDATED
+        if eve.ID_FIELD in schema:
+            offender = eve.ID_FIELD
+        if offender:
+            raise ConfigException('"%s" field not allowed in schema (will be '
+                                  'handled automatically).' % offender)
 
     def set_defaults(self):
         """ When not provided, fills individual resource settings with default

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
     eve.settings
     ~~~~~~~~~~~~
@@ -9,7 +11,7 @@
     :copyright: (c) 2012 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-DEBUG = True
+#DEBUG = True
 
 # RFC 1123 (ex RFC 822)
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S UTC'
@@ -20,11 +22,12 @@ SERVER_NAME = 'localhost:5000'
 PAGING_LIMIT = 50
 PAGING_DEFAULT = 25
 LAST_UPDATED = 'updated'
-DATE_CREATED = 'date_created'
+DATE_CREATED = 'created'
 #DEFAULT_DB = 'mongo'
 ID_FIELD = '_id'
-CACHE_CONTROL = 'max-age=10,must-revalidate'        # TODO confirm this value
-CACHE_EXPIRES = 10
+CACHE_CONTROL = ''
+CACHE_EXPIRES = 0
+ITEM_CACHE_CONTROL = ''
 
 RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']

@@ -1,7 +1,12 @@
+# -*- coding: utf-8 -*-
+
 from unittest import TestCase
+from eve.tests import TestMethodsBase
 from eve.io.mongo.parser import parse, ParseError
 from bson import ObjectId
 from datetime import datetime
+from eve.io.mongo import Validator
+from cerberus.errors import ERROR_BAD_TYPE
 
 
 class TestPythonParser(TestCase):
@@ -72,3 +77,29 @@ class TestPythonParser(TestCase):
 
     def test_bad_Expr(self):
         self.assertRaises(ParseError, parse, 'a | 2')
+
+
+class TestMongoValidator(TestMethodsBase):
+    def test_unique_fail(self):
+        """ relying on POST and PATCH tests since we don't have an active
+        app_context running here """
+        pass
+
+    def test_unique_success(self):
+        """ relying on POST and PATCH tests since we don't have an active
+        app_context running here """
+        pass
+
+    def test_objectid_fail(self):
+        schema = {'id': {'type': 'objectid'}}
+        doc = {'id': 'not_an_object_id'}
+        v = Validator(schema, None)
+        self.assertFalse(v.validate(doc))
+        self.assertTrue(ERROR_BAD_TYPE % ('id', 'ObjectId') in
+                        v.errors)
+
+    def test_objectid_success(self):
+        schema = {'id': {'type': 'objectid'}}
+        doc = {'id': '50656e4538345b39dd0414f0'}
+        v = Validator(schema, None)
+        self.assertTrue(v.validate(doc))

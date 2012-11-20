@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 MONGO_HOST = 'localhost'
 MONGO_PORT = 27017
 MONGO_USERNAME = 'test_user'
@@ -58,6 +60,9 @@ contacts = {
         },
         'born': {
             'type': 'datetime',
+        },
+        'tid': {
+            'type': 'objectid',
         },
     }
 }

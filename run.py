@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from eve import Eve
 from eve.io.mongo import Validator
 

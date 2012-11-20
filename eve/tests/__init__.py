@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import eve
 from eve import Eve, STATUS_ERR
 from datetime import datetime, timedelta
@@ -6,6 +8,7 @@ import unittest
 import simplejson as json
 from testsettings import MONGO_PASSWORD, MONGO_USERNAME, MONGO_DBNAME, DOMAIN
 from flask.ext.pymongo import Connection
+from bson import ObjectId
 import string
 import random
 
@@ -63,6 +66,7 @@ class TestMethodsBase(TestBase):
         contact = response['contacts'][0]
         self.item_id = contact[self.app.config['ID_FIELD']]
         self.item_name = contact['ref']
+        self.item_tid = contact['tid']
         self.item_etag = contact['etag']
         self.item_id_url = ('/%s/%s/' %
                             (self.domain[self.known_resource]['url'],
@@ -242,6 +246,7 @@ class TestMethodsBase(TestBase):
                 'born': datetime.today() + timedelta(
                     days=random.randint(-10, 10)),
 
+                'tid': ObjectId(),
                 eve.LAST_UPDATED: dt,
                 eve.DATE_CREATED: dt,
 

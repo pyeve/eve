@@ -96,6 +96,13 @@ class TestPost(TestMethodsBase):
         data = {'item1': '{"%s": "%s"}' % (test_field, test_value)}
         self.assertPostItem(data, test_field, test_value)
 
+    def test_post_objectid(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        test_field = 'tid'
+        test_value = "50656e4538345b39dd0414f0"
+        data = {'item1': '{"%s": "%s"}' % (test_field, test_value)}
+        self.assertPostItem(data, test_field, test_value)
+
     def assertPostItem(self, data, test_field, test_value):
         r = self.perform_post(data)
         item_id = r['item1'][ID_FIELD]
@@ -108,16 +115,21 @@ class TestPost(TestMethodsBase):
             ('prog', 7),
             ('ref', "5432112345678901234567890", ["agent"]),
             ('ref', "9234567890123456789054321"),
+            ('ref', "9234567890123456789054321", "12345678"),
         ]
         data = {
             'item1': '{"%s": "%s"}' % items[0],
             'item2': '{"%s": %s}' % items[1],
             'item3': '{"%s": "%s", "role": %s}' % items[2],
             'item4': '{"%s": "%s"}' % items[3],
+            'item5': '{"%s": "%s", "tid": "%s"}' % items[4],
         }
         r = self.perform_post(data, ['item1', 'item3'])
+
         self.assertValidationError(r, 'item2', ("required", "ref"))
         self.assertValidationError(r, 'item4', ("unique", "ref"))
+        self.assertValidationError(r, 'item5', ("ObjectId", "tid"))
+
         item_id = r['item1'][ID_FIELD]
         db_value = self.compare_post_with_get(item_id, "ref")
         self.assertTrue(db_value == items[0][1])

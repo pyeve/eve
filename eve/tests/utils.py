@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import hashlib
 from datetime import datetime, timedelta
 from eve.tests import TestBase

@@ -1,9 +1,12 @@
+# -*- coding: utf-8 -*-
+
 from eve.flaskapp import RegexConverter
 from eve.flaskapp import Eve
 from eve.io.base import DataLayer
 from eve.tests import TestBase
 from eve.exceptions import ConfigException
 from eve.io.mongo import Mongo, Validator
+import eve
 import os
 
 
@@ -48,7 +51,7 @@ class TestConfig(TestBase):
         self.app = Eve(data=MyTestDataLayer, settings=self.settings_file)
         self.assertIs(type(self.app.data), MyTestDataLayer)
 
-    def test_validate_config(self):
+    def test_validate_domain_struct(self):
         del self.app.config['DOMAIN']
         self.assertValidateConfig('missing')
 
@@ -81,11 +84,29 @@ class TestConfig(TestBase):
         self.app.config['DOMAIN']['test_resource'] = test
         self.assertValidateConfig('PUT')
 
+    def test_validate_datecreated_in_schema(self):
+        self.assertUnallowedField(eve.DATE_CREATED)
+
+    def test_validate_lastupdated_in_schema(self):
+        self.assertUnallowedField(eve.LAST_UPDATED)
+
+    def test_validate_idfield_in_schema(self):
+        self.assertUnallowedField(eve.ID_FIELD)
+
+    def assertUnallowedField(self, field):
+        self.domain.clear()
+        self.domain['resource'] = {
+            'schema': {
+                field: {'type': 'datetime'}
+            }
+        }
+        self.app.set_defaults()
+        self.assertValidateConfig('automatically')
+
     def assertValidateConfig(self, expected):
         try:
+            self.app.validate_domain_struct()
             self.app.validate_config()
-            self.app.validate_config_methods()
-            self.app.validate_schemas()
         except ConfigException, e:
             self.assertTrue(expected.lower() in str(e).lower())
         else:

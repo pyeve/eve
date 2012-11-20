@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from ast import literal_eval
 from eve.tests import TestBase
 

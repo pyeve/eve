@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
     eve.render
     ~~~~~~~~~~
@@ -48,8 +50,10 @@ def send_response(resource, dct, last_modified=None, etag=None, status=200):
         else:
             cache_control = config.CACHE_CONTROL
             expires = config.CACHE_EXPIRES
-        resp.headers.add('Cache-Control', cache_control)
-        resp.expires = time.time() + expires
+        if cache_control:
+            resp.headers.add('Cache-Control', cache_control)
+        if expires:
+            resp.expires = time.time() + expires
 
     # etag and last-modified
     if etag:
