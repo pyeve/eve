@@ -30,18 +30,16 @@ as simple as::
 
 Features
 --------
-- Emphasis on the REST 
-  The Eve project aims to provide the best possibile REST-compliant API
-  implementation. Basic REST principles like separation of concerns, stateless
-  and layered system, cacheability, uniform interface, etc have been
-  (hopefully!) kept into consideration while designing the core API.
+- **Emphasis on the REST**. The Eve project aims to provide the best possibile
+  REST-compliant API implementation. Basic REST principles like separation of
+  concerns, stateless and layered system, cacheability, uniform interface, etc
+  have been (hopefully!) kept into consideration while designing the core API.
   
-- Full range of CRUD operations, via HTTP verbs 
-  APIs can support the full range of CRUD (Create, Read, Update, Delete)
-  operations at both global and individual endpoints. So you can have
-  a read-only resource accessible at one endpoint along with a fully editable
-  resource at another. The following table shows Eve's implementation of CRUD
-  via REST
+- **Full range of CRUD operations via HTTP verbs**. APIs can support the full range
+  of CRUD (Create, Read, Update, Delete) operations at both global and
+  individual endpoints. So you can have a read-only resource accessible at one
+  endpoint along with a fully editable resource at another. The following table
+  shows Eve's implementation of CRUD via REST
 
     ====== ========= ===================
     Action HTTP Verb Context 
@@ -52,46 +50,43 @@ Features
     Delete DELETE    Collection/Document
     ====== ========= ===================
 
-- Read-only by default
-  If all you need is a read-only API, then you can have it ready real quick.
+- **Read-only by default**. If all you need is a read-only API, then you can have it ready real quick.
 
-- Customizable resource endpoints (persistent identifiers)
-  By default Eve will make known database collections available as resource
-  endpoints. A `contacts` collection in the database will be ready to be
-  consumed at `api.example.com/contacts/`. You can customize the URIs of your
-  resources so that, in our example, the API endpoint becomes, say,
+- **Customizable resource endpoints (persistent identifiers)**. By default Eve will
+  make known database collections available as resource endpoints. A `contacts`
+  collection in the database will be ready to be consumed at
+  `api.example.com/contacts/`. You can customize the URIs of your resources so
+  that, in our example, the API endpoint becomes, say,
   `api.example.com/customers/`. 
 
-- Customizable, multiple resource item endpoints
-  Resources can or cannot provide access to their own individual items. API
-  consumers could get access to `/contacts/`, `/contacts/<ObjectId>/` and
-  `/contacts/smith/`, and only to `/invoices/`, if so you wish.  When you do
-  grant access to resource items, you can define up to two lookup endpoints,
-  both defined via regex. The first will be the primary endpoint and will match
-  your database primary key structure (ie, an ObjectId in a MongoDB database).
-  The second, which is optional, will better match a field with unique values,
-  since Eve will retrieve only the first match anyway.
+- **Customizable, multiple resource item endpoints**. Resources can or cannot
+  provide access to their own individual items. API consumers could get access
+  to `/contacts/`, `/contacts/<ObjectId>/` and `/contacts/smith/`, and only to
+  `/invoices/`, if so you wish.  When you do grant access to resource items,
+  you can define up to two lookup endpoints, both defined via regex. The first
+  will be the primary endpoint and will match your database primary key
+  structure (ie, an ObjectId in a MongoDB database).  The second, which is
+  optional, will better match a field with unique values, since Eve will
+  retrieve only the first match anyway.
 
-- Filtering and sorting
-  Resource endpoints allow consumers to retrieve multiple documents. Query
-  strings are supported, allowing for filtering and sorting. 
+- **Filtering and sorting**. Resource endpoints allow consumers to retrieve
+  multiple documents. Query strings are supported, allowing for filtering and
+  sorting. 
   
-- Two query formats supported
-  Currently two query formats are seamlessly supported: the mongo query syntax
-  (`?where={"name": "john doe"}`), and the native python syntax
-  (`?where=name=='john doe'`). Both query formats allow for conditional and
-  logical And/Or operators, however nested and combined.
+- **Two query formats**. Currently two query formats are seamlessly supported: the
+  mongo query syntax (`?where={"name": "john doe"}`), and the native python
+  syntax (`?where=name=='john doe'`). Both query formats allow for conditional
+  and logical And/Or operators, however nested and combined.
 
-- Pagination
-  Resource pagination is enabled by default, in order to improve performance
-  and preserve bandwith. When a consumer requests a resource, the first N items
-  matching the query are serverd. Links to subsequent/previous pages are
-  provided with the response. Default and maximum page size is customizable,
-  and consumers can request specific pages via the query string (`?page=10`).
+- **Pagination**. Resource pagination is enabled by default, in order to improve
+  performance and preserve bandwith. When a consumer requests a resource, the
+  first N items matching the query are serverd. Links to subsequent/previous
+  pages are provided with the response. Default and maximum page size is
+  customizable, and consumers can request specific pages via the query string
+  (`?page=10`).
 
-- HATEOAS
-  Hypermedia as the Engine of Application State is enabled by default. Each
-  response includes a <links> section. Links provide details on their
+- **HATEOAS**. Hypermedia as the Engine of Application State is enabled by default.
+  Each response includes a <links> section. Links provide details on their
   `relation` relative to the resource being accessed and a `title`. Titles and
   relations could be used by clients to dynamically updated their UI, or to
   navigate the API without knowing it structure beforehand. An example::
@@ -106,59 +101,53 @@ Features
   served with a list of links to accessible resources. From there any consumer
   could navigate the API just by following the links.
 
-- JSON and XML
-  Eve responses are automatically rendered as JSON or XML depending on the
-  requested `Accept` header. Inbound documents (for inserts and edits) are
-  in JSON format.
+- **JSON and XML**. Eve responses are automatically rendered as JSON or XML
+  depending on the requested `Accept` header. Inbound documents (for inserts
+  and edits) are in JSON format.
   
-- Last-Modified and ETag (conditional requests)
-  Each resource representation provides information on the last time it was
-  updated along with an hash value computed on the representation itself
-  (`Last-Modified` and `ETag` response headers). These allow consumers to only
-  retrieve new or modified data via the `If-Modified-Since` and `If-None-Match`
-  request headers.
+- **Last-Modified and ETag (conditional requests)**.Each resource representation
+  provides information on the last time it was updated along with an hash value
+  computed on the representation itself (`Last-Modified` and `ETag` response
+  headers). These allow consumers to only retrieve new or modified data via the
+  `If-Modified-Since` and `If-None-Match` request headers.
 
-- Data integrity and concurrency control.
-  API responses include a `ETag` header, which allows for proper concurrency
-  control. An `ETag` is an hash avlue representing the current state of the
-  resource on the server. Consumers are not allowed to edit or delete
-  a resource unless they provide an up-to-date `ETag` for the resource they are
-  attempting to edit.
+- **Data integrity and concurrency control**. API responses include a `ETag`
+  header, which allows for proper concurrency control. An `ETag` is an hash
+  avlue representing the current state of the resource on the server. Consumers
+  are not allowed to edit or delete a resource unless they provide an
+  up-to-date `ETag` for the resource they are attempting to edit.
 
-- Multiple inserts
-  Consumers can send a stream of multiple documents to be inserted for a given
-  resource. The response will provide detailed state information about each
-  item inserted (creation date, link to the item endpoint, primary key/id,
-  etc.). Errors on one documnt won't prevent the insertion of other documents
-  in the data stream.
+- **Multiple inserts**. Consumers can send a stream of multiple documents to be
+  inserted for a given resource. The response will provide detailed state
+  information about each item inserted (creation date, link to the item
+  endpoint, primary key/id, etc.). Errors on one documnt won't prevent the
+  insertion of other documents in the data stream.
 
-- Data validation
-  Data validation is provided out-of-the-box. Your configuration includes
-  a schema definition for every resource managed by the API. Data sent to the
-  API for insertion or edition will be validated against the schema, and
-  a resource will be updated only if validation is passed. In case of multiple
-  inserts the response will provide a success/error state for each individual
-  item.
+- **Data validation**. Data validation is provided out-of-the-box. Your
+  configuration includes a schema definition for every resource managed by the
+  API. Data sent to the API for insertion or edition will be validated against
+  the schema, and a resource will be updated only if validation is passed. In
+  case of multiple inserts the response will provide a success/error state for
+  each individual item.
   
-- Extensible data validation
-  Data validation is based on the Cerberus validation system and therefore it
-  is extensible so you can adapt it to your specific use case. Say that your
-  API can only accept odd numbers for a certain field values: you can extend
-  the validation class to validate that. Or say that you want to make sure that
-  a VAT field actually matches your own country VAT algorithm: you can do that
-  too. As a matter of fact, Eve's MongoDB data-layer itself is extending
-  Cerberus' standard validation, implementing the `unique` schema field
-  constraint.
+- **Extensible data validation**. Data validation is based on the Cerberus
+  validation system and therefore it is extensible so you can adapt it to your
+  specific use case. Say that your API can only accept odd numbers for
+  a certain field values: you can extend the validation class to validate that.
+  Or say that you want to make sure that a VAT field actually matches your own
+  country VAT algorithm: you can do that too. As a matter of fact, Eve's
+  MongoDB data-layer itself is extending Cerberus' standard validation,
+  implementing the `unique` schema field constraint.
 
-- Resource-level cache control directives 
-  You can set global and individual cache-control directives for each resource.
-  Directives will be included in API response headers (`Cache-Control,`
-  `Expires`). This will minimize load on the server since cache-enbaled
-  consumers will perform resource-intensive request only when really needed.
+- **Resource-level cache control directives**. You can set global and individual
+  cache-control directives for each resource.  Directives will be included in
+  API response headers (`Cache-Control,` `Expires`). This will minimize load on
+  the server since cache-enbaled consumers will perform resource-intensive
+  request only when really needed.
 
 A little context
 ----------------
-At `Gestionale Amica<http://gestionaleamica.com>`_ we had been working hard on
+At `Gestionale Amica <http://gestionaleamica.com>`_ we had been working hard on
 a full featured, Python powered, RESTful Web API. We learned quite a few things
 on REST best patterns, and we got a chance to put Python's renowned web
 capabilities under review. Then, at EuroPython 2012, I got a chance to share
@@ -207,19 +196,22 @@ Its source code is available at https://github.com/nicolaiarocci/eve-demo.
 
 Installation
 ------------
+(not on PiPY yet so the following won't work):
+
 ::
     pip install eve
 
 License
 -------
-Before you ask: Eve is BSD licensed! See the LICENSE for details.
+Eve is BSD licensed. See the `LICENSE
+<https://github.com/nicolaiarocci/eve/blob/master/LICENSE>`_ for details.
 
 Current state
 -------------
-The first public preview is going to be released within the end of 2012. Best
-way to be notified about its availability is by starring/following the project
-repo at GitHub https://github.com/nicolaiarocci/eve. You can follow me on
-Twitter at http://twitter.com/nicolaiarocci.
+Consider this a public preview (Alpha). Best way to be notified about its
+availability is by starring/following the project repo at GitHub
+https://github.com/nicolaiarocci/eve. You can follow me on Twitter at
+http://twitter.com/nicolaiarocci.
 
 Contribute
 ----------
