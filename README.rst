@@ -201,7 +201,7 @@ like to add to Eve, provided that there is enough interest in the project.
 Simple live demo
 ----------------
 (not yet available.. stay tuned!) For a live demo, check out the Eve-based demo
-API accessible at http://eve-rest.herokuapp.com (it's on the free tier so it
+API accessible at http://eve-demo.herokuapp.com (it's on the free tier so it
 will probably take a while to instantiate; successive requests will be faster).
 Its source code is available at https://github.com/nicolaiarocci/eve-demo.
 

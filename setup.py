@@ -2,8 +2,8 @@
 
 from setuptools import setup, find_packages
 
-DESCRIPTION = ('An out-of-the-box RESTful Web API. Use Eve to effortlessly '
-               'build and deploy a fully featured proprietary API.')
+DESCRIPTION = ('An out-of-the-box RESTful Web API. Effortlessly build and '
+               'deploy your fully featured, proprietary API.')
 LONG_DESCRIPTION = open('README.rst').read()
 
 setup(
@@ -21,7 +21,7 @@ setup(
     #\requires=['simplejson'],
     install_requires=['flask-pymongo', 'json-datetime', 'cerberus'],
     classifiers=[
-        'Development Status :: 1 - Planning',
+        'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
