@@ -145,6 +145,13 @@ Features
   the server since cache-enbaled consumers will perform resource-intensive
   request only when really needed.
 
+Live demo
+---------
+Check out the API accessible at http://eve-demo.herokuapp.com (it's on the free
+tier so it will probably take a while to initialize; successive requests will
+be faster).  Source code is available at
+https://github.com/nicolaiarocci/eve-demo.
+
 A little context
 ----------------
 At `Gestionale Amica <http://gestionaleamica.com>`_ we had been working hard on
@@ -186,14 +193,6 @@ like to add to Eve, provided that there is enough interest in the project.
 - Versioning
 - Authorization (OAuth2?)
 - Support for MySQL and/or other SQL/NoSQL databases
-
-Simple live demo
-----------------
-*Not yet available yet.. stay tuned!* 
-For a live demo, check out the API accessible at http://eve-demo.herokuapp.com
-(it's on the free tier so it will probably take a while to instantiate;
-successive requests will be faster).  Its source code is available at
-https://github.com/nicolaiarocci/eve-demo.
 
 Installation
 ------------
