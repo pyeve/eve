@@ -197,8 +197,10 @@ https://github.com/nicolaiarocci/eve-demo.
 
 Installation
 ------------
-*Not on PiPY yet so the following won't work*: ::
+::
+
     pip install eve
+
 
 License
 -------
