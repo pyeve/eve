@@ -17,11 +17,10 @@ online:
   
 Support for MongoDB comes out of the box; extensions for other SQL/NoSQL
 databases can be developed with relative ease. API settings are stored in
-a standard Python module (defaults to `settings.py` in your project folder).
-You can also use an environment variable to store the path to your
-configuration module. Overall, you will find that configuring and fine-tuning
-your API is a very simple process.  Most of the times the launch script will be
-as simple as::
+a standard Python module (defaults to `settings.py` in your project folder, you
+can also use an environment variable). Overall, you will find that configuring
+and fine-tuning your API is a very simple process.  Most of the times the
+launch script will be as simple as::
     
     from eve import Eve
 

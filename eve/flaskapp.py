@@ -123,9 +123,12 @@ class Eve(Flask):
     def validate_config(self):
         """ Makes sure that REST methods expressed in the configuration
         settings are supported.
+
+        .. versionadded:: 0.0.2
+            Support for DELETE resource method.
         """
 
-        supported_resource_methods = ['GET', 'POST']
+        supported_resource_methods = ['GET', 'POST', 'DELETE']
         supported_item_methods = ['GET', 'PATCH', 'DELETE']
 
         # make sure that global resource methods are supported.

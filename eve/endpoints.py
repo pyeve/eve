@@ -12,7 +12,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from methods import get, getitem, post, patch, delete
+from methods import get, getitem, post, patch, delete, delete_resource
 from flask import request, abort
 from render import send_response
 from .utils import collection_link, config
@@ -22,11 +22,10 @@ def collections_endpoint(url):
     """ Resource endpoint handler
 
     :param url: the url that led here
-    """
 
-    # TODO should we support DELETE? At resource level, it would delete all
-    # resource items at once. Maybe enable this option explicitly, via a
-    # configuration setting.
+    .. versionadded:: 0.0.2
+        Support for DELETE resource method.
+    """
 
     resource = config.RESOURCES[url]
     response = None
@@ -34,8 +33,8 @@ def collections_endpoint(url):
         response = get(resource)
     elif request.method == 'POST':
         response = post(resource)
-    #elif request.method == 'DELETE':
-    #    pass
+    elif request.method == 'DELETE':
+        response = delete_resource(resource)
 
     if response:
         return send_response(resource, *response)

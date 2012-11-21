@@ -110,7 +110,14 @@ class Mongo(DataLayer):
         return self.driver.db[resource].update({ID_FIELD: ObjectId(id_)},
                                                {"$set": updates})
 
-    def remove(self, resource, id_):
-        """Removes a document from a collection.
+    def remove(self, resource, id_=None):
+        """Removes a document or the entire set of documents from a collection.
+
+        .. versionadded:: 0.0.2
+            Support for deletion of entire documents collection.
         """
-        return self.driver.db[resource].remove({ID_FIELD: ObjectId(id_)})
+        if id_:
+            return self.driver.db[resource].remove({ID_FIELD: ObjectId(id_)})
+        else:
+            # this will delete all documents in a collection!
+            return self.driver.db[resource].remove()

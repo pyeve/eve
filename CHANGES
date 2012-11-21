@@ -3,7 +3,15 @@ Eve Changelog
 
 Here you can see the full list of changes between each Eve release.
 
-Version 0.1
------------
+Version 0.0.2-dev
+-----------------
+
+Relase date to be decided.
+
+- Added support for DELETE at resource endpoints. Expected behavior:
+  will delete all items in the collection. Disabled by default.
+
+Version 0.0.1-dev
+-----------------
 
 First public preview release.

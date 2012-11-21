@@ -63,10 +63,10 @@ class TestConfig(TestBase):
 
     def test_validate_resource_methods(self):
         self.app.config['RESOURCE_METHODS'] = ['PUT', 'GET', 'DELETE', 'POST']
-        self.assertValidateConfig('PUT, DELETE')
+        self.assertValidateConfig('PUT')
 
     def test_validate_item_methods(self):
-        self.app.config['ITEM_METHODS'] = ['PUT', 'GET', 'POST']
+        self.app.config['ITEM_METHODS'] = ['PUT', 'GET', 'POST', 'DELETE']
         self.assertValidateConfig('PUT, POST')
 
     def test_validate_schema_methods(self):
@@ -74,7 +74,7 @@ class TestConfig(TestBase):
             'methods': ['PUT', 'GET', 'DELETE', 'POST'],
         }
         self.app.config['DOMAIN']['test_resource'] = test
-        self.assertValidateConfig('PUT, DELETE')
+        self.assertValidateConfig('PUT')
 
     def test_validate_schema_item_methods(self):
         test = {

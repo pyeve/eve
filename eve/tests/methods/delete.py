@@ -9,7 +9,12 @@ class TestDelete(TestMethodsBase):
 
     def test_delete_from_resource_endpoint(self):
         r, status = self.delete(self.known_resource_url)
-        self.assert405(status)
+        self.assert200(status)
+        r, status = self.parse_response(self.test_client.get(
+            self.known_resource_url))
+        self.assert200(status)
+        self.assertEqual(len(r[self.known_resource]), 0)
+        TestDelete.bulk_insert()
 
     def test_delete_empty_resource(self):
         url = '%s%s/' % (self.empty_resource_url, self.item_id)
