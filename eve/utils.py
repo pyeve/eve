@@ -41,17 +41,23 @@ class ParsedRequest(object):
     """
     # `where` value of the query string (?where). Defaults to None.
     where = None
+
     # `sort` value of the query string (?sort). Defaults to None.
     sort = None
+
     # `page` value of the query string (?page). Defaults to 1.
     page = 1
+
     # `max_result` value of the query string (?max_results). Defaults to
     # `PAGING_DEFAULT`.
     max_results = config.PAGING_DEFAULT
+
     # `If-Modified-Since` request header value. Defaults to None.
     if_modified_since = None
+
     # `If-None_match` request header value. Defaults to None.
     if_none_match = None
+
     # `If-Match` request header value. Default to None.
     if_match = None
 
@@ -59,6 +65,11 @@ class ParsedRequest(object):
 def parse_request(args=None, headers=None):
     """ Parses a client request, returning instance of :class:`ParsedRequest`
     containing relevant request data.
+
+    :param args: request arguments. This is only used by the test suite as we
+                 usually process flask request object.
+    :param headers: request headers. Only used by the test suite as we usually
+                    process flask request object.
     """
     if flask.has_request_context():
             args = request.args
@@ -105,6 +116,8 @@ def weak_date(date):
     a 1 second timedelta. This is needed because when saved, documents
     LAST_UPDATED values have higher resolution than If-Modified-Since's, which
     is limited to seconds.
+
+    :param date: the date to be adjusted.
     """
     return str_to_date(date) + timedelta(seconds=1) if date else None
 

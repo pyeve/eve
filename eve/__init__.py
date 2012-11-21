@@ -10,9 +10,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
-# TODO there are lots of imports LAST_UPDATEd and DATE_CREATED from eve,
-# should be from config to allow for custom field values
-__version__ = '0.0.1-dev'
+__version__ = '0.0.2-dev'
 
 DEBUG = True
 

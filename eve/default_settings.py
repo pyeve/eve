@@ -17,13 +17,11 @@
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S UTC'
 
 URL_PREFIX = ''
-#BASE_URI = 'localhost:5000'
 SERVER_NAME = 'localhost:5000'
 PAGING_LIMIT = 50
 PAGING_DEFAULT = 25
 LAST_UPDATED = 'updated'
 DATE_CREATED = 'created'
-#DEFAULT_DB = 'mongo'
 ID_FIELD = '_id'
 CACHE_CONTROL = ''
 CACHE_EXPIRES = 0
@@ -37,6 +35,3 @@ ITEM_URL = '[a-f0-9]{24}'
 
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"
-
-SERVER_NAME = 'localhost:5000'
-ID_FIELD = '_id'

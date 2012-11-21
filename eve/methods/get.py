@@ -72,7 +72,7 @@ def get(resource):
         status = 200
         last_modified = last_updated if last_updated > datetime.min else None
         response[resource] = documents
-        response['links'] = paging_links(resource, req, cursor.count())
+        response['links'] = _pagination_links(resource, req, cursor.count())
 
     etag = None
     return response, last_modified, etag, status
@@ -115,7 +115,7 @@ def getitem(resource, **lookup):
     abort(404)
 
 
-def paging_links(resource, req, documents_count):
+def _pagination_links(resource, req, documents_count):
     """Returns the appropriate set of resource links depending on the
     current page and the total number of documents returned by the query.
 
@@ -123,22 +123,22 @@ def paging_links(resource, req, documents_count):
     :param req: and instace of :class:`eve.utils.ParsedRequest`.
     :param document_count: the number of documents returned by the query.
     """
-    paging_links = standard_links(resource)
+    _pagination_links = standard_links(resource)
 
     if documents_count:
         if req.page * req.max_results < documents_count:
             q = querydef(req.max_results, req.where, req.sort, req.page + 1)
-            paging_links.append("<link rel='next' title='next page'"
-                                " href='%s%s' />" % (resource_uri(resource),
-                                                     q))
+            _pagination_links.append("<link rel='next' title='next page'"
+                                     " href='%s%s' />" %
+                                     (resource_uri(resource), q))
 
         if req.page > 1:
             q = querydef(req.max_results, req.where, req.sort, req.page - 1)
-            paging_links.append("<link rel='prev' title='previous page'"
-                                " href='%s%s' />" % (resource_uri(resource),
-                                                     q))
+            _pagination_links.append("<link rel='prev' title='previous page'"
+                                     " href='%s%s' />" %
+                                     (resource_uri(resource), q))
 
-    return paging_links
+    return _pagination_links
 
 
 def standard_links(resource):

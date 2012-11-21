@@ -28,10 +28,16 @@ def send_response(resource, dct, last_modified=None, etag=None, status=200):
     """ Prepares the response object according to the client request and
     available renderers, making sure that all accessory directives (caching,
     etag, last-modified) are present.
+
+    :param resource: the resource involved.
+    :param dct: the dict that should be sent back as a response.
+    :param last_modified: Last-Modified header value.
+    :param etag: ETag header value.
+    :param status: response status.
     """
     # obtain the best match between client's request and available mime types,
     # along with the corresponding render function.
-    mime, renderer = best_mime()
+    mime, renderer = _best_mime()
 
     response = {'response': dct}
 
@@ -64,7 +70,7 @@ def send_response(resource, dct, last_modified=None, etag=None, status=200):
     return resp
 
 
-def best_mime():
+def _best_mime():
     """ Returns the best match between the requested mime type and the
     ones supported by Eve. Along with the mime, also the corresponding
     render function is returns.

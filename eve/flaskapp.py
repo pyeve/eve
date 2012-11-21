@@ -72,7 +72,7 @@ class Eve(Flask):
         self.set_defaults()
         self.validate_config()
         #self.validate_schemas()
-        self.add_url_rules()
+        self._add_url_rules()
 
         # instantiate the data layer. Defaults to eve.io.Mongo
         self.data = data(self)
@@ -223,7 +223,7 @@ class Eve(Flask):
                 set(field for field, definition in schema.items()
                     if definition.get('type') == 'datetime')
 
-    def add_url_rules(self):
+    def _add_url_rules(self):
         """ Builds the API url map. Methods are enabled for each mapped
         endpoint, as configured in the settings.
         """
