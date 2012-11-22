@@ -15,7 +15,7 @@
 from methods import get, getitem, post, patch, delete, delete_resource
 from flask import request, abort
 from render import send_response
-from .utils import collection_link, config
+from .utils import resource_uri, config
 
 
 def collections_endpoint(url):
@@ -71,6 +71,6 @@ def home_endpoint():
     links = list()
     for resource in config.DOMAIN.keys():
         links.append("<link rel='child' title='%s' href='%s' />" %
-                     (config.URLS[resource], collection_link(resource)))
+                     (config.URLS[resource], resource_uri(resource)))
     response['links'] = links
     return send_response(None, response)

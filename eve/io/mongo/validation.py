@@ -28,7 +28,7 @@ class Validator(Validator):
                    documentation.
     :param resource: the resource name.
     """
-    def __init__(self, schema, resource):
+    def __init__(self, schema, resource=None):
         self.resource = resource
         self.object_id = None
         super(Validator, self).__init__(schema)
