@@ -27,12 +27,13 @@ launch script will be as simple as::
     app = Eve() 
     app.run()
 
-Live demo
----------
+Live demo & examples
+--------------------
 Check out the API accessible at http://eve-demo.herokuapp.com (it's on the free
 tier so it will probably take a while to initialize; successive requests will
 be faster).  Source code is available at
-https://github.com/nicolaiarocci/eve-demo.
+https://github.com/nicolaiarocci/eve-demo. Don't miss the README there, it
+contains **usage examples for all common use cases** (GET, POST, PATCH, DELETE).
 
 Features
 --------
@@ -153,6 +154,25 @@ Features
   the server since cache-enbaled consumers will perform resource-intensive
   request only when really needed.
 
+Installation
+------------
+::
+
+    pip install eve
+
+
+License
+-------
+Eve is BSD licensed. See the `LICENSE
+<https://github.com/nicolaiarocci/eve/blob/master/LICENSE>`_ for details.
+
+Current state
+-------------
+Consider this a public preview (Alpha). Best way to be notified about its
+availability is by starring/following the project repo at GitHub
+https://github.com/nicolaiarocci/eve. You can follow me on Twitter at
+http://twitter.com/nicolaiarocci.
+
 A little context
 ----------------
 At `Gestionale Amica <http://gestionaleamica.com>`_ we had been working hard on
@@ -194,25 +214,6 @@ like to add to Eve, provided that there is enough interest in the project.
 - Versioning
 - Authorization (OAuth2?)
 - Support for MySQL and/or other SQL/NoSQL databases
-
-Installation
-------------
-::
-
-    pip install eve
-
-
-License
--------
-Eve is BSD licensed. See the `LICENSE
-<https://github.com/nicolaiarocci/eve/blob/master/LICENSE>`_ for details.
-
-Current state
--------------
-Consider this a public preview (Alpha). Best way to be notified about its
-availability is by starring/following the project repo at GitHub
-https://github.com/nicolaiarocci/eve. You can follow me on Twitter at
-http://twitter.com/nicolaiarocci.
 
 Contribute
 ----------
