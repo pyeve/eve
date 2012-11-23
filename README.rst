@@ -155,10 +155,20 @@ Features
 
 Installation
 ------------
+Eve is on PyPI so all you need to do is
+
 ::
 
     pip install eve
 
+
+Testing
+-------
+Just run
+
+::
+    
+    python setup.py test
 
 License
 -------
