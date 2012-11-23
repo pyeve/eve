@@ -27,13 +27,12 @@ launch script will be as simple as::
     app = Eve() 
     app.run()
 
-Live demo & examples
+Live demo and examples
 --------------------
-Check out the API accessible at http://eve-demo.herokuapp.com (it's on the free
-tier so it will probably take a while to initialize; successive requests will
-be faster).  Source code is available at
-https://github.com/nicolaiarocci/eve-demo. Don't miss the README there, it
-contains **usage examples for all common use cases** (GET, POST, PATCH, DELETE).
+Check out the Eve-powered demo API at http://eve-demo.herokuapp.com (it's on
+the free tier so it will probably take a while to initialize). Source code and
+usage examples for all common use cases (GET, POST, PATCH, DELETE and more) are
+available at https://github.com/nicolaiarocci/eve-demo. 
 
 Features
 --------
