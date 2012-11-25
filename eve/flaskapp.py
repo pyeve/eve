@@ -19,6 +19,17 @@ from flask import Flask
 from werkzeug.routing import BaseConverter
 from exceptions import ConfigException
 from endpoints import collections_endpoint, item_endpoint, home_endpoint
+from werkzeug.serving import WSGIRequestHandler
+
+
+class EveWSGIRequestHandler(WSGIRequestHandler):
+    """ Extend werkzeug request handler to include current Eve version in all
+    responses, which is super-handy for debugging.
+    """
+    @property
+    def server_version(self):
+        return 'Eve/%s ' % eve.__version__ + super(EveWSGIRequestHandler,
+                                                   self).server_version
 
 
 class RegexConverter(BaseConverter):
@@ -76,6 +87,24 @@ class Eve(Flask):
 
         # instantiate the data layer. Defaults to eve.io.Mongo
         self.data = data(self)
+
+    def run(self, host=None, port=None, debug=None, **options):
+        """Pass our own subclass of :class:`werkzeug.serving.WSGIRequestHandler
+        to Flask.
+
+        :param host: the hostname to listen on. Set this to ``'0.0.0.0'`` to
+                     have the server available externally as well. Defaults to
+                     ``'127.0.0.1'``.
+        :param port: the port of the webserver. Defaults to ``5000``.
+        :param debug: if given, enable or disable debug mode.
+                      See :attr:`debug`.
+        :param options: the options to be forwarded to the underlying
+                        Werkzeug server.  See
+                        :func:`werkzeug.serving.run_simple` for more
+                        information.        """
+
+        options.setdefault('request_handler', EveWSGIRequestHandler)
+        super(Eve, self).run(host, port, debug, **options)
 
     def load_config(self):
         """API settings are loaded from standard python modules. First from
