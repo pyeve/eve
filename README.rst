@@ -1,5 +1,7 @@
 Eve
 ===
+.. image:: https://secure.travis-ci.org/nicolaiarocci/eve.png?branch=master 
+        :target: https://secure.travis-ci.org/nicolaiarocci/eve
 
 Eve allows to effortlessly build and deploy a fully featured, REST-compliant,
 proprietary API. HATEOAS, Pagination, Persistent identifiers, Conditional
