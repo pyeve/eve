@@ -3,15 +3,24 @@ Eve Changelog
 
 Here you can see the full list of changes between each Eve release.
 
-Version 0.0.2-dev
------------------
+Version 0.0.2
+-------------
 
-Relase date to be decided.
+Released on November 27th 2012.
+
+- Homepage/api entry point resource links fixed. They had bad 'href'
+  tags which also caused XML validation issues when processing responses
+  (especially when accessing the API via browser).
+
+- Version number in 'Server' response headers.
 
 - Added support for DELETE at resource endpoints. Expected behavior:
   will delete all items in the collection. Disabled by default.
 
-Version 0.0.1-dev
------------------
+- :class:`eve.io.mongo.Validator` now supports :class:`~cerberus.Validator`
+  signature, allowing for further subclassing.
+
+Version 0.0.1
+-------------
 
 First public preview release.
