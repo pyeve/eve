@@ -223,13 +223,4 @@ like to add to Eve, provided that there is enough interest in the project.
 - Authorization (OAuth2?)
 - Support for MySQL and/or other SQL/NoSQL databases
 
-Contribute
-----------
-Pull requests are welcome. I fully expect a number of issues to arise when
-people start cannibalizing this thing. Please make sure to run the tests
-(`python setup.py test`) before submitting, and to add your own tests as
-needed. If you think that you can help to further develop the Eve project,
-maybe by working on some of the features listed in the Roadmap, please get in
-touch with me. 
-
 .. _available online: https://speakerdeck.com/u/nicola/p/developing-restful-web-apis-with-python-flask-and-mongodb
