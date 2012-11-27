@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import eve
+import os
 from eve.flaskapp import RegexConverter
 from eve.flaskapp import Eve
 from eve.io.base import DataLayer
 from eve.tests import TestBase
 from eve.exceptions import ConfigException
 from eve.io.mongo import Mongo, Validator
-import eve
-import os
 
 
 class TestConfig(TestBase):

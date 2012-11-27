@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 
-import eve
-from eve import Eve, STATUS_ERR
-from datetime import datetime, timedelta
 import re
 import unittest
-import simplejson as json
-from testsettings import MONGO_PASSWORD, MONGO_USERNAME, MONGO_DBNAME, DOMAIN
-from flask.ext.pymongo import Connection
-from bson import ObjectId
+import eve
 import string
 import random
+import simplejson as json
+from eve import Eve, STATUS_ERR
+from datetime import datetime, timedelta
+from test_settings import MONGO_PASSWORD, MONGO_USERNAME, MONGO_DBNAME, DOMAIN
+from flask.ext.pymongo import Connection
+from bson import ObjectId
 
 
 class TestBase(unittest.TestCase):

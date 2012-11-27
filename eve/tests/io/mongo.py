@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from unittest import TestCase
-from eve.tests import TestMethodsBase
-from eve.io.mongo.parser import parse, ParseError
 from bson import ObjectId
 from datetime import datetime
+from eve.tests import TestMethodsBase
+from eve.io.mongo.parser import parse, ParseError
 from eve.io.mongo import Validator
 from cerberus.errors import ERROR_BAD_TYPE
 
