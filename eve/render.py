@@ -15,7 +15,7 @@ import time
 import simplejson as json
 from flask import make_response, request
 from bson.objectid import ObjectId
-from .utils import date_to_str, config
+from eve.utils import date_to_str, config
 
 # mapping between supported mime types and render functions.
 _MIME_TYPES = [{'mime': ('application/json',), 'renderer': 'render_json'},

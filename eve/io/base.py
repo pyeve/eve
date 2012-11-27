@@ -10,7 +10,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from ..utils import config
+from eve.utils import config
 
 
 class ConnectionException(Exception):

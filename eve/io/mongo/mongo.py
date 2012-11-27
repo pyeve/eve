@@ -16,9 +16,9 @@ from flask import abort
 from flask.ext.pymongo import PyMongo
 from bson import ObjectId
 from parser import parse, ParseError
-from ..base import DataLayer, ConnectionException
-from ... import ID_FIELD
-from ...utils import config
+from eve.io.base import DataLayer, ConnectionException
+from eve import ID_FIELD
+from eve.utils import config
 
 
 class Mongo(DataLayer):

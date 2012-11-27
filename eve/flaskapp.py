@@ -14,12 +14,12 @@
 import eve
 import sys
 import os
-from io.mongo import Mongo, Validator
 from flask import Flask
 from werkzeug.routing import BaseConverter
-from exceptions import ConfigException
-from endpoints import collections_endpoint, item_endpoint, home_endpoint
 from werkzeug.serving import WSGIRequestHandler
+from eve.io.mongo import Mongo, Validator
+from eve.exceptions import ConfigException
+from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint
 
 
 class EveWSGIRequestHandler(WSGIRequestHandler):

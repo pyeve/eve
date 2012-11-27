@@ -15,8 +15,8 @@ from datetime import datetime
 from flask import request, abort
 from flask import current_app as app
 from common import parse
-from ..utils import document_link, config
-from ..validation import ValidationError
+from eve.utils import document_link, config
+from eve.validation import ValidationError
 
 
 def post(resource):

@@ -14,7 +14,7 @@
 from flask import current_app as app
 from common import get_document
 from flask import abort
-from ..utils import config
+from eve.utils import config
 
 
 def delete(resource, **lookup):

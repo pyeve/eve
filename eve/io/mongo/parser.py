@@ -12,8 +12,6 @@
 """
 
 import ast
-# pyflakes reports the following imports as 'unused'. they are needed by
-# the dispatcher
 from datetime import datetime
 from bson import ObjectId
 

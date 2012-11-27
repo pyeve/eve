@@ -12,9 +12,9 @@
 
 import eve
 import flask
-from flask import current_app as app
-from flask import request
 import hashlib
+from flask import request
+from flask import current_app as app
 from datetime import datetime, timedelta
 
 

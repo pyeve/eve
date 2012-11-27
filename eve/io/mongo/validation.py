@@ -13,7 +13,7 @@
 """
 
 import re
-from ...utils import config
+from eve.utils import config
 from bson import ObjectId
 from flask import current_app as app
 from cerberus import Validator, ValidationError, SchemaError

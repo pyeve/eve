@@ -15,7 +15,7 @@
 from methods import get, getitem, post, patch, delete, delete_resource
 from flask import request, abort
 from render import send_response
-from .utils import resource_uri, config
+from eve.utils import resource_uri, config
 
 
 def collections_endpoint(url):

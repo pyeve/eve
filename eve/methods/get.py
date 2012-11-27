@@ -22,7 +22,7 @@
 from flask import current_app as app
 from flask import abort
 from datetime import datetime
-from ..utils import parse_request, document_etag, document_link, \
+from eve.utils import parse_request, document_etag, document_link, \
     collection_link, home_link, querydef, resource_uri, config
 
 

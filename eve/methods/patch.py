@@ -15,8 +15,8 @@ from flask import current_app as app
 from datetime import datetime
 from common import get_document, parse
 from flask import abort, request
-from ..utils import document_etag, document_link, config
-from ..validation import ValidationError
+from eve.utils import document_etag, document_link, config
+from eve.validation import ValidationError
 
 
 def patch(resource, **lookup):
