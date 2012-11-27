@@ -29,10 +29,9 @@ launch script will be as simple as::
 
 Live demo and examples
 --------------------
-Check out the Eve-powered demo API at http://eve-demo.herokuapp.com (it's on
-the free tier so it will probably take a while to initialize). Source code and
-usage examples for all common use cases (GET, POST, PATCH, DELETE and more) are
-available at https://github.com/nicolaiarocci/eve-demo. 
+Check out the live demo of a Eve-powered API at
+https://github.com/nicolaiarocci/eve-demo. It comes with source code and usage
+examples for all common use cases (GET, POST, PATCH, DELETE and more).
 
 Features
 --------
