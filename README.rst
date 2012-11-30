@@ -176,6 +176,8 @@ Just run
     
     python setup.py test
 
+Eve has been tested successfully under Python 2.7 and Python 2.6.
+
 License
 -------
 Eve is BSD licensed. See the `LICENSE
