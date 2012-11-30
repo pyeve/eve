@@ -30,10 +30,15 @@ launch script will be as simple as::
     app.run()
 
 Live demo and examples
---------------------
+----------------------
 Check out the live demo of a Eve-powered API at
 https://github.com/nicolaiarocci/eve-demo. It comes with source code and usage
 examples for all common use cases (GET, POST, PATCH, DELETE and more).
+
+There is also a sample client application available. It uses the phenomenal
+Requests library to consume the demo API. In fact, it has been quickly hacked
+togheter to reset the API every once in a while. Check it out at
+https://github.com/nicolaiarocci/eve-demo-client.
 
 Features
 --------
