@@ -16,7 +16,7 @@ class TestResponse(TestBase):
             response = literal_eval(self.r.data)
         except:
             self.fail('standard response cannot be converted to a dict')
-        self.assertIs(type(response), dict)
+        self.assertEqual(type(response), dict)
 
     def test_response_object(self):
         response = literal_eval(self.r.data).get('response')

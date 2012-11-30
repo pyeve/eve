@@ -63,6 +63,8 @@ class TestMethodsBase(TestBase):
     def setUp(self):
         super(TestMethodsBase, self).setUp()
         response, status = self.get('contacts', '?max_results=2')
+        self.assertTrue(status == 200)
+        self.assertEqual(len(response), 2)
         contact = response['contacts'][0]
         self.item_id = contact[self.app.config['ID_FIELD']]
         self.item_name = contact['ref']
