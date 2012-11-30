@@ -40,7 +40,7 @@ class TestPost(TestMethodsBase):
         data = {}
         for i in range(10):
             data['item%s' % i] = ('{"inv_number": "%s"}' %
-                                  TestPost.random_string(10))
+                                  self.random_string(10))
         r, status = self.post(self.empty_resource_url, data=data)
         self.assert200(status)
         self.assertPostResponse(r, ['item%s' % i for i in range(10)])
