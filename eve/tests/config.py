@@ -14,13 +14,13 @@ class TestConfig(TestBase):
 
     def test_regexconverter(self):
         regex_converter = self.app.url_map.converters.get('regex')
-        self.assertIs(regex_converter, RegexConverter)
+        self.assertEqual(regex_converter, RegexConverter)
 
     def test_default_validator(self):
-        self.assertIs(self.app.validator, Validator)
+        self.assertEqual(self.app.validator, Validator)
 
     def test_default_datalayer(self):
-        self.assertIs(type(self.app.data), Mongo)
+        self.assertEqual(type(self.app.data), Mongo)
 
     def test_default_settings(self):
         self.assertEqual(self.app.settings, self.settings_file)
@@ -41,7 +41,7 @@ class TestConfig(TestBase):
             pass
         self.app = Eve(validator=MyTestValidator,
                        settings=self.settings_file)
-        self.assertIs(self.app.validator, MyTestValidator)
+        self.assertEqual(self.app.validator, MyTestValidator)
 
     def test_custom_datalayer(self):
         class MyTestDataLayer(DataLayer):
@@ -49,7 +49,7 @@ class TestConfig(TestBase):
                 pass
             pass
         self.app = Eve(data=MyTestDataLayer, settings=self.settings_file)
-        self.assertIs(type(self.app.data), MyTestDataLayer)
+        self.assertEqual(type(self.app.data), MyTestDataLayer)
 
     def test_validate_domain_struct(self):
         del self.app.config['DOMAIN']
@@ -136,8 +136,8 @@ class TestConfig(TestBase):
                          self.app.config['ITEM_URL'])
         self.assertEqual(settings['item_cache_control'],
                          self.app.config['ITEM_CACHE_CONTROL'])
-        self.assertIsNotNone(settings['schema'])
-        self.assertIs(type(settings['schema']), dict)
+        self.assertNotEqual(settings['schema'], None)
+        self.assertEqual(type(settings['schema']), dict)
         self.assertEqual(len(settings['schema']), 0)
 
     def test_schema_dates(self):
@@ -157,16 +157,16 @@ class TestConfig(TestBase):
         }
         self.app.set_defaults()
         settings = self.domain['resource']
-        self.assertIsNotNone(settings.get('dates'))
-        self.assertIs(type(settings['dates']), set)
+        self.assertNotEqual(settings.get('dates'), None)
+        self.assertEqual(type(settings['dates']), set)
         self.assertEqual(len(settings['dates']), 2)
 
     def test_url_helpers(self):
-        self.assertIsNotNone(self.app.config.get('RESOURCES'))
-        self.assertIs(type(self.app.config['RESOURCES']), dict)
+        self.assertNotEqual(self.app.config.get('RESOURCES'), None)
+        self.assertEqual(type(self.app.config['RESOURCES']), dict)
 
-        self.assertIsNotNone(self.app.config.get('URLS'))
-        self.assertIs(type(self.app.config['URLS']), dict)
+        self.assertNotEqual(self.app.config.get('URLS'), None)
+        self.assertEqual(type(self.app.config['URLS']), dict)
 
         for resource, settings in self.domain.items():
             self.assertEqual(settings['url'],

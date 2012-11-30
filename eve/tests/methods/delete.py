@@ -14,7 +14,7 @@ class TestDelete(TestMethodsBase):
             self.known_resource_url))
         self.assert200(status)
         self.assertEqual(len(r[self.known_resource]), 0)
-        TestDelete.bulk_insert()
+        self.bulk_insert()
 
     def test_delete_empty_resource(self):
         url = '%s%s/' % (self.empty_resource_url, self.item_id)

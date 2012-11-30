@@ -62,6 +62,7 @@ class TestMethodsBase(TestBase):
 
     def setUp(self):
         super(TestMethodsBase, self).setUp()
+        self.setupDB()
         response, status = self.get('contacts', '?max_results=2')
         contact = response['contacts'][0]
         self.item_id = contact[self.app.config['ID_FIELD']]
@@ -80,6 +81,9 @@ class TestMethodsBase(TestBase):
         self.readonly_id = response['payments'][0]['_id']
         self.readonly_id_url = ('%s%s/' % (self.readonly_resource_url,
                                            self.readonly_id))
+
+    def tearDown(self):
+        self.dropDB()
 
     def get(self, resource, query='', item=None):
         if resource in self.domain:
@@ -135,7 +139,7 @@ class TestMethodsBase(TestBase):
         self.assertEqual(r.data, '')
 
     def assertItem(self, item):
-        self.assertIs(type(item), dict)
+        self.assertEqual(type(item), dict)
 
         _id = item.get(self.app.config['ID_FIELD'])
         self.assertTrue(_id is not None)
@@ -207,41 +211,37 @@ class TestMethodsBase(TestBase):
     def assert412(self, status):
         self.assertEqual(status, 412)
 
-    @classmethod
-    def setUpClass(cls):
-        cls._c = Connection()
-        cls._c.drop_database(MONGO_DBNAME)
-        cls._c[MONGO_DBNAME].add_user(MONGO_USERNAME, MONGO_PASSWORD)
-        cls.bulk_insert()
-        cls._c.close()
+    def setupDB(self):
+        self.connection = Connection()
+        self.connection.drop_database(MONGO_DBNAME)
+        self.connection[MONGO_DBNAME].add_user(MONGO_USERNAME, MONGO_PASSWORD)
+        self.bulk_insert()
 
-    @classmethod
-    def tearDownModule(cls):
-        c = Connection()
-        c.drop_database(MONGO_DBNAME)
-        c.close()
+    def bulk_insert(self):
+        _db = self.connection[MONGO_DBNAME]
+        _db.contacts.insert(self.random_contacts(100))
+        _db.payments.insert(self.random_payments(10))
+        self.connection.close()
 
-    @classmethod
-    def bulk_insert(cls):
-        cls._db = cls._c[MONGO_DBNAME]
-        cls._db.contacts.insert(cls.random_contacts(100))
-        cls._db.payments.insert(cls.random_payments(10))
+    def dropDB(self):
+        self.connection = Connection()
+        self.connection.drop_database(MONGO_DBNAME)
+        self.connection.close()
 
-    @classmethod
-    def random_contacts(cls, num):
+    def random_contacts(self, num):
         schema = DOMAIN['contacts']['schema']
         contacts = []
         for i in range(num):
             dt = datetime.now()
             contact = {
-                'ref':  cls.random_string(schema['ref']['maxlength']),
+                'ref':  self.random_string(schema['ref']['maxlength']),
                 'prog': i,
                 'role': random.choice(schema['role']['allowed']),
-                'rows': cls.random_rows(random.randint(0, 5)),
-                'alist': cls.random_list(random.randint(0, 5)),
+                'rows': self.random_rows(random.randint(0, 5)),
+                'alist': self.random_list(random.randint(0, 5)),
                 'location': {
-                    'address': 'address ' + cls.random_string(5),
-                    'city': 'city ' + cls.random_string(3),
+                    'address': 'address ' + self.random_string(5),
+                    'city': 'city ' + self.random_string(3),
                 },
                 'born': datetime.today() + timedelta(
                     days=random.randint(-10, 10)),
@@ -254,13 +254,12 @@ class TestMethodsBase(TestBase):
             contacts.append(contact)
         return contacts
 
-    @classmethod
-    def random_payments(cls, num):
+    def random_payments(self, num):
         payments = []
         for i in range(num):
             dt = datetime.now()
             payment = {
-                'a_string':  cls.random_string(10),
+                'a_string':  self.random_string(10),
                 'a_number': i,
                 eve.LAST_UPDATED: dt,
                 eve.DATE_CREATED: dt,
@@ -268,28 +267,24 @@ class TestMethodsBase(TestBase):
             payments.append(payment)
         return payments
 
-    @classmethod
-    def random_string(cls, num):
+    def random_string(self, num):
         return (''.join(random.choice(string.ascii_uppercase)
                         for x in range(num)))
 
-    @classmethod
-    def random_list(cls, num):
+    def random_list(self, num):
         alist = []
         for i in range(num):
             alist.append(['string' + str(i), random.randint(1000, 9999)])
         return alist
 
-    @classmethod
-    def random_rows(cls, num):
+    def random_rows(self, num):
         schema = DOMAIN['contacts']['schema']['rows']['items']
         rows = []
         for i in range(num):
             rows.append(
                 {
-                    'sku': cls.random_string(schema['sku']['maxlength']),
+                    'sku': self.random_string(schema['sku']['maxlength']),
                     'price': random.randint(100, 1000),
                 }
             )
-        return rows
         return rows
