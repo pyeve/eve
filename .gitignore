@@ -1,3 +1,7 @@
+# Eve
+run.py
+settings.py
+
 *.py[co]
 
 # Packages
