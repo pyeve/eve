@@ -2,6 +2,7 @@
 run.py
 settings.py
 
+# Python
 *.py[co]
 
 # Packages

@@ -1,4 +1,4 @@
-include CHANGES LICENSE AUTHORS run.py
+include CHANGES LICENSE AUTHORS 
 recursive-include tests *
 recursive-include docs *
 recursive-exclude docs *.pyc
