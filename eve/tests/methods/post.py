@@ -1,5 +1,7 @@
 from eve.tests import TestMethodsBase
 from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, DATE_CREATED
+import simplejson as json
+from ast import literal_eval
 
 
 class TestPost(TestMethodsBase):
@@ -20,27 +22,22 @@ class TestPost(TestMethodsBase):
         self.assert400(status)
 
     def test_validation_error(self):
-        data = {'item1': '{"ref": "123"}'}
+        data = {'item1': json.dumps({"ref": "123"})}
         r, status = self.post(self.known_resource_url, data=data)
         self.assert200(status)
         self.assertValidationError(r, 'item1',
                                    ("min length for field 'ref' is 25",))
 
-        data = {'item1': '{"prog": 123}'}
+        data = {'item1': json.dumps({"prog": 123})}
         r, status = self.post(self.known_resource_url, data=data)
         self.assert200(status)
         self.assertValidationError(r, 'item1', ("required", "ref"))
 
-        r, status = self.post(self.known_resource_url,
-                              data={'item1': '{"ref"="hey, gonna bomb"}'})
-        self.assert200(status)
-        self.assertValidationError(r, 'item1', ("invalid syntax",))
-
     def test_post_empty_resource(self):
         data = {}
         for i in range(10):
-            data['item%s' % i] = ('{"inv_number": "%s"}' %
-                                  self.random_string(10))
+            data['item%s' % i] = json.dumps({"inv_number":
+                                             self.random_string(10)})
         r, status = self.post(self.empty_resource_url, data=data)
         self.assert200(status)
         self.assertPostResponse(r, ['item%s' % i for i in range(10)])
@@ -48,21 +45,21 @@ class TestPost(TestMethodsBase):
     def test_post_string(self):
         test_field = 'ref'
         test_value = "1234567890123456789054321"
-        data = {'item1': '{"%s": "%s"}' % (test_field, test_value)}
+        data = {'item1': json.dumps({test_field: test_value})}
         self.assertPostItem(data, test_field, test_value)
 
     def test_post_integer(self):
         del(self.domain['contacts']['schema']['ref']['required'])
         test_field = 'prog'
         test_value = 1
-        data = {'item1': '{"%s": %s}' % (test_field, test_value)}
+        data = {'item1': json.dumps({test_field: test_value})}
         self.assertPostItem(data, test_field, test_value)
 
     def test_post_list_as_array(self):
         del(self.domain['contacts']['schema']['ref']['required'])
         test_field = "role"
         test_value = ["vendor", "client"]
-        data = {'item1': '{"%s": %s}' % (test_field, test_value)}
+        data = {'item1': json.dumps({test_field: test_value})}
         self.assertPostItem(data, test_field, test_value)
 
     def test_post_rows(self):
@@ -72,21 +69,21 @@ class TestPost(TestMethodsBase):
             {'sku': 'AT1234', 'price': 99},
             {'sku': 'XF9876', 'price': 9999}
         ]
-        data = {'item1': '{"%s": %s}' % (test_field, test_value)}
+        data = {'item1': json.dumps({test_field: test_value})}
         self.assertPostItem(data, test_field, test_value)
 
     def test_post_list(self):
         del(self.domain['contacts']['schema']['ref']['required'])
         test_field = "alist"
         test_value = ["a_string", 99]
-        data = {'item1': '{"%s": %s}' % (test_field, test_value)}
+        data = {'item1': json.dumps({test_field: test_value})}
         self.assertPostItem(data, test_field, test_value)
 
     def test_post_dict(self):
         del(self.domain['contacts']['schema']['ref']['required'])
         test_field = "location"
         test_value = {'address': 'an address', 'city': 'a city'}
-        data = {'item1': '{"%s": %s}' % (test_field, test_value)}
+        data = {'item1': json.dumps({test_field: test_value})}
         self.assertPostItem(data, test_field, test_value)
 
     def test_post_datetime(self):
@@ -118,11 +115,13 @@ class TestPost(TestMethodsBase):
             ('ref', "9234567890123456789054321", "12345678"),
         ]
         data = {
-            'item1': '{"%s": "%s"}' % items[0],
-            'item2': '{"%s": %s}' % items[1],
-            'item3': '{"%s": "%s", "role": %s}' % items[2],
-            'item4': '{"%s": "%s"}' % items[3],
-            'item5': '{"%s": "%s", "tid": "%s"}' % items[4],
+            'item1': json.dumps(literal_eval('{"%s": "%s"}' % items[0])),
+            'item2': json.dumps(literal_eval('{"%s": %s}' % items[1])),
+            'item3': json.dumps(literal_eval('{"%s": "%s", "role": %s}' %
+                                             items[2])),
+            'item4': json.dumps(literal_eval('{"%s": "%s"}' % items[3])),
+            'item5': json.dumps(literal_eval('{"%s": "%s", "tid": "%s"}' %
+                                             items[4])),
         }
         r = self.perform_post(data, ['item1', 'item3'])
 

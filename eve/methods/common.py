@@ -12,7 +12,7 @@
 
 from flask import current_app as app
 from flask import abort
-from ast import literal_eval
+import simplejson as json
 from ..utils import str_to_date, parse_request, document_etag, config
 
 
@@ -45,13 +45,13 @@ def get_document(resource, **lookup):
 
 def parse(value, resource):
     """ Safely evaluates a string containing a Python expression. We are
-    receiving a string and returning a dict.
+    receiving json and returning a dict.
 
     :param value: the string to be evaluated.
     :param resource: name of the involved resource.
     """
 
-    document = literal_eval(value)
+    document = json.loads(value)
 
     # By design, dates are expressed as RFC-1123 strings. We convert them
     # to proper datetimes.

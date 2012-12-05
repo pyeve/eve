@@ -1,6 +1,7 @@
 #import unittest
 from eve.tests import TestMethodsBase
 from eve import STATUS_OK, LAST_UPDATED, ID_FIELD
+import simplejson as json
 
 
 #@unittest.skip("don't need no freakin' tests!")
@@ -64,7 +65,7 @@ class TestPatch(TestMethodsBase):
     def test_patch_string(self):
         field = "ref"
         test_value = "1234567890123456789012345"
-        changes = {'key1': '{"%s": "%s"}' % (field, test_value)}
+        changes = {'key1': json.dumps({field: test_value})}
         r = self.perform_patch(changes)
         db_value = self.compare_patch_with_get(field, r)
         self.assertEqual(db_value, test_value)
@@ -72,7 +73,7 @@ class TestPatch(TestMethodsBase):
     def test_patch_integer(self):
         field = "prog"
         test_value = 9999
-        changes = {'key1': '{"%s": %s}' % (field, test_value)}
+        changes = {'key1': json.dumps({field: test_value})}
         r = self.perform_patch(changes)
         db_value = self.compare_patch_with_get(field, r)
         self.assertEqual(db_value, test_value)
@@ -80,7 +81,7 @@ class TestPatch(TestMethodsBase):
     def test_patch_list_as_array(self):
         field = "role"
         test_value = ["vendor", "client"]
-        changes = {'key1': '{"%s": %s}' % (field, test_value)}
+        changes = {'key1': json.dumps({field: test_value})}
         r = self.perform_patch(changes)
         db_value = self.compare_patch_with_get(field, r)
         self.assertTrue(set(test_value).issubset(db_value))
@@ -91,7 +92,7 @@ class TestPatch(TestMethodsBase):
             {'sku': 'AT1234', 'price': 99},
             {'sku': 'XF9876', 'price': 9999}
         ]
-        changes = {'key1': '{"%s": %s}' % (field, test_value)}
+        changes = {'key1': json.dumps({field: test_value})}
         r = self.perform_patch(changes)
         db_value = self.compare_patch_with_get(field, r)
 
@@ -101,7 +102,7 @@ class TestPatch(TestMethodsBase):
     def test_patch_list(self):
         field = "alist"
         test_value = ["a_string", 99]
-        changes = {'key1': '{"%s": %s}' % (field, test_value)}
+        changes = {'key1': json.dumps({field: test_value})}
         r = self.perform_patch(changes)
         db_value = self.compare_patch_with_get(field, r)
         self.assertEqual(db_value, test_value)
@@ -109,7 +110,7 @@ class TestPatch(TestMethodsBase):
     def test_patch_dict(self):
         field = "location"
         test_value = {'address': 'an address', 'city': 'a city'}
-        changes = {'key1': '{"%s": %s}' % (field, test_value)}
+        changes = {'key1': json.dumps({field: test_value})}
         r = self.perform_patch(changes)
         db_value = self.compare_patch_with_get(field, r)
         self.assertEqual(db_value, test_value)
@@ -117,7 +118,7 @@ class TestPatch(TestMethodsBase):
     def test_patch_datetime(self):
         field = "born"
         test_value = "Tue, 06 Nov 2012 10:33:31 UTC"
-        changes = {'key1': '{"%s": "%s"}' % (field, test_value)}
+        changes = {'key1': json.dumps({field: test_value})}
         r = self.perform_patch(changes)
         db_value = self.compare_patch_with_get(field, r)
         self.assertEqual(db_value, test_value)
@@ -125,7 +126,7 @@ class TestPatch(TestMethodsBase):
     def test_patch_objectid(self):
         field = "tid"
         test_value = "4f71c129c88e2018d4000000"
-        changes = {'key1': '{"%s": "%s"}' % (field, test_value)}
+        changes = {'key1': json.dumps({field: test_value})}
         r = self.perform_patch(changes)
         db_value = self.compare_patch_with_get(field, r)
         self.assertEqual(db_value, test_value)
@@ -133,8 +134,9 @@ class TestPatch(TestMethodsBase):
     def test_patch_multiple_fields(self):
         fields = ['ref', 'prog', 'role']
         test_values = ["9876543210987654321054321", 123, ["agent"]]
-        changes = {'key1': '{"ref": "%s", "prog": %s, "role": %s}' %
-                   (test_values[0], test_values[1], test_values[2])}
+        changes = {'key1': json.dumps({"ref": test_values[0],
+                                       "prog": test_values[1],
+                                       "role": test_values[2]})}
         r = self.perform_patch(changes)
         db_values = self.compare_patch_with_get(fields, r)
         for i in range(len(db_values)):
@@ -145,7 +147,7 @@ class TestPatch(TestMethodsBase):
                    ('If-Match', self.item_etag),
                    ('Content-Type', 'application/x-www-form-urlencoded')]
         r = self.test_client.post(self.item_id_url,
-                                  data={'key1': '{"prog": 1}'},
+                                  data={'key1': json.dumps({"prog": 1})},
                                   headers=headers)
         self.assert200(r.status_code)
 
