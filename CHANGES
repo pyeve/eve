@@ -8,6 +8,7 @@ Version 0.0.3
 
 Not yet released.
 
+- Boolean values in request forms are now correctly parsed.
 - Tests now run under Python 2.6.
 
 
