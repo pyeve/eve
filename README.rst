@@ -19,7 +19,7 @@ online:
   
 Support for MongoDB comes out of the box; extensions for other SQL/NoSQL
 databases can be developed with relative ease. API settings are stored in
-a standard Python module (defaults to `settings.py` in your project folder, you
+a standard Python module (defaults to ``settings.py``) in your project folder, you
 can also use an environment variable). Overall, you will find that configuring
 and fine-tuning your API is a very simple process.  Most of the times the
 launch script will be as simple as::
@@ -67,28 +67,28 @@ Features
 
 - **Customizable resource endpoints (persistent identifiers)**. By default Eve
   will make known database collections available as resource endpoints.
-  A `contacts` collection in the database will be ready to be consumed at
-  `api.example.com/contacts/`. You can customize the URIs of your resources so
+  A ``contacts`` collection in the database will be ready to be consumed at
+  ``example.com/contacts/``. You can customize the URIs of your resources so
   in our example the API endpoint could become, say,
-  `api.example.com/customers/`. 
+  ``example.com/customers/``. 
 
 - **Customizable, multiple item endpoints**. Resources can or cannot provide
   access to their own individual items. API consumers could get access to
-  `/contacts/`, `/contacts/<ObjectId>/` and `/contacts/smith/`, but only to
-  `/invoices/` if so you wish.  When you do grant access to resource items,
-  you can define up to two lookup endpoints, both defined via regex. The first
-  will be the primary endpoint and will match your database primary key
+  ``/contacts/``, ``/contacts/<ObjectId>/`` and ``/contacts/smith/``, but only
+  to ``/invoices/`` if so you wish.  When you do grant access to resource
+  items, you can define up to two lookup endpoints, both defined via regex. The
+  first will be the primary endpoint and will match your database primary key
   structure (i.e. an ObjectId in a MongoDB database).  The second, which is
-  optional, will match a field with unique values, since Eve will
-  retrieve only the first match anyway.
+  optional, will match a field with unique values, since Eve will retrieve only
+  the first match anyway.
 
 - **Filtering and sorting**. Resource endpoints allow consumers to retrieve
   multiple documents. Query strings are supported, allowing for filtering and
   sorting. 
   
 - **Two query formats**. Currently two query formats are supported: the mongo
-  query syntax (`?where={"name": "john doe"}`), and the native python syntax
-  (`?where=name=='john doe'`). Both query formats allow for conditional and
+  query syntax (``?where={"name": "john doe"}``), and the native python syntax
+  (``?where=name=='john doe'``). Both query formats allow for conditional and
   logical And/Or operators, however nested and combined.
 
 - **Pagination**. Resource pagination is enabled by default in order to improve
@@ -96,11 +96,11 @@ Features
   first N items matching the query are serverd. Links to subsequent/previous
   pages are provided with the response. Default and maximum page size is
   customizable, and consumers can request specific pages via the query string
-  (`?page=10`).
+  (``?page=10``).
 
 - **HATEOAS**. Hypermedia as the Engine of Application State is enabled by
   default. Each response includes a <links> section. Links provide details on
-  their `relation` relative to the resource being accessed and a `title`.
+  their ``relation`` relative to the resource being accessed and a ``title``.
   Titles and relations could be used by clients to dynamically updated their
   UI, or to navigate the API without knowing it structure beforehand. An
   example::
@@ -116,20 +116,21 @@ Features
   could navigate the API just by following the links.
 
 - **JSON and XML**. Eve responses are automatically rendered as JSON or XML
-  depending on the requested `Accept` header. Inbound documents (for inserts
+  depending on the requested ``Accept`` header. Inbound documents (for inserts
   and edits) are in JSON format.
   
-- **Last-Modified and ETag (conditional requests)**.Each resource representation
-  provides information on the last time it was updated along with an hash value
-  computed on the representation itself (`Last-Modified` and `ETag` response
-  headers). These allow consumers to only retrieve new or modified data via the
-  `If-Modified-Since` and `If-None-Match` request headers.
+- **Last-Modified and ETag (conditional requests)**.Each resource
+  representation provides information on the last time it was updated along
+  with an hash value computed on the representation itself (``Last-Modified``
+  and ``ETag`` response headers). These allow consumers to only retrieve new or
+  modified data via the ``If-Modified-Since`` and ``If-None-Match`` request
+  headers.
 
-- **Data integrity and concurrency control**. API responses include a `ETag`
-  header, which allows for proper concurrency control. An `ETag` is an hash
-  avlue representing the current state of the resource on the server. Consumers
+- **Data integrity and concurrency control**. API responses include a ``ETag``
+  header, which allows for proper concurrency control. An ``ETag`` is an hash
+  value representing the current state of the resource on the server. Consumers
   are not allowed to edit or delete a resource unless they provide an
-  up-to-date `ETag` for the resource they are attempting to edit.
+  up-to-date ``ETag`` for the resource they are attempting to edit.
 
 - **Multiple inserts**. Consumers can send a stream of multiple documents to be
   inserted for a given resource. The response will provide detailed state
@@ -151,16 +152,16 @@ Features
   Or say that you want to make sure that a VAT field actually matches your own
   country VAT algorithm: you can do that too. As a matter of fact, Eve's
   MongoDB data-layer itself is extending Cerberus' standard validation,
-  implementing the `unique` schema field constraint.
+  implementing the ``unique`` schema field constraint.
 
 - **Resource-level cache control directives**. You can set global and individual
   cache-control directives for each resource.  Directives will be included in
-  API response headers (`Cache-Control`, `Expires`). This will minimize load on
+  API response headers (``Cache-Control``, ``Expires``). This will minimize load on
   the server since cache-enbaled consumers will perform resource-intensive
   request only when really needed.
 
 - **Versioning**. Define a default prefix and/or API version for all your
-  endpoints. How about `http://example.com/api/v1/<endpoint>`? Both prefix and
+  endpoints. How about example.com/api/v1/<endpoint>? Both prefix and
   version are as easy to set up as setting a configuration variable.
 
 Installation
@@ -231,7 +232,7 @@ like to add to Eve, provided that there is enough interest in the project.
 - Granular exception handling
 - Journaling/error logging
 - Server side caching
-- Alternative sort syntax (`?sort=name`)
+- Alternative sort syntax (``?sort=name``)
 - Authorization (OAuth2?)
 - Support for MySQL and/or other SQL/NoSQL databases
 
