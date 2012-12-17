@@ -5,8 +5,8 @@ Eve
 
 Eve allows to effortlessly build and deploy a fully featured, REST-compliant,
 proprietary API. HATEOAS, Pagination, Persistent identifiers, Conditional
-requests, Concurrency control, JSON and XML responses: these features
-are supported and enabled by default.
+requests, Concurrency control, versioning, JSON and XML responses: these
+features are supported and enabled by default.
 
 Simple
 ------
@@ -155,9 +155,13 @@ Features
 
 - **Resource-level cache control directives**. You can set global and individual
   cache-control directives for each resource.  Directives will be included in
-  API response headers (`Cache-Control,` `Expires`). This will minimize load on
+  API response headers (`Cache-Control`, `Expires`). This will minimize load on
   the server since cache-enbaled consumers will perform resource-intensive
   request only when really needed.
+
+- **Versioning**. Define a default prefix and/or API version for all your
+  endpoints. How about `http://example.com/api/v1/<endpoint>`? Both prefix and
+  version are as easy to set up as setting a configuration variable.
 
 Installation
 ------------
@@ -228,7 +232,6 @@ like to add to Eve, provided that there is enough interest in the project.
 - Journaling/error logging
 - Server side caching
 - Alternative sort syntax (`?sort=name`)
-- Versioning
 - Authorization (OAuth2?)
 - Support for MySQL and/or other SQL/NoSQL databases
 
