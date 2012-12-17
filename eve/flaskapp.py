@@ -20,6 +20,7 @@ from werkzeug.serving import WSGIRequestHandler
 from eve.io.mongo import Mongo, Validator
 from eve.exceptions import ConfigException
 from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint
+from eve.utils import api_prefix
 
 
 class EveWSGIRequestHandler(WSGIRequestHandler):
@@ -124,7 +125,6 @@ class Eve(Flask):
         self.config.from_object(default_module)
 
         # overwrite the defaults with custom user settings:
-
         if os.path.isabs(self.settings):
             pyfile = self.settings
         else:
@@ -133,6 +133,7 @@ class Eve(Flask):
             pyfile = os.path.join(abspath, self.settings)
         self.config.from_pyfile(pyfile)
 
+        #overwrite settings with custom environment variable
         if os.environ.get(envvar):
             self.config.from_envvar(envvar)
 
@@ -180,7 +181,7 @@ class Eve(Flask):
                                   '[%s] item ' % resource)
 
             # while a resource schema is optional for read-only access,
-            # it is mandatory for write-access resource/items.
+            # it is mandatory for write-access to resource/items.
             if 'POST' in settings['methods'] or \
                'PATCH' in settings['item_methods']:
                 if len(settings['schema']) == 0:
@@ -258,16 +259,19 @@ class Eve(Flask):
     def _add_url_rules(self):
         """ Builds the API url map. Methods are enabled for each mapped
         endpoint, as configured in the settings.
+
+        .. versionchanged:: 0.0.3
+           Support for API_VERSION as an endpoint prefix.
         """
         # helpers
         resources = dict()     # maps urls to resources (DOMAIN keys)
         urls = dict()          # maps resources to urls
 
-        # general API prefix
-        url_prefix = self.config['URL_PREFIX']
+        prefix = api_prefix(self.config['URL_PREFIX'],
+                            self.config['API_VERSION'])
 
         # home page (API entry point)
-        self.add_url_rule('%s/' % url_prefix, 'home', home_endpoint)
+        self.add_url_rule('%s/' % prefix, 'home', home_endpoint)
 
         for resource, settings in self.config['DOMAIN'].items():
             resources[settings['url']] = resource
@@ -275,7 +279,7 @@ class Eve(Flask):
 
             # resource endpoint
             url = '/<regex("%s"):url>/' % settings['url']
-            url = '%s%s' % (url_prefix.rstrip('/'), url)
+            url = '%s%s' % (prefix, url)
             self.add_url_rule(url, view_func=collections_endpoint,
                               methods=settings['methods'])
 
