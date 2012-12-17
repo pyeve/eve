@@ -8,6 +8,7 @@ Version 0.0.3
 
 Not yet released.
 
+- Support for API versioning through the new API_VERSION configuration setting.
 - Boolean values in request forms are now correctly parsed.
 - Tests now run under Python 2.6.
 

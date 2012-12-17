@@ -26,8 +26,11 @@ class Config(object):
     """
     def __getattr__(self, name):
         try:
+            # will return 'working outside of application context' if the
+            # current_app is not available yet
             return app.config.get(name)
         except:
+            # fallback to the module-level default value
             return getattr(eve, name)
 
 
@@ -162,7 +165,8 @@ def document_link(resource, document_id):
 def home_link():
     """ Returns a link to the API entry point/home page.
     """
-    return "<link rel='parent' title='home' href='%s' />" % config.SERVER_NAME
+    return "<link rel='parent' title='home' href='%s%s' />" % \
+        (config.SERVER_NAME, api_prefix())
 
 
 def resource_uri(resource):
@@ -170,7 +174,36 @@ def resource_uri(resource):
 
     :param resource: the resource name.
     """
-    return '%s/%s/' % (config.SERVER_NAME, config.URLS[resource])
+    return '%s%s/%s/' % (config.SERVER_NAME, api_prefix(),
+                         config.URLS[resource])
+
+
+def api_prefix(url_prefix=None, api_version=None):
+    """ Returns the prefix to API endpoints, according to the URL_PREFIX and
+    API_VERSION  configuration settings.
+
+    :param url_prefix: the prefix string. If `None`, defaults to the current
+                       :class:`~eve.flaskapp` configuration setting.
+                       The class itself will call this function while
+                       initializing. In that case, it will pass its settings
+                       as arguments (as they are not externally available yet)
+    :param api_version: the api version string. If `None`, defaults to the
+                        current :class:`~eve.flaskapp` configuration setting.
+                        The class itself will call this function while
+                        initializing. In that case, it will pass its settings
+                        as arguments (as they are not externally available yet)
+
+    .. versionadded: 0.0.3
+    """
+
+    if url_prefix is None:
+        url_prefix = config.URL_PREFIX
+    if api_version is None:
+        api_version = config.API_VERSION
+
+    prefix = '/%s' % url_prefix if url_prefix else ''
+    version = '/%s' % api_version if api_version else ''
+    return prefix + version
 
 
 def querydef(max_results=config.PAGING_DEFAULT, where=None, sort=None,

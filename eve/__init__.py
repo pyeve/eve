@@ -18,6 +18,7 @@ __version__ = '0.0.3'
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S UTC'
 
 URL_PREFIX = ''
+API_VERSION = ''
 SERVER_NAME = 'localhost:5000'
 PAGING_LIMIT = 50
 PAGING_DEFAULT = 25

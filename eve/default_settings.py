@@ -16,6 +16,8 @@
 # RFC 1123 (ex RFC 822)
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S UTC'
 
+
+API_VERSION = ''
 URL_PREFIX = ''
 SERVER_NAME = 'localhost:5000'
 PAGING_LIMIT = 50
