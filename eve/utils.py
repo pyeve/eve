@@ -193,7 +193,7 @@ def api_prefix(url_prefix=None, api_version=None):
                         initializing. In that case, it will pass its settings
                         as arguments (as they are not externally available yet)
 
-    .. versionadded: 0.0.3
+    .. versionadded:: 0.0.3
     """
 
     if url_prefix is None:
