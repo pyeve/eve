@@ -4,9 +4,7 @@ Eve
         :target: https://secure.travis-ci.org/nicolaiarocci/eve
 
 Eve allows to effortlessly build and deploy a fully featured, REST-compliant,
-proprietary API. HATEOAS, Pagination, Persistent identifiers, Conditional
-requests, Concurrency control, versioning, JSON and XML responses: these
-features are supported and enabled by default.
+proprietary API. 
 
 Simple
 ------
@@ -19,25 +17,24 @@ online:
   
 Support for MongoDB comes out of the box; extensions for other SQL/NoSQL
 databases can be developed with relative ease. API settings are stored in
-a standard Python module (defaults to ``settings.py``) in your project folder, you
-can also use an environment variable). Overall, you will find that configuring
-and fine-tuning your API is a very simple process.  Most of the times the
-launch script will be as simple as::
+a standard Python module (defaults to ``settings.py``). Most of
+the times the launch script will be as simple as::
     
     from eve import Eve
 
     app = Eve() 
     app.run()
 
+
+Overall, you will find that configuring and fine-tuning your API is a very
+simple process.  
+
 Live demo and examples
 ----------------------
 Check out the live demo of a Eve-powered API at
 https://github.com/nicolaiarocci/eve-demo. It comes with source code and usage
-examples for all common use cases (GET, POST, PATCH, DELETE and more).
-
-There is also a sample client application available. It uses the phenomenal
-Requests library to consume the demo API. In fact, it has been quickly hacked
-togheter to reset the API every once in a while. Check it out at
+examples for all common use cases (GET, POST, PATCH, DELETE and more). There is
+also a sample client app available. Check it out at
 https://github.com/nicolaiarocci/eve-demo-client.
 
 Features
