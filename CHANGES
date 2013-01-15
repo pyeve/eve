@@ -8,6 +8,18 @@ Version 0.0.3
 
 Not yet released.
 
+- Streamlined JSON responses. 
+  The superflous ``response`` root key has been removed from JSON payloads. In
+  order to properly validate, XML payloads will still carry a ``response`` root
+  node.
+
+  GET requests to resource endpoints. Items are always wrapped in
+  an ``items`` list. Previously the list name would match the name of the
+  resource being accessed.  
+  
+  GET requests to item endpoints. The item key is always set to ``item``.
+  Previously it would match the resource name minus the final 's'.
+
 - Support for API versioning through the new API_VERSION configuration setting.
 - Boolean values in request forms are now correctly parsed.
 - Tests now run under Python 2.6.

@@ -64,7 +64,7 @@ class TestMethodsBase(TestBase):
         super(TestMethodsBase, self).setUp()
         self.setupDB()
         response, status = self.get('contacts', '?max_results=2')
-        contact = response['contacts'][0]
+        contact = response['items'][0]
         self.item_id = contact[self.app.config['ID_FIELD']]
         self.item_name = contact['ref']
         self.item_tid = contact['tid']
@@ -75,10 +75,10 @@ class TestMethodsBase(TestBase):
         self.item_name_url = ('/%s/%s/' %
                               (self.domain[self.known_resource]['url'],
                                self.item_name))
-        self.alt_ref = response['contacts'][1]['ref']
+        self.alt_ref = response['items'][1]['ref']
 
         response, status = self.get('payments', '?max_results=1')
-        self.readonly_id = response['payments'][0]['_id']
+        self.readonly_id = response['items'][0]['_id']
         self.readonly_id_url = ('%s%s/' % (self.readonly_resource_url,
                                            self.readonly_id))
 
@@ -97,7 +97,7 @@ class TestMethodsBase(TestBase):
         return self.parse_response(r)
 
     def parse_response(self, r):
-        v = json.loads(r.data)['response'] if r.status_code == 200 else None
+        v = json.loads(r.data) if r.status_code == 200 else None
         return v, r.status_code
 
     def assertValidationError(self, response, key, matches):

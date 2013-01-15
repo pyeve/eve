@@ -166,9 +166,9 @@ class TestPatch(TestMethodsBase):
         self.assertEqual(raw_r.headers.get('ETag'),
                          patch_response['key1']['etag'])
         if isinstance(fields, str):
-            return r[self.known_resource][fields]
+            return r['item'][fields]
         else:
-            return [r[self.known_resource][field] for field in fields]
+            return [r['item'][field] for field in fields]
 
     def assertPatchResponse(self, response, key, item_id):
         self.assertTrue(key in response)
