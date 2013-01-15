@@ -71,7 +71,7 @@ def get(resource):
     else:
         status = 200
         last_modified = last_updated if last_updated > datetime.min else None
-        response[resource] = documents
+        response['items'] = documents
         response['links'] = _pagination_links(resource, req, cursor.count())
 
     etag = None
@@ -108,7 +108,7 @@ def getitem(resource, **lookup):
             return response, last_modified, etag, 304
 
         document['link'] = document_link(resource, document[config.ID_FIELD])
-        response[resource] = document
+        response['item'] = document
         response['links'] = standard_links(resource)
         return response, last_modified, etag, 200
 
