@@ -108,34 +108,42 @@ def render_json(**data):
     return json.dumps(data, cls=APIEncoder)
 
 
-def render_xml(**d):
-    """ XML render function. This could surely use some further tinkering.
+def render_xml(**data):
+    """ XML render function.
+
+    :param data: the data stream to be rendered as xml.
+
+    .. versionchanged:: 0.0.3
+       Addition of 'response' root node, since the payload does not include it
+       anymore.
     """
-    xml = ''
-    for k, v in d.items():
-        if isinstance(v, datetime.datetime):
-            v = date_to_str(v)
-        elif isinstance(v, (datetime.time, datetime.date)):
-            v = v.isoformat()
-        if type(v) is dict:
-            xml += "<%s>" % (k.rstrip('s'))
-            xml += render_xml(**v)
-            xml += "</%s>" % (k.rstrip('s'))
-        else:
-            original_list = False
-            if type(v) is not list:
-                v = [v]
+    # Assumes list names are plurals.
+    def to_xml(d):
+        xml = ''
+        for k, v in d.items():
+            if isinstance(v, datetime.datetime):
+                v = date_to_str(v)
+            elif isinstance(v, (datetime.time, datetime.date)):
+                v = v.isoformat()
             else:
-                original_list = True
-                xml += "<%s>" % k
-            for value in v:
-                if type(value) is dict:
-                    xml += "<%s>" % (k.rstrip('s'))
-                    xml += render_xml(**value)
-                    xml += "</%s>" % (k.rstrip('s'))
+                if isinstance(v, list):
+                    original_list = True
+                    xml += "<%s>" % k
                 else:
-                    xml += "<%s>%s</%s>" % (str(k.rstrip('s')), value,
-                                            str(k.rstrip('s')))
-            if original_list:
-                xml += "</%s>" % k
-    return xml
+                    original_list = False
+                    v = [v]
+                for value in v:
+                    if isinstance(value, dict):
+                        xml += "<%s>" % (k.rstrip('s'))
+                        xml += to_xml(value)
+                        xml += "</%s>" % (k.rstrip('s'))
+                    else:
+                        if original_list:
+                            xml += "<%s>%s</%s>" % (str(k.rstrip('s')), value,
+                                                    str(k.rstrip('s')))
+                        else:
+                            xml += "<%s>%s</%s>" % (k, value, k)
+                if original_list:
+                    xml += "</%s>" % k
+        return xml
+    return to_xml({'response': data})
