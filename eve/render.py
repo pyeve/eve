@@ -39,10 +39,8 @@ def send_response(resource, dct, last_modified=None, etag=None, status=200):
     # along with the corresponding render function.
     mime, renderer = _best_mime()
 
-    response = {'response': dct}
-
     # invoke the render function and obtain the corresponding rendered item
-    rendered = globals()[renderer](**response)
+    rendered = globals()[renderer](**dct)
 
     # build the main wsgi rensponse object
     resp = make_response(rendered, status)
