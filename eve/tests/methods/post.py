@@ -161,7 +161,7 @@ class TestPost(TestMethodsBase):
                                                 item_id))
         item_r, status = self.parse_response(raw_r)
         self.assert200(status)
-        item = item_r[self.known_resource]
+        item = item_r['item']
         self.assertTrue(ID_FIELD in item)
         self.assertTrue(item[ID_FIELD] == item_id)
         self.assertTrue(DATE_CREATED in item)

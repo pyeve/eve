@@ -19,11 +19,11 @@ class TestResponse(TestBase):
         self.assertEqual(type(response), dict)
 
     def test_response_object(self):
-        response = literal_eval(self.r.data).get('response')
+        response = literal_eval(self.r.data)
         self.assertEqual(type(response), dict)
         self.assertEqual(len(response), 2)
 
-        resource = response.get(self.empty_resource)
+        resource = response.get('items')
         self.assertEqual(type(resource), list)
         links = response.get('links')
         self.assertEqual(type(links), list)
