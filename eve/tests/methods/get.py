@@ -9,10 +9,10 @@ class TestGet(TestMethodsBase):
         response, status = self.get(self.empty_resource)
         self.assert200(status)
 
-        resource = response['items']
+        resource = response['_items']
         self.assertEqual(len(resource), 0)
 
-        links = response['links']
+        links = response['_links']
         self.assertEqual(len(links), 2)
         self.assertResourceLink(links, self.empty_resource)
         self.assertHomeLink(links)
@@ -23,21 +23,21 @@ class TestGet(TestMethodsBase):
                                     '?max_results=%d' % maxr)
         self.assert200(status)
 
-        resource = response['items']
+        resource = response['_items']
         self.assertEqual(len(resource), maxr)
 
         maxr = self.app.config['PAGING_LIMIT'] + 1
         response, status = self.get(self.known_resource,
                                     '?max_results=%d' % maxr)
         self.assert200(status)
-        resource = response['items']
+        resource = response['_items']
         self.assertEqual(len(resource), self.app.config['PAGING_LIMIT'])
 
     def test_get_page(self):
         response, status = self.get(self.known_resource)
         self.assert200(status)
 
-        links = response['links']
+        links = response['_links']
         self.assertNextLink(links, 2)
 
         page = 1
@@ -45,7 +45,7 @@ class TestGet(TestMethodsBase):
                                     '?page=%d' % page)
         self.assert200(status)
 
-        links = response['links']
+        links = response['_links']
         self.assertNextLink(links, 2)
 
         page = 2
@@ -53,7 +53,7 @@ class TestGet(TestMethodsBase):
                                     '?page=%d' % page)
         self.assert200(status)
 
-        links = response['links']
+        links = response['_links']
         self.assertNextLink(links, 3)
         self.assertPrevLink(links, 1)
 
@@ -62,7 +62,7 @@ class TestGet(TestMethodsBase):
                                     '?page=%d' % page)
         self.assert200(status)
 
-        links = response['links']
+        links = response['_links']
         self.assertNextLink(links, 4)
         self.assertPrevLink(links, 2)
 
@@ -72,7 +72,7 @@ class TestGet(TestMethodsBase):
                                     '?where=%s' % where)
         self.assert200(status)
 
-        resource = response['items']
+        resource = response['_items']
         self.assertEqual(len(resource), 1)
 
     # TODO need more tests here, to verify that the parser is behaving
@@ -83,7 +83,7 @@ class TestGet(TestMethodsBase):
                                     '?where=%s' % where)
         self.assert200(status)
 
-        resource = response['items']
+        resource = response['_items']
         self.assertEqual(len(resource), 1)
 
     def test_get_sort_mongo_syntax(self):
@@ -92,7 +92,7 @@ class TestGet(TestMethodsBase):
                                     '?sort=%s' % sort)
         self.assert200(status)
 
-        resource = response['items']
+        resource = response['_items']
         self.assertEqual(len(resource), self.app.config['PAGING_DEFAULT'])
         # TODO testing all the resultset seems a excessive?
         for i in range(len(resource)):
@@ -111,13 +111,13 @@ class TestGet(TestMethodsBase):
         response, status = self.get(self.known_resource)
         self.assert200(status)
 
-        links = response['links']
+        links = response['_links']
         self.assertEqual(len(links), 3)
         self.assertHomeLink(links)
         self.assertResourceLink(links, self.known_resource)
         self.assertNextLink(links, 2)
 
-        resource = response['items']
+        resource = response['_items']
         self.assertEqual(len(resource), self.app.config['PAGING_DEFAULT'])
 
         for item in resource:
@@ -137,15 +137,12 @@ class TestGetItem(TestMethodsBase):
 
     def assertItemResponse(self, response, status):
         self.assert200(status)
-        self.assertEqual(len(response), 2)
 
-        links = response['links']
-        self.assertEqual(len(links), 2)
+        links = response['_links']
+        self.assertEqual(len(links), 3)
         self.assertHomeLink(links)
-        self.assertResourceLink(links, self.known_resource)
-
-        item = response.get('item')
-        self.assertItem(item)
+        self.assertCollectionLink(links, self.known_resource)
+        self.assertItem(response)
 
     def test_disallowed_getitem(self):
         response, status = self.get(self.empty_resource,

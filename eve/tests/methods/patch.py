@@ -166,9 +166,9 @@ class TestPatch(TestMethodsBase):
         self.assertEqual(raw_r.headers.get('ETag'),
                          patch_response['key1']['etag'])
         if isinstance(fields, str):
-            return r['item'][fields]
+            return r[fields]
         else:
-            return [r['item'][field] for field in fields]
+            return [r[field] for field in fields]
 
     def assertPatchResponse(self, response, key, item_id):
         self.assertTrue(key in response)
@@ -180,8 +180,8 @@ class TestPatch(TestMethodsBase):
         self.assertEqual(k[ID_FIELD], item_id)
         self.assertTrue(LAST_UPDATED in k)
         self.assertTrue('etag' in k)
-        self.assertTrue('link') in k
-        self.assertItemLink(k['link'], item_id)
+        self.assertTrue('_links') in k
+        self.assertItemLink(k['_links'], item_id)
 
     def patch(self, url, data, headers=[]):
         headers.append(('Content-Type', 'application/x-www-form-urlencoded'))

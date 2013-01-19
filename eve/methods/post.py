@@ -27,6 +27,9 @@ def post(resource):
     is returned.
 
     :param resource: name of the resource involved.
+
+    .. versionchanged:: 0.0.3
+       JSON links. Superflous ``response`` container removed.
     """
 
     if len(request.form) == 0:
@@ -54,8 +57,10 @@ def post(resource):
                 response_item[config.ID_FIELD] = document[config.ID_FIELD]
                 response_item[config.LAST_UPDATED] = \
                     document[config.LAST_UPDATED]
-                response_item['link'] = \
-                    document_link(resource, response_item[config.ID_FIELD])
+                response_item['_links'] = \
+                    {'self': document_link(resource,
+                                           response_item[config.ID_FIELD])}
+
             else:
                 issues.extend(validator.errors)
         except ValidationError as e:

@@ -114,12 +114,13 @@ class TestConfig(TestBase):
 
     def test_set_defaults(self):
         self.domain.clear()
-        self.domain['empty_resource'] = {}
+        resource = 'plurals'
+        self.domain[resource] = {}
 
         self.app.set_defaults()
 
-        settings = self.domain['empty_resource']
-        self.assertEqual(settings['url'], 'empty_resource')
+        settings = self.domain[resource]
+        self.assertEqual(settings['url'], resource)
         self.assertEqual(settings['methods'],
                          self.app.config['RESOURCE_METHODS'])
         self.assertEqual(settings['cache_control'],
@@ -134,6 +135,8 @@ class TestConfig(TestBase):
                          self.app.config['ITEM_LOOKUP_FIELD'])
         self.assertEqual(settings['item_url'],
                          self.app.config['ITEM_URL'])
+        self.assertEqual(settings['item_title'],
+                         resource.rstrip('s').capitalize())
         self.assertEqual(settings['item_cache_control'],
                          self.app.config['ITEM_CACHE_CONTROL'])
         self.assertNotEqual(settings['schema'], None)

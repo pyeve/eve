@@ -145,9 +145,12 @@ def collection_link(resource):
     """ Returns a link to a resource endpoint.
 
     :param resource: the resource name.
+
+    .. versionchanged:: 0.0.3
+       Now returning a JSON link
     """
-    return ("<link rel='collection' title='%s' href='%s' />" %
-            (config.URLS[resource], resource_uri(resource)))
+    return {'title': '%s' % config.URLS[resource],
+            'href': '%s' % resource_uri(resource)}
 
 
 def document_link(resource, document_id):
@@ -155,18 +158,22 @@ def document_link(resource, document_id):
 
     :param resource: the resource name.
     :param document_id: the document unique identifier.
+
+    .. versionchanged:: 0.0.3
+       Now returning a JSON link
     """
-    title = config.DOMAIN[resource].get('item_title',
-                                        resource.rstrip('s').capitalize())
-    return ("<link rel='self' title='%s' href='%s%s/' />" %
-            (title, resource_uri(resource), document_id))
+    return {'title': '%s' % config.DOMAIN[resource]['item_title'],
+            'href': '%s%s/' % (resource_uri(resource), document_id)}
 
 
 def home_link():
     """ Returns a link to the API entry point/home page.
+
+    .. versionchanged:: 0.0.3
+       Now returning a JSON link.
     """
-    return "<link rel='parent' title='home' href='%s%s' />" % \
-        (config.SERVER_NAME, api_prefix())
+    return {'title': 'home',
+            'href': '%s%s' % (config.SERVER_NAME, api_prefix())}
 
 
 def resource_uri(resource):

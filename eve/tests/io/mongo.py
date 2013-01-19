@@ -79,7 +79,7 @@ class TestPythonParser(TestCase):
         self.assertRaises(ParseError, parse, 'a | 2')
 
 
-class TestMongoValidator(TestMethodsBase):
+class TestMongoValidator(TestCase):
     def test_unique_fail(self):
         """ relying on POST and PATCH tests since we don't have an active
         app_context running here """
