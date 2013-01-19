@@ -74,9 +74,7 @@ class Eve(Flask):
         super(Eve, self).__init__(__package__)
         # enable regex routing
         self.url_map.converters['regex'] = RegexConverter
-
         self.validator = validator
-
         self.settings = settings
 
         self.load_config()
@@ -235,6 +233,8 @@ class Eve(Flask):
             settings.setdefault('item_lookup_field',
                                 self.config['ITEM_LOOKUP_FIELD'])
             settings.setdefault('item_url', self.config['ITEM_URL'])
+            settings.setdefault('item_title',
+                                resource.rstrip('s').capitalize())
             settings.setdefault('item_cache_control',
                                 self.config['ITEM_CACHE_CONTROL'])
             settings.setdefault('item_lookup', self.config['ITEM_LOOKUP'])
