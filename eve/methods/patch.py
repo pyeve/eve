@@ -27,6 +27,9 @@ def patch(resource, **lookup):
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
+
+    .. versionchanged:: 0.0.3
+       JSON links. Superflous ``response`` container removed.
     """
     if len(request.form) > 1 or len(request.form) == 0:
         # only one update-per-document supported
@@ -80,7 +83,8 @@ def patch(resource, **lookup):
 
             # metadata
             response_item['etag'] = etag
-            response_item['link'] = document_link(resource, object_id)
+            response_item['_links'] = {'self': document_link(resource,
+                                                             object_id)}
         else:
             issues.extend(validator.errors)
     except ValidationError, e:

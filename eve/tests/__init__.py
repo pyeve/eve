@@ -64,7 +64,7 @@ class TestMethodsBase(TestBase):
         super(TestMethodsBase, self).setUp()
         self.setupDB()
         response, status = self.get('contacts', '?max_results=2')
-        contact = response['items'][0]
+        contact = response['_items'][0]
         self.item_id = contact[self.app.config['ID_FIELD']]
         self.item_name = contact['ref']
         self.item_tid = contact['tid']
@@ -75,10 +75,10 @@ class TestMethodsBase(TestBase):
         self.item_name_url = ('/%s/%s/' %
                               (self.domain[self.known_resource]['url'],
                                self.item_name))
-        self.alt_ref = response['items'][1]['ref']
+        self.alt_ref = response['_items'][1]['ref']
 
         response, status = self.get('payments', '?max_results=1')
-        self.readonly_id = response['items'][0]['_id']
+        self.readonly_id = response['_items'][0]['_id']
         self.readonly_id_url = ('%s%s/' % (self.readonly_resource_url,
                                            self.readonly_id))
 
@@ -155,49 +155,61 @@ class TestMethodsBase(TestBase):
             self.fail('Cannot convert field "%s" to datetime: %s' %
                       (self.app.config['LAST_UPDATED'], e))
 
-        link = item.get('link')
-        self.assertTrue(link is not None)
+        link = item.get('_links')
         self.assertItemLink(link, _id)
 
     def assertHomeLink(self, links):
-        found = False
-        for link in links:
-            if "title='home'" in link and \
-               "href='%s'" % self.app.config['SERVER_NAME'] in link:
-                found = True
-                break
-        self.assertTrue(found)
+        self.assertTrue('parent' in links)
+        link = links['parent']
+        self.assertTrue('title' in link)
+        self.assertTrue('href' in link)
+        self.assertEqual('home', link['title'])
+        self.assertEqual("%s" % self.app.config['SERVER_NAME'], link['href'])
 
     def assertResourceLink(self, links, resource):
+        self.assertTrue('self' in links)
+        link = links['self']
+        self.assertTrue('title' in link)
+        self.assertTrue('href' in link)
         url = self.domain[resource]['url']
-        found = False
-        for link in links:
-            if "title='%s'" % url in link and \
-               "href='%s/%s/" % (self.app.config['SERVER_NAME'], url) in link:
-                found = True
-                break
-        self.assertTrue(found)
+        self.assertEqual(url, link['title'])
+        self.assertEqual("%s/%s/" % (self.app.config['SERVER_NAME'], url),
+                         link['href'])
+
+    def assertCollectionLink(self, links, resource):
+        self.assertTrue('collection' in links)
+        link = links['collection']
+        self.assertTrue('title' in link)
+        self.assertTrue('href' in link)
+        url = self.domain[resource]['url']
+        self.assertEqual(url, link['title'])
+        self.assertEqual("%s/%s/" % (self.app.config['SERVER_NAME'], url),
+                         link['href'])
 
     def assertNextLink(self, links, page):
-        found = False
-        for link in links:
-            if "title='next page'" in link and "rel='next'" in link and \
-               'page=%d' % page in link:
-                found = True
-        self.assertTrue(found)
+        self.assertTrue('next' in links)
+        link = links['next']
+        self.assertTrue('title' in link)
+        self.assertTrue('href' in link)
+        self.assertEqual('next page', link['title'])
+        self.assertTrue("page=%d" % page in link['href'])
 
     def assertPrevLink(self, links, page):
-        found = False
-        for link in links:
-            if "title='previous page'" in link and "rel='prev'" in link:
-                if page > 1:
-                    found = 'page=%d' % page in link
-                else:
-                    found = True
-        self.assertTrue(found)
+        self.assertTrue('prev' in links)
+        link = links['prev']
+        self.assertTrue('title' in link)
+        self.assertTrue('href' in link)
+        self.assertEqual('previous page', link['title'])
+        if page > 1:
+            self.assertTrue("page=%d" % page in link['href'])
 
-    def assertItemLink(self, link, item_id):
-        self.assertTrue("rel='self'" in link and '/%s/' % item_id in link)
+    def assertItemLink(self, links, item_id):
+        self.assertTrue('self' in links)
+        link = links['self']
+        #TODO we are too deep here to get a hold of the due title. Should fix.
+        self.assertTrue('title' in link)
+        self.assertTrue('href' in link)
+        self.assertTrue('/%s/' % item_id in link['href'])
 
     def assert400(self, status):
         self.assertEqual(status, 400)

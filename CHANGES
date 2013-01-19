@@ -8,17 +8,18 @@ Version 0.0.3
 
 Not yet released.
 
-- Streamlined JSON responses. 
-  The superflous ``response`` root key has been removed from JSON payloads. In
-  order to properly validate, XML payloads will still carry a ``response`` root
-  node.
+- JSON links are always wrapped in a ``_links`` dictionary. Key values match
+  the relation between the item being represented and the linked resource.
 
-  GET requests to resource endpoints. Items are always wrapped in
-  an ``items`` list. Previously the list name would match the name of the
-  resource being accessed.  
+- Streamlined JSON responses.  
   
-  GET requests to item endpoints. The item key is always set to ``item``.
-  Previously it would match the resource name minus the final 's'.
+  Superflous ``response`` root key has been removed from JSON payloads. 
+
+  GET requests to resource endpoints: items are now wrapped with an ``_items``
+  list. 
+  
+  GET requests to item endpoints: item is now at root level, with no wrappers
+  around it. 
 
 - Support for API versioning through the new API_VERSION configuration setting.
 - Boolean values in request forms are now correctly parsed.

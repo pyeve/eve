@@ -153,15 +153,14 @@ class TestPost(TestMethodsBase):
             self.assertFalse('issues' in k)
             self.assertTrue(ID_FIELD in k)
             self.assertTrue(LAST_UPDATED in k)
-            self.assertTrue('link') in k
-            self.assertItemLink(k['link'], k[ID_FIELD])
+            self.assertTrue('_links') in k
+            self.assertItemLink(k['_links'], k[ID_FIELD])
 
     def compare_post_with_get(self, item_id, fields):
         raw_r = self.test_client.get("%s%s/" % (self.known_resource_url,
                                                 item_id))
-        item_r, status = self.parse_response(raw_r)
+        item, status = self.parse_response(raw_r)
         self.assert200(status)
-        item = item_r['item']
         self.assertTrue(ID_FIELD in item)
         self.assertTrue(item[ID_FIELD] == item_id)
         self.assertTrue(DATE_CREATED in item)

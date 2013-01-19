@@ -30,7 +30,13 @@ def get(resource):
     """Retrieves the resource documents that match the current request.
 
     :param resource: the name of the resource.
+
+    .. versionchanged:: 0.0.3
+       Superflous ``response`` container removed. Collection items wrapped
+       with ``_items``. Links wrapped with ``_links``. Links are now properly
+       JSON formatted.
     """
+
     documents = list()
     response = dict()
     last_updated = datetime.min
@@ -58,7 +64,8 @@ def get(resource):
 
         # document metadata
         document['etag'] = document_etag(document)
-        document['link'] = document_link(resource, document[config.ID_FIELD])
+        document['_links'] = {'self': document_link(resource,
+                                                    document[config.ID_FIELD])}
 
         documents.append(document)
 
@@ -71,8 +78,8 @@ def get(resource):
     else:
         status = 200
         last_modified = last_updated if last_updated > datetime.min else None
-        response['items'] = documents
-        response['links'] = _pagination_links(resource, req, cursor.count())
+        response['_items'] = documents
+        response['_links'] = _pagination_links(resource, req, cursor.count())
 
     etag = None
     return response, last_modified, etag, status
@@ -83,6 +90,10 @@ def getitem(resource, **lookup):
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
+
+    .. versionchanged:: 0.0.3
+       Superflous ``response`` container removed. Links wrapped with
+       ``_links``. Links are now properly JSON formatted.
     """
     response = dict()
 
@@ -107,9 +118,12 @@ def getitem(resource, **lookup):
             # resolution (1 second).
             return response, last_modified, etag, 304
 
-        document['link'] = document_link(resource, document[config.ID_FIELD])
-        response['item'] = document
-        response['links'] = standard_links(resource)
+        response['_links'] = {
+            'self': document_link(resource, document[config.ID_FIELD]),
+            'collection': collection_link(resource),
+            'parent': home_link()
+        }
+        response.update(document)
         return response, last_modified, etag, 200
 
     abort(404)
@@ -122,23 +136,24 @@ def _pagination_links(resource, req, documents_count):
     :param resource: the resource name.
     :param req: and instace of :class:`eve.utils.ParsedRequest`.
     :param document_count: the number of documents returned by the query.
+
+    .. versionchanged:: 0.0.3
+       JSON links
     """
-    _pagination_links = standard_links(resource)
+    _links = {'parent': home_link(), 'self': collection_link(resource)}
 
     if documents_count:
         if req.page * req.max_results < documents_count:
             q = querydef(req.max_results, req.where, req.sort, req.page + 1)
-            _pagination_links.append("<link rel='next' title='next page'"
-                                     " href='%s%s' />" %
-                                     (resource_uri(resource), q))
+            _links['next'] = {'title': 'next page', 'href': '%s%s' %
+                              (resource_uri(resource), q)}
 
         if req.page > 1:
             q = querydef(req.max_results, req.where, req.sort, req.page - 1)
-            _pagination_links.append("<link rel='prev' title='previous page'"
-                                     " href='%s%s' />" %
-                                     (resource_uri(resource), q))
+            _links['prev'] = {'title': 'previous page', 'href': '%s%s' %
+                              (resource_uri(resource), q)}
 
-    return _pagination_links
+    return _links
 
 
 def standard_links(resource):

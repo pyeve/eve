@@ -13,7 +13,7 @@ class TestDelete(TestMethodsBase):
         r, status = self.parse_response(self.test_client.get(
             self.known_resource_url))
         self.assert200(status)
-        self.assertEqual(len(r['items']), 0)
+        self.assertEqual(len(r['_items']), 0)
         self.bulk_insert()
 
     def test_delete_empty_resource(self):

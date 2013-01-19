@@ -222,6 +222,9 @@ class Eve(Flask):
     def set_defaults(self):
         """ When not provided, fills individual resource settings with default
         or global configuration settings.
+
+        .. versionchanged:: 0.0.3
+           `item_title` default value.
         """
 
         for resource, settings in self.config['DOMAIN'].items():
