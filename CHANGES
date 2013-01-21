@@ -8,6 +8,8 @@ Version 0.0.3
 
 Not yet released.
 
+- XML rendering love. Lots of love.
+
 - JSON links are always wrapped in a ``_links`` dictionary. Key values match
   the relation between the item being represented and the linked resource.
 
