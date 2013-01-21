@@ -114,36 +114,113 @@ def render_xml(**data):
     :param data: the data stream to be rendered as xml.
 
     .. versionchanged:: 0.0.3
-       Addition of 'response' root node, since the payload does not include it
-       anymore.
+       Support for HAL-like hyperlinks and resource descriptors.
     """
-    # Assumes list names are plurals.
-    def to_xml(d):
-        xml = ''
-        for k, v in d.items():
-            if isinstance(v, datetime.datetime):
-                v = date_to_str(v)
-            elif isinstance(v, (datetime.time, datetime.date)):
-                v = v.isoformat()
+    if data:
+        xml = xml_root_open(data)
+        xml += xml_add_links(data)
+        xml += xml_add_items(data)
+        xml += xml_root_close()
+    return '' or xml
+
+
+def xml_root_open(data):
+    """ Returns the opening tag for the XML root node. If the datastream
+    includes informations about resource endpoints (href, title), they will
+    be added as node attributes. The resource endpoint is then removed to allow
+    for further processing of the datastream.
+
+    :param data: the data stream to be rendered as xml.
+
+    .. versionadded:: 0.0.3
+    """
+    links = data.get('_links')
+    href = title = ''
+    if links and 'self' in links:
+        self_ = links.pop('self')
+        href = ' href="%s" ' % self_['href']
+        if 'title' in self_:
+            title = ' title="%s" ' % self_['title']
+    return '<resource%s%s>' % (href, title)
+
+
+def xml_add_links(data):
+    """ Returns as many <link> nodes as there are in the datastream. The links
+    are then removed from the datastream to allow for further processing.
+
+    :param data: the data stream to be rendered as xml.
+
+    .. versionadded:: 0.0.3
+    """
+    links = data.pop('_links', {})
+    xml = ''.join(['<link rel="%s" href="%s" title="%s" />' % (rel,
+                                                               link['href'],
+                                                               link['title'])
+                   for rel, link in links.items()])
+
+    return '' or xml
+
+
+def xml_add_items(data):
+    """ When this function is called the datastream can only contain a `_items`
+    list, or a dictionary. If a list, each item is a resource which rendered as
+    XML. If a dictionary, it will be rendered as XML.
+
+    :param data: the data stream to be rendered as xml.
+
+    .. versionadded:: 0.0.3
+    """
+    try:
+        xml = ''.join([xml_item(item) for item in data['_items']])
+    except:
+        xml = xml_dict(data)
+    return xml
+
+
+def xml_item(item):
+    """ Represents a single resource (member of a collection) as XML.
+
+    :param data: the data stream to be rendered as xml.
+
+    .. versionadded:: 0.0.3
+    """
+    xml = xml_root_open(item)
+    xml += xml_add_links(item)
+    xml += xml_dict(item)
+    xml += xml_root_close()
+    return xml
+
+
+def xml_root_close():
+    """ Returns the closing tag of the XML root node.
+
+    .. versionadded:: 0.0.3
+    """
+    return '</resource>'
+
+
+def xml_dict(data):
+    """ Renders a dict as XML.
+
+    :param data: the data stream to be rendered as xml.
+
+    .. versionadded:: 0.0.3
+    """
+    xml = ''
+    for k, v in data.items():
+        if isinstance(v, datetime.datetime):
+            v = date_to_str(v)
+        elif isinstance(v, (datetime.time, datetime.date)):
+            v = v.isoformat()
+        if not isinstance(v, list):
+            v = [v]
+        for value in v:
+            if isinstance(value, dict):
+                links = xml_add_links(value)
+                xml += "<%s>" % k
+                xml += xml_dict(value)
+                xml += links
+                xml += "</%s>" % k
             else:
-                if isinstance(v, list):
-                    original_list = True
-                    xml += "<%s>" % k
-                else:
-                    original_list = False
-                    v = [v]
-                for value in v:
-                    if isinstance(value, dict):
-                        xml += "<%s>" % (k.rstrip('s'))
-                        xml += to_xml(value)
-                        xml += "</%s>" % (k.rstrip('s'))
-                    else:
-                        if original_list:
-                            xml += "<%s>%s</%s>" % (str(k.rstrip('s')), value,
-                                                    str(k.rstrip('s')))
-                        else:
-                            xml += "<%s>%s</%s>" % (k, value, k)
-                if original_list:
-                    xml += "</%s>" % k
-        return xml
-    return to_xml({'response': data})
+                xml += "<%s>%s</%s>" % (k, value, k)
+    return xml

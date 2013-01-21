@@ -96,17 +96,28 @@ Features
   (``?page=10``).
 
 - **HATEOAS**. Hypermedia as the Engine of Application State is enabled by
-  default. Each response includes a <links> section. Links provide details on
+  default. Each GET response includes a ``_links`` section. Links provide details on
   their ``relation`` relative to the resource being accessed and a ``title``.
-  Titles and relations could be used by clients to dynamically updated their
+  Titles and relations can be used by clients to dynamically updated their
   UI, or to navigate the API without knowing it structure beforehand. An
   example::
-
-    "links": [
-        <link rel='parent' title='home' href='http://api.example.com/' />,
-        <link rel='collection' title='contacts' href='http://api.example.com/contacts/' />,
-        <link rel='next' title='next page' href='http://api.example.com/contacts/?page=2' />,
-    ]
+  
+    {
+      "_links": {
+        "self": {
+          "href": "localhost:5000/contatti/", 
+          "title": "contatti"
+        }, 
+        "parent": {
+          "href": "localhost:5000", 
+          "title": "home"
+        }, 
+        "next": {
+          "href": "localhost:5000/contatti/?page=2", 
+          "title": "next page"
+        }
+      }
+    }
 
   In fact, a GET request to the API home page (the API entry point) will be
   served with a list of links to accessible resources. From there any consumer
