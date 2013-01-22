@@ -2,8 +2,8 @@
 
 from setuptools import setup, find_packages
 
-DESCRIPTION = ('An out-of-the-box RESTful Web API. Effortlessly build and '
-               'deploy your fully featured, proprietary API.')
+DESCRIPTION = ("A REST Web API framework that's as dangerous as you want it to"
+               " be.")
 LONG_DESCRIPTION = open('README.rst').read()
 VERSION = __import__('eve').__version__
 
