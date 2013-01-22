@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-)
 
 """
     eve.render
@@ -152,13 +152,16 @@ def xml_add_links(data):
 
     .. versionadded:: 0.0.3
     """
+    chunk = '<link rel="%s" href="%s" title="%s" />'
     links = data.pop('_links', {})
-    xml = ''.join(['<link rel="%s" href="%s" title="%s" />' % (rel,
-                                                               link['href'],
-                                                               link['title'])
-                   for rel, link in links.items()])
-
-    return '' or xml
+    xml = ''
+    for rel, link in links.items():
+        if isinstance(link, list):
+            xml += ''.join([chunk % (rel, d['href'], d['title']) for d in
+                            link])
+        else:
+            xml += ''.join(chunk % (rel, link['href'], link['title']))
+    return xml
 
 
 def xml_add_items(data):

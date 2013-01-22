@@ -70,7 +70,7 @@ def home_endpoint():
     response = dict()
     links = list()
     for resource in config.DOMAIN.keys():
-        links.append("<link rel='child' title='%s' href='%s' />" %
-                     (config.URLS[resource], resource_uri(resource)))
-    response['links'] = links
+        links.append({'href': '%s' % resource_uri(resource),
+                      'title': '%s' % config.URLS[resource]})
+    response['_links'] = {'child': links}
     return send_response(None, response)
