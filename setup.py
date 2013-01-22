@@ -2,14 +2,14 @@
 
 from setuptools import setup, find_packages
 
-DESCRIPTION = ("A REST Web API framework that's as dangerous as you want it to"
-               " be.")
+DESCRIPTION = ("A REST Web API framework that's as dangerous as you want it "
+               "to be.")
 LONG_DESCRIPTION = open('README.rst').read()
-VERSION = __import__('eve').__version__
+#VERSION = __import__('eve').__version__
 
 setup(
     name='Eve',
-    version=VERSION,
+    version='0.0.3',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',
