@@ -116,12 +116,13 @@ def render_xml(**data):
     .. versionchanged:: 0.0.3
        Support for HAL-like hyperlinks and resource descriptors.
     """
+    xml = ''
     if data:
-        xml = xml_root_open(data)
+        xml += xml_root_open(data)
         xml += xml_add_links(data)
         xml += xml_add_items(data)
         xml += xml_root_close()
-    return '' or xml
+    return xml
 
 
 def xml_root_open(data):

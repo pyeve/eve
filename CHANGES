@@ -3,6 +3,14 @@ Eve Changelog
 
 Here you can see the full list of changes between each Eve release.
 
+Version 0.0.4
+-------------
+
+Not released yet.
+
+- Repeated XML requests to the same endpoint could occasionally return
+  an Internal Server Error (Fixes #8).
+
 Version 0.0.3
 -------------
 
