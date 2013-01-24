@@ -312,4 +312,3 @@ class Eve(Flask):
                                       methods=['GET'])
         self.config['RESOURCES'] = resources
         self.config['URLS'] = urls
-        self.config['URLS'] = urls
