@@ -7,7 +7,7 @@ import string
 import random
 import simplejson as json
 from datetime import datetime, timedelta
-from flask.ext.pymongo import Connection
+from flask.ext.pymongo import MongoClient
 from bson import ObjectId
 from eve import Eve, STATUS_ERR
 from test_settings import MONGO_PASSWORD, MONGO_USERNAME, MONGO_DBNAME, DOMAIN
@@ -224,7 +224,7 @@ class TestMethodsBase(TestBase):
         self.assertEqual(status, 412)
 
     def setupDB(self):
-        self.connection = Connection()
+        self.connection = MongoClient()
         self.connection.drop_database(MONGO_DBNAME)
         self.connection[MONGO_DBNAME].add_user(MONGO_USERNAME, MONGO_PASSWORD)
         self.bulk_insert()
@@ -236,7 +236,7 @@ class TestMethodsBase(TestBase):
         self.connection.close()
 
     def dropDB(self):
-        self.connection = Connection()
+        self.connection = MongoClient()
         self.connection.drop_database(MONGO_DBNAME)
         self.connection.close()
 
