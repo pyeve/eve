@@ -16,7 +16,7 @@ import re
 from eve.utils import config
 from bson import ObjectId
 from flask import current_app as app
-from cerberus import Validator, ValidationError, SchemaError
+from cerberus import Validator
 from cerberus.errors import ERROR_BAD_TYPE
 
 
