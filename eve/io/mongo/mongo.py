@@ -11,9 +11,10 @@
 """
 
 import ast
-import jsondatetime as json
+import simplejson as json
 from flask import abort
 from flask.ext.pymongo import PyMongo
+from datetime import datetime
 from bson import ObjectId
 from parser import parse, ParseError
 from eve.io.base import DataLayer, ConnectionException
@@ -67,7 +68,7 @@ class Mongo(DataLayer):
         spec = dict()
         if req.where:
             try:
-                spec = json.loads(req.where)
+                spec = self._jsondatetime(json.loads(req.where))
             except:
                 try:
                     spec = parse(req.where)
@@ -121,3 +122,21 @@ class Mongo(DataLayer):
         else:
             # this will delete all documents in a collection!
             return self.driver.db[resource].remove()
+
+    def _jsondatetime(self, source):
+        """ Recursively iterates a JSON dictionary, turning RFC-1123 strings
+        into datetime values.
+
+        .. versionadded:: 0.0.4
+        """
+
+        for k, v in source.items():
+            if isinstance(v, dict):
+                self._jsondatetime(v)
+            elif isinstance(v, basestring):
+                try:
+                    source[k] = datetime.strptime(v, config.DATE_FORMAT)
+                except:
+                    pass
+
+        return source
