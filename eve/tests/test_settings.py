@@ -42,10 +42,13 @@ contacts = {
         },
         'rows': {
             'type': 'list',
-            'items': {
-                'sku': {'type': 'string', 'maxlength': 10},
-                'price': {'type': 'integer'},
-            }
+            'schema': {
+                'type': 'dict',
+                'schema': {
+                    'sku': {'type': 'string', 'maxlength': 10},
+                    'price': {'type': 'integer'},
+                },
+            },
         },
         'alist': {
             'type': 'list',
