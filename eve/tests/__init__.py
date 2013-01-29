@@ -290,7 +290,7 @@ class TestMethodsBase(TestBase):
         return alist
 
     def random_rows(self, num):
-        schema = DOMAIN['contacts']['schema']['rows']['items']
+        schema = DOMAIN['contacts']['schema']['rows']['schema']['schema']
         rows = []
         for i in range(num):
             rows.append(

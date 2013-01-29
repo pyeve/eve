@@ -8,6 +8,7 @@ Version 0.0.4
 
 Not released yet.
 
+- Support for Cerberus v0.0.3 and later.
 - Support for Flask-PyMongo v0.2.0 and later.
 - Repeated XML requests to the same endpoint could occasionally return
   an Internal Server Error (Fixes #8).
