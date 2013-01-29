@@ -1,5 +1,4 @@
 Flask==0.9
 Flask-PyMongo>=0.2.0
-JSON-Datetime
 simplejson
 Cerberus
