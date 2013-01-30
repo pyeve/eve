@@ -42,6 +42,7 @@ Not released yet.
   then you will probably want to set the validation rules accordingly (in our
   example, 'username' should probably be a required field).
 
+- JSON-Datetime dependency removed.
 - Support for Cerberus v0.0.3 and later.
 - Support for Flask-PyMongo v0.2.0 and later.
 - Repeated XML requests to the same endpoint could occasionally return an
