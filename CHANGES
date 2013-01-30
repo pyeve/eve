@@ -37,6 +37,9 @@ Not released yet.
   In the example above the API endpoint will only expose (and update) documents
   with the 'username' field.
 
+  Predefined filters run on top of user queries (GET requests with 'where'
+  clauses) and standard conditional requests ('If-Modified-Since', etc.)
+
   Please note that datasource filters are applied on GET, PATCH and DELETE
   requests. If your resource allows for POST requests (document insertions),
   then you will probably want to set the validation rules accordingly (in our
@@ -48,7 +51,8 @@ Not released yet.
 - Repeated XML requests to the same endpoint could occasionally return an
   Internal Server Error (Fixes #8).
 
-Version 0.0.3 -------------
+Version 0.0.3 
+-------------
 
 Released on January 22th 2013.
 
