@@ -142,6 +142,8 @@ class TestConfig(TestBase):
         self.assertNotEqual(settings['schema'], None)
         self.assertEqual(type(settings['schema']), dict)
         self.assertEqual(len(settings['schema']), 0)
+        self.assertEqual(settings['datasource'],
+                         {'source': resource, 'filter': None})
 
     def test_schema_dates(self):
         self.domain.clear()
@@ -171,11 +173,17 @@ class TestConfig(TestBase):
         self.assertNotEqual(self.app.config.get('URLS'), None)
         self.assertEqual(type(self.app.config['URLS']), dict)
 
+        self.assertNotEqual(self.app.config.get('SOURCES'), None)
+        self.assertEqual(type(self.app.config['SOURCES']), dict)
+
         for resource, settings in self.domain.items():
             self.assertEqual(settings['url'],
                              self.app.config['URLS'][resource])
             self.assertEqual(resource,
                              self.app.config['RESOURCES'][settings['url']])
+
+            self.assertEqual(settings['datasource'],
+                             self.app.config['SOURCES'][resource])
 
     def test_url_rules(self):
         map_adapter = self.app.url_map.bind(self.app.config['SERVER_NAME'])

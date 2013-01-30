@@ -45,6 +45,11 @@ class TestBase(unittest.TestCase):
         self.readonly_resource_url = (
             '/%s/' % self.domain[self.readonly_resource]['url'])
 
+        self.different_resource = 'users'
+        self.different_resource_url = ('/%s/' %
+                                       self.domain[
+                                           self.different_resource]['url'])
+
     def assert200(self, status):
         self.assertEqual(status, 200)
 
@@ -81,6 +86,16 @@ class TestMethodsBase(TestBase):
         self.readonly_id = response['_items'][0]['_id']
         self.readonly_id_url = ('%s%s/' % (self.readonly_resource_url,
                                            self.readonly_id))
+
+        response, status = self.get('users')
+        user = response['_items'][0]
+        self.user_id = user[self.app.config['ID_FIELD']]
+        self.user_username = user['username']
+        self.user_name = user['ref']
+        self.user_etag = user['etag']
+        self.user_id_url = ('/%s/%s/' %
+                            (self.domain[self.different_resource]['url'],
+                             self.user_id))
 
     def tearDown(self):
         self.dropDB()
@@ -232,6 +247,7 @@ class TestMethodsBase(TestBase):
     def bulk_insert(self):
         _db = self.connection[MONGO_DBNAME]
         _db.contacts.insert(self.random_contacts(100))
+        _db.contacts.insert(self.random_users(2))
         _db.payments.insert(self.random_payments(10))
         self.connection.close()
 
@@ -265,6 +281,12 @@ class TestMethodsBase(TestBase):
             }
             contacts.append(contact)
         return contacts
+
+    def random_users(self, num):
+        users = self.random_contacts(num)
+        for user in users:
+            user['username'] = self.random_string(10)
+        return users
 
     def random_payments(self, num):
         payments = []

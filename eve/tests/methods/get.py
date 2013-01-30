@@ -94,7 +94,7 @@ class TestGet(TestMethodsBase):
 
         resource = response['_items']
         self.assertEqual(len(resource), self.app.config['PAGING_DEFAULT'])
-        # TODO testing all the resultset seems a excessive?
+        # TODO testing all the resultset seems a bit excessive?
         for i in range(len(resource)):
             self.assertEqual(resource[i]['prog'], i)
 
@@ -131,17 +131,43 @@ class TestGet(TestMethodsBase):
         #del(item['etag'])
         #self.assertEqual(hashlib.sha1(str(item)).hexdigest(), etag)
 
+    def test_get_same_collection_different_resource(self):
+        """ the 'users' resource is actually using the same db collection as
+        'contacts'. Let's verify that base filters are being applied, and
+        the right amount of items/links and the correct titles etc. are being
+        returned. Of course 'contacts' itself has its own base filter, which
+        excludes the 'users' (those with a 'username' field).
+        """
+        response, status = self.get(self.different_resource)
+        self.assert200(status)
+
+        links = response['_links']
+        self.assertEqual(len(links), 2)
+        self.assertHomeLink(links)
+        self.assertResourceLink(links, self.different_resource)
+
+        resource = response['_items']
+        self.assertEqual(len(resource), 2)
+
+        for item in resource:
+            # 'user' title instead of original 'contact'
+            self.assertItem(item)
+
+        etag = item.get('etag')
+        self.assertTrue(etag is not None)
+
 
 #@unittest.skip("workin on post")
 class TestGetItem(TestMethodsBase):
 
-    def assertItemResponse(self, response, status):
+    def assertItemResponse(self, response, status,
+                           resource=None):
         self.assert200(status)
 
         links = response['_links']
         self.assertEqual(len(links), 3)
         self.assertHomeLink(links)
-        self.assertCollectionLink(links, self.known_resource)
+        self.assertCollectionLink(links, resource or self.known_resource)
         self.assertItem(response)
 
     def test_disallowed_getitem(self):
@@ -184,3 +210,20 @@ class TestGetItem(TestMethodsBase):
 
     def test_expires(self):
         self.assertExpires(self.item_id_url)
+
+    def test_getitem_by_id_different_resource(self):
+        response, status = self.get(self.different_resource,
+                                    item=self.user_id)
+        self.assertItemResponse(response, status, self.different_resource)
+
+        response, status = self.get(self.different_resource,
+                                    item=self.item_id)
+        self.assert404(status)
+
+    def test_getitem_by_name_different_resource(self):
+        response, status = self.get(self.different_resource,
+                                    item=self.user_name)
+        self.assertItemResponse(response, status, self.different_resource)
+        response, status = self.get(self.different_resource,
+                                    item=self.unknown_item_name)
+        self.assert404(status)
