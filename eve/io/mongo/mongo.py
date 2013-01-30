@@ -48,6 +48,9 @@ class Mongo(DataLayer):
 
         :param resource: resource name.
         :param req: a :class:`ParsedRequest`instance.
+
+        .. versionchanged:: 0.0.4
+           retrieves the target collection via the new config.SOURCES helper.
         """
         args = dict()
 
@@ -65,7 +68,8 @@ class Mongo(DataLayer):
         if req.sort:
             args['sort'] = ast.literal_eval(req.sort)
 
-        spec = dict()
+        spec = {}
+
         if req.where:
             try:
                 spec = self._jsondatetime(json.loads(req.where))
@@ -75,6 +79,8 @@ class Mongo(DataLayer):
                 except ParseError:
                     abort(400)
 
+        datasource, spec = self._datasource_ex(resource, spec)
+
         if req.if_modified_since:
             spec[config.LAST_UPDATED] = \
                 {'$gt': req.if_modified_since}
@@ -82,46 +88,57 @@ class Mongo(DataLayer):
         if len(spec) > 0:
             args['spec'] = spec
 
-        return self.driver.db[resource].find(**args)
+        return self.driver.db[datasource].find(**args)
 
     def find_one(self, resource, **lookup):
         """Retrieves a single document.
 
         :param resource: resource name.
         :param **lookup: lookup query.
+
+        .. versionchanged:: 0.0.4
+           retrieves the target collection via the new config.SOURCES helper.
         """
         try:
             if config.ID_FIELD in lookup:
                 lookup[ID_FIELD] = ObjectId(lookup[ID_FIELD])
         except:
             pass
-        document = self.driver.db[resource].find_one(lookup)
-        #if document:
-        #    self.fix_last_updated(document)
+        datasource, filter_ = self._datasource_ex(resource, lookup)
+        document = self.driver.db[datasource].find_one(filter_)
         return document
 
     def insert(self, resource, document):
         """Inserts a document into a resource collection.
+
+        .. versionchanged:: 0.0.4
+           retrieves the target collection via the new config.SOURCES helper.
         """
-        return  self.driver.db[resource].insert(document)
+        datasource, filter_ = self._datasource_ex(resource)
+        return  self.driver.db[datasource].insert(document)
 
     def update(self, resource, id_, updates):
         """Updates a collection document.
+
+        .. versionchanged:: 0.0.4
+           retrieves the target collection via the new config.SOURCES helper.
         """
-        return self.driver.db[resource].update({ID_FIELD: ObjectId(id_)},
-                                               {"$set": updates})
+        datasource, filter_ = self._datasource_ex(resource,
+                                                  {ID_FIELD: ObjectId(id_)})
+        return self.driver.db[datasource].update(filter_, {"$set": updates})
 
     def remove(self, resource, id_=None):
         """Removes a document or the entire set of documents from a collection.
 
+        .. versionchanged:: 0.0.4
+           retrieves the target collection via the new config.SOURCES helper.
+
         .. versionadded:: 0.0.2
             Support for deletion of entire documents collection.
         """
-        if id_:
-            return self.driver.db[resource].remove({ID_FIELD: ObjectId(id_)})
-        else:
-            # this will delete all documents in a collection!
-            return self.driver.db[resource].remove()
+        query = {ID_FIELD: ObjectId(id_)} if id_ else None
+        datasource, filter_ = self._datasource_ex(resource, query)
+        return self.driver.db[datasource].remove(filter_)
 
     def _jsondatetime(self, source):
         """ Recursively iterates a JSON dictionary, turning RFC-1123 strings
@@ -140,3 +157,18 @@ class Mongo(DataLayer):
                     pass
 
         return source
+
+    def _datasource_ex(self, resource, query=None):
+        """ Returns both db collection and exact query (base filter included)
+        to which an API resource refers to
+
+        .. versionadded:: 0.0.4
+        """
+
+        datasource, filter_ = self._datasource(resource)
+        if filter_:
+            if query:
+                query.update(filter_)
+            else:
+                query = filter_
+        return datasource, query

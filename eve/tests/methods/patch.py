@@ -28,6 +28,20 @@ class TestPatch(TestMethodsBase):
                                data={'key1': 'value1'})
         self.assert404(status)
 
+    def test_unknown_id_different_resource(self):
+        # patching a 'user' with a valid 'contact' id will 404
+        r, status = self.patch('%s/%s/' % (self.different_resource,
+                                           self.item_id),
+                               data={'key1': 'value1'})
+        self.assert404(status)
+
+        # of course we can still patch a 'user'
+        r, status = self.patch('%s/%s/' % (self.different_resource,
+                                           self.user_id),
+                               data={'key1': '{"username": "username1"}'},
+                               headers=[('If-Match', self.user_etag)])
+        self.assert200(status)
+
     def test_by_name(self):
         r, status = self.patch(self.item_name_url, data={'key1': 'value1'})
         self.assert405(status)

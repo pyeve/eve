@@ -223,6 +223,9 @@ class Eve(Flask):
         """ When not provided, fills individual resource settings with default
         or global configuration settings.
 
+        .. versionchanged:: 0.0.4
+           'datasource' keywords. Defaults to the resourcename.
+
         .. versionchanged:: 0.0.3
            `item_title` default value.
         """
@@ -247,6 +250,11 @@ class Eve(Flask):
                 item_methods = eve.ITEM_METHODS
             settings.setdefault('item_methods', item_methods)
 
+            datasource = {}
+            settings.setdefault('datasource', datasource)
+            settings['datasource'].setdefault('source', resource)
+            settings['datasource'].setdefault('filter', None)
+
             # empty schemas are allowed for read-only access to resources
             schema = settings.setdefault('schema', {})
 
@@ -263,12 +271,16 @@ class Eve(Flask):
         """ Builds the API url map. Methods are enabled for each mapped
         endpoint, as configured in the settings.
 
+        .. versionchanged:: 0.0.4
+           config.SOURCES. Maps resources to their datasources.
+
         .. versionchanged:: 0.0.3
            Support for API_VERSION as an endpoint prefix.
         """
         # helpers
         resources = dict()     # maps urls to resources (DOMAIN keys)
         urls = dict()          # maps resources to urls
+        datasources = dict()   # maps resources to their datasources
 
         prefix = api_prefix(self.config['URL_PREFIX'],
                             self.config['API_VERSION'])
@@ -279,6 +291,7 @@ class Eve(Flask):
         for resource, settings in self.config['DOMAIN'].items():
             resources[settings['url']] = resource
             urls[resource] = settings['url']
+            datasources[resource] = settings['datasource']
 
             # resource endpoint
             url = '/<regex("%s"):url>/' % settings['url']
@@ -312,3 +325,4 @@ class Eve(Flask):
                                       methods=['GET'])
         self.config['RESOURCES'] = resources
         self.config['URLS'] = urls
+        self.config['SOURCES'] = datasources
