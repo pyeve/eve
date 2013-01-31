@@ -47,12 +47,12 @@ def patch(resource, **lookup):
     last_modified = None
     etag = None
 
-    issues = list()
+    issues = []
 
     key = request.form.keys()[0]
     value = request.form[key]
 
-    response_item = dict()
+    response_item = {}
 
     try:
         updates = parse(value, resource)
@@ -100,6 +100,6 @@ def patch(resource, **lookup):
     else:
         response_item['status'] = config.STATUS_OK
 
-    response = dict()
+    response = {}
     response[key] = response_item
     return response, last_modified, etag, 200

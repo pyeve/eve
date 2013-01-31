@@ -67,8 +67,8 @@ def item_endpoint(url, **lookup):
 def home_endpoint():
     """ Home/API entry point. Will provide links to each available resource
     """
-    response = dict()
-    links = list()
+    response = {}
+    links = []
     for resource in config.DOMAIN.keys():
         links.append({'href': '%s' % resource_uri(resource),
                       'title': '%s' % config.URLS[resource]})

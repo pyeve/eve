@@ -73,8 +73,8 @@ def _best_mime():
     ones supported by Eve. Along with the mime, also the corresponding
     render function is returns.
     """
-    supported = list()
-    renders = dict()
+    supported = []
+    renders = {}
     for mime in _MIME_TYPES:
         for mime_type in mime['mime']:
             supported.append(mime_type)

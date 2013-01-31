@@ -35,7 +35,7 @@ def post(resource):
     if len(request.form) == 0:
         abort(400)
 
-    response = dict()
+    response = {}
     date_utc = datetime.utcnow()
 
     schema = app.config['DOMAIN'][resource]['schema']
@@ -43,8 +43,8 @@ def post(resource):
 
     for key, value in request.form.items():
 
-        response_item = dict()
-        issues = list()
+        response_item = {}
+        issues = []
 
         try:
             document = parse(value, resource)

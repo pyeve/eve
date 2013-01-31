@@ -278,9 +278,9 @@ class Eve(Flask):
            Support for API_VERSION as an endpoint prefix.
         """
         # helpers
-        resources = dict()     # maps urls to resources (DOMAIN keys)
-        urls = dict()          # maps resources to urls
-        datasources = dict()   # maps resources to their datasources
+        resources = {}     # maps urls to resources (DOMAIN keys)
+        urls = {}          # maps resources to urls
+        datasources = {}   # maps resources to their datasources
 
         prefix = api_prefix(self.config['URL_PREFIX'],
                             self.config['API_VERSION'])

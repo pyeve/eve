@@ -29,7 +29,7 @@ def delete(resource, **lookup):
         abort(404)
 
     app.data.remove(resource, lookup[config.ID_FIELD])
-    return dict(), None, None, 200
+    return {}, None, None, 200
 
 
 def delete_resource(resource):
@@ -39,4 +39,4 @@ def delete_resource(resource):
     .. versionadded:: 0.0.2
     """
     app.data.remove(resource)
-    return dict(), None, None, 200
+    return {}, None, None, 200

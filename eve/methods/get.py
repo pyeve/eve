@@ -37,8 +37,8 @@ def get(resource):
        JSON formatted.
     """
 
-    documents = list()
-    response = dict()
+    documents = []
+    response = {}
     last_updated = datetime.min
 
     req = parse_request()
@@ -95,7 +95,7 @@ def getitem(resource, **lookup):
        Superflous ``response`` container removed. Links wrapped with
        ``_links``. Links are now properly JSON formatted.
     """
-    response = dict()
+    response = {}
 
     req = parse_request()
     document = app.data.find_one(resource, **lookup)
