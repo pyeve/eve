@@ -166,6 +166,26 @@ class TestConfig(TestBase):
         self.assertEqual(type(settings['dates']), set)
         self.assertEqual(len(settings['dates']), 2)
 
+    def test_schema_defaults(self):
+        self.domain.clear()
+        self.domain['resource'] = {
+            'schema': {
+                'title': {
+                    'type': 'string',
+                    'default': 'Mr.',
+                },
+                'price': {
+                    'type': 'integer',
+                    'default': 100
+                },
+            }
+        }
+        self.app.set_defaults()
+        settings = self.domain['resource']
+        self.assertNotEqual(settings.get('defaults'), None)
+        self.assertEqual(type(settings['defaults']), set)
+        self.assertEqual(len(settings['defaults']), 2)
+
     def test_url_helpers(self):
         self.assertNotEqual(self.app.config.get('RESOURCES'), None)
         self.assertEqual(type(self.app.config['RESOURCES']), dict)

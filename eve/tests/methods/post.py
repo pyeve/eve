@@ -100,6 +100,12 @@ class TestPost(TestMethodsBase):
         data = {'item1': '{"%s": "%s"}' % (test_field, test_value)}
         self.assertPostItem(data, test_field, test_value)
 
+    def test_post_default_value(self):
+        test_field = 'title'
+        test_value = "Mr."
+        data = {'item1': '{"%s": "%s"}' % ('ref', '9234567890123456789054321')}
+        self.assertPostItem(data, test_field, test_value)
+
     def assertPostItem(self, data, test_field, test_value):
         r = self.perform_post(data)
         item_id = r['item1'][ID_FIELD]

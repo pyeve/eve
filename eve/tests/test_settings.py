@@ -68,6 +68,10 @@ contacts = {
         'tid': {
             'type': 'objectid',
         },
+        'title': {
+            'type': 'string',
+            'default': 'Mr.',
+        }
     }
 }
 
