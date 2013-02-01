@@ -145,6 +145,21 @@ class TestPatch(TestMethodsBase):
         db_value = self.compare_patch_with_get(field, r)
         self.assertEqual(db_value, test_value)
 
+    def test_patch_defaults(self):
+        field = "ref"
+        test_value = "1234567890123456789012345"
+        changes = {'key1': json.dumps({field: test_value})}
+        r = self.perform_patch(changes)
+        self.assertRaises(KeyError, self.compare_patch_with_get, 'title', r)
+
+    def test_patch_defaults_with_post_override(self):
+        field = "ref"
+        test_value = "1234567890123456789012345"
+        r = self.perform_patch_with_post_override(field, test_value)
+        self.assert200(r.status_code)
+        self.assertRaises(KeyError, self.compare_patch_with_get, 'title',
+                          json.loads(r.data))
+
     def test_patch_multiple_fields(self):
         fields = ['ref', 'prog', 'role']
         test_values = ["9876543210987654321054321", 123, ["agent"]]
@@ -157,12 +172,7 @@ class TestPatch(TestMethodsBase):
             self.assertEqual(db_values[i], test_values[i])
 
     def test_patch_with_post_override(self):
-        headers = [('X-HTTP-Method-Override', True),
-                   ('If-Match', self.item_etag),
-                   ('Content-Type', 'application/x-www-form-urlencoded')]
-        r = self.test_client.post(self.item_id_url,
-                                  data={'key1': json.dumps({"prog": 1})},
-                                  headers=headers)
+        r = self.perform_patch_with_post_override('prog', 1)
         self.assert200(r.status_code)
 
     def perform_patch(self, changes):
@@ -172,6 +182,14 @@ class TestPatch(TestMethodsBase):
         self.assert200(status)
         self.assertPatchResponse(r, 'key1', self.item_id)
         return r
+
+    def perform_patch_with_post_override(self, field, value):
+        headers = [('X-HTTP-Method-Override', True),
+                   ('If-Match', self.item_etag),
+                   ('Content-Type', 'application/x-www-form-urlencoded')]
+        return self.test_client.post(self.item_id_url,
+                                     data={'key1': json.dumps({field: value})},
+                                     headers=headers)
 
     def compare_patch_with_get(self, fields, patch_response):
         raw_r = self.test_client.get(self.item_id_url)

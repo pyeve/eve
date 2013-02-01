@@ -10,7 +10,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from flask import current_app as app
+from flask import current_app as app, request
 from flask import abort
 import simplejson as json
 from ..utils import str_to_date, parse_request, document_etag, config
@@ -49,6 +49,10 @@ def parse(value, resource):
 
     :param value: the string to be evaluated.
     :param resource: name of the involved resource.
+
+    .. versionchanged:: 0.0.4
+       When parsing POST requests, eventual default values are injected in
+       parsed documents.
     """
 
     document = json.loads(value)
@@ -59,5 +63,14 @@ def parse(value, resource):
     document_dates = dates.intersection(set(document.keys()))
     for date_field in document_dates:
         document[date_field] = str_to_date(document[date_field])
+
+    # update the document with eventual default values
+    if request.method == 'POST' and \
+            'X-HTTP-Method-Override' not in request.headers:
+        defaults = app.config['DOMAIN'][resource]['defaults']
+        missing_defaults = defaults.difference(set(document.keys()))
+        schema = config.DOMAIN[resource]['schema']
+        for missing_field in missing_defaults:
+            document[missing_field] = schema[missing_field]['default']
 
     return document

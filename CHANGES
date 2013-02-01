@@ -8,6 +8,20 @@ Version 0.0.4
 
 Not released yet.
 
+- Support for default values in resource fields. The new 'default' keyword can
+  now be used when defining a field rule set.
+
+  'userlevel': {
+    'type': 'integer', 
+    'default': 1
+    }
+
+  When serving POST (create) requests, the 'userlevel' field (with a value of
+  1) will be injected in documents lacking it. 
+  
+  Please note: currently default values are supported only for main document
+  fields. Default values for fields in embedded documents will be ignored.
+
 - Multiple API endpoints can now target the same database collection. For
   example now you can set both '/admins/' and '/users/' to read and write from
   the same collection on the db, 'people'.

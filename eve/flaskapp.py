@@ -224,7 +224,9 @@ class Eve(Flask):
         or global configuration settings.
 
         .. versionchanged:: 0.0.4
-           'datasource' keywords. Defaults to the resourcename.
+           'datasource' default values.
+           'defaults' helper set, built here in order to facilitate processing
+           of future POST requests.
 
         .. versionchanged:: 0.0.3
            `item_title` default value.
@@ -260,12 +262,22 @@ class Eve(Flask):
 
             # TODO fill schema{} defaults, like field type, etc.
 
-            # the `dates` helper set contains the names of the schema fields
-            # definited as `datetime` types. It will come in handy when
+            # `dates` helper set contains the names of the schema fields
+            # defined as `datetime` types. It will come in handy when
             # we will be parsing incoming documents
+
+            # TODO support date fields for embedded documents.
             settings['dates'] = \
                 set(field for field, definition in schema.items()
                     if definition.get('type') == 'datetime')
+
+            # 'defaults' helper set contains the names of fields with
+            # default values in their schema definition.
+
+            # TODO support default values for embedded documents.
+            settings['defaults'] = \
+                set(field for field, definition in schema.items()
+                    if definition.get('default'))
 
     def _add_url_rules(self):
         """ Builds the API url map. Methods are enabled for each mapped
