@@ -8,6 +8,7 @@ Version 0.0.4
 
 Not released yet.
 
+- Support for all standard Flask initialization parameters.
 - Support for default values in resource fields. The new 'default' keyword can
   now be used when defining a field rule set.
 

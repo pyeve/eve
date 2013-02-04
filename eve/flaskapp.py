@@ -48,15 +48,17 @@ class Eve(Flask):
         app = Eve()
         app.run()
 
+    :param import_name: the name of the application package
     :param settings: the name of the settings file.  Defaults to `settings.py`.
     :param validator: custom validation class. Must be a
                       :class:`~cerberus.Validator` subclass. Defaults to
                       :class:`eve.io.mongo.Validator`.
     :param data: the data layer class. Must be a :class:`~eve.io.DataLayer`
                  subclass. Defaults to :class:`~eve.io.Mongo`.
+    :param kwargs: optional, standard, Flask parameters.
     """
-    def __init__(self, settings='settings.py', validator=Validator,
-                 data=Mongo):
+    def __init__(self, import_name=__package__, settings='settings.py',
+                 validator=Validator, data=Mongo, **kwargs):
         """Eve main WSGI app is implemented as a Flask subclass. Since we want
         to be able to launch our API by simply invoking Flask's run() method,
         we need to enhance our super-class a little bit.
@@ -71,7 +73,7 @@ class Eve(Flask):
         """
 
         # TODO should we support standard Flask parameters as well?
-        super(Eve, self).__init__(__package__)
+        super(Eve, self).__init__(import_name, **kwargs)
         # enable regex routing
         self.url_map.converters['regex'] = RegexConverter
         self.validator = validator

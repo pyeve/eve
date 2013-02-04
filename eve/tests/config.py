@@ -12,6 +12,17 @@ from eve.io.mongo import Mongo, Validator
 
 class TestConfig(TestBase):
 
+    def test_default_import_name(self):
+        self.assertEqual(self.app.import_name, eve.__package__)
+
+    def test_custom_import_name(self):
+        self.app = Eve('custom_import_name')
+        self.assertEqual(self.app.import_name, 'custom_import_name')
+
+    def test_custom_kwargs(self):
+        self.app = Eve('custom_import_name', static_folder='/')
+        self.assertEqual(self.app.static_folder, '/')
+
     def test_regexconverter(self):
         regex_converter = self.app.url_map.converters.get('regex')
         self.assertEqual(regex_converter, RegexConverter)
