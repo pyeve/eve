@@ -8,6 +8,23 @@ Version 0.0.4
 
 Not released yet.
 
+- Support for Basic Authentication. Added a eve.auth.BasicAuth class which can
+  (and should) be subclassed in order to implement custom user authentication.
+  The base class implements all the logic, you only need to override the
+  check_auth() method. When you instantiate the Eve app, you pass the custom
+  class:
+
+  from eve.auth import BasicAuth
+
+  class MyBasicAuth(BasicAuth):
+      def check_auth(username, password):
+        return username == 'admin' and password == 'secret'
+
+  app = Eve(auth=MyBasicAuth)
+  app.run()
+
+  And that's it. Authorization is disabled by default.
+
 - Support for all standard Flask initialization parameters.
 - Support for default values in resource fields. The new 'default' keyword can
   now be used when defining a field rule set.

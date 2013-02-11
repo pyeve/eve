@@ -13,11 +13,22 @@
 """
 
 from methods import get, getitem, post, patch, delete, delete_resource
-from flask import request, abort
+from flask import request, abort, current_app as app
 from render import send_response
 from eve.utils import resource_uri, config
+from functools import wraps
 
 
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if app.auth and not app.auth.authorized():
+            return app.auth.authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
+
+@requires_auth
 def collections_endpoint(url):
     """ Resource endpoint handler
 
@@ -40,6 +51,7 @@ def collections_endpoint(url):
         return send_response(resource, *response)
 
 
+@requires_auth
 def item_endpoint(url, **lookup):
     """ Item endpoint handler
 
@@ -64,6 +76,7 @@ def item_endpoint(url, **lookup):
         return send_response(resource, *response)
 
 
+@requires_auth
 def home_endpoint():
     """ Home/API entry point. Will provide links to each available resource
     """
