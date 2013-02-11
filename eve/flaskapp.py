@@ -308,13 +308,12 @@ class Eve(Flask):
             datasources[resource] = settings['datasource']
 
             # resource endpoint
-            url = '/<regex("%s"):url>/' % settings['url']
-            url = '%s%s' % (prefix, url)
+            url = '%s/<regex("%s"):url>/' % (prefix, settings['url'])
             self.add_url_rule(url, view_func=collections_endpoint,
                               methods=settings['methods'])
 
             # item endpoint
-            if settings['item_lookup'] is True:
+            if settings['item_lookup']:
                 item_url = '%s<regex("%s"):%s>/' % \
                     (url,
                      settings['item_url'],
@@ -323,7 +322,7 @@ class Eve(Flask):
                 self.add_url_rule(item_url, view_func=item_endpoint,
                                   methods=settings['item_methods'])
                 if 'PATCH' in settings['item_methods']:
-                    # support for POST with X-HTTM-Method-Override header,
+                    # support for POST with X-HTTM-Method-Override header
                     # for clients not supporting PATCH. Also see
                     # item_endpoint() in endpoints.py
                     self.add_url_rule(item_url, view_func=item_endpoint,
