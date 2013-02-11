@@ -105,15 +105,15 @@ Features
     {
       "_links": {
         "self": {
-          "href": "localhost:5000/contatti/", 
-          "title": "contatti"
+          "href": "localhost:5000/people/", 
+          "title": "people"
         }, 
         "parent": {
           "href": "localhost:5000", 
           "title": "home"
         }, 
         "next": {
-          "href": "localhost:5000/contatti/?page=2", 
+          "href": "localhost:5000/people/?page=2", 
           "title": "next page"
         }
       }
