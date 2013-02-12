@@ -12,7 +12,7 @@ Not released yet.
   (and should) be subclassed in order to implement custom user authentication.
   The base class implements all the logic, you only need to override the
   check_auth() method. When you instantiate the Eve app, you pass the custom
-  class:
+  class like this:
 
   from eve.auth import BasicAuth
 

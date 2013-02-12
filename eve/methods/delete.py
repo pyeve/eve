@@ -15,14 +15,19 @@ from flask import current_app as app
 from common import get_document
 from flask import abort
 from eve.utils import config
+from eve.auth import requires_auth
 
 
+@requires_auth
 def delete(resource, **lookup):
     """Deletes a resource item. Deletion will occur only if request ETag
     matches the current representation of the item.
 
     :param resource: name of the resource to which the item(s) belong.
     :param **lookup: item lookup query.
+
+    .. versionchanged:: 0.0.4
+       Added the ``requires_auth`` decorator.
     """
     original = get_document(resource, **lookup)
     if not original:
@@ -32,9 +37,13 @@ def delete(resource, **lookup):
     return {}, None, None, 200
 
 
+@requires_auth
 def delete_resource(resource):
     """Deletes all item of a resource (collection in MongoDB terms). Won't drop
     indexes. Use with caution!
+
+    .. versionchanged:: 0.0.4
+       Added the ``requires_auth`` decorator.
 
     .. versionadded:: 0.0.2
     """
