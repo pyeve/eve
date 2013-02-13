@@ -229,6 +229,8 @@ class Eve(Flask):
            'datasource' default values.
            'defaults' helper set, built here in order to facilitate processing
            of future POST requests.
+           'auth' default values.
+           'item_auth' default values.
 
         .. versionchanged:: 0.0.3
            `item_title` default value.
@@ -237,6 +239,7 @@ class Eve(Flask):
         for resource, settings in self.config['DOMAIN'].items():
             settings.setdefault('url', resource)
             settings.setdefault('methods', self.config['RESOURCE_METHODS'])
+            settings.setdefault('auth', self.config['RESOURCE_AUTH'])
             settings.setdefault('cache_control', self.config['CACHE_CONTROL'])
             settings.setdefault('cache_expires', self.config['CACHE_EXPIRES'])
 
@@ -248,6 +251,8 @@ class Eve(Flask):
             settings.setdefault('item_cache_control',
                                 self.config['ITEM_CACHE_CONTROL'])
             settings.setdefault('item_lookup', self.config['ITEM_LOOKUP'])
+            settings.setdefault('item_auth', self.config['ITEM_AUTH'])
+            # TODO make sure that this we really need the test below
             if settings['item_lookup']:
                 item_methods = self.config['ITEM_METHODS']
             else:
