@@ -20,7 +20,7 @@ from eve.auth import requires_auth
 from eve.validation import ValidationError
 
 
-@requires_auth
+@requires_auth('item')
 def patch(resource, **lookup):
     """Perform a document patch/update. Updates are first validated against
     the resource schema. If validation passes, the document is updated and

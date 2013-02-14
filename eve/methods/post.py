@@ -20,7 +20,7 @@ from eve.auth import requires_auth
 from eve.validation import ValidationError
 
 
-@requires_auth
+@requires_auth('resource')
 def post(resource):
     """ Adds one or more documents to a resource. Each document is validated
     against the domain schema. If validation passes the document is inserted

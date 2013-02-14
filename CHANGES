@@ -8,31 +8,99 @@ Version 0.0.4
 
 Not released yet.
 
-- Support for Basic Authentication. Added a eve.auth.BasicAuth class which can
-  (and should) be subclassed in order to implement custom user authentication.
-  The base class implements all the logic, you only need to override the
-  check_auth() method. When you instantiate the Eve app, you pass the custom
-  class like this:
+- Support for Basic Authentication (RFC2617). A new ``eve.auth.BasicAuth``
+  class has been added. It should be subclassed in order to implement custom
+  authentication.  The base class implements all the logic, you only need to
+  override the check_auth() method. When you instantiate the Eve app, you pass
+  the custom class like this:
 
-  from eve.auth import BasicAuth
+    from eve.auth import BasicAuth
 
-  class MyBasicAuth(BasicAuth):
-      def check_auth(username, password):
-        return username == 'admin' and password == 'secret'
+    class MyBasicAuth(BasicAuth):
+        def check_auth(username, password):
+            return username == 'admin' and password == 'secret'
 
-  app = Eve(auth=MyBasicAuth)
-  app.run()
+    app = Eve(auth=MyBasicAuth)
+    app.run()
 
-  And that's it. Authorization is disabled by default.
+  All your API endpoints are now restricted which means that a client will need
+  to provide the correct credentials in order to consume the API:
+
+    $ curl -i http://example.com/
+
+    HTTP/1.0 401 UNAUTHORIZED
+    WWW-Authenticate: Basic realm:"eve"
+    Content-Type: text/html; charset=utf-8
+    Content-Length: 33
+    Server: Eve/0.0.4 Werkzeug/0.8.3 Python/2.7.3
+    Date: Thu, 14 Feb 2013 14:21:11 GMT
+
+    Please provide proper credentials.
+
+    $ curl -H "Authorization: Basic YWRtaW46c2VjcmV0" -i http://example.com/
+    
+    HTTP/1.0 200 OK
+    Content-Type: application/json
+    Content-Length: 194
+    Server: Eve/0.0.4 Werkzeug/0.8.3 Python/2.7.3
+    Date: Thu, 14 Feb 2013 14:23:39 GMT
+
+  By subclassing BasicAuth you also get the option to customize the ``realm``
+  and the error message.
+
+  When you provide a custom BasicAuth class, access to all endpoints is
+  restricted for all HTTP verbs (methods). 
+  
+  You can then use the new PUBLIC_METHODS and PUBLIC_ITEM_METHODS global
+  configuration options to open access for certain verbs. For example add the
+  following to your ``settings.py``:
+  
+    PUBLIC_METHODS = ['GET'] 
+    PUBLIC_ITEM_METHODS = ['GET']
+  
+  to allow public, read-only access to both resource and item endpoints
+  (POST, PATCH and DELETE access is still restricted). 
+  
+  You can also configure access control at endpoint level. Suppose that you
+  enabled restricted access, and now all your endpoints are locked down. You
+  still want to allow public read-only access to ``/people/`` and
+  ``/people/id/`` endpoints:
+
+    'people': {
+        'public_methods': ['GET'],
+        'public_item_methods': ['GET'],
+        ...
+        }
+
+  And you're done. Be aware that, when present, resource-level access settings
+  will override any global-level access setting. You can use this at your
+  advantage.  Suppose that you want to grant read-only access to all endpoints
+  except ``/invoices/``. Like the previous example, the following will globally
+  open read-only access:
+
+    PUBLIC_METHODS = ['GET'] 
+    PUBLIC_ITEM_METHODS = ['GET']
+
+  And then:
+
+    'invoices': {
+        'public_methods': [],
+        'public_item_methods': [],
+        ...
+        }
+
+  will disable public read-only access to ``invoices`` making it restricted.
+  
+  Authorization is disabled by default.
 
 - Support for all standard Flask initialization parameters.
 - Support for default values in resource fields. The new 'default' keyword can
   now be used when defining a field rule set.
 
-  'userlevel': {
-    'type': 'integer', 
-    'default': 1
-    }
+    'userlevel': {
+        'type': 'integer', 
+        'default': 1
+        }
 
   When serving POST (create) requests, the 'userlevel' field (with a value of
   1) will be injected in documents lacking it. 
@@ -50,10 +118,10 @@ Not released yet.
   'filter' is the underlying query, applied by the API when retrieving and
   validating data for the resource.  
 
-  'datasource': {
-    'source': 'people', 
-    'filter': {'userlevel': 1}
-    }
+    'datasource': {
+        'source': 'people', 
+        'filter': {'userlevel': 1}
+        }
   
   Previously, the resource name would dictate the linked datasource (and of
   course you could not have two resources with the same name). This remains
@@ -62,9 +130,9 @@ Not released yet.
 
 - It is now possibile to set predefined db filters for each resource. 
 
-  'datasource': {
-    'filter': {'username': {'$exists': True}}
-    }
+    'datasource': {
+        'filter': {'username': {'$exists': True}}
+        }
   
   In the example above the API endpoint will only expose (and update) documents
   with the 'username' field.

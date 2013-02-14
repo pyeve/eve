@@ -62,7 +62,7 @@ def item_endpoint(url, **lookup):
     return send_response(resource, response)
 
 
-@requires_auth
+@requires_auth('home')
 def home_endpoint():
     """ Home/API entry point. Will provide links to each available resource
     """

@@ -18,7 +18,7 @@ from eve.utils import config
 from eve.auth import requires_auth
 
 
-@requires_auth
+@requires_auth('item')
 def delete(resource, **lookup):
     """Deletes a resource item. Deletion will occur only if request ETag
     matches the current representation of the item.
@@ -37,7 +37,7 @@ def delete(resource, **lookup):
     return {}, None, None, 200
 
 
-@requires_auth
+@requires_auth('resource')
 def delete_resource(resource):
     """Deletes all item of a resource (collection in MongoDB terms). Won't drop
     indexes. Use with caution!

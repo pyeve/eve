@@ -127,7 +127,7 @@ Features
   depending on the requested ``Accept`` header. Inbound documents (for inserts
   and edits) are in JSON format.
   
-- **Last-Modified and ETag (conditional requests)**.Each resource
+- **Conditional requests: Last-Modified and ETag**.Each resource
   representation provides information on the last time it was updated along
   with an hash value computed on the representation itself (``Last-Modified``
   and ``ETag`` response headers). These allow consumers to only retrieve new or
@@ -171,6 +171,11 @@ Features
 - **Versioning**. Define a default prefix and/or API version for all your
   endpoints. How about example.com/api/v1/<endpoint>? Both prefix and
   version are as easy to set up as setting a configuration variable.
+
+- **Authentication**. Basic Authentication (RFC-2617) is supported. You can
+  lockdown the whole API or just some endpoints. You can also restrict CRUD
+  commands, like allowing open read-only access while restricting edits,
+  inserts and deletes to authorized users.
 
 Installation
 ------------
@@ -241,7 +246,7 @@ like to add to Eve, provided that there is enough interest in the project.
 - Journaling/error logging
 - Server side caching
 - Alternative sort syntax (``?sort=name``)
-- Authorization (OAuth2?)
+- Authentication (Digest, Oauth?)
 - Support for MySQL and/or other SQL/NoSQL databases
 
 .. _available online: https://speakerdeck.com/u/nicola/p/developing-restful-web-apis-with-python-flask-and-mongodb

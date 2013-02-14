@@ -27,7 +27,7 @@ from eve.utils import parse_request, document_etag, document_link, \
     collection_link, home_link, querydef, resource_uri, config
 
 
-@requires_auth
+@requires_auth('resource')
 def get(resource):
     """Retrieves the resource documents that match the current request.
 
@@ -90,7 +90,7 @@ def get(resource):
     return response, last_modified, etag, status
 
 
-@requires_auth
+@requires_auth('item')
 def getitem(resource, **lookup):
     """ Retrieves and returns a single document.
 
