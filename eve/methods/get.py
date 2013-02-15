@@ -22,14 +22,19 @@
 from flask import current_app as app
 from flask import abort
 from datetime import datetime
+from eve.auth import requires_auth
 from eve.utils import parse_request, document_etag, document_link, \
     collection_link, home_link, querydef, resource_uri, config
 
 
+@requires_auth('resource')
 def get(resource):
     """Retrieves the resource documents that match the current request.
 
     :param resource: the name of the resource.
+
+    .. versionchanged:: 0.0.4
+       Added the ``requires_auth`` decorator.
 
     .. versionchanged:: 0.0.3
        Superflous ``response`` container removed. Collection items wrapped
@@ -85,11 +90,15 @@ def get(resource):
     return response, last_modified, etag, status
 
 
+@requires_auth('item')
 def getitem(resource, **lookup):
     """ Retrieves and returns a single document.
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
+
+    .. versionchanged:: 0.0.4
+       Added the ``requires_auth`` decorator.
 
     .. versionchanged:: 0.0.3
        Superflous ``response`` container removed. Links wrapped with

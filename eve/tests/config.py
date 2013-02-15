@@ -134,12 +134,16 @@ class TestConfig(TestBase):
         self.assertEqual(settings['url'], resource)
         self.assertEqual(settings['methods'],
                          self.app.config['RESOURCE_METHODS'])
+        self.assertEqual(settings['public_methods'],
+                         self.app.config['PUBLIC_METHODS'])
         self.assertEqual(settings['cache_control'],
                          self.app.config['CACHE_CONTROL'])
         self.assertEqual(settings['cache_expires'],
                          self.app.config['CACHE_EXPIRES'])
         self.assertEqual(settings['item_methods'],
                          self.app.config['ITEM_METHODS'])
+        self.assertEqual(settings['public_item_methods'],
+                         self.app.config['PUBLIC_ITEM_METHODS'])
         self.assertEqual(settings['item_lookup'],
                          self.app.config['ITEM_LOOKUP'])
         self.assertEqual(settings['item_lookup_field'],

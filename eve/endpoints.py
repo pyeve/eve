@@ -15,6 +15,7 @@
 from methods import get, getitem, post, patch, delete, delete_resource
 from flask import request, abort
 from render import send_response
+from eve.auth import requires_auth
 from eve.utils import resource_uri, config
 
 
@@ -35,9 +36,7 @@ def collections_endpoint(url):
         response = post(resource)
     elif request.method == 'DELETE':
         response = delete_resource(resource)
-
-    if response:
-        return send_response(resource, *response)
+    return send_response(resource, response)
 
 
 def item_endpoint(url, **lookup):
@@ -60,10 +59,10 @@ def item_endpoint(url, **lookup):
         # We are supporting PATCH via POST with X-HTTP-Method-Override (see
         # above), therefore we must explicitly handle this case.
         abort(405)
-    if response:
-        return send_response(resource, *response)
+    return send_response(resource, response)
 
 
+@requires_auth('home')
 def home_endpoint():
     """ Home/API entry point. Will provide links to each available resource
     """
@@ -73,4 +72,4 @@ def home_endpoint():
         links.append({'href': '%s' % resource_uri(resource),
                       'title': '%s' % config.URLS[resource]})
     response['_links'] = {'child': links}
-    return send_response(None, response)
+    return send_response(None, (response,))

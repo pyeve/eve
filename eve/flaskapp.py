@@ -58,7 +58,7 @@ class Eve(Flask):
     :param kwargs: optional, standard, Flask parameters.
     """
     def __init__(self, import_name=__package__, settings='settings.py',
-                 validator=Validator, data=Mongo, **kwargs):
+                 validator=Validator, data=Mongo, auth=None, **kwargs):
         """Eve main WSGI app is implemented as a Flask subclass. Since we want
         to be able to launch our API by simply invoking Flask's run() method,
         we need to enhance our super-class a little bit.
@@ -86,8 +86,8 @@ class Eve(Flask):
         #self.validate_schemas()
         self._add_url_rules()
 
-        # instantiate the data layer. Defaults to eve.io.Mongo
         self.data = data(self)
+        self.auth = auth() if auth else None
 
     def run(self, host=None, port=None, debug=None, **options):
         """Pass our own subclass of :class:`werkzeug.serving.WSGIRequestHandler
@@ -229,6 +229,8 @@ class Eve(Flask):
            'datasource' default values.
            'defaults' helper set, built here in order to facilitate processing
            of future POST requests.
+           'auth' default values.
+           'item_auth' default values.
 
         .. versionchanged:: 0.0.3
            `item_title` default value.
@@ -237,6 +239,8 @@ class Eve(Flask):
         for resource, settings in self.config['DOMAIN'].items():
             settings.setdefault('url', resource)
             settings.setdefault('methods', self.config['RESOURCE_METHODS'])
+            settings.setdefault('public_methods',
+                                self.config['PUBLIC_METHODS'])
             settings.setdefault('cache_control', self.config['CACHE_CONTROL'])
             settings.setdefault('cache_expires', self.config['CACHE_EXPIRES'])
 
@@ -248,6 +252,9 @@ class Eve(Flask):
             settings.setdefault('item_cache_control',
                                 self.config['ITEM_CACHE_CONTROL'])
             settings.setdefault('item_lookup', self.config['ITEM_LOOKUP'])
+            settings.setdefault('public_item_methods',
+                                self.config['PUBLIC_ITEM_METHODS'])
+            # TODO make sure that this we really need the test below
             if settings['item_lookup']:
                 item_methods = self.config['ITEM_METHODS']
             else:
