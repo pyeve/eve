@@ -17,7 +17,7 @@ Not released yet.
     from eve.auth import BasicAuth
 
     class MyBasicAuth(BasicAuth):
-        def check_auth(username, password):
+        def check_auth(self, username, password):
             return username == 'admin' and password == 'secret'
 
     app = Eve(auth=MyBasicAuth)
