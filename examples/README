@@ -1,0 +1,3 @@
+SECURITY 
+    - bcrypt.py: securing an Eve-powered API with bcrypt encoded passwords
+    - sha1-hmac.py: securing an Eve-powered API with SHA1/HMAC encoded passwords
