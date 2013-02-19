@@ -19,8 +19,11 @@ setup(
     platforms=["any"],
     packages=find_packages(),
     test_suite="eve.tests",
-    #\requires=['simplejson'],
-    install_requires=['flask-pymongo', 'simplejson', 'cerberus'],
+    install_requires=[
+        'flask-pymongo>=0.2.0',
+        'cerberus>=0.0.3',
+        'simplejson'
+    ],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
