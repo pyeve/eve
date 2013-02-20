@@ -8,22 +8,24 @@ Version 0.0.4
 
 Not released yet.
 
-- Support for Basic Authentication (RFC2617). A new ``eve.auth.BasicAuth``
-  class has been added. It should be subclassed in order to implement custom
-  authentication.  The base class implements all the logic, you only need to
-  override the check_auth() method. When you instantiate the Eve app, you pass
-  the custom class like this:
+- Support for Basic Authentication (RFC2617). 
+
+  BASICS
+  A new ``eve.auth.BasicAuth`` class has been added. It should be subclassed in
+  order to implement custom authentication.  The base class implements all the
+  logic, you only need to override the check_auth() method. When you
+  instantiate the Eve app, you pass the custom class like this:
 
     from eve.auth import BasicAuth
 
     class MyBasicAuth(BasicAuth):
-        def check_auth(self, username, password):
+        def check_auth(self, username, password, allowed_roles):
             return username == 'admin' and password == 'secret'
 
     app = Eve(auth=MyBasicAuth)
     app.run()
 
-  All your API endpoints are now restricted which means that a client will need
+  All your API endpoints are now secured which means that a client will need
   to provide the correct credentials in order to consume the API:
 
     $ curl -i http://example.com/
@@ -37,6 +39,7 @@ Not released yet.
 
     Please provide proper credentials.
 
+
     $ curl -H "Authorization: Basic YWRtaW46c2VjcmV0" -i http://example.com/
     
     HTTP/1.0 200 OK
@@ -45,26 +48,27 @@ Not released yet.
     Server: Eve/0.0.4 Werkzeug/0.8.3 Python/2.7.3
     Date: Thu, 14 Feb 2013 14:23:39 GMT
 
-  By subclassing BasicAuth you also get the option to customize the ``realm``
-  and the error message.
+  By default, access is restricted to *all* endpoints, for *all* HTTP verbs
+  (methods), effectively locking down the whole API.
 
-  When you provide a custom BasicAuth class, access to all endpoints is
-  restricted for all HTTP verbs (methods). 
-  
-  You can then use the new PUBLIC_METHODS and PUBLIC_ITEM_METHODS global
-  configuration options to open access for certain verbs. For example add the
-  following to your ``settings.py``:
+  FINE-TUNING GLOBAL SECURITY 
+  You might want a public read-only API where only authorized users
+  can write, edit and delete. You can achieve that by using the new
+  `PUBLIC_METHODS` and `PUBLIC_ITEM_METHODS` global options. Add the following to
+  your ``settings.py``:
   
     PUBLIC_METHODS = ['GET'] 
     PUBLIC_ITEM_METHODS = ['GET']
   
-  to allow public, read-only access to both resource and item endpoints
-  (POST, PATCH and DELETE access is still restricted). 
+  And run your API. POST, PATCH and DELETE are still restricted while GET is
+  publicly available at all API endpoints. `PUBLIC_METHODS` refers to resource
+  endpoints (`/people/`) while `PUBLIC_ITEM_METHODS` refers to individual
+  items (`/people/id/`).
   
-  You can also configure access control at endpoint level. Suppose that you
-  enabled restricted access, and now all your endpoints are locked down. You
-  still want to allow public read-only access to ``/people/`` and
-  ``/people/id/`` endpoints:
+  FINE-TUNING ENDPOINT SECURITY
+  Suppose that you want to allow public read access to only certain resources.
+  You do that by declaring public methods at resource level, when declaring the
+  API schema:
 
     'people': {
         'public_methods': ['GET'],
@@ -72,16 +76,15 @@ Not released yet.
         ...
         }
 
-  And you're done. Be aware that, when present, resource-level access settings
-  will override any global-level access setting. You can use this at your
-  advantage.  Suppose that you want to grant read-only access to all endpoints
-  except ``/invoices/``. Like the previous example, the following will globally
-  open read-only access:
+  Be aware that, when present, resource-level settings override global-level
+  settings. You can use this at your advantage. Suppose that you want to grant
+  read access to all endpoints with the only exception of ``/invoices/``.  You
+  first open up read access to all endpoints:
 
     PUBLIC_METHODS = ['GET'] 
     PUBLIC_ITEM_METHODS = ['GET']
 
-  And then:
+  And then protect the private endpoint:
 
     'invoices': {
         'public_methods': [],
@@ -89,9 +92,23 @@ Not released yet.
         ...
         }
 
-  will disable public read-only access to ``invoices`` making it restricted.
+  Effectively making `people` a restricted resource.
+
+  ROLE ACCESS CONTROL
+  The BasicAuth subclass above deliberately ignores the ``allowed_roles``
+  parameter. You can use that parameter to restrict access to authenticated
+  users who have been assigned specific roles. First you would use the new
+  `ALLOWED_ROLES` and `ALLOWED_ITEM_ROLES` global directives (or the
+  corresponding `allowed_roles` and `allowed_item_roles` resource keywords).
+
+    ALLOWED_ROLES = ['admin']
   
-  Authorization is disabled by default.
+  Then your subclass would implement the authorization logic by making good use
+  of the aforementioned ``allowed_roles`` parameter. 
+  
+  EXAMPLE SNIPPETS
+  The `examples/security` folder in the Eve repository contains some sample
+  snippets, like bcrypt/SHA1-HMAC password matching and role access control.
 
 - Support for all standard Flask initialization parameters.
 - Support for default values in resource fields. The new 'default' keyword can

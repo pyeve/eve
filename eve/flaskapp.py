@@ -187,10 +187,19 @@ class Eve(Flask):
                 if len(settings['schema']) == 0:
                     raise ConfigException('A resource schema must be provided '
                                           'when POST or PATCH methods are '
-                                          'allowed for a resource (%s).' %
+                                          'allowed for a resource [%s].' %
                                           resource)
 
+            self.validate_roles('allowed_roles', settings, resource)
+            self.validate_roles('allowed_item_roles', settings, resource)
             self.validate_schema(settings['schema'])
+
+    def validate_roles(self, directive, candidate, resource):
+        roles = candidate[directive]
+        if roles is not None and (not isinstance(roles, list) or not
+                                  len(roles)):
+            raise ConfigException("'%s' must be a non-empty list, or None "
+                                  "[%s]." % (directive, resource))
 
     def validate_methods(self, allowed, proposed, item):
         """ Compares allowed and proposed methods, raising a `ConfigException`
@@ -209,7 +218,7 @@ class Eve(Flask):
                                    ', '.join(allowed)))
 
     def validate_schema(self, schema):
-        # TODO are there other mandatory settings items? Validate them here
+        # TODO are there other mandatory settings? Validate them here
         offender = None
         if eve.DATE_CREATED in schema:
             offender = eve.DATE_CREATED
@@ -226,11 +235,12 @@ class Eve(Flask):
         or global configuration settings.
 
         .. versionchanged:: 0.0.4
-           'datasource' default values.
-           'defaults' helper set, built here in order to facilitate processing
-           of future POST requests.
-           'auth' default values.
-           'item_auth' default values.
+           'defaults',
+           'datasource',
+           'public_methods',
+           'public_item_methods',
+           'allowed_roles',
+           'allowed_item_roles'.
 
         .. versionchanged:: 0.0.3
            `item_title` default value.
@@ -241,6 +251,7 @@ class Eve(Flask):
             settings.setdefault('methods', self.config['RESOURCE_METHODS'])
             settings.setdefault('public_methods',
                                 self.config['PUBLIC_METHODS'])
+            settings.setdefault('allowed_roles', self.config['ALLOWED_ROLES'])
             settings.setdefault('cache_control', self.config['CACHE_CONTROL'])
             settings.setdefault('cache_expires', self.config['CACHE_EXPIRES'])
 
@@ -254,6 +265,8 @@ class Eve(Flask):
             settings.setdefault('item_lookup', self.config['ITEM_LOOKUP'])
             settings.setdefault('public_item_methods',
                                 self.config['PUBLIC_ITEM_METHODS'])
+            settings.setdefault('allowed_item_roles',
+                                self.config['ALLOWED_ITEM_ROLES'])
             # TODO make sure that this we really need the test below
             if settings['item_lookup']:
                 item_methods = self.config['ITEM_METHODS']

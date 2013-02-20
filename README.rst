@@ -175,7 +175,8 @@ Features
 - **Authentication**. Basic Authentication (RFC-2617) is supported. You can
   lockdown the whole API or just some endpoints. You can also restrict CRUD
   commands, like allowing open read-only access while restricting edits,
-  inserts and deletes to authorized users.
+  inserts and deletes to authorized users. Role-based access control is
+  supported as well.
 
 Installation
 ------------
