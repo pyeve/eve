@@ -154,7 +154,10 @@ class Eve(Flask):
         """ Makes sure that REST methods expressed in the configuration
         settings are supported.
 
-        .. versionadded:: 0.0.2
+        .. versionchanged:: 0.0.4
+           Support for 'allowed_roles' and 'allowed_item_roles'
+
+        .. versionchanged:: 0.0.2
             Support for DELETE resource method.
         """
 
@@ -195,6 +198,16 @@ class Eve(Flask):
             self.validate_schema(settings['schema'])
 
     def validate_roles(self, directive, candidate, resource):
+        """ Validates that user role directives are syntactically and formally
+        adeguate.
+
+        :param directive: either 'allowed_roles' or 'allow_item_roles'.
+        :param candidate: the candidate setting to be validated.
+        :param resource: name of the resource to which the candidate settings
+                         refer to.
+
+        .. versionadded:: 0.0.4
+        """
         roles = candidate[directive]
         if roles is not None and (not isinstance(roles, list) or not
                                   len(roles)):

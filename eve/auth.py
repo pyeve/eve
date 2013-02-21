@@ -45,7 +45,7 @@ class BasicAuth(object):
 
         :param username: decoded user name.
         :param password: decoded user password.
-        :param allowed_roles: allowed user allowed_roles
+        :param allowed_roles: allowed user roles
         """
         raise NotImplementedError
 
