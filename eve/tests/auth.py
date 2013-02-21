@@ -7,8 +7,9 @@ from eve.tests import TestMethodsBase
 
 
 class ValidBasicAuth(BasicAuth):
-    def check_auth(self, username, password):
-        return username == 'admin' and password == 'secret'
+    def check_auth(self, username, password, allowed_roles):
+        return username == 'admin' and password == 'secret' and  \
+            (allowed_roles == ['admin'] if allowed_roles else True)
 
 
 class BadBasicAuth(BasicAuth):
@@ -23,6 +24,10 @@ class TestBasicAuth(TestMethodsBase):
         self.test_client = self.app.test_client()
         self.valid_auth = [('Authorization', 'Basic YWRtaW46c2VjcmV0')]
         self.invalid_auth = [('Authorization', 'Basic IDontThinkSo')]
+        for resource, schema in self.app.config['DOMAIN'].items():
+            schema['allowed_roles'] = ['admin']
+            schema['allowed_item_roles'] = ['admin']
+        self.app.set_defaults()
 
     def test_custom_auth(self):
         self.assertEqual(type(self.app.auth), ValidBasicAuth)

@@ -64,28 +64,28 @@ class TestConfig(TestBase):
 
     def test_validate_domain_struct(self):
         del self.app.config['DOMAIN']
-        self.assertValidateConfig('missing')
+        self.assertValidateConfigFailure('missing')
 
         self.app.config['DOMAIN'] = []
-        self.assertValidateConfig('must be a dict')
+        self.assertValidateConfigFailure('must be a dict')
 
         self.app.config['DOMAIN'] = {}
-        self.assertValidateConfig('must contain at least one')
+        self.assertValidateConfigFailure('must contain at least one')
 
     def test_validate_resource_methods(self):
         self.app.config['RESOURCE_METHODS'] = ['PUT', 'GET', 'DELETE', 'POST']
-        self.assertValidateConfig('PUT')
+        self.assertValidateConfigFailure('PUT')
 
     def test_validate_item_methods(self):
         self.app.config['ITEM_METHODS'] = ['PUT', 'GET', 'POST', 'DELETE']
-        self.assertValidateConfig('PUT, POST')
+        self.assertValidateConfigFailure('PUT, POST')
 
     def test_validate_schema_methods(self):
         test = {
             'methods': ['PUT', 'GET', 'DELETE', 'POST'],
         }
         self.app.config['DOMAIN']['test_resource'] = test
-        self.assertValidateConfig('PUT')
+        self.assertValidateConfigFailure('PUT')
 
     def test_validate_schema_item_methods(self):
         test = {
@@ -93,7 +93,7 @@ class TestConfig(TestBase):
             'item_methods': ['PUT'],
         }
         self.app.config['DOMAIN']['test_resource'] = test
-        self.assertValidateConfig('PUT')
+        self.assertValidateConfigFailure('PUT')
 
     def test_validate_datecreated_in_schema(self):
         self.assertUnallowedField(eve.DATE_CREATED)
@@ -112,16 +112,7 @@ class TestConfig(TestBase):
             }
         }
         self.app.set_defaults()
-        self.assertValidateConfig('automatically')
-
-    def assertValidateConfig(self, expected):
-        try:
-            self.app.validate_domain_struct()
-            self.app.validate_config()
-        except ConfigException, e:
-            self.assertTrue(expected.lower() in str(e).lower())
-        else:
-            self.fail("ConfigException expected but not raised.")
+        self.assertValidateConfigFailure('automatically')
 
     def test_set_defaults(self):
         self.domain.clear()
@@ -136,6 +127,8 @@ class TestConfig(TestBase):
                          self.app.config['RESOURCE_METHODS'])
         self.assertEqual(settings['public_methods'],
                          self.app.config['PUBLIC_METHODS'])
+        self.assertEqual(settings['allowed_roles'],
+                         self.app.config['ALLOWED_ROLES'])
         self.assertEqual(settings['cache_control'],
                          self.app.config['CACHE_CONTROL'])
         self.assertEqual(settings['cache_expires'],
@@ -144,6 +137,8 @@ class TestConfig(TestBase):
                          self.app.config['ITEM_METHODS'])
         self.assertEqual(settings['public_item_methods'],
                          self.app.config['PUBLIC_ITEM_METHODS'])
+        self.assertEqual(settings['allowed_item_roles'],
+                         self.app.config['ALLOWED_ITEM_ROLES'])
         self.assertEqual(settings['item_lookup'],
                          self.app.config['ITEM_LOOKUP'])
         self.assertEqual(settings['item_lookup_field'],
@@ -159,6 +154,37 @@ class TestConfig(TestBase):
         self.assertEqual(len(settings['schema']), 0)
         self.assertEqual(settings['datasource'],
                          {'source': resource, 'filter': None})
+
+    def test_validate_roles(self):
+        for resource in self.domain:
+            self.assertValidateRoles(resource, 'allowed_roles')
+            self.assertValidateRoles(resource, 'allowed_item_roles')
+
+    def assertValidateRoles(self, resource, directive):
+        self.domain[resource][directive] = 'admin'
+        self.assertValidateConfigFailure(directive)
+        self.domain[resource][directive] = []
+        self.assertValidateConfigFailure(directive)
+        self.domain[resource][directive] = ['admin', 'dev']
+        self.assertValidateConfigSuccess()
+        self.domain[resource][directive] = None
+        self.assertValidateConfigSuccess()
+
+    def assertValidateConfigSuccess(self):
+        try:
+            self.app.validate_domain_struct()
+            self.app.validate_config()
+        except ConfigException, e:
+            self.fail('ConfigException not expected: %s' % e)
+
+    def assertValidateConfigFailure(self, expected):
+        try:
+            self.app.validate_domain_struct()
+            self.app.validate_config()
+        except ConfigException, e:
+            self.assertTrue(expected.lower() in str(e).lower())
+        else:
+            self.fail("ConfigException expected but not raised.")
 
     def test_schema_dates(self):
         self.domain.clear()
