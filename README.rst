@@ -209,6 +209,10 @@ availability is by starring/following the project repo at GitHub
 https://github.com/nicolaiarocci/eve. You can follow me on Twitter at
 http://twitter.com/nicolaiarocci.
 
+Contributing
+------------
+Please see the `Contribution Guidelines`_.
+
 A little context
 ----------------
 At `Gestionale Amica <http://gestionaleamica.com>`_ we had been working hard on
@@ -251,3 +255,4 @@ like to add to Eve, provided that there is enough interest in the project.
 - Support for MySQL and/or other SQL/NoSQL databases
 
 .. _available online: https://speakerdeck.com/u/nicola/p/developing-restful-web-apis-with-python-flask-and-mongodb
+.. _`Contribution Guidelines`: https://github.com/nicolaiarocci/eve/blob/develop/CONTRIBUTING.rst
