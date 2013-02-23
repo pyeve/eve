@@ -8,6 +8,7 @@ Version 0.0.4
 
 Not released yet.
 
+- Consistent ETag computation between runs/instances. Closes #16.
 - Support for Basic Authentication (RFC2617). 
 
   BASICS
