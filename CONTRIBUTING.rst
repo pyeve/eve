@@ -9,7 +9,7 @@ new features and patches.
 Getting Started
 ---------------
 #. Make sure you have a GitHub_ account.
-#. Submit a ticket for your issue, assuming one does not already exist.
+#. Open a `new issue`_, assuming one does not already exist.
 #. Clearly describe the issue including steps to reproduce when it is a bug.
 
 Making Changes
@@ -35,7 +35,7 @@ Submitting Changes
 ------------------
 * Push your changes to a topic branch in your fork of the repository.
 * Submit a `Pull Request`_.
-* Wait for the maintainer feedback.
+* Wait for maintainer feedback.
 
 First time contributor?
 -----------------------
@@ -43,20 +43,21 @@ It's alright. We've all been there.
 
 Dont' know where to start? 
 --------------------------
-There are several TODO comments scattered around the codebase, maybe check them
-out and see if you have ideas, or can help with them. Also, check the `open
-issues`_ in case there's something that sparks your interest. What about
-documentation?  I suck at english so if you're fluent with it (or notice any
-error), why not help with that? In any case, other than GitHub help_ pages,
+There are usually several TODO comments scattered around the codebase, maybe
+check them out and see if you have ideas, or can help with them. Also, check
+the `open issues`_ in case there's something that sparks your interest. What
+about documentation?  I suck at english so if you're fluent with it (or notice
+any error), why not help with that? In any case, other than GitHub help_ pages,
 you might want to check this excellent `Effective Guide to Pull Requests`_
 
-.. _GitHub: https://github.com/
 .. _`the repository`: http://github.com/nicolaiarocci/eve
 .. _AUTHORS: https://github.com/nicolaiarocci/eve/blob/develop/AUTHORS
+.. _`open issues`: https://github.com/nicolaiarocci/eve/issues
+.. _`new issue`: https://github.com/nicolaiarocci/eve/issues/new
+.. _GitHub: https://github.com/
 .. _Fork: https://help.github.com/articles/fork-a-repo
 .. _`proper format`: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 .. _PEP8: http://www.python.org/dev/peps/pep-0008/
-.. _`open issues`: https://github.com/nicolaiarocci/eve/issues
 .. _help: https://help.github.com/
 .. _`Effective Guide to Pull Requests`: http://codeinthehole.com/writing/pull-requests-and-other-good-practices-for-teams-using-github/
 .. _`fork and edit`: https://github.com/blog/844-forking-with-the-edit-button
