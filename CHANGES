@@ -6,7 +6,7 @@ Here you can see the full list of changes between each Eve release.
 Version 0.0.4
 -------------
 
-Not released yet.
+Released on February 25th 2013.
 
 - Consistent ETag computation between runs/instances. Closes #16.
 - Support for Basic Authentication (RFC2617). 
