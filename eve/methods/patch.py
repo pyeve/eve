@@ -16,9 +16,11 @@ from datetime import datetime
 from common import get_document, parse
 from flask import abort, request
 from eve.utils import document_etag, document_link, config
+from eve.auth import requires_auth
 from eve.validation import ValidationError
 
 
+@requires_auth('item')
 def patch(resource, **lookup):
     """Perform a document patch/update. Updates are first validated against
     the resource schema. If validation passes, the document is updated and
@@ -27,6 +29,9 @@ def patch(resource, **lookup):
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
+
+    .. versionchanged:: 0.0.4
+       Added the ``requires_auth`` decorator.
 
     .. versionchanged:: 0.0.3
        JSON links. Superflous ``response`` container removed.
@@ -47,12 +52,12 @@ def patch(resource, **lookup):
     last_modified = None
     etag = None
 
-    issues = list()
+    issues = []
 
     key = request.form.keys()[0]
     value = request.form[key]
 
-    response_item = dict()
+    response_item = {}
 
     try:
         updates = parse(value, resource)
@@ -100,6 +105,6 @@ def patch(resource, **lookup):
     else:
         response_item['status'] = config.STATUS_OK
 
-    response = dict()
+    response = {}
     response[key] = response_item
     return response, last_modified, etag, 200

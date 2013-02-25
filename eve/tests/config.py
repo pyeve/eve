@@ -12,6 +12,17 @@ from eve.io.mongo import Mongo, Validator
 
 class TestConfig(TestBase):
 
+    def test_default_import_name(self):
+        self.assertEqual(self.app.import_name, eve.__package__)
+
+    def test_custom_import_name(self):
+        self.app = Eve('custom_import_name')
+        self.assertEqual(self.app.import_name, 'custom_import_name')
+
+    def test_custom_kwargs(self):
+        self.app = Eve('custom_import_name', static_folder='/')
+        self.assertEqual(self.app.static_folder, '/')
+
     def test_regexconverter(self):
         regex_converter = self.app.url_map.converters.get('regex')
         self.assertEqual(regex_converter, RegexConverter)
@@ -53,28 +64,28 @@ class TestConfig(TestBase):
 
     def test_validate_domain_struct(self):
         del self.app.config['DOMAIN']
-        self.assertValidateConfig('missing')
+        self.assertValidateConfigFailure('missing')
 
         self.app.config['DOMAIN'] = []
-        self.assertValidateConfig('must be a dict')
+        self.assertValidateConfigFailure('must be a dict')
 
         self.app.config['DOMAIN'] = {}
-        self.assertValidateConfig('must contain at least one')
+        self.assertValidateConfigFailure('must contain at least one')
 
     def test_validate_resource_methods(self):
         self.app.config['RESOURCE_METHODS'] = ['PUT', 'GET', 'DELETE', 'POST']
-        self.assertValidateConfig('PUT')
+        self.assertValidateConfigFailure('PUT')
 
     def test_validate_item_methods(self):
         self.app.config['ITEM_METHODS'] = ['PUT', 'GET', 'POST', 'DELETE']
-        self.assertValidateConfig('PUT, POST')
+        self.assertValidateConfigFailure('PUT, POST')
 
     def test_validate_schema_methods(self):
         test = {
             'methods': ['PUT', 'GET', 'DELETE', 'POST'],
         }
         self.app.config['DOMAIN']['test_resource'] = test
-        self.assertValidateConfig('PUT')
+        self.assertValidateConfigFailure('PUT')
 
     def test_validate_schema_item_methods(self):
         test = {
@@ -82,7 +93,7 @@ class TestConfig(TestBase):
             'item_methods': ['PUT'],
         }
         self.app.config['DOMAIN']['test_resource'] = test
-        self.assertValidateConfig('PUT')
+        self.assertValidateConfigFailure('PUT')
 
     def test_validate_datecreated_in_schema(self):
         self.assertUnallowedField(eve.DATE_CREATED)
@@ -101,16 +112,7 @@ class TestConfig(TestBase):
             }
         }
         self.app.set_defaults()
-        self.assertValidateConfig('automatically')
-
-    def assertValidateConfig(self, expected):
-        try:
-            self.app.validate_domain_struct()
-            self.app.validate_config()
-        except ConfigException, e:
-            self.assertTrue(expected.lower() in str(e).lower())
-        else:
-            self.fail("ConfigException expected but not raised.")
+        self.assertValidateConfigFailure('automatically')
 
     def test_set_defaults(self):
         self.domain.clear()
@@ -123,12 +125,20 @@ class TestConfig(TestBase):
         self.assertEqual(settings['url'], resource)
         self.assertEqual(settings['methods'],
                          self.app.config['RESOURCE_METHODS'])
+        self.assertEqual(settings['public_methods'],
+                         self.app.config['PUBLIC_METHODS'])
+        self.assertEqual(settings['allowed_roles'],
+                         self.app.config['ALLOWED_ROLES'])
         self.assertEqual(settings['cache_control'],
                          self.app.config['CACHE_CONTROL'])
         self.assertEqual(settings['cache_expires'],
                          self.app.config['CACHE_EXPIRES'])
         self.assertEqual(settings['item_methods'],
                          self.app.config['ITEM_METHODS'])
+        self.assertEqual(settings['public_item_methods'],
+                         self.app.config['PUBLIC_ITEM_METHODS'])
+        self.assertEqual(settings['allowed_item_roles'],
+                         self.app.config['ALLOWED_ITEM_ROLES'])
         self.assertEqual(settings['item_lookup'],
                          self.app.config['ITEM_LOOKUP'])
         self.assertEqual(settings['item_lookup_field'],
@@ -142,6 +152,39 @@ class TestConfig(TestBase):
         self.assertNotEqual(settings['schema'], None)
         self.assertEqual(type(settings['schema']), dict)
         self.assertEqual(len(settings['schema']), 0)
+        self.assertEqual(settings['datasource'],
+                         {'source': resource, 'filter': None})
+
+    def test_validate_roles(self):
+        for resource in self.domain:
+            self.assertValidateRoles(resource, 'allowed_roles')
+            self.assertValidateRoles(resource, 'allowed_item_roles')
+
+    def assertValidateRoles(self, resource, directive):
+        self.domain[resource][directive] = 'admin'
+        self.assertValidateConfigFailure(directive)
+        self.domain[resource][directive] = []
+        self.assertValidateConfigFailure(directive)
+        self.domain[resource][directive] = ['admin', 'dev']
+        self.assertValidateConfigSuccess()
+        self.domain[resource][directive] = None
+        self.assertValidateConfigSuccess()
+
+    def assertValidateConfigSuccess(self):
+        try:
+            self.app.validate_domain_struct()
+            self.app.validate_config()
+        except ConfigException, e:
+            self.fail('ConfigException not expected: %s' % e)
+
+    def assertValidateConfigFailure(self, expected):
+        try:
+            self.app.validate_domain_struct()
+            self.app.validate_config()
+        except ConfigException, e:
+            self.assertTrue(expected.lower() in str(e).lower())
+        else:
+            self.fail("ConfigException expected but not raised.")
 
     def test_schema_dates(self):
         self.domain.clear()
@@ -164,6 +207,26 @@ class TestConfig(TestBase):
         self.assertEqual(type(settings['dates']), set)
         self.assertEqual(len(settings['dates']), 2)
 
+    def test_schema_defaults(self):
+        self.domain.clear()
+        self.domain['resource'] = {
+            'schema': {
+                'title': {
+                    'type': 'string',
+                    'default': 'Mr.',
+                },
+                'price': {
+                    'type': 'integer',
+                    'default': 100
+                },
+            }
+        }
+        self.app.set_defaults()
+        settings = self.domain['resource']
+        self.assertNotEqual(settings.get('defaults'), None)
+        self.assertEqual(type(settings['defaults']), set)
+        self.assertEqual(len(settings['defaults']), 2)
+
     def test_url_helpers(self):
         self.assertNotEqual(self.app.config.get('RESOURCES'), None)
         self.assertEqual(type(self.app.config['RESOURCES']), dict)
@@ -171,11 +234,17 @@ class TestConfig(TestBase):
         self.assertNotEqual(self.app.config.get('URLS'), None)
         self.assertEqual(type(self.app.config['URLS']), dict)
 
+        self.assertNotEqual(self.app.config.get('SOURCES'), None)
+        self.assertEqual(type(self.app.config['SOURCES']), dict)
+
         for resource, settings in self.domain.items():
             self.assertEqual(settings['url'],
                              self.app.config['URLS'][resource])
             self.assertEqual(resource,
                              self.app.config['RESOURCES'][settings['url']])
+
+            self.assertEqual(settings['datasource'],
+                             self.app.config['SOURCES'][resource])
 
     def test_url_rules(self):
         map_adapter = self.app.url_map.bind(self.app.config['SERVER_NAME'])

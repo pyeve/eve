@@ -3,7 +3,6 @@
 from unittest import TestCase
 from bson import ObjectId
 from datetime import datetime
-from eve.tests import TestMethodsBase
 from eve.io.mongo.parser import parse, ParseError
 from eve.io.mongo import Validator
 from cerberus.errors import ERROR_BAD_TYPE
@@ -103,3 +102,8 @@ class TestMongoValidator(TestCase):
         doc = {'id': '50656e4538345b39dd0414f0'}
         v = Validator(schema, None)
         self.assertTrue(v.validate(doc))
+
+    def test_transparent_rules(self):
+        schema = {'a_field': {'type': 'string'}}
+        v = Validator(schema)
+        self.assertTrue(v.transparent_schema_rules, True)

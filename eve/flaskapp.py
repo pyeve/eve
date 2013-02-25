@@ -48,15 +48,17 @@ class Eve(Flask):
         app = Eve()
         app.run()
 
+    :param import_name: the name of the application package
     :param settings: the name of the settings file.  Defaults to `settings.py`.
     :param validator: custom validation class. Must be a
                       :class:`~cerberus.Validator` subclass. Defaults to
                       :class:`eve.io.mongo.Validator`.
     :param data: the data layer class. Must be a :class:`~eve.io.DataLayer`
                  subclass. Defaults to :class:`~eve.io.Mongo`.
+    :param kwargs: optional, standard, Flask parameters.
     """
-    def __init__(self, settings='settings.py', validator=Validator,
-                 data=Mongo):
+    def __init__(self, import_name=__package__, settings='settings.py',
+                 validator=Validator, data=Mongo, auth=None, **kwargs):
         """Eve main WSGI app is implemented as a Flask subclass. Since we want
         to be able to launch our API by simply invoking Flask's run() method,
         we need to enhance our super-class a little bit.
@@ -71,7 +73,7 @@ class Eve(Flask):
         """
 
         # TODO should we support standard Flask parameters as well?
-        super(Eve, self).__init__(__package__)
+        super(Eve, self).__init__(import_name, **kwargs)
         # enable regex routing
         self.url_map.converters['regex'] = RegexConverter
         self.validator = validator
@@ -84,8 +86,8 @@ class Eve(Flask):
         #self.validate_schemas()
         self._add_url_rules()
 
-        # instantiate the data layer. Defaults to eve.io.Mongo
         self.data = data(self)
+        self.auth = auth() if auth else None
 
     def run(self, host=None, port=None, debug=None, **options):
         """Pass our own subclass of :class:`werkzeug.serving.WSGIRequestHandler
@@ -152,7 +154,10 @@ class Eve(Flask):
         """ Makes sure that REST methods expressed in the configuration
         settings are supported.
 
-        .. versionadded:: 0.0.2
+        .. versionchanged:: 0.0.4
+           Support for 'allowed_roles' and 'allowed_item_roles'
+
+        .. versionchanged:: 0.0.2
             Support for DELETE resource method.
         """
 
@@ -185,10 +190,29 @@ class Eve(Flask):
                 if len(settings['schema']) == 0:
                     raise ConfigException('A resource schema must be provided '
                                           'when POST or PATCH methods are '
-                                          'allowed for a resource (%s).' %
+                                          'allowed for a resource [%s].' %
                                           resource)
 
+            self.validate_roles('allowed_roles', settings, resource)
+            self.validate_roles('allowed_item_roles', settings, resource)
             self.validate_schema(settings['schema'])
+
+    def validate_roles(self, directive, candidate, resource):
+        """ Validates that user role directives are syntactically and formally
+        adeguate.
+
+        :param directive: either 'allowed_roles' or 'allow_item_roles'.
+        :param candidate: the candidate setting to be validated.
+        :param resource: name of the resource to which the candidate settings
+                         refer to.
+
+        .. versionadded:: 0.0.4
+        """
+        roles = candidate[directive]
+        if roles is not None and (not isinstance(roles, list) or not
+                                  len(roles)):
+            raise ConfigException("'%s' must be a non-empty list, or None "
+                                  "[%s]." % (directive, resource))
 
     def validate_methods(self, allowed, proposed, item):
         """ Compares allowed and proposed methods, raising a `ConfigException`
@@ -207,7 +231,7 @@ class Eve(Flask):
                                    ', '.join(allowed)))
 
     def validate_schema(self, schema):
-        # TODO are there other mandatory settings items? Validate them here
+        # TODO are there other mandatory settings? Validate them here
         offender = None
         if eve.DATE_CREATED in schema:
             offender = eve.DATE_CREATED
@@ -223,6 +247,14 @@ class Eve(Flask):
         """ When not provided, fills individual resource settings with default
         or global configuration settings.
 
+        .. versionchanged:: 0.0.4
+           'defaults',
+           'datasource',
+           'public_methods',
+           'public_item_methods',
+           'allowed_roles',
+           'allowed_item_roles'.
+
         .. versionchanged:: 0.0.3
            `item_title` default value.
         """
@@ -230,6 +262,9 @@ class Eve(Flask):
         for resource, settings in self.config['DOMAIN'].items():
             settings.setdefault('url', resource)
             settings.setdefault('methods', self.config['RESOURCE_METHODS'])
+            settings.setdefault('public_methods',
+                                self.config['PUBLIC_METHODS'])
+            settings.setdefault('allowed_roles', self.config['ALLOWED_ROLES'])
             settings.setdefault('cache_control', self.config['CACHE_CONTROL'])
             settings.setdefault('cache_expires', self.config['CACHE_EXPIRES'])
 
@@ -241,34 +276,58 @@ class Eve(Flask):
             settings.setdefault('item_cache_control',
                                 self.config['ITEM_CACHE_CONTROL'])
             settings.setdefault('item_lookup', self.config['ITEM_LOOKUP'])
+            settings.setdefault('public_item_methods',
+                                self.config['PUBLIC_ITEM_METHODS'])
+            settings.setdefault('allowed_item_roles',
+                                self.config['ALLOWED_ITEM_ROLES'])
+            # TODO make sure that this we really need the test below
             if settings['item_lookup']:
                 item_methods = self.config['ITEM_METHODS']
             else:
                 item_methods = eve.ITEM_METHODS
             settings.setdefault('item_methods', item_methods)
 
+            datasource = {}
+            settings.setdefault('datasource', datasource)
+            settings['datasource'].setdefault('source', resource)
+            settings['datasource'].setdefault('filter', None)
+
             # empty schemas are allowed for read-only access to resources
             schema = settings.setdefault('schema', {})
 
             # TODO fill schema{} defaults, like field type, etc.
 
-            # the `dates` helper set contains the names of the schema fields
-            # definited as `datetime` types. It will come in handy when
+            # `dates` helper set contains the names of the schema fields
+            # defined as `datetime` types. It will come in handy when
             # we will be parsing incoming documents
+
+            # TODO support date fields for embedded documents.
             settings['dates'] = \
                 set(field for field, definition in schema.items()
                     if definition.get('type') == 'datetime')
+
+            # 'defaults' helper set contains the names of fields with
+            # default values in their schema definition.
+
+            # TODO support default values for embedded documents.
+            settings['defaults'] = \
+                set(field for field, definition in schema.items()
+                    if definition.get('default'))
 
     def _add_url_rules(self):
         """ Builds the API url map. Methods are enabled for each mapped
         endpoint, as configured in the settings.
 
+        .. versionchanged:: 0.0.4
+           config.SOURCES. Maps resources to their datasources.
+
         .. versionchanged:: 0.0.3
            Support for API_VERSION as an endpoint prefix.
         """
         # helpers
-        resources = dict()     # maps urls to resources (DOMAIN keys)
-        urls = dict()          # maps resources to urls
+        resources = {}     # maps urls to resources (DOMAIN keys)
+        urls = {}          # maps resources to urls
+        datasources = {}   # maps resources to their datasources
 
         prefix = api_prefix(self.config['URL_PREFIX'],
                             self.config['API_VERSION'])
@@ -279,15 +338,15 @@ class Eve(Flask):
         for resource, settings in self.config['DOMAIN'].items():
             resources[settings['url']] = resource
             urls[resource] = settings['url']
+            datasources[resource] = settings['datasource']
 
             # resource endpoint
-            url = '/<regex("%s"):url>/' % settings['url']
-            url = '%s%s' % (prefix, url)
+            url = '%s/<regex("%s"):url>/' % (prefix, settings['url'])
             self.add_url_rule(url, view_func=collections_endpoint,
                               methods=settings['methods'])
 
             # item endpoint
-            if settings['item_lookup'] is True:
+            if settings['item_lookup']:
                 item_url = '%s<regex("%s"):%s>/' % \
                     (url,
                      settings['item_url'],
@@ -296,7 +355,7 @@ class Eve(Flask):
                 self.add_url_rule(item_url, view_func=item_endpoint,
                                   methods=settings['item_methods'])
                 if 'PATCH' in settings['item_methods']:
-                    # support for POST with X-HTTM-Method-Override header,
+                    # support for POST with X-HTTM-Method-Override header
                     # for clients not supporting PATCH. Also see
                     # item_endpoint() in endpoints.py
                     self.add_url_rule(item_url, view_func=item_endpoint,
@@ -312,4 +371,4 @@ class Eve(Flask):
                                       methods=['GET'])
         self.config['RESOURCES'] = resources
         self.config['URLS'] = urls
-        self.config['URLS'] = urls
+        self.config['SOURCES'] = datasources

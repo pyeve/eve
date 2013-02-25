@@ -105,15 +105,15 @@ Features
     {
       "_links": {
         "self": {
-          "href": "localhost:5000/contatti/", 
-          "title": "contatti"
+          "href": "localhost:5000/people/", 
+          "title": "people"
         }, 
         "parent": {
           "href": "localhost:5000", 
           "title": "home"
         }, 
         "next": {
-          "href": "localhost:5000/contatti/?page=2", 
+          "href": "localhost:5000/people/?page=2", 
           "title": "next page"
         }
       }
@@ -127,7 +127,7 @@ Features
   depending on the requested ``Accept`` header. Inbound documents (for inserts
   and edits) are in JSON format.
   
-- **Last-Modified and ETag (conditional requests)**.Each resource
+- **Conditional requests: Last-Modified and ETag**.Each resource
   representation provides information on the last time it was updated along
   with an hash value computed on the representation itself (``Last-Modified``
   and ``ETag`` response headers). These allow consumers to only retrieve new or
@@ -172,6 +172,12 @@ Features
   endpoints. How about example.com/api/v1/<endpoint>? Both prefix and
   version are as easy to set up as setting a configuration variable.
 
+- **Authentication**. Basic Authentication (RFC-2617) is supported. You can
+  lockdown the whole API or just some endpoints. You can also restrict CRUD
+  commands, like allowing open read-only access while restricting edits,
+  inserts and deletes to authorized users. Role-based access control is
+  supported as well.
+
 Installation
 ------------
 Eve is on PyPI so all you need to do is
@@ -202,6 +208,10 @@ Consider this a public preview (Alpha). Best way to be notified about its
 availability is by starring/following the project repo at GitHub
 https://github.com/nicolaiarocci/eve. You can follow me on Twitter at
 http://twitter.com/nicolaiarocci.
+
+Contributing
+------------
+Please see the `Contribution Guidelines`_.
 
 A little context
 ----------------
@@ -241,7 +251,8 @@ like to add to Eve, provided that there is enough interest in the project.
 - Journaling/error logging
 - Server side caching
 - Alternative sort syntax (``?sort=name``)
-- Authorization (OAuth2?)
+- Authentication (Digest, Oauth?)
 - Support for MySQL and/or other SQL/NoSQL databases
 
 .. _available online: https://speakerdeck.com/u/nicola/p/developing-restful-web-apis-with-python-flask-and-mongodb
+.. _`Contribution Guidelines`: https://github.com/nicolaiarocci/eve/blob/develop/CONTRIBUTING.rst

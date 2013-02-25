@@ -3,7 +3,173 @@ Eve Changelog
 
 Here you can see the full list of changes between each Eve release.
 
-Version 0.0.3
+Version 0.0.4
+-------------
+
+Not released yet.
+
+- Consistent ETag computation between runs/instances. Closes #16.
+- Support for Basic Authentication (RFC2617). 
+
+  BASICS
+  A new ``eve.auth.BasicAuth`` class has been added. It should be subclassed in
+  order to implement custom authentication.  The base class implements all the
+  logic, you only need to override the check_auth() method. When you
+  instantiate the Eve app, you pass the custom class like this:
+
+    from eve.auth import BasicAuth
+
+    class MyBasicAuth(BasicAuth):
+        def check_auth(self, username, password, allowed_roles):
+            return username == 'admin' and password == 'secret'
+
+    app = Eve(auth=MyBasicAuth)
+    app.run()
+
+  All your API endpoints are now secured which means that a client will need
+  to provide the correct credentials in order to consume the API:
+
+    $ curl -i http://example.com/
+
+    HTTP/1.0 401 UNAUTHORIZED
+    WWW-Authenticate: Basic realm:"eve"
+    Content-Type: text/html; charset=utf-8
+    Content-Length: 33
+    Server: Eve/0.0.4 Werkzeug/0.8.3 Python/2.7.3
+    Date: Thu, 14 Feb 2013 14:21:11 GMT
+
+    Please provide proper credentials.
+
+
+    $ curl -H "Authorization: Basic YWRtaW46c2VjcmV0" -i http://example.com/
+    
+    HTTP/1.0 200 OK
+    Content-Type: application/json
+    Content-Length: 194
+    Server: Eve/0.0.4 Werkzeug/0.8.3 Python/2.7.3
+    Date: Thu, 14 Feb 2013 14:23:39 GMT
+
+  By default, access is restricted to *all* endpoints, for *all* HTTP verbs
+  (methods), effectively locking down the whole API.
+
+  FINE-TUNING GLOBAL SECURITY 
+  You might want a public read-only API where only authorized users
+  can write, edit and delete. You can achieve that by using the new
+  `PUBLIC_METHODS` and `PUBLIC_ITEM_METHODS` global options. Add the following to
+  your ``settings.py``:
+  
+    PUBLIC_METHODS = ['GET'] 
+    PUBLIC_ITEM_METHODS = ['GET']
+  
+  And run your API. POST, PATCH and DELETE are still restricted while GET is
+  publicly available at all API endpoints. `PUBLIC_METHODS` refers to resource
+  endpoints (`/people/`) while `PUBLIC_ITEM_METHODS` refers to individual
+  items (`/people/id/`).
+  
+  FINE-TUNING ENDPOINT SECURITY
+  Suppose that you want to allow public read access to only certain resources.
+  You do that by declaring public methods at resource level, when declaring the
+  API schema:
+
+    'people': {
+        'public_methods': ['GET'],
+        'public_item_methods': ['GET'],
+        ...
+        }
+
+  Be aware that, when present, resource-level settings override global-level
+  settings. You can use this at your advantage. Suppose that you want to grant
+  read access to all endpoints with the only exception of ``/invoices/``.  You
+  first open up read access to all endpoints:
+
+    PUBLIC_METHODS = ['GET'] 
+    PUBLIC_ITEM_METHODS = ['GET']
+
+  And then protect the private endpoint:
+
+    'invoices': {
+        'public_methods': [],
+        'public_item_methods': [],
+        ...
+        }
+
+  Effectively making `people` a restricted resource.
+
+  ROLE ACCESS CONTROL
+  The BasicAuth subclass above deliberately ignores the ``allowed_roles``
+  parameter. You can use that parameter to restrict access to authenticated
+  users who have been assigned specific roles. First you would use the new
+  `ALLOWED_ROLES` and `ALLOWED_ITEM_ROLES` global directives (or the
+  corresponding `allowed_roles` and `allowed_item_roles` resource keywords).
+
+    ALLOWED_ROLES = ['admin']
+  
+  Then your subclass would implement the authorization logic by making good use
+  of the aforementioned ``allowed_roles`` parameter. 
+  
+  EXAMPLE SNIPPETS
+  The `examples/security` folder in the Eve repository contains some sample
+  snippets, like bcrypt/SHA1-HMAC password matching and role access control.
+
+- Support for all standard Flask initialization parameters.
+- Support for default values in resource fields. The new 'default' keyword can
+  now be used when defining a field rule set.
+
+    'userlevel': {
+        'type': 'integer', 
+        'default': 1
+        }
+
+  When serving POST (create) requests, the 'userlevel' field (with a value of
+  1) will be injected in documents lacking it. 
+  
+  Please note: currently default values are supported only for main document
+  fields. Default values for fields in embedded documents will be ignored.
+
+- Multiple API endpoints can now target the same database collection. For
+  example now you can set both '/admins/' and '/users/' to read and write from
+  the same collection on the db, 'people'.
+ 
+  The new 'datasource' setting allows to explicitly link API resources to
+  database collections. It is a dictionary with two allowed keys: 'source' and
+  'filter'. 'source' dictates the database collection consumed by the resource.
+  'filter' is the underlying query, applied by the API when retrieving and
+  validating data for the resource.  
+
+    'datasource': {
+        'source': 'people', 
+        'filter': {'userlevel': 1}
+        }
+  
+  Previously, the resource name would dictate the linked datasource (and of
+  course you could not have two resources with the same name). This remains
+  the default behaviour: if you omit the 'datasource' setting for a resource,
+  its name will be used to determine the database collection.
+
+- It is now possibile to set predefined db filters for each resource. 
+
+    'datasource': {
+        'filter': {'username': {'$exists': True}}
+        }
+  
+  In the example above the API endpoint will only expose (and update) documents
+  with the 'username' field.
+
+  Predefined filters run on top of user queries (GET requests with 'where'
+  clauses) and standard conditional requests ('If-Modified-Since', etc.)
+
+  Please note that datasource filters are applied on GET, PATCH and DELETE
+  requests. If your resource allows for POST requests (document insertions),
+  then you will probably want to set the validation rules accordingly (in our
+  example, 'username' should probably be a required field).
+
+- JSON-Datetime dependency removed.
+- Support for Cerberus v0.0.3 and later.
+- Support for Flask-PyMongo v0.2.0 and later.
+- Repeated XML requests to the same endpoint could occasionally return an
+  Internal Server Error (Fixes #8).
+
+Version 0.0.3 
 -------------
 
 Released on January 22th 2013.

@@ -13,7 +13,7 @@
 import datetime
 import time
 import simplejson as json
-from flask import make_response, request
+from flask import make_response, request, Response
 from bson.objectid import ObjectId
 from eve.utils import date_to_str, config
 
@@ -24,7 +24,27 @@ _MIME_TYPES = [{'mime': ('application/json',), 'renderer': 'render_json'},
 _DEFAULT_MIME = 'application/json'
 
 
-def send_response(resource, dct, last_modified=None, etag=None, status=200):
+def send_response(resource, response):
+    """ Prepares the response for the client.
+
+    :param resource: the resource involved.
+    :param response: either a flask.Response object or a tuple. The former will
+                     simply be forwarded to the client. If the latter a proper
+                     response will be prepared, according to directives within
+                     the tuple.
+
+    .. versionchanged:: 0.0.4
+       Now a simple dispatcher. Moved the response preparation logic to
+       ``_prepare_response``.
+    """
+    if isinstance(response, Response):
+        return response
+    else:
+        return _prepare_response(resource, *response)
+
+
+def _prepare_response(resource, dct, last_modified=None, etag=None,
+                      status=200):
     """ Prepares the response object according to the client request and
     available renderers, making sure that all accessory directives (caching,
     etag, last-modified) are present.
@@ -34,6 +54,8 @@ def send_response(resource, dct, last_modified=None, etag=None, status=200):
     :param last_modified: Last-Modified header value.
     :param etag: ETag header value.
     :param status: response status.
+
+    .. versionadded:: 0.0.4
     """
     # obtain the best match between client's request and available mime types,
     # along with the corresponding render function.
@@ -73,8 +95,8 @@ def _best_mime():
     ones supported by Eve. Along with the mime, also the corresponding
     render function is returns.
     """
-    supported = list()
-    renders = dict()
+    supported = []
+    renders = {}
     for mime in _MIME_TYPES:
         for mime_type in mime['mime']:
             supported.append(mime_type)
@@ -116,12 +138,13 @@ def render_xml(**data):
     .. versionchanged:: 0.0.3
        Support for HAL-like hyperlinks and resource descriptors.
     """
+    xml = ''
     if data:
-        xml = xml_root_open(data)
+        xml += xml_root_open(data)
         xml += xml_add_links(data)
         xml += xml_add_items(data)
         xml += xml_root_close()
-    return '' or xml
+    return xml
 
 
 def xml_root_open(data):

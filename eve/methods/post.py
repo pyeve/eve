@@ -16,9 +16,11 @@ from flask import request, abort
 from flask import current_app as app
 from common import parse
 from eve.utils import document_link, config
+from eve.auth import requires_auth
 from eve.validation import ValidationError
 
 
+@requires_auth('resource')
 def post(resource):
     """ Adds one or more documents to a resource. Each document is validated
     against the domain schema. If validation passes the document is inserted
@@ -28,6 +30,9 @@ def post(resource):
 
     :param resource: name of the resource involved.
 
+    .. versionchanged:: 0.0.4
+       Added the ``reqiores_auth`` decorator.
+
     .. versionchanged:: 0.0.3
        JSON links. Superflous ``response`` container removed.
     """
@@ -35,7 +40,7 @@ def post(resource):
     if len(request.form) == 0:
         abort(400)
 
-    response = dict()
+    response = {}
     date_utc = datetime.utcnow()
 
     schema = app.config['DOMAIN'][resource]['schema']
@@ -43,8 +48,8 @@ def post(resource):
 
     for key, value in request.form.items():
 
-        response_item = dict()
-        issues = list()
+        response_item = {}
+        issues = []
 
         try:
             document = parse(value, resource)

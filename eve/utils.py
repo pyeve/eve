@@ -16,6 +16,7 @@ import hashlib
 from flask import request
 from flask import current_app as app
 from datetime import datetime, timedelta
+from bson.json_util import dumps
 
 
 class Config(object):
@@ -237,7 +238,11 @@ def document_etag(value):
     """ Computes and returns a valid ETag for the input value.
 
     :param value: the value to compute the ETag with.
+
+    .. versionchanged:: 0.0.4
+       Using bson.json_util.dumps over str(value) to make etag computation
+       consistent between different runs and/or server instances (#16).
     """
     h = hashlib.sha1()
-    h.update(str(value))
+    h.update(dumps(value, sort_keys=True))
     return h.hexdigest()

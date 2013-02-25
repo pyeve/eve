@@ -38,6 +38,9 @@ class DataLayer(object):
 
     Admittedly, this interface is a Mongo rip-off. See the io.mongo
     package for an implementation example.
+
+    .. versionchanged:: 0.0.4
+       the _datasource helper function has been added.
     """
 
     def __init__(self, app):
@@ -66,3 +69,7 @@ class DataLayer(object):
 
     def remove(self, resource, id_):
         raise NotImplementedError
+
+    def _datasource(self, resource):
+        return (config.SOURCES[resource]['source'],
+                config.SOURCES[resource]['filter'])

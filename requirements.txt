@@ -1,5 +1,4 @@
 Flask==0.9
-Flask-PyMongo==0.1.3
-JSON-Datetime
+Flask-PyMongo>=0.2.0
+Cerberus>=0.0.3
 simplejson
-Cerberus

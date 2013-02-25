@@ -9,7 +9,7 @@ LONG_DESCRIPTION = open('README.rst').read()
 
 setup(
     name='Eve',
-    version='0.0.3',
+    version='0.0.4-dev',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',
@@ -19,8 +19,11 @@ setup(
     platforms=["any"],
     packages=find_packages(),
     test_suite="eve.tests",
-    #\requires=['simplejson'],
-    install_requires=['flask-pymongo', 'json-datetime', 'cerberus'],
+    install_requires=[
+        'flask-pymongo>=0.2.0',
+        'cerberus>=0.0.3',
+        'simplejson'
+    ],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',

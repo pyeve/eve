@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import hashlib
+from bson.json_util import dumps
 from datetime import datetime, timedelta
 from eve.tests import TestBase
 from eve.utils import parse_request, str_to_date, config, weak_date, \
@@ -104,5 +105,7 @@ class TestUtils(TestBase):
                          '?max_results=10&sort=sortpart')
 
     def test_document_etag(self):
-        test = 'test this if you dare!'
-        self.assertEqual(hashlib.sha1(test).hexdigest(), document_etag(test))
+        test = {'key1': 'value1', 'another': 'value2'}
+        challenge = dumps(test, sort_keys=True)
+        self.assertEqual(hashlib.sha1(challenge).hexdigest(),
+                         document_etag(test))

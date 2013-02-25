@@ -14,7 +14,21 @@ class TestDelete(TestMethodsBase):
             self.known_resource_url))
         self.assert200(status)
         self.assertEqual(len(r['_items']), 0)
-        self.bulk_insert()
+
+    def test_delete_from_resource_endpoint_different_resource(self):
+        r, status = self.delete(self.different_resource_url)
+        self.assert200(status)
+        r, status = self.parse_response(self.test_client.get(
+            self.different_resource_url))
+        self.assert200(status)
+        self.assertEqual(len(r['_items']), 0)
+
+        # deletion of 'users' will still lave 'contacts' untouched (same db
+        # collection)
+        r, status = self.parse_response(self.test_client.get(
+            self.known_resource_url))
+        self.assert200(status)
+        self.assertEqual(len(r['_items']), 25)
 
     def test_delete_empty_resource(self):
         url = '%s%s/' % (self.empty_resource_url, self.item_id)
@@ -45,6 +59,14 @@ class TestDelete(TestMethodsBase):
         self.assert200(status)
 
         r = self.test_client.get(self.item_id_url)
+        self.assert404(r.status_code)
+
+    def test_delete_different_resource(self):
+        r, status = self.delete(self.user_id_url,
+                                headers=[('If-Match', self.user_etag)])
+        self.assert200(status)
+
+        r = self.test_client.get(self.user_id_url)
         self.assert404(r.status_code)
 
     def delete(self, url, headers=None):

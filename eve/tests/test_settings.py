@@ -25,6 +25,7 @@ contacts = {
         'url': '[\w]+',   # to be unique field
         'field': 'ref'
     },
+    'datasource': {'filter': {'username': {'$exists': False}}},
     'schema': {
         'ref': {
             'type': 'string',
@@ -42,10 +43,13 @@ contacts = {
         },
         'rows': {
             'type': 'list',
-            'items': {
-                'sku': {'type': 'string', 'maxlength': 10},
-                'price': {'type': 'integer'},
-            }
+            'schema': {
+                'type': 'dict',
+                'schema': {
+                    'sku': {'type': 'string', 'maxlength': 10},
+                    'price': {'type': 'integer'},
+                },
+            },
         },
         'alist': {
             'type': 'list',
@@ -64,8 +68,21 @@ contacts = {
         'tid': {
             'type': 'objectid',
         },
+        'title': {
+            'type': 'string',
+            'default': 'Mr.',
+        }
     }
 }
+
+import copy
+users = copy.deepcopy(contacts)
+users['url'] = 'users'
+users['datasource'] = {'source': 'contacts',
+                       'filter': {'username': {'$exists': True}}}
+users['schema']['username'] = {'type': 'string', 'required': True}
+users['methods'] = ['DELETE', 'POST', 'GET']
+users['item_title'] = 'user'
 
 invoices = {
     #'item_lookup': False,
@@ -81,6 +98,7 @@ payments = {
 
 DOMAIN = {
     'contacts': contacts,
+    'users': users,
     'invoices': invoices,
     'payments': payments,
 }

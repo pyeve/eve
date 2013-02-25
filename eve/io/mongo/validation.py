@@ -16,7 +16,7 @@ import re
 from eve.utils import config
 from bson import ObjectId
 from flask import current_app as app
-from cerberus import Validator, ValidationError, SchemaError
+from cerberus import Validator
 from cerberus.errors import ERROR_BAD_TYPE
 
 
@@ -27,11 +27,16 @@ class Validator(Validator):
     :param schema: the validation schema, to be composed according to Cerberus
                    documentation.
     :param resource: the resource name.
+
+    .. versionchanged:: 0.0.4
+       Support for 'transparent_schema_rules' introduced with Cerberus 0.0.3,
+       which allows for insertion of 'default' values in POST requests.
     """
     def __init__(self, schema, resource=None):
         self.resource = resource
         self.object_id = None
-        super(Validator, self).__init__(schema)
+        super(Validator, self).__init__(schema,
+                                        transparent_schema_rules=True)
 
     def validate_update(self, document, object_id):
         """ Validate method to be invoked when performing an update, not an
