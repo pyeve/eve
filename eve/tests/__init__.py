@@ -256,7 +256,7 @@ class TestMethodsBase(TestBase):
         self.connection.drop_database(MONGO_DBNAME)
         self.connection.close()
 
-    def random_contacts(self, num):
+    def random_contacts(self, num, standard_date_fields=True):
         schema = DOMAIN['contacts']['schema']
         contacts = []
         for i in range(num):
@@ -275,10 +275,11 @@ class TestMethodsBase(TestBase):
                     days=random.randint(-10, 10)),
 
                 'tid': ObjectId(),
-                eve.LAST_UPDATED: dt,
-                eve.DATE_CREATED: dt,
-
             }
+            if standard_date_fields:
+                contact[eve.LAST_UPDATED] = dt
+                contact[eve.DATE_CREATED] = dt
+
             contacts.append(contact)
         return contacts
 

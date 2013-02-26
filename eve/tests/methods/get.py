@@ -1,8 +1,7 @@
-#import unittest
 from eve.tests import TestMethodsBase
+from eve.tests.test_settings import MONGO_DBNAME
 
 
-#@unittest.skip("not needed now")
 class TestGet(TestMethodsBase):
 
     def test_get_empty_resource(self):
@@ -156,8 +155,24 @@ class TestGet(TestMethodsBase):
         etag = item.get('etag')
         self.assertTrue(etag is not None)
 
+    def test_documents_missing_standard_date_fields(self):
+        """Documents created outside the API context could be lacking the
+        LAST_UPDATED and/or DATE_CREATED fields.
+        """
+        contacts = self.random_contacts(1, False)
+        ref = 'test_update_field'
+        contacts[0]['ref'] = ref
+        _db = self.connection[MONGO_DBNAME]
+        _db.contacts.insert(contacts)
+        where = '{"ref": "%s"}' % ref
+        response, status = self.get(self.known_resource,
+                                    '?where=%s' % where)
+        self.assert200(status)
+        resource = response['_items']
+        self.assertEqual(len(resource), 1)
+        self.assertItem(resource[0])
 
-#@unittest.skip("workin on post")
+
 class TestGetItem(TestMethodsBase):
 
     def assertItemResponse(self, response, status,
@@ -227,3 +242,16 @@ class TestGetItem(TestMethodsBase):
         response, status = self.get(self.different_resource,
                                     item=self.unknown_item_name)
         self.assert404(status)
+
+    def test_getitem_missing_standard_date_fields(self):
+        """Documents created outside the API context could be lacking the
+        LAST_UPDATED and/or DATE_CREATED fields.
+        """
+        contacts = self.random_contacts(1, False)
+        ref = 'test_update_field'
+        contacts[0]['ref'] = ref
+        _db = self.connection[MONGO_DBNAME]
+        _db.contacts.insert(contacts)
+        response, status = self.get(self.known_resource,
+                                    item=ref)
+        self.assertItemResponse(response, status)

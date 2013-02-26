@@ -33,6 +33,10 @@ def get(resource):
 
     :param resource: the name of the resource.
 
+    .. versionchanged:: 0.0.5
+       Support for LAST_UPDATED field missing from documents, because they were
+       created outside the API context.
+
     .. versionchanged:: 0.0.4
        Added the ``requires_auth`` decorator.
 
@@ -44,25 +48,13 @@ def get(resource):
 
     documents = []
     response = {}
-    last_updated = datetime.min
+    last_updated = _epoch()
 
     req = parse_request()
     cursor = app.data.find(resource, req)
     for document in cursor:
-        # flask-pymongo returns timezone-aware value, we strip it out
-        # because std lib datetime doesn't provide that, and comparisions
-        # between the two values would fail
-
-        # TODO consider testing if the app.data is of type Mongo before
-        # replacing the tzinfo. On the other hand this could be handy for
-        # other drivers as well (think of it as a safety measure). A
-        # 'pythonic' alternative would be to perform the comparision in a
-        # try..catch statement.. performing the replace in case of an
-        # exception. However that would mean getting the exception at each
-        # execution under standard circumstances (the default driver being
-        # Mongo).
-        document[config.LAST_UPDATED] = \
-            document[config.LAST_UPDATED].replace(tzinfo=None)
+        document[config.LAST_UPDATED] = _last_updated(document)
+        document[config.DATE_CREATED] = _date_created(document)
 
         if document[config.LAST_UPDATED] > last_updated:
             last_updated = document[config.LAST_UPDATED]
@@ -82,7 +74,7 @@ def get(resource):
         last_modified = None
     else:
         status = 200
-        last_modified = last_updated if last_updated > datetime.min else None
+        last_modified = last_updated if last_updated > _epoch() else None
         response['_items'] = documents
         response['_links'] = _pagination_links(resource, req, cursor.count())
 
@@ -96,6 +88,10 @@ def getitem(resource, **lookup):
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
+
+    .. versionchanged:: 0.0.5
+       Support for LAST_UPDATED field missing from documents, because they were
+       created outside the API context.
 
     .. versionchanged:: 0.0.4
        Added the ``requires_auth`` decorator.
@@ -112,8 +108,7 @@ def getitem(resource, **lookup):
         # need to update the document field as well since the etag must
         # be computed on the same document representation that might have
         # been used in the collection 'get' method
-        last_modified = document[config.LAST_UPDATED] = \
-            document[config.LAST_UPDATED].replace(tzinfo=None)
+        last_modified = document[config.LAST_UPDATED] = _last_updated(document)
         etag = document_etag(document)
 
         if req.if_none_match and etag == req.if_none_match:
@@ -170,3 +165,47 @@ def standard_links(resource):
     kind of GET response.
     """
     return [home_link(), collection_link(resource)]
+
+
+def _last_updated(document):
+    """Fixes document's LAST_UPDATED field value. Flask-PyMongo returns
+    timezone-aware values while stdlib datetime values are timezone-naive.
+    Comparisions between the two would fail.
+
+    If LAST_UPDATE is missing we assume that it has been created outside of the
+    API context and inject a default value, to allow for proper computing of
+    Last-Modified header tag.
+
+    :param document: the document to be processed.
+
+    .. versionadded:: 0.0.5
+    """
+    if config.LAST_UPDATED in document:
+        return document[config.LAST_UPDATED].replace(tzinfo=None)
+    else:
+        return _epoch()
+
+
+def _date_created(document):
+    """Fixes document's LAST_UPDATED field value. Flask-PyMongo returns
+    timezone-aware values while stdlib datetime values are timezone-naive.
+    Comparisions between the two would fail.
+
+    If LAST_UPDATE is missing we assume that it has been created outside of the
+    API context and inject a default value, to allow for proper computing of
+    Last-Modified header tag.
+
+    :param document: the document to be processed.
+
+    .. versionadded:: 0.0.5
+    """
+    return document[config.DATE_CREATED] if config.DATE_CREATED in document \
+        else _epoch()
+
+
+def _epoch():
+    """ A datetime.min alternative which won't crash on us.
+
+    .. versionadded:: 0.0.5
+    """
+    return datetime(1970, 1, 1)
