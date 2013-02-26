@@ -160,13 +160,6 @@ def _pagination_links(resource, req, documents_count):
     return _links
 
 
-def standard_links(resource):
-    """Returns the standard set of resource links that are included in every
-    kind of GET response.
-    """
-    return [home_link(), collection_link(resource)]
-
-
 def _last_updated(document):
     """Fixes document's LAST_UPDATED field value. Flask-PyMongo returns
     timezone-aware values while stdlib datetime values are timezone-naive.
@@ -174,7 +167,8 @@ def _last_updated(document):
 
     If LAST_UPDATE is missing we assume that it has been created outside of the
     API context and inject a default value, to allow for proper computing of
-    Last-Modified header tag.
+    Last-Modified header tag. By design all documents return a LAST_UPDATED
+    (and we don't want to break existing clients).
 
     :param document: the document to be processed.
 
@@ -187,13 +181,9 @@ def _last_updated(document):
 
 
 def _date_created(document):
-    """Fixes document's LAST_UPDATED field value. Flask-PyMongo returns
-    timezone-aware values while stdlib datetime values are timezone-naive.
-    Comparisions between the two would fail.
-
-    If LAST_UPDATE is missing we assume that it has been created outside of the
-    API context and inject a default value, to allow for proper computing of
-    Last-Modified header tag.
+    """If DATE_CREATED is missing we assume that it has been created outside of
+    the API context and inject a default value. By design all documents
+    return a DATE_CREATED (and we dont' want to break existing clients).
 
     :param document: the document to be processed.
 

@@ -8,7 +8,8 @@ Version 0.0.5
 
 Not released yet.
 
- - DATE_CREATED and LAST_UPDATED fields now show default values for documents
+- Orphan function removed (``eve.methods.get.standard_links`` ).
+- DATE_CREATED and LAST_UPDATED fields now show default values for documents
    created outside the API context. Fixes #18. 
 
 Version 0.0.4
