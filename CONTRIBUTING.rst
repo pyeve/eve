@@ -37,9 +37,15 @@ Submitting Changes
 * Submit a `Pull Request`_.
 * Wait for maintainer feedback.
 
+Join us on IRC
+--------------
+If you're interested in contributing to the Eve project or have questions
+about it come join us in our little #evehq channel on irc.freenode.net. It's
+comfy and cozy over there.
+
 First time contributor?
 -----------------------
-It's alright. We've all been there. 
+It's alright. We've all been there. See next chapter.
 
 Dont' know where to start? 
 --------------------------

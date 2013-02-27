@@ -202,16 +202,22 @@ License
 Eve is BSD licensed. See the `LICENSE
 <https://github.com/nicolaiarocci/eve/blob/master/LICENSE>`_ for details.
 
+Contributing
+------------
+Please see the `Contribution Guidelines`_.
+
+Join us on IRC
+--------------
+If you're interested in contributing to the Eve project or have questions
+about it come join us in our little #evehq channel on irc.freenode.net. It's
+comfy and cozy over there.
+
 Current state
 -------------
 Consider this a public preview (Alpha). Best way to be notified about its
 availability is by starring/following the project repo at GitHub
 https://github.com/nicolaiarocci/eve. You can follow me on Twitter at
 http://twitter.com/nicolaiarocci.
-
-Contributing
-------------
-Please see the `Contribution Guidelines`_.
 
 A little context
 ----------------
