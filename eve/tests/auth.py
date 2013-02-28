@@ -2,7 +2,7 @@
 
 import eve
 from eve import Eve
-from eve.auth import BasicAuth
+from eve.auth import BasicAuth, TokenAuth
 from eve.tests import TestMethodsBase
 
 
@@ -14,6 +14,12 @@ class ValidBasicAuth(BasicAuth):
 
 class BadBasicAuth(BasicAuth):
     pass
+
+
+class ValidTokenAuth(TokenAuth):
+    def check_auth(self, token, allowed_roles):
+        return token == 'test_token' and (allowed_roles == ['admin'] if
+                                          allowed_roles else True)
 
 
 class TestBasicAuth(TestMethodsBase):
@@ -179,3 +185,14 @@ class TestBasicAuth(TestMethodsBase):
 
     def assert500(self, status):
         self.assertEqual(status, 500)
+
+
+class TestTokenAuth(TestBasicAuth):
+    def setUp(self):
+        super(TestTokenAuth, self).setUp()
+        self.app = Eve(settings=self.settings_file, auth=ValidTokenAuth)
+        self.test_client = self.app.test_client()
+        self.valid_auth = [('Authorization', 'Basic dGVzdF90b2tlbjo=')]
+
+    def test_custom_auth(self):
+        self.assertEqual(type(self.app.auth), ValidTokenAuth)
