@@ -7,7 +7,7 @@
     Securing an Eve-powered API with HMAC based Authentication.
 
     The ``eve.auth.HMACAuth`` class allows for custom Amazon S3-like
-    authentication, which is basically a very secure, custom authentication
+    authentication, which is basically a very secure custom authentication
     scheme built around the `Authorization` header.
 
     The server provides the client with a user id and a secret key through some
