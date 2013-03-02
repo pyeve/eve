@@ -2,7 +2,7 @@
 
 import eve
 from eve import Eve
-from eve.auth import BasicAuth, TokenAuth
+from eve.auth import BasicAuth, TokenAuth, HMACAuth
 from eve.tests import TestMethodsBase
 
 
@@ -20,6 +20,16 @@ class ValidTokenAuth(TokenAuth):
     def check_auth(self, token, allowed_roles):
         return token == 'test_token' and (allowed_roles == ['admin'] if
                                           allowed_roles else True)
+
+
+class ValidHMACAuth(HMACAuth):
+    def check_auth(self, userid, hmac_hash, headers, data, allowed_roles):
+        return userid == 'admin' and hmac_hash == 'secret' and  \
+            (allowed_roles == ['admin'] if allowed_roles else True)
+
+
+class BadHMACAuth(HMACAuth):
+    pass
 
 
 class TestBasicAuth(TestMethodsBase):
@@ -196,3 +206,25 @@ class TestTokenAuth(TestBasicAuth):
 
     def test_custom_auth(self):
         self.assertEqual(type(self.app.auth), ValidTokenAuth)
+
+
+class TestHMACAuth(TestBasicAuth):
+    def setUp(self):
+        super(TestHMACAuth, self).setUp()
+        self.app = Eve(settings=self.settings_file, auth=ValidHMACAuth)
+        self.test_client = self.app.test_client()
+        self.valid_auth = [('Authorization', 'admin:secret')]
+
+    def test_custom_auth(self):
+        self.assertEqual(type(self.app.auth), ValidHMACAuth)
+
+    def test_bad_auth_class(self):
+        self.app = Eve(settings=self.settings_file, auth=BadHMACAuth)
+        self.test_client = self.app.test_client()
+        r = self.test_client.get('/', headers=self.valid_auth)
+        # will fail because check_auth() is not implemented in the custom class
+        self.assert500(r.status_code)
+
+    def test_rfc2617_response(self):
+        r = self.test_client.get('/')
+        self.assert401(r.status_code)
