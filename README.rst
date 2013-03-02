@@ -172,11 +172,11 @@ Features
   endpoints. How about example.com/api/v1/<endpoint>? Both prefix and
   version are as easy to set up as setting a configuration variable.
 
-- **Authentication**. Basic Authentication (RFC-2617) is supported. You can
-  lockdown the whole API or just some endpoints. You can also restrict CRUD
-  commands, like allowing open read-only access while restricting edits,
-  inserts and deletes to authorized users. Role-based access control is
-  supported as well.
+- **Authentication**. Customizable Basic Authentication (RFC-2617), Token-based
+  authentication and HMAC-based Authentication are supported. You can lockdown
+  the whole API or just some endpoints. You can also restrict CRUD commands,
+  like allowing open read-only access while restricting edits, inserts and
+  deletes to authorized users. Role-based access control is supported as well.
 
 Installation
 ------------
