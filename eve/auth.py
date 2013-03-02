@@ -68,6 +68,45 @@ class BasicAuth(object):
                                         allowed_roles)
 
 
+class HMACAuth(BasicAuth):
+    """ Hash Message Authentication Code (HMAC) authentication logic. Must be
+    subclassed to implement custom authorization checking.
+
+    .. versionadded:: 0.0.5
+    """
+    def check_auth(self, userid, hmac_hash, headers, data, allowed_roles):
+        """ This function is called to check if a token is valid. Must be
+        overridden with custom logic.
+
+        :param userid: user id included with the request.
+        :param hmac: hash included with the request.
+        :param headers: request headers. Suitable for hash computing.
+        :param data: request data. Suitable for hash computing.
+        :param allowed_roles: allowed user roles
+        """
+        raise NotImplementedError
+
+    def authenticate(self):
+        """ Returns a standard a 401. Ovverride if you want to change the
+        response.
+        """
+        return Response('Please provide proper credentials', 401)
+
+    def authorized(self, allowed_roles):
+        """ Validates the the current request is allowed to pass through.
+
+        :param allowed_roles: allowed roles for the current request, can be a
+                              string or a list of roles.
+        """
+        auth = request.headers.get('Authorization')
+        try:
+            userid, hmac_hash = auth.split(':')
+        except:
+            auth = None
+        return auth and self.check_auth(userid, hmac_hash, request.headers,
+                                        request.data, allowed_roles)
+
+
 class TokenAuth(BasicAuth):
     """ Implements Token AUTH logic. Should be subclassed to implement custom
     authorization checking.
