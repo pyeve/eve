@@ -44,6 +44,8 @@ class DataLayer(object):
     """
 
     def __init__(self, app):
+        """ Implements the Flask extension pattern.
+        """
         if app is not None:
             self.app = app
             self.init_app(self.app)
@@ -51,25 +53,86 @@ class DataLayer(object):
             self.app = None
 
     def init_app(self, app):
+        """ This is where you want to initialize the db driver so it will be
+        alive through the whole instance lifespan.
+        """
         raise NotImplementedError
 
-    def find(self, resource, where=None, sort=None, page=1,
-             max_results=config.PAGING_DEFAULT,
-             if_modified_since=None):
-        raise NotImplementedError
+    def find(self, resource, req):
+        """ Retrieves a set of documents (rows), matching the current request.
+        Consumed when a request hits a collection/document endpoint
+        (`/people/`).
+
+        :param resource: resource being accessed. You should then use
+                         the ``_datasource`` helper function to retrieve both
+                         the db collection/table and base query (filter), if
+                         any.
+        :param req: an instance of ``eve.utils.ParsedRequest``. This contains
+                    all the constraints that must be fulfilled in order to
+                    satisfy the original request (where and sort parts, paging,
+                    etc). Be warned that `where` and `sort` expresions will
+                    need proper parsing, according to the syntax that you want
+                    to support with your driver. For example ``eve.io.Mongo``
+                    supports both Python and Mongo-like query syntaxes.
+        """
 
     def find_one(self, resource, **lookup):
+        """Retrieves a single document/record. Consumed when a request hits an
+        item endpoint (`/people/id/`).
+
+        :param resource: resource being accessed. You should then use the
+                         ``_datasource`` helper function to retrieve both the
+                         db collection/table and base query (filter), if any.
+        :param **lookup: the lookup fields. This will most likely be a record
+                         id or, if alternate lookup is supported by the API,
+                         the corresponding query.
+
+
+        """
         raise NotImplementedError
 
     def insert(self, resource, document):
+        """Inserts a document into a resource collection/table.
+
+        :param resource: resource being accessed. You should then use
+                         the ``_datasource`` helper function to retrieve both
+                         the actual datasource name.
+        :param document: json document to be added to the database.
+        """
         raise NotImplementedError
 
     def update(self, resource, id_, updates):
+        """Updates a collection/table document/row.
+        :param resource: resource being accessed. You should then use
+                         the ``_datasource`` helper function to retrieve
+                         the actual datasource name.
+        :param id_: the unique id of the document.
+        :param updates: json updates to be performed on the database document
+                        (or row).
+        """
+
         raise NotImplementedError
 
-    def remove(self, resource, id_):
+    def remove(self, resource, id_=None):
+        """Removes a document/row or an entire set of documents/rows from a
+        database collection/table.
+
+        :param resource: resource being accessed. You should then use
+                         the ``_datasource`` helper function to retrieve
+                         the actual datasource name.
+        :param id_: the unique id of the document to be removed. If `None`,
+                    all the documents/rows in the collection/table should be
+                    removed.
+
+        """
         raise NotImplementedError
 
     def _datasource(self, resource):
+        """Returns a tuple with the actual name of the database
+        collection/table and the base query for the resource being accessed.
+
+        :param resource: resource being accessed.
+        """
+
         return (config.SOURCES[resource]['source'],
                 config.SOURCES[resource]['filter'])
