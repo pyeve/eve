@@ -13,7 +13,7 @@
 import datetime
 import time
 import simplejson as json
-from flask import make_response, request, Response
+from flask import make_response, request, Response, current_app as app
 from bson.objectid import ObjectId
 from eve.utils import date_to_str, config
 
@@ -33,6 +33,11 @@ def send_response(resource, response):
                      response will be prepared, according to directives within
                      the tuple.
 
+    .. versionchanged:: 0.0.5
+       Handling the case where response is None. Happens when the request
+       method is 'OPTIONS', most likely while processing a CORS 'preflight'
+       request.
+
     .. versionchanged:: 0.0.4
        Now a simple dispatcher. Moved the response preparation logic to
        ``_prepare_response``.
@@ -40,7 +45,7 @@ def send_response(resource, response):
     if isinstance(response, Response):
         return response
     else:
-        return _prepare_response(resource, *response)
+        return _prepare_response(resource, *response if response else [None])
 
 
 def _prepare_response(resource, dct, last_modified=None, etag=None,
@@ -55,18 +60,24 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     :param etag: ETag header value.
     :param status: response status.
 
+    .. versionchanged:: 0.0.5
+       Support for Cross-Origin Resource Sharing (CORS).
+
     .. versionadded:: 0.0.4
     """
-    # obtain the best match between client's request and available mime types,
-    # along with the corresponding render function.
-    mime, renderer = _best_mime()
+    if request.method == 'OPTIONS':
+        resp = app.make_default_options_response()
+    else:
+        # obtain the best match between client's request and available mime
+        # types, along with the corresponding render function.
+        mime, renderer = _best_mime()
 
-    # invoke the render function and obtain the corresponding rendered item
-    rendered = globals()[renderer](**dct)
+        # invoke the render function and obtain the corresponding rendered item
+        rendered = globals()[renderer](**dct)
 
-    # build the main wsgi rensponse object
-    resp = make_response(rendered, status)
-    resp.mimetype = mime
+        # build the main wsgi rensponse object
+        resp = make_response(rendered, status)
+        resp.mimetype = mime
 
     # cache directives
     if request.method == 'GET':
@@ -86,6 +97,16 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         resp.headers.add('ETag', etag)
     if last_modified:
         resp.headers.add('Last-Modified', date_to_str(last_modified))
+
+    if 'Origin' in request.headers and config.X_DOMAINS is not None:
+        if isinstance(config.X_DOMAINS, basestring):
+            domains = [config.X_DOMAINS]
+        else:
+            domains = config.X_DOMAINS
+        methods = app.make_default_options_response().headers['allow']
+        resp.headers.add('Access-Control-Allow-Origin', ', '.join(domains))
+        resp.headers.add('Access-Control-Allow-Methods', methods)
+        resp.headers.add('Access-Control-Allow-Max-Age', 21600)
 
     return resp
 

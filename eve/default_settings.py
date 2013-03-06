@@ -10,6 +10,9 @@
 
     :copyright: (c) 2012 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
+
+    .. versionchanged:: 0.0.5
+       'X_DOMAIN' keyword added to support Cross-Origin Resource Sharing CORS
 """
 #DEBUG = True
 
@@ -28,6 +31,7 @@ ID_FIELD = '_id'
 CACHE_CONTROL = ''
 CACHE_EXPIRES = 0
 ITEM_CACHE_CONTROL = ''
+X_DOMAINS = None                 # CORS is disabled by default.
 
 RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']
