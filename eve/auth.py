@@ -9,6 +9,11 @@ def requires_auth(endpoint_class):
                            to.  Can be 'resource' (resource endpoint), 'item'
                            (item endpoint) and 'home' for the API entry point.
 
+    .. versionchanged:: 0.0.5
+       Support for Cross-Origin Resource Sharing (CORS): 'OPTIONS' request
+       method is now public by default. The actual method ('GET', etc.) will
+       still be protected if so configured.
+
     .. versionadded:: 0.0.4
     """
     def fdec(f):
@@ -23,7 +28,7 @@ def requires_auth(endpoint_class):
                 public = resource['public_item_methods']
                 roles = resource['allowed_item_roles']
             elif endpoint_class == 'home':
-                public = app.config['PUBLIC_METHODS']
+                public = app.config['PUBLIC_METHODS'] + ['OPTIONS']
                 roles = app.config['ALLOWED_ROLES']
             if app.auth and request.method not in public:
                 if not app.auth.authorized(roles):

@@ -178,6 +178,11 @@ Features
   like allowing open read-only access while restricting edits, inserts and
   deletes to authorized users. Role-based access control is supported as well.
 
+- **CORS**. Support for Cross-Origin Resource Sharing is present. Disabled by
+  default, CORS allows web pages to work with REST APIs, something that is
+  usually restricted by most broswers' 'same domain' security policy.
+  Eve-powered API can be accesed by the JavaScript contained in a webpage.
+
 Installation
 ------------
 Eve is on PyPI so all you need to do is

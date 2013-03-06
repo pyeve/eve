@@ -8,6 +8,11 @@ Version 0.0.5
 
 Not released yet.
 
+- CORS (Cross-Origin Resource Sharing) support. The new ``X-DOMAINS`` keywords
+  allows API maintainers to specify which domains are allowed to perform CORS
+  requests. Allowed values are: None, a list of domains, or '*' for a wide-open
+  API.
+
 - HMAC (Hash Message Authentication Code) based Autentication. 
   The new ``eve.auth.HMACAuth`` class allows for custom Amazon S3-like
   authentication, which is basically a very secure custom authentication

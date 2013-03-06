@@ -318,6 +318,11 @@ class Eve(Flask):
         """ Builds the API url map. Methods are enabled for each mapped
         endpoint, as configured in the settings.
 
+        .. versionchanged:: 0.0.5
+           Support for Cross-Origin Resource Sharing. 'OPTIONS' method is
+           explicitly routed to standard endpoints to allow for proper CORS
+           processing.
+
         .. versionchanged:: 0.0.4
            config.SOURCES. Maps resources to their datasources.
 
@@ -333,7 +338,8 @@ class Eve(Flask):
                             self.config['API_VERSION'])
 
         # home page (API entry point)
-        self.add_url_rule('%s/' % prefix, 'home', home_endpoint)
+        self.add_url_rule('%s/' % prefix, 'home', view_func=home_endpoint,
+                          methods = ['GET', 'OPTIONS'])
 
         for resource, settings in self.config['DOMAIN'].items():
             resources[settings['url']] = resource
@@ -343,7 +349,7 @@ class Eve(Flask):
             # resource endpoint
             url = '%s/<regex("%s"):url>/' % (prefix, settings['url'])
             self.add_url_rule(url, view_func=collections_endpoint,
-                              methods=settings['methods'])
+                              methods=settings['methods'] + ['OPTIONS'])
 
             # item endpoint
             if settings['item_lookup']:
@@ -353,7 +359,8 @@ class Eve(Flask):
                      settings['item_lookup_field'])
 
                 self.add_url_rule(item_url, view_func=item_endpoint,
-                                  methods=settings['item_methods'])
+                                  methods=settings['item_methods']
+                                  + ['OPTIONS'])
                 if 'PATCH' in settings['item_methods']:
                     # support for POST with X-HTTM-Method-Override header
                     # for clients not supporting PATCH. Also see
