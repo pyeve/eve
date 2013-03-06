@@ -75,6 +75,7 @@ class DataLayer(object):
                     to support with your driver. For example ``eve.io.Mongo``
                     supports both Python and Mongo-like query syntaxes.
         """
+        raise NotImplementedError
 
     def find_one(self, resource, **lookup):
         """Retrieves a single document/record. Consumed when a request hits an
