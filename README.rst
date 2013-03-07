@@ -81,7 +81,7 @@ Features
 
 - **Filtering and sorting**. Resource endpoints allow consumers to retrieve
   multiple documents. Query strings are supported, allowing for filtering and
-  sorting. 
+  sorting. Both filters and sorting can be optionally disabled.
   
 - **Two query formats**. Currently two query formats are supported: the mongo
   query syntax (``?where={"name": "john doe"}``), and the native python syntax
@@ -93,7 +93,7 @@ Features
   first N items matching the query are serverd. Links to subsequent/previous
   pages are provided with the response. Default and maximum page size is
   customizable, and consumers can request specific pages via the query string
-  (``?page=10``).
+  (``?page=10``). Paging can be optionally disabled.
 
 - **HATEOAS**. Hypermedia as the Engine of Application State is enabled by
   default. Each GET response includes a ``_links`` section. Links provide details on

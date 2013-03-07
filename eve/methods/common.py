@@ -24,8 +24,12 @@ def get_document(resource, **lookup):
 
     :param resource: the name of the resource to which the document belongs to.
     :param **lookup: document lookup query
+
+    ..versionchanged:: 0.0.5
+      Pass current resource to ``parse_request``, allowing for proper
+      processing of new configuration settings: `filters`, `sorting`, `paging`.
     """
-    req = parse_request()
+    req = parse_request(resource)
     document = app.data.find_one(resource, **lookup)
     if document:
         if not req.if_match:

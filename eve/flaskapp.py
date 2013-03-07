@@ -247,6 +247,11 @@ class Eve(Flask):
         """ When not provided, fills individual resource settings with default
         or global configuration settings.
 
+        .. versionchanged:: 0.0.5
+           'filters',
+           'sorting',
+           'paging'.
+
         .. versionchanged:: 0.0.4
            'defaults',
            'datasource',
@@ -280,6 +285,9 @@ class Eve(Flask):
                                 self.config['PUBLIC_ITEM_METHODS'])
             settings.setdefault('allowed_item_roles',
                                 self.config['ALLOWED_ITEM_ROLES'])
+            settings.setdefault('filters', self.config['FILTERS'])
+            settings.setdefault('sorting', self.config['SORTING'])
+            settings.setdefault('paging', self.config['PAGING'])
             # TODO make sure that this we really need the test below
             if settings['item_lookup']:
                 item_methods = self.config['ITEM_METHODS']
@@ -339,7 +347,7 @@ class Eve(Flask):
 
         # home page (API entry point)
         self.add_url_rule('%s/' % prefix, 'home', view_func=home_endpoint,
-                          methods = ['GET', 'OPTIONS'])
+                          methods=['GET', 'OPTIONS'])
 
         for resource, settings in self.config['DOMAIN'].items():
             resources[settings['url']] = resource

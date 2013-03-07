@@ -65,6 +65,16 @@ class TestGet(TestMethodsBase):
         self.assertNextLink(links, 4)
         self.assertPrevLink(links, 2)
 
+    def test_get_paging_disabled(self):
+        self.app.config['DOMAIN'][self.known_resource]['paging'] = False
+        response, status = self.get(self.known_resource, '?page=2')
+        self.assert200(status)
+        resource = response['_items']
+        self.assertFalse(len(resource) == self.app.config['PAGING_DEFAULT'])
+        links = response['_links']
+        self.assertTrue('next' not in links)
+        self.assertTrue('prev' not in links)
+
     def test_get_where_mongo_syntax(self):
         where = '{"ref": "%s"}' % self.item_name
         response, status = self.get(self.known_resource,
@@ -78,22 +88,40 @@ class TestGet(TestMethodsBase):
     # correctly
     def test_get_where_python_syntax(self):
         where = 'ref == %s' % self.item_name
-        response, status = self.get(self.known_resource,
-                                    '?where=%s' % where)
+        response, status = self.get(self.known_resource, '?where=%s' % where)
         self.assert200(status)
 
         resource = response['_items']
         self.assertEqual(len(resource), 1)
 
+    def test_get_where_disabled(self):
+        self.app.config['DOMAIN'][self.known_resource]['filters'] = False
+        where = 'ref == %s' % self.item_name
+        response, status = self.get(self.known_resource, '?where=%s' % where)
+        self.assert200(status)
+        resource = response['_items']
+        self.assertEqual(len(resource), self.app.config['PAGING_DEFAULT'])
+
     def test_get_sort_mongo_syntax(self):
-        sort = '[("prog",1)]'
+        sort = '[("prog",-1)]'
         response, status = self.get(self.known_resource,
                                     '?sort=%s' % sort)
         self.assert200(status)
 
         resource = response['_items']
         self.assertEqual(len(resource), self.app.config['PAGING_DEFAULT'])
-        # TODO testing all the resultset seems a bit excessive?
+        topvalue = 99
+        for i in range(len(resource)):
+            self.assertEqual(resource[i]['prog'], topvalue - i)
+
+    def test_get_sort_disabled(self):
+        self.app.config['DOMAIN'][self.known_resource]['sorting'] = False
+        sort = '[("prog",-1)]'
+        response, status = self.get(self.known_resource,
+                                    '?sort=%s' % sort)
+        self.assert200(status)
+        resource = response['_items']
+        self.assertEqual(len(resource), self.app.config['PAGING_DEFAULT'])
         for i in range(len(resource)):
             self.assertEqual(resource[i]['prog'], i)
 

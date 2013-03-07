@@ -49,12 +49,17 @@ class Mongo(DataLayer):
         :param resource: resource name.
         :param req: a :class:`ParsedRequest`instance.
 
+        .. versionchanged:: 0.0.5
+           handles the case where req.max_results is None because paging has
+           been disabled.
+
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
         args = dict()
 
-        args['limit'] = req.max_results
+        if req.max_results:
+            args['limit'] = req.max_results
 
         if req.page > 1:
             args['skip'] = (req.page - 1) * req.max_results

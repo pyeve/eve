@@ -50,7 +50,7 @@ def get(resource):
     response = {}
     last_updated = _epoch()
 
-    req = parse_request()
+    req = parse_request(resource)
     cursor = app.data.find(resource, req)
     for document in cursor:
         document[config.LAST_UPDATED] = _last_updated(document)
@@ -102,7 +102,7 @@ def getitem(resource, **lookup):
     """
     response = {}
 
-    req = parse_request()
+    req = parse_request(resource)
     document = app.data.find_one(resource, **lookup)
     if document:
         # need to update the document field as well since the etag must
@@ -141,12 +141,15 @@ def _pagination_links(resource, req, documents_count):
     :param req: and instace of :class:`eve.utils.ParsedRequest`.
     :param document_count: the number of documents returned by the query.
 
+    .. versionchanged:: 0.0.5
+       Support for optional paging.
+
     .. versionchanged:: 0.0.3
        JSON links
     """
     _links = {'parent': home_link(), 'self': collection_link(resource)}
 
-    if documents_count:
+    if documents_count and config.DOMAIN[resource]['paging']:
         if req.page * req.max_results < documents_count:
             q = querydef(req.max_results, req.where, req.sort, req.page + 1)
             _links['next'] = {'title': 'next page', 'href': '%s%s' %
