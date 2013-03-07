@@ -31,7 +31,11 @@ ID_FIELD = '_id'
 CACHE_CONTROL = ''
 CACHE_EXPIRES = 0
 ITEM_CACHE_CONTROL = ''
-X_DOMAINS = None                 # CORS is disabled by default.
+X_DOMAINS = None                # CORS disabled by default.
+
+FILTERS = True                  # filters enbaled by default.
+SORTING = True                  # sorting enabled by default.
+PAGING = True                   # paging enabled by default.
 
 RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']

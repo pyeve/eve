@@ -26,6 +26,10 @@ def delete(resource, **lookup):
     :param resource: name of the resource to which the item(s) belong.
     :param **lookup: item lookup query.
 
+    ..versionchanged:: 0.0.5
+      Pass current resource to ``parse_request``, allowing for proper
+      processing of new configuration settings: `filters`, `sorting`, `paging`.
+
     .. versionchanged:: 0.0.4
        Added the ``requires_auth`` decorator.
     """
