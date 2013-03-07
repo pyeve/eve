@@ -23,36 +23,36 @@ class TestUtils(TestBase):
 
     def test_parse_request_where(self):
         self.assertEqual(parse_request().where, None)
-        self.assertEqual(parse_request({'where': 'hello'}).where, 'hello')
+        self.assertEqual(parse_request(args={'where': 'hello'}).where, 'hello')
 
     def test_parse_request_sort(self):
         self.assertEqual(parse_request().sort, None)
-        self.assertEqual(parse_request({'sort': 'hello'}).sort, 'hello')
+        self.assertEqual(parse_request(args={'sort': 'hello'}).sort, 'hello')
 
     def test_parse_request_page(self):
         self.assertEqual(parse_request().page, 1)
-        self.assertEqual(parse_request({'page': 2}).page, 2)
-        self.assertEqual(parse_request({'page': -1}).page, 1)
-        self.assertEqual(parse_request({'page': 0}).page, 1)
-        self.assertEqual(parse_request({'page': 1.1}).page, 1)
-        self.assertEqual(parse_request({'page': 'string'}).page, 1)
+        self.assertEqual(parse_request(args={'page': 2}).page, 2)
+        self.assertEqual(parse_request(args={'page': -1}).page, 1)
+        self.assertEqual(parse_request(args={'page': 0}).page, 1)
+        self.assertEqual(parse_request(args={'page': 1.1}).page, 1)
+        self.assertEqual(parse_request(args={'page': 'string'}).page, 1)
 
     def test_parse_request_max_results(self):
         default = config.PAGING_DEFAULT
         limit = config.PAGING_LIMIT
         self.assertEqual(parse_request().max_results, default)
         self.assertEqual(
-            parse_request({'max_results': limit + 1}).max_results, limit)
+            parse_request(args={'max_results': limit + 1}).max_results, limit)
         self.assertEqual(
-            parse_request({'max_results': 2}).max_results, 2)
+            parse_request(args={'max_results': 2}).max_results, 2)
         self.assertEqual(
-            parse_request({'max_results': -1}).max_results, default)
+            parse_request(args={'max_results': -1}).max_results, default)
         self.assertEqual(
-            parse_request({'max_results': 0}).max_results, default)
+            parse_request(args={'max_results': 0}).max_results, default)
         self.assertEqual(
-            parse_request({'max_results': 1.1}).max_results, 1)
+            parse_request(args={'max_results': 1.1}).max_results, 1)
         self.assertEqual(
-            parse_request({'max_results': 'string'}).max_results, default)
+            parse_request(args={'max_results': 'string'}).max_results, default)
 
     def test_parse_request_if_modified_since(self):
         ims = 'If-Modified-Since'

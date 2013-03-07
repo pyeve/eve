@@ -151,6 +151,9 @@ class TestConfig(TestBase):
                          resource.rstrip('s').capitalize())
         self.assertEqual(settings['item_cache_control'],
                          self.app.config['ITEM_CACHE_CONTROL'])
+        self.assertEqual(settings['filters'], self.app.config['FILTERS'])
+        self.assertEqual(settings['sorting'], self.app.config['SORTING'])
+        self.assertEqual(settings['paging'], self.app.config['PAGING'])
         self.assertNotEqual(settings['schema'], None)
         self.assertEqual(type(settings['schema']), dict)
         self.assertEqual(len(settings['schema']), 0)
