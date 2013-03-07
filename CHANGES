@@ -8,10 +8,13 @@ Version 0.0.5
 
 Not released yet.
 
+- Filters (`?where=`), sorting (`?sort=`) and paging (`?page=10`) can now be be
+  disabled at both global and endpoint level. Closes #7.
+
 - CORS (Cross-Origin Resource Sharing) support. The new ``X-DOMAINS`` keywords
   allows API maintainers to specify which domains are allowed to perform CORS
   requests. Allowed values are: None, a list of domains, or '*' for a wide-open
-  API.
+  API. Closes #1.
 
 - HMAC (Hash Message Authentication Code) based Autentication. 
   The new ``eve.auth.HMACAuth`` class allows for custom Amazon S3-like
