@@ -231,17 +231,23 @@ class Eve(Flask):
                                    ', '.join(allowed)))
 
     def validate_schema(self, schema):
+        """
+        .. versionchanged:: 0.0.5
+           Now collecting offending items in a list and inserting results into
+           the exception message.
+        """
         # TODO are there other mandatory settings? Validate them here
-        offender = None
+        offenders = []
         if eve.DATE_CREATED in schema:
-            offender = eve.DATE_CREATED
+            offenders.append(eve.DATE_CREATED)
         if eve.LAST_UPDATED in schema:
-            offender = eve.LAST_UPDATED
+            offenders.append(eve.LAST_UPDATED)
         if eve.ID_FIELD in schema:
-            offender = eve.ID_FIELD
-        if offender:
-            raise ConfigException('"%s" field not allowed in schema (will be '
-                                  'handled automatically).' % offender)
+            offenders.append(eve.ID_FIELD)
+        if offenders:
+            raise ConfigException('field(s) "%s" not allowed in schema '
+                                  '(they will be handled automatically).'
+                                  % ', '.join(offenders))
 
     def set_defaults(self):
         """ When not provided, fills individual resource settings with default

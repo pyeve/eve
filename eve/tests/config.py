@@ -110,11 +110,11 @@ class TestConfig(TestBase):
         self.domain.clear()
         self.domain['resource'] = {
             'schema': {
-                field: {'type': 'datetime'}
+                field: {'type': 'datetime'},
             }
         }
         self.app.set_defaults()
-        self.assertValidateConfigFailure('automatically')
+        self.assertValidateConfigFailure(field)
 
     def test_set_defaults(self):
         self.domain.clear()
