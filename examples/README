@@ -1,0 +1,2 @@
+- security folder: Authentication snippets
+- notifications.py: how to be notified and perform custom actions when requests are received.

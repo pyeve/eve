@@ -8,8 +8,14 @@ Version 0.0.5
 
 Not released yet.
 
+- Added an example on how to handle events to perform custom actions. Closes 
+  #23 and #22.
+
+- how to be notified and perform custom actions when requests are received.
+
 - ``eve.validation_schema()`` now collects offending items and returns all of
   them into the exception message. Closes #24.
+
 - Filters (`?where=`), sorting (`?sort=`) and paging (`?page=10`) can now be be
   disabled at both global and endpoint level. Closes #7.
 
