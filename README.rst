@@ -18,8 +18,10 @@ online:
 Support for MongoDB comes out of the box; extensions for other SQL/NoSQL
 databases can be developed with relative ease. API settings are stored in
 a standard Python module (defaults to ``settings.py``). Most of
-the times the launch script will be as simple as::
+the times the launch script will be as simple as:
     
+.. code-block:: python
+
     from eve import Eve
 
     app = Eve() 
