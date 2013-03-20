@@ -43,7 +43,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Eve'
-copyright = u'%s, Nicola Iarocci' % datetime.datetime.now().year
+copyright = u'%s. A <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project' % datetime.datetime.now().year
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
