@@ -1,9 +1,7 @@
-Eve: RESTful APIs Made Simple
-=============================
+RESTful APIs Made Simple
+========================
 
-Welcome to Eve Documentation. 
-
-*Work in progress.*
+ *Work in progress.*
 
 Meanwhile, to get a hold of Eve capabilities and
 usage instructions check out the original Eve readme_ along with the very
