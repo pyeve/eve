@@ -53,7 +53,8 @@
             
   <div class="section" id="restful-apis-made-simple">
 <h1>RESTful APIs Made Simple<a class="headerlink" href="#restful-apis-made-simple" title="Permalink to this headline">¶</a></h1>
-<p>Eve allows to effortlessly build and deploy fully featured, REST-compliant, proprietary APIs.</p>
+<p><em>Eve is an out-of-the-box, highly customizable and fully featured RESTful Web
+API that you can use to effortlessly build and deploy your own APIs</em></p>
 <div class="section" id="eve-is-simple">
 <h2>Eve is Simple<a class="headerlink" href="#eve-is-simple" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
@@ -69,32 +70,31 @@
 <span class="go">...</span>
 </pre></div>
 </div>
-<p>All you need to bring your API online are a database, a configuration file
-(defaults to <tt class="docutils literal"><span class="pre">settings.py</span></tt>), and a launch script such as the one above.
-Overall, you will find that configuring and fine-tuning your API is a very
-simple process.</p>
+<p>All you need to bring your API online is a database, a configuration file
+(defaults to <tt class="docutils literal"><span class="pre">settings.py</span></tt>) and a launch script.  Overall, you will find that
+configuring and fine-tuning your API is a very simple process.</p>
 </div>
 <div class="section" id="features">
 <h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>REST compliant</li>
-<li>Full range of CRUD operations via HTTP verbs</li>
-<li>Customizable resource endpoints/persistent identifiers</li>
-<li>Multiple item endpoints</li>
-<li>Filtering</li>
-<li>Sorting</li>
-<li>Python native query syntax (<tt class="docutils literal"><span class="pre">?where=name=='john</span> <span class="pre">doe'</span></tt>)</li>
-<li>Alternative MongoDB query syntax (<tt class="docutils literal"><span class="pre">where={&quot;name&quot;:</span> <span class="pre">&quot;john</span> <span class="pre">doe&quot;}</span></tt>)</li>
-<li>Pagination</li>
-<li>HATEOAS (Hypermedia as Engine of Application State)</li>
+<li>Full range of CRUD operations (GET, POST, PATCH, DELETE)</li>
 <li>JSON and XML responses</li>
-<li>Conditional requests (<tt class="docutils literal"><span class="pre">Last-Modified</span></tt> and <tt class="docutils literal"><span class="pre">ETag</span></tt> headers)</li>
-<li>Data integrity and concurrency control</li>
+<li>Customizable data validation</li>
+<li>Customizable resource endpoints (<tt class="docutils literal"><span class="pre">/people/</span></tt>)</li>
+<li>Automatic item endpoints (<tt class="docutils literal"><span class="pre">/people/&lt;ObjectId&gt;/</span></tt>)</li>
+<li>Customizable item endpoints (<tt class="docutils literal"><span class="pre">/people/john/</span></tt>)</li>
+<li>Pagination (<tt class="docutils literal"><span class="pre">?page=10</span></tt>)</li>
+<li>Filtering: Python query syntax (<tt class="docutils literal"><span class="pre">?where=name=='john</span> <span class="pre">doe'</span></tt>)</li>
+<li>Filtering: MongoDB query syntax (<tt class="docutils literal"><span class="pre">where={&quot;name&quot;:</span> <span class="pre">&quot;john</span> <span class="pre">doe&quot;}</span></tt>)</li>
+<li>Sorting</li>
 <li>Multiple inserts with a single request</li>
-<li>Data validation</li>
+<li>Data integrity and concurrency control</li>
 <li>Resource-level cache control directives</li>
+<li>Conditional requests (<tt class="docutils literal"><span class="pre">Last-Modified</span></tt> and <tt class="docutils literal"><span class="pre">ETag</span></tt> headers)</li>
 <li>API Versioning</li>
-<li>CORS</li>
+<li>HATEOAS (Hypermedia as Engine of Application State)</li>
+<li>CORS (Cross-Origin Resource Sharing)</li>
 </ul>
 <p>Support for MongoDB comes out of the box; extensions for other SQL/NoSQL
 backends can be developed with relative ease.</p>
