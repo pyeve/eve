@@ -53,11 +53,64 @@
             
   <div class="section" id="restful-apis-made-simple">
 <h1>RESTful APIs Made Simple<a class="headerlink" href="#restful-apis-made-simple" title="Permalink to this headline">¶</a></h1>
-<blockquote>
-<div><em>Work in progress.</em></div></blockquote>
-<p>Meanwhile, to get a hold of Eve capabilities and
-usage instructions check out the original Eve <a class="reference external" href="http://github.com/nicolaiarocci/eve#readme">readme</a> along with the very
-important <a class="reference external" href="http://github.com/nicolaiarocci/eve-demo#readme">Eve Demo instructions</a>.</p>
+<p>Eve allows to effortlessly build and deploy fully featured, REST-compliant, proprietary APIs.</p>
+<div class="section" id="eve-is-simple">
+<h2>Eve is Simple<a class="headerlink" href="#eve-is-simple" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
+<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The API is now live, ready to be consumed:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://example.com/people/
+
+<span class="go">HTTP/1.1 200 OK</span>
+<span class="go">...</span>
+</pre></div>
+</div>
+<p>All you need to bring your API online are a database, a configuration file
+(defaults to <tt class="docutils literal"><span class="pre">settings.py</span></tt>), and a launch script such as the one above.
+Overall, you will find that configuring and fine-tuning your API is a very
+simple process.</p>
+</div>
+<div class="section" id="features">
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>REST compliant</li>
+<li>Full range of CRUD operations via HTTP verbs</li>
+<li>Customizable resource endpoints/persistent identifiers</li>
+<li>Multiple item endpoints</li>
+<li>Filtering</li>
+<li>Sorting</li>
+<li>Python native query syntax (<tt class="docutils literal"><span class="pre">?where=name=='john</span> <span class="pre">doe'</span></tt>)</li>
+<li>Alternative MongoDB query syntax (<tt class="docutils literal"><span class="pre">where={&quot;name&quot;:</span> <span class="pre">&quot;john</span> <span class="pre">doe&quot;}</span></tt>)</li>
+<li>Pagination</li>
+<li>HATEOAS (Hypermedia as Engine of Application State)</li>
+<li>JSON and XML responses</li>
+<li>Conditional requests (<tt class="docutils literal"><span class="pre">Last-Modified</span></tt> and <tt class="docutils literal"><span class="pre">ETag</span></tt> headers)</li>
+<li>Data integrity and concurrency control</li>
+<li>Multiple inserts with a single request</li>
+<li>Data validation</li>
+<li>Resource-level cache control directives</li>
+<li>API Versioning</li>
+<li>CORS</li>
+</ul>
+</div>
+<div class="section" id="live-demo">
+<h2>Live demo<a class="headerlink" href="#live-demo" title="Permalink to this headline">¶</a></h2>
+<p>Check out the <a class="reference external" href="http://eve-demo.herokuapp.com">live demo</a> (if using a browser you will get XML back.
+For JSON, use <tt class="docutils literal"><span class="pre">curl</span></tt>). Check the <a class="reference external" href="https://github.com/nicolaiarocci/eve-demo">source code</a> to get an idea of what you
+can achieve with Eve. You will also find <a class="reference external" href="https://github.com/nicolaiarocci/eve-demo#readme">usage examples</a> for all common use
+cases (GET, POST, PATCH, DELETE, and more). There is also a simple <a class="reference external" href="https://github.com/nicolaiarocci/eve-demo-client">client
+app</a> available.</p>
+</div>
+<div class="section" id="work-in-progress">
+<h2>Work in progress<a class="headerlink" href="#work-in-progress" title="Permalink to this headline">¶</a></h2>
+<p>This documentation is under development. Meanwhile, please refer to the links
+on the sidebar for any information, or to get in touch with the development
+team (that being <a class="reference external" href="mailto:me&#37;&#52;&#48;nicolaiaroccicom">me</a>).</p>
+</div>
 </div>
 
 
@@ -76,7 +129,7 @@ important <a class="reference external" href="http://github.com/nicolaiarocci/ev
 </p> 
 <!--<h3>About Eve</h3>-->
 <p>
-  Eve allows to effortlessly build and deploy fully featured, REST-compliant, proprietary APIs. You are looking at the documentation of the development version.
+  You are looking at the documentation of the development version.
 </p>
 <h3>Useful Links</h3>
 <ul>
@@ -87,6 +140,7 @@ important <a class="reference external" href="http://github.com/nicolaiarocci/ev
   <li><a href="http://eve-demo.herokuapp.com/">Demo @ Heroku</a></li>
   <li><a href="http://github.com/nicolaiarocci/eve-demo">Demo @ github</a></li>
   <li><a href="http://github.com/nicolaiarocci/eve/issues">Issue Tracker</a></li>
+  <li><a href="https://github.com/nicolaiarocci/eve/blob/develop/CONTRIBUTING.rst">Contributing</a></li>
 </ul>
 <h3>Feedback</h3>
 <p>

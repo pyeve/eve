@@ -1,12 +1,71 @@
 RESTful APIs Made Simple
 ========================
 
- *Work in progress.*
+Eve allows to effortlessly build and deploy fully featured, REST-compliant, proprietary APIs. 
 
-Meanwhile, to get a hold of Eve capabilities and
-usage instructions check out the original Eve readme_ along with the very
-important `Eve Demo instructions`_.
+Eve is Simple
+-------------
+.. code-block:: python
+
+    from eve import Eve
+
+    app = Eve() 
+    app.run()
+
+The API is now live, ready to be consumed:
+
+.. code-block:: console
+
+    $ curl -i http://example.com/people/
+    
+    HTTP/1.1 200 OK
+    ...
+
+All you need to bring your API online are a database, a configuration file
+(defaults to ``settings.py``), and a launch script such as the one above.
+Overall, you will find that configuring and fine-tuning your API is a very
+simple process.  
+
+Features
+--------
+- REST compliant
+- Full range of CRUD operations via HTTP verbs
+- Customizable resource endpoints/persistent identifiers
+- Multiple item endpoints
+- Filtering
+- Sorting
+- Python native query syntax (``?where=name=='john doe'``)
+- Alternative MongoDB query syntax (``where={"name": "john doe"}``)
+- Pagination
+- HATEOAS (Hypermedia as Engine of Application State)
+- JSON and XML responses
+- Conditional requests (``Last-Modified`` and ``ETag`` headers)
+- Data integrity and concurrency control
+- Multiple inserts with a single request
+- Data validation
+- Resource-level cache control directives
+- API Versioning
+- CORS 
+
+Live demo
+---------
+Check out the `live demo`_ (if using a browser you will get XML back.
+For JSON, use ``curl``). Check the `source code`_ to get an idea of what you
+can achieve with Eve. You will also find `usage examples`_ for all common use
+cases (GET, POST, PATCH, DELETE, and more). There is also a simple `client
+app`_ available.  
+
+Work in progress
+----------------
+This documentation is under development. Meanwhile, please refer to the links
+on the sidebar for any information, or to get in touch with the development
+team (that being me_).
 
 .. _readme: http://github.com/nicolaiarocci/eve#readme
 .. _`Eve Demo instructions`: http://github.com/nicolaiarocci/eve-demo#readme
+.. _`live demo`: http://eve-demo.herokuapp.com
+.. _`source code`: https://github.com/nicolaiarocci/eve-demo
+.. _`usage examples`: https://github.com/nicolaiarocci/eve-demo#readme
+.. _`client app`: https://github.com/nicolaiarocci/eve-demo-client
+.. _me: mailto:me@nicolaiaroccicom
 
