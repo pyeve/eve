@@ -1,7 +1,8 @@
 RESTful APIs Made Simple
 ========================
 
-Eve allows to effortlessly build and deploy fully featured, REST-compliant, proprietary APIs.
+*Eve is an out-of-the-box, highly customizable and fully featured RESTful Web
+API that you can use to effortlessly build and deploy your own APIs*
 
 Eve is Simple
 -------------
@@ -21,30 +22,29 @@ The API is now live, ready to be consumed:
     HTTP/1.1 200 OK
     ...
 
-All you need to bring your API online are a database, a configuration file
-(defaults to ``settings.py``), and a launch script such as the one above.
-Overall, you will find that configuring and fine-tuning your API is a very
-simple process
+All you need to bring your API online is a database, a configuration file
+(defaults to ``settings.py``) and a launch script.  Overall, you will find that
+configuring and fine-tuning your API is a very simple process.
 
 Features
 --------
 - REST compliant
-- Full range of CRUD operations via HTTP verbs
-- Customizable resource endpoints/persistent identifiers
-- Multiple item endpoints
-- Filtering
-- Sorting
-- Python native query syntax (``?where=name=='john doe'``)
-- Alternative MongoDB query syntax (``where={"name": "john doe"}``)
-- Pagination
-- HATEOAS (Hypermedia as Engine of Application State)
+- Full range of CRUD operations (GET, POST, PATCH, DELETE)
 - JSON and XML responses
-- Conditional requests (``Last-Modified`` and ``ETag`` headers)
-- Data integrity and concurrency control
+- Customizable data validation 
+- Customizable resource endpoints (``/people/``)
+- Automatic item endpoints (``/people/<ObjectId>/``)
+- Customizable item endpoints (``/people/john/``)
+- Pagination (``?page=10``)
+- Filtering: Python query syntax (``?where=name=='john doe'``)
+- Filtering: MongoDB query syntax (``where={"name": "john doe"}``)
+- Sorting
 - Multiple inserts with a single request
-- Data validation
+- Data integrity and concurrency control
 - Resource-level cache control directives
+- Conditional requests (``Last-Modified`` and ``ETag`` headers)
 - API Versioning
+- HATEOAS (Hypermedia as Engine of Application State)
 - CORS (Cross-Origin Resource Sharing)
 
 Support for MongoDB comes out of the box; extensions for other SQL/NoSQL
