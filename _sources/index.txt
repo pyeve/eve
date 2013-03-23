@@ -47,6 +47,9 @@ Features
 - API Versioning
 - CORS 
 
+Support for MongoDB comes out of the box; extensions for other SQL/NoSQL
+backends can be developed with relative ease.
+
 Live demo
 ---------
 Check out the `live demo`_ (if using a browser you will get XML back.
