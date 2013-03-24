@@ -2,7 +2,7 @@ RESTful APIs Made Simple
 ========================
 
 *Eve is an out-of-the-box, highly customizable and fully featured RESTful Web
-API that you can use to effortlessly build and deploy your own APIs*
+API framework that you can use to effortlessly build and deploy your own APIs*
 
 Eve is Simple
 -------------
@@ -46,9 +46,11 @@ Features
 - API Versioning
 - HATEOAS (Hypermedia as Engine of Application State)
 - CORS (Cross-Origin Resource Sharing)
+- Powered by Flask_.  
 
 Support for MongoDB comes out of the box; extensions for other SQL/NoSQL
-backends can be developed with relative ease.
+backends can be developed with relative ease. A `PostgreSQL
+effort`_ is going on, maybe you can lend a hand?
 
 Live demo
 ---------
@@ -64,7 +66,8 @@ This documentation is under development. Meanwhile, please refer to the links
 on the sidebar for any information, or to get in touch with the development
 team (that being me_).
 
-.. _readme: http://github.com/nicolaiarocci/eve#readme
+.. _Flask: http://flask.pocoo.org
+.. _`PostgreSQL effort`: https://github.com/nicolaiarocci/eve/issues/17
 .. _`Eve Demo instructions`: http://github.com/nicolaiarocci/eve-demo#readme
 .. _`live demo`: http://eve-demo.herokuapp.com
 .. _`source code`: https://github.com/nicolaiarocci/eve-demo
