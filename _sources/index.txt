@@ -37,7 +37,7 @@ Features
 - Customizable item endpoints (``/people/john/``)
 - Pagination (``?page=10``)
 - Filtering: Python query syntax (``?where=name=='john doe'``)
-- Filtering: MongoDB query syntax (``where={"name": "john doe"}``)
+- Filtering: MongoDB query syntax (``?where={"name": "john doe"}``)
 - Sorting
 - Multiple inserts with a single request
 - Data integrity and concurrency control
@@ -49,22 +49,36 @@ Features
 - Powered by Flask_.  
 
 Support for MongoDB comes out of the box; extensions for other SQL/NoSQL
-backends can be developed with relative ease. A `PostgreSQL
-effort`_ is going on, maybe you can lend a hand?
+backends can be developed with relative ease (a `PostgreSQL
+effort`_ is ongoing, maybe you can lend a hand?)
 
 Live demo
 ---------
-Check out the `live demo`_ (if using a browser you will get XML back.
-For JSON, use ``curl``). Check the `source code`_ to get an idea of what you
-can achieve with Eve. You will also find `usage examples`_ for all common use
-cases (GET, POST, PATCH, DELETE, and more). There is also a simple `client
-app`_ available.
+Check out the `live demo`_ (if using a browser you will get XML back,
+for JSON use ``curl``). The `source code`_ will show you how easy it is to run
+an API with Eve. You will also find `usage examples`_ for all common use cases
+(GET, POST, PATCH, DELETE and more). There is also a simple `client app`_
+available.
 
-Work in progress
-----------------
-This documentation is under development. Meanwhile, please refer to the links
-on the sidebar for any information, or to get in touch with the development
-team (that being me_).
+User Guide
+----------
+.. toctree::
+    :maxdepth: 2
+
+    foreword
+    installation
+    quickstart
+    config
+    validation
+    authorization
+    extending
+    contributing
+    license
+
+.. note::
+   This documentation is under development. Please refer to the links on the
+   sidebar for more information, or to get in touch with the development team
+   (that being me_).
 
 .. _Flask: http://flask.pocoo.org
 .. _`PostgreSQL effort`: https://github.com/nicolaiarocci/eve/issues/17

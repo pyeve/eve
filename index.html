@@ -26,6 +26,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="top" title="Eve 0.0.5-dev documentation" href="#" />
+    <link rel="next" title="Introduction" href="foreword.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -43,6 +44,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="foreword.html" title="Introduction"
+             accesskey="N">next</a> |</li>
         <li><a href="#">Eve 0.0.5-dev documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -87,7 +91,7 @@ configuring and fine-tuning your API is a very simple process.</p>
 <li>Customizable item endpoints (<tt class="docutils literal"><span class="pre">/people/john/</span></tt>)</li>
 <li>Pagination (<tt class="docutils literal"><span class="pre">?page=10</span></tt>)</li>
 <li>Filtering: Python query syntax (<tt class="docutils literal"><span class="pre">?where=name=='john</span> <span class="pre">doe'</span></tt>)</li>
-<li>Filtering: MongoDB query syntax (<tt class="docutils literal"><span class="pre">where={&quot;name&quot;:</span> <span class="pre">&quot;john</span> <span class="pre">doe&quot;}</span></tt>)</li>
+<li>Filtering: MongoDB query syntax (<tt class="docutils literal"><span class="pre">?where={&quot;name&quot;:</span> <span class="pre">&quot;john</span> <span class="pre">doe&quot;}</span></tt>)</li>
 <li>Sorting</li>
 <li>Multiple inserts with a single request</li>
 <li>Data integrity and concurrency control</li>
@@ -99,22 +103,54 @@ configuring and fine-tuning your API is a very simple process.</p>
 <li>Powered by <a class="reference external" href="http://flask.pocoo.org">Flask</a>.</li>
 </ul>
 <p>Support for MongoDB comes out of the box; extensions for other SQL/NoSQL
-backends can be developed with relative ease. A <a class="reference external" href="https://github.com/nicolaiarocci/eve/issues/17">PostgreSQL
-effort</a> is going on, maybe you can lend a hand?</p>
+backends can be developed with relative ease (a <a class="reference external" href="https://github.com/nicolaiarocci/eve/issues/17">PostgreSQL
+effort</a> is ongoing, maybe you can lend a hand?)</p>
 </div>
 <div class="section" id="live-demo">
 <h2>Live demo<a class="headerlink" href="#live-demo" title="Permalink to this headline">¶</a></h2>
-<p>Check out the <a class="reference external" href="http://eve-demo.herokuapp.com">live demo</a> (if using a browser you will get XML back.
-For JSON, use <tt class="docutils literal"><span class="pre">curl</span></tt>). Check the <a class="reference external" href="https://github.com/nicolaiarocci/eve-demo">source code</a> to get an idea of what you
-can achieve with Eve. You will also find <a class="reference external" href="https://github.com/nicolaiarocci/eve-demo#readme">usage examples</a> for all common use
-cases (GET, POST, PATCH, DELETE, and more). There is also a simple <a class="reference external" href="https://github.com/nicolaiarocci/eve-demo-client">client
-app</a> available.</p>
+<p>Check out the <a class="reference external" href="http://eve-demo.herokuapp.com">live demo</a> (if using a browser you will get XML back,
+for JSON use <tt class="docutils literal"><span class="pre">curl</span></tt>). The <a class="reference external" href="https://github.com/nicolaiarocci/eve-demo">source code</a> will show you how easy it is to run
+an API with Eve. You will also find <a class="reference external" href="https://github.com/nicolaiarocci/eve-demo#readme">usage examples</a> for all common use cases
+(GET, POST, PATCH, DELETE and more). There is also a simple <a class="reference external" href="https://github.com/nicolaiarocci/eve-demo-client">client app</a>
+available.</p>
 </div>
-<div class="section" id="work-in-progress">
-<h2>Work in progress<a class="headerlink" href="#work-in-progress" title="Permalink to this headline">¶</a></h2>
-<p>This documentation is under development. Meanwhile, please refer to the links
-on the sidebar for any information, or to get in touch with the development
-team (that being <a class="reference external" href="mailto:me&#37;&#52;&#48;nicolaiaroccicom">me</a>).</p>
+<div class="section" id="user-guide">
+<h2>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="foreword.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="foreword.html#philosophy">Philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="foreword.html#bsd-license">BSD License</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Configuration Handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Data Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authorization.html">Authorization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extending.html">Extending Eve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">How to Contribute</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#getting-started">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#making-changes">Making Changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#submitting-changes">Submitting Changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#join-us-on-irc">Join us on IRC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#first-time-contributor">First time contributor?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#dont-know-where-to-start">Dont&#8217; know where to start?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="license.html#bsd-license">BSD License</a></li>
+<li class="toctree-l2"><a class="reference internal" href="license.html#artwork-license">Artwork License</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This documentation is under development. Please refer to the links on the
+sidebar for more information, or to get in touch with the development team
+(that being <a class="reference external" href="mailto:me&#37;&#52;&#48;nicolaiaroccicom">me</a>).</p>
+</div>
 </div>
 </div>
 

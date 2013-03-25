@@ -1,0 +1,144 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Introduction &mdash; Eve 0.0.5-dev documentation</title>
+    
+    <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.5-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="top" title="Eve 0.0.5-dev documentation" href="index.html" />
+    <link rel="next" title="Installation" href="installation.html" />
+    <link rel="prev" title="RESTful APIs Made Simple" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+  
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="RESTful APIs Made Simple"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Eve 0.0.5-dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="introduction">
+<span id="foreword"></span><h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>Read this before you get started with Eve. This hopefully answers some
+questions about the purpose and goals of the project, and when you should or
+should not be using it.</p>
+<div class="section" id="philosophy">
+<h2>Philosophy<a class="headerlink" href="#philosophy" title="Permalink to this headline">¶</a></h2>
+<p>You have data stored somewhere and you want to expose it to your users
+through a RESTful Web API. Eve is the tool that allows you to do so.</p>
+<p>The idea is that a robust API implementation is provided by Eve, and you just need
+to configure API interface and behaviour, plug in your datasource, and you&#8217;re
+good to go.</p>
+<p>API settings are stored in a standard Python module (defaults to
+<tt class="docutils literal"><span class="pre">settings.py</span></tt>), which makes customization quite a trivial task. It is also
+possible to extend some key features, namely <a class="reference internal" href="authorization.html#auth"><em>Authorization</em></a>, Validation and Data
+Access, by providing the Eve engine with custom objects.</p>
+</div>
+<div class="section" id="bsd-license">
+<h2>BSD License<a class="headerlink" href="#bsd-license" title="Permalink to this headline">¶</a></h2>
+<p>A large number of open source projects you find today are GPL Licensed. While
+the GPL has its time and place, it should most certainly not be your go-to
+license for your next open source project.</p>
+<p>A project that is released as GPL cannot be used in any commercial product
+without the product itself also being offered as open source.</p>
+<p>The MIT, BSD, ISC, and Apache2 licenses are great alternatives to the GPL that
+allow your open-source software to be used freely in proprietary, closed-source
+software.</p>
+<p>Eve is released under terms of the <a class="reference internal" href="license.html#license"><em>BSD License</em></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Work in progress.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><p class="logo"><a href="index.html">
+  <img class="logo" src="_static/eve-sidebar.png" alt="Logo"/>
+</a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#philosophy">Philosophy</a></li>
+<li><a class="reference internal" href="#bsd-license">BSD License</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">RESTful APIs Made Simple</a></li>
+      <li>Next: <a href="installation.html" title="next chapter">Installation</a></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2013. A <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
+  </div>
+  <a href="https://github.com/nicolaiarocci/eve" class="github">
+  <img style="position: absolute; top: 0; right: 0; border: 0;" src="_static/forkme_right_green_007200.png" alt="Fork me on GitHub"  class="github"/>
+  </a>
+  
+  </body>
+</html>
