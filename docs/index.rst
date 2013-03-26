@@ -51,6 +51,7 @@ User's Guide
     extending
     contributing
     support
+    updates
     license
 
 .. note::
