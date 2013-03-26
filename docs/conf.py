@@ -252,7 +252,9 @@ texinfo_documents = [
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'http://docs.python.org/': None}
+#intersphinx_mapping = {'http://docs.python.org/': None}
+cerberus = 'http://cerberus.readthedocs.org/'
+intersphinx_mapping = {'cerberus': (cerberus, '%s/en/latest/objects.inv' % cerberus)}
 
 pygments_style = 'flask_theme_support.FlaskyStyle'
 
