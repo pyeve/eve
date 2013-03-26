@@ -43,7 +43,7 @@ User's Guide
 
     foreword
     features
-    installation
+    install
     quickstart
     config
     validation
