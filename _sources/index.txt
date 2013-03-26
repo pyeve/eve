@@ -26,31 +26,7 @@ All you need to bring your API online is a database, a configuration file
 (defaults to ``settings.py``) and a launch script.  Overall, you will find that
 configuring and fine-tuning your API is a very simple process.
 
-Features
---------
-- REST compliant
-- Full range of CRUD operations (GET, POST, PATCH, DELETE)
-- JSON and XML responses
-- Customizable data validation 
-- Customizable resource endpoints (``/people/``)
-- Automatic item endpoints (``/people/<ObjectId>/``)
-- Customizable item endpoints (``/people/john/``)
-- Pagination (``?page=10``)
-- Filtering: Python query syntax (``?where=name=='john doe'``)
-- Filtering: MongoDB query syntax (``?where={"name": "john doe"}``)
-- Sorting
-- Multiple inserts with a single request
-- Data integrity and concurrency control
-- Resource-level cache control directives
-- Conditional requests (``Last-Modified`` and ``ETag`` headers)
-- API Versioning
-- HATEOAS (Hypermedia as Engine of Application State)
-- CORS (Cross-Origin Resource Sharing)
-- Powered by Flask_.  
-
-Support for MongoDB comes out of the box; extensions for other SQL/NoSQL
-backends can be developed with relative ease (a `PostgreSQL
-effort`_ is ongoing, maybe you can lend a hand?)
+.. _demo:
 
 Live demo
 ---------
@@ -60,17 +36,18 @@ an API with Eve. You will also find `usage examples`_ for all common use cases
 (GET, POST, PATCH, DELETE and more). There is also a simple `client app`_
 available.
 
-User Guide
-----------
+User's Guide
+------------
 .. toctree::
     :maxdepth: 2
 
     foreword
+    features
     installation
     quickstart
     config
     validation
-    authorization
+    authentication
     extending
     contributing
     license
@@ -80,8 +57,6 @@ User Guide
    sidebar for more information, or to get in touch with the development team
    (that being me_).
 
-.. _Flask: http://flask.pocoo.org
-.. _`PostgreSQL effort`: https://github.com/nicolaiarocci/eve/issues/17
 .. _`Eve Demo instructions`: http://github.com/nicolaiarocci/eve-demo#readme
 .. _`live demo`: http://eve-demo.herokuapp.com
 .. _`source code`: https://github.com/nicolaiarocci/eve-demo

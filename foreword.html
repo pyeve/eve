@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Introduction &mdash; Eve 0.0.5-dev documentation</title>
+    <title>Foreword &mdash; Eve 0.0.5-dev documentation</title>
     
     <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -26,7 +26,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="top" title="Eve 0.0.5-dev documentation" href="index.html" />
-    <link rel="next" title="Installation" href="installation.html" />
+    <link rel="next" title="Features" href="features.html" />
     <link rel="prev" title="RESTful APIs Made Simple" href="index.html" />
    
   
@@ -44,7 +44,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="installation.html" title="Installation"
+          <a href="features.html" title="Features"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="RESTful APIs Made Simple"
@@ -58,8 +58,8 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="introduction">
-<span id="foreword"></span><h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="foreword">
+<span id="id1"></span><h1>Foreword<a class="headerlink" href="#foreword" title="Permalink to this headline">¶</a></h1>
 <p>Read this before you get started with Eve. This hopefully answers some
 questions about the purpose and goals of the project, and when you should or
 should not be using it.</p>
@@ -67,13 +67,53 @@ should not be using it.</p>
 <h2>Philosophy<a class="headerlink" href="#philosophy" title="Permalink to this headline">¶</a></h2>
 <p>You have data stored somewhere and you want to expose it to your users
 through a RESTful Web API. Eve is the tool that allows you to do so.</p>
-<p>The idea is that a robust API implementation is provided by Eve, and you just need
-to configure API interface and behaviour, plug in your datasource, and you&#8217;re
-good to go.</p>
+<p>The idea is that a robust, feature rich, REST-centered API implementation is
+provided by Eve, and you just need to configure API interface and behaviour,
+plug in your datasource, and you&#8217;re good to go. See <a class="reference internal" href="features.html"><em>Features</em></a> for a list
+of features available to Eve-powered APIs.</p>
 <p>API settings are stored in a standard Python module (defaults to
 <tt class="docutils literal"><span class="pre">settings.py</span></tt>), which makes customization quite a trivial task. It is also
 possible to extend some key features, namely <a class="reference internal" href="authorization.html#auth"><em>Authorization</em></a>, Validation and Data
 Access, by providing the Eve engine with custom objects.</p>
+</div>
+<div class="section" id="a-little-context">
+<h2>A little context<a class="headerlink" href="#a-little-context" title="Permalink to this headline">¶</a></h2>
+<p>At <a class="reference external" href="http://gestionaleamica.com">Gestionale Amica</a> we had been working hard on
+a full featured, Python powered, RESTful Web API. We learned quite a few things
+on REST best patterns, and we got a chance to put Python&#8217;s renowned web
+capabilities under review. Then, at EuroPython 2012, I got a chance to share
+what we learned and my talk sparked quite a bit of interest there. A few months
+have passed and still the slides are receiving a lot of hits each day, and
+I keep receiving emails about source code samples and whatnot. After all,
+a REST API lies in the future of every web-oriented developer, and who isn&#8217;t
+these days?</p>
+<p>So, I thought, perhaps I could take the proprietary, closed code (codenamed
+&#8216;Adam&#8217;) and refactor it &#8220;just a little bit&#8221;, so that it could fit a much wider
+number of use cases. I could then release it as an open source project. Well
+it turned out to be slightly more complex than that but finally here it is, and
+of course it&#8217;s called Eve.</p>
+<p>It still got a long way to go before it becomes the fully featured open source,
+out-of-the-box API solution I came to envision (see the Roadmap below), but
+I feel that at this point the codebase is ready enough for a public preview.
+This will hopefully allow for some constructive feedback and maybe, for some
+contributors to join the ranks.</p>
+<p>PS: the slides of my EuroPython REST API talk are <a class="reference external" href="https://speakerdeck.com/u/nicola/p/developing-restful-web-apis-with-python-flask-and-mongodb">available online</a>. You
+might want to check them to understand why and how certain design decisions
+were made, especially with regards to REST implementation.</p>
+</div>
+<div class="section" id="roadmap">
+<h2>Roadmap<a class="headerlink" href="#roadmap" title="Permalink to this headline">¶</a></h2>
+<p>In no particular order, here&#8217;s a partial list of the features that I plan/would
+like to add to Eve, provided that there is enough interest in the project.</p>
+<ul class="simple">
+<li>Documentation (working on it!)</li>
+<li>Granular exception handling</li>
+<li>Journaling/logging</li>
+<li>Server side caching</li>
+<li>Alternative sort syntax (<tt class="docutils literal"><span class="pre">?sort=name</span></tt>)</li>
+<li>More authentication schemes</li>
+<li>Support for MySQL and/or other SQL/NoSQL databases</li>
+</ul>
 </div>
 <div class="section" id="bsd-license">
 <h2>BSD License<a class="headerlink" href="#bsd-license" title="Permalink to this headline">¶</a></h2>
@@ -85,7 +125,7 @@ without the product itself also being offered as open source.</p>
 <p>The MIT, BSD, ISC, and Apache2 licenses are great alternatives to the GPL that
 allow your open-source software to be used freely in proprietary, closed-source
 software.</p>
-<p>Eve is released under terms of the <a class="reference internal" href="license.html#license"><em>BSD License</em></a>.</p>
+<p>Eve is released under terms of the <a class="reference internal" href="license.html#license"><em>Licensing</em></a>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Work in progress.</p>
@@ -103,8 +143,10 @@ software.</p>
 </a></p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#">Foreword</a><ul>
 <li><a class="reference internal" href="#philosophy">Philosophy</a></li>
+<li><a class="reference internal" href="#a-little-context">A little context</a></li>
+<li><a class="reference internal" href="#roadmap">Roadmap</a></li>
 <li><a class="reference internal" href="#bsd-license">BSD License</a></li>
 </ul>
 </li>
@@ -113,7 +155,7 @@ software.</p>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="index.html" title="previous chapter">RESTful APIs Made Simple</a></li>
-      <li>Next: <a href="installation.html" title="next chapter">Installation</a></li>
+      <li>Next: <a href="features.html" title="next chapter">Features</a></li>
   </ul></li>
 </ul>
 <div id="searchbox" style="display: none">
