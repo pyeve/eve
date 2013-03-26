@@ -77,9 +77,6 @@ The MIT, BSD, ISC, and Apache2 licenses are great alternatives to the GPL that
 allow your open-source software to be used freely in proprietary, closed-source
 software.
 
-Eve is released under terms of the :ref:`license`.
-
-.. note::
-    Work in progress.
+Eve is released under terms of the BSD License. See :ref:`license`.
 
 .. _available online: https://speakerdeck.com/u/nicola/p/developing-restful-web-apis-with-python-flask-and-mongodb
