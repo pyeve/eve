@@ -50,6 +50,7 @@ User's Guide
     authentication
     extending
     contributing
+    support
     license
 
 .. note::
