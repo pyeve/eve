@@ -202,6 +202,8 @@ Of course you can mix all the available query parameters:
 
 Pagination can be disabled.
 
+.. _hateoas_feature:
+
 HATEOAS
 -------
 *Hypermedia as the Engine of Application State* (HATEOAS_) is enabled by default. Each GET

@@ -60,9 +60,98 @@
             
   <div class="section" id="quickstart">
 <span id="id1"></span><h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
+<p>Eager to get started?  This page gives a good introduction to Eve.  It
+assumes that:</p>
+<ul class="simple">
+<li>You already have Eve installed. If you do not, head over to the
+<a class="reference internal" href="install.html#install"><em>Installation</em></a> section.</li>
+<li>MongoDB is <a class="reference external" href="MongoDBinstall">installed</a>.</li>
+<li>An instance of MongoDB is <a class="reference external" href="mongod">running</a>.</li>
+</ul>
+<div class="section" id="a-minimal-application">
+<h2>A Minimal Application<a class="headerlink" href="#a-minimal-application" title="Permalink to this headline">¶</a></h2>
+<p>A minimal Eve application looks something like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Just save it as <cite>run.py</cite>. Next, create a new text file with the following
+content:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;people&#39;</span><span class="p">:</span> <span class="p">{},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Save it as <cite>settings.py</cite> in the same directory where <cite>run.py</cite> is stored. This
+is the Eve configuration file, a standard Python module, and it is telling Eve
+that your API is comprised of just one accessible resource, <cite>people</cite>.</p>
+<p>Now your are ready to launch your API.</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python run.py
+<span class="go"> * Running on http://127.0.0.1:5000/</span>
+</pre></div>
+</div>
+<p>Now let&#8217;s see:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://127.0.0.1:5000/
+<span class="go">HTTP/1.0 200 OK</span>
+<span class="go">Content-Type: application/json</span>
+<span class="go">Content-Length: 82</span>
+<span class="go">Server: Eve/0.0.5-dev Werkzeug/0.8.3 Python/2.7.3</span>
+<span class="go">Date: Wed, 27 Mar 2013 16:06:44 GMT</span>
+</pre></div>
+</div>
+<p>Congratulations, your GET request got a nice response back. Let&#8217;s look at the
+response payload:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&quot;child&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;127.0.0.1:5000/people/&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span><span class="p">}]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>API entry points adhere to the <a class="reference internal" href="features.html#hateoas-feature"><em>HATEOAS</em></a> principle and provide
+informations about the resources accessible through the API. In our case
+there&#8217;s only one child resource available, that being <cite>people</cite>.</p>
+<p>Try requesting <cite>people</cite> now:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl http://127.0.0.1:5000/people/
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&quot;_items&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="s">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;127.0.0.1:5000/people/&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span><span class="p">},</span>
+        <span class="s">&quot;parent&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;127.0.0.1:5000&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;home&quot;</span><span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>Success! This time we also got an <tt class="docutils literal"><span class="pre">_items</span></tt> list, which is empty since there
+are no items available for the resource.</p>
+<p>You might be wondering how can Eve know about <cite>people</cite>, given that you didn&#8217;t
+tell anything about the database. It turns out that&#8217;s precisely the case. Since
+Eve has no clue about the database, it seamlessly serves an empty resource.</p>
+<p>Also, keep in mind that by default Eve APIs are read-only.</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -X DELETE http://127.0.0.1:5000/people/
+<span class="go">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 3.2 Final//EN&quot;&gt;</span>
+<span class="go">&lt;title&gt;405 Method Not Allowed&lt;/title&gt;</span>
+<span class="go">&lt;h1&gt;Method Not Allowed&lt;/h1&gt;</span>
+<span class="go">&lt;p&gt;The method DELETE is not allowed for the requested URL.&lt;/p&gt;</span>
+</pre></div>
+</div>
+<p>It&#8217;s time dig a little further.</p>
+</div>
+<div class="section" id="a-more-complex-application">
+<h2>A More Complex Application<a class="headerlink" href="#a-more-complex-application" title="Permalink to this headline">¶</a></h2>
+<p>For the next example we&#8217;re going to use the <a class="reference internal" href="index.html#demo"><em>Live demo</em></a>, which is a fully
+functional API that you can use to experiment on your own, either on the live
+instance or locally (you can use the sample client app to populate and/or reset
+the database).</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Work in progress.</p>
+</div>
 </div>
 </div>
 
@@ -98,7 +187,16 @@
   Feedback is greatly appreciated. If you have any questions, comments,
   random praise, or anonymous threats, <a href="mailto:eve@nicolaiarocci.com">
   shoot me an email</a>.
-</p><h3>Related Topics</h3>
+</p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Quickstart</a><ul>
+<li><a class="reference internal" href="#a-minimal-application">A Minimal Application</a></li>
+<li><a class="reference internal" href="#a-more-complex-application">A More Complex Application</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="install.html" title="previous chapter">Installation</a></li>
