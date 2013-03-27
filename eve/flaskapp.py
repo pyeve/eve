@@ -117,12 +117,8 @@ class Eve(Flask):
         Flask itself is available (besides Eve's proper settings).
         """
 
-        # TODO maybe move these to default_settings.py or package __init__
-        default_module = 'eve.default_settings'
-        envvar = 'EVE_SETTINGS'
-
         # load defaults
-        self.config.from_object(default_module)
+        self.config.from_object('eve.default_settings')
 
         # overwrite the defaults with custom user settings:
         if os.path.isabs(self.settings):
@@ -134,6 +130,7 @@ class Eve(Flask):
         self.config.from_pyfile(pyfile)
 
         #overwrite settings with custom environment variable
+        envvar = 'EVE_SETTINGS'
         if os.environ.get(envvar):
             self.config.from_envvar(envvar)
 
