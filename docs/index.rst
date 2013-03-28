@@ -18,9 +18,7 @@ The API is now live, ready to be consumed:
 .. code-block:: console
 
     $ curl -i http://example.com/people/
-
     HTTP/1.1 200 OK
-    ...
 
 All you need to bring your API online is a database, a configuration file
 (defaults to ``settings.py``) and a launch script.  Overall, you will find that
