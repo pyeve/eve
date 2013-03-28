@@ -84,12 +84,10 @@ Try requesting `people` now:
             }
         }
 
-Success! This time we also got an ``_items`` list, which is empty since there
-are no items available for the resource. 
-
-You might be wondering how can Eve know about `people`, given that you didn't
-tell anything about the database. It turns out that's precisely the case. Since
-Eve has no clue about the database, it seamlessly serves an empty resource.
+This time we also got an ``_items`` list. Since we didn't provide any database
+detail in `settings.py`, Eve has no clue about the real content of the `people`
+collection (it might even be non-existant), and seamlessly serves an empty
+resource as we don't want to let API users down.
 
 Also, keep in mind that by default Eve APIs are read-only. 
 
@@ -103,15 +101,16 @@ Also, keep in mind that by default Eve APIs are read-only.
 
 It's time dig a little further.
 
+.. note::
+    All the examples and code snippets are from the :ref:`demo`, which is
+    a fully functional API that you can use to experiment on your own, either
+    on the live instance or locally (you can use the sample client app to
+    populate and/or reset the database).
+
 A More Complex Application
 --------------------------
-For the next example we're going to use the :ref:`demo`, which is a fully
-functional API that you can use to experiment on your own, either on the live
-instance or locally (you can use the sample client app to populate and/or reset
-the database).
 
-.. note::
-    Work in progress.
+*Work in progress*
 
 .. _`MongoDB install`: http://docs.mongodb.org/manual/installation/
 .. _mongod: http://docs.mongodb.org/manual/tutorial/manage-mongodb-processes/

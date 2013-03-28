@@ -127,11 +127,10 @@ there&#8217;s only one child resource available, that being <cite>people</cite>.
     <span class="p">}</span>
 </pre></div>
 </div>
-<p>Success! This time we also got an <tt class="docutils literal"><span class="pre">_items</span></tt> list, which is empty since there
-are no items available for the resource.</p>
-<p>You might be wondering how can Eve know about <cite>people</cite>, given that you didn&#8217;t
-tell anything about the database. It turns out that&#8217;s precisely the case. Since
-Eve has no clue about the database, it seamlessly serves an empty resource.</p>
+<p>This time we also got an <tt class="docutils literal"><span class="pre">_items</span></tt> list. Since we didn&#8217;t provide any database
+detail in <cite>settings.py</cite>, Eve has no clue about the real content of the <cite>people</cite>
+collection (it might even be non-existant), and seamlessly serves an empty
+resource as we don&#8217;t want to let API users down.</p>
 <p>Also, keep in mind that by default Eve APIs are read-only.</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -X DELETE http://127.0.0.1:5000/people/
 <span class="go">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 3.2 Final//EN&quot;&gt;</span>
@@ -141,17 +140,17 @@ Eve has no clue about the database, it seamlessly serves an empty resource.</p>
 </pre></div>
 </div>
 <p>It&#8217;s time dig a little further.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">All the examples and code snippets are from the <a class="reference internal" href="index.html#demo"><em>Live demo</em></a>, which is
+a fully functional API that you can use to experiment on your own, either
+on the live instance or locally (you can use the sample client app to
+populate and/or reset the database).</p>
+</div>
 </div>
 <div class="section" id="a-more-complex-application">
 <h2>A More Complex Application<a class="headerlink" href="#a-more-complex-application" title="Permalink to this headline">¶</a></h2>
-<p>For the next example we&#8217;re going to use the <a class="reference internal" href="index.html#demo"><em>Live demo</em></a>, which is a fully
-functional API that you can use to experiment on your own, either on the live
-instance or locally (you can use the sample client app to populate and/or reset
-the database).</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Work in progress.</p>
-</div>
+<p><em>Work in progress</em></p>
 </div>
 </div>
 
