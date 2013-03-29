@@ -116,7 +116,7 @@ Let's connect to a database by adding the following lines to `settings.py`:
     MONGO_PASSWORD = 'user'
     MONGO_DBNAME = 'apitest'
 
-Due to MongoDB *lazyness*, we don't really need to create the collections in
+Due to MongoDB *laziness*, we don't really need to create the collections in
 database. Actually, we don't even need to create the database: GET requests on
 an empty/non-existant DB will be served correctly (200 OK with an empty
 collection); DELETE/PATCH will receive appropriate responses (404 Not
