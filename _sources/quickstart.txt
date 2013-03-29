@@ -42,7 +42,7 @@ Now your are ready to launch your API.
     $ python run.py
      * Running on http://127.0.0.1:5000/
 
-Now let's see:
+Now you can consume the API:
 
 .. code-block:: console
 
@@ -84,12 +84,11 @@ Try requesting `people` now:
             }
         }
 
-This time we also got an ``_items`` list. Since we didn't provide any database
-detail in `settings.py`, Eve has no clue about the real content of the `people`
-collection (it might even be non-existant), and seamlessly serves an empty
-resource as we don't want to let API users down.
+This time we also got an ``_items`` list. The ``_links`` are relative to the
+resource being accessed, so you get a link to the parent resource (the home
+page) and to the resource itself. 
 
-Also, keep in mind that by default Eve APIs are read-only. 
+By default Eve APIs are read-only: 
 
 .. code-block:: console
 
@@ -99,18 +98,184 @@ Also, keep in mind that by default Eve APIs are read-only.
     <h1>Method Not Allowed</h1>
     <p>The method DELETE is not allowed for the requested URL.</p>
 
-It's time dig a little further.
+Since we didn't provide any database detail in `settings.py`, Eve has no clue
+about the real content of the `people` collection (it might even be
+non-existant) and seamlessly serves an empty resource, as we don't want to let
+API users down.
 
-.. note::
-    All the examples and code snippets are from the :ref:`demo`, which is
-    a fully functional API that you can use to experiment on your own, either
-    on the live instance or locally (you can use the sample client app to
-    populate and/or reset the database).
+Let's connect to a database by adding the following lines to `settings.py`:
+
+::
+
+    # Let's just use the local mongod instance. Edit as needed.
+    MONGO_HOST = 'localhost'
+    MONGO_PORT = 27017
+    MONGO_USERNAME = 'user'
+    MONGO_PASSWORD = 'user'
+    MONGO_DBNAME = 'apitest'
+
+Please note that if there's no `people` collection in the database you will
+still get an empty resource in response to your GET request. This is due to the
+`laziness` of MongoDB.
 
 A More Complex Application
 --------------------------
+So far our API has been read-only. Let's enable the full spectrum of CRUD
+operations:
 
-*Work in progress*
+::
+
+    # Enable reads (GET), inserts (POST) and DELETE for resources/collections
+    # (if you omit this line, the API will default to ['GET'] and provide
+    # read-only access to the endpoint).
+    RESOURCE_METHODS = ['GET', 'POST', 'DELETE']
+
+    # Enable reads (GET), edits (PATCH) and deletes of individual items
+    # (defaults to read-only item access).
+    ITEM_METHODS = ['GET', 'PATCH', 'DELETE']
+
+``RESOURCE_METHODS`` lists methods allowed at resource endpoints (``/people/``)
+while ``ITEM_METHODS`` lists the methods enabled at item endpoints
+(``/people/<ObjectId>/``). Both settings have a global scope and will apply to
+all endpoints.  You can then enable or disable HTTP methods at individual
+endpoint level, as we will soon see.
+
+Since we are enabling edition we also want to enable proper data validation.
+Let's define a schema for our `people` resource.
+
+::
+
+    schema = {
+        # Schema definition, based on Cerberus grammar. Check the Cerberus project
+        # (https://github.com/nicolaiarocci/cerberus) for details.
+        'schema': {
+            'firstname': {
+                'type': 'string',
+                'minlength': 1,
+                'maxlength': 10,
+            },
+            'lastname': {
+                'type': 'string',
+                'minlength': 1,
+                'maxlength': 15,
+                'required': True,
+                # talk about hard constraints! For the purpose of the demo
+                # 'lastname' is an API entry-point, so we need it to be unique.
+                'unique': True,
+            },
+            # 'role' is a list, and can only contain values from 'allowed'.
+            'role': {
+                'type': 'list',
+                'allowed': ["author", "contributor", "copy"],
+            },
+            # An embedded 'strongly-typed' dictionary.
+            'location': {
+                'type': 'dict',
+                'schema': {
+                    'address': {'type': 'string'},
+                    'city': {'type': 'string'}
+                },
+            },
+            'born': {
+                'type': 'datetime',
+            },
+        }
+    }
+
+For more informations on validation see :ref:`validation`. 
+
+Now let's say that we want to further customize the `people` endpoint. We want
+to: 
+
+- set the default item title to *person*
+- add an extra, :ref:`custom item endpoint <custom_item_endpoints>` at ``/people/<lastname>/``
+- override the default :ref:`cache control directives <cache_control>`
+- disable DELETE for the ``/people/`` endpoint (we enabled it globally)
+
+Here is how the complete `people` definition looks in our updated `settings.py`
+file:
+
+::
+
+    people = {
+        # 'title' tag used in item links. Defaults to the resource title minus
+        # the final, plural 's' (works fine in most cases but not for 'people')
+        'item_title': 'person',
+
+        # by default the standard item entry point is defined as
+        # '/people/<ObjectId>/'. We leave it untouched, and we also enable an
+        # additional read-only entry point. This way consumers can also perform 
+        # GET requests at '/people/<lastname>/'.
+        'additional_lookup': {
+            'url': '[\w]+',
+            'field': 'lastname'
+        },
+
+        # We choose to override global cache-control directives for this resource.
+        'cache_control': 'max-age=10,must-revalidate',
+        'cache_expires': 10,
+
+        # most global settings can be overridden at resource level
+        'resource_methods': ['GET', 'POST'],
+
+        'schema': schema
+    }
+
+Finally we update our domain definition:
+
+::
+
+    DOMAIN = {
+        'people': people,
+    }
+
+Save `settings.py` and launch `run.py`. We can now insert documents at the
+`people` endpoint:
+
+.. code-block:: console
+
+    $ curl -d 'item1={"firstname": "barack", "lastname": "obama"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://eve-demo.herokuapp.com/people/
+    HTTP/1.0 200 OK
+
+We can also update and delete items (but not the whole resource) and perform
+GET requests against the new `lastname` endpoint:
+
+.. code-block:: console
+
+    $ curl -i http://eve-demo.herokuapp.com/people/Doe/
+    HTTP/1.0 200 OK
+    Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
+    Last-Modified: Wed, 21 Nov 2012 16:04:56 UTC 
+    Cache-Control: 'max-age=10,must-revalidate'
+    Expires: 10
+    ... 
+
+.. code-block:: javascript
+
+    {
+        "firstname": "John",
+        "lastname": "Doe",
+        "born": "Thu, 27 Aug 1970 14:37:13 UTC",
+        "role": ["author"],
+        "location": {"city": "Auburn", "address": "422 South Gay Street"},
+        "_id": "50acfba938345b0978fccad7"
+        "updated": "Wed, 21 Nov 2012 16:04:56 UTC",
+        "created": "Wed, 21 Nov 2012 16:04:56 UTC",
+        "_links": {
+            "self": {"href": "127.0.0.1/people/50acfba938345b0978fccad7/", "title": "person"},
+            "parent": {"href": "127.0.0.1/", "title": "home"},
+            "collection": {"href": "http://127.0.0.1/people/", "title": "people"}
+        }
+    }
+
+Cache directives and item title match our new settings. See :doc:`features` for
+more usage examples and a complete feature list.
+
+.. note::
+    All examples and code snippets are from the :ref:`demo`, which is a fully
+    functional API that you can use to experiment on your own, either on the
+    live instance or locally (you can use the sample client app to populate
+    and/or reset the database).
 
 .. _`MongoDB install`: http://docs.mongodb.org/manual/installation/
 .. _mongod: http://docs.mongodb.org/manual/tutorial/manage-mongodb-processes/

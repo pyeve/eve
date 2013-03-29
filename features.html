@@ -184,7 +184,7 @@ need to provide them when adding/editing resources).</p>
 <p>The <tt class="docutils literal"><span class="pre">_links</span></tt> list provides <a class="reference external" href="http://en.wikipedia.org/wiki/HATEOAS">HATEOAS</a> directives.</p>
 </div>
 <div class="section" id="customizable-multiple-item-endpoints">
-<h2>Customizable, multiple item endpoints<a class="headerlink" href="#customizable-multiple-item-endpoints" title="Permalink to this headline">¶</a></h2>
+<span id="custom-item-endpoints"></span><h2>Customizable, multiple item endpoints<a class="headerlink" href="#customizable-multiple-item-endpoints" title="Permalink to this headline">¶</a></h2>
 <p>Resources can or cannot expose individual item endpoints. API consumers could
 get access to <tt class="docutils literal"><span class="pre">/people/</span></tt>, <tt class="docutils literal"><span class="pre">/people/&lt;ObjectId&gt;/</span></tt> and <tt class="docutils literal"><span class="pre">/people/Doe/</span></tt>,
 but only to <tt class="docutils literal"><span class="pre">/works/</span></tt>.  When you do grant access to item endpoints, you can
@@ -231,7 +231,7 @@ look something like this:</p>
 <p>As you can see, item endpoints provide their own <a class="reference external" href="http://en.wikipedia.org/wiki/HATEOAS">HATEOAS</a> directives.</p>
 </div>
 <div class="section" id="filtering-and-sorting">
-<h2>Filtering and Sorting<a class="headerlink" href="#filtering-and-sorting" title="Permalink to this headline">¶</a></h2>
+<span id="filters"></span><h2>Filtering and Sorting<a class="headerlink" href="#filtering-and-sorting" title="Permalink to this headline">¶</a></h2>
 <p>Resource endpoints allow consumers to retrieve multiple documents. Query
 strings are supported, allowing for filtering and sorting. Two query syntaxes
 are supported. The mongo query syntax:</p>
@@ -326,7 +326,7 @@ edits) are in JSON format.</p>
 </div>
 </div>
 <div class="section" id="conditional-requests">
-<h2>Conditional Requests<a class="headerlink" href="#conditional-requests" title="Permalink to this headline">¶</a></h2>
+<span id="id1"></span><h2>Conditional Requests<a class="headerlink" href="#conditional-requests" title="Permalink to this headline">¶</a></h2>
 <p>Each resource representation provides information on the last time it was
 updated (<tt class="docutils literal"><span class="pre">Last-Modified</span></tt>), along with an hash value computed on the
 representation itself (<tt class="docutils literal"><span class="pre">ETag</span></tt>). These headers allow clients to perform
@@ -401,7 +401,7 @@ currently stored on the server, so we got a <tt class="docutils literal"><span c
 </div>
 <p>This time we got our patch in, and the server returned the new ETag.  We also
 get the new <tt class="docutils literal"><span class="pre">updated</span></tt> value, which eventually will allow us to perform
-subsequent <a class="reference internal" href="#conditional-requests">conditional requests</a>.</p>
+subsequent <a class="reference internal" href="#id1">conditional requests</a>.</p>
 </div>
 <div class="section" id="multiple-insertions">
 <h2>Multiple Insertions<a class="headerlink" href="#multiple-insertions" title="Permalink to this headline">¶</a></h2>
@@ -479,7 +479,7 @@ validation implementing the <tt class="docutils literal"><span class="pre">uniqu
 informations see <a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a></p>
 </div>
 <div class="section" id="resource-level-cache-control">
-<h2>Resource-level Cache Control<a class="headerlink" href="#resource-level-cache-control" title="Permalink to this headline">¶</a></h2>
+<span id="cache-control"></span><h2>Resource-level Cache Control<a class="headerlink" href="#resource-level-cache-control" title="Permalink to this headline">¶</a></h2>
 <p>You can set global and individual cache-control directives for each resource.</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/
 

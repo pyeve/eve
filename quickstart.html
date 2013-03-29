@@ -93,7 +93,7 @@ that your API is comprised of just one accessible resource, <cite>people</cite>.
 <span class="go"> * Running on http://127.0.0.1:5000/</span>
 </pre></div>
 </div>
-<p>Now let&#8217;s see:</p>
+<p>Now you can consume the API:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://127.0.0.1:5000/
 <span class="go">HTTP/1.0 200 OK</span>
 <span class="go">Content-Type: application/json</span>
@@ -127,11 +127,10 @@ there&#8217;s only one child resource available, that being <cite>people</cite>.
     <span class="p">}</span>
 </pre></div>
 </div>
-<p>This time we also got an <tt class="docutils literal"><span class="pre">_items</span></tt> list. Since we didn&#8217;t provide any database
-detail in <cite>settings.py</cite>, Eve has no clue about the real content of the <cite>people</cite>
-collection (it might even be non-existant), and seamlessly serves an empty
-resource as we don&#8217;t want to let API users down.</p>
-<p>Also, keep in mind that by default Eve APIs are read-only.</p>
+<p>This time we also got an <tt class="docutils literal"><span class="pre">_items</span></tt> list. The <tt class="docutils literal"><span class="pre">_links</span></tt> are relative to the
+resource being accessed, so you get a link to the parent resource (the home
+page) and to the resource itself.</p>
+<p>By default Eve APIs are read-only:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -X DELETE http://127.0.0.1:5000/people/
 <span class="go">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 3.2 Final//EN&quot;&gt;</span>
 <span class="go">&lt;title&gt;405 Method Not Allowed&lt;/title&gt;</span>
@@ -139,18 +138,167 @@ resource as we don&#8217;t want to let API users down.</p>
 <span class="go">&lt;p&gt;The method DELETE is not allowed for the requested URL.&lt;/p&gt;</span>
 </pre></div>
 </div>
-<p>It&#8217;s time dig a little further.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">All the examples and code snippets are from the <a class="reference internal" href="index.html#demo"><em>Live demo</em></a>, which is
-a fully functional API that you can use to experiment on your own, either
-on the live instance or locally (you can use the sample client app to
-populate and/or reset the database).</p>
+<p>Since we didn&#8217;t provide any database detail in <cite>settings.py</cite>, Eve has no clue
+about the real content of the <cite>people</cite> collection (it might even be
+non-existant) and seamlessly serves an empty resource, as we don&#8217;t want to let
+API users down.</p>
+<p>Let&#8217;s connect to a database by adding the following lines to <cite>settings.py</cite>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Let&#39;s just use the local mongod instance. Edit as needed.</span>
+<span class="n">MONGO_HOST</span> <span class="o">=</span> <span class="s">&#39;localhost&#39;</span>
+<span class="n">MONGO_PORT</span> <span class="o">=</span> <span class="mi">27017</span>
+<span class="n">MONGO_USERNAME</span> <span class="o">=</span> <span class="s">&#39;user&#39;</span>
+<span class="n">MONGO_PASSWORD</span> <span class="o">=</span> <span class="s">&#39;user&#39;</span>
+<span class="n">MONGO_DBNAME</span> <span class="o">=</span> <span class="s">&#39;apitest&#39;</span>
+</pre></div>
 </div>
+<p>Please note that if there&#8217;s no <cite>people</cite> collection in the database you will
+still get an empty resource in response to your GET request. This is due to the
+<cite>laziness</cite> of MongoDB.</p>
 </div>
 <div class="section" id="a-more-complex-application">
 <h2>A More Complex Application<a class="headerlink" href="#a-more-complex-application" title="Permalink to this headline">¶</a></h2>
-<p><em>Work in progress</em></p>
+<p>So far our API has been read-only. Let&#8217;s enable the full spectrum of CRUD
+operations:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Enable reads (GET), inserts (POST) and DELETE for resources/collections</span>
+<span class="c"># (if you omit this line, the API will default to [&#39;GET&#39;] and provide</span>
+<span class="c"># read-only access to the endpoint).</span>
+<span class="n">RESOURCE_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">]</span>
+
+<span class="c"># Enable reads (GET), edits (PATCH) and deletes of individual items</span>
+<span class="c"># (defaults to read-only item access).</span>
+<span class="n">ITEM_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;PATCH&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">RESOURCE_METHODS</span></tt> lists methods allowed at resource endpoints (<tt class="docutils literal"><span class="pre">/people/</span></tt>)
+while <tt class="docutils literal"><span class="pre">ITEM_METHODS</span></tt> lists the methods enabled at item endpoints
+(<tt class="docutils literal"><span class="pre">/people/&lt;ObjectId&gt;/</span></tt>). Both settings have a global scope and will apply to
+all endpoints.  You can then enable or disable HTTP methods at individual
+endpoint level, as we will soon see.</p>
+<p>Since we are enabling edition we also want to enable proper data validation.
+Let&#8217;s define a schema for our <cite>people</cite> resource.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">schema</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c"># Schema definition, based on Cerberus grammar. Check the Cerberus project</span>
+    <span class="c"># (https://github.com/nicolaiarocci/cerberus) for details.</span>
+    <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;firstname&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
+            <span class="s">&#39;minlength&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s">&#39;maxlength&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s">&#39;lastname&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
+            <span class="s">&#39;minlength&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s">&#39;maxlength&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+            <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+            <span class="c"># talk about hard constraints! For the purpose of the demo</span>
+            <span class="c"># &#39;lastname&#39; is an API entry-point, so we need it to be unique.</span>
+            <span class="s">&#39;unique&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="c"># &#39;role&#39; is a list, and can only contain values from &#39;allowed&#39;.</span>
+        <span class="s">&#39;role&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+            <span class="s">&#39;allowed&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;author&quot;</span><span class="p">,</span> <span class="s">&quot;contributor&quot;</span><span class="p">,</span> <span class="s">&quot;copy&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="c"># An embedded &#39;strongly-typed&#39; dictionary.</span>
+        <span class="s">&#39;location&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;dict&#39;</span><span class="p">,</span>
+            <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;address&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">},</span>
+                <span class="s">&#39;city&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">}</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+        <span class="s">&#39;born&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;datetime&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>For more informations on validation see <a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a>.</p>
+<p>Now let&#8217;s say that we want to further customize the <cite>people</cite> endpoint. We want
+to:</p>
+<ul class="simple">
+<li>set the default item title to <em>person</em></li>
+<li>add an extra, <a class="reference internal" href="features.html#custom-item-endpoints"><em>custom item endpoint</em></a> at <tt class="docutils literal"><span class="pre">/people/&lt;lastname&gt;/</span></tt></li>
+<li>override the default <a class="reference internal" href="features.html#cache-control"><em>cache control directives</em></a></li>
+<li>disable DELETE for the <tt class="docutils literal"><span class="pre">/people/</span></tt> endpoint (we enabled it globally)</li>
+</ul>
+<p>Here is how the complete <cite>people</cite> definition looks in our updated <cite>settings.py</cite>
+file:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c"># &#39;title&#39; tag used in item links. Defaults to the resource title minus</span>
+    <span class="c"># the final, plural &#39;s&#39; (works fine in most cases but not for &#39;people&#39;)</span>
+    <span class="s">&#39;item_title&#39;</span><span class="p">:</span> <span class="s">&#39;person&#39;</span><span class="p">,</span>
+
+    <span class="c"># by default the standard item entry point is defined as</span>
+    <span class="c"># &#39;/people/&lt;ObjectId&gt;/&#39;. We leave it untouched, and we also enable an</span>
+    <span class="c"># additional read-only entry point. This way consumers can also perform</span>
+    <span class="c"># GET requests at &#39;/people/&lt;lastname&gt;/&#39;.</span>
+    <span class="s">&#39;additional_lookup&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;[\w]+&#39;</span><span class="p">,</span>
+        <span class="s">&#39;field&#39;</span><span class="p">:</span> <span class="s">&#39;lastname&#39;</span>
+    <span class="p">},</span>
+
+    <span class="c"># We choose to override global cache-control directives for this resource.</span>
+    <span class="s">&#39;cache_control&#39;</span><span class="p">:</span> <span class="s">&#39;max-age=10,must-revalidate&#39;</span><span class="p">,</span>
+    <span class="s">&#39;cache_expires&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+
+    <span class="c"># most global settings can be overridden at resource level</span>
+    <span class="s">&#39;resource_methods&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">],</span>
+
+    <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="n">schema</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Finally we update our domain definition:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;people&#39;</span><span class="p">:</span> <span class="n">people</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Save <cite>settings.py</cite> and launch <cite>run.py</cite>. We can now insert documents at the
+<cite>people</cite> endpoint:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;item1={&quot;firstname&quot;: &quot;barack&quot;, &quot;lastname&quot;: &quot;obama&quot;}&#39;</span> -d <span class="s1">&#39;item2={&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}&#39;</span> http://eve-demo.herokuapp.com/people/
+<span class="go">HTTP/1.0 200 OK</span>
+</pre></div>
+</div>
+<p>We can also update and delete items (but not the whole resource) and perform
+GET requests against the new <cite>lastname</cite> endpoint:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/Doe/
+<span class="go">HTTP/1.0 200 OK</span>
+<span class="go">Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc</span>
+<span class="go">Last-Modified: Wed, 21 Nov 2012 16:04:56 UTC</span>
+<span class="go">Cache-Control: &#39;max-age=10,must-revalidate&#39;</span>
+<span class="go">Expires: 10</span>
+<span class="go">...</span>
+</pre></div>
+</div>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s2">&quot;firstname&quot;</span><span class="o">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lastname&quot;</span><span class="o">:</span> <span class="s2">&quot;Doe&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;born&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 27 Aug 1970 14:37:13 UTC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;role&quot;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;author&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;location&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;city&quot;</span><span class="o">:</span> <span class="s2">&quot;Auburn&quot;</span><span class="p">,</span> <span class="s2">&quot;address&quot;</span><span class="o">:</span> <span class="s2">&quot;422 South Gay Street&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50acfba938345b0978fccad7&quot;</span>
+    <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 21 Nov 2012 16:04:56 UTC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 21 Nov 2012 16:04:56 UTC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;127.0.0.1/people/50acfba938345b0978fccad7/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;parent&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;127.0.0.1/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;home&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;collection&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;http://127.0.0.1/people/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;people&quot;</span><span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Cache directives and item title match our new settings. See <a class="reference internal" href="features.html"><em>Features</em></a> for
+more usage examples and a complete feature list.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">All examples and code snippets are from the <a class="reference internal" href="index.html#demo"><em>Live demo</em></a>, which is a fully
+functional API that you can use to experiment on your own, either on the
+live instance or locally (you can use the sample client app to populate
+and/or reset the database).</p>
+</div>
 </div>
 </div>
 
