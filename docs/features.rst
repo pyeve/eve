@@ -93,6 +93,8 @@ need to provide them when adding/editing resources).
 
 The ``_links`` list provides HATEOAS_ directives.
 
+.. _custom_item_endpoints:
+
 Customizable, multiple item endpoints
 -------------------------------------
 Resources can or cannot expose individual item endpoints. API consumers could
@@ -145,6 +147,8 @@ look something like this:
     }
 
 As you can see, item endpoints provide their own HATEOAS_ directives.
+
+.. _filters:
 
 Filtering and Sorting
 ---------------------
@@ -256,6 +260,8 @@ edits) are in JSON format.
         <link rel="child" href="eve-demo.herokuapp.com/works/" title="works" />
         <link rel="child" href="eve-demo.herokuapp.com/people/" title="people" />
     </resource>
+
+.. _conditional_requests:
 
 Conditional Requests
 --------------------
@@ -429,6 +435,8 @@ field actually matches your own country VAT algorithm: you can do that too. As
 a matter of fact, Eve's MongoDB data-layer itself is extending Cerberus
 validation implementing the ``unique`` schema field constraint. For more
 informations see :ref:`validation`
+
+.. _cache_control:
 
 Resource-level Cache Control
 ----------------------------
