@@ -103,6 +103,8 @@ about the real content of the `people` collection (it might even be
 non-existant) and seamlessly serves an empty resource, as we don't want to let
 API users down.
 
+Database Interlude
+------------------
 Let's connect to a database by adding the following lines to `settings.py`:
 
 ::
@@ -114,9 +116,13 @@ Let's connect to a database by adding the following lines to `settings.py`:
     MONGO_PASSWORD = 'user'
     MONGO_DBNAME = 'apitest'
 
-Please note that if there's no `people` collection in the database you will
-still get an empty resource in response to your GET request. This is due to the
-`laziness` of MongoDB.
+Due to MongoDB *lazyness*, we don't really need to create the collections in
+database. Actually, we don't even need to create the database: GET requests on
+an empty/non-existant DB will be served correctly (200 OK with an empty
+collection); DELETE/PATCH will receive appropriate responses (404 Not
+Found), and POST requests will create database and collections when needed.
+Keep in mind however that such an auto-managed database will most likely
+perform very poorly since it lacks any sort of optimized index.
 
 A More Complex Application
 --------------------------

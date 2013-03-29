@@ -142,6 +142,9 @@ page) and to the resource itself.</p>
 about the real content of the <cite>people</cite> collection (it might even be
 non-existant) and seamlessly serves an empty resource, as we don&#8217;t want to let
 API users down.</p>
+</div>
+<div class="section" id="database-interlude">
+<h2>Database Interlude<a class="headerlink" href="#database-interlude" title="Permalink to this headline">¶</a></h2>
 <p>Let&#8217;s connect to a database by adding the following lines to <cite>settings.py</cite>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Let&#39;s just use the local mongod instance. Edit as needed.</span>
 <span class="n">MONGO_HOST</span> <span class="o">=</span> <span class="s">&#39;localhost&#39;</span>
@@ -151,9 +154,13 @@ API users down.</p>
 <span class="n">MONGO_DBNAME</span> <span class="o">=</span> <span class="s">&#39;apitest&#39;</span>
 </pre></div>
 </div>
-<p>Please note that if there&#8217;s no <cite>people</cite> collection in the database you will
-still get an empty resource in response to your GET request. This is due to the
-<cite>laziness</cite> of MongoDB.</p>
+<p>Due to MongoDB <em>lazyness</em>, we don&#8217;t really need to create the collections in
+database. Actually, we don&#8217;t even need to create the database: GET requests on
+an empty/non-existant DB will be served correctly (200 OK with an empty
+collection); DELETE/PATCH will receive appropriate responses (404 Not
+Found), and POST requests will create database and collections when needed.
+Keep in mind however that such an auto-managed database will most likely
+perform very poorly since it lacks any sort of optimized index.</p>
 </div>
 <div class="section" id="a-more-complex-application">
 <h2>A More Complex Application<a class="headerlink" href="#a-more-complex-application" title="Permalink to this headline">¶</a></h2>
@@ -339,6 +346,7 @@ and/or reset the database).</p>
   <ul>
 <li><a class="reference internal" href="#">Quickstart</a><ul>
 <li><a class="reference internal" href="#a-minimal-application">A Minimal Application</a></li>
+<li><a class="reference internal" href="#database-interlude">Database Interlude</a></li>
 <li><a class="reference internal" href="#a-more-complex-application">A More Complex Application</a></li>
 </ul>
 </li>
