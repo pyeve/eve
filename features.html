@@ -107,6 +107,7 @@ implementation of CRUD via REST</p>
 </tr>
 </tbody>
 </table>
+<p>If you are wondering why PATCH and not PUT, check <a class="reference external" href="https://speakerdeck.com/nicola/developing-restful-web-apis-with-python-flask-and-mongodb?slide=113">this</a> out.</p>
 </div>
 <div class="section" id="customizable-resource-endpoints">
 <h2>Customizable resource endpoints<a class="headerlink" href="#customizable-resource-endpoints" title="Permalink to this headline">¶</a></h2>
@@ -116,14 +117,7 @@ will be avaliable at the <tt class="docutils literal"><span class="pre">example.
 You can customize the URIs though, so the API endpoint could become, say,
 <tt class="docutils literal"><span class="pre">example.com/customers/</span></tt>. Consider the following request:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/
-
-<span class="go">Content-Type: application/json</span>
-<span class="go">Content-Length: 2392</span>
-<span class="go">Cache-Control: max-age=20</span>
-<span class="go">Expires: Tue, 22 Jan 2013 10:04:43 GMT</span>
-<span class="go">Last-Modified: Wed, 05 Dec 2012 09:53:07 UTC</span>
-<span class="go">Server: Eve/0.0.3 Werkzeug/0.8.3 Python/2.7.3</span>
-<span class="go">Date: Tue, 22 Jan 2013 10:04:23 GMT</span>
+<span class="go">HTTP/1.0 200 OK</span>
 </pre></div>
 </div>
 <p>The response payload will look something like this:</p>
@@ -192,7 +186,6 @@ define up to two lookups, both defined via regex. The first will be the primary
 endpoint and will match your database primary key structure (i.e. an
 <tt class="docutils literal"><span class="pre">ObjectId</span></tt> in a MongoDB database).</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/50acfba938345b0978fccad7/
-
 <span class="go">HTTP/1.0 200 OK</span>
 <span class="go">Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc</span>
 <span class="go">Last-Modified: Wed, 21 Nov 2012 16:04:56 UTC</span>
@@ -202,7 +195,6 @@ endpoint and will match your database primary key structure (i.e. an
 <p>The second, which is optional, will match a field with unique values since Eve
 will retrieve only the first match anyway.</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/Doe/
-
 <span class="go">HTTP/1.0 200 OK</span>
 <span class="go">Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc</span>
 <span class="go">Last-Modified: Wed, 21 Nov 2012 16:04:56 UTC</span>
@@ -236,20 +228,17 @@ look something like this:</p>
 strings are supported, allowing for filtering and sorting. Two query syntaxes
 are supported. The mongo query syntax:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/?where<span class="o">={</span><span class="s2">&quot;lastname&quot;</span>: <span class="s2">&quot;Doe&quot;</span><span class="o">}</span>
-
 <span class="go">HTTP/1.0 200 OK</span>
 </pre></div>
 </div>
 <p>and the native Python syntax:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/?where<span class="o">=</span><span class="nv">lastname</span><span class="o">==</span><span class="s2">&quot;Doe&quot;</span>
-
 <span class="go">HTTP/1.0 200 OK</span>
 </pre></div>
 </div>
 <p>Both query formats allow for conditional and logical And/Or operators, however
 nested and combined. Sorting is supported as well:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/?sort<span class="o">={</span><span class="s2">&quot;lastname&quot;</span>: -1<span class="o">}</span>
-
 <span class="go">HTTP/1.0 200 OK</span>
 </pre></div>
 </div>
@@ -264,13 +253,11 @@ matching the query are serverd, and links to subsequent/previous pages are
 provided with the response. Default and maximum page size is customizable, and
 consumers can request specific pages via the query string:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/?max_results<span class="o">=</span>20&amp;page<span class="o">=</span>2
-
 <span class="go">HTTP/1.0 200 OK</span>
 </pre></div>
 </div>
 <p>Of course you can mix all the available query parameters:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/?where<span class="o">={</span><span class="s2">&quot;lastaname&quot;</span>: <span class="s2">&quot;Doe&quot;</span><span class="o">}</span>&amp;sort<span class="o">={</span><span class="s2">&quot;firstname&quot;</span><span class="o">}</span>&amp;page<span class="o">=</span>5
-
 <span class="go">HTTP/1.0 200 OK</span>
 </pre></div>
 </div>
@@ -312,7 +299,6 @@ the API just by following the links provided with every response.</p>
 depending on the request <tt class="docutils literal"><span class="pre">Accept</span></tt> header. Inbound documents (for inserts and
 edits) are in JSON format.</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;Accept: application/xml&quot;</span> -i http://eve-demo.herokuapp.com/
-
 <span class="go">HTTP/1.0 200 OK</span>
 <span class="go">Content-Type: application/xml; charset=utf-8</span>
 <span class="go">...</span>
@@ -333,16 +319,12 @@ representation itself (<tt class="docutils literal"><span class="pre">ETag</span
 conditional requests, only retrieving new or modified data, by using the
 <tt class="docutils literal"><span class="pre">If-Modified-Since</span></tt> header:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-Modified-Since: Wed, 05 Dec 2012 09:53:07 UTC&quot;</span> -i http://eve-demo.herokuapp.com:5000/people/
-
 <span class="go">HTTP/1.0 200 OK</span>
-<span class="go">...</span>
 </pre></div>
 </div>
 <p>or the <tt class="docutils literal"><span class="pre">If-None-Match</span></tt> header:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-None-Match: 1234567890123456789012345678901234567890&quot;</span> -i http://eve-demo.herokuapp.com:5000/people/
-
 <span class="go">HTTP/1.0 200 OK</span>
-<span class="go">...</span>
 </pre></div>
 </div>
 </div>
@@ -356,35 +338,20 @@ they are attempting to edit. This prevents overwriting items with obsolete
 versions.</p>
 <p>Consider the following workflow:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37/ -d <span class="s1">&#39;data={&quot;firstname&quot;: &quot;ronald&quot;}&#39;</span>
-
 <span class="go">HTTP/1.0 403 FORBIDDEN</span>
-
-<span class="go">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 3.2 Final//EN&quot;&gt;</span>
-<span class="go">&lt;title&gt;403 Forbidden&lt;/title&gt;</span>
-<span class="go">&lt;h1&gt;Forbidden&lt;/h1&gt;</span>
-<span class="go">&lt;p&gt;You don&#39;t have the permission to access the requested resource. It is either read-protected or not readable by the server.&lt;/p&gt;</span>
 </pre></div>
 </div>
 <p>We attempted an edit, but we did not provide an ETag for the item, so we got
 a not-so-nice <tt class="docutils literal"><span class="pre">403</span> <span class="pre">FORBIDDEN</span></tt>. Let&#8217;s try again:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-Match: 1234567890123456789012345678901234567890&quot;</span> -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37/ -d <span class="s1">&#39;data={&quot;firstname&quot;: &quot;ronald&quot;}&#39;</span>
-
 <span class="go">HTTP/1.0 412 PRECONDITION FAILED</span>
-
-<span class="go">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 3.2 Final//EN&quot;&gt;</span>
-<span class="go">&lt;title&gt;412 Precondition Failed&lt;/title&gt;</span>
-<span class="go">&lt;h1&gt;Precondition Failed&lt;/h1&gt;</span>
 </pre></div>
 </div>
 <p>What went wrong this time? We provided the mandatory <tt class="docutils literal"><span class="pre">If-Match</span></tt> header, but
 it&#8217;s value did not match the ETag computed on the representation of the item
 currently stored on the server, so we got a <tt class="docutils literal"><span class="pre">402</span> <span class="pre">PRECONDITION</span> <span class="pre">FAILED</span></tt>. Again!</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012&quot;</span> -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37/ -d <span class="s1">&#39;data={&quot;firstname&quot;: &quot;ronald&quot;}&#39;</span>
-
 <span class="go">HTTP/1.0 200 OK</span>
-<span class="go">ETag: 372fbbebf54dfe61742556f17a8461ca9a6f5a11</span>
-<span class="go">Last-Modified: Fri, 23 Nov 2012 08:11:19 UTC</span>
-<span class="go">...</span>
 </pre></div>
 </div>
 <p>It&#8217;s a win, and the response payload looks something like this:</p>
@@ -407,9 +374,7 @@ subsequent <a class="reference internal" href="#id1">conditional requests</a>.</
 <h2>Multiple Insertions<a class="headerlink" href="#multiple-insertions" title="Permalink to this headline">¶</a></h2>
 <p>Clients can send a stream of multiple documents to be inserted at once.</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;item1={&quot;firstname&quot;: &quot;barack&quot;, &quot;lastname&quot;: &quot;obama&quot;}&#39;</span> -d <span class="s1">&#39;item2={&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}&#39;</span> http://eve-demo.herokuapp.com/people/
-
 <span class="go">HTTP/1.0 200 OK</span>
-<span class="go">...</span>
 </pre></div>
 </div>
 <p>The response will provide detailed state information about each document
@@ -440,9 +405,7 @@ a schema definition for every resource managed by the API. Data sent to the API
 for insertion or edition will be validated against the schema, and a resource
 will be updated only if validation is passed.</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;item1={&quot;firstname&quot;: &quot;bill&quot;, &quot;lastname&quot;: &quot;clinton&quot;}&#39;</span> -d <span class="s1">&#39;item2={&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}&#39;</span> http://eve-demo.herokuapp.com/people/
-
 <span class="go">HTTP/1.0 200 OK</span>
-<span class="go">...</span>
 </pre></div>
 </div>
 <p>The response will contain a success/error state for each item provided with the
@@ -482,7 +445,6 @@ informations see <a class="reference internal" href="validation.html#validation"
 <span id="cache-control"></span><h2>Resource-level Cache Control<a class="headerlink" href="#resource-level-cache-control" title="Permalink to this headline">¶</a></h2>
 <p>You can set global and individual cache-control directives for each resource.</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/
-
 <span class="go">HTTP/1.0 200 OK</span>
 <span class="go">Content-Type: application/json</span>
 <span class="go">Content-Length: 131</span>
