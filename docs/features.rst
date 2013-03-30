@@ -27,6 +27,8 @@ Update PATCH     Document
 Delete DELETE    Collection/Document
 ====== ========= ===================
 
+If you are wondering why PATCH and not PUT, check `this`_ out.
+
 Customizable resource endpoints
 -------------------------------
 By default Eve will make known database collections available as resource
@@ -38,14 +40,7 @@ You can customize the URIs though, so the API endpoint could become, say,
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people/
-
-    Content-Type: application/json
-    Content-Length: 2392
-    Cache-Control: max-age=20
-    Expires: Tue, 22 Jan 2013 10:04:43 GMT
-    Last-Modified: Wed, 05 Dec 2012 09:53:07 UTC
-    Server: Eve/0.0.3 Werkzeug/0.8.3 Python/2.7.3
-    Date: Tue, 22 Jan 2013 10:04:23 GMT
+    HTTP/1.0 200 OK
 
 The response payload will look something like this:
 
@@ -107,7 +102,6 @@ endpoint and will match your database primary key structure (i.e. an
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people/50acfba938345b0978fccad7/
-
     HTTP/1.0 200 OK
     Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
     Last-Modified: Wed, 21 Nov 2012 16:04:56 UTC 
@@ -119,7 +113,6 @@ will retrieve only the first match anyway.
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people/Doe/
-
     HTTP/1.0 200 OK
     Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
     Last-Modified: Wed, 21 Nov 2012 16:04:56 UTC 
@@ -159,7 +152,6 @@ are supported. The mongo query syntax:
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people/?where={"lastname": "Doe"}
-
     HTTP/1.0 200 OK
 
 and the native Python syntax:
@@ -167,7 +159,6 @@ and the native Python syntax:
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people/?where=lastname=="Doe"
-
     HTTP/1.0 200 OK
 
 Both query formats allow for conditional and logical And/Or operators, however
@@ -176,7 +167,6 @@ nested and combined. Sorting is supported as well:
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people/?sort={"lastname": -1}
-
     HTTP/1.0 200 OK
 
 Currently sort directives use a pure MongoDB syntax; support for a more general
@@ -193,7 +183,6 @@ consumers can request specific pages via the query string:
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people/?max_results=20&page=2
-
     HTTP/1.0 200 OK
 
 Of course you can mix all the available query parameters:
@@ -201,7 +190,6 @@ Of course you can mix all the available query parameters:
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people/?where={"lastaname": "Doe"}&sort={"firstname"}&page=5
-
     HTTP/1.0 200 OK
 
 Pagination can be disabled.
@@ -249,7 +237,6 @@ edits) are in JSON format.
 .. code-block:: console
 
     $ curl -H "Accept: application/xml" -i http://eve-demo.herokuapp.com/
-
     HTTP/1.0 200 OK
     Content-Type: application/xml; charset=utf-8
     ...
@@ -274,18 +261,14 @@ conditional requests, only retrieving new or modified data, by using the
 .. code-block:: console
 
     $ curl -H "If-Modified-Since: Wed, 05 Dec 2012 09:53:07 UTC" -i http://eve-demo.herokuapp.com:5000/people/
-
     HTTP/1.0 200 OK
-    ...
 
 or the ``If-None-Match`` header:
 
 .. code-block:: console
 
     $ curl -H "If-None-Match: 1234567890123456789012345678901234567890" -i http://eve-demo.herokuapp.com:5000/people/
-
     HTTP/1.0 200 OK
-    ...
 
 
 Data Integrity and Concurrency Control
@@ -302,13 +285,7 @@ Consider the following workflow:
 .. code-block:: console
 
     $ curl -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37/ -d 'data={"firstname": "ronald"}'
-
     HTTP/1.0 403 FORBIDDEN
-
-    <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-    <title>403 Forbidden</title>
-    <h1>Forbidden</h1>
-    <p>You don't have the permission to access the requested resource. It is either read-protected or not readable by the server.</p>
 
 We attempted an edit, but we did not provide an ETag for the item, so we got
 a not-so-nice ``403 FORBIDDEN``. Let's try again:
@@ -316,12 +293,7 @@ a not-so-nice ``403 FORBIDDEN``. Let's try again:
 .. code-block:: console
 
     $ curl -H "If-Match: 1234567890123456789012345678901234567890" -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37/ -d 'data={"firstname": "ronald"}'
-
     HTTP/1.0 412 PRECONDITION FAILED
-
-    <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-    <title>412 Precondition Failed</title>
-    <h1>Precondition Failed</h1>
 
 What went wrong this time? We provided the mandatory ``If-Match`` header, but
 it's value did not match the ETag computed on the representation of the item
@@ -330,11 +302,7 @@ currently stored on the server, so we got a ``402 PRECONDITION FAILED``. Again!
 .. code-block:: console
 
     $ curl -H "If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012" -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37/ -d 'data={"firstname": "ronald"}'
-
     HTTP/1.0 200 OK
-    ETag: 372fbbebf54dfe61742556f17a8461ca9a6f5a11
-    Last-Modified: Fri, 23 Nov 2012 08:11:19 UTC
-    ...
 
 It's a win, and the response payload looks something like this:
 
@@ -361,9 +329,7 @@ Clients can send a stream of multiple documents to be inserted at once.
 .. code-block:: console
 
     $ curl -d 'item1={"firstname": "barack", "lastname": "obama"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://eve-demo.herokuapp.com/people/
-
     HTTP/1.0 200 OK
-    ...
 
 The response will provide detailed state information about each document
 inserted (creation date, link to the item endpoint, primary key/id, etc.).
@@ -397,9 +363,7 @@ will be updated only if validation is passed.
 .. code-block:: console
 
     $ curl -d 'item1={"firstname": "bill", "lastname": "clinton"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://eve-demo.herokuapp.com/people/
-
     HTTP/1.0 200 OK
-    ...
 
 The response will contain a success/error state for each item provided with the
 request:
@@ -445,7 +409,6 @@ You can set global and individual cache-control directives for each resource.
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/
-
     HTTP/1.0 200 OK
     Content-Type: application/json
     Content-Length: 131
@@ -524,3 +487,4 @@ for unittesting_ and an `extensive documentation`_.
 .. _debugger: http://flask.pocoo.org/docs/quickstart/#debug-mode
 .. _unittesting: http://flask.pocoo.org/docs/testing/
 .. _`extensive documentation`: http://flask.pocoo.org/docs/
+.. _`this`: https://speakerdeck.com/nicola/developing-restful-web-apis-with-python-flask-and-mongodb?slide=113
