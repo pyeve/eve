@@ -47,9 +47,12 @@ I feel that at this point the codebase is ready enough for a public preview.
 This will hopefully allow for some constructive feedback and maybe, for some
 contributors to join the ranks.
 
-PS: the slides of my EuroPython REST API talk are `available online`_. You
-might want to check them to understand why and how certain design decisions
-were made, especially with regards to REST implementation.
+REST, Flask and MongoDB
+-----------------------
+The slides of my EuroPython talk, *Developing RESTful Web APIs with Flask and
+MongoDB*, are `available online`_. You might want to check them to understand
+why and how certain design decisions were made, especially with regards to REST
+implementation.
 
 Roadmap
 -------
