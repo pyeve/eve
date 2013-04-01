@@ -84,6 +84,9 @@ class Mongo(DataLayer):
                 except ParseError:
                     abort(400)
 
+        if req.where_extra:
+            spec.update(req.where_extra)
+
         datasource, spec = self._datasource_ex(resource, spec)
 
         if req.if_modified_since:

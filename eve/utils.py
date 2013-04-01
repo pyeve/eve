@@ -46,6 +46,9 @@ class ParsedRequest(object):
     # `where` value of the query string (?where). Defaults to None.
     where = None
 
+    # Extra query dict. Defaults to {}.
+    where_extra = {}
+
     # `sort` value of the query string (?sort). Defaults to None.
     sort = None
 
@@ -84,6 +87,9 @@ def parse_request(resource=None, args=None, headers=None):
             headers = request.headers
 
     r = ParsedRequest()
+
+    if app.where_extra:
+        r.where_extra = app.where_extra()
 
     if args:
         if resource is None or config.DOMAIN[resource]['filters']:

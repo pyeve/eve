@@ -57,6 +57,10 @@ def post(resource):
             if validation:
                 document[config.LAST_UPDATED] = \
                     document[config.DATE_CREATED] = date_utc
+
+                if app.custom_data:
+                    document.update(app.custom_data())
+
                 document[config.ID_FIELD] = app.data.insert(resource, document)
 
                 response_item[config.ID_FIELD] = document[config.ID_FIELD]
