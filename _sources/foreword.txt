@@ -19,9 +19,8 @@ of features available to Eve-powered APIs.
 
 API settings are stored in a standard Python module (defaults to
 ``settings.py``), which makes customization quite a trivial task. It is also
-possible to extend some key features, namely :ref:`auth`, Validation and Data
-Access, by providing the Eve engine with custom objects.
-
+possible to extend some key features, namely :ref:`auth`, :ref:`validation` and
+Data Access, by providing the Eve engine with custom objects.
 
 A little context
 ----------------

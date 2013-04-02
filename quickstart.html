@@ -103,12 +103,12 @@ that your API is comprised of just one accessible resource, <cite>people</cite>.
 </pre></div>
 </div>
 <p>Congratulations, your GET request got a nice response back. Let&#8217;s look at the
-response payload:</p>
+payload:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
     <span class="s">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s">&quot;child&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;127.0.0.1:5000/people/&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span><span class="p">}]</span>
-        <span class="p">}</span>
     <span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>API entry points adhere to the <a class="reference internal" href="features.html#hateoas-feature"><em>HATEOAS</em></a> principle and provide
@@ -154,13 +154,13 @@ API users down.</p>
 <span class="n">MONGO_DBNAME</span> <span class="o">=</span> <span class="s">&#39;apitest&#39;</span>
 </pre></div>
 </div>
-<p>Due to MongoDB <em>laziness</em>, we don&#8217;t really need to create the collections in
-database. Actually, we don&#8217;t even need to create the database: GET requests on
-an empty/non-existant DB will be served correctly (200 OK with an empty
-collection); DELETE/PATCH will receive appropriate responses (404 Not
-Found), and POST requests will create database and collections when needed.
-Keep in mind however that such an auto-managed database will most likely
-perform very poorly since it lacks any sort of optimized index.</p>
+<p>Due to MongoDB <em>laziness</em>, we don&#8217;t really need to create the database
+collections. Actually, we don&#8217;t even need to create the database: GET requests
+on an empty/non-existant DB will be served correctly (200 OK with an empty
+collection); DELETE/PATCH will receive appropriate responses (404 Not Found),
+and POST requests will create database and collections as needed. However, such
+an auto-managed database will perform very poorly since it lacks indexes and
+any sort of optimization.</p>
 </div>
 <div class="section" id="a-more-complex-application">
 <h2>A More Complex Application<a class="headerlink" href="#a-more-complex-application" title="Permalink to this headline">¶</a></h2>
@@ -225,8 +225,8 @@ Let&#8217;s define a schema for our <cite>people</cite> resource.</p>
 <p>Now let&#8217;s say that we want to further customize the <cite>people</cite> endpoint. We want
 to:</p>
 <ul class="simple">
-<li>set the default item title to <em>person</em></li>
-<li>add an extra, <a class="reference internal" href="features.html#custom-item-endpoints"><em>custom item endpoint</em></a> at <tt class="docutils literal"><span class="pre">/people/&lt;lastname&gt;/</span></tt></li>
+<li>set the item title to <em>person</em></li>
+<li>add an extra <a class="reference internal" href="features.html#custom-item-endpoints"><em>custom item endpoint</em></a> at <tt class="docutils literal"><span class="pre">/people/&lt;lastname&gt;/</span></tt></li>
 <li>override the default <a class="reference internal" href="features.html#cache-control"><em>cache control directives</em></a></li>
 <li>disable DELETE for the <tt class="docutils literal"><span class="pre">/people/</span></tt> endpoint (we enabled it globally)</li>
 </ul>
@@ -265,13 +265,14 @@ file:</p>
 </div>
 <p>Save <cite>settings.py</cite> and launch <cite>run.py</cite>. We can now insert documents at the
 <cite>people</cite> endpoint:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;item1={&quot;firstname&quot;: &quot;barack&quot;, &quot;lastname&quot;: &quot;obama&quot;}&#39;</span> -d <span class="s1">&#39;item2={&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}&#39;</span> http://eve-demo.herokuapp.com/people/
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;item1={&quot;firstname&quot;: &quot;barack&quot;, &quot;lastname&quot;: &quot;obama&quot;}&#39;</span> -d <span class="s1">&#39;item2={&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}&#39;</span> http://127.0.0.1:5000/people/
 <span class="go">HTTP/1.0 200 OK</span>
 </pre></div>
 </div>
-<p>We can also update and delete items (but not the whole resource) and perform
-GET requests against the new <cite>lastname</cite> endpoint:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/Doe/
+<p>We can also update and delete items (but not the whole resource since we
+disabled that). We can also perform GET requests against the new <cite>lastname</cite>
+endpoint:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://127.0.0.1:5000/people/Doe/
 <span class="go">HTTP/1.0 200 OK</span>
 <span class="go">Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc</span>
 <span class="go">Last-Modified: Wed, 21 Nov 2012 16:04:56 UTC</span>
@@ -298,7 +299,7 @@ GET requests against the new <cite>lastname</cite> endpoint:</p>
 </pre></div>
 </div>
 <p>Cache directives and item title match our new settings. See <a class="reference internal" href="features.html"><em>Features</em></a> for
-more usage examples and a complete feature list.</p>
+a complete list of features available and more usage examples.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">All examples and code snippets are from the <a class="reference internal" href="index.html#demo"><em>Live demo</em></a>, which is a fully

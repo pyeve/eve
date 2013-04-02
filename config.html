@@ -60,9 +60,272 @@
             
   <div class="section" id="configuration-handling">
 <span id="config"></span><h1>Configuration Handling<a class="headerlink" href="#configuration-handling" title="Permalink to this headline">¶</a></h1>
+<p>Generally Eve configuration is best done with configuration files. The
+configuration files themselves are actual Python files.</p>
+<div class="section" id="configuration-files">
+<h2>Configuration Files<a class="headerlink" href="#configuration-files" title="Permalink to this headline">¶</a></h2>
+<p>On startup Eve will look for a <cite>settings.py</cite> file in the application folder.
+You can choose an alternative filename/path, just pass it as an argument when
+you instantiate the application.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="s">&#39;my_settings.py&#39;</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="section" id="development-production">
+<h3>Development / Production<a class="headerlink" href="#development-production" title="Permalink to this headline">¶</a></h3>
+<p>Most applications need more than one configuration. There should be at least
+separate configurations for the production server and the one used during
+development. The easiest way to handle this is to use a default configuration
+that is always loaded and part of the version control, and a separate
+configuration that overrides the values as necessary.</p>
+<p>This is the main reason why you can override or extend the settings with the
+contents of the file the <span class="target" id="index-0"></span><tt class="xref std std-envvar docutils literal"><span class="pre">EVE_SETTINGS</span></tt> environment variable points to.
+The development/local settings could be stored in <cite>settings.py</cite> and then, in
+production, you could export EVE_SETTINGS=/path/to/production_setting.py, and
+you are done.</p>
+<p>There are many alternative ways to handle development/production
+however. For an alternative approach see <a class="reference internal" href="#dynamic"><em>Dynamic Configuration Loading</em></a>.</p>
+</div>
+</div>
+<div class="section" id="global-configuration">
+<span id="global"></span><h2>Global Configuration<a class="headerlink" href="#global-configuration" title="Permalink to this headline">¶</a></h2>
+<p>Besides defining the general API behaviour, most global configuration settings
+are used to define the standard endpoint ruleset, and can be fine-tuned
+(overrideen) later, when configuring individual endpoints. Global configuration
+settings are always in uppercase.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="62%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt></td>
+<td>Domain on which the API is being hosted.
+Supports subdomains. Defaults to
+<tt class="docutils literal"><span class="pre">localhost:5000</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">URL_PREFIX</span></tt></td>
+<td>URL prefix for all API endpoints. Will be used
+in conjunction with <tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt> and
+<tt class="docutils literal"><span class="pre">API_VERSION</span></tt> to construct all API urls
+(e.g. <tt class="docutils literal"><span class="pre">api</span></tt> will be rendered to
+<tt class="docutils literal"><span class="pre">localhost:5000/api/</span></tt>).  Defaults to <tt class="docutils literal"><span class="pre">''</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">API_VERSION</span></tt></td>
+<td>API version. Will be used in conjunction with
+<tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt> and <tt class="docutils literal"><span class="pre">URL_PREFIX</span></tt> to construct
+API urls (e.g. <tt class="docutils literal"><span class="pre">v1</span></tt> will be rendered to
+<tt class="docutils literal"><span class="pre">localhost:5000/v1/</span></tt>). Defaults to <tt class="docutils literal"><span class="pre">''</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">FILTERS</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">True</span></tt> if filters are supported for <tt class="docutils literal"><span class="pre">GET</span></tt>
+requests, <tt class="docutils literal"><span class="pre">False</span></tt> otherwise. Can be overriden
+by resource settings. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SORTING</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">True</span></tt> if sorting is supported for <tt class="docutils literal"><span class="pre">GET</span></tt>
+requests, otherwise <tt class="docutils literal"><span class="pre">False</span></tt>. Can be overriden
+by resource settings. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">PAGING</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">True</span></tt> if pagination is enabled for <tt class="docutils literal"><span class="pre">GET</span></tt>
+requests, otherwise <tt class="docutils literal"><span class="pre">False</span></tt>. Can be overriden
+by resource settings. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PAGING_LIMIT</span></tt></td>
+<td>Maximum value allowed for <tt class="docutils literal"><span class="pre">max_results</span></tt>
+querydef parameter. Values exceeding the limit
+will be silently replaced with this value.
+You want to aim for a reasonable compromise
+between performance and transfer size. Defaults
+to 50.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">PAGING_DEFAULT</span></tt></td>
+<td>Default value for <tt class="docutils literal"><span class="pre">max_results</span></tt> applied when
+the parameter is omitted.  Defaults to 25.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DATE_FORMAT</span></tt></td>
+<td>A Python date format used to parse and render
+datetime values. When serving requests,
+matching JSON strings will be parsed and stored as
+<tt class="docutils literal"><span class="pre">datetime</span></tt> values. In responses, <tt class="docutils literal"><span class="pre">datetime</span></tt>
+values will be rendered as JSON strings using
+this format. Defaults to the RFC1123 (ex RFC
+822) standard <tt class="docutils literal"><span class="pre">a,</span> <span class="pre">%d</span> <span class="pre">%b</span> <span class="pre">%Y</span> <span class="pre">%H:%M:%S</span> <span class="pre">UTC</span></tt>
+(&#8220;Tue, 02 Apr 2013 10:29:13 UTC&#8221;).</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RESOURCE_METHODS</span></tt></td>
+<td>A list of HTTP methods supported at resource
+endpoints. Allowed values: <tt class="docutils literal"><span class="pre">GET</span></tt>, <tt class="docutils literal"><span class="pre">POST</span></tt>,
+<tt class="docutils literal"><span class="pre">DELETE</span></tt>. <tt class="docutils literal"><span class="pre">POST</span></tt> is used for insertions.
+<tt class="docutils literal"><span class="pre">DELETE</span></tt> will delete <em>all</em> resource contents
+(enable with caution). Can be overriden by
+resource settings. Defaults to <tt class="docutils literal"><span class="pre">['GET']</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PUBLIC_METHODS</span></tt></td>
+<td>A list of HTTP methods supported at resource
+endpoints, open to public access even when
+<a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a> is enabled. Can be overriden by
+resource settings. Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ITEM_METHODS</span></tt></td>
+<td>A list of HTTP methods supported at item
+endpoints. Allowed values: <tt class="docutils literal"><span class="pre">GET</span></tt>, <tt class="docutils literal"><span class="pre">PATCH</span></tt>
+and <tt class="docutils literal"><span class="pre">DELETE</span></tt>. <tt class="docutils literal"><span class="pre">PATCH</span></tt> or, for clients not
+supporting PATCH, <tt class="docutils literal"><span class="pre">POST</span></tt> with the
+<tt class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></tt> header tag, is used
+for item updates; <tt class="docutils literal"><span class="pre">DELETE</span></tt> for item deletion.
+Can be overriden by resource settings. Defaults
+to <tt class="docutils literal"><span class="pre">['GET']</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></tt></td>
+<td>A list of HTTP methods supported at item
+endpoints, left open to public access when when
+<a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a> is enabled. Can be overriden by
+resource settings. Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ALLOWED_ROLES</span></tt></td>
+<td>A list of allowed <cite>roles</cite> for resource
+endpoints. Can be overriden by resource
+settings. See <a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a> for more
+informations. Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ALLOWED_ITEM_ROLES</span></tt></td>
+<td>A list of allowed <cite>roles</cite> for item endpoints.
+See <a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a> for more informations. Can be
+overriden by resource settings.  Defaults to
+<tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">CACHE_CONTROL</span></tt></td>
+<td>Value of the <tt class="docutils literal"><span class="pre">Cache-Control</span></tt> header field
+used when serving <tt class="docutils literal"><span class="pre">GET</span></tt> requests (e.g.
+<tt class="docutils literal"><span class="pre">max-age=20,must-revalidate</span></tt>). Leave empty if
+you don&#8217;t want to include cache directives with
+API responses. Can be overriden by resource
+settings. Defaults to <tt class="docutils literal"><span class="pre">''</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">CACHE_EXPIRES</span></tt></td>
+<td>Value (in seconds) of the <tt class="docutils literal"><span class="pre">Expires</span></tt> header
+field used when serving <tt class="docutils literal"><span class="pre">GET</span></tt> requests. If
+set to a non-zero value, the header will
+always be included, regardless of the setting
+of <tt class="docutils literal"><span class="pre">CACHE_CONTROL</span></tt>. Can be overriden by
+resource settings. Defaults to 0.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">X_DOMAINS</span></tt></td>
+<td>CORS (Cross-Origin Resource Sharing) support.
+Allows API maintainers to specify which domains
+are allowed to perform CORS requests. Allowed
+values are: <tt class="docutils literal"><span class="pre">None</span></tt>, a list of domains or &#8216;*&#8217;
+for a wide-open API. Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt></td>
+<td>Name of the field used to record a document&#8217;s
+last update date. This field is automatically
+handled the Eve. Defaults to <tt class="docutils literal"><span class="pre">updated</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt></td>
+<td>Name for the field used to record a document
+creation date. This field is automatically
+handled by Eve. Defaults to <tt class="docutils literal"><span class="pre">created</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">STATUS_OK</span></tt></td>
+<td>Status message returned when data validation is
+successful. Defaults to <cite>OK</cite>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">STATUS_ERR</span></tt></td>
+<td>Status message returned when data validation
+failed. Defaults to <cite>ERR</cite>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ID_FIELD</span></tt></td>
+<td>Name of the field used to uniquely identify
+resource items within the database. You want
+this field to be properly indexed on the
+database.  Defaults to <tt class="docutils literal"><span class="pre">_id</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ITEM_LOOKUP</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">True</span></tt> if item endpoints should be generally
+available acroos the API, <tt class="docutils literal"><span class="pre">False</span></tt> otherwise.
+Can be overriden by resource settings. Defaults
+to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ITEM_LOOKUP_FIELD</span></tt></td>
+<td>Document field used when looking up a resource
+item. Can be overriden by resource settings.
+Defaults to <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ITEM_URL</span></tt></td>
+<td>RegEx used to construct default item
+endpoint URLs. Can be overriden by resource
+settings. Defaults <tt class="docutils literal"><span class="pre">[a-f0-9]{24}</span></tt> which is
+MongoDB standard <tt class="docutils literal"><span class="pre">Object_Id</span></tt> format.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ITEM_TITLE</span></tt></td>
+<td>Title to be used when building item references,
+both in XML and JSON responses. Defaults to
+resource name, with the plural &#8216;s&#8217; stripped if
+present. Can and most likely will be overriden
+when configuring single resource endpoints.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DEBUG</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">True</span></tt> to enable Debug Mode, <tt class="docutils literal"><span class="pre">False</span></tt>
+otherwise.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
+<td>A dict holding the whole API domain definition.
+See <a class="reference internal" href="#domain-configuration">Domain Configuration</a> below.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="domain-configuration">
+<h2>Domain Configuration<a class="headerlink" href="#domain-configuration" title="Permalink to this headline">¶</a></h2>
+<p>In Eve terminology, the <cite>domain</cite> is the definition of the proper API structure.
+<tt class="docutils literal"><span class="pre">DOMAIN</span></tt> itself is <a class="reference internal" href="#global"><em>global configuration setting</em></a>, a Python
+dictionary where keys are API resources, and values express the corresponding
+definitions. This is where you fine-tune resource and item endpoints, and
+define your data validation ruleset.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Work in progress.</p>
+</div>
+</div>
+<div class="section" id="dynamic-configuration-loading">
+<span id="dynamic"></span><h2>Dynamic Configuration Loading<a class="headerlink" href="#dynamic-configuration-loading" title="Permalink to this headline">¶</a></h2>
+<p>Using Python modules for configuration is very convenient, as they allow for
+all kind of nice tricks, like being able to seamlessly launch the same API on
+both local and production systems, connecting to the appropriate database
+instance as needed.  Consider the following example, taken directly from the
+<a class="reference internal" href="index.html#demo"><em>Live demo</em></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># We want to seamlessy run our API both locally and on Heroku, so:</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;PORT&#39;</span><span class="p">):</span>
+    <span class="c"># We&#39;re hosted on Heroku! Use the MongoHQ sandbox as our backend.</span>
+    <span class="n">MONGO_HOST</span> <span class="o">=</span> <span class="s">&#39;alex.mongohq.com&#39;</span>
+    <span class="n">MONGO_PORT</span> <span class="o">=</span> <span class="mi">10047</span>
+    <span class="n">MONGO_USERNAME</span> <span class="o">=</span> <span class="s">&#39;&lt;user&gt;&#39;</span>
+    <span class="n">MONGO_PASSWORD</span> <span class="o">=</span> <span class="s">&#39;&lt;pw&gt;&#39;</span>
+    <span class="n">MONGO_DBNAME</span> <span class="o">=</span> <span class="s">&#39;&lt;dbname&gt;&#39;</span>
+
+    <span class="c"># also, correctly set the API entry point</span>
+    <span class="n">SERVER_NAME</span> <span class="o">=</span> <span class="s">&#39;eve-demo.herokuapp.com&#39;</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="c"># Running on local machine. Let&#39;s just use the local mongod instance.</span>
+    <span class="n">MONGO_HOST</span> <span class="o">=</span> <span class="s">&#39;localhost&#39;</span>
+    <span class="n">MONGO_PORT</span> <span class="o">=</span> <span class="mi">27017</span>
+    <span class="n">MONGO_USERNAME</span> <span class="o">=</span> <span class="s">&#39;user&#39;</span>
+    <span class="n">MONGO_PASSWORD</span> <span class="o">=</span> <span class="s">&#39;user&#39;</span>
+    <span class="n">MONGO_DBNAME</span> <span class="o">=</span> <span class="s">&#39;apitest&#39;</span>
+
+    <span class="c"># let&#39;s not forget the API entry point</span>
+    <span class="n">SERVER_NAME</span> <span class="o">=</span> <span class="s">&#39;localhost:5000&#39;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Work in progress.</p>
+</div>
 </div>
 </div>
 
@@ -98,7 +361,21 @@
   Feedback is greatly appreciated. If you have any questions, comments,
   random praise, or anonymous threats, <a href="mailto:eve@nicolaiarocci.com">
   shoot me an email</a>.
-</p><h3>Related Topics</h3>
+</p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Configuration Handling</a><ul>
+<li><a class="reference internal" href="#configuration-files">Configuration Files</a><ul>
+<li><a class="reference internal" href="#development-production">Development / Production</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#global-configuration">Global Configuration</a></li>
+<li><a class="reference internal" href="#domain-configuration">Domain Configuration</a></li>
+<li><a class="reference internal" href="#dynamic-configuration-loading">Dynamic Configuration Loading</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="quickstart.html" title="previous chapter">Quickstart</a></li>
