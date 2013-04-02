@@ -54,15 +54,15 @@ Now you can consume the API:
     Date: Wed, 27 Mar 2013 16:06:44 GMT
 
 Congratulations, your GET request got a nice response back. Let's look at the
-response payload:
+payload:
 
 ::
 
     {
         "_links": {
             "child": [{"href": "127.0.0.1:5000/people/", "title": "people"}]
-            }
         }
+    }
 
 API entry points adhere to the :ref:`hateoas_feature` principle and provide
 informations about the resources accessible through the API. In our case
@@ -116,13 +116,13 @@ Let's connect to a database by adding the following lines to `settings.py`:
     MONGO_PASSWORD = 'user'
     MONGO_DBNAME = 'apitest'
 
-Due to MongoDB *laziness*, we don't really need to create the collections in
-database. Actually, we don't even need to create the database: GET requests on
-an empty/non-existant DB will be served correctly (200 OK with an empty
-collection); DELETE/PATCH will receive appropriate responses (404 Not
-Found), and POST requests will create database and collections when needed.
-Keep in mind however that such an auto-managed database will most likely
-perform very poorly since it lacks any sort of optimized index.
+Due to MongoDB *laziness*, we don't really need to create the database
+collections. Actually, we don't even need to create the database: GET requests
+on an empty/non-existant DB will be served correctly (200 OK with an empty
+collection); DELETE/PATCH will receive appropriate responses (404 Not Found),
+and POST requests will create database and collections as needed. However, such
+an auto-managed database will perform very poorly since it lacks indexes and
+any sort of optimization.
 
 A More Complex Application
 --------------------------
@@ -193,8 +193,8 @@ For more informations on validation see :ref:`validation`.
 Now let's say that we want to further customize the `people` endpoint. We want
 to: 
 
-- set the default item title to *person*
-- add an extra, :ref:`custom item endpoint <custom_item_endpoints>` at ``/people/<lastname>/``
+- set the item title to *person*
+- add an extra :ref:`custom item endpoint <custom_item_endpoints>` at ``/people/<lastname>/``
 - override the default :ref:`cache control directives <cache_control>`
 - disable DELETE for the ``/people/`` endpoint (we enabled it globally)
 
@@ -240,15 +240,16 @@ Save `settings.py` and launch `run.py`. We can now insert documents at the
 
 .. code-block:: console
 
-    $ curl -d 'item1={"firstname": "barack", "lastname": "obama"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://eve-demo.herokuapp.com/people/
+    $ curl -d 'item1={"firstname": "barack", "lastname": "obama"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://127.0.0.1:5000/people/
     HTTP/1.0 200 OK
 
-We can also update and delete items (but not the whole resource) and perform
-GET requests against the new `lastname` endpoint:
+We can also update and delete items (but not the whole resource since we
+disabled that). We can also perform GET requests against the new `lastname`
+endpoint:
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people/Doe/
+    $ curl -i http://127.0.0.1:5000/people/Doe/
     HTTP/1.0 200 OK
     Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
     Last-Modified: Wed, 21 Nov 2012 16:04:56 UTC 
@@ -275,7 +276,7 @@ GET requests against the new `lastname` endpoint:
     }
 
 Cache directives and item title match our new settings. See :doc:`features` for
-more usage examples and a complete feature list.
+a complete list of features available and more usage examples.
 
 .. note::
     All examples and code snippets are from the :ref:`demo`, which is a fully
