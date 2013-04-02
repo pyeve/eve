@@ -70,18 +70,18 @@ settings are always in uppercase.
                                 requests, otherwise ``False``. Can be overriden
                                 by resource settings. Defaults to ``True``.
 
-``PAGING``                      ``True`` if pagination is enabled for ``GET`` 
+``PAGINATION``                  ``True`` if pagination is enabled for ``GET`` 
                                 requests, otherwise ``False``. Can be overriden
                                 by resource settings. Defaults to ``True``.
 
-``PAGING_LIMIT``                Maximum value allowed for ``max_results``
+``PAGINATION_LIMIT``            Maximum value allowed for ``max_results``
                                 querydef parameter. Values exceeding the limit
                                 will be silently replaced with this value.
                                 You want to aim for a reasonable compromise
                                 between performance and transfer size. Defaults
                                 to 50.
 
-``PAGING_DEFAULT``              Default value for ``max_results`` applied when 
+``PAGINATION_DEFAULT``          Default value for ``max_results`` applied when 
                                 the parameter is omitted.  Defaults to 25.
 
 ``DATE_FORMAT``                 A Python date format used to parse and render 
