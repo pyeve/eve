@@ -38,8 +38,8 @@ class TestUtils(TestBase):
         self.assertEqual(parse_request(args={'page': 'string'}).page, 1)
 
     def test_parse_request_max_results(self):
-        default = config.PAGING_DEFAULT
-        limit = config.PAGING_LIMIT
+        default = config.PAGINATION_DEFAULT
+        limit = config.PAGINATION_LIMIT
         self.assertEqual(parse_request().max_results, default)
         self.assertEqual(
             parse_request(args={'max_results': limit + 1}).max_results, limit)

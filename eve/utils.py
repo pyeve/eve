@@ -53,8 +53,8 @@ class ParsedRequest(object):
     page = 1
 
     # `max_result` value of the query string (?max_results). Defaults to
-    # `PAGING_DEFAULT` unles paging is disabled.
-    max_results = config.PAGING_DEFAULT
+    # `PAGINATION_DEFAULT` unless pagination is disabled.
+    max_results = config.PAGINATION_DEFAULT
 
     # `If-Modified-Since` request header value. Defaults to None.
     if_modified_since = None
@@ -77,7 +77,7 @@ def parse_request(resource=None, args=None, headers=None):
                     process flask request object.
 
     .. versionchanged: 0.0.5
-       Support for optional filters, sorting and paging.
+       Support for optional filters, sorting and pagination.
     """
     if flask.has_request_context():
             args = request.args
@@ -91,7 +91,7 @@ def parse_request(resource=None, args=None, headers=None):
         if resource is None or config.DOMAIN[resource]['sorting']:
             r.sort = args.get('sort')
 
-        if resource is None or config.DOMAIN[resource]['paging']:
+        if resource is None or config.DOMAIN[resource]['pagination']:
             # TODO should probably return a 400 if 'page' is < 1 or non-numeric
             if 'page' in args:
                 try:
@@ -104,10 +104,10 @@ def parse_request(resource=None, args=None, headers=None):
             if 'max_results' in args:
                 try:
                     r.max_results = int(args.get('max_results'))
-                    if r.max_results > config.PAGING_LIMIT:
-                        r.max_results = config.PAGING_LIMIT
+                    if r.max_results > config.PAGINATION_LIMIT:
+                        r.max_results = config.PAGINATION_LIMIT
                     elif r.max_results <= 0:
-                        r.max_results = config.PAGING_DEFAULT
+                        r.max_results = config.PAGINATION_DEFAULT
                 except ValueError:
                     pass
         else:
@@ -223,12 +223,12 @@ def api_prefix(url_prefix=None, api_version=None):
     return prefix + version
 
 
-def querydef(max_results=config.PAGING_DEFAULT, where=None, sort=None,
+def querydef(max_results=config.PAGINATION_DEFAULT, where=None, sort=None,
              page=None):
     """ Returns a valid query string.
 
     :param max_results: `max_result` part of the query string. Defaults to
-                        `PAGING_DEFAULT`
+                        `PAGINATION_DEFAULT`
     :param where: `where` part of the query string. Defaults to None.
     :param sort: `sort` part of the query string. Defaults to None.
     :param page: `page` parte of the query string. Defaults to None.
@@ -237,7 +237,7 @@ def querydef(max_results=config.PAGING_DEFAULT, where=None, sort=None,
     sort_part = '&sort=%s' % sort if sort else ''
     page_part = '&page=%s' % page if page > 1 else ''
     max_results_part = 'max_results=%s' % max_results \
-        if max_results != config.PAGING_DEFAULT else ''
+        if max_results != config.PAGINATION_DEFAULT else ''
 
     return ('?' + ''.join([max_results_part, where_part, sort_part,
                            page_part]).lstrip('&')).rstrip('?')

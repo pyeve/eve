@@ -25,12 +25,12 @@ class TestGet(TestMethodsBase):
         resource = response['_items']
         self.assertEqual(len(resource), maxr)
 
-        maxr = self.app.config['PAGING_LIMIT'] + 1
+        maxr = self.app.config['PAGINATION_LIMIT'] + 1
         response, status = self.get(self.known_resource,
                                     '?max_results=%d' % maxr)
         self.assert200(status)
         resource = response['_items']
-        self.assertEqual(len(resource), self.app.config['PAGING_LIMIT'])
+        self.assertEqual(len(resource), self.app.config['PAGINATION_LIMIT'])
 
     def test_get_page(self):
         response, status = self.get(self.known_resource)
@@ -66,11 +66,13 @@ class TestGet(TestMethodsBase):
         self.assertPrevLink(links, 2)
 
     def test_get_paging_disabled(self):
-        self.app.config['DOMAIN'][self.known_resource]['paging'] = False
+        self.app.config['DOMAIN'][self.known_resource]['pagination'] = False
         response, status = self.get(self.known_resource, '?page=2')
         self.assert200(status)
         resource = response['_items']
-        self.assertFalse(len(resource) == self.app.config['PAGING_DEFAULT'])
+        print len(resource), self.app.config['PAGINATION_DEFAULT']
+        self.assertFalse(len(resource) ==
+                         self.app.config['PAGINATION_DEFAULT'])
         links = response['_links']
         self.assertTrue('next' not in links)
         self.assertTrue('prev' not in links)
@@ -100,7 +102,7 @@ class TestGet(TestMethodsBase):
         response, status = self.get(self.known_resource, '?where=%s' % where)
         self.assert200(status)
         resource = response['_items']
-        self.assertEqual(len(resource), self.app.config['PAGING_DEFAULT'])
+        self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
 
     def test_get_sort_mongo_syntax(self):
         sort = '[("prog",-1)]'
@@ -109,7 +111,7 @@ class TestGet(TestMethodsBase):
         self.assert200(status)
 
         resource = response['_items']
-        self.assertEqual(len(resource), self.app.config['PAGING_DEFAULT'])
+        self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
         topvalue = 99
         for i in range(len(resource)):
             self.assertEqual(resource[i]['prog'], topvalue - i)
@@ -121,7 +123,7 @@ class TestGet(TestMethodsBase):
                                     '?sort=%s' % sort)
         self.assert200(status)
         resource = response['_items']
-        self.assertEqual(len(resource), self.app.config['PAGING_DEFAULT'])
+        self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
         for i in range(len(resource)):
             self.assertEqual(resource[i]['prog'], i)
 
@@ -145,7 +147,7 @@ class TestGet(TestMethodsBase):
         self.assertNextLink(links, 2)
 
         resource = response['_items']
-        self.assertEqual(len(resource), self.app.config['PAGING_DEFAULT'])
+        self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
 
         for item in resource:
             self.assertItem(item)

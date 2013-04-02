@@ -23,8 +23,6 @@ DATE_FORMAT = '%a, %d %b %Y %H:%M:%S UTC'
 API_VERSION = ''
 URL_PREFIX = ''
 SERVER_NAME = 'localhost:5000'
-PAGING_LIMIT = 50
-PAGING_DEFAULT = 25
 LAST_UPDATED = 'updated'
 DATE_CREATED = 'created'
 ID_FIELD = '_id'
@@ -35,7 +33,9 @@ X_DOMAINS = None                # CORS disabled by default.
 
 FILTERS = True                  # filters enbaled by default.
 SORTING = True                  # sorting enabled by default.
-PAGING = True                   # paging enabled by default.
+PAGINATION = True               # pagination enabled by default.
+PAGINATION_LIMIT = 50
+PAGINATION_DEFAULT = 25
 
 RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']

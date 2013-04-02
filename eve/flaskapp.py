@@ -257,7 +257,7 @@ class Eve(Flask):
         .. versionchanged:: 0.0.5
            'filters',
            'sorting',
-           'paging'.
+           'pagination'.
 
         .. versionchanged:: 0.0.4
            'defaults',
@@ -292,7 +292,7 @@ class Eve(Flask):
                                 self.config['ALLOWED_ITEM_ROLES'])
             settings.setdefault('filters', self.config['FILTERS'])
             settings.setdefault('sorting', self.config['SORTING'])
-            settings.setdefault('paging', self.config['PAGING'])
+            settings.setdefault('pagination', self.config['PAGINATION'])
             # TODO make sure that this we really need the test below
             if settings['item_lookup']:
                 item_methods = self.config['ITEM_METHODS']

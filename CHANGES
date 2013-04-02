@@ -8,6 +8,14 @@ Version 0.0.5
 
 Not released yet.
 
+- PAGING_LIMIT keyword setting renamed to PAGINATION_LIMIT for better coherency
+  with the new PAGINATION keyword. This could break backward compatibility in
+  some cases.
+
+- PAGING_DEFAULT keyword settings renamed to PAGINATION_DEFAULT for better
+  coherence with the new PAGINATION keyword. This could break backward
+  compatibility in some cases.
+
 - ITEM_CACHE_CONTROL removed as it seems unnecessary at the moment.
 
 - Added an example on how to handle events to perform custom actions. Closes 
@@ -18,8 +26,8 @@ Not released yet.
 - ``eve.validation_schema()`` now collects offending items and returns all of
   them into the exception message. Closes #24.
 
-- Filters (`?where=`), sorting (`?sort=`) and paging (`?page=10`) can now be be
-  disabled at both global and endpoint level. Closes #7.
+- Filters (`?where=`), sorting (`?sort=`) and pagination (`?page=10`) can now
+  be be disabled at both global and endpoint level. Closes #7.
 
 - CORS (Cross-Origin Resource Sharing) support. The new ``X-DOMAINS`` keywords
   allows API maintainers to specify which domains are allowed to perform CORS
