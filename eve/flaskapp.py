@@ -59,7 +59,7 @@ class Eve(Flask):
     """
     def __init__(self, import_name=__package__, settings='settings.py',
                  validator=Validator, data=Mongo, auth=None,
-                 where_extra=None, custom_data=None, **kwargs):
+                 custom_data=None, **kwargs):
         """Eve main WSGI app is implemented as a Flask subclass. Since we want
         to be able to launch our API by simply invoking Flask's run() method,
         we need to enhance our super-class a little bit.
@@ -90,7 +90,6 @@ class Eve(Flask):
         self.data = data(self)
         self.auth = auth() if auth else None
 
-        self.where_extra = where_extra
         self.custom_data = custom_data
 
     def run(self, host=None, port=None, debug=None, **options):

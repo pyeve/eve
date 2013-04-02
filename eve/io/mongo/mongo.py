@@ -12,7 +12,7 @@
 
 import ast
 import simplejson as json
-from flask import abort
+from flask import current_app as app, abort
 from flask.ext.pymongo import PyMongo
 from datetime import datetime
 from bson import ObjectId
@@ -84,8 +84,8 @@ class Mongo(DataLayer):
                 except ParseError:
                     abort(400)
 
-        if req.where_extra:
-            spec.update(req.where_extra)
+        if app.custom_data:
+            spec.update(app.custom_data())
 
         datasource, spec = self._datasource_ex(resource, spec)
 
