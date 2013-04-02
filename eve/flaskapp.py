@@ -285,8 +285,6 @@ class Eve(Flask):
             settings.setdefault('item_url', self.config['ITEM_URL'])
             settings.setdefault('item_title',
                                 resource.rstrip('s').capitalize())
-            settings.setdefault('item_cache_control',
-                                self.config['ITEM_CACHE_CONTROL'])
             settings.setdefault('item_lookup', self.config['ITEM_LOOKUP'])
             settings.setdefault('public_item_methods',
                                 self.config['PUBLIC_ITEM_METHODS'])

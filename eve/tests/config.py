@@ -149,8 +149,6 @@ class TestConfig(TestBase):
                          self.app.config['ITEM_URL'])
         self.assertEqual(settings['item_title'],
                          resource.rstrip('s').capitalize())
-        self.assertEqual(settings['item_cache_control'],
-                         self.app.config['ITEM_CACHE_CONTROL'])
         self.assertEqual(settings['filters'], self.app.config['FILTERS'])
         self.assertEqual(settings['sorting'], self.app.config['SORTING'])
         self.assertEqual(settings['paging'], self.app.config['PAGING'])

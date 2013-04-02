@@ -8,6 +8,8 @@ Version 0.0.5
 
 Not released yet.
 
+- ITEM_CACHE_CONTROL removed as it seems unnecessary at the moment.
+
 - Added an example on how to handle events to perform custom actions. Closes 
   #23 and #22.
 
