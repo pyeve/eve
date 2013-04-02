@@ -121,6 +121,10 @@ class Eve(Flask):
         self.config.from_object('eve.default_settings')
 
         # overwrite the defaults with custom user settings:
+
+        # TODO perhaps we should support non-existing settings file, in order
+        # to allow for envvar_only scenarios. However, we should probably
+        # issue a warning
         if os.path.isabs(self.settings):
             pyfile = self.settings
         else:
