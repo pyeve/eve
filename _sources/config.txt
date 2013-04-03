@@ -33,16 +33,45 @@ production, you could export EVE_SETTINGS=/path/to/production_setting.py, and
 you are done. 
 
 There are many alternative ways to handle development/production
-however. For an alternative approach see :ref:`dynamic`. 
+however. Using Python modules for configuration is very convenient, as they
+allow for all kind of nice tricks, like being able to seamlessly launch the
+same API on both local and production systems, connecting to the appropriate
+database instance as needed.  Consider the following example, taken directly
+from the :ref:`demo`:
+
+::
+
+    # We want to seamlessy run our API both locally and on Heroku, so:
+    if os.environ.get('PORT'):
+        # We're hosted on Heroku! Use the MongoHQ sandbox as our backend.
+        MONGO_HOST = 'alex.mongohq.com'
+        MONGO_PORT = 10047
+        MONGO_USERNAME = '<user>'
+        MONGO_PASSWORD = '<pw>'
+        MONGO_DBNAME = '<dbname>'
+
+        # also, correctly set the API entry point
+        SERVER_NAME = 'eve-demo.herokuapp.com'
+    else:
+        # Running on local machine. Let's just use the local mongod instance.
+        MONGO_HOST = 'localhost'
+        MONGO_PORT = 27017
+        MONGO_USERNAME = 'user'
+        MONGO_PASSWORD = 'user'
+        MONGO_DBNAME = 'apitest'
+
+        # let's not forget the API entry point
+        SERVER_NAME = 'localhost:5000'
+
 
 .. _global:
 
 Global Configuration
 --------------------
 Besides defining the general API behaviour, most global configuration settings
-are used to define the standard endpoint ruleset, and can be fine-tuned
-(overrideen) later, when configuring individual endpoints. Global configuration
-settings are always in uppercase. 
+are used to define the standard endpoint ruleset, and can be fine-tuned later,
+when configuring individual endpoints. Global configuration settings are always
+uppercase. 
 
 .. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
 
@@ -191,52 +220,269 @@ settings are always in uppercase.
 ``DEBUG``                       ``True`` to enable Debug Mode, ``False``
                                 otherwise. 
 
-``DOMAIN``                      A dict holding the whole API domain definition.
-                                See `Domain Configuration`_ below.
+``MONGO_HOST``                  MongoDB server address.
+
+``MONGO_PORT``                  MongoDB port.
+
+``MONGO_USERNAME``              MongoDB user name.
+
+``MONGO_PASSWORD``              MongoDB password.
+
+``MONGO_DBNAME``                MongoDB database name.
+
+``DOMAIN``                      A dict holding the API domain definition.
+                                See `Domain Configuration`_.
 =============================== =========================================
 
 Domain Configuration
 --------------------
-In Eve terminology, the `domain` is the definition of the proper API structure.
-``DOMAIN`` itself is :ref:`global configuration setting <global>`, a Python
-dictionary where keys are API resources, and values express the corresponding
-definitions. This is where you fine-tune resource and item endpoints, and
-define your data validation ruleset.
+In Eve terminology `domain` is the definition of the API structure, the area
+where you design your API, fine-tune resources endpoints, and define validation
+rules. 
 
-.. note:: Work in progress.
-
-.. _dynamic:
-
-Dynamic Configuration Loading
------------------------------
-Using Python modules for configuration is very convenient, as they allow for
-all kind of nice tricks, like being able to seamlessly launch the same API on
-both local and production systems, connecting to the appropriate database
-instance as needed.  Consider the following example, taken directly from the
-:ref:`demo`:
+``DOMAIN`` is a :ref:`global configuration setting <global>`: a Python
+dictionary where keys are API resources and values their definitions. 
 
 ::
 
-    # We want to seamlessy run our API both locally and on Heroku, so:
-    if os.environ.get('PORT'):
-        # We're hosted on Heroku! Use the MongoHQ sandbox as our backend.
-        MONGO_HOST = 'alex.mongohq.com'
-        MONGO_PORT = 10047
-        MONGO_USERNAME = '<user>'
-        MONGO_PASSWORD = '<pw>'
-        MONGO_DBNAME = '<dbname>'
+    # Here we define two API endpoints, 'people' and 'works', leaving their
+    # definitions empty.
+    DOMAIN = {
+        'people': {},
+        'works': {},
+        }
 
-        # also, correctly set the API entry point
-        SERVER_NAME = 'eve-demo.herokuapp.com'
-    else:
-        # Running on local machine. Let's just use the local mongod instance.
-        MONGO_HOST = 'localhost'
-        MONGO_PORT = 27017
-        MONGO_USERNAME = 'user'
-        MONGO_PASSWORD = 'user'
-        MONGO_DBNAME = 'apitest'
+In the following two sections we will customize the `people` resource.
 
-        # let's not forget the API entry point
-        SERVER_NAME = 'localhost:5000'
+.. _local:
 
-.. note:: Work in progress.
+Resource / Item Endpoints
+'''''''''''''''''''''''''
+Endpoint customization is mostly done by overriding some :ref:`global settings
+<global>`, but other unique settings are also available. Resource settings are
+always lowercase.
+
+.. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
+
+=============================== =========================================
+``url``                         The endpoint URL. If omitted, the resource key 
+                                of the ``DOMAIN`` dict will be used to build
+                                the URL. As an example, ``contacts`` would make the
+                                `people` resource available at ``/contacts/`` (instead of ``/people/``).
+
+``filters``                     ``True`` if filters are enabled, ``False`` 
+                                otherwise. Locally overrides ``FILTERS``.
+
+``sorting``                     ``True`` if sorting is enabled, ``False`` 
+                                otherwise. Locally ovverrides ``SORTING``.
+                                
+``pagination``                  ``True`` if pagination is enabled, ``False``
+                                otherwise. Locally overrides ``PAGINATION``.
+
+``methods``                     A list of HTTP methods supported at resource 
+                                endpoint. Allowed values: ``GET``, ``POST``,
+                                ``DELETE``. Locally overrides
+                                ``RESOURCE_METHODS``.
+
+``public_methods``              A list of HTTP methods supported at resource
+                                endpoint, open to public access even when
+                                :ref:`auth` is enabled. Locally overrides
+                                ``PUBLIC_METHODS``.
+
+``item_methods``                A list of HTTP methods supported at item 
+                                endpoint. Allowed values: ``GET``, ``PATCH``
+                                and ``DELETE``. ``PATCH`` or, for clients not
+                                supporting PATCH, ``POST`` with the
+                                ``X-HTTP-Method-Override`` header tag.
+                                Locally overrides ``ITEM_METHODS``.
+
+``public_item_methods``         A list of HTTP methods supported at item
+                                endpoint, left open to public access when when
+                                :ref:`auth` is enabled. Locally overrides
+                                ``PUBLIC_ITEM_METHODS``.
+
+``allowed_roles``               A list of allowed `roles` for resource
+                                endpoint. See :ref:`auth` for more
+                                informations. Locally overrides
+                                ``ALLOWED_ROLES``.
+
+``allowed_item_roles``          A list of allowed `roles` for item endpoint. 
+                                See :ref:`auth` for more informations.
+                                Locally overrides ``ALLOWED_ITEM_ROLES``.
+
+``cache_control``               Value of the ``Cache-Control`` header field 
+                                used when serving ``GET`` requests. Leave empty
+                                if you don't want to include cache directives
+                                with API responses. Locally overrides
+                                ``CACHE_CONTROL``.
+
+``cache_expires``               Value (in seconds) of the ``Expires`` header 
+                                field used when serving ``GET`` requests. If
+                                set to a non-zero value, the header will 
+                                always be included, regardless of the setting
+                                of ``CACHE_CONTROL``. Locally overrides
+                                ``CACHE_EXPIRES``.
+
+``item_lookup``                 ``True`` if item endpoint should be available, 
+                                ``False`` otherwise. Locally overrides
+                                ``ITEM_LOOKUP``.
+
+``item_lookup_field``           Field used when looking up a resource
+                                item. Locally overrides ``ITEM_LOOKUP_FIELD``.
+
+``item_url``                    RegEx used to construct item endpoint URL.
+                                Locally overrides ``ITEM_URL``.
+
+``item_title``                  Title to be used when building item references, 
+                                both in XML and JSON responses. Overrides
+                                ``ITEM_TITLE``.
+
+``additional_lookup``           RegEx defining and additional, custom read-only item
+                                endpoint. See the example below.
+
+``datasource``                  Explicitly links API resources to database 
+                                collections, allowing for some `Advanced
+                                Datasource Patterns`_. 
+
+``schema``                      A dict defining the actual data structure being
+                                handled by the resource. Enables data
+                                validation. See `Schema Definition`_.
+=============================== =========================================
+
+Here's an example of resource customization, mostly done by overriding global
+API settings:
+
+::
+
+    people = {
+        # 'title' tag used in item links. Defaults to the resource title minus
+        # the final, plural 's' (works fine in most cases but not for 'people')
+        'item_title': 'person',
+
+        # by default the standard item entry point is defined as
+        # '/people/<ObjectId>/'. We leave it untouched, and we also enable an
+        # additional read-only entry point. This way consumers can also perform 
+        # GET requests at '/people/<lastname>/'.
+        'additional_lookup': {
+            'url': '[\w]+',
+            'field': 'lastname'
+        },
+
+        # We choose to override global cache-control directives for this resource.
+        'cache_control': 'max-age=10,must-revalidate',
+        'cache_expires': 10,
+
+        # we only allow GET and POST at this resource endpoint.
+        'resource_methods': ['GET', 'POST'],
+    }
+
+.. _schema:
+
+Schema Definition
+'''''''''''''''''
+Unless your API is read-only you probably want to define resource `schemas`.
+Schemas are important because they enable proper validation for incoming
+streams.
+
+::
+
+    # 'people' schema definition
+    'schema'= {
+        'firstname': {
+            'type': 'string',
+            'minlength': 1,
+            'maxlength': 10,
+        },
+        'lastname': {
+            'type': 'string',
+            'minlength': 1,
+            'maxlength': 15,
+            'required': True,
+            'unique': True,
+        },
+        # 'role' is a list, and can only contain values from 'allowed'.
+        'role': {
+            'type': 'list',
+            'allowed': ["author", "contributor", "copy"],
+        },
+        # An embedded 'strongly-typed' dictionary.
+        'location': {
+            'type': 'dict',
+            'schema': {
+                'address': {'type': 'string'},
+                'city': {'type': 'string'}
+            },
+        },
+        'born': {
+            'type': 'datetime',
+        },
+    }
+
+Schema syntax is based on Cerberus_ and yes, it can be extended.  In fact Eve
+itself is extending the original grammar by adding the `unique` keyword and the
+``ObjectId`` datatype.  For more informations on schema syntax and custom
+validation see :ref:`validation`.
+
+In :ref:`local` you customized the `people` endpoint. Then, in this section,
+you defined `people` validation rules. Now you are ready to update the domain
+which was originally set up in `Domain Configuration`_:
+
+::
+
+    # add the schema to the 'people' resource definition
+    people['schema'] = schema
+    # update the domain
+    DOMAIN['people'] = people
+
+Advanced Datasource Patterns
+----------------------------
+Multiple API Endpoints, One Datasource
+''''''''''''''''''''''''''''''''''''''
+Multiple API endpoints can target the same database collection. For
+example you can set both ``/admins/`` and ``/users/`` to read and write from
+the same collection on the database, `people`.
+
+The ``datasource`` keyword allows to explicitly link API resources to
+database collections (if you omit it, the domain resource key is assumed to be
+the name of che database collection). It is a dictionary with two allowed keys:
+`source` and `filter`. ``source`` dictates the database collection consumed by
+the resource, while ``filter`` is the underlying query applied by the API when
+retrieving and validating data for the resource.  
+
+::
+
+    people = {
+        'datasource': {
+            'source': 'people', 
+            'filter': {'userlevel': 1}
+            }
+        }
+
+The above setting will retrieve, edit and delete only documents from the
+`people` collection with a `userlevel` of 1.
+
+Predefined Database Filters
+'''''''''''''''''''''''''''
+By using the ``datasource`` resource keyword it is also possibile to set
+predefined database filters. 
+
+::
+
+    people = {
+        'datasource': {
+            'filter': {'username': {'$exists': True}}
+            }
+        }
+  
+In the example above the API endpoint will only expose and update documents
+with an existent `username` field.
+
+Predefined filters run on top of user queries (GET requests with `where`
+clauses) and standard conditional requests (`If-Modified-Since`, etc.)
+
+Please note that datasource filters are applied on GET, PATCH and DELETE
+requests. If your resource allows POST requests (document insertions),
+then you will probably want to set the validation rules accordingly (in our
+example, 'username' should probably be a required field).
+
+.. _Cerberus: http://cerberus.readthedocs.org

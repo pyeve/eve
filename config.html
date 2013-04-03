@@ -86,15 +86,42 @@ The development/local settings could be stored in <cite>settings.py</cite> and t
 production, you could export EVE_SETTINGS=/path/to/production_setting.py, and
 you are done.</p>
 <p>There are many alternative ways to handle development/production
-however. For an alternative approach see <a class="reference internal" href="#dynamic"><em>Dynamic Configuration Loading</em></a>.</p>
+however. Using Python modules for configuration is very convenient, as they
+allow for all kind of nice tricks, like being able to seamlessly launch the
+same API on both local and production systems, connecting to the appropriate
+database instance as needed.  Consider the following example, taken directly
+from the <a class="reference internal" href="index.html#demo"><em>Live demo</em></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># We want to seamlessy run our API both locally and on Heroku, so:</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;PORT&#39;</span><span class="p">):</span>
+    <span class="c"># We&#39;re hosted on Heroku! Use the MongoHQ sandbox as our backend.</span>
+    <span class="n">MONGO_HOST</span> <span class="o">=</span> <span class="s">&#39;alex.mongohq.com&#39;</span>
+    <span class="n">MONGO_PORT</span> <span class="o">=</span> <span class="mi">10047</span>
+    <span class="n">MONGO_USERNAME</span> <span class="o">=</span> <span class="s">&#39;&lt;user&gt;&#39;</span>
+    <span class="n">MONGO_PASSWORD</span> <span class="o">=</span> <span class="s">&#39;&lt;pw&gt;&#39;</span>
+    <span class="n">MONGO_DBNAME</span> <span class="o">=</span> <span class="s">&#39;&lt;dbname&gt;&#39;</span>
+
+    <span class="c"># also, correctly set the API entry point</span>
+    <span class="n">SERVER_NAME</span> <span class="o">=</span> <span class="s">&#39;eve-demo.herokuapp.com&#39;</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="c"># Running on local machine. Let&#39;s just use the local mongod instance.</span>
+    <span class="n">MONGO_HOST</span> <span class="o">=</span> <span class="s">&#39;localhost&#39;</span>
+    <span class="n">MONGO_PORT</span> <span class="o">=</span> <span class="mi">27017</span>
+    <span class="n">MONGO_USERNAME</span> <span class="o">=</span> <span class="s">&#39;user&#39;</span>
+    <span class="n">MONGO_PASSWORD</span> <span class="o">=</span> <span class="s">&#39;user&#39;</span>
+    <span class="n">MONGO_DBNAME</span> <span class="o">=</span> <span class="s">&#39;apitest&#39;</span>
+
+    <span class="c"># let&#39;s not forget the API entry point</span>
+    <span class="n">SERVER_NAME</span> <span class="o">=</span> <span class="s">&#39;localhost:5000&#39;</span>
+</pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="global-configuration">
 <span id="global"></span><h2>Global Configuration<a class="headerlink" href="#global-configuration" title="Permalink to this headline">¶</a></h2>
 <p>Besides defining the general API behaviour, most global configuration settings
-are used to define the standard endpoint ruleset, and can be fine-tuned
-(overrideen) later, when configuring individual endpoints. Global configuration
-settings are always in uppercase.</p>
+are used to define the standard endpoint ruleset, and can be fine-tuned later,
+when configuring individual endpoints. Global configuration settings are always
+uppercase.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="38%" />
@@ -273,58 +300,280 @@ when configuring single resource endpoints.</td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> to enable Debug Mode, <tt class="docutils literal"><span class="pre">False</span></tt>
 otherwise.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
-<td>A dict holding the whole API domain definition.
-See <a class="reference internal" href="#domain-configuration">Domain Configuration</a> below.</td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt></td>
+<td>MongoDB server address.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_PORT</span></tt></td>
+<td>MongoDB port.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_USERNAME</span></tt></td>
+<td>MongoDB user name.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_PASSWORD</span></tt></td>
+<td>MongoDB password.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt></td>
+<td>MongoDB database name.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
+<td>A dict holding the API domain definition.
+See <a class="reference internal" href="#domain-configuration">Domain Configuration</a>.</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="domain-configuration">
 <h2>Domain Configuration<a class="headerlink" href="#domain-configuration" title="Permalink to this headline">¶</a></h2>
-<p>In Eve terminology, the <cite>domain</cite> is the definition of the proper API structure.
-<tt class="docutils literal"><span class="pre">DOMAIN</span></tt> itself is <a class="reference internal" href="#global"><em>global configuration setting</em></a>, a Python
-dictionary where keys are API resources, and values express the corresponding
-definitions. This is where you fine-tune resource and item endpoints, and
-define your data validation ruleset.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Work in progress.</p>
-</div>
-</div>
-<div class="section" id="dynamic-configuration-loading">
-<span id="dynamic"></span><h2>Dynamic Configuration Loading<a class="headerlink" href="#dynamic-configuration-loading" title="Permalink to this headline">¶</a></h2>
-<p>Using Python modules for configuration is very convenient, as they allow for
-all kind of nice tricks, like being able to seamlessly launch the same API on
-both local and production systems, connecting to the appropriate database
-instance as needed.  Consider the following example, taken directly from the
-<a class="reference internal" href="index.html#demo"><em>Live demo</em></a>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># We want to seamlessy run our API both locally and on Heroku, so:</span>
-<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;PORT&#39;</span><span class="p">):</span>
-    <span class="c"># We&#39;re hosted on Heroku! Use the MongoHQ sandbox as our backend.</span>
-    <span class="n">MONGO_HOST</span> <span class="o">=</span> <span class="s">&#39;alex.mongohq.com&#39;</span>
-    <span class="n">MONGO_PORT</span> <span class="o">=</span> <span class="mi">10047</span>
-    <span class="n">MONGO_USERNAME</span> <span class="o">=</span> <span class="s">&#39;&lt;user&gt;&#39;</span>
-    <span class="n">MONGO_PASSWORD</span> <span class="o">=</span> <span class="s">&#39;&lt;pw&gt;&#39;</span>
-    <span class="n">MONGO_DBNAME</span> <span class="o">=</span> <span class="s">&#39;&lt;dbname&gt;&#39;</span>
-
-    <span class="c"># also, correctly set the API entry point</span>
-    <span class="n">SERVER_NAME</span> <span class="o">=</span> <span class="s">&#39;eve-demo.herokuapp.com&#39;</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="c"># Running on local machine. Let&#39;s just use the local mongod instance.</span>
-    <span class="n">MONGO_HOST</span> <span class="o">=</span> <span class="s">&#39;localhost&#39;</span>
-    <span class="n">MONGO_PORT</span> <span class="o">=</span> <span class="mi">27017</span>
-    <span class="n">MONGO_USERNAME</span> <span class="o">=</span> <span class="s">&#39;user&#39;</span>
-    <span class="n">MONGO_PASSWORD</span> <span class="o">=</span> <span class="s">&#39;user&#39;</span>
-    <span class="n">MONGO_DBNAME</span> <span class="o">=</span> <span class="s">&#39;apitest&#39;</span>
-
-    <span class="c"># let&#39;s not forget the API entry point</span>
-    <span class="n">SERVER_NAME</span> <span class="o">=</span> <span class="s">&#39;localhost:5000&#39;</span>
+<p>In Eve terminology <cite>domain</cite> is the definition of the API structure, the area
+where you design your API, fine-tune resources endpoints, and define validation
+rules.</p>
+<p><tt class="docutils literal"><span class="pre">DOMAIN</span></tt> is a <a class="reference internal" href="#global"><em>global configuration setting</em></a>: a Python
+dictionary where keys are API resources and values their definitions.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Here we define two API endpoints, &#39;people&#39; and &#39;works&#39;, leaving their</span>
+<span class="c"># definitions empty.</span>
+<span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;people&#39;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="s">&#39;works&#39;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="p">}</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Work in progress.</p>
+<p>In the following two sections we will customize the <cite>people</cite> resource.</p>
+<div class="section" id="resource-item-endpoints">
+<span id="local"></span><h3>Resource / Item Endpoints<a class="headerlink" href="#resource-item-endpoints" title="Permalink to this headline">¶</a></h3>
+<p>Endpoint customization is mostly done by overriding some <a class="reference internal" href="#global"><em>global settings</em></a>, but other unique settings are also available. Resource settings are
+always lowercase.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">url</span></tt></td>
+<td>The endpoint URL. If omitted, the resource key
+of the <tt class="docutils literal"><span class="pre">DOMAIN</span></tt> dict will be used to build
+the URL. As an example, <tt class="docutils literal"><span class="pre">contacts</span></tt> would make the
+<cite>people</cite> resource available at <tt class="docutils literal"><span class="pre">/contacts/</span></tt> (instead of <tt class="docutils literal"><span class="pre">/people/</span></tt>).</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">filters</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">True</span></tt> if filters are enabled, <tt class="docutils literal"><span class="pre">False</span></tt>
+otherwise. Locally overrides <tt class="docutils literal"><span class="pre">FILTERS</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">sorting</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">True</span></tt> if sorting is enabled, <tt class="docutils literal"><span class="pre">False</span></tt>
+otherwise. Locally ovverrides <tt class="docutils literal"><span class="pre">SORTING</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">pagination</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">True</span></tt> if pagination is enabled, <tt class="docutils literal"><span class="pre">False</span></tt>
+otherwise. Locally overrides <tt class="docutils literal"><span class="pre">PAGINATION</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">methods</span></tt></td>
+<td>A list of HTTP methods supported at resource
+endpoint. Allowed values: <tt class="docutils literal"><span class="pre">GET</span></tt>, <tt class="docutils literal"><span class="pre">POST</span></tt>,
+<tt class="docutils literal"><span class="pre">DELETE</span></tt>. Locally overrides
+<tt class="docutils literal"><span class="pre">RESOURCE_METHODS</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">public_methods</span></tt></td>
+<td>A list of HTTP methods supported at resource
+endpoint, open to public access even when
+<a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a> is enabled. Locally overrides
+<tt class="docutils literal"><span class="pre">PUBLIC_METHODS</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">item_methods</span></tt></td>
+<td>A list of HTTP methods supported at item
+endpoint. Allowed values: <tt class="docutils literal"><span class="pre">GET</span></tt>, <tt class="docutils literal"><span class="pre">PATCH</span></tt>
+and <tt class="docutils literal"><span class="pre">DELETE</span></tt>. <tt class="docutils literal"><span class="pre">PATCH</span></tt> or, for clients not
+supporting PATCH, <tt class="docutils literal"><span class="pre">POST</span></tt> with the
+<tt class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></tt> header tag.
+Locally overrides <tt class="docutils literal"><span class="pre">ITEM_METHODS</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">public_item_methods</span></tt></td>
+<td>A list of HTTP methods supported at item
+endpoint, left open to public access when when
+<a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a> is enabled. Locally overrides
+<tt class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">allowed_roles</span></tt></td>
+<td>A list of allowed <cite>roles</cite> for resource
+endpoint. See <a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a> for more
+informations. Locally overrides
+<tt class="docutils literal"><span class="pre">ALLOWED_ROLES</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">allowed_item_roles</span></tt></td>
+<td>A list of allowed <cite>roles</cite> for item endpoint.
+See <a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a> for more informations.
+Locally overrides <tt class="docutils literal"><span class="pre">ALLOWED_ITEM_ROLES</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">cache_control</span></tt></td>
+<td>Value of the <tt class="docutils literal"><span class="pre">Cache-Control</span></tt> header field
+used when serving <tt class="docutils literal"><span class="pre">GET</span></tt> requests. Leave empty
+if you don&#8217;t want to include cache directives
+with API responses. Locally overrides
+<tt class="docutils literal"><span class="pre">CACHE_CONTROL</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">cache_expires</span></tt></td>
+<td>Value (in seconds) of the <tt class="docutils literal"><span class="pre">Expires</span></tt> header
+field used when serving <tt class="docutils literal"><span class="pre">GET</span></tt> requests. If
+set to a non-zero value, the header will
+always be included, regardless of the setting
+of <tt class="docutils literal"><span class="pre">CACHE_CONTROL</span></tt>. Locally overrides
+<tt class="docutils literal"><span class="pre">CACHE_EXPIRES</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">item_lookup</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">True</span></tt> if item endpoint should be available,
+<tt class="docutils literal"><span class="pre">False</span></tt> otherwise. Locally overrides
+<tt class="docutils literal"><span class="pre">ITEM_LOOKUP</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">item_lookup_field</span></tt></td>
+<td>Field used when looking up a resource
+item. Locally overrides <tt class="docutils literal"><span class="pre">ITEM_LOOKUP_FIELD</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">item_url</span></tt></td>
+<td>RegEx used to construct item endpoint URL.
+Locally overrides <tt class="docutils literal"><span class="pre">ITEM_URL</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">item_title</span></tt></td>
+<td>Title to be used when building item references,
+both in XML and JSON responses. Overrides
+<tt class="docutils literal"><span class="pre">ITEM_TITLE</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">additional_lookup</span></tt></td>
+<td>RegEx defining and additional, custom read-only item
+endpoint. See the example below.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">datasource</span></tt></td>
+<td>Explicitly links API resources to database
+collections, allowing for some <a class="reference internal" href="#advanced-datasource-patterns">Advanced
+Datasource Patterns</a>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
+<td>A dict defining the actual data structure being
+handled by the resource. Enables data
+validation. See <a class="reference internal" href="#schema-definition">Schema Definition</a>.</td>
+</tr>
+</tbody>
+</table>
+<p>Here&#8217;s an example of resource customization, mostly done by overriding global
+API settings:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c"># &#39;title&#39; tag used in item links. Defaults to the resource title minus</span>
+    <span class="c"># the final, plural &#39;s&#39; (works fine in most cases but not for &#39;people&#39;)</span>
+    <span class="s">&#39;item_title&#39;</span><span class="p">:</span> <span class="s">&#39;person&#39;</span><span class="p">,</span>
+
+    <span class="c"># by default the standard item entry point is defined as</span>
+    <span class="c"># &#39;/people/&lt;ObjectId&gt;/&#39;. We leave it untouched, and we also enable an</span>
+    <span class="c"># additional read-only entry point. This way consumers can also perform</span>
+    <span class="c"># GET requests at &#39;/people/&lt;lastname&gt;/&#39;.</span>
+    <span class="s">&#39;additional_lookup&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;[\w]+&#39;</span><span class="p">,</span>
+        <span class="s">&#39;field&#39;</span><span class="p">:</span> <span class="s">&#39;lastname&#39;</span>
+    <span class="p">},</span>
+
+    <span class="c"># We choose to override global cache-control directives for this resource.</span>
+    <span class="s">&#39;cache_control&#39;</span><span class="p">:</span> <span class="s">&#39;max-age=10,must-revalidate&#39;</span><span class="p">,</span>
+    <span class="s">&#39;cache_expires&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+
+    <span class="c"># we only allow GET and POST at this resource endpoint.</span>
+    <span class="s">&#39;resource_methods&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">],</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="schema-definition">
+<span id="schema"></span><h3>Schema Definition<a class="headerlink" href="#schema-definition" title="Permalink to this headline">¶</a></h3>
+<p>Unless your API is read-only you probably want to define resource <cite>schemas</cite>.
+Schemas are important because they enable proper validation for incoming
+streams.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># &#39;people&#39; schema definition</span>
+<span class="s">&#39;schema&#39;</span><span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;firstname&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
+        <span class="s">&#39;minlength&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s">&#39;maxlength&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s">&#39;lastname&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
+        <span class="s">&#39;minlength&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s">&#39;maxlength&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+        <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s">&#39;unique&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="c"># &#39;role&#39; is a list, and can only contain values from &#39;allowed&#39;.</span>
+    <span class="s">&#39;role&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+        <span class="s">&#39;allowed&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;author&quot;</span><span class="p">,</span> <span class="s">&quot;contributor&quot;</span><span class="p">,</span> <span class="s">&quot;copy&quot;</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="c"># An embedded &#39;strongly-typed&#39; dictionary.</span>
+    <span class="s">&#39;location&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;dict&#39;</span><span class="p">,</span>
+        <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;address&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">},</span>
+            <span class="s">&#39;city&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">}</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s">&#39;born&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;datetime&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Schema syntax is based on <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> and yes, it can be extended.  In fact Eve
+itself is extending the original grammar by adding the <cite>unique</cite> keyword and the
+<tt class="docutils literal"><span class="pre">ObjectId</span></tt> datatype.  For more informations on schema syntax and custom
+validation see <a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a>.</p>
+<p>In <a class="reference internal" href="#local"><em>Resource / Item Endpoints</em></a> you customized the <cite>people</cite> endpoint. Then, in this section,
+you defined <cite>people</cite> validation rules. Now you are ready to update the domain
+which was originally set up in <a class="reference internal" href="#domain-configuration">Domain Configuration</a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># add the schema to the &#39;people&#39; resource definition</span>
+<span class="n">people</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">schema</span>
+<span class="c"># update the domain</span>
+<span class="n">DOMAIN</span><span class="p">[</span><span class="s">&#39;people&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">people</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="advanced-datasource-patterns">
+<h2>Advanced Datasource Patterns<a class="headerlink" href="#advanced-datasource-patterns" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="multiple-api-endpoints-one-datasource">
+<h3>Multiple API Endpoints, One Datasource<a class="headerlink" href="#multiple-api-endpoints-one-datasource" title="Permalink to this headline">¶</a></h3>
+<p>Multiple API endpoints can target the same database collection. For
+example you can set both <tt class="docutils literal"><span class="pre">/admins/</span></tt> and <tt class="docutils literal"><span class="pre">/users/</span></tt> to read and write from
+the same collection on the database, <cite>people</cite>.</p>
+<p>The <tt class="docutils literal"><span class="pre">datasource</span></tt> keyword allows to explicitly link API resources to
+database collections (if you omit it, the domain resource key is assumed to be
+the name of che database collection). It is a dictionary with two allowed keys:
+<cite>source</cite> and <cite>filter</cite>. <tt class="docutils literal"><span class="pre">source</span></tt> dictates the database collection consumed by
+the resource, while <tt class="docutils literal"><span class="pre">filter</span></tt> is the underlying query applied by the API when
+retrieving and validating data for the resource.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;source&#39;</span><span class="p">:</span> <span class="s">&#39;people&#39;</span><span class="p">,</span>
+        <span class="s">&#39;filter&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;userlevel&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>The above setting will retrieve, edit and delete only documents from the
+<cite>people</cite> collection with a <cite>userlevel</cite> of 1.</p>
+</div>
+<div class="section" id="predefined-database-filters">
+<h3>Predefined Database Filters<a class="headerlink" href="#predefined-database-filters" title="Permalink to this headline">¶</a></h3>
+<p>By using the <tt class="docutils literal"><span class="pre">datasource</span></tt> resource keyword it is also possibile to set
+predefined database filters.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;filter&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;$exists&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>In the example above the API endpoint will only expose and update documents
+with an existent <cite>username</cite> field.</p>
+<p>Predefined filters run on top of user queries (GET requests with <cite>where</cite>
+clauses) and standard conditional requests (<cite>If-Modified-Since</cite>, etc.)</p>
+<p>Please note that datasource filters are applied on GET, PATCH and DELETE
+requests. If your resource allows POST requests (document insertions),
+then you will probably want to set the validation rules accordingly (in our
+example, &#8216;username&#8217; should probably be a required field).</p>
 </div>
 </div>
 </div>
@@ -370,8 +619,16 @@ instance as needed.  Consider the following example, taken directly from the
 </ul>
 </li>
 <li><a class="reference internal" href="#global-configuration">Global Configuration</a></li>
-<li><a class="reference internal" href="#domain-configuration">Domain Configuration</a></li>
-<li><a class="reference internal" href="#dynamic-configuration-loading">Dynamic Configuration Loading</a></li>
+<li><a class="reference internal" href="#domain-configuration">Domain Configuration</a><ul>
+<li><a class="reference internal" href="#resource-item-endpoints">Resource / Item Endpoints</a></li>
+<li><a class="reference internal" href="#schema-definition">Schema Definition</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#advanced-datasource-patterns">Advanced Datasource Patterns</a><ul>
+<li><a class="reference internal" href="#multiple-api-endpoints-one-datasource">Multiple API Endpoints, One Datasource</a></li>
+<li><a class="reference internal" href="#predefined-database-filters">Predefined Database Filters</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
