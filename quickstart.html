@@ -186,38 +186,36 @@ Let&#8217;s define a schema for our <cite>people</cite> resource.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">schema</span> <span class="o">=</span> <span class="p">{</span>
     <span class="c"># Schema definition, based on Cerberus grammar. Check the Cerberus project</span>
     <span class="c"># (https://github.com/nicolaiarocci/cerberus) for details.</span>
-    <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;firstname&#39;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
-            <span class="s">&#39;minlength&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s">&#39;maxlength&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="s">&#39;firstname&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
+        <span class="s">&#39;minlength&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s">&#39;maxlength&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s">&#39;lastname&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
+        <span class="s">&#39;minlength&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s">&#39;maxlength&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+        <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="c"># talk about hard constraints! For the purpose of the demo</span>
+        <span class="c"># &#39;lastname&#39; is an API entry-point, so we need it to be unique.</span>
+        <span class="s">&#39;unique&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="c"># &#39;role&#39; is a list, and can only contain values from &#39;allowed&#39;.</span>
+    <span class="s">&#39;role&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+        <span class="s">&#39;allowed&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;author&quot;</span><span class="p">,</span> <span class="s">&quot;contributor&quot;</span><span class="p">,</span> <span class="s">&quot;copy&quot;</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="c"># An embedded &#39;strongly-typed&#39; dictionary.</span>
+    <span class="s">&#39;location&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;dict&#39;</span><span class="p">,</span>
+        <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;address&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">},</span>
+            <span class="s">&#39;city&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">}</span>
         <span class="p">},</span>
-        <span class="s">&#39;lastname&#39;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
-            <span class="s">&#39;minlength&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s">&#39;maxlength&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
-            <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-            <span class="c"># talk about hard constraints! For the purpose of the demo</span>
-            <span class="c"># &#39;lastname&#39; is an API entry-point, so we need it to be unique.</span>
-            <span class="s">&#39;unique&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="c"># &#39;role&#39; is a list, and can only contain values from &#39;allowed&#39;.</span>
-        <span class="s">&#39;role&#39;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
-            <span class="s">&#39;allowed&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;author&quot;</span><span class="p">,</span> <span class="s">&quot;contributor&quot;</span><span class="p">,</span> <span class="s">&quot;copy&quot;</span><span class="p">],</span>
-        <span class="p">},</span>
-        <span class="c"># An embedded &#39;strongly-typed&#39; dictionary.</span>
-        <span class="s">&#39;location&#39;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;dict&#39;</span><span class="p">,</span>
-            <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s">&#39;address&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">},</span>
-                <span class="s">&#39;city&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">}</span>
-            <span class="p">},</span>
-        <span class="p">},</span>
-        <span class="s">&#39;born&#39;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;datetime&#39;</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s">&#39;born&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;datetime&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
 <span class="p">}</span>
 </pre></div>
 </div>
