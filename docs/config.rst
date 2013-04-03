@@ -444,7 +444,7 @@ the same collection on the database, `people`.
 
 The ``datasource`` keyword allows to explicitly link API resources to
 database collections (if you omit it, the domain resource key is assumed to be
-the name of che database collection). It is a dictionary with two allowed keys:
+the name of the database collection). It is a dictionary with two allowed keys:
 `source` and `filter`. ``source`` dictates the database collection consumed by
 the resource, while ``filter`` is the underlying query applied by the API when
 retrieving and validating data for the resource.  
