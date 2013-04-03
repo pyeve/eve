@@ -47,5 +47,7 @@ ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
 ITEM_URL = '[a-f0-9]{24}'
 
+AUTH_USERNAME_FIELD = None      # Restrict API to user resources
+
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"
