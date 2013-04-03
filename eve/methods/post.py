@@ -58,8 +58,10 @@ def post(resource):
                 document[config.LAST_UPDATED] = \
                     document[config.DATE_CREATED] = date_utc
 
-                if app.custom_data:
-                    document.update(app.custom_data())
+                resource_user_restricted = app.config['DOMAIN'][resource].get('user_restricted')
+                if (app.config['AUTH_USERNAME_FIELD'] or resource_user_restricted)\
+                        and resource_user_restricted is not False:
+                    document.update(app.auth.username_field())
 
                 document[config.ID_FIELD] = app.data.insert(resource, document)
 

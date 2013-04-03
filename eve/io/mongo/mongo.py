@@ -84,9 +84,6 @@ class Mongo(DataLayer):
                 except ParseError:
                     abort(400)
 
-        if app.custom_data:
-            spec.update(app.custom_data())
-
         datasource, spec = self._datasource_ex(resource, spec)
 
         if req.if_modified_since:
@@ -123,7 +120,7 @@ class Mongo(DataLayer):
            retrieves the target collection via the new config.SOURCES helper.
         """
         datasource, filter_ = self._datasource_ex(resource)
-        return  self.driver.db[datasource].insert(document)
+        return self.driver.db[datasource].insert(document)
 
     def update(self, resource, id_, updates):
         """Updates a collection document.
@@ -179,4 +176,11 @@ class Mongo(DataLayer):
                 query.update(filter_)
             else:
                 query = filter_
+
+        if query is not None:
+            resource_user_restricted = app.config['DOMAIN'][resource].get('user_restricted')
+            if (app.config['AUTH_USERNAME_FIELD'] or resource_user_restricted)\
+                    and resource_user_restricted is not False:
+                query.update(app.auth.username_field())
+
         return datasource, query
