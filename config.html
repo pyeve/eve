@@ -296,26 +296,36 @@ resource name, with the plural &#8216;s&#8217; stripped if
 present. Can and most likely will be overriden
 when configuring single resource endpoints.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DEBUG</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">AUTH_USERNAME_FIELD</span></tt></td>
+<td>Works in conjunction with <a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a>. When
+enabled users can only read/update/delete
+resource items created by themselves. The
+keyword contains the actual name of the field
+used to store the username of the user who
+created the resource item. Can be overwritten
+by resource settings. Defaults to <tt class="docutils literal"><span class="pre">''</span></tt>, which
+disables the feature.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DEBUG</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> to enable Debug Mode, <tt class="docutils literal"><span class="pre">False</span></tt>
 otherwise.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt></td>
 <td>MongoDB server address.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_PORT</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_PORT</span></tt></td>
 <td>MongoDB port.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_USERNAME</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_USERNAME</span></tt></td>
 <td>MongoDB user name.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_PASSWORD</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_PASSWORD</span></tt></td>
 <td>MongoDB password.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt></td>
 <td>MongoDB database name.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
 <td>A dict holding the API domain definition.
 See <a class="reference internal" href="#domain-configuration">Domain Configuration</a>.</td>
 </tr>
@@ -445,7 +455,16 @@ endpoint. See the example below.</td>
 collections, allowing for some <a class="reference internal" href="#advanced-datasource-patterns">Advanced
 Datasource Patterns</a>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">auth_username_field</span></tt></td>
+<td>Works in conjunction with <a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a>. When
+enabled users can only read/update/delete
+resource items created by themselves. The
+keyword contains the actual name of the field
+used to store the username of the user who
+created the resource item. Locally overrides
+<tt class="docutils literal"><span class="pre">AUTH_USERNAME_FIELD</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
 <td>A dict defining the actual data structure being
 handled by the resource. Enables data
 validation. See <a class="reference internal" href="#schema-definition">Schema Definition</a>.</td>
