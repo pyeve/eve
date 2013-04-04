@@ -217,6 +217,15 @@ uppercase.
                                 present. Can and most likely will be overriden 
                                 when configuring single resource endpoints.
 
+``AUTH_USERNAME_FIELD``         Works in conjunction with :ref:`auth`. When 
+                                enabled users can only read/update/delete
+                                resource items created by themselves. The
+                                keyword contains the actual name of the field
+                                used to store the username of the user who
+                                created the resource item. Can be overwritten 
+                                by resource settings. Defaults to ``''``, which 
+                                disables the feature. 
+
 ``DEBUG``                       ``True`` to enable Debug Mode, ``False``
                                 otherwise. 
 
@@ -343,6 +352,14 @@ always lowercase.
 ``datasource``                  Explicitly links API resources to database 
                                 collections, allowing for some `Advanced
                                 Datasource Patterns`_. 
+
+``auth_username_field``         Works in conjunction with :ref:`auth`. When 
+                                enabled users can only read/update/delete
+                                resource items created by themselves. The
+                                keyword contains the actual name of the field
+                                used to store the username of the user who
+                                created the resource item. Locally overrides 
+                                ``AUTH_USERNAME_FIELD``.
 
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data

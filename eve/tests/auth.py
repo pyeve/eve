@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import eve
+import json
 from eve import Eve
 from eve.auth import BasicAuth, TokenAuth, HMACAuth
 from eve.tests import TestMethodsBase
@@ -228,3 +229,84 @@ class TestHMACAuth(TestBasicAuth):
     def test_rfc2617_response(self):
         r = self.test_client.get('/')
         self.assert401(r.status_code)
+
+
+class TestUserRestrictedAccess(TestMethodsBase):
+    def setUp(self):
+        super(TestUserRestrictedAccess, self).setUp()
+        self.app = Eve(settings=self.settings_file, auth=ValidBasicAuth)
+        self.test_client = self.app.test_client()
+        self.valid_auth = [('Authorization', 'Basic YWRtaW46c2VjcmV0')]
+        self.invalid_auth = [('Authorization', 'Basic IDontThinkSo')]
+        self.field_name = 'auth_username_field'
+        self.data = {'item1': json.dumps({"ref": "0123456789123456789012345"})}
+        for resource, schema in self.app.config['DOMAIN'].items():
+            schema[self.field_name] = 'username'
+
+    def test_post(self):
+        response, status = self.post()
+        self.assert200(status)
+        data, status = self.parse_response(
+            self.test_client.get(self.known_resource_url,
+                                 headers=self.valid_auth))
+        self.assert200(status)
+        # len of 1 as there are is only 1 doc saved by user
+        self.assertEqual(len(data['_items']), 1)
+        # 'username' has been stripped out from response payload
+        self.assertTrue('username' not in data['_items'][0])
+
+        self.app.config['DOMAIN'][self.known_resource][self.field_name] = ''
+        data, status = self.parse_response(
+            self.test_client.get(self.known_resource_url,
+                                 headers=self.valid_auth))
+        self.assert200(status)
+        # this time we don't have user restricted enabled, so username is
+        # included with the payload
+        self.assertTrue('username' in data['_items'][0])
+
+    def test_patch(self):
+        changes = {"ref": "9999999999999999999999999"}
+        data, status = self.post()
+        url = '%s%s/' % (self.known_resource_url, data['item1']['_id'])
+        response = self.test_client.get(url, headers=self.valid_auth)
+        etag = response.headers['ETag']
+        headers = [('If-Match', etag),
+                   ('Content-Type', 'application/x-www-form-urlencoded'),
+                   ('Authorization', 'Basic YWRtaW46c2VjcmV0')]
+        response, status = self.parse_response(
+            self.test_client.patch(url, data={'item1': json.dumps(changes)},
+                                   headers=headers))
+        self.assert200(status)
+
+        data, status = self.parse_response(
+            self.test_client.get(url, headers=self.valid_auth))
+        self.assert200(status)
+        # 'username' has been stripped out from response payload
+        self.assertTrue('username' not in data)
+
+        self.app.config['DOMAIN'][self.known_resource][self.field_name] = ''
+        data, status = self.parse_response(
+            self.test_client.get(url, headers=self.valid_auth))
+        self.assert200(status)
+        # this time we don't have user restricted enabled, so username is
+        # included with the payload
+        self.assertTrue('username' in data)
+
+    def test_delete(self):
+        data, status = self.post()
+        url = '%s%s/' % (self.known_resource_url, data['item1']['_id'])
+        response = self.test_client.get(url, headers=self.valid_auth)
+        etag = response.headers['ETag']
+        headers = [('If-Match', etag),
+                   ('Authorization', 'Basic YWRtaW46c2VjcmV0')]
+        response, status = self.parse_response(
+            self.test_client.delete(url, headers=headers))
+        self.assert200(status)
+
+    def post(self):
+        headers = [('Content-Type', 'application/x-www-form-urlencoded'),
+                   ('Authorization', 'Basic YWRtaW46c2VjcmV0')]
+        r = self.test_client.post(self.known_resource_url,
+                                  data=self.data,
+                                  headers=headers)
+        return self.parse_response(r)
