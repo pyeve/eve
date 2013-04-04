@@ -12,7 +12,7 @@
 
 import ast
 import simplejson as json
-from flask import abort
+from flask import current_app as app, abort
 from flask.ext.pymongo import PyMongo
 from datetime import datetime
 from bson import ObjectId
@@ -120,7 +120,7 @@ class Mongo(DataLayer):
            retrieves the target collection via the new config.SOURCES helper.
         """
         datasource, filter_ = self._datasource_ex(resource)
-        return  self.driver.db[datasource].insert(document)
+        return self.driver.db[datasource].insert(document)
 
     def update(self, resource, id_, updates):
         """Updates a collection document.
@@ -176,4 +176,11 @@ class Mongo(DataLayer):
                 query.update(filter_)
             else:
                 query = filter_
+
+        if query is not None:
+            resource_user_restricted = app.config['DOMAIN'][resource].get('user_restricted')
+            if (app.config['AUTH_USERNAME_FIELD'] or resource_user_restricted)\
+                    and resource_user_restricted is not False:
+                query.update(app.auth.username_field())
+
         return datasource, query
