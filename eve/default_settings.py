@@ -12,6 +12,8 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.0.5
+       'AUTH_USERNAME_FIELD' keyword added to support 'user-restricted resource
+       access.
        'X_DOMAIN' keyword added to support Cross-Origin Resource Sharing CORS
 """
 #DEBUG = True
@@ -47,7 +49,8 @@ ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
 ITEM_URL = '[a-f0-9]{24}'
 
-AUTH_USERNAME_FIELD = None      # Restrict API to user resources
+AUTH_USERNAME_FIELD = ''        # user-restricted resource access is disabled
+                                # by default.
 
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"

@@ -34,6 +34,7 @@ def get(resource):
     :param resource: the name of the resource.
 
     .. versionchanged:: 0.0.5
+       Support for user-restricted access to resources.
        Support for LAST_UPDATED field missing from documents, because they were
        created outside the API context.
 
@@ -64,6 +65,8 @@ def get(resource):
         document['_links'] = {'self': document_link(resource,
                                                     document[config.ID_FIELD])}
 
+        _strip_username(document, resource)
+
         documents.append(document)
 
     if req.if_modified_since and len(documents) == 0:
@@ -90,6 +93,7 @@ def getitem(resource, **lookup):
     :param **lookup: the lookup query.
 
     .. versionchanged:: 0.0.5
+       Support for user-restricted access to resources.
        Support for LAST_UPDATED field missing from documents, because they were
        created outside the API context.
 
@@ -111,6 +115,8 @@ def getitem(resource, **lookup):
         last_modified = document[config.LAST_UPDATED] = _last_updated(document)
         etag = document_etag(document)
 
+        _strip_username(document, resource)
+
         if req.if_none_match and etag == req.if_none_match:
             # request etag matches the current server representation of the
             # document, return a 304 Not-Modified.
@@ -131,6 +137,18 @@ def getitem(resource, **lookup):
         return response, last_modified, etag, 200
 
     abort(404)
+
+
+def _strip_username(document, resource):
+        """If 'user-restricted resource access' is enabled and there's
+        an Auth request active, strim the username out of the document
+
+        .. versionadded:: 0.0.5
+        """
+        username_field = app.config['DOMAIN'][resource]['auth_username_field']
+        if username_field:
+            document.pop(username_field, None)
+        return document
 
 
 def _pagination_links(resource, req, documents_count):

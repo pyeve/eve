@@ -255,6 +255,7 @@ class Eve(Flask):
         or global configuration settings.
 
         .. versionchanged:: 0.0.5
+           'auth_username_field'
            'filters',
            'sorting',
            'pagination'.
@@ -299,6 +300,8 @@ class Eve(Flask):
             else:
                 item_methods = eve.ITEM_METHODS
             settings.setdefault('item_methods', item_methods)
+            settings.setdefault('auth_username_field',
+                                self.config['AUTH_USERNAME_FIELD'])
 
             datasource = {}
             settings.setdefault('datasource', datasource)

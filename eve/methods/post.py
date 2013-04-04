@@ -30,6 +30,9 @@ def post(resource):
 
     :param resource: name of the resource involved.
 
+    .. versionchanged:: 0.0.5
+       Support for 'user-restricted resource access'
+
     .. versionchanged:: 0.0.4
        Added the ``reqiores_auth`` decorator.
 
@@ -58,10 +61,12 @@ def post(resource):
                 document[config.LAST_UPDATED] = \
                     document[config.DATE_CREATED] = date_utc
 
-                resource_user_restricted = app.config['DOMAIN'][resource].get('user_restricted')
-                if (app.config['AUTH_USERNAME_FIELD'] or resource_user_restricted)\
-                        and resource_user_restricted is not False:
-                    document.update(app.auth.username_field())
+                # if 'user-restricted resource access' is enabled and there's
+                # an Auth request active, inject the username into the document
+                username_field = \
+                    app.config['DOMAIN'][resource]['auth_username_field']
+                if username_field and request.authorization:
+                    document[username_field] = request.authorization.username
 
                 document[config.ID_FIELD] = app.data.insert(resource, document)
 

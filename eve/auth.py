@@ -72,13 +72,6 @@ class BasicAuth(object):
         return auth and self.check_auth(auth.username, auth.password,
                                         allowed_roles)
 
-    def username_field(self):
-        """ Return the filter used to restrict user to only access its own
-        resources.
-        """
-        if app.config['AUTH_USERNAME_FIELD']:
-            return {app.config['AUTH_USERNAME_FIELD']: request.authorization.username}
-
 
 class HMACAuth(BasicAuth):
     """ Hash Message Authentication Code (HMAC) authentication logic. Must be

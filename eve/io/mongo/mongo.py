@@ -12,7 +12,7 @@
 
 import ast
 import simplejson as json
-from flask import current_app as app, abort
+from flask import abort, request
 from flask.ext.pymongo import PyMongo
 from datetime import datetime
 from bson import ObjectId
@@ -167,6 +167,9 @@ class Mongo(DataLayer):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to
 
+        .. versionchanged:: 0.0.5
+           Support for 'user-restricted resource access'.
+
         .. versionadded:: 0.0.4
         """
 
@@ -177,10 +180,10 @@ class Mongo(DataLayer):
             else:
                 query = filter_
 
-        if query is not None:
-            resource_user_restricted = app.config['DOMAIN'][resource].get('user_restricted')
-            if (app.config['AUTH_USERNAME_FIELD'] or resource_user_restricted)\
-                    and resource_user_restricted is not False:
-                query.update(app.auth.username_field())
+        # if 'user-restricted resource access' is enabled and there's an Auth
+        # request active, add the username field to the query
+        username_field = config.DOMAIN[resource].get('auth_username_field')
+        if username_field and request.authorization and query:
+            query.update({username_field: request.authorization.username})
 
         return datasource, query
