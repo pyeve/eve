@@ -8,6 +8,15 @@ Version 0.0.5
 
 Not released yet.
 
+- User-restricted resource access. Works in conjunction with Authentication.
+  When enabled, users can only read/update/delete resource items created by
+  themselves. Can be switched on and off at global level via the
+  AUTH_USERFIELD_NAME keywork, or at single resource endpoints with the
+  user_userfield_name keyword (the latter will override the former). The
+  keyword contains the actual name of the field used to store the username of
+  the user who created the resource item. Defaults to '', which disables the
+  feature (Thomas Sileo).
+
 - PAGING_LIMIT keyword setting renamed to PAGINATION_LIMIT for better coherency
   with the new PAGINATION keyword. This could break backward compatibility in
   some cases.
