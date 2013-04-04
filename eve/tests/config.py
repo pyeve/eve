@@ -152,6 +152,9 @@ class TestConfig(TestBase):
         self.assertEqual(settings['filters'], self.app.config['FILTERS'])
         self.assertEqual(settings['sorting'], self.app.config['SORTING'])
         self.assertEqual(settings['pagination'], self.app.config['PAGINATION'])
+        self.assertEqual(settings['auth_username_field'],
+                         self.app.config['AUTH_USERNAME_FIELD'])
+
         self.assertNotEqual(settings['schema'], None)
         self.assertEqual(type(settings['schema']), dict)
         self.assertEqual(len(settings['schema']), 0)
