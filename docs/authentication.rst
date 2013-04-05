@@ -11,7 +11,7 @@ Authentication is one of those areas where customization is very important.
 This is why you are provided with a handful of base authorization classes. They
 should be subclassed in order to implement custom logic. As you will see in the
 code snippets below, no matter which authentication scheme you pick, the only
-thing that you need to do is override the ``check_auth()`` method. Rhen you
+thing that you need to do is override the ``check_auth()`` method. When you
 instantiate the Eve app, you pass your custom class, like this:
 
 ::
