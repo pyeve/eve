@@ -243,6 +243,8 @@ uppercase.
                                 See `Domain Configuration`_.
 =============================== =========================================
 
+.. _domain:
+
 Domain Configuration
 --------------------
 In Eve terminology `domain` is the definition of the API structure, the area
@@ -453,6 +455,30 @@ which was originally set up in `Domain Configuration`_:
 
 Advanced Datasource Patterns
 ----------------------------
+Predefined Database Filters
+'''''''''''''''''''''''''''
+By using the ``datasource`` resource keyword it is possibile to set predefined
+database filters. 
+
+::
+
+    people = {
+        'datasource': {
+            'filter': {'username': {'$exists': True}}
+            }
+        }
+  
+In the example above the API endpoint will only expose and update documents
+with an existent `username` field.
+
+Predefined filters run on top of user queries (GET requests with `where`
+clauses) and standard conditional requests (`If-Modified-Since`, etc.)
+
+Please note that datasource filters are applied on GET, PATCH and DELETE
+requests. If your resource allows POST requests (document insertions),
+then you will probably want to set the validation rules accordingly (in our
+example, 'username' should probably be a required field).
+
 Multiple API Endpoints, One Datasource
 ''''''''''''''''''''''''''''''''''''''
 Multiple API endpoints can target the same database collection. For
@@ -477,29 +503,5 @@ retrieving and validating data for the resource.
 
 The above setting will retrieve, edit and delete only documents from the
 `people` collection with a `userlevel` of 1.
-
-Predefined Database Filters
-'''''''''''''''''''''''''''
-By using the ``datasource`` resource keyword it is also possibile to set
-predefined database filters. 
-
-::
-
-    people = {
-        'datasource': {
-            'filter': {'username': {'$exists': True}}
-            }
-        }
-  
-In the example above the API endpoint will only expose and update documents
-with an existent `username` field.
-
-Predefined filters run on top of user queries (GET requests with `where`
-clauses) and standard conditional requests (`If-Modified-Since`, etc.)
-
-Please note that datasource filters are applied on GET, PATCH and DELETE
-requests. If your resource allows POST requests (document insertions),
-then you will probably want to set the validation rules accordingly (in our
-example, 'username' should probably be a required field).
 
 .. _Cerberus: http://cerberus.readthedocs.org
