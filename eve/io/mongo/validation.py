@@ -19,6 +19,8 @@ from flask import current_app as app
 from cerberus import Validator
 from cerberus.errors import ERROR_BAD_TYPE
 
+ERROR_BAD_RESOURCE_LINK = "'%s' must be an ObjectID of an item of type %s"
+ERROR_INVALID_RESOURCE_LINK = "'%s' is not a recognized resource"
 
 class Validator(Validator):
     """ A cerberus.Validator subclass adding the `unique` contraint to
@@ -65,12 +67,31 @@ class Validator(Validator):
                             (value, field))
 
     def _validate_type_objectid(self, field, value):
-        """ Enables validation for `objectid` schema attribute.
+        """ Enables validation for `objectid` type.
 
-        :param unique: Boolean, wether the field value should be
-                       unique or not.
         :param field: field name.
         :param value: field value.
         """
         if not re.match('[a-f0-9]{24}', value):
             self._error(ERROR_BAD_TYPE % (field, 'ObjectId'))
+
+    def _validate_resource(self, resource_name, field, value):
+        """ Enables validation for `resource` schema attribute.
+
+        :param resource_type: the referenced resource
+        :param field: field name.
+        :param value: field value.
+        """
+
+        print resource_name
+        print config.DOMAIN
+        print [resource for resource in config.DOMAIN]
+        print [(config.DOMAIN[resource]['item_title'].lower(), resource) for resource in config.DOMAIN]
+
+        query = {config.ID_FIELD: ObjectId(value)}
+        item_names = dict([(config.DOMAIN[resource]['item_title'].lower(), resource) for resource in config.DOMAIN])
+
+        if resource_name not in item_names:
+            self._error(ERROR_INVALID_RESOURCE_LINK % (resource_name,))
+        elif not app.data.find_one(item_names[resource_name],**query):
+            self._error(ERROR_BAD_RESOURCE_LINK % (field, resource_name))
