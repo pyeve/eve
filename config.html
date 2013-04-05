@@ -333,7 +333,7 @@ See <a class="reference internal" href="#domain-configuration">Domain Configurat
 </table>
 </div>
 <div class="section" id="domain-configuration">
-<h2>Domain Configuration<a class="headerlink" href="#domain-configuration" title="Permalink to this headline">¶</a></h2>
+<span id="domain"></span><h2>Domain Configuration<a class="headerlink" href="#domain-configuration" title="Permalink to this headline">¶</a></h2>
 <p>In Eve terminology <cite>domain</cite> is the definition of the API structure, the area
 where you design your API, fine-tune resources endpoints, and define validation
 rules.</p>
@@ -552,6 +552,26 @@ which was originally set up in <a class="reference internal" href="#domain-confi
 </div>
 <div class="section" id="advanced-datasource-patterns">
 <h2>Advanced Datasource Patterns<a class="headerlink" href="#advanced-datasource-patterns" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="predefined-database-filters">
+<h3>Predefined Database Filters<a class="headerlink" href="#predefined-database-filters" title="Permalink to this headline">¶</a></h3>
+<p>By using the <tt class="docutils literal"><span class="pre">datasource</span></tt> resource keyword it is possibile to set predefined
+database filters.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;filter&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;$exists&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>In the example above the API endpoint will only expose and update documents
+with an existent <cite>username</cite> field.</p>
+<p>Predefined filters run on top of user queries (GET requests with <cite>where</cite>
+clauses) and standard conditional requests (<cite>If-Modified-Since</cite>, etc.)</p>
+<p>Please note that datasource filters are applied on GET, PATCH and DELETE
+requests. If your resource allows POST requests (document insertions),
+then you will probably want to set the validation rules accordingly (in our
+example, &#8216;username&#8217; should probably be a required field).</p>
+</div>
 <div class="section" id="multiple-api-endpoints-one-datasource">
 <h3>Multiple API Endpoints, One Datasource<a class="headerlink" href="#multiple-api-endpoints-one-datasource" title="Permalink to this headline">¶</a></h3>
 <p>Multiple API endpoints can target the same database collection. For
@@ -573,26 +593,6 @@ retrieving and validating data for the resource.</p>
 </div>
 <p>The above setting will retrieve, edit and delete only documents from the
 <cite>people</cite> collection with a <cite>userlevel</cite> of 1.</p>
-</div>
-<div class="section" id="predefined-database-filters">
-<h3>Predefined Database Filters<a class="headerlink" href="#predefined-database-filters" title="Permalink to this headline">¶</a></h3>
-<p>By using the <tt class="docutils literal"><span class="pre">datasource</span></tt> resource keyword it is also possibile to set
-predefined database filters.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;filter&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;$exists&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}}</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-</pre></div>
-</div>
-<p>In the example above the API endpoint will only expose and update documents
-with an existent <cite>username</cite> field.</p>
-<p>Predefined filters run on top of user queries (GET requests with <cite>where</cite>
-clauses) and standard conditional requests (<cite>If-Modified-Since</cite>, etc.)</p>
-<p>Please note that datasource filters are applied on GET, PATCH and DELETE
-requests. If your resource allows POST requests (document insertions),
-then you will probably want to set the validation rules accordingly (in our
-example, &#8216;username&#8217; should probably be a required field).</p>
 </div>
 </div>
 </div>
@@ -644,8 +644,8 @@ example, &#8216;username&#8217; should probably be a required field).</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#advanced-datasource-patterns">Advanced Datasource Patterns</a><ul>
-<li><a class="reference internal" href="#multiple-api-endpoints-one-datasource">Multiple API Endpoints, One Datasource</a></li>
 <li><a class="reference internal" href="#predefined-database-filters">Predefined Database Filters</a></li>
+<li><a class="reference internal" href="#multiple-api-endpoints-one-datasource">Multiple API Endpoints, One Datasource</a></li>
 </ul>
 </li>
 </ul>
