@@ -255,3 +255,21 @@ def document_etag(value):
     h = hashlib.sha1()
     h.update(dumps(value, sort_keys=True))
     return h.hexdigest()
+
+
+class ResourceHook(object):
+    """ Base class to create a resource hook."""
+    def __init__(self, document_id=None):
+        """ Called each time the API interact with the resource.
+        """
+        self.document_id = document_id
+
+    def get(self):
+        """ Called each GET request.
+        """
+        pass
+
+    def post(self):
+        """ Called each POST request.
+        """
+        pass

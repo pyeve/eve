@@ -69,6 +69,10 @@ def get(resource):
 
         documents.append(document)
 
+    resource_hook = app.config['DOMAIN'][resource]['resource_hook']
+    if resource_hook:
+        resource_hook().get()
+
     if req.if_modified_since and len(documents) == 0:
         # the if-modified-since conditional request returned no documents, we
         # send back a 304 Not-Modified, which means that the client already

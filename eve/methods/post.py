@@ -70,6 +70,10 @@ def post(resource):
 
                 document[config.ID_FIELD] = app.data.insert(resource, document)
 
+                resource_hook = app.config['DOMAIN'][resource]['resource_hook']
+                if resource_hook:
+                    resource_hook(document[config.ID_FIELD]).post()
+
                 response_item[config.ID_FIELD] = document[config.ID_FIELD]
                 response_item[config.LAST_UPDATED] = \
                     document[config.LAST_UPDATED]
