@@ -380,6 +380,16 @@ unless they are made explicitly public.
         app = Eve(auth=RolesAuth)
         app.run()
   
+User-Restricted Resource Access
+-------------------------------
+When enabled, authorized users can only read/update/delete items created by
+themselves. Can be switched on and off at global level via the
+``AUTH_USERFIELD_NAME`` keyword, or at resource endpoints with the
+``user_userfield_name`` keyword (the latter will override the former). The
+keyword contains the actual name of the field used to store the username of the
+user who created the resource item. Defaults to ``''``, which disables the
+feature.
+
 .. admonition:: Please note
 
     The snippets in this page can also be found in the `examples/security`
