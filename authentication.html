@@ -401,6 +401,16 @@ unless they are made explicitly public.</p>
     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="user-restricted-resource-access">
+<h2>User-Restricted Resource Access<a class="headerlink" href="#user-restricted-resource-access" title="Permalink to this headline">¶</a></h2>
+<p>When enabled, authorized users can only read/update/delete items created by
+themselves. Can be switched on and off at global level via the
+<tt class="docutils literal"><span class="pre">AUTH_USERFIELD_NAME</span></tt> keyword, or at resource endpoints with the
+<tt class="docutils literal"><span class="pre">user_userfield_name</span></tt> keyword (the latter will override the former). The
+keyword contains the actual name of the field used to store the username of the
+user who created the resource item. Defaults to <tt class="docutils literal"><span class="pre">''</span></tt>, which disables the
+feature.</p>
 <div class="admonition-please-note admonition">
 <p class="first admonition-title">Please note</p>
 <p class="last">The snippets in this page can also be found in the <cite>examples/security</cite>
@@ -459,6 +469,7 @@ folder of the Eve <a class="reference external" href="https://github.com/nicolai
 </ul>
 </li>
 <li><a class="reference internal" href="#role-based-access-control">Role Based Access Control</a></li>
+<li><a class="reference internal" href="#user-restricted-resource-access">User-Restricted Resource Access</a></li>
 </ul>
 </li>
 </ul>
