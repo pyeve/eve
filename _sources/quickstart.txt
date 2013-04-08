@@ -8,8 +8,8 @@ assumes that:
 
 - You already have Eve installed. If you do not, head over to the
   :ref:`install` section.
-- MongoDB is `installed <MongoDB install>`_. 
-- An instance of MongoDB is `running <mongod>`_.
+- MongoDB is installed_. 
+- An instance of MongoDB is running_.
 
 A Minimal Application
 ---------------------
@@ -282,5 +282,5 @@ a complete list of features available and more usage examples.
     live instance or locally (you can use the sample client app to populate
     and/or reset the database).
 
-.. _`MongoDB install`: http://docs.mongodb.org/manual/installation/
-.. _mongod: http://docs.mongodb.org/manual/tutorial/manage-mongodb-processes/
+.. _`installed`: http://docs.mongodb.org/manual/installation/
+.. _running: http://docs.mongodb.org/manual/tutorial/manage-mongodb-processes/
