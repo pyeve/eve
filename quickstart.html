@@ -270,7 +270,7 @@ file:</p>
 <p>We can also update and delete items (but not the whole resource since we
 disabled that). We can also perform GET requests against the new <cite>lastname</cite>
 endpoint:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://127.0.0.1:5000/people/Doe/
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://127.0.0.1:5000/people/obama/
 <span class="go">HTTP/1.0 200 OK</span>
 <span class="go">Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc</span>
 <span class="go">Last-Modified: Wed, 21 Nov 2012 16:04:56 UTC</span>
@@ -280,18 +280,15 @@ endpoint:</p>
 </pre></div>
 </div>
 <div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
-    <span class="s2">&quot;firstname&quot;</span><span class="o">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;lastname&quot;</span><span class="o">:</span> <span class="s2">&quot;Doe&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;born&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 27 Aug 1970 14:37:13 UTC&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;role&quot;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;author&quot;</span><span class="p">],</span>
-    <span class="s2">&quot;location&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;city&quot;</span><span class="o">:</span> <span class="s2">&quot;Auburn&quot;</span><span class="p">,</span> <span class="s2">&quot;address&quot;</span><span class="o">:</span> <span class="s2">&quot;422 South Gay Street&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;firstname&quot;</span><span class="o">:</span> <span class="s2">&quot;barack&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lastname&quot;</span><span class="o">:</span> <span class="s2">&quot;obama&quot;</span><span class="p">,</span>
     <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50acfba938345b0978fccad7&quot;</span>
     <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 21 Nov 2012 16:04:56 UTC&quot;</span><span class="p">,</span>
     <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 21 Nov 2012 16:04:56 UTC&quot;</span><span class="p">,</span>
     <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span>
         <span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;127.0.0.1/people/50acfba938345b0978fccad7/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">},</span>
         <span class="s2">&quot;parent&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;127.0.0.1/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;home&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;collection&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;http://127.0.0.1/people/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;people&quot;</span><span class="p">}</span>
+        <span class="s2">&quot;collection&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;127.0.0.1/people/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;people&quot;</span><span class="p">}</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
