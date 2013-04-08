@@ -202,6 +202,17 @@ class TestPatch(TestMethodsBase):
         else:
             return [r[field] for field in fields]
 
+    def test_patch_json(self):
+        field = "ref"
+        test_value = "1234567890123456789012345"
+        changes = {"key1": json.dumps({field: test_value})}
+        headers = [('If-Match', self.item_etag),
+                   ('Content-Type', 'application/json')]
+        r, status = self.parse_response(self.test_client.patch(
+            self.item_id_url, data=changes, headers=headers))
+        self.assert200(status)
+        self.assertTrue('OK' in r['key1']['status'])
+
     def assertPatchResponse(self, response, key, item_id):
         self.assertTrue(key in response)
         k = response[key]

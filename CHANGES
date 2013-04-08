@@ -8,6 +8,9 @@ Version 0.0.5
 
 Not released yet.
 
+- Support for `Content-Type: application/json¡ for POST and PATCH methods. 
+  Closes #28.
+
 - User-restricted resource access. Works in conjunction with Authentication.
   When enabled, users can only read/update/delete resource items created by
   themselves. Can be switched on and off at global level via the
