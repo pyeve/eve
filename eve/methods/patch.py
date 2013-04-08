@@ -13,8 +13,8 @@
 
 from flask import current_app as app
 from datetime import datetime
-from common import get_document, parse
-from flask import abort, request
+from common import get_document, parse, payload as payload_
+from flask import abort
 from eve.utils import document_etag, document_link, config
 from eve.auth import requires_auth
 from eve.validation import ValidationError
@@ -30,13 +30,17 @@ def patch(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
 
+    .. versionchanged:: 0.0.5
+        Support for 'aplication/json' Content-Type.
+
     .. versionchanged:: 0.0.4
        Added the ``requires_auth`` decorator.
 
     .. versionchanged:: 0.0.3
        JSON links. Superflous ``response`` container removed.
     """
-    if len(request.form) > 1 or len(request.form) == 0:
+    payload = payload_()
+    if len(payload) > 1:
         # only one update-per-document supported
         abort(400)
 
@@ -54,8 +58,8 @@ def patch(resource, **lookup):
 
     issues = []
 
-    key = request.form.keys()[0]
-    value = request.form[key]
+    key = payload.keys()[0]
+    value = payload[key]
 
     response_item = {}
 

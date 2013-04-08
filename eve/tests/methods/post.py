@@ -150,6 +150,15 @@ class TestPost(TestMethodsBase):
         self.assertPostResponse(r, valid_items)
         return r
 
+    def test_post_json(self):
+        test_field = "ref"
+        test_value = "1234567890123456789054321"
+        data = {"item1": json.dumps({test_field: test_value})}
+        r, status = self.post(self.known_resource_url, data=data,
+                              content_type='application/json')
+        self.assert200(status)
+        self.assertPostResponse(r, ["item1"])
+
     def assertPostResponse(self, response, keys):
         for key in keys:
             self.assertTrue(key in response)
@@ -177,9 +186,8 @@ class TestPost(TestMethodsBase):
         else:
             return item[fields]
 
-    def post(self, url, data, headers=[]):
-        headers.append(('Content-Type', 'application/x-www-form-urlencoded'))
-        r = self.test_client.post(url,
-                                  data=data,
-                                  headers=headers)
+    def post(self, url, data, headers=[],
+             content_type='application/x-www-form-urlencoded'):
+        headers.append(('Content-Type', content_type))
+        r = self.test_client.post(url, data=data, headers=headers)
         return self.parse_response(r)

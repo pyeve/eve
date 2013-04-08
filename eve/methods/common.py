@@ -54,12 +54,20 @@ def parse(value, resource):
     :param value: the string to be evaluated.
     :param resource: name of the involved resource.
 
+    .. versionchanged:: 0.0.5
+        Support for 'application/json' Content-Type.
+
     .. versionchanged:: 0.0.4
        When parsing POST requests, eventual default values are injected in
        parsed documents.
     """
 
-    document = json.loads(value)
+    try:
+        # assume it's not decoded to json yet (request Content-Type = form)
+        document = json.loads(value)
+    except:
+        # already a json
+        document = value
 
     # By design, dates are expressed as RFC-1123 strings. We convert them
     # to proper datetimes.
@@ -78,3 +86,19 @@ def parse(value, resource):
             document[missing_field] = schema[missing_field]['default']
 
     return document
+
+
+def payload():
+    """ Performs sanity checks or decoding depending on the Content-Type,
+    then keturns a the request payload as a dict. If request Content-Type is
+    unsupported, aborts with a 400 (Bad Request).
+
+    .. versionadded: 0.0.5
+    """
+    if request.headers['Content-Type'] == 'application/json':
+        return json.loads(request.data)
+    elif request.headers['Content-Type'] == \
+            'application/x-www-form-urlencoded':
+        return request.form if len(request.form) else abort(400)
+    else:
+        abort(400)

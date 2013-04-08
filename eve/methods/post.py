@@ -12,9 +12,9 @@
 """
 
 from datetime import datetime
-from flask import request, abort
+from flask import request
 from flask import current_app as app
-from common import parse
+from common import parse, payload
 from eve.utils import document_link, config
 from eve.auth import requires_auth
 from eve.validation import ValidationError
@@ -31,7 +31,8 @@ def post(resource):
     :param resource: name of the resource involved.
 
     .. versionchanged:: 0.0.5
-       Support for 'user-restricted resource access'
+       Support for 'application/json' Content-Type .
+       Support for 'user-restricted resource access'.
 
     .. versionchanged:: 0.0.4
        Added the ``reqiores_auth`` decorator.
@@ -40,16 +41,13 @@ def post(resource):
        JSON links. Superflous ``response`` container removed.
     """
 
-    if len(request.form) == 0:
-        abort(400)
-
     response = {}
     date_utc = datetime.utcnow()
 
     schema = app.config['DOMAIN'][resource]['schema']
     validator = app.validator(schema, resource)
 
-    for key, value in request.form.items():
+    for key, value in payload().items():
 
         response_item = {}
         issues = []
