@@ -8,7 +8,7 @@ Version 0.0.5
 
 Not released yet.
 
-- Support for `Content-Type: application/json¡ for POST and PATCH methods. 
+- Support for 'Content-Type: application/json' for POST and PATCH methods. 
   Closes #28.
 
 - User-restricted resource access. Works in conjunction with Authentication.
@@ -32,8 +32,6 @@ Not released yet.
 
 - Added an example on how to handle events to perform custom actions. Closes 
   #23 and #22.
-
-- how to be notified and perform custom actions when requests are received.
 
 - ``eve.validation_schema()`` now collects offending items and returns all of
   them into the exception message. Closes #24.
