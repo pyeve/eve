@@ -60,9 +60,104 @@
             
   <div class="section" id="data-validation">
 <span id="validation"></span><h1>Data Validation<a class="headerlink" href="#data-validation" title="Permalink to this headline">¶</a></h1>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Work in progress.</p>
+<p>Data validation is provided out-of-the-box. Your configuration includes
+a <a class="reference internal" href="config.html#schema"><em>Schema Definition</em></a> for every resource managed by the API. Data sent to the API
+for insertion or edition will be validated against the schema, and a resource
+will be updated only if validation is passed.</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;item1={&quot;firstname&quot;: &quot;bill&quot;, &quot;lastname&quot;: &quot;clinton&quot;}&#39;</span> -d <span class="s1">&#39;item2={&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}&#39;</span> http://eve-demo.herokuapp.com/people/
+<span class="go">HTTP/1.0 200 OK</span>
+</pre></div>
+</div>
+<p>The response will contain a success/error state for each item provided with the
+request:</p>
+<div class="highlight-javascript"><div class="highlight"><pre>  <span class="p">{</span>
+    <span class="s2">&quot;item2&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="s2">&quot;ERR&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;issues&quot;</span><span class="o">:</span> <span class="p">[</span>
+            <span class="s2">&quot;value &#39;romney&#39; for field &#39;lastname&#39; not unique&quot;</span>
+        <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;item1&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 22 Nov 2012 15:29:08 UTC&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50ae44c49fa12500024def5d&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">}}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In the example above, <tt class="docutils literal"><span class="pre">item2</span></tt> did not validate and was rejected, while
+<tt class="docutils literal"><span class="pre">item1</span></tt> was successfully created. API maintainer has complete control on
+data validation.</p>
+<div class="section" id="extending-data-validation">
+<h2>Extending Data Validation<a class="headerlink" href="#extending-data-validation" title="Permalink to this headline">¶</a></h2>
+<p>Data validation is based on the <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> validation system and it is therefore
+extensible. As a matter of fact, Eve&#8217;s MongoDB data-layer itself is extending
+Cerberus validation, implementing the <tt class="docutils literal"><span class="pre">unique</span></tt> constraint and the
+<tt class="docutils literal"><span class="pre">ObjectId</span></tt> data type on top of the standard rules.</p>
+</div>
+<div class="section" id="custom-validation-rules">
+<h2>Custom Validation Rules<a class="headerlink" href="#custom-validation-rules" title="Permalink to this headline">¶</a></h2>
+<p>Suppose that in your specific and very peculiar use case a certain value can
+only be expressed as an odd integer. You decide to add support for a new
+<tt class="docutils literal"><span class="pre">isodd</span></tt> rule to our validation schema. This is how your would go to implement
+that:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve.io.mongo</span> <span class="kn">import</span> <span class="n">Validator</span>
+
+<span class="k">class</span> <span class="nc">MyValidator</span><span class="p">(</span><span class="n">Validator</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_validate_isodd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isodd</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">isodd</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="n">value</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="s">&quot;Value for field &#39;</span><span class="si">%s</span><span class="s">&#39; must be an odd number&quot;</span> <span class="o">%</span> <span class="n">field</span><span class="p">)</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">validator</span><span class="o">=</span><span class="n">MyValidator</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>By subclassing the base Mongo validator class and then adding a custom
+<tt class="docutils literal"><span class="pre">_validate_&lt;rulename&gt;</span></tt> method, you extended the available <a class="reference internal" href="config.html#schema"><em>Schema Definition</em></a>
+grammar and now the new custom rule <tt class="docutils literal"><span class="pre">isodd</span></tt> is available in your schema. You
+can now do something like:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="s1">&#39;schema&#39;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s1">&#39;oddity&#39;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s1">&#39;isodd&#39;</span><span class="o">:</span> <span class="nx">True</span><span class="p">,</span>
+        <span class="s1">&#39;type&#39;</span><span class="o">:</span> <span class="s1">&#39;integer&#39;</span>
+      <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="custom-data-types">
+<h2>Custom Data Types<a class="headerlink" href="#custom-data-types" title="Permalink to this headline">¶</a></h2>
+<p>You can also add new data types by simply adding <tt class="docutils literal"><span class="pre">_validate_type_&lt;typename&gt;</span></tt>
+methods to your subclass. Consider the following snippet from the Eve source
+code.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">_validate_type_objectid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Enables validation for `objectid` schema attribute.</span>
+
+<span class="sd">    :param unique: Boolean, wether the field value should be</span>
+<span class="sd">                   unique or not.</span>
+<span class="sd">    :param field: field name.</span>
+<span class="sd">    :param value: field value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&#39;[a-f0-9]{24}&#39;</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="n">ERROR_BAD_TYPE</span> <span class="o">%</span> <span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s">&#39;ObjectId&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>This method enables support for MongoDB <tt class="docutils literal"><span class="pre">ObjectId</span></tt> type in your schema,
+allowing something like this:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="s1">&#39;schema&#39;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s1">&#39;owner&#39;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="o">:</span> <span class="s1">&#39;objectid&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;required&#39;</span><span class="o">:</span> <span class="nx">True</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You can also check the complete <a class="reference external" href="https://github.com/nicolaiarocci/eve/blob/develop/eve/io/mongo/validation.py">source code</a> of Eve&#8217;s implementation. Please
+see the <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> documentation for a complete list rules and data types
+available.</p>
 </div>
 </div>
 
@@ -98,7 +193,17 @@
   Feedback is greatly appreciated. If you have any questions, comments,
   random praise, or anonymous threats, <a href="mailto:eve@nicolaiarocci.com">
   shoot me an email</a>.
-</p><h3>Related Topics</h3>
+</p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Data Validation</a><ul>
+<li><a class="reference internal" href="#extending-data-validation">Extending Data Validation</a></li>
+<li><a class="reference internal" href="#custom-validation-rules">Custom Validation Rules</a></li>
+<li><a class="reference internal" href="#custom-data-types">Custom Data Types</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="config.html" title="previous chapter">Configuration Handling</a></li>

@@ -46,7 +46,6 @@ User's Guide
     config
     validation
     authentication
-    extending
     contributing
     support
     updates
