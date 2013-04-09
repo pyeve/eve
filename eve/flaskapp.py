@@ -18,7 +18,7 @@ from flask import Flask
 from werkzeug.routing import BaseConverter
 from werkzeug.serving import WSGIRequestHandler
 from eve.io.mongo import Mongo, Validator
-from eve.exceptions import ConfigException
+from eve.exceptions import ConfigException, SchemaException
 from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint
 from eve.utils import api_prefix
 
@@ -196,7 +196,7 @@ class Eve(Flask):
 
             self.validate_roles('allowed_roles', settings, resource)
             self.validate_roles('allowed_item_roles', settings, resource)
-            self.validate_schema(settings['schema'])
+            self.validate_schema(resource, settings['schema'])
 
     def validate_roles(self, directive, candidate, resource):
         """ Validates that user role directives are syntactically and formally
@@ -231,9 +231,14 @@ class Eve(Flask):
                                   (item, ', '.join(diff),
                                    ', '.join(allowed)))
 
-    def validate_schema(self, schema):
-        """
+    def validate_schema(self, resource, schema):
+        """ Validates a resource schema.
+
+        :param resource: resource name.
+        :param schema: schema definition for the resource.
+
         .. versionchanged:: 0.0.5
+           Validation of the 'data_relation' field rule.
            Now collecting offending items in a list and inserting results into
            the exception message.
         """
@@ -246,9 +251,16 @@ class Eve(Flask):
         if eve.ID_FIELD in schema:
             offenders.append(eve.ID_FIELD)
         if offenders:
-            raise ConfigException('field(s) "%s" not allowed in schema '
+            raise SchemaException('field(s) "%s" not allowed in "%s" schema '
                                   '(they will be handled automatically).'
-                                  % ', '.join(offenders))
+                                  % (resource, ', '.join(offenders)))
+
+        for field, ruleset in schema.items():
+            if 'data_relation' in ruleset:
+                if 'collection' not in ruleset['data_relation']:
+                    raise SchemaException("'collection' key is mandatory for "
+                                          "the 'data_relation' rule in "
+                                          "'%s: %s'" % (resource, field))
 
     def set_defaults(self):
         """ When not provided, fills individual resource settings with default
@@ -310,8 +322,7 @@ class Eve(Flask):
 
             # empty schemas are allowed for read-only access to resources
             schema = settings.setdefault('schema', {})
-
-            # TODO fill schema{} defaults, like field type, etc.
+            self.set_schema_defaults(schema)
 
             # `dates` helper set contains the names of the schema fields
             # defined as `datetime` types. It will come in handy when
@@ -329,6 +340,21 @@ class Eve(Flask):
             settings['defaults'] = \
                 set(field for field, definition in schema.items()
                     if definition.get('default'))
+
+    def set_schema_defaults(self, schema):
+        """ When not provided, fills individual schema settings with default
+        or global configuration settings.
+
+        :param schema: the resoursce schema to be intialized with default
+                       values
+
+        .. versionadded: 0.0.5
+        """
+        # TODO fill schema{} defaults, like field type, etc.
+        for field, ruleset in schema.items():
+            if 'data_relation' in ruleset:
+                ruleset['data_relation'].setdefault('field',
+                                                    self.config['ID_FIELD'])
 
     def _add_url_rules(self):
         """ Builds the API url map. Methods are enabled for each mapped
