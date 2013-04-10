@@ -6,7 +6,7 @@ from eve.flaskapp import RegexConverter
 from eve.flaskapp import Eve
 from eve.io.base import DataLayer
 from eve.tests import TestBase
-from eve.exceptions import ConfigException
+from eve.exceptions import ConfigException, SchemaException
 from eve.io.mongo import Mongo, Validator
 
 
@@ -108,13 +108,23 @@ class TestConfig(TestBase):
 
     def assertUnallowedField(self, field):
         self.domain.clear()
-        self.domain['resource'] = {
-            'schema': {
-                field: {'type': 'datetime'},
-            }
-        }
+        schema = {field: {'type': 'datetime'}}
+        self.domain['resource'] = {'schema': schema}
         self.app.set_defaults()
-        self.assertValidateConfigFailure(field)
+        self.assertValidateSchemaFailure('resource', schema, field)
+
+    def test_validate_schema(self):
+        # lack of 'collection' key for 'data_collection' rule
+        schema = self.domain['invoices']['schema']
+        del(schema['person']['data_relation']['collection'])
+        self.assertValidateSchemaFailure('invoices', schema, 'collection')
+
+    def test_set_schema_defaults(self):
+        # default data_relation field value
+        schema = self.domain['invoices']['schema']
+        data_relation = schema['person']['data_relation']
+        self.assertTrue('field' in data_relation)
+        self.assertEqual(data_relation['field'], self.app.config['ID_FIELD'])
 
     def test_set_defaults(self):
         self.domain.clear()
@@ -191,6 +201,14 @@ class TestConfig(TestBase):
             self.assertTrue(expected.lower() in str(e).lower())
         else:
             self.fail("ConfigException expected but not raised.")
+
+    def assertValidateSchemaFailure(self, resource, schema, expected):
+        try:
+            self.app.validate_schema(resource, schema)
+        except SchemaException, e:
+            self.assertTrue(expected.lower() in str(e).lower())
+        else:
+            self.fail("SchemaException expected but not raised.")
 
     def test_schema_dates(self):
         self.domain.clear()

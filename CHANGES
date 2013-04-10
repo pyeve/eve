@@ -8,6 +8,9 @@ Version 0.0.5
 
 Not released yet.
 
+- Referential integrity validation via the new 'data_relation' schema keyword.
+  Closes #25.
+
 - Support for 'Content-Type: application/json' for POST and PATCH methods. 
   Closes #28.
 

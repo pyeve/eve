@@ -87,7 +87,13 @@ users['item_title'] = 'user'
 invoices = {
     #'item_lookup': False,
     #'item_methods': ['GET'],
-    'schema': {'inv_number': {'type': 'string'}, }
+    'schema': {
+        'inv_number': {'type': 'string'},
+        'person': {
+            'type': 'objectid',
+            'data_relation': {'collection': 'contacts'}
+        }
+    }
 }
 
 
@@ -96,9 +102,12 @@ payments = {
     'item_methods': ['GET'],
 }
 
+empty = copy.deepcopy(invoices)
+
 DOMAIN = {
     'contacts': contacts,
     'users': users,
     'invoices': invoices,
     'payments': payments,
+    'empty': empty,
 }

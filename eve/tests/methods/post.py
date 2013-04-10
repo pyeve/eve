@@ -159,6 +159,21 @@ class TestPost(TestMethodsBase):
         self.assert200(status)
         self.assertPostResponse(r, ["item1"])
 
+    def test_post_referential_integrity(self):
+        data = {'item1': json.dumps({"person": self.unknown_item_id})}
+        r, status = self.post('/invoices/', data=data)
+        self.assert200(status)
+        expected = ("value '%s' for field '%s' must exist in collection "
+                    "collection '%s', field '%s'" %
+                    (self.unknown_item_id, 'person', 'contacts',
+                     self.app.config['ID_FIELD']))
+        self.assertValidationError(r, 'item1', expected)
+
+        data = {'item1': json.dumps({"person": self.item_id})}
+        r, status = self.post('/invoices/', data=data)
+        self.assert200(status)
+        self.assertPostResponse(r, ['item1'])
+
     def assertPostResponse(self, response, keys):
         for key in keys:
             self.assertTrue(key in response)

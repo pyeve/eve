@@ -40,8 +40,8 @@ Extending Data Validation
 -------------------------
 Data validation is based on the Cerberus_ validation system and it is therefore
 extensible. As a matter of fact, Eve's MongoDB data-layer itself is extending
-Cerberus validation, implementing the ``unique`` constraint and the
-``ObjectId`` data type on top of the standard rules.
+Cerberus validation, implementing the ``unique`` and ``data_relation``
+constraints and the ``ObjectId`` data type on top of the standard rules.
 
 Custom Validation Rules
 ------------------------
@@ -109,9 +109,10 @@ allowing something like this:
         },
     }
 
-You can also check the complete `source code`_ of Eve's implementation. Please
-see the Cerberus_ documentation for a complete list rules and data types
-available. 
+You can also check the `source code`_ for Eve custom validation, where you will
+find more advanced use cases, such as the implementation of the ``unique`` and
+``data_relation`` constraints. Please see the Cerberus_ documentation for
+a complete list rules and data types available. 
 
 .. _Cerberus: http://cerberus.readthedocs.org
 .. _`source code`: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/mongo/validation.py

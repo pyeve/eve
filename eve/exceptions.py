@@ -16,3 +16,8 @@ class ConfigException(Exception):
     `settings.py`).
     """
     pass
+
+
+class SchemaException(ConfigException):
+    """ Raised when errors are found in a field schema definition """
+    pass
