@@ -64,6 +64,26 @@ class Validator(Validator):
                 self._error("value '%s' for field '%s' not unique" %
                             (value, field))
 
+    def _validate_data_relation(self, data_relation, field, value):
+        """ Enables validation for `data_relation` field attribute. Makes sure
+        'value' of 'field' adheres to the referential integrity rule specified
+        by 'data_relation'.
+
+        :param data_relation: a dict following keys:
+            'collection': foreign collection name
+            'field': foreign field name
+        :param field: field name.
+        :param value: field value.
+
+        .. versionadded: 0.0.5
+        """
+        query = {data_relation['field']: value}
+        if not app.data.find_one(data_relation['collection'], **query):
+                self._error("value '%s' for field '%s' must exist in "
+                            "collection '%s', field '%s'" %
+                            (value, field, data_relation['collection'],
+                             data_relation['field']))
+
     def _validate_type_objectid(self, field, value):
         """ Enables validation for `objectid` schema attribute.
 

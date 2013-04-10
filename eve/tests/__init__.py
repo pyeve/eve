@@ -26,7 +26,7 @@ class TestBase(unittest.TestCase):
         self.known_resource = 'contacts'
         self.known_resource_url = ('/%s/' %
                                    self.domain[self.known_resource]['url'])
-        self.empty_resource = 'invoices'
+        self.empty_resource = 'empty'
         self.empty_resource_url = '/%s/' % self.empty_resource
 
         self.unknown_resource = 'unknown'
@@ -96,6 +96,14 @@ class TestMethodsBase(TestBase):
         self.user_id_url = ('/%s/%s/' %
                             (self.domain[self.different_resource]['url'],
                              self.user_id))
+
+        response, status = self.get('invoices')
+        invoice = response['_items'][0]
+        self.invoice_id = invoice[self.app.config['ID_FIELD']]
+        self.invoice_etag = invoice['etag']
+        self.invoice_id_url = ('/%s/%s/' %
+                               (self.domain['invoices']['url'],
+                                self.invoice_id))
 
     def tearDown(self):
         self.dropDB()
@@ -249,6 +257,7 @@ class TestMethodsBase(TestBase):
         _db.contacts.insert(self.random_contacts(100))
         _db.contacts.insert(self.random_users(2))
         _db.payments.insert(self.random_payments(10))
+        _db.invoices.insert(self.random_invoices(1))
         self.connection.close()
 
     def dropDB(self):
@@ -301,6 +310,18 @@ class TestMethodsBase(TestBase):
             }
             payments.append(payment)
         return payments
+
+    def random_invoices(self, num):
+        invoices = []
+        for i in range(num):
+            dt = datetime.now()
+            invoice = {
+                'inv_number':  self.random_string(10),
+                eve.LAST_UPDATED: dt,
+                eve.DATE_CREATED: dt,
+            }
+            invoices.append(invoice)
+        return invoices
 
     def random_string(self, num):
         return (''.join(random.choice(string.ascii_uppercase)

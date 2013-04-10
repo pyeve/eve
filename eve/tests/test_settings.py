@@ -102,9 +102,12 @@ payments = {
     'item_methods': ['GET'],
 }
 
+empty = copy.deepcopy(invoices)
+
 DOMAIN = {
     'contacts': contacts,
     'users': users,
     'invoices': invoices,
     'payments': payments,
+    'empty': empty,
 }

@@ -213,6 +213,22 @@ class TestPatch(TestMethodsBase):
         self.assert200(status)
         self.assertTrue('OK' in r['key1']['status'])
 
+    def test_patch_referential_integrity(self):
+        data = {'item1': json.dumps({"person": self.unknown_item_id})}
+        headers = [('If-Match', self.invoice_etag)]
+        r, status = self.patch(self.invoice_id_url, data=data, headers=headers)
+        self.assert200(status)
+        expected = ("value '%s' for field '%s' must exist in collection "
+                    "collection '%s', field '%s'" %
+                    (self.unknown_item_id, 'person', 'contacts',
+                     self.app.config['ID_FIELD']))
+        self.assertValidationError(r, 'item1', expected)
+
+        data = {'item1': json.dumps({"person": self.item_id})}
+        r, status = self.patch(self.invoice_id_url, data=data, headers=headers)
+        self.assert200(status)
+        self.assertPatchResponse(r, 'item1', self.invoice_id)
+
     def assertPatchResponse(self, response, key, item_id):
         self.assertTrue(key in response)
         k = response[key]
