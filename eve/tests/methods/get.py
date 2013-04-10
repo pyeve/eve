@@ -70,7 +70,6 @@ class TestGet(TestMethodsBase):
         response, status = self.get(self.known_resource, '?page=2')
         self.assert200(status)
         resource = response['_items']
-        print len(resource), self.app.config['PAGINATION_DEFAULT']
         self.assertFalse(len(resource) ==
                          self.app.config['PAGINATION_DEFAULT'])
         links = response['_links']
