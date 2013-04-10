@@ -107,7 +107,9 @@ implementation of CRUD via REST</p>
 </tr>
 </tbody>
 </table>
-<p>If you are wondering why PATCH and not PUT, check <a class="reference external" href="https://speakerdeck.com/nicola/developing-restful-web-apis-with-python-flask-and-mongodb?slide=113">this</a> out.</p>
+<p>If you are wondering why PATCH and not PUT, check <a class="reference external" href="https://speakerdeck.com/nicola/developing-restful-web-apis-with-python-flask-and-mongodb?slide=113">this</a> out. Also, as
+a fallback for the odd client not directly supporting PATCH, the API
+will gladly honor a POST with the <tt class="docutils literal"><span class="pre">X-HTTP-Method-Override:</span> <span class="pre">PATCH</span></tt> header tag.</p>
 </div>
 <div class="section" id="customizable-resource-endpoints">
 <h2>Customizable resource endpoints<a class="headerlink" href="#customizable-resource-endpoints" title="Permalink to this headline">¶</a></h2>

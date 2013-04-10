@@ -27,7 +27,9 @@ Update PATCH     Document
 Delete DELETE    Collection/Document
 ====== ========= ===================
 
-If you are wondering why PATCH and not PUT, check `this`_ out.
+If you are wondering why PATCH and not PUT, check `this`_ out. Also, as
+a fallback for the odd client not directly supporting PATCH, the API
+will gladly honor a POST with the ``X-HTTP-Method-Override: PATCH`` header tag.
 
 Customizable resource endpoints
 -------------------------------
