@@ -93,8 +93,8 @@ data validation.</p>
 <h2>Extending Data Validation<a class="headerlink" href="#extending-data-validation" title="Permalink to this headline">¶</a></h2>
 <p>Data validation is based on the <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> validation system and it is therefore
 extensible. As a matter of fact, Eve&#8217;s MongoDB data-layer itself is extending
-Cerberus validation, implementing the <tt class="docutils literal"><span class="pre">unique</span></tt> constraint and the
-<tt class="docutils literal"><span class="pre">ObjectId</span></tt> data type on top of the standard rules.</p>
+Cerberus validation, implementing the <tt class="docutils literal"><span class="pre">unique</span></tt> and <tt class="docutils literal"><span class="pre">data_relation</span></tt>
+constraints and the <tt class="docutils literal"><span class="pre">ObjectId</span></tt> data type on top of the standard rules.</p>
 </div>
 <div class="section" id="custom-validation-rules">
 <h2>Custom Validation Rules<a class="headerlink" href="#custom-validation-rules" title="Permalink to this headline">¶</a></h2>
@@ -155,9 +155,10 @@ allowing something like this:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>You can also check the complete <a class="reference external" href="https://github.com/nicolaiarocci/eve/blob/develop/eve/io/mongo/validation.py">source code</a> of Eve&#8217;s implementation. Please
-see the <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> documentation for a complete list rules and data types
-available.</p>
+<p>You can also check the <a class="reference external" href="https://github.com/nicolaiarocci/eve/blob/develop/eve/io/mongo/validation.py">source code</a> for Eve custom validation, where you will
+find more advanced use cases, such as the implementation of the <tt class="docutils literal"><span class="pre">unique</span></tt> and
+<tt class="docutils literal"><span class="pre">data_relation</span></tt> constraints. Please see the <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> documentation for
+a complete list rules and data types available.</p>
 </div>
 </div>
 

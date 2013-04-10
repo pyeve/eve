@@ -497,8 +497,9 @@ API settings:</p>
 </pre></div>
 </div>
 </div>
+</div>
 <div class="section" id="schema-definition">
-<span id="schema"></span><h3>Schema Definition<a class="headerlink" href="#schema-definition" title="Permalink to this headline">¶</a></h3>
+<span id="schema"></span><h2>Schema Definition<a class="headerlink" href="#schema-definition" title="Permalink to this headline">¶</a></h2>
 <p>Unless your API is read-only you probably want to define resource <cite>schemas</cite>.
 Schemas are important because they enable proper validation for incoming
 streams.</p>
@@ -535,10 +536,71 @@ streams.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Schema syntax is based on <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> and yes, it can be extended.  In fact Eve
-itself is extending the original grammar by adding the <cite>unique</cite> keyword and the
-<tt class="docutils literal"><span class="pre">ObjectId</span></tt> datatype.  For more informations on schema syntax and custom
-validation see <a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a>.</p>
+<p>As you can see, schema keys are the actual field names, while values are dicts
+defining the field validation rules. Allowed validation rules are:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">type</span></tt></td>
+<td>Field data type. Can be one of the following:
+<tt class="docutils literal"><span class="pre">string</span></tt>, <tt class="docutils literal"><span class="pre">integer</span></tt>, <tt class="docutils literal"><span class="pre">boolean</span></tt>,
+<tt class="docutils literal"><span class="pre">datetime</span></tt>, <tt class="docutils literal"><span class="pre">dict</span></tt>, <tt class="docutils literal"><span class="pre">list</span></tt>, <tt class="docutils literal"><span class="pre">objectid</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">required</span></tt></td>
+<td>If <tt class="docutils literal"><span class="pre">True</span></tt> the field is mandatory on
+insertion.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">readonly</span></tt></td>
+<td>If <tt class="docutils literal"><span class="pre">True</span></tt> the field is readonly.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">minlength</span></tt>, <tt class="docutils literal"><span class="pre">maxlength</span></tt></td>
+<td>Minimum and maximum length allowed for
+<tt class="docutils literal"><span class="pre">string</span></tt> and <tt class="docutils literal"><span class="pre">list</span></tt> types.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">min</span></tt>, <tt class="docutils literal"><span class="pre">max</span></tt></td>
+<td>Minimum and maximum values allowed for
+<tt class="docutils literal"><span class="pre">integer</span></tt> types.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">allowed</span></tt></td>
+<td>List of allowed values for <tt class="docutils literal"><span class="pre">string</span></tt> and
+<tt class="docutils literal"><span class="pre">list</span></tt> types.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">empty</span></tt></td>
+<td>Only applies to string fields. If <tt class="docutils literal"><span class="pre">False</span></tt>
+validation will fail if the value is empty.
+Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">items</span></tt></td>
+<td>Defines a list of values allowed in a <tt class="docutils literal"><span class="pre">list</span></tt>
+of fixed length.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
+<td>Validation schema for <tt class="docutils literal"><span class="pre">dict</span></tt> types and
+arbitrary length <tt class="docutils literal"><span class="pre">list</span></tt> types. For details
+and usage examples, see <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#schema" title="(in Cerberus v0.1.0)"><em class="xref std std-ref">Cerberus documentation</em></a></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">unique</span></tt></td>
+<td>The value of the field must be unique within
+the collection.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">data_relation</span></tt></td>
+<td>Allows to specify a referential integrity rule
+that the value must satisfy in order to
+validate. It is a dict with two keys:
+<tt class="docutils literal"><span class="pre">collection</span></tt>, which is the name of the
+database collection being referenced, and
+<tt class="docutils literal"><span class="pre">field</span></tt>, the field name in the foreign
+collection.</td>
+</tr>
+</tbody>
+</table>
+<p>Schema syntax is based on <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> and yes, it can be extended.  In fact, Eve
+itself extends the original grammar by adding the <tt class="docutils literal"><span class="pre">unique</span></tt> and
+<tt class="docutils literal"><span class="pre">data_relation</span></tt> keywords, along with the <tt class="docutils literal"><span class="pre">objectid</span></tt> datatype. For more
+informations on custom validation and usage examples see <a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a>.</p>
 <p>In <a class="reference internal" href="#local"><em>Resource / Item Endpoints</em></a> you customized the <cite>people</cite> endpoint. Then, in this section,
 you defined <cite>people</cite> validation rules. Now you are ready to update the domain
 which was originally set up in <a class="reference internal" href="#domain-configuration">Domain Configuration</a>:</p>
@@ -547,7 +609,6 @@ which was originally set up in <a class="reference internal" href="#domain-confi
 <span class="c"># update the domain</span>
 <span class="n">DOMAIN</span><span class="p">[</span><span class="s">&#39;people&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">people</span>
 </pre></div>
-</div>
 </div>
 </div>
 <div class="section" id="advanced-datasource-patterns">
@@ -640,9 +701,9 @@ retrieving and validating data for the resource.</p>
 <li><a class="reference internal" href="#global-configuration">Global Configuration</a></li>
 <li><a class="reference internal" href="#domain-configuration">Domain Configuration</a><ul>
 <li><a class="reference internal" href="#resource-item-endpoints">Resource / Item Endpoints</a></li>
-<li><a class="reference internal" href="#schema-definition">Schema Definition</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#schema-definition">Schema Definition</a></li>
 <li><a class="reference internal" href="#advanced-datasource-patterns">Advanced Datasource Patterns</a><ul>
 <li><a class="reference internal" href="#predefined-database-filters">Predefined Database Filters</a></li>
 <li><a class="reference internal" href="#multiple-api-endpoints-one-datasource">Multiple API Endpoints, One Datasource</a></li>

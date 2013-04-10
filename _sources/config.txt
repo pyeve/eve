@@ -398,7 +398,7 @@ API settings:
 .. _schema:
 
 Schema Definition
-'''''''''''''''''
+-----------------
 Unless your API is read-only you probably want to define resource `schemas`.
 Schemas are important because they enable proper validation for incoming
 streams.
@@ -437,10 +437,57 @@ streams.
         },
     }
 
-Schema syntax is based on Cerberus_ and yes, it can be extended.  In fact Eve
-itself is extending the original grammar by adding the `unique` keyword and the
-``ObjectId`` datatype.  For more informations on schema syntax and custom
-validation see :ref:`validation`.
+As you can see, schema keys are the actual field names, while values are dicts
+defining the field validation rules. Allowed validation rules are:
+
+.. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
+
+=============================== ==============================================
+``type``                        Field data type. Can be one of the following:
+                                ``string``, ``integer``, ``boolean``, 
+                                ``datetime``, ``dict``, ``list``, ``objectid``.
+
+``required``                    If ``True`` the field is mandatory on
+                                insertion.
+
+``readonly``                    If ``True`` the field is readonly.
+
+``minlength``, ``maxlength``    Minimum and maximum length allowed for
+                                ``string`` and ``list`` types.
+
+``min``, ``max``                Minimum and maximum values allowed for
+                                ``integer`` types.
+
+``allowed``                     List of allowed values for ``string`` and 
+                                ``list`` types.
+
+``empty``                       Only applies to string fields. If ``False``
+                                validation will fail if the value is empty. 
+                                Defaults to ``True``.
+
+``items``                       Defines a list of values allowed in a ``list`` 
+                                of fixed length.
+
+``schema``                      Validation schema for ``dict`` types and 
+                                arbitrary length ``list`` types. For details 
+                                and usage examples, see :ref:`Cerberus documentation <cerberus:schema>`
+
+``unique``                      The value of the field must be unique within
+                                the collection.
+
+``data_relation``               Allows to specify a referential integrity rule
+                                that the value must satisfy in order to
+                                validate. It is a dict with two keys:
+                                ``collection``, which is the name of the
+                                database collection being referenced, and
+                                ``field``, the field name in the foreign
+                                collection.
+=============================== ==============================================
+
+Schema syntax is based on Cerberus_ and yes, it can be extended.  In fact, Eve
+itself extends the original grammar by adding the ``unique`` and
+``data_relation`` keywords, along with the ``objectid`` datatype. For more
+informations on custom validation and usage examples see :ref:`validation`.
 
 In :ref:`local` you customized the `people` endpoint. Then, in this section,
 you defined `people` validation rules. Now you are ready to update the domain
