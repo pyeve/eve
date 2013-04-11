@@ -1,10 +1,10 @@
-from eve.tests import TestMethodsBase
+from eve.tests import TestBase
 from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, DATE_CREATED
 import simplejson as json
 from ast import literal_eval
 
 
-class TestPost(TestMethodsBase):
+class TestPost(TestBase):
     def test_unknown_resource(self):
         r, status = self.post(self.unknown_resource_url, data={})
         self.assert404(status)

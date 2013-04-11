@@ -4,7 +4,7 @@ import eve
 import json
 from eve import Eve
 from eve.auth import BasicAuth, TokenAuth, HMACAuth
-from eve.tests import TestMethodsBase
+from eve.tests import TestBase
 
 
 class ValidBasicAuth(BasicAuth):
@@ -33,7 +33,7 @@ class BadHMACAuth(HMACAuth):
     pass
 
 
-class TestBasicAuth(TestMethodsBase):
+class TestBasicAuth(TestBase):
 
     def setUp(self):
         super(TestBasicAuth, self).setUp()
@@ -231,7 +231,7 @@ class TestHMACAuth(TestBasicAuth):
         self.assert401(r.status_code)
 
 
-class TestUserRestrictedAccess(TestMethodsBase):
+class TestUserRestrictedAccess(TestBase):
     def setUp(self):
         super(TestUserRestrictedAccess, self).setUp()
         self.app = Eve(settings=self.settings_file, auth=ValidBasicAuth)

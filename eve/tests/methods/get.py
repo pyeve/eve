@@ -1,8 +1,8 @@
-from eve.tests import TestMethodsBase
+from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
 
 
-class TestGet(TestMethodsBase):
+class TestGet(TestBase):
 
     def test_get_empty_resource(self):
         response, status = self.get(self.empty_resource)
@@ -202,7 +202,7 @@ class TestGet(TestMethodsBase):
         self.assertItem(resource[0])
 
 
-class TestGetItem(TestMethodsBase):
+class TestGetItem(TestBase):
 
     def assertItemResponse(self, response, status,
                            resource=None):

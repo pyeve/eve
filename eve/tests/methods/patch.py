@@ -1,11 +1,11 @@
 #import unittest
-from eve.tests import TestMethodsBase
+from eve.tests import TestBase
 from eve import STATUS_OK, LAST_UPDATED, ID_FIELD
 import simplejson as json
 
 
 #@unittest.skip("don't need no freakin' tests!")
-class TestPatch(TestMethodsBase):
+class TestPatch(TestBase):
 
     def test_patch_to_resource_endpoint(self):
         r, status = self.patch(self.known_resource_url, data={})

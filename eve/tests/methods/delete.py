@@ -1,7 +1,7 @@
-from eve.tests import TestMethodsBase
+from eve.tests import TestBase
 
 
-class TestDelete(TestMethodsBase):
+class TestDelete(TestBase):
     def test_unknown_resource(self):
         url = '%s%s/' % (self.unknown_resource_url, self.item_id)
         r, status = self.delete(url)
