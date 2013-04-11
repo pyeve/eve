@@ -66,8 +66,8 @@ class TestBase(unittest.TestCase):
 class TestMethodsBase(TestBase):
 
     def setUp(self):
-        super(TestMethodsBase, self).setUp()
         self.setupDB()
+        super(TestMethodsBase, self).setUp()
         response, status = self.get('contacts', '?max_results=2')
         contact = response['_items'][0]
         self.item_id = contact[self.app.config['ID_FIELD']]
