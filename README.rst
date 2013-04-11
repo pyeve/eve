@@ -1,4 +1,4 @@
-`Eve <http://python-eve.org/>`_
+Eve
 ====
 .. image:: https://secure.travis-ci.org/nicolaiarocci/eve.png?branch=master 
         :target: https://secure.travis-ci.org/nicolaiarocci/eve
