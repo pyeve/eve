@@ -8,6 +8,9 @@ Version 0.0.5
 
 Released on April 11th 2013.
 
+- Fixed an issue that apparently caused the test suite to only run on
+  successfully on the dev box. Thanks Chronidev for reporting this.
+
 - Referential integrity validation via the new 'data_relation' schema keyword.
   Closes #25.
 

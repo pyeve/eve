@@ -16,7 +16,7 @@ from test_settings import MONGO_PASSWORD, MONGO_USERNAME, MONGO_DBNAME, DOMAIN
 class TestBase(unittest.TestCase):
 
     def setUp(self):
-        #reload(eve)
+        self.setupDB()
         self.settings_file = 'eve/tests/test_settings.py'
         self.app = Eve(settings=self.settings_file)
         self.test_client = self.app.test_client()
@@ -50,6 +50,9 @@ class TestBase(unittest.TestCase):
                                        self.domain[
                                            self.different_resource]['url'])
 
+    def tearDown(self):
+        self.dropDB()
+
     def assert200(self, status):
         self.assertEqual(status, 200)
 
@@ -62,7 +65,107 @@ class TestBase(unittest.TestCase):
     def assert304(self, status):
         self.assertEqual(status, 304)
 
+    def setupDB(self):
+        self.connection = MongoClient()
+        self.connection.drop_database(MONGO_DBNAME)
+        self.connection[MONGO_DBNAME].add_user(MONGO_USERNAME, MONGO_PASSWORD)
+        self.bulk_insert()
 
+    def bulk_insert(self):
+        _db = self.connection[MONGO_DBNAME]
+        _db.contacts.insert(self.random_contacts(100))
+        _db.contacts.insert(self.random_users(2))
+        _db.payments.insert(self.random_payments(10))
+        _db.invoices.insert(self.random_invoices(1))
+        self.connection.close()
+
+    def dropDB(self):
+        self.connection = MongoClient()
+        self.connection.drop_database(MONGO_DBNAME)
+        self.connection.close()
+
+    def random_contacts(self, num, standard_date_fields=True):
+        schema = DOMAIN['contacts']['schema']
+        contacts = []
+        for i in range(num):
+            dt = datetime.now()
+            contact = {
+                'ref':  self.random_string(schema['ref']['maxlength']),
+                'prog': i,
+                'role': random.choice(schema['role']['allowed']),
+                'rows': self.random_rows(random.randint(0, 5)),
+                'alist': self.random_list(random.randint(0, 5)),
+                'location': {
+                    'address': 'address ' + self.random_string(5),
+                    'city': 'city ' + self.random_string(3),
+                },
+                'born': datetime.today() + timedelta(
+                    days=random.randint(-10, 10)),
+
+                'tid': ObjectId(),
+            }
+            if standard_date_fields:
+                contact[eve.LAST_UPDATED] = dt
+                contact[eve.DATE_CREATED] = dt
+
+            contacts.append(contact)
+        return contacts
+
+    def random_users(self, num):
+        users = self.random_contacts(num)
+        for user in users:
+            user['username'] = self.random_string(10)
+        return users
+
+    def random_payments(self, num):
+        payments = []
+        for i in range(num):
+            dt = datetime.now()
+            payment = {
+                'a_string':  self.random_string(10),
+                'a_number': i,
+                eve.LAST_UPDATED: dt,
+                eve.DATE_CREATED: dt,
+            }
+            payments.append(payment)
+        return payments
+
+    def random_invoices(self, num):
+        invoices = []
+        for i in range(num):
+            dt = datetime.now()
+            invoice = {
+                'inv_number':  self.random_string(10),
+                eve.LAST_UPDATED: dt,
+                eve.DATE_CREATED: dt,
+            }
+            invoices.append(invoice)
+        return invoices
+
+    def random_string(self, num):
+        return (''.join(random.choice(string.ascii_uppercase)
+                        for x in range(num)))
+
+    def random_list(self, num):
+        alist = []
+        for i in range(num):
+            alist.append(['string' + str(i), random.randint(1000, 9999)])
+        return alist
+
+    def random_rows(self, num):
+        schema = DOMAIN['contacts']['schema']['rows']['schema']['schema']
+        rows = []
+        for i in range(num):
+            rows.append(
+                {
+                    'sku': self.random_string(schema['sku']['maxlength']),
+                    'price': random.randint(100, 1000),
+                }
+            )
+        return rows
+
+
+#TODO merge with TestBase
 class TestMethodsBase(TestBase):
 
     def setUp(self):
@@ -104,9 +207,6 @@ class TestMethodsBase(TestBase):
         self.invoice_id_url = ('/%s/%s/' %
                                (self.domain['invoices']['url'],
                                 self.invoice_id))
-
-    def tearDown(self):
-        self.dropDB()
 
     def get(self, resource, query='', item=None):
         if resource in self.domain:
@@ -245,102 +345,3 @@ class TestMethodsBase(TestBase):
 
     def assert412(self, status):
         self.assertEqual(status, 412)
-
-    def setupDB(self):
-        self.connection = MongoClient()
-        self.connection.drop_database(MONGO_DBNAME)
-        self.connection[MONGO_DBNAME].add_user(MONGO_USERNAME, MONGO_PASSWORD)
-        self.bulk_insert()
-
-    def bulk_insert(self):
-        _db = self.connection[MONGO_DBNAME]
-        _db.contacts.insert(self.random_contacts(100))
-        _db.contacts.insert(self.random_users(2))
-        _db.payments.insert(self.random_payments(10))
-        _db.invoices.insert(self.random_invoices(1))
-        self.connection.close()
-
-    def dropDB(self):
-        self.connection = MongoClient()
-        self.connection.drop_database(MONGO_DBNAME)
-        self.connection.close()
-
-    def random_contacts(self, num, standard_date_fields=True):
-        schema = DOMAIN['contacts']['schema']
-        contacts = []
-        for i in range(num):
-            dt = datetime.now()
-            contact = {
-                'ref':  self.random_string(schema['ref']['maxlength']),
-                'prog': i,
-                'role': random.choice(schema['role']['allowed']),
-                'rows': self.random_rows(random.randint(0, 5)),
-                'alist': self.random_list(random.randint(0, 5)),
-                'location': {
-                    'address': 'address ' + self.random_string(5),
-                    'city': 'city ' + self.random_string(3),
-                },
-                'born': datetime.today() + timedelta(
-                    days=random.randint(-10, 10)),
-
-                'tid': ObjectId(),
-            }
-            if standard_date_fields:
-                contact[eve.LAST_UPDATED] = dt
-                contact[eve.DATE_CREATED] = dt
-
-            contacts.append(contact)
-        return contacts
-
-    def random_users(self, num):
-        users = self.random_contacts(num)
-        for user in users:
-            user['username'] = self.random_string(10)
-        return users
-
-    def random_payments(self, num):
-        payments = []
-        for i in range(num):
-            dt = datetime.now()
-            payment = {
-                'a_string':  self.random_string(10),
-                'a_number': i,
-                eve.LAST_UPDATED: dt,
-                eve.DATE_CREATED: dt,
-            }
-            payments.append(payment)
-        return payments
-
-    def random_invoices(self, num):
-        invoices = []
-        for i in range(num):
-            dt = datetime.now()
-            invoice = {
-                'inv_number':  self.random_string(10),
-                eve.LAST_UPDATED: dt,
-                eve.DATE_CREATED: dt,
-            }
-            invoices.append(invoice)
-        return invoices
-
-    def random_string(self, num):
-        return (''.join(random.choice(string.ascii_uppercase)
-                        for x in range(num)))
-
-    def random_list(self, num):
-        alist = []
-        for i in range(num):
-            alist.append(['string' + str(i), random.randint(1000, 9999)])
-        return alist
-
-    def random_rows(self, num):
-        schema = DOMAIN['contacts']['schema']['rows']['schema']['schema']
-        rows = []
-        for i in range(num):
-            rows.append(
-                {
-                    'sku': self.random_string(schema['sku']['maxlength']),
-                    'price': random.randint(100, 1000),
-                }
-            )
-        return rows
