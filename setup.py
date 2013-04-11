@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 
-DESCRIPTION = ("RESTful Web API made simple")
+DESCRIPTION = ("RESTful Web API Made Simple")
 LONG_DESCRIPTION = open('README.rst').read()
 #VERSION = __import__('eve').__version__
 
