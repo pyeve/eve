@@ -4,8 +4,8 @@ python:
   - "2.6"
 script: python setup.py test
 services: mongodb
-before_script:
-  - mongo eve_test --eval 'db.addUser("test_user", "test_pw");'
+#before_script:
+#  - mongo eve_test --eval 'db.addUser("test_user", "test_pw");'
 
 branches:
   only:
