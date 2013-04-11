@@ -6,7 +6,7 @@ Here you can see the full list of changes between each Eve release.
 Version 0.0.5
 -------------
 
-Not released yet.
+Released on April 11th 2013.
 
 - Referential integrity validation via the new 'data_relation' schema keyword.
   Closes #25.
