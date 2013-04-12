@@ -84,14 +84,14 @@ class TestConfig(TestBase):
 
     def test_validate_schema_methods(self):
         test = {
-            'methods': ['PUT', 'GET', 'DELETE', 'POST'],
+            'resource_methods': ['PUT', 'GET', 'DELETE', 'POST'],
         }
         self.app.config['DOMAIN']['test_resource'] = test
         self.assertValidateConfigFailure('PUT')
 
     def test_validate_schema_item_methods(self):
         test = {
-            'methods': ['GET'],
+            'resource_methods': ['GET'],
             'item_methods': ['PUT'],
         }
         self.app.config['DOMAIN']['test_resource'] = test
@@ -135,7 +135,7 @@ class TestConfig(TestBase):
 
         settings = self.domain[resource]
         self.assertEqual(settings['url'], resource)
-        self.assertEqual(settings['methods'],
+        self.assertEqual(settings['resource_methods'],
                          self.app.config['RESOURCE_METHODS'])
         self.assertEqual(settings['public_methods'],
                          self.app.config['PUBLIC_METHODS'])
@@ -274,7 +274,7 @@ class TestConfig(TestBase):
         map_adapter = self.app.url_map.bind(self.app.config['SERVER_NAME'])
 
         for resource, settings in self.domain.items():
-            for method in settings['methods']:
+            for method in settings['resource_methods']:
                 self.assertTrue(map_adapter.test('/%s/' % settings['url'],
                                                  method))
 

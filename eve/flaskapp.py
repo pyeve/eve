@@ -178,7 +178,7 @@ class Eve(Flask):
         # make sure that individual resource/item methods are supported.
         for resource, settings in self.config['DOMAIN'].items():
             self.validate_methods(supported_resource_methods,
-                                  settings['methods'],
+                                  settings['resource_methods'],
                                   '[%s] resource ' % resource)
             self.validate_methods(supported_item_methods,
                                   settings['item_methods'],
@@ -186,7 +186,7 @@ class Eve(Flask):
 
             # while a resource schema is optional for read-only access,
             # it is mandatory for write-access to resource/items.
-            if 'POST' in settings['methods'] or \
+            if 'POST' in settings['resource_methods'] or \
                'PATCH' in settings['item_methods']:
                 if len(settings['schema']) == 0:
                     raise ConfigException('A resource schema must be provided '
@@ -286,7 +286,7 @@ class Eve(Flask):
 
         for resource, settings in self.config['DOMAIN'].items():
             settings.setdefault('url', resource)
-            settings.setdefault('methods', self.config['RESOURCE_METHODS'])
+            settings.setdefault('resource_methods', self.config['RESOURCE_METHODS'])
             settings.setdefault('public_methods',
                                 self.config['PUBLIC_METHODS'])
             settings.setdefault('allowed_roles', self.config['ALLOWED_ROLES'])
@@ -391,7 +391,7 @@ class Eve(Flask):
             # resource endpoint
             url = '%s/<regex("%s"):url>/' % (prefix, settings['url'])
             self.add_url_rule(url, view_func=collections_endpoint,
-                              methods=settings['methods'] + ['OPTIONS'])
+                              methods=settings['resource_methods'] + ['OPTIONS'])
 
             # item endpoint
             if settings['item_lookup']:

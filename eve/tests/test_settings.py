@@ -81,7 +81,7 @@ users['url'] = 'users'
 users['datasource'] = {'source': 'contacts',
                        'filter': {'username': {'$exists': True}}}
 users['schema']['username'] = {'type': 'string', 'required': True}
-users['methods'] = ['DELETE', 'POST', 'GET']
+users['resource_methods'] = ['DELETE', 'POST', 'GET']
 users['item_title'] = 'user'
 
 invoices = {
@@ -98,7 +98,7 @@ invoices = {
 
 
 payments = {
-    'methods': ['GET'],
+    'resource_methods': ['GET'],
     'item_methods': ['GET'],
 }
 
