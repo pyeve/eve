@@ -290,7 +290,7 @@ always lowercase.
 ``pagination``                  ``True`` if pagination is enabled, ``False``
                                 otherwise. Locally overrides ``PAGINATION``.
 
-``methods``                     A list of HTTP methods supported at resource 
+``resource_methods``            A list of HTTP methods supported at resource 
                                 endpoint. Allowed values: ``GET``, ``POST``,
                                 ``DELETE``. Locally overrides
                                 ``RESOURCE_METHODS``.
