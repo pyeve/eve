@@ -134,6 +134,7 @@ look something like this:
         "_id": "50acfba938345b0978fccad7"
         "updated": "Wed, 21 Nov 2012 16:04:56 UTC",
         "created": "Wed, 21 Nov 2012 16:04:56 UTC",
+        "etag": "28995829ee85d69c4c18d597a0f68ae606a266cc",
         "_links": {
             "self": {"href": "eve-demo.herokuapp.com/people/50acfba938345b0978fccad7/", "title": "person"},
             "parent": {"href": "eve-demo.herokuapp.com/", "title": "home"},

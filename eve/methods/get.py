@@ -113,20 +113,20 @@ def getitem(resource, **lookup):
         # be computed on the same document representation that might have
         # been used in the collection 'get' method
         last_modified = document[config.LAST_UPDATED] = _last_updated(document)
-        etag = document_etag(document)
+        document['etag'] = document_etag(document)
 
         _strip_username(document, resource)
 
-        if req.if_none_match and etag == req.if_none_match:
+        if req.if_none_match and document['etag']  == req.if_none_match:
             # request etag matches the current server representation of the
             # document, return a 304 Not-Modified.
-            return response, last_modified, etag, 304
+            return response, last_modified, document['etag'], 304
 
         if req.if_modified_since and last_modified <= req.if_modified_since:
             # request If-Modified-Since conditional request match. We test
             # this after the etag since Last-Modified dates have lower
             # resolution (1 second).
-            return response, last_modified, etag, 304
+            return response, last_modified, document['etag'], 304
 
         response['_links'] = {
             'self': document_link(resource, document[config.ID_FIELD]),
@@ -134,7 +134,7 @@ def getitem(resource, **lookup):
             'parent': home_link()
         }
         response.update(document)
-        return response, last_modified, etag, 200
+        return response, last_modified, document['etag'], 200
 
     abort(404)
 

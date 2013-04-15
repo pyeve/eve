@@ -8,6 +8,9 @@ Version 0.0.6
 
 Not released yet.
 
+- Etags are now included in both the response header and the payload. Closes
+  #29.
+
 - 'methods' settings keyword renamed to 'resource_methods' for coherence with 
   the global RESOURCE_METHODS (Nicolas Carlier).
 

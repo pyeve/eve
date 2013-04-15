@@ -207,7 +207,7 @@ class TestGetItem(TestBase):
     def assertItemResponse(self, response, status,
                            resource=None):
         self.assert200(status)
-
+        self.assertTrue('etag' in response)
         links = response['_links']
         self.assertEqual(len(links), 3)
         self.assertHomeLink(links)
