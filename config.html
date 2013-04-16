@@ -583,8 +583,22 @@ arbitrary length <tt class="docutils literal"><span class="pre">list</span></tt>
 and usage examples, see <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#schema" title="(in Cerberus v0.1.0)"><em class="xref std std-ref">Cerberus documentation</em></a></td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">unique</span></tt></td>
-<td>The value of the field must be unique within
-the collection.</td>
+<td><p class="first">The value of the field must be unique within
+the collection.</p>
+<p>Please note: validation constraints are checked
+against the database, and not between the
+payload documents themselves. This causes an
+interesting corner case: in the event of
+a multiple documents payload where two or more
+documents carry the same value for a field
+where the &#8216;unique&#8217; constraint is set, the
+payload will validate successfully, as there
+are no duplicates in the database (yet).</p>
+<p class="last">If this is an issue, the client can always send
+the documents once at a time for insertion, or
+validate locally before submitting the payload
+to the API.</p>
+</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">data_relation</span></tt></td>
 <td>Allows to specify a referential integrity rule

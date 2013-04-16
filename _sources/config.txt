@@ -475,6 +475,21 @@ defining the field validation rules. Allowed validation rules are:
 ``unique``                      The value of the field must be unique within
                                 the collection.
 
+                                Please note: validation constraints are checked
+                                against the database, and not between the
+                                payload documents themselves. This causes an
+                                interesting corner case: in the event of
+                                a multiple documents payload where two or more
+                                documents carry the same value for a field
+                                where the 'unique' constraint is set, the
+                                payload will validate successfully, as there
+                                are no duplicates in the database (yet). 
+                                
+                                If this is an issue, the client can always send
+                                the documents once at a time for insertion, or
+                                validate locally before submitting the payload
+                                to the API.
+
 ``data_relation``               Allows to specify a referential integrity rule
                                 that the value must satisfy in order to
                                 validate. It is a dict with two keys:
