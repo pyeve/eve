@@ -92,13 +92,18 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
-    def insert(self, resource, document):
+    def insert(self, resource, doc_or_docs):
         """Inserts a document into a resource collection/table.
 
         :param resource: resource being accessed. You should then use
                          the ``_datasource`` helper function to retrieve both
                          the actual datasource name.
-        :param document: json document to be added to the database.
+        :param doc_or_docs: json document or list of json documents to be added
+                            to the database.
+
+        .. versionchanged:: 0.0.6
+            'document' param renamed to 'doc_or_docs', making support for bulk
+            inserts apparent.
         """
         raise NotImplementedError
 
