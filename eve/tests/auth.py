@@ -78,7 +78,7 @@ class TestBasicAuth(TestBase):
                                  headers=self.valid_auth)
         self.assert200(r.status_code)
         r = self.test_client.post(self.known_resource_url,
-                                  data={'key1': 'value1'},
+                                  data={"item1": json.dumps({"k": "value"})},
                                   headers=self.valid_auth)
         self.assert200(r.status_code)
         r = self.test_client.delete(self.known_resource_url,
