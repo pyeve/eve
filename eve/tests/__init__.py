@@ -56,6 +56,7 @@ class TestBase(unittest.TestCase):
         self.item_name = contact['ref']
         self.item_tid = contact['tid']
         self.item_etag = contact['etag']
+        self.item_ref = contact['ref']
         self.item_id_url = ('/%s/%s/' %
                             (self.domain[self.known_resource]['url'],
                              self.item_id))

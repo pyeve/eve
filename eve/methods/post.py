@@ -30,6 +30,17 @@ def post(resource):
 
     :param resource: name of the resource involved.
 
+    .. versionchanged:: 0.0.6
+        Support for bulk inserts.
+        Please note: validation constraints are checked against the database,
+        and not between the payload documents themselves. This causes an
+        interesting corner case: in the event of a multiple documents payload
+        where two or more documents carry the same value for a field where the
+        'unique' constraint is set, the payload will validate successfully, as
+        there are no duplicates in the database (yet). If this is an issue, the
+        client can always send the documents once at a time for insertion, or
+        validate locally before submitting the payload to the API.
+
     .. versionchanged:: 0.0.5
        Support for 'application/json' Content-Type .
        Support for 'user-restricted resource access'.
@@ -41,21 +52,23 @@ def post(resource):
        JSON links. Superflous ``response`` container removed.
     """
 
-    response = {}
     date_utc = datetime.utcnow()
 
     schema = app.config['DOMAIN'][resource]['schema']
     validator = app.validator(schema, resource)
+    documents = []
+    issues = []
 
-    for key, value in payload().items():
-
-        response_item = {}
-        issues = []
-
+    # validation, and additional fields
+    payl = payload()
+    for key, value in payl.items():
+        document = []
+        doc_issues = []
         try:
             document = parse(value, resource)
             validation = validator.validate(document)
             if validation:
+                # validation is successful
                 document[config.LAST_UPDATED] = \
                     document[config.DATE_CREATED] = date_utc
 
@@ -66,27 +79,40 @@ def post(resource):
                 if username_field and request.authorization:
                     document[username_field] = request.authorization.username
 
-                document[config.ID_FIELD] = app.data.insert(resource, document)
-
-                response_item[config.ID_FIELD] = document[config.ID_FIELD]
-                response_item[config.LAST_UPDATED] = \
-                    document[config.LAST_UPDATED]
-                response_item['_links'] = \
-                    {'self': document_link(resource,
-                                           response_item[config.ID_FIELD])}
-
             else:
-                issues.extend(validator.errors)
+                # validation errors added to list of document issues
+                doc_issues.extend(validator.errors)
         except ValidationError as e:
             raise e
         except Exception as e:
-            issues.append(str(e))
+            # most likely a problem with the incoming payload, report back to
+            # the client as if it was a validation issue
+            doc_issues.append(str(e))
 
-        if len(issues):
-            response_item['issues'] = issues
+        documents.append(document)
+        # TODO so which is faster, a test on len(doc_issues), or extending a
+        # list with a (possibly) empty list? Betting on #2, but a test is in
+        # order
+        issues.append(doc_issues)
+
+    # bulk insert
+    ids = app.data.insert(resource, documents)
+
+    # build response payload
+    response = {}
+    for key, document, id_, doc_issues in zip(payl.keys(), documents, ids,
+                                              issues):
+        response_item = {}
+        if len(doc_issues):
             response_item['status'] = config.STATUS_ERR
+            response_item['issues'] = doc_issues
         else:
             response_item['status'] = config.STATUS_OK
+            response_item[config.ID_FIELD] = id_
+            response_item[config.LAST_UPDATED] = document[config.LAST_UPDATED]
+            response_item['_links'] = \
+                {'self': document_link(resource,
+                                       response_item[config.ID_FIELD])}
 
         response[key] = response_item
 

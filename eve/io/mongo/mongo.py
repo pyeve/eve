@@ -113,14 +113,18 @@ class Mongo(DataLayer):
         document = self.driver.db[datasource].find_one(filter_)
         return document
 
-    def insert(self, resource, document):
+    def insert(self, resource, doc_or_docs):
         """Inserts a document into a resource collection.
+
+        .. versionchanged:: 0.0.6
+            'document' param renamed to 'doc_or_docs', making support for bulk
+            inserts apparent.
 
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
         datasource, filter_ = self._datasource_ex(resource)
-        return self.driver.db[datasource].insert(document)
+        return self.driver.db[datasource].insert(doc_or_docs)
 
     def update(self, resource, id_, updates):
         """Updates a collection document.
