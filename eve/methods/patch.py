@@ -12,7 +12,7 @@
 """
 
 from flask import current_app as app
-from datetime import datetime
+from datetime import datetime, timedelta
 from common import get_document, parse, payload as payload_
 from flask import abort
 from eve.utils import document_etag, document_link, config
@@ -67,28 +67,23 @@ def patch(resource, **lookup):
         updates = parse(value, resource)
         validation = validator.validate_update(updates, object_id)
         if validation:
-            updates[config.LAST_UPDATED] = datetime.utcnow()
+
+            # the mongo driver has a different precision than the python
+            # datetime. since we don't want to reload the document once it has
+            # been updated, and we still have to provide an updated etag,
+            # we're going to update the local version of the 'original'
+            # document, and we will use it for the etag computation.
+            original.update(updates)
+            # some datetime precision magic
+            dt = datetime.utcnow()
+            dt = dt - timedelta(microseconds=dt.microsecond % 1000)
+            updates[config.LAST_UPDATED] = original[config.LAST_UPDATED] = dt
+            etag = document_etag(original)
+
             app.data.update(resource, object_id, updates)
-
-            # TODO computing etag without reloading the document
-            # would be ideal. However, for reasons that need fruther
-            # investigation, an etag computed on original.update(updates)
-            # won't provide the same result as the saved document.
-            # this has probably comething to do with a) the different
-            # precision between the BSON (milliseconds) python datetime and,
-            # b), the string representation of the documents (being dicts)
-            # not matching.
-            #
-            # TL;DR: find a way to compute a reliable etag without reloading
-            updated = app.data.find_one(resource,
-                                        **{config.ID_FIELD: object_id})
-            updated[config.LAST_UPDATED] = \
-                updated[config.LAST_UPDATED].replace(tzinfo=None)
-            etag = document_etag(updated)
-
             response_item[config.ID_FIELD] = object_id
             last_modified = response_item[config.LAST_UPDATED] = \
-                updated[config.LAST_UPDATED]
+                original[config.LAST_UPDATED]
 
             # metadata
             response_item['etag'] = etag

@@ -8,7 +8,10 @@ Version 0.0.6
 
 Not released yet.
 
-- Bulk Inserts on the database. POST method heavily refactored to take 
+- PATCH performance improvement: ETag is now computed in memory; performing an
+  extra database lookup is not needed anymore.
+          
+- Bulk Inserts on the database. POST method heavily refactored to take
   advantage of MongoDB native support for Bulk Inserts. 
   
   Please note: validation constraints are checked against the database, and not
