@@ -12,8 +12,8 @@
 """
 
 from flask import current_app as app
-from datetime import datetime, timedelta
-from common import get_document, parse, payload as payload_
+from datetime import datetime
+from common import get_document, parse, date_precision, payload as payload_
 from flask import abort
 from eve.utils import document_etag, document_link, config
 from eve.auth import requires_auth
@@ -29,6 +29,9 @@ def patch(resource, **lookup):
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
+
+    .. versionchanged:: 0.0.6
+        ETag is now computed without the need of an additional db lookup
 
     .. versionchanged:: 0.0.5
         Support for 'aplication/json' Content-Type.
@@ -67,7 +70,6 @@ def patch(resource, **lookup):
         updates = parse(value, resource)
         validation = validator.validate_update(updates, object_id)
         if validation:
-
             # the mongo driver has a different precision than the python
             # datetime. since we don't want to reload the document once it has
             # been updated, and we still have to provide an updated etag,
@@ -75,9 +77,8 @@ def patch(resource, **lookup):
             # document, and we will use it for the etag computation.
             original.update(updates)
             # some datetime precision magic
-            dt = datetime.utcnow()
-            dt = dt - timedelta(microseconds=dt.microsecond % 1000)
-            updates[config.LAST_UPDATED] = original[config.LAST_UPDATED] = dt
+            updates[config.LAST_UPDATED] = original[config.LAST_UPDATED] = \
+                date_precision(datetime.utcnow())
             etag = document_etag(original)
 
             app.data.update(resource, object_id, updates)
