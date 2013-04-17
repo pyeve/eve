@@ -109,8 +109,10 @@ class TestPost(TestBase):
     def assertPostItem(self, data, test_field, test_value):
         r = self.perform_post(data)
         item_id = r['item1'][ID_FIELD]
-        db_value = self.compare_post_with_get(item_id, test_field)
-        self.assertTrue(db_value == test_value)
+        item_etag = r['item1']['etag']
+        db_value = self.compare_post_with_get(item_id, [test_field, 'etag'])
+        self.assertTrue(db_value[0] == test_value)
+        self.assertTrue(db_value[1] == item_etag)
 
     def test_multi_post(self):
         items = [
@@ -185,6 +187,7 @@ class TestPost(TestBase):
             self.assertTrue(LAST_UPDATED in k)
             self.assertTrue('_links') in k
             self.assertItemLink(k['_links'], k[ID_FIELD])
+            self.assertTrue('etag' in k)
 
     def compare_post_with_get(self, item_id, fields):
         raw_r = self.test_client.get("%s%s/" % (self.known_resource_url,
