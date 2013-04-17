@@ -14,6 +14,7 @@ from flask import current_app as app, request
 from flask import abort
 import simplejson as json
 from ..utils import str_to_date, parse_request, document_etag, config
+from datetime import timedelta
 
 
 def get_document(resource, **lookup):
@@ -102,3 +103,16 @@ def payload():
         return request.form if len(request.form) else abort(400)
     else:
         abort(400)
+
+
+def date_precision(date):
+    """ Mongo datetimes have a millisecond precision while Python datetime
+    has microseconds too. This function, given a Python datetime, returns
+    the equivalent 'PyMongo' equivalent. This is mostly needed when computing
+    ETags in POST and PATCH without reloading the saved document.
+
+    :param date: the python datetime
+
+    ..versionadded: 0.0.6
+    """
+    return date - timedelta(microseconds=date.microsecond % 1000)

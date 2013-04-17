@@ -11,11 +11,11 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from datetime import datetime
 from flask import request
+from datetime import datetime
 from flask import current_app as app
-from common import parse, payload
-from eve.utils import document_link, config
+from common import parse, payload, date_precision
+from eve.utils import document_link, config, document_etag
 from eve.auth import requires_auth
 from eve.validation import ValidationError
 
@@ -52,7 +52,7 @@ def post(resource):
        JSON links. Superflous ``response`` container removed.
     """
 
-    date_utc = datetime.utcnow()
+    date_utc = date_precision(datetime.utcnow())
 
     schema = app.config['DOMAIN'][resource]['schema']
     validator = app.validator(schema, resource)
@@ -110,6 +110,7 @@ def post(resource):
             response_item['status'] = config.STATUS_OK
             response_item[config.ID_FIELD] = id_
             response_item[config.LAST_UPDATED] = document[config.LAST_UPDATED]
+            response_item['etag'] = document_etag(document)
             response_item['_links'] = \
                 {'self': document_link(resource,
                                        response_item[config.ID_FIELD])}

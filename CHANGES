@@ -8,6 +8,8 @@ Version 0.0.6
 
 Not released yet.
 
+- ETags are now provided with POST responses. Closes #36.
+
 - PATCH performance improvement: ETag is now computed in memory; performing an
   extra database lookup is not needed anymore.
           
