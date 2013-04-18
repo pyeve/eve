@@ -95,6 +95,18 @@ class TestGet(TestBase):
         resource = response['_items']
         self.assertEqual(len(resource), 1)
 
+    def test_get_projection(self):
+        projection = '{"prog": 1}'
+        response, status = self.get(self.known_resource, '?projection=%s' % projection)
+        self.assert200(status)
+
+        resource = response['_items']
+
+        for r in resource:
+            self.assertFalse(r.has_key('location'))
+            self.assertFalse(r.has_key('role'))
+            self.assertTrue(r.has_key('prog'))
+
     def test_get_where_disabled(self):
         self.app.config['DOMAIN'][self.known_resource]['filters'] = False
         where = 'ref == %s' % self.item_name
