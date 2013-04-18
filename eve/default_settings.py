@@ -35,6 +35,7 @@ X_DOMAINS = None                # CORS disabled by default.
 
 FILTERS = True                  # filters enbaled by default.
 SORTING = True                  # sorting enabled by default.
+PROJECTION = True               # projection enabled by default
 PAGINATION = True               # pagination enabled by default.
 PAGINATION_LIMIT = 50
 PAGINATION_DEFAULT = 25

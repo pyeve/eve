@@ -160,6 +160,7 @@ class TestConfig(TestBase):
         self.assertEqual(settings['item_title'],
                          resource.rstrip('s').capitalize())
         self.assertEqual(settings['filters'], self.app.config['FILTERS'])
+        self.assertEqual(settings['projection'], self.app.config['PROJECTION'])
         self.assertEqual(settings['sorting'], self.app.config['SORTING'])
         self.assertEqual(settings['pagination'], self.app.config['PAGINATION'])
         self.assertEqual(settings['auth_username_field'],
@@ -169,7 +170,8 @@ class TestConfig(TestBase):
         self.assertEqual(type(settings['schema']), dict)
         self.assertEqual(len(settings['schema']), 0)
         self.assertEqual(settings['datasource'],
-                         {'source': resource, 'filter': None})
+                         {'source': resource, 'filter': None,
+                          'projection': None})
 
     def test_validate_roles(self):
         for resource in self.domain:

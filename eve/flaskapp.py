@@ -306,6 +306,7 @@ class Eve(Flask):
             settings.setdefault('filters', self.config['FILTERS'])
             settings.setdefault('sorting', self.config['SORTING'])
             settings.setdefault('pagination', self.config['PAGINATION'])
+            settings.setdefault('projection', self.config['PROJECTION'])
             # TODO make sure that this we really need the test below
             if settings['item_lookup']:
                 item_methods = self.config['ITEM_METHODS']
@@ -319,6 +320,7 @@ class Eve(Flask):
             settings.setdefault('datasource', datasource)
             settings['datasource'].setdefault('source', resource)
             settings['datasource'].setdefault('filter', None)
+            settings['datasource'].setdefault('projection', None)
 
             # empty schemas are allowed for read-only access to resources
             schema = settings.setdefault('schema', {})
