@@ -266,6 +266,9 @@ class Eve(Flask):
         """ When not provided, fills individual resource settings with default
         or global configuration settings.
 
+        .. versionchanged:: 0.0.6
+           'allow_unknown'
+
         .. versionchanged:: 0.0.5
            'auth_username_field'
            'filters',
@@ -314,6 +317,7 @@ class Eve(Flask):
             settings.setdefault('item_methods', item_methods)
             settings.setdefault('auth_username_field',
                                 self.config['AUTH_USERNAME_FIELD'])
+            settings.setdefault('allow_unknown', self.config['ALLOW_UNKNOWN'])
 
             datasource = {}
             settings.setdefault('datasource', datasource)

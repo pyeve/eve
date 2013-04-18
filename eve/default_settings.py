@@ -11,6 +11,9 @@
     :copyright: (c) 2012 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.0.6
+       'ALLOW_UNKNOWN' added and set to False.
+
     .. versionchanged:: 0.0.5
        'AUTH_USERNAME_FIELD' keyword added to support 'user-restricted resource
        access.
@@ -52,5 +55,7 @@ ITEM_URL = '[a-f0-9]{24}'
 AUTH_USERNAME_FIELD = ''        # user-restricted resource access is disabled
                                 # by default.
 
+ALLOW_UNKNOWN = False           # don't allow unknown key/value pairs for
+                                # POST/PATCH payloads.
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"
