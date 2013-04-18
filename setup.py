@@ -20,7 +20,7 @@ setup(
     test_suite="eve.tests",
     install_requires=[
         'flask-pymongo>=0.2.0',
-        'cerberus>=0.0.3',
+        'cerberus>=0.2.0',
         'simplejson'
     ],
     classifiers=[
