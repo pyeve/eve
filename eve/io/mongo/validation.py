@@ -35,8 +35,7 @@ class Validator(Validator):
     def __init__(self, schema, resource=None):
         self.resource = resource
         self.object_id = None
-        super(Validator, self).__init__(schema,
-                                        transparent_schema_rules=True)
+        super(Validator, self).__init__(schema, transparent_schema_rules=True)
 
     def validate_update(self, document, object_id):
         """ Validate method to be invoked when performing an update, not an

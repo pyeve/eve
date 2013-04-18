@@ -14,7 +14,7 @@
 from flask import request
 from datetime import datetime
 from flask import current_app as app
-from common import parse, payload, date_precision
+from common import parse, payload
 from eve.utils import document_link, config, document_etag
 from eve.auth import requires_auth
 from eve.validation import ValidationError
@@ -52,7 +52,7 @@ def post(resource):
        JSON links. Superflous ``response`` container removed.
     """
 
-    date_utc = date_precision(datetime.utcnow())
+    date_utc = datetime.utcnow().replace(microsecond=0)
 
     schema = app.config['DOMAIN'][resource]['schema']
     validator = app.validator(schema, resource)

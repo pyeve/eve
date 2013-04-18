@@ -13,7 +13,7 @@
 
 from flask import current_app as app
 from datetime import datetime
-from common import get_document, parse, date_precision, payload as payload_
+from common import get_document, parse, payload as payload_
 from flask import abort
 from eve.utils import document_etag, document_link, config
 from eve.auth import requires_auth
@@ -78,7 +78,7 @@ def patch(resource, **lookup):
             original.update(updates)
             # some datetime precision magic
             updates[config.LAST_UPDATED] = original[config.LAST_UPDATED] = \
-                date_precision(datetime.utcnow())
+                datetime.utcnow().replace(microsecond=0)
             etag = document_etag(original)
 
             app.data.update(resource, object_id, updates)
