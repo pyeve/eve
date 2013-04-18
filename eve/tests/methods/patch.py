@@ -202,6 +202,20 @@ class TestPatch(TestBase):
         else:
             return [r[field] for field in fields]
 
+    def test_patch_allow_unknown(self):
+        changes = {'key1': json.dumps({"unknown": "unknown"})}
+        r, status = self.patch(self.item_id_url,
+                               data=changes,
+                               headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+        self.assertValidationError(r, 'key1', 'unknown field')
+        self.app.config['DOMAIN'][self.known_resource]['allow_unknown'] = True
+        r, status = self.patch(self.item_id_url,
+                               data=changes,
+                               headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+        self.assertPatchResponse(r, 'key1', self.item_id)
+
     def test_patch_json(self):
         field = "ref"
         test_value = "1234567890123456789012345"

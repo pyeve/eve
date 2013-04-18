@@ -106,14 +106,6 @@ class TestPost(TestBase):
         data = {'item1': '{"%s": "%s"}' % ('ref', '9234567890123456789054321')}
         self.assertPostItem(data, test_field, test_value)
 
-    def assertPostItem(self, data, test_field, test_value):
-        r = self.perform_post(data)
-        item_id = r['item1'][ID_FIELD]
-        item_etag = r['item1']['etag']
-        db_value = self.compare_post_with_get(item_id, [test_field, 'etag'])
-        self.assertTrue(db_value[0] == test_value)
-        self.assertTrue(db_value[1] == item_etag)
-
     def test_multi_post(self):
         items = [
             ('ref', "9234567890123456789054321"),
@@ -146,12 +138,6 @@ class TestPost(TestBase):
         self.assertTrue(db_value[0] == items[2][1])
         self.assertTrue(db_value[1] == items[2][2])
 
-    def perform_post(self, data, valid_items=['item1']):
-        r, status = self.post(self.known_resource_url, data=data)
-        self.assert200(status)
-        self.assertPostResponse(r, valid_items)
-        return r
-
     def test_post_json(self):
         test_field = "ref"
         test_value = "1234567890123456789054321"
@@ -175,6 +161,31 @@ class TestPost(TestBase):
         r, status = self.post('/invoices/', data=data)
         self.assert200(status)
         self.assertPostResponse(r, ['item1'])
+
+    def test_post_allow_unknown(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        data = {"item1": json.dumps({"unknown": "unknown"})}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert200(status)
+        self.assertValidationError(r, 'item1', "unknown")
+        self.app.config['DOMAIN'][self.known_resource]['allow_unknown'] = True
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert200(status)
+        self.assertPostResponse(r, ['item1'])
+
+    def perform_post(self, data, valid_items=['item1']):
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert200(status)
+        self.assertPostResponse(r, valid_items)
+        return r
+
+    def assertPostItem(self, data, test_field, test_value):
+        r = self.perform_post(data)
+        item_id = r['item1'][ID_FIELD]
+        item_etag = r['item1']['etag']
+        db_value = self.compare_post_with_get(item_id, [test_field, 'etag'])
+        self.assertTrue(db_value[0] == test_value)
+        self.assertTrue(db_value[1] == item_etag)
 
     def assertPostResponse(self, response, keys):
         for key in keys:

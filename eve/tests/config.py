@@ -164,6 +164,8 @@ class TestConfig(TestBase):
         self.assertEqual(settings['pagination'], self.app.config['PAGINATION'])
         self.assertEqual(settings['auth_username_field'],
                          self.app.config['AUTH_USERNAME_FIELD'])
+        self.assertEqual(settings['allow_unknown'],
+                         self.app.config['ALLOW_UNKNOWN'])
 
         self.assertNotEqual(settings['schema'], None)
         self.assertEqual(type(settings['schema']), dict)
