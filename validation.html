@@ -160,6 +160,43 @@ find more advanced use cases, such as the implementation of the <tt class="docut
 <tt class="docutils literal"><span class="pre">data_relation</span></tt> constraints. Please see the <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> documentation for
 a complete list rules and data types available.</p>
 </div>
+<div class="section" id="allowing-the-unknown">
+<span id="unknown"></span><h2>Allowing the Unknown<a class="headerlink" href="#allowing-the-unknown" title="Permalink to this headline">¶</a></h2>
+<p>Normally you don&#8217;t want clients to inject unknown fields in your documents.
+However, there might be circumstances where this is desiderable. During the
+development cycle, for example, or when you are dealing with very heterogeneous
+data. After all, not forcing normalized information is one of the selling
+points of MongoDB and many other NoSQL data stores.</p>
+<p>In Eve, you achieve this by setting the <tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt> option to <tt class="docutils literal"><span class="pre">True</span></tt>.
+Once this option is enabled, fields matching the schema will be validated
+normally, while unknown fields will be quietly stored without a glitch. You
+can also enable this feature only for certain endpoints by setting the
+<tt class="docutils literal"><span class="pre">allow_unknown</span></tt> local option.</p>
+<p>Consider the following domain:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">DOMAIN</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s1">&#39;people&#39;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s1">&#39;allow_unknown&#39;</span><span class="o">:</span> <span class="nx">True</span><span class="p">,</span>
+        <span class="s1">&#39;schema&#39;</span><span class="o">:</span> <span class="p">{</span>
+            <span class="s1">&#39;firstname&#39;</span><span class="o">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="o">:</span> <span class="s1">&#39;string&#39;</span><span class="p">},</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>You normally could only add (POST) or edit (PATCH) <cite>firstnames</cite> to the
+<tt class="docutils literal"><span class="pre">/people/</span></tt> endpoint. However, since <tt class="docutils literal"><span class="pre">allow_unknown</span></tt> has been enabled, even
+a payload like this will be accepted:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;item1={&quot;firstname&quot;: &quot;bill&quot;, &quot;lastname&quot;: &quot;clinton&quot;}&#39;</span> -d <span class="s1">&#39;item1={&quot;firstname&quot;: &quot;bill&quot;, &quot;age&quot;:70}&#39;</span> http://eve-demo.herokuapp.com/people/
+<span class="go">HTTP/1.0 200 OK</span>
+</pre></div>
+</div>
+<div class="admonition-please-note admonition">
+<p class="first admonition-title">Please note</p>
+<p class="last">Use this feature with extreme caution. Also be aware that, when this
+options is enabled, clients will be capable of actually <cite>adding</cite> fields via
+PATCH (edit).</p>
+</div>
+</div>
 </div>
 
 
@@ -201,6 +238,7 @@ a complete list rules and data types available.</p>
 <li><a class="reference internal" href="#extending-data-validation">Extending Data Validation</a></li>
 <li><a class="reference internal" href="#custom-validation-rules">Custom Validation Rules</a></li>
 <li><a class="reference internal" href="#custom-data-types">Custom Data Types</a></li>
+<li><a class="reference internal" href="#allowing-the-unknown">Allowing the Unknown</a></li>
 </ul>
 </li>
 </ul>

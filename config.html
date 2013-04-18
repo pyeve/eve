@@ -306,26 +306,33 @@ created the resource item. Can be overwritten
 by resource settings. Defaults to <tt class="docutils literal"><span class="pre">''</span></tt>, which
 disables the feature.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DEBUG</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt></td>
+<td>When <tt class="docutils literal"><span class="pre">True</span></tt> this option will allow insertion
+and edition of arbitrary, unknown fields to
+any API endpoint. Use with caution. See
+<a class="reference internal" href="validation.html#unknown"><em>Allowing the Unknown</em></a> for more informations. Defaults
+to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DEBUG</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> to enable Debug Mode, <tt class="docutils literal"><span class="pre">False</span></tt>
 otherwise.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt></td>
 <td>MongoDB server address.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_PORT</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_PORT</span></tt></td>
 <td>MongoDB port.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_USERNAME</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_USERNAME</span></tt></td>
 <td>MongoDB user name.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_PASSWORD</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_PASSWORD</span></tt></td>
 <td>MongoDB password.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt></td>
 <td>MongoDB database name.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
 <td>A dict holding the API domain definition.
 See <a class="reference internal" href="#domain-configuration">Domain Configuration</a>.</td>
 </tr>
@@ -464,7 +471,14 @@ used to store the username of the user who
 created the resource item. Locally overrides
 <tt class="docutils literal"><span class="pre">AUTH_USERNAME_FIELD</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">allow_unknown</span></tt></td>
+<td>When <tt class="docutils literal"><span class="pre">True</span></tt> this option will allow insertion
+and edition of arbitrary, unknown fields to
+the endpoint. Use with caution. Locally
+overrides <tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt>. See <a class="reference internal" href="validation.html#unknown"><em>Allowing the Unknown</em></a>
+for more informations. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
 <td>A dict defining the actual data structure being
 handled by the resource. Enables data
 validation. See <a class="reference internal" href="#schema-definition">Schema Definition</a>.</td>
