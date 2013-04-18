@@ -8,6 +8,9 @@ Version 0.0.6
 
 Not released yet.
 
+- 'ALLOW_UNKNOWN' option, and the corresponding 'allow_options' local setting,
+  allow for a less strict schema validation. Closes #34.
+
 - ETags are now provided with POST responses. Closes #36.
 
 - PATCH performance improvement: ETag is now computed in memory; performing an

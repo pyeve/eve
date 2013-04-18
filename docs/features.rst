@@ -392,7 +392,9 @@ request:
 
 In the example above, ``item2`` did not validate and was rejected, while
 ``item1`` was successfully created. API maintainer has complete control on
-data validation. For more informations see :ref:`validation`.
+data validation. Optionally, you can decide to allow for unknown fields to be
+added/updated on one or more endpoints. For more informations see
+:ref:`validation`.
 
 Extensible Data Validation
 --------------------------

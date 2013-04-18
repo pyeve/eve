@@ -226,6 +226,12 @@ uppercase.
                                 by resource settings. Defaults to ``''``, which 
                                 disables the feature. 
 
+``ALLOW_UNKNOWN``               When ``True`` this option will allow insertion
+                                and edition of arbitrary, unknown fields to
+                                any API endpoint. Use with caution. See
+                                :ref:`unknown` for more informations. Defaults
+                                to ``False``.
+
 ``DEBUG``                       ``True`` to enable Debug Mode, ``False``
                                 otherwise. 
 
@@ -362,6 +368,12 @@ always lowercase.
                                 used to store the username of the user who
                                 created the resource item. Locally overrides 
                                 ``AUTH_USERNAME_FIELD``.
+
+``allow_unknown``               When ``True`` this option will allow insertion
+                                and edition of arbitrary, unknown fields to
+                                the endpoint. Use with caution. Locally
+                                overrides ``ALLOW_UNKNOWN``. See :ref:`unknown`
+                                for more informations. Defaults to ``False``.
 
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data
