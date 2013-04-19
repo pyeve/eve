@@ -8,6 +8,9 @@ Version 0.0.6
 
 Not released yet.
 
+- Projections. Projections are conditional queries where the client dictates
+  which fields should be returned by the API (Nicolas Bazire).
+
 - 'ALLOW_UNKNOWN' option, and the corresponding 'allow_options' local setting,
   allow for a less strict schema validation. Closes #34.
 
