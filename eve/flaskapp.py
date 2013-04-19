@@ -267,6 +267,7 @@ class Eve(Flask):
         or global configuration settings.
 
         .. versionchanged:: 0.0.6
+           'projection',
            'allow_unknown'
 
         .. versionchanged:: 0.0.5

@@ -39,6 +39,12 @@ class DataLayer(object):
     Admittedly, this interface is a Mongo rip-off. See the io.mongo
     package for an implementation example.
 
+    .. versionchanged:: 0.0.6
+       support for 'projections' has been added. For more information see
+       http://docs.mongodb.org/manual/reference/glossary/#term-projection.
+       While typically a MongoDB feature, other subclasses could decide to
+       provide support for their own projection syntax.
+
     .. versionchanged:: 0.0.4
        the _datasource helper function has been added.
     """

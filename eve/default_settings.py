@@ -12,6 +12,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.0.6
+       'PROJECTION' added and set to True.
        'ALLOW_UNKNOWN' added and set to False.
 
     .. versionchanged:: 0.0.5

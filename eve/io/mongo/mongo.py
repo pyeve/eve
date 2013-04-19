@@ -49,6 +49,9 @@ class Mongo(DataLayer):
         :param resource: resource name.
         :param req: a :class:`ParsedRequest`instance.
 
+        .. versionchanged:: 0.0.6
+           support for projection queries ('?projection={"name": 1}')
+
         .. versionchanged:: 0.0.5
            handles the case where req.max_results is None because pagination
            has been disabled.
@@ -111,6 +114,9 @@ class Mongo(DataLayer):
         :param resource: resource name.
         :param **lookup: lookup query.
 
+        .. versionchanged:: 0.0.6
+           projection queries ('?projection={"name": 1}')
+
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
@@ -127,8 +133,9 @@ class Mongo(DataLayer):
         """Inserts a document into a resource collection.
 
         .. versionchanged:: 0.0.6
-            'document' param renamed to 'doc_or_docs', making support for bulk
-            inserts apparent.
+           projection queries ('?projection={"name": 1}')
+           'document' param renamed to 'doc_or_docs', making support for bulk
+           inserts apparent.
 
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
@@ -139,15 +146,21 @@ class Mongo(DataLayer):
     def update(self, resource, id_, updates):
         """Updates a collection document.
 
+        .. versionchanged:: 0.0.6
+           projection queries ('?projection={"name": 1}')
+
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
         datasource, filter_, _ = self._datasource_ex(resource,
-                                                  {ID_FIELD: ObjectId(id_)})
+                                                     {ID_FIELD: ObjectId(id_)})
         return self.driver.db[datasource].update(filter_, {"$set": updates})
 
     def remove(self, resource, id_=None):
         """Removes a document or the entire set of documents from a collection.
+
+        .. versionchanged:: 0.0.6
+           projection queries ('?projection={"name": 1}')
 
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
@@ -180,6 +193,9 @@ class Mongo(DataLayer):
     def _datasource_ex(self, resource, query=None, fields=None):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to
+
+        .. versionchanged:: 0.0.6
+           projection queries ('?projection={"name": 1}')
 
         .. versionchanged:: 0.0.5
            Support for 'user-restricted resource access'.

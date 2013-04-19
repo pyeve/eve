@@ -42,6 +42,9 @@ config = Config()
 
 class ParsedRequest(object):
     """ This class, by means of its attributes, describes a client request.
+
+    .. versionchanged:: 0.0.6
+        projection queries ('?projection={"name": 1}')
     """
     # `where` value of the query string (?where). Defaults to None.
     where = None
@@ -78,6 +81,9 @@ def parse_request(resource=None, args=None, headers=None):
                  usually process flask request object.
     :param headers: request headers. Only used by the test suite as we usually
                     process flask request object.
+
+    .. versionchanged:: 0.0.6
+       projection queries ('?projection={"name": 1}')
 
     .. versionchanged: 0.0.5
        Support for optional filters, sorting and pagination.
