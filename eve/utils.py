@@ -46,6 +46,9 @@ class ParsedRequest(object):
     # `where` value of the query string (?where). Defaults to None.
     where = None
 
+    # `projection` value of the query string (?projection). Defaults to None.
+    projection = None
+
     # `sort` value of the query string (?sort). Defaults to None.
     sort = None
 
@@ -88,6 +91,8 @@ def parse_request(resource=None, args=None, headers=None):
     if args:
         if resource is None or config.DOMAIN[resource]['filters']:
             r.where = args.get('where')
+        if resource is None or config.DOMAIN[resource]['projection']:
+            r.projection = args.get('projection')
         if resource is None or config.DOMAIN[resource]['sorting']:
             r.sort = args.get('sort')
 

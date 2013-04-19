@@ -73,6 +73,7 @@ class Mongo(DataLayer):
         if req.sort:
             args['sort'] = ast.literal_eval(req.sort)
 
+        fields = {}
         spec = {}
 
         if req.where:
@@ -84,7 +85,13 @@ class Mongo(DataLayer):
                 except ParseError:
                     abort(400)
 
-        datasource, spec = self._datasource_ex(resource, spec)
+        if req.projection:
+            try:
+                fields = json.loads(req.projection)
+            except:
+                abort(400)
+
+        datasource, spec, fields = self._datasource_ex(resource, spec, fields)
 
         if req.if_modified_since:
             spec[config.LAST_UPDATED] = \
@@ -92,6 +99,9 @@ class Mongo(DataLayer):
 
         if len(spec) > 0:
             args['spec'] = spec
+
+        if len(fields) > 0:
+            args['fields'] = fields
 
         return self.driver.db[datasource].find(**args)
 
@@ -109,7 +119,7 @@ class Mongo(DataLayer):
                 lookup[ID_FIELD] = ObjectId(lookup[ID_FIELD])
         except:
             pass
-        datasource, filter_ = self._datasource_ex(resource, lookup)
+        datasource, filter_, _ = self._datasource_ex(resource, lookup)
         document = self.driver.db[datasource].find_one(filter_)
         return document
 
@@ -123,7 +133,7 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
-        datasource, filter_ = self._datasource_ex(resource)
+        datasource, filter_, _ = self._datasource_ex(resource)
         return self.driver.db[datasource].insert(doc_or_docs)
 
     def update(self, resource, id_, updates):
@@ -132,7 +142,7 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
-        datasource, filter_ = self._datasource_ex(resource,
+        datasource, filter_, _ = self._datasource_ex(resource,
                                                   {ID_FIELD: ObjectId(id_)})
         return self.driver.db[datasource].update(filter_, {"$set": updates})
 
@@ -146,7 +156,7 @@ class Mongo(DataLayer):
             Support for deletion of entire documents collection.
         """
         query = {ID_FIELD: ObjectId(id_)} if id_ else None
-        datasource, filter_ = self._datasource_ex(resource, query)
+        datasource, filter_, _ = self._datasource_ex(resource, query)
         return self.driver.db[datasource].remove(filter_)
 
     def _jsondatetime(self, source):
@@ -167,7 +177,7 @@ class Mongo(DataLayer):
 
         return source
 
-    def _datasource_ex(self, resource, query=None):
+    def _datasource_ex(self, resource, query=None, fields=None):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to
 
@@ -177,12 +187,18 @@ class Mongo(DataLayer):
         .. versionadded:: 0.0.4
         """
 
-        datasource, filter_ = self._datasource(resource)
+        datasource, filter_, projection_ = self._datasource(resource)
         if filter_:
             if query:
                 query.update(filter_)
             else:
                 query = filter_
+
+        if projection_:
+            if fields:
+                fields.update(projection_)
+            else:
+                fields = projection_
 
         # if 'user-restricted resource access' is enabled and there's an Auth
         # request active, add the username field to the query
@@ -190,4 +206,4 @@ class Mongo(DataLayer):
         if username_field and request.authorization and query:
             query.update({username_field: request.authorization.username})
 
-        return datasource, query
+        return datasource, query, fields

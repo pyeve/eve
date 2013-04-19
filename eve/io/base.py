@@ -135,10 +135,12 @@ class DataLayer(object):
 
     def _datasource(self, resource):
         """Returns a tuple with the actual name of the database
-        collection/table and the base query for the resource being accessed.
+        collection/table, base query and projection for the resource being
+        accessed.
 
         :param resource: resource being accessed.
         """
 
         return (config.SOURCES[resource]['source'],
-                config.SOURCES[resource]['filter'])
+                config.SOURCES[resource]['filter'],
+                config.SOURCES[resource]['projection'])
