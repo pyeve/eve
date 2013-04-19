@@ -39,6 +39,12 @@ class DataLayer(object):
     Admittedly, this interface is a Mongo rip-off. See the io.mongo
     package for an implementation example.
 
+    .. versionchanged:: 0.0.6
+       support for 'projections' has been added. For more information see
+       http://docs.mongodb.org/manual/reference/glossary/#term-projection.
+       While typically a MongoDB feature, other subclasses could decide to
+       provide support for their own projection syntax.
+
     .. versionchanged:: 0.0.4
        the _datasource helper function has been added.
     """
@@ -135,10 +141,12 @@ class DataLayer(object):
 
     def _datasource(self, resource):
         """Returns a tuple with the actual name of the database
-        collection/table and the base query for the resource being accessed.
+        collection/table, base query and projection for the resource being
+        accessed.
 
         :param resource: resource being accessed.
         """
 
         return (config.SOURCES[resource]['source'],
-                config.SOURCES[resource]['filter'])
+                config.SOURCES[resource]['filter'],
+                config.SOURCES[resource]['projection'])

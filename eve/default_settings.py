@@ -12,6 +12,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.0.6
+       'PROJECTION' added and set to True.
        'ALLOW_UNKNOWN' added and set to False.
 
     .. versionchanged:: 0.0.5
@@ -38,6 +39,7 @@ X_DOMAINS = None                # CORS disabled by default.
 
 FILTERS = True                  # filters enbaled by default.
 SORTING = True                  # sorting enabled by default.
+PROJECTION = True               # projection enabled by default
 PAGINATION = True               # pagination enabled by default.
 PAGINATION_LIMIT = 50
 PAGINATION_DEFAULT = 25
