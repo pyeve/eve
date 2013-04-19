@@ -232,6 +232,10 @@ uppercase.
                                 :ref:`unknown` for more informations. Defaults
                                 to ``False``.
 
+``PROJECTION``                  When ``True`` this option enables the
+                                :ref:`projections` feature. Can be overwritten
+                                by resource settings. Defaults to ``True``.
+
 ``DEBUG``                       ``True`` to enable Debug Mode, ``False``
                                 otherwise. 
 
@@ -374,6 +378,10 @@ always lowercase.
                                 the endpoint. Use with caution. Locally
                                 overrides ``ALLOW_UNKNOWN``. See :ref:`unknown`
                                 for more informations. Defaults to ``False``.
+
+``projection``                  When ``True`` this option enables the
+                                :ref:`projections` feature. Locally overrides
+                                ``PROJECTION``. Defaults to ``True``.
 
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data

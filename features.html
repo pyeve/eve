@@ -508,6 +508,21 @@ target the same database collection. A typical use-case would be an
 hypothetical <tt class="docutils literal"><span class="pre">people</span></tt> collection on the database being used by both the
 <tt class="docutils literal"><span class="pre">/admins/</span></tt> and <tt class="docutils literal"><span class="pre">/users/</span></tt> API endpoints.</p>
 </div>
+<div class="section" id="projections">
+<span id="id2"></span><h2>Projections<a class="headerlink" href="#projections" title="Permalink to this headline">¶</a></h2>
+<p>This feature allows to create dynamic <em>views</em> of collections, or more precisely
+to decide what fields should or should not be returned, using a &#8216;projection&#8217;.
+Put in another way, Projections are conditional queries where the client
+dictates which fields should be returned by the API.</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/?projection<span class="o">={</span><span class="s2">&quot;lastname&quot;</span>: 1, <span class="s2">&quot;born&quot;</span>: 1<span class="o">}</span>
+<span class="go">HTTP/1.0 200 OK</span>
+</pre></div>
+</div>
+<p>The query above will only return <em>lastaname</em> and <em>born</em> out of all the fields
+available in the &#8216;people&#8217; resource. Please note that key fields such as
+ID_FIELD, DATE_CREATED, DATE_UPDATED etc.  will still be included with the
+payload.</p>
+</div>
 <div class="section" id="mongodb-support">
 <h2>MongoDB Support<a class="headerlink" href="#mongodb-support" title="Permalink to this headline">¶</a></h2>
 <p>Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL
@@ -579,6 +594,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li><a class="reference internal" href="#read-only-by-default">Read-only by default</a></li>
 <li><a class="reference internal" href="#default-values">Default Values</a></li>
 <li><a class="reference internal" href="#predefined-database-filters">Predefined Database Filters</a></li>
+<li><a class="reference internal" href="#projections">Projections</a></li>
 <li><a class="reference internal" href="#mongodb-support">MongoDB Support</a></li>
 <li><a class="reference internal" href="#powered-by-flask">Powered by Flask</a></li>
 </ul>

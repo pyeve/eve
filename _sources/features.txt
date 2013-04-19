@@ -471,6 +471,25 @@ target the same database collection. A typical use-case would be an
 hypothetical ``people`` collection on the database being used by both the
 ``/admins/`` and ``/users/`` API endpoints.
 
+.. _projections:
+
+Projections
+-----------
+This feature allows to create dynamic *views* of collections, or more precisely
+to decide what fields should or should not be returned, using a 'projection'.
+Put in another way, Projections are conditional queries where the client
+dictates which fields should be returned by the API.
+
+.. code-block:: console
+
+    $ curl -i http://eve-demo.herokuapp.com/people/?projection={"lastname": 1, "born": 1}
+    HTTP/1.0 200 OK
+
+The query above will only return *lastaname* and *born* out of all the fields
+available in the 'people' resource. Please note that key fields such as
+ID_FIELD, DATE_CREATED, DATE_UPDATED etc.  will still be included with the
+payload.
+
 MongoDB Support
 ---------------
 Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL
