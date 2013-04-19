@@ -485,7 +485,7 @@ dictates which fields should be returned by the API.
     $ curl -i http://eve-demo.herokuapp.com/people/?projection={"lastname": 1, "born": 1}
     HTTP/1.0 200 OK
 
-The query above will only return *lastaname* and *born* out of all the fields
+The query above will only return *lastname* and *born* out of all the fields
 available in the 'people' resource. Please note that key fields such as
 ID_FIELD, DATE_CREATED, DATE_UPDATED etc.  will still be included with the
 payload.
