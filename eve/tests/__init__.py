@@ -14,6 +14,7 @@ from test_settings import MONGO_PASSWORD, MONGO_USERNAME, MONGO_DBNAME, DOMAIN
 
 
 class TestBase(unittest.TestCase):
+    known_resource_count = 100
 
     def setUp(self):
         self.setupDB()
@@ -249,7 +250,7 @@ class TestBase(unittest.TestCase):
 
     def bulk_insert(self):
         _db = self.connection[MONGO_DBNAME]
-        _db.contacts.insert(self.random_contacts(100))
+        _db.contacts.insert(self.random_contacts(self.known_resource_count))
         _db.contacts.insert(self.random_users(2))
         _db.payments.insert(self.random_payments(10))
         _db.invoices.insert(self.random_invoices(1))
