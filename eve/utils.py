@@ -17,7 +17,7 @@ from flask import request
 from flask import current_app as app
 from datetime import datetime, timedelta
 from bson.json_util import dumps
-
+import werkzeug.exceptions
 
 class Config(object):
     """ Helper class used trorough the code to access configuration settings.
@@ -60,7 +60,7 @@ class ParsedRequest(object):
 
     # `max_result` value of the query string (?max_results). Defaults to
     # `PAGINATION_DEFAULT` unless pagination is disabled.
-    max_results = config.PAGINATION_DEFAULT
+    max_results = 0
 
     # `If-Modified-Since` request header value. Defaults to None.
     if_modified_since = None
@@ -72,15 +72,11 @@ class ParsedRequest(object):
     if_match = None
 
 
-def parse_request(resource=None, args=None, headers=None):
+def parse_request(resource):
     """ Parses a client request, returning instance of :class:`ParsedRequest`
     containing relevant request data.
 
     :param resource: the resource currently being accessed by the client.
-    :param args: request arguments. This is only used by the test suite as we
-                 usually process flask request object.
-    :param headers: request headers. Only used by the test suite as we usually
-                    process flask request object.
 
     .. versionchanged:: 0.0.6
        projection queries ('?projection={"name": 1}')
@@ -88,41 +84,39 @@ def parse_request(resource=None, args=None, headers=None):
     .. versionchanged: 0.0.5
        Support for optional filters, sorting and pagination.
     """
-    if flask.has_request_context():
-            args = request.args
-            headers = request.headers
+    args = request.args
+    headers = request.headers
 
     r = ParsedRequest()
 
-    if args:
-        if resource is None or config.DOMAIN[resource]['filters']:
-            r.where = args.get('where')
-        if resource is None or config.DOMAIN[resource]['projection']:
-            r.projection = args.get('projection')
-        if resource is None or config.DOMAIN[resource]['sorting']:
-            r.sort = args.get('sort')
 
-        if resource is None or config.DOMAIN[resource]['pagination']:
-            # TODO should probably return a 400 if 'page' is < 1 or non-numeric
-            if 'page' in args:
-                try:
-                    r.page = abs(int(args.get('page'))) or 1
-                except ValueError:
-                    pass
+    if config.DOMAIN[resource]['filters']:
+        r.where = args.get('where')
+    if config.DOMAIN[resource]['projection']:
+        r.projection = args.get('projection')
+    if config.DOMAIN[resource]['sorting']:
+        r.sort = args.get('sort')
 
-            # TODO should probably return a 400 if 'max_results' < 1 or
-            # non-numeric
-            if 'max_results' in args:
-                try:
-                    r.max_results = int(args.get('max_results'))
-                    if r.max_results > config.PAGINATION_LIMIT:
-                        r.max_results = config.PAGINATION_LIMIT
-                    elif r.max_results <= 0:
-                        r.max_results = config.PAGINATION_DEFAULT
-                except ValueError:
-                    pass
-        else:
-            r.max_results = None
+    max_results_default = config.PAGINATION_DEFAULT if config.DOMAIN[resource]['pagination'] else 0
+    try:
+        r.max_results = int(float(args['max_results']))
+        assert r.max_results > 0
+    except (ValueError, werkzeug.exceptions.BadRequestKeyError, AssertionError):
+        r.max_results = max_results_default
+
+    if config.DOMAIN[resource]['pagination']:
+        # TODO should probably return a 400 if 'page' is < 1 or non-numeric
+        if 'page' in args:
+            try:
+                r.page = abs(int(args.get('page'))) or 1
+            except ValueError:
+                pass
+
+        # TODO should probably return a 400 if 'max_results' < 1 or
+        # non-numeric
+        if r.max_results > config.PAGINATION_LIMIT:
+            r.max_results = config.PAGINATION_LIMIT
+
 
     if headers:
         r.if_modified_since = weak_date(headers.get('If-Modified-Since'))
