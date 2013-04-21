@@ -2,16 +2,9 @@ import collections
 
 import flask.ext.sqlalchemy as flask_sqlalchemy
 
-__all__ = ['registerSchema']
+from .utils import dict_update
 
-def dict_update(d, u):
-    for k, v in u.iteritems():
-        if isinstance(v, collections.Mapping):
-            r = dict_update(d.get(k, {}), v)
-            d[k] = r
-        else:
-            d[k] = u[k]
-    return d
+__all__ = ['registerSchema']
 
 class registerSchema(object):
     sqla_type_mapping = {
@@ -26,11 +19,15 @@ class registerSchema(object):
             return cls_
 
         resource = self.resource or cls_.__name__.lower()
+
         domain = {
                     resource: {
                         'schema': {}
                     }
         }
+
+        if hasattr(cls_, '_eve_resource'):
+            dict_update(domain[resource], cls_._eve_resource)
 
         for prop in cls_.__mapper__.iterate_properties:
             schema = domain[resource]['schema'][prop.key] = {}
@@ -40,9 +37,9 @@ class registerSchema(object):
             elif len(prop.columns) == 1:
                 col = prop.columns[0]
                 if isinstance(col, flask_sqlalchemy.sqlalchemy.schema.Column):
-                    schema['type'] = self.lookupColumnType(col)
+                    schema['type'] = self.lookupColumnType(col.type)
                     schema['unique'] = col.primary_key or col.unique or False
-                    schema['required'] = not col.nullable
+                    schema['required'] = not col.nullable if not col.primary_key else False
                     if hasattr(col.type, 'length'):
                         schema['maxlength'] = col.type.length
                 elif isinstance(col, flask_sqlalchemy.sqlalchemy.sql.expression.ColumnElement):
@@ -52,8 +49,6 @@ class registerSchema(object):
                     schema['type'] = 'string'
 
         cls_._eve_schema = domain
-        self
-        # TODO what's next? how to register in config
         return cls_
                 
     def lookupColumnType(self, intype):

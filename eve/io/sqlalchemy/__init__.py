@@ -10,5 +10,5 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from sqlalchemy import SQLAlchemy
+from sqlalchemy import SQLAlchemy, db
 from validation import Validator
