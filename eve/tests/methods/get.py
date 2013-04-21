@@ -76,6 +76,16 @@ class TestGet(TestBase):
         self.assertTrue('next' not in links)
         self.assertTrue('prev' not in links)
 
+    def test_get_paging_disabled_no_args(self):
+        self.app.config['DOMAIN'][self.known_resource]['pagination'] = False
+        response, status = self.get(self.known_resource)
+        self.assert200(status)
+        resource = response['_items']
+        self.assertEqual(len(resource), self.known_resource_count)
+        links = response['_links']
+        self.assertTrue('next' not in links)
+        self.assertTrue('prev' not in links)
+
     def test_get_where_mongo_syntax(self):
         where = '{"ref": "%s"}' % self.item_name
         response, status = self.get(self.known_resource,
