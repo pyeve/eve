@@ -8,6 +8,9 @@ Version 0.0.6
 
 Not released yet.
 
+- Proper max_results handling in eve.utils.parse_request, refactored tests 
+  (Tomasz Jezierski).
+
 - Projections. Projections are conditional queries where the client dictates
   which fields should be returned by the API (Nicolas Bazire).
 
