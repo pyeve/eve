@@ -80,6 +80,7 @@ class Eve(Flask):
         self.settings = settings
 
         self.load_config()
+        self.register_schema(data)
         self.validate_domain_struct()
         self.set_defaults()
         self.validate_config()
@@ -428,3 +429,8 @@ class Eve(Flask):
         self.config['RESOURCES'] = resources
         self.config['URLS'] = urls
         self.config['SOURCES'] = datasources
+
+    def register_schema(self, data):
+        """Register eve schema from data layer"""
+        if hasattr(data, 'register_schema'):
+            data.register_schema(self)

@@ -23,6 +23,9 @@ setup(
         'cerberus>=0.2.0',
         'simplejson'
     ],
+    extras_require={
+        'sqlalchemy': ['sqlalchemy']
+    },
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
