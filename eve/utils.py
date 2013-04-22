@@ -96,11 +96,13 @@ def parse_request(resource):
     if config.DOMAIN[resource]['sorting']:
         r.sort = args.get('sort')
 
-    max_results_default = config.PAGINATION_DEFAULT if config.DOMAIN[resource]['pagination'] else 0
+    max_results_default = config.PAGINATION_DEFAULT if \
+        config.DOMAIN[resource]['pagination'] else 0
     try:
         r.max_results = int(float(args['max_results']))
         assert r.max_results > 0
-    except (ValueError, werkzeug.exceptions.BadRequestKeyError, AssertionError):
+    except (ValueError, werkzeug.exceptions.BadRequestKeyError,
+            AssertionError):
         r.max_results = max_results_default
 
     if config.DOMAIN[resource]['pagination']:

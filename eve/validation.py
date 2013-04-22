@@ -12,5 +12,5 @@
     :license: BSD, see LICENSE for more details.
 """
 
-#flake 8 noqa
+# flake8: noqa
 from cerberus import ValidationError, SchemaError
