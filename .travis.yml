@@ -2,7 +2,7 @@ language: python
 python:
   - "2.7"
   - "2.6"
-install: pip install flake8
+install: pip install --exclude="tests" flake8
 script: 
   - flake8 eve
   - python setup.py test

@@ -39,4 +39,4 @@ STATUS_OK = "OK"
 STATUS_ERR = "ERR"
 
 # must be the last line
-from flaskapp import Eve
+from flaskapp import Eve  # noqa

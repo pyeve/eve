@@ -10,4 +10,5 @@
     :license: BSD, see LICENSE for more details.
 """
 
+# flake8: noqa
 from base import DataLayer, ConnectionException

@@ -12,8 +12,8 @@
 """
 
 import ast
-from datetime import datetime   # don't remove, even if pyflakes reports a W402
-from bson import ObjectId       # don't remove, even if pyflakes reports a W402
+from datetime import datetime   # noqa
+from bson import ObjectId       # noqa
 
 
 def parse(expression):

@@ -11,13 +11,13 @@
 """
 
 import eve
-import flask
 import hashlib
 from flask import request
 from flask import current_app as app
 from datetime import datetime, timedelta
 from bson.json_util import dumps
 import werkzeug.exceptions
+
 
 class Config(object):
     """ Helper class used trorough the code to access configuration settings.
@@ -89,7 +89,6 @@ def parse_request(resource):
 
     r = ParsedRequest()
 
-
     if config.DOMAIN[resource]['filters']:
         r.where = args.get('where')
     if config.DOMAIN[resource]['projection']:
@@ -116,7 +115,6 @@ def parse_request(resource):
         # non-numeric
         if r.max_results > config.PAGINATION_LIMIT:
             r.max_results = config.PAGINATION_LIMIT
-
 
     if headers:
         r.if_modified_since = weak_date(headers.get('If-Modified-Since'))

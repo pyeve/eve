@@ -290,7 +290,8 @@ class Eve(Flask):
 
         for resource, settings in self.config['DOMAIN'].items():
             settings.setdefault('url', resource)
-            settings.setdefault('resource_methods', self.config['RESOURCE_METHODS'])
+            settings.setdefault('resource_methods',
+                                self.config['RESOURCE_METHODS'])
             settings.setdefault('public_methods',
                                 self.config['PUBLIC_METHODS'])
             settings.setdefault('allowed_roles', self.config['ALLOWED_ROLES'])
@@ -398,7 +399,8 @@ class Eve(Flask):
             # resource endpoint
             url = '%s/<regex("%s"):url>/' % (prefix, settings['url'])
             self.add_url_rule(url, view_func=collections_endpoint,
-                              methods=settings['resource_methods'] + ['OPTIONS'])
+                              methods=settings['resource_methods'] +
+                              ['OPTIONS'])
 
             # item endpoint
             if settings['item_lookup']:
