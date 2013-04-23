@@ -34,8 +34,8 @@ Not released yet.
   documents once at a time for insertion, or validate locally before submitting
   the payload to the API.
 
-- Etags are now included in both the response header and the payload. Closes
-  #29.
+- Responses to document GET requests now include the ETag in both the header
+  and the payload. Closes #29.
 
 - 'methods' settings keyword renamed to 'resource_methods' for coherence with 
   the global RESOURCE_METHODS (Nicolas Carlier).
