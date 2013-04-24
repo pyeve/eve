@@ -306,7 +306,7 @@ always lowercase.
                                 ``RESOURCE_METHODS``.
 
                                 *Please note:* if you're running version 0.0.5
-                                or earlie use the now unsupported ``methods``
+                                or earlier use the now unsupported ``methods``
                                 keyword instead.
 
 ``public_methods``              A list of HTTP methods supported at resource
