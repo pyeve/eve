@@ -8,7 +8,25 @@ Version 0.0.6
 
 Not released yet.
 
-- Proper max_results handling in eve.utils.parse_request, refactored tests 
+- Event Hooks. Each time a GET, POST, PATCH, DELETE method has been executed,
+  both global 'on_<method>' and resource-level 'on_<method>_<resource>'
+  events will be raised. You can subscribe to these events with multiple
+  callback functions. Callbacks will receive the original flask.request object
+  and the response payload as arguments.
+
+    >>> def general_callback(resource, request, payload):
+    ...  print 'A GET on the "%s" endpoint was just performed!' % resource
+
+    >>> def contacts_callback(request, payload):
+    ... print 'A get on 'contacts' was just performed!'
+
+    >>> app = Eve()
+    >>> app.on_get += general_callback
+    >>> app.on_get_contacts += contacts_callback
+
+    >>> app.run()
+  
+- Proper max_results handling in eve.utils.parse_request, refactored tests
   (Tomasz Jezierski).
 
 - Projections. Projections are conditional queries where the client dictates

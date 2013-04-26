@@ -16,6 +16,7 @@ import simplejson as json
 from flask import make_response, request, Response, current_app as app
 from bson.objectid import ObjectId
 from eve.utils import date_to_str, config
+from functools import wraps
 
 # mapping between supported mime types and render functions.
 _MIME_TYPES = [{'mime': ('application/json',), 'renderer': 'render_json'},
@@ -24,6 +25,33 @@ _MIME_TYPES = [{'mime': ('application/json',), 'renderer': 'render_json'},
 _DEFAULT_MIME = 'application/json'
 
 
+def raise_event(f):
+    """ Raises both general and resource-level events after the decorated
+    function has been executed. Returns both the flask.request object and the
+    response payload to the callback.
+
+    .. versionadded:: 0.0.6
+    """
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        r = f(*args, **kwargs)
+        if request.method in ('GET', 'POST', 'PATCH', 'DELETE'):
+            if request.method == 'POST' and 'X-HTTP-Method-Override' in \
+               request.headers:
+                event_name = 'on_patch'
+            else:
+                event_name = 'on_' + request.method.lower()
+            resource = args[0] if args else None
+            # general hook
+            getattr(app, event_name)(resource, request, r)
+            if resource:
+                # resource hook
+                getattr(app, event_name + '_' + resource)(request, r)
+        return r
+    return decorated
+
+
+@raise_event
 def send_response(resource, response):
     """ Prepares the response for the client.
 
