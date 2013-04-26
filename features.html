@@ -439,7 +439,7 @@ added/updated on one or more endpoints. For more informations see
 </div>
 <div class="section" id="extensible-data-validation">
 <h2>Extensible Data Validation<a class="headerlink" href="#extensible-data-validation" title="Permalink to this headline">¶</a></h2>
-<p>Data validation is based on the <a class="reference external" href="http://cerberus.readthedocs.org/">Cerberus</a> validation system and therefore it is
+<p>Data validation is based on the <a class="reference external" href="https://github.com/nicolaiarocci/cerberus">Cerberus</a> validation system and therefore it is
 extensible so you can adapt it to your specific use case. Say that your API can
 only accept odd numbers for a certain field value: you can extend the
 validation class to validate that. Or say you want to make sure that a VAT
@@ -523,6 +523,28 @@ available in the &#8216;people&#8217; resource. Please note that key fields such
 ID_FIELD, DATE_CREATED, DATE_UPDATED etc.  will still be included with the
 payload.</p>
 </div>
+<div class="section" id="event-hooks">
+<h2>Event Hooks<a class="headerlink" href="#event-hooks" title="Permalink to this headline">¶</a></h2>
+<p>Each time a GET, POST, PATCH, DELETE method has been executed, both global
+<cite>on_&lt;method&gt;</cite> and resource-level <cite>on_&lt;method&gt;_&lt;resource&gt;</cite> events will be
+raised. You can subscribe to these events with multiple callback functions.
+Callbacks will receive the original <cite>flask.request</cite> object and the response
+payload as arguments.</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">general_callback</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;A GET on the &quot;</span><span class="si">%s</span><span class="s">&quot; endpoint was just performed!&#39;</span> <span class="o">%</span> <span class="n">resource</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">contacts_callback</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+<span class="gp">... </span><span class="k">print</span> <span class="s">&#39;A get on &quot;contacts&quot; was just performed!&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_get</span> <span class="o">+=</span> <span class="n">general_callback</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_get_contacts</span> <span class="o">+=</span> <span class="n">contacts_callback</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>To provide seamless event handling features, Eve relies on the <a class="reference external" href="https://github.com/nicolaiarocci/events">Events</a> package.</p>
+</div>
 <div class="section" id="mongodb-support">
 <h2>MongoDB Support<a class="headerlink" href="#mongodb-support" title="Permalink to this headline">¶</a></h2>
 <p>Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL
@@ -595,6 +617,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li><a class="reference internal" href="#default-values">Default Values</a></li>
 <li><a class="reference internal" href="#predefined-database-filters">Predefined Database Filters</a></li>
 <li><a class="reference internal" href="#projections">Projections</a></li>
+<li><a class="reference internal" href="#event-hooks">Event Hooks</a></li>
 <li><a class="reference internal" href="#mongodb-support">MongoDB Support</a></li>
 <li><a class="reference internal" href="#powered-by-flask">Powered by Flask</a></li>
 </ul>
