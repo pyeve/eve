@@ -14,9 +14,9 @@ from test_settings import MONGO_PASSWORD, MONGO_USERNAME, MONGO_DBNAME, DOMAIN
 
 
 class TestBase(unittest.TestCase):
-    known_resource_count = 100
 
     def setUp(self):
+        self.known_resource_count = 100
         self.setupDB()
         self.settings_file = 'eve/tests/test_settings.py'
         self.app = Eve(settings=self.settings_file)
