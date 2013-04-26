@@ -21,6 +21,7 @@ from eve.io.mongo import Mongo, Validator
 from eve.exceptions import ConfigException, SchemaException
 from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint
 from eve.utils import api_prefix
+from events import Events
 
 
 class EveWSGIRequestHandler(WSGIRequestHandler):
@@ -40,7 +41,7 @@ class RegexConverter(BaseConverter):
         self.regex = items[0]
 
 
-class Eve(Flask):
+class Eve(Flask, Events):
     """The main Eve object. On initialization it will load Eve settings, then
     configure and enable the API endpoints. The API is launched by executing
     the code below:::
@@ -56,6 +57,10 @@ class Eve(Flask):
     :param data: the data layer class. Must be a :class:`~eve.io.DataLayer`
                  subclass. Defaults to :class:`~eve.io.Mongo`.
     :param kwargs: optional, standard, Flask parameters.
+
+    .. versionchanged:: 0.0.6
+       'Events' added to the list of super classes, allowing for the arbitrary
+       raising of events within the application.
     """
     def __init__(self, import_name=__package__, settings='settings.py',
                  validator=Validator, data=Mongo, auth=None, **kwargs):
