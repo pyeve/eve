@@ -21,7 +21,8 @@ setup(
     install_requires=[
         'flask-pymongo>=0.2.0',
         'cerberus>=0.2.0',
-        'simplejson'
+        'simplejson',
+        'events'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
