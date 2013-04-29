@@ -33,6 +33,9 @@ def get(resource):
 
     :param resource: the name of the resource.
 
+    .. versionchanged:: 0.0.6
+       Support for HEAD requests.
+
     .. versionchanged:: 0.0.5
        Support for user-restricted access to resources.
        Support for LAST_UPDATED field missing from documents, because they were
@@ -91,6 +94,9 @@ def getitem(resource, **lookup):
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
+
+    .. versionchanged:: 0.0.6
+       Support for HEAD requests.
 
     .. versionchanged:: 0.0.6
         ETag added to payload.
