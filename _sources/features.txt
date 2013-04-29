@@ -22,7 +22,7 @@ implementation of CRUD via REST
 Action HTTP Verb Context 
 ====== ========= ===================
 Create POST      Collection
-Read   GET       Collection/Document
+Read   GET, HEAD Collection/Document
 Update PATCH     Document
 Delete DELETE    Collection/Document
 ====== ========= ===================
