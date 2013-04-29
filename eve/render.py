@@ -61,6 +61,9 @@ def send_response(resource, response):
                      response will be prepared, according to directives within
                      the tuple.
 
+    .. versionchanged:: 0.0.6
+       Support for HEAD requests.
+
     .. versionchanged:: 0.0.5
        Handling the case where response is None. Happens when the request
        method is 'OPTIONS', most likely while processing a CORS 'preflight'
@@ -88,6 +91,9 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     :param etag: ETag header value.
     :param status: response status.
 
+    .. versionchanged:: 0.0.6
+       Support for HEAD requests.
+
     .. versionchanged:: 0.0.5
        Support for Cross-Origin Resource Sharing (CORS).
 
@@ -108,7 +114,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         resp.mimetype = mime
 
     # cache directives
-    if request.method == 'GET':
+    if request.method in ('GET', 'HEAD'):
         if resource:
             cache_control = config.DOMAIN[resource]['cache_control']
             expires = config.DOMAIN[resource]['cache_expires']
@@ -126,6 +132,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     if last_modified:
         resp.headers.add('Last-Modified', date_to_str(last_modified))
 
+    # CORS
     if 'Origin' in request.headers and config.X_DOMAINS is not None:
         if isinstance(config.X_DOMAINS, basestring):
             domains = [config.X_DOMAINS]

@@ -30,7 +30,7 @@ def collections_endpoint(url):
 
     resource = config.RESOURCES[url]
     response = None
-    if request.method == 'GET':
+    if request.method in ('GET', 'HEAD'):
         response = get(resource)
     elif request.method == 'POST':
         response = post(resource)
@@ -47,7 +47,7 @@ def item_endpoint(url, **lookup):
     """
     resource = config.RESOURCES[url]
     response = None
-    if request.method == 'GET':
+    if request.method in ('GET', 'HEAD'):
         response = getitem(resource, **lookup)
     elif request.method == 'PATCH' or (request.method == 'POST' and
                                        request.headers.get(

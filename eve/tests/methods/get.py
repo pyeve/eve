@@ -306,3 +306,21 @@ class TestGetItem(TestBase):
         response, status = self.get(self.known_resource,
                                     item=ref)
         self.assertItemResponse(response, status)
+
+
+class TestHead(TestBase):
+
+    def test_head_home(self):
+        self.assertHead('/')
+
+    def test_head_resource(self):
+        self.assertHead(self.known_resource_url)
+
+    def test_head_item(self):
+        self.assertHead(self.item_id_url)
+
+    def assertHead(self, url):
+        h = self.test_client.head('/')
+        r = self.test_client.get('/')
+        self.assertEqual(h.data, '')
+        self.assertEqual(r.headers, h.headers)
