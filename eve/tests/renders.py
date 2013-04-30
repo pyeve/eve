@@ -18,6 +18,11 @@ class TestRenders(TestBase):
         r = self.test_client.get('/', headers=[('Accept', 'application/xml')])
         self.assertTrue('application/xml' in r.content_type)
 
+    def test_xml_url_escaping(self):
+        r = self.test_client.get('%s?max_results=1' % self.known_resource_url,
+                                 headers=[('Accept', 'application/xml')])
+        self.assertTrue('&amp;' in r.data)
+
     def test_unknown_render(self):
         r = self.test_client.get('/', headers=[('Accept', 'application/html')])
         self.assertEqual(r.content_type, 'application/json')

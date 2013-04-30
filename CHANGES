@@ -8,6 +8,8 @@ Version 0.0.6
 
 Not released yet.
 
+- Pagination links in XML payloads are now properly escaped. Fixes #49.
+
 - HEAD requests supported. Closes #48.
 
 - Event Hooks. Each time a GET, POST, PATCH, DELETE method has been executed,
