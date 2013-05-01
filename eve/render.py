@@ -212,6 +212,9 @@ def xml_root_open(data):
 
     :param data: the data stream to be rendered as xml.
 
+    .. versionchanged:: 0.0.6
+       Links are now properly escaped.
+
     .. versionadded:: 0.0.3
     """
     links = data.get('_links')
@@ -229,6 +232,9 @@ def xml_add_links(data):
     are then removed from the datastream to allow for further processing.
 
     :param data: the data stream to be rendered as xml.
+
+    .. versionchanged:: 0.0.6
+       Links are now properly escaped.
 
     .. versionadded:: 0.0.3
     """
