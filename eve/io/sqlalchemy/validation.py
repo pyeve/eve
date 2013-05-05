@@ -4,19 +4,16 @@
     eve.io.sqlalchemy.validation
     ~~~~~~~~~~~~~~~~~~~~~~~
 
-    This module implements the SQLAlchemy Validator class, used to validate that
-    objects incoming via POST/PATCH requests conform to the API domain.
+    This module implements the SQLAlchemy Validator class,
+    used to validate that objects incoming via POST/PATCH requests
+    conform to the API domain.
     An extension of Cerberus Validator.
 
     :copyright: (c) 2013 by Nicola Iarocci, Tomasz Jezierski (Tefnet).
     :license: BSD, see LICENSE for more details.
 """
 
-import re
-from eve.utils import config
-from flask import current_app as app
 from cerberus import Validator
-from cerberus.errors import ERROR_BAD_TYPE
 
 
 class Validator(Validator):

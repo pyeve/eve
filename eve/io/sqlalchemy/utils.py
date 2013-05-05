@@ -1,5 +1,6 @@
 import collections
 
+
 def dict_update(d, u):
     for k, v in u.iteritems():
         if isinstance(v, collections.Mapping):

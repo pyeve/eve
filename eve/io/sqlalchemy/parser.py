@@ -4,23 +4,24 @@
     eve.io.sqlalchemy.parser
     ~~~~~~~~~~~~~~~~~~~
 
-    This module implements a Python-to-SQLAlchemy syntax parser. Allows the SQLAlchemy
-    data-layer to seamlessy respond to a Python-like query.
+    This module implements a Python-to-SQLAlchemy syntax parser.
+    Allows the SQLAlchemy data-layer to seamlessy respond to a
+    Python-like query.
 
     :copyright: (c) 2013 by Nicola Iarocci, Tomasz Jezierski (Tefnet).
     :license: BSD, see LICENSE for more details.
 """
 
 import ast
-from datetime import datetime
 import flask.ext.sqlalchemy as flask_sqlalchemy
 sqla_op = flask_sqlalchemy.sqlalchemy.sql.expression.operators
 sqla_exp = flask_sqlalchemy.sqlalchemy.sql.expression
 
+
 def parse(expression, model):
     """Given a python-like conditional statement, returns the equivalent
-    SQLAlchemy-like query expression. Conditional and boolean operators (==, <=, >=,
-    !=, >, <) are supported.
+    SQLAlchemy-like query expression. Conditional and boolean operators
+    (==, <=, >=, !=, >, <) are supported.
     """
     v = SQLAVisitor(model)
     v.visit(ast.parse(expression))
@@ -103,7 +104,7 @@ class SQLAVisitor(ast.NodeVisitor):
         """ Boolean operator handler.
         """
         op = self.op_mapper[node.op.__class__]
-        self.ops.append({'op':op, 'args':[]})
+        self.ops.append({'op': op, 'args': []})
         for value in node.values:
             self.visit(value)
 
