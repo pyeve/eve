@@ -8,6 +8,9 @@ Version 0.0.6
 
 Not released yet.
 
+- 'auth_username_field' is honored even when there is no query in the request
+  (Thomas Sileo).
+
 - Pagination links in XML payloads are now properly escaped. Fixes #49.
 
 - HEAD requests supported. Closes #48.
