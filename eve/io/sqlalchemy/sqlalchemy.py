@@ -24,6 +24,8 @@ from eve.utils import config
 from .utils import dict_update
 
 db = flask_sqlalchemy.SQLAlchemy()
+object_mapper = flask_sqlalchemy.sqlalchemy.orm.object_mapper
+
 
 class SQLAJSONDecoder(json.JSONDecoder):
     def decode(self, s):
@@ -35,6 +37,7 @@ class SQLAJSONDecoder(json.JSONDecoder):
         except:
             return rv
 
+
 class SQLAResult(collections.MutableMapping):
     def __init__(self, result):
         self._result = result
@@ -43,7 +46,7 @@ class SQLAResult(collections.MutableMapping):
         if key == config.ID_FIELD:
             pkey = self._get_pkey()
             if len(pkey) > 1:
-                raise ValueError # TODO: composite primary key
+                raise ValueError  # TODO: composite primary key
             return pkey[0]
         return getattr(self._result, key)
 
@@ -64,17 +67,21 @@ class SQLAResult(collections.MutableMapping):
         return len(self.keys())
 
     def keys(self):
-        return [prop.key for prop in flask_sqlalchemy.sqlalchemy.orm.object_mapper(self._result).iterate_properties]
+        return [
+            prop.key for prop in object_mapper(self._result).iterate_properties
+        ]
 
     def _asdict(self):
         return dict(self)
 
     def _get_pkey(self):
-        mapper = flask_sqlalchemy.sqlalchemy.orm.object_mapper(self._result)
+        mapper = object_mapper(self._result)
         return mapper.primary_key_from_instance(self._result)
+
 
 class SQLAResultCollection(object):
     result_item_cls = SQLAResult
+
     def __init__(self, cursor):
         self._cursor = cursor
 
@@ -91,6 +98,7 @@ class SQLAlchemy(DataLayer):
     """
     json_decoder_cls = SQLAJSONDecoder
     driver = db
+
     def init_app(self, app):
         try:
             self.driver.app = app
@@ -109,10 +117,14 @@ class SQLAlchemy(DataLayer):
     def register_schema(cls, app, model_name=None):
         """Register eve schema for SQLAlchemy model(s)
         :param app: Flask application instance.
-        :param model_name: Name of SQLAlchemy model (register all models if not provided)
+        :param model_name: Name of SQLAlchemy model (register all models
+         if not provided)
         """
         if model_name:
-            models = [model_name, cls.driver.Model._decl_class_registry[model_name.capitalize()]]
+            models = [
+                model_name,
+                cls.driver.Model._decl_class_registry[model_name.capitalize()]
+            ]
         else:
             models = cls.driver.Model._decl_class_registry
 
@@ -121,7 +133,7 @@ class SQLAlchemy(DataLayer):
                 continue
             if getattr(model_cls, '_eve_schema', None):
                 dict_update(app.config['DOMAIN'], model_cls._eve_schema)
-        
+
     def find(self, resource, req):
         """Retrieves a set of documents matching a given request. Queries can
         be expressed in two different formats: the mongo query syntax, and the
@@ -172,8 +184,12 @@ class SQLAlchemy(DataLayer):
 
         if req.sort:
             ql = []
-            for key,asc in ast.literal_eval(req.sort).iteritems(): # why not json.loads?
-                ql.append(getattr(model, key) if asc == 1 else getattr(model, key).desc())
+            for key, asc in ast.literal_eval(req.sort).iteritems():
+                ql.append(
+                    getattr(model, key) \
+                    if asc == 1 \
+                     else getattr(model, key).desc()
+                )
             query = query.order_by(*ql)
 
         if req.max_results:
@@ -203,19 +219,21 @@ class SQLAlchemy(DataLayer):
         model = self.lookup_model(datasource)
         for document in doc_or_docs:
             sqla_document = copy.deepcopy(document)
-            # remove date if SQLA model doesn't have LAST_UPDATED or DATE_CREATED
-            if not hasattr(model, config.LAST_UPDATED) and sqla_document.has_key(config.LAST_UPDATED):
+            # remove date if model doesn't have LAST_UPDATED or DATE_CREATED
+            if not hasattr(model, config.LAST_UPDATED) and \
+               config.LAST_UPDATED in sqla_document:
                 del sqla_document[config.LAST_UPDATED]
 
-            if not hasattr(model, config.DATE_CREATED) and sqla_document.has_key(config.DATE_CREATED):
+            if not hasattr(model, config.DATE_CREATED) and \
+               config.DATE_CREATED in sqla_document:
                 del sqla_document[config.DATE_CREATED]
             model_instance = model(**sqla_document)
             self.driver.session.add(model_instance)
             self.driver.session.commit()
             mapper = self.driver.object_mapper(model_instance)
             pkey = mapper.primary_key_from_instance(model_instance)
-            if len(pkey)>1:
-                raise ValueError # TODO: composite primary key
+            if len(pkey) > 1:
+                raise ValueError  # TODO: composite primary key
             rv.append(pkey[0])
         return rv
 
