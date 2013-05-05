@@ -243,6 +243,20 @@ class TestUserRestrictedAccess(TestBase):
         for resource, schema in self.app.config['DOMAIN'].items():
             schema[self.field_name] = 'username'
 
+    def test_get(self):
+        # remove the 'datasource' filter to make the whole collection available
+        # to a GET request.
+        del(self.app.config['DOMAIN'][self.known_resource]['datasource'])
+        self.app.set_defaults()
+        self.app._add_url_rules()
+        data, status = self.parse_response(
+            self.test_client.get(self.known_resource_url,
+                                 headers=self.valid_auth))
+        self.assert200(status)
+        # no data has been saved by user 'admin' yet, so we get an empyy
+        # resulset back.
+        self.assertEqual(len(data['_items']), 0)
+
     def test_post(self):
         response, status = self.post()
         self.assert200(status)
@@ -255,7 +269,7 @@ class TestUserRestrictedAccess(TestBase):
         # 'username' has been stripped out from response payload
         self.assertTrue('username' not in data['_items'][0])
 
-        self.app.config['DOMAIN'][self.known_resource][self.field_name] = ''
+        self.app.config['DOMAIN'][self.known_resource][self.field_name] = None
         data, status = self.parse_response(
             self.test_client.get(self.known_resource_url,
                                  headers=self.valid_auth))
