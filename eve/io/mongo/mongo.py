@@ -195,7 +195,8 @@ class Mongo(DataLayer):
         to which an API resource refers to
 
         .. versionchanged:: 0.0.6
-           projection queries ('?projection={"name": 1}')
+           'auth_username_field' is injected even in empty queries.
+           Projection queries ('?projection={"name": 1}')
 
         .. versionchanged:: 0.0.5
            Support for 'user-restricted resource access'.
