@@ -186,9 +186,8 @@ class SQLAlchemy(DataLayer):
             ql = []
             for key, asc in ast.literal_eval(req.sort).iteritems():
                 ql.append(
-                    getattr(model, key) \
-                    if asc == 1 \
-                     else getattr(model, key).desc()
+                    getattr(model, key) if asc == 1 else
+                    getattr(model, key).desc()
                 )
             query = query.order_by(*ql)
 

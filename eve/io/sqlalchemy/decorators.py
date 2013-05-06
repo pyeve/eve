@@ -21,9 +21,9 @@ class registerSchema(object):
         resource = self.resource or cls_.__name__.lower()
 
         domain = {
-                    resource: {
-                        'schema': {}
-                    }
+            resource: {
+                'schema': {}
+            }
         }
 
         if hasattr(cls_, '_eve_resource'):
@@ -38,17 +38,16 @@ class registerSchema(object):
                 col = prop.columns[0]
                 if isinstance(col, flask_sqlalchemy.sqlalchemy.schema.Column):
                     schema['type'] = self.lookupColumnType(col.type)
-                    schema['unique'] = col.primary_key or \
-                                       col.unique or \
-                                       False
+                    schema['unique'] = col.primary_key or col.unique or False
 
-                    schema['required'] = not col.nullable \
-                                         if not col.primary_key \
-                                         else False
+                    schema['required'] = \
+                        not col.nullable if not col.primary_key else False
                     if hasattr(col.type, 'length'):
                         schema['maxlength'] = col.type.length
-                elif isinstance(col, \
-                    flask_sqlalchemy.sqlalchemy.sql.expression.ColumnElement):
+                elif isinstance(
+                    col,
+                    flask_sqlalchemy.sqlalchemy.sql.expression.ColumnElement
+                ):
                     schema['type'] = 'string'
                     # FIXME Can we do something more here?
                 else:
