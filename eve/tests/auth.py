@@ -235,6 +235,11 @@ class TestUserRestrictedAccess(TestBase):
     def setUp(self):
         super(TestUserRestrictedAccess, self).setUp()
         self.app = Eve(settings=self.settings_file, auth=ValidBasicAuth)
+        # remove the 'datasource' filter to make the whole collection available
+        # to a GET request.
+        del(self.app.config['DOMAIN'][self.known_resource]['datasource'])
+        self.app.set_defaults()
+        self.app._add_url_rules()
         self.test_client = self.app.test_client()
         self.valid_auth = [('Authorization', 'Basic YWRtaW46c2VjcmV0')]
         self.invalid_auth = [('Authorization', 'Basic IDontThinkSo')]
@@ -244,11 +249,6 @@ class TestUserRestrictedAccess(TestBase):
             schema[self.field_name] = 'username'
 
     def test_get(self):
-        # remove the 'datasource' filter to make the whole collection available
-        # to a GET request.
-        del(self.app.config['DOMAIN'][self.known_resource]['datasource'])
-        self.app.set_defaults()
-        self.app._add_url_rules()
         data, status = self.parse_response(
             self.test_client.get(self.known_resource_url,
                                  headers=self.valid_auth))
@@ -267,16 +267,17 @@ class TestUserRestrictedAccess(TestBase):
         # len of 1 as there are is only 1 doc saved by user
         self.assertEqual(len(data['_items']), 1)
         # 'username' has been stripped out from response payload
-        self.assertTrue('username' not in data['_items'][0])
-
+        item = data['_items'][0]
+        self.assertTrue('username' not in item)
+        id_ = item['_id']
         self.app.config['DOMAIN'][self.known_resource][self.field_name] = None
         data, status = self.parse_response(
-            self.test_client.get(self.known_resource_url,
+            self.test_client.get('%s%s/' % (self.known_resource_url, id_),
                                  headers=self.valid_auth))
         self.assert200(status)
         # this time we don't have user restricted enabled, so username is
         # included with the payload
-        self.assertTrue('username' in data['_items'][0])
+        self.assertTrue('username' in data)
 
     def test_patch(self):
         changes = {"ref": "9999999999999999999999999"}
