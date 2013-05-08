@@ -220,7 +220,7 @@ class Mongo(DataLayer):
         # if 'user-restricted resource access' is enabled and there's an Auth
         # request active, add the username field to the query
         username_field = config.DOMAIN[resource].get('auth_username_field')
-        if username_field and request.authorization:
+        if username_field and request.authorization and query is not None:
             query.update({username_field: request.authorization.username})
 
         return datasource, query, fields
