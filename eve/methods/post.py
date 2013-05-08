@@ -46,7 +46,7 @@ def post(resource):
        Support for 'user-restricted resource access'.
 
     .. versionchanged:: 0.0.4
-       Added the ``reqiores_auth`` decorator.
+       Added the ``requires_auth`` decorator.
 
     .. versionchanged:: 0.0.3
        JSON links. Superflous ``response`` container removed.

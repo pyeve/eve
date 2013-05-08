@@ -173,6 +173,15 @@ class TestPost(TestBase):
         self.assert200(status)
         self.assertPostResponse(r, ['item1'])
 
+    def test_post_with_content_type_charset(self):
+        test_field = 'ref'
+        test_value = "1234567890123456789054321"
+        data = {'item1': json.dumps({test_field: test_value})}
+        r, status = self.post(self.known_resource_url, data=data,
+                  content_type='application/json; charset=utf-8')
+        self.assert200(status)
+        self.assertPostResponse(r, ['item1'])
+
     def perform_post(self, data, valid_items=['item1']):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert200(status)
