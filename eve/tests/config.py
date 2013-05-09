@@ -182,7 +182,7 @@ class TestConfig(TestBase):
                         self.app.config['DATE_CREATED']])
 
         self.assertEqual(datasource['projection'],
-                         {field: 1 for field in compare})
+                         dict((field, 1) for (field) in compare))
         self.assertEqual(datasource['source'], resource)
         self.assertEqual(datasource['filter'], None)
 

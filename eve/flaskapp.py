@@ -344,7 +344,7 @@ class Eve(Flask, Events):
                 self.config['LAST_UPDATED']: 1,
                 self.config['DATE_CREATED']: 1
             }
-            default_projection.update({field: 1 for field in schema})
+            default_projection.update(dict((field, 1) for (field) in schema))
             settings['datasource'].setdefault('projection',
                                               default_projection)
 

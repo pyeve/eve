@@ -217,8 +217,9 @@ class Mongo(DataLayer):
         if client_projection:
             # only allow fields which are inluded with the standard projection
             # for the resource (avoid sniffing of private fields)
-            fields = {field: 1 for field in filter(projection_.has_key,
-                                                   client_projection.keys())}
+            fields = dict(
+                (field, 1) for (field) in filter(projection_.has_key,
+                                                 client_projection.keys()))
         else:
             fields = projection_
 
