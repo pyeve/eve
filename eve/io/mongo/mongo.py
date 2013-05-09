@@ -50,7 +50,8 @@ class Mongo(DataLayer):
         :param req: a :class:`ParsedRequest`instance.
 
         .. versionchanged:: 0.0.6
-           support for projection queries ('?projection={"name": 1}')
+           Only retrieve fields in the resource schema
+           Support for projection queries ('?projection={"name": 1}')
 
         .. versionchanged:: 0.0.5
            handles the case where req.max_results is None because pagination
@@ -76,7 +77,7 @@ class Mongo(DataLayer):
         if req.sort:
             args['sort'] = ast.literal_eval(req.sort)
 
-        fields = {}
+        client_projection = {}
         spec = {}
 
         if req.where:
@@ -90,11 +91,12 @@ class Mongo(DataLayer):
 
         if req.projection:
             try:
-                fields = json.loads(req.projection)
+                client_projection = json.loads(req.projection)
             except:
                 abort(400)
 
-        datasource, spec, fields = self._datasource_ex(resource, spec, fields)
+        datasource, spec, projection = self._datasource_ex(resource, spec,
+                                                           client_projection)
 
         if req.if_modified_since:
             spec[config.LAST_UPDATED] = \
@@ -103,8 +105,8 @@ class Mongo(DataLayer):
         if len(spec) > 0:
             args['spec'] = spec
 
-        if len(fields) > 0:
-            args['fields'] = fields
+        if projection is not None:
+            args['fields'] = projection
 
         return self.driver.db[datasource].find(**args)
 
@@ -115,7 +117,7 @@ class Mongo(DataLayer):
         :param **lookup: lookup query.
 
         .. versionchanged:: 0.0.6
-           projection queries ('?projection={"name": 1}')
+           Only retrieve fields in the resource schema
 
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
@@ -125,8 +127,9 @@ class Mongo(DataLayer):
                 lookup[ID_FIELD] = ObjectId(lookup[ID_FIELD])
         except:
             pass
-        datasource, filter_, _ = self._datasource_ex(resource, lookup)
-        document = self.driver.db[datasource].find_one(filter_)
+
+        datasource, filter_, projection = self._datasource_ex(resource, lookup)
+        document = self.driver.db[datasource].find_one(filter_, projection)
         return document
 
     def insert(self, resource, doc_or_docs):
@@ -190,7 +193,7 @@ class Mongo(DataLayer):
 
         return source
 
-    def _datasource_ex(self, resource, query=None, fields=None):
+    def _datasource_ex(self, resource, query=None, client_projection=None):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to
 
@@ -211,11 +214,13 @@ class Mongo(DataLayer):
             else:
                 query = filter_
 
-        if projection_:
-            if fields:
-                fields.update(projection_)
-            else:
-                fields = projection_
+        if client_projection:
+            # only allow fields which are inluded with the standard projection
+            # for the resource (avoid sniffing of private fields)
+            fields = {field: 1 for field in filter(projection_.has_key,
+                                                   client_projection.keys())}
+        else:
+            fields = projection_
 
         # if 'user-restricted resource access' is enabled and there's an Auth
         # request active, add the username field to the query

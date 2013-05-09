@@ -171,9 +171,20 @@ class TestConfig(TestBase):
         self.assertNotEqual(settings['schema'], None)
         self.assertEqual(type(settings['schema']), dict)
         self.assertEqual(len(settings['schema']), 0)
-        self.assertEqual(settings['datasource'],
-                         {'source': resource, 'filter': None,
-                          'projection': None})
+
+    def test_datasource(self):
+        resource = 'invoices'
+        datasource = self.domain[resource]['datasource']
+        schema = self.domain[resource]['schema']
+        compare = filter(schema.has_key, datasource['projection'])
+        compare.extend([self.app.config['ID_FIELD'],
+                        self.app.config['LAST_UPDATED'],
+                        self.app.config['DATE_CREATED']])
+
+        self.assertEqual(datasource['projection'],
+                         {field: 1 for field in compare})
+        self.assertEqual(datasource['source'], resource)
+        self.assertEqual(datasource['filter'], None)
 
     def test_validate_roles(self):
         for resource in self.domain:

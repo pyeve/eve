@@ -8,6 +8,9 @@ Version 0.0.6
 
 Not released yet.
 
+- Only fields defined in the resource schema are now returned from the 
+  database. Closes #52.
+
 - Default SERVER_NAME is now set to 127.0.0.1:5000.
 
 - 'auth_username_field' is honored even when there is no query in the request
