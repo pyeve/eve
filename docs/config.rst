@@ -366,8 +366,8 @@ always lowercase.
                                 endpoint. See the example below.
 
 ``datasource``                  Explicitly links API resources to database 
-                                collections, allowing for some `Advanced
-                                Datasource Patterns`_. 
+                                collections. See `Advanced Datasource
+                                Patterns`_. 
 
 ``auth_username_field``         Works in conjunction with :ref:`auth`. When 
                                 enabled users can only read/update/delete
@@ -541,10 +541,18 @@ which was originally set up in `Domain Configuration`_:
 
 Advanced Datasource Patterns
 ----------------------------
+The ``datasource`` keyword allows to explicitly link API resources to
+database collections (if you omit it, the domain resource key is assumed to be
+the name of the database collection itself). It is a dictionary with three allowed
+keys: `source`, `filter` and `projection`. ``source`` dictates the database
+collection consumed by the resource, ``filter`` expresses the underlying
+query used to retrieve and validate data and ``projection`` allows to
+redefine the exposed fieldset.
+
+
 Predefined Database Filters
 '''''''''''''''''''''''''''
-By using the ``datasource`` resource keyword it is possibile to set predefined
-database filters. 
+Database filters for the API endpoint are set with the ``filter`` keyword.
 
 ::
 
@@ -554,8 +562,8 @@ database filters.
             }
         }
   
-In the example above the API endpoint will only expose and update documents
-with an existent `username` field.
+In the example above the API endpoint for the `people` resource will only
+expose and update documents with an existent `username` field.
 
 Predefined filters run on top of user queries (GET requests with `where`
 clauses) and standard conditional requests (`If-Modified-Since`, etc.)
@@ -569,14 +577,7 @@ Multiple API Endpoints, One Datasource
 ''''''''''''''''''''''''''''''''''''''
 Multiple API endpoints can target the same database collection. For
 example you can set both ``/admins/`` and ``/users/`` to read and write from
-the same collection on the database, `people`.
-
-The ``datasource`` keyword allows to explicitly link API resources to
-database collections (if you omit it, the domain resource key is assumed to be
-the name of the database collection). It is a dictionary with two allowed keys:
-`source` and `filter`. ``source`` dictates the database collection consumed by
-the resource, while ``filter`` is the underlying query applied by the API when
-retrieving and validating data for the resource.  
+the same `people` collection on the database.
 
 ::
 
@@ -589,5 +590,25 @@ retrieving and validating data for the resource.
 
 The above setting will retrieve, edit and delete only documents from the
 `people` collection with a `userlevel` of 1.
+
+Limiting the Fieldset Exposed by the API Endpoint
+'''''''''''''''''''''''''''''''''''''''''''''''''
+By default API responses to GET requests will include all fields defined by the
+corresponding resource schema_. The ``projection`` setting of the `datasource`
+resource keyword allows to redefine the fieldset.
+
+::
+
+    people = {
+        'datasource': {
+            'projection': {'username': 1}
+            }
+        }
+
+The above setting will expose only the `username` field to GET requests, no
+matter the schema_ defined for the resource. Please note that POST and PATCH
+methods will still allow the whole schema to be manipulated. This feature can
+come in handy when you want to protect insertion and edition behind an
+:ref:`auth` scheme while leaving read access open to the public.
 
 .. _Cerberus: http://cerberus.readthedocs.org
