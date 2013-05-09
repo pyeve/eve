@@ -468,8 +468,8 @@ endpoint. See the example below.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">datasource</span></tt></td>
 <td>Explicitly links API resources to database
-collections, allowing for some <a class="reference internal" href="#advanced-datasource-patterns">Advanced
-Datasource Patterns</a>.</td>
+collections. See <a class="reference internal" href="#advanced-datasource-patterns">Advanced Datasource
+Patterns</a>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">auth_username_field</span></tt></td>
 <td>Works in conjunction with <a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a>. When
@@ -655,10 +655,16 @@ which was originally set up in <a class="reference internal" href="#domain-confi
 </div>
 <div class="section" id="advanced-datasource-patterns">
 <h2>Advanced Datasource Patterns<a class="headerlink" href="#advanced-datasource-patterns" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">datasource</span></tt> keyword allows to explicitly link API resources to
+database collections (if you omit it, the domain resource key is assumed to be
+the name of the database collection itself). It is a dictionary with three allowed
+keys: <cite>source</cite>, <cite>filter</cite> and <cite>projection</cite>. <tt class="docutils literal"><span class="pre">source</span></tt> dictates the database
+collection consumed by the resource, <tt class="docutils literal"><span class="pre">filter</span></tt> expresses the underlying
+query used to retrieve and validate data and <tt class="docutils literal"><span class="pre">projection</span></tt> allows to
+redefine the exposed fieldset.</p>
 <div class="section" id="predefined-database-filters">
 <h3>Predefined Database Filters<a class="headerlink" href="#predefined-database-filters" title="Permalink to this headline">¶</a></h3>
-<p>By using the <tt class="docutils literal"><span class="pre">datasource</span></tt> resource keyword it is possibile to set predefined
-database filters.</p>
+<p>Database filters for the API endpoint are set with the <tt class="docutils literal"><span class="pre">filter</span></tt> keyword.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s">&#39;filter&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;$exists&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}}</span>
@@ -666,8 +672,8 @@ database filters.</p>
     <span class="p">}</span>
 </pre></div>
 </div>
-<p>In the example above the API endpoint will only expose and update documents
-with an existent <cite>username</cite> field.</p>
+<p>In the example above the API endpoint for the <cite>people</cite> resource will only
+expose and update documents with an existent <cite>username</cite> field.</p>
 <p>Predefined filters run on top of user queries (GET requests with <cite>where</cite>
 clauses) and standard conditional requests (<cite>If-Modified-Since</cite>, etc.)</p>
 <p>Please note that datasource filters are applied on GET, PATCH and DELETE
@@ -679,13 +685,7 @@ example, &#8216;username&#8217; should probably be a required field).</p>
 <h3>Multiple API Endpoints, One Datasource<a class="headerlink" href="#multiple-api-endpoints-one-datasource" title="Permalink to this headline">¶</a></h3>
 <p>Multiple API endpoints can target the same database collection. For
 example you can set both <tt class="docutils literal"><span class="pre">/admins/</span></tt> and <tt class="docutils literal"><span class="pre">/users/</span></tt> to read and write from
-the same collection on the database, <cite>people</cite>.</p>
-<p>The <tt class="docutils literal"><span class="pre">datasource</span></tt> keyword allows to explicitly link API resources to
-database collections (if you omit it, the domain resource key is assumed to be
-the name of the database collection). It is a dictionary with two allowed keys:
-<cite>source</cite> and <cite>filter</cite>. <tt class="docutils literal"><span class="pre">source</span></tt> dictates the database collection consumed by
-the resource, while <tt class="docutils literal"><span class="pre">filter</span></tt> is the underlying query applied by the API when
-retrieving and validating data for the resource.</p>
+the same <cite>people</cite> collection on the database.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s">&#39;source&#39;</span><span class="p">:</span> <span class="s">&#39;people&#39;</span><span class="p">,</span>
@@ -696,6 +696,24 @@ retrieving and validating data for the resource.</p>
 </div>
 <p>The above setting will retrieve, edit and delete only documents from the
 <cite>people</cite> collection with a <cite>userlevel</cite> of 1.</p>
+</div>
+<div class="section" id="limiting-the-fieldset-exposed-by-the-api-endpoint">
+<h3>Limiting the Fieldset Exposed by the API Endpoint<a class="headerlink" href="#limiting-the-fieldset-exposed-by-the-api-endpoint" title="Permalink to this headline">¶</a></h3>
+<p>By default API responses to GET requests will include all fields defined by the
+corresponding resource <a class="reference internal" href="#schema">schema</a>. The <tt class="docutils literal"><span class="pre">projection</span></tt> setting of the <cite>datasource</cite>
+resource keyword allows to redefine the fieldset.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;projection&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>The above setting will expose only the <cite>username</cite> field to GET requests, no
+matter the <a class="reference internal" href="#schema">schema</a> defined for the resource. Please note that POST and PATCH
+methods will still allow the whole schema to be manipulated. This feature can
+come in handy when you want to protect insertion and edition behind an
+<a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a> scheme while leaving read access open to the public.</p>
 </div>
 </div>
 </div>
@@ -749,6 +767,7 @@ retrieving and validating data for the resource.</p>
 <li><a class="reference internal" href="#advanced-datasource-patterns">Advanced Datasource Patterns</a><ul>
 <li><a class="reference internal" href="#predefined-database-filters">Predefined Database Filters</a></li>
 <li><a class="reference internal" href="#multiple-api-endpoints-one-datasource">Multiple API Endpoints, One Datasource</a></li>
+<li><a class="reference internal" href="#limiting-the-fieldset-exposed-by-the-api-endpoint">Limiting the Fieldset Exposed by the API Endpoint</a></li>
 </ul>
 </li>
 </ul>
