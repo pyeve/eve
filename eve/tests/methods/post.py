@@ -138,6 +138,10 @@ class TestPost(TestBase):
         self.assertTrue(db_value[0] == items[2][1])
         self.assertTrue(db_value[1] == items[2][2])
 
+        # items on which validation failed should not be inserted into the db
+        response, status = self.get(self.known_resource_url, "where=prog==7")
+        self.assert404(status)
+
     def test_post_json(self):
         test_field = "ref"
         test_value = "1234567890123456789054321"
