@@ -272,6 +272,7 @@ class Eve(Flask, Events):
         or global configuration settings.
 
         .. versionchanged:: 0.0.6
+           'datasource[projection]'
            'projection',
            'allow_unknown'
 
@@ -327,15 +328,25 @@ class Eve(Flask, Events):
                                 self.config['AUTH_USERNAME_FIELD'])
             settings.setdefault('allow_unknown', self.config['ALLOW_UNKNOWN'])
 
+            # empty schemas are allowed for read-only access to resources
+            schema = settings.setdefault('schema', {})
+            self.set_schema_defaults(schema)
+
             datasource = {}
             settings.setdefault('datasource', datasource)
             settings['datasource'].setdefault('source', resource)
             settings['datasource'].setdefault('filter', None)
-            settings['datasource'].setdefault('projection', None)
 
-            # empty schemas are allowed for read-only access to resources
-            schema = settings.setdefault('schema', {})
-            self.set_schema_defaults(schema)
+            # enable retrieval of actual schema fields only. Eventual db
+            # fields not included in the schema won't be returned.
+            default_projection = {
+                self.config['ID_FIELD']: 1,
+                self.config['LAST_UPDATED']: 1,
+                self.config['DATE_CREATED']: 1
+            }
+            default_projection.update({field: 1 for field in schema})
+            settings['datasource'].setdefault('projection',
+                                              default_projection)
 
             # `dates` helper set contains the names of the schema fields
             # defined as `datetime` types. It will come in handy when
