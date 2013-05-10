@@ -11,6 +11,7 @@
 """
 
 from eve.utils import config
+from flask import request
 
 
 class ConnectionException(Exception):
@@ -150,3 +151,41 @@ class DataLayer(object):
         return (config.SOURCES[resource]['source'],
                 config.SOURCES[resource]['filter'],
                 config.SOURCES[resource]['projection'])
+
+    def _datasource_ex(self, resource, query=None, client_projection=None):
+        """ Returns both db collection and exact query (base filter included)
+        to which an API resource refers to
+
+        .. versionchanged:: 0.0.6
+           'auth_username_field' is injected even in empty queries.
+           Projection queries ('?projection={"name": 1}')
+
+        .. versionchanged:: 0.0.5
+           Support for 'user-restricted resource access'.
+
+        .. versionadded:: 0.0.4
+        """
+
+        datasource, filter_, projection_ = self._datasource(resource)
+        if filter_:
+            if query:
+                query.update(filter_)
+            else:
+                query = filter_
+
+        if client_projection:
+            # only allow fields which are inluded with the standard projection
+            # for the resource (avoid sniffing of private fields)
+            fields = dict(
+                (field, 1) for (field) in filter(projection_.has_key,
+                                                 client_projection.keys()))
+        else:
+            fields = projection_
+
+        # if 'user-restricted resource access' is enabled and there's an Auth
+        # request active, add the username field to the query
+        username_field = config.DOMAIN[resource].get('auth_username_field')
+        if username_field and request.authorization and query is not None:
+            query.update({username_field: request.authorization.username})
+
+        return datasource, query, fields
