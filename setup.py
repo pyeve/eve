@@ -24,6 +24,9 @@ setup(
         'simplejson',
         'events'
     ],
+    extras_require={
+        'sqlalchemy': ['sqlalchemy']
+    },
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
