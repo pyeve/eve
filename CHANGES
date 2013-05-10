@@ -8,6 +8,9 @@ Version 0.0.6
 
 Not released yet.
 
+- Content-Type header now properly parsed when additional arguments are
+  included (Ondrej Slinták).
+
 - Only fields defined in the resource schema are now returned from the 
   database. Closes #52.
 

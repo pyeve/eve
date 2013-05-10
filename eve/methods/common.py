@@ -95,9 +95,11 @@ def payload():
 
     .. versionadded: 0.0.5
     """
-    if request.headers['Content-Type'] == 'application/json':
+    content_type = request.headers['Content-Type'].split(';')[0]
+
+    if content_type == 'application/json':
         return json.loads(request.data)
-    elif request.headers['Content-Type'] == \
+    elif content_type == \
             'application/x-www-form-urlencoded':
         return request.form if len(request.form) else abort(400)
     else:
