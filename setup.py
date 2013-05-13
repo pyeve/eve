@@ -8,7 +8,7 @@ LONG_DESCRIPTION = open('README.rst').read()
 
 setup(
     name='Eve',
-    version='0.0.6',
+    version='0.0.7-dev',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',
