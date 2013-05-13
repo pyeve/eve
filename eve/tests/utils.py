@@ -22,63 +22,101 @@ class TestUtils(TestBase):
         self.etag = '56eaadbbd9fa287e7270cf13a41083c94f52ab9b'
 
     def test_parse_request_where(self):
-        self.assertEqual(parse_request().where, None)
-        self.assertEqual(parse_request(args={'where': 'hello'}).where, 'hello')
+        with self.app.test_request_context():
+            self.assertEqual(parse_request(self.known_resource).where, None)
+        with self.app.test_request_context('/?where=hello'):
+            self.assertEqual(parse_request(self.known_resource).where, 'hello')
 
     def test_parse_request_sort(self):
-        self.assertEqual(parse_request().sort, None)
-        self.assertEqual(parse_request(args={'sort': 'hello'}).sort, 'hello')
+        with self.app.test_request_context():
+            self.assertEqual(parse_request(self.known_resource).sort, None)
+        with self.app.test_request_context('/?sort=hello'):
+            self.assertEqual(parse_request(self.known_resource).sort, 'hello')
 
     def test_parse_request_page(self):
-        self.assertEqual(parse_request().page, 1)
-        self.assertEqual(parse_request(args={'page': 2}).page, 2)
-        self.assertEqual(parse_request(args={'page': -1}).page, 1)
-        self.assertEqual(parse_request(args={'page': 0}).page, 1)
-        self.assertEqual(parse_request(args={'page': 1.1}).page, 1)
-        self.assertEqual(parse_request(args={'page': 'string'}).page, 1)
+        with self.app.test_request_context():
+            self.assertEqual(parse_request(self.known_resource).page, 1)
+        with self.app.test_request_context('/?page=2'):
+            self.assertEqual(parse_request(self.known_resource).page, 2)
+        with self.app.test_request_context('/?page=-1'):
+            self.assertEqual(parse_request(self.known_resource).page, 1)
+        with self.app.test_request_context('/?page=0'):
+            self.assertEqual(parse_request(self.known_resource).page, 1)
+        with self.app.test_request_context('/?page=1.1'):
+            self.assertEqual(parse_request(self.known_resource).page, 1)
+        with self.app.test_request_context('/?page=string'):
+            self.assertEqual(parse_request(self.known_resource).page, 1)
 
     def test_parse_request_max_results(self):
         default = config.PAGINATION_DEFAULT
         limit = config.PAGINATION_LIMIT
-        self.assertEqual(parse_request().max_results, default)
-        self.assertEqual(
-            parse_request(args={'max_results': limit + 1}).max_results, limit)
-        self.assertEqual(
-            parse_request(args={'max_results': 2}).max_results, 2)
-        self.assertEqual(
-            parse_request(args={'max_results': -1}).max_results, default)
-        self.assertEqual(
-            parse_request(args={'max_results': 0}).max_results, default)
-        self.assertEqual(
-            parse_request(args={'max_results': 1.1}).max_results, 1)
-        self.assertEqual(
-            parse_request(args={'max_results': 'string'}).max_results, default)
+        with self.app.test_request_context():
+            self.assertEqual(parse_request(self.known_resource).max_results, default)
+        with self.app.test_request_context('/?max_results=%d' % (limit+1)):
+            self.assertEqual(parse_request(self.known_resource).max_results, limit)
+        with self.app.test_request_context('/?max_results=2'):
+            self.assertEqual(parse_request(self.known_resource).max_results, 2)
+        with self.app.test_request_context('/?max_results=-1'):
+            self.assertEqual(parse_request(self.known_resource).max_results, default)
+        with self.app.test_request_context('/?max_results=0'):
+            self.assertEqual(parse_request(self.known_resource).max_results, default)
+        with self.app.test_request_context('/?max_results=1.1'):
+            self.assertEqual(parse_request(self.known_resource).max_results, 1)
+        with self.app.test_request_context('/?max_results=string'):
+            self.assertEqual(parse_request(self.known_resource).max_results, default)
+
+    def test_parse_request_max_results_disabled_pagination(self):
+        self.app.config['DOMAIN'][self.known_resource]['pagination'] = False
+        default = 0
+        limit = config.PAGINATION_LIMIT
+        with self.app.test_request_context():
+            self.assertEqual(parse_request(self.known_resource).max_results, default)
+        with self.app.test_request_context('/?max_results=%d' % (limit+1)):
+            self.assertEqual(parse_request(self.known_resource).max_results, limit+1)
+        with self.app.test_request_context('/?max_results=2'):
+            self.assertEqual(parse_request(self.known_resource).max_results, 2)
+        with self.app.test_request_context('/?max_results=-1'):
+            self.assertEqual(parse_request(self.known_resource).max_results, default)
+        with self.app.test_request_context('/?max_results=0'):
+            self.assertEqual(parse_request(self.known_resource).max_results, default)
+        with self.app.test_request_context('/?max_results=1.1'):
+            self.assertEqual(parse_request(self.known_resource).max_results, 1)
+        with self.app.test_request_context('/?max_results=string'):
+            self.assertEqual(parse_request(self.known_resource).max_results, default)
 
     def test_parse_request_if_modified_since(self):
         ims = 'If-Modified-Since'
-        self.assertEqual(parse_request().if_modified_since, None)
-        self.assertEqual(parse_request(headers=None).if_modified_since, None)
-        self.assertEqual(parse_request(
-            headers={ims: self.datestr}).if_modified_since, self.valid +
-            timedelta(seconds=1))
-        self.assertRaises(ValueError,
+        with self.app.test_request_context():
+            self.assertEqual(parse_request(self.known_resource).if_modified_since, None)
+        with self.app.test_request_context(headers=None):
+            self.assertEqual(parse_request(self.known_resource).if_modified_since, None)
+        with self.app.test_request_context(headers={ims: self.datestr}):
+            self.assertEqual(parse_request(self.known_resource).if_modified_since, self.valid +
+                timedelta(seconds=1))
+        with self.app.test_request_context(headers={ims: 'not-a-date'}):
+            self.assertRaises(ValueError,
                           parse_request,
-                          headers={ims: 'not-a-date'})
-        self.assertRaises(ValueError,
-                          parse_request,
-                          headers={ims: self.datestr.replace('UTC', 'GMT')})
+                          self.known_resource)
+        with self.app.test_request_context(headers={ims: self.datestr.replace('UTC', 'GMT')}):
+            self.assertRaises(ValueError,
+                              parse_request,
+                              self.known_resource)
 
     def test_parse_request_if_none_match(self):
-        self.assertEqual(parse_request().if_none_match, None)
-        self.assertEqual(parse_request(headers=None).if_none_match, None)
-        self.assertEqual(parse_request(
-            headers={'If-None-Match': self.etag}).if_none_match, self.etag)
+        with self.app.test_request_context():
+            self.assertEqual(parse_request(self.known_resource).if_none_match, None)
+        with self.app.test_request_context(headers=None):
+            self.assertEqual(parse_request(self.known_resource).if_none_match, None)
+        with self.app.test_request_context(headers={'If-None-Match': self.etag}):
+            self.assertEqual(parse_request(self.known_resource).if_none_match, self.etag)
 
     def test_parse_request_if_match(self):
-        self.assertEqual(parse_request().if_match, None)
-        self.assertEqual(parse_request(headers=None).if_match, None)
-        self.assertEqual(parse_request(
-            headers={'If-Match': self.etag}).if_match, self.etag)
+        with self.app.test_request_context():
+            self.assertEqual(parse_request(self.known_resource).if_match, None)
+        with self.app.test_request_context(headers=None):
+            self.assertEqual(parse_request(self.known_resource).if_match, None)
+        with self.app.test_request_context(headers={'If-Match': self.etag}):
+            self.assertEqual(parse_request(self.known_resource).if_match, self.etag)
 
     def test_weak_date(self):
         self.assertEqual(weak_date(self.datestr), self.valid +

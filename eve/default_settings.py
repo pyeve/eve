@@ -11,6 +11,10 @@
     :copyright: (c) 2012 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.0.6
+       'PROJECTION' added and set to True.
+       'ALLOW_UNKNOWN' added and set to False.
+
     .. versionchanged:: 0.0.5
        'AUTH_USERNAME_FIELD' keyword added to support 'user-restricted resource
        access.
@@ -24,7 +28,7 @@ DATE_FORMAT = '%a, %d %b %Y %H:%M:%S UTC'
 
 API_VERSION = ''
 URL_PREFIX = ''
-SERVER_NAME = 'localhost:5000'
+SERVER_NAME = '127.0.0.1:5000'
 LAST_UPDATED = 'updated'
 DATE_CREATED = 'created'
 ID_FIELD = '_id'
@@ -35,6 +39,7 @@ X_DOMAINS = None                # CORS disabled by default.
 
 FILTERS = True                  # filters enbaled by default.
 SORTING = True                  # sorting enabled by default.
+PROJECTION = True               # projection enabled by default
 PAGINATION = True               # pagination enabled by default.
 PAGINATION_LIMIT = 50
 PAGINATION_DEFAULT = 25
@@ -52,5 +57,7 @@ ITEM_URL = '[a-f0-9]{24}'
 AUTH_USERNAME_FIELD = ''        # user-restricted resource access is disabled
                                 # by default.
 
+ALLOW_UNKNOWN = False           # don't allow unknown key/value pairs for
+                                # POST/PATCH payloads.
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"

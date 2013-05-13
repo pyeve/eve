@@ -12,8 +12,8 @@
 """
 
 import ast
-from datetime import datetime
-from bson import ObjectId
+from datetime import datetime   # noqa
+from bson import ObjectId       # noqa
 
 
 def parse(expression):
@@ -39,6 +39,16 @@ class MongoVisitor(ast.NodeVisitor):
     Supported compare operators: ==, >, <, !=, >=, <=
     Supported boolean operators: And, Or
     """
+    op_mapper = {
+        ast.Eq: '',
+        ast.Gt: '$gt',
+        ast.GtE: '$gte',
+        ast.Lt: '$lt',
+        ast.LtE: '$lte',
+        ast.NotEq: '$ne',
+        ast.Or: '$or',
+        ast.And: '$and'
+    }
 
     def visit_Module(self, node):
         """ Module handler, our entry point.
@@ -72,23 +82,8 @@ class MongoVisitor(ast.NodeVisitor):
         self.visit(node.left)
         left = self.current_value
 
-        operator = None
-        if node.ops:
-            op = node.ops[0]
-            if isinstance(op, ast.Eq):
-                operator = ''
-            elif isinstance(op, ast.Gt):
-                operator = '$gt'
-            elif isinstance(op, ast.GtE):
-                operator = '$gte'
-            elif isinstance(op, ast.Lt):
-                operator = '$lt'
-            elif isinstance(op, ast.LtE):
-                operator = '$lte'
-            elif isinstance(op, ast.NotEq):
-                operator = '$ne'
+        operator = self.op_mapper[node.ops[0].__class__] if node.ops else None
 
-        value = None
         if node.comparators:
             comparator = node.comparators[0]
             self.visit(comparator)
@@ -106,10 +101,7 @@ class MongoVisitor(ast.NodeVisitor):
     def visit_BoolOp(self, node):
         """ Boolean operator handler.
         """
-        if isinstance(node.op, ast.Or):
-            op = '$or'
-        elif isinstance(node.op, ast.And):
-            op = '$and'
+        op = self.op_mapper[node.op.__class__]
         self.ops.append([])
         for value in node.values:
             self.visit(value)

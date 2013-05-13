@@ -3,12 +3,86 @@ Eve Changelog
 
 Here you can see the full list of changes between each Eve release.
 
+Version 0.0.6
+-------------
+
+Released on May 13th 2013.
+
+- Content-Type header now properly parsed when additional arguments are
+  included (Ondrej Slinták).
+
+- Only fields defined in the resource schema are now returned from the 
+  database. Closes #52.
+
+- Default SERVER_NAME is now set to 127.0.0.1:5000.
+
+- 'auth_username_field' is honored even when there is no query in the request
+  (Thomas Sileo).
+
+- Pagination links in XML payloads are now properly escaped. Fixes #49.
+
+- HEAD requests supported. Closes #48.
+
+- Event Hooks. Each time a GET, POST, PATCH, DELETE method has been executed,
+  both global 'on_<method>' and resource-level 'on_<method>_<resource>'
+  events will be raised. You can subscribe to these events with multiple
+  callback functions. Callbacks will receive the original flask.request object
+  and the response payload as arguments.
+
+    >>> def general_callback(resource, request, payload):
+    ...  print 'A GET on the "%s" endpoint was just performed!' % resource
+
+    >>> def contacts_callback(request, payload):
+    ... print 'A get on 'contacts' was just performed!'
+
+    >>> app = Eve()
+    >>> app.on_get += general_callback
+    >>> app.on_get_contacts += contacts_callback
+
+    >>> app.run()
+  
+- Proper max_results handling in eve.utils.parse_request, refactored tests
+  (Tomasz Jezierski).
+
+- Projections. Projections are conditional queries where the client dictates
+  which fields should be returned by the API (Nicolas Bazire).
+
+- 'ALLOW_UNKNOWN' option, and the corresponding 'allow_options' local setting,
+  allow for a less strict schema validation. Closes #34.
+
+- ETags are now provided with POST responses. Closes #36.
+
+- PATCH performance improvement: ETag is now computed in memory; performing an
+  extra database lookup is not needed anymore.
+          
+- Bulk Inserts on the database. POST method heavily refactored to take
+  advantage of MongoDB native support for Bulk Inserts. 
+  
+  Please note: validation constraints are checked against the database, and not
+  between the payload documents themselves. This causes an interesting corner
+  case: in the event of a multiple documents payload where two or more
+  documents carry the same value for a field where the 'unique' constraint is
+  set, the payload will validate successfully, as there are no duplicates in
+  the database (yet). If this is an issue, the client can always send the
+  documents once at a time for insertion, or validate locally before submitting
+  the payload to the API.
+
+- Responses to document GET requests now include the ETag in both the header
+  and the payload. Closes #29.
+
+- 'methods' settings keyword renamed to 'resource_methods' for coherence with 
+  the global RESOURCE_METHODS (Nicolas Carlier).
+
 Version 0.0.5
 -------------
 
 Released on April 11th 2013.
 
+<<<<<<< HEAD
 - Fixed an issue that apparently caused the test suite to only run on
+=======
+- Fixed an issue that apparently caused the test suite to only run 
+>>>>>>> develop
   successfully on the dev box. Thanks Chronidev for reporting this.
 
 - Referential integrity validation via the new 'data_relation' schema keyword.

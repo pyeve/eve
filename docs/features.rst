@@ -22,7 +22,7 @@ implementation of CRUD via REST
 Action HTTP Verb Context 
 ====== ========= ===================
 Create POST      Collection
-Read   GET       Collection/Document
+Read   GET, HEAD Collection/Document
 Update PATCH     Document
 Delete DELETE    Collection/Document
 ====== ========= ===================
@@ -134,6 +134,7 @@ look something like this:
         "_id": "50acfba938345b0978fccad7"
         "updated": "Wed, 21 Nov 2012 16:04:56 UTC",
         "created": "Wed, 21 Nov 2012 16:04:56 UTC",
+        "etag": "28995829ee85d69c4c18d597a0f68ae606a266cc",
         "_links": {
             "self": {"href": "eve-demo.herokuapp.com/people/50acfba938345b0978fccad7/", "title": "person"},
             "parent": {"href": "eve-demo.herokuapp.com/", "title": "home"},
@@ -345,12 +346,14 @@ data stream.
             "status": "OK",
             "updated": "Thu, 22 Nov 2012 15:22:27 UTC",
             "_id": "50ae43339fa12500024def5b",
+            "etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
             "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b/", "title": "person"}}
         },
         "item1": {
             "status": "OK",
             "updated": "Thu, 22 Nov 2012 15:22:27 UTC",
             "_id": "50ae43339fa12500024def5c",
+            "etag": "62d356f623c7d9dc864ffa5facc47dced4ba6907"
             "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5c/", "title": "person"}}
         }
     }
@@ -389,7 +392,9 @@ request:
 
 In the example above, ``item2`` did not validate and was rejected, while
 ``item1`` was successfully created. API maintainer has complete control on
-data validation. For more informations see :ref:`validation`.
+data validation. Optionally, you can decide to allow for unknown fields to be
+added/updated on one or more endpoints. For more informations see
+:ref:`validation`.
 
 Extensible Data Validation
 --------------------------
@@ -466,6 +471,49 @@ target the same database collection. A typical use-case would be an
 hypothetical ``people`` collection on the database being used by both the
 ``/admins/`` and ``/users/`` API endpoints.
 
+.. _projections:
+
+Projections
+-----------
+This feature allows to create dynamic *views* of collections, or more precisely
+to decide what fields should or should not be returned, using a 'projection'.
+Put in another way, Projections are conditional queries where the client
+dictates which fields should be returned by the API.
+
+.. code-block:: console
+
+    $ curl -i http://eve-demo.herokuapp.com/people/?projection={"lastname": 1, "born": 1}
+    HTTP/1.0 200 OK
+
+The query above will only return *lastname* and *born* out of all the fields
+available in the 'people' resource. Please note that key fields such as
+ID_FIELD, DATE_CREATED, DATE_UPDATED etc.  will still be included with the
+payload.
+
+Event Hooks
+-----------
+Each time a GET, POST, PATCH, DELETE method has been executed, both global
+`on_<method>` and resource-level `on_<method>_<resource>` events will be
+raised. You can subscribe to these events with multiple callback functions.
+Callbacks will receive the original `flask.request` object and the response
+payload as arguments.
+
+.. code-block:: pycon
+
+    >>> def general_callback(resource, request, payload):
+    ...  print 'A GET on the "%s" endpoint was just performed!' % resource
+
+    >>> def contacts_callback(request, payload):
+    ... print 'A get on "contacts" was just performed!'
+
+    >>> app = Eve()
+    >>> app.on_get += general_callback
+    >>> app.on_get_contacts += contacts_callback
+
+    >>> app.run()
+
+To provide seamless event handling features, Eve relies on the Events_ package.
+
 MongoDB Support
 ---------------
 Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL
@@ -480,7 +528,7 @@ niceties, like a buil-in development server and debugger_, integrated support
 for unittesting_ and an `extensive documentation`_.
 
 .. _HATEOAS: http://en.wikipedia.org/wiki/HATEOAS
-.. _Cerberus: http://cerberus.readthedocs.org/
+.. _Cerberus: https://github.com/nicolaiarocci/cerberus
 .. _REST: http://en.wikipedia.org/wiki/Representational_state_transfer
 .. _CRUD: http://en.wikipedia.org/wiki/Create,_read,_update_and_delete
 .. _`CORS`: http://en.wikipedia.org/wiki/Cross-origin_resource_sharing
@@ -490,3 +538,4 @@ for unittesting_ and an `extensive documentation`_.
 .. _unittesting: http://flask.pocoo.org/docs/testing/
 .. _`extensive documentation`: http://flask.pocoo.org/docs/
 .. _`this`: https://speakerdeck.com/nicola/developing-restful-web-apis-with-python-flask-and-mongodb?slide=113
+.. _Events: https://github.com/nicolaiarocci/events

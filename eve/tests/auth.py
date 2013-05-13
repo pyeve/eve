@@ -4,7 +4,7 @@ import eve
 import json
 from eve import Eve
 from eve.auth import BasicAuth, TokenAuth, HMACAuth
-from eve.tests import TestMethodsBase
+from eve.tests import TestBase
 
 
 class ValidBasicAuth(BasicAuth):
@@ -33,7 +33,7 @@ class BadHMACAuth(HMACAuth):
     pass
 
 
-class TestBasicAuth(TestMethodsBase):
+class TestBasicAuth(TestBase):
 
     def setUp(self):
         super(TestBasicAuth, self).setUp()
@@ -78,7 +78,7 @@ class TestBasicAuth(TestMethodsBase):
                                  headers=self.valid_auth)
         self.assert200(r.status_code)
         r = self.test_client.post(self.known_resource_url,
-                                  data={'key1': 'value1'},
+                                  data={"item1": json.dumps({"k": "value"})},
                                   headers=self.valid_auth)
         self.assert200(r.status_code)
         r = self.test_client.delete(self.known_resource_url,
@@ -231,17 +231,31 @@ class TestHMACAuth(TestBasicAuth):
         self.assert401(r.status_code)
 
 
-class TestUserRestrictedAccess(TestMethodsBase):
+class TestUserRestrictedAccess(TestBase):
     def setUp(self):
         super(TestUserRestrictedAccess, self).setUp()
         self.app = Eve(settings=self.settings_file, auth=ValidBasicAuth)
+        # remove the datasource filter to make the whole collection available
+        # to a GET request.
+        del(self.app.config['DOMAIN'][self.known_resource]['datasource']['filter'])
+        self.app.set_defaults()
+        self.app._add_url_rules()
         self.test_client = self.app.test_client()
         self.valid_auth = [('Authorization', 'Basic YWRtaW46c2VjcmV0')]
         self.invalid_auth = [('Authorization', 'Basic IDontThinkSo')]
         self.field_name = 'auth_username_field'
         self.data = {'item1': json.dumps({"ref": "0123456789123456789012345"})}
-        for resource, schema in self.app.config['DOMAIN'].items():
-            schema[self.field_name] = 'username'
+        for resource, settings in self.app.config['DOMAIN'].items():
+            settings[self.field_name] = 'username'
+
+    def test_get(self):
+        data, status = self.parse_response(
+            self.test_client.get(self.known_resource_url,
+                                 headers=self.valid_auth))
+        self.assert200(status)
+        # no data has been saved by user 'admin' yet, so we get an empyy
+        # resulset back.
+        self.assertEqual(len(data['_items']), 0)
 
     def test_post(self):
         response, status = self.post()
@@ -252,17 +266,6 @@ class TestUserRestrictedAccess(TestMethodsBase):
         self.assert200(status)
         # len of 1 as there are is only 1 doc saved by user
         self.assertEqual(len(data['_items']), 1)
-        # 'username' has been stripped out from response payload
-        self.assertTrue('username' not in data['_items'][0])
-
-        self.app.config['DOMAIN'][self.known_resource][self.field_name] = ''
-        data, status = self.parse_response(
-            self.test_client.get(self.known_resource_url,
-                                 headers=self.valid_auth))
-        self.assert200(status)
-        # this time we don't have user restricted enabled, so username is
-        # included with the payload
-        self.assertTrue('username' in data['_items'][0])
 
     def test_patch(self):
         changes = {"ref": "9999999999999999999999999"}
@@ -281,16 +284,6 @@ class TestUserRestrictedAccess(TestMethodsBase):
         data, status = self.parse_response(
             self.test_client.get(url, headers=self.valid_auth))
         self.assert200(status)
-        # 'username' has been stripped out from response payload
-        self.assertTrue('username' not in data)
-
-        self.app.config['DOMAIN'][self.known_resource][self.field_name] = ''
-        data, status = self.parse_response(
-            self.test_client.get(url, headers=self.valid_auth))
-        self.assert200(status)
-        # this time we don't have user restricted enabled, so username is
-        # included with the payload
-        self.assertTrue('username' in data)
 
     def test_delete(self):
         data, status = self.post()

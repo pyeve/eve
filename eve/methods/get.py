@@ -33,6 +33,9 @@ def get(resource):
 
     :param resource: the name of the resource.
 
+    .. versionchanged:: 0.0.6
+       Support for HEAD requests.
+
     .. versionchanged:: 0.0.5
        Support for user-restricted access to resources.
        Support for LAST_UPDATED field missing from documents, because they were
@@ -65,8 +68,6 @@ def get(resource):
         document['_links'] = {'self': document_link(resource,
                                                     document[config.ID_FIELD])}
 
-        _strip_username(document, resource)
-
         documents.append(document)
 
     if req.if_modified_since and len(documents) == 0:
@@ -92,6 +93,12 @@ def getitem(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
 
+    .. versionchanged:: 0.0.6
+       Support for HEAD requests.
+
+    .. versionchanged:: 0.0.6
+        ETag added to payload.
+
     .. versionchanged:: 0.0.5
        Support for user-restricted access to resources.
        Support for LAST_UPDATED field missing from documents, because they were
@@ -113,20 +120,18 @@ def getitem(resource, **lookup):
         # be computed on the same document representation that might have
         # been used in the collection 'get' method
         last_modified = document[config.LAST_UPDATED] = _last_updated(document)
-        etag = document_etag(document)
+        document['etag'] = document_etag(document)
 
-        _strip_username(document, resource)
-
-        if req.if_none_match and etag == req.if_none_match:
+        if req.if_none_match and document['etag'] == req.if_none_match:
             # request etag matches the current server representation of the
             # document, return a 304 Not-Modified.
-            return response, last_modified, etag, 304
+            return response, last_modified, document['etag'], 304
 
         if req.if_modified_since and last_modified <= req.if_modified_since:
             # request If-Modified-Since conditional request match. We test
             # this after the etag since Last-Modified dates have lower
             # resolution (1 second).
-            return response, last_modified, etag, 304
+            return response, last_modified, document['etag'], 304
 
         response['_links'] = {
             'self': document_link(resource, document[config.ID_FIELD]),
@@ -134,21 +139,9 @@ def getitem(resource, **lookup):
             'parent': home_link()
         }
         response.update(document)
-        return response, last_modified, etag, 200
+        return response, last_modified, document['etag'], 200
 
     abort(404)
-
-
-def _strip_username(document, resource):
-        """If 'user-restricted resource access' is enabled and there's
-        an Auth request active, strim the username out of the document
-
-        .. versionadded:: 0.0.5
-        """
-        username_field = app.config['DOMAIN'][resource]['auth_username_field']
-        if username_field:
-            document.pop(username_field, None)
-        return document
 
 
 def _pagination_links(resource, req, documents_count):

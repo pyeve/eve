@@ -226,6 +226,16 @@ uppercase.
                                 by resource settings. Defaults to ``''``, which 
                                 disables the feature. 
 
+``ALLOW_UNKNOWN``               When ``True`` this option will allow insertion
+                                and edition of arbitrary, unknown fields to
+                                any API endpoint. Use with caution. See
+                                :ref:`unknown` for more informations. Defaults
+                                to ``False``.
+
+``PROJECTION``                  When ``True`` this option enables the
+                                :ref:`projections` feature. Can be overwritten
+                                by resource settings. Defaults to ``True``.
+
 ``DEBUG``                       ``True`` to enable Debug Mode, ``False``
                                 otherwise. 
 
@@ -290,10 +300,14 @@ always lowercase.
 ``pagination``                  ``True`` if pagination is enabled, ``False``
                                 otherwise. Locally overrides ``PAGINATION``.
 
-``methods``                     A list of HTTP methods supported at resource 
+``resource_methods``            A list of HTTP methods supported at resource 
                                 endpoint. Allowed values: ``GET``, ``POST``,
                                 ``DELETE``. Locally overrides
                                 ``RESOURCE_METHODS``.
+
+                                *Please note:* if you're running version 0.0.5
+                                or earlier use the now unsupported ``methods``
+                                keyword instead.
 
 ``public_methods``              A list of HTTP methods supported at resource
                                 endpoint, open to public access even when
@@ -352,8 +366,8 @@ always lowercase.
                                 endpoint. See the example below.
 
 ``datasource``                  Explicitly links API resources to database 
-                                collections, allowing for some `Advanced
-                                Datasource Patterns`_. 
+                                collections. See `Advanced Datasource
+                                Patterns`_. 
 
 ``auth_username_field``         Works in conjunction with :ref:`auth`. When 
                                 enabled users can only read/update/delete
@@ -362,6 +376,16 @@ always lowercase.
                                 used to store the username of the user who
                                 created the resource item. Locally overrides 
                                 ``AUTH_USERNAME_FIELD``.
+
+``allow_unknown``               When ``True`` this option will allow insertion
+                                and edition of arbitrary, unknown fields to
+                                the endpoint. Use with caution. Locally
+                                overrides ``ALLOW_UNKNOWN``. See :ref:`unknown`
+                                for more informations. Defaults to ``False``.
+
+``projection``                  When ``True`` this option enables the
+                                :ref:`projections` feature. Locally overrides
+                                ``PROJECTION``. Defaults to ``True``.
 
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data
@@ -475,6 +499,21 @@ defining the field validation rules. Allowed validation rules are:
 ``unique``                      The value of the field must be unique within
                                 the collection.
 
+                                Please note: validation constraints are checked
+                                against the database, and not between the
+                                payload documents themselves. This causes an
+                                interesting corner case: in the event of
+                                a multiple documents payload where two or more
+                                documents carry the same value for a field
+                                where the 'unique' constraint is set, the
+                                payload will validate successfully, as there
+                                are no duplicates in the database (yet). 
+                                
+                                If this is an issue, the client can always send
+                                the documents once at a time for insertion, or
+                                validate locally before submitting the payload
+                                to the API.
+
 ``data_relation``               Allows to specify a referential integrity rule
                                 that the value must satisfy in order to
                                 validate. It is a dict with two keys:
@@ -502,10 +541,18 @@ which was originally set up in `Domain Configuration`_:
 
 Advanced Datasource Patterns
 ----------------------------
+The ``datasource`` keyword allows to explicitly link API resources to
+database collections (if you omit it, the domain resource key is assumed to be
+the name of the database collection itself). It is a dictionary with three allowed
+keys: `source`, `filter` and `projection`. ``source`` dictates the database
+collection consumed by the resource, ``filter`` expresses the underlying
+query used to retrieve and validate data and ``projection`` allows to
+redefine the exposed fieldset.
+
+
 Predefined Database Filters
 '''''''''''''''''''''''''''
-By using the ``datasource`` resource keyword it is possibile to set predefined
-database filters. 
+Database filters for the API endpoint are set with the ``filter`` keyword.
 
 ::
 
@@ -515,8 +562,8 @@ database filters.
             }
         }
   
-In the example above the API endpoint will only expose and update documents
-with an existent `username` field.
+In the example above the API endpoint for the `people` resource will only
+expose and update documents with an existent `username` field.
 
 Predefined filters run on top of user queries (GET requests with `where`
 clauses) and standard conditional requests (`If-Modified-Since`, etc.)
@@ -530,14 +577,7 @@ Multiple API Endpoints, One Datasource
 ''''''''''''''''''''''''''''''''''''''
 Multiple API endpoints can target the same database collection. For
 example you can set both ``/admins/`` and ``/users/`` to read and write from
-the same collection on the database, `people`.
-
-The ``datasource`` keyword allows to explicitly link API resources to
-database collections (if you omit it, the domain resource key is assumed to be
-the name of the database collection). It is a dictionary with two allowed keys:
-`source` and `filter`. ``source`` dictates the database collection consumed by
-the resource, while ``filter`` is the underlying query applied by the API when
-retrieving and validating data for the resource.  
+the same `people` collection on the database.
 
 ::
 
@@ -550,5 +590,25 @@ retrieving and validating data for the resource.
 
 The above setting will retrieve, edit and delete only documents from the
 `people` collection with a `userlevel` of 1.
+
+Limiting the Fieldset Exposed by the API Endpoint
+'''''''''''''''''''''''''''''''''''''''''''''''''
+By default API responses to GET requests will include all fields defined by the
+corresponding resource schema_. The ``projection`` setting of the `datasource`
+resource keyword allows to redefine the fieldset.
+
+::
+
+    people = {
+        'datasource': {
+            'projection': {'username': 1}
+            }
+        }
+
+The above setting will expose only the `username` field to GET requests, no
+matter the schema_ defined for the resource. Please note that POST and PATCH
+methods will still allow the whole schema to be manipulated. This feature can
+come in handy when you want to protect insertion and edition behind an
+:ref:`auth` scheme while leaving read access open to the public.
 
 .. _Cerberus: http://cerberus.readthedocs.org

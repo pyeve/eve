@@ -16,14 +16,14 @@ Making Changes
 --------------
 * Fork_ the repository on GitHub.
 * Create a topic branch from where you want to base your work.
-* This is usually the ``development`` branch. 
-* Please avoid working directly on ``development`` branch.
+* This is usually the ``develop`` branch. 
+* Please avoid working directly on ``develop`` branch.
 * Make commits of logical units (if needed rebase your feature branch before
   submitting it).
 * Check for unnecessary whitespace with ``git diff --check`` before committing.
 * Make sure your commit messages are in the `proper format`_.
 * If your commit fixes an open issue, reference it in the commit message (#15).
-* Make sure your code comforms to PEP8_.
+* Make sure your code conforms to PEP8_.
 * Make sure you have added the necessary tests for your changes.
 * Run all the tests to assure nothing else was accidentally broken.
 * Don't forget to add yourself to AUTHORS_.

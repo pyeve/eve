@@ -1,11 +1,11 @@
 #import unittest
-from eve.tests import TestMethodsBase
+from eve.tests import TestBase
 from eve import STATUS_OK, LAST_UPDATED, ID_FIELD
 import simplejson as json
 
 
 #@unittest.skip("don't need no freakin' tests!")
-class TestPatch(TestMethodsBase):
+class TestPatch(TestBase):
 
     def test_patch_to_resource_endpoint(self):
         r, status = self.patch(self.known_resource_url, data={})
@@ -201,6 +201,20 @@ class TestPatch(TestMethodsBase):
             return r[fields]
         else:
             return [r[field] for field in fields]
+
+    def test_patch_allow_unknown(self):
+        changes = {'key1': json.dumps({"unknown": "unknown"})}
+        r, status = self.patch(self.item_id_url,
+                               data=changes,
+                               headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+        self.assertValidationError(r, 'key1', 'unknown field')
+        self.app.config['DOMAIN'][self.known_resource]['allow_unknown'] = True
+        r, status = self.patch(self.item_id_url,
+                               data=changes,
+                               headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+        self.assertPatchResponse(r, 'key1', self.item_id)
 
     def test_patch_json(self):
         field = "ref"

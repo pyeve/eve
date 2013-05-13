@@ -84,14 +84,14 @@ class TestConfig(TestBase):
 
     def test_validate_schema_methods(self):
         test = {
-            'methods': ['PUT', 'GET', 'DELETE', 'POST'],
+            'resource_methods': ['PUT', 'GET', 'DELETE', 'POST'],
         }
         self.app.config['DOMAIN']['test_resource'] = test
         self.assertValidateConfigFailure('PUT')
 
     def test_validate_schema_item_methods(self):
         test = {
-            'methods': ['GET'],
+            'resource_methods': ['GET'],
             'item_methods': ['PUT'],
         }
         self.app.config['DOMAIN']['test_resource'] = test
@@ -135,7 +135,7 @@ class TestConfig(TestBase):
 
         settings = self.domain[resource]
         self.assertEqual(settings['url'], resource)
-        self.assertEqual(settings['methods'],
+        self.assertEqual(settings['resource_methods'],
                          self.app.config['RESOURCE_METHODS'])
         self.assertEqual(settings['public_methods'],
                          self.app.config['PUBLIC_METHODS'])
@@ -160,16 +160,31 @@ class TestConfig(TestBase):
         self.assertEqual(settings['item_title'],
                          resource.rstrip('s').capitalize())
         self.assertEqual(settings['filters'], self.app.config['FILTERS'])
+        self.assertEqual(settings['projection'], self.app.config['PROJECTION'])
         self.assertEqual(settings['sorting'], self.app.config['SORTING'])
         self.assertEqual(settings['pagination'], self.app.config['PAGINATION'])
         self.assertEqual(settings['auth_username_field'],
                          self.app.config['AUTH_USERNAME_FIELD'])
+        self.assertEqual(settings['allow_unknown'],
+                         self.app.config['ALLOW_UNKNOWN'])
 
         self.assertNotEqual(settings['schema'], None)
         self.assertEqual(type(settings['schema']), dict)
         self.assertEqual(len(settings['schema']), 0)
-        self.assertEqual(settings['datasource'],
-                         {'source': resource, 'filter': None})
+
+    def test_datasource(self):
+        resource = 'invoices'
+        datasource = self.domain[resource]['datasource']
+        schema = self.domain[resource]['schema']
+        compare = filter(schema.has_key, datasource['projection'])
+        compare.extend([self.app.config['ID_FIELD'],
+                        self.app.config['LAST_UPDATED'],
+                        self.app.config['DATE_CREATED']])
+
+        self.assertEqual(datasource['projection'],
+                         dict((field, 1) for (field) in compare))
+        self.assertEqual(datasource['source'], resource)
+        self.assertEqual(datasource['filter'], None)
 
     def test_validate_roles(self):
         for resource in self.domain:
@@ -274,7 +289,7 @@ class TestConfig(TestBase):
         map_adapter = self.app.url_map.bind(self.app.config['SERVER_NAME'])
 
         for resource, settings in self.domain.items():
-            for method in settings['methods']:
+            for method in settings['resource_methods']:
                 self.assertTrue(map_adapter.test('/%s/' % settings['url'],
                                                  method))
 

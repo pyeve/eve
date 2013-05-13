@@ -21,6 +21,7 @@ from eve.io.mongo import Mongo, Validator
 from eve.exceptions import ConfigException, SchemaException
 from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint
 from eve.utils import api_prefix
+from events import Events
 
 
 class EveWSGIRequestHandler(WSGIRequestHandler):
@@ -40,7 +41,7 @@ class RegexConverter(BaseConverter):
         self.regex = items[0]
 
 
-class Eve(Flask):
+class Eve(Flask, Events):
     """The main Eve object. On initialization it will load Eve settings, then
     configure and enable the API endpoints. The API is launched by executing
     the code below:::
@@ -56,6 +57,10 @@ class Eve(Flask):
     :param data: the data layer class. Must be a :class:`~eve.io.DataLayer`
                  subclass. Defaults to :class:`~eve.io.Mongo`.
     :param kwargs: optional, standard, Flask parameters.
+
+    .. versionchanged:: 0.0.6
+       'Events' added to the list of super classes, allowing for the arbitrary
+       raising of events within the application.
     """
     def __init__(self, import_name=__package__, settings='settings.py',
                  validator=Validator, data=Mongo, auth=None, **kwargs):
@@ -178,7 +183,7 @@ class Eve(Flask):
         # make sure that individual resource/item methods are supported.
         for resource, settings in self.config['DOMAIN'].items():
             self.validate_methods(supported_resource_methods,
-                                  settings['methods'],
+                                  settings['resource_methods'],
                                   '[%s] resource ' % resource)
             self.validate_methods(supported_item_methods,
                                   settings['item_methods'],
@@ -186,7 +191,7 @@ class Eve(Flask):
 
             # while a resource schema is optional for read-only access,
             # it is mandatory for write-access to resource/items.
-            if 'POST' in settings['methods'] or \
+            if 'POST' in settings['resource_methods'] or \
                'PATCH' in settings['item_methods']:
                 if len(settings['schema']) == 0:
                     raise ConfigException('A resource schema must be provided '
@@ -266,6 +271,11 @@ class Eve(Flask):
         """ When not provided, fills individual resource settings with default
         or global configuration settings.
 
+        .. versionchanged:: 0.0.6
+           'datasource[projection]'
+           'projection',
+           'allow_unknown'
+
         .. versionchanged:: 0.0.5
            'auth_username_field'
            'filters',
@@ -286,7 +296,8 @@ class Eve(Flask):
 
         for resource, settings in self.config['DOMAIN'].items():
             settings.setdefault('url', resource)
-            settings.setdefault('methods', self.config['RESOURCE_METHODS'])
+            settings.setdefault('resource_methods',
+                                self.config['RESOURCE_METHODS'])
             settings.setdefault('public_methods',
                                 self.config['PUBLIC_METHODS'])
             settings.setdefault('allowed_roles', self.config['ALLOWED_ROLES'])
@@ -306,6 +317,7 @@ class Eve(Flask):
             settings.setdefault('filters', self.config['FILTERS'])
             settings.setdefault('sorting', self.config['SORTING'])
             settings.setdefault('pagination', self.config['PAGINATION'])
+            settings.setdefault('projection', self.config['PROJECTION'])
             # TODO make sure that this we really need the test below
             if settings['item_lookup']:
                 item_methods = self.config['ITEM_METHODS']
@@ -314,15 +326,27 @@ class Eve(Flask):
             settings.setdefault('item_methods', item_methods)
             settings.setdefault('auth_username_field',
                                 self.config['AUTH_USERNAME_FIELD'])
+            settings.setdefault('allow_unknown', self.config['ALLOW_UNKNOWN'])
+
+            # empty schemas are allowed for read-only access to resources
+            schema = settings.setdefault('schema', {})
+            self.set_schema_defaults(schema)
 
             datasource = {}
             settings.setdefault('datasource', datasource)
             settings['datasource'].setdefault('source', resource)
             settings['datasource'].setdefault('filter', None)
 
-            # empty schemas are allowed for read-only access to resources
-            schema = settings.setdefault('schema', {})
-            self.set_schema_defaults(schema)
+            # enable retrieval of actual schema fields only. Eventual db
+            # fields not included in the schema won't be returned.
+            default_projection = {
+                self.config['ID_FIELD']: 1,
+                self.config['LAST_UPDATED']: 1,
+                self.config['DATE_CREATED']: 1
+            }
+            default_projection.update(dict((field, 1) for (field) in schema))
+            settings['datasource'].setdefault('projection',
+                                              default_projection)
 
             # `dates` helper set contains the names of the schema fields
             # defined as `datetime` types. It will come in handy when
@@ -391,7 +415,8 @@ class Eve(Flask):
             # resource endpoint
             url = '%s/<regex("%s"):url>/' % (prefix, settings['url'])
             self.add_url_rule(url, view_func=collections_endpoint,
-                              methods=settings['methods'] + ['OPTIONS'])
+                              methods=settings['resource_methods'] +
+                              ['OPTIONS'])
 
             # item endpoint
             if settings['item_lookup']:

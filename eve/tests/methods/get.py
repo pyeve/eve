@@ -1,8 +1,8 @@
-from eve.tests import TestMethodsBase
+from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
 
 
-class TestGet(TestMethodsBase):
+class TestGet(TestBase):
 
     def test_get_empty_resource(self):
         response, status = self.get(self.empty_resource)
@@ -76,6 +76,16 @@ class TestGet(TestMethodsBase):
         self.assertTrue('next' not in links)
         self.assertTrue('prev' not in links)
 
+    def test_get_paging_disabled_no_args(self):
+        self.app.config['DOMAIN'][self.known_resource]['pagination'] = False
+        response, status = self.get(self.known_resource)
+        self.assert200(status)
+        resource = response['_items']
+        self.assertEqual(len(resource), self.known_resource_count)
+        links = response['_links']
+        self.assertTrue('next' not in links)
+        self.assertTrue('prev' not in links)
+
     def test_get_where_mongo_syntax(self):
         where = '{"ref": "%s"}' % self.item_name
         response, status = self.get(self.known_resource,
@@ -94,6 +104,19 @@ class TestGet(TestMethodsBase):
 
         resource = response['_items']
         self.assertEqual(len(resource), 1)
+
+    def test_get_projection(self):
+        projection = '{"prog": 1}'
+        response, status = self.get(self.known_resource, '?projection=%s' %
+                                    projection)
+        self.assert200(status)
+
+        resource = response['_items']
+
+        for r in resource:
+            self.assertFalse('location' in r)
+            self.assertFalse('role' in r)
+            self.assertTrue('prog' in r)
 
     def test_get_where_disabled(self):
         self.app.config['DOMAIN'][self.known_resource]['filters'] = False
@@ -202,12 +225,12 @@ class TestGet(TestMethodsBase):
         self.assertItem(resource[0])
 
 
-class TestGetItem(TestMethodsBase):
+class TestGetItem(TestBase):
 
     def assertItemResponse(self, response, status,
                            resource=None):
         self.assert200(status)
-
+        self.assertTrue('etag' in response)
         links = response['_links']
         self.assertEqual(len(links), 3)
         self.assertHomeLink(links)
@@ -284,3 +307,21 @@ class TestGetItem(TestMethodsBase):
         response, status = self.get(self.known_resource,
                                     item=ref)
         self.assertItemResponse(response, status)
+
+
+class TestHead(TestBase):
+
+    def test_head_home(self):
+        self.assertHead('/')
+
+    def test_head_resource(self):
+        self.assertHead(self.known_resource_url)
+
+    def test_head_item(self):
+        self.assertHead(self.item_id_url)
+
+    def assertHead(self, url):
+        h = self.test_client.head('/')
+        r = self.test_client.get('/')
+        self.assertEqual(h.data, '')
+        self.assertEqual(r.headers, h.headers)

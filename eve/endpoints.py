@@ -24,13 +24,16 @@ def collections_endpoint(url):
 
     :param url: the url that led here
 
-    .. versionadded:: 0.0.2
+    .. versionchanged:: 0.0.6
+       Support for HEAD requests
+
+    .. versionchanged:: 0.0.2
         Support for DELETE resource method.
     """
 
     resource = config.RESOURCES[url]
     response = None
-    if request.method == 'GET':
+    if request.method in ('GET', 'HEAD'):
         response = get(resource)
     elif request.method == 'POST':
         response = post(resource)
@@ -44,10 +47,13 @@ def item_endpoint(url, **lookup):
 
     :param url: the url that led here
     :param lookup: the query
+
+    .. versionchanged:: 0.0.6
+       Support for HEAD requests
     """
     resource = config.RESOURCES[url]
     response = None
-    if request.method == 'GET':
+    if request.method in ('GET', 'HEAD'):
         response = getitem(resource, **lookup)
     elif request.method == 'PATCH' or (request.method == 'POST' and
                                        request.headers.get(

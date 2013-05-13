@@ -10,7 +10,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
-__version__ = '0.0.5'
+__version__ = '0.0.6'
 
 #DEBUG = True
 
@@ -20,6 +20,7 @@ DATE_FORMAT = '%a, %d %b %Y %H:%M:%S UTC'
 URL_PREFIX = ''
 API_VERSION = ''
 SERVER_NAME = 'localhost:5000'
+PAGINATION = True
 PAGINATION_LIMIT = 50
 PAGINATION_DEFAULT = 25
 LAST_UPDATED = 'updated'
@@ -38,4 +39,4 @@ STATUS_OK = "OK"
 STATUS_ERR = "ERR"
 
 # must be the last line
-from flaskapp import Eve
+from flaskapp import Eve  # noqa

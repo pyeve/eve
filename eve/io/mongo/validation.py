@@ -28,6 +28,10 @@ class Validator(Validator):
                    documentation.
     :param resource: the resource name.
 
+    .. versionchanged:: 0.0.6
+       Support for 'allow_unknown' which allows to successfully validate
+       unknown key/value pairs.
+
     .. versionchanged:: 0.0.4
        Support for 'transparent_schema_rules' introduced with Cerberus 0.0.3,
        which allows for insertion of 'default' values in POST requests.
@@ -35,8 +39,9 @@ class Validator(Validator):
     def __init__(self, schema, resource=None):
         self.resource = resource
         self.object_id = None
-        super(Validator, self).__init__(schema,
-                                        transparent_schema_rules=True)
+        super(Validator, self).__init__(schema, transparent_schema_rules=True)
+        if resource:
+            self.allow_unknown = config.DOMAIN[resource]['allow_unknown']
 
     def validate_update(self, document, object_id):
         """ Validate method to be invoked when performing an update, not an

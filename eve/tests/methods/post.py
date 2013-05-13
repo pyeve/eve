@@ -1,10 +1,10 @@
-from eve.tests import TestMethodsBase
+from eve.tests import TestBase
 from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, DATE_CREATED
 import simplejson as json
 from ast import literal_eval
 
 
-class TestPost(TestMethodsBase):
+class TestPost(TestBase):
     def test_unknown_resource(self):
         r, status = self.post(self.unknown_resource_url, data={})
         self.assert404(status)
@@ -106,18 +106,12 @@ class TestPost(TestMethodsBase):
         data = {'item1': '{"%s": "%s"}' % ('ref', '9234567890123456789054321')}
         self.assertPostItem(data, test_field, test_value)
 
-    def assertPostItem(self, data, test_field, test_value):
-        r = self.perform_post(data)
-        item_id = r['item1'][ID_FIELD]
-        db_value = self.compare_post_with_get(item_id, test_field)
-        self.assertTrue(db_value == test_value)
-
     def test_multi_post(self):
         items = [
             ('ref', "9234567890123456789054321"),
             ('prog', 7),
             ('ref', "5432112345678901234567890", ["agent"]),
-            ('ref', "9234567890123456789054321"),
+            ('ref', self.item_ref),
             ('ref', "9234567890123456789054321", "12345678"),
         ]
         data = {
@@ -144,11 +138,9 @@ class TestPost(TestMethodsBase):
         self.assertTrue(db_value[0] == items[2][1])
         self.assertTrue(db_value[1] == items[2][2])
 
-    def perform_post(self, data, valid_items=['item1']):
-        r, status = self.post(self.known_resource_url, data=data)
-        self.assert200(status)
-        self.assertPostResponse(r, valid_items)
-        return r
+        # items on which validation failed should not be inserted into the db
+        response, status = self.get(self.known_resource_url, "where=prog==7")
+        self.assert404(status)
 
     def test_post_json(self):
         test_field = "ref"
@@ -174,6 +166,40 @@ class TestPost(TestMethodsBase):
         self.assert200(status)
         self.assertPostResponse(r, ['item1'])
 
+    def test_post_allow_unknown(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        data = {"item1": json.dumps({"unknown": "unknown"})}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert200(status)
+        self.assertValidationError(r, 'item1', "unknown")
+        self.app.config['DOMAIN'][self.known_resource]['allow_unknown'] = True
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert200(status)
+        self.assertPostResponse(r, ['item1'])
+
+    def test_post_with_content_type_charset(self):
+        test_field = 'ref'
+        test_value = "1234567890123456789054321"
+        data = {'item1': json.dumps({test_field: test_value})}
+        r, status = self.post(self.known_resource_url, data=data,
+                  content_type='application/json; charset=utf-8')
+        self.assert200(status)
+        self.assertPostResponse(r, ['item1'])
+
+    def perform_post(self, data, valid_items=['item1']):
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert200(status)
+        self.assertPostResponse(r, valid_items)
+        return r
+
+    def assertPostItem(self, data, test_field, test_value):
+        r = self.perform_post(data)
+        item_id = r['item1'][ID_FIELD]
+        item_etag = r['item1']['etag']
+        db_value = self.compare_post_with_get(item_id, [test_field, 'etag'])
+        self.assertTrue(db_value[0] == test_value)
+        self.assertTrue(db_value[1] == item_etag)
+
     def assertPostResponse(self, response, keys):
         for key in keys:
             self.assertTrue(key in response)
@@ -185,6 +211,7 @@ class TestPost(TestMethodsBase):
             self.assertTrue(LAST_UPDATED in k)
             self.assertTrue('_links') in k
             self.assertItemLink(k['_links'], k[ID_FIELD])
+            self.assertTrue('etag' in k)
 
     def compare_post_with_get(self, item_id, fields):
         raw_r = self.test_client.get("%s%s/" % (self.known_resource_url,

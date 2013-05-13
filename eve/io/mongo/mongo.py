@@ -12,7 +12,7 @@
 
 import ast
 import simplejson as json
-from flask import abort, request
+from flask import abort
 from flask.ext.pymongo import PyMongo
 from datetime import datetime
 from bson import ObjectId
@@ -49,6 +49,10 @@ class Mongo(DataLayer):
         :param resource: resource name.
         :param req: a :class:`ParsedRequest`instance.
 
+        .. versionchanged:: 0.0.6
+           Only retrieve fields in the resource schema
+           Support for projection queries ('?projection={"name": 1}')
+
         .. versionchanged:: 0.0.5
            handles the case where req.max_results is None because pagination
            has been disabled.
@@ -73,6 +77,7 @@ class Mongo(DataLayer):
         if req.sort:
             args['sort'] = ast.literal_eval(req.sort)
 
+        client_projection = {}
         spec = {}
 
         if req.where:
@@ -84,7 +89,14 @@ class Mongo(DataLayer):
                 except ParseError:
                     abort(400)
 
-        datasource, spec = self._datasource_ex(resource, spec)
+        if req.projection:
+            try:
+                client_projection = json.loads(req.projection)
+            except:
+                abort(400)
+
+        datasource, spec, projection = self._datasource_ex(resource, spec,
+                                                           client_projection)
 
         if req.if_modified_since:
             spec[config.LAST_UPDATED] = \
@@ -92,6 +104,9 @@ class Mongo(DataLayer):
 
         if len(spec) > 0:
             args['spec'] = spec
+
+        if projection is not None:
+            args['fields'] = projection
 
         return self.driver.db[datasource].find(**args)
 
@@ -101,6 +116,9 @@ class Mongo(DataLayer):
         :param resource: resource name.
         :param **lookup: lookup query.
 
+        .. versionchanged:: 0.0.6
+           Only retrieve fields in the resource schema
+
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
@@ -109,31 +127,43 @@ class Mongo(DataLayer):
                 lookup[ID_FIELD] = ObjectId(lookup[ID_FIELD])
         except:
             pass
-        datasource, filter_ = self._datasource_ex(resource, lookup)
-        document = self.driver.db[datasource].find_one(filter_)
+
+        datasource, filter_, projection = self._datasource_ex(resource, lookup)
+        document = self.driver.db[datasource].find_one(filter_, projection)
         return document
 
-    def insert(self, resource, document):
+    def insert(self, resource, doc_or_docs):
         """Inserts a document into a resource collection.
+
+        .. versionchanged:: 0.0.6
+           projection queries ('?projection={"name": 1}')
+           'document' param renamed to 'doc_or_docs', making support for bulk
+           inserts apparent.
 
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
-        datasource, filter_ = self._datasource_ex(resource)
-        return self.driver.db[datasource].insert(document)
+        datasource, filter_, _ = self._datasource_ex(resource)
+        return self.driver.db[datasource].insert(doc_or_docs)
 
     def update(self, resource, id_, updates):
         """Updates a collection document.
 
+        .. versionchanged:: 0.0.6
+           projection queries ('?projection={"name": 1}')
+
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
-        datasource, filter_ = self._datasource_ex(resource,
-                                                  {ID_FIELD: ObjectId(id_)})
+        datasource, filter_, _ = self._datasource_ex(resource,
+                                                     {ID_FIELD: ObjectId(id_)})
         return self.driver.db[datasource].update(filter_, {"$set": updates})
 
     def remove(self, resource, id_=None):
         """Removes a document or the entire set of documents from a collection.
+
+        .. versionchanged:: 0.0.6
+           projection queries ('?projection={"name": 1}')
 
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
@@ -142,7 +172,7 @@ class Mongo(DataLayer):
             Support for deletion of entire documents collection.
         """
         query = {ID_FIELD: ObjectId(id_)} if id_ else None
-        datasource, filter_ = self._datasource_ex(resource, query)
+        datasource, filter_, _ = self._datasource_ex(resource, query)
         return self.driver.db[datasource].remove(filter_)
 
     def _jsondatetime(self, source):
@@ -162,28 +192,3 @@ class Mongo(DataLayer):
                     pass
 
         return source
-
-    def _datasource_ex(self, resource, query=None):
-        """ Returns both db collection and exact query (base filter included)
-        to which an API resource refers to
-
-        .. versionchanged:: 0.0.5
-           Support for 'user-restricted resource access'.
-
-        .. versionadded:: 0.0.4
-        """
-
-        datasource, filter_ = self._datasource(resource)
-        if filter_:
-            if query:
-                query.update(filter_)
-            else:
-                query = filter_
-
-        # if 'user-restricted resource access' is enabled and there's an Auth
-        # request active, add the username field to the query
-        username_field = config.DOMAIN[resource].get('auth_username_field')
-        if username_field and request.authorization and query:
-            query.update({username_field: request.authorization.username})
-
-        return datasource, query

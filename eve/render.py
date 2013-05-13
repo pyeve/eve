@@ -16,6 +16,8 @@ import simplejson as json
 from flask import make_response, request, Response, current_app as app
 from bson.objectid import ObjectId
 from eve.utils import date_to_str, config
+from functools import wraps
+from xml.sax.saxutils import escape
 
 # mapping between supported mime types and render functions.
 _MIME_TYPES = [{'mime': ('application/json',), 'renderer': 'render_json'},
@@ -24,6 +26,33 @@ _MIME_TYPES = [{'mime': ('application/json',), 'renderer': 'render_json'},
 _DEFAULT_MIME = 'application/json'
 
 
+def raise_event(f):
+    """ Raises both general and resource-level events after the decorated
+    function has been executed. Returns both the flask.request object and the
+    response payload to the callback.
+
+    .. versionadded:: 0.0.6
+    """
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        r = f(*args, **kwargs)
+        if request.method in ('GET', 'POST', 'PATCH', 'DELETE'):
+            if request.method == 'POST' and 'X-HTTP-Method-Override' in \
+               request.headers:
+                event_name = 'on_patch'
+            else:
+                event_name = 'on_' + request.method.lower()
+            resource = args[0] if args else None
+            # general hook
+            getattr(app, event_name)(resource, request, r)
+            if resource:
+                # resource hook
+                getattr(app, event_name + '_' + resource)(request, r)
+        return r
+    return decorated
+
+
+@raise_event
 def send_response(resource, response):
     """ Prepares the response for the client.
 
@@ -32,6 +61,9 @@ def send_response(resource, response):
                      simply be forwarded to the client. If the latter a proper
                      response will be prepared, according to directives within
                      the tuple.
+
+    .. versionchanged:: 0.0.6
+       Support for HEAD requests.
 
     .. versionchanged:: 0.0.5
        Handling the case where response is None. Happens when the request
@@ -60,6 +92,9 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     :param etag: ETag header value.
     :param status: response status.
 
+    .. versionchanged:: 0.0.6
+       Support for HEAD requests.
+
     .. versionchanged:: 0.0.5
        Support for Cross-Origin Resource Sharing (CORS).
 
@@ -80,7 +115,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         resp.mimetype = mime
 
     # cache directives
-    if request.method == 'GET':
+    if request.method in ('GET', 'HEAD'):
         if resource:
             cache_control = config.DOMAIN[resource]['cache_control']
             expires = config.DOMAIN[resource]['cache_expires']
@@ -98,6 +133,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     if last_modified:
         resp.headers.add('Last-Modified', date_to_str(last_modified))
 
+    # CORS
     if 'Origin' in request.headers and config.X_DOMAINS is not None:
         if isinstance(config.X_DOMAINS, basestring):
             domains = [config.X_DOMAINS]
@@ -176,13 +212,16 @@ def xml_root_open(data):
 
     :param data: the data stream to be rendered as xml.
 
+    .. versionchanged:: 0.0.6
+       Links are now properly escaped.
+
     .. versionadded:: 0.0.3
     """
     links = data.get('_links')
     href = title = ''
     if links and 'self' in links:
         self_ = links.pop('self')
-        href = ' href="%s" ' % self_['href']
+        href = ' href="%s" ' % escape(self_['href'])
         if 'title' in self_:
             title = ' title="%s" ' % self_['title']
     return '<resource%s%s>' % (href, title)
@@ -194,6 +233,9 @@ def xml_add_links(data):
 
     :param data: the data stream to be rendered as xml.
 
+    .. versionchanged:: 0.0.6
+       Links are now properly escaped.
+
     .. versionadded:: 0.0.3
     """
     chunk = '<link rel="%s" href="%s" title="%s" />'
@@ -201,10 +243,10 @@ def xml_add_links(data):
     xml = ''
     for rel, link in links.items():
         if isinstance(link, list):
-            xml += ''.join([chunk % (rel, d['href'], d['title']) for d in
-                            link])
+            xml += ''.join([chunk % (rel, escape(d['href']), d['title'])
+                            for d in link])
         else:
-            xml += ''.join(chunk % (rel, link['href'], link['title']))
+            xml += ''.join(chunk % (rel, escape(link['href']), link['title']))
     return xml
 
 

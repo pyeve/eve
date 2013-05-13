@@ -2,13 +2,13 @@
 
 from setuptools import setup, find_packages
 
-DESCRIPTION = ("RESTful Web API made simple")
+DESCRIPTION = ("RESTful Web API Made Simple")
 LONG_DESCRIPTION = open('README.rst').read()
 #VERSION = __import__('eve').__version__
 
 setup(
     name='Eve',
-    version='0.0.5',
+    version='0.0.6',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',
@@ -20,8 +20,9 @@ setup(
     test_suite="eve.tests",
     install_requires=[
         'flask-pymongo>=0.2.0',
-        'cerberus>=0.0.3',
-        'simplejson'
+        'cerberus>=0.2.0',
+        'simplejson',
+        'events'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

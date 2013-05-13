@@ -11,6 +11,7 @@
 """
 
 from eve.utils import config
+from flask import request
 
 
 class ConnectionException(Exception):
@@ -38,6 +39,12 @@ class DataLayer(object):
 
     Admittedly, this interface is a Mongo rip-off. See the io.mongo
     package for an implementation example.
+
+    .. versionchanged:: 0.0.6
+       support for 'projections' has been added. For more information see
+       http://docs.mongodb.org/manual/reference/glossary/#term-projection.
+       While typically a MongoDB feature, other subclasses could decide to
+       provide support for their own projection syntax.
 
     .. versionchanged:: 0.0.4
        the _datasource helper function has been added.
@@ -92,13 +99,18 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
-    def insert(self, resource, document):
+    def insert(self, resource, doc_or_docs):
         """Inserts a document into a resource collection/table.
 
         :param resource: resource being accessed. You should then use
                          the ``_datasource`` helper function to retrieve both
                          the actual datasource name.
-        :param document: json document to be added to the database.
+        :param doc_or_docs: json document or list of json documents to be added
+                            to the database.
+
+        .. versionchanged:: 0.0.6
+            'document' param renamed to 'doc_or_docs', making support for bulk
+            inserts apparent.
         """
         raise NotImplementedError
 
@@ -130,10 +142,50 @@ class DataLayer(object):
 
     def _datasource(self, resource):
         """Returns a tuple with the actual name of the database
-        collection/table and the base query for the resource being accessed.
+        collection/table, base query and projection for the resource being
+        accessed.
 
         :param resource: resource being accessed.
         """
 
         return (config.SOURCES[resource]['source'],
-                config.SOURCES[resource]['filter'])
+                config.SOURCES[resource]['filter'],
+                config.SOURCES[resource]['projection'])
+
+    def _datasource_ex(self, resource, query=None, client_projection=None):
+        """ Returns both db collection and exact query (base filter included)
+        to which an API resource refers to
+
+        .. versionchanged:: 0.0.6
+           'auth_username_field' is injected even in empty queries.
+           Projection queries ('?projection={"name": 1}')
+
+        .. versionchanged:: 0.0.5
+           Support for 'user-restricted resource access'.
+
+        .. versionadded:: 0.0.4
+        """
+
+        datasource, filter_, projection_ = self._datasource(resource)
+        if filter_:
+            if query:
+                query.update(filter_)
+            else:
+                query = filter_
+
+        if client_projection:
+            # only allow fields which are inluded with the standard projection
+            # for the resource (avoid sniffing of private fields)
+            fields = dict(
+                (field, 1) for (field) in filter(projection_.has_key,
+                                                 client_projection.keys()))
+        else:
+            fields = projection_
+
+        # if 'user-restricted resource access' is enabled and there's an Auth
+        # request active, add the username field to the query
+        username_field = config.DOMAIN[resource].get('auth_username_field')
+        if username_field and request.authorization and query is not None:
+            query.update({username_field: request.authorization.username})
+
+        return datasource, query, fields

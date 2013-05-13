@@ -114,6 +114,50 @@ find more advanced use cases, such as the implementation of the ``unique`` and
 ``data_relation`` constraints. Please see the Cerberus_ documentation for
 a complete list rules and data types available. 
 
+.. _unknown:
+
+Allowing the Unknown
+--------------------
+Normally you don't want clients to inject unknown fields in your documents.
+However, there might be circumstances where this is desiderable. During the
+development cycle, for example, or when you are dealing with very heterogeneous
+data. After all, not forcing normalized information is one of the selling
+points of MongoDB and many other NoSQL data stores.
+
+In Eve, you achieve this by setting the ``ALLOW_UNKNOWN`` option to ``True``.
+Once this option is enabled, fields matching the schema will be validated
+normally, while unknown fields will be quietly stored without a glitch. You
+can also enable this feature only for certain endpoints by setting the
+``allow_unknown`` local option.
+
+Consider the following domain:
+
+.. code-block:: javascript
+
+    DOMAIN: {
+        'people': {
+            'allow_unknown': True,
+            'schema': {
+                'firstname': {'type': 'string'},
+                }
+            }
+        }
+
+You normally could only add (POST) or edit (PATCH) `firstnames` to the
+``/people/`` endpoint. However, since ``allow_unknown`` has been enabled, even
+a payload like this will be accepted:
+
+.. code-block:: console
+
+    $ curl -d 'item1={"firstname": "bill", "lastname": "clinton"}' -d 'item1={"firstname": "bill", "age":70}' http://eve-demo.herokuapp.com/people/
+    HTTP/1.0 200 OK
+
+.. admonition:: Please note
+
+    Use this feature with extreme caution. Also be aware that, when this
+    options is enabled, clients will be capable of actually `adding` fields via
+    PATCH (edit).
+
 .. _Cerberus: http://cerberus.readthedocs.org
 .. _`source code`: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/mongo/validation.py
 
