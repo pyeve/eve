@@ -38,5 +38,5 @@ ITEM_URL = '[a-f0-9]{24}'
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"
 
-# must be the last line
+# must be the last line (will raise W402 on pyflakes)
 from flaskapp import Eve  # noqa
