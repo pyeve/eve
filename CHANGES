@@ -6,7 +6,7 @@ Here you can see the full list of changes between each Eve release.
 Version 0.0.6
 -------------
 
-Not released yet.
+Released on May 13th 2013.
 
 - Content-Type header now properly parsed when additional arguments are
   included (Ondrej Slinták).
