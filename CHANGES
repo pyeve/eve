@@ -8,6 +8,8 @@ Version 0.0.7
 
 Not released yet.
 
+- Support alternative hosts/ports for the test suite (Paul Doucet).
+
 Version 0.0.6
 -------------
 
