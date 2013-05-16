@@ -37,6 +37,9 @@ class TestConfig(TestBase):
 
     def test_default_settings(self):
         self.assertEqual(self.app.settings, self.settings_file)
+        # TODO add tests for other global default values
+        self.assertEqual(self.app.config['MONGO_HOST'], 'localhost')
+        self.assertEqual(self.app.config['MONGO_PORT'], 27017)
 
     def test_unexisting_pyfile_config(self):
         self.assertRaises(IOError, Eve, settings='an_unexisting_pyfile.py')

@@ -61,3 +61,6 @@ ALLOW_UNKNOWN = False           # don't allow unknown key/value pairs for
                                 # POST/PATCH payloads.
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"
+
+MONGO_HOST = 'localhost'
+MONGO_PORT = 27017
