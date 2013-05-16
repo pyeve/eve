@@ -5,6 +5,9 @@ settings.py
 # Python
 *.py[co]
 
+# Gedit
+*~
+
 # Packages
 *.egg
 *.egg-info
