@@ -8,6 +8,8 @@ Version 0.0.7
 
 Not released yet.
 
+- MONGO_HOST defaults to 'localhost'.
+- MONGO_PORT defaults to 27017.
 - Support alternative hosts/ports for the test suite (Paul Doucet).
 
 Version 0.0.6
