@@ -247,6 +247,11 @@ nested and combined. Sorting is supported as well:</p>
 </div>
 <p>Currently sort directives use a pure MongoDB syntax; support for a more general
 syntax (<tt class="docutils literal"><span class="pre">sort=lastname</span></tt>) is planned.</p>
+<div class="admonition-please-note admonition">
+<p class="first admonition-title">Please note</p>
+<p class="last">Always use double quotes to wrap field names and values. Using single
+quotes will result in <tt class="docutils literal"><span class="pre">400</span> <span class="pre">Bad</span> <span class="pre">Request</span></tt> responses.</p>
+</div>
 </div>
 <div class="section" id="pagination">
 <h2>Pagination<a class="headerlink" href="#pagination" title="Permalink to this headline">¶</a></h2>
