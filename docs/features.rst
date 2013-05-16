@@ -175,6 +175,11 @@ nested and combined. Sorting is supported as well:
 Currently sort directives use a pure MongoDB syntax; support for a more general
 syntax (``sort=lastname``) is planned.
 
+.. admonition:: Please note
+
+    Always use double quotes to wrap field names and values. Using single
+    quotes will result in ``400 Bad Request`` responses.
+
 Pagination
 ----------
 Resource pagination is enabled by default in order to improve performance and
