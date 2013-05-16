@@ -148,6 +148,9 @@ API users down.</p>
 <h2>Database Interlude<a class="headerlink" href="#database-interlude" title="Permalink to this headline">¶</a></h2>
 <p>Let&#8217;s connect to a database by adding the following lines to <cite>settings.py</cite>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Let&#39;s just use the local mongod instance. Edit as needed.</span>
+
+<span class="c"># Please note that MONGO_HOST and MONGO_PORT could very well be left</span>
+<span class="c"># out as they already default to a bare bones local &#39;mongod&#39; instance.</span>
 <span class="n">MONGO_HOST</span> <span class="o">=</span> <span class="s">&#39;localhost&#39;</span>
 <span class="n">MONGO_PORT</span> <span class="o">=</span> <span class="mi">27017</span>
 <span class="n">MONGO_USERNAME</span> <span class="o">=</span> <span class="s">&#39;user&#39;</span>

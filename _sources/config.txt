@@ -54,6 +54,9 @@ from the :ref:`demo`:
         SERVER_NAME = 'eve-demo.herokuapp.com'
     else:
         # Running on local machine. Let's just use the local mongod instance.
+
+        # Please note that MONGO_HOST and MONGO_PORT could very well be left
+        # out as they already default to a bare bones local 'mongod' instance.
         MONGO_HOST = 'localhost'
         MONGO_PORT = 27017
         MONGO_USERNAME = 'user'
@@ -239,9 +242,9 @@ uppercase.
 ``DEBUG``                       ``True`` to enable Debug Mode, ``False``
                                 otherwise. 
 
-``MONGO_HOST``                  MongoDB server address.
+``MONGO_HOST``                  MongoDB server address. Defaults to ``localhost``.
 
-``MONGO_PORT``                  MongoDB port.
+``MONGO_PORT``                  MongoDB port. Defaults to ``27017``.
 
 ``MONGO_USERNAME``              MongoDB user name.
 

@@ -104,6 +104,9 @@ from the <a class="reference internal" href="index.html#demo"><em>Live demo</em>
     <span class="n">SERVER_NAME</span> <span class="o">=</span> <span class="s">&#39;eve-demo.herokuapp.com&#39;</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="c"># Running on local machine. Let&#39;s just use the local mongod instance.</span>
+
+    <span class="c"># Please note that MONGO_HOST and MONGO_PORT could very well be left</span>
+    <span class="c"># out as they already default to a bare bones local &#39;mongod&#39; instance.</span>
     <span class="n">MONGO_HOST</span> <span class="o">=</span> <span class="s">&#39;localhost&#39;</span>
     <span class="n">MONGO_PORT</span> <span class="o">=</span> <span class="mi">27017</span>
     <span class="n">MONGO_USERNAME</span> <span class="o">=</span> <span class="s">&#39;user&#39;</span>
@@ -323,10 +326,10 @@ by resource settings. Defaults to <tt class="docutils literal"><span class="pre"
 otherwise.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt></td>
-<td>MongoDB server address.</td>
+<td>MongoDB server address. Defaults to <tt class="docutils literal"><span class="pre">localhost</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_PORT</span></tt></td>
-<td>MongoDB port.</td>
+<td>MongoDB port. Defaults to <tt class="docutils literal"><span class="pre">27017</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_USERNAME</span></tt></td>
 <td>MongoDB user name.</td>
