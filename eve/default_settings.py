@@ -62,5 +62,10 @@ ALLOW_UNKNOWN = False           # don't allow unknown key/value pairs for
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"
 
+# MONGO defaults
 MONGO_HOST = 'localhost'
 MONGO_PORT = 27017
+# disallow Mongo's javascript queries as they might be vulnerable to injection
+# attacks ('ReDoS' especially), are probably too complex for the average API
+# end-user and finally can  seriously impact overall performance.
+MONGO_QUERY_BLACKLIST = ['$where', '$regex']

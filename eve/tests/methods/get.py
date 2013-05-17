@@ -95,6 +95,17 @@ class TestGet(TestBase):
         resource = response['_items']
         self.assertEqual(len(resource), 1)
 
+    def test_get_mongo_query_blacklist(self):
+        where = '{"$where": "this.ref == ''%s''"}' % self.item_name
+        response, status = self.get(self.known_resource,
+                                    '?where=%s' % where)
+        self.assert400(status)
+
+        where = '{"ref": {"$regex": "%s"}}' % self.item_name
+        response, status = self.get(self.known_resource,
+                                    '?where=%s' % where)
+        self.assert400(status)
+
     # TODO need more tests here, to verify that the parser is behaving
     # correctly
     def test_get_where_python_syntax(self):

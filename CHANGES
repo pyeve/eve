@@ -8,8 +8,17 @@ Version 0.0.7
 
 Not released yet.
 
+- MONGO_QUERY_BLACKLIST option added. Allows to blacklist mongo query operators
+  that should not be allowed in resource queries ('?where='). Defaults to
+  ['$where', '$regex']. Mongo Javascript operators are disabled by default as
+  they might be used as vectors for injection attacks. Javascript queries also
+  tend to be slow and generally can be easily replaced with the (very rich)
+  Mongo query dialect.
+
 - MONGO_HOST defaults to 'localhost'.
+
 - MONGO_PORT defaults to 27017.
+
 - Support alternative hosts/ports for the test suite (Paul Doucet).
 
 Version 0.0.6
