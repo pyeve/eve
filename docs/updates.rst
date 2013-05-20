@@ -21,6 +21,6 @@ Of course the best way to track the development of Eve is through
 
 IRC
 ---
-The official Freenode channel for Eve is `#evehq
-<irc://irc.freenode.net/evehq>`_
+The official Freenode channel for Eve is `#python-eve
+<irc://irc.freenode.net/python-eve>`_
 
