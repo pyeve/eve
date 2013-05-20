@@ -22,6 +22,6 @@ Feel free to email `eve@nicolaiarocci.com <mailto:eve@nicolaiarocci.com>`_.
 
 IRC
 ---
-The official Freenode channel for Eve is `#evehq
-<irc://irc.freenode.net/evehq>`_
+The official Freenode channel for Eve is `#python-eve
+<irc://irc.freenode.net/python-eve>`_
 

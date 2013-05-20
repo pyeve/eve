@@ -242,6 +242,7 @@ uppercase.
 ``DEBUG``                       ``True`` to enable Debug Mode, ``False``
                                 otherwise. 
 
+
 ``MONGO_HOST``                  MongoDB server address. Defaults to ``localhost``.
 
 ``MONGO_PORT``                  MongoDB port. Defaults to ``27017``.
@@ -251,6 +252,17 @@ uppercase.
 ``MONGO_PASSWORD``              MongoDB password.
 
 ``MONGO_DBNAME``                MongoDB database name.
+
+``MONGO_QUERY_BLACKLIST``       A list of Mongo query operators that are not
+                                allowed to be used in resource filters
+                                (``?where=``). Defaults to ``['$where',
+                                '$regex']``. 
+                                
+                                Mongo JavaScript operators are disabled by
+                                default as they might be used as vectors for
+                                injection attacks. Javascript queries also tend
+                                to be slow and generally can be easily replaced
+                                with the (very rich) Mongo query dialect.
 
 ``DOMAIN``                      A dict holding the API domain definition.
                                 See `Domain Configuration`_.

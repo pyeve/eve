@@ -340,7 +340,19 @@ otherwise.</td>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt></td>
 <td>MongoDB database name.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_QUERY_BLACKLIST</span></tt></td>
+<td><p class="first">A list of Mongo query operators that are not
+allowed to be used in resource filters
+(<tt class="docutils literal"><span class="pre">?where=</span></tt>). Defaults to <tt class="docutils literal"><span class="pre">['$where',</span>
+<span class="pre">'$regex']</span></tt>.</p>
+<p class="last">Mongo JavaScript operators are disabled by
+default as they might be used as vectors for
+injection attacks. Javascript queries also tend
+to be slow and generally can be easily replaced
+with the (very rich) Mongo query dialect.</p>
+</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
 <td>A dict holding the API domain definition.
 See <a class="reference internal" href="#domain-configuration">Domain Configuration</a>.</td>
 </tr>
@@ -744,7 +756,7 @@ come in handy when you want to protect insertion and edition behind an
   <li><a href="http://blog.python-eve.org/">Blog</a></li>
   <li><a href="http://github.com/nicolaiarocci/eve">GitHub</a></li>
   <li><a href="http://github.com/nicolaiarocci/eve-demo">Demo</a></li>
-  <li><a href="irc://irc.freenode.net/evehq">IRC</a>
+  <li><a href="irc://irc.freenode.net/python-eve">IRC</a>
   <li><a href="http://github.com/nicolaiarocci/eve/issues">Issue Tracker</a></li>
 </ul>
 <h3>Feedback</h3>
