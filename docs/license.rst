@@ -3,8 +3,13 @@
 Licensing
 =========
 
+Authors
+-------
+
+.. include:: ../AUTHORS
+
 BSD License
----------------
+-----------
 
 Copyright (c) 2012 by Nicola Iarocci and contributors. 
 
