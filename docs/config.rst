@@ -220,14 +220,14 @@ uppercase.
                                 present. Can and most likely will be overriden 
                                 when configuring single resource endpoints.
 
-``AUTH_USERNAME_FIELD``         Works in conjunction with :ref:`auth`. When 
-                                enabled users can only read/update/delete
-                                resource items created by themselves. The
-                                keyword contains the actual name of the field
-                                used to store the username of the user who
-                                created the resource item. Can be overwritten 
-                                by resource settings. Defaults to ``''``, which 
-                                disables the feature. 
+``AUTH_USERNAME_FIELD``         Enables :ref:`user-restricted`. When the
+                                feature is enabled users can only
+                                read/update/delete resource items created by
+                                themselves. The keyword contains the actual
+                                name of the field used to store the username of
+                                the user who created the resource item. Can be
+                                overwritten by resource settings. Defaults to
+                                ``''``, which disables the feature. 
 
 ``ALLOW_UNKNOWN``               When ``True`` this option will allow insertion
                                 and edition of arbitrary, unknown fields to
@@ -384,13 +384,13 @@ always lowercase.
                                 collections. See `Advanced Datasource
                                 Patterns`_. 
 
-``auth_username_field``         Works in conjunction with :ref:`auth`. When 
-                                enabled users can only read/update/delete
-                                resource items created by themselves. The
-                                keyword contains the actual name of the field
-                                used to store the username of the user who
-                                created the resource item. Locally overrides 
-                                ``AUTH_USERNAME_FIELD``.
+``auth_username_field``         Enables :ref:`user-restricted`. When the
+                                feature is enabled users can only
+                                read/update/delete resource items created by
+                                themselves. The keyword contains the actual
+                                name of the field used to store the username of
+                                the user who created the resource item. Locally
+                                overrides ``AUTH_USERNAME_FIELD``.
 
 ``allow_unknown``               When ``True`` this option will allow insertion
                                 and edition of arbitrary, unknown fields to
