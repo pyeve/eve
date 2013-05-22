@@ -205,6 +205,8 @@ resources/methods will be secured unless they are made explicitly public.
         app = Eve(auth=Sha1Auth)
         app.run()
 
+.. _token:
+
 Token-Based Authentication
 --------------------------
 Token based authentication can be considered a specialized version of Basic
@@ -380,15 +382,25 @@ unless they are made explicitly public.
         app = Eve(auth=RolesAuth)
         app.run()
   
+.. _user-restricted:
+
 User-Restricted Resource Access
 -------------------------------
-When enabled, authorized users can only read/update/delete items created by
-themselves. Can be switched on and off at global level via the
-``AUTH_USERFIELD_NAME`` keyword, or at resource endpoints with the
-``auth_userfield_name`` keyword (the latter will override the former). The
-keyword contains the actual name of the field used to store the username of the
-user who created the resource item. Defaults to ``''``, which disables the
-feature.
+When this feature is enabled, authorized users can only read/update/delete
+items created by themselves. 
+
+What actually happens behind the scenes is that the value of
+`Authorization.username` request header is automatically added to new documents
+stored by the API. A filter on the same header is also transparently applied to
+all read, edit and delete requests. 
+
+``AUTH_USERFIELD_NAME`` defines the  name of the database field used to store
+the `Authorization.username` header. ``auth_userfield_name`` is the
+resource-level equivalent, which allows to effectively override the global
+setting, if present.  
+
+This feature can be used with both :ref:`basic` and :ref:`token` as they both
+rely on the `Authorization.username` field. 
 
 .. admonition:: Please note
 
