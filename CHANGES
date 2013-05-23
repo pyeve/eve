@@ -8,6 +8,8 @@ Version 0.0.7
 
 Not released yet.
 
+- Flask native 'request.json' is now used when decoding request payloads.
+
 - 'resource' argument added to Authorization classes. 
 
   The ``check_auth()`` method of all classes in the ``eve.auth``

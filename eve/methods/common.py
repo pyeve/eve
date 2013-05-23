@@ -90,15 +90,18 @@ def parse(value, resource):
 
 def payload():
     """ Performs sanity checks or decoding depending on the Content-Type,
-    then keturns a the request payload as a dict. If request Content-Type is
+    then returns a the request payload as a dict. If request Content-Type is
     unsupported, aborts with a 400 (Bad Request).
+
+    .. versionchanged:: 0.0.7
+       Native Flask request.json preferred over json.loads.
 
     .. versionadded: 0.0.5
     """
     content_type = request.headers['Content-Type'].split(';')[0]
 
     if content_type == 'application/json':
-        return json.loads(request.data)
+        return request.json
     elif content_type == \
             'application/x-www-form-urlencoded':
         return request.form if len(request.form) else abort(400)
