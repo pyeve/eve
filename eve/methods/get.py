@@ -19,10 +19,9 @@
 # be ignored by the API). Once versioning is properly implemented (or maybe
 # even before than that), a domain filter should probably be in place.
 
-from flask import current_app as app
-from flask import abort
 from datetime import datetime
 from eve.auth import requires_auth
+from flask import current_app as app, abort
 from eve.utils import parse_request, document_etag, document_link, \
     collection_link, home_link, querydef, resource_uri, config
 
