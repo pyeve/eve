@@ -73,7 +73,7 @@ instantiate the Eve app, you pass your custom class, like this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">BasicAuth</span>
 
 <span class="k">class</span> <span class="nc">MyBasicAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">username</span> <span class="o">==</span> <span class="s">&#39;admin&#39;</span> <span class="ow">and</span> <span class="n">password</span> <span class="o">==</span> <span class="s">&#39;secret&#39;</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">MyBasicAuth</span><span class="p">)</span>
@@ -187,7 +187,7 @@ resources/methods will be secured unless they are made explicitly public.</p>
 
 
 <span class="k">class</span> <span class="nc">BCryptAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
         <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
         <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
         <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">})</span>
@@ -227,7 +227,7 @@ resources/methods will be secured unless they are made explicitly public.</p>
 
 
 <span class="k">class</span> <span class="nc">Sha1Auth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
         <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
         <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
         <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">})</span>
@@ -267,7 +267,7 @@ resources and/or methods to public access -see docs).</p>
 
 
 <span class="k">class</span> <span class="nc">TokenAuth</span><span class="p">(</span><span class="n">TokenAuth</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;For the purpose of this example the implementation is as simple as</span>
 <span class="sd">        possible. A &#39;real&#39; token should probably contain a hash of the</span>
 <span class="sd">        username/password combo, which sould then validated against the account</span>
@@ -327,8 +327,10 @@ Eve <a class="reference external" href="https://github.com/nicolaiarocci/eve">re
 
 
 <span class="k">class</span> <span class="nc">HMACAuth</span><span class="p">(</span><span class="n">HMACAuth</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userid</span><span class="p">,</span> <span class="n">hmac_hash</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">):</span>
-        <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
+    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userid</span><span class="p">,</span> <span class="n">hmac_hash</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span>
+                   <span class="n">resource</span><span class="p">):</span>
+        <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are</span>
+        <span class="c"># used</span>
         <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
         <span class="n">user</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s">&#39;userid&#39;</span><span class="p">:</span> <span class="n">userid</span><span class="p">})</span>
         <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
@@ -385,7 +387,7 @@ unless they are made explicitly public.</p>
 
 
 <span class="k">class</span> <span class="nc">RolesAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
         <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
         <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
         <span class="n">lookup</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">}</span>
