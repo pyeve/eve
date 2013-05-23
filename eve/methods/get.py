@@ -11,14 +11,6 @@
     :license: BSD, see LICENSE for more details.
 """
 
-# TODO currently documents are returned 'as-stored', with no validation
-# against the domain model. Since validation happens when they are stored via
-# the API (PATCH/POST), validating them again seems overkill. However there
-# might be situations/scenarios where the stored document might different
-# from the domain model (ie: different API versions, or fields that should
-# be ignored by the API). Once versioning is properly implemented (or maybe
-# even before than that), a domain filter should probably be in place.
-
 from datetime import datetime
 from eve.auth import requires_auth
 from flask import current_app as app, abort
