@@ -8,7 +8,7 @@ from eve.tests import TestBase
 
 
 class ValidBasicAuth(BasicAuth):
-    def check_auth(self, username, password, allowed_roles):
+    def check_auth(self, username, password, allowed_roles, resource):
         return username == 'admin' and password == 'secret' and  \
             (allowed_roles == ['admin'] if allowed_roles else True)
 
@@ -18,13 +18,14 @@ class BadBasicAuth(BasicAuth):
 
 
 class ValidTokenAuth(TokenAuth):
-    def check_auth(self, token, allowed_roles):
+    def check_auth(self, token, allowed_roles, resource):
         return token == 'test_token' and (allowed_roles == ['admin'] if
                                           allowed_roles else True)
 
 
 class ValidHMACAuth(HMACAuth):
-    def check_auth(self, userid, hmac_hash, headers, data, allowed_roles):
+    def check_auth(self, userid, hmac_hash, headers, data, allowed_roles,
+                   resource):
         return userid == 'admin' and hmac_hash == 'secret' and  \
             (allowed_roles == ['admin'] if allowed_roles else True)
 

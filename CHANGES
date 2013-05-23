@@ -8,12 +8,20 @@ Version 0.0.7
 
 Not released yet.
 
-- MONGO_QUERY_BLACKLIST option added. Allows to blacklist mongo query operators
-  that should not be allowed in resource queries ('?where='). Defaults to
-  ['$where', '$regex']. Mongo Javascript operators are disabled by default as
-  they might be used as vectors for injection attacks. Javascript queries also
-  tend to be slow and generally can be easily replaced with the (very rich)
-  Mongo query dialect.
+- 'resource' argument added to Authorization classes. 
+
+  The ``check_auth()`` method of all classes in the ``eve.auth``
+  package (``BasicAuth``, ``HMACAuth``, ``TokenAuth``) now supports the 
+  `resource` argument. This allows subclasses to eventually build their custom
+  authorization logic around the resource being accessed.
+  
+- MONGO_QUERY_BLACKLIST option added. 
+  
+  Allows to blacklist mongo query operators that should not be allowed in
+  resource queries ('?where='). Defaults to ['$where', '$regex']. Mongo
+  Javascript operators are disabled by default as they might be used as vectors
+  for injection attacks. Javascript queries also tend to be slow and generally
+  can be easily replaced with the (very rich) Mongo query dialect.
 
 - MONGO_HOST defaults to 'localhost'.
 

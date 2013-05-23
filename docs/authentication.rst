@@ -19,7 +19,7 @@ instantiate the Eve app, you pass your custom class, like this:
     from eve.auth import BasicAuth
 
     class MyBasicAuth(BasicAuth):
-        def check_auth(self, username, password, allowed_roles):
+        def check_auth(self, username, password, allowed_roles, resource):
             return username == 'admin' and password == 'secret'
 
     app = Eve(auth=MyBasicAuth)
@@ -152,7 +152,7 @@ resources/methods will be secured unless they are made explicitly public.
 
 
     class BCryptAuth(BasicAuth):
-        def check_auth(self, username, password, allowed_roles):
+        def check_auth(self, username, password, allowed_roles, resource):
             # use Eve's own db driver; no additional connections/resources are used
             accounts = app.data.driver.db['accounts']
             account = accounts.find_one({'username': username})
@@ -193,7 +193,7 @@ resources/methods will be secured unless they are made explicitly public.
 
 
     class Sha1Auth(BasicAuth):
-        def check_auth(self, username, password, allowed_roles):
+        def check_auth(self, username, password, allowed_roles, resource):
             # use Eve's own db driver; no additional connections/resources are used
             accounts = app.data.driver.db['accounts']
             account = accounts.find_one({'username': username})
@@ -236,7 +236,7 @@ resources and/or methods to public access -see docs).
 
 
     class TokenAuth(TokenAuth):
-        def check_auth(self, token, allowed_roles):
+        def check_auth(self, token, allowed_roles, resource):
             """For the purpose of this example the implementation is as simple as
             possible. A 'real' token should probably contain a hash of the
             username/password combo, which sould then validated against the account
@@ -305,8 +305,10 @@ Eve `repository`_.
 
 
     class HMACAuth(HMACAuth):
-        def check_auth(self, userid, hmac_hash, headers, data, allowed_roles):
-            # use Eve's own db driver; no additional connections/resources are used
+        def check_auth(self, userid, hmac_hash, headers, data, allowed_roles,
+                       resource):
+            # use Eve's own db driver; no additional connections/resources are 
+            # used
             accounts = app.data.driver.db['accounts']
             user = accounts.find_one({'userid': userid})
             if user:
@@ -367,7 +369,7 @@ unless they are made explicitly public.
 
 
     class RolesAuth(BasicAuth):
-        def check_auth(self, username, password, allowed_roles):
+        def check_auth(self, username, password, allowed_roles, resource):
             # use Eve's own db driver; no additional connections/resources are used
             accounts = app.data.driver.db['accounts']
             lookup = {'username': username}
