@@ -239,6 +239,15 @@ uppercase.
                                 :ref:`projections` feature. Can be overwritten
                                 by resource settings. Defaults to ``True``.
 
+``EXTRA_RESPONSE_FIELDS``       Allows to configure a list of additional
+                                document fields that should be provided with
+                                every POST response. Normally only
+                                automatically handled fields (``ID_FIELD``,
+                                ``LAST_UPDATED``, ``DATE_CREATED``, ``etag``)
+                                are included in response payloads. Can be
+                                overridden by resource settings. Defaults to
+                                ``[]``, effectively disabling the feature.
+
 ``DEBUG``                       ``True`` to enable Debug Mode, ``False``
                                 otherwise. 
 
@@ -401,6 +410,15 @@ always lowercase.
 ``projection``                  When ``True`` this option enables the
                                 :ref:`projections` feature. Locally overrides
                                 ``PROJECTION``. Defaults to ``True``.
+
+``extra_response_fields``       Allows to configure a list of additional
+                                document fields that should be provided with
+                                every POST response. Normally only
+                                automatically handled fields (``ID_FIELD``,
+                                ``LAST_UPDATED``, ``DATE_CREATED``, ``etag``)
+                                are included in response payloads. Overrides
+                                ``EXTRA_RESPONSE_FIELDS``. 
+
 
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data
