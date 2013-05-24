@@ -180,16 +180,20 @@ class TestEventHooks(TestBase):
 
     def test_on_posting(self):
         def general_hook(resource, documents):
-            self.assertEqual(self.callback_value, self.known_resource)
+            self.assertEqual(resource, self.known_resource)
             self.assertEqual(len(documents), 1)
+            self.passed = True
         self.app.on_posting += general_hook
         self.post()
+        self.assertTrue(self.passed)
 
     def test_on_posting_resource(self):
         def resource_hook(documents):
             self.assertEqual(len(documents), 1)
+            self.passed = True
         self.app.on_posting_contacts += resource_hook
         self.post()
+        self.assertTrue(self.passed)
 
     def post(self, extra=None):
         headers = [('Content-Type', 'application/x-www-form-urlencoded')]
