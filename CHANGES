@@ -8,6 +8,19 @@ Version 0.0.7
 
 Not released yet.
 
+- Support for ``EXTRA_RESPONSE_FIELDS``.
+
+  It is now possible to configure a list of additonal document fields that
+  should be provided with POST responses. Normally only automatically handled
+  fields (``ID_FIELD``, ``LAST_UPDATED``, ``DATE_CREATED``, ``etag``) are
+  included in POST payloads.
+
+  ``EXTRA_RESPONSE_FIELDS`` is a global setting that will apply to all resource
+  endpoint . Defaults to ``[]``, effectively disabling the feature.
+  
+  ``extra_response_fields`` is a local resource setting and will override
+  ``EXTRA_RESPONSE_FIELDS`` when present.
+
 - ``on_posting`` and ``on_posting_<resource>`` event hooks.  
   
   ``on_posting`` and ``on_posting_<resource>`` events are raised when documents

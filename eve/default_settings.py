@@ -11,6 +11,9 @@
     :copyright: (c) 2012 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.0.7
+       'EXTRA_RESPONSE_FIELDS added and set to an empty list.
+
     .. versionchanged:: 0.0.6
        'PROJECTION' added and set to True.
        'ALLOW_UNKNOWN' added and set to False.
@@ -53,6 +56,12 @@ ALLOWED_ITEM_ROLES = None
 ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
 ITEM_URL = '[a-f0-9]{24}'
+
+# list of extra fields to be included with every POST response. This list
+# should not include the 'standard' fields (ID_FIELD, LAST_UPDATED,
+# DATE_CREATED, 'etag').
+EXTRA_RESPONSE_FIELDS = []
+
 
 AUTH_USERNAME_FIELD = ''        # user-restricted resource access is disabled
                                 # by default.

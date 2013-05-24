@@ -182,9 +182,18 @@ class TestPost(TestBase):
         test_value = "1234567890123456789054321"
         data = {'item1': json.dumps({test_field: test_value})}
         r, status = self.post(self.known_resource_url, data=data,
-                  content_type='application/json; charset=utf-8')
+                              content_type='application/json; charset=utf-8')
         self.assert200(status)
         self.assertPostResponse(r, ['item1'])
+
+    def test_post_with_extra_response_fields(self):
+        self.domain['contacts']['extra_response_fields'] = ['ref', 'notreally']
+        test_field = 'ref'
+        test_value = "1234567890123456789054321"
+        data = {'item1': json.dumps({test_field: test_value})}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert200(status)
+        self.assertTrue('ref' in r['item1'] and 'notreally' not in r['item1'])
 
     def perform_post(self, data, valid_items=['item1']):
         r, status = self.post(self.known_resource_url, data=data)

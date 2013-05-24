@@ -31,6 +31,8 @@ def post(resource):
     :param resource: name of the resource involved.
 
     .. versionchanged: 0.0.7
+       Support for 'extra_response_fields'.
+
        'on_posting' and 'on_posting_<resource>' events are raised before the
        documents are inserted into the database. This allows callback functions
        to arbitrarily edit/update the documents being stored.
@@ -59,8 +61,8 @@ def post(resource):
     """
 
     date_utc = datetime.utcnow().replace(microsecond=0)
-
-    schema = app.config['DOMAIN'][resource]['schema']
+    resource_def = app.config['DOMAIN'][resource]
+    schema = resource_def['schema']
     validator = app.validator(schema, resource)
     documents = []
     issues = []
@@ -80,8 +82,7 @@ def post(resource):
 
                 # if 'user-restricted resource access' is enabled and there's
                 # an Auth request active, inject the username into the document
-                username_field = \
-                    app.config['DOMAIN'][resource]['auth_username_field']
+                username_field = resource_def['auth_username_field']
                 if username_field and request.authorization:
                     document[username_field] = request.authorization.username
 
@@ -123,6 +124,12 @@ def post(resource):
             response_item['_links'] = \
                 {'self': document_link(resource,
                                        response_item[config.ID_FIELD])}
+
+            # add any additional field that might be needed
+            allowed_fields = [x for x in resource_def['extra_response_fields']
+                              if x in document.keys()]
+            for field in allowed_fields:
+                response_item[field] = document[field]
 
         response[key] = response_item
 

@@ -271,6 +271,9 @@ class Eve(Flask, Events):
         """ When not provided, fills individual resource settings with default
         or global configuration settings.
 
+        .. versionchanged:: 0.0.7
+           'extra_response_fields'
+
         .. versionchanged:: 0.0.6
            'datasource[projection]'
            'projection',
@@ -327,6 +330,8 @@ class Eve(Flask, Events):
             settings.setdefault('auth_username_field',
                                 self.config['AUTH_USERNAME_FIELD'])
             settings.setdefault('allow_unknown', self.config['ALLOW_UNKNOWN'])
+            settings.setdefault('extra_response_fields',
+                                self.config['EXTRA_RESPONSE_FIELDS'])
 
             # empty schemas are allowed for read-only access to resources
             schema = settings.setdefault('schema', {})

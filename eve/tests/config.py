@@ -172,6 +172,8 @@ class TestConfig(TestBase):
                          self.app.config['AUTH_USERNAME_FIELD'])
         self.assertEqual(settings['allow_unknown'],
                          self.app.config['ALLOW_UNKNOWN'])
+        self.assertEqual(settings['extra_response_fields'],
+                         self.app.config['EXTRA_RESPONSE_FIELDS'])
 
         self.assertNotEqual(settings['schema'], None)
         self.assertEqual(type(settings['schema']), dict)
