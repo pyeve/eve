@@ -498,7 +498,7 @@ payload.
 Event Hooks
 -----------
 Each time a GET, POST, PATCH, DELETE method has been executed, both global
-`on_<method>` and resource-level `on_<method>_<resource>` events will be
+``on_<method>`` and resource-level ``on_<method>_<resource>`` events will be
 raised. You can subscribe to these events with multiple callback functions.
 Callbacks will receive the original `flask.request` object and the response
 payload as arguments.
@@ -516,6 +516,34 @@ payload as arguments.
     >>> app.on_get_contacts += contacts_callback
 
     >>> app.run()
+
+Manipulating documents on insertion
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+There is also support for ``on_posting`` and ``on_posting_<resource>`` event
+hooks, raised when documents are about to be stored in the database.  Callback
+functions could hook to these events to arbitrarily add new fields, or edit
+existing ones.
+
+.. code-block:: pycon
+
+    >>> def before_post(resource, documents):
+    ...  print 'About to store documents to "%s" ' % resource
+
+    >>> def before_insert_contacts(documents):
+    ... print 'Aboutto store contacts'
+
+    >>> app = Eve()
+    >>> app.on_posting += before_post
+    >>> app.on_posting_contacts += before_insert_contacts
+
+    >>> app.run()
+
+``on_posting`` is raised on every resource being updated, while
+``on_posting_<resource>`` is raised when the `<resource>` endpoint has been hit
+with a POST request. In both circumstances the event will be raised only if at
+least one document passed validation and is going to be inserted. `documents`
+is a list, and  only contains documents ready for insertion (payload
+documents that did not pass validation are not included).
 
 To provide seamless event handling features, Eve relies on the Events_ package.
 

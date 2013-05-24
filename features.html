@@ -531,7 +531,7 @@ payload.</p>
 <div class="section" id="event-hooks">
 <h2>Event Hooks<a class="headerlink" href="#event-hooks" title="Permalink to this headline">¶</a></h2>
 <p>Each time a GET, POST, PATCH, DELETE method has been executed, both global
-<cite>on_&lt;method&gt;</cite> and resource-level <cite>on_&lt;method&gt;_&lt;resource&gt;</cite> events will be
+<tt class="docutils literal"><span class="pre">on_&lt;method&gt;</span></tt> and resource-level <tt class="docutils literal"><span class="pre">on_&lt;method&gt;_&lt;resource&gt;</span></tt> events will be
 raised. You can subscribe to these events with multiple callback functions.
 Callbacks will receive the original <cite>flask.request</cite> object and the response
 payload as arguments.</p>
@@ -548,7 +548,33 @@ payload as arguments.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
+<div class="section" id="manipulating-documents-on-insertion">
+<h3>Manipulating documents on insertion<a class="headerlink" href="#manipulating-documents-on-insertion" title="Permalink to this headline">¶</a></h3>
+<p>There is also support for <tt class="docutils literal"><span class="pre">on_posting</span></tt> and <tt class="docutils literal"><span class="pre">on_posting_&lt;resource&gt;</span></tt> event
+hooks, raised when documents are about to be stored in the database.  Callback
+functions could hook to these events to arbitrarily add new fields, or edit
+existing ones.</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_post</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">documents</span><span class="p">):</span>
+<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to store documents to &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_insert_contacts</span><span class="p">(</span><span class="n">documents</span><span class="p">):</span>
+<span class="gp">... </span><span class="k">print</span> <span class="s">&#39;Aboutto store contacts&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_posting</span> <span class="o">+=</span> <span class="n">before_post</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_posting_contacts</span> <span class="o">+=</span> <span class="n">before_insert_contacts</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">on_posting</span></tt> is raised on every resource being updated, while
+<tt class="docutils literal"><span class="pre">on_posting_&lt;resource&gt;</span></tt> is raised when the <cite>&lt;resource&gt;</cite> endpoint has been hit
+with a POST request. In both circumstances the event will be raised only if at
+least one document passed validation and is going to be inserted. <cite>documents</cite>
+is a list, and  only contains documents ready for insertion (payload
+documents that did not pass validation are not included).</p>
 <p>To provide seamless event handling features, Eve relies on the <a class="reference external" href="https://github.com/nicolaiarocci/events">Events</a> package.</p>
+</div>
 </div>
 <div class="section" id="mongodb-support">
 <h2>MongoDB Support<a class="headerlink" href="#mongodb-support" title="Permalink to this headline">¶</a></h2>
@@ -621,7 +647,10 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li><a class="reference internal" href="#default-values">Default Values</a></li>
 <li><a class="reference internal" href="#predefined-database-filters">Predefined Database Filters</a></li>
 <li><a class="reference internal" href="#projections">Projections</a></li>
-<li><a class="reference internal" href="#event-hooks">Event Hooks</a></li>
+<li><a class="reference internal" href="#event-hooks">Event Hooks</a><ul>
+<li><a class="reference internal" href="#manipulating-documents-on-insertion">Manipulating documents on insertion</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#mongodb-support">MongoDB Support</a></li>
 <li><a class="reference internal" href="#powered-by-flask">Powered by Flask</a></li>
 </ul>
