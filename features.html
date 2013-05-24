@@ -558,7 +558,7 @@ existing ones.</p>
 <span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to store documents to &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_insert_contacts</span><span class="p">(</span><span class="n">documents</span><span class="p">):</span>
-<span class="gp">... </span><span class="k">print</span> <span class="s">&#39;Aboutto store contacts&#39;</span>
+<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to store contacts&#39;</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_posting</span> <span class="o">+=</span> <span class="n">before_post</span>

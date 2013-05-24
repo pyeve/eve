@@ -530,7 +530,7 @@ existing ones.
     ...  print 'About to store documents to "%s" ' % resource
 
     >>> def before_insert_contacts(documents):
-    ... print 'Aboutto store contacts'
+    ...  print 'About to store contacts'
 
     >>> app = Eve()
     >>> app.on_posting += before_post
