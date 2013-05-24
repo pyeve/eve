@@ -8,6 +8,17 @@ Version 0.0.7
 
 Not released yet.
 
+- ``on_posting`` and ``on_posting_<resource>`` event hooks.  
+  
+  ``on_posting`` and ``on_posting_<resource>`` events are raised when documents
+  are about to be stored. Among other things this allows callback functions to
+  arbitrarily update the documents being inserted.
+
+  ``on_posting(resource, documents)`` is raised on every successful POST while
+  ``on_posting_<resource>(documents)`` is only raised when <resource> is being
+  updated. In both circumstances events will be raised only if at least one
+  document passed validation and is going to be inserted.
+
 - Flask native 'request.json' is now used when decoding request payloads.
 
 - 'resource' argument added to Authorization classes. 

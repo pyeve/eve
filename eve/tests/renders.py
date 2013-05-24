@@ -92,6 +92,7 @@ class TestEventHooks(TestBase):
         super(TestEventHooks, self).setUp()
         self.passed = False
         self.callback_value = None
+        self.documents = None
 
     def test_on_get(self):
         def general_hook(resource, request, payload):
@@ -177,9 +178,22 @@ class TestEventHooks(TestBase):
         self.delete()
         self.assertTrue(self.passed)
 
+    def test_on_posting(self):
+        def general_hook(resource, documents):
+            self.assertEqual(self.callback_value, self.known_resource)
+            self.assertEqual(len(documents), 1)
+        self.app.on_posting += general_hook
+        self.post()
+
+    def test_on_posting_resource(self):
+        def resource_hook(documents):
+            self.assertEqual(len(documents), 1)
+        self.app.on_posting_contacts += resource_hook
+        self.post()
+
     def post(self, extra=None):
         headers = [('Content-Type', 'application/x-www-form-urlencoded')]
-        data = {'item1': json.dumps({"ref": "123"})}
+        data = {'item1': json.dumps({"ref": "0123456789012345678901234"})}
         if extra:
             headers.extend(extra)
         self.test_client.post(self.known_resource_url, data=data,

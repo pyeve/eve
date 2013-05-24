@@ -30,16 +30,22 @@ def post(resource):
 
     :param resource: name of the resource involved.
 
+    .. versionchanged: 0.0.7
+       'on_posting' and 'on_posting_<resource>' events are raised before the
+       documents are inserted into the database. This allows callback functions
+       to arbitrarily edit/update the documents being stored.
+
     .. versionchanged:: 0.0.6
-        Support for bulk inserts.
-        Please note: validation constraints are checked against the database,
-        and not between the payload documents themselves. This causes an
-        interesting corner case: in the event of a multiple documents payload
-        where two or more documents carry the same value for a field where the
-        'unique' constraint is set, the payload will validate successfully, as
-        there are no duplicates in the database (yet). If this is an issue, the
-        client can always send the documents once at a time for insertion, or
-        validate locally before submitting the payload to the API.
+       Support for bulk inserts.
+
+       Please note: validation constraints are checked against the database,
+       and not between the payload documents themselves. This causes an
+       interesting corner case: in the event of a multiple documents payload
+       where two or more documents carry the same value for a field where the
+       'unique' constraint is set, the payload will validate successfully, as
+       there are no duplicates in the database (yet). If this is an issue, the
+       client can always send the documents once at a time for insertion, or
+       validate locally before submitting the payload to the API.
 
     .. versionchanged:: 0.0.5
        Support for 'application/json' Content-Type .
@@ -94,8 +100,11 @@ def post(resource):
         if len(doc_issues) == 0:
             documents.append(document)
 
-    # bulk insert
     if len(documents):
+        # notify callbacks
+        getattr(app, "on_posting")(resource, documents)
+        getattr(app, "on_posting_%s" % resource)(documents)
+        # bulk insert
         ids = app.data.insert(resource, documents)
 
     # build response payload
