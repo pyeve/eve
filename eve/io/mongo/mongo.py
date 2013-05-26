@@ -161,6 +161,11 @@ class Mongo(DataLayer):
         """
         datasource, filter_, _ = self._datasource_ex(resource,
                                                      {ID_FIELD: ObjectId(id_)})
+
+        # TODO consider using find_and_modify() instead. The document might
+        # have changed since the ETag was computed. This would require getting
+        # the original document as an argument though.
+
         return self.driver.db[datasource].update(filter_, {"$set": updates})
 
     def remove(self, resource, id_=None):
