@@ -35,7 +35,7 @@ Our tasks are:
    that we control: our own website, mobile apps with account
    management capabilities, etc.
 3. Make sure that all other API endpoints are only accessible to authenticated
-   accounts created, by means of the above mentioned endpoint.
+   accounts (created by means of the above mentioned endpoint).
 4. Allow authenticated users to only access resources created by themselves.
 
 1. The ``/accounts/`` endpoint
@@ -85,7 +85,7 @@ Then, let's define the endpoint.
     }
 
 We defined an additional read-only entry point at ``/accounts/<username>/``.
-This isn't really needed, but it can come in handy to easily verify if
+This isn't a necessity really, but it can come in handy to easily verify if
 a username has been taken already, or to retrieve an account without knowing
 its ``ObjectId`` beforehand. Of course, both informations can also be achieved
 by querying the resource endpoint (``/accounts/?where={"username":
@@ -132,23 +132,23 @@ script, can be hard-coded to handle the case:
         app.run()
 
 Thus, only the ``superuser`` account will be allowed to consume the
-``accounts`` endpoint, while standard authentication logic will be applied to
-all other endpoints. Our mobile app (say) will add accounts by hitting the
-endpoint with simple POST requests, of course authenticating itself as
-a `superuser` by means of the `Authorization` header. The script assumes that
-stored passwords are encrypted with `bcrypt` (storing passwords as plain text is
-*never* a good idea). See :ref:`basic` for an alternative, faster but less
-secure SHA1/MAC example. 
+``accounts`` endpoint, while standard authentication logic will apply to all
+other endpoints. Our mobile app (say) will add accounts by hitting the endpoint
+with simple POST requests, of course authenticating itself as a `superuser` by
+means of the `Authorization` header. The script assumes that stored passwords
+are encrypted with `bcrypt` (storing passwords as plain text is *never* a good
+idea). See :ref:`basic` for an alternative, faster but less secure SHA1/MAC
+example. 
 
 2b. User Roles Access Control
 '''''''''''''''''''''''''''''
-Hard-coding usernames and passwords might very well achieve our goal but it is
+Hard-coding usernames and passwords might very well do the job, but it is
 hardly the best approach that we can take here. What if another `superurser`
-account needs access to the endpoint? Updating the script every time we have
-users does not seem appropriate (it isn't).  Fortunately the :ref:`roleaccess`
-feature can help us here. You see where we are going with this. The idea is
-that only accounts with `superuser` and `admin` roles will be granted access to
-the endpoint.
+account needs access to the endpoint? Updating the script each time
+a privileged user joins the ranks does not seem appropriate (it isn't).
+Fortunately the :ref:`roleaccess` feature can help us here. You see where we
+are going with this: the idea is that only accounts with `superuser` and
+`admin` roles will be granted access to the endpoint.
 
 Let's start by updating our resource schema.
 
@@ -178,7 +178,7 @@ We just added a new ``roles`` field which is a required list. From now on, one
 or more roles will have to be assigned on account creation. 
 
 Now we need to restrict endpoint access to `superuser` and `admin` accounts
-only, so let's update the endpoint definition accordingly.
+only so let's update the endpoint definition accordingly.
 
 ::
 
@@ -259,7 +259,7 @@ and of course create.
 
 The only thing that we need to do is configure the name of the field that will
 be used to store the owner of the document. It can be done at a global level
-(all endpoints will use the same field) and/or at resource level (see feature
+(all endpoints will use the same field) and/or at endpoint level (see feature
 documentation for details). Let's just set the global field name in our
 settings file:
 
