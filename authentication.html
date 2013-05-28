@@ -26,7 +26,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="top" title="Eve 0.0.7-dev documentation" href="index.html" />
-    <link rel="next" title="How to Contribute" href="contributing.html" />
+    <link rel="next" title="Tutorials" href="tutorials/index.html" />
     <link rel="prev" title="Data Validation" href="validation.html" />
    
   
@@ -44,7 +44,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="contributing.html" title="How to Contribute"
+          <a href="tutorials/index.html" title="Tutorials"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="validation.html" title="Data Validation"
@@ -102,8 +102,8 @@ to provide the correct credentials in order to consume the API:</p>
 </div>
 <p>By default, access is restricted to <em>all</em> endpoints, for <em>all</em> HTTP verbs
 (methods), effectively locking down the whole API.</p>
-<div class="section" id="fine-tuning-global-security">
-<h2>Fine-Tuning Global Security<a class="headerlink" href="#fine-tuning-global-security" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="global-endpoint-security">
+<h2>Global Endpoint Security<a class="headerlink" href="#global-endpoint-security" title="Permalink to this headline">¶</a></h2>
 <p>You might want a public read-only API where only authorized users can write,
 edit and delete. You can achieve that by using the <tt class="docutils literal"><span class="pre">PUBLIC_METHODS</span></tt> and
 <tt class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></tt> <a class="reference internal" href="config.html#global"><em>global settings</em></a>. Add the following to
@@ -117,8 +117,8 @@ publicly available at all API endpoints. <tt class="docutils literal"><span clas
 endpoints, like <tt class="docutils literal"><span class="pre">/people/</span></tt>, while <tt class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></tt> refers to individual
 items like <tt class="docutils literal"><span class="pre">/people/id/</span></tt>.</p>
 </div>
-<div class="section" id="fine-tuning-endpoint-security">
-<h2>Fine-Tuning Endpoint Security<a class="headerlink" href="#fine-tuning-endpoint-security" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="custom-endpoint-security">
+<span id="endpointsec"></span><h2>Custom Endpoint Security<a class="headerlink" href="#custom-endpoint-security" title="Permalink to this headline">¶</a></h2>
 <p>Suppose that you want to allow public read access to only certain resources.
 You do that by declaring public methods at resource level, while declaring the
 API <a class="reference internal" href="config.html#domain"><em>domain</em></a>:</p>
@@ -349,7 +349,7 @@ Eve <a class="reference external" href="https://github.com/nicolaiarocci/eve">re
 </div>
 </div>
 <div class="section" id="role-based-access-control">
-<h2>Role Based Access Control<a class="headerlink" href="#role-based-access-control" title="Permalink to this headline">¶</a></h2>
+<span id="roleaccess"></span><h2>Role Based Access Control<a class="headerlink" href="#role-based-access-control" title="Permalink to this headline">¶</a></h2>
 <p>The code snippets above deliberately ignore the <tt class="docutils literal"><span class="pre">allowed_roles</span></tt> parameter.
 You can use this parameter to restrict access to authenticated users who also
 have been assigned specific roles.</p>
@@ -461,8 +461,8 @@ folder of the Eve <a class="reference external" href="https://github.com/nicolai
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Authentication</a><ul>
-<li><a class="reference internal" href="#fine-tuning-global-security">Fine-Tuning Global Security</a></li>
-<li><a class="reference internal" href="#fine-tuning-endpoint-security">Fine-Tuning Endpoint Security</a></li>
+<li><a class="reference internal" href="#global-endpoint-security">Global Endpoint Security</a></li>
+<li><a class="reference internal" href="#custom-endpoint-security">Custom Endpoint Security</a></li>
 <li><a class="reference internal" href="#basic-authentication">Basic Authentication</a><ul>
 <li><a class="reference internal" href="#basic-authentication-with-bcrypt">Basic Authentication with bcrypt</a></li>
 <li><a class="reference internal" href="#basic-authentication-with-sha1-hmac">Basic Authentication with SHA1/HMAC</a></li>
@@ -483,7 +483,7 @@ folder of the Eve <a class="reference external" href="https://github.com/nicolai
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="validation.html" title="previous chapter">Data Validation</a></li>
-      <li>Next: <a href="contributing.html" title="next chapter">How to Contribute</a></li>
+      <li>Next: <a href="tutorials/index.html" title="next chapter">Tutorials</a></li>
   </ul></li>
 </ul>
 <div id="searchbox" style="display: none">
@@ -507,7 +507,7 @@ folder of the Eve <a class="reference external" href="https://github.com/nicolai
     &copy; Copyright 2013. A <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
   </div>
   <a href="https://github.com/nicolaiarocci/eve" class="github">
-  <img style="position: absolute; top: 0; right: 0; border: 0;" src="_static/forkme_right_green_007200.png" alt="Fork me on GitHub"  class="github"/>
+      <img style="position: absolute; top: 0; right: 0; border: 0;" src="_static/forkme_right_green_007200.png" alt="Fork me on GitHub"  class="github"/>
   </a>
   
   </body>

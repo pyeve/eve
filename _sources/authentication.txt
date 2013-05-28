@@ -50,8 +50,8 @@ to provide the correct credentials in order to consume the API:
 By default, access is restricted to *all* endpoints, for *all* HTTP verbs
 (methods), effectively locking down the whole API.
 
-Fine-Tuning Global Security 
----------------------------
+Global Endpoint Security 
+------------------------
 You might want a public read-only API where only authorized users can write,
 edit and delete. You can achieve that by using the ``PUBLIC_METHODS`` and
 ``PUBLIC_ITEM_METHODS`` :ref:`global settings <global>`. Add the following to
@@ -67,8 +67,10 @@ publicly available at all API endpoints. ``PUBLIC_METHODS`` refers to resource
 endpoints, like ``/people/``, while ``PUBLIC_ITEM_METHODS`` refers to individual
 items like ``/people/id/``.
 
-Fine-Tuning Endpoint Security
------------------------------
+.. _endpointsec:
+
+Custom Endpoint Security
+------------------------
 Suppose that you want to allow public read access to only certain resources.
 You do that by declaring public methods at resource level, while declaring the
 API :ref:`domain <domain>`:
@@ -322,6 +324,8 @@ Eve `repository`_.
     if __name__ == '__main__':
         app = Eve(auth=HMACAuth)
         app.run()
+
+.. _roleaccess:
 
 Role Based Access Control
 -------------------------

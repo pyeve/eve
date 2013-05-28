@@ -495,6 +495,8 @@ available in the 'people' resource. Please note that key fields such as
 ID_FIELD, DATE_CREATED, DATE_UPDATED etc.  will still be included with the
 payload.
 
+.. _eventhooks:
+
 Event Hooks
 -----------
 Each time a GET, POST, PATCH, DELETE method has been executed, both global
