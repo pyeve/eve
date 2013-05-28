@@ -46,6 +46,7 @@ User's Guide
     config
     validation
     authentication
+    tutorials/index
     contributing
     support
     updates
