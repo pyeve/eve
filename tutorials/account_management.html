@@ -93,7 +93,7 @@ endpoints.</p>
 that we control: our own website, mobile apps with account
 management capabilities, etc.</li>
 <li>Make sure that all other API endpoints are only accessible to authenticated
-accounts created, by means of the above mentioned endpoint.</li>
+accounts (created by means of the above mentioned endpoint).</li>
 <li>Allow authenticated users to only access resources created by themselves.</li>
 </ol>
 <div class="section" id="the-accounts-endpoint">
@@ -139,7 +139,7 @@ resource schema first.</p>
 </pre></div>
 </div>
 <p>We defined an additional read-only entry point at <tt class="docutils literal"><span class="pre">/accounts/&lt;username&gt;/</span></tt>.
-This isn&#8217;t really needed, but it can come in handy to easily verify if
+This isn&#8217;t a necessity really, but it can come in handy to easily verify if
 a username has been taken already, or to retrieve an account without knowing
 its <tt class="docutils literal"><span class="pre">ObjectId</span></tt> beforehand. Of course, both informations can also be achieved
 by querying the resource endpoint (<tt class="docutils literal"><span class="pre">/accounts/?where={&quot;username&quot;:</span>
@@ -181,23 +181,23 @@ script, can be hard-coded to handle the case:</p>
 </pre></div>
 </div>
 <p>Thus, only the <tt class="docutils literal"><span class="pre">superuser</span></tt> account will be allowed to consume the
-<tt class="docutils literal"><span class="pre">accounts</span></tt> endpoint, while standard authentication logic will be applied to
-all other endpoints. Our mobile app (say) will add accounts by hitting the
-endpoint with simple POST requests, of course authenticating itself as
-a <cite>superuser</cite> by means of the <cite>Authorization</cite> header. The script assumes that
-stored passwords are encrypted with <cite>bcrypt</cite> (storing passwords as plain text is
-<em>never</em> a good idea). See <a class="reference internal" href="../authentication.html#basic"><em>Basic Authentication</em></a> for an alternative, faster but less
-secure SHA1/MAC example.</p>
+<tt class="docutils literal"><span class="pre">accounts</span></tt> endpoint, while standard authentication logic will apply to all
+other endpoints. Our mobile app (say) will add accounts by hitting the endpoint
+with simple POST requests, of course authenticating itself as a <cite>superuser</cite> by
+means of the <cite>Authorization</cite> header. The script assumes that stored passwords
+are encrypted with <cite>bcrypt</cite> (storing passwords as plain text is <em>never</em> a good
+idea). See <a class="reference internal" href="../authentication.html#basic"><em>Basic Authentication</em></a> for an alternative, faster but less secure SHA1/MAC
+example.</p>
 </div>
 <div class="section" id="b-user-roles-access-control">
 <h4>2b. User Roles Access Control<a class="headerlink" href="#b-user-roles-access-control" title="Permalink to this headline">¶</a></h4>
-<p>Hard-coding usernames and passwords might very well achieve our goal but it is
+<p>Hard-coding usernames and passwords might very well do the job, but it is
 hardly the best approach that we can take here. What if another <cite>superurser</cite>
-account needs access to the endpoint? Updating the script every time we have
-users does not seem appropriate (it isn&#8217;t).  Fortunately the <a class="reference internal" href="../authentication.html#roleaccess"><em>Role Based Access Control</em></a>
-feature can help us here. You see where we are going with this. The idea is
-that only accounts with <cite>superuser</cite> and <cite>admin</cite> roles will be granted access to
-the endpoint.</p>
+account needs access to the endpoint? Updating the script each time
+a privileged user joins the ranks does not seem appropriate (it isn&#8217;t).
+Fortunately the <a class="reference internal" href="../authentication.html#roleaccess"><em>Role Based Access Control</em></a> feature can help us here. You see where we
+are going with this: the idea is that only accounts with <cite>superuser</cite> and
+<cite>admin</cite> roles will be granted access to the endpoint.</p>
 <p>Let&#8217;s start by updating our resource schema.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">schema</span> <span class="o">=</span>  <span class="p">{</span>
     <span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -223,7 +223,7 @@ the endpoint.</p>
 <p>We just added a new <tt class="docutils literal"><span class="pre">roles</span></tt> field which is a required list. From now on, one
 or more roles will have to be assigned on account creation.</p>
 <p>Now we need to restrict endpoint access to <cite>superuser</cite> and <cite>admin</cite> accounts
-only, so let&#8217;s update the endpoint definition accordingly.</p>
+only so let&#8217;s update the endpoint definition accordingly.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">accounts</span> <span class="o">=</span> <span class="p">{</span>
     <span class="c"># the standard account entry point is defined as</span>
     <span class="c"># &#39;/accounts/&lt;ObjectId&gt;/&#39;. We define  an additional read-only entry</span>
@@ -299,7 +299,7 @@ serve only account-created documents on all kind of requests: read, edit, delete
 and of course create.</p>
 <p>The only thing that we need to do is configure the name of the field that will
 be used to store the owner of the document. It can be done at a global level
-(all endpoints will use the same field) and/or at resource level (see feature
+(all endpoints will use the same field) and/or at endpoint level (see feature
 documentation for details). Let&#8217;s just set the global field name in our
 settings file:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">AUTH_USERFIELD_NAME</span><span class="p">:</span> <span class="s">&#39;username&#39;</span>
