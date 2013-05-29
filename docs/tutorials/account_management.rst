@@ -19,15 +19,17 @@ implementations, both making intensive use of a host of Eve features such as
 :ref:`endpointsec`, :ref:`roleaccess`, :ref:`user-restricted`,
 :ref:`eventhooks`. 
 
-We assume that SSL/TLS is enabled, which means that the our transport layer is
+We assume that SSL/TLS is enabled, which means that our transport layer is
 encrypted, making both :ref:`basic` and :ref:`token` valid options to secure API
 endpoints. 
 
 Let's say we're upgrading the API we defined in the :ref:`quickstart` tutorial.
 
+.. _accounts_basic:
+
 Accounts with Basic Authentication
 -----------------------------------
-Our tasks are:
+Our tasks are as follows:
 
 1. Make an endpoint available for all account management activities
    (``/accounts/``). 
@@ -267,7 +269,7 @@ settings file:
 
     AUTH_USERFIELD_NAME: 'username'
 
-This is all we need to do. Now, when a user hits the (say) ``/invoices/``
+This is all we need to do. Now, when a user hits the, say, ``/invoices/``
 endpoint with a GET request, he will only be served with the invoices created
 by his own account. The same will happen with DELETE and PATCH, making it
 impossible for an authenticated user to accidentally retrieve, edit or delete
@@ -275,6 +277,7 @@ other people data.
 
 Accounts with Token Authentication
 ----------------------------------
+
 .. note:: Work in progress.
 
 .. _SSL/TLS: http://en.wikipedia.org/wiki/Transport_Layer_Security
