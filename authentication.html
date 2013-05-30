@@ -245,7 +245,8 @@ resources/methods will be secured unless they are made explicitly public.</p>
 <div class="section" id="token-based-authentication">
 <span id="token"></span><h2>Token-Based Authentication<a class="headerlink" href="#token-based-authentication" title="Permalink to this headline">¶</a></h2>
 <p>Token based authentication can be considered a specialized version of Basic
-Authentication. The Authorization header tag will contain the auth token.</p>
+Authentication. The Authorization header tag will contain the auth token as the
+username, and no password.</p>
 <p>This script assumes that user accounts are stored in an <cite>accounts</cite> MongoDB
 collection. All API resources/methods will be secured unless they are made
 explicitly public (by fiddling with some settings you can open one or more

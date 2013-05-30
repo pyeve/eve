@@ -212,7 +212,8 @@ resources/methods will be secured unless they are made explicitly public.
 Token-Based Authentication
 --------------------------
 Token based authentication can be considered a specialized version of Basic
-Authentication. The Authorization header tag will contain the auth token.
+Authentication. The Authorization header tag will contain the auth token as the
+username, and no password.
 
 This script assumes that user accounts are stored in an `accounts` MongoDB
 collection. All API resources/methods will be secured unless they are made

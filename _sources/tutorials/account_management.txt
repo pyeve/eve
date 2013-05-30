@@ -19,15 +19,17 @@ implementations, both making intensive use of a host of Eve features such as
 :ref:`endpointsec`, :ref:`roleaccess`, :ref:`user-restricted`,
 :ref:`eventhooks`. 
 
-We assume that SSL/TLS is enabled, which means that the our transport layer is
+We assume that SSL/TLS is enabled, which means that our transport layer is
 encrypted, making both :ref:`basic` and :ref:`token` valid options to secure API
 endpoints. 
 
 Let's say we're upgrading the API we defined in the :ref:`quickstart` tutorial.
 
+.. _accounts_basic:
+
 Accounts with Basic Authentication
 -----------------------------------
-Our tasks are:
+Our tasks are as follows:
 
 1. Make an endpoint available for all account management activities
    (``/accounts/``). 
@@ -152,7 +154,8 @@ are going with this: the idea is that only accounts with `superuser` and
 
 Let's start by updating our resource schema.
 
-::
+.. code-block:: python
+   :emphasize-lines: 14-18
 
         schema =  {
             'username': {
@@ -180,7 +183,8 @@ or more roles will have to be assigned on account creation.
 Now we need to restrict endpoint access to `superuser` and `admin` accounts
 only so let's update the endpoint definition accordingly.
 
-::
+.. code-block:: python
+   :emphasize-lines: 16
 
     accounts = {
         # the standard account entry point is defined as
@@ -203,7 +207,7 @@ only so let's update the endpoint definition accordingly.
         'schema': schema,
     }
 
-Finally, a slight update to our authentication class is in order.
+Finally, rewrite of our authentication class is in order.
 
 .. code-block:: python
 
@@ -240,11 +244,11 @@ authentication class.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This will be quick, as both the `hard-coding` and the `role-based` access
 control approaches above effectively secure all API endpoints already.  Passing
-the authentication class to the ``Eve`` object enables authentication for the
+an authentication class to the ``Eve`` object enables authentication for the
 whole API: every time an endpoint is hit with a request, the class instance is
 invoked.
 
-Of course you can still fine-tuning security, for example by allowing public
+Of course you can still fine-tune security, for example by allowing public
 access to certain endpoints, or to certain HTTP methods. See :ref:`auth` for
 more details.
 
@@ -267,7 +271,7 @@ settings file:
 
     AUTH_USERFIELD_NAME: 'username'
 
-This is all we need to do. Now, when a user hits the (say) ``/invoices/``
+This is all we need to do. Now, when a user hits the, say, ``/invoices/``
 endpoint with a GET request, he will only be served with the invoices created
 by his own account. The same will happen with DELETE and PATCH, making it
 impossible for an authenticated user to accidentally retrieve, edit or delete
@@ -275,6 +279,247 @@ other people data.
 
 Accounts with Token Authentication
 ----------------------------------
-.. note:: Work in progress.
+As seen in :ref:`token`, token authentication is just a specialized version of
+Basic Authentication. It is actually executed as a standard Basic
+Authentication request where the value of the *username* field is used for
+the token, and the password field is not provided (if included, it is ignored).
+
+Consequently, handling accounts with Token Authentication is very similar to
+what we saw already with Basic Authentication, if not simpler, but there's one
+caveat: tokens need to be generated and stored along with the account, and
+eventually returned to the client. In light of this, let's review our updated
+task list:
+  
+1. Make an endpoint available for all account management activities
+   (``/accounts/``). 
+2. Secure the endpoint so that it is only accessible to clients (tokens) that
+   we control.
+3. On account creation, generate and store its token.
+4. Optionally, return the new token with the response.
+5. Make sure that all other API endpoints are only accessible to authenticated
+   tokens.
+6. Allow authenticated users to only access resources created by themselves
+
+1. The ``/accounts/`` endpoint
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This isn't any different than what we did in :ref:`accounts_basic`. We just
+need to add the `token` field to our schema:
+
+.. code-block:: python
+   :emphasize-lines: 20-23
+
+        schema =  {
+            'username': {
+                'type': 'string',
+                'minlength': 5,
+                'maxlength': 25,
+                'required': True,
+                'unique': True,
+                },
+            'password': {
+                'type': 'string',
+                'minlength': 5,
+                'maxlength': 10,
+                'required': True,
+            },
+            'roles': {
+                'type': 'list',
+                'allowed': ['user', 'superuser', 'admin'],
+                'required': True,
+            },
+            'token': {
+                'type': 'string',
+                'required': True,
+            }
+        }
+
+2. Securing the ``/accounts/`` endpoint
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+We defined the `roles` field for the `accounts` schema in the previous step.
+We also need to define the endpoint, making sure that we set the allowed 
+user roles.
+
+.. code-block:: python
+   :emphasize-lines: 16
+
+    accounts = {
+        # the standard account entry point is defined as
+        # '/accounts/<ObjectId>/'. We define  an additional read-only entry 
+        # point accessible at '/accounts/<username>/'. 
+        'additional_lookup': {
+            'url': '[\w]+',
+            'field': 'username',
+        },
+
+        # We also disable endpoint caching as we don't want client apps to
+        # cache account data.
+        'cache_control': '',
+        'cache_expires': 0,
+
+        # Only allow superusers and admins.
+        'allowed_roles': ['superuser', 'admin'],
+        
+        # Finally, let's add the schema definition for this endpoint.
+        'schema': schema,
+    }
+
+And finally here is our launch script which is of course using a ``TokenAuth``
+subclass this time around:
+
+.. code-block:: python
+
+    from eve import Eve
+    from eve.auth import TokenAuth
+
+
+    class RolesAuth(TokenAuth):
+        def check_auth(self, token,  allowed_roles, resource):
+            # use Eve's own db driver; no additional connections/resources are used
+            accounts = app.data.driver.db['accounts']
+            lookup = {'token': token}
+            if allowed_roles:
+                # only retrieve a user if his roles match ``allowed_roles``
+                lookup['roles'] = {'$in': allowed_roles}
+            account = accounts.find_one(lookup)
+            return account
+
+
+    if __name__ == '__main__':
+        app = Eve(auth=RolesAuth)
+        app.run()
+
+3. Building custom tokens on account creation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The code above has a problem: it won't authenticate anybody, as we aren't
+generating any token yet. Consequently clients aren't getting their auth tokens
+back so they don't really know how to authenticate. Let's fix that by using the
+awesome :ref:`eventhooks` feature.  We'll update our launch script by
+registering a callback function that will be called when a new account is about
+to be stored on the database.
+
+.. code-block:: python
+   :emphasize-lines: 3-4,19-24,29
+
+    from eve import Eve
+    from eve.auth import TokenAuth
+    import random
+    import string
+
+
+    class RolesAuth(TokenAuth):
+        def check_auth(self, token,  allowed_roles, resource):
+            # use Eve's own db driver; no additional connections/resources are used
+            accounts = app.data.driver.db['accounts']
+            lookup = {'token': token}
+            if allowed_roles:
+                # only retrieve a user if his roles match ``allowed_roles``
+                lookup['roles'] = {'$in': allowed_roles}
+            account = accounts.find_one(lookup)
+            return account
+
+
+    def add_token(documents):
+        # Don't use this production 
+        # (should at least make sure that the token is unique).
+        for document in documents:
+            document["token"] = (''.join(random.choice(string.ascii_uppercase) 
+                                         for x in range(10)))
+
+
+    if __name__ == '__main__':
+        app = Eve(auth=RolesAuth)
+        app.on_posting_accounts += add_token
+        app.run()
+
+As you can see we are subscribing to the `on_posting` event of the `accounts`
+endpoint with our ``add_token`` function. This callback will receive
+`documents` as an argument, which is a list of validated documents accepted for
+database insertion. We simply add (or replace in the unlikely case that the
+request contained it already) a token to every document, and we're done!
+
+4. Returning the token with the response
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Optionally, you might want to return the tokens with the response. Truth be
+told, this isn't a very good idea. You generally want to send access
+information out-of-band, with an email for example. However we're assuming that
+we are on SSL, and there are cases where sending the auth token right away just
+makes sense, like when the client is a mobile application and we want the user
+to use the service right away.
+
+Normally, only automatically handled fields (``ID_FIELD``, ``LAST_UPDATED``,
+``DATE_CREATED``, ``etag``) are included with POST response payloads.
+Fortunately there's a dedicated setting for allowing additional fields in
+responses, which is ``EXTRA_RESPONSE_FIELDS``, with its local, endpoint level
+overridable ``extra_response_fields``. All we need to do is update our endpoint
+defintion accordingly:
+
+.. code-block:: python
+   :emphasize-lines: 19
+
+    accounts = {
+        # the standard account entry point is defined as
+        # '/accounts/<ObjectId>/'. We define  an additional read-only entry 
+        # point accessible at '/accounts/<username>/'. 
+        'additional_lookup': {
+            'url': '[\w]+',
+            'field': 'username',
+        },
+
+        # We also disable endpoint caching as we don't want client apps to
+        # cache account data.
+        'cache_control': '',
+        'cache_expires': 0,
+
+        # Only allow superusers and admins.
+        'allowed_roles': ['superuser', 'admin'],
+
+        # Allow 'token' to be returned with POST responses
+        extra_response_fields: ['token'],
+        
+        # Finally, let's add the schema definition for this endpoint.
+        'schema': schema,
+    }
+
+From now on responses to POST requests aimed at the ``/accounts/`` endpoint
+will include the newly generated auth token, allowing the client to consume
+the other API endpoints right away.
+
+5. Securing other API endpoints
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+As we've seen before, passing an authentication class to the ``Eve`` object
+enables authentication for all API endpoints. Again, you can still fine-tune
+security by allowing public access to certain endpoints or to certain HTTP
+methods. See :ref:`auth` for more details.
+
+6. Only allowing access to account resources
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This is achieved with the :ref:`user-restricted` feature, as seen in
+:ref:`accounts_basic`. Update the settings file with the following global
+setting (or use the local ``auth_userfield_name`` if you only want to enable
+the feature on selected endpoints):
+
+.. code-block:: python
+
+    AUTH_USERFIELD_NAME: 'token'
+
+Stored documents will be associated with their account token. When a user hits
+the, say, ``/invoices/`` endpoint with a GET request, he will only be served
+with the invoices created by his own token. The same will happen with DELETE
+and PATCH, making it impossible for an authenticated user to accidentally
+retrieve, edit or delete other people data.
+
+Basic vs Token: Final Considerations
+------------------------------------
+Despite being a little more tricky to set up on the server side, Token
+Authentication offers significant advantages. First, you don't have passwords
+stored on the client and  being sent over the wire with every request. If
+you're sending your tokens out-of-band, and you're on SSL/TLS, that's quite
+a lot of additional security. 
+
+If you are using the :ref:`user-restricted` feature then a second and not
+irrelevant advantage is that, since you are just storing tokens with documents,
+when the user will eventually change his/her username no maintenance will be
+needed as the token itself won't change. With Basic Authentication, since we
+would be storing usernames with documents, we'd be forced to update them all.
 
 .. _SSL/TLS: http://en.wikipedia.org/wiki/Transport_Layer_Security
