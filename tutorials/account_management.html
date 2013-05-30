@@ -319,10 +319,9 @@ Basic Authentication. It is actually executed as a standard Basic
 Authentication request where the value of the <em>username</em> field is used for
 the token, and the password field is not provided (if included, it is ignored).</p>
 <p>Consequently, handling accounts with Token Authentication is very similar to
-what we saw already with Basic Authentication, if not simpler, but there&#8217;s one
-caveat: tokens need to be generated and stored along with the account, and
-eventually returned to the client. In light of this, let&#8217;s review our updated
-task list:</p>
+what we saw in <a class="reference internal" href="#accounts-basic"><em>Accounts with Basic Authentication</em></a>, but there&#8217;s one littele caveat: tokens
+need to be generated and stored along with the account, and eventually returned
+to the client. In light of this, let&#8217;s review our updated task list:</p>
 <ol class="arabic simple">
 <li>Make an endpoint available for all account management activities
 (<tt class="docutils literal"><span class="pre">/accounts/</span></tt>).</li>
@@ -467,15 +466,15 @@ request contained it already) a token to every document, and we&#8217;re done!</
 <p>Optionally, you might want to return the tokens with the response. Truth be
 told, this isn&#8217;t a very good idea. You generally want to send access
 information out-of-band, with an email for example. However we&#8217;re assuming that
-we are on SSL, and there are cases where sending the auth token right away just
-makes sense, like when the client is a mobile application and we want the user
-to use the service right away.</p>
+we are on SSL, and there are cases where sending the auth token just makes
+sense, like when the client is a mobile application and we want the user to use
+the service right away.</p>
 <p>Normally, only automatically handled fields (<tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>, <tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt>,
 <tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt>, <tt class="docutils literal"><span class="pre">etag</span></tt>) are included with POST response payloads.
-Fortunately there&#8217;s a dedicated setting for allowing additional fields in
-responses, which is <tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt>, with its local, endpoint level
-overridable <tt class="docutils literal"><span class="pre">extra_response_fields</span></tt>. All we need to do is update our endpoint
-defintion accordingly:</p>
+Fortunately there&#8217;s a dedicated setting which allows us to inject additional
+fields in responses, and that is <tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt>, of course coming
+with its endpoint-level equivalent <tt class="docutils literal"><span class="pre">extra_response_fields</span></tt>. All we need to do
+is update our endpoint definition accordingly:</p>
 <div class="highlight-python"><div class="highlight"><pre> <span class="n">accounts</span> <span class="o">=</span> <span class="p">{</span>
      <span class="c"># the standard account entry point is defined as</span>
      <span class="c"># &#39;/accounts/&lt;ObjectId&gt;/&#39;. We define  an additional read-only entry</span>
@@ -503,7 +502,7 @@ defintion accordingly:</p>
 </div>
 <p>From now on responses to POST requests aimed at the <tt class="docutils literal"><span class="pre">/accounts/</span></tt> endpoint
 will include the newly generated auth token, allowing the client to consume
-the other API endpoints right away.</p>
+other API endpoints right away.</p>
 </div>
 <div class="section" id="id3">
 <h3>5. Securing other API endpoints<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
