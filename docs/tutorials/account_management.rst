@@ -1,5 +1,5 @@
-Account Management
-==================
+RESTful Account Management
+==========================
 .. admonition:: Please note
 
     This tutorial assumes that the :ref:`quickstart` and the :ref:`auth` guides
@@ -207,7 +207,7 @@ only so let's update the endpoint definition accordingly.
         'schema': schema,
     }
 
-Finally, rewrite of our authentication class is in order.
+Finally, a rewrite of our authentication class is in order.
 
 .. code-block:: python
 
@@ -255,7 +255,7 @@ more details.
 4. Only allowing access to account resources
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Most of the time when you allow Authenticated users to store data, you only
-want them to access to their own data. This can be convenientely achieved by
+want them to access their own data. This can be convenientely achieved by
 using the :ref:`user-restricted` feature. When enabled, each stored document is
 associated with the account that created it. This allows the API to transparently
 serve only account-created documents on all kind of requests: read, edit, delete
@@ -285,10 +285,11 @@ Authentication request where the value of the *username* field is used for
 the token, and the password field is not provided (if included, it is ignored).
 
 Consequently, handling accounts with Token Authentication is very similar to
-what we saw already with Basic Authentication, if not simpler, but there's one
-caveat: tokens need to be generated and stored along with the account, and
-eventually returned to the client. In light of this, let's review our updated
-task list:
+what we saw in :ref:`accounts_basic`, but there's one little caveat: tokens
+need to be generated and stored along with the account, and eventually returned
+to the client. 
+
+In light of this, let's review our updated task list:
   
 1. Make an endpoint available for all account management activities
    (``/accounts/``). 
@@ -395,7 +396,7 @@ generating any token yet. Consequently clients aren't getting their auth tokens
 back so they don't really know how to authenticate. Let's fix that by using the
 awesome :ref:`eventhooks` feature.  We'll update our launch script by
 registering a callback function that will be called when a new account is about
-to be stored on the database.
+to be stored to the database.
 
 .. code-block:: python
    :emphasize-lines: 3-4,19-24,29
@@ -419,8 +420,8 @@ to be stored on the database.
 
 
     def add_token(documents):
-        # Don't use this production 
-        # (should at least make sure that the token is unique).
+        # Don't use this in production:
+        # You should at least make sure that the token is unique.
         for document in documents:
             document["token"] = (''.join(random.choice(string.ascii_uppercase) 
                                          for x in range(10)))
@@ -442,16 +443,16 @@ request contained it already) a token to every document, and we're done!
 Optionally, you might want to return the tokens with the response. Truth be
 told, this isn't a very good idea. You generally want to send access
 information out-of-band, with an email for example. However we're assuming that
-we are on SSL, and there are cases where sending the auth token right away just
-makes sense, like when the client is a mobile application and we want the user
-to use the service right away.
+we are on SSL, and there are cases where sending the auth token just makes
+sense, like when the client is a mobile application and we want the user to use
+the service right away.
 
-Normally, only automatically handled fields (``ID_FIELD``, ``LAST_UPDATED``,
+Normally only automatically handled fields (``ID_FIELD``, ``LAST_UPDATED``,
 ``DATE_CREATED``, ``etag``) are included with POST response payloads.
-Fortunately there's a dedicated setting for allowing additional fields in
-responses, which is ``EXTRA_RESPONSE_FIELDS``, with its local, endpoint level
-overridable ``extra_response_fields``. All we need to do is update our endpoint
-defintion accordingly:
+Fortunately there's a setting which allows  us to inject additional fields in
+responses, and that is ``EXTRA_RESPONSE_FIELDS``, with its endpoint-level
+equivalent, ``extra_response_fields``. All we need to do is update our endpoint
+definition accordingly:
 
 .. code-block:: python
    :emphasize-lines: 19
@@ -482,7 +483,7 @@ defintion accordingly:
 
 From now on responses to POST requests aimed at the ``/accounts/`` endpoint
 will include the newly generated auth token, allowing the client to consume
-the other API endpoints right away.
+other API endpoints right away.
 
 5. Securing other API endpoints
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -519,7 +520,7 @@ a lot of additional security.
 If you are using the :ref:`user-restricted` feature then a second and not
 irrelevant advantage is that, since you are just storing tokens with documents,
 when the user will eventually change his/her username no maintenance will be
-needed as the token itself won't change. With Basic Authentication, since we
+needed, as the token itself won't change. With Basic Authentication, since we
 would be storing usernames with documents, we'd be forced to update them all.
 
 .. _SSL/TLS: http://en.wikipedia.org/wiki/Transport_Layer_Security
