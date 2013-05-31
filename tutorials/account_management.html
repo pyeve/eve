@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Account Management &mdash; Eve 0.0.7-dev documentation</title>
+    <title>RESTful Account Management &mdash; Eve 0.0.7-dev documentation</title>
     
     <link rel="stylesheet" href="../_static/flasky.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -60,8 +60,8 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="account-management">
-<h1>Account Management<a class="headerlink" href="#account-management" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="restful-account-management">
+<h1>RESTful Account Management<a class="headerlink" href="#restful-account-management" title="Permalink to this headline">¶</a></h1>
 <div class="admonition-please-note admonition">
 <p class="first admonition-title">Please note</p>
 <p class="last">This tutorial assumes that the <a class="reference internal" href="../quickstart.html#quickstart"><em>Quickstart</em></a> and the <a class="reference internal" href="../authentication.html#auth"><em>Authentication</em></a> guides
@@ -246,7 +246,7 @@ only so let&#8217;s update the endpoint definition accordingly.</p>
  <span class="p">}</span>
 </pre></div>
 </div>
-<p>Finally, rewrite of our authentication class is in order.</p>
+<p>Finally, a rewrite of our authentication class is in order.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
 <span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">BasicAuth</span>
 <span class="kn">from</span> <span class="nn">werkzeug.security</span> <span class="kn">import</span> <span class="n">check_password_hash</span>
@@ -292,7 +292,7 @@ more details.</p>
 <div class="section" id="only-allowing-access-to-account-resources">
 <h3>4. Only allowing access to account resources<a class="headerlink" href="#only-allowing-access-to-account-resources" title="Permalink to this headline">¶</a></h3>
 <p>Most of the time when you allow Authenticated users to store data, you only
-want them to access to their own data. This can be convenientely achieved by
+want them to access their own data. This can be convenientely achieved by
 using the <a class="reference internal" href="../authentication.html#user-restricted"><em>User-Restricted Resource Access</em></a> feature. When enabled, each stored document is
 associated with the account that created it. This allows the API to transparently
 serve only account-created documents on all kind of requests: read, edit, delete
@@ -319,9 +319,10 @@ Basic Authentication. It is actually executed as a standard Basic
 Authentication request where the value of the <em>username</em> field is used for
 the token, and the password field is not provided (if included, it is ignored).</p>
 <p>Consequently, handling accounts with Token Authentication is very similar to
-what we saw in <a class="reference internal" href="#accounts-basic"><em>Accounts with Basic Authentication</em></a>, but there&#8217;s one littele caveat: tokens
+what we saw in <a class="reference internal" href="#accounts-basic"><em>Accounts with Basic Authentication</em></a>, but there&#8217;s one little caveat: tokens
 need to be generated and stored along with the account, and eventually returned
-to the client. In light of this, let&#8217;s review our updated task list:</p>
+to the client.</p>
+<p>In light of this, let&#8217;s review our updated task list:</p>
 <ol class="arabic simple">
 <li>Make an endpoint available for all account management activities
 (<tt class="docutils literal"><span class="pre">/accounts/</span></tt>).</li>
@@ -422,7 +423,7 @@ generating any token yet. Consequently clients aren&#8217;t getting their auth t
 back so they don&#8217;t really know how to authenticate. Let&#8217;s fix that by using the
 awesome <a class="reference internal" href="../features.html#eventhooks"><em>Event Hooks</em></a> feature.  We&#8217;ll update our launch script by
 registering a callback function that will be called when a new account is about
-to be stored on the database.</p>
+to be stored to the database.</p>
 <div class="highlight-python"><div class="highlight"><pre> <span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
  <span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">TokenAuth</span>
 <span class="hll"> <span class="kn">import</span> <span class="nn">random</span>
@@ -442,8 +443,8 @@ to be stored on the database.</p>
 
 
 <span class="hll"> <span class="k">def</span> <span class="nf">add_token</span><span class="p">(</span><span class="n">documents</span><span class="p">):</span>
-</span><span class="hll">     <span class="c"># Don&#39;t use this production</span>
-</span><span class="hll">     <span class="c"># (should at least make sure that the token is unique).</span>
+</span><span class="hll">     <span class="c"># Don&#39;t use this in production:</span>
+</span><span class="hll">     <span class="c"># You should at least make sure that the token is unique.</span>
 </span><span class="hll">     <span class="k">for</span> <span class="n">document</span> <span class="ow">in</span> <span class="n">documents</span><span class="p">:</span>
 </span><span class="hll">         <span class="n">document</span><span class="p">[</span><span class="s">&quot;token&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span><span class="p">)</span>
 </span><span class="hll">                                      <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)))</span>
@@ -469,12 +470,12 @@ information out-of-band, with an email for example. However we&#8217;re assuming
 we are on SSL, and there are cases where sending the auth token just makes
 sense, like when the client is a mobile application and we want the user to use
 the service right away.</p>
-<p>Normally, only automatically handled fields (<tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>, <tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt>,
+<p>Normally only automatically handled fields (<tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>, <tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt>,
 <tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt>, <tt class="docutils literal"><span class="pre">etag</span></tt>) are included with POST response payloads.
-Fortunately there&#8217;s a dedicated setting which allows us to inject additional
-fields in responses, and that is <tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt>, of course coming
-with its endpoint-level equivalent <tt class="docutils literal"><span class="pre">extra_response_fields</span></tt>. All we need to do
-is update our endpoint definition accordingly:</p>
+Fortunately there&#8217;s a setting which allows  us to inject additional fields in
+responses, and that is <tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt>, with its endpoint-level
+equivalent, <tt class="docutils literal"><span class="pre">extra_response_fields</span></tt>. All we need to do is update our endpoint
+definition accordingly:</p>
 <div class="highlight-python"><div class="highlight"><pre> <span class="n">accounts</span> <span class="o">=</span> <span class="p">{</span>
      <span class="c"># the standard account entry point is defined as</span>
      <span class="c"># &#39;/accounts/&lt;ObjectId&gt;/&#39;. We define  an additional read-only entry</span>
@@ -537,7 +538,7 @@ a lot of additional security.</p>
 <p>If you are using the <a class="reference internal" href="../authentication.html#user-restricted"><em>User-Restricted Resource Access</em></a> feature then a second and not
 irrelevant advantage is that, since you are just storing tokens with documents,
 when the user will eventually change his/her username no maintenance will be
-needed as the token itself won&#8217;t change. With Basic Authentication, since we
+needed, as the token itself won&#8217;t change. With Basic Authentication, since we
 would be storing usernames with documents, we&#8217;d be forced to update them all.</p>
 </div>
 </div>
@@ -576,7 +577,7 @@ would be storing usernames with documents, we&#8217;d be forced to update them a
 </p>
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Account Management</a><ul>
+<li><a class="reference internal" href="#">RESTful Account Management</a><ul>
 <li><a class="reference internal" href="#accounts-with-basic-authentication">Accounts with Basic Authentication</a><ul>
 <li><a class="reference internal" href="#the-accounts-endpoint">1. The <tt class="docutils literal"><span class="pre">/accounts/</span></tt> endpoint</a></li>
 <li><a class="reference internal" href="#securing-the-accounts-endpoint">2. Securing the <tt class="docutils literal"><span class="pre">/accounts/</span></tt> endpoint</a><ul>
