@@ -51,6 +51,7 @@ User's Guide
     support
     updates
     license
+    changelog
 
 .. note::
    This documentation is under development. Please refer to the links on the
