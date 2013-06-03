@@ -51,15 +51,11 @@ resource schema first.
         schema =  {
             'username': {
                 'type': 'string',
-                'minlength': 5,
-                'maxlength': 25,
                 'required': True,
                 'unique': True,
                 },
             'password': {
                 'type': 'string',
-                'minlength': 5,
-                'maxlength': 10,
                 'required': True,
             },
         },
@@ -155,19 +151,15 @@ are going with this: the idea is that only accounts with `superuser` and
 Let's start by updating our resource schema.
 
 .. code-block:: python
-   :emphasize-lines: 14-18
+   :emphasize-lines: 10-14
 
         schema =  {
             'username': {
                 'type': 'string',
-                'minlength': 5,
-                'maxlength': 25,
                 'required': True,
                 },
             'password': {
                 'type': 'string',
-                'minlength': 5,
-                'maxlength': 10,
                 'required': True,
             },
             'roles': {
@@ -307,20 +299,16 @@ This isn't any different than what we did in :ref:`accounts_basic`. We just
 need to add the `token` field to our schema:
 
 .. code-block:: python
-   :emphasize-lines: 20-23
+   :emphasize-lines: 16-19
 
         schema =  {
             'username': {
                 'type': 'string',
-                'minlength': 5,
-                'maxlength': 25,
                 'required': True,
                 'unique': True,
                 },
             'password': {
                 'type': 'string',
-                'minlength': 5,
-                'maxlength': 10,
                 'required': True,
             },
             'roles': {
