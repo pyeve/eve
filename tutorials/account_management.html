@@ -104,15 +104,11 @@ resource schema first.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">schema</span> <span class="o">=</span>  <span class="p">{</span>
     <span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
-        <span class="s">&#39;minlength&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
-        <span class="s">&#39;maxlength&#39;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
         <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
         <span class="s">&#39;unique&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="s">&#39;password&#39;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
-        <span class="s">&#39;minlength&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
-        <span class="s">&#39;maxlength&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
         <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">},</span>
@@ -202,14 +198,10 @@ are going with this: the idea is that only accounts with <cite>superuser</cite> 
 <div class="highlight-python"><div class="highlight"><pre>     <span class="n">schema</span> <span class="o">=</span>  <span class="p">{</span>
          <span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="p">{</span>
              <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
-             <span class="s">&#39;minlength&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
-             <span class="s">&#39;maxlength&#39;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
              <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
              <span class="p">},</span>
          <span class="s">&#39;password&#39;</span><span class="p">:</span> <span class="p">{</span>
              <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
-             <span class="s">&#39;minlength&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
-             <span class="s">&#39;maxlength&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
              <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
          <span class="p">},</span>
 <span class="hll">         <span class="s">&#39;roles&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -341,15 +333,11 @@ need to add the <cite>token</cite> field to our schema:</p>
 <div class="highlight-python"><div class="highlight"><pre>     <span class="n">schema</span> <span class="o">=</span>  <span class="p">{</span>
          <span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="p">{</span>
              <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
-             <span class="s">&#39;minlength&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
-             <span class="s">&#39;maxlength&#39;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
              <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
              <span class="s">&#39;unique&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
              <span class="p">},</span>
          <span class="s">&#39;password&#39;</span><span class="p">:</span> <span class="p">{</span>
              <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
-             <span class="s">&#39;minlength&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
-             <span class="s">&#39;maxlength&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
              <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
          <span class="p">},</span>
          <span class="s">&#39;roles&#39;</span><span class="p">:</span> <span class="p">{</span>
