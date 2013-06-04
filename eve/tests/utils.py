@@ -51,64 +51,80 @@ class TestUtils(TestBase):
         default = config.PAGINATION_DEFAULT
         limit = config.PAGINATION_LIMIT
         with self.app.test_request_context():
-            self.assertEqual(parse_request(self.known_resource).max_results, default)
-        with self.app.test_request_context('/?max_results=%d' % (limit+1)):
-            self.assertEqual(parse_request(self.known_resource).max_results, limit)
+            self.assertEqual(parse_request(self.known_resource).max_results,
+                             default)
+        with self.app.test_request_context('/?max_results=%d' % (limit + 1)):
+            self.assertEqual(parse_request(self.known_resource).max_results,
+                             limit)
         with self.app.test_request_context('/?max_results=2'):
             self.assertEqual(parse_request(self.known_resource).max_results, 2)
         with self.app.test_request_context('/?max_results=-1'):
-            self.assertEqual(parse_request(self.known_resource).max_results, default)
+            self.assertEqual(parse_request(self.known_resource).max_results,
+                             default)
         with self.app.test_request_context('/?max_results=0'):
-            self.assertEqual(parse_request(self.known_resource).max_results, default)
+            self.assertEqual(parse_request(self.known_resource).max_results,
+                             default)
         with self.app.test_request_context('/?max_results=1.1'):
             self.assertEqual(parse_request(self.known_resource).max_results, 1)
         with self.app.test_request_context('/?max_results=string'):
-            self.assertEqual(parse_request(self.known_resource).max_results, default)
+            self.assertEqual(parse_request(self.known_resource).max_results,
+                             default)
 
     def test_parse_request_max_results_disabled_pagination(self):
         self.app.config['DOMAIN'][self.known_resource]['pagination'] = False
         default = 0
         limit = config.PAGINATION_LIMIT
         with self.app.test_request_context():
-            self.assertEqual(parse_request(self.known_resource).max_results, default)
-        with self.app.test_request_context('/?max_results=%d' % (limit+1)):
-            self.assertEqual(parse_request(self.known_resource).max_results, limit+1)
+            self.assertEqual(parse_request(self.known_resource).max_results,
+                             default)
+        with self.app.test_request_context('/?max_results=%d' % (limit + 1)):
+            self.assertEqual(parse_request(self.known_resource).max_results,
+                             limit + 1)
         with self.app.test_request_context('/?max_results=2'):
             self.assertEqual(parse_request(self.known_resource).max_results, 2)
         with self.app.test_request_context('/?max_results=-1'):
-            self.assertEqual(parse_request(self.known_resource).max_results, default)
+            self.assertEqual(parse_request(self.known_resource).max_results,
+                             default)
         with self.app.test_request_context('/?max_results=0'):
-            self.assertEqual(parse_request(self.known_resource).max_results, default)
+            self.assertEqual(parse_request(self.known_resource).max_results,
+                             default)
         with self.app.test_request_context('/?max_results=1.1'):
             self.assertEqual(parse_request(self.known_resource).max_results, 1)
         with self.app.test_request_context('/?max_results=string'):
-            self.assertEqual(parse_request(self.known_resource).max_results, default)
+            self.assertEqual(parse_request(self.known_resource).max_results,
+                             default)
 
     def test_parse_request_if_modified_since(self):
         ims = 'If-Modified-Since'
         with self.app.test_request_context():
-            self.assertEqual(parse_request(self.known_resource).if_modified_since, None)
+            self.assertEqual(parse_request(
+                self.known_resource).if_modified_since, None)
         with self.app.test_request_context(headers=None):
-            self.assertEqual(parse_request(self.known_resource).if_modified_since, None)
+            self.assertEqual(
+                parse_request(self.known_resource).if_modified_since, None)
         with self.app.test_request_context(headers={ims: self.datestr}):
-            self.assertEqual(parse_request(self.known_resource).if_modified_since, self.valid +
-                timedelta(seconds=1))
+            self.assertEqual(
+                parse_request(self.known_resource).if_modified_since,
+                self.valid + timedelta(seconds=1))
         with self.app.test_request_context(headers={ims: 'not-a-date'}):
-            self.assertRaises(ValueError,
-                          parse_request,
-                          self.known_resource)
-        with self.app.test_request_context(headers={ims: self.datestr.replace('UTC', 'GMT')}):
-            self.assertRaises(ValueError,
-                              parse_request,
-                              self.known_resource)
+            self.assertRaises(ValueError, parse_request, self.known_resource)
+        with self.app.test_request_context(
+            headers={ims:
+                     self.datestr.replace('UTC', 'GMT')}):
+            self.assertRaises(ValueError, parse_request, self.known_resource)
+            self.assertRaises(ValueError, parse_request, self.known_resource)
 
     def test_parse_request_if_none_match(self):
         with self.app.test_request_context():
-            self.assertEqual(parse_request(self.known_resource).if_none_match, None)
+            self.assertEqual(parse_request(self.known_resource).if_none_match,
+                             None)
         with self.app.test_request_context(headers=None):
-            self.assertEqual(parse_request(self.known_resource).if_none_match, None)
-        with self.app.test_request_context(headers={'If-None-Match': self.etag}):
-            self.assertEqual(parse_request(self.known_resource).if_none_match, self.etag)
+            self.assertEqual(parse_request(self.known_resource).if_none_match,
+                             None)
+        with self.app.test_request_context(headers={'If-None-Match':
+                                                    self.etag}):
+            self.assertEqual(parse_request(self.known_resource).if_none_match,
+                             self.etag)
 
     def test_parse_request_if_match(self):
         with self.app.test_request_context():
@@ -116,7 +132,8 @@ class TestUtils(TestBase):
         with self.app.test_request_context(headers=None):
             self.assertEqual(parse_request(self.known_resource).if_match, None)
         with self.app.test_request_context(headers={'If-Match': self.etag}):
-            self.assertEqual(parse_request(self.known_resource).if_match, self.etag)
+            self.assertEqual(parse_request(self.known_resource).if_match,
+                             self.etag)
 
     def test_weak_date(self):
         self.assertEqual(weak_date(self.datestr), self.valid +
