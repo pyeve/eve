@@ -5,7 +5,7 @@ from bson.json_util import dumps
 from datetime import datetime, timedelta
 from eve.tests import TestBase
 from eve.utils import parse_request, str_to_date, config, weak_date, \
-    date_to_str, querydef, document_etag
+    date_to_str, querydef, document_etag, extract_key_values
 
 
 class TestUtils(TestBase):
@@ -147,3 +147,16 @@ class TestUtils(TestBase):
         challenge = dumps(test, sort_keys=True)
         self.assertEqual(hashlib.sha1(challenge).hexdigest(),
                          document_etag(test))
+
+    def test_extract_key_values(self):
+        test = {
+            'key1': 'value1',
+            'key2': {
+                'key1': 'value2',
+                'nested': {
+                    'key1': 'value3'
+                }
+            }
+        }
+        self.assertEqual(list(extract_key_values('key1', test)),
+                         ['value1', 'value2', 'value3'])

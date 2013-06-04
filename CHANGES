@@ -8,6 +8,8 @@ Version 0.0.7
 
 Not released yet.
 
+- Setting the default 'field' value would not happen if a 'data_relation' was
+  nested deeper than the first schema level. Fixes #60.
 - Support for ``EXTRA_RESPONSE_FIELDS``. It is now possible to configure a list
   of additonal document fields that should be provided with POST responses.
   Normally only automatically handled fields (``ID_FIELD``, ``LAST_UPDATED``,

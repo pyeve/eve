@@ -20,7 +20,7 @@ from werkzeug.serving import WSGIRequestHandler
 from eve.io.mongo import Mongo, Validator
 from eve.exceptions import ConfigException, SchemaException
 from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint
-from eve.utils import api_prefix
+from eve.utils import api_prefix, extract_key_values
 from events import Events
 
 
@@ -377,13 +377,19 @@ class Eve(Flask, Events):
         :param schema: the resoursce schema to be intialized with default
                        values
 
+        .. versionchanged: 0.0.7
+           Setting the default 'field' value would not happen if the
+           'data_relation' was nested deeper than the first schema level (#60).
+
         .. versionadded: 0.0.5
         """
         # TODO fill schema{} defaults, like field type, etc.
-        for field, ruleset in schema.items():
-            if 'data_relation' in ruleset:
-                ruleset['data_relation'].setdefault('field',
-                                                    self.config['ID_FIELD'])
+
+        # set default 'field' value for all 'data_relation' rulesets, however
+        # nested
+        for data_relation in list(extract_key_values('data_relation', schema)):
+            data_relation.setdefault('field',
+                                     self.config['ID_FIELD'])
 
     def _add_url_rules(self):
         """ Builds the API url map. Methods are enabled for each mapped
