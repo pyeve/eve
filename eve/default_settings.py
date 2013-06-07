@@ -71,6 +71,12 @@ ALLOW_UNKNOWN = False           # don't allow unknown key/value pairs for
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"
 
+# Rate limits are enabled by default.
+RATE_LIMIT_GET = None
+RATE_LIMIT_POST = None
+RATE_LIMIT_PATCH = None
+RATE_LIMIT_DELETE = None
+
 # MONGO defaults
 MONGO_HOST = 'localhost'
 MONGO_PORT = 27017
