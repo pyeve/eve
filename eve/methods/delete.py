@@ -12,12 +12,13 @@
 """
 
 from flask import current_app as app
-from common import get_document
+from common import get_document, ratelimit
 from flask import abort
 from eve.utils import config
 from eve.auth import requires_auth
 
 
+@ratelimit()
 @requires_auth('item')
 def delete(resource, **lookup):
     """Deletes a resource item. Deletion will occur only if request ETag
@@ -26,7 +27,10 @@ def delete(resource, **lookup):
     :param resource: name of the resource to which the item(s) belong.
     :param **lookup: item lookup query.
 
-    ..versionchanged:: 0.0.5
+    .. versionchanged:: 0.0.7
+       Support for Rate-Limiting.
+
+    .. versionchanged:: 0.0.5
       Pass current resource to ``parse_request``, allowing for proper
       processing of new configuration settings: `filters`, `sorting`, `paging`.
 
