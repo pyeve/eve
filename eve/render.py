@@ -18,6 +18,7 @@ from bson.objectid import ObjectId
 from eve.utils import date_to_str, config
 from functools import wraps
 from xml.sax.saxutils import escape
+from eve.methods.common import get_rate_limit
 
 # mapping between supported mime types and render functions.
 _MIME_TYPES = [{'mime': ('application/json',), 'renderer': 'render_json'},
@@ -92,6 +93,9 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     :param etag: ETag header value.
     :param status: response status.
 
+    .. versionchanged:: 0.0.7
+       Support for Rate-Limiting.
+
     .. versionchanged:: 0.0.6
        Support for HEAD requests.
 
@@ -143,6 +147,13 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         resp.headers.add('Access-Control-Allow-Origin', ', '.join(domains))
         resp.headers.add('Access-Control-Allow-Methods', methods)
         resp.headers.add('Access-Control-Allow-Max-Age', 21600)
+
+    # Rate-Limiting
+    limit = get_rate_limit()
+    if limit and limit.send_x_headers:
+        resp.headers.add('X-RateLimit-Remaining', str(limit.remaining))
+        resp.headers.add('X-RateLimit-Limit', str(limit.limit))
+        resp.headers.add('X-RateLimit-Reset', str(limit.reset))
 
     return resp
 
