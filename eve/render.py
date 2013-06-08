@@ -15,7 +15,7 @@ import time
 import simplejson as json
 from flask import make_response, request, Response, current_app as app
 from bson.objectid import ObjectId
-from eve.utils import date_to_str, config
+from eve.utils import date_to_str, config, request_method
 from functools import wraps
 from xml.sax.saxutils import escape
 from eve.methods.common import get_rate_limit
@@ -37,12 +37,9 @@ def raise_event(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         r = f(*args, **kwargs)
-        if request.method in ('GET', 'POST', 'PATCH', 'DELETE'):
-            if request.method == 'POST' and 'X-HTTP-Method-Override' in \
-               request.headers:
-                event_name = 'on_patch'
-            else:
-                event_name = 'on_' + request.method.lower()
+        method = request_method()
+        if method in ('GET', 'POST', 'PATCH', 'DELETE'):
+            event_name = 'on_' + method.lower()
             resource = args[0] if args else None
             # general hook
             getattr(app, event_name)(resource, request, r)

@@ -276,3 +276,16 @@ def extract_key_values(key, d):
         if isinstance(d[k], dict):
             for j in extract_key_values(key, d[k]):
                 yield j
+
+
+def request_method():
+    """ Returns flask 'request.method', but taking our support for POST with
+    'X-HTTP-Method-Override' as a PATCH alternative into consideration.
+
+    .. versionadded: 0.0.7
+    """
+    if request.method == 'POST' and 'X-HTTP-Method-Override' in \
+       request.headers:
+        return 'PATCH'
+    else:
+        return request.method

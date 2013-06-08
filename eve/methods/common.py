@@ -13,7 +13,8 @@
 import time
 from flask import current_app as app, request, abort, g, Response
 import simplejson as json
-from ..utils import str_to_date, parse_request, document_etag, config
+from ..utils import str_to_date, parse_request, document_etag, config, \
+    request_method
 from functools import wraps
 
 
@@ -78,8 +79,7 @@ def parse(value, resource):
         document[date_field] = str_to_date(document[date_field])
 
     # update the document with eventual default values
-    if request.method == 'POST' and \
-            'X-HTTP-Method-Override' not in request.headers:
+    if request_method() == 'POST':
         defaults = app.config['DOMAIN'][resource]['defaults']
         missing_defaults = defaults.difference(set(document.keys()))
         schema = config.DOMAIN[resource]['schema']
@@ -169,13 +169,7 @@ def ratelimit():
         def rate_limited(*args, **kwargs):
 <<<<<<< Updated upstream
             if app.redis:
-                if request.method == 'POST' and \
-                   'X-HTTP-Method-Override' in request.headers:
-                    method = 'PATCH'
-                else:
-                    method = request.method
-                method_limit = app.config[('RATE_LIMIT_' + method)]
-
+                method_limit = app.config['RATE_LIMIT_' + request_method()]
                 if method_limit:
                     limit = method_limit[0]
                     period = method_limit[1]
