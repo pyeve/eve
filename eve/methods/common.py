@@ -167,26 +167,6 @@ def ratelimit():
     def decorator(f):
         @wraps(f)
         def rate_limited(*args, **kwargs):
-<<<<<<< Updated upstream
-            if app.redis:
-                method_limit = app.config['RATE_LIMIT_' + request_method()]
-                if method_limit:
-                    limit = method_limit[0]
-                    period = method_limit[1]
-                    # if authorization is being used the key is 'username',
-                    # else the client IP will be used.
-                    key = 'rate-limit/%s' % (request.authorization.username
-                                             if request.authorization else
-                                             request.remote_addr)
-                    rlimit = RateLimit(key, limit, period, True)
-                    # store the rate limit for further processing by
-                    # send_response
-                    g._rate_limit = rlimit
-                    if rlimit.over_limit:
-                        return Response('Rate limit exceeded', 429)
-                else:
-                    g._rate_limit = None
-=======
             method_limit = app.config['RATE_LIMIT_' + request_method()]
             if method_limit and app.redis:
                 limit = method_limit[0]
@@ -204,7 +184,6 @@ def ratelimit():
                 g._rate_limit = rlimit
             else:
                 g._rate_limit = None
->>>>>>> Stashed changes
             return f(*args, **kwargs)
         return rate_limited
     return decorator
