@@ -6,7 +6,9 @@ install: pip install flake8
 script: 
   - flake8 --exclude="tests" eve
   - python setup.py test
-services: mongodb
+services: 
+  - mongodb
+  - redis-server
 before_script:
   - "ulimit -n 1024"
   - mongo eve_test --eval 'db.addUser("test_user", "test_pw");'
