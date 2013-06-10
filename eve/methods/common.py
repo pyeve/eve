@@ -167,7 +167,7 @@ def ratelimit():
     def decorator(f):
         @wraps(f)
         def rate_limited(*args, **kwargs):
-            method_limit = app.config['RATE_LIMIT_' + request_method()]
+            method_limit = app.config.get('RATE_LIMIT_' + request_method())
             if method_limit and app.redis:
                 limit = method_limit[0]
                 period = method_limit[1]
