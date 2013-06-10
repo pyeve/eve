@@ -13,6 +13,7 @@
 """
 
 from methods import get, getitem, post, patch, delete, delete_resource
+from methods.common import ratelimit
 from flask import abort
 from render import send_response
 from eve.auth import requires_auth
@@ -74,6 +75,7 @@ def item_endpoint(url, **lookup):
     return send_response(resource, response)
 
 
+@ratelimit()
 @requires_auth('home')
 def home_endpoint():
     """ Home/API entry point. Will provide links to each available resource
