@@ -71,6 +71,16 @@ ALLOW_UNKNOWN = False           # don't allow unknown key/value pairs for
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"
 
+# Rate limits are enabled by default (300 requests, 15 minutes windows).
+RATE_LIMIT_GET = (300, 60 * 15)
+RATE_LIMIT_POST = (300, 60 * 15)
+RATE_LIMIT_PATCH = (300, 60 * 15)
+RATE_LIMIT_DELETE = (300, 60 * 15)
+#RATE_LIMIT_GET = None
+#RATE_LIMIT_POST = None
+#RATE_LIMIT_PATCH = None
+#RATE_LIMIT_DELETE = None
+
 # MONGO defaults
 MONGO_HOST = 'localhost'
 MONGO_PORT = 27017

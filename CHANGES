@@ -8,6 +8,9 @@ Version 0.0.7
 
 Not released yet.
 
+- Support for Rate Limiting on all HTTP methods. Closes #58.
+- ``utils.request_method`` internal helper function added, which allowed  for
+  some nice code cleanup (DRY).
 - Setting the default 'field' value would not happen if a 'data_relation' was
   nested deeper than the first schema level. Fixes #60.
 - Support for ``EXTRA_RESPONSE_FIELDS``. It is now possible to configure a list

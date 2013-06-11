@@ -248,6 +248,39 @@ uppercase.
                                 overridden by resource settings. Defaults to
                                 ``[]``, effectively disabling the feature.
 
+
+``RATE_LIMIT_GET``              A tuple expressing the rate limit imposed on
+                                GET requests. The first element of the tuple
+                                is the number of requests allowed, while the 
+                                second is the time window in seconds. Defaults
+                                to ``(300, 60 * 15)`` which means 300 requests
+                                per 15 minutes window. Set to ``None`` to
+                                disable rate limiting for the method.
+
+``RATE_LIMIT_POST``             A tuple expressing the rate limit imposed on
+                                POST requests. The first element of the tuple
+                                is the number of requests allowed, while the 
+                                second is the time window in seconds. Defaults
+                                to ``(300, 60 * 15)`` which means 300 requests
+                                per 15 minutes window. Set to ``None`` to
+                                disable rate limiting for the method.
+
+``RATE_LIMIT_PATCH``            A tuple expressing the rate limit imposed on
+                                PATCH requests. The first element of the tuple
+                                is the number of requests allowed, while the 
+                                second is the time window in seconds. Defaults
+                                to ``(300, 60 * 15)`` which means 300 requests
+                                per 15 minutes window. Set to ``None`` to
+                                disable rate limiting for the method.   
+
+``RATE_LIMIT_DELETE``           A tuple expressing the rate limit imposed on
+                                POST requests. The first element of the tuple
+                                is the number of requests allowed, while the 
+                                second is the time window in seconds. Defaults
+                                to ``(300, 60 * 15)`` which means 300 requests
+                                per 15 minutes window. Set to ``None`` to
+                                disable rate limiting for the method.
+
 ``DEBUG``                       ``True`` to enable Debug Mode, ``False``
                                 otherwise. 
 

@@ -10,10 +10,12 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from flask import current_app as app, request
-from flask import abort
+import time
+from flask import current_app as app, request, abort, g, Response
 import simplejson as json
-from ..utils import str_to_date, parse_request, document_etag, config
+from ..utils import str_to_date, parse_request, document_etag, config, \
+    request_method
+from functools import wraps
 
 
 def get_document(resource, **lookup):
@@ -25,7 +27,7 @@ def get_document(resource, **lookup):
     :param resource: the name of the resource to which the document belongs to.
     :param **lookup: document lookup query
 
-    ..versionchanged:: 0.0.5
+    .. versionchanged:: 0.0.5
       Pass current resource to ``parse_request``, allowing for proper
       processing of new configuration settings: `filters`, `sorting`, `paging`.
     """
@@ -77,8 +79,7 @@ def parse(value, resource):
         document[date_field] = str_to_date(document[date_field])
 
     # update the document with eventual default values
-    if request.method == 'POST' and \
-            'X-HTTP-Method-Override' not in request.headers:
+    if request_method() == 'POST':
         defaults = app.config['DOMAIN'][resource]['defaults']
         missing_defaults = defaults.difference(set(document.keys()))
         schema = config.DOMAIN[resource]['schema']
@@ -107,3 +108,82 @@ def payload():
         return request.form if len(request.form) else abort(400)
     else:
         abort(400)
+
+
+class RateLimit(object):
+    """ Implements the Rate-Limiting logic using Redis as a backend.
+
+    :param key_prefix: the key used to uniquely identify a client.
+    :param limit: requests limit, per period.
+    :param period: limit validity period
+    :param send_x_headers: True if response headers are supposed to include
+                           special 'X-RateLimit' headers
+
+    .. versionadded:: 0.0.7
+    """
+    # We give the key extra expiration_window seconds time to expire in redis
+    # so that badly synchronized clocks between the workers and the redis
+    # server do not cause problems
+    expiration_window = 10
+
+    def __init__(self, key_prefix, limit, period, send_x_headers=True):
+        self.reset = (int(time.time()) // period) * period + period
+        self.key = key_prefix + str(self.reset)
+        self.limit = limit
+        self.period = period
+        self.send_x_headers = send_x_headers
+        p = app.redis.pipeline()
+        p.incr(self.key)
+        p.expireat(self.key, self.reset + self.expiration_window)
+        self.current = min(p.execute()[0], limit + 1)
+
+    remaining = property(lambda x: x.limit - x.current)
+    over_limit = property(lambda x: x.current > x.limit)
+
+
+def get_rate_limit():
+    """ If available, returns a RateLimit instance which is valid for the
+    current request-response.
+
+    .. versionadded:: 0.0.7
+    """
+    return getattr(g, '_rate_limit', None)
+
+
+def ratelimit():
+    """ Enables support for Rate-Limits on API methods
+    The key is constructed by default from the remote address or the
+    authorization.username if authentication is being used. On
+    a authentication-only API, this will impose a ratelimit even on
+    non-authenticated users, reducing exposure to DDoS attacks.
+
+    Before the function is executed it increments the rate limit with the help
+    of the RateLimit class and stores an instance on g as g._rate_limit. Also
+    if the client is indeed over limit, we return a 429, see
+    http://tools.ietf.org/html/draft-nottingham-http-new-status-04#section-4
+
+    .. versionadded:: 0.0.7
+    """
+    def decorator(f):
+        @wraps(f)
+        def rate_limited(*args, **kwargs):
+            method_limit = app.config.get('RATE_LIMIT_' + request_method())
+            if method_limit and app.redis:
+                limit = method_limit[0]
+                period = method_limit[1]
+                # If authorization is being used the key is 'username'.
+                # Else, fallback to client IP.
+                key = 'rate-limit/%s' % (request.authorization.username
+                                         if request.authorization else
+                                         request.remote_addr)
+                rlimit = RateLimit(key, limit, period, True)
+                if rlimit.over_limit:
+                    return Response('Rate limit exceeded', 429)
+                # store the rate limit for further processing by
+                # send_response
+                g._rate_limit = rlimit
+            else:
+                g._rate_limit = None
+            return f(*args, **kwargs)
+        return rate_limited
+    return decorator

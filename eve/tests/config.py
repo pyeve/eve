@@ -37,7 +37,13 @@ class TestConfig(TestBase):
 
     def test_default_settings(self):
         self.assertEqual(self.app.settings, self.settings_file)
+
         # TODO add tests for other global default values
+        self.assertEqual(self.app.config['RATE_LIMIT_GET'], (300, 60 * 15))
+        self.assertEqual(self.app.config['RATE_LIMIT_POST'], (300, 60 * 15))
+        self.assertEqual(self.app.config['RATE_LIMIT_PATCH'], (300, 60 * 15))
+        self.assertEqual(self.app.config['RATE_LIMIT_DELETE'], (300, 60 * 15))
+
         self.assertEqual(self.app.config['MONGO_HOST'], 'localhost')
         self.assertEqual(self.app.config['MONGO_PORT'], 27017)
         self.assertEqual(self.app.config['MONGO_QUERY_BLACKLIST'], ['$where',

@@ -14,12 +14,13 @@
 from flask import request
 from datetime import datetime
 from flask import current_app as app
-from common import parse, payload
+from common import parse, payload, ratelimit
 from eve.utils import document_link, config, document_etag
 from eve.auth import requires_auth
 from eve.validation import ValidationError
 
 
+@ratelimit()
 @requires_auth('resource')
 def post(resource):
     """ Adds one or more documents to a resource. Each document is validated
@@ -31,6 +32,7 @@ def post(resource):
     :param resource: name of the resource involved.
 
     .. versionchanged: 0.0.7
+       Support for Rate-Limiting.
        Support for 'extra_response_fields'.
 
        'on_posting' and 'on_posting_<resource>' events are raised before the
