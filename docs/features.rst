@@ -549,6 +549,25 @@ documents that did not pass validation are not included).
 
 To provide seamless event handling features, Eve relies on the Events_ package.
 
+Rate Limiting
+-------------
+API rate limiting is supported on a per-user/method basis. You can set the
+number of requests and time window allowed to each user. Users are identified
+by the Authentication header or, when this is missing, by the client IP. If the
+user hits the limit he will be served with ``429 Request limit exceeded``
+responses until the time window resets. When reate limiting is enabled, 
+appropriate ``X-RateLimit-`` headers are provided with every API response:
+
+::
+
+    X-RateLimit-Remaining: 299
+    X-RateLimit-Limit: 300
+    X-RateLimit-Reset: 1370940300
+
+You can set different limits for each one of the supported methods (GET, POST,
+PATCH, DELETE). Default limits  are set to 300 requests in a 15 minutes time
+windows on all kind of requests.
+
 MongoDB Support
 ---------------
 Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL
