@@ -24,6 +24,7 @@ setup(
         'simplejson',
         'events'
     ],
+    tests_require=['redis'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
