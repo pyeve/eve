@@ -8,6 +8,7 @@ Version 0.0.7
 
 Not released yet.
 
+- Support for Rate Limiting on all HTTP methods. Closes #58.
 - ``utils.request_method`` internal helper function added, which allowed  for
   some nice code cleanup (DRY).
 - Setting the default 'field' value would not happen if a 'data_relation' was
