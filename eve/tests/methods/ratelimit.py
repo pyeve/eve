@@ -11,15 +11,23 @@ class TestRateLimit(TestBase):
         self.app.redis.flushdb()
 
     def test_ratelimit_home(self):
+        """ PLEASE NOTE: this requires a running redis-server
+        """
         self.get_ratelimit("/")
 
     def test_ratelimit_resource(self):
+        """ PLEASE NOTE: this requires a running redis-server
+        """
         self.get_ratelimit(self.known_resource_url)
 
     def test_ratelimit_item(self):
+        """ PLEASE NOTE: this requires a running redis-server
+        """
         self.get_ratelimit(self.item_id_url)
 
     def test_noratelimits(self):
+        """ PLEASE NOTE: this requires a running redis-server
+        """
         self.app.config['RATE_LIMIT_GET'] = None
         self.app.redis.flushdb()
         r = self.test_client.get("/")
