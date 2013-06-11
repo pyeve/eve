@@ -576,6 +576,22 @@ documents that did not pass validation are not included).</p>
 <p>To provide seamless event handling features, Eve relies on the <a class="reference external" href="https://github.com/nicolaiarocci/events">Events</a> package.</p>
 </div>
 </div>
+<div class="section" id="rate-limiting">
+<h2>Rate Limiting<a class="headerlink" href="#rate-limiting" title="Permalink to this headline">¶</a></h2>
+<p>API rate limiting is supported on a per-user/method basis. You can set the
+number of requests and time window allowed to each user. Users are identified
+by the Authentication header or, when this is missing, by the client IP. If the
+user hits the limit he will be served with <tt class="docutils literal"><span class="pre">429</span> <span class="pre">Request</span> <span class="pre">limit</span> <span class="pre">exceeded</span></tt>
+responses until the time window resets. When reate limiting is enabled,
+appropriate <tt class="docutils literal"><span class="pre">X-RateLimit-</span></tt> headers are provided with every API response:</p>
+<div class="highlight-python"><pre>X-RateLimit-Remaining: 299
+X-RateLimit-Limit: 300
+X-RateLimit-Reset: 1370940300</pre>
+</div>
+<p>You can set different limits for each one of the supported methods (GET, POST,
+PATCH, DELETE). Default limits  are set to 300 requests in a 15 minutes time
+windows on all kind of requests.</p>
+</div>
 <div class="section" id="mongodb-support">
 <h2>MongoDB Support<a class="headerlink" href="#mongodb-support" title="Permalink to this headline">¶</a></h2>
 <p>Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL
@@ -651,6 +667,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li><a class="reference internal" href="#manipulating-documents-on-insertion">Manipulating documents on insertion</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#rate-limiting">Rate Limiting</a></li>
 <li><a class="reference internal" href="#mongodb-support">MongoDB Support</a></li>
 <li><a class="reference internal" href="#powered-by-flask">Powered by Flask</a></li>
 </ul>

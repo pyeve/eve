@@ -331,6 +331,42 @@ are included in response payloads. Can be
 overridden by resource settings. Defaults to
 <tt class="docutils literal"><span class="pre">[]</span></tt>, effectively disabling the feature.</td>
 </tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_GET</span></tt></td>
+<td>A tuple expressing the rate limit imposed on
+GET requests. The first element of the tuple
+is the number of requests allowed, while the
+second is the time window in seconds. Defaults
+to <tt class="docutils literal"><span class="pre">(300,</span> <span class="pre">60</span> <span class="pre">*</span> <span class="pre">15)</span></tt> which means 300 requests
+per 15 minutes window. Set to <tt class="docutils literal"><span class="pre">None</span></tt> to
+disable rate limiting for the method.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_POST</span></tt></td>
+<td>A tuple expressing the rate limit imposed on
+POST requests. The first element of the tuple
+is the number of requests allowed, while the
+second is the time window in seconds. Defaults
+to <tt class="docutils literal"><span class="pre">(300,</span> <span class="pre">60</span> <span class="pre">*</span> <span class="pre">15)</span></tt> which means 300 requests
+per 15 minutes window. Set to <tt class="docutils literal"><span class="pre">None</span></tt> to
+disable rate limiting for the method.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_PATCH</span></tt></td>
+<td>A tuple expressing the rate limit imposed on
+PATCH requests. The first element of the tuple
+is the number of requests allowed, while the
+second is the time window in seconds. Defaults
+to <tt class="docutils literal"><span class="pre">(300,</span> <span class="pre">60</span> <span class="pre">*</span> <span class="pre">15)</span></tt> which means 300 requests
+per 15 minutes window. Set to <tt class="docutils literal"><span class="pre">None</span></tt> to
+disable rate limiting for the method.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_DELETE</span></tt></td>
+<td>A tuple expressing the rate limit imposed on
+POST requests. The first element of the tuple
+is the number of requests allowed, while the
+second is the time window in seconds. Defaults
+to <tt class="docutils literal"><span class="pre">(300,</span> <span class="pre">60</span> <span class="pre">*</span> <span class="pre">15)</span></tt> which means 300 requests
+per 15 minutes window. Set to <tt class="docutils literal"><span class="pre">None</span></tt> to
+disable rate limiting for the method.</td>
+</tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">DEBUG</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> to enable Debug Mode, <tt class="docutils literal"><span class="pre">False</span></tt>
 otherwise.</td>
@@ -642,7 +678,7 @@ of fixed length.</td>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
 <td>Validation schema for <tt class="docutils literal"><span class="pre">dict</span></tt> types and
 arbitrary length <tt class="docutils literal"><span class="pre">list</span></tt> types. For details
-and usage examples, see <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#schema" title="(in Cerberus v0.2.0)"><em class="xref std std-ref">Cerberus documentation</em></a></td>
+and usage examples, see <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#schema" title="(in Cerberus v0.3.0)"><em class="xref std std-ref">Cerberus documentation</em></a></td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">unique</span></tt></td>
 <td><p class="first">The value of the field must be unique within
