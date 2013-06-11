@@ -19,6 +19,15 @@ class TestRateLimit(TestBase):
     def test_ratelimit_item(self):
         self.get_ratelimit(self.item_id_url)
 
+    def test_noratelimits(self):
+        self.app.config['RATE_LIMIT_GET'] = None
+        self.app.redis.flushdb()
+        r = self.test_client.get("/")
+        self.assert200(r.status_code)
+        self.assertTrue('X-RateLimit-Remaining' not in r.headers)
+        self.assertTrue('X-RateLimit-Limit' not in r.headers)
+        self.assertTrue('X-RateLimit-Reset' not in r.headers)
+
     def get_ratelimit(self, url):
         self.assertRateLimit(self.test_client.get(url))
         r = self.test_client.get(url)
