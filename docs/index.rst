@@ -47,7 +47,7 @@ User's Guide
     validation
     authentication
     tutorials/index
-    tools
+    extensions
     contributing
     support
     updates
