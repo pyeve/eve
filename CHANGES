@@ -8,6 +8,9 @@ Version 0.0.7
 
 Not released yet.
 
+- Pinned Werkzeug requirement to v0.8.3 to avoid issues with the latest 
+  release which breaks backward compatibility (actually a Flask 0.9 
+  requirements issue, which backtracked to Eve).
 - Support for Rate Limiting on all HTTP methods. Closes #58. Please note: to
   successfully execute the tests in 'eve.tests.methods.ratelimit.py`, a running
   redis server is needed.
