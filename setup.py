@@ -19,6 +19,9 @@ setup(
     packages=find_packages(),
     test_suite="eve.tests",
     install_requires=[
+        'werkzeug==0.8.3',
+        'flask==0.9',
+        'jinja2==2.7',
         'flask-pymongo>=0.2.0',
         'cerberus>=0.2.0',
         'simplejson',
