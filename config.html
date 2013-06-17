@@ -332,40 +332,40 @@ overridden by resource settings. Defaults to
 <tt class="docutils literal"><span class="pre">[]</span></tt>, effectively disabling the feature.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_GET</span></tt></td>
-<td>A tuple expressing the rate limit imposed on
-GET requests. The first element of the tuple
-is the number of requests allowed, while the
-second is the time window in seconds. Defaults
-to <tt class="docutils literal"><span class="pre">(300,</span> <span class="pre">60</span> <span class="pre">*</span> <span class="pre">15)</span></tt> which means 300 requests
-per 15 minutes window. Set to <tt class="docutils literal"><span class="pre">None</span></tt> to
-disable rate limiting for the method.</td>
+<td>A tuple expressing the rate limit on GET
+requests. The first element of the tuple is
+the number of requests allowed, while the
+second is the time window in seconds. For
+example <tt class="docutils literal"><span class="pre">(300,</span> <span class="pre">60</span> <span class="pre">*</span> <span class="pre">15)</span></tt> would set a 300
+requests every 15 minutes limit. Defaults
+to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_POST</span></tt></td>
-<td>A tuple expressing the rate limit imposed on
-POST requests. The first element of the tuple
-is the number of requests allowed, while the
-second is the time window in seconds. Defaults
-to <tt class="docutils literal"><span class="pre">(300,</span> <span class="pre">60</span> <span class="pre">*</span> <span class="pre">15)</span></tt> which means 300 requests
-per 15 minutes window. Set to <tt class="docutils literal"><span class="pre">None</span></tt> to
-disable rate limiting for the method.</td>
+<td>A tuple expressing the rate limit on POST
+requests. The first element of the tuple is
+the number of requests allowed, while the
+second is the time window in seconds. For
+example <tt class="docutils literal"><span class="pre">(300,</span> <span class="pre">60</span> <span class="pre">*</span> <span class="pre">15)</span></tt> would set a 300
+requests every 15 minutes limit. Defaults
+to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_PATCH</span></tt></td>
-<td>A tuple expressing the rate limit imposed on
-PATCH requests. The first element of the tuple
-is the number of requests allowed, while the
-second is the time window in seconds. Defaults
-to <tt class="docutils literal"><span class="pre">(300,</span> <span class="pre">60</span> <span class="pre">*</span> <span class="pre">15)</span></tt> which means 300 requests
-per 15 minutes window. Set to <tt class="docutils literal"><span class="pre">None</span></tt> to
-disable rate limiting for the method.</td>
+<td>A tuple expressing the rate limit on PATCH
+requests. The first element of the tuple is
+the number of requests allowed, while the
+second is the time window in seconds. For
+example <tt class="docutils literal"><span class="pre">(300,</span> <span class="pre">60</span> <span class="pre">*</span> <span class="pre">15)</span></tt> would set a 300
+requests every 15 minutes limit. Defaults
+to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_DELETE</span></tt></td>
-<td>A tuple expressing the rate limit imposed on
-POST requests. The first element of the tuple
-is the number of requests allowed, while the
-second is the time window in seconds. Defaults
-to <tt class="docutils literal"><span class="pre">(300,</span> <span class="pre">60</span> <span class="pre">*</span> <span class="pre">15)</span></tt> which means 300 requests
-per 15 minutes window. Set to <tt class="docutils literal"><span class="pre">None</span></tt> to
-disable rate limiting for the method.</td>
+<td>A tuple expressing the rate limit on DELETE
+requests. The first element of the tuple is
+the number of requests allowed, while the
+second is the time window in seconds. For
+example <tt class="docutils literal"><span class="pre">(300,</span> <span class="pre">60</span> <span class="pre">*</span> <span class="pre">15)</span></tt> would set a 300
+requests every 15 minutes limit. Defaults
+to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">DEBUG</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> to enable Debug Mode, <tt class="docutils literal"><span class="pre">False</span></tt>

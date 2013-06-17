@@ -579,18 +579,25 @@ documents that did not pass validation are not included).</p>
 <div class="section" id="rate-limiting">
 <h2>Rate Limiting<a class="headerlink" href="#rate-limiting" title="Permalink to this headline">¶</a></h2>
 <p>API rate limiting is supported on a per-user/method basis. You can set the
-number of requests and time window allowed to each user. Users are identified
-by the Authentication header or, when this is missing, by the client IP. If the
-user hits the limit he will be served with <tt class="docutils literal"><span class="pre">429</span> <span class="pre">Request</span> <span class="pre">limit</span> <span class="pre">exceeded</span></tt>
-responses until the time window resets. When reate limiting is enabled,
-appropriate <tt class="docutils literal"><span class="pre">X-RateLimit-</span></tt> headers are provided with every API response:</p>
+number of requests and the time window for each HTTP method. If the requests
+limit is hit within the time window, the API will respond with <tt class="docutils literal"><span class="pre">429</span> <span class="pre">Request</span>
+<span class="pre">limit</span> <span class="pre">exceeded</span></tt> until the timer resets. Users are identified by the
+Authentication header or (when missing) by the client IP. When rate limiting
+is enabled, appropriate <tt class="docutils literal"><span class="pre">X-RateLimit-</span></tt> headers are provided with every API
+response.  Suppose that the rate limit has been set to 300 requests every 15
+minutes, this is what a user would get after hitting a endpoint with a single
+request:</p>
 <div class="highlight-python"><pre>X-RateLimit-Remaining: 299
 X-RateLimit-Limit: 300
 X-RateLimit-Reset: 1370940300</pre>
 </div>
 <p>You can set different limits for each one of the supported methods (GET, POST,
-PATCH, DELETE). Default limits  are set to 300 requests in a 15 minutes time
-windows on all kind of requests.</p>
+PATCH, DELETE).</p>
+<div class="admonition-please-note admonition">
+<p class="first admonition-title">Please Note</p>
+<p class="last">Rate Limiting is disabled by default, and needs a Redis server running when
+enabled. A tutorial on Rate Limiting is forthcoming.</p>
+</div>
 </div>
 <div class="section" id="mongodb-support">
 <h2>MongoDB Support<a class="headerlink" href="#mongodb-support" title="Permalink to this headline">¶</a></h2>
