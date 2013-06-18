@@ -6,7 +6,7 @@ Here you can see the full list of changes between each Eve release.
 Version 0.0.7
 -------------
 
-Not released yet.
+Released on June 18th 2013.
 
 - Pinned Werkzeug requirement to v0.8.3 to avoid issues with the latest 
   release which breaks backward compatibility (actually a Flask 0.9 
