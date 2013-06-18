@@ -19,7 +19,7 @@ instantiate the Eve app, you pass your custom class, like this:
     from eve.auth import BasicAuth
 
     class MyBasicAuth(BasicAuth):
-        def check_auth(self, username, password, allowed_roles):
+        def check_auth(self, username, password, allowed_roles, resource):
             return username == 'admin' and password == 'secret'
 
     app = Eve(auth=MyBasicAuth)
@@ -50,8 +50,8 @@ to provide the correct credentials in order to consume the API:
 By default, access is restricted to *all* endpoints, for *all* HTTP verbs
 (methods), effectively locking down the whole API.
 
-Fine-Tuning Global Security 
----------------------------
+Global Endpoint Security 
+------------------------
 You might want a public read-only API where only authorized users can write,
 edit and delete. You can achieve that by using the ``PUBLIC_METHODS`` and
 ``PUBLIC_ITEM_METHODS`` :ref:`global settings <global>`. Add the following to
@@ -67,8 +67,10 @@ publicly available at all API endpoints. ``PUBLIC_METHODS`` refers to resource
 endpoints, like ``/people/``, while ``PUBLIC_ITEM_METHODS`` refers to individual
 items like ``/people/id/``.
 
-Fine-Tuning Endpoint Security
------------------------------
+.. _endpointsec:
+
+Custom Endpoint Security
+------------------------
 Suppose that you want to allow public read access to only certain resources.
 You do that by declaring public methods at resource level, while declaring the
 API :ref:`domain <domain>`:
@@ -152,7 +154,7 @@ resources/methods will be secured unless they are made explicitly public.
 
 
     class BCryptAuth(BasicAuth):
-        def check_auth(self, username, password, allowed_roles):
+        def check_auth(self, username, password, allowed_roles, resource):
             # use Eve's own db driver; no additional connections/resources are used
             accounts = app.data.driver.db['accounts']
             account = accounts.find_one({'username': username})
@@ -193,7 +195,7 @@ resources/methods will be secured unless they are made explicitly public.
 
 
     class Sha1Auth(BasicAuth):
-        def check_auth(self, username, password, allowed_roles):
+        def check_auth(self, username, password, allowed_roles, resource):
             # use Eve's own db driver; no additional connections/resources are used
             accounts = app.data.driver.db['accounts']
             account = accounts.find_one({'username': username})
@@ -205,10 +207,13 @@ resources/methods will be secured unless they are made explicitly public.
         app = Eve(auth=Sha1Auth)
         app.run()
 
+.. _token:
+
 Token-Based Authentication
 --------------------------
 Token based authentication can be considered a specialized version of Basic
-Authentication. The Authorization header tag will contain the auth token.
+Authentication. The Authorization header tag will contain the auth token as the
+username, and no password.
 
 This script assumes that user accounts are stored in an `accounts` MongoDB
 collection. All API resources/methods will be secured unless they are made
@@ -234,7 +239,7 @@ resources and/or methods to public access -see docs).
 
 
     class TokenAuth(TokenAuth):
-        def check_auth(self, token, allowed_roles):
+        def check_auth(self, token, allowed_roles, resource):
             """For the purpose of this example the implementation is as simple as
             possible. A 'real' token should probably contain a hash of the
             username/password combo, which sould then validated against the account
@@ -303,8 +308,10 @@ Eve `repository`_.
 
 
     class HMACAuth(HMACAuth):
-        def check_auth(self, userid, hmac_hash, headers, data, allowed_roles):
-            # use Eve's own db driver; no additional connections/resources are used
+        def check_auth(self, userid, hmac_hash, headers, data, allowed_roles,
+                       resource):
+            # use Eve's own db driver; no additional connections/resources are 
+            # used
             accounts = app.data.driver.db['accounts']
             user = accounts.find_one({'userid': userid})
             if user:
@@ -318,6 +325,8 @@ Eve `repository`_.
     if __name__ == '__main__':
         app = Eve(auth=HMACAuth)
         app.run()
+
+.. _roleaccess:
 
 Role Based Access Control
 -------------------------
@@ -365,7 +374,7 @@ unless they are made explicitly public.
 
 
     class RolesAuth(BasicAuth):
-        def check_auth(self, username, password, allowed_roles):
+        def check_auth(self, username, password, allowed_roles, resource):
             # use Eve's own db driver; no additional connections/resources are used
             accounts = app.data.driver.db['accounts']
             lookup = {'username': username}
@@ -380,15 +389,25 @@ unless they are made explicitly public.
         app = Eve(auth=RolesAuth)
         app.run()
   
+.. _user-restricted:
+
 User-Restricted Resource Access
 -------------------------------
-When enabled, authorized users can only read/update/delete items created by
-themselves. Can be switched on and off at global level via the
-``AUTH_USERFIELD_NAME`` keyword, or at resource endpoints with the
-``auth_userfield_name`` keyword (the latter will override the former). The
-keyword contains the actual name of the field used to store the username of the
-user who created the resource item. Defaults to ``''``, which disables the
-feature.
+When this feature is enabled, authorized users can only read/update/delete
+items created by themselves. 
+
+What actually happens behind the scenes is that the value of
+`Authorization.username` request header is automatically added to new documents
+stored by the API. A filter on the same header is also transparently applied to
+all read, edit and delete requests. 
+
+``AUTH_USERFIELD_NAME`` defines the  name of the database field used to store
+the `Authorization.username` header. ``auth_userfield_name`` is the
+resource-level equivalent, which allows to effectively override the global
+setting, if present.  
+
+This feature can be used with both :ref:`basic` and :ref:`token` as they both
+rely on the `Authorization.username` field. 
 
 .. admonition:: Please note
 

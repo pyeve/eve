@@ -10,7 +10,8 @@ from datetime import datetime, timedelta
 from flask.ext.pymongo import MongoClient
 from bson import ObjectId
 from eve import Eve, STATUS_ERR
-from test_settings import MONGO_PASSWORD, MONGO_USERNAME, MONGO_DBNAME, DOMAIN
+from test_settings import MONGO_PASSWORD, MONGO_USERNAME, MONGO_DBNAME,  \
+                          DOMAIN, MONGO_HOST, MONGO_PORT
 
 
 class TestBase(unittest.TestCase):
@@ -18,8 +19,10 @@ class TestBase(unittest.TestCase):
     def setUp(self):
         self.known_resource_count = 100
         self.setupDB()
+
         self.settings_file = 'eve/tests/test_settings.py'
         self.app = Eve(settings=self.settings_file)
+
         self.test_client = self.app.test_client()
 
         self.domain = self.app.config['DOMAIN']
@@ -243,9 +246,10 @@ class TestBase(unittest.TestCase):
         self.assertEqual(status, 412)
 
     def setupDB(self):
-        self.connection = MongoClient()
+        self.connection = MongoClient(MONGO_HOST, MONGO_PORT)
         self.connection.drop_database(MONGO_DBNAME)
-        self.connection[MONGO_DBNAME].add_user(MONGO_USERNAME, MONGO_PASSWORD)
+        if MONGO_USERNAME:
+            self.connection[MONGO_DBNAME].add_user(MONGO_USERNAME, MONGO_PASSWORD)
         self.bulk_insert()
 
     def bulk_insert(self):
@@ -257,7 +261,7 @@ class TestBase(unittest.TestCase):
         self.connection.close()
 
     def dropDB(self):
-        self.connection = MongoClient()
+        self.connection = MongoClient(MONGO_HOST, MONGO_PORT)
         self.connection.drop_database(MONGO_DBNAME)
         self.connection.close()
 

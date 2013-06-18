@@ -11,6 +11,9 @@
     :copyright: (c) 2012 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.0.7
+       'EXTRA_RESPONSE_FIELDS added and set to an empty list.
+
     .. versionchanged:: 0.0.6
        'PROJECTION' added and set to True.
        'ALLOW_UNKNOWN' added and set to False.
@@ -54,6 +57,12 @@ ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
 ITEM_URL = '[a-f0-9]{24}'
 
+# list of extra fields to be included with every POST response. This list
+# should not include the 'standard' fields (ID_FIELD, LAST_UPDATED,
+# DATE_CREATED, 'etag').
+EXTRA_RESPONSE_FIELDS = []
+
+
 AUTH_USERNAME_FIELD = ''        # user-restricted resource access is disabled
                                 # by default.
 
@@ -61,3 +70,17 @@ ALLOW_UNKNOWN = False           # don't allow unknown key/value pairs for
                                 # POST/PATCH payloads.
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"
+
+# Rate limits are enabled by default (300 requests, 15 minutes windows).
+RATE_LIMIT_GET = None
+RATE_LIMIT_POST = None
+RATE_LIMIT_PATCH = None
+RATE_LIMIT_DELETE = None
+
+# MONGO defaults
+MONGO_HOST = 'localhost'
+MONGO_PORT = 27017
+# disallow Mongo's javascript queries as they might be vulnerable to injection
+# attacks ('ReDoS' especially), are probably too complex for the average API
+# end-user and finally can  seriously impact overall performance.
+MONGO_QUERY_BLACKLIST = ['$where', '$regex']

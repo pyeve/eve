@@ -49,6 +49,9 @@ class Mongo(DataLayer):
         :param resource: resource name.
         :param req: a :class:`ParsedRequest`instance.
 
+        .. versionchanged:: 0.0.7
+           Abort with a 400 if the query includes blacklisted  operators.
+
         .. versionchanged:: 0.0.6
            Only retrieve fields in the resource schema
            Support for projection queries ('?projection={"name": 1}')
@@ -82,7 +85,8 @@ class Mongo(DataLayer):
 
         if req.where:
             try:
-                spec = self._jsondatetime(json.loads(req.where))
+                spec = self._sanitize(
+                    self._jsondatetime(json.loads(req.where)))
             except:
                 try:
                     spec = parse(req.where)
@@ -157,6 +161,11 @@ class Mongo(DataLayer):
         """
         datasource, filter_, _ = self._datasource_ex(resource,
                                                      {ID_FIELD: ObjectId(id_)})
+
+        # TODO consider using find_and_modify() instead. The document might
+        # have changed since the ETag was computed. This would require getting
+        # the original document as an argument though.
+
         return self.driver.db[datasource].update(filter_, {"$set": updates})
 
     def remove(self, resource, id_=None):
@@ -192,3 +201,17 @@ class Mongo(DataLayer):
                     pass
 
         return source
+
+    def _sanitize(self, spec):
+        """ Makes sure that only allowed operators are included in the query,
+        aborts with a 400 otherwise.
+
+        .. versionadded:: 0.0.7
+        """
+        if set(spec.keys()) & set(config.MONGO_QUERY_BLACKLIST):
+            abort(400)
+        for value in spec.values():
+            if isinstance(value, dict):
+                if set(value.keys()) & set(config.MONGO_QUERY_BLACKLIST):
+                    abort(400)
+        return spec

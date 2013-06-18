@@ -13,13 +13,14 @@
 
 from flask import current_app as app
 from datetime import datetime
-from common import get_document, parse, payload as payload_
+from common import get_document, parse, payload as payload_, ratelimit
 from flask import abort
 from eve.utils import document_etag, document_link, config
 from eve.auth import requires_auth
 from eve.validation import ValidationError
 
 
+@ratelimit()
 @requires_auth('item')
 def patch(resource, **lookup):
     """Perform a document patch/update. Updates are first validated against
@@ -29,6 +30,9 @@ def patch(resource, **lookup):
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
+
+    .. versionchanged:: 0.0.7
+       Support for Rate-Limiting.
 
     .. versionchanged:: 0.0.6
         ETag is now computed without the need of an additional db lookup

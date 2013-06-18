@@ -15,9 +15,10 @@ import time
 import simplejson as json
 from flask import make_response, request, Response, current_app as app
 from bson.objectid import ObjectId
-from eve.utils import date_to_str, config
+from eve.utils import date_to_str, config, request_method
 from functools import wraps
 from xml.sax.saxutils import escape
+from eve.methods.common import get_rate_limit
 
 # mapping between supported mime types and render functions.
 _MIME_TYPES = [{'mime': ('application/json',), 'renderer': 'render_json'},
@@ -36,12 +37,9 @@ def raise_event(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         r = f(*args, **kwargs)
-        if request.method in ('GET', 'POST', 'PATCH', 'DELETE'):
-            if request.method == 'POST' and 'X-HTTP-Method-Override' in \
-               request.headers:
-                event_name = 'on_patch'
-            else:
-                event_name = 'on_' + request.method.lower()
+        method = request_method()
+        if method in ('GET', 'POST', 'PATCH', 'DELETE'):
+            event_name = 'on_' + method.lower()
             resource = args[0] if args else None
             # general hook
             getattr(app, event_name)(resource, request, r)
@@ -91,6 +89,9 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     :param last_modified: Last-Modified header value.
     :param etag: ETag header value.
     :param status: response status.
+
+    .. versionchanged:: 0.0.7
+       Support for Rate-Limiting.
 
     .. versionchanged:: 0.0.6
        Support for HEAD requests.
@@ -143,6 +144,13 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         resp.headers.add('Access-Control-Allow-Origin', ', '.join(domains))
         resp.headers.add('Access-Control-Allow-Methods', methods)
         resp.headers.add('Access-Control-Allow-Max-Age', 21600)
+
+    # Rate-Limiting
+    limit = get_rate_limit()
+    if limit and limit.send_x_headers:
+        resp.headers.add('X-RateLimit-Remaining', str(limit.remaining))
+        resp.headers.add('X-RateLimit-Limit', str(limit.limit))
+        resp.headers.add('X-RateLimit-Reset', str(limit.reset))
 
     return resp
 

@@ -26,6 +26,33 @@ All you need to bring your API online is a database, a configuration file
 (defaults to ``settings.py``) and a launch script.  Overall, you will find that
 configuring and fine-tuning your API is a very simple process.
 
+Features
+--------
+* Emphasis on REST
+* Full range of CRUD operations
+* Customizable resource endpoints
+* Customizable, multiple item endpoints
+* Filtering and Sorting
+* Pagination
+* HATEOAS
+* JSON and XML Rendering
+* Conditional Requests
+* Data Integrity and Concurrency Control
+* Multiple Insertions
+* Data Validation
+* Extensible Data Validation
+* Resource-level Cache Control
+* Versioning
+* CORS Cross-Origin Resource Sharing
+* Read-only by default
+* Default Values
+* Predefined Database Filters
+* Projections
+* Event Hooks
+* Native MongoDB Support
+* SQL Alchemy Support (WIP_)
+* Powered by Flask
+
 `Check out the Eve homepage <http://python-eve.org/>`_
 
 License
@@ -36,3 +63,4 @@ distributed under the `BSD license
 
 .. _`Nicola Iarocci`: http://nicolaiarocci.com
 .. _`Gestionali Amica`: http://gestionaleamica.com
+.. _WIP: http://blog.python-eve.org/sqlalchemy-and-eve

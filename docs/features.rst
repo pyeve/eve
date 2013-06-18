@@ -175,6 +175,11 @@ nested and combined. Sorting is supported as well:
 Currently sort directives use a pure MongoDB syntax; support for a more general
 syntax (``sort=lastname``) is planned.
 
+.. admonition:: Please note
+
+    Always use double quotes to wrap field names and values. Using single
+    quotes will result in ``400 Bad Request`` responses.
+
 Pagination
 ----------
 Resource pagination is enabled by default in order to improve performance and
@@ -490,10 +495,12 @@ available in the 'people' resource. Please note that key fields such as
 ID_FIELD, DATE_CREATED, DATE_UPDATED etc.  will still be included with the
 payload.
 
+.. _eventhooks:
+
 Event Hooks
 -----------
 Each time a GET, POST, PATCH, DELETE method has been executed, both global
-`on_<method>` and resource-level `on_<method>_<resource>` events will be
+``on_<method>`` and resource-level ``on_<method>_<resource>`` events will be
 raised. You can subscribe to these events with multiple callback functions.
 Callbacks will receive the original `flask.request` object and the response
 payload as arguments.
@@ -512,7 +519,61 @@ payload as arguments.
 
     >>> app.run()
 
+Manipulating documents on insertion
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+There is also support for ``on_posting`` and ``on_posting_<resource>`` event
+hooks, raised when documents are about to be stored in the database.  Callback
+functions could hook to these events to arbitrarily add new fields, or edit
+existing ones.
+
+.. code-block:: pycon
+
+    >>> def before_post(resource, documents):
+    ...  print 'About to store documents to "%s" ' % resource
+
+    >>> def before_insert_contacts(documents):
+    ...  print 'About to store contacts'
+
+    >>> app = Eve()
+    >>> app.on_posting += before_post
+    >>> app.on_posting_contacts += before_insert_contacts
+
+    >>> app.run()
+
+``on_posting`` is raised on every resource being updated, while
+``on_posting_<resource>`` is raised when the `<resource>` endpoint has been hit
+with a POST request. In both circumstances the event will be raised only if at
+least one document passed validation and is going to be inserted. `documents`
+is a list, and  only contains documents ready for insertion (payload
+documents that did not pass validation are not included).
+
 To provide seamless event handling features, Eve relies on the Events_ package.
+
+Rate Limiting
+-------------
+API rate limiting is supported on a per-user/method basis. You can set the
+number of requests and the time window for each HTTP method. If the requests
+limit is hit within the time window, the API will respond with ``429 Request
+limit exceeded`` until the timer resets. Users are identified by the
+Authentication header or (when missing) by the client IP. When rate limiting
+is enabled, appropriate ``X-RateLimit-`` headers are provided with every API
+response.  Suppose that the rate limit has been set to 300 requests every 15
+minutes, this is what a user would get after hitting a endpoint with a single
+request:
+
+::
+
+    X-RateLimit-Remaining: 299
+    X-RateLimit-Limit: 300
+    X-RateLimit-Reset: 1370940300
+
+You can set different limits for each one of the supported methods (GET, POST,
+PATCH, DELETE). 
+
+.. admonition:: Please Note
+
+   Rate Limiting is disabled by default, and needs a Redis server running when
+   enabled. A tutorial on Rate Limiting is forthcoming.
 
 MongoDB Support
 ---------------

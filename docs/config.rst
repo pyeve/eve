@@ -54,6 +54,9 @@ from the :ref:`demo`:
         SERVER_NAME = 'eve-demo.herokuapp.com'
     else:
         # Running on local machine. Let's just use the local mongod instance.
+
+        # Please note that MONGO_HOST and MONGO_PORT could very well be left
+        # out as they already default to a bare bones local 'mongod' instance.
         MONGO_HOST = 'localhost'
         MONGO_PORT = 27017
         MONGO_USERNAME = 'user'
@@ -217,14 +220,14 @@ uppercase.
                                 present. Can and most likely will be overriden 
                                 when configuring single resource endpoints.
 
-``AUTH_USERNAME_FIELD``         Works in conjunction with :ref:`auth`. When 
-                                enabled users can only read/update/delete
-                                resource items created by themselves. The
-                                keyword contains the actual name of the field
-                                used to store the username of the user who
-                                created the resource item. Can be overwritten 
-                                by resource settings. Defaults to ``''``, which 
-                                disables the feature. 
+``AUTH_USERNAME_FIELD``         Enables :ref:`user-restricted`. When the
+                                feature is enabled users can only
+                                read/update/delete resource items created by
+                                themselves. The keyword contains the actual
+                                name of the field used to store the username of
+                                the user who created the resource item. Can be
+                                overwritten by resource settings. Defaults to
+                                ``''``, which disables the feature. 
 
 ``ALLOW_UNKNOWN``               When ``True`` this option will allow insertion
                                 and edition of arbitrary, unknown fields to
@@ -236,18 +239,72 @@ uppercase.
                                 :ref:`projections` feature. Can be overwritten
                                 by resource settings. Defaults to ``True``.
 
+``EXTRA_RESPONSE_FIELDS``       Allows to configure a list of additional
+                                document fields that should be provided with
+                                every POST response. Normally only
+                                automatically handled fields (``ID_FIELD``,
+                                ``LAST_UPDATED``, ``DATE_CREATED``, ``etag``)
+                                are included in response payloads. Can be
+                                overridden by resource settings. Defaults to
+                                ``[]``, effectively disabling the feature.
+
+
+``RATE_LIMIT_GET``              A tuple expressing the rate limit on GET 
+                                requests. The first element of the tuple is 
+                                the number of requests allowed, while the
+                                second is the time window in seconds. For
+                                example ``(300, 60 * 15)`` would set a 300
+                                requests every 15 minutes limit. Defaults
+                                to ``None``. 
+
+``RATE_LIMIT_POST``             A tuple expressing the rate limit on POST 
+                                requests. The first element of the tuple is 
+                                the number of requests allowed, while the
+                                second is the time window in seconds. For
+                                example ``(300, 60 * 15)`` would set a 300
+                                requests every 15 minutes limit. Defaults
+                                to ``None``. 
+
+``RATE_LIMIT_PATCH``            A tuple expressing the rate limit on PATCH 
+                                requests. The first element of the tuple is 
+                                the number of requests allowed, while the
+                                second is the time window in seconds. For
+                                example ``(300, 60 * 15)`` would set a 300
+                                requests every 15 minutes limit. Defaults
+                                to ``None``. 
+
+``RATE_LIMIT_DELETE``           A tuple expressing the rate limit on DELETE 
+                                requests. The first element of the tuple is 
+                                the number of requests allowed, while the
+                                second is the time window in seconds. For
+                                example ``(300, 60 * 15)`` would set a 300
+                                requests every 15 minutes limit. Defaults
+                                to ``None``. 
+
 ``DEBUG``                       ``True`` to enable Debug Mode, ``False``
                                 otherwise. 
 
-``MONGO_HOST``                  MongoDB server address.
 
-``MONGO_PORT``                  MongoDB port.
+``MONGO_HOST``                  MongoDB server address. Defaults to ``localhost``.
+
+``MONGO_PORT``                  MongoDB port. Defaults to ``27017``.
 
 ``MONGO_USERNAME``              MongoDB user name.
 
 ``MONGO_PASSWORD``              MongoDB password.
 
 ``MONGO_DBNAME``                MongoDB database name.
+
+``MONGO_QUERY_BLACKLIST``       A list of Mongo query operators that are not
+                                allowed to be used in resource filters
+                                (``?where=``). Defaults to ``['$where',
+                                '$regex']``. 
+                                
+                                Mongo JavaScript operators are disabled by
+                                default as they might be used as vectors for
+                                injection attacks. Javascript queries also tend
+                                to be slow and generally can be easily replaced
+                                with the (very rich) Mongo query dialect.
 
 ``DOMAIN``                      A dict holding the API domain definition.
                                 See `Domain Configuration`_.
@@ -369,13 +426,13 @@ always lowercase.
                                 collections. See `Advanced Datasource
                                 Patterns`_. 
 
-``auth_username_field``         Works in conjunction with :ref:`auth`. When 
-                                enabled users can only read/update/delete
-                                resource items created by themselves. The
-                                keyword contains the actual name of the field
-                                used to store the username of the user who
-                                created the resource item. Locally overrides 
-                                ``AUTH_USERNAME_FIELD``.
+``auth_username_field``         Enables :ref:`user-restricted`. When the
+                                feature is enabled users can only
+                                read/update/delete resource items created by
+                                themselves. The keyword contains the actual
+                                name of the field used to store the username of
+                                the user who created the resource item. Locally
+                                overrides ``AUTH_USERNAME_FIELD``.
 
 ``allow_unknown``               When ``True`` this option will allow insertion
                                 and edition of arbitrary, unknown fields to
@@ -386,6 +443,15 @@ always lowercase.
 ``projection``                  When ``True`` this option enables the
                                 :ref:`projections` feature. Locally overrides
                                 ``PROJECTION``. Defaults to ``True``.
+
+``extra_response_fields``       Allows to configure a list of additional
+                                document fields that should be provided with
+                                every POST response. Normally only
+                                automatically handled fields (``ID_FIELD``,
+                                ``LAST_UPDATED``, ``DATE_CREATED``, ``etag``)
+                                are included in response payloads. Overrides
+                                ``EXTRA_RESPONSE_FIELDS``. 
+
 
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data

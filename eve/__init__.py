@@ -10,7 +10,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
-__version__ = '0.0.6'
+__version__ = '0.0.7-dev'
 
 #DEBUG = True
 
@@ -38,5 +38,5 @@ ITEM_URL = '[a-f0-9]{24}'
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"
 
-# must be the last line
+# must be the last line (will raise W402 on pyflakes)
 from flaskapp import Eve  # noqa

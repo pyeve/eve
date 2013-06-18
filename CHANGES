@@ -3,6 +3,53 @@ Eve Changelog
 
 Here you can see the full list of changes between each Eve release.
 
+Version 0.0.7
+-------------
+
+Not released yet.
+
+- Pinned Werkzeug requirement to v0.8.3 to avoid issues with the latest 
+  release which breaks backward compatibility (actually a Flask 0.9 
+  requirements issue, which backtracked to Eve).
+- Support for Rate Limiting on all HTTP methods. Closes #58. Please note: to
+  successfully execute the tests in 'eve.tests.methods.ratelimit.py`, a running
+  redis server is needed.
+- ``utils.request_method`` internal helper function added, which allowed  for
+  some nice code cleanup (DRY).
+- Setting the default 'field' value would not happen if a 'data_relation' was
+  nested deeper than the first schema level. Fixes #60.
+- Support for ``EXTRA_RESPONSE_FIELDS``. It is now possible to configure a list
+  of additonal document fields that should be provided with POST responses.
+  Normally only automatically handled fields (``ID_FIELD``, ``LAST_UPDATED``,
+  ``DATE_CREATED``, ``etag``) are included in POST payloads.
+  ``EXTRA_RESPONSE_FIELDS`` is a global setting that will apply to all resource
+  endpoint . Defaults to ``[]``, effectively disabling the feature.
+  ``extra_response_fields`` is a local resource setting and will override
+  ``EXTRA_RESPONSE_FIELDS`` when present.
+- ``on_posting`` and ``on_posting_<resource>`` event hooks. ``on_posting`` and
+  ``on_posting_<resource>`` events are raised when documents are about to be
+  stored. Among other things this allows callback functions to arbitrarily
+  update the documents being inserted. ``on_posting(resource, documents)`` is
+  raised on every successful POST while ``on_posting_<resource>(documents)`` is
+  only raised when <resource> is being updated. In both circumstances events
+  will be raised only if at least one document passed validation and is going
+  to be inserted.
+- Flask native ``request.json`` is now used when decoding request payloads.
+- *resource* argument added to Authorization classes. The ``check_auth()``
+  method of all classes in the ``eve.auth`` package (``BasicAuth``,
+  ``HMACAuth``, ``TokenAuth``) now supports the *resource* argument. This
+  allows subclasses to eventually build their custom authorization logic around
+  the resource being accessed.
+- ``MONGO_QUERY_BLACKLIST`` option added. Allows to blacklist mongo query
+  operators that should not be allowed in resource queries (``?where=``).
+  Defaults to ['$where', '$regex']. Mongo Javascript operators are disabled by
+  default as they might be used as vectors for injection attacks. Javascript
+  queries also tend to be slow and generally can be easily replaced with the
+  (very rich) Mongo query dialect.
+- ``MONGO_HOST`` defaults to 'localhost'.
+- ``MONGO_PORT`` defaults to 27017.
+- Support alternative hosts/ports for the test suite (Paul Doucet).
+
 Version 0.0.6
 -------------
 
@@ -10,164 +57,82 @@ Released on May 13th 2013.
 
 - Content-Type header now properly parsed when additional arguments are
   included (Ondrej Slinták).
-
-- Only fields defined in the resource schema are now returned from the 
+- Only fields defined in the resource schema are now returned from the
   database. Closes #52.
-
-- Default SERVER_NAME is now set to 127.0.0.1:5000.
-
-- 'auth_username_field' is honored even when there is no query in the request
+- Default ``SERVER_NAME`` is now set to ``127.0.0.1:5000``.
+- ``auth_username_field`` is honored even when there is no query in the request
   (Thomas Sileo).
-
 - Pagination links in XML payloads are now properly escaped. Fixes #49.
-
 - HEAD requests supported. Closes #48.
-
 - Event Hooks. Each time a GET, POST, PATCH, DELETE method has been executed,
-  both global 'on_<method>' and resource-level 'on_<method>_<resource>'
+  both global ``on_<method>`` and resource-level ``on_<method>_<resource>``
   events will be raised. You can subscribe to these events with multiple
   callback functions. Callbacks will receive the original flask.request object
   and the response payload as arguments.
-
-    >>> def general_callback(resource, request, payload):
-    ...  print 'A GET on the "%s" endpoint was just performed!' % resource
-
-    >>> def contacts_callback(request, payload):
-    ... print 'A get on 'contacts' was just performed!'
-
-    >>> app = Eve()
-    >>> app.on_get += general_callback
-    >>> app.on_get_contacts += contacts_callback
-
-    >>> app.run()
-  
-- Proper max_results handling in eve.utils.parse_request, refactored tests
-  (Tomasz Jezierski).
-
+- Proper ``max_results`` handling in ``eve.utils.parse_request``, refactored
+  tests (Tomasz Jezierski).
 - Projections. Projections are conditional queries where the client dictates
   which fields should be returned by the API (Nicolas Bazire).
-
-- 'ALLOW_UNKNOWN' option, and the corresponding 'allow_options' local setting,
-  allow for a less strict schema validation. Closes #34.
-
+- ``ALLOW_UNKNOWN`` option, and the corresponding ``allow_options`` local
+  setting, allow for a less strict schema validation. Closes #34.
 - ETags are now provided with POST responses. Closes #36.
-
 - PATCH performance improvement: ETag is now computed in memory; performing an
   extra database lookup is not needed anymore.
-          
 - Bulk Inserts on the database. POST method heavily refactored to take
-  advantage of MongoDB native support for Bulk Inserts. 
-  
-  Please note: validation constraints are checked against the database, and not
-  between the payload documents themselves. This causes an interesting corner
-  case: in the event of a multiple documents payload where two or more
-  documents carry the same value for a field where the 'unique' constraint is
-  set, the payload will validate successfully, as there are no duplicates in
-  the database (yet). If this is an issue, the client can always send the
-  documents once at a time for insertion, or validate locally before submitting
-  the payload to the API.
-
+  advantage of MongoDB native support for Bulk Inserts. Please note: validation
+  constraints are checked against the database, and not between the payload
+  documents themselves. This causes an interesting corner case: in the event of
+  a multiple documents payload where two or more documents carry the same value
+  for a field where the ``unique`` constraint is set, the payload will validate
+  successfully, as there are no duplicates in the database (yet). If this is an
+  issue, the client can always send the documents once at a time for insertion,
+  or validate locally before submitting the payload to the API.
 - Responses to document GET requests now include the ETag in both the header
   and the payload. Closes #29.
-
-- 'methods' settings keyword renamed to 'resource_methods' for coherence with 
-  the global RESOURCE_METHODS (Nicolas Carlier).
+- ``methods`` settings keyword renamed to ``resource_methods`` for coherence
+  with the global ``RESOURCE_METHODS`` (Nicolas Carlier).
 
 Version 0.0.5
 -------------
 
 Released on April 11th 2013.
 
-<<<<<<< HEAD
-- Fixed an issue that apparently caused the test suite to only run on
-=======
-- Fixed an issue that apparently caused the test suite to only run 
->>>>>>> develop
-  successfully on the dev box. Thanks Chronidev for reporting this.
-
-- Referential integrity validation via the new 'data_relation' schema keyword.
-  Closes #25.
-
-- Support for 'Content-Type: application/json' for POST and PATCH methods. 
+- Fixed an issue that apparently caused the test suite to only run successfully
+  on the dev box. Thanks Chronidev for reporting this.
+- Referential integrity validation via the new ``data_relation`` schema
+  keyword.  Closes #25.
+- Support for ``Content-Type: application/json`` for POST and PATCH methods.
   Closes #28.
-
 - User-restricted resource access. Works in conjunction with Authentication.
   When enabled, users can only read/update/delete resource items created by
   themselves. Can be switched on and off at global level via the
-  AUTH_USERFIELD_NAME keywork, or at single resource endpoints with the
+  ``AUTH_USERFIELD_NAME`` keywork, or at single resource endpoints with the
   user_userfield_name keyword (the latter will override the former). The
   keyword contains the actual name of the field used to store the username of
   the user who created the resource item. Defaults to '', which disables the
   feature (Thomas Sileo).
-
-- PAGING_LIMIT keyword setting renamed to PAGINATION_LIMIT for better coherency
-  with the new PAGINATION keyword. This could break backward compatibility in
-  some cases.
-
-- PAGING_DEFAULT keyword settings renamed to PAGINATION_DEFAULT for better
-  coherence with the new PAGINATION keyword. This could break backward
+- ``PAGING_LIMIT`` keyword setting renamed to ``PAGINATION_LIMIT`` for better
+  coherency with the new ``PAGINATION`` keyword. This could break backward
   compatibility in some cases.
-
-- ITEM_CACHE_CONTROL removed as it seems unnecessary at the moment.
-
-- Added an example on how to handle events to perform custom actions. Closes 
+- ``PAGING_DEFAULT`` keyword settings renamed to ``PAGINATION_DEFAULT`` for
+  better coherence with the new ``PAGINATION`` keyword. This could break
+  backward compatibility in some cases.
+- ``ITEM_CACHE_CONTROL`` removed as it seems unnecessary at the moment.
+- Added an example on how to handle events to perform custom actions. Closes
   #23 and #22.
-
 - ``eve.validation_schema()`` now collects offending items and returns all of
   them into the exception message. Closes #24.
-
-- Filters (`?where=`), sorting (`?sort=`) and pagination (`?page=10`) can now
-  be be disabled at both global and endpoint level. Closes #7.
-
+- Filters (``?where=``), sorting (``?sort=``) and pagination (``?page=10``) can
+  now be be disabled at both global and endpoint level. Closes #7.
 - CORS (Cross-Origin Resource Sharing) support. The new ``X-DOMAINS`` keywords
   allows API maintainers to specify which domains are allowed to perform CORS
   requests. Allowed values are: None, a list of domains, or '*' for a wide-open
   API. Closes #1.
-
 - HMAC (Hash Message Authentication Code) based Autentication. 
-  The new ``eve.auth.HMACAuth`` class allows for custom Amazon S3-like
-  authentication, which is basically a very secure custom authentication
-  scheme built around the `Authorization` header.
-
-  HOW HMAC AUTHENTICATON WORKS
-  The server provides the client with a user id and a secret key through some
-  out-of-band technique (e.g., the service sends the client an e-mail
-  containing the user id and secret key). The client will use the supplied
-  secret key to sign all requests.
-
-  When the client wants to send a request he builds the complete request and
-  then using the secret key computes a hash over the complete message body (and
-  optionally some of the message headers if required) 
-  
-  Next the client add the computed hash and his userid to the message in the
-  Authorization header:
-  
-    Authorization: johndoe:uCMfSzkjue+HSDygYB5aEg==
-  
-  and sends it to the service. The service retrieves the userid from the
-  message header and searches the private key for that user in its own
-  database. Next he computes the hash over the message body (and selected
-  headers) using the key to generate its hash. If the hash the client sends
-  matches the hash the server computes the server knows the message was send by
-  the real client and was not altered in any way.  
-  
-  Really the only tricky part is sharing a secret key with the user and keeping
-  that secure. That is why some services allow for generation of shared keys
-  with a limited life time so you can give the key to a third party to
-  temporarily work on your behalf. This is also the reason why the secret key
-  is generally provided through out-of-band channels (often a webpage or, as
-  said above, an email or plain old paper).
-
-  The HMACAuth class also support access roles. See the BasicAuth class
-  introduced with v0.0.4 for details on how to restrict access to API
-  resources.
-
-  The `examples/security` folder contains a simple HMAC-Auth example.
-
 - Token Based Authentication, a variation of Basic Authentication. Closes #20.
 - Orphan function removed (``eve.methods.get.standard_links`` ).
-- DATE_CREATED and LAST_UPDATED fields now show default values for documents
-  created outside the API context. Fixes #18. 
+- ``DATE_CREATED`` and ``LAST_UPDATED`` fields now show default values for
+  documents created outside the API context. Fixes #18. 
 
 Version 0.0.4
 -------------
@@ -176,159 +141,34 @@ Released on February 25th 2013.
 
 - Consistent ETag computation between runs/instances. Closes #16.
 - Support for Basic Authentication (RFC2617). 
-
-  BASICS
-  A new ``eve.auth.BasicAuth`` class has been added. It should be subclassed in
-  order to implement custom authentication.  The base class implements all the
-  logic, you only need to override the check_auth() method. When you
-  instantiate the Eve app, you pass the custom class like this:
-
-    from eve.auth import BasicAuth
-
-    class MyBasicAuth(BasicAuth):
-        def check_auth(self, username, password, allowed_roles):
-            return username == 'admin' and password == 'secret'
-
-    app = Eve(auth=MyBasicAuth)
-    app.run()
-
-  All your API endpoints are now secured which means that a client will need
-  to provide the correct credentials in order to consume the API:
-
-    $ curl -i http://example.com/
-
-    HTTP/1.0 401 UNAUTHORIZED
-    WWW-Authenticate: Basic realm:"eve"
-    Content-Type: text/html; charset=utf-8
-    Content-Length: 33
-    Server: Eve/0.0.4 Werkzeug/0.8.3 Python/2.7.3
-    Date: Thu, 14 Feb 2013 14:21:11 GMT
-
-    Please provide proper credentials.
-
-
-    $ curl -H "Authorization: Basic YWRtaW46c2VjcmV0" -i http://example.com/
-    
-    HTTP/1.0 200 OK
-    Content-Type: application/json
-    Content-Length: 194
-    Server: Eve/0.0.4 Werkzeug/0.8.3 Python/2.7.3
-    Date: Thu, 14 Feb 2013 14:23:39 GMT
-
-  By default, access is restricted to *all* endpoints, for *all* HTTP verbs
-  (methods), effectively locking down the whole API.
-
-  FINE-TUNING GLOBAL SECURITY 
-  You might want a public read-only API where only authorized users
-  can write, edit and delete. You can achieve that by using the new
-  `PUBLIC_METHODS` and `PUBLIC_ITEM_METHODS` global options. Add the following to
-  your ``settings.py``:
-  
-    PUBLIC_METHODS = ['GET'] 
-    PUBLIC_ITEM_METHODS = ['GET']
-  
-  And run your API. POST, PATCH and DELETE are still restricted while GET is
-  publicly available at all API endpoints. `PUBLIC_METHODS` refers to resource
-  endpoints (`/people/`) while `PUBLIC_ITEM_METHODS` refers to individual
-  items (`/people/id/`).
-  
-  FINE-TUNING ENDPOINT SECURITY
-  Suppose that you want to allow public read access to only certain resources.
-  You do that by declaring public methods at resource level, when declaring the
-  API schema:
-
-    'people': {
-        'public_methods': ['GET'],
-        'public_item_methods': ['GET'],
-        ...
-        }
-
-  Be aware that, when present, resource-level settings override global-level
-  settings. You can use this at your advantage. Suppose that you want to grant
-  read access to all endpoints with the only exception of ``/invoices/``.  You
-  first open up read access to all endpoints:
-
-    PUBLIC_METHODS = ['GET'] 
-    PUBLIC_ITEM_METHODS = ['GET']
-
-  And then protect the private endpoint:
-
-    'invoices': {
-        'public_methods': [],
-        'public_item_methods': [],
-        ...
-        }
-
-  Effectively making `people` a restricted resource.
-
-  ROLE ACCESS CONTROL
-  The BasicAuth subclass above deliberately ignores the ``allowed_roles``
-  parameter. You can use that parameter to restrict access to authenticated
-  users who have been assigned specific roles. First you would use the new
-  `ALLOWED_ROLES` and `ALLOWED_ITEM_ROLES` global directives (or the
-  corresponding `allowed_roles` and `allowed_item_roles` resource keywords).
-
-    ALLOWED_ROLES = ['admin']
-  
-  Then your subclass would implement the authorization logic by making good use
-  of the aforementioned ``allowed_roles`` parameter. 
-  
-  EXAMPLE SNIPPETS
-  The `examples/security` folder in the Eve repository contains some sample
-  snippets, like bcrypt/SHA1-HMAC password matching and role access control.
-
+- Support for fine-tuning authentication with ``PUBLIC_METHODS`` and
+  ``PUBLIC_ITEM_METHODS``. By default, access is restricted to *all* endpoints,
+  for *all* HTTP verbs (methods), effectively locking down the whole API.
+- Supporto for role-based access control with ``ALLOWED_ROLES`` and
+  ``allowed_roles``.
 - Support for all standard Flask initialization parameters.
-- Support for default values in resource fields. The new 'default' keyword can
-  now be used when defining a field rule set.
-
-    'userlevel': {
-        'type': 'integer', 
-        'default': 1
-        }
-
-  When serving POST (create) requests, the 'userlevel' field (with a value of
-  1) will be injected in documents lacking it. 
-  
-  Please note: currently default values are supported only for main document
-  fields. Default values for fields in embedded documents will be ignored.
-
+- Support for default values in resource fields. The new ``default`` keyword
+  can now be used when defining a field rule set.  Please note: currently
+  default values are supported only for main document fields. Default values
+  for fields in embedded documents will be ignored.
 - Multiple API endpoints can now target the same database collection. For
-  example now you can set both '/admins/' and '/users/' to read and write from
-  the same collection on the db, 'people'.
- 
-  The new 'datasource' setting allows to explicitly link API resources to
-  database collections. It is a dictionary with two allowed keys: 'source' and
-  'filter'. 'source' dictates the database collection consumed by the resource.
-  'filter' is the underlying query, applied by the API when retrieving and
-  validating data for the resource.  
-
-    'datasource': {
-        'source': 'people', 
-        'filter': {'userlevel': 1}
-        }
-  
-  Previously, the resource name would dictate the linked datasource (and of
-  course you could not have two resources with the same name). This remains
-  the default behaviour: if you omit the 'datasource' setting for a resource,
-  its name will be used to determine the database collection.
-
-- It is now possibile to set predefined db filters for each resource. 
-
-    'datasource': {
-        'filter': {'username': {'$exists': True}}
-        }
-  
-  In the example above the API endpoint will only expose (and update) documents
-  with the 'username' field.
-
-  Predefined filters run on top of user queries (GET requests with 'where'
-  clauses) and standard conditional requests ('If-Modified-Since', etc.)
-
+  example now you can set both ``/admins/`` and ``/users/`` to read and write
+  from the same collection on the db, *people*.  The new ``datasource`` setting
+  allows to explicitly link API resources to database collections. It is
+  a dictionary with two allowed keys: *source* and *filter*. *source* dictates
+  the database collection consumed by the resource.  *filter* is the underlying
+  query, applied by the API when retrieving and validating data for the
+  resource.  Previously, the resource name would dictate the linked datasource
+  (and of course you could not have two resources with the same name). This
+  remains the default behaviour: if you omit the ``datasource`` setting for
+  a resource, its name will be used to determine the database collection.
+- It is now possibile to set predefined db filters for each resource.
+  Predefined filters run on top of user queries (GET requests with ``where``
+  clauses) and standard conditional requests (``If-Modified-Since`,` etc.)
   Please note that datasource filters are applied on GET, PATCH and DELETE
   requests. If your resource allows for POST requests (document insertions),
   then you will probably want to set the validation rules accordingly (in our
   example, 'username' should probably be a required field).
-
 - JSON-Datetime dependency removed.
 - Support for Cerberus v0.0.3 and later.
 - Support for Flask-PyMongo v0.2.0 and later.
@@ -341,20 +181,12 @@ Version 0.0.3
 Released on January 22th 2013.
 
 - XML rendering love. Lots of love.
-
 - JSON links are always wrapped in a ``_links`` dictionary. Key values match
   the relation between the item being represented and the linked resource.
-
-- Streamlined JSON responses.  
-  
-  Superflous ``response`` root key has been removed from JSON payloads. 
-
-  GET requests to resource endpoints: items are now wrapped with an ``_items``
-  list. 
-  
-  GET requests to item endpoints: item is now at root level, with no wrappers
-  around it. 
-
+- Streamlined JSON responses. Superflous ``response`` root key has been removed
+  from JSON payloads. GET requests to resource endpoints: items are now wrapped
+  with an ``_items`` list. GET requests to item endpoints: item is now at root
+  level, with no wrappers around it. 
 - Support for API versioning through the new API_VERSION configuration setting.
 - Boolean values in request forms are now correctly parsed.
 - Tests now run under Python 2.6.
@@ -368,12 +200,9 @@ Released on November 27th 2012.
 - Homepage/api entry point resource links fixed. They had bad 'href'
   tags which also caused XML validation issues when processing responses
   (especially when accessing the API via browser).
-
 - Version number in 'Server' response headers.
-
 - Added support for DELETE at resource endpoints. Expected behavior:
   will delete all items in the collection. Disabled by default.
-
 - :class:`eve.io.mongo.Validator` now supports :class:`~cerberus.Validator`
   signature, allowing for further subclassing.
 

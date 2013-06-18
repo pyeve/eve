@@ -20,7 +20,7 @@ from werkzeug.serving import WSGIRequestHandler
 from eve.io.mongo import Mongo, Validator
 from eve.exceptions import ConfigException, SchemaException
 from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint
-from eve.utils import api_prefix
+from eve.utils import api_prefix, extract_key_values
 from events import Events
 
 
@@ -56,14 +56,26 @@ class Eve(Flask, Events):
                       :class:`eve.io.mongo.Validator`.
     :param data: the data layer class. Must be a :class:`~eve.io.DataLayer`
                  subclass. Defaults to :class:`~eve.io.Mongo`.
+    :param auth: the authentication class used to authenticate incoming
+                 requests. Must be a :class: `eve.auth.BasicAuth` subclass.
+    :param redis: the redis (pyredis) instance used by the Rate-Limiting
+                  feature, if enabled.
     :param kwargs: optional, standard, Flask parameters.
+
+    .. versionchanged:: 0.0.7
+       'redis' argument added to handle an accessory Redis server (currently
+       used by the Rate-Limiting feature).
 
     .. versionchanged:: 0.0.6
        'Events' added to the list of super classes, allowing for the arbitrary
        raising of events within the application.
+
+    .. versionchanged:: 0.0.4
+       'auth' argument added to handle authentication classes
     """
     def __init__(self, import_name=__package__, settings='settings.py',
-                 validator=Validator, data=Mongo, auth=None, **kwargs):
+                 validator=Validator, data=Mongo, auth=None, redis=None,
+                 **kwargs):
         """Eve main WSGI app is implemented as a Flask subclass. Since we want
         to be able to launch our API by simply invoking Flask's run() method,
         we need to enhance our super-class a little bit.
@@ -75,6 +87,8 @@ class Eve(Flask, Events):
             3. enable API endpoints
             4. set the validator class used to validate incoming objects
             5. activate the chosen data layer
+            6. instance the authentication layer if needed
+            7. set the redis instance to be used by the Rate-Limiting feature
         """
 
         # TODO should we support standard Flask parameters as well?
@@ -93,6 +107,7 @@ class Eve(Flask, Events):
 
         self.data = data(self)
         self.auth = auth() if auth else None
+        self.redis = redis
 
     def run(self, host=None, port=None, debug=None, **options):
         """Pass our own subclass of :class:`werkzeug.serving.WSGIRequestHandler
@@ -271,6 +286,9 @@ class Eve(Flask, Events):
         """ When not provided, fills individual resource settings with default
         or global configuration settings.
 
+        .. versionchanged:: 0.0.7
+           'extra_response_fields'
+
         .. versionchanged:: 0.0.6
            'datasource[projection]'
            'projection',
@@ -327,6 +345,8 @@ class Eve(Flask, Events):
             settings.setdefault('auth_username_field',
                                 self.config['AUTH_USERNAME_FIELD'])
             settings.setdefault('allow_unknown', self.config['ALLOW_UNKNOWN'])
+            settings.setdefault('extra_response_fields',
+                                self.config['EXTRA_RESPONSE_FIELDS'])
 
             # empty schemas are allowed for read-only access to resources
             schema = settings.setdefault('schema', {})
@@ -372,13 +392,19 @@ class Eve(Flask, Events):
         :param schema: the resoursce schema to be intialized with default
                        values
 
+        .. versionchanged: 0.0.7
+           Setting the default 'field' value would not happen if the
+           'data_relation' was nested deeper than the first schema level (#60).
+
         .. versionadded: 0.0.5
         """
         # TODO fill schema{} defaults, like field type, etc.
-        for field, ruleset in schema.items():
-            if 'data_relation' in ruleset:
-                ruleset['data_relation'].setdefault('field',
-                                                    self.config['ID_FIELD'])
+
+        # set default 'field' value for all 'data_relation' rulesets, however
+        # nested
+        for data_relation in list(extract_key_values('data_relation', schema)):
+            data_relation.setdefault('field',
+                                     self.config['ID_FIELD'])
 
     def _add_url_rules(self):
         """ Builds the API url map. Methods are enabled for each mapped

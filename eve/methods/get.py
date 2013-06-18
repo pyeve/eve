@@ -11,22 +11,15 @@
     :license: BSD, see LICENSE for more details.
 """
 
-# TODO currently documents are returned 'as-stored', with no validation
-# against the domain model. Since validation happens when they are stored via
-# the API (PATCH/POST), validating them again seems overkill. However there
-# might be situations/scenarios where the stored document might different
-# from the domain model (ie: different API versions, or fields that should
-# be ignored by the API). Once versioning is properly implemented (or maybe
-# even before than that), a domain filter should probably be in place.
-
-from flask import current_app as app
-from flask import abort
 from datetime import datetime
+from flask import current_app as app, abort
+from common import ratelimit
 from eve.auth import requires_auth
 from eve.utils import parse_request, document_etag, document_link, \
     collection_link, home_link, querydef, resource_uri, config
 
 
+@ratelimit()
 @requires_auth('resource')
 def get(resource):
     """Retrieves the resource documents that match the current request.
@@ -86,12 +79,16 @@ def get(resource):
     return response, last_modified, etag, status
 
 
+@ratelimit()
 @requires_auth('item')
 def getitem(resource, **lookup):
     """ Retrieves and returns a single document.
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
+
+    .. versionchanged:: 0.0.7
+       Support for Rate-Limiting.
 
     .. versionchanged:: 0.0.6
        Support for HEAD requests.
@@ -151,6 +148,9 @@ def _pagination_links(resource, req, documents_count):
     :param resource: the resource name.
     :param req: and instace of :class:`eve.utils.ParsedRequest`.
     :param document_count: the number of documents returned by the query.
+
+    .. versionchanged:: 0.0.7
+       Support for Rate-Limiting.
 
     .. versionchanged:: 0.0.5
        Support for optional pagination.

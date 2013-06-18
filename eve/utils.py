@@ -260,3 +260,32 @@ def document_etag(value):
     h = hashlib.sha1()
     h.update(dumps(value, sort_keys=True))
     return h.hexdigest()
+
+
+def extract_key_values(key, d):
+    """ Extracts all values that match a key, even in nested dicts.
+
+    :param key: the lookup key.
+    :param d: the dict to scan.
+
+    .. versionadded: 0.0.7
+    """
+    if key in d:
+        yield d[key]
+    for k in d:
+        if isinstance(d[k], dict):
+            for j in extract_key_values(key, d[k]):
+                yield j
+
+
+def request_method():
+    """ Returns flask 'request.method', but taking our support for POST with
+    'X-HTTP-Method-Override' as a PATCH alternative into consideration.
+
+    .. versionadded: 0.0.7
+    """
+    if request.method == 'POST' and 'X-HTTP-Method-Override' in \
+       request.headers:
+        return 'PATCH'
+    else:
+        return request.method

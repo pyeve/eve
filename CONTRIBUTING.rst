@@ -40,8 +40,8 @@ Submitting Changes
 Join us on IRC
 --------------
 If you're interested in contributing to the Eve project or have questions
-about it come join us in our little #evehq channel on irc.freenode.net. It's
-comfy and cozy over there.
+about it come join us in our little #python-eve channel on irc.freenode.net.
+It's comfy and cozy over there.
 
 First time contributor?
 -----------------------
