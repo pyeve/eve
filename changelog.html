@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Eve Changelog &mdash; Eve 0.0.7-dev documentation</title>
+    <title>Eve Changelog &mdash; Eve 0.0.8-dev documentation</title>
     
     <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.0.7-dev',
+        VERSION:     '0.0.8-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.0.7-dev documentation" href="index.html" />
+    <link rel="top" title="Eve 0.0.8-dev documentation" href="index.html" />
     <link rel="prev" title="Licensing" href="license.html" />
    
   
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="license.html" title="Licensing"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Eve 0.0.7-dev documentation</a> &raquo;</li> 
+        <li><a href="index.html">Eve 0.0.8-dev documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -57,10 +57,17 @@
   <div class="section" id="eve-changelog">
 <span id="changelog"></span><h1>Eve Changelog<a class="headerlink" href="#eve-changelog" title="Permalink to this headline">¶</a></h1>
 <p>Here you can see the full list of changes between each Eve release.</p>
+<div class="section" id="version-0-0-8">
+<h2>Version 0.0.8<a class="headerlink" href="#version-0-0-8" title="Permalink to this headline">¶</a></h2>
+<p>Not released yet.</p>
+</div>
 <div class="section" id="version-0-0-7">
 <h2>Version 0.0.7<a class="headerlink" href="#version-0-0-7" title="Permalink to this headline">¶</a></h2>
-<p>Not released yet.</p>
+<p>Released on June 18th 2013.</p>
 <ul class="simple">
+<li>Pinned Werkzeug requirement to v0.8.3 to avoid issues with the latest
+release which breaks backward compatibility (actually a Flask 0.9
+requirements issue, which backtracked to Eve).</li>
 <li>Support for Rate Limiting on all HTTP methods. Closes #58. Please note: to
 successfully execute the tests in &#8216;eve.tests.methods.ratelimit.py`, a running
 redis server is needed.</li>
@@ -300,6 +307,7 @@ signature, allowing for further subclassing.</li>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Eve Changelog</a><ul>
+<li><a class="reference internal" href="#version-0-0-8">Version 0.0.8</a></li>
 <li><a class="reference internal" href="#version-0-0-7">Version 0.0.7</a></li>
 <li><a class="reference internal" href="#version-0-0-6">Version 0.0.6</a></li>
 <li><a class="reference internal" href="#version-0-0-5">Version 0.0.5</a></li>
