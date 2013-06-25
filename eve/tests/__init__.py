@@ -14,83 +14,28 @@ from test_settings import MONGO_PASSWORD, MONGO_USERNAME, MONGO_DBNAME,  \
                           DOMAIN, MONGO_HOST, MONGO_PORT
 
 
-class TestBase(unittest.TestCase):
+class TestMinimal(unittest.TestCase):
+    """ Start the building of the tests for an application
+    based on Eve by subclassing this class and provide proper settings
+    using :func:`setUp()`
+    """
 
-    def setUp(self):
+    def setUp(self, settings_file='eve/tests/test_settings.py'):
+        """ Prepare the test fixture
+
+        :param settings_file: the name of the settings file.  Defaults
+                              to `eve/tests/test_settings.py`.
+        """
+
         self.known_resource_count = 100
         self.setupDB()
 
-        self.settings_file = 'eve/tests/test_settings.py'
+        self.settings_file = settings_file
         self.app = Eve(settings=self.settings_file)
 
         self.test_client = self.app.test_client()
 
         self.domain = self.app.config['DOMAIN']
-
-        self.known_resource = 'contacts'
-        self.known_resource_url = ('/%s/' %
-                                   self.domain[self.known_resource]['url'])
-        self.empty_resource = 'empty'
-        self.empty_resource_url = '/%s/' % self.empty_resource
-
-        self.unknown_resource = 'unknown'
-        self.unknown_resource_url = '/%s/' % self.unknown_resource
-        self.unknown_item_id = '4f46445fc88e201858000000'
-        self.unknown_item_name = 'unknown'
-
-        self.unknown_item_id_url = ('/%s/%s/' %
-                                    (self.domain[self.known_resource]['url'],
-                                     self.unknown_item_id))
-        self.unknown_item_name_url = ('/%s/%s/' %
-                                      (self.domain[self.known_resource]['url'],
-                                      self.unknown_item_name))
-
-        self.readonly_resource = 'payments'
-        self.readonly_resource_url = (
-            '/%s/' % self.domain[self.readonly_resource]['url'])
-
-        self.different_resource = 'users'
-        self.different_resource_url = ('/%s/' %
-                                       self.domain[
-                                           self.different_resource]['url'])
-
-        response, status = self.get('contacts', '?max_results=2')
-        contact = response['_items'][0]
-        self.item_id = contact[self.app.config['ID_FIELD']]
-        self.item_name = contact['ref']
-        self.item_tid = contact['tid']
-        self.item_etag = contact['etag']
-        self.item_ref = contact['ref']
-        self.item_id_url = ('/%s/%s/' %
-                            (self.domain[self.known_resource]['url'],
-                             self.item_id))
-        self.item_name_url = ('/%s/%s/' %
-                              (self.domain[self.known_resource]['url'],
-                               self.item_name))
-        self.alt_ref = response['_items'][1]['ref']
-
-        response, status = self.get('payments', '?max_results=1')
-        self.readonly_id = response['_items'][0]['_id']
-        self.readonly_id_url = ('%s%s/' % (self.readonly_resource_url,
-                                           self.readonly_id))
-
-        response, status = self.get('users')
-        user = response['_items'][0]
-        self.user_id = user[self.app.config['ID_FIELD']]
-        self.user_username = user['username']
-        self.user_name = user['ref']
-        self.user_etag = user['etag']
-        self.user_id_url = ('/%s/%s/' %
-                            (self.domain[self.different_resource]['url'],
-                             self.user_id))
-
-        response, status = self.get('invoices')
-        invoice = response['_items'][0]
-        self.invoice_id = invoice[self.app.config['ID_FIELD']]
-        self.invoice_etag = invoice['etag']
-        self.invoice_id_url = ('/%s/%s/' %
-                               (self.domain['invoices']['url'],
-                                self.invoice_id))
 
     def tearDown(self):
         self.dropDB()
@@ -236,6 +181,12 @@ class TestBase(unittest.TestCase):
     def assert400(self, status):
         self.assertEqual(status, 400)
 
+    def assert401(self, status):
+        self.assertEqual(status, 401)
+
+    def assert401or405(self, status):
+        self.assertTrue(status == 401 or 405)
+
     def assert403(self, status):
         self.assertEqual(status, 403)
 
@@ -245,6 +196,9 @@ class TestBase(unittest.TestCase):
     def assert412(self, status):
         self.assertEqual(status, 412)
 
+    def assert500(self, status):
+        self.assertEqual(status, 500)
+
     def setupDB(self):
         self.connection = MongoClient(MONGO_HOST, MONGO_PORT)
         self.connection.drop_database(MONGO_DBNAME)
@@ -253,17 +207,83 @@ class TestBase(unittest.TestCase):
         self.bulk_insert()
 
     def bulk_insert(self):
-        _db = self.connection[MONGO_DBNAME]
-        _db.contacts.insert(self.random_contacts(self.known_resource_count))
-        _db.contacts.insert(self.random_users(2))
-        _db.payments.insert(self.random_payments(10))
-        _db.invoices.insert(self.random_invoices(1))
-        self.connection.close()
+        pass
 
     def dropDB(self):
         self.connection = MongoClient(MONGO_HOST, MONGO_PORT)
         self.connection.drop_database(MONGO_DBNAME)
         self.connection.close()
+
+
+class TestBase(TestMinimal):
+
+    def setUp(self):
+        super(TestBase, self).setUp()
+
+        self.known_resource = 'contacts'
+        self.known_resource_url = ('/%s/' %
+                                   self.domain[self.known_resource]['url'])
+        self.empty_resource = 'empty'
+        self.empty_resource_url = '/%s/' % self.empty_resource
+
+        self.unknown_resource = 'unknown'
+        self.unknown_resource_url = '/%s/' % self.unknown_resource
+        self.unknown_item_id = '4f46445fc88e201858000000'
+        self.unknown_item_name = 'unknown'
+
+        self.unknown_item_id_url = ('/%s/%s/' %
+                                    (self.domain[self.known_resource]['url'],
+                                     self.unknown_item_id))
+        self.unknown_item_name_url = ('/%s/%s/' %
+                                      (self.domain[self.known_resource]['url'],
+                                      self.unknown_item_name))
+
+        self.readonly_resource = 'payments'
+        self.readonly_resource_url = (
+            '/%s/' % self.domain[self.readonly_resource]['url'])
+
+        self.different_resource = 'users'
+        self.different_resource_url = ('/%s/' %
+                                       self.domain[
+                                           self.different_resource]['url'])
+
+        response, status = self.get('contacts', '?max_results=2')
+        contact = response['_items'][0]
+        self.item_id = contact[self.app.config['ID_FIELD']]
+        self.item_name = contact['ref']
+        self.item_tid = contact['tid']
+        self.item_etag = contact['etag']
+        self.item_ref = contact['ref']
+        self.item_id_url = ('/%s/%s/' %
+                            (self.domain[self.known_resource]['url'],
+                             self.item_id))
+        self.item_name_url = ('/%s/%s/' %
+                              (self.domain[self.known_resource]['url'],
+                               self.item_name))
+        self.alt_ref = response['_items'][1]['ref']
+
+        response, status = self.get('payments', '?max_results=1')
+        self.readonly_id = response['_items'][0]['_id']
+        self.readonly_id_url = ('%s%s/' % (self.readonly_resource_url,
+                                           self.readonly_id))
+
+        response, status = self.get('users')
+        user = response['_items'][0]
+        self.user_id = user[self.app.config['ID_FIELD']]
+        self.user_username = user['username']
+        self.user_name = user['ref']
+        self.user_etag = user['etag']
+        self.user_id_url = ('/%s/%s/' %
+                            (self.domain[self.different_resource]['url'],
+                             self.user_id))
+
+        response, status = self.get('invoices')
+        invoice = response['_items'][0]
+        self.invoice_id = invoice[self.app.config['ID_FIELD']]
+        self.invoice_etag = invoice['etag']
+        self.invoice_id_url = ('/%s/%s/' %
+                               (self.domain['invoices']['url'],
+                                self.invoice_id))
 
     def random_contacts(self, num, standard_date_fields=True):
         schema = DOMAIN['contacts']['schema']
@@ -344,3 +364,11 @@ class TestBase(unittest.TestCase):
                 }
             )
         return rows
+
+    def bulk_insert(self):
+        _db = self.connection[MONGO_DBNAME]
+        _db.contacts.insert(self.random_contacts(self.known_resource_count))
+        _db.contacts.insert(self.random_users(2))
+        _db.payments.insert(self.random_payments(10))
+        _db.invoices.insert(self.random_invoices(1))
+        self.connection.close()
