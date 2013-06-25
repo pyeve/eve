@@ -11,12 +11,10 @@ Eve-Docs
 
 | *by Charles Flynn*
 
-The Eve-docs_ blueprint extends these capabilities with API documentation.
-You activate the blueprint in your launch script, and Eve-docs creates the
-documentation from your existing Eve configuration file, with no additional
-configuration required. For a nice screenshot check out the relevant blog post,
-`Auto generate API docs`_.
-
+Eve-docs_ is a blueprint that generates documentation for Eve APIs in HTML and
+JSON formats. Eve-docs creates the documentation from your existing Eve
+configuration file, with no additional configuration required. For a nice
+screenshot check out the relevant blog post `Auto generate API docs`_.
 
 Eve-Mocker
 ----------
