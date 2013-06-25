@@ -15,8 +15,18 @@ from test_settings import MONGO_PASSWORD, MONGO_USERNAME, MONGO_DBNAME,  \
 
 
 class TestMinimal(unittest.TestCase):
+    """ Start the building of the tests for an application
+    based on Eve by subclassing this class and provide proper settings
+    using :func:`setUp()`
+    """
 
     def setUp(self, settings_file='eve/tests/test_settings.py'):
+        """ Prepare the test fixture
+
+        :param settings_file: the name of the settings file.  Defaults
+                              to `eve/tests/test_settings.py`.
+        """
+
         self.known_resource_count = 100
         self.setupDB()
 
