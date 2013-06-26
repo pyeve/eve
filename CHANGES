@@ -8,6 +8,10 @@ Version 0.0.8
 
 Not released yet.
 
+- ``TestMininal`` class added to the test suite. This will allow to start the
+  building of the tests for an application based on Eve, by subclassing the
+  TestMinimal class (Daniele Pizzolli).
+
 Version 0.0.7
 -------------
 
