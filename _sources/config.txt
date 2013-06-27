@@ -248,7 +248,6 @@ uppercase.
                                 overridden by resource settings. Defaults to
                                 ``[]``, effectively disabling the feature.
 
-
 ``RATE_LIMIT_GET``              A tuple expressing the rate limit on GET 
                                 requests. The first element of the tuple is 
                                 the number of requests allowed, while the
@@ -305,6 +304,24 @@ uppercase.
                                 injection attacks. Javascript queries also tend
                                 to be slow and generally can be easily replaced
                                 with the (very rich) Mongo query dialect.
+
+``MONGO_WRITE_CONCERN``         A dictionary defining MongoDB write concern
+                                settings. All stadard write concern settings 
+                                (w, wtimeout, j, fsync) are supported. Defaults
+                                to ``{'w': 1}`` which means 'do regular
+                                aknowledged writes' (this is also the Mongo
+                                default.)
+
+                                Please be aware that setting 'w' to a value of
+                                2 or greater requires replication to be active
+                                or you will be getting 500 errors (the write
+                                will still happen; Mongo will just be unable
+                                to check that it's being written to multiple
+                                servers.)
+                                
+                                Can be overridden at endpoint (Mongo
+                                collection) level. See ``mongo_write_concern``
+                                below.
 
 ``DOMAIN``                      A dict holding the API domain definition.
                                 See `Domain Configuration`_.
@@ -452,7 +469,20 @@ always lowercase.
                                 are included in response payloads. Overrides
                                 ``EXTRA_RESPONSE_FIELDS``. 
 
+``mongo_write_concern``         A dictionary defining MongoDB write concern
+                                settings for the endpoint datasource. All
+                                stadard write concern settings (w, wtimeout, j,
+                                fsync) are supported. Defaults to ``{'w': 1}``
+                                which means 'do regular aknowledged writes'
+                                (this is also the Mongo default.)
 
+                                Please be aware that setting 'w' to a value of
+                                2 or greater requires replication to be active
+                                or you will be getting 500 errors (the write
+                                will still happen; Mongo will just be unable
+                                to check that it's being written to multiple
+                                servers.)
+                                
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data
                                 validation. See `Schema Definition`_.
