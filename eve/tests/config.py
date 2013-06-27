@@ -48,6 +48,7 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.config['MONGO_PORT'], 27017)
         self.assertEqual(self.app.config['MONGO_QUERY_BLACKLIST'], ['$where',
                                                                     '$regex'])
+        self.assertEqual(self.app.config['MONGO_WRITE_CONCERN'], {'w': 1})
 
     def test_unexisting_pyfile_config(self):
         self.assertRaises(IOError, Eve, settings='an_unexisting_pyfile.py')
@@ -180,6 +181,8 @@ class TestConfig(TestBase):
                          self.app.config['ALLOW_UNKNOWN'])
         self.assertEqual(settings['extra_response_fields'],
                          self.app.config['EXTRA_RESPONSE_FIELDS'])
+        self.assertEqual(settings['mongo_write_concern'],
+                         self.app.config['MONGO_WRITE_CONCERN'])
 
         self.assertNotEqual(settings['schema'], None)
         self.assertEqual(type(settings['schema']), dict)

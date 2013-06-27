@@ -8,6 +8,11 @@ Version 0.0.8
 
 Not released yet.
 
+- It is now possible to set the MongoDB write concern level at both global
+  (``MONGO_WRITE_CONCERN``) and endpoint (``mongo_write_concern``) levels. The
+  value is a dictionary with all valid MongoDB write_concern settings (w,
+  wtimeout, j and fsync) as keys. ``{'w': 1}`` is the default, which is
+  also MongoDB's default setting.
 - ``TestMininal`` class added to the test suite. This will allow to start the
   building of the tests for an application based on Eve, by subclassing the
   TestMinimal class (Daniele Pizzolli).

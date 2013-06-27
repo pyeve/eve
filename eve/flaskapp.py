@@ -286,6 +286,9 @@ class Eve(Flask, Events):
         """ When not provided, fills individual resource settings with default
         or global configuration settings.
 
+        .. versionchanged:: 0.0.8
+           'mongo_write_concern'
+
         .. versionchanged:: 0.0.7
            'extra_response_fields'
 
@@ -347,6 +350,8 @@ class Eve(Flask, Events):
             settings.setdefault('allow_unknown', self.config['ALLOW_UNKNOWN'])
             settings.setdefault('extra_response_fields',
                                 self.config['EXTRA_RESPONSE_FIELDS'])
+            settings.setdefault('mongo_write_concern',
+                                self.config['MONGO_WRITE_CONCERN'])
 
             # empty schemas are allowed for read-only access to resources
             schema = settings.setdefault('schema', {})

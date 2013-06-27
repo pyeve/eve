@@ -15,6 +15,12 @@ class TestDelete(TestBase):
         self.assert200(status)
         self.assertEqual(len(r['_items']), 0)
 
+    def test_delete_from_resource_endpoint_write_concern(self):
+        # should get a 500 since there's no replicaset on the mongod instance
+        self.domain['contacts']['mongo_write_concern'] = {'w': 2}
+        r, status = self.delete(self.known_resource_url)
+        self.assert500(status)
+
     def test_delete_from_resource_endpoint_different_resource(self):
         r, status = self.delete(self.different_resource_url)
         self.assert200(status)
@@ -60,6 +66,13 @@ class TestDelete(TestBase):
 
         r = self.test_client.get(self.item_id_url)
         self.assert404(r.status_code)
+
+    def test_delete_write_concern(self):
+        # should get a 500 since there's no replicaset on the mongod instance
+        self.domain['contacts']['mongo_write_concern'] = {'w': 2}
+        r, status = self.delete(self.item_id_url,
+                                headers=[('If-Match', self.item_etag)])
+        self.assert500(status)
 
     def test_delete_different_resource(self):
         r, status = self.delete(self.user_id_url,
