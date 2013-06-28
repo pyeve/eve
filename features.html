@@ -292,6 +292,10 @@ example:</p>
         <span class="s">&quot;next&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;localhost:5000/people/?page=2&quot;</span><span class="p">,</span>
             <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;next page&quot;</span>
+        <span class="p">},</span>
+        <span class="s">&quot;last&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;localhost:5000/people/?page=10&quot;</span><span class="p">,</span>
+            <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;last page&quot;</span>
         <span class="p">}</span>
     <span class="p">}</span>
 <span class="p">}</span>
@@ -300,6 +304,8 @@ example:</p>
 <p>A GET request to the API home page (the API entry point) will be served with
 a list of links to accessible resources. From there, any client could navigate
 the API just by following the links provided with every response.</p>
+<p>Please note that <tt class="docutils literal"><span class="pre">next</span></tt>, <tt class="docutils literal"><span class="pre">previous</span></tt> and <tt class="docutils literal"><span class="pre">last</span></tt> items will only be
+included when appropriate.</p>
 </div>
 <div class="section" id="json-and-xml-rendering">
 <h2>JSON and XML Rendering<a class="headerlink" href="#json-and-xml-rendering" title="Permalink to this headline">¶</a></h2>

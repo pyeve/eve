@@ -61,11 +61,15 @@
 <h2>Version 0.0.8<a class="headerlink" href="#version-0-0-8" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>Responses to GET requests for resource endpoints now include a <tt class="docutils literal"><span class="pre">last</span></tt> item
+in the <cite>_links</cite> dictionary. The value is a link to the last page available.
+The item itself is only provided if pagination is enabled and the page being
+requested isn&#8217;t the last one. Closes #62.</li>
 <li>It is now possible to set the MongoDB write concern level at both global
 (<tt class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></tt>) and endpoint (<tt class="docutils literal"><span class="pre">mongo_write_concern</span></tt>) levels. The
 value is a dictionary with all valid MongoDB write_concern settings (w,
-wtimeout, j and fsync) as keys. <tt class="docutils literal"><span class="pre">{'w':</span> <span class="pre">1}</span></tt> is the default, which is
-also MongoDB&#8217;s default setting.</li>
+wtimeout, j and fsync) as keys. <tt class="docutils literal"><span class="pre">{'w':</span> <span class="pre">1}</span></tt> is the default, which is also
+MongoDB&#8217;s default setting.</li>
 <li><tt class="docutils literal"><span class="pre">TestMininal</span></tt> class added to the test suite. This will allow to start the
 building of the tests for an application based on Eve, by subclassing the
 TestMinimal class (Daniele Pizzolli).</li>
