@@ -228,6 +228,10 @@ example:
             "next": {
                 "href": "localhost:5000/people/?page=2", 
                 "title": "next page" 
+            },
+            "last": {
+                "href": "localhost:5000/people/?page=10", 
+                "title": "last page" 
             } 
         } 
     }
@@ -235,6 +239,9 @@ example:
 A GET request to the API home page (the API entry point) will be served with
 a list of links to accessible resources. From there, any client could navigate
 the API just by following the links provided with every response.
+
+Please note that ``next``, ``previous`` and ``last`` items will only be
+included when appropriate. 
 
 JSON and XML Rendering
 ----------------------

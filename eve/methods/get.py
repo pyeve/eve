@@ -11,6 +11,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
+import math
 from datetime import datetime
 from flask import current_app as app, abort
 from common import ratelimit
@@ -149,6 +150,10 @@ def _pagination_links(resource, req, documents_count):
     :param req: and instace of :class:`eve.utils.ParsedRequest`.
     :param document_count: the number of documents returned by the query.
 
+    .. versionchanged:: 0.0.8
+       Link to last page is provided if pagination is enabled (and the current
+       page is not the last one).
+
     .. versionchanged:: 0.0.7
        Support for Rate-Limiting.
 
@@ -165,6 +170,17 @@ def _pagination_links(resource, req, documents_count):
             q = querydef(req.max_results, req.where, req.sort, req.page + 1)
             _links['next'] = {'title': 'next page', 'href': '%s%s' %
                               (resource_uri(resource), q)}
+
+            # in python 2.x dividing 2 ints produces an int and that's rounded
+            # before the ceil call. Have to cast one value to float to get
+            # a correct result. Wonder if 2 casts + ceil() call are actually
+            # faster than documents_count // req.max_results and then adding
+            # 1 if the modulo is non-zero...
+            last_page = int(math.ceil(documents_count
+                                      / float(req.max_results)))
+            q = querydef(req.max_results, req.where, req.sort, last_page)
+            _links['last'] = {'title': 'last page', 'href': '%s%s'
+                              % (resource_uri(resource), q)}
 
         if req.page > 1:
             q = querydef(req.max_results, req.where, req.sort, req.page - 1)

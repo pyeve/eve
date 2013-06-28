@@ -10,8 +10,8 @@ from datetime import datetime, timedelta
 from flask.ext.pymongo import MongoClient
 from bson import ObjectId
 from eve import Eve, STATUS_ERR
-from test_settings import MONGO_PASSWORD, MONGO_USERNAME, MONGO_DBNAME,  \
-                          DOMAIN, MONGO_HOST, MONGO_PORT
+from test_settings import MONGO_PASSWORD, MONGO_USERNAME, MONGO_DBNAME, \
+    DOMAIN, MONGO_HOST, MONGO_PORT
 
 
 class TestMinimal(unittest.TestCase):
@@ -27,7 +27,7 @@ class TestMinimal(unittest.TestCase):
                               to `eve/tests/test_settings.py`.
         """
 
-        self.known_resource_count = 100
+        self.known_resource_count = 101
         self.setupDB()
 
         self.settings_file = settings_file
@@ -178,6 +178,17 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue('href' in link)
         self.assertTrue('/%s/' % item_id in link['href'])
 
+    def assertLastLink(self, links, page):
+        if page:
+            self.assertTrue('last' in links)
+            link = links['last']
+            self.assertTrue('title' in link)
+            self.assertTrue('href' in link)
+            self.assertEqual('last page', link['title'])
+            self.assertTrue("page=%d" % page in link['href'])
+        else:
+            self.assertTrue('last' not in links)
+
     def assert400(self, status):
         self.assertEqual(status, 400)
 
@@ -203,7 +214,8 @@ class TestMinimal(unittest.TestCase):
         self.connection = MongoClient(MONGO_HOST, MONGO_PORT)
         self.connection.drop_database(MONGO_DBNAME)
         if MONGO_USERNAME:
-            self.connection[MONGO_DBNAME].add_user(MONGO_USERNAME, MONGO_PASSWORD)
+            self.connection[MONGO_DBNAME].add_user(MONGO_USERNAME,
+                                                   MONGO_PASSWORD)
         self.bulk_insert()
 
     def bulk_insert(self):
