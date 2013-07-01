@@ -294,7 +294,7 @@ be used to store the owner of the document. It can be done at a global level
 (all endpoints will use the same field) and/or at endpoint level (see feature
 documentation for details). Let&#8217;s just set the global field name in our
 settings file:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">AUTH_USERFIELD_NAME</span><span class="p">:</span> <span class="s">&#39;username&#39;</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">AUTH_USERNAME_FIELD</span><span class="p">:</span> <span class="s">&#39;username&#39;</span>
 </pre></div>
 </div>
 <p>This is all we need to do. Now, when a user hits the, say, <tt class="docutils literal"><span class="pre">/invoices/</span></tt>
@@ -504,9 +504,9 @@ methods. See <a class="reference internal" href="../authentication.html#auth"><e
 <h3>6. Only allowing access to account resources<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <p>This is achieved with the <a class="reference internal" href="../authentication.html#user-restricted"><em>User-Restricted Resource Access</em></a> feature, as seen in
 <a class="reference internal" href="#accounts-basic"><em>Accounts with Basic Authentication</em></a>. Update the settings file with the following global
-setting (or use the local <tt class="docutils literal"><span class="pre">auth_userfield_name</span></tt> if you only want to enable
+setting (or use the local <tt class="docutils literal"><span class="pre">auth_username_field</span></tt> if you only want to enable
 the feature on selected endpoints):</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">AUTH_USERFIELD_NAME</span><span class="p">:</span> <span class="s">&#39;token&#39;</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">AUTH_USERNAME_FIELD</span><span class="p">:</span> <span class="s">&#39;token&#39;</span>
 </pre></div>
 </div>
 <p>Stored documents will be associated with their account token. When a user hits
