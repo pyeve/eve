@@ -8,6 +8,8 @@ Version 0.0.8
 
 Not released yet.
 
+- Documentation fix: ``AUTH_USERFIELD_NAME`` renamed to ``AUTH_USERNAME_FIELD``
+  (Julien Barbot).
 - Responses to GET requests for resource endpoints now include a ``last`` item
   in the `_links` dictionary. The value is a link to the last page available.
   The item itself is only provided if pagination is enabled and the page being

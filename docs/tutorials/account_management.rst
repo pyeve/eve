@@ -261,7 +261,7 @@ settings file:
 
 .. code-block:: python
 
-    AUTH_USERFIELD_NAME: 'username'
+    AUTH_USERNAME_FIELD: 'username'
 
 This is all we need to do. Now, when a user hits the, say, ``/invoices/``
 endpoint with a GET request, he will only be served with the invoices created
@@ -484,12 +484,12 @@ methods. See :ref:`auth` for more details.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This is achieved with the :ref:`user-restricted` feature, as seen in
 :ref:`accounts_basic`. Update the settings file with the following global
-setting (or use the local ``auth_userfield_name`` if you only want to enable
+setting (or use the local ``auth_username_field`` if you only want to enable
 the feature on selected endpoints):
 
 .. code-block:: python
 
-    AUTH_USERFIELD_NAME: 'token'
+    AUTH_USERNAME_FIELD: 'token'
 
 Stored documents will be associated with their account token. When a user hits
 the, say, ``/invoices/`` endpoint with a GET request, he will only be served
