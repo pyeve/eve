@@ -402,7 +402,7 @@ stored by the API. A filter on the same header is also transparently applied to
 all read, edit and delete requests. 
 
 ``AUTH_USERNAME_FIELD`` defines the  name of the database field used to store
-the `Authorization.username` header. ``auth_userfield_name`` is the
+the `Authorization.username` header. ``auth_username_field`` is the
 resource-level equivalent, which allows to effectively override the global
 setting, if present.  
 
