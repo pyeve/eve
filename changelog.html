@@ -61,6 +61,13 @@
 <h2>Version 0.0.8<a class="headerlink" href="#version-0-0-8" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li><tt class="docutils literal"><span class="pre">on_getting</span></tt>, <tt class="docutils literal"><span class="pre">on_getting_&lt;resource&gt;</span></tt> and <tt class="docutils literal"><span class="pre">on_getting_item</span></tt> event
+hooks. These events are raised when documents have just been read from the
+database and are about to be sent to the client. Registered callback
+functions can eventually manipulate the documents as needed. Please be aware
+that <tt class="docutils literal"><span class="pre">last_modified</span></tt> and <tt class="docutils literal"><span class="pre">etag</span></tt> headers will always be consistent with
+the state of the documents on the database (they  won&#8217;t be updated to reflect
+changes eventually applied by the callback functions). Closes #65.</li>
 <li>Documentation fix: <tt class="docutils literal"><span class="pre">AUTH_USERFIELD_NAME</span></tt> renamed to <tt class="docutils literal"><span class="pre">AUTH_USERNAME_FIELD</span></tt>
 (Julien Barbot).</li>
 <li>Responses to GET requests for resource endpoints now include a <tt class="docutils literal"><span class="pre">last</span></tt> item

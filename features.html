@@ -554,12 +554,12 @@ payload as arguments.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="section" id="manipulating-documents-on-insertion">
-<h3>Manipulating documents on insertion<a class="headerlink" href="#manipulating-documents-on-insertion" title="Permalink to this headline">¶</a></h3>
-<p>There is also support for <tt class="docutils literal"><span class="pre">on_posting</span></tt> and <tt class="docutils literal"><span class="pre">on_posting_&lt;resource&gt;</span></tt> event
-hooks, raised when documents are about to be stored in the database.  Callback
-functions could hook to these events to arbitrarily add new fields, or edit
-existing ones.</p>
+<div class="section" id="manipulating-inbound-documents">
+<h3>Manipulating inbound documents<a class="headerlink" href="#manipulating-inbound-documents" title="Permalink to this headline">¶</a></h3>
+<p>There is also support for <tt class="docutils literal"><span class="pre">on_posting(resource,</span> <span class="pre">documents)</span></tt> and
+<tt class="docutils literal"><span class="pre">on_posting_&lt;resource&gt;(documents)</span></tt> event hooks, raised when documents are
+about to be stored in the database.  Callback functions could hook to these
+events to arbitrarily add new fields, or edit existing ones.</p>
 <div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_post</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">documents</span><span class="p">):</span>
 <span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to store documents to &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource</span>
 
@@ -577,9 +577,20 @@ existing ones.</p>
 <tt class="docutils literal"><span class="pre">on_posting_&lt;resource&gt;</span></tt> is raised when the <cite>&lt;resource&gt;</cite> endpoint has been hit
 with a POST request. In both circumstances the event will be raised only if at
 least one document passed validation and is going to be inserted. <cite>documents</cite>
-is a list, and  only contains documents ready for insertion (payload
-documents that did not pass validation are not included).</p>
+is a list, and  only contains documents ready for insertion (payload documents
+that did not pass validation are not included).</p>
 <p>To provide seamless event handling features, Eve relies on the <a class="reference external" href="https://github.com/nicolaiarocci/events">Events</a> package.</p>
+</div>
+<div class="section" id="manipulationg-outbound-documents">
+<h3>Manipulationg outbound documents<a class="headerlink" href="#manipulationg-outbound-documents" title="Permalink to this headline">¶</a></h3>
+<p>The <tt class="docutils literal"><span class="pre">on_getting(resource,</span> <span class="pre">documents)</span></tt>, <tt class="docutils literal"><span class="pre">on_getting_&lt;resource&gt;(documents)</span></tt>
+and <tt class="docutils literal"><span class="pre">on_getting_item(resource,</span> <span class="pre">_id,</span> <span class="pre">document)</span></tt> event hooks are raised when
+documents have just been read from the database and are about to be sent to the
+client. Registered callback functions can eventually manipulate the documents
+as needed.</p>
+<p>Please be aware that <tt class="docutils literal"><span class="pre">last_modified</span></tt> and <tt class="docutils literal"><span class="pre">etag</span></tt> headers will always be
+consistent with the state of the documents on the database (they  won&#8217;t be
+updated to reflect changes eventually applied by the callback functions).</p>
 </div>
 </div>
 <div class="section" id="rate-limiting">
@@ -677,7 +688,8 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li><a class="reference internal" href="#predefined-database-filters">Predefined Database Filters</a></li>
 <li><a class="reference internal" href="#projections">Projections</a></li>
 <li><a class="reference internal" href="#event-hooks">Event Hooks</a><ul>
-<li><a class="reference internal" href="#manipulating-documents-on-insertion">Manipulating documents on insertion</a></li>
+<li><a class="reference internal" href="#manipulating-inbound-documents">Manipulating inbound documents</a></li>
+<li><a class="reference internal" href="#manipulationg-outbound-documents">Manipulationg outbound documents</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#rate-limiting">Rate Limiting</a></li>
