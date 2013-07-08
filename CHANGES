@@ -8,6 +8,13 @@ Version 0.0.8
 
 Not released yet.
 
+- ``on_getting``, ``on_getting_<resource>`` and ``on_getting_item`` event
+  hooks. These events are raised when documents have just been read from the
+  database and are about to be sent to the client. Registered callback
+  functions can eventually manipulate the documents as needed. Please be aware
+  that ``last_modified`` and ``etag`` headers will always be consistent with
+  the state of the documents on the database (they  won't be updated to reflect
+  changes eventually applied by the callback functions). Closes #65.
 - Documentation fix: ``AUTH_USERFIELD_NAME`` renamed to ``AUTH_USERNAME_FIELD``
   (Julien Barbot).
 - Responses to GET requests for resource endpoints now include a ``last`` item

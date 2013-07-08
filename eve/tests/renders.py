@@ -87,6 +87,7 @@ class TestRenders(TestBase):
 
 
 class TestEventHooks(TestBase):
+    #TODO not sure this is the right place for this class really.
 
     def setUp(self):
         super(TestEventHooks, self).setUp()
@@ -193,6 +194,32 @@ class TestEventHooks(TestBase):
             self.passed = True
         self.app.on_posting_contacts += resource_hook
         self.post()
+        self.assertTrue(self.passed)
+
+    def test_on_getting(self):
+        def general_hook(resource, documents):
+            self.assertEqual(resource, self.known_resource)
+            self.assertEqual(len(documents), 25)
+            self.passed = True
+        self.app.on_getting += general_hook
+        self.test_client.get(self.known_resource_url)
+        self.assertTrue(self.passed)
+
+    def test_on_getting_resource(self):
+        def resource_hook(documents):
+            self.assertEqual(len(documents), 25)
+            self.passed = True
+        self.app.on_getting_contacts += resource_hook
+        self.test_client.get(self.known_resource_url)
+        self.assertTrue(self.passed)
+
+    def test_on_getting_item(self):
+        def item_hook(resource, _id, document):
+            print _id, self.item_id
+            self.assertEqual(str(_id), self.item_id)
+            self.passed = True
+        self.app.on_getting_item += item_hook
+        self.test_client.get(self.item_id_url)
         self.assertTrue(self.passed)
 
     def post(self, extra=None):

@@ -526,12 +526,12 @@ payload as arguments.
 
     >>> app.run()
 
-Manipulating documents on insertion
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-There is also support for ``on_posting`` and ``on_posting_<resource>`` event
-hooks, raised when documents are about to be stored in the database.  Callback
-functions could hook to these events to arbitrarily add new fields, or edit
-existing ones.
+Manipulating inbound documents 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+There is also support for ``on_posting(resource, documents)`` and
+``on_posting_<resource>(documents)`` event hooks, raised when documents are
+about to be stored in the database.  Callback functions could hook to these
+events to arbitrarily add new fields, or edit existing ones.
 
 .. code-block:: pycon
 
@@ -551,10 +551,23 @@ existing ones.
 ``on_posting_<resource>`` is raised when the `<resource>` endpoint has been hit
 with a POST request. In both circumstances the event will be raised only if at
 least one document passed validation and is going to be inserted. `documents`
-is a list, and  only contains documents ready for insertion (payload
-documents that did not pass validation are not included).
+is a list, and  only contains documents ready for insertion (payload documents
+that did not pass validation are not included).
 
 To provide seamless event handling features, Eve relies on the Events_ package.
+
+Manipulationg outbound documents
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``on_getting(resource, documents)``, ``on_getting_<resource>(documents)``
+and ``on_getting_item(resource, _id, document)`` event hooks are raised when
+documents have just been read from the database and are about to be sent to the
+client. Registered callback functions can eventually manipulate the documents
+as needed. 
+
+Please be aware that ``last_modified`` and ``etag`` headers will always be
+consistent with the state of the documents on the database (they  won't be
+updated to reflect changes eventually applied by the callback functions).
+
 
 Rate Limiting
 -------------
