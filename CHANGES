@@ -8,6 +8,10 @@ Version 0.0.8
 
 Not released yet.
 
+- ``float`` is now available as a data-type in the schema definition ruleset.
+- ``nullable`` field schema rule is now available. If ``True`` the field value
+  can be set to null. Defaults to ``False``.
+- v0.3.0 of Cerberus is now a requirement.
 - ``on_getting``, ``on_getting_<resource>`` and ``on_getting_item`` event
   hooks. These events are raised when documents have just been read from the
   database and are about to be sent to the client. Registered callback

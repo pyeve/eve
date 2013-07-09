@@ -23,7 +23,7 @@ setup(
         'flask==0.9',
         'jinja2==2.7',
         'flask-pymongo>=0.2.0',
-        'cerberus>=0.2.0',
+        'cerberus>=0.3.0',
         'simplejson',
         'events'
     ],
