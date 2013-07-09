@@ -678,7 +678,8 @@ defining the field validation rules. Allowed validation rules are:</p>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">type</span></tt></td>
 <td>Field data type. Can be one of the following:
 <tt class="docutils literal"><span class="pre">string</span></tt>, <tt class="docutils literal"><span class="pre">integer</span></tt>, <tt class="docutils literal"><span class="pre">boolean</span></tt>,
-<tt class="docutils literal"><span class="pre">datetime</span></tt>, <tt class="docutils literal"><span class="pre">dict</span></tt>, <tt class="docutils literal"><span class="pre">list</span></tt>, <tt class="docutils literal"><span class="pre">objectid</span></tt>.</td>
+<tt class="docutils literal"><span class="pre">float</span></tt>, <tt class="docutils literal"><span class="pre">datetime</span></tt>, <tt class="docutils literal"><span class="pre">dict</span></tt>, <tt class="docutils literal"><span class="pre">list</span></tt>,
+<tt class="docutils literal"><span class="pre">objectid</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">required</span></tt></td>
 <td>If <tt class="docutils literal"><span class="pre">True</span></tt> the field is mandatory on
@@ -739,6 +740,10 @@ validate. It is a dict with two keys:
 database collection being referenced, and
 <tt class="docutils literal"><span class="pre">field</span></tt>, the field name in the foreign
 collection.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">nullable</span></tt></td>
+<td>If <tt class="docutils literal"><span class="pre">True</span></tt> the field value can be set to
+<tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
 </tbody>
 </table>

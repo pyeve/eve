@@ -564,8 +564,9 @@ defining the field validation rules. Allowed validation rules are:
 
 =============================== ==============================================
 ``type``                        Field data type. Can be one of the following:
-                                ``string``, ``integer``, ``boolean``, 
-                                ``datetime``, ``dict``, ``list``, ``objectid``.
+                                ``string``, ``integer``, ``boolean``,
+                                ``float``, ``datetime``, ``dict``, ``list``,
+                                ``objectid``.
 
 ``required``                    If ``True`` the field is mandatory on
                                 insertion.
@@ -617,6 +618,9 @@ defining the field validation rules. Allowed validation rules are:
                                 database collection being referenced, and
                                 ``field``, the field name in the foreign
                                 collection.
+
+``nullable``                    If ``True`` the field value can be set to 
+                                ``None``. 
 =============================== ==============================================
 
 Schema syntax is based on Cerberus_ and yes, it can be extended.  In fact, Eve

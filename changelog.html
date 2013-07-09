@@ -61,6 +61,10 @@
 <h2>Version 0.0.8<a class="headerlink" href="#version-0-0-8" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li><tt class="docutils literal"><span class="pre">float</span></tt> is now available as a data-type in the schema definition ruleset.</li>
+<li><tt class="docutils literal"><span class="pre">nullable</span></tt> field schema rule is now available. If <tt class="docutils literal"><span class="pre">True</span></tt> the field value
+can be set to null. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</li>
+<li>v0.3.0 of Cerberus is now a requirement.</li>
 <li><tt class="docutils literal"><span class="pre">on_getting</span></tt>, <tt class="docutils literal"><span class="pre">on_getting_&lt;resource&gt;</span></tt> and <tt class="docutils literal"><span class="pre">on_getting_item</span></tt> event
 hooks. These events are raised when documents have just been read from the
 database and are about to be sent to the client. Registered callback
