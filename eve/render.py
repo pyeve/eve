@@ -154,7 +154,6 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         resp.headers.add('Access-Control-Allow-Methods', methods)
         resp.headers.add('Access-Control-Allow-Max-Age', 21600)
 
-
     # Rate-Limiting
     limit = get_rate_limit()
     if limit and limit.send_x_headers:
