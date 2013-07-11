@@ -232,7 +232,6 @@ class TestEventHooks(TestBase):
 
     def test_on_getting_item(self):
         def item_hook(resource, _id, document):
-            print _id, self.item_id
             self.assertEqual(str(_id), self.item_id)
             self.passed = True
         self.app.on_getting_item += item_hook
