@@ -58,8 +58,6 @@ class TestRenders(TestBase):
         self.assertFalse('Access-Control-Allow-Origin' in r.headers)
         self.assertFalse('Access-Control-Allow-Methods' in r.headers)
         self.assertFalse('Access-Control-Allow-Max-Age' in r.headers)
-
-        print url
         self.assert200(r.status_code)
 
         self.app.config['X_DOMAINS'] = '*'

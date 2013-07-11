@@ -141,7 +141,9 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         else:
             domains = config.X_DOMAINS
 
-        if isinstance(config.X_HEADERS, basestring):
+        if config.X_HEADERS is None:
+            headers = []
+        elif isinstance(config.X_HEADERS, basestring):
             headers = [config.X_HEADERS]
         else:
             headers = config.X_HEADERS
