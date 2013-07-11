@@ -1,8 +1,11 @@
-RESTful APIs Made Simple
-========================
+.. meta::
+   :description: Python REST API Framework to effortlessly build and deploy full featured, highly customizable RESTful Web Services. Powerd by Flask, MongoDB, Redis and good intentions.  
 
-*Eve is an out-of-the-box, highly customizable and fully featured RESTful Web
-API framework that you can use to effortlessly build and deploy your own APIs*
+Python REST API Framework
+=========================
+*Powered by Flask, MongoDB, Redis and good intentions, Eve allows to
+effortlessly build and deploy highly customizable, fully featured RESTful Web
+Services*
 
 Eve is Simple
 -------------

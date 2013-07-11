@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 from setuptools import setup, find_packages
-
-DESCRIPTION = ("RESTful Web API Made Simple")
+DESCRIPTION = ("REST API framework to effortlessly build and deploy highly "
+               "customizable, fully featured RESTful Web Services. Powered "
+               "by Flask, MongoDB and good intentions.")
 LONG_DESCRIPTION = open('README.rst').read()
 #VERSION = __import__('eve').__version__
 
