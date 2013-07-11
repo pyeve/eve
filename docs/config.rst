@@ -181,6 +181,13 @@ uppercase.
                                 values are: ``None``, a list of domains or '*'
                                 for a wide-open API. Defaults to ``None``.
 
+``X_HEADERS``                   CORS (Cross-Origin Resource Sharing) support. 
+                                Allows API maintainers to specify which headers
+                                are allowed to be sent with CORS requests. Allowed
+                                values are: ``None`` or a list of headers names.
+                                Defaults to ``None``.
+                                
+
 ``LAST_UPDATED``                Name of the field used to record a document's 
                                 last update date. This field is automatically
                                 handled the Eve. Defaults to ``updated``.

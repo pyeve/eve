@@ -2,7 +2,7 @@
 
 from eve.tests import TestBase
 import simplejson as json
-
+from eve.utils import api_prefix
 
 class TestRenders(TestBase):
 
@@ -53,37 +53,56 @@ class TestRenders(TestBase):
         self.assertEqual(r.headers['Access-Control-Allow-Origin'],
                          'http://example.com, http://1on1.com')
 
-    def test_CORS_OPTIONS(self):
-        r = self.test_client.open('/', method='OPTIONS')
+    def test_CORS_OPTIONS(self,url='/',methods=[]):
+        r = self.test_client.open(url, method='OPTIONS')
         self.assertFalse('Access-Control-Allow-Origin' in r.headers)
         self.assertFalse('Access-Control-Allow-Methods' in r.headers)
         self.assertFalse('Access-Control-Allow-Max-Age' in r.headers)
+        self.assert200(r.status_code)
 
         self.app.config['X_DOMAINS'] = '*'
-        r = self.test_client.open('/', method='OPTIONS',
+        r = self.test_client.open(url, method='OPTIONS',
                                   headers=[('Origin', 'http://example.com')])
+        self.assert200(r.status_code)
         self.assertEqual(r.headers['Access-Control-Allow-Origin'], '*')
+        for m in methods:
+            self.assertTrue(m in r.headers['Access-Control-Allow-Methods'])
+
 
         self.app.config['X_DOMAINS'] = ['http://example.com',
                                         'http://1on1.com']
-        r = self.test_client.open('/', method='OPTIONS',
+        r = self.test_client.open(url, method='OPTIONS',
                                   headers=[('Origin', 'http://example.com')])
+        self.assert200(r.status_code)
         self.assertEqual(r.headers['Access-Control-Allow-Origin'],
                          'http://example.com, http://1on1.com')
+
+        for m in methods:
+            self.assertTrue(m in r.headers['Access-Control-Allow-Methods'])
 
         self.assertTrue('Access-Control-Allow-Origin' in r.headers)
         self.assertTrue('Access-Control-Allow-Max-Age' in r.headers)
 
-        r = self.test_client.get('/', headers=[('Origin',
+        r = self.test_client.get(url, headers=[('Origin',
                                                 'http://not_an_example.com')])
+        self.assert200(r.status_code)
         self.assertEqual(r.headers['Access-Control-Allow-Origin'],
                          'http://example.com, http://1on1.com')
+        for m in methods:
+            self.assertTrue(m in r.headers['Access-Control-Allow-Methods'])
 
-        r = self.test_client.open('/', method='OPTIONS',
-                                  headers=[('Origin',
-                                            'http://not_an_example.com')])
-        self.assertEqual(r.headers['Access-Control-Allow-Origin'],
-                         'http://example.com, http://1on1.com')
+
+    def test_CORS_OPTIONS_resources(self):
+        prefix = api_prefix(self.app.config['URL_PREFIX'],
+                            self.app.config['API_VERSION'])
+
+        for resource, settings in self.app.config['DOMAIN'].items():
+
+            # resource endpoint
+            url = '%s/%s/' % (prefix, settings['url'])
+            methods = settings['resource_methods'] + ['OPTIONS']
+            self.test_CORS_OPTIONS(url,methods)
+
 
 
 class TestEventHooks(TestBase):
