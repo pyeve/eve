@@ -4,6 +4,7 @@ from eve.tests import TestBase
 import simplejson as json
 from eve.utils import api_prefix
 
+
 class TestRenders(TestBase):
 
     def test_default_render(self):
@@ -53,7 +54,7 @@ class TestRenders(TestBase):
         self.assertEqual(r.headers['Access-Control-Allow-Origin'],
                          'http://example.com, http://1on1.com')
 
-    def test_CORS_OPTIONS(self,url='/',methods=[]):
+    def test_CORS_OPTIONS(self, url='/', methods=[]):
         r = self.test_client.open(url, method='OPTIONS')
         self.assertFalse('Access-Control-Allow-Origin' in r.headers)
         self.assertFalse('Access-Control-Allow-Methods' in r.headers)
@@ -67,7 +68,6 @@ class TestRenders(TestBase):
         self.assertEqual(r.headers['Access-Control-Allow-Origin'], '*')
         for m in methods:
             self.assertTrue(m in r.headers['Access-Control-Allow-Methods'])
-
 
         self.app.config['X_DOMAINS'] = ['http://example.com',
                                         'http://1on1.com']
@@ -91,7 +91,6 @@ class TestRenders(TestBase):
         for m in methods:
             self.assertTrue(m in r.headers['Access-Control-Allow-Methods'])
 
-
     def test_CORS_OPTIONS_resources(self):
         prefix = api_prefix(self.app.config['URL_PREFIX'],
                             self.app.config['API_VERSION'])
@@ -101,8 +100,7 @@ class TestRenders(TestBase):
             # resource endpoint
             url = '%s/%s/' % (prefix, settings['url'])
             methods = settings['resource_methods'] + ['OPTIONS']
-            self.test_CORS_OPTIONS(url,methods)
-
+            self.test_CORS_OPTIONS(url, methods)
 
 
 class TestEventHooks(TestBase):
