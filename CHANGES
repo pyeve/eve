@@ -8,6 +8,8 @@ Version 0.0.8
 
 Not released yet.
 
+- CORS ``Access-Control-Allow-Headers`` header support (Garrin Kimmell).
+- CORS ``OPTIONS`` support for resource and items endpoints (Garrin Kimmell).
 - ``float`` is now available as a data-type in the schema definition ruleset.
 - ``nullable`` field schema rule is now available. If ``True`` the field value
   can be set to null. Defaults to ``False``.
