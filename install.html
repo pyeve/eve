@@ -73,28 +73,50 @@ to using any software package is getting it properly installed.</p>
 </pre></div>
 </div>
 <p>But, you really <a class="reference external" href="http://www.pip-installer.org/en/latest/other-tools.html#pip-compared-to-easy-install">shouldn&#8217;t do that</a>.</p>
-</div>
 <div class="section" id="cheeseshop-mirror">
-<h2>Cheeseshop Mirror<a class="headerlink" href="#cheeseshop-mirror" title="Permalink to this headline">¶</a></h2>
+<h3>Cheeseshop Mirror<a class="headerlink" href="#cheeseshop-mirror" title="Permalink to this headline">¶</a></h3>
 <p>If the Cheeseshop is down, you can also install Eve from one of the mirrors.
 <a class="reference external" href="http://crate.io">Crate.io</a> is one of them:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> pip install -i http://simple.crate.io/ eve
 </pre></div>
 </div>
 </div>
-<div class="section" id="get-the-code">
-<h2>Get the Code<a class="headerlink" href="#get-the-code" title="Permalink to this headline">¶</a></h2>
-<p>Eve is actively developed on GitHub, where the code is
-<a class="reference external" href="https://github.com/nicolaiarocci/eve">always available</a>. You can either
-clone the public repository:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> git clone git://github.com/nicolaiarocci/eve.git
+</div>
+<div class="section" id="development-version">
+<h2>Development Version<a class="headerlink" href="#development-version" title="Permalink to this headline">¶</a></h2>
+<p>Eve is actively developed on GitHub, where the code is <a class="reference external" href="https://github.com/nicolaiarocci/eve">always available</a>. If you want to work with the
+development version of Eve, there are two ways: you can either let <cite>pip</cite> pull
+in the development version, or you can tell it to operate on a git checkout.
+Either way, virtualenv is recommended.</p>
+<p>Get the git checkout in a new virtualenv and run in development mode.</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> git clone http://github.com/nicolaiarocci/eve.git
+<span class="go">Initialized empty Git repository in ~/dev/eve/.git/</span>
+<span class="gp">$</span> <span class="nb">cd </span>eve
+<span class="gp">$</span> virtualenv venv --distribute
+<span class="go">New python executable in venv/bin/python</span>
+<span class="go">Installing distribute............done.</span>
+<span class="gp">$</span> . venv/bin/activate
+<span class="gp">$</span> python setup.py install
+<span class="go">...</span>
+<span class="go">Finished processing dependencies for Eve</span>
 </pre></div>
 </div>
-<p>Once you have a copy of the source, you can embed it in your Python package,
-or install it into your site-packages easily:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py install
+<p>This will pull in the dependencies and activate the git head as the current
+version inside the virtualenv.  Then all you have to do is run <tt class="docutils literal"><span class="pre">git</span> <span class="pre">pull</span>
+<span class="pre">origin</span></tt> to update to the latest version.</p>
+<p>To just get the development version without git, do this instead:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> mkdir eve
+<span class="gp">$</span> <span class="nb">cd </span>eve
+<span class="gp">$</span> virtualenv venv --distribute
+<span class="gp">$</span> . venv/bin/activate
+<span class="go">New python executable in venv/bin/python</span>
+<span class="go">Installing distribute............done.</span>
+<span class="gp">$</span> pip install git+git://github.com/nicolaiarocci/eve.git
+<span class="go">...</span>
+<span class="go">Cleaning up...</span>
 </pre></div>
 </div>
+<p>And you&#8217;re done!</p>
 </div>
 </div>
 
@@ -133,9 +155,11 @@ or install it into your site-packages easily:</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Installation</a><ul>
-<li><a class="reference internal" href="#distribute-pip">Distribute &amp; Pip</a></li>
+<li><a class="reference internal" href="#distribute-pip">Distribute &amp; Pip</a><ul>
 <li><a class="reference internal" href="#cheeseshop-mirror">Cheeseshop Mirror</a></li>
-<li><a class="reference internal" href="#get-the-code">Get the Code</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#development-version">Development Version</a></li>
 </ul>
 </li>
 </ul>
