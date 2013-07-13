@@ -229,7 +229,8 @@ class TestUserRestrictedAccess(TestBase):
         self.app = Eve(settings=self.settings_file, auth=ValidBasicAuth)
         # remove the datasource filter to make the whole collection available
         # to a GET request.
-        del(self.app.config['DOMAIN'][self.known_resource]['datasource']['filter'])
+        resource = self.app.config['DOMAIN'][self.known_resource]
+        del(resource['datasource']['filter'])
         self.app.set_defaults()
         self.app._add_url_rules()
         self.test_client = self.app.test_client()

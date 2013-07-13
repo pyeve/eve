@@ -248,7 +248,7 @@ class TestBase(TestMinimal):
                                      self.unknown_item_id))
         self.unknown_item_name_url = ('/%s/%s/' %
                                       (self.domain[self.known_resource]['url'],
-                                      self.unknown_item_name))
+                                       self.unknown_item_name))
 
         self.readonly_resource = 'payments'
         self.readonly_resource_url = (

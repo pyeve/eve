@@ -5,9 +5,6 @@ from eve import Eve
 
 # TODO find a reliable way to test item endpoints
 # which are based on regex, maybe reverse them?
-# http://stackoverflow.com/questions/492716/reversing-a-regular-expression-in-python
-#
-# but there must be an easier way out :)
 
 
 class TestEndPoints(TestBase):
