@@ -3,7 +3,7 @@
 
 Python REST API Framework
 =========================
-*Powered by Flask, MongoDB, Redis and good intentions, Eve allows to
+*Powered by Flask, MongoDB, Redis and good intentions Eve allows to
 effortlessly build and deploy highly customizable, fully featured RESTful Web
 Services*
 
