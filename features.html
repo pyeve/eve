@@ -241,7 +241,7 @@ are supported. The mongo query syntax:</p>
 </div>
 <p>Both query formats allow for conditional and logical And/Or operators, however
 nested and combined. Sorting is supported as well:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/?sort<span class="o">={</span><span class="s2">&quot;lastname&quot;</span>: -1<span class="o">}</span>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/?sort<span class="o">=[(</span><span class="s2">&quot;lastname&quot;</span>, -1<span class="o">)]</span>
 <span class="go">HTTP/1.0 200 OK</span>
 </pre></div>
 </div>

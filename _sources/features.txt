@@ -169,7 +169,7 @@ nested and combined. Sorting is supported as well:
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people/?sort={"lastname": -1}
+    $ curl -i http://eve-demo.herokuapp.com/people/?sort=[("lastname", -1)]
     HTTP/1.0 200 OK
 
 Currently sort directives use a pure MongoDB syntax; support for a more general
