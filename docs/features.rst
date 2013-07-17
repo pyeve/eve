@@ -556,8 +556,8 @@ that did not pass validation are not included).
 
 To provide seamless event handling features, Eve relies on the Events_ package.
 
-Manipulationg outbound documents
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Manipulating outbound documents
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The ``on_getting(resource, documents)``, ``on_getting_<resource>(documents)``
 and ``on_getting_item(resource, _id, document)`` event hooks are raised when
 documents have just been read from the database and are about to be sent to the
