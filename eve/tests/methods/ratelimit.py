@@ -1,35 +1,50 @@
 from eve.tests import TestBase
-from redis import Redis
 import time
+import unittest
+
+# necessary evil
+my_redis = None
+try:
+    from redis import Redis, ConnectionError
+    my_redis = Redis()
+    try:
+        my_redis.flushdb()
+    except ConnectionError:
+        my_redis = None
+except ImportError:
+    pass
+
+print my_redis
 
 
 class TestRateLimit(TestBase):
     def setUp(self):
         super(TestRateLimit, self).setUp()
-        self.app.redis = Redis()
-        self.app.config['RATE_LIMIT_GET'] = (1, 1)
-        self.app.redis.flushdb()
+        if my_redis:
+            self.app.redis = my_redis
+            self.app.config['RATE_LIMIT_GET'] = (1, 1)
 
+    @unittest.skipIf(my_redis is None, 'requires "pip install redis" and a '
+                     'running redis-server')
     def test_ratelimit_home(self):
-        """ PLEASE NOTE: this requires a running redis-server
-        """
         self.get_ratelimit("/")
 
+    @unittest.skipIf(my_redis is None, 'requires "pip install redis" and a '
+                     'running redis-server')
     def test_ratelimit_resource(self):
-        """ PLEASE NOTE: this requires a running redis-server
-        """
         self.get_ratelimit(self.known_resource_url)
 
+    @unittest.skipIf(my_redis is None, 'requires "pip install redis" and a '
+                     'running redis-server')
     def test_ratelimit_item(self):
-        """ PLEASE NOTE: this requires a running redis-server
-        """
         self.get_ratelimit(self.item_id_url)
 
+    @unittest.skipIf(my_redis is None, 'requires "pip install redis" and a '
+                     'running redis-server')
     def test_noratelimits(self):
-        """ PLEASE NOTE: this requires a running redis-server
-        """
         self.app.config['RATE_LIMIT_GET'] = None
-        self.app.redis.flushdb()
+        if self.app.redis:
+            self.app.redis.flushdb()
         r = self.test_client.get("/")
         self.assert200(r.status_code)
         self.assertTrue('X-RateLimit-Remaining' not in r.headers)

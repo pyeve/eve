@@ -8,6 +8,8 @@ Version 0.0.8
 
 Not released yet.
 
+- Only run RateLimiting tests if redis-py is installed and redis-server is 
+  running.
 - CORS ``Access-Control-Allow-Headers`` header support (Garrin Kimmell).
 - CORS ``OPTIONS`` support for resource and items endpoints (Garrin Kimmell).
 - ``float`` is now available as a data-type in the schema definition ruleset.
