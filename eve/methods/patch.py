@@ -18,6 +18,7 @@ from flask import abort
 from eve.utils import document_etag, document_link, config
 from eve.auth import requires_auth
 from eve.validation import ValidationError
+from werkzeug import exceptions
 
 
 @ratelimit()
@@ -31,14 +32,18 @@ def patch(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
 
+    .. versionchanged:: 0.0.8
+       Let ``werkzeug.exceptions.InternalServerError`` go through as they have
+       probably been explicitly raised by the data driver.
+
     .. versionchanged:: 0.0.7
        Support for Rate-Limiting.
 
     .. versionchanged:: 0.0.6
-        ETag is now computed without the need of an additional db lookup
+       ETag is now computed without the need of an additional db lookup
 
     .. versionchanged:: 0.0.5
-        Support for 'aplication/json' Content-Type.
+       Support for 'aplication/json' Content-Type.
 
     .. versionchanged:: 0.0.4
        Added the ``requires_auth`` decorator.
@@ -100,7 +105,10 @@ def patch(resource, **lookup):
         # TODO should probably log the error and abort 400 instead (when we
         # got logging)
         issues.append(str(e))
-    except Exception, e:
+    except exceptions.InternalServerError, e:
+        raise e
+    except:
+        # consider all other exceptions as Bad Requests
         abort(400)
 
     if len(issues):

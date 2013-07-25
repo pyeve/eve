@@ -243,6 +243,29 @@ class TestPatch(TestBase):
         self.assert200(status)
         self.assertPatchResponse(r, 'item1', self.invoice_id)
 
+    def test_patch_write_concern_success(self):
+        # 0 and 1 are the only valid values for 'w' on our mongod instance (1
+        # is the default)
+        self.domain['contacts']['mongo_write_concern'] = {'w': 0}
+        field = "ref"
+        test_value = "X234567890123456789012345"
+        changes = {'key1': json.dumps({field: test_value})}
+        r, status = self.patch(self.item_id_url,
+                               data=changes,
+                               headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+
+    def test_patch_write_concern_fail(self):
+        # should get a 500 since there's no replicaset on the mongod instance
+        self.domain['contacts']['mongo_write_concern'] = {'w': 2}
+        field = "ref"
+        test_value = "X234567890123456789012345"
+        changes = {'key1': json.dumps({field: test_value})}
+        r, status = self.patch(self.item_id_url,
+                               data=changes,
+                               headers=[('If-Match', self.item_etag)])
+        self.assert500(status)
+
     def assertPatchResponse(self, response, key, item_id):
         self.assertTrue(key in response)
         k = response[key]

@@ -39,6 +39,7 @@ CACHE_CONTROL = ''
 CACHE_EXPIRES = 0
 ITEM_CACHE_CONTROL = ''
 X_DOMAINS = None                # CORS disabled by default.
+X_HEADERS = None                # CORS disabled by default.
 
 FILTERS = True                  # filters enbaled by default.
 SORTING = True                  # sorting enabled by default.
@@ -84,3 +85,6 @@ MONGO_PORT = 27017
 # attacks ('ReDoS' especially), are probably too complex for the average API
 # end-user and finally can  seriously impact overall performance.
 MONGO_QUERY_BLACKLIST = ['$where', '$regex']
+# Explicitly set default write_concern to 'safe' (do regular
+# aknowledged writes). This is also the current PyMongo/Mongo default setting.
+MONGO_WRITE_CONCERN = {'w': 1}

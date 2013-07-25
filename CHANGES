@@ -3,6 +3,41 @@ Eve Changelog
 
 Here you can see the full list of changes between each Eve release.
 
+Version 0.0.8
+-------------
+
+Not released yet.
+
+- Only run RateLimiting tests if redis-py is installed and redis-server is 
+  running.
+- CORS ``Access-Control-Allow-Headers`` header support (Garrin Kimmell).
+- CORS ``OPTIONS`` support for resource and items endpoints (Garrin Kimmell).
+- ``float`` is now available as a data-type in the schema definition ruleset.
+- ``nullable`` field schema rule is now available. If ``True`` the field value
+  can be set to null. Defaults to ``False``.
+- v0.3.0 of Cerberus is now a requirement.
+- ``on_getting``, ``on_getting_<resource>`` and ``on_getting_item`` event
+  hooks. These events are raised when documents have just been read from the
+  database and are about to be sent to the client. Registered callback
+  functions can eventually manipulate the documents as needed. Please be aware
+  that ``last_modified`` and ``etag`` headers will always be consistent with
+  the state of the documents on the database (they  won't be updated to reflect
+  changes eventually applied by the callback functions). Closes #65.
+- Documentation fix: ``AUTH_USERFIELD_NAME`` renamed to ``AUTH_USERNAME_FIELD``
+  (Julien Barbot).
+- Responses to GET requests for resource endpoints now include a ``last`` item
+  in the `_links` dictionary. The value is a link to the last page available.
+  The item itself is only provided if pagination is enabled and the page being
+  requested isn't the last one. Closes #62.
+- It is now possible to set the MongoDB write concern level at both global
+  (``MONGO_WRITE_CONCERN``) and endpoint (``mongo_write_concern``) levels. The
+  value is a dictionary with all valid MongoDB write_concern settings (w,
+  wtimeout, j and fsync) as keys. ``{'w': 1}`` is the default, which is also
+  MongoDB's default setting.
+- ``TestMininal`` class added to the test suite. This will allow to start the
+  building of the tests for an application based on Eve, by subclassing the
+  TestMinimal class (Daniele Pizzolli).
+
 Version 0.0.7
 -------------
 
@@ -164,7 +199,7 @@ Released on February 25th 2013.
   a resource, its name will be used to determine the database collection.
 - It is now possibile to set predefined db filters for each resource.
   Predefined filters run on top of user queries (GET requests with ``where``
-  clauses) and standard conditional requests (``If-Modified-Since`,` etc.)
+  clauses) and standard conditional requests (``If-Modified-Since``, etc.)
   Please note that datasource filters are applied on GET, PATCH and DELETE
   requests. If your resource allows for POST requests (document insertions),
   then you will probably want to set the validation rules accordingly (in our

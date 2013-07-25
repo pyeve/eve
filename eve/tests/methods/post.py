@@ -195,6 +195,19 @@ class TestPost(TestBase):
         self.assert200(status)
         self.assertTrue('ref' in r['item1'] and 'notreally' not in r['item1'])
 
+    def test_post_write_concern(self):
+        # should get a 500 since there's no replicaset on mongod test instance
+        self.domain['contacts']['mongo_write_concern'] = {'w': 2}
+        test_field = 'ref'
+        test_value = "1234567890123456789054321"
+        data = {'item1': json.dumps({test_field: test_value})}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert500(status)
+        # 0 and 1 are the only valid values for 'w' on our mongod instance
+        self.domain['contacts']['mongo_write_concern'] = {'w': 0}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert200(status)
+
     def perform_post(self, data, valid_items=['item1']):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert200(status)

@@ -1,35 +1,36 @@
 from eve.tests import TestBase
-from redis import Redis
 import time
 
 
 class TestRateLimit(TestBase):
     def setUp(self):
         super(TestRateLimit, self).setUp()
-        self.app.redis = Redis()
-        self.app.config['RATE_LIMIT_GET'] = (1, 1)
-        self.app.redis.flushdb()
+        try:
+            from redis import Redis, ConnectionError
+            self.app.redis = Redis()
+            try:
+                self.app.redis.flushdb()
+            except ConnectionError:
+                self.app.redis = None
+        except ImportError:
+            self.app.redis = None
+
+        if self.app.redis:
+            self.app.config['RATE_LIMIT_GET'] = (1, 1)
 
     def test_ratelimit_home(self):
-        """ PLEASE NOTE: this requires a running redis-server
-        """
-        self.get_ratelimit("/")
+            self.get_ratelimit("/")
 
     def test_ratelimit_resource(self):
-        """ PLEASE NOTE: this requires a running redis-server
-        """
         self.get_ratelimit(self.known_resource_url)
 
     def test_ratelimit_item(self):
-        """ PLEASE NOTE: this requires a running redis-server
-        """
         self.get_ratelimit(self.item_id_url)
 
     def test_noratelimits(self):
-        """ PLEASE NOTE: this requires a running redis-server
-        """
         self.app.config['RATE_LIMIT_GET'] = None
-        self.app.redis.flushdb()
+        if self.app.redis:
+            self.app.redis.flushdb()
         r = self.test_client.get("/")
         self.assert200(r.status_code)
         self.assertTrue('X-RateLimit-Remaining' not in r.headers)
@@ -37,13 +38,17 @@ class TestRateLimit(TestBase):
         self.assertTrue('X-RateLimit-Reset' not in r.headers)
 
     def get_ratelimit(self, url):
-        self.assertRateLimit(self.test_client.get(url))
-        r = self.test_client.get(url)
-        self.assertEqual(r.status_code, 429)
-        self.assertTrue('Rate limit exceeded' in r.data)
+        if self.app.redis:
+            self.assertRateLimit(self.test_client.get(url))
+            r = self.test_client.get(url)
+            self.assertEqual(r.status_code, 429)
+            self.assertTrue('Rate limit exceeded' in r.data)
 
-        time.sleep(1)
-        self.assertRateLimit(self.test_client.get(url))
+            time.sleep(1)
+            self.assertRateLimit(self.test_client.get(url))
+        else:
+            print ("Skipped. Needs a running redis-server and 'pip install "
+                   "redis'")
 
     def assertRateLimit(self, r):
         self.assertTrue('X-RateLimit-Remaining' in r.headers)

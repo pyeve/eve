@@ -44,6 +44,8 @@ def collections_endpoint(url):
         response = post(resource)
     elif method == 'DELETE':
         response = delete_resource(resource)
+    elif method == 'OPTIONS':
+        send_response(resource, response)
     else:
         abort(405)
     return send_response(resource, response)
@@ -70,6 +72,8 @@ def item_endpoint(url, **lookup):
         response = patch(resource, **lookup)
     elif method == 'DELETE':
         response = delete(resource, **lookup)
+    elif method == 'OPTIONS':
+        send_response(resource, response)
     else:
         abort(405)
     return send_response(resource, response)

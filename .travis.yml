@@ -4,7 +4,7 @@ python:
   - "2.6"
 install: pip install flake8
 script: 
-  - flake8 --exclude="tests" eve
+  - flake8 eve
   - python setup.py test
 services: 
   - mongodb

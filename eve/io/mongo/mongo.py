@@ -12,6 +12,7 @@
 
 import ast
 import simplejson as json
+import pymongo
 from flask import abort
 from flask.ext.pymongo import PyMongo
 from datetime import datetime
@@ -139,6 +140,9 @@ class Mongo(DataLayer):
     def insert(self, resource, doc_or_docs):
         """Inserts a document into a resource collection.
 
+        .. versionchanged:: 0.0.8
+           'write_concern' support.
+
         .. versionchanged:: 0.0.6
            projection queries ('?projection={"name": 1}')
            'document' param renamed to 'doc_or_docs', making support for bulk
@@ -148,10 +152,20 @@ class Mongo(DataLayer):
            retrieves the target collection via the new config.SOURCES helper.
         """
         datasource, filter_, _ = self._datasource_ex(resource)
-        return self.driver.db[datasource].insert(doc_or_docs)
+        try:
+            return self.driver.db[datasource].insert(doc_or_docs,
+                                                     **self._wc(resource))
+        except pymongo.errors.OperationFailure:
+            # most likely a 'w' (write_concern) setting which needs an
+            # existing ReplicaSet which doesn't exist. Please note that the
+            # update will actually succeed (a new ETag will be needed).
+            abort(500)
 
     def update(self, resource, id_, updates):
         """Updates a collection document.
+
+        .. versionchanged:: 0.0.8
+           'write_concern' support.
 
         .. versionchanged:: 0.0.6
            projection queries ('?projection={"name": 1}')
@@ -165,11 +179,18 @@ class Mongo(DataLayer):
         # TODO consider using find_and_modify() instead. The document might
         # have changed since the ETag was computed. This would require getting
         # the original document as an argument though.
-
-        return self.driver.db[datasource].update(filter_, {"$set": updates})
+        try:
+            self.driver.db[datasource].update(filter_, {"$set": updates},
+                                              **self._wc(resource))
+        except pymongo.errors.OperationFailure:
+            # see comment in :func:`insert()`.
+            abort(500)
 
     def remove(self, resource, id_=None):
         """Removes a document or the entire set of documents from a collection.
+
+        .. versionchanged:: 0.0.8
+           'write_concern' support.
 
         .. versionchanged:: 0.0.6
            projection queries ('?projection={"name": 1}')
@@ -182,7 +203,11 @@ class Mongo(DataLayer):
         """
         query = {ID_FIELD: ObjectId(id_)} if id_ else None
         datasource, filter_, _ = self._datasource_ex(resource, query)
-        return self.driver.db[datasource].remove(filter_)
+        try:
+            self.driver.db[datasource].remove(filter_, **self._wc(resource))
+        except pymongo.errors.OperationFailure:
+            # see comment in :func:`insert()`.
+            abort(500)
 
     def _jsondatetime(self, source):
         """ Recursively iterates a JSON dictionary, turning RFC-1123 strings
@@ -215,3 +240,10 @@ class Mongo(DataLayer):
                 if set(value.keys()) & set(config.MONGO_QUERY_BLACKLIST):
                     abort(400)
         return spec
+
+    def _wc(self, resource):
+        """ Syntactic sugar for the current collection write_concern setting.
+
+        .. versionadded:: 0.0.8
+        """
+        return config.DOMAIN[resource]['mongo_write_concern']

@@ -140,8 +140,17 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
             domains = [config.X_DOMAINS]
         else:
             domains = config.X_DOMAINS
+
+        if config.X_HEADERS is None:
+            headers = []
+        elif isinstance(config.X_HEADERS, basestring):
+            headers = [config.X_HEADERS]
+        else:
+            headers = config.X_HEADERS
+
         methods = app.make_default_options_response().headers['allow']
         resp.headers.add('Access-Control-Allow-Origin', ', '.join(domains))
+        resp.headers.add('Access-Control-Allow-Headers', ', '.join(headers))
         resp.headers.add('Access-Control-Allow-Methods', methods)
         resp.headers.add('Access-Control-Allow-Max-Age', 21600)
 

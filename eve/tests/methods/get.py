@@ -38,6 +38,7 @@ class TestGet(TestBase):
 
         links = response['_links']
         self.assertNextLink(links, 2)
+        self.assertLastLink(links, 5)
 
         page = 1
         response, status = self.get(self.known_resource,
@@ -46,6 +47,7 @@ class TestGet(TestBase):
 
         links = response['_links']
         self.assertNextLink(links, 2)
+        self.assertLastLink(links, 5)
 
         page = 2
         response, status = self.get(self.known_resource,
@@ -55,15 +57,16 @@ class TestGet(TestBase):
         links = response['_links']
         self.assertNextLink(links, 3)
         self.assertPrevLink(links, 1)
+        self.assertLastLink(links, 5)
 
-        page = 3
+        page = 5
         response, status = self.get(self.known_resource,
                                     '?page=%d' % page)
         self.assert200(status)
 
         links = response['_links']
-        self.assertNextLink(links, 4)
-        self.assertPrevLink(links, 2)
+        self.assertPrevLink(links, 4)
+        self.assertLastLink(links, None)
 
     def test_get_paging_disabled(self):
         self.app.config['DOMAIN'][self.known_resource]['pagination'] = False
@@ -145,7 +148,7 @@ class TestGet(TestBase):
 
         resource = response['_items']
         self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
-        topvalue = 99
+        topvalue = 100
         for i in range(len(resource)):
             self.assertEqual(resource[i]['prog'], topvalue - i)
 
@@ -174,7 +177,7 @@ class TestGet(TestBase):
         self.assert200(status)
 
         links = response['_links']
-        self.assertEqual(len(links), 3)
+        self.assertEqual(len(links), 4)
         self.assertHomeLink(links)
         self.assertResourceLink(links, self.known_resource)
         self.assertNextLink(links, 2)

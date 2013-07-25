@@ -189,15 +189,6 @@ class TestBasicAuth(TestBase):
         self.assertTrue(('WWW-Authenticate', 'Basic realm:"%s"' %
                          eve.__package__) in r.headers.to_list())
 
-    def assert401(self, status):
-        self.assertEqual(status, 401)
-
-    def assert401or405(self, status):
-        self.assertTrue(status == 401 or 405)
-
-    def assert500(self, status):
-        self.assertEqual(status, 500)
-
 
 class TestTokenAuth(TestBasicAuth):
     def setUp(self):
@@ -238,7 +229,8 @@ class TestUserRestrictedAccess(TestBase):
         self.app = Eve(settings=self.settings_file, auth=ValidBasicAuth)
         # remove the datasource filter to make the whole collection available
         # to a GET request.
-        del(self.app.config['DOMAIN'][self.known_resource]['datasource']['filter'])
+        resource = self.app.config['DOMAIN'][self.known_resource]
+        del(resource['datasource']['filter'])
         self.app.set_defaults()
         self.app._add_url_rules()
         self.test_client = self.app.test_client()

@@ -181,6 +181,13 @@ uppercase.
                                 values are: ``None``, a list of domains or '*'
                                 for a wide-open API. Defaults to ``None``.
 
+``X_HEADERS``                   CORS (Cross-Origin Resource Sharing) support. 
+                                Allows API maintainers to specify which headers
+                                are allowed to be sent with CORS requests. Allowed
+                                values are: ``None`` or a list of headers names.
+                                Defaults to ``None``.
+                                
+
 ``LAST_UPDATED``                Name of the field used to record a document's 
                                 last update date. This field is automatically
                                 handled the Eve. Defaults to ``updated``.
@@ -248,7 +255,6 @@ uppercase.
                                 overridden by resource settings. Defaults to
                                 ``[]``, effectively disabling the feature.
 
-
 ``RATE_LIMIT_GET``              A tuple expressing the rate limit on GET 
                                 requests. The first element of the tuple is 
                                 the number of requests allowed, while the
@@ -305,6 +311,24 @@ uppercase.
                                 injection attacks. Javascript queries also tend
                                 to be slow and generally can be easily replaced
                                 with the (very rich) Mongo query dialect.
+
+``MONGO_WRITE_CONCERN``         A dictionary defining MongoDB write concern
+                                settings. All stadard write concern settings 
+                                (w, wtimeout, j, fsync) are supported. Defaults
+                                to ``{'w': 1}`` which means 'do regular
+                                aknowledged writes' (this is also the Mongo
+                                default.)
+
+                                Please be aware that setting 'w' to a value of
+                                2 or greater requires replication to be active
+                                or you will be getting 500 errors (the write
+                                will still happen; Mongo will just be unable
+                                to check that it's being written to multiple
+                                servers.)
+                                
+                                Can be overridden at endpoint (Mongo
+                                collection) level. See ``mongo_write_concern``
+                                below.
 
 ``DOMAIN``                      A dict holding the API domain definition.
                                 See `Domain Configuration`_.
@@ -452,7 +476,20 @@ always lowercase.
                                 are included in response payloads. Overrides
                                 ``EXTRA_RESPONSE_FIELDS``. 
 
+``mongo_write_concern``         A dictionary defining MongoDB write concern
+                                settings for the endpoint datasource. All
+                                stadard write concern settings (w, wtimeout, j,
+                                fsync) are supported. Defaults to ``{'w': 1}``
+                                which means 'do regular aknowledged writes'
+                                (this is also the Mongo default.)
 
+                                Please be aware that setting 'w' to a value of
+                                2 or greater requires replication to be active
+                                or you will be getting 500 errors (the write
+                                will still happen; Mongo will just be unable
+                                to check that it's being written to multiple
+                                servers.)
+                                
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data
                                 validation. See `Schema Definition`_.
@@ -534,8 +571,9 @@ defining the field validation rules. Allowed validation rules are:
 
 =============================== ==============================================
 ``type``                        Field data type. Can be one of the following:
-                                ``string``, ``integer``, ``boolean``, 
-                                ``datetime``, ``dict``, ``list``, ``objectid``.
+                                ``string``, ``integer``, ``boolean``,
+                                ``float``, ``datetime``, ``dict``, ``list``,
+                                ``objectid``.
 
 ``required``                    If ``True`` the field is mandatory on
                                 insertion.
@@ -587,6 +625,9 @@ defining the field validation rules. Allowed validation rules are:
                                 database collection being referenced, and
                                 ``field``, the field name in the foreign
                                 collection.
+
+``nullable``                    If ``True`` the field value can be set to 
+                                ``None``. 
 =============================== ==============================================
 
 Schema syntax is based on Cerberus_ and yes, it can be extended.  In fact, Eve

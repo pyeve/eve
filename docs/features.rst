@@ -169,7 +169,7 @@ nested and combined. Sorting is supported as well:
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people/?sort={"lastname": -1}
+    $ curl -i http://eve-demo.herokuapp.com/people/?sort=[("lastname", -1)]
     HTTP/1.0 200 OK
 
 Currently sort directives use a pure MongoDB syntax; support for a more general
@@ -228,6 +228,10 @@ example:
             "next": {
                 "href": "localhost:5000/people/?page=2", 
                 "title": "next page" 
+            },
+            "last": {
+                "href": "localhost:5000/people/?page=10", 
+                "title": "last page" 
             } 
         } 
     }
@@ -235,6 +239,9 @@ example:
 A GET request to the API home page (the API entry point) will be served with
 a list of links to accessible resources. From there, any client could navigate
 the API just by following the links provided with every response.
+
+Please note that ``next``, ``previous`` and ``last`` items will only be
+included when appropriate. 
 
 JSON and XML Rendering
 ----------------------
@@ -519,12 +526,12 @@ payload as arguments.
 
     >>> app.run()
 
-Manipulating documents on insertion
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-There is also support for ``on_posting`` and ``on_posting_<resource>`` event
-hooks, raised when documents are about to be stored in the database.  Callback
-functions could hook to these events to arbitrarily add new fields, or edit
-existing ones.
+Manipulating inbound documents 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+There is also support for ``on_posting(resource, documents)`` and
+``on_posting_<resource>(documents)`` event hooks, raised when documents are
+about to be stored in the database.  Callback functions could hook to these
+events to arbitrarily add new fields, or edit existing ones.
 
 .. code-block:: pycon
 
@@ -544,10 +551,23 @@ existing ones.
 ``on_posting_<resource>`` is raised when the `<resource>` endpoint has been hit
 with a POST request. In both circumstances the event will be raised only if at
 least one document passed validation and is going to be inserted. `documents`
-is a list, and  only contains documents ready for insertion (payload
-documents that did not pass validation are not included).
+is a list, and  only contains documents ready for insertion (payload documents
+that did not pass validation are not included).
 
 To provide seamless event handling features, Eve relies on the Events_ package.
+
+Manipulating outbound documents
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``on_getting(resource, documents)``, ``on_getting_<resource>(documents)``
+and ``on_getting_item(resource, _id, document)`` event hooks are raised when
+documents have just been read from the database and are about to be sent to the
+client. Registered callback functions can eventually manipulate the documents
+as needed. 
+
+Please be aware that ``last_modified`` and ``etag`` headers will always be
+consistent with the state of the documents on the database (they  won't be
+updated to reflect changes eventually applied by the callback functions).
+
 
 Rate Limiting
 -------------

@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 
 from setuptools import setup, find_packages
-
-DESCRIPTION = ("RESTful Web API Made Simple")
+DESCRIPTION = ("REST API framework to effortlessly build and deploy highly "
+               "customizable, fully featured RESTful Web Services. Powered "
+               "by Flask, MongoDB and good intentions.")
 LONG_DESCRIPTION = open('README.rst').read()
 #VERSION = __import__('eve').__version__
 
 setup(
     name='Eve',
-    version='0.0.7',
+    version='0.0.8-dev',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',
@@ -23,7 +24,7 @@ setup(
         'flask==0.9',
         'jinja2==2.7',
         'flask-pymongo>=0.2.0',
-        'cerberus>=0.2.0',
+        'cerberus>=0.3.0',
         'simplejson',
         'events'
     ],

@@ -1,4 +1,4 @@
-Cerberus==0.2.0
+Cerberus==0.3.0
 Events==0.1.0
 Werkzeug==0.8.3
 Jinja2==2.7
