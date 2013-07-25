@@ -10,7 +10,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
-__version__ = '0.0.8'
+__version__ = '0.0.9-dev'
 
 #DEBUG = True
 
