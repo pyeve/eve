@@ -7,7 +7,7 @@
     This module implements the API 'GET' methods, supported by both the
     resources and single item endpoints.
 
-    :copyright: (c) 2012 by Nicola Iarocci.
+    :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 

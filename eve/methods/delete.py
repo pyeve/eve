@@ -7,7 +7,7 @@
     This module imlements the DELETE method, currently supported by the item
     endopints.
 
-    :copyright: (c) 2012 by Nicola Iarocci.
+    :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
