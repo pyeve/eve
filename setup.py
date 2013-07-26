@@ -20,13 +20,16 @@ setup(
     packages=find_packages(),
     test_suite="eve.tests",
     install_requires=[
-        'werkzeug==0.8.3',
-        'flask==0.9',
+        'cerberus==0.3.0',
+        'events==0.1.0',
+        'simplejson==3.3.0',
+        'werkzeug==0.9.3',
+        'markupsafe==0.18',
         'jinja2==2.7',
-        'flask-pymongo>=0.2.0',
-        'cerberus>=0.3.0',
-        'simplejson',
-        'events'
+        'itsdangerous==0.22',
+        'flask==0.10.1',
+        'pymongo==2.5.2',
+        'flask-pymongo==0.3.0',
     ],
     tests_require=['redis'],
     classifiers=[

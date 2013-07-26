@@ -171,7 +171,7 @@ class TestEventHooks(TestBase):
             self.callback_value = resource
         self.app.on_patch += global_hook
         self.patch()
-        self.post(extra=[('X-HTTP-Method-Override', True)])
+        self.post(extra=[('X-HTTP-Method-Override', 'True')])
         self.assertEqual(self.callback_value, self.known_resource)
 
     def test_on_patch_with_post_override_resource(self):
@@ -179,7 +179,7 @@ class TestEventHooks(TestBase):
             self.passed = True
         self.app.on_patch_contacts += resource_hook
         self.patch()
-        self.post(extra=[('X-HTTP-Method-Override', True)])
+        self.post(extra=[('X-HTTP-Method-Override', 'True')])
         self.assertTrue(self.passed)
 
     def test_on_delete(self):

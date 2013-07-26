@@ -85,6 +85,9 @@ class HMACAuth(BasicAuth):
     """ Hash Message Authentication Code (HMAC) authentication logic. Must be
     subclassed to implement custom authorization checking.
 
+    .. versionchanged:: 0.0.9
+       Replaced the now deprecated request.data with request.get_data().
+
     .. versionchanged:: 0.0.7
        Support for 'resource' argument.
 
@@ -123,7 +126,8 @@ class HMACAuth(BasicAuth):
         except:
             auth = None
         return auth and self.check_auth(userid, hmac_hash, request.headers,
-                                        request.data, allowed_roles, resource)
+                                        request.get_data(), allowed_roles,
+                                        resource)
 
 
 class TokenAuth(BasicAuth):

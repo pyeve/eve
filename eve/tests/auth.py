@@ -89,7 +89,8 @@ class TestBasicAuth(TestBase):
     def test_authorized_item_access(self):
         r = self.test_client.get(self.item_id_url, headers=self.valid_auth)
         self.assert200(r.status_code)
-        r = self.test_client.patch(self.item_id_url, data={'key1': 'value'},
+        r = self.test_client.patch(self.item_id_url,
+                                   data={"item1": json.dumps({"k": "value"})},
                                    headers=self.valid_auth)
         self.assert403(r.status_code)
         r = self.test_client.delete(self.item_id_url, headers=self.valid_auth)
@@ -187,7 +188,7 @@ class TestBasicAuth(TestBase):
         r = self.test_client.get('/')
         self.assert401(r.status_code)
         self.assertTrue(('WWW-Authenticate', 'Basic realm:"%s"' %
-                         eve.__package__) in r.headers.to_list())
+                         eve.__package__) in r.headers.to_wsgi_list())
 
 
 class TestTokenAuth(TestBasicAuth):

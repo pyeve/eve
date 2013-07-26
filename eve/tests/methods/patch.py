@@ -184,7 +184,7 @@ class TestPatch(TestBase):
         return r
 
     def perform_patch_with_post_override(self, field, value):
-        headers = [('X-HTTP-Method-Override', True),
+        headers = [('X-HTTP-Method-Override', 'True'),
                    ('If-Match', self.item_etag),
                    ('Content-Type', 'application/x-www-form-urlencoded')]
         return self.test_client.post(self.item_id_url,
@@ -219,7 +219,7 @@ class TestPatch(TestBase):
     def test_patch_json(self):
         field = "ref"
         test_value = "1234567890123456789012345"
-        changes = {"key1": json.dumps({field: test_value})}
+        changes = json.dumps({'key1': {field: test_value}})
         headers = [('If-Match', self.item_etag),
                    ('Content-Type', 'application/json')]
         r, status = self.parse_response(self.test_client.patch(
