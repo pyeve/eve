@@ -13,7 +13,7 @@ setup(
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',
-    author_email='nicola@nicolaiarocci.com',
+    author_email='eve@nicolaiarocci.com',
     url='http://python-eve.org',
     license=open('LICENSE').read(),
     platforms=["any"],
