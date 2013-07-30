@@ -91,7 +91,7 @@ class TestConfig(TestBase):
 
     def test_validate_item_methods(self):
         self.app.config['ITEM_METHODS'] = ['PUT', 'GET', 'POST', 'DELETE']
-        self.assertValidateConfigFailure('PUT, POST')
+        self.assertValidateConfigFailure(['POST', 'PUT'])
 
     def test_validate_schema_methods(self):
         test = {
@@ -228,7 +228,10 @@ class TestConfig(TestBase):
             self.app.validate_domain_struct()
             self.app.validate_config()
         except ConfigException as e:
-            self.assertTrue(expected.lower() in str(e).lower())
+            if isinstance(expected, str):
+                expected = [expected]
+            for exp in expected:
+                self.assertTrue(exp.lower() in str(e).lower())
         else:
             self.fail("ConfigException expected but not raised.")
 
