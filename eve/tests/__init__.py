@@ -9,9 +9,8 @@ import simplejson as json
 from datetime import datetime, timedelta
 from flask.ext.pymongo import MongoClient
 from bson import ObjectId
-from eve import Eve, STATUS_ERR
-from test_settings import MONGO_PASSWORD, MONGO_USERNAME, MONGO_DBNAME, \
-    DOMAIN, MONGO_HOST, MONGO_PORT
+from eve.tests.test_settings import MONGO_PASSWORD, MONGO_USERNAME, \
+    MONGO_DBNAME, DOMAIN, MONGO_HOST, MONGO_PORT
 
 
 class TestMinimal(unittest.TestCase):
@@ -31,7 +30,7 @@ class TestMinimal(unittest.TestCase):
         self.setupDB()
 
         self.settings_file = settings_file
-        self.app = Eve(settings=self.settings_file)
+        self.app = eve.Eve(settings=self.settings_file)
 
         self.test_client = self.app.test_client()
 
@@ -64,14 +63,14 @@ class TestMinimal(unittest.TestCase):
         return self.parse_response(r)
 
     def parse_response(self, r):
-        v = json.loads(r.data) if r.status_code == 200 else None
+        v = json.loads(r.get_data()) if r.status_code == 200 else None
         return v, r.status_code
 
     def assertValidationError(self, response, key, matches):
         self.assertTrue(key in response)
         k = response[key]
         self.assertTrue('status' in k)
-        self.assertTrue(STATUS_ERR in k['status'])
+        self.assertTrue(eve.STATUS_ERR in k['status'])
         self.assertTrue('issues' in k)
         issues = k['issues']
         self.assertTrue(len(issues))
@@ -103,7 +102,7 @@ class TestMinimal(unittest.TestCase):
         r = self.test_client.get(resource, headers=[('If-Modified-Since',
                                                     last_modified)])
         self.assert304(r.status_code)
-        self.assertEqual(r.data, '')
+        self.assertTrue(not r.get_data())
 
     def assertItem(self, item):
         self.assertEqual(type(item), dict)
@@ -118,7 +117,7 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue(updated_on is not None)
         try:
             datetime.strptime(updated_on, self.app.config['DATE_FORMAT'])
-        except Exception, e:
+        except Exception as e:
             self.fail('Cannot convert field "%s" to datetime: %s' %
                       (self.app.config['LAST_UPDATED'], e))
 

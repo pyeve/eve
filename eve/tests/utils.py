@@ -161,7 +161,7 @@ class TestUtils(TestBase):
 
     def test_document_etag(self):
         test = {'key1': 'value1', 'another': 'value2'}
-        challenge = dumps(test, sort_keys=True)
+        challenge = dumps(test, sort_keys=True).encode('utf-8')
         self.assertEqual(hashlib.sha1(challenge).hexdigest(),
                          document_etag(test))
 

@@ -8,8 +8,9 @@ Version 0.0.9
 
 Not released yet.
 
-- Copyright finally updated to 2013. 
+- Python 3.3 is now supported.
 - Flask 0.10.1 is now supported.
+- Copyright finally updated to 2013. 
 
 Version 0.0.8
 -------------

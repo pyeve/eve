@@ -11,7 +11,6 @@ from eve.io.mongo import Mongo, Validator
 
 
 class TestConfig(TestBase):
-
     def test_default_import_name(self):
         self.assertEqual(self.app.import_name, eve.__package__)
 
@@ -192,7 +191,7 @@ class TestConfig(TestBase):
         resource = 'invoices'
         datasource = self.domain[resource]['datasource']
         schema = self.domain[resource]['schema']
-        compare = filter(schema.has_key, datasource['projection'])
+        compare = [key for key in datasource['projection'] if key in schema]
         compare.extend([self.app.config['ID_FIELD'],
                         self.app.config['LAST_UPDATED'],
                         self.app.config['DATE_CREATED']])
@@ -221,14 +220,14 @@ class TestConfig(TestBase):
         try:
             self.app.validate_domain_struct()
             self.app.validate_config()
-        except ConfigException, e:
+        except ConfigException as e:
             self.fail('ConfigException not expected: %s' % e)
 
     def assertValidateConfigFailure(self, expected):
         try:
             self.app.validate_domain_struct()
             self.app.validate_config()
-        except ConfigException, e:
+        except ConfigException as e:
             self.assertTrue(expected.lower() in str(e).lower())
         else:
             self.fail("ConfigException expected but not raised.")
@@ -236,7 +235,7 @@ class TestConfig(TestBase):
     def assertValidateSchemaFailure(self, resource, schema, expected):
         try:
             self.app.validate_schema(resource, schema)
-        except SchemaException, e:
+        except SchemaException as e:
             self.assertTrue(expected.lower() in str(e).lower())
         else:
             self.fail("SchemaException expected but not raised.")

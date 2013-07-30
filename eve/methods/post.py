@@ -11,13 +11,12 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from flask import request
 from datetime import datetime
-from flask import current_app as app
-from common import parse, payload, ratelimit
+from flask import current_app as app, request
 from eve.utils import document_link, config, document_etag
 from eve.auth import requires_auth
 from eve.validation import ValidationError
+from eve.methods.common import parse, payload, ratelimit
 
 
 @ratelimit()

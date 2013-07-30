@@ -17,9 +17,9 @@ from flask import abort
 from flask.ext.pymongo import PyMongo
 from datetime import datetime
 from bson import ObjectId
-from parser import parse, ParseError
-from eve.io.base import DataLayer, ConnectionException
 from eve import ID_FIELD
+from eve.io.mongo.parser import parse, ParseError
+from eve.io.base import DataLayer, ConnectionException
 from eve.utils import config
 
 
@@ -28,10 +28,14 @@ class Mongo(DataLayer):
     """
 
     def init_app(self, app):
+        """
+        .. versionchanged:: 0.0.9
+           support for Python 3.3.
+        """
         # mongod must be running or this will raise an exception
         try:
             self.driver = PyMongo(app)
-        except Exception, e:
+        except Exception as e:
             raise ConnectionException(e)
 
     def find(self, resource, req):
@@ -213,13 +217,16 @@ class Mongo(DataLayer):
         """ Recursively iterates a JSON dictionary, turning RFC-1123 strings
         into datetime values.
 
+        .. versionchanged:: 0.0.9
+           support for Python 3.3.
+
         .. versionadded:: 0.0.4
         """
 
         for k, v in source.items():
             if isinstance(v, dict):
                 self._jsondatetime(v)
-            elif isinstance(v, basestring):
+            elif isinstance(v, str):
                 try:
                     source[k] = datetime.strptime(v, config.DATE_FORMAT)
                 except:

@@ -72,7 +72,7 @@ class TestPythonParser(TestCase):
         self.assertEqual(r, {'Invoice.number': 1})
 
     def test_unparsed_statement(self):
-        self.assertRaises(ParseError, parse, 'print "hello"')
+        self.assertRaises(ParseError, parse, 'print ("hello")')
 
     def test_bad_Expr(self):
         self.assertRaises(ParseError, parse, 'a | 2')

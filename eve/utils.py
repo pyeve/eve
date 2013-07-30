@@ -240,7 +240,7 @@ def querydef(max_results=config.PAGINATION_DEFAULT, where=None, sort=None,
     """
     where_part = '&where=%s' % where if where else ''
     sort_part = '&sort=%s' % sort if sort else ''
-    page_part = '&page=%s' % page if page > 1 else ''
+    page_part = '&page=%s' % page if page and page > 1 else ''
     max_results_part = 'max_results=%s' % max_results \
         if max_results != config.PAGINATION_DEFAULT else ''
 
@@ -258,7 +258,7 @@ def document_etag(value):
        consistent between different runs and/or server instances (#16).
     """
     h = hashlib.sha1()
-    h.update(dumps(value, sort_keys=True))
+    h.update(dumps(value, sort_keys=True).encode('utf-8'))
     return h.hexdigest()
 
 

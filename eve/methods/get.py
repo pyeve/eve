@@ -14,7 +14,7 @@
 import math
 from datetime import datetime
 from flask import current_app as app, abort
-from common import ratelimit
+from .common import ratelimit
 from eve.auth import requires_auth
 from eve.utils import parse_request, document_etag, document_link, \
     collection_link, home_link, querydef, resource_uri, config

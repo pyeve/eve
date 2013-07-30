@@ -156,6 +156,9 @@ class DataLayer(object):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to
 
+        .. versionchanged:: 0.0.9
+           support for Python 3.3.
+
         .. versionchanged:: 0.0.6
            'auth_username_field' is injected even in empty queries.
            Projection queries ('?projection={"name": 1}')
@@ -174,11 +177,11 @@ class DataLayer(object):
                 query = filter_
 
         if client_projection:
-            # only allow fields which are inluded with the standard projection
+            # only allow fields which are included with the standard projection
             # for the resource (avoid sniffing of private fields)
             fields = dict(
-                (field, 1) for (field) in filter(projection_.has_key,
-                                                 client_projection.keys()))
+                (field, 1) for (field) in [key for key in client_projection if
+                                           key in projection_])
         else:
             fields = projection_
 

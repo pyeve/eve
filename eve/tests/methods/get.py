@@ -284,7 +284,7 @@ class TestGetItem(TestBase):
         r = self.test_client.get(self.item_id_url,
                                  headers=[('If-None-Match', etag)])
         self.assert304(r.status_code)
-        self.assertEqual(r.data, '')
+        self.assertTrue(not r.get_data())
 
     def test_cache_control(self):
         self.assertCacheControl(self.item_id_url)
@@ -337,5 +337,5 @@ class TestHead(TestBase):
     def assertHead(self, url):
         h = self.test_client.head('/')
         r = self.test_client.get('/')
-        self.assertEqual(h.data, '')
+        self.assertTrue(not h.data)
         self.assertEqual(r.headers, h.headers)

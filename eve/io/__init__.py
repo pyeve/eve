@@ -11,4 +11,4 @@
 """
 
 # flake8: noqa
-from base import DataLayer, ConnectionException
+from eve.io.base import DataLayer, ConnectionException

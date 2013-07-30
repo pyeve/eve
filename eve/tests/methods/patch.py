@@ -158,7 +158,7 @@ class TestPatch(TestBase):
         r = self.perform_patch_with_post_override(field, test_value)
         self.assert200(r.status_code)
         self.assertRaises(KeyError, self.compare_patch_with_get, 'title',
-                          json.loads(r.data))
+                          json.loads(r.get_data()))
 
     def test_patch_multiple_fields(self):
         fields = ['ref', 'prog', 'role']

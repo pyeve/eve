@@ -12,12 +12,12 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from methods import get, getitem, post, patch, delete, delete_resource
-from methods.common import ratelimit
-from flask import abort
-from render import send_response
+from eve.methods import get, getitem, post, patch, delete, delete_resource
+from eve.methods.common import ratelimit
+from eve.render import send_response
 from eve.auth import requires_auth
 from eve.utils import resource_uri, config, request_method
+from flask import abort
 
 
 def collections_endpoint(url):

@@ -42,7 +42,7 @@ class TestRateLimit(TestBase):
             self.assertRateLimit(self.test_client.get(url))
             r = self.test_client.get(url)
             self.assertEqual(r.status_code, 429)
-            self.assertTrue('Rate limit exceeded' in r.data)
+            self.assertTrue(b'Rate limit exceeded' in r.get_data())
 
             time.sleep(1)
             self.assertRateLimit(self.test_client.get(url))
