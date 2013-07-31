@@ -1,6 +1,7 @@
 Running the Tests 
 =================
-Just run:
+The test suite runs under Python 2.6, Python 2.7 and Python 3.3. To execute it
+locally just run:
 
 .. code-block:: console
 
@@ -32,18 +33,22 @@ Or even a single class function:
 
 RateLimting and Redis
 ---------------------
-In order to run successfully the :ref:`ratelimiting` suite needs both
-a running Redis_ server and redispy_ to be installed. If any of these
-conditions is not satisfied the suite will just be silently skipped.
+While there are no test requirements for most of the suite, please be advised
+that in order to execute the :ref:`ratelimiting` tests you need a running
+Redis_ server, and that redispy_ must be installed. The Rate-Limiting tests are
+silently skipped if any of the two conditions are not met. 
 
-While you have to install Redis by yourself (it is really easy_), redispy will
-install automatically on the first test run. Of course you can still install it
-yourself, if so you wish:
+Redispy will install automatically on the first test run, or you can install it
+yourself with 
 
 .. code-block:: console
 
-   $ pip install redis
+    $ pip install redis
+    
+but again, if you want Rate-Limit tests to execute, you will have to make sure
+that Redis is installed (that's simple_) and that an instance of
+``redis-server`` is running. 
 
 .. _Redis:  http://redis.io/
 .. _redispy: https://github.com/andymccurdy/redis-py
-.. _easy: http://redis.io/topics/quickstart
+.. _simple: http://redis.io/topics/quickstart
