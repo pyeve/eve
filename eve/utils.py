@@ -289,3 +289,15 @@ def request_method():
         return 'PATCH'
     else:
         return request.method
+
+
+def debug_error_message(msg):
+    """ Returns the error message `msg` if config.DEBUG is True
+    otherwise returns `None` which will cause Werkzeug to provide
+    a generic error message
+
+    :param msg: The error message to return if config.DEBUG is True
+    """
+    if config.DEBUG is True:
+        return msg
+    return None

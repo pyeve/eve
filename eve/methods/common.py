@@ -14,14 +14,14 @@ import time
 from flask import current_app as app, request, abort, g, Response
 import simplejson as json
 from ..utils import str_to_date, parse_request, document_etag, config, \
-    request_method
+    request_method, debug_error_message
 from functools import wraps
 
 
 def get_document(resource, **lookup):
     """ Retrieves and return a single document. Since this function is used by
     the editing methods (POST, PATCH, DELETE), we make sure that the client
-    request references the current representation of the dcument before
+    request references the current representation of the document before
     returning it.
 
     :param resource: the name of the resource to which the document belongs to.
@@ -37,14 +37,14 @@ def get_document(resource, **lookup):
         if not req.if_match:
             # we don't allow editing unless the client provides an etag
             # for the document
-            abort(403)
+            abort(403, description=debug_error_message('An etag must be provided to edit a document'))
 
         document[config.LAST_UPDATED] = document[config.LAST_UPDATED].replace(
             tzinfo=None)
         if req.if_match != document_etag(document):
             # client and server etags must match, or we don't allow editing
             # (ensures that client's version of the document is up to date)
-            abort(412)
+            abort(412, description=debug_error_message('Client and server etags don\'t match'))
 
     return document
 
@@ -108,9 +108,10 @@ def payload():
         return request.get_json()
     elif content_type == \
             'application/x-www-form-urlencoded':
-        return request.form if len(request.form) else abort(400)
+        return request.form if len(request.form) else abort(400,
+            description=debug_error_message('No form-urlencoded data supplied'))
     else:
-        abort(400)
+        abort(400, description=debug_error_message('Unknown or no Content-Type header supplied'))
 
 
 class RateLimit(object):
