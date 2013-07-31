@@ -60,7 +60,8 @@
             
   <div class="section" id="running-the-tests">
 <h1>Running the Tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h1>
-<p>Just run:</p>
+<p>The test suite runs under Python 2.6, Python 2.7 and Python 3.3. To execute it
+locally just run:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py <span class="nb">test</span>
 </pre></div>
 </div>
@@ -82,15 +83,18 @@
 </div>
 <div class="section" id="ratelimting-and-redis">
 <h2>RateLimting and Redis<a class="headerlink" href="#ratelimting-and-redis" title="Permalink to this headline">¶</a></h2>
-<p>In order to run successfully the <a class="reference internal" href="features.html#ratelimiting"><em>Rate Limiting</em></a> suite needs both
-a running <a class="reference external" href="http://redis.io/">Redis</a> server and <a class="reference external" href="https://github.com/andymccurdy/redis-py">redispy</a> to be installed. If any of these
-conditions is not satisfied the suite will just be silently skipped.</p>
-<p>While you have to install Redis by yourself (it is really <a class="reference external" href="http://redis.io/topics/quickstart">easy</a>), redispy will
-install automatically on the first test run. Of course you can still install it
-yourself, if so you wish:</p>
+<p>While there are no test requirements for most of the suite, please be advised
+that in order to execute the <a class="reference internal" href="features.html#ratelimiting"><em>Rate Limiting</em></a> tests you need a running
+<a class="reference external" href="http://redis.io/">Redis</a> server, and that <a class="reference external" href="https://github.com/andymccurdy/redis-py">redispy</a> must be installed. The Rate-Limiting tests are
+silently skipped if any of the two conditions are not met.</p>
+<p>Redispy will install automatically on the first test run, or you can install it
+yourself with</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> pip install redis
 </pre></div>
 </div>
+<p>but again, if you want Rate-Limit tests to execute, you will have to make sure
+that Redis is installed (that&#8217;s <a class="reference external" href="http://redis.io/topics/quickstart">simple</a>) and that an instance of
+<tt class="docutils literal"><span class="pre">redis-server</span></tt> is running.</p>
 </div>
 </div>
 
