@@ -298,6 +298,6 @@ def debug_error_message(msg):
 
     :param msg: The error message to return if config.DEBUG is True
     """
-    if config.DEBUG is True:
+    if getattr(config, 'DEBUG', False):
         return msg
     return None
