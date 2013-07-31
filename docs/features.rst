@@ -569,6 +569,8 @@ consistent with the state of the documents on the database (they  won't be
 updated to reflect changes eventually applied by the callback functions).
 
 
+.. _ratelimiting:
+
 Rate Limiting
 -------------
 API rate limiting is supported on a per-user/method basis. You can set the
