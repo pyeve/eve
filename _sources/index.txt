@@ -53,10 +53,31 @@ User's Guide
     authentication
     tutorials/index
     extensions
+
+Developer's Guide
+-----------------
+.. toctree::
+    :maxdepth: 1
+
     contributing
+    testing
+
+*A proper developer guide will be available when 1.0 is released*
+
+Support, Updates and Licensing
+------------------------------
+.. toctree::
+    :maxdepth: 1
+
     support
     updates
     license
+
+Changelog
+---------
+.. toctree::
+    :maxdepth: 2
+
     changelog
 
 .. note::
