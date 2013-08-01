@@ -71,7 +71,18 @@ contacts = {
         'title': {
             'type': 'string',
             'default': 'Mr.',
-        }
+        },
+        'tags': {
+            'type': 'list',
+            'items': [
+                {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'collection': 'tags'
+                    }
+                }
+            ]
+        },
     }
 }
 
@@ -96,6 +107,12 @@ invoices = {
     }
 }
 
+tags = {
+    'schema': {
+        'name': {'type': 'string'},
+    }
+}
+
 
 payments = {
     'resource_methods': ['GET'],
@@ -110,4 +127,5 @@ DOMAIN = {
     'invoices': invoices,
     'payments': payments,
     'empty': empty,
+    'tags': tags,
 }

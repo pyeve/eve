@@ -296,6 +296,10 @@ class TestBase(TestMinimal):
                                (self.domain['invoices']['url'],
                                 self.invoice_id))
 
+        response, status = self.get('tags')
+        self.tag_id1 = response['_items'][0][self.app.config['ID_FIELD']]
+        self.tag_id2 = response['_items'][1][self.app.config['ID_FIELD']]
+
     def random_contacts(self, num, standard_date_fields=True):
         schema = DOMAIN['contacts']['schema']
         contacts = []
@@ -354,6 +358,13 @@ class TestBase(TestMinimal):
             invoices.append(invoice)
         return invoices
 
+    def random_tags(self, num):
+        tags = []
+        for i in range(num):
+            tag = {'name': self.random_string(10)}
+            tags.append(tag)
+        return tags
+
     def random_string(self, num):
         return (''.join(random.choice(string.ascii_uppercase)
                         for x in range(num)))
@@ -382,4 +393,5 @@ class TestBase(TestMinimal):
         _db.contacts.insert(self.random_users(2))
         _db.payments.insert(self.random_payments(10))
         _db.invoices.insert(self.random_invoices(1))
+        _db.tags.insert(self.random_tags(2))
         self.connection.close()
