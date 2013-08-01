@@ -85,25 +85,22 @@ locally just run:</p>
 <h2>RateLimting and Redis<a class="headerlink" href="#ratelimting-and-redis" title="Permalink to this headline">¶</a></h2>
 <p>While there are no test requirements for most of the suite, please be advised
 that in order to execute the <a class="reference internal" href="features.html#ratelimiting"><em>Rate Limiting</em></a> tests you need a running
-<a class="reference external" href="http://redis.io/">Redis</a> server, and that <a class="reference external" href="https://github.com/andymccurdy/redis-py">redispy</a> must be installed. The Rate-Limiting tests are
+<a class="reference external" href="http://redis.io/">Redis</a> server, and <a class="reference external" href="https://github.com/andymccurdy/redis-py">redispy</a> must be installed. The Rate-Limiting tests are
 silently skipped if any of the two conditions are not met.</p>
 <p>Redispy will install automatically on the first test run, or you can install it
 yourself with</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> pip install redis
 </pre></div>
 </div>
-<p>but again, if you want Rate-Limit tests to execute, you will have to make sure
-that Redis is installed (that&#8217;s <a class="reference external" href="http://redis.io/topics/quickstart">simple</a>) and that an instance of
-<tt class="docutils literal"><span class="pre">redis-server</span></tt> is running.</p>
 </div>
 <div class="section" id="continous-integration">
 <h2>Continous Integration<a class="headerlink" href="#continous-integration" title="Permalink to this headline">¶</a></h2>
 <p>Each time code is pushed to either the <tt class="docutils literal"><span class="pre">develop</span></tt> or the <tt class="docutils literal"><span class="pre">master</span></tt> branch the
-whole test-suite is executed. This is also the case for pull-requests. When
-a pull request is submitted and the CI run fails two things happen: a &#8216;the
-build is broken&#8217; email is sent to the submitter; the request is rejected.  The
-contributor can then fix the code, add one or more commits as needed, and push
-again.</p>
+whole test-suite is executed on Travis-CI. This is also the case for
+pull-requests. When a pull request is submitted and the CI run fails two things
+happen: a &#8216;the build is broken&#8217; email is sent to the submitter; the request is
+rejected.  The contributor can then fix the code, add one or more commits as
+needed, and push again.</p>
 <p>The CI will also run flake8 so make sure that your code complies to PEP8 before
 submitting a pull request, or be prepared to be mail-spammed by CI.</p>
 </div>
