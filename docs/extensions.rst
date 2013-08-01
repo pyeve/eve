@@ -22,8 +22,10 @@ Eve-Mocker
 
 `Eve-Mocker`_ is a mocking tool for Eve powered REST API, based on the
 excellent HTTPretty, aimed to be used in your unit tests, when you rely on an
-Eve API.
+Eve API. Eve-Mocker has been featured on the Eve blog: `Mocking tool for Eve
+APIs`_
 
+.. _`Mocking tool for Eve APIs`: http://blog.python-eve.org/eve-mocker
 .. _`Auto generate API docs`: http://blog.python-eve.org/eve-docs
 .. _charlesflynn/eve-docs: https://github.com/charlesflynn/eve-docs
 .. _eve-mocker: https://github.com/tsileo/eve-mocker
