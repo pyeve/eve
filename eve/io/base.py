@@ -12,6 +12,7 @@
 
 from eve.utils import config
 from flask import request, abort
+from bson import ObjectId
 
 
 class ConnectionException(Exception):
@@ -190,10 +191,14 @@ class DataLayer(object):
         username_field = config.DOMAIN[resource].get('auth_username_field')
         if username_field and request.authorization and query is not None:
             # If the username_field *replaces* a field in the query,
-            # and the two filter values are different, deny the request
+            # and the two values are different, deny the request
             if username_field in query and \
                 query[username_field] != request.authorization.username:
-                abort(401)
+                # If the field is ID_FIELD, need additional check
+                # to make sure the ObjectId is not equal :(
+                if username_field != config.ID_FIELD or \
+                    query[username_field] != ObjectId(request.authorization.username):
+                    abort(401)
             else:
                 query.update({username_field: request.authorization.username})
 
