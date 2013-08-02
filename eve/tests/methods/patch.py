@@ -245,12 +245,15 @@ class TestPatch(TestBase):
 
     def test_patch_list_referential_integrity(self):
         # Patch the tags list with two tags
-        data = {'key1': json.dumps({"tags": [self.tag_id1, self.tag_id1]})}
+        test_values = [self.tag_id1, self.tag_id1]
+        data = {'key1': json.dumps({"tags": test_values})}
         headers = [('If-Match', self.user_etag)]
         r, status = self.patch(self.user_id_url, data=data, headers=headers)
         self.assert200(status)
         self.assertTrue('OK' in r['key1']['status'],
                         msg="key1: %s" % r['key1'])
+        r1, status1 = self.get(self.different_resource, item=self.user_id)
+        self.assertEqual(test_values, r1['tags'])
 
     def test_patch_write_concern_success(self):
         # 0 and 1 are the only valid values for 'w' on our mongod instance (1
