@@ -11,7 +11,7 @@
 """
 
 from eve.utils import config
-from flask import request
+from flask import request, abort
 
 
 class ConnectionException(Exception):
@@ -189,6 +189,12 @@ class DataLayer(object):
         # request active, add the username field to the query
         username_field = config.DOMAIN[resource].get('auth_username_field')
         if username_field and request.authorization and query is not None:
-            query.update({username_field: request.authorization.username})
+            # If the username_field *replaces* a field in the query,
+            # and the two filter values are different, deny the request
+            if username_field in query and \
+                query[username_field] != request.authorization.username:
+                abort(401)
+            else:
+                query.update({username_field: request.authorization.username})
 
         return datasource, query, fields
