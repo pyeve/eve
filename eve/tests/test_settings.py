@@ -74,15 +74,13 @@ contacts = {
         },
         'tags': {
             'type': 'list',
-            'items': [
-                {
+            'schema': {
                     'type': 'objectid',
                     'data_relation': {
                         'collection': 'tags'
                     }
-                }
-            ]
-        },
+            }
+        }
     }
 }
 
