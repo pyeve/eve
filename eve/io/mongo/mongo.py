@@ -98,6 +98,12 @@ class Mongo(DataLayer):
                 except ParseError:
                     abort(400)
 
+            # Only pass through filters that are in `allowed_filters`
+            # TODO raise an error if trying to filter on a prohibited field?
+            for filt, cond in list(spec.items()):
+                if filt not in config.DOMAIN[resource]['allowed_filters']:
+                    del spec[filt]
+
         if req.projection:
             try:
                 client_projection = json.loads(req.projection)

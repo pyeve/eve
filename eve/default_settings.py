@@ -41,7 +41,7 @@ ITEM_CACHE_CONTROL = ''
 X_DOMAINS = None                # CORS disabled by default.
 X_HEADERS = None                # CORS disabled by default.
 
-FILTERS = True                  # filters enbaled by default.
+ALLOWED_FILTERS = []            # filtering disabled by default
 SORTING = True                  # sorting enabled by default.
 PROJECTION = True               # projection enabled by default
 PAGINATION = True               # pagination enabled by default.

@@ -89,7 +89,7 @@ def parse_request(resource):
 
     r = ParsedRequest()
 
-    if config.DOMAIN[resource]['filters']:
+    if config.DOMAIN[resource]['allowed_filters']:
         r.where = args.get('where')
     if config.DOMAIN[resource]['projection']:
         r.projection = args.get('projection')
