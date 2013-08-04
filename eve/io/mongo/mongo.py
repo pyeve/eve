@@ -131,13 +131,14 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
+        datasource, filter_, projection = self._datasource_ex(resource, lookup)
+
         try:
-            if config.ID_FIELD in lookup:
-                lookup[ID_FIELD] = ObjectId(lookup[ID_FIELD])
+            if config.ID_FIELD in filter_:
+                filter_[ID_FIELD] = ObjectId(filter_[ID_FIELD])
         except:
             pass
 
-        datasource, filter_, projection = self._datasource_ex(resource, lookup)
         document = self.driver.db[datasource].find_one(filter_, projection)
         return document
 
