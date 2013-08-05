@@ -558,12 +558,16 @@ To provide seamless event handling features, Eve relies on the Events_ package.
 
 Manipulating outbound documents
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The ``on_getting_resource(resource, documents)``, ``on_getting_resource_
-<resource>(documents)``, ``on_getting_item(resource, _id, document)``, and
-``on_getting_item_<item_title>(_id, document)`` event hooks are raised when
-documents have just been read from the database and are about to be sent to the
-client. Registered callback functions can eventually manipulate the documents
-as needed.
+The following events:
+
+- ``on_getting_resource(resource, documents)``
+- ``on_getting_resource_<resource>(documents)`` 
+- ``on_getting_item(resource, _id, document)`` 
+- ``on_getting_item_<item_title>(_id, document)`` 
+  
+are raised when documents have just been read from the database and are about
+to be sent to the client. Registered callback functions can eventually
+manipulate the documents as needed.
 
 .. code-block:: pycon
 
