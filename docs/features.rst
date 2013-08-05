@@ -573,17 +573,17 @@ as needed.
     >>> def before_returning_contacts(documents):
     ...  print 'About to return contacts'
 
-    >>> def before_returning_item(document):
+    >>> def before_returning_item(resource, _id, document):
     ...  print 'About to return an item from "%s" ' % resource
 
-    >>> def before_returning_contact(document):
+    >>> def before_returning_contact(_id, document):
     ...  print 'About to return a contact' 
 
     >>> app = Eve()
     >>> app.on_getting_resource += before_returning_items
     >>> app.on_getting_resource_contacts += before_returning_contacts
     >>> app.on_getting_item += before_returning_item
-    >>> app.on_getting_contact += before_returning_contact
+    >>> app.on_getting_item_contact += before_returning_contact
 
     >>> app.run()
 
