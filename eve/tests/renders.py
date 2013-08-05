@@ -218,7 +218,7 @@ class TestEventHooks(TestBase):
             self.assertEqual(resource, self.known_resource)
             self.assertEqual(len(documents), 25)
             self.passed = True
-        self.app.on_getting += general_hook
+        self.app.on_getting_resource += general_hook
         self.test_client.get(self.known_resource_url)
         self.assertTrue(self.passed)
 
@@ -226,7 +226,7 @@ class TestEventHooks(TestBase):
         def resource_hook(documents):
             self.assertEqual(len(documents), 25)
             self.passed = True
-        self.app.on_getting_contacts += resource_hook
+        self.app.on_getting_resource_contacts += resource_hook
         self.test_client.get(self.known_resource_url)
         self.assertTrue(self.passed)
 
