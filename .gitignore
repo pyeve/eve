@@ -48,3 +48,6 @@ Scripts
 
 #Sphinx
 _build
+
+# PyCharm
+.idea
