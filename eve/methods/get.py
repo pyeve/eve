@@ -156,9 +156,12 @@ def getitem(resource, **lookup):
         }
 
         # notify registered callback functions. Please note that, should the
-        # functions modify the document, last_modified and etag  won't be
+        # functions modify the document, last_modified and etag won't be
         # updated to reflect the changes (they always reflect the documents
         # state on the database).
+        item_title = config.DOMAIN[resource]['item_title'].lower()
+
+        getattr(app, "on_getting_%s" % item_title)(document[config.ID_FIELD], document)
         getattr(app, "on_getting_item")(resource, document[config.ID_FIELD],
                                         document)
 
