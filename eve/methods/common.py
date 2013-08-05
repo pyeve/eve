@@ -37,14 +37,18 @@ def get_document(resource, **lookup):
         if not req.if_match:
             # we don't allow editing unless the client provides an etag
             # for the document
-            abort(403, description=debug_error_message('An etag must be provided to edit a document'))
+            abort(403, description=debug_error_message(
+                'An etag must be provided to edit a document'
+            ))
 
         document[config.LAST_UPDATED] = document[config.LAST_UPDATED].replace(
             tzinfo=None)
         if req.if_match != document_etag(document):
             # client and server etags must match, or we don't allow editing
             # (ensures that client's version of the document is up to date)
-            abort(412, description=debug_error_message('Client and server etags don\'t match'))
+            abort(412, description=debug_error_message(
+                'Client and server etags don\'t match'
+            ))
 
     return document
 
@@ -108,10 +112,14 @@ def payload():
         return request.get_json()
     elif content_type == \
             'application/x-www-form-urlencoded':
-        return request.form if len(request.form) else abort(400,
-            description=debug_error_message('No form-urlencoded data supplied'))
+        return request.form if len(request.form) else \
+            abort(400, description=debug_error_message(
+                'No form-urlencoded data supplied'
+            ))
     else:
-        abort(400, description=debug_error_message('Unknown or no Content-Type header supplied'))
+        abort(400, description=debug_error_message(
+            'Unknown or no Content-Type header supplied'
+        ))
 
 
 class RateLimit(object):

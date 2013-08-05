@@ -5,7 +5,8 @@ from bson.json_util import dumps
 from datetime import datetime, timedelta
 from eve.tests import TestBase
 from eve.utils import parse_request, str_to_date, config, weak_date, \
-    date_to_str, querydef, document_etag, extract_key_values, debug_error_message
+    date_to_str, querydef, document_etag, extract_key_values, \
+    debug_error_message
 
 
 class TestUtils(TestBase):
@@ -183,5 +184,5 @@ class TestUtils(TestBase):
             self.app.config['DEBUG'] = False
             self.assertEquals(debug_error_message('An error message'), None)
             self.app.config['DEBUG'] = True
-            self.assertEquals(debug_error_message('An error message'), 'An error message')
-
+            self.assertEquals(debug_error_message('An error message'),
+                              'An error message')

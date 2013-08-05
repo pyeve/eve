@@ -57,7 +57,9 @@ def patch(resource, **lookup):
     payload = payload_()
     if len(payload) > 1:
         # only one update-per-document supported
-        abort(400, description=debug_error_message('Only one update-per-document supported'))
+        abort(400, description=debug_error_message(
+            'Only one update-per-document supported'
+        ))
 
     original = get_document(resource, **lookup)
     if not original:
@@ -113,7 +115,9 @@ def patch(resource, **lookup):
         raise e
     except Exception as e:
         # consider all other exceptions as Bad Requests
-        abort(400, description=debug_error_message('An exception occurred: %s' % e))
+        abort(400, description=debug_error_message(
+            'An exception occurred: %s' % e
+        ))
 
     if len(issues):
         response_item['issues'] = issues

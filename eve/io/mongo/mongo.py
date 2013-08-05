@@ -96,13 +96,17 @@ class Mongo(DataLayer):
                 try:
                     spec = parse(req.where)
                 except ParseError:
-                    abort(400, description=debug_error_message('Unable to parse `where` clause'))
+                    abort(400, description=debug_error_message(
+                        'Unable to parse `where` clause'
+                    ))
 
         if req.projection:
             try:
                 client_projection = json.loads(req.projection)
             except:
-                abort(400, description=debug_error_message('Unable to parse `projection` clause'))
+                abort(400, description=debug_error_message(
+                    'Unable to parse `projection` clause'
+                ))
 
         datasource, spec, projection = self._datasource_ex(resource, spec,
                                                            client_projection)
@@ -164,7 +168,9 @@ class Mongo(DataLayer):
             # most likely a 'w' (write_concern) setting which needs an
             # existing ReplicaSet which doesn't exist. Please note that the
             # update will actually succeed (a new ETag will be needed).
-            abort(500, description=debug_error_message('pymongo.errors.OperationFailure: %s' % e))
+            abort(500, description=debug_error_message(
+                'pymongo.errors.OperationFailure: %s' % e
+            ))
 
     def update(self, resource, id_, updates):
         """Updates a collection document.
@@ -189,7 +195,9 @@ class Mongo(DataLayer):
                                               **self._wc(resource))
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
-            abort(500, description=debug_error_message('pymongo.errors.OperationFailure: %s' % e))
+            abort(500, description=debug_error_message(
+                'pymongo.errors.OperationFailure: %s' % e
+            ))
 
     def remove(self, resource, id_=None):
         """Removes a document or the entire set of documents from a collection.
@@ -212,7 +220,9 @@ class Mongo(DataLayer):
             self.driver.db[datasource].remove(filter_, **self._wc(resource))
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
-            abort(500, description=debug_error_message('pymongo.errors.OperationFailure: %s' % e))
+            abort(500, description=debug_error_message(
+                'pymongo.errors.OperationFailure: %s' % e
+            ))
 
     def _jsondatetime(self, source):
         """ Recursively iterates a JSON dictionary, turning RFC-1123 strings
@@ -242,11 +252,16 @@ class Mongo(DataLayer):
         .. versionadded:: 0.0.7
         """
         if set(spec.keys()) & set(config.MONGO_QUERY_BLACKLIST):
-            abort(400, description=debug_error_message('Query contains operators banned in MONGO_QUERY_BLACKLIST'))
+            abort(400, description=debug_error_message(
+                'Query contains operators banned in MONGO_QUERY_BLACKLIST'
+            ))
         for value in spec.values():
             if isinstance(value, dict):
                 if set(value.keys()) & set(config.MONGO_QUERY_BLACKLIST):
-                    abort(400, description=debug_error_message('Query contains operators banned in MONGO_QUERY_BLACKLIST'))
+                    abort(400, description=debug_error_message(
+                        'Query contains operators banned '
+                        'in MONGO_QUERY_BLACKLIST'
+                    ))
         return spec
 
     def _wc(self, resource):
