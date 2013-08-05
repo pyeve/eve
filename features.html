@@ -583,11 +583,37 @@ that did not pass validation are not included).</p>
 </div>
 <div class="section" id="manipulating-outbound-documents">
 <h3>Manipulating outbound documents<a class="headerlink" href="#manipulating-outbound-documents" title="Permalink to this headline">¶</a></h3>
-<p>The <tt class="docutils literal"><span class="pre">on_getting(resource,</span> <span class="pre">documents)</span></tt>, <tt class="docutils literal"><span class="pre">on_getting_&lt;resource&gt;(documents)</span></tt>
-and <tt class="docutils literal"><span class="pre">on_getting_item(resource,</span> <span class="pre">_id,</span> <span class="pre">document)</span></tt> event hooks are raised when
-documents have just been read from the database and are about to be sent to the
-client. Registered callback functions can eventually manipulate the documents
-as needed.</p>
+<p>The following events:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">on_getting_resource(resource,</span> <span class="pre">documents)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_getting_resource_&lt;resource&gt;(documents)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_getting_item(resource,</span> <span class="pre">_id,</span> <span class="pre">document)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_getting_item_&lt;item_title&gt;(_id,</span> <span class="pre">document)</span></tt></li>
+</ul>
+<p>are raised when documents have just been read from the database and are about
+to be sent to the client. Registered callback functions can eventually
+manipulate the documents as needed.</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_items</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">documents</span><span class="p">):</span>
+<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return items from &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_contacts</span><span class="p">(</span><span class="n">documents</span><span class="p">):</span>
+<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return contacts&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_item</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">_id</span><span class="p">,</span> <span class="n">document</span><span class="p">):</span>
+<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return an item from &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_contact</span><span class="p">(</span><span class="n">_id</span><span class="p">,</span> <span class="n">document</span><span class="p">):</span>
+<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return a contact&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_getting_resource</span> <span class="o">+=</span> <span class="n">before_returning_items</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_getting_resource_contacts</span> <span class="o">+=</span> <span class="n">before_returning_contacts</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_getting_item</span> <span class="o">+=</span> <span class="n">before_returning_item</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_getting_item_contact</span> <span class="o">+=</span> <span class="n">before_returning_contact</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
 <p>Please be aware that <tt class="docutils literal"><span class="pre">last_modified</span></tt> and <tt class="docutils literal"><span class="pre">etag</span></tt> headers will always be
 consistent with the state of the documents on the database (they  won&#8217;t be
 updated to reflect changes eventually applied by the callback functions).</p>
