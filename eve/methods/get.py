@@ -84,8 +84,8 @@ def get(resource):
         # updated to reflect the changes (they always reflect the documents
         # state on the database.)
 
-        getattr(app, "on_getting")(resource, documents)
-        getattr(app, "on_getting_%s" % resource)(documents)
+        getattr(app, "on_getting_resource")(resource, documents)
+        getattr(app, "on_getting_resource_%s" % resource)(documents)
 
         response['_items'] = documents
         response['_links'] = _pagination_links(resource, req, cursor.count())
@@ -159,8 +159,12 @@ def getitem(resource, **lookup):
         # functions modify the document, last_modified and etag  won't be
         # updated to reflect the changes (they always reflect the documents
         # state on the database).
+        item_title = config.DOMAIN[resource]['item_title'].lower()
+
         getattr(app, "on_getting_item")(resource, document[config.ID_FIELD],
                                         document)
+        getattr(app, "on_getting_item_%s" %
+                item_title)(document[config.ID_FIELD], document)
 
         response.update(document)
         return response, last_modified, document['etag'], 200

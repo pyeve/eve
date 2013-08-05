@@ -558,11 +558,38 @@ To provide seamless event handling features, Eve relies on the Events_ package.
 
 Manipulating outbound documents
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The ``on_getting(resource, documents)``, ``on_getting_<resource>(documents)``
-and ``on_getting_item(resource, _id, document)`` event hooks are raised when
-documents have just been read from the database and are about to be sent to the
-client. Registered callback functions can eventually manipulate the documents
-as needed. 
+The following events:
+
+- ``on_getting_resource(resource, documents)``
+- ``on_getting_resource_<resource>(documents)`` 
+- ``on_getting_item(resource, _id, document)`` 
+- ``on_getting_item_<item_title>(_id, document)`` 
+  
+are raised when documents have just been read from the database and are about
+to be sent to the client. Registered callback functions can eventually
+manipulate the documents as needed.
+
+.. code-block:: pycon
+
+    >>> def before_returning_items(resource, documents):
+    ...  print 'About to return items from "%s" ' % resource
+
+    >>> def before_returning_contacts(documents):
+    ...  print 'About to return contacts'
+
+    >>> def before_returning_item(resource, _id, document):
+    ...  print 'About to return an item from "%s" ' % resource
+
+    >>> def before_returning_contact(_id, document):
+    ...  print 'About to return a contact' 
+
+    >>> app = Eve()
+    >>> app.on_getting_resource += before_returning_items
+    >>> app.on_getting_resource_contacts += before_returning_contacts
+    >>> app.on_getting_item += before_returning_item
+    >>> app.on_getting_item_contact += before_returning_contact
+
+    >>> app.run()
 
 Please be aware that ``last_modified`` and ``etag`` headers will always be
 consistent with the state of the documents on the database (they  won't be
