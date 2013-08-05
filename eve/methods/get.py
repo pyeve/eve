@@ -163,8 +163,8 @@ def getitem(resource, **lookup):
 
         getattr(app, "on_getting_item")(resource, document[config.ID_FIELD],
                                         document)
-        getattr(app, "on_getting_item_%s" % item_title)(document[config.ID_FIELD],
-                                        document)
+        getattr(app, "on_getting_item_%s" %
+                item_title)(document[config.ID_FIELD], document)
 
         response.update(document)
         return response, last_modified, document['etag'], 200
