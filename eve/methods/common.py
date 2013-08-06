@@ -27,6 +27,9 @@ def get_document(resource, **lookup):
     :param resource: the name of the resource to which the document belongs to.
     :param **lookup: document lookup query
 
+    .. versionchanged:: 0.0.9
+       More informative error messages.
+
     .. versionchanged:: 0.0.5
       Pass current resource to ``parse_request``, allowing for proper
       processing of new configuration settings: `filters`, `sorting`, `paging`.
@@ -99,7 +102,9 @@ def payload():
     unsupported, aborts with a 400 (Bad Request).
 
     .. versionchanged:: 0.0.9
+       More informative error messages.
        request.get_json() replaces the now deprecated request.json
+
 
     .. versionchanged:: 0.0.7
        Native Flask request.json preferred over json.loads.

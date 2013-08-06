@@ -27,6 +27,9 @@ def get(resource):
 
     :param resource: the name of the resource.
 
+    .. versionchanged: 0.0.9
+       Event hooks renamed to be more robuts and consistent.
+
     .. versionchanged: 0.0.8
        'on_getting' and 'on_getting_<resource>' events are raised when
        documents have been read from the database and are about to be sent to

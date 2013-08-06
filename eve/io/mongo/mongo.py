@@ -54,6 +54,9 @@ class Mongo(DataLayer):
         :param resource: resource name.
         :param req: a :class:`ParsedRequest`instance.
 
+        .. versionchanged:: 0.0.9
+           More informative error messages.
+
         .. versionchanged:: 0.0.7
            Abort with a 400 if the query includes blacklisted  operators.
 
@@ -149,6 +152,9 @@ class Mongo(DataLayer):
     def insert(self, resource, doc_or_docs):
         """Inserts a document into a resource collection.
 
+        .. versionchanged:: 0.0.9
+           More informative error messages.
+
         .. versionchanged:: 0.0.8
            'write_concern' support.
 
@@ -174,6 +180,9 @@ class Mongo(DataLayer):
 
     def update(self, resource, id_, updates):
         """Updates a collection document.
+
+        .. versionchanged:: 0.0.9
+           More informative error messages.
 
         .. versionchanged:: 0.0.8
            'write_concern' support.
@@ -201,6 +210,9 @@ class Mongo(DataLayer):
 
     def remove(self, resource, id_=None):
         """Removes a document or the entire set of documents from a collection.
+
+        .. versionchanged:: 0.0.9
+           More informative error messages.
 
         .. versionchanged:: 0.0.8
            'write_concern' support.
@@ -248,6 +260,10 @@ class Mongo(DataLayer):
     def _sanitize(self, spec):
         """ Makes sure that only allowed operators are included in the query,
         aborts with a 400 otherwise.
+
+        .. versionchanged:: 0.0.9
+           More informative error messages.
+           Allow ``auth_username_field`` to be set to ``ID_FIELD``.
 
         .. versionadded:: 0.0.7
         """

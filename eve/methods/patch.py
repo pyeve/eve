@@ -33,7 +33,8 @@ def patch(resource, **lookup):
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.0.9
-       support for Python 3.3.
+       More informative error messages.
+       Support for Python 3.3.
 
     .. versionchanged:: 0.0.8
        Let ``werkzeug.exceptions.InternalServerError`` go through as they have

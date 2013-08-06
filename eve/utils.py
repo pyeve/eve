@@ -297,6 +297,8 @@ def debug_error_message(msg):
     a generic error message
 
     :param msg: The error message to return if config.DEBUG is True
+
+    .. versionadded: 0.0.9
     """
     if getattr(config, 'DEBUG', False):
         return msg
