@@ -8,6 +8,9 @@ Version 0.0.9
 
 Not released yet.
 
+- More informative HTTP error messages. Some more informative error
+  messages have been added for HTTP 400/3/12 and 500 errors. The error messages
+  only show if DEBUG==True (Bryan Cattle).
 - Updated the event hooks naming system to be more robuts and consistent.
   ``on_getting(resource, documents)`` is now ``on_getting_resource(resource,
   documents)``; ``on_getting_<resource>(documents) is now known as

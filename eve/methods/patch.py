@@ -14,7 +14,7 @@
 from flask import current_app as app, abort
 from werkzeug import exceptions
 from datetime import datetime
-from eve.utils import document_etag, document_link, config
+from eve.utils import document_etag, document_link, config, debug_error_message
 from eve.auth import requires_auth
 from eve.validation import ValidationError
 from eve.methods.common import get_document, parse, payload as payload_, \
@@ -57,7 +57,9 @@ def patch(resource, **lookup):
     payload = payload_()
     if len(payload) > 1:
         # only one update-per-document supported
-        abort(400)
+        abort(400, description=debug_error_message(
+            'Only one update-per-document supported'
+        ))
 
     original = get_document(resource, **lookup)
     if not original:
@@ -111,9 +113,11 @@ def patch(resource, **lookup):
         issues.append(str(e))
     except exceptions.InternalServerError as e:
         raise e
-    except:
+    except Exception as e:
         # consider all other exceptions as Bad Requests
-        abort(400)
+        abort(400, description=debug_error_message(
+            'An exception occurred: %s' % e
+        ))
 
     if len(issues):
         response_item['issues'] = issues
