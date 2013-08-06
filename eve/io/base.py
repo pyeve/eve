@@ -189,13 +189,13 @@ class DataLayer(object):
         # `public_item_methods`, skip the `auth_username_field` check
 
         if (
-            # Are we looking at an *item* is the HTTP method
+            # Are we looking at a *collection* and is the HTTP method
             # not in `public_item_methods` ...
             request.endpoint == 'collections_endpoint' and request.method
             not in config.DOMAIN[resource]['public_methods']
         ) or (
-            # ... or if we are looking at a *collection* and is
-            # the HTTP method is not in `public_methods`?
+            # ... or if we are looking at an *item* is
+            # the HTTP method not in `public_methods`?
             request.endpoint == 'item_endpoint' and request.method
             not in config.DOMAIN[resource]['public_item_methods']
         ):
