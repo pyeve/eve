@@ -549,8 +549,19 @@ both in XML and JSON responses. Overrides
 <tt class="docutils literal"><span class="pre">ITEM_TITLE</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">additional_lookup</span></tt></td>
-<td>RegEx defining and additional, custom read-only item
-endpoint. See the example below.</td>
+<td>Besides the standard item endpoint which
+defaults to <tt class="docutils literal"><span class="pre">/&lt;resource&gt;/&lt;ID_FIELD_value&gt;/</span></tt>,
+you can optionally define a secondary,
+read-only, endpoint like
+<tt class="docutils literal"><span class="pre">/&lt;resource&gt;/&lt;person_name&gt;/</span></tt>. You do so by
+defining a dictionary comprised of two items
+<cite>field</cite> and <cite>url</cite>. The former is the name of
+the field used for the lookup. If the field
+type (as defined in the resource <a class="reference internal" href="#schema">schema</a>) is
+a string, you can use a regex as the <cite>url</cite>
+value. If it is an integer, you can omit <cite>url</cite>.
+See the code snippet below for an usage example
+of this feature.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">datasource</span></tt></td>
 <td>Explicitly links API resources to database

@@ -61,6 +61,9 @@
 <h2>Version 0.0.9<a class="headerlink" href="#version-0-0-9" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>More informative HTTP error messages. Some more informative error
+messages have been added for HTTP 400/3/12 and 500 errors. The error messages
+only show if DEBUG==True (Bryan Cattle).</li>
 <li>Updated the event hooks naming system to be more robuts and consistent.
 <tt class="docutils literal"><span class="pre">on_getting(resource,</span> <span class="pre">documents)</span></tt> is now <tt class="docutils literal"><span class="pre">on_getting_resource(resource,</span>
 <span class="pre">documents)</span></tt>; <tt class="docutils literal"><span class="pre">on_getting_&lt;resource&gt;(documents)</span> <span class="pre">is</span> <span class="pre">now</span> <span class="pre">known</span> <span class="pre">as</span>
