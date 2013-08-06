@@ -34,9 +34,9 @@ will gladly honor a POST with the ``X-HTTP-Method-Override: PATCH`` header tag.
 Customizable resource endpoints
 -------------------------------
 By default Eve will make known database collections available as resource
-endpoints (persistent identifiers in REST idiom). So a database ``people`` collection 
-will be avaliable at the ``example.com/people/`` API endpoint.
-You can customize the URIs though, so the API endpoint could become, say,
+endpoints (persistent identifiers in REST idiom). So a database ``people``
+collection will be avaliable at the ``example.com/people/`` API endpoint.  You
+can customize the URIs though, so the API endpoint could become, say,
 ``example.com/customers/``. Consider the following request:
 
 .. code-block:: console
@@ -97,8 +97,8 @@ Customizable, multiple item endpoints
 Resources can or cannot expose individual item endpoints. API consumers could
 get access to ``/people/``, ``/people/<ObjectId>/`` and ``/people/Doe/``,
 but only to ``/works/``.  When you do grant access to item endpoints, you can
-define up to two lookups, both defined via regex. The first will be the primary
-endpoint and will match your database primary key structure (i.e. an
+define up to two lookups, both defined with regexes. The first will be the
+primary endpoint and will match your database primary key structure (i.e. an
 ``ObjectId`` in a MongoDB database).  
 
 .. code-block:: console
@@ -109,7 +109,7 @@ endpoint and will match your database primary key structure (i.e. an
     Last-Modified: Wed, 21 Nov 2012 16:04:56 UTC 
     ... 
 
-The second, which is optional, will match a field with unique values since Eve
+The second, which is optional and read-only, will match a field with unique values since Eve
 will retrieve only the first match anyway.
 
 .. code-block:: console

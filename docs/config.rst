@@ -443,8 +443,19 @@ always lowercase.
                                 both in XML and JSON responses. Overrides
                                 ``ITEM_TITLE``.
 
-``additional_lookup``           RegEx defining and additional, custom read-only item
-                                endpoint. See the example below.
+``additional_lookup``           Besides the standard item endpoint which
+                                defaults to ``/<resource>/<ID_FIELD_value>/``,
+                                you can optionally define a secondary,
+                                read-only, endpoint like
+                                ``/<resource>/<person_name>/``. You do so by
+                                defining a dictionary comprised of two items
+                                `field` and `url`. The former is the name of
+                                the field used for the lookup. If the field
+                                type (as defined in the resource schema_) is
+                                a string, then you put a regex in `url`.  If it
+                                is an integer, then you just omit `url`, as it
+                                is automatically handled.  See the code snippet
+                                below for an usage example of this feature.
 
 ``datasource``                  Explicitly links API resources to database 
                                 collections. See `Advanced Datasource

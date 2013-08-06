@@ -273,6 +273,18 @@ class TestGetItem(TestBase):
                                     item=self.unknown_item_name)
         self.assert404(status)
 
+    def test_getitem_by_integer(self):
+        self.domain['contacts']['additional_lookup'] = {
+            'field': 'prog'
+        }
+        self.app._add_url_rules()
+        response, status = self.get(self.known_resource,
+                                    item=1)
+        self.assertItemResponse(response, status)
+        response, status = self.get(self.known_resource,
+                                    item=self.known_resource_count)
+        self.assert404(status)
+
     def test_getitem_if_modified_since(self):
         self.assertIfModifiedSince(self.item_id_url)
 

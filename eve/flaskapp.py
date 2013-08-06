@@ -415,6 +415,9 @@ class Eve(Flask, Events):
         """ Builds the API url map. Methods are enabled for each mapped
         endpoint, as configured in the settings.
 
+        .. versionchanged:: 0.0.9
+           Handle the case of 'additional_lookup' field being an integer.
+
         .. versionchanged:: 0.0.5
            Support for Cross-Origin Resource Sharing. 'OPTIONS' method is
            explicitly routed to standard endpoints to allow for proper CORS
@@ -467,11 +470,15 @@ class Eve(Flask, Events):
                                       methods=['POST'])
 
                 # also enable an alternative lookup/endpoint if allowed
-                add_lookup = settings.get('additional_lookup')
-                if add_lookup:
-                    item_url = '%s<regex("%s"):%s>/' % (url,
-                                                        add_lookup['url'],
-                                                        add_lookup['field'])
+                lookup = settings.get('additional_lookup')
+                if lookup:
+                    l_type = settings['schema'][lookup['field']]['type']
+                    if l_type == 'integer':
+                        item_url = '%s<int:%s>/' % (url, lookup['field'])
+                    else:
+                        item_url = '%s<regex("%s"):%s>/' % (url,
+                                                            lookup['url'],
+                                                            lookup['field'])
                     self.add_url_rule(item_url, view_func=item_endpoint,
                                       methods=['GET'])
         self.config['RESOURCES'] = resources
