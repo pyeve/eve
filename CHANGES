@@ -8,6 +8,9 @@ Version 0.0.9
 
 Not released yet.
 
+- More informative HTTP error messages. Some more informative error
+  messages have been added for HTTP 400/3/12 and 500 errors. The error messages
+  only show if DEBUG==True (Bryan Cattle).
 - Allow ``auth_username_field`` to be set to ``ID_FIELD``(Bryan Cattle).
 - Python 3.3 is now supported.
 - Flask 0.10.1 is now supported.
