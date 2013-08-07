@@ -131,7 +131,7 @@ class TestPatch(TestBase):
 
     def test_patch_datetime(self):
         field = "born"
-        test_value = "Tue, 06 Nov 2012 10:33:31 UTC"
+        test_value = "Tue, 06 Nov 2012 10:33:31 GMT"
         changes = {'key1': json.dumps({field: test_value})}
         r = self.perform_patch(changes)
         db_value = self.compare_patch_with_get(field, r)

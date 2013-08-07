@@ -8,12 +8,13 @@ Version 0.0.9
 
 Not released yet.
 
+- Response date fields are now using GMT instead of UTC. Closes #83.
 - Updated the event hooks naming system to be more robuts and consistent.
   ``on_getting(resource, documents)`` is now ``on_getting_resource(resource,
   documents)``; ``on_getting_<resource>(documents) is now known as
   ``on_getting_resource_<resource>(documents)`` (Ryan Shea).
-- Added a new event hook: ``on_getting_item_<title>(_id, document)`` 
-  (Ryan Shea).
+- Added a new event hook: ``on_getting_item_<title>(_id, document)`` (Ryan
+  Shea).
 - Allow ``auth_username_field`` to be set to ``ID_FIELD``(Bryan Cattle).
 - Python 3.3 is now supported.
 - Flask 0.10.1 is now supported.

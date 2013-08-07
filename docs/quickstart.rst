@@ -254,7 +254,7 @@ endpoint:
     $ curl -i http://127.0.0.1:5000/people/obama/
     HTTP/1.0 200 OK
     Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
-    Last-Modified: Wed, 21 Nov 2012 16:04:56 UTC 
+    Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT 
     Cache-Control: 'max-age=10,must-revalidate'
     Expires: 10
     ... 
@@ -265,8 +265,8 @@ endpoint:
         "firstname": "barack",
         "lastname": "obama",
         "_id": "50acfba938345b0978fccad7"
-        "updated": "Wed, 21 Nov 2012 16:04:56 UTC",
-        "created": "Wed, 21 Nov 2012 16:04:56 UTC",
+        "updated": "Wed, 21 Nov 2012 16:04:56 GMT",
+        "created": "Wed, 21 Nov 2012 16:04:56 GMT",
         "_links": {
             "self": {"href": "127.0.0.1/people/50acfba938345b0978fccad7/", "title": "person"},
             "parent": {"href": "127.0.0.1/", "title": "home"},

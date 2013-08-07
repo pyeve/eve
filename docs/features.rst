@@ -53,12 +53,12 @@ The response payload will look something like this:
             {
                 "firstname": "Mark", 
                 "lastname": "Green", 
-                "born": "Sat, 23 Feb 1985 12:00:00 UTC", 
+                "born": "Sat, 23 Feb 1985 12:00:00 GMT", 
                 "role": ["copy", "author"], 
                 "location": {"city": "New York", "address": "4925 Lacross Road"}, 
                 "_id": "50bf198338345b1c604faf31",
-                "updated": "Wed, 05 Dec 2012 09:53:07 UTC", 
-                "created": "Wed, 05 Dec 2012 09:53:07 UTC", 
+                "updated": "Wed, 05 Dec 2012 09:53:07 GMT", 
+                "created": "Wed, 05 Dec 2012 09:53:07 GMT", 
                 "etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d", 
                 "_links": {
                     "self": {"href": "eve-demo.herokuapp.com:5000/people/50bf198338345b1c604faf31/", "title": "person"},
@@ -106,7 +106,7 @@ endpoint and will match your database primary key structure (i.e. an
     $ curl -i http://eve-demo.herokuapp.com/people/50acfba938345b0978fccad7/
     HTTP/1.0 200 OK
     Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
-    Last-Modified: Wed, 21 Nov 2012 16:04:56 UTC 
+    Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT 
     ... 
 
 The second, which is optional, will match a field with unique values since Eve
@@ -117,7 +117,7 @@ will retrieve only the first match anyway.
     $ curl -i http://eve-demo.herokuapp.com/people/Doe/
     HTTP/1.0 200 OK
     Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
-    Last-Modified: Wed, 21 Nov 2012 16:04:56 UTC 
+    Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT 
     ... 
 
 Since we are accessing the same item, in both cases the response payload will
@@ -128,12 +128,12 @@ look something like this:
     {
         "firstname": "John",
         "lastname": "Doe",
-        "born": "Thu, 27 Aug 1970 14:37:13 UTC",
+        "born": "Thu, 27 Aug 1970 14:37:13 GMT",
         "role": ["author"],
         "location": {"city": "Auburn", "address": "422 South Gay Street"},
         "_id": "50acfba938345b0978fccad7"
-        "updated": "Wed, 21 Nov 2012 16:04:56 UTC",
-        "created": "Wed, 21 Nov 2012 16:04:56 UTC",
+        "updated": "Wed, 21 Nov 2012 16:04:56 GMT",
+        "created": "Wed, 21 Nov 2012 16:04:56 GMT",
         "etag": "28995829ee85d69c4c18d597a0f68ae606a266cc",
         "_links": {
             "self": {"href": "eve-demo.herokuapp.com/people/50acfba938345b0978fccad7/", "title": "person"},
@@ -275,7 +275,7 @@ conditional requests, only retrieving new or modified data, by using the
 
 .. code-block:: console
 
-    $ curl -H "If-Modified-Since: Wed, 05 Dec 2012 09:53:07 UTC" -i http://eve-demo.herokuapp.com:5000/people/
+    $ curl -H "If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT" -i http://eve-demo.herokuapp.com:5000/people/
     HTTP/1.0 200 OK
 
 or the ``If-None-Match`` header:
@@ -326,7 +326,7 @@ It's a win, and the response payload looks something like this:
     {
         "data": {
             "status": "OK",
-            "updated": "Fri, 23 Nov 2012 08:11:19 UTC",
+            "updated": "Fri, 23 Nov 2012 08:11:19 GMT",
             "_id": "50adfa4038345b1049c88a37",
             "etag": "372fbbebf54dfe61742556f17a8461ca9a6f5a11"
             "_links": {"self": "..."}
@@ -356,14 +356,14 @@ data stream.
     {
         "item2": {
             "status": "OK",
-            "updated": "Thu, 22 Nov 2012 15:22:27 UTC",
+            "updated": "Thu, 22 Nov 2012 15:22:27 GMT",
             "_id": "50ae43339fa12500024def5b",
             "etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
             "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b/", "title": "person"}}
         },
         "item1": {
             "status": "OK",
-            "updated": "Thu, 22 Nov 2012 15:22:27 UTC",
+            "updated": "Thu, 22 Nov 2012 15:22:27 GMT",
             "_id": "50ae43339fa12500024def5c",
             "etag": "62d356f623c7d9dc864ffa5facc47dced4ba6907"
             "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5c/", "title": "person"}}
@@ -396,7 +396,7 @@ request:
         },
         "item1": {
             "status": "OK",
-            "updated": "Thu, 22 Nov 2012 15:29:08 UTC",
+            "updated": "Thu, 22 Nov 2012 15:29:08 GMT",
             "_id": "50ae44c49fa12500024def5d",
             "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d/", "title": "person"}}
         }
