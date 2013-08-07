@@ -122,8 +122,8 @@ uppercase.
                                 ``datetime`` values. In responses, ``datetime``
                                 values will be rendered as JSON strings using
                                 this format. Defaults to the RFC1123 (ex RFC
-                                822) standard ``a, %d %b %Y %H:%M:%S UTC`` 
-                                ("Tue, 02 Apr 2013 10:29:13 UTC"). 
+                                822) standard ``a, %d %b %Y %H:%M:%S GMT`` 
+                                ("Tue, 02 Apr 2013 10:29:13 GMT"). 
 
 ``RESOURCE_METHODS``            A list of HTTP methods supported at resource 
                                 endpoints. Allowed values: ``GET``, ``POST``,
