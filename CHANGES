@@ -21,7 +21,7 @@ Not released yet.
   ``on_getting_resource_<resource>(documents)`` (Ryan Shea).
 - Added a new event hook: ``on_getting_item_<title>(_id, document)`` (Ryan
   Shea).
-- Allow ``auth_username_field`` to be set to ``ID_FIELD``(Bryan Cattle).
+- Allow ``auth_username_field`` to be set to ``ID_FIELD`` (Bryan Cattle).
 - Python 3.3 is now supported.
 - Flask 0.10.1 is now supported.
 - Copyright finally updated to 2013. 
