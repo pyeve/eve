@@ -183,8 +183,8 @@ matching JSON strings will be parsed and stored as
 <tt class="docutils literal"><span class="pre">datetime</span></tt> values. In responses, <tt class="docutils literal"><span class="pre">datetime</span></tt>
 values will be rendered as JSON strings using
 this format. Defaults to the RFC1123 (ex RFC
-822) standard <tt class="docutils literal"><span class="pre">a,</span> <span class="pre">%d</span> <span class="pre">%b</span> <span class="pre">%Y</span> <span class="pre">%H:%M:%S</span> <span class="pre">UTC</span></tt>
-(&#8220;Tue, 02 Apr 2013 10:29:13 UTC&#8221;).</td>
+822) standard <tt class="docutils literal"><span class="pre">a,</span> <span class="pre">%d</span> <span class="pre">%b</span> <span class="pre">%Y</span> <span class="pre">%H:%M:%S</span> <span class="pre">GMT</span></tt>
+(&#8220;Tue, 02 Apr 2013 10:29:13 GMT&#8221;).</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">RESOURCE_METHODS</span></tt></td>
 <td>A list of HTTP methods supported at resource
@@ -558,10 +558,10 @@ defining a dictionary comprised of two items
 <cite>field</cite> and <cite>url</cite>. The former is the name of
 the field used for the lookup. If the field
 type (as defined in the resource <a class="reference internal" href="#schema">schema</a>) is
-a string, you can use a regex as the <cite>url</cite>
-value. If it is an integer, you can omit <cite>url</cite>.
-See the code snippet below for an usage example
-of this feature.</td>
+a string, then you put a regex in <cite>url</cite>.  If it
+is an integer, then you just omit <cite>url</cite>, as it
+is automatically handled.  See the code snippet
+below for an usage example of this feature.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">datasource</span></tt></td>
 <td>Explicitly links API resources to database

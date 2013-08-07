@@ -114,9 +114,9 @@ will gladly honor a POST with the <tt class="docutils literal"><span class="pre"
 <div class="section" id="customizable-resource-endpoints">
 <h2>Customizable resource endpoints<a class="headerlink" href="#customizable-resource-endpoints" title="Permalink to this headline">¶</a></h2>
 <p>By default Eve will make known database collections available as resource
-endpoints (persistent identifiers in REST idiom). So a database <tt class="docutils literal"><span class="pre">people</span></tt> collection
-will be avaliable at the <tt class="docutils literal"><span class="pre">example.com/people/</span></tt> API endpoint.
-You can customize the URIs though, so the API endpoint could become, say,
+endpoints (persistent identifiers in REST idiom). So a database <tt class="docutils literal"><span class="pre">people</span></tt>
+collection will be avaliable at the <tt class="docutils literal"><span class="pre">example.com/people/</span></tt> API endpoint.  You
+can customize the URIs though, so the API endpoint could become, say,
 <tt class="docutils literal"><span class="pre">example.com/customers/</span></tt>. Consider the following request:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/
 <span class="go">HTTP/1.0 200 OK</span>
@@ -128,12 +128,12 @@ You can customize the URIs though, so the API endpoint could become, say,
         <span class="p">{</span>
             <span class="s2">&quot;firstname&quot;</span><span class="o">:</span> <span class="s2">&quot;Mark&quot;</span><span class="p">,</span>
             <span class="s2">&quot;lastname&quot;</span><span class="o">:</span> <span class="s2">&quot;Green&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;born&quot;</span><span class="o">:</span> <span class="s2">&quot;Sat, 23 Feb 1985 12:00:00 UTC&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;born&quot;</span><span class="o">:</span> <span class="s2">&quot;Sat, 23 Feb 1985 12:00:00 GMT&quot;</span><span class="p">,</span>
             <span class="s2">&quot;role&quot;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;copy&quot;</span><span class="p">,</span> <span class="s2">&quot;author&quot;</span><span class="p">],</span>
             <span class="s2">&quot;location&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;city&quot;</span><span class="o">:</span> <span class="s2">&quot;New York&quot;</span><span class="p">,</span> <span class="s2">&quot;address&quot;</span><span class="o">:</span> <span class="s2">&quot;4925 Lacross Road&quot;</span><span class="p">},</span>
             <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50bf198338345b1c604faf31&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 05 Dec 2012 09:53:07 UTC&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 05 Dec 2012 09:53:07 UTC&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 05 Dec 2012 09:53:07 GMT&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 05 Dec 2012 09:53:07 GMT&quot;</span><span class="p">,</span>
             <span class="s2">&quot;etag&quot;</span><span class="o">:</span> <span class="s2">&quot;ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d&quot;</span><span class="p">,</span>
             <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span>
                 <span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com:5000/people/50bf198338345b1c604faf31/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">},</span>
@@ -184,22 +184,22 @@ need to provide them when adding/editing resources).</p>
 <p>Resources can or cannot expose individual item endpoints. API consumers could
 get access to <tt class="docutils literal"><span class="pre">/people/</span></tt>, <tt class="docutils literal"><span class="pre">/people/&lt;ObjectId&gt;/</span></tt> and <tt class="docutils literal"><span class="pre">/people/Doe/</span></tt>,
 but only to <tt class="docutils literal"><span class="pre">/works/</span></tt>.  When you do grant access to item endpoints, you can
-define up to two lookups, both defined via regex. The first will be the primary
-endpoint and will match your database primary key structure (i.e. an
+define up to two lookups, both defined with regexes. The first will be the
+primary endpoint and will match your database primary key structure (i.e. an
 <tt class="docutils literal"><span class="pre">ObjectId</span></tt> in a MongoDB database).</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/50acfba938345b0978fccad7/
 <span class="go">HTTP/1.0 200 OK</span>
 <span class="go">Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc</span>
-<span class="go">Last-Modified: Wed, 21 Nov 2012 16:04:56 UTC</span>
+<span class="go">Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT</span>
 <span class="go">...</span>
 </pre></div>
 </div>
-<p>The second, which is optional, will match a field with unique values since Eve
+<p>The second, which is optional and read-only, will match a field with unique values since Eve
 will retrieve only the first match anyway.</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/Doe/
 <span class="go">HTTP/1.0 200 OK</span>
 <span class="go">Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc</span>
-<span class="go">Last-Modified: Wed, 21 Nov 2012 16:04:56 UTC</span>
+<span class="go">Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT</span>
 <span class="go">...</span>
 </pre></div>
 </div>
@@ -208,12 +208,12 @@ look something like this:</p>
 <div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
     <span class="s2">&quot;firstname&quot;</span><span class="o">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span>
     <span class="s2">&quot;lastname&quot;</span><span class="o">:</span> <span class="s2">&quot;Doe&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;born&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 27 Aug 1970 14:37:13 UTC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;born&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 27 Aug 1970 14:37:13 GMT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;role&quot;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;author&quot;</span><span class="p">],</span>
     <span class="s2">&quot;location&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;city&quot;</span><span class="o">:</span> <span class="s2">&quot;Auburn&quot;</span><span class="p">,</span> <span class="s2">&quot;address&quot;</span><span class="o">:</span> <span class="s2">&quot;422 South Gay Street&quot;</span><span class="p">},</span>
     <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50acfba938345b0978fccad7&quot;</span>
-    <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 21 Nov 2012 16:04:56 UTC&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 21 Nov 2012 16:04:56 UTC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 21 Nov 2012 16:04:56 GMT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 21 Nov 2012 16:04:56 GMT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;etag&quot;</span><span class="o">:</span> <span class="s2">&quot;28995829ee85d69c4c18d597a0f68ae606a266cc&quot;</span><span class="p">,</span>
     <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span>
         <span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com/people/50acfba938345b0978fccad7/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">},</span>
@@ -332,7 +332,7 @@ updated (<tt class="docutils literal"><span class="pre">Last-Modified</span></tt
 representation itself (<tt class="docutils literal"><span class="pre">ETag</span></tt>). These headers allow clients to perform
 conditional requests, only retrieving new or modified data, by using the
 <tt class="docutils literal"><span class="pre">If-Modified-Since</span></tt> header:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-Modified-Since: Wed, 05 Dec 2012 09:53:07 UTC&quot;</span> -i http://eve-demo.herokuapp.com:5000/people/
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT&quot;</span> -i http://eve-demo.herokuapp.com:5000/people/
 <span class="go">HTTP/1.0 200 OK</span>
 </pre></div>
 </div>
@@ -372,7 +372,7 @@ currently stored on the server, so we got a <tt class="docutils literal"><span c
 <div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
     <span class="s2">&quot;data&quot;</span><span class="o">:</span> <span class="p">{</span>
         <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Fri, 23 Nov 2012 08:11:19 UTC&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Fri, 23 Nov 2012 08:11:19 GMT&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50adfa4038345b1049c88a37&quot;</span><span class="p">,</span>
         <span class="s2">&quot;etag&quot;</span><span class="o">:</span> <span class="s2">&quot;372fbbebf54dfe61742556f17a8461ca9a6f5a11&quot;</span>
         <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="s2">&quot;...&quot;</span><span class="p">}</span>
@@ -398,14 +398,14 @@ data stream.</p>
 <div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
     <span class="s2">&quot;item2&quot;</span><span class="o">:</span> <span class="p">{</span>
         <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 22 Nov 2012 15:22:27 UTC&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 22 Nov 2012 15:22:27 GMT&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50ae43339fa12500024def5b&quot;</span><span class="p">,</span>
         <span class="s2">&quot;etag&quot;</span><span class="o">:</span> <span class="s2">&quot;749093d334ebd05cf7f2b7dbfb7868605578db2c&quot;</span>
         <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com/people/50ae43339fa12500024def5b/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">}}</span>
     <span class="p">},</span>
     <span class="s2">&quot;item1&quot;</span><span class="o">:</span> <span class="p">{</span>
         <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 22 Nov 2012 15:22:27 UTC&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 22 Nov 2012 15:22:27 GMT&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50ae43339fa12500024def5c&quot;</span><span class="p">,</span>
         <span class="s2">&quot;etag&quot;</span><span class="o">:</span> <span class="s2">&quot;62d356f623c7d9dc864ffa5facc47dced4ba6907&quot;</span>
         <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com/people/50ae43339fa12500024def5c/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">}}</span>
@@ -435,7 +435,7 @@ request:</p>
     <span class="p">},</span>
     <span class="s2">&quot;item1&quot;</span><span class="o">:</span> <span class="p">{</span>
         <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 22 Nov 2012 15:29:08 UTC&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 22 Nov 2012 15:29:08 GMT&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50ae44c49fa12500024def5d&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">}}</span>
     <span class="p">}</span>

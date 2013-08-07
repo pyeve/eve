@@ -61,16 +61,20 @@
 <h2>Version 0.0.9<a class="headerlink" href="#version-0-0-9" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
-<li>More informative HTTP error messages. Some more informative error
-messages have been added for HTTP 400/3/12 and 500 errors. The error messages
-only show if DEBUG==True (Bryan Cattle).</li>
+<li>Response date fields are now using GMT instead of UTC. Closes #83.</li>
+<li>Handle the case of &#8216;additional_lookup&#8217; field being an integer. If this is the
+case you can omit the &#8216;url&#8217; key, as it will be ignored, and the integer value
+correctly parsed.</li>
+<li>More informative HTTP error messages. Some more informative error messages
+have been added for HTTP 400/3/12 and 500 errors. The error messages only
+show if DEBUG==True (Bryan Cattle).</li>
 <li>Updated the event hooks naming system to be more robuts and consistent.
 <tt class="docutils literal"><span class="pre">on_getting(resource,</span> <span class="pre">documents)</span></tt> is now <tt class="docutils literal"><span class="pre">on_getting_resource(resource,</span>
 <span class="pre">documents)</span></tt>; <tt class="docutils literal"><span class="pre">on_getting_&lt;resource&gt;(documents)</span> <span class="pre">is</span> <span class="pre">now</span> <span class="pre">known</span> <span class="pre">as</span>
 <span class="pre">``on_getting_resource_&lt;resource&gt;(documents)</span></tt> (Ryan Shea).</li>
-<li>Added a new event hook: <tt class="docutils literal"><span class="pre">on_getting_item_&lt;title&gt;(_id,</span> <span class="pre">document)</span></tt>
-(Ryan Shea).</li>
-<li>Allow <tt class="docutils literal"><span class="pre">auth_username_field</span></tt> to be set to <a href="#id1"><span class="problematic" id="id2">``</span></a>ID_FIELD``(Bryan Cattle).</li>
+<li>Added a new event hook: <tt class="docutils literal"><span class="pre">on_getting_item_&lt;title&gt;(_id,</span> <span class="pre">document)</span></tt> (Ryan
+Shea).</li>
+<li>Allow <tt class="docutils literal"><span class="pre">auth_username_field</span></tt> to be set to <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> (Bryan Cattle).</li>
 <li>Python 3.3 is now supported.</li>
 <li>Flask 0.10.1 is now supported.</li>
 <li>Copyright finally updated to 2013.</li>
