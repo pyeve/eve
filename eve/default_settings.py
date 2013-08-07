@@ -11,6 +11,9 @@
     :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.0.9
+       'DATE_FORMAT now using GMT instead of UTC.
+
     .. versionchanged:: 0.0.7
        'EXTRA_RESPONSE_FIELDS added and set to an empty list.
 
@@ -26,7 +29,7 @@
 #DEBUG = True
 
 # RFC 1123 (ex RFC 822)
-DATE_FORMAT = '%a, %d %b %Y %H:%M:%S UTC'
+DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
 
 
 API_VERSION = ''

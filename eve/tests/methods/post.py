@@ -89,7 +89,7 @@ class TestPost(TestBase):
     def test_post_datetime(self):
         del(self.domain['contacts']['schema']['ref']['required'])
         test_field = "born"
-        test_value = "Tue, 06 Nov 2012 10:33:31 UTC"
+        test_value = "Tue, 06 Nov 2012 10:33:31 GMT"
         data = {'item1': '{"%s": "%s"}' % (test_field, test_value)}
         self.assertPostItem(data, test_field, test_value)
 

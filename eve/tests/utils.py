@@ -18,7 +18,7 @@ class TestUtils(TestBase):
     def setUp(self):
         super(TestUtils, self).setUp()
         self.dt_fmt = config.DATE_FORMAT
-        self.datestr = 'Tue, 18 Sep 2012 10:12:30 UTC'
+        self.datestr = 'Tue, 18 Sep 2012 10:12:30 GMT'
         self.valid = datetime.strptime(self.datestr, self.dt_fmt)
         self.etag = '56eaadbbd9fa287e7270cf13a41083c94f52ab9b'
 
@@ -111,7 +111,7 @@ class TestUtils(TestBase):
             self.assertRaises(ValueError, parse_request, self.known_resource)
         with self.app.test_request_context(
             headers={ims:
-                     self.datestr.replace('UTC', 'GMT')}):
+                     self.datestr.replace('GMT', 'UTC')}):
             self.assertRaises(ValueError, parse_request, self.known_resource)
             self.assertRaises(ValueError, parse_request, self.known_resource)
 
@@ -144,7 +144,7 @@ class TestUtils(TestBase):
         self.assertEqual(str_to_date(self.datestr), self.valid)
         self.assertRaises(ValueError, str_to_date, 'not-a-date')
         self.assertRaises(ValueError, str_to_date,
-                          self.datestr.replace('UTC', 'GMT'))
+                          self.datestr.replace('GMT', 'UTC'))
 
     def test_date_to_str(self):
         self.assertEqual(date_to_str(self.valid), self.datestr)

@@ -8,6 +8,7 @@ Version 0.0.9
 
 Not released yet.
 
+- Response date fields are now using GMT instead of UTC. Closes #83.
 - Handle the case of 'additional_lookup' field being an integer. If this is the
   case you can omit the 'url' key, as it will be ignored, and the integer value
   correctly parsed.
