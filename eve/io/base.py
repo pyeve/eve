@@ -185,10 +185,25 @@ class DataLayer(object):
         else:
             fields = projection_
 
-        # if 'user-restricted resource access' is enabled and there's an Auth
-        # request active, add the username field to the query
-        username_field = config.DOMAIN[resource].get('auth_username_field')
-        if username_field and request.authorization and query is not None:
-            query.update({username_field: request.authorization.username})
+        # If the current HTTP method is in `public_methods` or
+        # `public_item_methods`, skip the `auth_username_field` check
+
+        if (
+            # Are we looking at a *collection* and is the HTTP method
+            # not in `public_item_methods` ...
+            request.endpoint == 'collections_endpoint' and request.method
+            not in config.DOMAIN[resource]['public_methods']
+        ) or (
+            # ... or if we are looking at an *item* is
+            # the HTTP method not in `public_methods`?
+            request.endpoint == 'item_endpoint' and request.method
+            not in config.DOMAIN[resource]['public_item_methods']
+        ):
+
+            # if 'user-restricted resource access' is enabled and there's an
+            # Auth request active, add the username field to the query
+            username_field = config.DOMAIN[resource].get('auth_username_field')
+            if username_field and request.authorization and query is not None:
+                query.update({username_field: request.authorization.username})
 
         return datasource, query, fields
