@@ -230,8 +230,8 @@ class TestUserRestrictedAccess(TestBase):
         self.app = Eve(settings=self.settings_file, auth=ValidBasicAuth)
         # remove the datasource filter to make the whole collection available
         # to a GET request.
-        resource = self.app.config['DOMAIN'][self.known_resource]
-        del(resource['datasource']['filter'])
+        self.resource = self.app.config['DOMAIN'][self.known_resource]
+        del(self.resource['datasource']['filter'])
         self.app.set_defaults()
         self.app._add_url_rules()
         self.test_client = self.app.test_client()
@@ -243,13 +243,43 @@ class TestUserRestrictedAccess(TestBase):
             settings[self.field_name] = 'username'
 
     def test_get(self):
+        # now need to remove 'GET' from 'public_methods'
+        # because it overrides `auth_username_field`
+        self.resource['public_methods'].remove('GET')
+
         data, status = self.parse_response(
             self.test_client.get(self.known_resource_url,
                                  headers=self.valid_auth))
         self.assert200(status)
-        # no data has been saved by user 'admin' yet, so we get an empyy
-        # resulset back.
+        # no data has been saved by user 'admin' yet, so we get an empty
+        # resultset back.
         self.assertEqual(len(data['_items']), 0)
+
+    def test_collection_get_public(self):
+        """ Test that if GET is in `public_methods` the `auth_username_field`
+        criteria is overruled
+        """
+        self.resource['public_methods'].append('GET')
+        data, status = self.parse_response(
+            self.test_client.get(self.known_resource_url,
+                                 headers=self.valid_auth))
+        self.assert200(status)
+        # no data has been saved by user 'admin' yet,
+        # but we should get all the other results back
+        self.assertEqual(len(data['_items']), 25)
+
+    def test_item_get_public(self):
+        """ Test that if GET is in `public_item_methods` the
+        `auth_username_field` criteria is overruled
+        """
+        self.resource['public_item_methods'].append('GET')
+        data, status = self.parse_response(
+            self.test_client.get(self.item_id_url,
+                                 headers=self.valid_auth))
+        self.assert200(status)
+        # no data has been saved by user 'admin' yet,
+        # but we should get the other result back
+        self.assertEqual(data['_id'], self.item_id)
 
     def test_post(self):
         response, status = self.post()
