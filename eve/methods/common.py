@@ -115,16 +115,14 @@ def payload():
 
     if content_type == 'application/json':
         return request.get_json()
-    elif content_type == \
-            'application/x-www-form-urlencoded':
+    elif content_type == 'application/x-www-form-urlencoded':
         return request.form if len(request.form) else \
             abort(400, description=debug_error_message(
                 'No form-urlencoded data supplied'
             ))
     else:
         abort(400, description=debug_error_message(
-            'Unknown or no Content-Type header supplied'
-        ))
+            'Unknown or no Content-Type header supplied'))
 
 
 class RateLimit(object):
