@@ -21,7 +21,7 @@ from eve.methods.common import parse, payload, ratelimit
 
 @ratelimit()
 @requires_auth('resource')
-def post(resource):
+def post(resource, payl=None):
     """ Adds one or more documents to a resource. Each document is validated
     against the domain schema. If validation passes the document is inserted
     and ID_FIELD, LAST_UPDATED and DATE_CREATED along with a link to the
@@ -29,6 +29,20 @@ def post(resource):
     is returned.
 
     :param resource: name of the resource involved.
+    :param payl: alternative payload. When calling post() from your own code
+                 you can provide an alternative payload This can be useful, for
+                 example, when you have a callback function hooked to a certain
+                 endpoint, and want to perform additional post() calls from
+                 there.
+
+                 Please be advised that in order to successfully use this
+                 option, a request context must be available.
+
+                 See https://github.com/nicolaiarocci/eve/issues/74 for a
+                 discussion, and a typical use case.
+
+    .. versionchanged: 0.0.9
+       You can now pass a pre-defined custom payload to the funcion.
 
     .. versionchanged: 0.0.7
        Support for Rate-Limiting.
@@ -69,7 +83,8 @@ def post(resource):
     issues = []
 
     # validation, and additional fields
-    payl = payload()
+    if payl is None:
+        payl = payload()
     for key, value in payl.items():
         document = []
         doc_issues = []
