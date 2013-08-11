@@ -8,6 +8,8 @@ Version 0.0.9
 
 Not released yet.
 
+- Datasource  projections always include automatic fields (ID_FIELD,
+  LAST_UPDATED_ DATE_CREATED). Closes #85.
 - Public HTTP methods now override `auth_username_field` Edit. Closes #70
   (Bryan Cattle).
 - Response date fields are now using GMT instead of UTC. Closes #83.

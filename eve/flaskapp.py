@@ -286,6 +286,9 @@ class Eve(Flask, Events):
         """ When not provided, fills individual resource settings with default
         or global configuration settings.
 
+        .. versionchanged:: 0.0.9
+           Always include automatic fields despite of datasource projections.
+
         .. versionchanged:: 0.0.8
            'mongo_write_concern'
 
@@ -364,14 +367,14 @@ class Eve(Flask, Events):
 
             # enable retrieval of actual schema fields only. Eventual db
             # fields not included in the schema won't be returned.
-            default_projection = {
-                self.config['ID_FIELD']: 1,
-                self.config['LAST_UPDATED']: 1,
-                self.config['DATE_CREATED']: 1
-            }
+            default_projection = {}
             default_projection.update(dict((field, 1) for (field) in schema))
-            settings['datasource'].setdefault('projection',
-                                              default_projection)
+            projection = settings['datasource'].setdefault('projection',
+                                                           default_projection)
+            # despite projection, automatic fields are always included.
+            projection[self.config['ID_FIELD']] = 1
+            projection[self.config['LAST_UPDATED']] = 1
+            projection[self.config['DATE_CREATED']] = 1
 
             # `dates` helper set contains the names of the schema fields
             # defined as `datetime` types. It will come in handy when

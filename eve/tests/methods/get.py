@@ -131,6 +131,9 @@ class TestGet(TestBase):
             self.assertFalse('location' in r)
             self.assertFalse('role' in r)
             self.assertTrue('prog' in r)
+            self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+            self.assertTrue(self.app.config['DATE_CREATED'] in r)
 
     def test_get_where_disabled(self):
         self.app.config['DOMAIN'][self.known_resource]['filters'] = False
