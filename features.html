@@ -585,8 +585,8 @@ that did not pass validation are not included).</p>
 <h3>Manipulating outbound documents<a class="headerlink" href="#manipulating-outbound-documents" title="Permalink to this headline">¶</a></h3>
 <p>The following events:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">on_fetch(resource,</span> <span class="pre">documents)</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">on_fetch_&lt;resource&gt;(documents)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_fetch_resource(resource,</span> <span class="pre">documents)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_fetch_resource_&lt;resource&gt;(documents)</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">on_fetch_item(resource,</span> <span class="pre">_id,</span> <span class="pre">document)</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">on_fetch_item_&lt;item_title&gt;(_id,</span> <span class="pre">document)</span></tt></li>
 </ul>
@@ -606,8 +606,8 @@ manipulate the documents as needed.</p>
 <span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return a contact&#39;</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetch</span> <span class="o">+=</span> <span class="n">before_returning_items</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetch_contacts</span> <span class="o">+=</span> <span class="n">before_returning_contacts</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetch_resource</span> <span class="o">+=</span> <span class="n">before_returning_items</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetch_resource_contacts</span> <span class="o">+=</span> <span class="n">before_returning_contacts</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetch_item</span> <span class="o">+=</span> <span class="n">before_returning_item</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetch_item_contact</span> <span class="o">+=</span> <span class="n">before_returning_contact</span>
 

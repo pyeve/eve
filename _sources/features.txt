@@ -560,8 +560,8 @@ Manipulating outbound documents
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The following events:
 
-- ``on_fetch(resource, documents)``
-- ``on_fetch_<resource>(documents)`` 
+- ``on_fetch_resource(resource, documents)``
+- ``on_fetch_resource_<resource>(documents)`` 
 - ``on_fetch_item(resource, _id, document)`` 
 - ``on_fetch_item_<item_title>(_id, document)`` 
   
@@ -584,8 +584,8 @@ manipulate the documents as needed.
     ...  print 'About to return a contact' 
 
     >>> app = Eve()
-    >>> app.on_fetch += before_returning_items
-    >>> app.on_fetch_contacts += before_returning_contacts
+    >>> app.on_fetch_resource += before_returning_items
+    >>> app.on_fetch_resource_contacts += before_returning_contacts
     >>> app.on_fetch_item += before_returning_item
     >>> app.on_fetch_item_contact += before_returning_contact
 
