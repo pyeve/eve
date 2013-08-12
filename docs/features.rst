@@ -521,37 +521,37 @@ payload as arguments.
     ... print 'A get on "contacts" was just performed!'
 
     >>> app = Eve()
-    >>> app.on_get += general_callback
-    >>> app.on_get_contacts += contacts_callback
+    >>> app.on_GET += general_callback
+    >>> app.on_GET_contacts += contacts_callback
 
     >>> app.run()
 
 Manipulating inbound documents 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-There is also support for ``on_posting(resource, documents)`` and
-``on_posting_<resource>(documents)`` event hooks, raised when documents are
+There is also support for ``on_insert(resource, documents)`` and
+``on_insert_<resource>(documents)`` event hooks, raised when documents are
 about to be stored in the database.  Callback functions could hook to these
 events to arbitrarily add new fields, or edit existing ones.
 
 .. code-block:: pycon
 
-    >>> def before_post(resource, documents):
+    >>> def before_insert(resource, documents):
     ...  print 'About to store documents to "%s" ' % resource
 
     >>> def before_insert_contacts(documents):
     ...  print 'About to store contacts'
 
     >>> app = Eve()
-    >>> app.on_posting += before_post
-    >>> app.on_posting_contacts += before_insert_contacts
+    >>> app.on_insert += before_insert
+    >>> app.on_insert_contacts += before_insert_contacts
 
     >>> app.run()
 
-``on_posting`` is raised on every resource being updated, while
-``on_posting_<resource>`` is raised when the `<resource>` endpoint has been hit
+``on_insert`` is raised on every resource being updated, while
+``on_insert_<resource>`` is raised when the `<resource>` endpoint has been hit
 with a POST request. In both circumstances the event will be raised only if at
 least one document passed validation and is going to be inserted. `documents`
-is a list, and  only contains documents ready for insertion (payload documents
+is a list and  only contains documents ready for insertion (payload documents
 that did not pass validation are not included).
 
 To provide seamless event handling features, Eve relies on the Events_ package.
@@ -560,10 +560,10 @@ Manipulating outbound documents
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The following events:
 
-- ``on_getting_resource(resource, documents)``
-- ``on_getting_resource_<resource>(documents)`` 
-- ``on_getting_item(resource, _id, document)`` 
-- ``on_getting_item_<item_title>(_id, document)`` 
+- ``on_fetch(resource, documents)``
+- ``on_fetch_<resource>(documents)`` 
+- ``on_fetch_item(resource, _id, document)`` 
+- ``on_fetch_item_<item_title>(_id, document)`` 
   
 are raised when documents have just been read from the database and are about
 to be sent to the client. Registered callback functions can eventually
@@ -584,10 +584,10 @@ manipulate the documents as needed.
     ...  print 'About to return a contact' 
 
     >>> app = Eve()
-    >>> app.on_getting_resource += before_returning_items
-    >>> app.on_getting_resource_contacts += before_returning_contacts
-    >>> app.on_getting_item += before_returning_item
-    >>> app.on_getting_item_contact += before_returning_contact
+    >>> app.on_fetch += before_returning_items
+    >>> app.on_fetch_contacts += before_returning_contacts
+    >>> app.on_fetch_item += before_returning_item
+    >>> app.on_fetch_item_contact += before_returning_contact
 
     >>> app.run()
 

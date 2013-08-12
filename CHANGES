@@ -8,8 +8,17 @@ Version 0.0.9
 
 Not released yet.
 
-- Datasource  projections always include automatic fields (ID_FIELD,
-  LAST_UPDATED_ DATE_CREATED). Closes #85.
+- Updated the event hooks naming system to be more robuts and consistent.
+  Closes #80.
+- To emphasize the fact that they are tied to a method, all ``on_<method>``
+  hooks now have ``<method>`` in uppercase.
+- ``on_getting`` hook renamed to ``on_fetch``.
+- ``on_getting_item`` hook renamed to ``on_fetch_item``.
+- ``on_getting_item_<item_title>`` hook renamed to
+  ``on_fetch_item_<item_title>``.
+- ``on_posting`` hook renamed to ``on_insert``.
+- Datasource  projections always include automatic fields (``ID_FIELD``,
+  ``LAST_UPDATED``, ``DATE_CREATED``). Closes #85.
 - Public HTTP methods now override `auth_username_field` Edit. Closes #70
   (Bryan Cattle).
 - Response date fields are now using GMT instead of UTC. Closes #83.
@@ -19,8 +28,7 @@ Not released yet.
 - More informative HTTP error messages. Some more informative error messages
   have been added for HTTP 400/3/12 and 500 errors. The error messages only
   show if DEBUG==True (Bryan Cattle).
-- Updated the event hooks naming system to be more robuts and consistent.
-  ``on_getting(resource, documents)`` is now ``on_getting_resource(resource,
+- ``on_getting(resource, documents)`` is now ``on_getting_resource(resource,
   documents)``; ``on_getting_<resource>(documents) is now known as
   ``on_getting_resource_<resource>(documents)`` (Ryan Shea).
 - Added a new event hook: ``on_getting_item_<title>(_id, document)`` (Ryan

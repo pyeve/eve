@@ -42,6 +42,8 @@ def post(resource, payl=None):
                  discussion, and a typical use case.
 
     .. versionchanged: 0.0.9
+       Event hooks renamed to be more robuts and consistent: 'on_posting'
+       renamed to 'on_insert'.
        You can now pass a pre-defined custom payload to the funcion.
 
     .. versionchanged: 0.0.7
@@ -119,8 +121,8 @@ def post(resource, payl=None):
 
     if len(documents):
         # notify callbacks
-        getattr(app, "on_posting")(resource, documents)
-        getattr(app, "on_posting_%s" % resource)(documents)
+        getattr(app, "on_insert")(resource, documents)
+        getattr(app, "on_insert_%s" % resource)(documents)
         # bulk insert
         ids = app.data.insert(resource, documents)
 

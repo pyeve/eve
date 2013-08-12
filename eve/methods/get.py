@@ -28,7 +28,8 @@ def get(resource):
     :param resource: the name of the resource.
 
     .. versionchanged: 0.0.9
-       Event hooks renamed to be more robuts and consistent.
+       Event hooks renamed to be more robuts and consistent: 'on_getting'
+       renamed to 'on_fetch'.
 
     .. versionchanged: 0.0.8
        'on_getting' and 'on_getting_<resource>' events are raised when
@@ -87,8 +88,8 @@ def get(resource):
         # updated to reflect the changes (they always reflect the documents
         # state on the database.)
 
-        getattr(app, "on_getting_resource")(resource, documents)
-        getattr(app, "on_getting_resource_%s" % resource)(documents)
+        getattr(app, "on_fetch")(resource, documents)
+        getattr(app, "on_fetch_%s" % resource)(documents)
 
         response['_items'] = documents
         response['_links'] = _pagination_links(resource, req, cursor.count())
@@ -164,9 +165,9 @@ def getitem(resource, **lookup):
         # state on the database).
         item_title = config.DOMAIN[resource]['item_title'].lower()
 
-        getattr(app, "on_getting_item")(resource, document[config.ID_FIELD],
-                                        document)
-        getattr(app, "on_getting_item_%s" %
+        getattr(app, "on_fetch_item")(resource, document[config.ID_FIELD],
+                                      document)
+        getattr(app, "on_fetch_item_%s" %
                 item_title)(document[config.ID_FIELD], document)
 
         response.update(document)

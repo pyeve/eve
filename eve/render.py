@@ -32,6 +32,10 @@ def raise_event(f):
     function has been executed. Returns both the flask.request object and the
     response payload to the callback.
 
+    .. versionchanged:: 0.0.9
+       To emphasize the fact that they are tied to a method, in `on_<method>`
+       events, <method> is now uppercase.
+
     .. versionadded:: 0.0.6
     """
     @wraps(f)
@@ -39,7 +43,7 @@ def raise_event(f):
         r = f(*args, **kwargs)
         method = request_method()
         if method in ('GET', 'POST', 'PATCH', 'DELETE'):
-            event_name = 'on_' + method.lower()
+            event_name = 'on_' + method
             resource = args[0] if args else None
             # general hook
             getattr(app, event_name)(resource, request, r)
