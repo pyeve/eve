@@ -548,36 +548,36 @@ payload as arguments.</p>
 <span class="gp">... </span><span class="k">print</span> <span class="s">&#39;A get on &quot;contacts&quot; was just performed!&#39;</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_get</span> <span class="o">+=</span> <span class="n">general_callback</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_get_contacts</span> <span class="o">+=</span> <span class="n">contacts_callback</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_GET</span> <span class="o">+=</span> <span class="n">general_callback</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_GET_contacts</span> <span class="o">+=</span> <span class="n">contacts_callback</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="section" id="manipulating-inbound-documents">
 <h3>Manipulating inbound documents<a class="headerlink" href="#manipulating-inbound-documents" title="Permalink to this headline">¶</a></h3>
-<p>There is also support for <tt class="docutils literal"><span class="pre">on_posting(resource,</span> <span class="pre">documents)</span></tt> and
-<tt class="docutils literal"><span class="pre">on_posting_&lt;resource&gt;(documents)</span></tt> event hooks, raised when documents are
+<p>There is also support for <tt class="docutils literal"><span class="pre">on_insert(resource,</span> <span class="pre">documents)</span></tt> and
+<tt class="docutils literal"><span class="pre">on_insert_&lt;resource&gt;(documents)</span></tt> event hooks, raised when documents are
 about to be stored in the database.  Callback functions could hook to these
 events to arbitrarily add new fields, or edit existing ones.</p>
-<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_post</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">documents</span><span class="p">):</span>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_insert</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">documents</span><span class="p">):</span>
 <span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to store documents to &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_insert_contacts</span><span class="p">(</span><span class="n">documents</span><span class="p">):</span>
 <span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to store contacts&#39;</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_posting</span> <span class="o">+=</span> <span class="n">before_post</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_posting_contacts</span> <span class="o">+=</span> <span class="n">before_insert_contacts</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_insert</span> <span class="o">+=</span> <span class="n">before_insert</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_insert_contacts</span> <span class="o">+=</span> <span class="n">before_insert_contacts</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p><tt class="docutils literal"><span class="pre">on_posting</span></tt> is raised on every resource being updated, while
-<tt class="docutils literal"><span class="pre">on_posting_&lt;resource&gt;</span></tt> is raised when the <cite>&lt;resource&gt;</cite> endpoint has been hit
+<p><tt class="docutils literal"><span class="pre">on_insert</span></tt> is raised on every resource being updated, while
+<tt class="docutils literal"><span class="pre">on_insert_&lt;resource&gt;</span></tt> is raised when the <cite>&lt;resource&gt;</cite> endpoint has been hit
 with a POST request. In both circumstances the event will be raised only if at
 least one document passed validation and is going to be inserted. <cite>documents</cite>
-is a list, and  only contains documents ready for insertion (payload documents
+is a list and  only contains documents ready for insertion (payload documents
 that did not pass validation are not included).</p>
 <p>To provide seamless event handling features, Eve relies on the <a class="reference external" href="https://github.com/nicolaiarocci/events">Events</a> package.</p>
 </div>
@@ -585,10 +585,10 @@ that did not pass validation are not included).</p>
 <h3>Manipulating outbound documents<a class="headerlink" href="#manipulating-outbound-documents" title="Permalink to this headline">¶</a></h3>
 <p>The following events:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">on_getting_resource(resource,</span> <span class="pre">documents)</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">on_getting_resource_&lt;resource&gt;(documents)</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">on_getting_item(resource,</span> <span class="pre">_id,</span> <span class="pre">document)</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">on_getting_item_&lt;item_title&gt;(_id,</span> <span class="pre">document)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_fetch(resource,</span> <span class="pre">documents)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_fetch_&lt;resource&gt;(documents)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_fetch_item(resource,</span> <span class="pre">_id,</span> <span class="pre">document)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_fetch_item_&lt;item_title&gt;(_id,</span> <span class="pre">document)</span></tt></li>
 </ul>
 <p>are raised when documents have just been read from the database and are about
 to be sent to the client. Registered callback functions can eventually
@@ -606,10 +606,10 @@ manipulate the documents as needed.</p>
 <span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return a contact&#39;</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_getting_resource</span> <span class="o">+=</span> <span class="n">before_returning_items</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_getting_resource_contacts</span> <span class="o">+=</span> <span class="n">before_returning_contacts</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_getting_item</span> <span class="o">+=</span> <span class="n">before_returning_item</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_getting_item_contact</span> <span class="o">+=</span> <span class="n">before_returning_contact</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetch</span> <span class="o">+=</span> <span class="n">before_returning_items</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetch_contacts</span> <span class="o">+=</span> <span class="n">before_returning_contacts</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetch_item</span> <span class="o">+=</span> <span class="n">before_returning_item</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetch_item_contact</span> <span class="o">+=</span> <span class="n">before_returning_contact</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
