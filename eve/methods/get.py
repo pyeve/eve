@@ -88,8 +88,8 @@ def get(resource):
         # updated to reflect the changes (they always reflect the documents
         # state on the database.)
 
-        getattr(app, "on_fetch")(resource, documents)
-        getattr(app, "on_fetch_%s" % resource)(documents)
+        getattr(app, "on_fetch_resource")(resource, documents)
+        getattr(app, "on_fetch_resource_%s" % resource)(documents)
 
         response['_items'] = documents
         response['_links'] = _pagination_links(resource, req, cursor.count())

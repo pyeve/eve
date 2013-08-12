@@ -12,7 +12,8 @@ Not released yet.
   Closes #80.
 - To emphasize the fact that they are tied to a method, all ``on_<method>``
   hooks now have ``<method>`` in uppercase.
-- ``on_getting`` hook renamed to ``on_fetch``.
+- ``on_getting`` hook renamed to ``on_fetch_resource``.
+- ``on_getting_<resource>`` hook renamed to ``on_fetch_resource_<resource>``
 - ``on_getting_item`` hook renamed to ``on_fetch_item``.
 - ``on_getting_item_<item_title>`` hook renamed to
   ``on_fetch_item_<item_title>``.
