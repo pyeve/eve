@@ -174,8 +174,8 @@ class TestConfig(TestBase):
         self.assertEqual(settings['projection'], self.app.config['PROJECTION'])
         self.assertEqual(settings['sorting'], self.app.config['SORTING'])
         self.assertEqual(settings['pagination'], self.app.config['PAGINATION'])
-        self.assertEqual(settings['auth_username_field'],
-                         self.app.config['AUTH_USERNAME_FIELD'])
+        self.assertEqual(settings['auth_field'],
+                         self.app.config['AUTH_FIELD'])
         self.assertEqual(settings['allow_unknown'],
                          self.app.config['ALLOW_UNKNOWN'])
         self.assertEqual(settings['extra_response_fields'],

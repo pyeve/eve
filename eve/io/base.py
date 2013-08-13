@@ -157,7 +157,9 @@ class DataLayer(object):
         to which an API resource refers to
 
         .. versionchanged:: 0.0.9
-           support for Python 3.3.
+           Storing self.app.auth.userid in auth_field when 'user-restricted
+           resource access' is enabled.
+           Support for Python 3.3.
 
         .. versionchanged:: 0.0.6
            'auth_username_field' is injected even in empty queries.
@@ -199,11 +201,11 @@ class DataLayer(object):
             request.endpoint == 'item_endpoint' and request.method
             not in config.DOMAIN[resource]['public_item_methods']
         ):
-
             # if 'user-restricted resource access' is enabled and there's an
             # Auth request active, add the username field to the query
-            username_field = config.DOMAIN[resource].get('auth_username_field')
-            if username_field and request.authorization and query is not None:
-                query.update({username_field: request.authorization.username})
+            auth_field = config.DOMAIN[resource].get('auth_field')
+            if auth_field and self.app.auth.user_id:
+                if request.authorization and query is not None:
+                    query.update({auth_field: self.app.auth.user_id})
 
         return datasource, query, fields

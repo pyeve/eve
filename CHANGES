@@ -8,6 +8,11 @@ Version 0.0.9
 
 Not released yet.
 
+- Custom user ids for User-Restricted Resource Access, allowing for more
+  flexibility and token revocation with token-based authentication. Closes #73.
+- ``AUTH_USERNAME_FIELD`` renamed to ``AUTH_FIELD``.
+- ``auth_username_field`` renamed to ``auth_field``.
+- BasicAuth and subclasses now support ``user_id`` property.
 - Updated the event hooks naming system to be more robuts and consistent.
   Closes #80.
 - To emphasize the fact that they are tied to a method, all ``on_<method>``

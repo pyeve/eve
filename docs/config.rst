@@ -227,14 +227,14 @@ uppercase.
                                 present. Can and most likely will be overriden 
                                 when configuring single resource endpoints.
 
-``AUTH_USERNAME_FIELD``         Enables :ref:`user-restricted`. When the
+``AUTH_FIELD``                  Enables :ref:`user-restricted`. When the
                                 feature is enabled users can only
                                 read/update/delete resource items created by
                                 themselves. The keyword contains the actual
-                                name of the field used to store the username of
+                                name of the field used to store the id of
                                 the user who created the resource item. Can be
                                 overwritten by resource settings. Defaults to
-                                ``''``, which disables the feature. 
+                                ``None``, which disables the feature. 
 
 ``ALLOW_UNKNOWN``               When ``True`` this option will allow insertion
                                 and edition of arbitrary, unknown fields to
@@ -461,13 +461,13 @@ always lowercase.
                                 collections. See `Advanced Datasource
                                 Patterns`_. 
 
-``auth_username_field``         Enables :ref:`user-restricted`. When the
+``auth_field``                  Enables :ref:`user-restricted`. When the
                                 feature is enabled users can only
                                 read/update/delete resource items created by
                                 themselves. The keyword contains the actual
-                                name of the field used to store the username of
+                                name of the field used to store the id of
                                 the user who created the resource item. Locally
-                                overrides ``AUTH_USERNAME_FIELD``.
+                                overrides ``AUTH_FIELD``. 
 
 ``allow_unknown``               When ``True`` this option will allow insertion
                                 and edition of arbitrary, unknown fields to

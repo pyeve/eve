@@ -9,6 +9,7 @@ from eve.tests import TestBase
 
 class ValidBasicAuth(BasicAuth):
     def check_auth(self, username, password, allowed_roles, resource):
+        self.user_id = 123
         return username == 'admin' and password == 'secret' and  \
             (allowed_roles == ['admin'] if allowed_roles else True)
 
@@ -237,7 +238,7 @@ class TestUserRestrictedAccess(TestBase):
         self.test_client = self.app.test_client()
         self.valid_auth = [('Authorization', 'Basic YWRtaW46c2VjcmV0')]
         self.invalid_auth = [('Authorization', 'Basic IDontThinkSo')]
-        self.field_name = 'auth_username_field'
+        self.field_name = 'auth_field'
         self.data = {'item1': json.dumps({"ref": "0123456789123456789012345"})}
         for resource, settings in self.app.config['DOMAIN'].items():
             settings[self.field_name] = 'username'

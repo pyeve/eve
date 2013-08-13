@@ -48,11 +48,17 @@ class BasicAuth(object):
     """ Implements Basic AUTH logic. Should be subclassed to implement custom
     authorization checking.
 
+    .. versionchanged:: 0.0.9
+       Support for user_id property.
+
     .. versionchanged:: 0.0.7
        Support for 'resource' argument.
 
     .. versionadded:: 0.0.4
     """
+    def __init__(self):
+        self.user_id = None
+
     def check_auth(self, username, password, allowed_roles, resource):
         """ This function is called to check if a username / password
         combination is valid. Must be overridden with custom logic.

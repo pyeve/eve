@@ -287,6 +287,7 @@ class Eve(Flask, Events):
         or global configuration settings.
 
         .. versionchanged:: 0.0.9
+           'auth_username_field' renamed to 'auth_field'.
            Always include automatic fields despite of datasource projections.
 
         .. versionchanged:: 0.0.8
@@ -348,8 +349,8 @@ class Eve(Flask, Events):
             else:
                 item_methods = eve.ITEM_METHODS
             settings.setdefault('item_methods', item_methods)
-            settings.setdefault('auth_username_field',
-                                self.config['AUTH_USERNAME_FIELD'])
+            settings.setdefault('auth_field',
+                                self.config['AUTH_FIELD'])
             settings.setdefault('allow_unknown', self.config['ALLOW_UNKNOWN'])
             settings.setdefault('extra_response_fields',
                                 self.config['EXTRA_RESPONSE_FIELDS'])

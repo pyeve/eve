@@ -12,6 +12,8 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.0.9
+       'AUTH_USERNAME_FIELD' renamed to 'AUTH_FIELD', and default value set to
+       None.
        'DATE_FORMAT now using GMT instead of UTC.
 
     .. versionchanged:: 0.0.7
@@ -67,7 +69,7 @@ ITEM_URL = '[a-f0-9]{24}'
 EXTRA_RESPONSE_FIELDS = []
 
 
-AUTH_USERNAME_FIELD = ''        # user-restricted resource access is disabled
+AUTH_FIELD = None               # user-restricted resource access is disabled
                                 # by default.
 
 ALLOW_UNKNOWN = False           # don't allow unknown key/value pairs for

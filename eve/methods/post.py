@@ -46,6 +46,10 @@ def post(resource, payl=None):
        renamed to 'on_insert'.
        You can now pass a pre-defined custom payload to the funcion.
 
+    .. versionchanged:: 0.0.9
+       Storing self.app.auth.userid in auth_field when 'user-restricted
+       resource access' is enabled.
+
     .. versionchanged: 0.0.7
        Support for Rate-Limiting.
        Support for 'extra_response_fields'.
@@ -100,9 +104,11 @@ def post(resource, payl=None):
 
                 # if 'user-restricted resource access' is enabled and there's
                 # an Auth request active, inject the username into the document
-                username_field = resource_def['auth_username_field']
-                if username_field and request.authorization:
-                    document[username_field] = request.authorization.username
+                auth_field = resource_def['auth_field']
+                if auth_field:
+                    userid = app.auth.user_id
+                    if userid and request.authorization:
+                        document[auth_field] = userid
 
             else:
                 # validation errors added to list of document issues

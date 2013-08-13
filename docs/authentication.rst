@@ -393,21 +393,60 @@ unless they are made explicitly public.
 
 User-Restricted Resource Access
 -------------------------------
-When this feature is enabled, authorized users can only read/update/delete
-items created by themselves. 
+When this feature is enabled, each stored document is associated with the
+account that created it. This allows the API to transparently serve only
+account-created documents on all kind of requests: read, edit, delete and of
+course create.  User autentication needs to be enabled for this to work
+properly.
 
-What actually happens behind the scenes is that the value of
-`Authorization.username` request header is automatically added to new documents
-stored by the API. A filter on the same header is also transparently applied to
-all read, edit and delete requests. 
+At global level this feature is enabled by setting ``AUTH_FIELD`` and locally
+(at endpoint level) by setting ``auth_field``. These properties define the name
+of the field used to store the id of the user who created the document.  So for
+example by setting ``AUTH_FIELD`` to ``user_id``, you are effectively (and
+trasparently to the user) adding a ``user_id`` field to every stored
+document. This will then be used to retrieve/edit/delete documents stored by
+the user. 
 
-``AUTH_USERNAME_FIELD`` defines the  name of the database field used to store
-the `Authorization.username` header. ``auth_username_field`` is the
-resource-level equivalent, which allows to effectively override the global
-setting, if present.  
+But how do you set the ``auth_field`` value? By simply setting it in your
+custom class. Let us revise our BCrypt-authentication example from above:
 
-This feature can be used with both :ref:`basic` and :ref:`token` as they both
-rely on the `Authorization.username` field. 
+.. code-block:: python
+   :emphasize-lines: 25-27
+
+    # -*- coding: utf-8 -*-
+
+    """
+        Auth-BCrypt
+        ~~~~~~~~~~~
+
+        Securing an Eve-powered API with Basic Authentication (RFC2617).
+
+        You will need to install py-bcrypt: ``pip install py-bcrypt``
+
+        This snippet by Nicola Iarocci can be used freely for anything you like.
+        Consider it public domain.
+    """
+
+    import bcrypt
+    from eve import Eve
+    from eve.auth import BasicAuth
+
+
+    class BCryptAuth(BasicAuth):
+        def check_auth(self, username, password, allowed_roles, resource):
+            # use Eve's own db driver; no additional connections/resources are used
+            accounts = app.data.driver.db['accounts']
+            account = accounts.find_one({'username': username})
+            # set 'auth_field' value to the account's ObjectId 
+            # (instead of _Id, you might want to use ID_FIELD)
+            self.user_id = account['_Id']
+            return account and \
+                bcrypt.hashpw(password, account['password']) == account['password']
+
+
+    if __name__ == '__main__':
+        app = Eve(auth=BCryptAuth)
+        app.run()
 
 .. admonition:: Please note
 
