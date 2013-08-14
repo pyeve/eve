@@ -170,7 +170,7 @@ class TestConfig(TestBase):
                          self.app.config['ITEM_URL'])
         self.assertEqual(settings['item_title'],
                          resource.rstrip('s').capitalize())
-        self.assertEqual(settings['filters'], self.app.config['FILTERS'])
+        self.assertEqual(settings['allowed_filters'], self.app.config['ALLOWED_FILTERS'])
         self.assertEqual(settings['projection'], self.app.config['PROJECTION'])
         self.assertEqual(settings['sorting'], self.app.config['SORTING'])
         self.assertEqual(settings['pagination'], self.app.config['PAGINATION'])

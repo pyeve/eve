@@ -23,6 +23,7 @@ class TestUtils(TestBase):
         self.etag = '56eaadbbd9fa287e7270cf13a41083c94f52ab9b'
 
     def test_parse_request_where(self):
+        self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = ['ref']
         with self.app.test_request_context():
             self.assertEqual(parse_request(self.known_resource).where, None)
         with self.app.test_request_context('/?where=hello'):
