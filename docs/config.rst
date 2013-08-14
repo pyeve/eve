@@ -94,9 +94,20 @@ uppercase.
                                 API urls (e.g. ``v1`` will be rendered to
                                 ``localhost:5000/v1/``). Defaults to ``''``.
 
-``FILTERS``                     ``True`` if filters are supported for ``GET`` 
-                                requests, ``False`` otherwise. Can be overriden
-                                by resource settings. Defaults to ``True``.
+``ALLOWED_FILTERS``             List of fields on which filtering is allowed. 
+                                Can be set to ``[]`` (no filters allowed) or
+                                ``['*']`` (filters allowed on every field).
+                                Unless your API is comprised of just one
+                                endpoint, this global setting should be used as
+                                an on/off switch, delegating explicit
+                                whitelisting at the local level (see
+                                ``allowed_filters`` below). Defaults to
+                                ``['*']``.
+
+                                *Please note:* If API scraping or DB DoS
+                                attacks are a concern, then globally disabling
+                                filters and whitelist valid ones at the local
+                                level is the way to go.
 
 ``SORTING``                     ``True`` if sorting is supported for ``GET``
                                 requests, otherwise ``False``. Can be overriden
@@ -369,11 +380,20 @@ always lowercase.
 =============================== =========================================
 ``url``                         The endpoint URL. If omitted, the resource key 
                                 of the ``DOMAIN`` dict will be used to build
-                                the URL. As an example, ``contacts`` would make the
-                                `people` resource available at ``/contacts/`` (instead of ``/people/``).
+                                the URL. As an example, ``contacts`` would make
+                                the `people` resource available at
+                                ``/contacts/`` (instead of ``/people/``).
 
-``filters``                     ``True`` if filters are enabled, ``False`` 
-                                otherwise. Locally overrides ``FILTERS``.
+``allowed_filters``             List of fields on which filtering is allowed. 
+                                Can be set to ``[]`` (no filters allowed), or
+                                ``['*']`` (fields allowed on every field).
+                                Defaults to ``['*']``.
+
+                                *Please note:* If API scraping or DB DoS
+                                attacks are a concern, then globally disabling
+                                filters (see ``ALLOWED_FILTERS`` above) and
+                                then whitelisting valid ones at the local level
+                                is the way to go.
 
 ``sorting``                     ``True`` if sorting is enabled, ``False`` 
                                 otherwise. Locally ovverrides ``SORTING``.
