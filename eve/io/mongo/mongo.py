@@ -103,7 +103,7 @@ class Mongo(DataLayer):
                         'Unable to parse `where` clause'
                     ))
 
-        bad_filter =  validate_filters(spec, resource)
+        bad_filter = validate_filters(spec, resource)
         if bad_filter:
             abort(400, bad_filter)
 
