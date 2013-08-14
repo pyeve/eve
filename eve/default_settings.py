@@ -12,6 +12,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.0.9
+       'FILTERS' boolean changed to 'ALLOWED_FILTERS' list.
        'AUTH_USERNAME_FIELD' renamed to 'AUTH_FIELD', and default value set to
        None.
        'DATE_FORMAT now using GMT instead of UTC.
@@ -46,7 +47,7 @@ ITEM_CACHE_CONTROL = ''
 X_DOMAINS = None                # CORS disabled by default.
 X_HEADERS = None                # CORS disabled by default.
 
-ALLOWED_FILTERS = []            # filtering disabled by default
+ALLOWED_FILTERS = ['*']         # filtering enabled by default
 SORTING = True                  # sorting enabled by default.
 PROJECTION = True               # projection enabled by default
 PAGINATION = True               # pagination enabled by default.
