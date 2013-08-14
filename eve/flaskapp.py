@@ -339,7 +339,8 @@ class Eve(Flask, Events):
                                 self.config['PUBLIC_ITEM_METHODS'])
             settings.setdefault('allowed_item_roles',
                                 self.config['ALLOWED_ITEM_ROLES'])
-            settings.setdefault('allowed_filters', self.config['ALLOWED_FILTERS'])
+            settings.setdefault('allowed_filters',
+                                self.config['ALLOWED_FILTERS'])
             settings.setdefault('sorting', self.config['SORTING'])
             settings.setdefault('pagination', self.config['PAGINATION'])
             settings.setdefault('projection', self.config['PROJECTION'])
