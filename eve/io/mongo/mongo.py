@@ -20,7 +20,7 @@ from bson import ObjectId
 from eve import ID_FIELD
 from eve.io.mongo.parser import parse, ParseError
 from eve.io.base import DataLayer, ConnectionException
-from eve.utils import config, debug_error_message
+from eve.utils import config, debug_error_message, validate_filters
 
 
 class Mongo(DataLayer):
@@ -103,11 +103,9 @@ class Mongo(DataLayer):
                         'Unable to parse `where` clause'
                     ))
 
-            # Only pass through filters that are in `allowed_filters`
-            # TODO raise an error if trying to filter on a prohibited field?
-            for filt, cond in list(spec.items()):
-                if filt not in config.DOMAIN[resource]['allowed_filters']:
-                    del spec[filt]
+        bad_filter =  validate_filters(spec, resource)
+        if bad_filter:
+            abort(400, bad_filter)
 
         if req.projection:
             try:
