@@ -149,10 +149,21 @@ in conjunction with <tt class="docutils literal"><span class="pre">SERVER_NAME</
 API urls (e.g. <tt class="docutils literal"><span class="pre">v1</span></tt> will be rendered to
 <tt class="docutils literal"><span class="pre">localhost:5000/v1/</span></tt>). Defaults to <tt class="docutils literal"><span class="pre">''</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">FILTERS</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">True</span></tt> if filters are supported for <tt class="docutils literal"><span class="pre">GET</span></tt>
-requests, <tt class="docutils literal"><span class="pre">False</span></tt> otherwise. Can be overriden
-by resource settings. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ALLOWED_FILTERS</span></tt></td>
+<td><p class="first">List of fields on which filtering is allowed.
+Can be set to <tt class="docutils literal"><span class="pre">[]</span></tt> (no filters allowed) or
+<tt class="docutils literal"><span class="pre">['*']</span></tt> (filters allowed on every field).
+Unless your API is comprised of just one
+endpoint, this global setting should be used as
+an on/off switch, delegating explicit
+whitelisting at the local level (see
+<tt class="docutils literal"><span class="pre">allowed_filters</span></tt> below). Defaults to
+<tt class="docutils literal"><span class="pre">['*']</span></tt>.</p>
+<p class="last"><em>Please note:</em> If API scraping or DB DoS
+attacks are a concern, then globally disabling
+filters and whitelist valid ones at the local
+level is the way to go.</p>
+</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SORTING</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> if sorting is supported for <tt class="docutils literal"><span class="pre">GET</span></tt>
@@ -306,15 +317,15 @@ resource name, with the plural &#8216;s&#8217; stripped if
 present. Can and most likely will be overriden
 when configuring single resource endpoints.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">AUTH_USERNAME_FIELD</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt></td>
 <td>Enables <a class="reference internal" href="authentication.html#user-restricted"><em>User-Restricted Resource Access</em></a>. When the
 feature is enabled users can only
 read/update/delete resource items created by
 themselves. The keyword contains the actual
-name of the field used to store the username of
+name of the field used to store the id of
 the user who created the resource item. Can be
 overwritten by resource settings. Defaults to
-<tt class="docutils literal"><span class="pre">''</span></tt>, which disables the feature.</td>
+<tt class="docutils literal"><span class="pre">None</span></tt>, which disables the feature.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">True</span></tt> this option will allow insertion
@@ -452,19 +463,28 @@ dictionary where keys are API resources and values their definitions.</p>
 always lowercase.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="30%" />
-<col width="70%" />
+<col width="40%" />
+<col width="60%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">url</span></tt></td>
 <td>The endpoint URL. If omitted, the resource key
 of the <tt class="docutils literal"><span class="pre">DOMAIN</span></tt> dict will be used to build
-the URL. As an example, <tt class="docutils literal"><span class="pre">contacts</span></tt> would make the
-<cite>people</cite> resource available at <tt class="docutils literal"><span class="pre">/contacts/</span></tt> (instead of <tt class="docutils literal"><span class="pre">/people/</span></tt>).</td>
+the URL. As an example, <tt class="docutils literal"><span class="pre">contacts</span></tt> would make
+the <cite>people</cite> resource available at
+<tt class="docutils literal"><span class="pre">/contacts/</span></tt> (instead of <tt class="docutils literal"><span class="pre">/people/</span></tt>).</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">filters</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">True</span></tt> if filters are enabled, <tt class="docutils literal"><span class="pre">False</span></tt>
-otherwise. Locally overrides <tt class="docutils literal"><span class="pre">FILTERS</span></tt>.</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">allowed_filters</span></tt></td>
+<td><p class="first">List of fields on which filtering is allowed.
+Can be set to <tt class="docutils literal"><span class="pre">[]</span></tt> (no filters allowed), or
+<tt class="docutils literal"><span class="pre">['*']</span></tt> (fields allowed on every field).
+Defaults to <tt class="docutils literal"><span class="pre">['*']</span></tt>.</p>
+<p class="last"><em>Please note:</em> If API scraping or DB DoS
+attacks are a concern, then globally disabling
+filters (see <tt class="docutils literal"><span class="pre">ALLOWED_FILTERS</span></tt> above) and
+then whitelisting valid ones at the local level
+is the way to go.</p>
+</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">sorting</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> if sorting is enabled, <tt class="docutils literal"><span class="pre">False</span></tt>
@@ -568,14 +588,14 @@ below for an usage example of this feature.</td>
 collections. See <a class="reference internal" href="#advanced-datasource-patterns">Advanced Datasource
 Patterns</a>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">auth_username_field</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">auth_field</span></tt></td>
 <td>Enables <a class="reference internal" href="authentication.html#user-restricted"><em>User-Restricted Resource Access</em></a>. When the
 feature is enabled users can only
 read/update/delete resource items created by
 themselves. The keyword contains the actual
-name of the field used to store the username of
+name of the field used to store the id of
 the user who created the resource item. Locally
-overrides <tt class="docutils literal"><span class="pre">AUTH_USERNAME_FIELD</span></tt>.</td>
+overrides <tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">allow_unknown</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">True</span></tt> this option will allow insertion

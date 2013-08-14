@@ -407,18 +407,56 @@ unless they are made explicitly public.</p>
 </div>
 <div class="section" id="user-restricted-resource-access">
 <span id="user-restricted"></span><h2>User-Restricted Resource Access<a class="headerlink" href="#user-restricted-resource-access" title="Permalink to this headline">¶</a></h2>
-<p>When this feature is enabled, authorized users can only read/update/delete
-items created by themselves.</p>
-<p>What actually happens behind the scenes is that the value of
-<cite>Authorization.username</cite> request header is automatically added to new documents
-stored by the API. A filter on the same header is also transparently applied to
-all read, edit and delete requests.</p>
-<p><tt class="docutils literal"><span class="pre">AUTH_USERNAME_FIELD</span></tt> defines the  name of the database field used to store
-the <cite>Authorization.username</cite> header. <tt class="docutils literal"><span class="pre">auth_username_field</span></tt> is the
-resource-level equivalent, which allows to effectively override the global
-setting, if present.</p>
-<p>This feature can be used with both <a class="reference internal" href="#basic"><em>Basic Authentication</em></a> and <a class="reference internal" href="#token"><em>Token-Based Authentication</em></a> as they both
-rely on the <cite>Authorization.username</cite> field.</p>
+<p>When this feature is enabled, each stored document is associated with the
+account that created it. This allows the API to transparently serve only
+account-created documents on all kind of requests: read, edit, delete and of
+course create.  User autentication needs to be enabled for this to work
+properly.</p>
+<p>At global level this feature is enabled by setting <tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt> and locally
+(at endpoint level) by setting <tt class="docutils literal"><span class="pre">auth_field</span></tt>. These properties define the name
+of the field used to store the id of the user who created the document.  So for
+example by setting <tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt> to <tt class="docutils literal"><span class="pre">user_id</span></tt>, you are effectively (and
+trasparently to the user) adding a <tt class="docutils literal"><span class="pre">user_id</span></tt> field to every stored
+document. This will then be used to retrieve/edit/delete documents stored by
+the user.</p>
+<p>But how do you set the <tt class="docutils literal"><span class="pre">auth_field</span></tt> value? By simply setting it in your
+custom class. Let us revise our BCrypt-authentication example from above:</p>
+<div class="highlight-python"><div class="highlight"><pre> <span class="c"># -*- coding: utf-8 -*-</span>
+
+ <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">     Auth-BCrypt</span>
+<span class="sd">     ~~~~~~~~~~~</span>
+
+<span class="sd">     Securing an Eve-powered API with Basic Authentication (RFC2617).</span>
+
+<span class="sd">     You will need to install py-bcrypt: ``pip install py-bcrypt``</span>
+
+<span class="sd">     This snippet by Nicola Iarocci can be used freely for anything you like.</span>
+<span class="sd">     Consider it public domain.</span>
+<span class="sd"> &quot;&quot;&quot;</span>
+
+ <span class="kn">import</span> <span class="nn">bcrypt</span>
+ <span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
+ <span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">BasicAuth</span>
+
+
+ <span class="k">class</span> <span class="nc">BCryptAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
+     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+         <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
+         <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
+         <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">})</span>
+<span class="hll">         <span class="c"># set &#39;auth_field&#39; value to the account&#39;s ObjectId</span>
+</span><span class="hll">         <span class="c"># (instead of _Id, you might want to use ID_FIELD)</span>
+</span><span class="hll">         <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">account</span><span class="p">[</span><span class="s">&#39;_Id&#39;</span><span class="p">]</span>
+</span>         <span class="k">return</span> <span class="n">account</span> <span class="ow">and</span> \
+             <span class="n">bcrypt</span><span class="o">.</span><span class="n">hashpw</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">account</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="n">account</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">]</span>
+
+
+ <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+     <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">BCryptAuth</span><span class="p">)</span>
+     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
 <div class="admonition-please-note admonition">
 <p class="first admonition-title">Please note</p>
 <p class="last">The snippets in this page can also be found in the <cite>examples/security</cite>

@@ -247,6 +247,11 @@ nested and combined. Sorting is supported as well:</p>
 </div>
 <p>Currently sort directives use a pure MongoDB syntax; support for a more general
 syntax (<tt class="docutils literal"><span class="pre">sort=lastname</span></tt>) is planned.</p>
+<p>Filters are enabled by default on all document fields. However, the API
+maintainer can choose to disable them all and/or whitelist allowed ones (see
+<tt class="docutils literal"><span class="pre">ALLOWED_FILTERS</span></tt> in <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a>). If scraping, or fear of DB DoS attacks
+by querying on non-indexed fields is a concern, then whitelisting allowed
+filters is the way to go.</p>
 <div class="admonition-please-note admonition">
 <p class="first admonition-title">Please note</p>
 <p class="last">Always use double quotes to wrap field names and values. Using single

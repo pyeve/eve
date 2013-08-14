@@ -289,12 +289,42 @@ using the <a class="reference internal" href="../authentication.html#user-restri
 associated with the account that created it. This allows the API to transparently
 serve only account-created documents on all kind of requests: read, edit, delete
 and of course create.</p>
-<p>The only thing that we need to do is configure the name of the field that will
-be used to store the owner of the document. It can be done at a global level
-(all endpoints will use the same field) and/or at endpoint level (see feature
-documentation for details). Let&#8217;s just set the global field name in our
-settings file:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">AUTH_USERNAME_FIELD</span><span class="p">:</span> <span class="s">&#39;username&#39;</span>
+<p>There are only two things that we need to do in order to activate this feature:</p>
+<blockquote>
+<div>1. configure the name of the field that will be used to store the owner of the
+document
+2. set the document owner on each incoming POST request.</div></blockquote>
+<p>Since we want to enable this feature for all of our API endpoints we&#8217;ll just
+update our <tt class="docutils literal"><span class="pre">settings.py</span></tt> file by setting a proper <tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt> value:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Name of the field used to store the owner of each document</span>
+<span class="n">AUTH_FIELD</span> <span class="o">=</span> <span class="s">&#39;user_id&#39;</span>
+</pre></div>
+</div>
+<p>Then, we want to update our authentication class to properly update the field&#8217;s
+value:</p>
+<div class="highlight-python"><div class="highlight"><pre> <span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
+ <span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">BasicAuth</span>
+ <span class="kn">from</span> <span class="nn">werkzeug.security</span> <span class="kn">import</span> <span class="n">check_password_hash</span>
+
+
+ <span class="k">class</span> <span class="nc">RolesAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
+     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+         <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
+         <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
+         <span class="n">lookup</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">}</span>
+         <span class="k">if</span> <span class="n">allowed_roles</span><span class="p">:</span>
+             <span class="c"># only retrieve a user if his roles match ``allowed_roles``</span>
+             <span class="n">lookup</span><span class="p">[</span><span class="s">&#39;roles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;$in&#39;</span><span class="p">:</span> <span class="n">allowed_roles</span><span class="p">}</span>
+         <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">(</span><span class="n">lookup</span><span class="p">)</span>
+<span class="hll">         <span class="c"># set &#39;AUTH_FIELD&#39; value to the account&#39;s ObjectId</span>
+</span><span class="hll">         <span class="c"># (instead of _Id, you might want to use ID_FIELD)</span>
+</span><span class="hll">         <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">account</span><span class="p">[</span><span class="s">&#39;_id&#39;</span><span class="p">]</span>
+</span>         <span class="k">return</span> <span class="n">account</span> <span class="ow">and</span> <span class="n">check_password_hash</span><span class="p">(</span><span class="n">account</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">],</span> <span class="n">password</span><span class="p">)</span>
+
+
+ <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+     <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">RolesAuth</span><span class="p">)</span>
+     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>This is all we need to do. Now, when a user hits the, say, <tt class="docutils literal"><span class="pre">/invoices/</span></tt>
@@ -503,17 +533,9 @@ methods. See <a class="reference internal" href="../authentication.html#auth"><e
 <div class="section" id="id4">
 <h3>6. Only allowing access to account resources<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <p>This is achieved with the <a class="reference internal" href="../authentication.html#user-restricted"><em>User-Restricted Resource Access</em></a> feature, as seen in
-<a class="reference internal" href="#accounts-basic"><em>Accounts with Basic Authentication</em></a>. Update the settings file with the following global
-setting (or use the local <tt class="docutils literal"><span class="pre">auth_username_field</span></tt> if you only want to enable
-the feature on selected endpoints):</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">AUTH_USERNAME_FIELD</span><span class="p">:</span> <span class="s">&#39;token&#39;</span>
-</pre></div>
-</div>
-<p>Stored documents will be associated with their account token. When a user hits
-the, say, <tt class="docutils literal"><span class="pre">/invoices/</span></tt> endpoint with a GET request, he will only be served
-with the invoices created by his own token. The same will happen with DELETE
-and PATCH, making it impossible for an authenticated user to accidentally
-retrieve, edit or delete other people data.</p>
+<a class="reference internal" href="#accounts-basic"><em>Accounts with Basic Authentication</em></a>. You might want to store the user token as your
+<tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt> value, but if you want user tokens to be easily revocable, then
+your best option is to use the account unique id for this.</p>
 </div>
 </div>
 <div class="section" id="basic-vs-token-final-considerations">
@@ -523,11 +545,6 @@ Authentication offers significant advantages. First, you don&#8217;t have passwo
 stored on the client and  being sent over the wire with every request. If
 you&#8217;re sending your tokens out-of-band, and you&#8217;re on SSL/TLS, that&#8217;s quite
 a lot of additional security.</p>
-<p>If you are using the <a class="reference internal" href="../authentication.html#user-restricted"><em>User-Restricted Resource Access</em></a> feature then a second and not
-irrelevant advantage is that, since you are just storing tokens with documents,
-when the user will eventually change his/her username no maintenance will be
-needed, as the token itself won&#8217;t change. With Basic Authentication, since we
-would be storing usernames with documents, we&#8217;d be forced to update them all.</p>
 </div>
 </div>
 
