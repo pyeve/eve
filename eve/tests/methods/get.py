@@ -90,8 +90,6 @@ class TestGet(TestBase):
         self.assertTrue('prev' not in links)
 
     def test_get_where_mongo_syntax(self):
-        self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
-            ['ref']
         where = '{"ref": "%s"}' % self.item_name
         response, status = self.get(self.known_resource,
                                     '?where=%s' % where)
@@ -101,8 +99,6 @@ class TestGet(TestBase):
         self.assertEqual(len(resource), 1)
 
     def test_get_mongo_query_blacklist(self):
-        self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
-            ['ref']
         where = '{"$where": "this.ref == ''%s''"}' % self.item_name
         response, status = self.get(self.known_resource,
                                     '?where=%s' % where)
@@ -116,8 +112,6 @@ class TestGet(TestBase):
     # TODO need more tests here, to verify that the parser is behaving
     # correctly
     def test_get_where_python_syntax(self):
-        self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
-            ['ref', 'prog', 'born']
         where = 'ref == %s' % self.item_name
         response, status = self.get(self.known_resource, '?where=%s' % where)
         self.assert200(status)
@@ -239,8 +233,6 @@ class TestGet(TestBase):
         contacts[0]['ref'] = ref
         _db = self.connection[MONGO_DBNAME]
         _db.contacts.insert(contacts)
-        self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
-            ['ref']
         where = '{"ref": "%s"}' % ref
         response, status = self.get(self.known_resource,
                                     '?where=%s' % where)
@@ -248,6 +240,21 @@ class TestGet(TestBase):
         resource = response['_items']
         self.assertEqual(len(resource), 1)
         self.assertItem(resource[0])
+
+    def test_get_where_allowed_filters(self):
+        self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
+            ['notreally']
+        where = '{"ref": "%s"}' % self.item_name
+        r = self.test_client.get('%s%s' % (self.known_resource_url,
+                                           '?where=%s' % where))
+        self.assert400(r.status_code)
+        self.assertTrue("'ref' not allowed" in r.data)
+
+        self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
+            ['*']
+        r = self.test_client.get('%s%s' % (self.known_resource_url,
+                                           '?where=%s' % where))
+        self.assert200(r.status_code)
 
 
 class TestGetItem(TestBase):
