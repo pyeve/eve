@@ -248,7 +248,7 @@ class TestGet(TestBase):
         r = self.test_client.get('%s%s' % (self.known_resource_url,
                                            '?where=%s' % where))
         self.assert400(r.status_code)
-        self.assertTrue("'ref' not allowed" in r.data)
+        self.assertTrue(b"'ref' not allowed" in r.get_data())
 
         self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
             ['*']
