@@ -136,7 +136,7 @@ class TestGet(TestBase):
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
 
     def test_get_where_disabled(self):
-        self.app.config['DOMAIN'][self.known_resource]['filters'] = False
+        self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = []
         where = 'ref == %s' % self.item_name
         response, status = self.get(self.known_resource, '?where=%s' % where)
         self.assert200(status)
@@ -240,6 +240,21 @@ class TestGet(TestBase):
         resource = response['_items']
         self.assertEqual(len(resource), 1)
         self.assertItem(resource[0])
+
+    def test_get_where_allowed_filters(self):
+        self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
+            ['notreally']
+        where = '{"ref": "%s"}' % self.item_name
+        r = self.test_client.get('%s%s' % (self.known_resource_url,
+                                           '?where=%s' % where))
+        self.assert400(r.status_code)
+        self.assertTrue("'ref' not allowed" in r.data)
+
+        self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
+            ['*']
+        r = self.test_client.get('%s%s' % (self.known_resource_url,
+                                           '?where=%s' % where))
+        self.assert200(r.status_code)
 
 
 class TestGetItem(TestBase):

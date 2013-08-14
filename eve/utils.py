@@ -89,7 +89,7 @@ def parse_request(resource):
 
     r = ParsedRequest()
 
-    if config.DOMAIN[resource]['filters']:
+    if config.DOMAIN[resource]['allowed_filters']:
         r.where = args.get('where')
     if config.DOMAIN[resource]['projection']:
         r.projection = args.get('projection')
@@ -302,4 +302,20 @@ def debug_error_message(msg):
     """
     if getattr(config, 'DEBUG', False):
         return msg
+    return None
+
+
+def validate_filters(where, resource):
+    """ Report any filter which is not allowed by  `allowed_filters`
+
+    :param where: the where clause, as a dict.
+    :param resource: the resource being inspected.
+
+    .. versionadded: 0.0.9
+    """
+    allowed = config.DOMAIN[resource]['allowed_filters']
+    if '*' not in allowed:
+        for filt, cond in list(where.items()):
+            if filt not in allowed:
+                return "filter on '%s' not allowed" % filt
     return None

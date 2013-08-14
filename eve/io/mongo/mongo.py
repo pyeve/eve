@@ -20,7 +20,7 @@ from bson import ObjectId
 from eve import ID_FIELD
 from eve.io.mongo.parser import parse, ParseError
 from eve.io.base import DataLayer, ConnectionException
-from eve.utils import config, debug_error_message
+from eve.utils import config, debug_error_message, validate_filters
 
 
 class Mongo(DataLayer):
@@ -102,6 +102,10 @@ class Mongo(DataLayer):
                     abort(400, description=debug_error_message(
                         'Unable to parse `where` clause'
                     ))
+
+        bad_filter =  validate_filters(spec, resource)
+        if bad_filter:
+            abort(400, bad_filter)
 
         if req.projection:
             try:
