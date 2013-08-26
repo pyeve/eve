@@ -23,7 +23,7 @@ setup(
         'cerberus==0.3.0',
         'events==0.1.0',
         'simplejson==3.3.0',
-        'werkzeug==0.9.3',
+        'werkzeug==0.9.4',
         'markupsafe==0.18',
         'jinja2==2.7',
         'itsdangerous==0.22',
