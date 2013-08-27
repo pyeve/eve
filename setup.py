@@ -28,7 +28,7 @@ setup(
         'jinja2==2.7',
         'itsdangerous==0.22',
         'flask==0.10.1',
-        'pymongo==2.5.2',
+        'pymongo==2.6',
         'flask-pymongo==0.3.0',
     ],
     tests_require=['redis'],

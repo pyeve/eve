@@ -8,6 +8,7 @@ Version 0.0.9
 
 Not released yet.
 
+- PyMongo 2.6 is now supported.
 - ``FILTERS`` boolean replaced by ``ALLOWED_FILTERS`` list which allows for
   explicit whitelisting of filter-enabled fields (Bryan Cattle). Closes #78.
 - Custom user ids for User-Restricted Resource Access, allowing for more
