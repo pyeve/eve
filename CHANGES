@@ -6,7 +6,7 @@ Here you can see the full list of changes between each Eve release.
 Version 0.0.9
 -------------
 
-Not released yet.
+Released on August 29, 2013
 
 - PyMongo 2.6 is now supported.
 - ``FILTERS`` boolean replaced by ``ALLOWED_FILTERS`` list which allows for
