@@ -11,7 +11,6 @@ from eve.io.mongo import Mongo, Validator
 
 
 class TestConfig(TestBase):
-
     def test_default_import_name(self):
         self.assertEqual(self.app.import_name, eve.__package__)
 
@@ -92,7 +91,7 @@ class TestConfig(TestBase):
 
     def test_validate_item_methods(self):
         self.app.config['ITEM_METHODS'] = ['PUT', 'GET', 'POST', 'DELETE']
-        self.assertValidateConfigFailure('PUT, POST')
+        self.assertValidateConfigFailure(['POST', 'PUT'])
 
     def test_validate_schema_methods(self):
         test = {
@@ -171,12 +170,13 @@ class TestConfig(TestBase):
                          self.app.config['ITEM_URL'])
         self.assertEqual(settings['item_title'],
                          resource.rstrip('s').capitalize())
-        self.assertEqual(settings['filters'], self.app.config['FILTERS'])
+        self.assertEqual(settings['allowed_filters'],
+                         self.app.config['ALLOWED_FILTERS'])
         self.assertEqual(settings['projection'], self.app.config['PROJECTION'])
         self.assertEqual(settings['sorting'], self.app.config['SORTING'])
         self.assertEqual(settings['pagination'], self.app.config['PAGINATION'])
-        self.assertEqual(settings['auth_username_field'],
-                         self.app.config['AUTH_USERNAME_FIELD'])
+        self.assertEqual(settings['auth_field'],
+                         self.app.config['AUTH_FIELD'])
         self.assertEqual(settings['allow_unknown'],
                          self.app.config['ALLOW_UNKNOWN'])
         self.assertEqual(settings['extra_response_fields'],
@@ -192,7 +192,7 @@ class TestConfig(TestBase):
         resource = 'invoices'
         datasource = self.domain[resource]['datasource']
         schema = self.domain[resource]['schema']
-        compare = filter(schema.has_key, datasource['projection'])
+        compare = [key for key in datasource['projection'] if key in schema]
         compare.extend([self.app.config['ID_FIELD'],
                         self.app.config['LAST_UPDATED'],
                         self.app.config['DATE_CREATED']])
@@ -221,22 +221,25 @@ class TestConfig(TestBase):
         try:
             self.app.validate_domain_struct()
             self.app.validate_config()
-        except ConfigException, e:
+        except ConfigException as e:
             self.fail('ConfigException not expected: %s' % e)
 
     def assertValidateConfigFailure(self, expected):
         try:
             self.app.validate_domain_struct()
             self.app.validate_config()
-        except ConfigException, e:
-            self.assertTrue(expected.lower() in str(e).lower())
+        except ConfigException as e:
+            if isinstance(expected, str):
+                expected = [expected]
+            for exp in expected:
+                self.assertTrue(exp.lower() in str(e).lower())
         else:
             self.fail("ConfigException expected but not raised.")
 
     def assertValidateSchemaFailure(self, resource, schema, expected):
         try:
             self.app.validate_schema(resource, schema)
-        except SchemaException, e:
+        except SchemaException as e:
             self.assertTrue(expected.lower() in str(e).lower())
         else:
             self.fail("SchemaException expected but not raised.")

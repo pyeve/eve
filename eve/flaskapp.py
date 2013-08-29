@@ -7,7 +7,7 @@
     This module implements the central WSGI application object as a Flask
     subclass.
 
-    :copyright: (c) 2012 by Nicola Iarocci.
+    :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -286,6 +286,10 @@ class Eve(Flask, Events):
         """ When not provided, fills individual resource settings with default
         or global configuration settings.
 
+        .. versionchanged:: 0.0.9
+           'auth_username_field' renamed to 'auth_field'.
+           Always include automatic fields despite of datasource projections.
+
         .. versionchanged:: 0.0.8
            'mongo_write_concern'
 
@@ -335,7 +339,8 @@ class Eve(Flask, Events):
                                 self.config['PUBLIC_ITEM_METHODS'])
             settings.setdefault('allowed_item_roles',
                                 self.config['ALLOWED_ITEM_ROLES'])
-            settings.setdefault('filters', self.config['FILTERS'])
+            settings.setdefault('allowed_filters',
+                                self.config['ALLOWED_FILTERS'])
             settings.setdefault('sorting', self.config['SORTING'])
             settings.setdefault('pagination', self.config['PAGINATION'])
             settings.setdefault('projection', self.config['PROJECTION'])
@@ -345,8 +350,8 @@ class Eve(Flask, Events):
             else:
                 item_methods = eve.ITEM_METHODS
             settings.setdefault('item_methods', item_methods)
-            settings.setdefault('auth_username_field',
-                                self.config['AUTH_USERNAME_FIELD'])
+            settings.setdefault('auth_field',
+                                self.config['AUTH_FIELD'])
             settings.setdefault('allow_unknown', self.config['ALLOW_UNKNOWN'])
             settings.setdefault('extra_response_fields',
                                 self.config['EXTRA_RESPONSE_FIELDS'])
@@ -364,14 +369,14 @@ class Eve(Flask, Events):
 
             # enable retrieval of actual schema fields only. Eventual db
             # fields not included in the schema won't be returned.
-            default_projection = {
-                self.config['ID_FIELD']: 1,
-                self.config['LAST_UPDATED']: 1,
-                self.config['DATE_CREATED']: 1
-            }
+            default_projection = {}
             default_projection.update(dict((field, 1) for (field) in schema))
-            settings['datasource'].setdefault('projection',
-                                              default_projection)
+            projection = settings['datasource'].setdefault('projection',
+                                                           default_projection)
+            # despite projection, automatic fields are always included.
+            projection[self.config['ID_FIELD']] = 1
+            projection[self.config['LAST_UPDATED']] = 1
+            projection[self.config['DATE_CREATED']] = 1
 
             # `dates` helper set contains the names of the schema fields
             # defined as `datetime` types. It will come in handy when
@@ -414,6 +419,9 @@ class Eve(Flask, Events):
     def _add_url_rules(self):
         """ Builds the API url map. Methods are enabled for each mapped
         endpoint, as configured in the settings.
+
+        .. versionchanged:: 0.0.9
+           Handle the case of 'additional_lookup' field being an integer.
 
         .. versionchanged:: 0.0.5
            Support for Cross-Origin Resource Sharing. 'OPTIONS' method is
@@ -467,11 +475,15 @@ class Eve(Flask, Events):
                                       methods=['POST'])
 
                 # also enable an alternative lookup/endpoint if allowed
-                add_lookup = settings.get('additional_lookup')
-                if add_lookup:
-                    item_url = '%s<regex("%s"):%s>/' % (url,
-                                                        add_lookup['url'],
-                                                        add_lookup['field'])
+                lookup = settings.get('additional_lookup')
+                if lookup:
+                    l_type = settings['schema'][lookup['field']]['type']
+                    if l_type == 'integer':
+                        item_url = '%s<int:%s>/' % (url, lookup['field'])
+                    else:
+                        item_url = '%s<regex("%s"):%s>/' % (url,
+                                                            lookup['url'],
+                                                            lookup['field'])
                     self.add_url_rule(item_url, view_func=item_endpoint,
                                       methods=['GET'])
         self.config['RESOURCES'] = resources

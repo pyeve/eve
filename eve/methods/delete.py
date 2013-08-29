@@ -7,15 +7,14 @@
     This module imlements the DELETE method, currently supported by the item
     endopints.
 
-    :copyright: (c) 2012 by Nicola Iarocci.
+    :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
-from flask import current_app as app
-from common import get_document, ratelimit
-from flask import abort
+from flask import current_app as app, abort
 from eve.utils import config
 from eve.auth import requires_auth
+from eve.methods.common import get_document, ratelimit
 
 
 @ratelimit()

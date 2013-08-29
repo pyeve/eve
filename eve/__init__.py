@@ -6,16 +6,20 @@
 
     An out-of-the-box REST Web API that's as dangerous as you want it to be.
 
-    :copyright: (c) 2012 by Nicola Iarocci.
+    :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
+
+    .. versionchagned:: 0.0.9
+       'DATE_FORMAT now using GMT instead of UTC.
+
 """
 
-__version__ = '0.0.8'
+__version__ = '0.0.9-dev'
 
 #DEBUG = True
 
 # RFC 1123 (ex RFC 822)
-DATE_FORMAT = '%a, %d %b %Y %H:%M:%S UTC'
+DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
 
 URL_PREFIX = ''
 API_VERSION = ''
@@ -39,4 +43,4 @@ STATUS_OK = "OK"
 STATUS_ERR = "ERR"
 
 # must be the last line (will raise W402 on pyflakes)
-from flaskapp import Eve  # noqa
+from eve.flaskapp import Eve  # noqa

@@ -7,14 +7,14 @@
     This module implements the API 'GET' methods, supported by both the
     resources and single item endpoints.
 
-    :copyright: (c) 2012 by Nicola Iarocci.
+    :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
 import math
 from datetime import datetime
 from flask import current_app as app, abort
-from common import ratelimit
+from .common import ratelimit
 from eve.auth import requires_auth
 from eve.utils import parse_request, document_etag, document_link, \
     collection_link, home_link, querydef, resource_uri, config
@@ -26,6 +26,10 @@ def get(resource):
     """Retrieves the resource documents that match the current request.
 
     :param resource: the name of the resource.
+
+    .. versionchanged: 0.0.9
+       Event hooks renamed to be more robuts and consistent: 'on_getting'
+       renamed to 'on_fetch'.
 
     .. versionchanged: 0.0.8
        'on_getting' and 'on_getting_<resource>' events are raised when
@@ -84,8 +88,8 @@ def get(resource):
         # updated to reflect the changes (they always reflect the documents
         # state on the database.)
 
-        getattr(app, "on_getting")(resource, documents)
-        getattr(app, "on_getting_%s" % resource)(documents)
+        getattr(app, "on_fetch_resource")(resource, documents)
+        getattr(app, "on_fetch_resource_%s" % resource)(documents)
 
         response['_items'] = documents
         response['_links'] = _pagination_links(resource, req, cursor.count())
@@ -159,8 +163,12 @@ def getitem(resource, **lookup):
         # functions modify the document, last_modified and etag  won't be
         # updated to reflect the changes (they always reflect the documents
         # state on the database).
-        getattr(app, "on_getting_item")(resource, document[config.ID_FIELD],
-                                        document)
+        item_title = config.DOMAIN[resource]['item_title'].lower()
+
+        getattr(app, "on_fetch_item")(resource, document[config.ID_FIELD],
+                                      document)
+        getattr(app, "on_fetch_item_%s" %
+                item_title)(document[config.ID_FIELD], document)
 
         response.update(document)
         return response, last_modified, document['etag'], 200

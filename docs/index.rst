@@ -27,6 +27,8 @@ All you need to bring your API online is a database, a configuration file
 (defaults to ``settings.py``) and a launch script.  Overall, you will find that
 configuring and fine-tuning your API is a very simple process.
 
+Eve is thoroughly tested under Python 2.6, Python 2.7 and Python 3.3.
+
 .. _demo:
 
 Live demo
@@ -51,10 +53,31 @@ User's Guide
     authentication
     tutorials/index
     extensions
+
+Developer's Guide
+-----------------
+.. toctree::
+    :maxdepth: 1
+
     contributing
+    testing
+
+*A proper developer guide will be available when 1.0 is released*
+
+Support, Updates and Licensing
+------------------------------
+.. toctree::
+    :maxdepth: 1
+
     support
     updates
     license
+
+Changelog
+---------
+.. toctree::
+    :maxdepth: 2
+
     changelog
 
 .. note::

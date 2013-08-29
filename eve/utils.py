@@ -6,7 +6,7 @@
 
     Utility functions and classes.
 
-    :copyright: (c) 2012 by Nicola Iarocci.
+    :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -89,7 +89,7 @@ def parse_request(resource):
 
     r = ParsedRequest()
 
-    if config.DOMAIN[resource]['filters']:
+    if config.DOMAIN[resource]['allowed_filters']:
         r.where = args.get('where')
     if config.DOMAIN[resource]['projection']:
         r.projection = args.get('projection')
@@ -240,7 +240,7 @@ def querydef(max_results=config.PAGINATION_DEFAULT, where=None, sort=None,
     """
     where_part = '&where=%s' % where if where else ''
     sort_part = '&sort=%s' % sort if sort else ''
-    page_part = '&page=%s' % page if page > 1 else ''
+    page_part = '&page=%s' % page if page and page > 1 else ''
     max_results_part = 'max_results=%s' % max_results \
         if max_results != config.PAGINATION_DEFAULT else ''
 
@@ -258,7 +258,7 @@ def document_etag(value):
        consistent between different runs and/or server instances (#16).
     """
     h = hashlib.sha1()
-    h.update(dumps(value, sort_keys=True))
+    h.update(dumps(value, sort_keys=True).encode('utf-8'))
     return h.hexdigest()
 
 
@@ -289,3 +289,33 @@ def request_method():
         return 'PATCH'
     else:
         return request.method
+
+
+def debug_error_message(msg):
+    """ Returns the error message `msg` if config.DEBUG is True
+    otherwise returns `None` which will cause Werkzeug to provide
+    a generic error message
+
+    :param msg: The error message to return if config.DEBUG is True
+
+    .. versionadded: 0.0.9
+    """
+    if getattr(config, 'DEBUG', False):
+        return msg
+    return None
+
+
+def validate_filters(where, resource):
+    """ Report any filter which is not allowed by  `allowed_filters`
+
+    :param where: the where clause, as a dict.
+    :param resource: the resource being inspected.
+
+    .. versionadded: 0.0.9
+    """
+    allowed = config.DOMAIN[resource]['allowed_filters']
+    if '*' not in allowed:
+        for filt, cond in list(where.items()):
+            if filt not in allowed:
+                return "filter on '%s' not allowed" % filt
+    return None

@@ -42,13 +42,13 @@ class TestRateLimit(TestBase):
             self.assertRateLimit(self.test_client.get(url))
             r = self.test_client.get(url)
             self.assertEqual(r.status_code, 429)
-            self.assertTrue('Rate limit exceeded' in r.data)
+            self.assertTrue(b'Rate limit exceeded' in r.get_data())
 
             time.sleep(1)
             self.assertRateLimit(self.test_client.get(url))
         else:
-            print ("Skipped. Needs a running redis-server and 'pip install "
-                   "redis'")
+            print("Skipped. Needs a running redis-server and 'pip install "
+                  "redis'")
 
     def assertRateLimit(self, r):
         self.assertTrue('X-RateLimit-Remaining' in r.headers)

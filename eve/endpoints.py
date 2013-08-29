@@ -8,16 +8,16 @@
     home) invokes the appropriate method handler, returning its response
     to the client, properly rendered.
 
-    :copyright: (c) 2012 by Nicola Iarocci.
+    :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
-from methods import get, getitem, post, patch, delete, delete_resource
-from methods.common import ratelimit
-from flask import abort
-from render import send_response
+from eve.methods import get, getitem, post, patch, delete, delete_resource
+from eve.methods.common import ratelimit
+from eve.render import send_response
 from eve.auth import requires_auth
 from eve.utils import resource_uri, config, request_method
+from flask import abort
 
 
 def collections_endpoint(url):

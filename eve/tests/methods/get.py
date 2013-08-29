@@ -131,9 +131,12 @@ class TestGet(TestBase):
             self.assertFalse('location' in r)
             self.assertFalse('role' in r)
             self.assertTrue('prog' in r)
+            self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+            self.assertTrue(self.app.config['DATE_CREATED'] in r)
 
     def test_get_where_disabled(self):
-        self.app.config['DOMAIN'][self.known_resource]['filters'] = False
+        self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = []
         where = 'ref == %s' % self.item_name
         response, status = self.get(self.known_resource, '?where=%s' % where)
         self.assert200(status)
@@ -238,6 +241,21 @@ class TestGet(TestBase):
         self.assertEqual(len(resource), 1)
         self.assertItem(resource[0])
 
+    def test_get_where_allowed_filters(self):
+        self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
+            ['notreally']
+        where = '{"ref": "%s"}' % self.item_name
+        r = self.test_client.get('%s%s' % (self.known_resource_url,
+                                           '?where=%s' % where))
+        self.assert400(r.status_code)
+        self.assertTrue(b"'ref' not allowed" in r.get_data())
+
+        self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
+            ['*']
+        r = self.test_client.get('%s%s' % (self.known_resource_url,
+                                           '?where=%s' % where))
+        self.assert200(r.status_code)
+
 
 class TestGetItem(TestBase):
 
@@ -273,6 +291,18 @@ class TestGetItem(TestBase):
                                     item=self.unknown_item_name)
         self.assert404(status)
 
+    def test_getitem_by_integer(self):
+        self.domain['contacts']['additional_lookup'] = {
+            'field': 'prog'
+        }
+        self.app._add_url_rules()
+        response, status = self.get(self.known_resource,
+                                    item=1)
+        self.assertItemResponse(response, status)
+        response, status = self.get(self.known_resource,
+                                    item=self.known_resource_count)
+        self.assert404(status)
+
     def test_getitem_if_modified_since(self):
         self.assertIfModifiedSince(self.item_id_url)
 
@@ -284,7 +314,7 @@ class TestGetItem(TestBase):
         r = self.test_client.get(self.item_id_url,
                                  headers=[('If-None-Match', etag)])
         self.assert304(r.status_code)
-        self.assertEqual(r.data, '')
+        self.assertTrue(not r.get_data())
 
     def test_cache_control(self):
         self.assertCacheControl(self.item_id_url)
@@ -337,5 +367,5 @@ class TestHead(TestBase):
     def assertHead(self, url):
         h = self.test_client.head('/')
         r = self.test_client.get('/')
-        self.assertEqual(h.data, '')
+        self.assertTrue(not h.data)
         self.assertEqual(r.headers, h.headers)

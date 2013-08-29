@@ -7,18 +7,18 @@
     This module imlements the PATCH method, supported by the resources
     endopints.
 
-    :copyright: (c) 2012 by Nicola Iarocci.
+    :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
-from flask import current_app as app
+from flask import current_app as app, abort
+from werkzeug import exceptions
 from datetime import datetime
-from common import get_document, parse, payload as payload_, ratelimit
-from flask import abort
-from eve.utils import document_etag, document_link, config
+from eve.utils import document_etag, document_link, config, debug_error_message
 from eve.auth import requires_auth
 from eve.validation import ValidationError
-from werkzeug import exceptions
+from eve.methods.common import get_document, parse, payload as payload_, \
+    ratelimit
 
 
 @ratelimit()
@@ -31,6 +31,10 @@ def patch(resource, **lookup):
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
+
+    .. versionchanged:: 0.0.9
+       More informative error messages.
+       Support for Python 3.3.
 
     .. versionchanged:: 0.0.8
        Let ``werkzeug.exceptions.InternalServerError`` go through as they have
@@ -54,7 +58,9 @@ def patch(resource, **lookup):
     payload = payload_()
     if len(payload) > 1:
         # only one update-per-document supported
-        abort(400)
+        abort(400, description=debug_error_message(
+            'Only one update-per-document supported'
+        ))
 
     original = get_document(resource, **lookup)
     if not original:
@@ -70,7 +76,8 @@ def patch(resource, **lookup):
 
     issues = []
 
-    key = payload.keys()[0]
+    # the list is needed for Py33. Yes kind of sucks.
+    key = list(payload.keys())[0]
     value = payload[key]
 
     response_item = {}
@@ -101,15 +108,17 @@ def patch(resource, **lookup):
                                                              object_id)}
         else:
             issues.extend(validator.errors)
-    except ValidationError, e:
+    except ValidationError as e:
         # TODO should probably log the error and abort 400 instead (when we
         # got logging)
         issues.append(str(e))
-    except exceptions.InternalServerError, e:
+    except exceptions.InternalServerError as e:
         raise e
-    except:
+    except Exception as e:
         # consider all other exceptions as Bad Requests
-        abort(400)
+        abort(400, description=debug_error_message(
+            'An exception occurred: %s' % e
+        ))
 
     if len(issues):
         response_item['issues'] = issues

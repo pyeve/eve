@@ -8,8 +8,14 @@
     appropriately, by using a custom settings module (see the optional
     'settings' argument or the EVE_SETTING environment variable).
 
-    :copyright: (c) 2012 by Nicola Iarocci.
+    :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
+
+    .. versionchanged:: 0.0.9
+       'FILTERS' boolean changed to 'ALLOWED_FILTERS' list.
+       'AUTH_USERNAME_FIELD' renamed to 'AUTH_FIELD', and default value set to
+       None.
+       'DATE_FORMAT now using GMT instead of UTC.
 
     .. versionchanged:: 0.0.7
        'EXTRA_RESPONSE_FIELDS added and set to an empty list.
@@ -26,7 +32,7 @@
 #DEBUG = True
 
 # RFC 1123 (ex RFC 822)
-DATE_FORMAT = '%a, %d %b %Y %H:%M:%S UTC'
+DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
 
 
 API_VERSION = ''
@@ -41,7 +47,7 @@ ITEM_CACHE_CONTROL = ''
 X_DOMAINS = None                # CORS disabled by default.
 X_HEADERS = None                # CORS disabled by default.
 
-FILTERS = True                  # filters enbaled by default.
+ALLOWED_FILTERS = ['*']         # filtering enabled by default
 SORTING = True                  # sorting enabled by default.
 PROJECTION = True               # projection enabled by default
 PAGINATION = True               # pagination enabled by default.
@@ -64,7 +70,7 @@ ITEM_URL = '[a-f0-9]{24}'
 EXTRA_RESPONSE_FIELDS = []
 
 
-AUTH_USERNAME_FIELD = ''        # user-restricted resource access is disabled
+AUTH_FIELD = None               # user-restricted resource access is disabled
                                 # by default.
 
 ALLOW_UNKNOWN = False           # don't allow unknown key/value pairs for

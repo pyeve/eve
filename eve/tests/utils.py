@@ -5,7 +5,8 @@ from bson.json_util import dumps
 from datetime import datetime, timedelta
 from eve.tests import TestBase
 from eve.utils import parse_request, str_to_date, config, weak_date, \
-    date_to_str, querydef, document_etag, extract_key_values
+    date_to_str, querydef, document_etag, extract_key_values, \
+    debug_error_message
 
 
 class TestUtils(TestBase):
@@ -17,11 +18,13 @@ class TestUtils(TestBase):
     def setUp(self):
         super(TestUtils, self).setUp()
         self.dt_fmt = config.DATE_FORMAT
-        self.datestr = 'Tue, 18 Sep 2012 10:12:30 UTC'
+        self.datestr = 'Tue, 18 Sep 2012 10:12:30 GMT'
         self.valid = datetime.strptime(self.datestr, self.dt_fmt)
         self.etag = '56eaadbbd9fa287e7270cf13a41083c94f52ab9b'
 
     def test_parse_request_where(self):
+        self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
+            ['ref']
         with self.app.test_request_context():
             self.assertEqual(parse_request(self.known_resource).where, None)
         with self.app.test_request_context('/?where=hello'):
@@ -110,7 +113,7 @@ class TestUtils(TestBase):
             self.assertRaises(ValueError, parse_request, self.known_resource)
         with self.app.test_request_context(
             headers={ims:
-                     self.datestr.replace('UTC', 'GMT')}):
+                     self.datestr.replace('GMT', 'UTC')}):
             self.assertRaises(ValueError, parse_request, self.known_resource)
             self.assertRaises(ValueError, parse_request, self.known_resource)
 
@@ -143,7 +146,7 @@ class TestUtils(TestBase):
         self.assertEqual(str_to_date(self.datestr), self.valid)
         self.assertRaises(ValueError, str_to_date, 'not-a-date')
         self.assertRaises(ValueError, str_to_date,
-                          self.datestr.replace('UTC', 'GMT'))
+                          self.datestr.replace('GMT', 'UTC'))
 
     def test_date_to_str(self):
         self.assertEqual(date_to_str(self.valid), self.datestr)
@@ -161,7 +164,7 @@ class TestUtils(TestBase):
 
     def test_document_etag(self):
         test = {'key1': 'value1', 'another': 'value2'}
-        challenge = dumps(test, sort_keys=True)
+        challenge = dumps(test, sort_keys=True).encode('utf-8')
         self.assertEqual(hashlib.sha1(challenge).hexdigest(),
                          document_etag(test))
 
@@ -177,3 +180,11 @@ class TestUtils(TestBase):
         }
         self.assertEqual(list(extract_key_values('key1', test)),
                          ['value1', 'value2', 'value3'])
+
+    def test_debug_error_message(self):
+        with self.app.test_request_context():
+            self.app.config['DEBUG'] = False
+            self.assertEquals(debug_error_message('An error message'), None)
+            self.app.config['DEBUG'] = True
+            self.assertEquals(debug_error_message('An error message'),
+                              'An error message')

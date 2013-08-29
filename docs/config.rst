@@ -94,9 +94,20 @@ uppercase.
                                 API urls (e.g. ``v1`` will be rendered to
                                 ``localhost:5000/v1/``). Defaults to ``''``.
 
-``FILTERS``                     ``True`` if filters are supported for ``GET`` 
-                                requests, ``False`` otherwise. Can be overriden
-                                by resource settings. Defaults to ``True``.
+``ALLOWED_FILTERS``             List of fields on which filtering is allowed. 
+                                Can be set to ``[]`` (no filters allowed) or
+                                ``['*']`` (filters allowed on every field).
+                                Unless your API is comprised of just one
+                                endpoint, this global setting should be used as
+                                an on/off switch, delegating explicit
+                                whitelisting at the local level (see
+                                ``allowed_filters`` below). Defaults to
+                                ``['*']``.
+
+                                *Please note:* If API scraping or DB DoS
+                                attacks are a concern, then globally disabling
+                                filters and whitelist valid ones at the local
+                                level is the way to go.
 
 ``SORTING``                     ``True`` if sorting is supported for ``GET``
                                 requests, otherwise ``False``. Can be overriden
@@ -122,8 +133,8 @@ uppercase.
                                 ``datetime`` values. In responses, ``datetime``
                                 values will be rendered as JSON strings using
                                 this format. Defaults to the RFC1123 (ex RFC
-                                822) standard ``a, %d %b %Y %H:%M:%S UTC`` 
-                                ("Tue, 02 Apr 2013 10:29:13 UTC"). 
+                                822) standard ``a, %d %b %Y %H:%M:%S GMT`` 
+                                ("Tue, 02 Apr 2013 10:29:13 GMT"). 
 
 ``RESOURCE_METHODS``            A list of HTTP methods supported at resource 
                                 endpoints. Allowed values: ``GET``, ``POST``,
@@ -227,14 +238,14 @@ uppercase.
                                 present. Can and most likely will be overriden 
                                 when configuring single resource endpoints.
 
-``AUTH_USERNAME_FIELD``         Enables :ref:`user-restricted`. When the
+``AUTH_FIELD``                  Enables :ref:`user-restricted`. When the
                                 feature is enabled users can only
                                 read/update/delete resource items created by
                                 themselves. The keyword contains the actual
-                                name of the field used to store the username of
+                                name of the field used to store the id of
                                 the user who created the resource item. Can be
                                 overwritten by resource settings. Defaults to
-                                ``''``, which disables the feature. 
+                                ``None``, which disables the feature. 
 
 ``ALLOW_UNKNOWN``               When ``True`` this option will allow insertion
                                 and edition of arbitrary, unknown fields to
@@ -369,11 +380,20 @@ always lowercase.
 =============================== =========================================
 ``url``                         The endpoint URL. If omitted, the resource key 
                                 of the ``DOMAIN`` dict will be used to build
-                                the URL. As an example, ``contacts`` would make the
-                                `people` resource available at ``/contacts/`` (instead of ``/people/``).
+                                the URL. As an example, ``contacts`` would make
+                                the `people` resource available at
+                                ``/contacts/`` (instead of ``/people/``).
 
-``filters``                     ``True`` if filters are enabled, ``False`` 
-                                otherwise. Locally overrides ``FILTERS``.
+``allowed_filters``             List of fields on which filtering is allowed. 
+                                Can be set to ``[]`` (no filters allowed), or
+                                ``['*']`` (fields allowed on every field).
+                                Defaults to ``['*']``.
+
+                                *Please note:* If API scraping or DB DoS
+                                attacks are a concern, then globally disabling
+                                filters (see ``ALLOWED_FILTERS`` above) and
+                                then whitelisting valid ones at the local level
+                                is the way to go.
 
 ``sorting``                     ``True`` if sorting is enabled, ``False`` 
                                 otherwise. Locally ovverrides ``SORTING``.
@@ -443,20 +463,31 @@ always lowercase.
                                 both in XML and JSON responses. Overrides
                                 ``ITEM_TITLE``.
 
-``additional_lookup``           RegEx defining and additional, custom read-only item
-                                endpoint. See the example below.
+``additional_lookup``           Besides the standard item endpoint which
+                                defaults to ``/<resource>/<ID_FIELD_value>/``,
+                                you can optionally define a secondary,
+                                read-only, endpoint like
+                                ``/<resource>/<person_name>/``. You do so by
+                                defining a dictionary comprised of two items
+                                `field` and `url`. The former is the name of
+                                the field used for the lookup. If the field
+                                type (as defined in the resource schema_) is
+                                a string, then you put a regex in `url`.  If it
+                                is an integer, then you just omit `url`, as it
+                                is automatically handled.  See the code snippet
+                                below for an usage example of this feature.
 
 ``datasource``                  Explicitly links API resources to database 
                                 collections. See `Advanced Datasource
                                 Patterns`_. 
 
-``auth_username_field``         Enables :ref:`user-restricted`. When the
+``auth_field``                  Enables :ref:`user-restricted`. When the
                                 feature is enabled users can only
                                 read/update/delete resource items created by
                                 themselves. The keyword contains the actual
-                                name of the field used to store the username of
+                                name of the field used to store the id of
                                 the user who created the resource item. Locally
-                                overrides ``AUTH_USERNAME_FIELD``.
+                                overrides ``AUTH_FIELD``. 
 
 ``allow_unknown``               When ``True`` this option will allow insertion
                                 and edition of arbitrary, unknown fields to

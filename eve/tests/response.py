@@ -13,13 +13,13 @@ class TestResponse(TestBase):
     def test_response_data(self):
         response = None
         try:
-            response = literal_eval(self.r.data)
+            response = literal_eval(self.r.get_data().decode())
         except:
             self.fail('standard response cannot be converted to a dict')
         self.assertTrue(isinstance(response, dict))
 
     def test_response_object(self):
-        response = literal_eval(self.r.data)
+        response = literal_eval(self.r.get_data().decode())
         self.assertTrue(isinstance(response, dict))
         self.assertEqual(len(response), 2)
 

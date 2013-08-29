@@ -253,15 +253,52 @@ associated with the account that created it. This allows the API to transparentl
 serve only account-created documents on all kind of requests: read, edit, delete
 and of course create.
 
-The only thing that we need to do is configure the name of the field that will
-be used to store the owner of the document. It can be done at a global level
-(all endpoints will use the same field) and/or at endpoint level (see feature
-documentation for details). Let's just set the global field name in our
-settings file:
+There are only two things that we need to do in order to activate this feature:
+
+    1. configure the name of the field that will be used to store the owner of the
+    document
+    2. set the document owner on each incoming POST request.
+
+
+Since we want to enable this feature for all of our API endpoints we'll just
+update our ``settings.py`` file by setting a proper ``AUTH_FIELD`` value:
+
+::
+
+    # Name of the field used to store the owner of each document
+    AUTH_FIELD = 'user_id'
+
+
+Then, we want to update our authentication class to properly update the field's
+value:
 
 .. code-block:: python
+   :emphasize-lines: 15-17
+   
 
-    AUTH_USERNAME_FIELD: 'username'
+    from eve import Eve
+    from eve.auth import BasicAuth
+    from werkzeug.security import check_password_hash
+
+
+    class RolesAuth(BasicAuth):
+        def check_auth(self, username, password, allowed_roles, resource):
+            # use Eve's own db driver; no additional connections/resources are used
+            accounts = app.data.driver.db['accounts']
+            lookup = {'username': username}
+            if allowed_roles:
+                # only retrieve a user if his roles match ``allowed_roles``
+                lookup['roles'] = {'$in': allowed_roles}
+            account = accounts.find_one(lookup)
+            # set 'AUTH_FIELD' value to the account's ObjectId 
+            # (instead of _Id, you might want to use ID_FIELD)
+            self.user_id = account['_id']
+            return account and check_password_hash(account['password'], password)
+
+
+    if __name__ == '__main__':
+        app = Eve(auth=RolesAuth)
+        app.run()
 
 This is all we need to do. Now, when a user hits the, say, ``/invoices/``
 endpoint with a GET request, he will only be served with the invoices created
@@ -483,19 +520,9 @@ methods. See :ref:`auth` for more details.
 6. Only allowing access to account resources
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This is achieved with the :ref:`user-restricted` feature, as seen in
-:ref:`accounts_basic`. Update the settings file with the following global
-setting (or use the local ``auth_username_field`` if you only want to enable
-the feature on selected endpoints):
-
-.. code-block:: python
-
-    AUTH_USERNAME_FIELD: 'token'
-
-Stored documents will be associated with their account token. When a user hits
-the, say, ``/invoices/`` endpoint with a GET request, he will only be served
-with the invoices created by his own token. The same will happen with DELETE
-and PATCH, making it impossible for an authenticated user to accidentally
-retrieve, edit or delete other people data.
+:ref:`accounts_basic`. You might want to store the user token as your
+``AUTH_FIELD`` value, but if you want user tokens to be easily revocable, then
+your best option is to use the account unique id for this.
 
 Basic vs Token: Final Considerations
 ------------------------------------
@@ -504,11 +531,5 @@ Authentication offers significant advantages. First, you don't have passwords
 stored on the client and  being sent over the wire with every request. If
 you're sending your tokens out-of-band, and you're on SSL/TLS, that's quite
 a lot of additional security. 
-
-If you are using the :ref:`user-restricted` feature then a second and not
-irrelevant advantage is that, since you are just storing tokens with documents,
-when the user will eventually change his/her username no maintenance will be
-needed, as the token itself won't change. With Basic Authentication, since we
-would be storing usernames with documents, we'd be forced to update them all.
 
 .. _SSL/TLS: http://en.wikipedia.org/wiki/Transport_Layer_Security

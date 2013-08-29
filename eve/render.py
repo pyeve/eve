@@ -6,7 +6,7 @@
 
     Implements proper, automated rendering for Eve responses.
 
-    :copyright: (c) 2012 by Nicola Iarocci.
+    :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -15,10 +15,10 @@ import time
 import simplejson as json
 from flask import make_response, request, Response, current_app as app
 from bson.objectid import ObjectId
-from eve.utils import date_to_str, config, request_method
 from functools import wraps
 from xml.sax.saxutils import escape
 from eve.methods.common import get_rate_limit
+from eve.utils import date_to_str, config, request_method
 
 # mapping between supported mime types and render functions.
 _MIME_TYPES = [{'mime': ('application/json',), 'renderer': 'render_json'},
@@ -32,6 +32,10 @@ def raise_event(f):
     function has been executed. Returns both the flask.request object and the
     response payload to the callback.
 
+    .. versionchanged:: 0.0.9
+       To emphasize the fact that they are tied to a method, in `on_<method>`
+       events, <method> is now uppercase.
+
     .. versionadded:: 0.0.6
     """
     @wraps(f)
@@ -39,7 +43,7 @@ def raise_event(f):
         r = f(*args, **kwargs)
         method = request_method()
         if method in ('GET', 'POST', 'PATCH', 'DELETE'):
-            event_name = 'on_' + method.lower()
+            event_name = 'on_' + method
             resource = args[0] if args else None
             # general hook
             getattr(app, event_name)(resource, request, r)
@@ -90,6 +94,9 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     :param etag: ETag header value.
     :param status: response status.
 
+    .. versionchanged:: 0.0.9
+       Support for Python 3.3.
+
     .. versionchanged:: 0.0.7
        Support for Rate-Limiting.
 
@@ -136,14 +143,14 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
 
     # CORS
     if 'Origin' in request.headers and config.X_DOMAINS is not None:
-        if isinstance(config.X_DOMAINS, basestring):
+        if isinstance(config.X_DOMAINS, str):
             domains = [config.X_DOMAINS]
         else:
             domains = config.X_DOMAINS
 
         if config.X_HEADERS is None:
             headers = []
-        elif isinstance(config.X_HEADERS, basestring):
+        elif isinstance(config.X_HEADERS, str):
             headers = [config.X_HEADERS]
         else:
             headers = config.X_HEADERS

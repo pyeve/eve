@@ -9,6 +9,7 @@ from eve.tests import TestBase
 
 class ValidBasicAuth(BasicAuth):
     def check_auth(self, username, password, allowed_roles, resource):
+        self.user_id = 123
         return username == 'admin' and password == 'secret' and  \
             (allowed_roles == ['admin'] if allowed_roles else True)
 
@@ -89,7 +90,8 @@ class TestBasicAuth(TestBase):
     def test_authorized_item_access(self):
         r = self.test_client.get(self.item_id_url, headers=self.valid_auth)
         self.assert200(r.status_code)
-        r = self.test_client.patch(self.item_id_url, data={'key1': 'value'},
+        r = self.test_client.patch(self.item_id_url,
+                                   data={"item1": json.dumps({"k": "value"})},
                                    headers=self.valid_auth)
         self.assert403(r.status_code)
         r = self.test_client.delete(self.item_id_url, headers=self.valid_auth)
@@ -187,7 +189,7 @@ class TestBasicAuth(TestBase):
         r = self.test_client.get('/')
         self.assert401(r.status_code)
         self.assertTrue(('WWW-Authenticate', 'Basic realm:"%s"' %
-                         eve.__package__) in r.headers.to_list())
+                         eve.__package__) in r.headers.to_wsgi_list())
 
 
 class TestTokenAuth(TestBasicAuth):
@@ -229,26 +231,56 @@ class TestUserRestrictedAccess(TestBase):
         self.app = Eve(settings=self.settings_file, auth=ValidBasicAuth)
         # remove the datasource filter to make the whole collection available
         # to a GET request.
-        resource = self.app.config['DOMAIN'][self.known_resource]
-        del(resource['datasource']['filter'])
+        self.resource = self.app.config['DOMAIN'][self.known_resource]
+        del(self.resource['datasource']['filter'])
         self.app.set_defaults()
         self.app._add_url_rules()
         self.test_client = self.app.test_client()
         self.valid_auth = [('Authorization', 'Basic YWRtaW46c2VjcmV0')]
         self.invalid_auth = [('Authorization', 'Basic IDontThinkSo')]
-        self.field_name = 'auth_username_field'
+        self.field_name = 'auth_field'
         self.data = {'item1': json.dumps({"ref": "0123456789123456789012345"})}
         for resource, settings in self.app.config['DOMAIN'].items():
             settings[self.field_name] = 'username'
 
     def test_get(self):
+        # now need to remove 'GET' from 'public_methods'
+        # because it overrides `auth_username_field`
+        self.resource['public_methods'].remove('GET')
+
         data, status = self.parse_response(
             self.test_client.get(self.known_resource_url,
                                  headers=self.valid_auth))
         self.assert200(status)
-        # no data has been saved by user 'admin' yet, so we get an empyy
-        # resulset back.
+        # no data has been saved by user 'admin' yet, so we get an empty
+        # resultset back.
         self.assertEqual(len(data['_items']), 0)
+
+    def test_collection_get_public(self):
+        """ Test that if GET is in `public_methods` the `auth_username_field`
+        criteria is overruled
+        """
+        self.resource['public_methods'].append('GET')
+        data, status = self.parse_response(
+            self.test_client.get(self.known_resource_url,
+                                 headers=self.valid_auth))
+        self.assert200(status)
+        # no data has been saved by user 'admin' yet,
+        # but we should get all the other results back
+        self.assertEqual(len(data['_items']), 25)
+
+    def test_item_get_public(self):
+        """ Test that if GET is in `public_item_methods` the
+        `auth_username_field` criteria is overruled
+        """
+        self.resource['public_item_methods'].append('GET')
+        data, status = self.parse_response(
+            self.test_client.get(self.item_id_url,
+                                 headers=self.valid_auth))
+        self.assert200(status)
+        # no data has been saved by user 'admin' yet,
+        # but we should get the other result back
+        self.assertEqual(data['_id'], self.item_id)
 
     def test_post(self):
         response, status = self.post()

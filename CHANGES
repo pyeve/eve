@@ -3,6 +3,51 @@ Eve Changelog
 
 Here you can see the full list of changes between each Eve release.
 
+Version 0.0.9
+-------------
+
+Not released yet.
+
+- PyMongo 2.6 is now supported.
+- ``FILTERS`` boolean replaced by ``ALLOWED_FILTERS`` list which allows for
+  explicit whitelisting of filter-enabled fields (Bryan Cattle). Closes #78.
+- Custom user ids for User-Restricted Resource Access, allowing for more
+  flexibility and token revocation with token-based authentication. Closes #73.
+- ``AUTH_USERNAME_FIELD`` renamed to ``AUTH_FIELD``.
+- ``auth_username_field`` renamed to ``auth_field``.
+- BasicAuth and subclasses now support ``user_id`` property.
+- Updated the event hooks naming system to be more robuts and consistent.
+  Closes #80.
+- To emphasize the fact that they are tied to a method, all ``on_<method>``
+  hooks now have ``<method>`` in uppercase.
+- ``on_getting`` hook renamed to ``on_fetch_resource``.
+- ``on_getting_<resource>`` hook renamed to ``on_fetch_resource_<resource>``
+- ``on_getting_item`` hook renamed to ``on_fetch_item``.
+- ``on_getting_item_<item_title>`` hook renamed to
+  ``on_fetch_item_<item_title>``.
+- ``on_posting`` hook renamed to ``on_insert``.
+- Datasource  projections always include automatic fields (``ID_FIELD``,
+  ``LAST_UPDATED``, ``DATE_CREATED``). Closes #85.
+- Public HTTP methods now override `auth_username_field` Edit. Closes #70
+  (Bryan Cattle).
+- Response date fields are now using GMT instead of UTC. Closes #83.
+- Handle the case of 'additional_lookup' field being an integer. If this is the
+  case you can omit the 'url' key, as it will be ignored, and the integer value
+  correctly parsed.
+- More informative HTTP error messages. Some more informative error messages
+  have been added for HTTP 400/3/12 and 500 errors. The error messages only
+  show if DEBUG==True (Bryan Cattle).
+- ``on_getting(resource, documents)`` is now ``on_getting_resource(resource,
+  documents)``; ``on_getting_<resource>(documents) is now known as
+  ``on_getting_resource_<resource>(documents)`` (Ryan Shea).
+- Added a new event hook: ``on_getting_item_<title>(_id, document)`` (Ryan
+  Shea).
+- Allow ``auth_username_field`` to be set to ``ID_FIELD`` (Bryan Cattle).
+- Python 3.3 is now supported.
+- Flask 0.10.1 is now supported.
+- Werkzeug 0.9.4 is now supported.
+- Copyright finally updated to 2013. 
+
 Version 0.0.8
 -------------
 

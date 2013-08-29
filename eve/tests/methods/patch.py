@@ -131,7 +131,7 @@ class TestPatch(TestBase):
 
     def test_patch_datetime(self):
         field = "born"
-        test_value = "Tue, 06 Nov 2012 10:33:31 UTC"
+        test_value = "Tue, 06 Nov 2012 10:33:31 GMT"
         changes = {'key1': json.dumps({field: test_value})}
         r = self.perform_patch(changes)
         db_value = self.compare_patch_with_get(field, r)
@@ -158,7 +158,7 @@ class TestPatch(TestBase):
         r = self.perform_patch_with_post_override(field, test_value)
         self.assert200(r.status_code)
         self.assertRaises(KeyError, self.compare_patch_with_get, 'title',
-                          json.loads(r.data))
+                          json.loads(r.get_data()))
 
     def test_patch_multiple_fields(self):
         fields = ['ref', 'prog', 'role']
@@ -184,7 +184,7 @@ class TestPatch(TestBase):
         return r
 
     def perform_patch_with_post_override(self, field, value):
-        headers = [('X-HTTP-Method-Override', True),
+        headers = [('X-HTTP-Method-Override', 'True'),
                    ('If-Match', self.item_etag),
                    ('Content-Type', 'application/x-www-form-urlencoded')]
         return self.test_client.post(self.item_id_url,
@@ -219,7 +219,7 @@ class TestPatch(TestBase):
     def test_patch_json(self):
         field = "ref"
         test_value = "1234567890123456789012345"
-        changes = {"key1": json.dumps({field: test_value})}
+        changes = json.dumps({'key1': {field: test_value}})
         headers = [('If-Match', self.item_etag),
                    ('Content-Type', 'application/json')]
         r, status = self.parse_response(self.test_client.patch(

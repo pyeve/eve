@@ -6,7 +6,7 @@
 
     The actual implementation of the MongoDB data layer.
 
-    :copyright: (c) 2012 by Nicola Iarocci.
+    :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -17,10 +17,10 @@ from flask import abort
 from flask.ext.pymongo import PyMongo
 from datetime import datetime
 from bson import ObjectId
-from parser import parse, ParseError
-from eve.io.base import DataLayer, ConnectionException
 from eve import ID_FIELD
-from eve.utils import config
+from eve.io.mongo.parser import parse, ParseError
+from eve.io.base import DataLayer, ConnectionException
+from eve.utils import config, debug_error_message, validate_filters
 
 
 class Mongo(DataLayer):
@@ -28,10 +28,14 @@ class Mongo(DataLayer):
     """
 
     def init_app(self, app):
+        """
+        .. versionchanged:: 0.0.9
+           support for Python 3.3.
+        """
         # mongod must be running or this will raise an exception
         try:
             self.driver = PyMongo(app)
-        except Exception, e:
+        except Exception as e:
             raise ConnectionException(e)
 
     def find(self, resource, req):
@@ -49,6 +53,9 @@ class Mongo(DataLayer):
 
         :param resource: resource name.
         :param req: a :class:`ParsedRequest`instance.
+
+        .. versionchanged:: 0.0.9
+           More informative error messages.
 
         .. versionchanged:: 0.0.7
            Abort with a 400 if the query includes blacklisted  operators.
@@ -92,13 +99,21 @@ class Mongo(DataLayer):
                 try:
                     spec = parse(req.where)
                 except ParseError:
-                    abort(400)
+                    abort(400, description=debug_error_message(
+                        'Unable to parse `where` clause'
+                    ))
+
+        bad_filter = validate_filters(spec, resource)
+        if bad_filter:
+            abort(400, bad_filter)
 
         if req.projection:
             try:
                 client_projection = json.loads(req.projection)
             except:
-                abort(400)
+                abort(400, description=debug_error_message(
+                    'Unable to parse `projection` clause'
+                ))
 
         datasource, spec, projection = self._datasource_ex(resource, spec,
                                                            client_projection)
@@ -127,18 +142,22 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
+        datasource, filter_, projection = self._datasource_ex(resource, lookup)
+
         try:
-            if config.ID_FIELD in lookup:
-                lookup[ID_FIELD] = ObjectId(lookup[ID_FIELD])
+            if config.ID_FIELD in filter_:
+                filter_[ID_FIELD] = ObjectId(filter_[ID_FIELD])
         except:
             pass
 
-        datasource, filter_, projection = self._datasource_ex(resource, lookup)
         document = self.driver.db[datasource].find_one(filter_, projection)
         return document
 
     def insert(self, resource, doc_or_docs):
         """Inserts a document into a resource collection.
+
+        .. versionchanged:: 0.0.9
+           More informative error messages.
 
         .. versionchanged:: 0.0.8
            'write_concern' support.
@@ -155,14 +174,19 @@ class Mongo(DataLayer):
         try:
             return self.driver.db[datasource].insert(doc_or_docs,
                                                      **self._wc(resource))
-        except pymongo.errors.OperationFailure:
+        except pymongo.errors.OperationFailure as e:
             # most likely a 'w' (write_concern) setting which needs an
             # existing ReplicaSet which doesn't exist. Please note that the
             # update will actually succeed (a new ETag will be needed).
-            abort(500)
+            abort(500, description=debug_error_message(
+                'pymongo.errors.OperationFailure: %s' % e
+            ))
 
     def update(self, resource, id_, updates):
         """Updates a collection document.
+
+        .. versionchanged:: 0.0.9
+           More informative error messages.
 
         .. versionchanged:: 0.0.8
            'write_concern' support.
@@ -182,12 +206,17 @@ class Mongo(DataLayer):
         try:
             self.driver.db[datasource].update(filter_, {"$set": updates},
                                               **self._wc(resource))
-        except pymongo.errors.OperationFailure:
+        except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
-            abort(500)
+            abort(500, description=debug_error_message(
+                'pymongo.errors.OperationFailure: %s' % e
+            ))
 
     def remove(self, resource, id_=None):
         """Removes a document or the entire set of documents from a collection.
+
+        .. versionchanged:: 0.0.9
+           More informative error messages.
 
         .. versionchanged:: 0.0.8
            'write_concern' support.
@@ -205,13 +234,18 @@ class Mongo(DataLayer):
         datasource, filter_, _ = self._datasource_ex(resource, query)
         try:
             self.driver.db[datasource].remove(filter_, **self._wc(resource))
-        except pymongo.errors.OperationFailure:
+        except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
-            abort(500)
+            abort(500, description=debug_error_message(
+                'pymongo.errors.OperationFailure: %s' % e
+            ))
 
     def _jsondatetime(self, source):
         """ Recursively iterates a JSON dictionary, turning RFC-1123 strings
         into datetime values.
+
+        .. versionchanged:: 0.0.9
+           support for Python 3.3.
 
         .. versionadded:: 0.0.4
         """
@@ -219,7 +253,7 @@ class Mongo(DataLayer):
         for k, v in source.items():
             if isinstance(v, dict):
                 self._jsondatetime(v)
-            elif isinstance(v, basestring):
+            elif isinstance(v, str):
                 try:
                     source[k] = datetime.strptime(v, config.DATE_FORMAT)
                 except:
@@ -231,14 +265,23 @@ class Mongo(DataLayer):
         """ Makes sure that only allowed operators are included in the query,
         aborts with a 400 otherwise.
 
+        .. versionchanged:: 0.0.9
+           More informative error messages.
+           Allow ``auth_username_field`` to be set to ``ID_FIELD``.
+
         .. versionadded:: 0.0.7
         """
         if set(spec.keys()) & set(config.MONGO_QUERY_BLACKLIST):
-            abort(400)
+            abort(400, description=debug_error_message(
+                'Query contains operators banned in MONGO_QUERY_BLACKLIST'
+            ))
         for value in spec.values():
             if isinstance(value, dict):
                 if set(value.keys()) & set(config.MONGO_QUERY_BLACKLIST):
-                    abort(400)
+                    abort(400, description=debug_error_message(
+                        'Query contains operators banned '
+                        'in MONGO_QUERY_BLACKLIST'
+                    ))
         return spec
 
     def _wc(self, resource):

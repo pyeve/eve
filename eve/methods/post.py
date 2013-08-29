@@ -7,22 +7,21 @@
     This module imlements the POST method, supported by the resources
     endopints.
 
-    :copyright: (c) 2012 by Nicola Iarocci.
+    :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
-from flask import request
 from datetime import datetime
-from flask import current_app as app
-from common import parse, payload, ratelimit
+from flask import current_app as app, request
 from eve.utils import document_link, config, document_etag
 from eve.auth import requires_auth
 from eve.validation import ValidationError
+from eve.methods.common import parse, payload, ratelimit
 
 
 @ratelimit()
 @requires_auth('resource')
-def post(resource):
+def post(resource, payl=None):
     """ Adds one or more documents to a resource. Each document is validated
     against the domain schema. If validation passes the document is inserted
     and ID_FIELD, LAST_UPDATED and DATE_CREATED along with a link to the
@@ -30,6 +29,26 @@ def post(resource):
     is returned.
 
     :param resource: name of the resource involved.
+    :param payl: alternative payload. When calling post() from your own code
+                 you can provide an alternative payload This can be useful, for
+                 example, when you have a callback function hooked to a certain
+                 endpoint, and want to perform additional post() calls from
+                 there.
+
+                 Please be advised that in order to successfully use this
+                 option, a request context must be available.
+
+                 See https://github.com/nicolaiarocci/eve/issues/74 for a
+                 discussion, and a typical use case.
+
+    .. versionchanged: 0.0.9
+       Event hooks renamed to be more robuts and consistent: 'on_posting'
+       renamed to 'on_insert'.
+       You can now pass a pre-defined custom payload to the funcion.
+
+    .. versionchanged:: 0.0.9
+       Storing self.app.auth.userid in auth_field when 'user-restricted
+       resource access' is enabled.
 
     .. versionchanged: 0.0.7
        Support for Rate-Limiting.
@@ -70,7 +89,8 @@ def post(resource):
     issues = []
 
     # validation, and additional fields
-    payl = payload()
+    if payl is None:
+        payl = payload()
     for key, value in payl.items():
         document = []
         doc_issues = []
@@ -84,9 +104,11 @@ def post(resource):
 
                 # if 'user-restricted resource access' is enabled and there's
                 # an Auth request active, inject the username into the document
-                username_field = resource_def['auth_username_field']
-                if username_field and request.authorization:
-                    document[username_field] = request.authorization.username
+                auth_field = resource_def['auth_field']
+                if auth_field:
+                    userid = app.auth.user_id
+                    if userid and request.authorization:
+                        document[auth_field] = userid
 
             else:
                 # validation errors added to list of document issues
@@ -105,8 +127,8 @@ def post(resource):
 
     if len(documents):
         # notify callbacks
-        getattr(app, "on_posting")(resource, documents)
-        getattr(app, "on_posting_%s" % resource)(documents)
+        getattr(app, "on_insert")(resource, documents)
+        getattr(app, "on_insert_%s" % resource)(documents)
         # bulk insert
         ids = app.data.insert(resource, documents)
 

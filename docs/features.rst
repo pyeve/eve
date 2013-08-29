@@ -34,9 +34,9 @@ will gladly honor a POST with the ``X-HTTP-Method-Override: PATCH`` header tag.
 Customizable resource endpoints
 -------------------------------
 By default Eve will make known database collections available as resource
-endpoints (persistent identifiers in REST idiom). So a database ``people`` collection 
-will be avaliable at the ``example.com/people/`` API endpoint.
-You can customize the URIs though, so the API endpoint could become, say,
+endpoints (persistent identifiers in REST idiom). So a database ``people``
+collection will be avaliable at the ``example.com/people/`` API endpoint.  You
+can customize the URIs though, so the API endpoint could become, say,
 ``example.com/customers/``. Consider the following request:
 
 .. code-block:: console
@@ -53,12 +53,12 @@ The response payload will look something like this:
             {
                 "firstname": "Mark", 
                 "lastname": "Green", 
-                "born": "Sat, 23 Feb 1985 12:00:00 UTC", 
+                "born": "Sat, 23 Feb 1985 12:00:00 GMT", 
                 "role": ["copy", "author"], 
                 "location": {"city": "New York", "address": "4925 Lacross Road"}, 
                 "_id": "50bf198338345b1c604faf31",
-                "updated": "Wed, 05 Dec 2012 09:53:07 UTC", 
-                "created": "Wed, 05 Dec 2012 09:53:07 UTC", 
+                "updated": "Wed, 05 Dec 2012 09:53:07 GMT", 
+                "created": "Wed, 05 Dec 2012 09:53:07 GMT", 
                 "etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d", 
                 "_links": {
                     "self": {"href": "eve-demo.herokuapp.com:5000/people/50bf198338345b1c604faf31/", "title": "person"},
@@ -97,8 +97,8 @@ Customizable, multiple item endpoints
 Resources can or cannot expose individual item endpoints. API consumers could
 get access to ``/people/``, ``/people/<ObjectId>/`` and ``/people/Doe/``,
 but only to ``/works/``.  When you do grant access to item endpoints, you can
-define up to two lookups, both defined via regex. The first will be the primary
-endpoint and will match your database primary key structure (i.e. an
+define up to two lookups, both defined with regexes. The first will be the
+primary endpoint and will match your database primary key structure (i.e. an
 ``ObjectId`` in a MongoDB database).  
 
 .. code-block:: console
@@ -106,10 +106,10 @@ endpoint and will match your database primary key structure (i.e. an
     $ curl -i http://eve-demo.herokuapp.com/people/50acfba938345b0978fccad7/
     HTTP/1.0 200 OK
     Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
-    Last-Modified: Wed, 21 Nov 2012 16:04:56 UTC 
+    Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT 
     ... 
 
-The second, which is optional, will match a field with unique values since Eve
+The second, which is optional and read-only, will match a field with unique values since Eve
 will retrieve only the first match anyway.
 
 .. code-block:: console
@@ -117,7 +117,7 @@ will retrieve only the first match anyway.
     $ curl -i http://eve-demo.herokuapp.com/people/Doe/
     HTTP/1.0 200 OK
     Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
-    Last-Modified: Wed, 21 Nov 2012 16:04:56 UTC 
+    Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT 
     ... 
 
 Since we are accessing the same item, in both cases the response payload will
@@ -128,12 +128,12 @@ look something like this:
     {
         "firstname": "John",
         "lastname": "Doe",
-        "born": "Thu, 27 Aug 1970 14:37:13 UTC",
+        "born": "Thu, 27 Aug 1970 14:37:13 GMT",
         "role": ["author"],
         "location": {"city": "Auburn", "address": "422 South Gay Street"},
         "_id": "50acfba938345b0978fccad7"
-        "updated": "Wed, 21 Nov 2012 16:04:56 UTC",
-        "created": "Wed, 21 Nov 2012 16:04:56 UTC",
+        "updated": "Wed, 21 Nov 2012 16:04:56 GMT",
+        "created": "Wed, 21 Nov 2012 16:04:56 GMT",
         "etag": "28995829ee85d69c4c18d597a0f68ae606a266cc",
         "_links": {
             "self": {"href": "eve-demo.herokuapp.com/people/50acfba938345b0978fccad7/", "title": "person"},
@@ -174,6 +174,12 @@ nested and combined. Sorting is supported as well:
 
 Currently sort directives use a pure MongoDB syntax; support for a more general
 syntax (``sort=lastname``) is planned.
+
+Filters are enabled by default on all document fields. However, the API
+maintainer can choose to disable them all and/or whitelist allowed ones (see
+``ALLOWED_FILTERS`` in :ref:`global`). If scraping, or fear of DB DoS attacks
+by querying on non-indexed fields is a concern, then whitelisting allowed
+filters is the way to go.
 
 .. admonition:: Please note
 
@@ -275,7 +281,7 @@ conditional requests, only retrieving new or modified data, by using the
 
 .. code-block:: console
 
-    $ curl -H "If-Modified-Since: Wed, 05 Dec 2012 09:53:07 UTC" -i http://eve-demo.herokuapp.com:5000/people/
+    $ curl -H "If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT" -i http://eve-demo.herokuapp.com:5000/people/
     HTTP/1.0 200 OK
 
 or the ``If-None-Match`` header:
@@ -326,7 +332,7 @@ It's a win, and the response payload looks something like this:
     {
         "data": {
             "status": "OK",
-            "updated": "Fri, 23 Nov 2012 08:11:19 UTC",
+            "updated": "Fri, 23 Nov 2012 08:11:19 GMT",
             "_id": "50adfa4038345b1049c88a37",
             "etag": "372fbbebf54dfe61742556f17a8461ca9a6f5a11"
             "_links": {"self": "..."}
@@ -356,14 +362,14 @@ data stream.
     {
         "item2": {
             "status": "OK",
-            "updated": "Thu, 22 Nov 2012 15:22:27 UTC",
+            "updated": "Thu, 22 Nov 2012 15:22:27 GMT",
             "_id": "50ae43339fa12500024def5b",
             "etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
             "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b/", "title": "person"}}
         },
         "item1": {
             "status": "OK",
-            "updated": "Thu, 22 Nov 2012 15:22:27 UTC",
+            "updated": "Thu, 22 Nov 2012 15:22:27 GMT",
             "_id": "50ae43339fa12500024def5c",
             "etag": "62d356f623c7d9dc864ffa5facc47dced4ba6907"
             "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5c/", "title": "person"}}
@@ -396,7 +402,7 @@ request:
         },
         "item1": {
             "status": "OK",
-            "updated": "Thu, 22 Nov 2012 15:29:08 UTC",
+            "updated": "Thu, 22 Nov 2012 15:29:08 GMT",
             "_id": "50ae44c49fa12500024def5d",
             "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d/", "title": "person"}}
         }
@@ -521,53 +527,82 @@ payload as arguments.
     ... print 'A get on "contacts" was just performed!'
 
     >>> app = Eve()
-    >>> app.on_get += general_callback
-    >>> app.on_get_contacts += contacts_callback
+    >>> app.on_GET += general_callback
+    >>> app.on_GET_contacts += contacts_callback
 
     >>> app.run()
 
 Manipulating inbound documents 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-There is also support for ``on_posting(resource, documents)`` and
-``on_posting_<resource>(documents)`` event hooks, raised when documents are
+There is also support for ``on_insert(resource, documents)`` and
+``on_insert_<resource>(documents)`` event hooks, raised when documents are
 about to be stored in the database.  Callback functions could hook to these
 events to arbitrarily add new fields, or edit existing ones.
 
 .. code-block:: pycon
 
-    >>> def before_post(resource, documents):
+    >>> def before_insert(resource, documents):
     ...  print 'About to store documents to "%s" ' % resource
 
     >>> def before_insert_contacts(documents):
     ...  print 'About to store contacts'
 
     >>> app = Eve()
-    >>> app.on_posting += before_post
-    >>> app.on_posting_contacts += before_insert_contacts
+    >>> app.on_insert += before_insert
+    >>> app.on_insert_contacts += before_insert_contacts
 
     >>> app.run()
 
-``on_posting`` is raised on every resource being updated, while
-``on_posting_<resource>`` is raised when the `<resource>` endpoint has been hit
+``on_insert`` is raised on every resource being updated, while
+``on_insert_<resource>`` is raised when the `<resource>` endpoint has been hit
 with a POST request. In both circumstances the event will be raised only if at
 least one document passed validation and is going to be inserted. `documents`
-is a list, and  only contains documents ready for insertion (payload documents
+is a list and  only contains documents ready for insertion (payload documents
 that did not pass validation are not included).
 
 To provide seamless event handling features, Eve relies on the Events_ package.
 
 Manipulating outbound documents
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The ``on_getting(resource, documents)``, ``on_getting_<resource>(documents)``
-and ``on_getting_item(resource, _id, document)`` event hooks are raised when
-documents have just been read from the database and are about to be sent to the
-client. Registered callback functions can eventually manipulate the documents
-as needed. 
+The following events:
+
+- ``on_fetch_resource(resource, documents)``
+- ``on_fetch_resource_<resource>(documents)`` 
+- ``on_fetch_item(resource, _id, document)`` 
+- ``on_fetch_item_<item_title>(_id, document)`` 
+  
+are raised when documents have just been read from the database and are about
+to be sent to the client. Registered callback functions can eventually
+manipulate the documents as needed.
+
+.. code-block:: pycon
+
+    >>> def before_returning_items(resource, documents):
+    ...  print 'About to return items from "%s" ' % resource
+
+    >>> def before_returning_contacts(documents):
+    ...  print 'About to return contacts'
+
+    >>> def before_returning_item(resource, _id, document):
+    ...  print 'About to return an item from "%s" ' % resource
+
+    >>> def before_returning_contact(_id, document):
+    ...  print 'About to return a contact' 
+
+    >>> app = Eve()
+    >>> app.on_fetch_resource += before_returning_items
+    >>> app.on_fetch_resource_contacts += before_returning_contacts
+    >>> app.on_fetch_item += before_returning_item
+    >>> app.on_fetch_item_contact += before_returning_contact
+
+    >>> app.run()
 
 Please be aware that ``last_modified`` and ``etag`` headers will always be
 consistent with the state of the documents on the database (they  won't be
 updated to reflect changes eventually applied by the callback functions).
 
+
+.. _ratelimiting:
 
 Rate Limiting
 -------------

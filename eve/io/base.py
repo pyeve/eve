@@ -6,7 +6,7 @@
 
     Standard interface implemented by Eve data layers.
 
-    :copyright: (c) 2012 by Nicola Iarocci.
+    :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -156,6 +156,11 @@ class DataLayer(object):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to
 
+        .. versionchanged:: 0.0.9
+           Storing self.app.auth.userid in auth_field when 'user-restricted
+           resource access' is enabled.
+           Support for Python 3.3.
+
         .. versionchanged:: 0.0.6
            'auth_username_field' is injected even in empty queries.
            Projection queries ('?projection={"name": 1}')
@@ -174,18 +179,33 @@ class DataLayer(object):
                 query = filter_
 
         if client_projection:
-            # only allow fields which are inluded with the standard projection
+            # only allow fields which are included with the standard projection
             # for the resource (avoid sniffing of private fields)
             fields = dict(
-                (field, 1) for (field) in filter(projection_.has_key,
-                                                 client_projection.keys()))
+                (field, 1) for (field) in [key for key in client_projection if
+                                           key in projection_])
         else:
             fields = projection_
 
-        # if 'user-restricted resource access' is enabled and there's an Auth
-        # request active, add the username field to the query
-        username_field = config.DOMAIN[resource].get('auth_username_field')
-        if username_field and request.authorization and query is not None:
-            query.update({username_field: request.authorization.username})
+        # If the current HTTP method is in `public_methods` or
+        # `public_item_methods`, skip the `auth_username_field` check
+
+        if (
+            # Are we looking at a *collection* and is the HTTP method
+            # not in `public_item_methods` ...
+            request.endpoint == 'collections_endpoint' and request.method
+            not in config.DOMAIN[resource]['public_methods']
+        ) or (
+            # ... or if we are looking at an *item* is
+            # the HTTP method not in `public_methods`?
+            request.endpoint == 'item_endpoint' and request.method
+            not in config.DOMAIN[resource]['public_item_methods']
+        ):
+            # if 'user-restricted resource access' is enabled and there's an
+            # Auth request active, add the username field to the query
+            auth_field = config.DOMAIN[resource].get('auth_field')
+            if auth_field and self.app.auth.user_id:
+                if request.authorization and query is not None:
+                    query.update({auth_field: self.app.auth.user_id})
 
         return datasource, query, fields

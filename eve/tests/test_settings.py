@@ -79,7 +79,8 @@ import copy
 users = copy.deepcopy(contacts)
 users['url'] = 'users'
 users['datasource'] = {'source': 'contacts',
-                       'filter': {'username': {'$exists': True}}}
+                       'filter': {'username': {'$exists': True}},
+                       'projection': {'username': 1, 'ref': 1}}
 users['schema']['username'] = {'type': 'string', 'required': True}
 users['resource_methods'] = ['DELETE', 'POST', 'GET']
 users['item_title'] = 'user'
