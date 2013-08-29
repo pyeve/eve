@@ -14,13 +14,15 @@ Twitter
 I often tweet about new features and releases of Eve. Follow `@nicolaiarocci
 <https://twitter.com/nicolaiarocci>`_.
 
+Mailing List
+------------
+The `mailing list`_ is intended to be a low traffic resource for both
+developers/contributors and API maintainers looking for help or requesting
+feedback. 
+
 GitHub
 ------
 Of course the best way to track the development of Eve is through
 `the GitHub repo <https://github.com/nicolaiarocci/eve>`_.
 
-IRC
----
-The official Freenode channel for Eve is `#python-eve
-<irc://irc.freenode.net/python-eve>`_
-
+.. _`mailing list`: https://groups.google.com/forum/#!forum/python-eve
