@@ -174,6 +174,7 @@ class TestConfig(TestBase):
                          self.app.config['ALLOWED_FILTERS'])
         self.assertEqual(settings['projection'], self.app.config['PROJECTION'])
         self.assertEqual(settings['sorting'], self.app.config['SORTING'])
+        self.assertEqual(settings['embedding'], self.app.config['EMBEDDING'])
         self.assertEqual(settings['pagination'], self.app.config['PAGINATION'])
         self.assertEqual(settings['auth_field'],
                          self.app.config['AUTH_FIELD'])
