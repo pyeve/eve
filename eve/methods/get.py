@@ -188,7 +188,7 @@ def _resolve_embedded_documents(resource, req, documents):
 
     Currently we only support a single layer of embedding,
     i.e. /invoices/?embedded={"user":1}
-    NOT  /invoices/?embedded={"user.friends":1}
+    *NOT*  /invoices/?embedded={"user.friends":1}
 
     :param resource: the resource name.
     :param req: and instace of :class:`eve.utils.ParsedRequest`.
@@ -221,25 +221,24 @@ def _resolve_embedded_documents(resource, req, documents):
         # Pick out fields that have a `data_relation` where `embeddable=True`
         enabled_embedded_fields = []
         for field in embedded_fields:
-            field_definition = config.DOMAIN[resource]['schema'][field]
-            if 'data_relation' in field_definition and \
-                    field_definition['data_relation'].get('embeddable'):
-                # or could raise 400 here
-                enabled_embedded_fields.append(field)
+            # Reject bogus field names
+            if field in config.DOMAIN[resource]['schema']:
+                field_definition = config.DOMAIN[resource]['schema'][field]
+                if 'data_relation' in field_definition and \
+                        field_definition['data_relation'].get('embeddable'):
+                    # or could raise 400 here
+                    enabled_embedded_fields.append(field)
 
         for document in documents:
             for field in enabled_embedded_fields:
                 field_definition = config.DOMAIN[resource]['schema'][field]
-                if field_definition['type'] == 'list':
-                    # TODO: handle the case that the `field` is a list
-                    for pk in document[field]:
-                        pass
-                else:   # type == 'objectid'
-                    # Retrieve and serialize the requested document
-                    document[field] = app.data.find_one(
-                        field_definition['data_relation']['collection'],
-                        **{config.ID_FIELD: document[field]}
-                    )
+                # Retrieve and serialize the requested document
+                embedded_doc = app.data.find_one(
+                    field_definition['data_relation']['collection'],
+                    **{config.ID_FIELD: document[field]}
+                )
+                if embedded_doc:
+                    document[field] = embedded_doc
 
 
 def _pagination_links(resource, req, documents_count):
