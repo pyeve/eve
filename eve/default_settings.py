@@ -46,6 +46,7 @@ CACHE_EXPIRES = 0
 ITEM_CACHE_CONTROL = ''
 X_DOMAINS = None                # CORS disabled by default.
 X_HEADERS = None                # CORS disabled by default.
+HATEOAS = True                  # HATEOAS enabled by default.
 
 ALLOWED_FILTERS = ['*']         # filtering enabled by default
 SORTING = True                  # sorting enabled by default.
