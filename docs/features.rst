@@ -212,12 +212,11 @@ Pagination can be disabled.
 
 HATEOAS
 -------
-*Hypermedia as the Engine of Application State* (HATEOAS_) is enabled by default. Each GET
-response includes a ``_links`` section. Links provide details on their
-``relation`` relative to the resource being accessed, and a ``title``.
+*Hypermedia as the Engine of Application State* (HATEOAS_) is enabled by
+default. Each GET response includes a ``_links`` section. Links provide details
+on their ``relation`` relative to the resource being accessed, and a ``title``.
 Relations and titles can then be used by clients to dynamically updated their
-UI, or to navigate the API without knowing it structure beforehand. An
-example:
+UI, or to navigate the API without knowing it structure beforehand. An example:
 
 ::
 
@@ -248,6 +247,66 @@ the API just by following the links provided with every response.
 
 Please note that ``next``, ``previous`` and ``last`` items will only be
 included when appropriate. 
+
+Disabling HATEOAS
+~~~~~~~~~~~~~~~~~
+HATEOAS can be disabled both at API and/or resource level. When HATEOAS is
+disabled response payloads have a different structure. The resource payload is
+a simple list of items:
+
+.. code-block:: console
+
+    $ curl -i http://eve-demo.herokuapp.com/people/
+    HTTP/1.0 200 OK
+
+.. code-block:: javascript
+    
+    [
+        {
+            "firstname": "Mark", 
+            "lastname": "Green", 
+            "born": "Sat, 23 Feb 1985 12:00:00 GMT", 
+            "role": ["copy", "author"], 
+            "location": {"city": "New York", "address": "4925 Lacross Road"}, 
+            "_id": "50bf198338345b1c604faf31",
+            "updated": "Wed, 05 Dec 2012 09:53:07 GMT", 
+            "created": "Wed, 05 Dec 2012 09:53:07 GMT", 
+            "etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d", 
+        },
+        {
+            "firstname": "John", 
+            ...
+        },
+    ]
+
+As you can see the ``_links`` element is also missing from list items. The
+same happens to individual item payloads:
+
+.. code-block:: console
+
+    $ curl -i http://eve-demo.herokuapp.com/people/50acfba938345b0978fccad7/
+    HTTP/1.0 200 OK
+
+.. code-block:: javascript
+
+    {
+        "firstname": "John",
+        "lastname": "Doe",
+        "born": "Thu, 27 Aug 1970 14:37:13 GMT",
+        "role": ["author"],
+        "location": {"city": "Auburn", "address": "422 South Gay Street"},
+        "_id": "50acfba938345b0978fccad7"
+        "updated": "Wed, 21 Nov 2012 16:04:56 GMT",
+        "created": "Wed, 21 Nov 2012 16:04:56 GMT",
+        "etag": "28995829ee85d69c4c18d597a0f68ae606a266cc",
+    }
+
+.. admonition:: Please note
+
+    When HATEOAS is disabled the API entry point (the home page) will return
+    a ``404 Not Found``, since its only usefulness would be to return a list of
+    available resources, which is the standard behavior when HATEOAS is
+    enabled.
 
 JSON and XML Rendering
 ----------------------
