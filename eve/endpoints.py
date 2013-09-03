@@ -16,7 +16,8 @@ from eve.methods import get, getitem, post, patch, delete, delete_resource
 from eve.methods.common import ratelimit
 from eve.render import send_response
 from eve.auth import requires_auth
-from eve.utils import resource_uri, config, request_method
+from eve.utils import resource_uri, config, request_method, \
+    debug_error_message
 from flask import abort
 
 
@@ -84,10 +85,14 @@ def item_endpoint(url, **lookup):
 def home_endpoint():
     """ Home/API entry point. Will provide links to each available resource
     """
-    response = {}
-    links = []
-    for resource in config.DOMAIN.keys():
-        links.append({'href': '%s' % resource_uri(resource),
-                      'title': '%s' % config.URLS[resource]})
-    response['_links'] = {'child': links}
-    return send_response(None, (response,))
+    if config.HATEOAS:
+        response = {}
+        links = []
+        for resource in config.DOMAIN.keys():
+            links.append({'href': '%s' % resource_uri(resource),
+                          'title': '%s' % config.URLS[resource]})
+        response['_links'] = {'child': links}
+        return send_response(None, (response,))
+    else:
+        abort(404, debug_error_message("HATEOAS is disabled so we have no data"
+                                       " to display at the API homepage."))
