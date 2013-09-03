@@ -116,7 +116,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         mime, renderer = _best_mime()
 
         # invoke the render function and obtain the corresponding rendered item
-        rendered = globals()[renderer](**dct)
+        rendered = globals()[renderer](dct)
 
         # build the main wsgi rensponse object
         resp = make_response(rendered, status)
@@ -205,7 +205,7 @@ class APIEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def render_json(**data):
+def render_json(data):
     """ JSON render function
     """
     return json.dumps(data, cls=APIEncoder)
