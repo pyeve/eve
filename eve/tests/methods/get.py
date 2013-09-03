@@ -1,4 +1,4 @@
-import json
+import simplejson as json
 from bson import ObjectId
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME

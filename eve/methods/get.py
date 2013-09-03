@@ -12,9 +12,9 @@
 """
 
 import math
-import json
 from datetime import datetime
 from flask import current_app as app, abort
+import simplejson as json
 from .common import ratelimit
 from eve.auth import requires_auth
 from eve.utils import parse_request, document_etag, document_link, \
