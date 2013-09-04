@@ -94,6 +94,9 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     :param etag: ETag header value.
     :param status: response status.
 
+    .. versionchanged:: 0.1.0
+       Support for optional HATEOAS.
+
     .. versionchanged:: 0.0.9
        Support for Python 3.3.
 
@@ -207,6 +210,9 @@ class APIEncoder(json.JSONEncoder):
 
 def render_json(data):
     """ JSON render function
+
+    .. versionchanged:: 0.1.0
+       Support for optional HATEOAS.
     """
     return json.dumps(data, cls=APIEncoder)
 
@@ -215,6 +221,9 @@ def render_xml(data):
     """ XML render function.
 
     :param data: the data stream to be rendered as xml.
+
+    .. versionchanged:: 0.1.0
+       Support for optional HATEOAS.
 
     .. versionchanged:: 0.0.3
        Support for HAL-like hyperlinks and resource descriptors.
@@ -238,6 +247,9 @@ def xml_root_open(data):
     for further processing of the datastream.
 
     :param data: the data stream to be rendered as xml.
+
+    .. versionchanged:: 0.1.0
+       Support for optional HATEOAS.
 
     .. versionchanged:: 0.0.6
        Links are now properly escaped.

@@ -286,6 +286,9 @@ class Eve(Flask, Events):
         """ When not provided, fills individual resource settings with default
         or global configuration settings.
 
+        .. versionchanged:: 0.1.0
+        Support for optional HATEOAS.
+
         .. versionchanged:: 0.0.9
            'auth_username_field' renamed to 'auth_field'.
            Always include automatic fields despite of datasource projections.

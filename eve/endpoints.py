@@ -84,6 +84,9 @@ def item_endpoint(url, **lookup):
 @requires_auth('home')
 def home_endpoint():
     """ Home/API entry point. Will provide links to each available resource
+
+    .. versionchanged:: 0.1.0
+       Support for optional HATEOAS.
     """
     if config.HATEOAS:
         response = {}

@@ -27,6 +27,9 @@ def get(resource):
 
     :param resource: the name of the resource.
 
+    .. versionchanged:: 0.1.0
+       Support for optional HATEOAS.
+
     .. versionchanged: 0.0.9
        Event hooks renamed to be more robuts and consistent: 'on_getting'
        renamed to 'on_fetch'.
@@ -111,6 +114,9 @@ def getitem(resource, **lookup):
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
+
+    .. versionchanged:: 0.1.0
+       Support for optional HATEOAS.
 
     .. versionchanged: 0.0.8
        'on_getting_item' event is raised when a document has been read from the
