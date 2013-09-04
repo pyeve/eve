@@ -3,6 +3,14 @@ Eve Changelog
 
 Here you can see the full list of changes between each Eve release.
 
+Version 0.1.0
+-------------
+
+Not released yet.
+
+- HATEOAS is now optional and can be disabled both at global and resource
+  level.
+
 Version 0.0.9
 -------------
 
