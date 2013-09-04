@@ -259,7 +259,7 @@ class TestBase(TestMinimal):
                                            self.different_resource]['url'])
 
         response, status = self.get('contacts', '?max_results=2')
-        contact = response['_items'][0]
+        contact = self.response_item(response)
         self.item_id = contact[self.app.config['ID_FIELD']]
         self.item_name = contact['ref']
         self.item_tid = contact['tid']
@@ -271,15 +271,15 @@ class TestBase(TestMinimal):
         self.item_name_url = ('/%s/%s/' %
                               (self.domain[self.known_resource]['url'],
                                self.item_name))
-        self.alt_ref = response['_items'][1]['ref']
+        self.alt_ref = self.response_item(response, 1)['ref']
 
         response, status = self.get('payments', '?max_results=1')
-        self.readonly_id = response['_items'][0]['_id']
+        self.readonly_id = self.response_item(response)['_id']
         self.readonly_id_url = ('%s%s/' % (self.readonly_resource_url,
                                            self.readonly_id))
 
         response, status = self.get('users')
-        user = response['_items'][0]
+        user = self.response_item(response)
         self.user_id = user[self.app.config['ID_FIELD']]
         self.user_username = user['username']
         self.user_name = user['ref']
@@ -289,12 +289,18 @@ class TestBase(TestMinimal):
                              self.user_id))
 
         response, status = self.get('invoices')
-        invoice = response['_items'][0]
+        invoice = self.response_item(response)
         self.invoice_id = invoice[self.app.config['ID_FIELD']]
         self.invoice_etag = invoice['etag']
         self.invoice_id_url = ('/%s/%s/' %
                                (self.domain['invoices']['url'],
                                 self.invoice_id))
+
+    def response_item(self, response, i=0):
+        if self.app.config['HATEOAS']:
+            return response['_items'][i]
+        else:
+            return response[i]
 
     def random_contacts(self, num, standard_date_fields=True):
         schema = DOMAIN['contacts']['schema']

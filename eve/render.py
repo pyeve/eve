@@ -116,7 +116,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         mime, renderer = _best_mime()
 
         # invoke the render function and obtain the corresponding rendered item
-        rendered = globals()[renderer](**dct)
+        rendered = globals()[renderer](dct)
 
         # build the main wsgi rensponse object
         resp = make_response(rendered, status)
@@ -205,13 +205,13 @@ class APIEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def render_json(**data):
+def render_json(data):
     """ JSON render function
     """
     return json.dumps(data, cls=APIEncoder)
 
 
-def render_xml(**data):
+def render_xml(data):
     """ XML render function.
 
     :param data: the data stream to be rendered as xml.
@@ -219,6 +219,9 @@ def render_xml(**data):
     .. versionchanged:: 0.0.3
        Support for HAL-like hyperlinks and resource descriptors.
     """
+    if isinstance(data, list):
+        data = {'_items': data}
+
     xml = ''
     if data:
         xml += xml_root_open(data)
@@ -262,9 +265,9 @@ def xml_add_links(data):
 
     .. versionadded:: 0.0.3
     """
+    xml = ''
     chunk = '<link rel="%s" href="%s" title="%s" />'
     links = data.pop('_links', {})
-    xml = ''
     for rel, link in links.items():
         if isinstance(link, list):
             xml += ''.join([chunk % (rel, escape(d['href']), d['title'])

@@ -68,8 +68,10 @@ def get(resource):
 
         # document metadata
         document['etag'] = document_etag(document)
-        document['_links'] = {'self': document_link(resource,
-                                                    document[config.ID_FIELD])}
+        if config.DOMAIN[resource]['hateoas']:
+            document['_links'] = {'self':
+                                  document_link(resource,
+                                                document[config.ID_FIELD])}
 
         documents.append(document)
 
@@ -91,8 +93,12 @@ def get(resource):
         getattr(app, "on_fetch_resource")(resource, documents)
         getattr(app, "on_fetch_resource_%s" % resource)(documents)
 
-        response['_items'] = documents
-        response['_links'] = _pagination_links(resource, req, cursor.count())
+        if config.DOMAIN[resource]['hateoas']:
+            response['_items'] = documents
+            response['_links'] = _pagination_links(resource, req,
+                                                   cursor.count())
+        else:
+            response = documents
 
     etag = None
     return response, last_modified, etag, status
@@ -153,11 +159,12 @@ def getitem(resource, **lookup):
             # resolution (1 second).
             return response, last_modified, document['etag'], 304
 
-        response['_links'] = {
-            'self': document_link(resource, document[config.ID_FIELD]),
-            'collection': collection_link(resource),
-            'parent': home_link()
-        }
+        if config.DOMAIN[resource]['hateoas']:
+            response['_links'] = {
+                'self': document_link(resource, document[config.ID_FIELD]),
+                'collection': collection_link(resource),
+                'parent': home_link()
+            }
 
         # notify registered callback functions. Please note that, should the
         # functions modify the document, last_modified and etag  won't be

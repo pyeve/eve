@@ -302,6 +302,9 @@ uppercase.
                                 otherwise. 
 
 
+``HATEOAS``                     When ``False`` this option disables 
+                                :ref:`hateoas_feature`. Defaults to ``True``. 
+
 ``MONGO_HOST``                  MongoDB server address. Defaults to ``localhost``.
 
 ``MONGO_PORT``                  MongoDB port. Defaults to ``27017``.
@@ -506,6 +509,10 @@ always lowercase.
                                 ``LAST_UPDATED``, ``DATE_CREATED``, ``etag``)
                                 are included in response payloads. Overrides
                                 ``EXTRA_RESPONSE_FIELDS``. 
+
+``hateoas``                     When ``False`` this option disables
+                                :ref:`hateoas_feature` for the resource.
+                                Defaults to ``True``. 
 
 ``mongo_write_concern``         A dictionary defining MongoDB write concern
                                 settings for the endpoint datasource. All

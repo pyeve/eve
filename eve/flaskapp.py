@@ -357,6 +357,8 @@ class Eve(Flask, Events):
                                 self.config['EXTRA_RESPONSE_FIELDS'])
             settings.setdefault('mongo_write_concern',
                                 self.config['MONGO_WRITE_CONCERN'])
+            settings.setdefault('hateoas',
+                                self.config['HATEOAS'])
 
             # empty schemas are allowed for read-only access to resources
             schema = settings.setdefault('schema', {})
