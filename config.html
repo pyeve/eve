@@ -389,22 +389,26 @@ to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> to enable Debug Mode, <tt class="docutils literal"><span class="pre">False</span></tt>
 otherwise.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">HATEOAS</span></tt></td>
+<td>When <tt class="docutils literal"><span class="pre">False</span></tt> this option disables
+<a class="reference internal" href="features.html#hateoas-feature"><em>HATEOAS</em></a>. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt></td>
 <td>MongoDB server address. Defaults to <tt class="docutils literal"><span class="pre">localhost</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_PORT</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_PORT</span></tt></td>
 <td>MongoDB port. Defaults to <tt class="docutils literal"><span class="pre">27017</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_USERNAME</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_USERNAME</span></tt></td>
 <td>MongoDB user name.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_PASSWORD</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_PASSWORD</span></tt></td>
 <td>MongoDB password.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt></td>
 <td>MongoDB database name.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_QUERY_BLACKLIST</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_QUERY_BLACKLIST</span></tt></td>
 <td><p class="first">A list of Mongo query operators that are not
 allowed to be used in resource filters
 (<tt class="docutils literal"><span class="pre">?where=</span></tt>). Defaults to <tt class="docutils literal"><span class="pre">['$where',</span>
@@ -416,7 +420,7 @@ to be slow and generally can be easily replaced
 with the (very rich) Mongo query dialect.</p>
 </td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></tt></td>
 <td><p class="first">A dictionary defining MongoDB write concern
 settings. All stadard write concern settings
 (w, wtimeout, j, fsync) are supported. Defaults
@@ -434,7 +438,7 @@ collection) level. See <tt class="docutils literal"><span class="pre">mongo_writ
 below.</p>
 </td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
 <td>A dict holding the API domain definition.
 See <a class="reference internal" href="#domain-configuration">Domain Configuration</a>.</td>
 </tr>
@@ -618,7 +622,12 @@ automatically handled fields (<tt class="docutils literal"><span class="pre">ID_
 are included in response payloads. Overrides
 <tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">mongo_write_concern</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">hateoas</span></tt></td>
+<td>When <tt class="docutils literal"><span class="pre">False</span></tt> this option disables
+<a class="reference internal" href="features.html#hateoas-feature"><em>HATEOAS</em></a> for the resource.
+Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">mongo_write_concern</span></tt></td>
 <td><p class="first">A dictionary defining MongoDB write concern
 settings for the endpoint datasource. All
 stadard write concern settings (w, wtimeout, j,
@@ -633,7 +642,7 @@ to check that it&#8217;s being written to multiple
 servers.)</p>
 </td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
 <td>A dict defining the actual data structure being
 handled by the resource. Enables data
 validation. See <a class="reference internal" href="#schema-definition">Schema Definition</a>.</td>
