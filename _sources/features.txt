@@ -301,6 +301,11 @@ same happens to individual item payloads:
         "etag": "28995829ee85d69c4c18d597a0f68ae606a266cc",
     }
 
+Why would you want to turn HATEOAS off? Well, if you know that your client
+application is not going to use the feature, then you might want to save on
+both bandwidth and performance. Also, some REST client libraries out there
+might have issues when parsing something other than a simple list of items.
+
 .. admonition:: Please note
 
     When HATEOAS is disabled the API entry point (the home page) will return
