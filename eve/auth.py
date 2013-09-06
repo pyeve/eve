@@ -37,7 +37,8 @@ def requires_auth(endpoint_class):
                 public = app.config['PUBLIC_METHODS'] + ['OPTIONS']
                 roles = app.config['ALLOWED_ROLES']
             if app.auth and request.method not in public:
-                if not app.auth.authorized(roles, resource_name, request.method):
+                if not app.auth.authorized(roles, resource_name,
+                                           request.method):
                     return app.auth.authenticate()
             return f(*args, **kwargs)
         return decorated
@@ -134,6 +135,7 @@ class HMACAuth(BasicAuth):
         return auth and self.check_auth(userid, hmac_hash, request.headers,
                                         request.get_data(), allowed_roles,
                                         resource, method)
+
 
 class TokenAuth(BasicAuth):
     """ Implements Token AUTH logic. Should be subclassed to implement custom
