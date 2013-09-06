@@ -47,13 +47,13 @@ First time contributor?
 -----------------------
 It's alright. We've all been there. See next chapter.
 
-Dont' know where to start? 
+Don't know where to start? 
 --------------------------
 There are usually several TODO comments scattered around the codebase, maybe
 check them out and see if you have ideas, or can help with them. Also, check
 the `open issues`_ in case there's something that sparks your interest (there's
 also a special ``contributor friendly`` label flagging some interesting feature
-requests). And what about documentation?  I suck at english so if you're fluent
+requests). And what about documentation?  I suck at English so if you're fluent
 with it (or notice any typo and/or mistake), why not help with that? In any
 case, other than GitHub help_ pages, you might want to check this excellent
 `Effective Guide to Pull Requests`_
