@@ -12,9 +12,9 @@ Philosophy
 You have data stored somewhere and you want to expose it to your users
 through a RESTful Web API. Eve is the tool that allows you to do so. 
 
-The idea is that a robust, feature rich, REST-centered API implementation is
-provided by Eve, and you just need to configure API interface and behaviour,
-plug in your datasource, and you're good to go. See :doc:`features` for a list
+Eve provides a robust, feature rich, REST-centered API implementation,
+and you just need to configure your API settings and behaviour, plug in your
+datasource, and you're good to go. See :doc:`features` for a list
 of features available to Eve-powered APIs.
 
 API settings are stored in a standard Python module (defaults to
@@ -26,13 +26,13 @@ A little context
 ----------------
 At `Gestionale Amica <http://gestionaleamica.com>`_ we had been working hard on
 a full featured, Python powered, RESTful Web API. We learned quite a few things
-on REST best patterns, and we got a chance to put Python's renowned web
-capabilities under review. Then, at EuroPython 2012, I got a chance to share
-what we learned and my talk sparked quite a bit of interest there. A few months
-have passed and still the slides are receiving a lot of hits each day, and
-I keep receiving emails about source code samples and whatnot. After all,
+on REST best patterns, and we had a chance to put Python's renowned web
+capabilities to the test. Then, at EuroPython 2012, I had the opportunity to share
+what we learned.  My talk sparked quite a bit of interest, and even after a few
+months had passed, the slides were still receiving a lot of hits every day.
+I kept receiving emails asking for source code examples and whatnot. After all,
 a REST API lies in the future of every web-oriented developer, and who isn't
-these days?
+one these days?
 
 So, I thought, perhaps I could take the proprietary, closed code (codenamed
 'Adam') and refactor it "just a little bit", so that it could fit a much wider
@@ -40,16 +40,16 @@ number of use cases. I could then release it as an open source project. Well
 it turned out to be slightly more complex than that but finally here it is, and
 of course it's called Eve.
 
-It still got a long way to go before it becomes the fully featured open source,
-out-of-the-box API solution I came to envision (see the Roadmap below), but
-I feel that at this point the codebase is ready enough for a public preview.
+It still has a long way to go before it becomes the fully featured open source,
+out-of-the-box API solution I envision (see the Roadmap below), but
+I feel that at this point the codebase is ready for a public preview.
 This will hopefully allow for some constructive feedback and maybe, for some
 contributors to join the ranks.
 
 REST, Flask and MongoDB
 -----------------------
-The slides of my EuroPython talk, *Developing RESTful Web APIs with Flask and
-MongoDB*, are `available online`_. You might want to check them to understand
+The slides from my EuroPython talk, *Developing RESTful Web APIs with Flask and
+MongoDB*, are `available online`_. You might want to check them out to understand
 why and how certain design decisions were made, especially with regards to REST
 implementation.
 

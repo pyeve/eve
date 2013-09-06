@@ -66,7 +66,7 @@ payload:
     }
 
 API entry points adhere to the :ref:`hateoas_feature` principle and provide
-informations about the resources accessible through the API. In our case
+information about the resources accessible through the API. In our case
 there's only one child resource available, that being `people`.
 
 Try requesting `people` now:
@@ -101,7 +101,7 @@ By default Eve APIs are read-only:
 
 Since we didn't provide any database detail in `settings.py`, Eve has no clue
 about the real content of the `people` collection (it might even be
-non-existant) and seamlessly serves an empty resource, as we don't want to let
+non-existent) and seamlessly serves an empty resource, as we don't want to let
 API users down.
 
 Database Interlude
@@ -150,7 +150,7 @@ while ``ITEM_METHODS`` lists the methods enabled at item endpoints
 all endpoints.  You can then enable or disable HTTP methods at individual
 endpoint level, as we will soon see.
 
-Since we are enabling edition we also want to enable proper data validation.
+Since we are enabling editing we also want to enable proper data validation.
 Let's define a schema for our `people` resource.
 
 ::
@@ -190,7 +190,7 @@ Let's define a schema for our `people` resource.
         },
     }
 
-For more informations on validation see :ref:`validation`. 
+For more information on validation see :ref:`validation`. 
 
 Now let's say that we want to further customize the `people` endpoint. We want
 to: 
