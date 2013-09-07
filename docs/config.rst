@@ -7,8 +7,8 @@ configuration files themselves are actual Python files.
 
 Configuration Files
 -------------------
-On startup Eve will look for a `settings.py` file in the application folder.
-You can choose an alternative filename/path, just pass it as an argument when
+On startup, Eve will look for a `settings.py` file in the application folder.
+You can choose an alternative filename/path. Just pass it as an argument when
 you instantiate the application.
 
 ::
@@ -34,7 +34,7 @@ you are done.
 
 There are many alternative ways to handle development/production
 however. Using Python modules for configuration is very convenient, as they
-allow for all kind of nice tricks, like being able to seamlessly launch the
+allow for all kinds of nice tricks, like being able to seamlessly launch the
 same API on both local and production systems, connecting to the appropriate
 database instance as needed.  Consider the following example, taken directly
 from the :ref:`demo`:
@@ -86,12 +86,12 @@ uppercase.
 ``URL_PREFIX``                  URL prefix for all API endpoints. Will be used 
                                 in conjunction with ``SERVER_NAME`` and 
                                 ``API_VERSION`` to construct all API urls 
-                                (e.g. ``api`` will be rendered to 
+                                (e.g., ``api`` will be rendered to 
                                 ``localhost:5000/api/``).  Defaults to ``''``.
 
 ``API_VERSION``                 API version. Will be used in conjunction with 
                                 ``SERVER_NAME`` and ``URL_PREFIX`` to construct
-                                API urls (e.g. ``v1`` will be rendered to
+                                API urls (e.g., ``v1`` will be rendered to
                                 ``localhost:5000/v1/``). Defaults to ``''``.
 
 ``ALLOWED_FILTERS``             List of fields on which filtering is allowed. 
@@ -106,15 +106,15 @@ uppercase.
 
                                 *Please note:* If API scraping or DB DoS
                                 attacks are a concern, then globally disabling
-                                filters and whitelist valid ones at the local
+                                filters and whitelisting valid ones at the local
                                 level is the way to go.
 
 ``SORTING``                     ``True`` if sorting is supported for ``GET``
-                                requests, otherwise ``False``. Can be overriden
+                                requests, otherwise ``False``. Can be overridden
                                 by resource settings. Defaults to ``True``.
 
 ``PAGINATION``                  ``True`` if pagination is enabled for ``GET`` 
-                                requests, otherwise ``False``. Can be overriden
+                                requests, otherwise ``False``. Can be overridden
                                 by resource settings. Defaults to ``True``.
 
 ``PAGINATION_LIMIT``            Maximum value allowed for ``max_results``
@@ -140,12 +140,12 @@ uppercase.
                                 endpoints. Allowed values: ``GET``, ``POST``,
                                 ``DELETE``. ``POST`` is used for insertions.
                                 ``DELETE`` will delete *all* resource contents
-                                (enable with caution). Can be overriden by
+                                (enable with caution). Can be overridden by
                                 resource settings. Defaults to ``['GET']``.
 
 ``PUBLIC_METHODS``              A list of HTTP methods supported at resource
                                 endpoints, open to public access even when
-                                :ref:`auth` is enabled. Can be overriden by
+                                :ref:`auth` is enabled. Can be overridden by
                                 resource settings. Defaults to ``[]``.
 
 ``ITEM_METHODS``                A list of HTTP methods supported at item 
@@ -154,36 +154,36 @@ uppercase.
                                 supporting PATCH, ``POST`` with the
                                 ``X-HTTP-Method-Override`` header tag, is used
                                 for item updates; ``DELETE`` for item deletion.
-                                Can be overriden by resource settings. Defaults
+                                Can be overridden by resource settings. Defaults
                                 to ``['GET']``.  
 
 ``PUBLIC_ITEM_METHODS``         A list of HTTP methods supported at item
                                 endpoints, left open to public access when when
-                                :ref:`auth` is enabled. Can be overriden by
+                                :ref:`auth` is enabled. Can be overridden by
                                 resource settings. Defaults to ``[]``.
 
 ``ALLOWED_ROLES``               A list of allowed `roles` for resource
-                                endpoints. Can be overriden by resource
+                                endpoints. Can be overridden by resource
                                 settings. See :ref:`auth` for more
-                                informations. Defaults to ``[]``.
+                                information. Defaults to ``[]``.
 
 ``ALLOWED_ITEM_ROLES``          A list of allowed `roles` for item endpoints. 
-                                See :ref:`auth` for more informations. Can be
-                                overriden by resource settings.  Defaults to
+                                See :ref:`auth` for more information. Can be
+                                overridden by resource settings.  Defaults to
                                 ``[]``.
 
 ``CACHE_CONTROL``               Value of the ``Cache-Control`` header field 
-                                used when serving ``GET`` requests (e.g. 
+                                used when serving ``GET`` requests (e.g., 
                                 ``max-age=20,must-revalidate``). Leave empty if
                                 you don't want to include cache directives with
-                                API responses. Can be overriden by resource
+                                API responses. Can be overridden by resource
                                 settings. Defaults to ``''``.
 
 ``CACHE_EXPIRES``               Value (in seconds) of the ``Expires`` header 
                                 field used when serving ``GET`` requests. If
                                 set to a non-zero value, the header will 
                                 always be included, regardless of the setting
-                                of ``CACHE_CONTROL``. Can be overriden by
+                                of ``CACHE_CONTROL``. Can be overridden by
                                 resource settings. Defaults to 0.
 
 ``X_DOMAINS``                   CORS (Cross-Origin Resource Sharing) support. 
@@ -201,7 +201,7 @@ uppercase.
 
 ``LAST_UPDATED``                Name of the field used to record a document's 
                                 last update date. This field is automatically
-                                handled the Eve. Defaults to ``updated``.
+                                handled by Eve. Defaults to ``updated``.
 
 ``DATE_CREATED``                Name for the field used to record a document
                                 creation date. This field is automatically
@@ -220,44 +220,43 @@ uppercase.
 
 ``ITEM_LOOKUP``                 ``True`` if item endpoints should be generally 
                                 available acroos the API, ``False`` otherwise. 
-                                Can be overriden by resource settings. Defaults
+                                Can be overridden by resource settings. Defaults
                                 to ``True``.
 
 ``ITEM_LOOKUP_FIELD``           Document field used when looking up a resource
-                                item. Can be overriden by resource settings.
+                                item. Can be overridden by resource settings.
                                 Defaults to ``ID_FIELD``.
 
 ``ITEM_URL``                    RegEx used to construct default item
-                                endpoint URLs. Can be overriden by resource
+                                endpoint URLs. Can be overridden by resource
                                 settings. Defaults ``[a-f0-9]{24}`` which is
                                 MongoDB standard ``Object_Id`` format.
 
 ``ITEM_TITLE``                  Title to be used when building item references, 
                                 both in XML and JSON responses. Defaults to 
                                 resource name, with the plural 's' stripped if
-                                present. Can and most likely will be overriden 
+                                present. Can and most likely will be overridden 
                                 when configuring single resource endpoints.
 
 ``AUTH_FIELD``                  Enables :ref:`user-restricted`. When the
-                                feature is enabled users can only
+                                feature is enabled, users can only
                                 read/update/delete resource items created by
                                 themselves. The keyword contains the actual
                                 name of the field used to store the id of
                                 the user who created the resource item. Can be
-                                overwritten by resource settings. Defaults to
+                                overridden by resource settings. Defaults to
                                 ``None``, which disables the feature. 
 
-``ALLOW_UNKNOWN``               When ``True`` this option will allow insertion
-                                and edition of arbitrary, unknown fields to
-                                any API endpoint. Use with caution. See
-                                :ref:`unknown` for more informations. Defaults
-                                to ``False``.
+``ALLOW_UNKNOWN``               When ``True``, this option will allow insertion
+                                of arbitrary, unknown fields to any API
+                                endpoint. Use with caution. See :ref:`unknown`
+                                for more information. Defaults to ``False``.
 
-``PROJECTION``                  When ``True`` this option enables the
-                                :ref:`projections` feature. Can be overwritten
+``PROJECTION``                  When ``True``, this option enables the
+                                :ref:`projections` feature. Can be overridden
                                 by resource settings. Defaults to ``True``.
 
-``EXTRA_RESPONSE_FIELDS``       Allows to configure a list of additional
+``EXTRA_RESPONSE_FIELDS``       Allows configuration of a list of additional
                                 document fields that should be provided with
                                 every POST response. Normally only
                                 automatically handled fields (``ID_FIELD``,
@@ -270,39 +269,39 @@ uppercase.
                                 requests. The first element of the tuple is 
                                 the number of requests allowed, while the
                                 second is the time window in seconds. For
-                                example ``(300, 60 * 15)`` would set a 300
-                                requests every 15 minutes limit. Defaults
-                                to ``None``. 
+                                example, ``(300, 60 * 15)`` would set a limit
+                                of 300 requests every 15 minutes. Defaults
+                                to ``None``.
 
 ``RATE_LIMIT_POST``             A tuple expressing the rate limit on POST 
                                 requests. The first element of the tuple is 
                                 the number of requests allowed, while the
                                 second is the time window in seconds. For
-                                example ``(300, 60 * 15)`` would set a 300
-                                requests every 15 minutes limit. Defaults
+                                example ``(300, 60 * 15)`` would set a limit
+                                of 300 requests every 15 minutes. Defaults
                                 to ``None``. 
 
 ``RATE_LIMIT_PATCH``            A tuple expressing the rate limit on PATCH 
                                 requests. The first element of the tuple is 
                                 the number of requests allowed, while the
                                 second is the time window in seconds. For
-                                example ``(300, 60 * 15)`` would set a 300
-                                requests every 15 minutes limit. Defaults
+                                example ``(300, 60 * 15)`` would set a limit
+                                of 300 requests every 15 minutes. Defaults
                                 to ``None``. 
 
 ``RATE_LIMIT_DELETE``           A tuple expressing the rate limit on DELETE 
                                 requests. The first element of the tuple is 
                                 the number of requests allowed, while the
                                 second is the time window in seconds. For
-                                example ``(300, 60 * 15)`` would set a 300
-                                requests every 15 minutes limit. Defaults
+                                example ``(300, 60 * 15)`` would set a limit
+                                of 300 requests every 15 minutes. Defaults
                                 to ``None``. 
 
 ``DEBUG``                       ``True`` to enable Debug Mode, ``False``
                                 otherwise. 
 
 
-``HATEOAS``                     When ``False`` this option disables 
+``HATEOAS``                     When ``False``, this option disables 
                                 :ref:`hateoas_feature`. Defaults to ``True``. 
 
 ``MONGO_HOST``                  MongoDB server address. Defaults to ``localhost``.
@@ -321,7 +320,7 @@ uppercase.
                                 '$regex']``. 
                                 
                                 Mongo JavaScript operators are disabled by
-                                default as they might be used as vectors for
+                                default, as they might be used as vectors for
                                 injection attacks. Javascript queries also tend
                                 to be slow and generally can be easily replaced
                                 with the (very rich) Mongo query dialect.
@@ -329,16 +328,16 @@ uppercase.
 ``MONGO_WRITE_CONCERN``         A dictionary defining MongoDB write concern
                                 settings. All stadard write concern settings 
                                 (w, wtimeout, j, fsync) are supported. Defaults
-                                to ``{'w': 1}`` which means 'do regular
+                                to ``{'w': 1}``, which means 'do regular
                                 aknowledged writes' (this is also the Mongo
-                                default.)
+                                default).
 
                                 Please be aware that setting 'w' to a value of
                                 2 or greater requires replication to be active
                                 or you will be getting 500 errors (the write
                                 will still happen; Mongo will just be unable
                                 to check that it's being written to multiple
-                                servers.)
+                                servers).
                                 
                                 Can be overridden at endpoint (Mongo
                                 collection) level. See ``mongo_write_concern``
@@ -352,7 +351,7 @@ uppercase.
 
 Domain Configuration
 --------------------
-In Eve terminology `domain` is the definition of the API structure, the area
+In Eve terminology, a `domain` is the definition of the API structure, the area
 where you design your API, fine-tune resources endpoints, and define validation
 rules. 
 
@@ -368,7 +367,7 @@ dictionary where keys are API resources and values their definitions.
         'works': {},
         }
 
-In the following two sections we will customize the `people` resource.
+In the following two sections, we will customize the `people` resource.
 
 .. _local:
 
@@ -432,11 +431,11 @@ always lowercase.
 
 ``allowed_roles``               A list of allowed `roles` for resource
                                 endpoint. See :ref:`auth` for more
-                                informations. Locally overrides
+                                information. Locally overrides
                                 ``ALLOWED_ROLES``.
 
 ``allowed_item_roles``          A list of allowed `roles` for item endpoint. 
-                                See :ref:`auth` for more informations.
+                                See :ref:`auth` for more information.
                                 Locally overrides ``ALLOWED_ITEM_ROLES``.
 
 ``cache_control``               Value of the ``Cache-Control`` header field 
@@ -485,24 +484,24 @@ always lowercase.
                                 Patterns`_. 
 
 ``auth_field``                  Enables :ref:`user-restricted`. When the
-                                feature is enabled users can only
+                                feature is enabled, users can only
                                 read/update/delete resource items created by
                                 themselves. The keyword contains the actual
                                 name of the field used to store the id of
                                 the user who created the resource item. Locally
                                 overrides ``AUTH_FIELD``. 
 
-``allow_unknown``               When ``True`` this option will allow insertion
-                                and edition of arbitrary, unknown fields to
-                                the endpoint. Use with caution. Locally
-                                overrides ``ALLOW_UNKNOWN``. See :ref:`unknown`
-                                for more informations. Defaults to ``False``.
+``allow_unknown``               When ``True``, this option will allow insertion
+                                of arbitrary, unknown fields to the endpoint.
+                                Use with caution. Locally overrides
+                                ``ALLOW_UNKNOWN``. See :ref:`unknown` for more
+                                information. Defaults to ``False``.
 
-``projection``                  When ``True`` this option enables the
+``projection``                  When ``True``, this option enables the
                                 :ref:`projections` feature. Locally overrides
                                 ``PROJECTION``. Defaults to ``True``.
 
-``extra_response_fields``       Allows to configure a list of additional
+``extra_response_fields``       Allows configuration of a list of additional
                                 document fields that should be provided with
                                 every POST response. Normally only
                                 automatically handled fields (``ID_FIELD``,
@@ -510,7 +509,7 @@ always lowercase.
                                 are included in response payloads. Overrides
                                 ``EXTRA_RESPONSE_FIELDS``. 
 
-``hateoas``                     When ``False`` this option disables
+``hateoas``                     When ``False``, this option disables
                                 :ref:`hateoas_feature` for the resource.
                                 Defaults to ``True``. 
 
@@ -543,7 +542,7 @@ API settings:
         # the final, plural 's' (works fine in most cases but not for 'people')
         'item_title': 'person',
 
-        # by default the standard item entry point is defined as
+        # by default, the standard item entry point is defined as
         # '/people/<ObjectId>/'. We leave it untouched, and we also enable an
         # additional read-only entry point. This way consumers can also perform 
         # GET requests at '/people/<lastname>/'.
@@ -564,7 +563,7 @@ API settings:
 
 Schema Definition
 -----------------
-Unless your API is read-only you probably want to define resource `schemas`.
+Unless your API is read-only, you probably want to define resource `schemas`.
 Schemas are important because they enable proper validation for incoming
 streams.
 
@@ -613,10 +612,10 @@ defining the field validation rules. Allowed validation rules are:
                                 ``float``, ``datetime``, ``dict``, ``list``,
                                 ``objectid``.
 
-``required``                    If ``True`` the field is mandatory on
+``required``                    If ``True``, the field is mandatory on
                                 insertion.
 
-``readonly``                    If ``True`` the field is readonly.
+``readonly``                    If ``True``, the field is readonly.
 
 ``minlength``, ``maxlength``    Minimum and maximum length allowed for
                                 ``string`` and ``list`` types.
@@ -627,7 +626,7 @@ defining the field validation rules. Allowed validation rules are:
 ``allowed``                     List of allowed values for ``string`` and 
                                 ``list`` types.
 
-``empty``                       Only applies to string fields. If ``False``
+``empty``                       Only applies to string fields. If ``False``,
                                 validation will fail if the value is empty. 
                                 Defaults to ``True``.
 
@@ -652,12 +651,12 @@ defining the field validation rules. Allowed validation rules are:
                                 are no duplicates in the database (yet). 
                                 
                                 If this is an issue, the client can always send
-                                the documents once at a time for insertion, or
+                                the documents one at a time for insertion, or
                                 validate locally before submitting the payload
                                 to the API.
 
-``data_relation``               Allows to specify a referential integrity rule
-                                that the value must satisfy in order to
+``data_relation``               Allows specification of a referential integrity
+                                rule that the value must satisfy in order to
                                 validate. It is a dict with two keys:
                                 ``collection``, which is the name of the
                                 database collection being referenced, and
@@ -671,7 +670,7 @@ defining the field validation rules. Allowed validation rules are:
 Schema syntax is based on Cerberus_ and yes, it can be extended.  In fact, Eve
 itself extends the original grammar by adding the ``unique`` and
 ``data_relation`` keywords, along with the ``objectid`` datatype. For more
-informations on custom validation and usage examples see :ref:`validation`.
+information on custom validation and usage examples see :ref:`validation`.
 
 In :ref:`local` you customized the `people` endpoint. Then, in this section,
 you defined `people` validation rules. Now you are ready to update the domain
@@ -686,12 +685,12 @@ which was originally set up in `Domain Configuration`_:
 
 Advanced Datasource Patterns
 ----------------------------
-The ``datasource`` keyword allows to explicitly link API resources to
+The ``datasource`` keyword allows you to explicitly link API resources to
 database collections (if you omit it, the domain resource key is assumed to be
 the name of the database collection itself). It is a dictionary with three allowed
 keys: `source`, `filter` and `projection`. ``source`` dictates the database
 collection consumed by the resource, ``filter`` expresses the underlying
-query used to retrieve and validate data and ``projection`` allows to
+query used to retrieve and validate data, and ``projection`` allows you to
 redefine the exposed fieldset.
 
 
@@ -707,8 +706,8 @@ Database filters for the API endpoint are set with the ``filter`` keyword.
             }
         }
   
-In the example above the API endpoint for the `people` resource will only
-expose and update documents with an existent `username` field.
+In the example above, the API endpoint for the `people` resource will only
+expose and update documents with an existing `username` field.
 
 Predefined filters run on top of user queries (GET requests with `where`
 clauses) and standard conditional requests (`If-Modified-Since`, etc.)
@@ -740,7 +739,7 @@ Limiting the Fieldset Exposed by the API Endpoint
 '''''''''''''''''''''''''''''''''''''''''''''''''
 By default API responses to GET requests will include all fields defined by the
 corresponding resource schema_. The ``projection`` setting of the `datasource`
-resource keyword allows to redefine the fieldset.
+resource keyword allows you to redefine the fieldset.
 
 ::
 
@@ -753,7 +752,7 @@ resource keyword allows to redefine the fieldset.
 The above setting will expose only the `username` field to GET requests, no
 matter the schema_ defined for the resource. Please note that POST and PATCH
 methods will still allow the whole schema to be manipulated. This feature can
-come in handy when you want to protect insertion and edition behind an
+come in handy when you want to protect insertion and modification behind an
 :ref:`auth` scheme while leaving read access open to the public.
 
 .. _Cerberus: http://cerberus.readthedocs.org

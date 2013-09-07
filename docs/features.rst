@@ -6,17 +6,17 @@ these features can be experienced live by consuming the Demo API (see
 
 Emphasis on REST
 ----------------
-The Eve project aims to provide the best possibile REST-compliant API
+The Eve project aims to provide the best possible REST-compliant API
 implementation. Fundamental REST_ principles like *separation of concerns*,
 *stateless and layered system*, *cacheability*, *uniform interface* have been
 kept into consideration while designing the core API.
 
 Full range of CRUD operations
 -----------------------------
-APIs can support the full range of CRUD_ operations. Within the same API you
+APIs can support the full range of CRUD_ operations. Within the same API, you
 can have a read-only resource accessible at one endpoint, along with a fully
 editable resource at another endpoint. The following table shows Eve's
-implementation of CRUD via REST
+implementation of CRUD via REST:
 
 ====== ========= ===================
 Action HTTP Verb Context 
@@ -33,7 +33,7 @@ will gladly honor a POST with the ``X-HTTP-Method-Override: PATCH`` header tag.
 
 Customizable resource endpoints
 -------------------------------
-By default Eve will make known database collections available as resource
+By default, Eve will make known database collections available as resource
 endpoints (persistent identifiers in REST idiom). So a database ``people``
 collection will be avaliable at the ``example.com/people/`` API endpoint.  You
 can customize the URIs though, so the API endpoint could become, say,
@@ -98,7 +98,7 @@ Resources can or cannot expose individual item endpoints. API consumers could
 get access to ``/people/``, ``/people/<ObjectId>/`` and ``/people/Doe/``,
 but only to ``/works/``.  When you do grant access to item endpoints, you can
 define up to two lookups, both defined with regexes. The first will be the
-primary endpoint and will match your database primary key structure (i.e. an
+primary endpoint and will match your database primary key structure (i.e., an
 ``ObjectId`` in a MongoDB database).  
 
 .. code-block:: console
@@ -216,7 +216,7 @@ HATEOAS
 default. Each GET response includes a ``_links`` section. Links provide details
 on their ``relation`` relative to the resource being accessed, and a ``title``.
 Relations and titles can then be used by clients to dynamically updated their
-UI, or to navigate the API without knowing it structure beforehand. An example:
+UI, or to navigate the API without knowing its structure beforehand. An example:
 
 ::
 
@@ -250,8 +250,8 @@ included when appropriate.
 
 Disabling HATEOAS
 ~~~~~~~~~~~~~~~~~
-HATEOAS can be disabled both at API and/or resource level. When HATEOAS is
-disabled response payloads have a different structure. The resource payload is
+HATEOAS can be disabled both at the API and/or resource level. When HATEOAS is
+disabled, response payloads have a different structure. The resource payload is
 a simple list of items:
 
 .. code-block:: console
@@ -279,7 +279,7 @@ a simple list of items:
         },
     ]
 
-As you can see the ``_links`` element is also missing from list items. The
+As you can see, the ``_links`` element is also missing from list items. The
 same happens to individual item payloads:
 
 .. code-block:: console
@@ -308,7 +308,7 @@ might have issues when parsing something other than a simple list of items.
 
 .. admonition:: Please note
 
-    When HATEOAS is disabled the API entry point (the home page) will return
+    When HATEOAS is disabled, the API entry point (the home page) will return
     a ``404 Not Found``, since its only usefulness would be to return a list of
     available resources, which is the standard behavior when HATEOAS is
     enabled.
@@ -359,7 +359,7 @@ or the ``If-None-Match`` header:
 Data Integrity and Concurrency Control
 --------------------------------------
 API responses include a ``ETag`` header which also allows for proper
-concurrency control. An ``ETag`` is an hash value representing the current
+concurrency control. An ``ETag`` is a hash value representing the current
 state of the resource on the server. Consumers are not allowed to edit or
 delete a resource unless they provide an up-to-date ``ETag`` for the resource
 they are attempting to edit. This prevents overwriting items with obsolete
@@ -372,7 +372,7 @@ Consider the following workflow:
     $ curl -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37/ -d 'data={"firstname": "ronald"}'
     HTTP/1.0 403 FORBIDDEN
 
-We attempted an edit, but we did not provide an ETag for the item, so we got
+We attempted an edit, but we did not provide an ``ETag`` for the item, so we got
 a not-so-nice ``403 FORBIDDEN``. Let's try again:
 
 .. code-block:: console
@@ -381,8 +381,8 @@ a not-so-nice ``403 FORBIDDEN``. Let's try again:
     HTTP/1.0 412 PRECONDITION FAILED
 
 What went wrong this time? We provided the mandatory ``If-Match`` header, but
-it's value did not match the ETag computed on the representation of the item
-currently stored on the server, so we got a ``402 PRECONDITION FAILED``. Again!
+it's value did not match the ``ETag`` computed on the representation of the item
+currently stored on the server, so we got a ``402 PRECONDITION FAILED`` again!
 
 .. code-block:: console
 
@@ -403,7 +403,7 @@ It's a win, and the response payload looks something like this:
         }
     }
 
-This time we got our patch in, and the server returned the new ETag.  We also
+This time we got our patch in, and the server returned the new ``ETag``.  We also
 get the new ``updated`` value, which eventually will allow us to perform
 subsequent `conditional requests`_.
 
@@ -444,15 +444,15 @@ Data Validation
 ---------------
 Data validation is provided out-of-the-box. Your configuration includes
 a schema definition for every resource managed by the API. Data sent to the API
-for insertion or edition will be validated against the schema, and a resource
-will be updated only if validation is passed. 
+to be inserted/updated will be validated against the schema, and a resource
+will only be updated if validation passes. 
 
 .. code-block:: console
 
     $ curl -d 'item1={"firstname": "bill", "lastname": "clinton"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://eve-demo.herokuapp.com/people/
     HTTP/1.0 200 OK
 
-The response will contain a success/error state for each item provided with the
+The response will contain a success/error state for each item provided in the
 request:
 
 .. code-block:: javascript
@@ -473,21 +473,21 @@ request:
     }
 
 In the example above, ``item2`` did not validate and was rejected, while
-``item1`` was successfully created. API maintainer has complete control on
+``item1`` was successfully created. The API maintainer has complete control on
 data validation. Optionally, you can decide to allow for unknown fields to be
-added/updated on one or more endpoints. For more informations see
+inserted/updated on one or more endpoints. For more information see
 :ref:`validation`.
 
 Extensible Data Validation
 --------------------------
 Data validation is based on the Cerberus_ validation system and therefore it is
-extensible so you can adapt it to your specific use case. Say that your API can
-only accept odd numbers for a certain field value: you can extend the
+extensible, so you can adapt it to your specific use case. Say that your API can
+only accept odd numbers for a certain field value; you can extend the
 validation class to validate that. Or say you want to make sure that a VAT
-field actually matches your own country VAT algorithm: you can do that too. As
-a matter of fact, Eve's MongoDB data-layer itself is extending Cerberus
-validation implementing the ``unique`` schema field constraint. For more
-informations see :ref:`validation`
+field actually matches your own country VAT algorithm; you can do that too. As
+a matter of fact, Eve's MongoDB data-layer itself extends Cerberus
+validation by implementing the ``unique`` schema field constraint. For more
+information see :ref:`validation`
 
 .. _cache_control:
 
@@ -525,14 +525,14 @@ Customizable Basic Authentication (RFC-2617), Token-based authentication and
 HMAC-based Authentication are supported. You can lockdown the whole API, or
 just some endpoints. You can also restrict CRUD commands, like allowing open
 read-only access while restricting edits, inserts and deletes to authorized
-users. Role-based access control is supported as well. For more informations
+users. Role-based access control is supported as well. For more information
 see :ref:`auth`.
 
 CORS Cross-Origin Resource Sharing
 ----------------------------------
 Disabled by default, CORS_ allows web pages to work with REST APIs, something
 that is usually restricted by most broswers 'same domain' security policy.
-Eve-powered API can be accesed by the JavaScript contained in web pages.
+Eve-powered APIs can be accesed by the JavaScript contained in web pages.
 
 Read-only by default
 --------------------
@@ -549,7 +549,7 @@ Predefined Database Filters
 ---------------------------
 Resource endpoints will only expose (and update) documents that match
 a predefined filter. This allows for multiple resource endpoints to seamlessy
-target the same database collection. A typical use-case would be an
+target the same database collection. A typical use-case would be a
 hypothetical ``people`` collection on the database being used by both the
 ``/admins/`` and ``/users/`` API endpoints.
 
@@ -557,9 +557,9 @@ hypothetical ``people`` collection on the database being used by both the
 
 Projections
 -----------
-This feature allows to create dynamic *views* of collections, or more precisely
+This feature allows you to create dynamic *views* of collections, or more precisely,
 to decide what fields should or should not be returned, using a 'projection'.
-Put in another way, Projections are conditional queries where the client
+Put another way, Projections are conditional queries where the client
 dictates which fields should be returned by the API.
 
 .. code-block:: console
@@ -600,7 +600,7 @@ Manipulating inbound documents
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 There is also support for ``on_insert(resource, documents)`` and
 ``on_insert_<resource>(documents)`` event hooks, raised when documents are
-about to be stored in the database.  Callback functions could hook to these
+about to be stored in the database.  Callback functions could hook into these
 events to arbitrarily add new fields, or edit existing ones.
 
 .. code-block:: pycon
@@ -619,9 +619,9 @@ events to arbitrarily add new fields, or edit existing ones.
 
 ``on_insert`` is raised on every resource being updated, while
 ``on_insert_<resource>`` is raised when the `<resource>` endpoint has been hit
-with a POST request. In both circumstances the event will be raised only if at
+with a POST request. In both circumstances, the event will be raised only if at
 least one document passed validation and is going to be inserted. `documents`
-is a list and  only contains documents ready for insertion (payload documents
+is a list and only contains documents ready for insertion (payload documents
 that did not pass validation are not included).
 
 To provide seamless event handling features, Eve relies on the Events_ package.
@@ -636,8 +636,8 @@ The following events:
 - ``on_fetch_item_<item_title>(_id, document)`` 
   
 are raised when documents have just been read from the database and are about
-to be sent to the client. Registered callback functions can eventually
-manipulate the documents as needed.
+to be sent to the client. Registered callback functions can manipulate the
+documents as needed before they are returned to the client.
 
 .. code-block:: pycon
 
@@ -704,7 +704,7 @@ Powered by Flask
 ----------------
 Eve is based on the Flask_ micro web framework. Actually, Eve itself is
 a Flask subclass, which means that Eve exposes all of Flask functionalities and
-niceties, like a buil-in development server and debugger_, integrated support
+niceties, like a built-in development server and debugger_, integrated support
 for unittesting_ and an `extensive documentation`_.
 
 .. _HATEOAS: http://en.wikipedia.org/wiki/HATEOAS
