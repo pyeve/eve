@@ -8,6 +8,8 @@ Version 0.1.0
 
 Not released yet.
 
+- HTTP method is now passed into ``authenticate()`` and ``check_auth()``.
+  Closes #90 (Ken Carpenter). 
 - HATEOAS is now optional and can be disabled both at global and resource
   level.
 
