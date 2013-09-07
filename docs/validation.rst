@@ -4,15 +4,15 @@ Data Validation
 ===============
 Data validation is provided out-of-the-box. Your configuration includes
 a :ref:`schema` for every resource managed by the API. Data sent to the API
-for insertion or edition will be validated against the schema, and a resource
-will be updated only if validation is passed. 
+to be inserted or updated will be validated against the schema, and a resource
+will be updated only if validation passes.
 
 .. code-block:: console
 
     $ curl -d 'item1={"firstname": "bill", "lastname": "clinton"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://eve-demo.herokuapp.com/people/
     HTTP/1.0 200 OK
 
-The response will contain a success/error state for each item provided with the
+The response will contain a success/error state for each item provided in the
 request:
 
 .. code-block:: javascript
@@ -33,22 +33,22 @@ request:
     }
 
 In the example above, ``item2`` did not validate and was rejected, while
-``item1`` was successfully created. API maintainer has complete control on
+``item1`` was successfully created. The API maintainer has complete control of
 data validation.
 
 Extending Data Validation
 -------------------------
 Data validation is based on the Cerberus_ validation system and it is therefore
-extensible. As a matter of fact, Eve's MongoDB data-layer itself is extending
+extensible. As a matter of fact, Eve's MongoDB data-layer itself extends
 Cerberus validation, implementing the ``unique`` and ``data_relation``
 constraints and the ``ObjectId`` data type on top of the standard rules.
 
 Custom Validation Rules
 ------------------------
-Suppose that in your specific and very peculiar use case a certain value can
+Suppose that in your specific and very peculiar use case, a certain value can
 only be expressed as an odd integer. You decide to add support for a new
-``isodd`` rule to our validation schema. This is how your would go to implement
-that: 
+``isodd`` rule to our validation schema. This is how you would implement
+that:
 
 ::
 
@@ -155,7 +155,7 @@ a payload like this will be accepted:
 .. admonition:: Please note
 
     Use this feature with extreme caution. Also be aware that, when this
-    options is enabled, clients will be capable of actually `adding` fields via
+    option is enabled, clients will be capable of actually `adding` fields via
     PATCH (edit).
 
 .. _Cerberus: http://cerberus.readthedocs.org

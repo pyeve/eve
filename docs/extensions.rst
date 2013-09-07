@@ -14,13 +14,13 @@ Eve-Docs
 Eve-docs_ is a blueprint that generates documentation for Eve APIs in HTML and
 JSON formats. Eve-docs creates the documentation from your existing Eve
 configuration file, with no additional configuration required. For a nice
-screenshot check out the relevant blog post `Auto generate API docs`_.
+screenshot, check out the relevant blog post `Auto generate API docs`_.
 
 Eve-Mocker
 ----------
 *by Thomas Sileo*
 
-`Eve-Mocker`_ is a mocking tool for Eve powered REST API, based on the
+`Eve-Mocker`_ is a mocking tool for Eve powered REST APIs, based on the
 excellent HTTPretty, aimed to be used in your unit tests, when you rely on an
 Eve API. Eve-Mocker has been featured on the Eve blog: `Mocking tool for Eve
 APIs`_
