@@ -65,17 +65,17 @@ these features can be experienced live by consuming the Demo API (see
 <a class="reference internal" href="index.html#demo"><em>Live demo</em></a>).</p>
 <div class="section" id="emphasis-on-rest">
 <h2>Emphasis on REST<a class="headerlink" href="#emphasis-on-rest" title="Permalink to this headline">¶</a></h2>
-<p>The Eve project aims to provide the best possibile REST-compliant API
+<p>The Eve project aims to provide the best possible REST-compliant API
 implementation. Fundamental <a class="reference external" href="http://en.wikipedia.org/wiki/Representational_state_transfer">REST</a> principles like <em>separation of concerns</em>,
 <em>stateless and layered system</em>, <em>cacheability</em>, <em>uniform interface</em> have been
 kept into consideration while designing the core API.</p>
 </div>
 <div class="section" id="full-range-of-crud-operations">
 <h2>Full range of CRUD operations<a class="headerlink" href="#full-range-of-crud-operations" title="Permalink to this headline">¶</a></h2>
-<p>APIs can support the full range of <a class="reference external" href="http://en.wikipedia.org/wiki/Create,_read,_update_and_delete">CRUD</a> operations. Within the same API you
+<p>APIs can support the full range of <a class="reference external" href="http://en.wikipedia.org/wiki/Create,_read,_update_and_delete">CRUD</a> operations. Within the same API, you
 can have a read-only resource accessible at one endpoint, along with a fully
 editable resource at another endpoint. The following table shows Eve&#8217;s
-implementation of CRUD via REST</p>
+implementation of CRUD via REST:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="18%" />
@@ -113,7 +113,7 @@ will gladly honor a POST with the <tt class="docutils literal"><span class="pre"
 </div>
 <div class="section" id="customizable-resource-endpoints">
 <h2>Customizable resource endpoints<a class="headerlink" href="#customizable-resource-endpoints" title="Permalink to this headline">¶</a></h2>
-<p>By default Eve will make known database collections available as resource
+<p>By default, Eve will make known database collections available as resource
 endpoints (persistent identifiers in REST idiom). So a database <tt class="docutils literal"><span class="pre">people</span></tt>
 collection will be avaliable at the <tt class="docutils literal"><span class="pre">example.com/people/</span></tt> API endpoint.  You
 can customize the URIs though, so the API endpoint could become, say,
@@ -185,7 +185,7 @@ need to provide them when adding/editing resources).</p>
 get access to <tt class="docutils literal"><span class="pre">/people/</span></tt>, <tt class="docutils literal"><span class="pre">/people/&lt;ObjectId&gt;/</span></tt> and <tt class="docutils literal"><span class="pre">/people/Doe/</span></tt>,
 but only to <tt class="docutils literal"><span class="pre">/works/</span></tt>.  When you do grant access to item endpoints, you can
 define up to two lookups, both defined with regexes. The first will be the
-primary endpoint and will match your database primary key structure (i.e. an
+primary endpoint and will match your database primary key structure (i.e., an
 <tt class="docutils literal"><span class="pre">ObjectId</span></tt> in a MongoDB database).</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/50acfba938345b0978fccad7/
 <span class="go">HTTP/1.0 200 OK</span>
@@ -282,7 +282,7 @@ consumers can request specific pages via the query string:</p>
 default. Each GET response includes a <tt class="docutils literal"><span class="pre">_links</span></tt> section. Links provide details
 on their <tt class="docutils literal"><span class="pre">relation</span></tt> relative to the resource being accessed, and a <tt class="docutils literal"><span class="pre">title</span></tt>.
 Relations and titles can then be used by clients to dynamically updated their
-UI, or to navigate the API without knowing it structure beforehand. An example:</p>
+UI, or to navigate the API without knowing its structure beforehand. An example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
     <span class="s">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -312,8 +312,8 @@ the API just by following the links provided with every response.</p>
 included when appropriate.</p>
 <div class="section" id="disabling-hateoas">
 <h3>Disabling HATEOAS<a class="headerlink" href="#disabling-hateoas" title="Permalink to this headline">¶</a></h3>
-<p>HATEOAS can be disabled both at API and/or resource level. When HATEOAS is
-disabled response payloads have a different structure. The resource payload is
+<p>HATEOAS can be disabled both at the API and/or resource level. When HATEOAS is
+disabled, response payloads have a different structure. The resource payload is
 a simple list of items:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/
 <span class="go">HTTP/1.0 200 OK</span>
@@ -338,7 +338,7 @@ a simple list of items:</p>
 <span class="p">]</span>
 </pre></div>
 </div>
-<p>As you can see the <tt class="docutils literal"><span class="pre">_links</span></tt> element is also missing from list items. The
+<p>As you can see, the <tt class="docutils literal"><span class="pre">_links</span></tt> element is also missing from list items. The
 same happens to individual item payloads:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/50acfba938345b0978fccad7/
 <span class="go">HTTP/1.0 200 OK</span>
@@ -363,7 +363,7 @@ both bandwidth and performance. Also, some REST client libraries out there
 might have issues when parsing something other than a simple list of items.</p>
 <div class="admonition-please-note admonition">
 <p class="first admonition-title">Please note</p>
-<p class="last">When HATEOAS is disabled the API entry point (the home page) will return
+<p class="last">When HATEOAS is disabled, the API entry point (the home page) will return
 a <tt class="docutils literal"><span class="pre">404</span> <span class="pre">Not</span> <span class="pre">Found</span></tt>, since its only usefulness would be to return a list of
 available resources, which is the standard behavior when HATEOAS is
 enabled.</p>
@@ -408,7 +408,7 @@ conditional requests, only retrieving new or modified data, by using the
 <div class="section" id="data-integrity-and-concurrency-control">
 <h2>Data Integrity and Concurrency Control<a class="headerlink" href="#data-integrity-and-concurrency-control" title="Permalink to this headline">¶</a></h2>
 <p>API responses include a <tt class="docutils literal"><span class="pre">ETag</span></tt> header which also allows for proper
-concurrency control. An <tt class="docutils literal"><span class="pre">ETag</span></tt> is an hash value representing the current
+concurrency control. An <tt class="docutils literal"><span class="pre">ETag</span></tt> is a hash value representing the current
 state of the resource on the server. Consumers are not allowed to edit or
 delete a resource unless they provide an up-to-date <tt class="docutils literal"><span class="pre">ETag</span></tt> for the resource
 they are attempting to edit. This prevents overwriting items with obsolete
@@ -418,15 +418,15 @@ versions.</p>
 <span class="go">HTTP/1.0 403 FORBIDDEN</span>
 </pre></div>
 </div>
-<p>We attempted an edit, but we did not provide an ETag for the item, so we got
+<p>We attempted an edit, but we did not provide an <tt class="docutils literal"><span class="pre">ETag</span></tt> for the item, so we got
 a not-so-nice <tt class="docutils literal"><span class="pre">403</span> <span class="pre">FORBIDDEN</span></tt>. Let&#8217;s try again:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-Match: 1234567890123456789012345678901234567890&quot;</span> -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37/ -d <span class="s1">&#39;data={&quot;firstname&quot;: &quot;ronald&quot;}&#39;</span>
 <span class="go">HTTP/1.0 412 PRECONDITION FAILED</span>
 </pre></div>
 </div>
 <p>What went wrong this time? We provided the mandatory <tt class="docutils literal"><span class="pre">If-Match</span></tt> header, but
-it&#8217;s value did not match the ETag computed on the representation of the item
-currently stored on the server, so we got a <tt class="docutils literal"><span class="pre">402</span> <span class="pre">PRECONDITION</span> <span class="pre">FAILED</span></tt>. Again!</p>
+it&#8217;s value did not match the <tt class="docutils literal"><span class="pre">ETag</span></tt> computed on the representation of the item
+currently stored on the server, so we got a <tt class="docutils literal"><span class="pre">402</span> <span class="pre">PRECONDITION</span> <span class="pre">FAILED</span></tt> again!</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012&quot;</span> -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37/ -d <span class="s1">&#39;data={&quot;firstname&quot;: &quot;ronald&quot;}&#39;</span>
 <span class="go">HTTP/1.0 200 OK</span>
 </pre></div>
@@ -443,7 +443,7 @@ currently stored on the server, so we got a <tt class="docutils literal"><span c
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>This time we got our patch in, and the server returned the new ETag.  We also
+<p>This time we got our patch in, and the server returned the new <tt class="docutils literal"><span class="pre">ETag</span></tt>.  We also
 get the new <tt class="docutils literal"><span class="pre">updated</span></tt> value, which eventually will allow us to perform
 subsequent <a class="reference internal" href="#id1">conditional requests</a>.</p>
 </div>
@@ -481,13 +481,13 @@ data stream.</p>
 <h2>Data Validation<a class="headerlink" href="#data-validation" title="Permalink to this headline">¶</a></h2>
 <p>Data validation is provided out-of-the-box. Your configuration includes
 a schema definition for every resource managed by the API. Data sent to the API
-for insertion or edition will be validated against the schema, and a resource
-will be updated only if validation is passed.</p>
+to be inserted/updated will be validated against the schema, and a resource
+will only be updated if validation passes.</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;item1={&quot;firstname&quot;: &quot;bill&quot;, &quot;lastname&quot;: &quot;clinton&quot;}&#39;</span> -d <span class="s1">&#39;item2={&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}&#39;</span> http://eve-demo.herokuapp.com/people/
 <span class="go">HTTP/1.0 200 OK</span>
 </pre></div>
 </div>
-<p>The response will contain a success/error state for each item provided with the
+<p>The response will contain a success/error state for each item provided in the
 request:</p>
 <div class="highlight-javascript"><div class="highlight"><pre>  <span class="p">{</span>
     <span class="s2">&quot;item2&quot;</span><span class="o">:</span> <span class="p">{</span>
@@ -506,21 +506,21 @@ request:</p>
 </pre></div>
 </div>
 <p>In the example above, <tt class="docutils literal"><span class="pre">item2</span></tt> did not validate and was rejected, while
-<tt class="docutils literal"><span class="pre">item1</span></tt> was successfully created. API maintainer has complete control on
+<tt class="docutils literal"><span class="pre">item1</span></tt> was successfully created. The API maintainer has complete control on
 data validation. Optionally, you can decide to allow for unknown fields to be
-added/updated on one or more endpoints. For more informations see
+inserted/updated on one or more endpoints. For more information see
 <a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a>.</p>
 </div>
 <div class="section" id="extensible-data-validation">
 <h2>Extensible Data Validation<a class="headerlink" href="#extensible-data-validation" title="Permalink to this headline">¶</a></h2>
 <p>Data validation is based on the <a class="reference external" href="https://github.com/nicolaiarocci/cerberus">Cerberus</a> validation system and therefore it is
-extensible so you can adapt it to your specific use case. Say that your API can
-only accept odd numbers for a certain field value: you can extend the
+extensible, so you can adapt it to your specific use case. Say that your API can
+only accept odd numbers for a certain field value; you can extend the
 validation class to validate that. Or say you want to make sure that a VAT
-field actually matches your own country VAT algorithm: you can do that too. As
-a matter of fact, Eve&#8217;s MongoDB data-layer itself is extending Cerberus
-validation implementing the <tt class="docutils literal"><span class="pre">unique</span></tt> schema field constraint. For more
-informations see <a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a></p>
+field actually matches your own country VAT algorithm; you can do that too. As
+a matter of fact, Eve&#8217;s MongoDB data-layer itself extends Cerberus
+validation by implementing the <tt class="docutils literal"><span class="pre">unique</span></tt> schema field constraint. For more
+information see <a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a></p>
 </div>
 <div class="section" id="resource-level-cache-control">
 <span id="cache-control"></span><h2>Resource-level Cache Control<a class="headerlink" href="#resource-level-cache-control" title="Permalink to this headline">¶</a></h2>
@@ -554,14 +554,14 @@ between versions: caching, URIs, schemas, validation, and so on. URI versioning
 HMAC-based Authentication are supported. You can lockdown the whole API, or
 just some endpoints. You can also restrict CRUD commands, like allowing open
 read-only access while restricting edits, inserts and deletes to authorized
-users. Role-based access control is supported as well. For more informations
+users. Role-based access control is supported as well. For more information
 see <a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a>.</p>
 </div>
 <div class="section" id="cors-cross-origin-resource-sharing">
 <h2>CORS Cross-Origin Resource Sharing<a class="headerlink" href="#cors-cross-origin-resource-sharing" title="Permalink to this headline">¶</a></h2>
 <p>Disabled by default, <a class="reference external" href="http://en.wikipedia.org/wiki/Cross-origin_resource_sharing">CORS</a> allows web pages to work with REST APIs, something
 that is usually restricted by most broswers &#8216;same domain&#8217; security policy.
-Eve-powered API can be accesed by the JavaScript contained in web pages.</p>
+Eve-powered APIs can be accesed by the JavaScript contained in web pages.</p>
 </div>
 <div class="section" id="read-only-by-default">
 <h2>Read-only by default<a class="headerlink" href="#read-only-by-default" title="Permalink to this headline">¶</a></h2>
@@ -578,15 +578,15 @@ values.</p>
 <h2>Predefined Database Filters<a class="headerlink" href="#predefined-database-filters" title="Permalink to this headline">¶</a></h2>
 <p>Resource endpoints will only expose (and update) documents that match
 a predefined filter. This allows for multiple resource endpoints to seamlessy
-target the same database collection. A typical use-case would be an
+target the same database collection. A typical use-case would be a
 hypothetical <tt class="docutils literal"><span class="pre">people</span></tt> collection on the database being used by both the
 <tt class="docutils literal"><span class="pre">/admins/</span></tt> and <tt class="docutils literal"><span class="pre">/users/</span></tt> API endpoints.</p>
 </div>
 <div class="section" id="projections">
 <span id="id2"></span><h2>Projections<a class="headerlink" href="#projections" title="Permalink to this headline">¶</a></h2>
-<p>This feature allows to create dynamic <em>views</em> of collections, or more precisely
+<p>This feature allows you to create dynamic <em>views</em> of collections, or more precisely,
 to decide what fields should or should not be returned, using a &#8216;projection&#8217;.
-Put in another way, Projections are conditional queries where the client
+Put another way, Projections are conditional queries where the client
 dictates which fields should be returned by the API.</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/?projection<span class="o">={</span><span class="s2">&quot;lastname&quot;</span>: 1, <span class="s2">&quot;born&quot;</span>: 1<span class="o">}</span>
 <span class="go">HTTP/1.0 200 OK</span>
@@ -621,7 +621,7 @@ payload as arguments.</p>
 <h3>Manipulating inbound documents<a class="headerlink" href="#manipulating-inbound-documents" title="Permalink to this headline">¶</a></h3>
 <p>There is also support for <tt class="docutils literal"><span class="pre">on_insert(resource,</span> <span class="pre">documents)</span></tt> and
 <tt class="docutils literal"><span class="pre">on_insert_&lt;resource&gt;(documents)</span></tt> event hooks, raised when documents are
-about to be stored in the database.  Callback functions could hook to these
+about to be stored in the database.  Callback functions could hook into these
 events to arbitrarily add new fields, or edit existing ones.</p>
 <div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_insert</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">documents</span><span class="p">):</span>
 <span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to store documents to &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource</span>
@@ -638,9 +638,9 @@ events to arbitrarily add new fields, or edit existing ones.</p>
 </div>
 <p><tt class="docutils literal"><span class="pre">on_insert</span></tt> is raised on every resource being updated, while
 <tt class="docutils literal"><span class="pre">on_insert_&lt;resource&gt;</span></tt> is raised when the <cite>&lt;resource&gt;</cite> endpoint has been hit
-with a POST request. In both circumstances the event will be raised only if at
+with a POST request. In both circumstances, the event will be raised only if at
 least one document passed validation and is going to be inserted. <cite>documents</cite>
-is a list and  only contains documents ready for insertion (payload documents
+is a list and only contains documents ready for insertion (payload documents
 that did not pass validation are not included).</p>
 <p>To provide seamless event handling features, Eve relies on the <a class="reference external" href="https://github.com/nicolaiarocci/events">Events</a> package.</p>
 </div>
@@ -654,8 +654,8 @@ that did not pass validation are not included).</p>
 <li><tt class="docutils literal"><span class="pre">on_fetch_item_&lt;item_title&gt;(_id,</span> <span class="pre">document)</span></tt></li>
 </ul>
 <p>are raised when documents have just been read from the database and are about
-to be sent to the client. Registered callback functions can eventually
-manipulate the documents as needed.</p>
+to be sent to the client. Registered callback functions can manipulate the
+documents as needed before they are returned to the client.</p>
 <div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_items</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">documents</span><span class="p">):</span>
 <span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return items from &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource</span>
 
@@ -715,7 +715,7 @@ ongoing, maybe you can lend a hand?)</p>
 <h2>Powered by Flask<a class="headerlink" href="#powered-by-flask" title="Permalink to this headline">¶</a></h2>
 <p>Eve is based on the <a class="reference external" href="http://flask.pocoo.org">Flask</a> micro web framework. Actually, Eve itself is
 a Flask subclass, which means that Eve exposes all of Flask functionalities and
-niceties, like a buil-in development server and <a class="reference external" href="http://flask.pocoo.org/docs/quickstart/#debug-mode">debugger</a>, integrated support
+niceties, like a built-in development server and <a class="reference external" href="http://flask.pocoo.org/docs/quickstart/#debug-mode">debugger</a>, integrated support
 for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">unittesting</a> and an <a class="reference external" href="http://flask.pocoo.org/docs/">extensive documentation</a>.</p>
 </div>
 </div>

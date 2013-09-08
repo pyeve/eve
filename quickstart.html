@@ -113,7 +113,7 @@ payload:</p>
 </pre></div>
 </div>
 <p>API entry points adhere to the <a class="reference internal" href="features.html#hateoas-feature"><em>HATEOAS</em></a> principle and provide
-informations about the resources accessible through the API. In our case
+information about the resources accessible through the API. In our case
 there&#8217;s only one child resource available, that being <cite>people</cite>.</p>
 <p>Try requesting <cite>people</cite> now:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl http://127.0.0.1:5000/people/
@@ -141,7 +141,7 @@ page) and to the resource itself.</p>
 </div>
 <p>Since we didn&#8217;t provide any database detail in <cite>settings.py</cite>, Eve has no clue
 about the real content of the <cite>people</cite> collection (it might even be
-non-existant) and seamlessly serves an empty resource, as we don&#8217;t want to let
+non-existent) and seamlessly serves an empty resource, as we don&#8217;t want to let
 API users down.</p>
 </div>
 <div class="section" id="database-interlude">
@@ -185,7 +185,7 @@ while <tt class="docutils literal"><span class="pre">ITEM_METHODS</span></tt> li
 (<tt class="docutils literal"><span class="pre">/people/&lt;ObjectId&gt;/</span></tt>). Both settings have a global scope and will apply to
 all endpoints.  You can then enable or disable HTTP methods at individual
 endpoint level, as we will soon see.</p>
-<p>Since we are enabling edition we also want to enable proper data validation.
+<p>Since we are enabling editing we also want to enable proper data validation.
 Let&#8217;s define a schema for our <cite>people</cite> resource.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">schema</span> <span class="o">=</span> <span class="p">{</span>
     <span class="c"># Schema definition, based on Cerberus grammar. Check the Cerberus project</span>
@@ -223,7 +223,7 @@ Let&#8217;s define a schema for our <cite>people</cite> resource.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>For more informations on validation see <a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a>.</p>
+<p>For more information on validation see <a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a>.</p>
 <p>Now let&#8217;s say that we want to further customize the <cite>people</cite> endpoint. We want
 to:</p>
 <ul class="simple">

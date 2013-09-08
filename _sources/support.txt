@@ -2,7 +2,7 @@
 
 Support
 =======
-If you have a questions or issues about Eve, there are several options:
+If you have any questions or issues about Eve, there are several options:
 
 Mailing List
 ------------

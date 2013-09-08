@@ -67,9 +67,9 @@ should not be using it.</p>
 <h2>Philosophy<a class="headerlink" href="#philosophy" title="Permalink to this headline">¶</a></h2>
 <p>You have data stored somewhere and you want to expose it to your users
 through a RESTful Web API. Eve is the tool that allows you to do so.</p>
-<p>The idea is that a robust, feature rich, REST-centered API implementation is
-provided by Eve, and you just need to configure API interface and behaviour,
-plug in your datasource, and you&#8217;re good to go. See <a class="reference internal" href="features.html"><em>Features</em></a> for a list
+<p>Eve provides a robust, feature rich, REST-centered API implementation,
+and you just need to configure your API settings and behaviour, plug in your
+datasource, and you&#8217;re good to go. See <a class="reference internal" href="features.html"><em>Features</em></a> for a list
 of features available to Eve-powered APIs.</p>
 <p>API settings are stored in a standard Python module (defaults to
 <tt class="docutils literal"><span class="pre">settings.py</span></tt>), which makes customization quite a trivial task. It is also
@@ -80,28 +80,28 @@ Data Access, by providing the Eve engine with custom objects.</p>
 <h2>A little context<a class="headerlink" href="#a-little-context" title="Permalink to this headline">¶</a></h2>
 <p>At <a class="reference external" href="http://gestionaleamica.com">Gestionale Amica</a> we had been working hard on
 a full featured, Python powered, RESTful Web API. We learned quite a few things
-on REST best patterns, and we got a chance to put Python&#8217;s renowned web
-capabilities under review. Then, at EuroPython 2012, I got a chance to share
-what we learned and my talk sparked quite a bit of interest there. A few months
-have passed and still the slides are receiving a lot of hits each day, and
-I keep receiving emails about source code samples and whatnot. After all,
+on REST best patterns, and we had a chance to put Python&#8217;s renowned web
+capabilities to the test. Then, at EuroPython 2012, I had the opportunity to share
+what we learned.  My talk sparked quite a bit of interest, and even after a few
+months had passed, the slides were still receiving a lot of hits every day.
+I kept receiving emails asking for source code examples and whatnot. After all,
 a REST API lies in the future of every web-oriented developer, and who isn&#8217;t
-these days?</p>
+one these days?</p>
 <p>So, I thought, perhaps I could take the proprietary, closed code (codenamed
 &#8216;Adam&#8217;) and refactor it &#8220;just a little bit&#8221;, so that it could fit a much wider
 number of use cases. I could then release it as an open source project. Well
 it turned out to be slightly more complex than that but finally here it is, and
 of course it&#8217;s called Eve.</p>
-<p>It still got a long way to go before it becomes the fully featured open source,
-out-of-the-box API solution I came to envision (see the Roadmap below), but
-I feel that at this point the codebase is ready enough for a public preview.
+<p>It still has a long way to go before it becomes the fully featured open source,
+out-of-the-box API solution I envision (see the Roadmap below), but
+I feel that at this point the codebase is ready for a public preview.
 This will hopefully allow for some constructive feedback and maybe, for some
 contributors to join the ranks.</p>
 </div>
 <div class="section" id="rest-flask-and-mongodb">
 <h2>REST, Flask and MongoDB<a class="headerlink" href="#rest-flask-and-mongodb" title="Permalink to this headline">¶</a></h2>
-<p>The slides of my EuroPython talk, <em>Developing RESTful Web APIs with Flask and
-MongoDB</em>, are <a class="reference external" href="https://speakerdeck.com/u/nicola/p/developing-restful-web-apis-with-python-flask-and-mongodb">available online</a>. You might want to check them to understand
+<p>The slides from my EuroPython talk, <em>Developing RESTful Web APIs with Flask and
+MongoDB</em>, are <a class="reference external" href="https://speakerdeck.com/u/nicola/p/developing-restful-web-apis-with-python-flask-and-mongodb">available online</a>. You might want to check them out to understand
 why and how certain design decisions were made, especially with regards to REST
 implementation.</p>
 </div>

@@ -64,13 +64,13 @@
 <h1>RESTful Account Management<a class="headerlink" href="#restful-account-management" title="Permalink to this headline">¶</a></h1>
 <div class="admonition-please-note admonition">
 <p class="first admonition-title">Please note</p>
-<p class="last">This tutorial assumes that the <a class="reference internal" href="../quickstart.html#quickstart"><em>Quickstart</em></a> and the <a class="reference internal" href="../authentication.html#auth"><em>Authentication</em></a> guides
-have been read already.</p>
+<p class="last">This tutorial assumes that you&#8217;ve read the <a class="reference internal" href="../quickstart.html#quickstart"><em>Quickstart</em></a> and the
+<a class="reference internal" href="../authentication.html#auth"><em>Authentication</em></a> guides.</p>
 </div>
-<p>Except the relatively rare occurence of open (and generally read-only) public
+<p>Except for the relatively rare occurence of open (and generally read-only) public
 APIs, most services are only accessible to authenticated users.  A common
 pattern is that users create their account on a website or with a mobile
-application.  Once they have an account they are allowed to consume one or more
+application.  Once they have an account, they are allowed to consume one or more
 APIs. This is the model followed by most social networks and service providers
 (Twitter, Facebook, Netflix, etc.) So how do you, the service provider, manage
 to create, edit and delete accounts while using the same API that is being
@@ -135,14 +135,14 @@ resource schema first.</p>
 </pre></div>
 </div>
 <p>We defined an additional read-only entry point at <tt class="docutils literal"><span class="pre">/accounts/&lt;username&gt;/</span></tt>.
-This isn&#8217;t a necessity really, but it can come in handy to easily verify if
+This isn&#8217;t really a necessity, but it can come in handy to easily verify if
 a username has been taken already, or to retrieve an account without knowing
-its <tt class="docutils literal"><span class="pre">ObjectId</span></tt> beforehand. Of course, both informations can also be achieved
-by querying the resource endpoint (<tt class="docutils literal"><span class="pre">/accounts/?where={&quot;username&quot;:</span>
+its <tt class="docutils literal"><span class="pre">ObjectId</span></tt> beforehand. Of course, both pieces of information can also be
+found by querying the resource endpoint (<tt class="docutils literal"><span class="pre">/accounts/?where={&quot;username&quot;:</span>
 <span class="pre">&quot;johndoe&quot;}</span></tt>), but then we would need to parse the response payload, whereas by
 hitting our new endpoint with a GET request we will obtain the bare account
 data, or a <tt class="docutils literal"><span class="pre">404</span> <span class="pre">Not</span> <span class="pre">Found</span></tt> if the account does not exist.</p>
-<p>Once the endpoint has been configured we need to add it to the API domain:</p>
+<p>Once the endpoint has been configured, we need to add it to the API domain:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">DOMAIN</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">accounts</span>
 </pre></div>
 </div>
@@ -151,7 +151,7 @@ data, or a <tt class="docutils literal"><span class="pre">404</span> <span class
 <h3>2. Securing the <tt class="docutils literal"><span class="pre">/accounts/</span></tt> endpoint<a class="headerlink" href="#securing-the-accounts-endpoint" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="a-hard-coding-our-way-in">
 <h4>2a. Hard-coding our way in<a class="headerlink" href="#a-hard-coding-our-way-in" title="Permalink to this headline">¶</a></h4>
-<p>Securing the endpoint can be achieved by allowing only well known <cite>superusers</cite>
+<p>Securing the endpoint can be achieved by allowing only well-known <cite>superusers</cite>
 to operate on it. Our authentication class, which is defined in the launch
 script, can be hard-coded to handle the case:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">bcrypt</span>
@@ -160,7 +160,7 @@ script, can be hard-coded to handle the case:</p>
 
 
 <span class="k">class</span> <span class="nc">BCryptAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">resource</span> <span class="o">=</span> <span class="s">&#39;accounts&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">username</span> <span class="o">==</span> <span class="s">&#39;superuser&#39;</span> <span class="ow">and</span> <span class="n">password</span> <span class="o">=</span> <span class="s">&#39;password&#39;</span>
         <span class="k">else</span><span class="p">:</span>
@@ -191,7 +191,7 @@ example.</p>
 hardly the best approach that we can take here. What if another <cite>superurser</cite>
 account needs access to the endpoint? Updating the script each time
 a privileged user joins the ranks does not seem appropriate (it isn&#8217;t).
-Fortunately the <a class="reference internal" href="../authentication.html#roleaccess"><em>Role Based Access Control</em></a> feature can help us here. You see where we
+Fortunately, the <a class="reference internal" href="../authentication.html#roleaccess"><em>Role Based Access Control</em></a> feature can help us here. You see where we
 are going with this: the idea is that only accounts with <cite>superuser</cite> and
 <cite>admin</cite> roles will be granted access to the endpoint.</p>
 <p>Let&#8217;s start by updating our resource schema.</p>
@@ -245,7 +245,7 @@ only so let&#8217;s update the endpoint definition accordingly.</p>
 
 
 <span class="k">class</span> <span class="nc">RolesAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
         <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
         <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
         <span class="n">lookup</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">}</span>
@@ -261,9 +261,9 @@ only so let&#8217;s update the endpoint definition accordingly.</p>
     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>What the above snippet does is securing all API endpoints with role-base access
+<p>What the above snippet does is secure all API endpoints with role-base access
 control. It is, in fact, the same snippet seen in <a class="reference internal" href="../authentication.html#roleaccess"><em>Role Based Access Control</em></a>. This
-tecnique allows us to keep the code untouched as we add more <cite>superuser</cite> or
+technique allows us to keep the code untouched as we add more <cite>superuser</cite> or
 <cite>admin</cite> accounts (and we&#8217;ll probably be adding them by accessing our very own
 API). Also, should the need arise, we could easily restrict access to more
 endpoints just by updating the settings file, again without touching the
@@ -277,7 +277,7 @@ control approaches above effectively secure all API endpoints already.  Passing
 an authentication class to the <tt class="docutils literal"><span class="pre">Eve</span></tt> object enables authentication for the
 whole API: every time an endpoint is hit with a request, the class instance is
 invoked.</p>
-<p>Of course you can still fine-tune security, for example by allowing public
+<p>Of course, you can still fine-tune security, for example by allowing public
 access to certain endpoints, or to certain HTTP methods. See <a class="reference internal" href="../authentication.html#auth"><em>Authentication</em></a> for
 more details.</p>
 </div>
@@ -308,7 +308,7 @@ value:</p>
 
 
  <span class="k">class</span> <span class="nc">RolesAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
-     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
          <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
          <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
          <span class="n">lookup</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">}</span>
@@ -331,7 +331,7 @@ value:</p>
 endpoint with a GET request, he will only be served with the invoices created
 by his own account. The same will happen with DELETE and PATCH, making it
 impossible for an authenticated user to accidentally retrieve, edit or delete
-other people data.</p>
+other people&#8217;s data.</p>
 </div>
 </div>
 <div class="section" id="accounts-with-token-authentication">
@@ -410,14 +410,14 @@ user roles.</p>
  <span class="p">}</span>
 </pre></div>
 </div>
-<p>And finally here is our launch script which is of course using a <tt class="docutils literal"><span class="pre">TokenAuth</span></tt>
+<p>And finally, here is our launch script which is, of course, using a <tt class="docutils literal"><span class="pre">TokenAuth</span></tt>
 subclass this time around:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
 <span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">TokenAuth</span>
 
 
 <span class="k">class</span> <span class="nc">RolesAuth</span><span class="p">(</span><span class="n">TokenAuth</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span>  <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span>  <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
         <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
         <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
         <span class="n">lookup</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;token&#39;</span><span class="p">:</span> <span class="n">token</span><span class="p">}</span>
@@ -437,7 +437,7 @@ subclass this time around:</p>
 <div class="section" id="building-custom-tokens-on-account-creation">
 <h3>3. Building custom tokens on account creation<a class="headerlink" href="#building-custom-tokens-on-account-creation" title="Permalink to this headline">¶</a></h3>
 <p>The code above has a problem: it won&#8217;t authenticate anybody, as we aren&#8217;t
-generating any token yet. Consequently clients aren&#8217;t getting their auth tokens
+generating any token yet. Consequently, clients aren&#8217;t getting their auth tokens
 back so they don&#8217;t really know how to authenticate. Let&#8217;s fix that by using the
 awesome <a class="reference internal" href="../features.html#eventhooks"><em>Event Hooks</em></a> feature.  We&#8217;ll update our launch script by
 registering a callback function that will be called when a new account is about
@@ -449,7 +449,7 @@ to be stored to the database.</p>
 </span>
 
  <span class="k">class</span> <span class="nc">RolesAuth</span><span class="p">(</span><span class="n">TokenAuth</span><span class="p">):</span>
-     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span>  <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span>  <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
          <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
          <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
          <span class="n">lookup</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;token&#39;</span><span class="p">:</span> <span class="n">token</span><span class="p">}</span>
@@ -474,7 +474,7 @@ to be stored to the database.</p>
 </span>     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>As you can see we are subscribing to the <cite>on_posting</cite> event of the <cite>accounts</cite>
+<p>As you can see, we are subscribing to the <cite>on_posting</cite> event of the <cite>accounts</cite>
 endpoint with our <tt class="docutils literal"><span class="pre">add_token</span></tt> function. This callback will receive
 <cite>documents</cite> as an argument, which is a list of validated documents accepted for
 database insertion. We simply add (or replace in the unlikely case that the
@@ -488,9 +488,9 @@ information out-of-band, with an email for example. However we&#8217;re assuming
 we are on SSL, and there are cases where sending the auth token just makes
 sense, like when the client is a mobile application and we want the user to use
 the service right away.</p>
-<p>Normally only automatically handled fields (<tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>, <tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt>,
+<p>Normally, only automatically handled fields (<tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>, <tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt>,
 <tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt>, <tt class="docutils literal"><span class="pre">etag</span></tt>) are included with POST response payloads.
-Fortunately there&#8217;s a setting which allows  us to inject additional fields in
+Fortunately, there&#8217;s a setting which allows us to inject additional fields in
 responses, and that is <tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt>, with its endpoint-level
 equivalent, <tt class="docutils literal"><span class="pre">extra_response_fields</span></tt>. All we need to do is update our endpoint
 definition accordingly:</p>

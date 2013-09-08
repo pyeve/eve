@@ -62,13 +62,13 @@
 <span id="validation"></span><h1>Data Validation<a class="headerlink" href="#data-validation" title="Permalink to this headline">¶</a></h1>
 <p>Data validation is provided out-of-the-box. Your configuration includes
 a <a class="reference internal" href="config.html#schema"><em>Schema Definition</em></a> for every resource managed by the API. Data sent to the API
-for insertion or edition will be validated against the schema, and a resource
-will be updated only if validation is passed.</p>
+to be inserted or updated will be validated against the schema, and a resource
+will be updated only if validation passes.</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;item1={&quot;firstname&quot;: &quot;bill&quot;, &quot;lastname&quot;: &quot;clinton&quot;}&#39;</span> -d <span class="s1">&#39;item2={&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}&#39;</span> http://eve-demo.herokuapp.com/people/
 <span class="go">HTTP/1.0 200 OK</span>
 </pre></div>
 </div>
-<p>The response will contain a success/error state for each item provided with the
+<p>The response will contain a success/error state for each item provided in the
 request:</p>
 <div class="highlight-javascript"><div class="highlight"><pre>  <span class="p">{</span>
     <span class="s2">&quot;item2&quot;</span><span class="o">:</span> <span class="p">{</span>
@@ -87,20 +87,20 @@ request:</p>
 </pre></div>
 </div>
 <p>In the example above, <tt class="docutils literal"><span class="pre">item2</span></tt> did not validate and was rejected, while
-<tt class="docutils literal"><span class="pre">item1</span></tt> was successfully created. API maintainer has complete control on
+<tt class="docutils literal"><span class="pre">item1</span></tt> was successfully created. The API maintainer has complete control of
 data validation.</p>
 <div class="section" id="extending-data-validation">
 <h2>Extending Data Validation<a class="headerlink" href="#extending-data-validation" title="Permalink to this headline">¶</a></h2>
 <p>Data validation is based on the <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> validation system and it is therefore
-extensible. As a matter of fact, Eve&#8217;s MongoDB data-layer itself is extending
+extensible. As a matter of fact, Eve&#8217;s MongoDB data-layer itself extends
 Cerberus validation, implementing the <tt class="docutils literal"><span class="pre">unique</span></tt> and <tt class="docutils literal"><span class="pre">data_relation</span></tt>
 constraints and the <tt class="docutils literal"><span class="pre">ObjectId</span></tt> data type on top of the standard rules.</p>
 </div>
 <div class="section" id="custom-validation-rules">
 <h2>Custom Validation Rules<a class="headerlink" href="#custom-validation-rules" title="Permalink to this headline">¶</a></h2>
-<p>Suppose that in your specific and very peculiar use case a certain value can
+<p>Suppose that in your specific and very peculiar use case, a certain value can
 only be expressed as an odd integer. You decide to add support for a new
-<tt class="docutils literal"><span class="pre">isodd</span></tt> rule to our validation schema. This is how your would go to implement
+<tt class="docutils literal"><span class="pre">isodd</span></tt> rule to our validation schema. This is how you would implement
 that:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve.io.mongo</span> <span class="kn">import</span> <span class="n">Validator</span>
 
@@ -193,7 +193,7 @@ a payload like this will be accepted:</p>
 <div class="admonition-please-note admonition">
 <p class="first admonition-title">Please note</p>
 <p class="last">Use this feature with extreme caution. Also be aware that, when this
-options is enabled, clients will be capable of actually <cite>adding</cite> fields via
+option is enabled, clients will be capable of actually <cite>adding</cite> fields via
 PATCH (edit).</p>
 </div>
 </div>

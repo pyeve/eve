@@ -61,9 +61,11 @@
   <div class="section" id="authentication">
 <span id="auth"></span><h1>Authentication<a class="headerlink" href="#authentication" title="Permalink to this headline">¶</a></h1>
 <p>You can restrict access to all API endpoints, or only some of them. You can
-protect some HTTP verbs while leaving others open. For example, you could allow
+protect some HTTP verbs while leaving others open. For example, you can allow
 public read-only access while leaving item creation and edition restricted to
-authorized users only. There is also support for role-based access control</p>
+authorized users only. You can also allow &#8216;GET&#8217; access for certain requests and
+&#8216;POST&#8217; access for others by checking the method parameter. There is also
+support for role-based access control.</p>
 <p>Authentication is one of those areas where customization is very important.
 This is why you are provided with a handful of base authorization classes. They
 should be subclassed in order to implement custom logic. As you will see in the
@@ -73,14 +75,15 @@ instantiate the Eve app, you pass your custom class, like this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">BasicAuth</span>
 
 <span class="k">class</span> <span class="nc">MyBasicAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span>
+                   <span class="n">method</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">username</span> <span class="o">==</span> <span class="s">&#39;admin&#39;</span> <span class="ow">and</span> <span class="n">password</span> <span class="o">==</span> <span class="s">&#39;secret&#39;</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">MyBasicAuth</span><span class="p">)</span>
 <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>All your API endpoints are now secured which means that a client will need
+<p>All your API endpoints are now secured, which means that a client will need
 to provide the correct credentials in order to consume the API:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://example.com/
 <span class="go">HTTP/1.0 401 UNAUTHORIZED</span>
@@ -112,7 +115,7 @@ your <cite>settings.py</cite>:</p>
 <span class="n">PUBLIC_ITEM_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>And run your API. POST, PATCH and DELETE are still restricted while GET is
+<p>And run your API. POST, PATCH and DELETE are still restricted, while GET is
 publicly available at all API endpoints. <tt class="docutils literal"><span class="pre">PUBLIC_METHODS</span></tt> refers to resource
 endpoints, like <tt class="docutils literal"><span class="pre">/people/</span></tt>, while <tt class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></tt> refers to individual
 items like <tt class="docutils literal"><span class="pre">/people/id/</span></tt>.</p>
@@ -131,7 +134,7 @@ API <a class="reference internal" href="config.html#domain"><em>domain</em></a>:
 </pre></div>
 </div>
 <p>Be aware that, when present, <a class="reference internal" href="config.html#local"><em>resource settings</em></a> override global
-settings. You can use this at your advantage. Suppose that you want to grant
+settings. You can use this to your advantage. Suppose that you want to grant
 read access to all endpoints with the only exception of <tt class="docutils literal"><span class="pre">/invoices/</span></tt>.  You
 first open read access for all endpoints:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">PUBLIC_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">]</span>
@@ -156,9 +159,9 @@ Authentication (RFC2617). It should be subclassed in order to implement custom
 authentication.</p>
 <div class="section" id="basic-authentication-with-bcrypt">
 <h3>Basic Authentication with bcrypt<a class="headerlink" href="#basic-authentication-with-bcrypt" title="Permalink to this headline">¶</a></h3>
-<p>Encoding password with <a class="reference external" href="http://en.wikipedia.org/wiki/Bcrypt">bcrypt</a> is a great idea. It comes at the cost of
+<p>Encoding passwords with <a class="reference external" href="http://en.wikipedia.org/wiki/Bcrypt">bcrypt</a> is a great idea. It comes at the cost of
 performance, but that&#8217;s precisely the point, as slow encoding means very good
-resistance to brute-force attacks. For a faster (and less safe) alternative see
+resistance to brute-force attacks. For a faster (and less safe) alternative, see
 the SHA1/MAC snippet further below.</p>
 <p>This script assumes that user accounts are stored in an <cite>accounts</cite> MongoDB
 collection, and that passwords are stored as bcrypt hashes. All API
@@ -187,7 +190,7 @@ resources/methods will be secured unless they are made explicitly public.</p>
 
 
 <span class="k">class</span> <span class="nc">BCryptAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
         <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
         <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
         <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">})</span>
@@ -227,7 +230,7 @@ resources/methods will be secured unless they are made explicitly public.</p>
 
 
 <span class="k">class</span> <span class="nc">Sha1Auth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
         <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
         <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
         <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">})</span>
@@ -244,7 +247,7 @@ resources/methods will be secured unless they are made explicitly public.</p>
 </div>
 <div class="section" id="token-based-authentication">
 <span id="token"></span><h2>Token-Based Authentication<a class="headerlink" href="#token-based-authentication" title="Permalink to this headline">¶</a></h2>
-<p>Token based authentication can be considered a specialized version of Basic
+<p>Token-based authentication can be considered a specialized version of Basic
 Authentication. The Authorization header tag will contain the auth token as the
 username, and no password.</p>
 <p>This script assumes that user accounts are stored in an <cite>accounts</cite> MongoDB
@@ -268,7 +271,7 @@ resources and/or methods to public access -see docs).</p>
 
 
 <span class="k">class</span> <span class="nc">TokenAuth</span><span class="p">(</span><span class="n">TokenAuth</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;For the purpose of this example the implementation is as simple as</span>
 <span class="sd">        possible. A &#39;real&#39; token should probably contain a hash of the</span>
 <span class="sd">        username/password combo, which sould then validated against the account</span>
@@ -296,19 +299,19 @@ custom authentication scheme built around the <cite>Authorization</cite> header.
 out-of-band technique (e.g., the service sends the client an e-mail
 containing the user id and secret key). The client will use the supplied
 secret key to sign all requests.</p>
-<p>When the client wants to send a request he builds the complete request and
-then using the secret key computes a hash over the complete message body (and
+<p>When the client wants to send a request, he builds the complete request and
+then, using the secret key, computes a hash over the complete message body (and
 optionally some of the message headers if required)</p>
-<p>Next the client add the computed hash and his userid to the message in the
+<p>Next, the client adds the computed hash and his userid to the message in the
 Authorization header:</p>
 <div class="highlight-python"><pre>Authorization: johndoe:uCMfSzkjue+HSDygYB5aEg==</pre>
 </div>
 <p>and sends it to the service. The service retrieves the userid from the
 message header and searches the private key for that user in its own
-database. Next he computes the hash over the message body (and selected
+database. Next it computes the hash over the message body (and selected
 headers) using the key to generate its hash. If the hash the client sends
-matches the hash the server computes the server knows the message was send by
-the real client and was not altered in any way.</p>
+matches the hash the server computes, then the server knows the message was
+sent by the real client and was not altered in any way.</p>
 <p>Really the only tricky part is sharing a secret key with the user and keeping
 that secure. That is why some services allow for generation of shared keys
 with a limited life time so you can give the key to a third party to
@@ -329,7 +332,7 @@ Eve <a class="reference external" href="https://github.com/nicolaiarocci/eve">re
 
 <span class="k">class</span> <span class="nc">HMACAuth</span><span class="p">(</span><span class="n">HMACAuth</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userid</span><span class="p">,</span> <span class="n">hmac_hash</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span>
-                   <span class="n">resource</span><span class="p">):</span>
+                   <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
         <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are</span>
         <span class="c"># used</span>
         <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
@@ -354,7 +357,7 @@ Eve <a class="reference external" href="https://github.com/nicolaiarocci/eve">re
 <p>The code snippets above deliberately ignore the <tt class="docutils literal"><span class="pre">allowed_roles</span></tt> parameter.
 You can use this parameter to restrict access to authenticated users who also
 have been assigned specific roles.</p>
-<p>First you would use the new <tt class="docutils literal"><span class="pre">ALLOWED_ROLES</span></tt> and <tt class="docutils literal"><span class="pre">ALLOWED_ITEM_ROLES</span></tt> <a class="reference internal" href="config.html#global"><em>global
+<p>First, you would use the new <tt class="docutils literal"><span class="pre">ALLOWED_ROLES</span></tt> and <tt class="docutils literal"><span class="pre">ALLOWED_ITEM_ROLES</span></tt> <a class="reference internal" href="config.html#global"><em>global
 settings</em></a> (or the corresponding <tt class="docutils literal"><span class="pre">allowed_roles</span></tt> and <tt class="docutils literal"><span class="pre">allowed_item_roles</span></tt>
 <a class="reference internal" href="config.html#local"><em>resource settings</em></a>).</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">ALLOWED_ROLES</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;admin&#39;</span><span class="p">]</span>
@@ -388,7 +391,7 @@ unless they are made explicitly public.</p>
 
 
 <span class="k">class</span> <span class="nc">RolesAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
         <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
         <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
         <span class="n">lookup</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">}</span>
@@ -409,11 +412,11 @@ unless they are made explicitly public.</p>
 <span id="user-restricted"></span><h2>User-Restricted Resource Access<a class="headerlink" href="#user-restricted-resource-access" title="Permalink to this headline">¶</a></h2>
 <p>When this feature is enabled, each stored document is associated with the
 account that created it. This allows the API to transparently serve only
-account-created documents on all kind of requests: read, edit, delete and of
-course create.  User autentication needs to be enabled for this to work
+account-created documents on all kinds of requests: read, edit, delete and of
+course create.  User authentication needs to be enabled for this to work
 properly.</p>
-<p>At global level this feature is enabled by setting <tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt> and locally
-(at endpoint level) by setting <tt class="docutils literal"><span class="pre">auth_field</span></tt>. These properties define the name
+<p>At the global level this feature is enabled by setting <tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt> and locally
+(at the endpoint level) by setting <tt class="docutils literal"><span class="pre">auth_field</span></tt>. These properties define the name
 of the field used to store the id of the user who created the document.  So for
 example by setting <tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt> to <tt class="docutils literal"><span class="pre">user_id</span></tt>, you are effectively (and
 trasparently to the user) adding a <tt class="docutils literal"><span class="pre">user_id</span></tt> field to every stored
@@ -441,7 +444,7 @@ custom class. Let us revise our BCrypt-authentication example from above:</p>
 
 
  <span class="k">class</span> <span class="nc">BCryptAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
-     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
          <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
          <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
          <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">})</span>
