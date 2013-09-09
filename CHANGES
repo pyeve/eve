@@ -8,6 +8,7 @@ Version 0.1.0
 
 Not released yet.
 
+- PyMongo 2.6.2 is now required.
 - Fixed some typos and minor grammatical errors all across the documentation
   (Ken Carpenter).
 - HTTP method is now passed into ``authenticate()`` and ``check_auth()``.
