@@ -34,7 +34,7 @@ to provide the correct credentials in order to consume the API:
 .. code-block:: console
 
     $ curl -i http://example.com/
-    HTTP/1.0 401 UNAUTHORIZED
+    HTTP/1.1 401 UNAUTHORIZED
     WWW-Authenticate: Basic realm:"eve"
     Content-Type: text/html; charset=utf-8
     Content-Length: 33
@@ -44,7 +44,7 @@ to provide the correct credentials in order to consume the API:
     Please provide proper credentials.
 
     $ curl -H "Authorization: Basic YWRtaW46c2VjcmV0" -i http://example.com/
-    HTTP/1.0 200 OK
+    HTTP/1.1 200 OK
     Content-Type: application/json
     Content-Length: 194
     Server: Eve/0.0.4 Werkzeug/0.8.3 Python/2.7.3
