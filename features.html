@@ -270,7 +270,7 @@ consumers can request specific pages via the query string:</p>
 </pre></div>
 </div>
 <p>Of course you can mix all the available query parameters:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/?where<span class="o">={</span><span class="s2">&quot;lastaname&quot;</span>: <span class="s2">&quot;Doe&quot;</span><span class="o">}</span>&amp;sort<span class="o">={</span><span class="s2">&quot;firstname&quot;</span><span class="o">}</span>&amp;page<span class="o">=</span>5
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/?where<span class="o">={</span><span class="s2">&quot;lastname&quot;</span>: <span class="s2">&quot;Doe&quot;</span><span class="o">}</span>&amp;sort<span class="o">={</span><span class="s2">&quot;firstname&quot;</span><span class="o">}</span>&amp;page<span class="o">=</span>5
 <span class="go">HTTP/1.0 200 OK</span>
 </pre></div>
 </div>
