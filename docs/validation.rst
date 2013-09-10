@@ -10,7 +10,7 @@ will be updated only if validation passes.
 .. code-block:: console
 
     $ curl -d 'item1={"firstname": "bill", "lastname": "clinton"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://eve-demo.herokuapp.com/people/
-    HTTP/1.0 200 OK
+    HTTP/1.1 200 OK
 
 The response will contain a success/error state for each item provided in the
 request:
@@ -150,7 +150,7 @@ a payload like this will be accepted:
 .. code-block:: console
 
     $ curl -d 'item1={"firstname": "bill", "lastname": "clinton"}' -d 'item1={"firstname": "bill", "age":70}' http://eve-demo.herokuapp.com/people/
-    HTTP/1.0 200 OK
+    HTTP/1.1 200 OK
 
 .. admonition:: Please note
 
