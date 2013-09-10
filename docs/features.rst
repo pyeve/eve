@@ -203,7 +203,7 @@ Of course you can mix all the available query parameters:
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people/?where={"lastaname": "Doe"}&sort={"firstname"}&page=5
+    $ curl -i http://eve-demo.herokuapp.com/people/?where={"lastname": "Doe"}&sort={"firstname"}&page=5
     HTTP/1.0 200 OK
 
 Pagination can be disabled.
