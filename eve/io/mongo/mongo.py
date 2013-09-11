@@ -257,7 +257,7 @@ class Mongo(DataLayer):
         if sys.version_info[0] == 3:
             _str_type = str
         else:
-            _str_type = basestring
+            _str_type = basestring  # noqa
 
         for k, v in source.items():
             if isinstance(v, dict):
