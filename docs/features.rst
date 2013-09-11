@@ -288,13 +288,15 @@ same happens to individual item payloads:
     HTTP/1.1 200 OK
 
 .. code-block:: javascript
+
     {
-        "lastname": "obamaaaa",
+        "lastname": "obama",
         "_id": "522f01dc15b4fc00028e6d98",
         "firstname": "barack",
         "created": "Tue, 10 Sep 2013 11:26:20 GMT",
         "etag": "206fb4a39815cc0ebf48b2b52d709777a55333de",
-        "updated": "Tue, 10 Sep 2013 11:26:20 GMT"}
+        "updated": "Tue, 10 Sep 2013 11:26:20 GMT"
+    }
 
 Why would you want to turn HATEOAS off? Well, if you know that your client
 application is not going to use the feature, then you might want to save on
