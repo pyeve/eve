@@ -8,13 +8,13 @@ Version 0.1.0
 
 Not released yet.
 
-- PyMongo 2.6.2 is now required.
 - Fixed some typos and minor grammatical errors all across the documentation
-  (Ken Carpenter, Jean Boussier).
+  (Ken Carpenter, Jean Boussier, Kracekumar).
 - HTTP method is now passed into ``authenticate()`` and ``check_auth()``.
   Closes #90 (Ken Carpenter). 
 - HATEOAS is now optional and can be disabled both at global and resource
   level.
+- PyMongo 2.6.2 is now supported.
 
 Version 0.0.9
 -------------
