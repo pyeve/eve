@@ -42,7 +42,7 @@ can customize the URIs though, so the API endpoint could become, say,
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people/
-    HTTP/1.0 200 OK
+    HTTP/1.1 200 OK
 
 The response payload will look something like this:
 
@@ -103,10 +103,10 @@ primary endpoint and will match your database primary key structure (i.e., an
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people/50acfba938345b0978fccad7/
-    HTTP/1.0 200 OK
-    Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
-    Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT 
+    $ curl -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c/
+    HTTP/1.1 200 OK
+    Etag: 448a928514cbff5b0b516f60bcdf27cc75213280
+    Last-Modified: Wed, 28 Aug 2013 03:02:24 GMT
     ... 
 
 The second, which is optional and read-only, will match a field with unique values since Eve
@@ -115,7 +115,7 @@ will retrieve only the first match anyway.
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people/Doe/
-    HTTP/1.0 200 OK
+    HTTP/1.1 200 OK
     Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
     Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT 
     ... 
@@ -155,14 +155,14 @@ are supported. The mongo query syntax:
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people/?where={"lastname": "Doe"}
-    HTTP/1.0 200 OK
+    HTTP/1.1 200 OK
 
 and the native Python syntax:
 
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people/?where=lastname=="Doe"
-    HTTP/1.0 200 OK
+    HTTP/1.1 200 OK
 
 Both query formats allow for conditional and logical And/Or operators, however
 nested and combined. Sorting is supported as well:
@@ -170,7 +170,7 @@ nested and combined. Sorting is supported as well:
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people/?sort=[("lastname", -1)]
-    HTTP/1.0 200 OK
+    HTTP/1.1 200 OK
 
 Currently sort directives use a pure MongoDB syntax; support for a more general
 syntax (``sort=lastname``) is planned.
@@ -197,14 +197,14 @@ consumers can request specific pages via the query string:
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people/?max_results=20&page=2
-    HTTP/1.0 200 OK
+    HTTP/1.1 200 OK
 
 Of course you can mix all the available query parameters:
 
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people/?where={"lastname": "Doe"}&sort={"firstname"}&page=5
-    HTTP/1.0 200 OK
+    HTTP/1.1 200 OK
 
 Pagination can be disabled.
 
@@ -257,7 +257,7 @@ a simple list of items:
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people/
-    HTTP/1.0 200 OK
+    HTTP/1.1 200 OK
 
 .. code-block:: javascript
     
@@ -284,21 +284,18 @@ same happens to individual item payloads:
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people/50acfba938345b0978fccad7/
-    HTTP/1.0 200 OK
+    $ curl -i http://eve-demo.herokuapp.com/people/522f01dc15b4fc00028e6d98/
+    HTTP/1.1 200 OK
 
 .. code-block:: javascript
 
     {
-        "firstname": "John",
-        "lastname": "Doe",
-        "born": "Thu, 27 Aug 1970 14:37:13 GMT",
-        "role": ["author"],
-        "location": {"city": "Auburn", "address": "422 South Gay Street"},
-        "_id": "50acfba938345b0978fccad7"
-        "updated": "Wed, 21 Nov 2012 16:04:56 GMT",
-        "created": "Wed, 21 Nov 2012 16:04:56 GMT",
-        "etag": "28995829ee85d69c4c18d597a0f68ae606a266cc",
+        "lastname": "obama",
+        "_id": "522f01dc15b4fc00028e6d98",
+        "firstname": "barack",
+        "created": "Tue, 10 Sep 2013 11:26:20 GMT",
+        "etag": "206fb4a39815cc0ebf48b2b52d709777a55333de",
+        "updated": "Tue, 10 Sep 2013 11:26:20 GMT"
     }
 
 Why would you want to turn HATEOAS off? Well, if you know that your client
@@ -322,15 +319,15 @@ edits) are in JSON format.
 .. code-block:: console
 
     $ curl -H "Accept: application/xml" -i http://eve-demo.herokuapp.com/
-    HTTP/1.0 200 OK
+    HTTP/1.1 200 OK
     Content-Type: application/xml; charset=utf-8
     ...
 
 .. code-block:: html
 
     <resource>
-        <link rel="child" href="eve-demo.herokuapp.com/works/" title="works" />
         <link rel="child" href="eve-demo.herokuapp.com/people/" title="people" />
+        <link rel="child" href="eve-demo.herokuapp.com/works/" title="works" />
     </resource>
 
 .. _conditional_requests:
@@ -345,15 +342,15 @@ conditional requests, only retrieving new or modified data, by using the
 
 .. code-block:: console
 
-    $ curl -H "If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT" -i http://eve-demo.herokuapp.com:5000/people/
-    HTTP/1.0 200 OK
+    $ curl -H "If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT" -i http://eve-demo.herokuapp.com/people/
+    HTTP/1.1 200 OK
 
 or the ``If-None-Match`` header:
 
 .. code-block:: console
 
-    $ curl -H "If-None-Match: 1234567890123456789012345678901234567890" -i http://eve-demo.herokuapp.com:5000/people/
-    HTTP/1.0 200 OK
+    $ curl -H "If-None-Match: 1234567890123456789012345678901234567890" -i http://eve-demo.herokuapp.com/people/
+    HTTP/1.1 200 OK
 
 
 Data Integrity and Concurrency Control
@@ -369,16 +366,16 @@ Consider the following workflow:
 
 .. code-block:: console
 
-    $ curl -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37/ -d 'data={"firstname": "ronald"}'
-    HTTP/1.0 403 FORBIDDEN
+    $ curl -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c/ -d 'data={"firstname": "ronald"}'
+    HTTP/1.1 403 FORBIDDEN
 
 We attempted an edit, but we did not provide an ``ETag`` for the item, so we got
 a not-so-nice ``403 FORBIDDEN``. Let's try again:
 
 .. code-block:: console
 
-    $ curl -H "If-Match: 1234567890123456789012345678901234567890" -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37/ -d 'data={"firstname": "ronald"}'
-    HTTP/1.0 412 PRECONDITION FAILED
+    $ curl -H "If-Match: 1234567890123456789012345678901234567890" -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c/ -d 'data={"firstname": "ronald"}'
+    HTTP/1.1 412 PRECONDITION FAILED
 
 What went wrong this time? We provided the mandatory ``If-Match`` header, but
 it's value did not match the ``ETag`` computed on the representation of the item
@@ -387,7 +384,7 @@ currently stored on the server, so we got a ``402 PRECONDITION FAILED`` again!
 .. code-block:: console
 
     $ curl -H "If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012" -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37/ -d 'data={"firstname": "ronald"}'
-    HTTP/1.0 200 OK
+    HTTP/1.1 200 OK
 
 It's a win, and the response payload looks something like this:
 
@@ -414,7 +411,7 @@ Clients can send a stream of multiple documents to be inserted at once.
 .. code-block:: console
 
     $ curl -d 'item1={"firstname": "barack", "lastname": "obama"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://eve-demo.herokuapp.com/people/
-    HTTP/1.0 200 OK
+    HTTP/1.1 200 OK
 
 The response will provide detailed state information about each document
 inserted (creation date, link to the item endpoint, primary key/id, etc.).
@@ -450,7 +447,7 @@ will only be updated if validation passes.
 .. code-block:: console
 
     $ curl -d 'item1={"firstname": "bill", "lastname": "clinton"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://eve-demo.herokuapp.com/people/
-    HTTP/1.0 200 OK
+    HTTP/1.1 200 OK
 
 The response will contain a success/error state for each item provided in the
 request:
@@ -498,7 +495,7 @@ You can set global and individual cache-control directives for each resource.
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/
-    HTTP/1.0 200 OK
+    HTTP/1.1 200 OK
     Content-Type: application/json
     Content-Length: 131
     Cache-Control: max-age=20
@@ -565,7 +562,7 @@ dictates which fields should be returned by the API.
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people/?projection={"lastname": 1, "born": 1}
-    HTTP/1.0 200 OK
+    HTTP/1.1 200 OK
 
 The query above will only return *lastname* and *born* out of all the fields
 available in the 'people' resource. Please note that key fields such as
