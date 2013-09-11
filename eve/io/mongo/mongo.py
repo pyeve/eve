@@ -153,6 +153,49 @@ class Mongo(DataLayer):
         document = self.driver.db[datasource].find_one(filter_, projection)
         return document
 
+    def find_list_of_ids(self, resource, ids, client_projection=None):
+        """Retrieves a list of documents from the collection given
+        by `resource`, matching the given list of ids.
+
+        This query is generated to *preserve the order* of the elements
+        in the `ids` list. An alternative would be to use the `$in` operator
+        and accept non-dependable ordering for a slight performance boost
+        see <https://jira.mongodb.org/browse/SERVER-7528?focusedCommentId=
+        181518&page=com.atlassian.jira.plugin.system.issuetabpanels:comment
+        -tabpanel#comment-181518>
+
+        To preserve order, we use a query of the form
+            db.collection.find( { $or:[ { _id:ObjectId(...) },
+                { _id:ObjectId(...) }...] } )
+
+        Instead of the simpler
+            {'_id': {'$in': ids}}
+
+        -- via http://stackoverflow.com/a/13185509/1161906
+
+        :param resource: resource name.
+        :param ids: a list of ObjectIds corresponding to the documents
+        to retrieve
+        :param client_projection: a specific projection to use
+        :return: a list of documents matching the ids in `ids` from the
+        collection specified in `resource`
+
+        .. versionadded:: 0.0.9
+        """
+        query={'$or':[
+            {'_id': id_} for id_ in ids
+        ]}
+
+        datasource, spec, projection = self._datasource_ex(
+            resource, query=query, client_projection=client_projection
+        )
+
+        documents = self.driver.db[datasource].find(
+            spec=spec, fields=projection
+        )
+        return documents
+
+
     def insert(self, resource, doc_or_docs):
         """Inserts a document into a resource collection.
 
