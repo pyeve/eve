@@ -65,7 +65,7 @@ a <a class="reference internal" href="config.html#schema"><em>Schema Definition<
 to be inserted or updated will be validated against the schema, and a resource
 will be updated only if validation passes.</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;item1={&quot;firstname&quot;: &quot;bill&quot;, &quot;lastname&quot;: &quot;clinton&quot;}&#39;</span> -d <span class="s1">&#39;item2={&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}&#39;</span> http://eve-demo.herokuapp.com/people/
-<span class="go">HTTP/1.0 200 OK</span>
+<span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
 <p>The response will contain a success/error state for each item provided in the
@@ -187,7 +187,7 @@ can also enable this feature only for certain endpoints by setting the
 <tt class="docutils literal"><span class="pre">/people/</span></tt> endpoint. However, since <tt class="docutils literal"><span class="pre">allow_unknown</span></tt> has been enabled, even
 a payload like this will be accepted:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;item1={&quot;firstname&quot;: &quot;bill&quot;, &quot;lastname&quot;: &quot;clinton&quot;}&#39;</span> -d <span class="s1">&#39;item1={&quot;firstname&quot;: &quot;bill&quot;, &quot;age&quot;:70}&#39;</span> http://eve-demo.herokuapp.com/people/
-<span class="go">HTTP/1.0 200 OK</span>
+<span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
 <div class="admonition-please-note admonition">

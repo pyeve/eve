@@ -86,7 +86,7 @@ instantiate the Eve app, you pass your custom class, like this:</p>
 <p>All your API endpoints are now secured, which means that a client will need
 to provide the correct credentials in order to consume the API:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://example.com/
-<span class="go">HTTP/1.0 401 UNAUTHORIZED</span>
+<span class="go">HTTP/1.1 401 UNAUTHORIZED</span>
 <span class="go">WWW-Authenticate: Basic realm:&quot;eve&quot;</span>
 <span class="go">Content-Type: text/html; charset=utf-8</span>
 <span class="go">Content-Length: 33</span>
@@ -96,7 +96,7 @@ to provide the correct credentials in order to consume the API:</p>
 <span class="go">Please provide proper credentials.</span>
 
 <span class="gp">$</span> curl -H <span class="s2">&quot;Authorization: Basic YWRtaW46c2VjcmV0&quot;</span> -i http://example.com/
-<span class="go">HTTP/1.0 200 OK</span>
+<span class="go">HTTP/1.1 200 OK</span>
 <span class="go">Content-Type: application/json</span>
 <span class="go">Content-Length: 194</span>
 <span class="go">Server: Eve/0.0.4 Werkzeug/0.8.3 Python/2.7.3</span>
