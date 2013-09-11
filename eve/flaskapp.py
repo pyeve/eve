@@ -281,6 +281,15 @@ class Eve(Flask, Events):
                     raise SchemaException("'collection' key is mandatory for "
                                           "the 'data_relation' rule in "
                                           "'%s: %s'" % (resource, field))
+                # If the field is listed as `embeddable`
+                # it must be type == 'objectid'
+                # TODO: allow serializing a list( type == 'objectid')
+                if ruleset['data_relation'].get('embeddable', False):
+                    if ruleset['type'] != 'objectid':
+                        raise SchemaException(
+                            "In order for the 'data_relation' rule to be "
+                            "embeddable it must be of type 'objectid'"
+                        )
 
     def set_defaults(self):
         """ When not provided, fills individual resource settings with default
@@ -345,6 +354,7 @@ class Eve(Flask, Events):
             settings.setdefault('allowed_filters',
                                 self.config['ALLOWED_FILTERS'])
             settings.setdefault('sorting', self.config['SORTING'])
+            settings.setdefault('embedding', self.config['EMBEDDING'])
             settings.setdefault('pagination', self.config['PAGINATION'])
             settings.setdefault('projection', self.config['PROJECTION'])
             # TODO make sure that this we really need the test below
@@ -404,7 +414,7 @@ class Eve(Flask, Events):
         """ When not provided, fills individual schema settings with default
         or global configuration settings.
 
-        :param schema: the resoursce schema to be intialized with default
+        :param schema: the resource schema to be initialized with default
                        values
 
         .. versionchanged: 0.0.7

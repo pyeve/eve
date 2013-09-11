@@ -53,6 +53,7 @@ HATEOAS = True                  # HATEOAS enabled by default.
 
 ALLOWED_FILTERS = ['*']         # filtering enabled by default
 SORTING = True                  # sorting enabled by default.
+EMBEDDING = True                # embedding enabled by default
 PROJECTION = True               # projection enabled by default
 PAGINATION = True               # pagination enabled by default.
 PAGINATION_LIMIT = 50

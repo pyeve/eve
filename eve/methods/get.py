@@ -14,10 +14,12 @@
 import math
 from datetime import datetime
 from flask import current_app as app, abort
+import simplejson as json
 from .common import ratelimit
 from eve.auth import requires_auth
 from eve.utils import parse_request, document_etag, document_link, \
-    collection_link, home_link, querydef, resource_uri, config
+    collection_link, home_link, querydef, resource_uri, config, \
+    debug_error_message
 
 
 @ratelimit()
@@ -62,6 +64,7 @@ def get(resource):
 
     req = parse_request(resource)
     cursor = app.data.find(resource, req)
+
     for document in cursor:
         document[config.LAST_UPDATED] = _last_updated(document)
         document[config.DATE_CREATED] = _date_created(document)
@@ -77,6 +80,8 @@ def get(resource):
                                                 document[config.ID_FIELD])}
 
         documents.append(document)
+
+    _resolve_embedded_documents(resource, req, documents)
 
     if req.if_modified_since and len(documents) == 0:
         # the if-modified-since conditional request returned no documents, we
@@ -187,6 +192,66 @@ def getitem(resource, **lookup):
         return response, last_modified, document['etag'], 200
 
     abort(404)
+
+
+def _resolve_embedded_documents(resource, req, documents):
+    """Loops through the documents, adding embedded representations
+    of any fields that are (1) defined eligible for embedding in the
+    DOMAIN and (2) requested to be embedded in the current `req`
+
+    Currently we only support a single layer of embedding,
+    i.e. /invoices/?embedded={"user":1}
+    *NOT*  /invoices/?embedded={"user.friends":1}
+
+    :param resource: the resource name.
+    :param req: and instace of :class:`eve.utils.ParsedRequest`.
+    :param documents: list of documents returned by the query.
+
+    .. versionchanged:: 0.0.9
+       Added support for embedded document serialization
+    """
+    if req.embedded:
+        # Parse the embedded clause, we are expecting
+        # something like:   '{"user":1}'
+        try:
+            client_embedding = json.loads(req.embedded)
+        except ValueError:
+            abort(400, description=debug_error_message(
+                'Unable to parse `embedded` clause'
+            ))
+
+        # Build the list of fields where embedding is being requested
+        try:
+            embedded_fields = [k for k, v in client_embedding.items()
+                               if v == 1]
+        except AttributeError:
+            # We got something other than a dict
+            abort(400, description=debug_error_message(
+                'Unable to parse `embedded` clause'
+            ))
+
+        # For each field, is the field allowed to be embedded?
+        # Pick out fields that have a `data_relation` where `embeddable=True`
+        enabled_embedded_fields = []
+        for field in embedded_fields:
+            # Reject bogus field names
+            if field in config.DOMAIN[resource]['schema']:
+                field_definition = config.DOMAIN[resource]['schema'][field]
+                if 'data_relation' in field_definition and \
+                        field_definition['data_relation'].get('embeddable'):
+                    # or could raise 400 here
+                    enabled_embedded_fields.append(field)
+
+        for document in documents:
+            for field in enabled_embedded_fields:
+                field_definition = config.DOMAIN[resource]['schema'][field]
+                # Retrieve and serialize the requested document
+                embedded_doc = app.data.find_one(
+                    field_definition['data_relation']['collection'],
+                    **{config.ID_FIELD: document[field]}
+                )
+                if embedded_doc:
+                    document[field] = embedded_doc
 
 
 def _pagination_links(resource, req, documents_count):

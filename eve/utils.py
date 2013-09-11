@@ -71,6 +71,9 @@ class ParsedRequest(object):
     # `If-Match` request header value. Default to None.
     if_match = None
 
+    # `embedded` value of the query string (?embedded). Defaults to None.
+    embedded = None
+
 
 def parse_request(resource):
     """ Parses a client request, returning instance of :class:`ParsedRequest`
@@ -95,6 +98,8 @@ def parse_request(resource):
         r.projection = args.get('projection')
     if config.DOMAIN[resource]['sorting']:
         r.sort = args.get('sort')
+    if config.DOMAIN[resource]['embedding']:
+        r.embedded = args.get('embedded')
 
     max_results_default = config.PAGINATION_DEFAULT if \
         config.DOMAIN[resource]['pagination'] else 0
