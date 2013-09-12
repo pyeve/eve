@@ -34,6 +34,8 @@ def patch(resource, **lookup):
 
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
+       Re-raises `exceptions.Unauthorized`, this could occur if the
+       `auth_field` condition fails
 
     .. versionchanged:: 0.0.9
        More informative error messages.

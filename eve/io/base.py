@@ -144,7 +144,7 @@ class DataLayer(object):
         Takes two db queries and applies db-specific syntax to produce
         the intersection.
 
-        .. versionadded: 0.0.9
+        .. versionadded: 0.1.0
             Support for intelligent combination of db queries
         """
         raise NotImplementedError
@@ -156,7 +156,7 @@ class DataLayer(object):
 
         This mainly exists to deal with more complicated compound queries
 
-        .. versionadded: 0.0.9
+        .. versionadded: 0.1.0
             Support for parsing values embedded in compound db queries
         """
         raise NotImplementedError
@@ -165,7 +165,7 @@ class DataLayer(object):
         """ For the specified field name, does the query contain it?
         Used know whether we need to parse a compound query
 
-        .. versionadded: 0.0.9
+        .. versionadded: 0.1.0
             Support for parsing values embedded in compound db queries
         """
         raise NotImplementedError
@@ -186,11 +186,14 @@ class DataLayer(object):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to
 
+        .. versionchanged:: 0.1.0
+           Calls `combine_queries` to merge query and filter_
+           Updated logic performing `auth_field` check
+
         .. versionchanged:: 0.0.9
            Storing self.app.auth.userid in auth_field when 'user-restricted
            resource access' is enabled.
            Support for Python 3.3.
-           Calls `combine_queries` to merge query and filter_
 
         .. versionchanged:: 0.0.6
            'auth_username_field' is injected even in empty queries.

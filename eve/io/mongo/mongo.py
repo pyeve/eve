@@ -271,7 +271,7 @@ class Mongo(DataLayer):
                             {'username': 'mike'})
         {'$and': [{'username': {'$exists': True}}, {'username': 'mike'}]}
 
-        .. versionadded: 0.0.9
+        .. versionadded: 0.1.0
             Support for intelligent combination of db queries
         """
         # Chain the operations with the $and operator
@@ -297,7 +297,7 @@ class Mongo(DataLayer):
             )
         123
 
-        .. versionadded: 0.0.9
+        .. versionadded: 0.1.0
             Support for parsing values embedded in compound db queries
         """
         if field_name in query:
@@ -312,7 +312,7 @@ class Mongo(DataLayer):
         """ For the specified field name, does the query contain it?
         Used know whether we need to parse a compound query
 
-        .. versionadded: 0.0.9
+        .. versionadded: 0.1.0
             Support for parsing values embedded in compound db queries
         """
         try:
@@ -384,6 +384,8 @@ class Mongo(DataLayer):
         """
         Looks through a db query and tries to convert
         strings into ObjectIds
+
+        .. versionadded: 0.1.0
         """
         new_query = deepcopy(query)
         if config.ID_FIELD in new_query:
