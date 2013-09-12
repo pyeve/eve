@@ -187,4 +187,4 @@ class TestUtils(TestBase):
             self.assertEqual(debug_error_message('An error message'), None)
             self.app.config['DEBUG'] = True
             self.assertEqual(debug_error_message('An error message'),
-                              'An error message')
+                             'An error message')
