@@ -315,7 +315,7 @@ def validate_filters(where, resource):
     """
     allowed = config.DOMAIN[resource]['allowed_filters']
     if '*' not in allowed:
-        for filt, cond in list(where.items()):
+        for filt, cond in where.items():
             if filt not in allowed:
                 return "filter on '%s' not allowed" % filt
     return None
