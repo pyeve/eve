@@ -10,15 +10,15 @@
     :license: BSD, see LICENSE for more details.
 """
 
-import datetime
 import time
+import datetime
 import simplejson as json
-from flask import make_response, request, Response, current_app as app
-from bson.objectid import ObjectId
+from werkzeug import utils
 from functools import wraps
-from xml.sax.saxutils import escape
+from bson.objectid import ObjectId
 from eve.methods.common import get_rate_limit
 from eve.utils import date_to_str, config, request_method
+from flask import make_response, request, Response, current_app as app
 
 # mapping between supported mime types and render functions.
 _MIME_TYPES = [{'mime': ('application/json',), 'renderer': 'render_json'},
@@ -260,7 +260,7 @@ def xml_root_open(data):
     href = title = ''
     if links and 'self' in links:
         self_ = links.pop('self')
-        href = ' href="%s" ' % escape(self_['href'])
+        href = ' href="%s" ' % utils.escape(self_['href'])
         if 'title' in self_:
             title = ' title="%s" ' % self_['title']
     return '<resource%s%s>' % (href, title)
@@ -282,10 +282,11 @@ def xml_add_links(data):
     links = data.pop('_links', {})
     for rel, link in links.items():
         if isinstance(link, list):
-            xml += ''.join([chunk % (rel, escape(d['href']), d['title'])
+            xml += ''.join([chunk % (rel, utils.escape(d['href']), d['title'])
                             for d in link])
         else:
-            xml += ''.join(chunk % (rel, escape(link['href']), link['title']))
+            xml += ''.join(chunk % (rel, utils.escape(link['href']),
+                                    link['title']))
     return xml
 
 

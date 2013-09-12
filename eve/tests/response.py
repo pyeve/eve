@@ -37,7 +37,7 @@ class TestNoHateoas(TestBase):
         self.app.config['HATEOAS'] = False
         self.domain[self.known_resource]['hateoas'] = False
 
-    def test_no_hateoas_resource(self):
+    def test_get_no_hateoas_resource(self):
         r = self.test_client.get(self.known_resource_url)
         response = json.loads(r.get_data().decode())
         self.assertTrue(isinstance(response, list))
@@ -46,12 +46,29 @@ class TestNoHateoas(TestBase):
         self.assertTrue(isinstance(item, dict))
         self.assertTrue('_links' not in item)
 
-    def test_no_hateoas_item(self):
+    def test_get_no_hateoas_item(self):
         r = self.test_client.get(self.item_id_url)
         response = json.loads(r.get_data().decode())
         self.assertTrue(isinstance(response, dict))
         self.assertTrue('_links' not in response)
 
-    def test_no_hateoas_homepage(self):
+    def test_get_no_hateoas_homepage(self):
         r = self.test_client.get('/')
         self.assert404(r.status_code)
+
+    def test_post_no_hateoas(self):
+        data = {'item1': json.dumps({"ref": "1234567890123456789054321"})}
+        headers = [('Content-Type', 'application/x-www-form-urlencoded')]
+        r = self.test_client.post(self.known_resource_url, data=data,
+                                  headers=headers)
+        response = json.loads(r.get_data().decode())
+        self.assertTrue('_links' not in response['item1'])
+
+    def test_patch_no_hateoas(self):
+        data = {'item1': json.dumps({"ref": "0000000000000000000000000"})}
+        headers = [('Content-Type', 'application/x-www-form-urlencoded'),
+                   ('If-Match', self.item_etag)]
+        r = self.test_client.patch(self.item_id_url, data=data,
+                                   headers=headers)
+        response = json.loads(r.get_data().decode())
+        self.assertTrue('_links' not in response['item1'])

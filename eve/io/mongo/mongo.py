@@ -16,6 +16,7 @@ import itertools
 from bson.errors import InvalidId
 import simplejson as json
 import pymongo
+import sys
 from flask import abort
 from flask.ext.pymongo import PyMongo
 from datetime import datetime
@@ -324,16 +325,24 @@ class Mongo(DataLayer):
         """ Recursively iterates a JSON dictionary, turning RFC-1123 strings
         into datetime values.
 
+        .. versionchanged:: 0.1.0
+           Datetime conversion was failing on Py2, since 0.0.9 :P
+
         .. versionchanged:: 0.0.9
            support for Python 3.3.
 
         .. versionadded:: 0.0.4
         """
 
+        if sys.version_info[0] == 3:
+            _str_type = str
+        else:
+            _str_type = basestring  # noqa
+
         for k, v in source.items():
             if isinstance(v, dict):
                 self._jsondatetime(v)
-            elif isinstance(v, str):
+            elif isinstance(v, _str_type):
                 try:
                     source[k] = datetime.strptime(v, config.DATE_FORMAT)
                 except:

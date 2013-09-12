@@ -8,13 +8,17 @@ Version 0.1.0
 
 Not released yet.
 
-- PyMongo 2.6.2 is now required.
+- Some more Python 3 refactoring (Dong Wei Ming).
+- Fixed #99: malformed XML render when href includes forbidden URI/URL chars.
+- Fixed a bug introduced with 0.0.9 and Python 3 support. Filters (``?where``)
+  on datetime values were not working when running on Python 2.x.
 - Fixed some typos and minor grammatical errors all across the documentation
-  (Ken Carpenter, Jean Boussier).
+  (Ken Carpenter, Jean Boussier, Kracekumar).
 - HTTP method is now passed into ``authenticate()`` and ``check_auth()``.
   Closes #90 (Ken Carpenter). 
 - HATEOAS is now optional and can be disabled both at global and resource
   level.
+- PyMongo 2.6.2 is now supported.
 
 Version 0.0.9
 -------------
