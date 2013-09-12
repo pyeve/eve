@@ -5,6 +5,7 @@ import unittest
 import eve
 import string
 import random
+import os
 import simplejson as json
 from datetime import datetime, timedelta
 from flask.ext.pymongo import MongoClient
@@ -19,12 +20,16 @@ class TestMinimal(unittest.TestCase):
     using :func:`setUp()`
     """
 
-    def setUp(self, settings_file='eve/tests/test_settings.py'):
+    def setUp(self, settings_file=None):
         """ Prepare the test fixture
 
         :param settings_file: the name of the settings file.  Defaults
                               to `eve/tests/test_settings.py`.
         """
+        if settings_file is None:
+            # Load the settings file, using a robust path
+            THIS_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+            settings_file = os.path.join(THIS_DIRECTORY, 'test_settings.py')
 
         self.known_resource_count = 101
         self.setupDB()
