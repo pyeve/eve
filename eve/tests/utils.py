@@ -10,6 +10,7 @@ from eve.utils import parse_request, str_to_date, config, weak_date, \
 
 
 class TestUtils(TestBase):
+
     """ collection, document and home_link methods (and resource_uri, which is
     used by all of them) are tested in 'tests.methods' since we need an active
     flaskapp context
