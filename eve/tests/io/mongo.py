@@ -4,7 +4,8 @@ from unittest import TestCase
 from bson import ObjectId
 from datetime import datetime
 from eve.io.mongo.parser import parse, ParseError
-from eve.io.mongo import Validator
+from eve.io.mongo import Validator, Mongo
+from eve.utils import config
 from cerberus.errors import ERROR_BAD_TYPE
 
 
@@ -107,3 +108,87 @@ class TestMongoValidator(TestCase):
         schema = {'a_field': {'type': 'string'}}
         v = Validator(schema)
         self.assertTrue(v.transparent_schema_rules, True)
+
+
+class TestMongoDriver(TestCase):
+    def test_combine_queries(self):
+        mongo = Mongo(None)
+        query_a = {'username': {'$exists': True}}
+        query_b = {'username': 'mike'}
+        combined = mongo.combine_queries(query_a, query_b)
+        self.assertEqual(
+            combined,
+            {'$and': [{'username': {'$exists': True}}, {'username': 'mike'}]}
+        )
+
+    def test_get_value_from_query(self):
+        mongo = Mongo(None)
+        simple_query = {config.ID_FIELD: 'abcdef012345678901234567'}
+        compound_query = {'$and': [
+            {'username': {'$exists': False}},
+            {config.ID_FIELD: 'abcdef012345678901234567'}
+        ]}
+        self.assertEqual(mongo.get_value_from_query(simple_query,
+                                                    config.ID_FIELD),
+                         'abcdef012345678901234567')
+        self.assertEqual(mongo.get_value_from_query(compound_query,
+                                                    config.ID_FIELD),
+                         'abcdef012345678901234567')
+
+    def test_query_contains_field(self):
+        mongo = Mongo(None)
+        simple_query = {config.ID_FIELD: 'abcdef012345678901234567'}
+        compound_query = {'$and': [
+            {'username': {'$exists': False}},
+            {config.ID_FIELD: 'abcdef012345678901234567'}
+        ]}
+        self.assertTrue(mongo.query_contains_field(simple_query,
+                                                   config.ID_FIELD))
+        self.assertFalse(mongo.query_contains_field(simple_query,
+                                                    'fake-field'))
+        self.assertTrue(mongo.query_contains_field(compound_query,
+                                                   config.ID_FIELD))
+        self.assertFalse(mongo.query_contains_field(compound_query,
+                                                    'fake-field'))
+
+    def test__convert_query_objectids(self):
+        mongo = Mongo(None)
+
+        simple_query = {config.ID_FIELD: 'abcdef012345678901234567'}
+        simple_query_w_objectid = {
+            config.ID_FIELD: ObjectId('abcdef012345678901234567')
+        }
+        self.assertEqual(mongo._convert_query_objectids(simple_query),
+                         simple_query_w_objectid)
+
+        # Should fail silently
+        simple_query_bad_id = {config.ID_FIELD: 'not-an-objectid'}
+        self.assertEqual(mongo._convert_query_objectids(simple_query_bad_id),
+                         simple_query_bad_id)
+
+        compound_query = {'$and': [
+            {'username': {'$exists': False}},
+            {config.ID_FIELD: 'abcdef012345678901234567'}
+        ]}
+        compound_query_w_objectid = {'$and': [
+            {'username': {'$exists': False}},
+            {config.ID_FIELD: ObjectId('abcdef012345678901234567')}
+        ]}
+        self.assertEqual(mongo._convert_query_objectids(compound_query),
+                         compound_query_w_objectid)
+
+        # Should fail silently
+        compound_query_bad_id = {'$and': [
+            {'username': {'$exists': False}},
+            {config.ID_FIELD: 'not-an-objectid'}
+        ]}
+        self.assertEqual(mongo._convert_query_objectids(compound_query_bad_id),
+                         compound_query_bad_id)
+
+        # Should fail silently
+        compound_query_not_id = {
+            '_id': {'$ne': ObjectId('523165b41d41c804f3992af4')},
+            u'ref': u"i'm unique"
+        }
+        self.assertEqual(mongo._convert_query_objectids(compound_query_not_id),
+                         compound_query_not_id)

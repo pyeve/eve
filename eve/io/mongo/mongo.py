@@ -11,6 +11,9 @@
 """
 
 import ast
+from copy import deepcopy
+import itertools
+from bson.errors import InvalidId
 import simplejson as json
 import pymongo
 from flask import abort
@@ -144,11 +147,7 @@ class Mongo(DataLayer):
         """
         datasource, filter_, projection = self._datasource_ex(resource, lookup)
 
-        try:
-            if config.ID_FIELD in filter_:
-                filter_[ID_FIELD] = ObjectId(filter_[ID_FIELD])
-        except:
-            pass
+        filter_ = self._convert_query_objectids(filter_)
 
         document = self.driver.db[datasource].find_one(filter_, projection)
         return document
@@ -240,6 +239,87 @@ class Mongo(DataLayer):
                 'pymongo.errors.OperationFailure: %s' % e
             ))
 
+    # TODO: The next three methods could be pulled out to form the basis
+    # of a separate MonqoQuery class
+
+    def combine_queries(self, query_a, query_b):
+        """
+        Takes two db queries and applies db-specific syntax to produce
+        the intersection
+
+        This is used because we can't just dump one set of query operators
+        into another.
+
+        Consider for example if the dataset contains a custom datasource
+        pattern like --
+           'filter': {'username': {'$exists': True}}
+
+        If we simultaneously try to filter on the field `username`,
+        then doing
+            query_a.update(query_b)
+        would lose information.
+
+        This implementation of the function just combines everything in the
+        two dicts using the `$and` operator.
+
+        Note that this is exactly same as performing dict.update() except
+        when multiple operators are operating on the /same field/.
+
+        Example:
+            combine_queries({'username': {'$exists': True}},
+                            {'username': 'mike'})
+        {'$and': [{'username': {'$exists': True}}, {'username': 'mike'}]}
+
+        .. versionadded: 0.0.9
+            Support for intelligent combination of db queries
+        """
+        # Chain the operations with the $and operator
+        return {
+            '$and': [
+                {k: v} for k, v in itertools.chain(query_a.items(),
+                                                   query_b.items())
+            ]
+        }
+
+    def get_value_from_query(self, query, field_name):
+        """ For the specified field name, parses the query and returns
+        the value being assigned in the query.
+
+        For example,
+            get_value_from_query({'_id': 123}, '_id')
+        123
+
+        This mainly exists to deal with more complicated compound queries
+            get_value_from_query(
+                {'$and': [{'_id': 123}, {'firstname': 'mike'}],
+                '_id'
+            )
+        123
+
+        .. versionadded: 0.0.9
+            Support for parsing values embedded in compound db queries
+        """
+        if field_name in query:
+            return query[field_name]
+        elif '$and' in query:
+            for condition in query['$and']:
+                if field_name in condition:
+                    return condition[field_name]
+        raise KeyError
+
+    def query_contains_field(self, query, field_name):
+        """ For the specified field name, does the query contain it?
+        Used know whether we need to parse a compound query
+
+        .. versionadded: 0.0.9
+            Support for parsing values embedded in compound db queries
+        """
+        try:
+            self.get_value_from_query(query, field_name)
+        except KeyError:
+            return False
+        return True
+
     def _jsondatetime(self, source):
         """ Recursively iterates a JSON dictionary, turning RFC-1123 strings
         into datetime values.
@@ -290,3 +370,25 @@ class Mongo(DataLayer):
         .. versionadded:: 0.0.8
         """
         return config.DOMAIN[resource]['mongo_write_concern']
+
+    def _convert_query_objectids(self, query):
+        """
+        Looks through a db query and tries to convert
+        strings into ObjectIds
+        """
+        new_query = deepcopy(query)
+        if config.ID_FIELD in new_query:
+            try:
+                new_query[ID_FIELD] = ObjectId(new_query[ID_FIELD])
+            except (InvalidId, TypeError):
+                # Returns a type error when {'_id': {...}}
+                pass
+        elif '$and' in new_query:
+            # A compound query
+            for condition in new_query['$and']:
+                if config.ID_FIELD in condition:
+                    try:
+                        condition[ID_FIELD] = ObjectId(condition[ID_FIELD])
+                    except (InvalidId, TypeError):
+                        pass
+        return new_query

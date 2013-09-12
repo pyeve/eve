@@ -292,6 +292,10 @@ class TestBase(TestMinimal):
         self.user_id_url = ('/%s/%s/' %
                             (self.domain[self.different_resource]['url'],
                              self.user_id))
+        self.user_username_url = (
+            '/%s/%s/' % (self.domain[self.different_resource]['url'],
+                         self.user_username)
+        )
 
         response, status = self.get('invoices')
         invoice = self.response_item(response)
