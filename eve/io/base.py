@@ -266,5 +266,7 @@ class DataLayer(object):
                          curr_req_auth_value)
                     ))
                 else:
-                    query.update({auth_field: curr_req_auth_value})
+                    query = self.app.data.combine_queries(
+                        query, {auth_field: curr_req_auth_value}
+                    )
         return datasource, query, fields
