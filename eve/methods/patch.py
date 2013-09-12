@@ -32,6 +32,9 @@ def patch(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
 
+    .. versionchanged:: 0.1.0
+       Support for optional HATEOAS.
+
     .. versionchanged:: 0.0.9
        More informative error messages.
        Support for Python 3.3.
@@ -67,7 +70,8 @@ def patch(resource, **lookup):
         # not found
         abort(404)
 
-    schema = app.config['DOMAIN'][resource]['schema']
+    resource_def = app.config['DOMAIN'][resource]
+    schema = resource_def['schema']
     validator = app.validator(schema, resource)
 
     object_id = original[config.ID_FIELD]
@@ -104,8 +108,9 @@ def patch(resource, **lookup):
 
             # metadata
             response_item['etag'] = etag
-            response_item['_links'] = {'self': document_link(resource,
-                                                             object_id)}
+            if resource_def['hateoas']:
+                response_item['_links'] = {'self': document_link(resource,
+                                                                 object_id)}
         else:
             issues.extend(validator.errors)
     except ValidationError as e:
