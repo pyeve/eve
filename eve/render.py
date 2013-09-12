@@ -285,7 +285,8 @@ def xml_add_links(data):
             xml += ''.join([chunk % (rel, utils.escape(d['href']), d['title'])
                             for d in link])
         else:
-            xml += ''.join(chunk % (rel, utils.escape(link['href']), link['title']))
+            xml += ''.join(chunk % (rel, utils.escape(link['href']),
+                                    link['title']))
     return xml
 
 
