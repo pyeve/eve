@@ -10,6 +10,7 @@ from eve.utils import parse_request, str_to_date, config, weak_date, \
 
 
 class TestUtils(TestBase):
+
     """ collection, document and home_link methods (and resource_uri, which is
     used by all of them) are tested in 'tests.methods' since we need an active
     flaskapp context
@@ -184,7 +185,7 @@ class TestUtils(TestBase):
     def test_debug_error_message(self):
         with self.app.test_request_context():
             self.app.config['DEBUG'] = False
-            self.assertEquals(debug_error_message('An error message'), None)
+            self.assertEqual(debug_error_message('An error message'), None)
             self.app.config['DEBUG'] = True
-            self.assertEquals(debug_error_message('An error message'),
-                              'An error message')
+            self.assertEqual(debug_error_message('An error message'),
+                             'An error message')
