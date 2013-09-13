@@ -40,6 +40,9 @@ class DataLayer(object):
     Admittedly, this interface is a Mongo rip-off. See the io.mongo
     package for an implementation example.
 
+    .. versionchanged:: 0.1.0
+    Support for PUT method.
+
     .. versionchanged:: 0.0.6
        support for 'projections' has been added. For more information see
        http://docs.mongodb.org/manual/reference/glossary/#term-projection.
@@ -122,6 +125,19 @@ class DataLayer(object):
         :param id_: the unique id of the document.
         :param updates: json updates to be performed on the database document
                         (or row).
+        """
+
+        raise NotImplementedError
+
+    def replace(self, resource, id_, document):
+        """Replaces a collection/table document/row.
+        :param resource: resource being accessed. You should then use
+                         the ``_datasource`` helper function to retrieve
+                         the actual datasource name.
+        :param id_: the unique id of the document.
+        :param document: the new json document
+
+        .. versionadded:: 0.1.0
         """
 
         raise NotImplementedError

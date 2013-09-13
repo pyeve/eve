@@ -175,6 +175,9 @@ class Eve(Flask, Events):
         """ Makes sure that REST methods expressed in the configuration
         settings are supported.
 
+        .. versionchanged:: 0.1.0
+        Support for PUT method.
+
         .. versionchanged:: 0.0.4
            Support for 'allowed_roles' and 'allowed_item_roles'
 
@@ -183,7 +186,7 @@ class Eve(Flask, Events):
         """
 
         supported_resource_methods = ['GET', 'POST', 'DELETE']
-        supported_item_methods = ['GET', 'PATCH', 'DELETE']
+        supported_item_methods = ['GET', 'PATCH', 'DELETE', 'PUT']
 
         # make sure that global resource methods are supported.
         self.validate_methods(supported_resource_methods,

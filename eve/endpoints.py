@@ -12,7 +12,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from eve.methods import get, getitem, post, patch, delete, delete_resource
+from eve.methods import get, getitem, post, patch, delete, delete_resource, put
 from eve.methods.common import ratelimit
 from eve.render import send_response
 from eve.auth import requires_auth
@@ -58,6 +58,9 @@ def item_endpoint(url, **lookup):
     :param url: the url that led here
     :param lookup: the query
 
+    .. versionchanged:: 0.1.0
+       Support for PUT method.
+
     .. versionchanged:: 0.0.7
        Using 'utils.request_method' helper function now.
 
@@ -71,6 +74,8 @@ def item_endpoint(url, **lookup):
         response = getitem(resource, **lookup)
     elif method == 'PATCH':
         response = patch(resource, **lookup)
+    elif method == 'PUT':
+        response = put(resource, **lookup)
     elif method == 'DELETE':
         response = delete(resource, **lookup)
     elif method == 'OPTIONS':
