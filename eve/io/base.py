@@ -260,8 +260,8 @@ class DataLayer(object):
                             query, auth_field) != curr_req_auth_value:
                     abort(401, description=debug_error_message(
                         'Incompatible User-Restricted Resource request. '
-                        'Request was for <%s>=%s but `auth_field` '
-                        'requires <%s>=%s.' %
+                        'Request was for "%s"="%s" but `auth_field` '
+                        'requires "%s"="%s".' %
                         (auth_field, auth_field_in_query, auth_field,
                          curr_req_auth_value)
                     ))
