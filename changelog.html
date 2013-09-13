@@ -61,6 +61,12 @@
 <h2>Version 0.1.0<a class="headerlink" href="#version-0-1-0" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>PUT method for completely replace a document with another valid one while
+keeping the same unique identifier. Closes #96.</li>
+<li>Some more Python 3 refactoring (Dong Wei Ming).</li>
+<li>Fixed #99: malformed XML render when href includes forbidden URI/URL chars.</li>
+<li>Fixed a bug introduced with 0.0.9 and Python 3 support. Filters (<tt class="docutils literal"><span class="pre">?where</span></tt>)
+on datetime values were not working when running on Python 2.x.</li>
 <li>Fixed some typos and minor grammatical errors all across the documentation
 (Ken Carpenter, Jean Boussier, Kracekumar).</li>
 <li>HTTP method is now passed into <tt class="docutils literal"><span class="pre">authenticate()</span></tt> and <tt class="docutils literal"><span class="pre">check_auth()</span></tt>.

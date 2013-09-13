@@ -78,9 +78,9 @@ editable resource at another endpoint. The following table shows Eve&#8217;s
 implementation of CRUD via REST:</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="18%" />
+<col width="20%" />
 <col width="26%" />
-<col width="56%" />
+<col width="54%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Action</th>
@@ -101,15 +101,18 @@ implementation of CRUD via REST:</p>
 <td>PATCH</td>
 <td>Document</td>
 </tr>
-<tr class="row-odd"><td>Delete</td>
+<tr class="row-odd"><td>Replace</td>
+<td>PUT</td>
+<td>Document</td>
+</tr>
+<tr class="row-even"><td>Delete</td>
 <td>DELETE</td>
 <td>Collection/Document</td>
 </tr>
 </tbody>
 </table>
-<p>If you are wondering why PATCH and not PUT, check <a class="reference external" href="https://speakerdeck.com/nicola/developing-restful-web-apis-with-python-flask-and-mongodb?slide=113">this</a> out. Also, as
-a fallback for the odd client not directly supporting PATCH, the API
-will gladly honor a POST with the <tt class="docutils literal"><span class="pre">X-HTTP-Method-Override:</span> <span class="pre">PATCH</span></tt> header tag.</p>
+<p>As a fallback for the odd client not directly supporting PATCH, the API will
+gladly honor a POST with the <tt class="docutils literal"><span class="pre">X-HTTP-Method-Override:</span> <span class="pre">PATCH</span></tt> header tag.</p>
 </div>
 <div class="section" id="customizable-resource-endpoints">
 <h2>Customizable resource endpoints<a class="headerlink" href="#customizable-resource-endpoints" title="Permalink to this headline">¶</a></h2>
@@ -440,9 +443,11 @@ currently stored on the server, so we got a <tt class="docutils literal"><span c
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>This time we got our patch in, and the server returned the new <tt class="docutils literal"><span class="pre">ETag</span></tt>.  We also
-get the new <tt class="docutils literal"><span class="pre">updated</span></tt> value, which eventually will allow us to perform
+<p>This time we got our patch in, and the server returned the new <tt class="docutils literal"><span class="pre">ETag</span></tt>.  We
+also get the new <tt class="docutils literal"><span class="pre">updated</span></tt> value, which eventually will allow us to perform
 subsequent <a class="reference internal" href="#id1">conditional requests</a>.</p>
+<p>Concurrency control applies to all document edition methods: <tt class="docutils literal"><span class="pre">PATCH</span></tt> (edit),
+<tt class="docutils literal"><span class="pre">PUT</span></tt> (replace), <tt class="docutils literal"><span class="pre">DELETE</span></tt> (delete).</p>
 </div>
 <div class="section" id="multiple-insertions">
 <h2>Multiple Insertions<a class="headerlink" href="#multiple-insertions" title="Permalink to this headline">¶</a></h2>
