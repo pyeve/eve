@@ -63,8 +63,11 @@ def parse(value, resource):
     :param value: the string to be evaluated.
     :param resource: name of the involved resource.
 
+    .. versionchanged:: 0.1.0
+       Support for PUT method.
+
     .. versionchanged:: 0.0.5
-        Support for 'application/json' Content-Type.
+       Support for 'application/json' Content-Type.
 
     .. versionchanged:: 0.0.4
        When parsing POST requests, eventual default values are injected in
@@ -86,7 +89,7 @@ def parse(value, resource):
         document[date_field] = str_to_date(document[date_field])
 
     # update the document with eventual default values
-    if request_method() == 'POST':
+    if request_method() in ('POST', 'PUT'):
         defaults = app.config['DOMAIN'][resource]['defaults']
         missing_defaults = defaults.difference(set(document.keys()))
         schema = config.DOMAIN[resource]['schema']

@@ -4,8 +4,7 @@
     eve.methods.patch
     ~~~~~~~~~~~~~~~~~
 
-    This module imlements the PATCH method, supported by the resources
-    endopints.
+    This module imlements the PATCH method.
 
     :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
@@ -80,7 +79,7 @@ def patch(resource, **lookup):
 
     issues = []
 
-    # the list is needed for Py33. Yes kind of sucks.
+    # TODO the list is needed for Py33. Find a less ridiculous alternative?
     key = list(payload.keys())[0]
     value = payload[key]
 

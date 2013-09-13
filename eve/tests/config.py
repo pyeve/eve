@@ -103,7 +103,7 @@ class TestConfig(TestBase):
     def test_validate_schema_item_methods(self):
         test = {
             'resource_methods': ['GET'],
-            'item_methods': ['PUT'],
+            'item_methods': ['POST'],
         }
         self.app.config['DOMAIN']['test_resource'] = test
         self.assertValidateConfigFailure('PUT')

@@ -8,6 +8,8 @@ Version 0.1.0
 
 Not released yet.
 
+- PUT method for completely replace a document with another valid one while
+  keeping the same unique identifier. Closes #96.
 - Some more Python 3 refactoring (Dong Wei Ming).
 - Fixed #99: malformed XML render when href includes forbidden URI/URL chars.
 - Fixed a bug introduced with 0.0.9 and Python 3 support. Filters (``?where``)

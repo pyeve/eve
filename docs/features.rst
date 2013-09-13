@@ -18,18 +18,18 @@ can have a read-only resource accessible at one endpoint, along with a fully
 editable resource at another endpoint. The following table shows Eve's
 implementation of CRUD via REST:
 
-====== ========= ===================
-Action HTTP Verb Context 
-====== ========= ===================
-Create POST      Collection
-Read   GET, HEAD Collection/Document
-Update PATCH     Document
-Delete DELETE    Collection/Document
-====== ========= ===================
+======= ========= ===================
+Action  HTTP Verb Context 
+======= ========= ===================
+Create  POST      Collection
+Read    GET, HEAD Collection/Document
+Update  PATCH     Document
+Replace PUT       Document
+Delete  DELETE    Collection/Document
+======= ========= ===================
 
-If you are wondering why PATCH and not PUT, check `this`_ out. Also, as
-a fallback for the odd client not directly supporting PATCH, the API
-will gladly honor a POST with the ``X-HTTP-Method-Override: PATCH`` header tag.
+As a fallback for the odd client not directly supporting PATCH, the API will
+gladly honor a POST with the ``X-HTTP-Method-Override: PATCH`` header tag.
 
 Customizable resource endpoints
 -------------------------------
@@ -400,9 +400,12 @@ It's a win, and the response payload looks something like this:
         }
     }
 
-This time we got our patch in, and the server returned the new ``ETag``.  We also
-get the new ``updated`` value, which eventually will allow us to perform
+This time we got our patch in, and the server returned the new ``ETag``.  We
+also get the new ``updated`` value, which eventually will allow us to perform
 subsequent `conditional requests`_.
+
+Concurrency control applies to all document edition methods: ``PATCH`` (edit),
+``PUT`` (replace), ``DELETE`` (delete).
 
 Multiple Insertions
 -------------------

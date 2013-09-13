@@ -213,6 +213,26 @@ class Mongo(DataLayer):
                 'pymongo.errors.OperationFailure: %s' % e
             ))
 
+    def replace(self, resource, id_, document):
+        """Replaces an existing document.
+
+        .. versionadded:: 0.1.0
+        """
+        datasource, filter_, _ = self._datasource_ex(resource,
+                                                     {ID_FIELD: ObjectId(id_)})
+
+        # TODO consider using find_and_modify() instead. The document might
+        # have changed since the ETag was computed. This would require getting
+        # the original document as an argument though.
+        try:
+            self.driver.db[datasource].update(filter_, document,
+                                              **self._wc(resource))
+        except pymongo.errors.OperationFailure as e:
+            # see comment in :func:`insert()`.
+            abort(500, description=debug_error_message(
+                'pymongo.errors.OperationFailure: %s' % e
+            ))
+
     def remove(self, resource, id_=None):
         """Removes a document or the entire set of documents from a collection.
 
