@@ -261,9 +261,12 @@ class DataLayer(object):
                     abort(401, description=debug_error_message(
                         'Incompatible User-Restricted Resource request. '
                         'Request was for "%s"="%s" but `auth_field` '
-                        'requires "%s"="%s".' %
-                        (auth_field, auth_field_in_query, auth_field,
-                         curr_req_auth_value)
+                        'requires "%s"="%s".' % (
+                            auth_field,
+                            self.app.data.get_value_from_query(
+                                query, auth_field),
+                            auth_field,
+                            curr_req_auth_value)
                     ))
                 else:
                     query = self.app.data.combine_queries(
