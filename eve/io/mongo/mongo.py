@@ -11,7 +11,6 @@
 """
 
 import ast
-from copy import deepcopy
 import itertools
 from bson.errors import InvalidId
 import simplejson as json
@@ -146,9 +145,14 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
-        datasource, filter_, projection = self._datasource_ex(resource, lookup)
+        if config.ID_FIELD in lookup:
+            try:
+                lookup[ID_FIELD] = ObjectId(lookup[ID_FIELD])
+            except (InvalidId, TypeError):
+                # Returns a type error when {'_id': {...}}
+                pass
 
-        filter_ = self._convert_query_objectids(filter_)
+        datasource, filter_, projection = self._datasource_ex(resource, lookup)
 
         document = self.driver.db[datasource].find_one(filter_, projection)
         return document
@@ -379,27 +383,3 @@ class Mongo(DataLayer):
         .. versionadded:: 0.0.8
         """
         return config.DOMAIN[resource]['mongo_write_concern']
-
-    def _convert_query_objectids(self, query):
-        """
-        Looks through a db query and tries to convert
-        strings into ObjectIds
-
-        .. versionadded: 0.1.0
-        """
-        new_query = deepcopy(query)
-        if config.ID_FIELD in new_query:
-            try:
-                new_query[ID_FIELD] = ObjectId(new_query[ID_FIELD])
-            except (InvalidId, TypeError):
-                # Returns a type error when {'_id': {...}}
-                pass
-        elif '$and' in new_query:
-            # A compound query
-            for condition in new_query['$and']:
-                if config.ID_FIELD in condition:
-                    try:
-                        condition[ID_FIELD] = ObjectId(condition[ID_FIELD])
-                    except (InvalidId, TypeError):
-                        pass
-        return new_query
