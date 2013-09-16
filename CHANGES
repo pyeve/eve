@@ -8,6 +8,8 @@ Version 0.1.0
 
 Not released yet.
 
+- Account Management tutorial updated to reflect the event hooks naming update
+  introduced in v0.0.9.
 - PUT method for completely replace a document with another valid one while
   keeping the same unique identifier. Closes #96.
 - Some more Python 3 refactoring (Dong Wei Ming).

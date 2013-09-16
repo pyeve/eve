@@ -454,10 +454,10 @@ to be stored to the database.
 
     if __name__ == '__main__':
         app = Eve(auth=RolesAuth)
-        app.on_posting_accounts += add_token
+        app.on_POST_accounts += add_token
         app.run()
 
-As you can see, we are subscribing to the `on_posting` event of the `accounts`
+As you can see, we are subscribing to the ``on_POST`` event of the `accounts`
 endpoint with our ``add_token`` function. This callback will receive
 `documents` as an argument, which is a list of validated documents accepted for
 database insertion. We simply add (or replace in the unlikely case that the
