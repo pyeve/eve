@@ -111,8 +111,14 @@ implementation of CRUD via REST:</p>
 </tr>
 </tbody>
 </table>
-<p>As a fallback for the odd client not directly supporting PATCH, the API will
-gladly honor a POST with the <tt class="docutils literal"><span class="pre">X-HTTP-Method-Override:</span> <span class="pre">PATCH</span></tt> header tag.</p>
+<div class="section" id="overriding-http-methods">
+<h3>Overriding HTTP Methods<a class="headerlink" href="#overriding-http-methods" title="Permalink to this headline">¶</a></h3>
+<p>As a fallback for the odd client not supporting any of these methods, the API
+will gladly honor <tt class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></tt> requests. For example a client not
+supporting the <tt class="docutils literal"><span class="pre">PATCH</span></tt> method could send a <tt class="docutils literal"><span class="pre">POST</span></tt> request with
+a <tt class="docutils literal"><span class="pre">X-HTTP-Method-Override:</span> <span class="pre">PATCH</span></tt> header.  The API would then perform
+a <tt class="docutils literal"><span class="pre">PATCH</span></tt>, overriding the original request method.</p>
+</div>
 </div>
 <div class="section" id="customizable-resource-endpoints">
 <h2>Customizable resource endpoints<a class="headerlink" href="#customizable-resource-endpoints" title="Permalink to this headline">¶</a></h2>
@@ -759,7 +765,10 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
   <ul>
 <li><a class="reference internal" href="#">Features</a><ul>
 <li><a class="reference internal" href="#emphasis-on-rest">Emphasis on REST</a></li>
-<li><a class="reference internal" href="#full-range-of-crud-operations">Full range of CRUD operations</a></li>
+<li><a class="reference internal" href="#full-range-of-crud-operations">Full range of CRUD operations</a><ul>
+<li><a class="reference internal" href="#overriding-http-methods">Overriding HTTP Methods</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#customizable-resource-endpoints">Customizable resource endpoints</a></li>
 <li><a class="reference internal" href="#customizable-multiple-item-endpoints">Customizable, multiple item endpoints</a></li>
 <li><a class="reference internal" href="#filtering-and-sorting">Filtering and Sorting</a></li>
