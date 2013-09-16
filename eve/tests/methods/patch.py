@@ -172,6 +172,7 @@ class TestPatch(TestBase):
             self.assertEqual(db_values[i], test_values[i])
 
     def test_patch_with_post_override(self):
+        # a POST request with PATCH override turns into a PATCH request
         r = self.perform_patch_with_post_override('prog', 1)
         self.assert200(r.status_code)
 
@@ -184,7 +185,7 @@ class TestPatch(TestBase):
         return r
 
     def perform_patch_with_post_override(self, field, value):
-        headers = [('X-HTTP-Method-Override', 'True'),
+        headers = [('X-HTTP-Method-Override', 'PATCH'),
                    ('If-Match', self.item_etag),
                    ('Content-Type', 'application/x-www-form-urlencoded')]
         return self.test_client.post(self.item_id_url,

@@ -208,6 +208,18 @@ class TestPost(TestBase):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert200(status)
 
+    def test_post_with_get_override(self):
+        # a GET request with POST override turns into a POST request.
+        test_field = 'ref'
+        test_value = "1234567890123456789054321"
+        data = {'item1': json.dumps({test_field: test_value})}
+        headers = [('X-HTTP-Method-Override', 'POST'),
+                   ('Content-Type', 'application/x-www-form-urlencoded')]
+        r = self.test_client.get(self.known_resource_url, data=data,
+                                 headers=headers)
+        self.assert200(r.status_code)
+        self.assertPostResponse(json.loads(r.get_data()), ['item1'])
+
     def perform_post(self, data, valid_items=['item1']):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert200(status)

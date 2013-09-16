@@ -279,16 +279,16 @@ def extract_key_values(key, d):
 
 
 def request_method():
-    """ Returns flask 'request.method', but taking our support for POST with
-    'X-HTTP-Method-Override' as a PATCH alternative into consideration.
+    """ Returns the proper request method, also taking into account the
+    possibile override requested by the client (via 'X-HTTP-Method-Override'
+    header).
+
+    .. versionchanged: 0.1.0
+       Supports overriding of any HTTP Method (#95).
 
     .. versionadded: 0.0.7
     """
-    if request.method == 'POST' and 'X-HTTP-Method-Override' in \
-       request.headers:
-        return 'PATCH'
-    else:
-        return request.method
+    return request.headers.get('X-HTTP-Method-Override', request.method)
 
 
 def debug_error_message(msg):
