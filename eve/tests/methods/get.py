@@ -240,7 +240,8 @@ class TestGet(TestBase):
         # POST request with GET override turns into a GET
         headers = [('X-HTTP-Method-Override', 'GET')]
         r = self.test_client.post(self.known_resource_url, headers=headers)
-        self.assertGet(**self.parse_response(r))
+        response, status = self.parse_response(r)
+        self.assertGet(response, status)
 
     def assertGet(self, response, status):
         self.assert200(status)
@@ -362,7 +363,7 @@ class TestGetItem(TestBase):
         self.assertItemResponse(response, status)
 
     def test_get_with_post_override(self):
-        # POST request with GET override turns into a GET
+        # POST request with GET override turns into a GET headers = [('X-HTTP-Method-Override', 'GET')]
         headers = [('X-HTTP-Method-Override', 'GET')]
         r = self.test_client.post(self.item_id_url, headers=headers)
         response, status = self.parse_response(r)
