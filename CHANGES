@@ -8,6 +8,7 @@ Version 0.1.0
 
 Not released yet.
 
+- X-HTTP-Method-Override now supported for all HTTP Methods. Closes # 95.
 - Account Management tutorial updated to reflect the event hooks naming update
   introduced in v0.0.9.
 - PUT method for completely replace a document with another valid one while

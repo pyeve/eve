@@ -138,6 +138,19 @@ class TestPut(TestBase):
         db_value = self.compare_put_with_get(field, r)
         self.assertEqual(db_value, test_value)
 
+    def test_put_with_post_override(self):
+        # POST request with PUT override turns into a PUT
+        field = "ref"
+        test_value = "1234567890123456789012345"
+        changes = {'key1': json.dumps({field: test_value})}
+        headers = [('X-HTTP-Method-Override', 'PUT'),
+                   ('If-Match', self.item_etag),
+                   ('Content-Type', 'application/x-www-form-urlencoded')]
+        r = self.test_client.post(self.item_id_url, data=changes,
+                                  headers=headers)
+        self.assert200(r.status_code)
+        self.assertPutResponse(json.loads(r.get_data()), 'key1', self.item_id)
+
     def perform_put(self, changes):
         r, status = self.put(self.item_id_url,
                              data=changes,

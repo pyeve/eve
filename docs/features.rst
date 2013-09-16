@@ -28,8 +28,13 @@ Replace PUT       Document
 Delete  DELETE    Collection/Document
 ======= ========= ===================
 
-As a fallback for the odd client not directly supporting PATCH, the API will
-gladly honor a POST with the ``X-HTTP-Method-Override: PATCH`` header tag.
+Overriding HTTP Methods
+~~~~~~~~~~~~~~~~~~~~~~~
+As a fallback for the odd client not supporting any of these methods, the API
+will gladly honor ``X-HTTP-Method-Override`` requests. For example a client not
+supporting the ``PATCH`` method could send a ``POST`` request with
+a ``X-HTTP-Method-Override: PATCH`` header.  The API would then perform
+a ``PATCH``, overriding the original request method.
 
 Customizable resource endpoints
 -------------------------------
