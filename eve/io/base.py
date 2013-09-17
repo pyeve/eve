@@ -102,6 +102,23 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
+    def find_list_of_ids(self, resource, ids, client_projection=None):
+        """Retrieves a list of documents based on a list of primary keys
+        The primary key is the field defined in `ID_FIELD`.
+        This is a separate function to allow us to use per-database
+        optimizations for this type of query
+
+        :param resource: resource name.
+        :param ids: a list of ids corresponding to the documents
+        to retrieve
+        :param client_projection: a specific projection to use
+        :return: a list of documents matching the ids in `ids` from the
+        collection specified in `resource`
+
+        .. versionadded:: 0.1.0
+        """
+        raise NotImplementedError
+
     def insert(self, resource, doc_or_docs):
         """Inserts a document into a resource collection/table.
 

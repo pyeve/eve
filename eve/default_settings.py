@@ -12,6 +12,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.1.0
+       'EMBEDDING' added and set to True.
        'HATEOAS' added and set to True.
 
     .. versionchanged:: 0.0.9
@@ -53,6 +54,7 @@ HATEOAS = True                  # HATEOAS enabled by default.
 
 ALLOWED_FILTERS = ['*']         # filtering enabled by default
 SORTING = True                  # sorting enabled by default.
+EMBEDDING = True                # embedding enabled by default
 PROJECTION = True               # projection enabled by default
 PAGINATION = True               # pagination enabled by default.
 PAGINATION_LIMIT = 50
