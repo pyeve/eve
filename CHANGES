@@ -8,6 +8,9 @@ Version 0.1.0
 
 Not released yet.
 
+- Embedded Resource Serialization. If a document field is referencing
+  a document in another resource, clients can request the referenced document
+  to be embedded within the requested document (Bryan Cattle). Closes #68. 
 - X-HTTP-Method-Override now supported for all HTTP Methods. Closes # 95.
 - Account Management tutorial updated to reflect the event hooks naming update
   introduced in v0.0.9.
