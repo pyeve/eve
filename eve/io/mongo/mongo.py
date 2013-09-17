@@ -183,7 +183,7 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.1.0
         """
-        query={'$or':[
+        query = {'$or': [
             {'_id': id_} for id_ in ids
         ]}
 
@@ -195,7 +195,6 @@ class Mongo(DataLayer):
             spec=spec, fields=projection
         )
         return documents
-
 
     def insert(self, resource, doc_or_docs):
         """Inserts a document into a resource collection.
