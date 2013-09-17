@@ -607,7 +607,7 @@ like this:
             }
         }
 
-A GET like ``/emails/?embedded={"user":1}`` would return a fully embedded user
+A GET like ``/emails/?embedded={"author":1}`` would return a fully embedded user
 document whereas the same request without the ``embedded`` argument would just
 return the user ``ObjectId``. 
 
@@ -616,6 +616,9 @@ Embedding can be enabled or disabled both at global level (by setting
 toggling the ``embedding`` value). Furthermore, only fields with the
 ``embeddable`` value explicitly set to ``True`` will allow the embedding of
 referenced documents.
+
+Limitations: currenly we only support a single layer of embedding, i.e.
+``/emails/?{"author": 1}`` but *not* ``/emails/?{"author.firends": 1}``.
 
 Document embedding is enabled by default.
 
