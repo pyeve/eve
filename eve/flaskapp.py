@@ -257,6 +257,9 @@ class Eve(Flask, Events):
         :param resource: resource name.
         :param schema: schema definition for the resource.
 
+        .. versionchanged:: 0.1.0
+           Validation for 'embeddable' fields.
+
         .. versionchanged:: 0.0.5
            Validation of the 'data_relation' field rule.
            Now collecting offending items in a list and inserting results into
@@ -294,6 +297,9 @@ class Eve(Flask, Events):
     def set_defaults(self):
         """ When not provided, fills individual resource settings with default
         or global configuration settings.
+
+        .. versionchanged:: 0.1.0
+          'embedding'
 
         .. versionchanged:: 0.0.9
            'auth_username_field' renamed to 'auth_field'.

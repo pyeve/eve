@@ -43,8 +43,11 @@ config = Config()
 class ParsedRequest(object):
     """ This class, by means of its attributes, describes a client request.
 
+    .. versonchanged:: 0.1.0
+       'embedded' keyword.
+
     .. versionchanged:: 0.0.6
-        projection queries ('?projection={"name": 1}')
+       Projection queries ('?projection={"name": 1}')
     """
     # `where` value of the query string (?where). Defaults to None.
     where = None
@@ -80,6 +83,9 @@ def parse_request(resource):
     containing relevant request data.
 
     :param resource: the resource currently being accessed by the client.
+
+    .. versionchagend:: 0.1.0
+       Support for embedded documents.
 
     .. versionchanged:: 0.0.6
        projection queries ('?projection={"name": 1}')

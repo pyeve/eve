@@ -180,7 +180,7 @@ class Mongo(DataLayer):
         :return: a list of documents matching the ids in `ids` from the
         collection specified in `resource`
 
-        .. versionadded:: 0.0.9
+        .. versionadded:: 0.1.0
         """
         query={'$or':[
             {'_id': id_} for id_ in ids

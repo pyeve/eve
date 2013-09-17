@@ -29,11 +29,14 @@ def get(resource):
 
     :param resource: the name of the resource.
 
-    .. versionchanged: 0.0.9
+    .. versionchanged:: 0.1.0
+       Support for embeddable documents.
+
+    .. versionchanged:: 0.0.9
        Event hooks renamed to be more robuts and consistent: 'on_getting'
        renamed to 'on_fetch'.
 
-    .. versionchanged: 0.0.8
+    .. versionchanged:: 0.0.8
        'on_getting' and 'on_getting_<resource>' events are raised when
        documents have been read from the database and are about to be sent to
        the client.
@@ -194,8 +197,7 @@ def _resolve_embedded_documents(resource, req, documents):
     :param req: and instace of :class:`eve.utils.ParsedRequest`.
     :param documents: list of documents returned by the query.
 
-    .. versionchanged:: 0.0.9
-       Added support for embedded document serialization
+    .. versionadded:: 0.1.0
     """
     if req.embedded:
         # Parse the embedded clause, we are expecting

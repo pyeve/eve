@@ -112,7 +112,7 @@ class DataLayer(object):
         :return: a list of documents matching the ids in `ids` from the
         collection specified in `resource`
 
-        .. versionadded:: 0.0.9
+        .. versionadded:: 0.1.0
         """
         raise NotImplementedError
 

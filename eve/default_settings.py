@@ -11,6 +11,9 @@
     :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.1.0
+       'EMBEDDING' added and set to True.
+
     .. versionchanged:: 0.0.9
        'FILTERS' boolean changed to 'ALLOWED_FILTERS' list.
        'AUTH_USERNAME_FIELD' renamed to 'AUTH_FIELD', and default value set to
