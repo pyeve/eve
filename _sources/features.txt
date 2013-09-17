@@ -577,6 +577,51 @@ available in the 'people' resource. Please note that key fields such as
 ID_FIELD, DATE_CREATED, DATE_UPDATED etc.  will still be included with the
 payload.
 
+.. _embedded_docs:
+
+Embedded Resource Serialization
+-------------------------------
+If a document field is referencing a document in another resource, clients can
+request the referenced document to be embedded within the requested document.
+
+Clients have the power to activate document embedding on per-request basis by
+means of a query parameter. Suppose you have a ``emails`` resource configured
+like this:
+
+.. code-block:: python
+   :emphasize-lines: 9
+
+    DOMAIN = {
+        'emails': {
+            'schema': {
+                'author:' {
+                    'type': 'objectid', 
+                    'data_relation': {
+                        'collection': 'user', 
+                        'field': '_id', 
+                        'embeddable': True
+                    },
+                },
+                'subject:' {'type': 'string'},
+                'body:' {'type': 'string'}, 
+            }
+        }
+
+A GET like ``/emails/?embedded={"author":1}`` would return a fully embedded user
+document whereas the same request without the ``embedded`` argument would just
+return the user ``ObjectId``. 
+
+Embedding can be enabled or disabled both at global level (by setting
+``EMBEDDING`` to either ``True`` or ``False``) and at resource level (by
+toggling the ``embedding`` value). Furthermore, only fields with the
+``embeddable`` value explicitly set to ``True`` will allow the embedding of
+referenced documents.
+
+Limitations: currenly we only support a single layer of embedding, i.e.
+``/emails/?{"author": 1}`` but *not* ``/emails/?{"author.firends": 1}``.
+
+Document embedding is enabled by default.
+
 .. _eventhooks:
 
 Event Hooks

@@ -256,7 +256,11 @@ uppercase.
                                 :ref:`projections` feature. Can be overridden
                                 by resource settings. Defaults to ``True``.
 
-``EXTRA_RESPONSE_FIELDS``       Allows configuration of a list of additional
+``EMBEDDING``                   When ``True`` this option enables the
+                                :ref:`embedded_docs` feature. Defaults to
+                                ``True``.
+
+``EXTRA_RESPONSE_FIELDS``       Allows to configure a list of additional
                                 document fields that should be provided with
                                 every POST response. Normally only
                                 automatically handled fields (``ID_FIELD``,
@@ -501,7 +505,11 @@ always lowercase.
                                 :ref:`projections` feature. Locally overrides
                                 ``PROJECTION``. Defaults to ``True``.
 
-``extra_response_fields``       Allows configuration of a list of additional
+``embedding``                   When ``True`` this option enables the
+                                :ref:`embedded_docs` feature. Defaults to
+                                ``True``.
+
+``extra_response_fields``       Allows to configure a list of additional
                                 document fields that should be provided with
                                 every POST response. Normally only
                                 automatically handled fields (``ID_FIELD``,
@@ -655,13 +663,13 @@ defining the field validation rules. Allowed validation rules are:
                                 validate locally before submitting the payload
                                 to the API.
 
-``data_relation``               Allows specification of a referential integrity
-                                rule that the value must satisfy in order to
-                                validate. It is a dict with two keys:
-                                ``collection``, which is the name of the
-                                database collection being referenced, and
-                                ``field``, the field name in the foreign
-                                collection.
+``data_relation``               Allows to specify a referential integrity rule
+                                that the value must satisfy in order to
+                                validate. It is a dict with three keys:
+
+                                - ``collection``: the name of the database collection being referenced;
+                                - ``field``: the field name in the foreign collection;
+                                - ``embeddable``: set to ``True`` if clients can request the referenced document to be embedded with the serialization. See :ref:`embedded_docs`. Defaults to ``False``.
 
 ``nullable``                    If ``True`` the field value can be set to 
                                 ``None``. 

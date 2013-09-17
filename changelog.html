@@ -61,6 +61,12 @@
 <h2>Version 0.1.0<a class="headerlink" href="#version-0-1-0" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>Embedded Resource Serialization. If a document field is referencing
+a document in another resource, clients can request the referenced document
+to be embedded within the requested document (Bryan Cattle). Closes #68.</li>
+<li>X-HTTP-Method-Override now supported for all HTTP Methods. Closes # 95.</li>
+<li>Account Management tutorial updated to reflect the event hooks naming update
+introduced in v0.0.9.</li>
 <li>PUT method for completely replace a document with another valid one while
 keeping the same unique identifier. Closes #96.</li>
 <li>Some more Python 3 refactoring (Dong Wei Ming).</li>

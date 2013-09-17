@@ -605,6 +605,42 @@ available in the &#8216;people&#8217; resource. Please note that key fields such
 ID_FIELD, DATE_CREATED, DATE_UPDATED etc.  will still be included with the
 payload.</p>
 </div>
+<div class="section" id="embedded-resource-serialization">
+<span id="embedded-docs"></span><h2>Embedded Resource Serialization<a class="headerlink" href="#embedded-resource-serialization" title="Permalink to this headline">¶</a></h2>
+<p>If a document field is referencing a document in another resource, clients can
+request the referenced document to be embedded within the requested document.</p>
+<p>Clients have the power to activate document embedding on per-request basis by
+means of a query parameter. Suppose you have a <tt class="docutils literal"><span class="pre">emails</span></tt> resource configured
+like this:</p>
+<div class="highlight-python"><div class="highlight"><pre> <span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
+     <span class="s">&#39;emails&#39;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+             <span class="s">&#39;author:&#39;</span> <span class="p">{</span>
+                 <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;objectid&#39;</span><span class="p">,</span>
+                 <span class="s">&#39;data_relation&#39;</span><span class="p">:</span> <span class="p">{</span>
+                     <span class="s">&#39;collection&#39;</span><span class="p">:</span> <span class="s">&#39;user&#39;</span><span class="p">,</span>
+                     <span class="s">&#39;field&#39;</span><span class="p">:</span> <span class="s">&#39;_id&#39;</span><span class="p">,</span>
+<span class="hll">                     <span class="s">&#39;embeddable&#39;</span><span class="p">:</span> <span class="bp">True</span>
+</span>                 <span class="p">},</span>
+             <span class="p">},</span>
+             <span class="s">&#39;subject:&#39;</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">},</span>
+             <span class="s">&#39;body:&#39;</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">},</span>
+         <span class="p">}</span>
+     <span class="p">}</span>
+</pre></div>
+</div>
+<p>A GET like <tt class="docutils literal"><span class="pre">/emails/?embedded={&quot;author&quot;:1}</span></tt> would return a fully embedded user
+document whereas the same request without the <tt class="docutils literal"><span class="pre">embedded</span></tt> argument would just
+return the user <tt class="docutils literal"><span class="pre">ObjectId</span></tt>.</p>
+<p>Embedding can be enabled or disabled both at global level (by setting
+<tt class="docutils literal"><span class="pre">EMBEDDING</span></tt> to either <tt class="docutils literal"><span class="pre">True</span></tt> or <tt class="docutils literal"><span class="pre">False</span></tt>) and at resource level (by
+toggling the <tt class="docutils literal"><span class="pre">embedding</span></tt> value). Furthermore, only fields with the
+<tt class="docutils literal"><span class="pre">embeddable</span></tt> value explicitly set to <tt class="docutils literal"><span class="pre">True</span></tt> will allow the embedding of
+referenced documents.</p>
+<p>Limitations: currenly we only support a single layer of embedding, i.e.
+<tt class="docutils literal"><span class="pre">/emails/?{&quot;author&quot;:</span> <span class="pre">1}</span></tt> but <em>not</em> <tt class="docutils literal"><span class="pre">/emails/?{&quot;author.firends&quot;:</span> <span class="pre">1}</span></tt>.</p>
+<p>Document embedding is enabled by default.</p>
+</div>
 <div class="section" id="event-hooks">
 <span id="eventhooks"></span><h2>Event Hooks<a class="headerlink" href="#event-hooks" title="Permalink to this headline">¶</a></h2>
 <p>Each time a GET, POST, PATCH, DELETE method has been executed, both global
@@ -791,6 +827,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li><a class="reference internal" href="#default-values">Default Values</a></li>
 <li><a class="reference internal" href="#predefined-database-filters">Predefined Database Filters</a></li>
 <li><a class="reference internal" href="#projections">Projections</a></li>
+<li><a class="reference internal" href="#embedded-resource-serialization">Embedded Resource Serialization</a></li>
 <li><a class="reference internal" href="#event-hooks">Event Hooks</a><ul>
 <li><a class="reference internal" href="#manipulating-inbound-documents">Manipulating inbound documents</a></li>
 <li><a class="reference internal" href="#manipulating-outbound-documents">Manipulating outbound documents</a></li>
