@@ -61,6 +61,7 @@
 <h2>Version 0.1.0<a class="headerlink" href="#version-0-1-0" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>Cleanup and hardening of User-Restricted Resource Access Edit (Bryan Cattle).</li>
 <li>Embedded Resource Serialization. If a document field is referencing
 a document in another resource, clients can request the referenced document
 to be embedded within the requested document (Bryan Cattle). Closes #68.</li>
@@ -166,9 +167,9 @@ TestMinimal class (Daniele Pizzolli).</li>
 <h2>Version 0.0.7<a class="headerlink" href="#version-0-0-7" title="Permalink to this headline">¶</a></h2>
 <p>Released on June 18th 2013.</p>
 <ul class="simple">
-<li>Pinned Werkzeug requirement to v0.8.3 to avoid issues with the latest
-release which breaks backward compatibility (actually a Flask 0.9
-requirements issue, which backtracked to Eve).</li>
+<li>Pinned Werkzeug requirement to v0.8.3 to avoid issues with the latest release
+which breaks backward compatibility (actually a Flask 0.9 requirements issue,
+which backtracked to Eve).</li>
 <li>Support for Rate Limiting on all HTTP methods. Closes #58. Please note: to
 successfully execute the tests in &#8216;eve.tests.methods.ratelimit.py`, a running
 redis server is needed.</li>
