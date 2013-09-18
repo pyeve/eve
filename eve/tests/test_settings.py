@@ -84,6 +84,7 @@ users['datasource'] = {'source': 'contacts',
 users['schema']['username'] = {'type': 'string', 'required': True}
 users['resource_methods'] = ['DELETE', 'POST', 'GET']
 users['item_title'] = 'user'
+users['additional_lookup']['field'] = 'username'
 
 invoices = {
     #'item_lookup': False,

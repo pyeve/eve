@@ -8,9 +8,10 @@ Version 0.1.0
 
 Not released yet.
 
+- Cleanup and hardening of User-Restricted Resource Access Edit (Bryan Cattle).
 - Embedded Resource Serialization. If a document field is referencing
   a document in another resource, clients can request the referenced document
-  to be embedded within the requested document (Bryan Cattle). Closes #68. 
+  to be embedded within the requested document (Bryan Cattle). Closes #68.
 - X-HTTP-Method-Override now supported for all HTTP Methods. Closes # 95.
 - Account Management tutorial updated to reflect the event hooks naming update
   introduced in v0.0.9.
@@ -23,7 +24,7 @@ Not released yet.
 - Fixed some typos and minor grammatical errors all across the documentation
   (Ken Carpenter, Jean Boussier, Kracekumar).
 - HTTP method is now passed into ``authenticate()`` and ``check_auth()``.
-  Closes #90 (Ken Carpenter). 
+  Closes #90 (Ken Carpenter).
 - HATEOAS is now optional and can be disabled both at global and resource
   level.
 - PyMongo 2.6.2 is now supported.
@@ -71,14 +72,14 @@ Released on August 29, 2013
 - Python 3.3 is now supported.
 - Flask 0.10.1 is now supported.
 - Werkzeug 0.9.4 is now supported.
-- Copyright finally updated to 2013. 
+- Copyright finally updated to 2013.
 
 Version 0.0.8
 -------------
 
 Released on July 25th 2013.
 
-- Only run RateLimiting tests if redis-py is installed and redis-server is 
+- Only run RateLimiting tests if redis-py is installed and redis-server is
   running.
 - CORS ``Access-Control-Allow-Headers`` header support (Garrin Kimmell).
 - CORS ``OPTIONS`` support for resource and items endpoints (Garrin Kimmell).
@@ -113,9 +114,9 @@ Version 0.0.7
 
 Released on June 18th 2013.
 
-- Pinned Werkzeug requirement to v0.8.3 to avoid issues with the latest 
-  release which breaks backward compatibility (actually a Flask 0.9 
-  requirements issue, which backtracked to Eve).
+- Pinned Werkzeug requirement to v0.8.3 to avoid issues with the latest release
+  which breaks backward compatibility (actually a Flask 0.9 requirements issue,
+  which backtracked to Eve).
 - Support for Rate Limiting on all HTTP methods. Closes #58. Please note: to
   successfully execute the tests in 'eve.tests.methods.ratelimit.py`, a running
   redis server is needed.
@@ -233,11 +234,11 @@ Released on April 11th 2013.
   allows API maintainers to specify which domains are allowed to perform CORS
   requests. Allowed values are: None, a list of domains, or '*' for a wide-open
   API. Closes #1.
-- HMAC (Hash Message Authentication Code) based Autentication. 
+- HMAC (Hash Message Authentication Code) based Autentication.
 - Token Based Authentication, a variation of Basic Authentication. Closes #20.
 - Orphan function removed (``eve.methods.get.standard_links`` ).
 - ``DATE_CREATED`` and ``LAST_UPDATED`` fields now show default values for
-  documents created outside the API context. Fixes #18. 
+  documents created outside the API context. Fixes #18.
 
 Version 0.0.4
 -------------
@@ -245,7 +246,7 @@ Version 0.0.4
 Released on February 25th 2013.
 
 - Consistent ETag computation between runs/instances. Closes #16.
-- Support for Basic Authentication (RFC2617). 
+- Support for Basic Authentication (RFC2617).
 - Support for fine-tuning authentication with ``PUBLIC_METHODS`` and
   ``PUBLIC_ITEM_METHODS``. By default, access is restricted to *all* endpoints,
   for *all* HTTP verbs (methods), effectively locking down the whole API.
@@ -280,7 +281,7 @@ Released on February 25th 2013.
 - Repeated XML requests to the same endpoint could occasionally return an
   Internal Server Error (Fixes #8).
 
-Version 0.0.3 
+Version 0.0.3
 -------------
 
 Released on January 22th 2013.
@@ -291,7 +292,7 @@ Released on January 22th 2013.
 - Streamlined JSON responses. Superflous ``response`` root key has been removed
   from JSON payloads. GET requests to resource endpoints: items are now wrapped
   with an ``_items`` list. GET requests to item endpoints: item is now at root
-  level, with no wrappers around it. 
+  level, with no wrappers around it.
 - Support for API versioning through the new API_VERSION configuration setting.
 - Boolean values in request forms are now correctly parsed.
 - Tests now run under Python 2.6.
