@@ -105,13 +105,14 @@ def post(resource, payl=None):
                 document[config.LAST_UPDATED] = \
                     document[config.DATE_CREATED] = date_utc
 
-                # if 'user-restricted resource access' is enabled and there's
-                # an Auth request active, inject the username into the document
+                # if 'user-restricted resource access' is enabled
+                # and there's an Auth request active,
+                # inject the auth_field into the document
                 auth_field = resource_def['auth_field']
                 if auth_field:
-                    userid = app.auth.user_id
-                    if userid and request.authorization:
-                        document[auth_field] = userid
+                    auth_field_value = getattr(app.auth, auth_field)
+                    if auth_field_value and request.authorization:
+                        document[auth_field] = auth_field_value
 
             else:
                 # validation errors added to list of document issues
