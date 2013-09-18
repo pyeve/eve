@@ -178,7 +178,7 @@ class DataLayer(object):
         the intersection.
 
         .. versionadded: 0.1.0
-            Support for intelligent combination of db queries
+           Support for intelligent combination of db queries
         """
         raise NotImplementedError
 
@@ -190,7 +190,7 @@ class DataLayer(object):
         This mainly exists to deal with more complicated compound queries
 
         .. versionadded: 0.1.0
-            Support for parsing values embedded in compound db queries
+           Support for parsing values embedded in compound db queries
         """
         raise NotImplementedError
 
@@ -199,7 +199,7 @@ class DataLayer(object):
         Used know whether we need to parse a compound query
 
         .. versionadded: 0.1.0
-            Support for parsing values embedded in compound db queries
+           Support for parsing values embedded in compound db queries
         """
         raise NotImplementedError
 

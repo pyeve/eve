@@ -139,6 +139,10 @@ class Mongo(DataLayer):
         :param resource: resource name.
         :param **lookup: lookup query.
 
+        .. versionchanged:: 0.1.0
+           ID_FIELD to ObjectID conversion is done before `_datasource_ex` is
+           called.
+
         .. versionchanged:: 0.0.6
            Only retrieve fields in the resource schema
 
@@ -338,7 +342,7 @@ class Mongo(DataLayer):
         {'$and': [{'username': {'$exists': True}}, {'username': 'mike'}]}
 
         .. versionadded: 0.1.0
-            Support for intelligent combination of db queries
+           Support for intelligent combination of db queries
         """
         # Chain the operations with the $and operator
         return {
@@ -364,7 +368,7 @@ class Mongo(DataLayer):
         123
 
         .. versionadded: 0.1.0
-            Support for parsing values embedded in compound db queries
+           Support for parsing values embedded in compound db queries
         """
         if field_name in query:
             return query[field_name]
@@ -379,7 +383,7 @@ class Mongo(DataLayer):
         Used know whether we need to parse a compound query
 
         .. versionadded: 0.1.0
-            Support for parsing values embedded in compound db queries
+           Support for parsing values embedded in compound db queries
         """
         try:
             self.get_value_from_query(query, field_name)

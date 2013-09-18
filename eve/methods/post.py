@@ -42,6 +42,7 @@ def post(resource, payl=None):
                  discussion, and a typical use case.
 
     .. versionchanged:: 0.1.0
+       More robust handling of auth_field.
        Support for optional HATEOAS.
 
     .. versionchanged: 0.0.9
