@@ -33,6 +33,8 @@ def patch(resource, **lookup):
 
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
+       Re-raises `exceptions.Unauthorized`, this could occur if the
+       `auth_field` condition fails
 
     .. versionchanged:: 0.0.9
        More informative error messages.
@@ -116,7 +118,7 @@ def patch(resource, **lookup):
         # TODO should probably log the error and abort 400 instead (when we
         # got logging)
         issues.append(str(e))
-    except exceptions.InternalServerError as e:
+    except (exceptions.InternalServerError, exceptions.Unauthorized) as e:
         raise e
     except Exception as e:
         # consider all other exceptions as Bad Requests

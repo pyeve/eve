@@ -406,7 +406,7 @@ class TestGetItem(TestBase):
 
     def test_getitem_by_name_different_resource(self):
         response, status = self.get(self.different_resource,
-                                    item=self.user_name)
+                                    item=self.user_username)
         self.assertItemResponse(response, status, self.different_resource)
         response, status = self.get(self.different_resource,
                                     item=self.unknown_item_name)
