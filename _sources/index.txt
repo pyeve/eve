@@ -33,11 +33,13 @@ Eve is thoroughly tested under Python 2.6, Python 2.7 and Python 3.3.
 
 Live demo
 ---------
-Check out the `live demo`_ (if using a browser you will get XML back,
-for JSON use ``curl``). The `source code`_ will show you how easy it is to run
-an API with Eve. You will also find `usage examples`_ for all common use cases
-(GET, POST, PATCH, DELETE and more). There is also a simple `client app`_
-available.
+Check out the `live demo`_. If using a browser you will get XML back. For JSON
+in the browser, you might want to install Postman_ or similar extension and
+then set the ``Accept`` request header to ``application/json``. If you are
+a CLI guy (and you should), ``curl`` is your friend. The `source code`_ will
+show you how easy it is to run an API with Eve. You will also find `usage
+examples`_ for all common use cases (GET, POST, PATCH, DELETE and more). There
+is also a simple `client app`_ available.
 
 User's Guide
 ------------
@@ -91,4 +93,4 @@ Changelog
 .. _`usage examples`: https://github.com/nicolaiarocci/eve-demo#readme
 .. _`client app`: https://github.com/nicolaiarocci/eve-demo-client
 .. _me: mailto:me@nicolaiaroccicom
-
+.. _Postman: https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&ved=0CC0QFjAA&url=https%3A%2F%2Fchrome.google.com%2Fwebstore%2Fdetail%2Fpostman-rest-client%2Ffdmmgilgnpjigdojojpjoooidkmcomcm&ei=dPQ7UpqEBISXtAbPpIGwDg&usg=AFQjCNFL71vN61QG0LKlw7VDJvIZDprjHA&bvm=bv.52434380,d.Yms
