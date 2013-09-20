@@ -32,6 +32,9 @@ def raise_event(f):
     function has been executed. Returns both the flask.request object and the
     response payload to the callback.
 
+    .. versionchanged:: 0.1.0
+       Support for PUT.
+
     .. versionchanged:: 0.0.9
        To emphasize the fact that they are tied to a method, in `on_<method>`
        events, <method> is now uppercase.
@@ -42,7 +45,7 @@ def raise_event(f):
     def decorated(*args, **kwargs):
         r = f(*args, **kwargs)
         method = request_method()
-        if method in ('GET', 'POST', 'PATCH', 'DELETE'):
+        if method in ('GET', 'POST', 'PATCH', 'DELETE', 'PUT'):
             event_name = 'on_' + method
             resource = args[0] if args else None
             # general hook
