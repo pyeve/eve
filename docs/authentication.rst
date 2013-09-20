@@ -414,7 +414,7 @@ But how do you set the ``auth_field`` value? By simply setting it in your
 custom class. Let us revise our BCrypt-authentication example from above:
 
 .. code-block:: python
-   :emphasize-lines: 25-27
+   :emphasize-lines: 25-28
 
     # -*- coding: utf-8 -*-
 
@@ -441,8 +441,9 @@ custom class. Let us revise our BCrypt-authentication example from above:
             accounts = app.data.driver.db['accounts']
             account = accounts.find_one({'username': username})
             # set 'auth_field' value to the account's ObjectId 
-            # (instead of _Id, you might want to use ID_FIELD)
-            self.user_id = account['_Id']
+            # (instead of _id, you might want to use ID_FIELD)
+            if account and '_id' in account:
+                self.user_id = account['_id']
             return account and \
                 bcrypt.hashpw(password, account['password']) == account['password']
 
