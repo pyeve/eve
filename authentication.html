@@ -449,8 +449,9 @@ custom class. Let us revise our BCrypt-authentication example from above:</p>
          <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
          <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">})</span>
 <span class="hll">         <span class="c"># set &#39;auth_field&#39; value to the account&#39;s ObjectId</span>
-</span><span class="hll">         <span class="c"># (instead of _Id, you might want to use ID_FIELD)</span>
-</span><span class="hll">         <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">account</span><span class="p">[</span><span class="s">&#39;_Id&#39;</span><span class="p">]</span>
+</span><span class="hll">         <span class="c"># (instead of _id, you might want to use ID_FIELD)</span>
+</span><span class="hll">         <span class="k">if</span> <span class="n">account</span> <span class="ow">and</span> <span class="s">&#39;_id&#39;</span> <span class="ow">in</span> <span class="n">account</span><span class="p">:</span>
+</span><span class="hll">             <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">account</span><span class="p">[</span><span class="s">&#39;_id&#39;</span><span class="p">]</span>
 </span>         <span class="k">return</span> <span class="n">account</span> <span class="ow">and</span> \
              <span class="n">bcrypt</span><span class="o">.</span><span class="n">hashpw</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">account</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="n">account</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">]</span>
 
