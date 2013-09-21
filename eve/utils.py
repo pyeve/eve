@@ -58,6 +58,9 @@ class ParsedRequest(object):
     # `sort` value of the query string (?sort). Defaults to None.
     sort = None
 
+    # `sortMethod` value of the query string (?sortMethod). Defaults to 1.
+    sortMethod = 1
+
     # `page` value of the query string (?page). Defaults to 1.
     page = 1
 
@@ -106,6 +109,13 @@ def parse_request(resource):
         r.sort = args.get('sort')
     if config.DOMAIN[resource]['embedding']:
         r.embedded = args.get('embedded')
+
+    if args.get('sortMethod') == 'ascending':
+        r.sortMethod = 1
+    elif args.get('sortMethod') == 'descending':
+        r.sortMethod = -1
+    else:
+        r.sortMethod = 1
 
     max_results_default = config.PAGINATION_DEFAULT if \
         config.DOMAIN[resource]['pagination'] else 0
@@ -240,7 +250,7 @@ def api_prefix(url_prefix=None, api_version=None):
 
 
 def querydef(max_results=config.PAGINATION_DEFAULT, where=None, sort=None,
-             page=None):
+             sortMethod=None, page=None):
     """ Returns a valid query string.
 
     :param max_results: `max_result` part of the query string. Defaults to
@@ -251,12 +261,13 @@ def querydef(max_results=config.PAGINATION_DEFAULT, where=None, sort=None,
     """
     where_part = '&where=%s' % where if where else ''
     sort_part = '&sort=%s' % sort if sort else ''
+    sortMethod_part = '&sortMethod=%s' % sortMethod if sortMethod else ''
     page_part = '&page=%s' % page if page and page > 1 else ''
     max_results_part = 'max_results=%s' % max_results \
         if max_results != config.PAGINATION_DEFAULT else ''
 
     return ('?' + ''.join([max_results_part, where_part, sort_part,
-                           page_part]).lstrip('&')).rstrip('?')
+            sortMethod_part,page_part]).lstrip('&')).rstrip('?')
 
 
 def document_etag(value):

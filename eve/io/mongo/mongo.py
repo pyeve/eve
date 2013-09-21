@@ -88,8 +88,12 @@ class Mongo(DataLayer):
 
         # TODO should validate on unknown sort fields (mongo driver doesn't
         # return an error)
+        if req.sortMethod:
+            sortMethod = req.sortMethod
+        else:
+            sortMethod = 1
         if req.sort:
-            args['sort'] = ast.literal_eval(req.sort)
+            args['sort'] = ast.literal_eval(str([(req.sort,sortMethod)]))
 
         client_projection = {}
         spec = {}

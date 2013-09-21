@@ -279,7 +279,7 @@ def _pagination_links(resource, req, documents_count):
 
     if documents_count and config.DOMAIN[resource]['pagination']:
         if req.page * req.max_results < documents_count:
-            q = querydef(req.max_results, req.where, req.sort, req.page + 1)
+            q = querydef(req.max_results, req.where, req.sort, req.sortMethod, req.page + 1)
             _links['next'] = {'title': 'next page', 'href': '%s%s' %
                               (resource_uri(resource), q)}
 
@@ -290,12 +290,12 @@ def _pagination_links(resource, req, documents_count):
             # 1 if the modulo is non-zero...
             last_page = int(math.ceil(documents_count
                                       / float(req.max_results)))
-            q = querydef(req.max_results, req.where, req.sort, last_page)
+            q = querydef(req.max_results, req.where, req.sort, req.sortMethod, last_page)
             _links['last'] = {'title': 'last page', 'href': '%s%s'
                               % (resource_uri(resource), q)}
 
         if req.page > 1:
-            q = querydef(req.max_results, req.where, req.sort, req.page - 1)
+            q = querydef(req.max_results, req.where, req.sort, req.sortMethod, req.page - 1)
             _links['prev'] = {'title': 'previous page', 'href': '%s%s' %
                               (resource_uri(resource), q)}
 
