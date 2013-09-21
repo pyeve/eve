@@ -59,7 +59,7 @@ class ParsedRequest(object):
     sort = None
 
     # `sortMethod` value of the query string (?sortMethod). Defaults to 1.
-    sortMethod = 1
+    sortMethod = 1 
 
     # `page` value of the query string (?page). Defaults to 1.
     page = 1
