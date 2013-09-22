@@ -149,6 +149,19 @@ look something like this:
 
 As you can see, item endpoints provide their own HATEOAS_ directives.
 
+.. admonition:: Please Note
+
+    According to REST principles resource items should have one unique
+    identifier. Eve abides by providing one default endpoint per item. Adding
+    a secondary convenience, endpoint is a decision that should pondered
+    carefully.
+
+    Consider our example above. Even without the ``/people/<lastname>/``
+    endpoint, a client could always retrieve a person by querying the resource
+    endpoint by last name: ``/people/?where={"lastname": "Doe"}``. Actually the
+    whole example is fubar as there could be multiple people sharing the same
+    last name, but you get the idea.
+
 .. _filters:
 
 Filtering and Sorting
