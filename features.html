@@ -233,6 +233,18 @@ look something like this:</p>
 </pre></div>
 </div>
 <p>As you can see, item endpoints provide their own <a class="reference external" href="http://en.wikipedia.org/wiki/HATEOAS">HATEOAS</a> directives.</p>
+<div class="admonition-please-note admonition">
+<p class="first admonition-title">Please Note</p>
+<p>According to REST principles resource items should have one unique
+identifier. Eve abides by providing one default endpoint per item. Adding
+a secondary convenience, endpoint is a decision that should pondered
+carefully.</p>
+<p class="last">Consider our example above. Even without the <tt class="docutils literal"><span class="pre">/people/&lt;lastname&gt;/</span></tt>
+endpoint, a client could always retrieve a person by querying the resource
+endpoint by last name: <tt class="docutils literal"><span class="pre">/people/?where={&quot;lastname&quot;:</span> <span class="pre">&quot;Doe&quot;}</span></tt>. Actually the
+whole example is fubar as there could be multiple people sharing the same
+last name, but you get the idea.</p>
+</div>
 </div>
 <div class="section" id="filtering-and-sorting">
 <span id="filters"></span><h2>Filtering and Sorting<a class="headerlink" href="#filtering-and-sorting" title="Permalink to this headline">¶</a></h2>
