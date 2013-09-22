@@ -429,7 +429,7 @@ always lowercase.
                                 Locally overrides ``ITEM_METHODS``.
 
 ``public_item_methods``         A list of HTTP methods supported at item
-                                endpoint, left open to public access when when
+                                endpoint, left open to public access when
                                 :ref:`auth` is enabled. Locally overrides
                                 ``PUBLIC_ITEM_METHODS``.
 
