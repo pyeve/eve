@@ -278,7 +278,7 @@ class DataLayer(object):
         if request.method not in resource_dict[public_method_list_to_check]:
             # We need to run the 'user-restricted resource access' check
             auth_field = resource_dict.get('auth_field', None)
-            if auth_field and request.authorization \
+            if auth_field and request.authorization and self.app.auth \
                     and query is not None:
                 # If the auth_field *replaces* a field in the query,
                 # and the values are /different/, deny the request
