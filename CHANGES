@@ -8,6 +8,7 @@ Version 0.1.0
 
 Not released yet.
 
+- Events 0.2.0 is now supported.
 - Cleanup and hardening of User-Restricted Resource Access Edit (Bryan Cattle).
 - Embedded Resource Serialization. If a document field is referencing
   a document in another resource, clients can request the referenced document
