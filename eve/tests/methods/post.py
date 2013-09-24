@@ -248,7 +248,7 @@ class TestPost(TestBase):
             self.assertTrue('etag' in k)
 
     def compare_post_with_get(self, item_id, fields):
-        raw_r = self.test_client.get("%s%s/" % (self.known_resource_url,
+        raw_r = self.test_client.get("%s/%s" % (self.known_resource_url,
                                                 item_id))
         item, status = self.parse_response(raw_r)
         self.assert200(status)
