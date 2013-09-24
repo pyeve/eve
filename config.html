@@ -480,7 +480,7 @@ always lowercase.</p>
 of the <tt class="docutils literal"><span class="pre">DOMAIN</span></tt> dict will be used to build
 the URL. As an example, <tt class="docutils literal"><span class="pre">contacts</span></tt> would make
 the <cite>people</cite> resource available at
-<tt class="docutils literal"><span class="pre">/contacts/</span></tt> (instead of <tt class="docutils literal"><span class="pre">/people/</span></tt>).</td>
+<tt class="docutils literal"><span class="pre">/contacts</span></tt> (instead of <tt class="docutils literal"><span class="pre">/people</span></tt>).</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">allowed_filters</span></tt></td>
 <td><p class="first">List of fields on which filtering is allowed.
@@ -578,10 +578,10 @@ both in XML and JSON responses. Overrides
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">additional_lookup</span></tt></td>
 <td>Besides the standard item endpoint which
-defaults to <tt class="docutils literal"><span class="pre">/&lt;resource&gt;/&lt;ID_FIELD_value&gt;/</span></tt>,
+defaults to <tt class="docutils literal"><span class="pre">/&lt;resource&gt;/&lt;ID_FIELD_value&gt;</span></tt>,
 you can optionally define a secondary,
 read-only, endpoint like
-<tt class="docutils literal"><span class="pre">/&lt;resource&gt;/&lt;person_name&gt;/</span></tt>. You do so by
+<tt class="docutils literal"><span class="pre">/&lt;resource&gt;/&lt;person_name&gt;</span></tt>. You do so by
 defining a dictionary comprised of two items
 <cite>field</cite> and <cite>url</cite>. The former is the name of
 the field used for the lookup. If the field
@@ -668,7 +668,7 @@ API settings:</p>
     <span class="c"># by default, the standard item entry point is defined as</span>
     <span class="c"># &#39;/people/&lt;ObjectId&gt;/&#39;. We leave it untouched, and we also enable an</span>
     <span class="c"># additional read-only entry point. This way consumers can also perform</span>
-    <span class="c"># GET requests at &#39;/people/&lt;lastname&gt;/&#39;.</span>
+    <span class="c"># GET requests at &#39;/people/&lt;lastname&gt;&#39;.</span>
     <span class="s">&#39;additional_lookup&#39;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;[\w]+&#39;</span><span class="p">,</span>
         <span class="s">&#39;field&#39;</span><span class="p">:</span> <span class="s">&#39;lastname&#39;</span>
@@ -850,7 +850,7 @@ example, &#8216;username&#8217; should probably be a required field).</p>
 <div class="section" id="multiple-api-endpoints-one-datasource">
 <h3>Multiple API Endpoints, One Datasource<a class="headerlink" href="#multiple-api-endpoints-one-datasource" title="Permalink to this headline">¶</a></h3>
 <p>Multiple API endpoints can target the same database collection. For
-example you can set both <tt class="docutils literal"><span class="pre">/admins/</span></tt> and <tt class="docutils literal"><span class="pre">/users/</span></tt> to read and write from
+example you can set both <tt class="docutils literal"><span class="pre">/admins</span></tt> and <tt class="docutils literal"><span class="pre">/users</span></tt> to read and write from
 the same <cite>people</cite> collection on the database.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>

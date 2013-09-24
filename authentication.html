@@ -85,7 +85,7 @@ instantiate the Eve app, you pass your custom class, like this:</p>
 </div>
 <p>All your API endpoints are now secured, which means that a client will need
 to provide the correct credentials in order to consume the API:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://example.com/
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://example.com
 <span class="go">HTTP/1.1 401 UNAUTHORIZED</span>
 <span class="go">WWW-Authenticate: Basic realm:&quot;eve&quot;</span>
 <span class="go">Content-Type: text/html; charset=utf-8</span>
@@ -95,7 +95,7 @@ to provide the correct credentials in order to consume the API:</p>
 
 <span class="go">Please provide proper credentials.</span>
 
-<span class="gp">$</span> curl -H <span class="s2">&quot;Authorization: Basic YWRtaW46c2VjcmV0&quot;</span> -i http://example.com/
+<span class="gp">$</span> curl -H <span class="s2">&quot;Authorization: Basic YWRtaW46c2VjcmV0&quot;</span> -i http://example.com
 <span class="go">HTTP/1.1 200 OK</span>
 <span class="go">Content-Type: application/json</span>
 <span class="go">Content-Length: 194</span>
@@ -117,8 +117,8 @@ your <cite>settings.py</cite>:</p>
 </div>
 <p>And run your API. POST, PATCH and DELETE are still restricted, while GET is
 publicly available at all API endpoints. <tt class="docutils literal"><span class="pre">PUBLIC_METHODS</span></tt> refers to resource
-endpoints, like <tt class="docutils literal"><span class="pre">/people/</span></tt>, while <tt class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></tt> refers to individual
-items like <tt class="docutils literal"><span class="pre">/people/id/</span></tt>.</p>
+endpoints, like <tt class="docutils literal"><span class="pre">/people</span></tt>, while <tt class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></tt> refers to individual
+items like <tt class="docutils literal"><span class="pre">/people/id</span></tt>.</p>
 </div>
 <div class="section" id="custom-endpoint-security">
 <span id="endpointsec"></span><h2>Custom Endpoint Security<a class="headerlink" href="#custom-endpoint-security" title="Permalink to this headline">¶</a></h2>
@@ -135,7 +135,7 @@ API <a class="reference internal" href="config.html#domain"><em>domain</em></a>:
 </div>
 <p>Be aware that, when present, <a class="reference internal" href="config.html#local"><em>resource settings</em></a> override global
 settings. You can use this to your advantage. Suppose that you want to grant
-read access to all endpoints with the only exception of <tt class="docutils literal"><span class="pre">/invoices/</span></tt>.  You
+read access to all endpoints with the only exception of <tt class="docutils literal"><span class="pre">/invoices</span></tt>.  You
 first open read access for all endpoints:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">PUBLIC_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">]</span>
 <span class="n">PUBLIC_ITEM_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">]</span>

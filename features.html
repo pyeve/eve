@@ -124,10 +124,10 @@ a <tt class="docutils literal"><span class="pre">PATCH</span></tt>, overriding t
 <h2>Customizable resource endpoints<a class="headerlink" href="#customizable-resource-endpoints" title="Permalink to this headline">¶</a></h2>
 <p>By default, Eve will make known database collections available as resource
 endpoints (persistent identifiers in REST idiom). So a database <tt class="docutils literal"><span class="pre">people</span></tt>
-collection will be avaliable at the <tt class="docutils literal"><span class="pre">example.com/people/</span></tt> API endpoint.  You
+collection will be avaliable at the <tt class="docutils literal"><span class="pre">example.com/people</span></tt> API endpoint.  You
 can customize the URIs though, so the API endpoint could become, say,
-<tt class="docutils literal"><span class="pre">example.com/customers/</span></tt>. Consider the following request:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/
+<tt class="docutils literal"><span class="pre">example.com/customers</span></tt>. Consider the following request:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
@@ -145,13 +145,13 @@ can customize the URIs though, so the API endpoint could become, say,
             <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 05 Dec 2012 09:53:07 GMT&quot;</span><span class="p">,</span>
             <span class="s2">&quot;etag&quot;</span><span class="o">:</span> <span class="s2">&quot;ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d&quot;</span><span class="p">,</span>
             <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span>
-                <span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com:5000/people/50bf198338345b1c604faf31/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">},</span>
+                <span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com:5000/people/50bf198338345b1c604faf31&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">},</span>
             <span class="p">},</span>
         <span class="p">},</span>
         <span class="p">...</span>
     <span class="p">],</span>
     <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span>
-        <span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com:5000/people/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;people&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com:5000/people&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;people&quot;</span><span class="p">},</span>
         <span class="s2">&quot;parent&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com:5000&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;home&quot;</span><span class="p">}</span>
     <span class="p">}</span>
 <span class="p">}</span>
@@ -191,12 +191,12 @@ need to provide them when adding/editing resources).</p>
 <div class="section" id="customizable-multiple-item-endpoints">
 <span id="custom-item-endpoints"></span><h2>Customizable, multiple item endpoints<a class="headerlink" href="#customizable-multiple-item-endpoints" title="Permalink to this headline">¶</a></h2>
 <p>Resources can or cannot expose individual item endpoints. API consumers could
-get access to <tt class="docutils literal"><span class="pre">/people/</span></tt>, <tt class="docutils literal"><span class="pre">/people/&lt;ObjectId&gt;/</span></tt> and <tt class="docutils literal"><span class="pre">/people/Doe/</span></tt>,
-but only to <tt class="docutils literal"><span class="pre">/works/</span></tt>.  When you do grant access to item endpoints, you can
+get access to <tt class="docutils literal"><span class="pre">/people</span></tt>, <tt class="docutils literal"><span class="pre">/people/&lt;ObjectId&gt;</span></tt> and <tt class="docutils literal"><span class="pre">/people/Doe</span></tt>,
+but only to <tt class="docutils literal"><span class="pre">/works</span></tt>.  When you do grant access to item endpoints, you can
 define up to two lookups, both defined with regexes. The first will be the
 primary endpoint and will match your database primary key structure (i.e., an
 <tt class="docutils literal"><span class="pre">ObjectId</span></tt> in a MongoDB database).</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c/
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c
 <span class="go">HTTP/1.1 200 OK</span>
 <span class="go">Etag: 448a928514cbff5b0b516f60bcdf27cc75213280</span>
 <span class="go">Last-Modified: Wed, 28 Aug 2013 03:02:24 GMT</span>
@@ -205,7 +205,7 @@ primary endpoint and will match your database primary key structure (i.e., an
 </div>
 <p>The second, which is optional and read-only, will match a field with unique values since Eve
 will retrieve only the first match anyway.</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/Doe/
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/Doe
 <span class="go">HTTP/1.1 200 OK</span>
 <span class="go">Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc</span>
 <span class="go">Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT</span>
@@ -225,9 +225,9 @@ look something like this:</p>
     <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 21 Nov 2012 16:04:56 GMT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;etag&quot;</span><span class="o">:</span> <span class="s2">&quot;28995829ee85d69c4c18d597a0f68ae606a266cc&quot;</span><span class="p">,</span>
     <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span>
-        <span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com/people/50acfba938345b0978fccad7/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;parent&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;home&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;collection&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;http://eve-demo.herokuapp.com/people/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;people&quot;</span><span class="p">}</span>
+        <span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com/people/50acfba938345b0978fccad7&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;parent&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;home&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;collection&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;http://eve-demo.herokuapp.com/people&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;people&quot;</span><span class="p">}</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -239,7 +239,7 @@ look something like this:</p>
 identifier. Eve abides by providing one default endpoint per item. Adding
 a secondary convenience, endpoint is a decision that should pondered
 carefully.</p>
-<p class="last">Consider our example above. Even without the <tt class="docutils literal"><span class="pre">/people/&lt;lastname&gt;/</span></tt>
+<p class="last">Consider our example above. Even without the <tt class="docutils literal"><span class="pre">/people/&lt;lastname&gt;</span></tt>
 endpoint, a client could always retrieve a person by querying the resource
 endpoint by last name: <tt class="docutils literal"><span class="pre">/people/?where={&quot;lastname&quot;:</span> <span class="pre">&quot;Doe&quot;}</span></tt>. Actually the
 whole example is fubar as there could be multiple people sharing the same
@@ -251,18 +251,18 @@ last name, but you get the idea.</p>
 <p>Resource endpoints allow consumers to retrieve multiple documents. Query
 strings are supported, allowing for filtering and sorting. Two query syntaxes
 are supported. The mongo query syntax:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/?where<span class="o">={</span><span class="s2">&quot;lastname&quot;</span>: <span class="s2">&quot;Doe&quot;</span><span class="o">}</span>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people?where<span class="o">={</span><span class="s2">&quot;lastname&quot;</span>: <span class="s2">&quot;Doe&quot;</span><span class="o">}</span>
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
 <p>and the native Python syntax:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/?where<span class="o">=</span><span class="nv">lastname</span><span class="o">==</span><span class="s2">&quot;Doe&quot;</span>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people?where<span class="o">=</span><span class="nv">lastname</span><span class="o">==</span><span class="s2">&quot;Doe&quot;</span>
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
 <p>Both query formats allow for conditional and logical And/Or operators, however
 nested and combined. Sorting is supported as well:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/?sort<span class="o">=[(</span><span class="s2">&quot;lastname&quot;</span>, -1<span class="o">)]</span>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people?sort<span class="o">=[(</span><span class="s2">&quot;lastname&quot;</span>, -1<span class="o">)]</span>
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
@@ -286,12 +286,12 @@ preserve bandwith. When a consumer requests a resource, the first N items
 matching the query are serverd, and links to subsequent/previous pages are
 provided with the response. Default and maximum page size is customizable, and
 consumers can request specific pages via the query string:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/?max_results<span class="o">=</span>20&amp;page<span class="o">=</span>2
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people?max_results<span class="o">=</span>20&amp;page<span class="o">=</span>2
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
 <p>Of course you can mix all the available query parameters:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/?where<span class="o">={</span><span class="s2">&quot;lastname&quot;</span>: <span class="s2">&quot;Doe&quot;</span><span class="o">}</span>&amp;sort<span class="o">=[(</span><span class="s2">&quot;firstname&quot;</span>, 1<span class="o">)]</span>&amp;page<span class="o">=</span>5
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people?where<span class="o">={</span><span class="s2">&quot;lastname&quot;</span>: <span class="s2">&quot;Doe&quot;</span><span class="o">}</span>&amp;sort<span class="o">=[(</span><span class="s2">&quot;firstname&quot;</span>, 1<span class="o">)]</span>&amp;page<span class="o">=</span>5
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
@@ -307,7 +307,7 @@ UI, or to navigate the API without knowing its structure beforehand. An example:
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
     <span class="s">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;localhost:5000/people/&quot;</span><span class="p">,</span>
+            <span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;localhost:5000/people&quot;</span><span class="p">,</span>
             <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span>
         <span class="p">},</span>
         <span class="s">&quot;parent&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -315,11 +315,11 @@ UI, or to navigate the API without knowing its structure beforehand. An example:
             <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;home&quot;</span>
         <span class="p">},</span>
         <span class="s">&quot;next&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;localhost:5000/people/?page=2&quot;</span><span class="p">,</span>
+            <span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;localhost:5000/people?page=2&quot;</span><span class="p">,</span>
             <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;next page&quot;</span>
         <span class="p">},</span>
         <span class="s">&quot;last&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;localhost:5000/people/?page=10&quot;</span><span class="p">,</span>
+            <span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;localhost:5000/people?page=10&quot;</span><span class="p">,</span>
             <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;last page&quot;</span>
         <span class="p">}</span>
     <span class="p">}</span>
@@ -336,7 +336,7 @@ included when appropriate.</p>
 <p>HATEOAS can be disabled both at the API and/or resource level. When HATEOAS is
 disabled, response payloads have a different structure. The resource payload is
 a simple list of items:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
@@ -361,7 +361,7 @@ a simple list of items:</p>
 </div>
 <p>As you can see, the <tt class="docutils literal"><span class="pre">_links</span></tt> element is also missing from list items. The
 same happens to individual item payloads:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/522f01dc15b4fc00028e6d98/
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/522f01dc15b4fc00028e6d98
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
@@ -393,15 +393,15 @@ enabled.</p>
 <p>Eve responses are automatically rendered as JSON (the default) or XML,
 depending on the request <tt class="docutils literal"><span class="pre">Accept</span></tt> header. Inbound documents (for inserts and
 edits) are in JSON format.</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;Accept: application/xml&quot;</span> -i http://eve-demo.herokuapp.com/
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;Accept: application/xml&quot;</span> -i http://eve-demo.herokuapp.com
 <span class="go">HTTP/1.1 200 OK</span>
 <span class="go">Content-Type: application/xml; charset=utf-8</span>
 <span class="go">...</span>
 </pre></div>
 </div>
 <div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;resource&gt;</span>
-    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;child&quot;</span> <span class="na">href=</span><span class="s">&quot;eve-demo.herokuapp.com/people/&quot;</span> <span class="na">title=</span><span class="s">&quot;people&quot;</span> <span class="nt">/&gt;</span>
-    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;child&quot;</span> <span class="na">href=</span><span class="s">&quot;eve-demo.herokuapp.com/works/&quot;</span> <span class="na">title=</span><span class="s">&quot;works&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;child&quot;</span> <span class="na">href=</span><span class="s">&quot;eve-demo.herokuapp.com/people&quot;</span> <span class="na">title=</span><span class="s">&quot;people&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;child&quot;</span> <span class="na">href=</span><span class="s">&quot;eve-demo.herokuapp.com/works&quot;</span> <span class="na">title=</span><span class="s">&quot;works&quot;</span> <span class="nt">/&gt;</span>
 <span class="nt">&lt;/resource&gt;</span>
 </pre></div>
 </div>
@@ -413,12 +413,12 @@ updated (<tt class="docutils literal"><span class="pre">Last-Modified</span></tt
 representation itself (<tt class="docutils literal"><span class="pre">ETag</span></tt>). These headers allow clients to perform
 conditional requests, only retrieving new or modified data, by using the
 <tt class="docutils literal"><span class="pre">If-Modified-Since</span></tt> header:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT&quot;</span> -i http://eve-demo.herokuapp.com/people/
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT&quot;</span> -i http://eve-demo.herokuapp.com/people
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
 <p>or the <tt class="docutils literal"><span class="pre">If-None-Match</span></tt> header:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-None-Match: 1234567890123456789012345678901234567890&quot;</span> -i http://eve-demo.herokuapp.com/people/
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-None-Match: 1234567890123456789012345678901234567890&quot;</span> -i http://eve-demo.herokuapp.com/people
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
@@ -432,20 +432,20 @@ delete a resource unless they provide an up-to-date <tt class="docutils literal"
 they are attempting to edit. This prevents overwriting items with obsolete
 versions.</p>
 <p>Consider the following workflow:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c/ -d <span class="s1">&#39;data={&quot;firstname&quot;: &quot;ronald&quot;}&#39;</span>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d <span class="s1">&#39;data={&quot;firstname&quot;: &quot;ronald&quot;}&#39;</span>
 <span class="go">HTTP/1.1 403 FORBIDDEN</span>
 </pre></div>
 </div>
 <p>We attempted an edit, but we did not provide an <tt class="docutils literal"><span class="pre">ETag</span></tt> for the item, so we got
 a not-so-nice <tt class="docutils literal"><span class="pre">403</span> <span class="pre">FORBIDDEN</span></tt>. Let&#8217;s try again:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-Match: 1234567890123456789012345678901234567890&quot;</span> -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c/ -d <span class="s1">&#39;data={&quot;firstname&quot;: &quot;ronald&quot;}&#39;</span>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-Match: 1234567890123456789012345678901234567890&quot;</span> -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d <span class="s1">&#39;data={&quot;firstname&quot;: &quot;ronald&quot;}&#39;</span>
 <span class="go">HTTP/1.1 412 PRECONDITION FAILED</span>
 </pre></div>
 </div>
 <p>What went wrong this time? We provided the mandatory <tt class="docutils literal"><span class="pre">If-Match</span></tt> header, but
 it&#8217;s value did not match the <tt class="docutils literal"><span class="pre">ETag</span></tt> computed on the representation of the item
 currently stored on the server, so we got a <tt class="docutils literal"><span class="pre">402</span> <span class="pre">PRECONDITION</span> <span class="pre">FAILED</span></tt> again!</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012&quot;</span> -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37/ -d <span class="s1">&#39;data={&quot;firstname&quot;: &quot;ronald&quot;}&#39;</span>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012&quot;</span> -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37 -d <span class="s1">&#39;data={&quot;firstname&quot;: &quot;ronald&quot;}&#39;</span>
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
@@ -470,7 +470,7 @@ subsequent <a class="reference internal" href="#id1">conditional requests</a>.</
 <div class="section" id="multiple-insertions">
 <h2>Multiple Insertions<a class="headerlink" href="#multiple-insertions" title="Permalink to this headline">¶</a></h2>
 <p>Clients can send a stream of multiple documents to be inserted at once.</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;item1={&quot;firstname&quot;: &quot;barack&quot;, &quot;lastname&quot;: &quot;obama&quot;}&#39;</span> -d <span class="s1">&#39;item2={&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}&#39;</span> http://eve-demo.herokuapp.com/people/
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;item1={&quot;firstname&quot;: &quot;barack&quot;, &quot;lastname&quot;: &quot;obama&quot;}&#39;</span> -d <span class="s1">&#39;item2={&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}&#39;</span> http://eve-demo.herokuapp.com/people
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
@@ -484,14 +484,14 @@ data stream.</p>
         <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 22 Nov 2012 15:22:27 GMT&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50ae43339fa12500024def5b&quot;</span><span class="p">,</span>
         <span class="s2">&quot;etag&quot;</span><span class="o">:</span> <span class="s2">&quot;749093d334ebd05cf7f2b7dbfb7868605578db2c&quot;</span>
-        <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com/people/50ae43339fa12500024def5b/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">}}</span>
+        <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com/people/50ae43339fa12500024def5b&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">}}</span>
     <span class="p">},</span>
     <span class="s2">&quot;item1&quot;</span><span class="o">:</span> <span class="p">{</span>
         <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
         <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 22 Nov 2012 15:22:27 GMT&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50ae43339fa12500024def5c&quot;</span><span class="p">,</span>
         <span class="s2">&quot;etag&quot;</span><span class="o">:</span> <span class="s2">&quot;62d356f623c7d9dc864ffa5facc47dced4ba6907&quot;</span>
-        <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com/people/50ae43339fa12500024def5c/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">}}</span>
+        <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com/people/50ae43339fa12500024def5c&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">}}</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -503,7 +503,7 @@ data stream.</p>
 a schema definition for every resource managed by the API. Data sent to the API
 to be inserted/updated will be validated against the schema, and a resource
 will only be updated if validation passes.</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;item1={&quot;firstname&quot;: &quot;bill&quot;, &quot;lastname&quot;: &quot;clinton&quot;}&#39;</span> -d <span class="s1">&#39;item2={&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}&#39;</span> http://eve-demo.herokuapp.com/people/
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;item1={&quot;firstname&quot;: &quot;bill&quot;, &quot;lastname&quot;: &quot;clinton&quot;}&#39;</span> -d <span class="s1">&#39;item2={&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}&#39;</span> http://eve-demo.herokuapp.com/people
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
@@ -520,7 +520,7 @@ request:</p>
         <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
         <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 22 Nov 2012 15:29:08 GMT&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50ae44c49fa12500024def5d&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">}}</span>
+        <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">}}</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -545,7 +545,7 @@ information see <a class="reference internal" href="validation.html#validation">
 <div class="section" id="resource-level-cache-control">
 <span id="cache-control"></span><h2>Resource-level Cache Control<a class="headerlink" href="#resource-level-cache-control" title="Permalink to this headline">¶</a></h2>
 <p>You can set global and individual cache-control directives for each resource.</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com
 <span class="go">HTTP/1.1 200 OK</span>
 <span class="go">Content-Type: application/json</span>
 <span class="go">Content-Length: 131</span>
@@ -600,7 +600,7 @@ values.</p>
 a predefined filter. This allows for multiple resource endpoints to seamlessy
 target the same database collection. A typical use-case would be a
 hypothetical <tt class="docutils literal"><span class="pre">people</span></tt> collection on the database being used by both the
-<tt class="docutils literal"><span class="pre">/admins/</span></tt> and <tt class="docutils literal"><span class="pre">/users/</span></tt> API endpoints.</p>
+<tt class="docutils literal"><span class="pre">/admins</span></tt> and <tt class="docutils literal"><span class="pre">/users</span></tt> API endpoints.</p>
 </div>
 <div class="section" id="projections">
 <span id="id2"></span><h2>Projections<a class="headerlink" href="#projections" title="Permalink to this headline">¶</a></h2>
@@ -608,7 +608,7 @@ hypothetical <tt class="docutils literal"><span class="pre">people</span></tt> c
 to decide what fields should or should not be returned, using a &#8216;projection&#8217;.
 Put another way, Projections are conditional queries where the client
 dictates which fields should be returned by the API.</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/?projection<span class="o">={</span><span class="s2">&quot;lastname&quot;</span>: 1, <span class="s2">&quot;born&quot;</span>: 1<span class="o">}</span>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people?projection<span class="o">={</span><span class="s2">&quot;lastname&quot;</span>: 1, <span class="s2">&quot;born&quot;</span>: 1<span class="o">}</span>
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
@@ -641,7 +641,7 @@ like this:</p>
      <span class="p">}</span>
 </pre></div>
 </div>
-<p>A GET like <tt class="docutils literal"><span class="pre">/emails/?embedded={&quot;author&quot;:1}</span></tt> would return a fully embedded user
+<p>A GET like <tt class="docutils literal"><span class="pre">/emails?embedded={&quot;author&quot;:1}</span></tt> would return a fully embedded user
 document whereas the same request without the <tt class="docutils literal"><span class="pre">embedded</span></tt> argument would just
 return the user <tt class="docutils literal"><span class="pre">ObjectId</span></tt>.</p>
 <p>Embedding can be enabled or disabled both at global level (by setting
@@ -650,7 +650,7 @@ toggling the <tt class="docutils literal"><span class="pre">embedding</span></tt
 <tt class="docutils literal"><span class="pre">embeddable</span></tt> value explicitly set to <tt class="docutils literal"><span class="pre">True</span></tt> will allow the embedding of
 referenced documents.</p>
 <p>Limitations: currenly we only support a single layer of embedding, i.e.
-<tt class="docutils literal"><span class="pre">/emails/?{&quot;author&quot;:</span> <span class="pre">1}</span></tt> but <em>not</em> <tt class="docutils literal"><span class="pre">/emails/?{&quot;author.firends&quot;:</span> <span class="pre">1}</span></tt>.</p>
+<tt class="docutils literal"><span class="pre">/emails?{&quot;author&quot;:</span> <span class="pre">1}</span></tt> but <em>not</em> <tt class="docutils literal"><span class="pre">/emails?{&quot;author.firends&quot;:</span> <span class="pre">1}</span></tt>.</p>
 <p>Document embedding is enabled by default.</p>
 </div>
 <div class="section" id="event-hooks">

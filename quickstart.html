@@ -95,7 +95,7 @@ that your API is comprised of just one accessible resource, <cite>people</cite>.
 </pre></div>
 </div>
 <p>Now you can consume the API:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://127.0.0.1:5000/
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://127.0.0.1:5000
 <span class="go">HTTP/1.0 200 OK</span>
 <span class="go">Content-Type: application/json</span>
 <span class="go">Content-Length: 82</span>
@@ -107,7 +107,7 @@ that your API is comprised of just one accessible resource, <cite>people</cite>.
 payload:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
     <span class="s">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&quot;child&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;127.0.0.1:5000/people/&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span><span class="p">}]</span>
+        <span class="s">&quot;child&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;127.0.0.1:5000/people&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span><span class="p">}]</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -116,13 +116,13 @@ payload:</p>
 information about the resources accessible through the API. In our case
 there&#8217;s only one child resource available, that being <cite>people</cite>.</p>
 <p>Try requesting <cite>people</cite> now:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl http://127.0.0.1:5000/people/
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl http://127.0.0.1:5000/people
 </pre></div>
 </div>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
     <span class="s">&quot;_items&quot;</span><span class="p">:</span> <span class="p">[],</span>
     <span class="s">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;127.0.0.1:5000/people/&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span><span class="p">},</span>
+        <span class="s">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;127.0.0.1:5000/people&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span><span class="p">},</span>
         <span class="s">&quot;parent&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;127.0.0.1:5000&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;home&quot;</span><span class="p">}</span>
         <span class="p">}</span>
     <span class="p">}</span>
@@ -132,7 +132,7 @@ there&#8217;s only one child resource available, that being <cite>people</cite>.
 resource being accessed, so you get a link to the parent resource (the home
 page) and to the resource itself.</p>
 <p>By default Eve APIs are read-only:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -X DELETE http://127.0.0.1:5000/people/
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -X DELETE http://127.0.0.1:5000/people
 <span class="go">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 3.2 Final//EN&quot;&gt;</span>
 <span class="go">&lt;title&gt;405 Method Not Allowed&lt;/title&gt;</span>
 <span class="go">&lt;h1&gt;Method Not Allowed&lt;/h1&gt;</span>
@@ -180,9 +180,9 @@ operations:</p>
 <span class="n">ITEM_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;PATCH&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p><tt class="docutils literal"><span class="pre">RESOURCE_METHODS</span></tt> lists methods allowed at resource endpoints (<tt class="docutils literal"><span class="pre">/people/</span></tt>)
+<p><tt class="docutils literal"><span class="pre">RESOURCE_METHODS</span></tt> lists methods allowed at resource endpoints (<tt class="docutils literal"><span class="pre">/people</span></tt>)
 while <tt class="docutils literal"><span class="pre">ITEM_METHODS</span></tt> lists the methods enabled at item endpoints
-(<tt class="docutils literal"><span class="pre">/people/&lt;ObjectId&gt;/</span></tt>). Both settings have a global scope and will apply to
+(<tt class="docutils literal"><span class="pre">/people/&lt;ObjectId&gt;</span></tt>). Both settings have a global scope and will apply to
 all endpoints.  You can then enable or disable HTTP methods at individual
 endpoint level, as we will soon see.</p>
 <p>Since we are enabling editing we also want to enable proper data validation.
@@ -228,9 +228,9 @@ Let&#8217;s define a schema for our <cite>people</cite> resource.</p>
 to:</p>
 <ul class="simple">
 <li>set the item title to <em>person</em></li>
-<li>add an extra <a class="reference internal" href="features.html#custom-item-endpoints"><em>custom item endpoint</em></a> at <tt class="docutils literal"><span class="pre">/people/&lt;lastname&gt;/</span></tt></li>
+<li>add an extra <a class="reference internal" href="features.html#custom-item-endpoints"><em>custom item endpoint</em></a> at <tt class="docutils literal"><span class="pre">/people/&lt;lastname&gt;</span></tt></li>
 <li>override the default <a class="reference internal" href="features.html#cache-control"><em>cache control directives</em></a></li>
-<li>disable DELETE for the <tt class="docutils literal"><span class="pre">/people/</span></tt> endpoint (we enabled it globally)</li>
+<li>disable DELETE for the <tt class="docutils literal"><span class="pre">/people</span></tt> endpoint (we enabled it globally)</li>
 </ul>
 <p>Here is how the complete <cite>people</cite> definition looks in our updated <cite>settings.py</cite>
 file:</p>
@@ -240,9 +240,9 @@ file:</p>
     <span class="s">&#39;item_title&#39;</span><span class="p">:</span> <span class="s">&#39;person&#39;</span><span class="p">,</span>
 
     <span class="c"># by default the standard item entry point is defined as</span>
-    <span class="c"># &#39;/people/&lt;ObjectId&gt;/&#39;. We leave it untouched, and we also enable an</span>
+    <span class="c"># &#39;/people/&lt;ObjectId&gt;&#39;. We leave it untouched, and we also enable an</span>
     <span class="c"># additional read-only entry point. This way consumers can also perform</span>
-    <span class="c"># GET requests at &#39;/people/&lt;lastname&gt;/&#39;.</span>
+    <span class="c"># GET requests at &#39;/people/&lt;lastname&gt;&#39;.</span>
     <span class="s">&#39;additional_lookup&#39;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;[\w]+&#39;</span><span class="p">,</span>
         <span class="s">&#39;field&#39;</span><span class="p">:</span> <span class="s">&#39;lastname&#39;</span>
@@ -267,14 +267,14 @@ file:</p>
 </div>
 <p>Save <cite>settings.py</cite> and launch <cite>run.py</cite>. We can now insert documents at the
 <cite>people</cite> endpoint:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;item1={&quot;firstname&quot;: &quot;barack&quot;, &quot;lastname&quot;: &quot;obama&quot;}&#39;</span> -d <span class="s1">&#39;item2={&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}&#39;</span> http://127.0.0.1:5000/people/
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;item1={&quot;firstname&quot;: &quot;barack&quot;, &quot;lastname&quot;: &quot;obama&quot;}&#39;</span> -d <span class="s1">&#39;item2={&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}&#39;</span> http://127.0.0.1:5000/people
 <span class="go">HTTP/1.0 200 OK</span>
 </pre></div>
 </div>
 <p>We can also update and delete items (but not the whole resource since we
 disabled that). We can also perform GET requests against the new <cite>lastname</cite>
 endpoint:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://127.0.0.1:5000/people/obama/
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://127.0.0.1:5000/people/obama
 <span class="go">HTTP/1.0 200 OK</span>
 <span class="go">Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc</span>
 <span class="go">Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT</span>
@@ -290,9 +290,9 @@ endpoint:</p>
     <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 21 Nov 2012 16:04:56 GMT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 21 Nov 2012 16:04:56 GMT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span>
-        <span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;127.0.0.1/people/50acfba938345b0978fccad7/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;parent&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;127.0.0.1/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;home&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;collection&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;127.0.0.1/people/&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;people&quot;</span><span class="p">}</span>
+        <span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;127.0.0.1/people/50acfba938345b0978fccad7&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;parent&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;home&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;collection&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;127.0.0.1/people&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;people&quot;</span><span class="p">}</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>

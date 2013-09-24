@@ -32,7 +32,7 @@ Accounts with Basic Authentication
 Our tasks are as follows:
 
 1. Make an endpoint available for all account management activities
-   (``/accounts/``). 
+   (``/accounts``). 
 2. Secure the endpoint, so that it is only accessible to clients
    that we control: our own website, mobile apps with account
    management capabilities, etc.
@@ -40,7 +40,7 @@ Our tasks are as follows:
    accounts (created by means of the above mentioned endpoint).
 4. Allow authenticated users to only access resources created by themselves.
 
-1. The ``/accounts/`` endpoint
+1. The ``/accounts`` endpoint
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The account management endpoint is no different than any other API endpoint.
 It is just a matter of declaring it in our settings file. Let's declare the
@@ -66,8 +66,8 @@ Then, let's define the endpoint.
 
     accounts = {
         # the standard account entry point is defined as
-        # '/accounts/<ObjectId>/'. We define  an additional read-only entry 
-        # point accessible at '/accounts/<username>/'. 
+        # '/accounts/<ObjectId>'. We define  an additional read-only entry 
+        # point accessible at '/accounts/<username>'. 
         'additional_lookup': {
             'url': '[\w]+',
             'field': 'username',
@@ -82,11 +82,11 @@ Then, let's define the endpoint.
         'schema': schema,
     }
 
-We defined an additional read-only entry point at ``/accounts/<username>/``.
+We defined an additional read-only entry point at ``/accounts/<username>``.
 This isn't really a necessity, but it can come in handy to easily verify if
 a username has been taken already, or to retrieve an account without knowing
 its ``ObjectId`` beforehand. Of course, both pieces of information can also be
-found by querying the resource endpoint (``/accounts/?where={"username":
+found by querying the resource endpoint (``/accounts?where={"username":
 "johndoe"}``), but then we would need to parse the response payload, whereas by
 hitting our new endpoint with a GET request we will obtain the bare account
 data, or a ``404 Not Found`` if the account does not exist.
@@ -180,8 +180,8 @@ only so let's update the endpoint definition accordingly.
 
     accounts = {
         # the standard account entry point is defined as
-        # '/accounts/<ObjectId>/'. We define  an additional read-only entry 
-        # point accessible at '/accounts/<username>/'. 
+        # '/accounts/<ObjectId>'. We define  an additional read-only entry 
+        # point accessible at '/accounts/<username>'. 
         'additional_lookup': {
             'url': '[\w]+',
             'field': 'username',
@@ -300,7 +300,7 @@ value:
         app = Eve(auth=RolesAuth)
         app.run()
 
-This is all we need to do. Now, when a user hits the, say, ``/invoices/``
+This is all we need to do. Now, when a user hits the, say, ``/invoices``
 endpoint with a GET request, he will only be served with the invoices created
 by his own account. The same will happen with DELETE and PATCH, making it
 impossible for an authenticated user to accidentally retrieve, edit or delete
@@ -321,7 +321,7 @@ to the client.
 In light of this, let's review our updated task list:
   
 1. Make an endpoint available for all account management activities
-   (``/accounts/``). 
+   (``/accounts``). 
 2. Secure the endpoint so that it is only accessible to clients (tokens) that
    we control.
 3. On account creation, generate and store its token.
@@ -370,8 +370,8 @@ user roles.
 
     accounts = {
         # the standard account entry point is defined as
-        # '/accounts/<ObjectId>/'. We define  an additional read-only entry 
-        # point accessible at '/accounts/<username>/'. 
+        # '/accounts/<ObjectId>'. We define  an additional read-only entry 
+        # point accessible at '/accounts/<username>'. 
         'additional_lookup': {
             'url': '[\w]+',
             'field': 'username',
@@ -484,8 +484,8 @@ definition accordingly:
 
     accounts = {
         # the standard account entry point is defined as
-        # '/accounts/<ObjectId>/'. We define  an additional read-only entry 
-        # point accessible at '/accounts/<username>/'. 
+        # '/accounts/<ObjectId>'. We define  an additional read-only entry 
+        # point accessible at '/accounts/<username>'. 
         'additional_lookup': {
             'url': '[\w]+',
             'field': 'username',
@@ -506,7 +506,7 @@ definition accordingly:
         'schema': schema,
     }
 
-From now on responses to POST requests aimed at the ``/accounts/`` endpoint
+From now on responses to POST requests aimed at the ``/accounts`` endpoint
 will include the newly generated auth token, allowing the client to consume
 other API endpoints right away.
 
