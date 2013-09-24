@@ -19,7 +19,7 @@ class TestEndPoints(TestBase):
             self.assert200(r.status_code)
 
             r = self.test_client.get('/%s' % settings['url'])
-            self.assert301(r.status_code)
+            self.assert200(r.status_code)
 
     def test_item_endpoint(self):
         pass
@@ -46,7 +46,7 @@ class TestEndPoints(TestBase):
         r = self.test_prefix.get('/contacts/')
         self.assert404(r.status_code)
         r = self.test_prefix.get('/v1/contacts')
-        self.assert301(r.status_code)
+        self.assert200(r.status_code)
         r = self.test_prefix.get('/v1/contacts/')
         self.assert200(r.status_code)
 
@@ -60,7 +60,7 @@ class TestEndPoints(TestBase):
         self.assert200(r.status_code)
 
         r = self.test_prefix.get('/prefix/contacts')
-        self.assert301(r.status_code)
+        self.assert200(r.status_code)
         r = self.test_prefix.get('/prefix/contacts/')
         self.assert200(r.status_code)
 
@@ -73,6 +73,6 @@ class TestEndPoints(TestBase):
         r = self.test_prefix.get('/prefix/v1/')
         self.assert200(r.status_code)
         r = self.test_prefix.get('/prefix/v1/contacts')
-        self.assert301(r.status_code)
+        self.assert200(r.status_code)
         r = self.test_prefix.get('/prefix/v1/contacts/')
         self.assert200(r.status_code)

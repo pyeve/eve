@@ -388,7 +388,7 @@ always lowercase.
                                 of the ``DOMAIN`` dict will be used to build
                                 the URL. As an example, ``contacts`` would make
                                 the `people` resource available at
-                                ``/contacts/`` (instead of ``/people/``).
+                                ``/contacts`` (instead of ``/people``).
 
 ``allowed_filters``             List of fields on which filtering is allowed. 
                                 Can be set to ``[]`` (no filters allowed), or
@@ -470,10 +470,10 @@ always lowercase.
                                 ``ITEM_TITLE``.
 
 ``additional_lookup``           Besides the standard item endpoint which
-                                defaults to ``/<resource>/<ID_FIELD_value>/``,
+                                defaults to ``/<resource>/<ID_FIELD_value>``,
                                 you can optionally define a secondary,
                                 read-only, endpoint like
-                                ``/<resource>/<person_name>/``. You do so by
+                                ``/<resource>/<person_name>``. You do so by
                                 defining a dictionary comprised of two items
                                 `field` and `url`. The former is the name of
                                 the field used for the lookup. If the field
@@ -553,7 +553,7 @@ API settings:
         # by default, the standard item entry point is defined as
         # '/people/<ObjectId>/'. We leave it untouched, and we also enable an
         # additional read-only entry point. This way consumers can also perform 
-        # GET requests at '/people/<lastname>/'.
+        # GET requests at '/people/<lastname>'.
         'additional_lookup': {
             'url': '[\w]+',
             'field': 'lastname'
@@ -728,7 +728,7 @@ example, 'username' should probably be a required field).
 Multiple API Endpoints, One Datasource
 ''''''''''''''''''''''''''''''''''''''
 Multiple API endpoints can target the same database collection. For
-example you can set both ``/admins/`` and ``/users/`` to read and write from
+example you can set both ``/admins`` and ``/users`` to read and write from
 the same `people` collection on the database.
 
 ::

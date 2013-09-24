@@ -369,7 +369,7 @@ class TestUserRestrictedAccess(TestBase):
         new_ref = "9999999999999999999999999"
         changes = {'item1': {"ref": new_ref}}
         data, status = self.post()
-        url = '%s%s/' % (self.known_resource_url, data['item1']['_id'])
+        url = '%s/%s' % (self.known_resource_url, data['item1']['_id'])
         response = self.test_client.get(url, headers=self.valid_auth)
         etag = response.headers['ETag']
         headers = [('If-Match', etag),
@@ -387,7 +387,7 @@ class TestUserRestrictedAccess(TestBase):
 
     def test_delete(self):
         data, status = self.post()
-        url = '%s%s/' % (self.known_resource_url, data['item1']['_id'])
+        url = '%s/%s' % (self.known_resource_url, data['item1']['_id'])
         response = self.test_client.get(url, headers=self.valid_auth)
         etag = response.headers['ETag']
         headers = [('If-Match', etag),

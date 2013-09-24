@@ -185,11 +185,14 @@ def document_link(resource, document_id):
     :param resource: the resource name.
     :param document_id: the document unique identifier.
 
+    .. versionchanged:: 0.1.0
+       No more trailing slashes in links.
+
     .. versionchanged:: 0.0.3
        Now returning a JSON link
     """
     return {'title': '%s' % config.DOMAIN[resource]['item_title'],
-            'href': '%s%s/' % (resource_uri(resource), document_id)}
+            'href': '%s/%s' % (resource_uri(resource), document_id)}
 
 
 def home_link():
@@ -205,10 +208,13 @@ def home_link():
 def resource_uri(resource):
     """ Returns the absolute URI to a resource.
 
+    .. versionchanged:: 0.1.0
+       No more trailing slashes in links.
+
     :param resource: the resource name.
     """
-    return '%s%s/%s/' % (config.SERVER_NAME, api_prefix(),
-                         config.URLS[resource])
+    return '%s%s/%s' % (config.SERVER_NAME, api_prefix(),
+                        config.URLS[resource])
 
 
 def api_prefix(url_prefix=None, api_version=None):

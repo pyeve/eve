@@ -40,13 +40,13 @@ Customizable resource endpoints
 -------------------------------
 By default, Eve will make known database collections available as resource
 endpoints (persistent identifiers in REST idiom). So a database ``people``
-collection will be avaliable at the ``example.com/people/`` API endpoint.  You
+collection will be avaliable at the ``example.com/people`` API endpoint.  You
 can customize the URIs though, so the API endpoint could become, say,
-``example.com/customers/``. Consider the following request:
+``example.com/customers``. Consider the following request:
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people/
+    $ curl -i http://eve-demo.herokuapp.com/people
     HTTP/1.1 200 OK
 
 The response payload will look something like this:
@@ -66,13 +66,13 @@ The response payload will look something like this:
                 "created": "Wed, 05 Dec 2012 09:53:07 GMT", 
                 "etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d", 
                 "_links": {
-                    "self": {"href": "eve-demo.herokuapp.com:5000/people/50bf198338345b1c604faf31/", "title": "person"},
+                    "self": {"href": "eve-demo.herokuapp.com:5000/people/50bf198338345b1c604faf31", "title": "person"},
                 },
             },
             ...
         ],
         "_links": {
-            "self": {"href": "eve-demo.herokuapp.com:5000/people/", "title": "people"}, 
+            "self": {"href": "eve-demo.herokuapp.com:5000/people", "title": "people"}, 
             "parent": {"href": "eve-demo.herokuapp.com:5000", "title": "home"}
         }
     }
@@ -100,15 +100,15 @@ The ``_links`` list provides HATEOAS_ directives.
 Customizable, multiple item endpoints
 -------------------------------------
 Resources can or cannot expose individual item endpoints. API consumers could
-get access to ``/people/``, ``/people/<ObjectId>/`` and ``/people/Doe/``,
-but only to ``/works/``.  When you do grant access to item endpoints, you can
+get access to ``/people``, ``/people/<ObjectId>`` and ``/people/Doe``,
+but only to ``/works``.  When you do grant access to item endpoints, you can
 define up to two lookups, both defined with regexes. The first will be the
 primary endpoint and will match your database primary key structure (i.e., an
 ``ObjectId`` in a MongoDB database).  
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c/
+    $ curl -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c
     HTTP/1.1 200 OK
     Etag: 448a928514cbff5b0b516f60bcdf27cc75213280
     Last-Modified: Wed, 28 Aug 2013 03:02:24 GMT
@@ -119,7 +119,7 @@ will retrieve only the first match anyway.
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people/Doe/
+    $ curl -i http://eve-demo.herokuapp.com/people/Doe
     HTTP/1.1 200 OK
     Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
     Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT 
@@ -141,9 +141,9 @@ look something like this:
         "created": "Wed, 21 Nov 2012 16:04:56 GMT",
         "etag": "28995829ee85d69c4c18d597a0f68ae606a266cc",
         "_links": {
-            "self": {"href": "eve-demo.herokuapp.com/people/50acfba938345b0978fccad7/", "title": "person"},
-            "parent": {"href": "eve-demo.herokuapp.com/", "title": "home"},
-            "collection": {"href": "http://eve-demo.herokuapp.com/people/", "title": "people"}
+            "self": {"href": "eve-demo.herokuapp.com/people/50acfba938345b0978fccad7", "title": "person"},
+            "parent": {"href": "eve-demo.herokuapp.com", "title": "home"},
+            "collection": {"href": "http://eve-demo.herokuapp.com/people", "title": "people"}
         }
     }
 
@@ -156,7 +156,7 @@ As you can see, item endpoints provide their own HATEOAS_ directives.
     a secondary convenience, endpoint is a decision that should pondered
     carefully.
 
-    Consider our example above. Even without the ``/people/<lastname>/``
+    Consider our example above. Even without the ``/people/<lastname>``
     endpoint, a client could always retrieve a person by querying the resource
     endpoint by last name: ``/people/?where={"lastname": "Doe"}``. Actually the
     whole example is fubar as there could be multiple people sharing the same
@@ -172,14 +172,14 @@ are supported. The mongo query syntax:
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people/?where={"lastname": "Doe"}
+    $ curl -i http://eve-demo.herokuapp.com/people?where={"lastname": "Doe"}
     HTTP/1.1 200 OK
 
 and the native Python syntax:
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people/?where=lastname=="Doe"
+    $ curl -i http://eve-demo.herokuapp.com/people?where=lastname=="Doe"
     HTTP/1.1 200 OK
 
 Both query formats allow for conditional and logical And/Or operators, however
@@ -187,7 +187,7 @@ nested and combined. Sorting is supported as well:
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people/?sort=[("lastname", -1)]
+    $ curl -i http://eve-demo.herokuapp.com/people?sort=[("lastname", -1)]
     HTTP/1.1 200 OK
 
 Currently sort directives use a pure MongoDB syntax; support for a more general
@@ -214,14 +214,14 @@ consumers can request specific pages via the query string:
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people/?max_results=20&page=2
+    $ curl -i http://eve-demo.herokuapp.com/people?max_results=20&page=2
     HTTP/1.1 200 OK
 
 Of course you can mix all the available query parameters:
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people/?where={"lastname": "Doe"}&sort=[("firstname", 1)]&page=5
+    $ curl -i http://eve-demo.herokuapp.com/people?where={"lastname": "Doe"}&sort=[("firstname", 1)]&page=5
     HTTP/1.1 200 OK
 
 Pagination can be disabled.
@@ -241,7 +241,7 @@ UI, or to navigate the API without knowing its structure beforehand. An example:
     {
         "_links": { 
             "self": { 
-                "href": "localhost:5000/people/", 
+                "href": "localhost:5000/people", 
                 "title": "people" 
             }, 
             "parent": { 
@@ -249,11 +249,11 @@ UI, or to navigate the API without knowing its structure beforehand. An example:
                 "title": "home" 
             }, 
             "next": {
-                "href": "localhost:5000/people/?page=2", 
+                "href": "localhost:5000/people?page=2", 
                 "title": "next page" 
             },
             "last": {
-                "href": "localhost:5000/people/?page=10", 
+                "href": "localhost:5000/people?page=10", 
                 "title": "last page" 
             } 
         } 
@@ -274,7 +274,7 @@ a simple list of items:
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people/
+    $ curl -i http://eve-demo.herokuapp.com/people
     HTTP/1.1 200 OK
 
 .. code-block:: javascript
@@ -302,7 +302,7 @@ same happens to individual item payloads:
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people/522f01dc15b4fc00028e6d98/
+    $ curl -i http://eve-demo.herokuapp.com/people/522f01dc15b4fc00028e6d98
     HTTP/1.1 200 OK
 
 .. code-block:: javascript
@@ -336,7 +336,7 @@ edits) are in JSON format.
 
 .. code-block:: console
 
-    $ curl -H "Accept: application/xml" -i http://eve-demo.herokuapp.com/
+    $ curl -H "Accept: application/xml" -i http://eve-demo.herokuapp.com
     HTTP/1.1 200 OK
     Content-Type: application/xml; charset=utf-8
     ...
@@ -344,8 +344,8 @@ edits) are in JSON format.
 .. code-block:: html
 
     <resource>
-        <link rel="child" href="eve-demo.herokuapp.com/people/" title="people" />
-        <link rel="child" href="eve-demo.herokuapp.com/works/" title="works" />
+        <link rel="child" href="eve-demo.herokuapp.com/people" title="people" />
+        <link rel="child" href="eve-demo.herokuapp.com/works" title="works" />
     </resource>
 
 .. _conditional_requests:
@@ -360,14 +360,14 @@ conditional requests, only retrieving new or modified data, by using the
 
 .. code-block:: console
 
-    $ curl -H "If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT" -i http://eve-demo.herokuapp.com/people/
+    $ curl -H "If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT" -i http://eve-demo.herokuapp.com/people
     HTTP/1.1 200 OK
 
 or the ``If-None-Match`` header:
 
 .. code-block:: console
 
-    $ curl -H "If-None-Match: 1234567890123456789012345678901234567890" -i http://eve-demo.herokuapp.com/people/
+    $ curl -H "If-None-Match: 1234567890123456789012345678901234567890" -i http://eve-demo.herokuapp.com/people
     HTTP/1.1 200 OK
 
 
@@ -384,7 +384,7 @@ Consider the following workflow:
 
 .. code-block:: console
 
-    $ curl -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c/ -d 'data={"firstname": "ronald"}'
+    $ curl -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d 'data={"firstname": "ronald"}'
     HTTP/1.1 403 FORBIDDEN
 
 We attempted an edit, but we did not provide an ``ETag`` for the item, so we got
@@ -392,7 +392,7 @@ a not-so-nice ``403 FORBIDDEN``. Let's try again:
 
 .. code-block:: console
 
-    $ curl -H "If-Match: 1234567890123456789012345678901234567890" -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c/ -d 'data={"firstname": "ronald"}'
+    $ curl -H "If-Match: 1234567890123456789012345678901234567890" -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d 'data={"firstname": "ronald"}'
     HTTP/1.1 412 PRECONDITION FAILED
 
 What went wrong this time? We provided the mandatory ``If-Match`` header, but
@@ -401,7 +401,7 @@ currently stored on the server, so we got a ``402 PRECONDITION FAILED`` again!
 
 .. code-block:: console
 
-    $ curl -H "If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012" -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37/ -d 'data={"firstname": "ronald"}'
+    $ curl -H "If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012" -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37 -d 'data={"firstname": "ronald"}'
     HTTP/1.1 200 OK
 
 It's a win, and the response payload looks something like this:
@@ -431,7 +431,7 @@ Clients can send a stream of multiple documents to be inserted at once.
 
 .. code-block:: console
 
-    $ curl -d 'item1={"firstname": "barack", "lastname": "obama"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://eve-demo.herokuapp.com/people/
+    $ curl -d 'item1={"firstname": "barack", "lastname": "obama"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://eve-demo.herokuapp.com/people
     HTTP/1.1 200 OK
 
 The response will provide detailed state information about each document
@@ -447,14 +447,14 @@ data stream.
             "updated": "Thu, 22 Nov 2012 15:22:27 GMT",
             "_id": "50ae43339fa12500024def5b",
             "etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
-            "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b/", "title": "person"}}
+            "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b", "title": "person"}}
         },
         "item1": {
             "status": "OK",
             "updated": "Thu, 22 Nov 2012 15:22:27 GMT",
             "_id": "50ae43339fa12500024def5c",
             "etag": "62d356f623c7d9dc864ffa5facc47dced4ba6907"
-            "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5c/", "title": "person"}}
+            "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5c", "title": "person"}}
         }
     }
 
@@ -467,7 +467,7 @@ will only be updated if validation passes.
 
 .. code-block:: console
 
-    $ curl -d 'item1={"firstname": "bill", "lastname": "clinton"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://eve-demo.herokuapp.com/people/
+    $ curl -d 'item1={"firstname": "bill", "lastname": "clinton"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://eve-demo.herokuapp.com/people
     HTTP/1.1 200 OK
 
 The response will contain a success/error state for each item provided in the
@@ -486,7 +486,7 @@ request:
             "status": "OK",
             "updated": "Thu, 22 Nov 2012 15:29:08 GMT",
             "_id": "50ae44c49fa12500024def5d",
-            "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d/", "title": "person"}}
+            "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d", "title": "person"}}
         }
     }
 
@@ -515,7 +515,7 @@ You can set global and individual cache-control directives for each resource.
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/
+    $ curl -i http://eve-demo.herokuapp.com
     HTTP/1.1 200 OK
     Content-Type: application/json
     Content-Length: 131
@@ -569,7 +569,7 @@ Resource endpoints will only expose (and update) documents that match
 a predefined filter. This allows for multiple resource endpoints to seamlessy
 target the same database collection. A typical use-case would be a
 hypothetical ``people`` collection on the database being used by both the
-``/admins/`` and ``/users/`` API endpoints.
+``/admins`` and ``/users`` API endpoints.
 
 .. _projections:
 
@@ -582,7 +582,7 @@ dictates which fields should be returned by the API.
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people/?projection={"lastname": 1, "born": 1}
+    $ curl -i http://eve-demo.herokuapp.com/people?projection={"lastname": 1, "born": 1}
     HTTP/1.1 200 OK
 
 The query above will only return *lastname* and *born* out of all the fields
@@ -620,7 +620,7 @@ like this:
             }
         }
 
-A GET like ``/emails/?embedded={"author":1}`` would return a fully embedded user
+A GET like ``/emails?embedded={"author":1}`` would return a fully embedded user
 document whereas the same request without the ``embedded`` argument would just
 return the user ``ObjectId``. 
 
@@ -631,7 +631,7 @@ toggling the ``embedding`` value). Furthermore, only fields with the
 referenced documents.
 
 Limitations: currenly we only support a single layer of embedding, i.e.
-``/emails/?{"author": 1}`` but *not* ``/emails/?{"author.firends": 1}``.
+``/emails?{"author": 1}`` but *not* ``/emails?{"author.firends": 1}``.
 
 Document embedding is enabled by default.
 
