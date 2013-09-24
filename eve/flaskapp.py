@@ -62,6 +62,9 @@ class Eve(Flask, Events):
                   feature, if enabled.
     :param kwargs: optional, standard, Flask parameters.
 
+    .. versionchanged:: 0.1.0
+       Now supporting both "trailing slashes" and "no-trailing slashes" URLs.
+
     .. versionchanged:: 0.0.7
        'redis' argument added to handle an accessory Redis server (currently
        used by the Rate-Limiting feature).
@@ -464,6 +467,11 @@ class Eve(Flask, Events):
         prefix = api_prefix(self.config['URL_PREFIX'],
                             self.config['API_VERSION'])
 
+        # we choose not to care about trailing slashes at all.
+        # Both '/resource/' and '/resource' will work, same with
+        # '/resource/<id>/' and '/resource/<id>'
+        self.url_map.strict_slashes = False
+
         # home page (API entry point)
         self.add_url_rule('%s/' % prefix, 'home', view_func=home_endpoint,
                           methods=['GET', 'OPTIONS'])
@@ -474,17 +482,15 @@ class Eve(Flask, Events):
             datasources[resource] = settings['datasource']
 
             # resource endpoint
-            url = '%s/<regex("%s"):url>/' % (prefix, settings['url'])
+            url = '%s/<regex("%s"):url>' % (prefix, settings['url'])
             self.add_url_rule(url, view_func=collections_endpoint,
                               methods=settings['resource_methods'] +
                               ['OPTIONS'])
 
             # item endpoint
             if settings['item_lookup']:
-                item_url = '%s<regex("%s"):%s>/' % \
-                    (url,
-                     settings['item_url'],
-                     settings['item_lookup_field'])
+                item_url = '%s/<regex("%s"):%s>' % \
+                    (url, settings['item_url'], settings['item_lookup_field'])
 
                 self.add_url_rule(item_url, view_func=item_endpoint,
                                   methods=settings['item_methods']
@@ -501,9 +507,9 @@ class Eve(Flask, Events):
                 if lookup:
                     l_type = settings['schema'][lookup['field']]['type']
                     if l_type == 'integer':
-                        item_url = '%s<int:%s>/' % (url, lookup['field'])
+                        item_url = '%s/<int:%s>' % (url, lookup['field'])
                     else:
-                        item_url = '%s<regex("%s"):%s>/' % (url,
+                        item_url = '%s/<regex("%s"):%s>' % (url,
                                                             lookup['url'],
                                                             lookup['field'])
                     self.add_url_rule(item_url, view_func=item_endpoint,
