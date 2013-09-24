@@ -8,6 +8,7 @@ Version 0.1.0
 
 Not released yet.
 
+- Fix: installation on Windows with Python 3 was returning encoding errors.
 - Cerberus 0.4.0 is now supported.
 - "No trailing slash" URLs are now supported. Closes #118.
 - Events 0.2.0 is now supported.
