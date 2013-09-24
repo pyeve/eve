@@ -9,7 +9,7 @@ will be updated only if validation passes.
 
 .. code-block:: console
 
-    $ curl -d 'item1={"firstname": "bill", "lastname": "clinton"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://eve-demo.herokuapp.com/people/
+    $ curl -d 'item1={"firstname": "bill", "lastname": "clinton"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://eve-demo.herokuapp.com/people
     HTTP/1.1 200 OK
 
 The response will contain a success/error state for each item provided in the
@@ -28,7 +28,7 @@ request:
             "status": "OK",
             "updated": "Thu, 22 Nov 2012 15:29:08 GMT",
             "_id": "50ae44c49fa12500024def5d",
-            "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d/", "title": "person"}}
+            "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d", "title": "person"}}
         }
     }
 
@@ -50,7 +50,7 @@ only be expressed as an odd integer. You decide to add support for a new
 ``isodd`` rule to our validation schema. This is how you would implement
 that:
 
-::
+.. code-block:: python
 
     from eve.io.mongo import Validator
 
@@ -144,12 +144,12 @@ Consider the following domain:
         }
 
 You normally could only add (POST) or edit (PATCH) `firstnames` to the
-``/people/`` endpoint. However, since ``allow_unknown`` has been enabled, even
+``/people`` endpoint. However, since ``allow_unknown`` has been enabled, even
 a payload like this will be accepted:
 
 .. code-block:: console
 
-    $ curl -d 'item1={"firstname": "bill", "lastname": "clinton"}' -d 'item1={"firstname": "bill", "age":70}' http://eve-demo.herokuapp.com/people/
+    $ curl -d 'item1={"firstname": "bill", "lastname": "clinton"}' -d 'item1={"firstname": "bill", "age":70}' http://eve-demo.herokuapp.com/people
     HTTP/1.1 200 OK
 
 .. admonition:: Please note

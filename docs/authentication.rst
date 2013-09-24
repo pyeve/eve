@@ -33,7 +33,7 @@ to provide the correct credentials in order to consume the API:
 
 .. code-block:: console
 
-    $ curl -i http://example.com/
+    $ curl -i http://example.com
     HTTP/1.1 401 UNAUTHORIZED
     WWW-Authenticate: Basic realm:"eve"
     Content-Type: text/html; charset=utf-8
@@ -43,7 +43,7 @@ to provide the correct credentials in order to consume the API:
 
     Please provide proper credentials.
 
-    $ curl -H "Authorization: Basic YWRtaW46c2VjcmV0" -i http://example.com/
+    $ curl -H "Authorization: Basic YWRtaW46c2VjcmV0" -i http://example.com
     HTTP/1.1 200 OK
     Content-Type: application/json
     Content-Length: 194
@@ -67,8 +67,8 @@ your `settings.py`:
 
 And run your API. POST, PATCH and DELETE are still restricted, while GET is
 publicly available at all API endpoints. ``PUBLIC_METHODS`` refers to resource
-endpoints, like ``/people/``, while ``PUBLIC_ITEM_METHODS`` refers to individual
-items like ``/people/id/``.
+endpoints, like ``/people``, while ``PUBLIC_ITEM_METHODS`` refers to individual
+items like ``/people/id``.
 
 .. _endpointsec:
 
@@ -89,7 +89,7 @@ API :ref:`domain <domain>`:
 
 Be aware that, when present, :ref:`resource settings <local>` override global
 settings. You can use this to your advantage. Suppose that you want to grant
-read access to all endpoints with the only exception of ``/invoices/``.  You
+read access to all endpoints with the only exception of ``/invoices``.  You
 first open read access for all endpoints:
 
 ::
@@ -134,7 +134,7 @@ resources/methods will be secured unless they are made explicitly public.
 
     You will need to install `py-bcript` for this to work.
 
-::
+.. code-block:: python
 
 
     # -*- coding: utf-8 -*-
@@ -175,7 +175,7 @@ This script assumes that user accounts are stored in an `accounts` MongoDB
 collection, and that passwords are stored as SHA1/HMAC hashes. All API
 resources/methods will be secured unless they are made explicitly public.
 
-::
+.. code-block:: python
 
     # -*- coding: utf-8 -*-
 
@@ -223,7 +223,7 @@ collection. All API resources/methods will be secured unless they are made
 explicitly public (by fiddling with some settings you can open one or more
 resources and/or methods to public access -see docs).
 
-::
+.. code-block:: python
 
     # -*- coding: utf-8 -*-
 
@@ -302,7 +302,7 @@ HMAC Example
 The snippet below can also be found in the `examples/security` folder of the
 Eve `repository`_.
 
-::
+.. code-block:: python
 
     from eve import Eve
     from eve.auth import HMACAuth
@@ -353,7 +353,7 @@ MongoDB collection, that passwords are stored as SHA1/HMAC hashes and that user
 roles are stored in a 'roles' array. All API resources/methods will be secured
 unless they are made explicitly public.
 
-::
+.. code-block:: python
 
     # -*- coding: utf-8 -*-
 
