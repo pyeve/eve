@@ -38,6 +38,7 @@ def get_document(resource, **lookup):
     req = parse_request(resource)
     document = app.data.find_one(resource, **lookup)
     if document:
+
         if not req.if_match:
             # we don't allow editing unless the client provides an etag
             # for the document
@@ -45,8 +46,11 @@ def get_document(resource, **lookup):
                 'An etag must be provided to edit a document'
             ))
 
-        document[config.LAST_UPDATED] = document[config.LAST_UPDATED].replace(
-            tzinfo=None)
+        # ensure the retrieved document has LAST_UPDATED and DATE_CREATED,
+        # eventually with same default values as in GET.
+        document[config.LAST_UPDATED] = last_updated(document)
+        document[config.DATE_CREATED] = date_created(document)
+
         if req.if_match != document_etag(document):
             # client and server etags must match, or we don't allow editing
             # (ensures that client's version of the document is up to date)
