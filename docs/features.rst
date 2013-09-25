@@ -559,7 +559,7 @@ a matter of minutes.
 
 Default Values
 --------------
-It is possibile to set default values for fields. When serving POST
+It is possible to set default values for fields. When serving POST
 (create) requests, missing fields will be assigned the configured default
 values.
 
