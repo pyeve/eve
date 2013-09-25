@@ -78,6 +78,10 @@ def put(resource, **lookup):
                     document[auth_field] = userid
             etag = document_etag(document)
 
+            # notify callbacks
+            getattr(app, "on_insert")(resource, [document])
+            getattr(app, "on_insert_%s" % resource)([document])
+
             app.data.replace(resource, object_id, document)
 
             response_item[config.ID_FIELD] = object_id

@@ -194,7 +194,7 @@ class TestEventHooks(TestBase):
         self.delete()
         self.assertTrue(self.passed)
 
-    def test_on_insert(self):
+    def test_on_insert_POST(self):
         def general_hook(resource, documents):
             self.assertEqual(resource, self.known_resource)
             self.assertEqual(len(documents), 1)
@@ -203,12 +203,29 @@ class TestEventHooks(TestBase):
         self.post()
         self.assertTrue(self.passed)
 
-    def test_on_insert_resource(self):
+    def test_on_insert_PUT(self):
+        def general_hook(resource, documents):
+            self.assertEqual(resource, self.known_resource)
+            self.assertEqual(len(documents), 1)
+            self.passed = True
+        self.app.on_insert += general_hook
+        self.put()
+        self.assertTrue(self.passed)
+
+    def test_on_insert_resource_POST(self):
         def resource_hook(documents):
             self.assertEqual(len(documents), 1)
             self.passed = True
         self.app.on_insert_contacts += resource_hook
         self.post()
+        self.assertTrue(self.passed)
+
+    def test_on_insert_resource_PUT(self):
+        def resource_hook(documents):
+            self.assertEqual(len(documents), 1)
+            self.passed = True
+        self.app.on_insert_contacts += resource_hook
+        self.put()
         self.assertTrue(self.passed)
 
     def test_on_fetch(self):
@@ -257,5 +274,5 @@ class TestEventHooks(TestBase):
     def put(self):
         headers = [('Content-Type', 'application/x-www-form-urlencoded'),
                    ('If-Match', self.item_etag)]
-        data = {'item1': json.dumps({"ref": "i'm unique"})}
+        data = {'item1': json.dumps({"ref": "0123456789012345678901234"})}
         self.test_client.put(self.item_id_url, data=data, headers=headers)
