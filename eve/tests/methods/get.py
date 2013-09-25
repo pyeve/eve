@@ -421,8 +421,7 @@ class TestGetItem(TestBase):
         contacts[0]['ref'] = ref
         _db = self.connection[MONGO_DBNAME]
         _db.contacts.insert(contacts)
-        response, status = self.get(self.known_resource,
-                                    item=ref)
+        response, status = self.get(self.known_resource, item=ref)
         self.assertItemResponse(response, status)
 
     def test_get_with_post_override(self):

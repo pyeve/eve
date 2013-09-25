@@ -126,6 +126,14 @@ class TestMinimal(unittest.TestCase):
             self.fail('Cannot convert field "%s" to datetime: %s' %
                       (self.app.config['LAST_UPDATED'], e))
 
+        created_on = item.get(self.app.config['DATE_CREATED'])
+        self.assertTrue(updated_on is not None)
+        try:
+            datetime.strptime(created_on, self.app.config['DATE_FORMAT'])
+        except Exception as e:
+            self.fail('Cannot convert field "%s" to datetime: %s' %
+                      (self.app.config['DATE_CREATED'], e))
+
         link = item.get('_links')
         self.assertItemLink(link, _id)
 
