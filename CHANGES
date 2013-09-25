@@ -8,6 +8,12 @@ Version 0.1.0
 
 Not released yet.
 
+- Fix: item ``GET`` on documents with non-existent 'created' field (because
+  stored outside of API context) were not returning a default value for the
+  field.
+- Fix: edits on documents with non-existent 'created' or 'updated' fields
+  (because stored outside of the API context) were returning ``412 Precondition
+  Failed``. Closes #123.
 - ``on_insert`` is raised when a ``PUT`` (replace action) is about to be
   performed. Closes #120.
 - Fix: installation on Windows with Python 3 was returning encoding errors.
