@@ -1,5 +1,6 @@
 #import unittest
 from eve.tests import TestBase
+from eve.tests.test_settings import MONGO_DBNAME
 from eve import STATUS_OK, LAST_UPDATED, ID_FIELD
 import simplejson as json
 
@@ -266,6 +267,33 @@ class TestPatch(TestBase):
                                data=changes,
                                headers=[('If-Match', self.item_etag)])
         self.assert500(status)
+
+    def test_patch_missing_standard_date_fields(self):
+        """Documents created outside the API context could be lacking the
+        LAST_UPDATED and/or DATE_CREATED fields.
+        """
+        # directly insert a document, without DATE_CREATED e LAST_UPDATED
+        # values.
+        contacts = self.random_contacts(1, False)
+        ref = 'test_update_field'
+        contacts[0]['ref'] = ref
+        _db = self.connection[MONGO_DBNAME]
+        _db.contacts.insert(contacts)
+
+        # now retrieve same document via API and get its etag, which is
+        # supposed to be computed on default DATE_CREATED and LAST_UPDATAED
+        # values.
+        response, status = self.get(self.known_resource, item=ref)
+        etag = response['etag']
+        _id = response['_id']
+
+        # attempt a PATCH with the new etag.
+        field = "ref"
+        test_value = "X234567890123456789012345"
+        changes = {'key1': json.dumps({field: test_value})}
+        r, status = self.patch('%s/%s' % (self.known_resource_url, _id),
+                               data=changes, headers=[('If-Match', etag)])
+        self.assert200(status)
 
     def assertPatchResponse(self, response, key, item_id):
         self.assertTrue(key in response)
