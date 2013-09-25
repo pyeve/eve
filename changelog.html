@@ -61,16 +61,26 @@
 <h2>Version 0.1.0<a class="headerlink" href="#version-0-1-0" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>Fix: item <tt class="docutils literal"><span class="pre">GET</span></tt> on documents with non-existent &#8216;created&#8217; field (because
+stored outside of API context) were not returning a default value for the
+field.</li>
+<li>Fix: edits on documents with non-existent &#8216;created&#8217; or &#8216;updated&#8217; fields
+(because stored outside of the API context) were returning <tt class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span>
+<span class="pre">Failed</span></tt>. Closes #123.</li>
+<li><tt class="docutils literal"><span class="pre">on_insert</span></tt> is raised when a <tt class="docutils literal"><span class="pre">PUT</span></tt> (replace action) is about to be
+performed. Closes #120.</li>
+<li>Fix: installation on Windows with Python 3 was returning encoding errors.</li>
+<li>Cerberus 0.4.0 is now supported.</li>
 <li>&#8220;No trailing slash&#8221; URLs are now supported. Closes #118.</li>
 <li>Events 0.2.0 is now supported.</li>
 <li>Cleanup and hardening of User-Restricted Resource Access Edit (Bryan Cattle).</li>
 <li>Embedded Resource Serialization. If a document field is referencing
 a document in another resource, clients can request the referenced document
 to be embedded within the requested document (Bryan Cattle). Closes #68.</li>
-<li>X-HTTP-Method-Override now supported for all HTTP Methods. Closes # 95.</li>
+<li><tt class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></tt> now supported for all HTTP Methods. Closes # 95.</li>
 <li>Account Management tutorial updated to reflect the event hooks naming update
 introduced in v0.0.9.</li>
-<li>PUT method for completely replace a document with another valid one while
+<li><tt class="docutils literal"><span class="pre">PUT</span></tt> method for completely replace a document with another valid one while
 keeping the same unique identifier. Closes #96.</li>
 <li>Some more Python 3 refactoring (Dong Wei Ming).</li>
 <li>Fixed #99: malformed XML render when href includes forbidden URI/URL chars.</li>
