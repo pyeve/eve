@@ -157,6 +157,7 @@ def getitem(resource, **lookup):
         # be computed on the same document representation that might have
         # been used in the collection 'get' method
         last_modified = document[config.LAST_UPDATED] = last_updated(document)
+        document[config.DATE_CREATED] = date_created(document)
         document['etag'] = document_etag(document)
 
         if req.if_none_match and document['etag'] == req.if_none_match:
