@@ -87,7 +87,7 @@ Field       Description
 ``created`` item creation date.
 ``updated`` item last updated on.
 ``etag``    ETag, to be used for concurrency control and conditional requests. 
-``_id``     unique item key, also needed to access the indivdual item endpoint.
+``_id``     unique item key, also needed to access the individual item endpoint.
 =========== =================================================================
 
 These additional fields are automatically handled by the API (clients don't
@@ -559,7 +559,7 @@ a matter of minutes.
 
 Default Values
 --------------
-It is possibile to set default values for fields. When serving POST
+It is possible to set default values for fields. When serving POST
 (create) requests, missing fields will be assigned the configured default
 values.
 
