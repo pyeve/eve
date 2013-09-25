@@ -12,10 +12,9 @@
 """
 
 import math
-from datetime import datetime
 from flask import current_app as app, abort
 import simplejson as json
-from .common import ratelimit
+from .common import ratelimit, epoch, date_created, last_updated
 from eve.auth import requires_auth
 from eve.utils import parse_request, document_etag, document_link, \
     collection_link, home_link, querydef, resource_uri, config, \
@@ -61,17 +60,17 @@ def get(resource):
 
     documents = []
     response = {}
-    last_updated = _epoch()
+    last_update = epoch()
 
     req = parse_request(resource)
     cursor = app.data.find(resource, req)
 
     for document in cursor:
-        document[config.LAST_UPDATED] = _last_updated(document)
-        document[config.DATE_CREATED] = _date_created(document)
+        document[config.LAST_UPDATED] = last_updated(document)
+        document[config.DATE_CREATED] = date_created(document)
 
-        if document[config.LAST_UPDATED] > last_updated:
-            last_updated = document[config.LAST_UPDATED]
+        if document[config.LAST_UPDATED] > last_update:
+            last_update = document[config.LAST_UPDATED]
 
         # document metadata
         document['etag'] = document_etag(document)
@@ -92,7 +91,7 @@ def get(resource):
         last_modified = None
     else:
         status = 200
-        last_modified = last_updated if last_updated > _epoch() else None
+        last_modified = last_update if last_update > epoch() else None
 
         # notify registered callback functions. Please note that, should the
         # functions modify the documents, the last_modified and etag won't be
@@ -157,7 +156,7 @@ def getitem(resource, **lookup):
         # need to update the document field as well since the etag must
         # be computed on the same document representation that might have
         # been used in the collection 'get' method
-        last_modified = document[config.LAST_UPDATED] = _last_updated(document)
+        last_modified = document[config.LAST_UPDATED] = last_updated(document)
         document['etag'] = document_etag(document)
 
         if req.if_none_match and document['etag'] == req.if_none_match:
@@ -300,44 +299,3 @@ def _pagination_links(resource, req, documents_count):
                               (resource_uri(resource), q)}
 
     return _links
-
-
-def _last_updated(document):
-    """Fixes document's LAST_UPDATED field value. Flask-PyMongo returns
-    timezone-aware values while stdlib datetime values are timezone-naive.
-    Comparisions between the two would fail.
-
-    If LAST_UPDATE is missing we assume that it has been created outside of the
-    API context and inject a default value, to allow for proper computing of
-    Last-Modified header tag. By design all documents return a LAST_UPDATED
-    (and we don't want to break existing clients).
-
-    :param document: the document to be processed.
-
-    .. versionadded:: 0.0.5
-    """
-    if config.LAST_UPDATED in document:
-        return document[config.LAST_UPDATED].replace(tzinfo=None)
-    else:
-        return _epoch()
-
-
-def _date_created(document):
-    """If DATE_CREATED is missing we assume that it has been created outside of
-    the API context and inject a default value. By design all documents
-    return a DATE_CREATED (and we dont' want to break existing clients).
-
-    :param document: the document to be processed.
-
-    .. versionadded:: 0.0.5
-    """
-    return document[config.DATE_CREATED] if config.DATE_CREATED in document \
-        else _epoch()
-
-
-def _epoch():
-    """ A datetime.min alternative which won't crash on us.
-
-    .. versionadded:: 0.0.5
-    """
-    return datetime(1970, 1, 1)
