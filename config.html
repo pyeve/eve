@@ -803,6 +803,11 @@ validate. It is a dict with three keys:</p>
 <td>If <tt class="docutils literal"><span class="pre">True</span></tt> the field value can be set to
 <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">default</span></tt></td>
+<td>The default value for the field. When serving
+POST (create) requests, missing fields will be
+assigned the configured default values.</td>
+</tr>
 </tbody>
 </table>
 <p>Schema syntax is based on <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> and yes, it can be extended.  In fact, Eve
