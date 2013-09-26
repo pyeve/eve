@@ -673,6 +673,10 @@ defining the field validation rules. Allowed validation rules are:
 
 ``nullable``                    If ``True`` the field value can be set to 
                                 ``None``. 
+
+``default``                     The default value for the field. When serving
+                                POST (create) requests, missing fields will be
+                                assigned the configured default values.
 =============================== ==============================================
 
 Schema syntax is based on Cerberus_ and yes, it can be extended.  In fact, Eve
