@@ -159,12 +159,12 @@ API users down.</p>
 </pre></div>
 </div>
 <p>Due to MongoDB <em>laziness</em>, we don&#8217;t really need to create the database
-collections. Actually, we don&#8217;t even need to create the database: GET requests
-on an empty/non-existant DB will be served correctly (200 OK with an empty
-collection); DELETE/PATCH will receive appropriate responses (404 Not Found),
-and POST requests will create database and collections as needed. However, such
-an auto-managed database will perform very poorly since it lacks indexes and
-any sort of optimization.</p>
+collections. Actually we don&#8217;t even need to create the database: GET requests
+on an empty/non-existent DB will be served correctly (200 OK with an empty
+collection); DELETE/PATCH/PUT will receive appropriate responses (404 Not
+Found), and POST requests will create database and collections as needed.
+However, such an auto-managed database will perform very poorly since it lacks
+indexes and any sort of optimization.</p>
 </div>
 <div class="section" id="a-more-complex-application">
 <h2>A More Complex Application<a class="headerlink" href="#a-more-complex-application" title="Permalink to this headline">¶</a></h2>
@@ -175,9 +175,9 @@ operations:</p>
 <span class="c"># read-only access to the endpoint).</span>
 <span class="n">RESOURCE_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">]</span>
 
-<span class="c"># Enable reads (GET), edits (PATCH) and deletes of individual items</span>
-<span class="c"># (defaults to read-only item access).</span>
-<span class="n">ITEM_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;PATCH&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">]</span>
+<span class="c"># Enable reads (GET), edits (PATCH), replacements (PUT) and deletes of</span>
+<span class="c"># individual items  (defaults to read-only item access).</span>
+<span class="n">ITEM_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;PATCH&#39;</span><span class="p">,</span> <span class="s">&#39;PUT&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p><tt class="docutils literal"><span class="pre">RESOURCE_METHODS</span></tt> lists methods allowed at resource endpoints (<tt class="docutils literal"><span class="pre">/people</span></tt>)
@@ -327,20 +327,28 @@ and/or reset the database).</p>
 <p>
   You are looking at the documentation of the development version.
 </p>
+<h3>Donate</h3>
+<p>If you love Eve, consider supporting the project on <a href="https://www.gittip.com/nicolaiarocci/">Gittip</a>:</p>
+<p>
+  <iframe style="border: 0; margin: 0; padding: 0;"
+      src="https://www.gittip.com/nicolaiarocci/widget.html"
+      width="48pt" height="20pt"></iframe>
+  </p>
+  <p>As they don't wire to EU, I'll just route the pennies to FOSS projects that make Eve possible.</p>
 <h3>Useful Links</h3>
 <ul>
-  <li><a href="http://blog.python-eve.org/">Blog</a></li>
-  <li><a href="http://github.com/nicolaiarocci/eve">GitHub</a></li>
+  <li><a href="https://groups.google.com/forum/#!forum/python-eve">Mailing List</a></li>
   <li><a href="http://github.com/nicolaiarocci/eve/issues">Issue Tracker</a></li>
-  <li><a href="https://groups.google.com/forum/#!forum/python-eve">Mailing list</a></li>
-  <li><a href="irc://irc.freenode.net/python-eve">IRC</a>
+  <li><a href="http://github.com/nicolaiarocci/eve">GitHub</a></li>
+  <li><a href="http://blog.python-eve.org/">Blog</a></li>
   <li><a href="http://github.com/nicolaiarocci/eve-demo">Demo</a></li>
+  <li><a href="irc://irc.freenode.net/python-eve">IRC</a>
 </ul>
 <h3>Feedback</h3>
 <p>
   Feedback is greatly appreciated. If you have any questions, comments,
-  random praise, or anonymous threats, <a href="mailto:eve@nicolaiarocci.com">
-  shoot me an email</a>.
+  random praise, or anonymous threats, get on the <a href="https://groups.google.com/forum/#!forum/python-eve">mailing list</a> or <a href="mailto:eve@nicolaiarocci.com">
+  shoot an email</a>.
 </p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>

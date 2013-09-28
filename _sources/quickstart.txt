@@ -121,12 +121,12 @@ Let's connect to a database by adding the following lines to `settings.py`:
     MONGO_DBNAME = 'apitest'
 
 Due to MongoDB *laziness*, we don't really need to create the database
-collections. Actually, we don't even need to create the database: GET requests
-on an empty/non-existant DB will be served correctly (200 OK with an empty
-collection); DELETE/PATCH will receive appropriate responses (404 Not Found),
-and POST requests will create database and collections as needed. However, such
-an auto-managed database will perform very poorly since it lacks indexes and
-any sort of optimization.
+collections. Actually we don't even need to create the database: GET requests
+on an empty/non-existent DB will be served correctly (200 OK with an empty
+collection); DELETE/PATCH/PUT will receive appropriate responses (404 Not
+Found), and POST requests will create database and collections as needed.
+However, such an auto-managed database will perform very poorly since it lacks
+indexes and any sort of optimization.
 
 A More Complex Application
 --------------------------
@@ -140,9 +140,9 @@ operations:
     # read-only access to the endpoint).
     RESOURCE_METHODS = ['GET', 'POST', 'DELETE']
 
-    # Enable reads (GET), edits (PATCH) and deletes of individual items
-    # (defaults to read-only item access).
-    ITEM_METHODS = ['GET', 'PATCH', 'DELETE']
+    # Enable reads (GET), edits (PATCH), replacements (PUT) and deletes of
+    # individual items  (defaults to read-only item access).
+    ITEM_METHODS = ['GET', 'PATCH', 'PUT', 'DELETE']
 
 ``RESOURCE_METHODS`` lists methods allowed at resource endpoints (``/people``)
 while ``ITEM_METHODS`` lists the methods enabled at item endpoints

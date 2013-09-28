@@ -60,40 +60,53 @@
 <div class="section" id="version-0-1-0">
 <h2>Version 0.1.0<a class="headerlink" href="#version-0-1-0" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
+<div class="section" id="new-features">
+<h3>New Features<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Fix: item <tt class="docutils literal"><span class="pre">GET</span></tt> on documents with non-existent &#8216;created&#8217; field (because
+<li><tt class="docutils literal"><span class="pre">PUT</span></tt> method for completely replace a document while keeping the same
+unique identifier. Closes #96.</li>
+<li>Embedded Resource Serialization. If a document field is referencing
+a document in another resource, clients can request the referenced document
+to be embedded within the requested document (Bryan Cattle).  Closes #68.</li>
+<li>&#8220;No trailing slash&#8221; URLs are now supported. Closes #118.</li>
+<li>HATEOAS is now optional and can be disabled both at global and resource
+level.</li>
+<li><tt class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></tt> supported for all HTTP Methods. Closes #95.</li>
+</ul>
+</div>
+<div class="section" id="enhancements">
+<h3>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>HTTP method is now passed into <tt class="docutils literal"><span class="pre">authenticate()</span></tt> and <tt class="docutils literal"><span class="pre">check_auth()</span></tt> (Ken
+Carpenter). Closes #90 .</li>
+<li>Cleanup and hardening of User-Restricted Resource Access Edit (Bryan Cattle).</li>
+<li>Account Management tutorial updated to reflect the event hooks naming update
+introduced in v0.0.9.</li>
+<li>Some more Python 3 refactoring (Dong Wei Ming).</li>
+<li>Events 0.2.0 is now supported.</li>
+<li>PyMongo 2.6.2 is now supported.</li>
+<li>Cerberus 0.4.0 is now supported.</li>
+</ul>
+</div>
+<div class="section" id="fixes">
+<h3>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Item <tt class="docutils literal"><span class="pre">GET</span></tt> on documents with non-existent &#8216;created&#8217; field (because
 stored outside of API context) were not returning a default value for the
 field.</li>
-<li>Fix: edits on documents with non-existent &#8216;created&#8217; or &#8216;updated&#8217; fields
+<li>Edits on documents with non-existent &#8216;created&#8217; or &#8216;updated&#8217; fields
 (because stored outside of the API context) were returning <tt class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span>
 <span class="pre">Failed</span></tt>. Closes #123.</li>
 <li><tt class="docutils literal"><span class="pre">on_insert</span></tt> is raised when a <tt class="docutils literal"><span class="pre">PUT</span></tt> (replace action) is about to be
 performed. Closes #120.</li>
-<li>Fix: installation on Windows with Python 3 was returning encoding errors.</li>
-<li>Cerberus 0.4.0 is now supported.</li>
-<li>&#8220;No trailing slash&#8221; URLs are now supported. Closes #118.</li>
-<li>Events 0.2.0 is now supported.</li>
-<li>Cleanup and hardening of User-Restricted Resource Access Edit (Bryan Cattle).</li>
-<li>Embedded Resource Serialization. If a document field is referencing
-a document in another resource, clients can request the referenced document
-to be embedded within the requested document (Bryan Cattle). Closes #68.</li>
-<li><tt class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></tt> now supported for all HTTP Methods. Closes # 95.</li>
-<li>Account Management tutorial updated to reflect the event hooks naming update
-introduced in v0.0.9.</li>
-<li><tt class="docutils literal"><span class="pre">PUT</span></tt> method for completely replace a document with another valid one while
-keeping the same unique identifier. Closes #96.</li>
-<li>Some more Python 3 refactoring (Dong Wei Ming).</li>
+<li>Installation on Windows with Python 3 was returning encoding errors.</li>
 <li>Fixed #99: malformed XML render when href includes forbidden URI/URL chars.</li>
 <li>Fixed a bug introduced with 0.0.9 and Python 3 support. Filters (<tt class="docutils literal"><span class="pre">?where</span></tt>)
 on datetime values were not working when running on Python 2.x.</li>
 <li>Fixed some typos and minor grammatical errors all across the documentation
 (Ken Carpenter, Jean Boussier, Kracekumar, Francisco Corrales Morales).</li>
-<li>HTTP method is now passed into <tt class="docutils literal"><span class="pre">authenticate()</span></tt> and <tt class="docutils literal"><span class="pre">check_auth()</span></tt>.
-Closes #90 (Ken Carpenter).</li>
-<li>HATEOAS is now optional and can be disabled both at global and resource
-level.</li>
-<li>PyMongo 2.6.2 is now supported.</li>
 </ul>
+</div>
 </div>
 <div class="section" id="version-0-0-9">
 <h2>Version 0.0.9<a class="headerlink" href="#version-0-0-9" title="Permalink to this headline">¶</a></h2>
@@ -404,25 +417,38 @@ signature, allowing for further subclassing.</li>
 <p>
   You are looking at the documentation of the development version.
 </p>
+<h3>Donate</h3>
+<p>If you love Eve, consider supporting the project on <a href="https://www.gittip.com/nicolaiarocci/">Gittip</a>:</p>
+<p>
+  <iframe style="border: 0; margin: 0; padding: 0;"
+      src="https://www.gittip.com/nicolaiarocci/widget.html"
+      width="48pt" height="20pt"></iframe>
+  </p>
+  <p>As they don't wire to EU, I'll just route the pennies to FOSS projects that make Eve possible.</p>
 <h3>Useful Links</h3>
 <ul>
-  <li><a href="http://blog.python-eve.org/">Blog</a></li>
-  <li><a href="http://github.com/nicolaiarocci/eve">GitHub</a></li>
+  <li><a href="https://groups.google.com/forum/#!forum/python-eve">Mailing List</a></li>
   <li><a href="http://github.com/nicolaiarocci/eve/issues">Issue Tracker</a></li>
-  <li><a href="https://groups.google.com/forum/#!forum/python-eve">Mailing list</a></li>
-  <li><a href="irc://irc.freenode.net/python-eve">IRC</a>
+  <li><a href="http://github.com/nicolaiarocci/eve">GitHub</a></li>
+  <li><a href="http://blog.python-eve.org/">Blog</a></li>
   <li><a href="http://github.com/nicolaiarocci/eve-demo">Demo</a></li>
+  <li><a href="irc://irc.freenode.net/python-eve">IRC</a>
 </ul>
 <h3>Feedback</h3>
 <p>
   Feedback is greatly appreciated. If you have any questions, comments,
-  random praise, or anonymous threats, <a href="mailto:eve@nicolaiarocci.com">
-  shoot me an email</a>.
+  random praise, or anonymous threats, get on the <a href="https://groups.google.com/forum/#!forum/python-eve">mailing list</a> or <a href="mailto:eve@nicolaiarocci.com">
+  shoot an email</a>.
 </p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Eve Changelog</a><ul>
-<li><a class="reference internal" href="#version-0-1-0">Version 0.1.0</a></li>
+<li><a class="reference internal" href="#version-0-1-0">Version 0.1.0</a><ul>
+<li><a class="reference internal" href="#new-features">New Features</a></li>
+<li><a class="reference internal" href="#enhancements">Enhancements</a></li>
+<li><a class="reference internal" href="#fixes">Fixes</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#version-0-0-9">Version 0.0.9</a></li>
 <li><a class="reference internal" href="#version-0-0-8">Version 0.0.8</a></li>
 <li><a class="reference internal" href="#version-0-0-7">Version 0.0.7</a></li>
