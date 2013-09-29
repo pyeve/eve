@@ -8,38 +8,46 @@ Version 0.1.0
 
 Not released yet.
 
-- Fix: item ``GET`` on documents with non-existent 'created' field (because
+New Features 
+~~~~~~~~~~~~
+- ``PUT`` method for completely replace a document while keeping the same
+  unique identifier. Closes #96.
+- Embedded Resource Serialization. If a document field is referencing
+  a document in another resource, clients can request the referenced document
+  to be embedded within the requested document (Bryan Cattle).  Closes #68.
+- "No trailing slash" URLs are now supported. Closes #118.
+- HATEOAS is now optional and can be disabled both at global and resource
+  level.
+- ``X-HTTP-Method-Override`` supported for all HTTP Methods. Closes #95.
+
+Enhancements
+~~~~~~~~~~~~
+- HTTP method is now passed into ``authenticate()`` and ``check_auth()`` (Ken
+  Carpenter). Closes #90 .
+- Cleanup and hardening of User-Restricted Resource Access Edit (Bryan Cattle).
+- Account Management tutorial updated to reflect the event hooks naming update
+  introduced in v0.0.9.
+- Some more Python 3 refactoring (Dong Wei Ming).
+- Events 0.2.0 is now supported.
+- PyMongo 2.6.2 is now supported.
+- Cerberus 0.4.0 is now supported.
+
+Fixes
+~~~~~
+- Item ``GET`` on documents with non-existent 'created' field (because
   stored outside of API context) were not returning a default value for the
   field.
-- Fix: edits on documents with non-existent 'created' or 'updated' fields
+- Edits on documents with non-existent 'created' or 'updated' fields
   (because stored outside of the API context) were returning ``412 Precondition
   Failed``. Closes #123.
 - ``on_insert`` is raised when a ``PUT`` (replace action) is about to be
   performed. Closes #120.
-- Fix: installation on Windows with Python 3 was returning encoding errors.
-- Cerberus 0.4.0 is now supported.
-- "No trailing slash" URLs are now supported. Closes #118.
-- Events 0.2.0 is now supported.
-- Cleanup and hardening of User-Restricted Resource Access Edit (Bryan Cattle).
-- Embedded Resource Serialization. If a document field is referencing
-  a document in another resource, clients can request the referenced document
-  to be embedded within the requested document (Bryan Cattle). Closes #68.
-- ``X-HTTP-Method-Override`` now supported for all HTTP Methods. Closes # 95.
-- Account Management tutorial updated to reflect the event hooks naming update
-  introduced in v0.0.9.
-- ``PUT`` method for completely replace a document with another valid one while
-  keeping the same unique identifier. Closes #96.
-- Some more Python 3 refactoring (Dong Wei Ming).
+- Installation on Windows with Python 3 was returning encoding errors.
 - Fixed #99: malformed XML render when href includes forbidden URI/URL chars.
 - Fixed a bug introduced with 0.0.9 and Python 3 support. Filters (``?where``)
   on datetime values were not working when running on Python 2.x.
 - Fixed some typos and minor grammatical errors all across the documentation
   (Ken Carpenter, Jean Boussier, Kracekumar, Francisco Corrales Morales).
-- HTTP method is now passed into ``authenticate()`` and ``check_auth()``.
-  Closes #90 (Ken Carpenter).
-- HATEOAS is now optional and can be disabled both at global and resource
-  level.
-- PyMongo 2.6.2 is now supported.
 
 Version 0.0.9
 -------------
