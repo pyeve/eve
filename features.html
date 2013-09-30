@@ -650,7 +650,9 @@ toggling the <tt class="docutils literal"><span class="pre">embedding</span></tt
 <tt class="docutils literal"><span class="pre">embeddable</span></tt> value explicitly set to <tt class="docutils literal"><span class="pre">True</span></tt> will allow the embedding of
 referenced documents.</p>
 <p>Limitations: currenly we only support a single layer of embedding, i.e.
-<tt class="docutils literal"><span class="pre">/emails?{&quot;author&quot;:</span> <span class="pre">1}</span></tt> but <em>not</em> <tt class="docutils literal"><span class="pre">/emails?{&quot;author.firends&quot;:</span> <span class="pre">1}</span></tt>.</p>
+<tt class="docutils literal"><span class="pre">/emails?{&quot;author&quot;:</span> <span class="pre">1}</span></tt> but <em>not</em> <tt class="docutils literal"><span class="pre">/emails?{&quot;author.firends&quot;:</span> <span class="pre">1}</span></tt>. This
+feature is about serialization on GET requests. There&#8217;s no support for POST,
+PUT or PATCH of embedded documents.</p>
 <p>Document embedding is enabled by default.</p>
 </div>
 <div class="section" id="event-hooks">
