@@ -631,7 +631,9 @@ toggling the ``embedding`` value). Furthermore, only fields with the
 referenced documents.
 
 Limitations: currenly we only support a single layer of embedding, i.e.
-``/emails?{"author": 1}`` but *not* ``/emails?{"author.firends": 1}``.
+``/emails?{"author": 1}`` but *not* ``/emails?{"author.firends": 1}``. This
+feature is about serialization on GET requests. There's no support for POST,
+PUT or PATCH of embedded documents.
 
 Document embedding is enabled by default.
 
