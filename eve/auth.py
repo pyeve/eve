@@ -37,7 +37,8 @@ def requires_auth(endpoint_class):
                 public = app.config['PUBLIC_METHODS'] + ['OPTIONS']
                 roles = app.config['ALLOWED_ROLES']
             if app.auth and request.method not in public:
-                if not app.auth.authorized(roles, resource_name):
+                if not app.auth.authorized(roles, resource_name,
+                                           request.method):
                     return app.auth.authenticate()
             return f(*args, **kwargs)
         return decorated
@@ -59,7 +60,7 @@ class BasicAuth(object):
     def __init__(self):
         self.user_id = None
 
-    def check_auth(self, username, password, allowed_roles, resource):
+    def check_auth(self, username, password, allowed_roles, resource, method):
         """ This function is called to check if a username / password
         combination is valid. Must be overridden with custom logic.
 
@@ -75,7 +76,7 @@ class BasicAuth(object):
             'Please provide proper credentials', 401,
             {'WWW-Authenticate': 'Basic realm:"%s"' % __package__})
 
-    def authorized(self, allowed_roles, resource):
+    def authorized(self, allowed_roles, resource, method):
         """ Validates the the current request is allowed to pass through.
 
         :param allowed_roles: allowed roles for the current request, can be a
@@ -84,7 +85,7 @@ class BasicAuth(object):
         """
         auth = request.authorization
         return auth and self.check_auth(auth.username, auth.password,
-                                        allowed_roles, resource)
+                                        allowed_roles, resource, method)
 
 
 class HMACAuth(BasicAuth):
@@ -100,7 +101,7 @@ class HMACAuth(BasicAuth):
     .. versionadded:: 0.0.5
     """
     def check_auth(self, userid, hmac_hash, headers, data, allowed_roles,
-                   resource):
+                   resource, method):
         """ This function is called to check if a token is valid. Must be
         overridden with custom logic.
 
@@ -119,7 +120,7 @@ class HMACAuth(BasicAuth):
         """
         return Response('Please provide proper credentials', 401)
 
-    def authorized(self, allowed_roles, resource):
+    def authorized(self, allowed_roles, resource, method):
         """ Validates the the current request is allowed to pass through.
 
         :param allowed_roles: allowed roles for the current request, can be a
@@ -133,7 +134,7 @@ class HMACAuth(BasicAuth):
             auth = None
         return auth and self.check_auth(userid, hmac_hash, request.headers,
                                         request.get_data(), allowed_roles,
-                                        resource)
+                                        resource, method)
 
 
 class TokenAuth(BasicAuth):
@@ -145,7 +146,7 @@ class TokenAuth(BasicAuth):
 
     .. versionadded:: 0.0.5
     """
-    def check_auth(self, token, allowed_roles, resource):
+    def check_auth(self, token, allowed_roles, resource, method):
         """ This function is called to check if a token is valid. Must be
         overridden with custom logic.
 
@@ -163,7 +164,7 @@ class TokenAuth(BasicAuth):
             'Please provide proper credentials', 401,
             {'WWW-Authenticate': 'Basic realm:"%s"' % __package__})
 
-    def authorized(self, allowed_roles, resource):
+    def authorized(self, allowed_roles, resource, method):
         """ Validates the the current request is allowed to pass through.
 
         :param allowed_roles: allowed roles for the current request, can be a
@@ -171,4 +172,5 @@ class TokenAuth(BasicAuth):
         :param resource: resource being requested.
         """
         auth = request.authorization
-        return auth and self.check_auth(auth.username, allowed_roles, resource)
+        return auth and self.check_auth(auth.username, allowed_roles, resource,
+                                        method)

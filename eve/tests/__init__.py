@@ -5,6 +5,7 @@ import unittest
 import eve
 import string
 import random
+import os
 import simplejson as json
 from datetime import datetime, timedelta
 from flask.ext.pymongo import MongoClient
@@ -19,12 +20,16 @@ class TestMinimal(unittest.TestCase):
     using :func:`setUp()`
     """
 
-    def setUp(self, settings_file='eve/tests/test_settings.py'):
+    def setUp(self, settings_file=None):
         """ Prepare the test fixture
 
         :param settings_file: the name of the settings file.  Defaults
                               to `eve/tests/test_settings.py`.
         """
+        if settings_file is None:
+            # Load the settings file, using a robust path
+            THIS_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+            settings_file = os.path.join(THIS_DIRECTORY, 'test_settings.py')
 
         self.known_resource_count = 101
         self.setupDB()
@@ -55,9 +60,9 @@ class TestMinimal(unittest.TestCase):
         if resource in self.domain:
             resource = self.domain[resource]['url']
         if item:
-            request = '/%s/%s/' % (resource, item)
+            request = '/%s/%s' % (resource, item)
         else:
-            request = '/%s/%s' % (resource, query)
+            request = '/%s%s' % (resource, query)
 
         r = self.test_client.get(request)
         return self.parse_response(r)
@@ -121,6 +126,14 @@ class TestMinimal(unittest.TestCase):
             self.fail('Cannot convert field "%s" to datetime: %s' %
                       (self.app.config['LAST_UPDATED'], e))
 
+        created_on = item.get(self.app.config['DATE_CREATED'])
+        self.assertTrue(updated_on is not None)
+        try:
+            datetime.strptime(created_on, self.app.config['DATE_FORMAT'])
+        except Exception as e:
+            self.fail('Cannot convert field "%s" to datetime: %s' %
+                      (self.app.config['DATE_CREATED'], e))
+
         link = item.get('_links')
         self.assertItemLink(link, _id)
 
@@ -139,7 +152,7 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue('href' in link)
         url = self.domain[resource]['url']
         self.assertEqual(url, link['title'])
-        self.assertEqual("%s/%s/" % (self.app.config['SERVER_NAME'], url),
+        self.assertEqual("%s/%s" % (self.app.config['SERVER_NAME'], url),
                          link['href'])
 
     def assertCollectionLink(self, links, resource):
@@ -149,7 +162,7 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue('href' in link)
         url = self.domain[resource]['url']
         self.assertEqual(url, link['title'])
-        self.assertEqual("%s/%s/" % (self.app.config['SERVER_NAME'], url),
+        self.assertEqual("%s/%s" % (self.app.config['SERVER_NAME'], url),
                          link['href'])
 
     def assertNextLink(self, links, page):
@@ -175,7 +188,7 @@ class TestMinimal(unittest.TestCase):
         #TODO we are too deep here to get a hold of the due title. Should fix.
         self.assertTrue('title' in link)
         self.assertTrue('href' in link)
-        self.assertTrue('/%s/' % item_id in link['href'])
+        self.assertTrue('/%s' % item_id in link['href'])
 
     def assertLastLink(self, links, page):
         if page:
@@ -232,69 +245,79 @@ class TestBase(TestMinimal):
         super(TestBase, self).setUp()
 
         self.known_resource = 'contacts'
-        self.known_resource_url = ('/%s/' %
+        self.known_resource_url = ('/%s' %
                                    self.domain[self.known_resource]['url'])
         self.empty_resource = 'empty'
-        self.empty_resource_url = '/%s/' % self.empty_resource
+        self.empty_resource_url = '/%s' % self.empty_resource
 
         self.unknown_resource = 'unknown'
-        self.unknown_resource_url = '/%s/' % self.unknown_resource
+        self.unknown_resource_url = '/%s' % self.unknown_resource
         self.unknown_item_id = '4f46445fc88e201858000000'
         self.unknown_item_name = 'unknown'
 
-        self.unknown_item_id_url = ('/%s/%s/' %
+        self.unknown_item_id_url = ('/%s/%s' %
                                     (self.domain[self.known_resource]['url'],
                                      self.unknown_item_id))
-        self.unknown_item_name_url = ('/%s/%s/' %
+        self.unknown_item_name_url = ('/%s/%s' %
                                       (self.domain[self.known_resource]['url'],
                                        self.unknown_item_name))
 
         self.readonly_resource = 'payments'
         self.readonly_resource_url = (
-            '/%s/' % self.domain[self.readonly_resource]['url'])
+            '/%s' % self.domain[self.readonly_resource]['url'])
 
         self.different_resource = 'users'
-        self.different_resource_url = ('/%s/' %
+        self.different_resource_url = ('/%s' %
                                        self.domain[
                                            self.different_resource]['url'])
 
         response, status = self.get('contacts', '?max_results=2')
-        contact = response['_items'][0]
+        contact = self.response_item(response)
         self.item_id = contact[self.app.config['ID_FIELD']]
         self.item_name = contact['ref']
         self.item_tid = contact['tid']
         self.item_etag = contact['etag']
         self.item_ref = contact['ref']
-        self.item_id_url = ('/%s/%s/' %
+        self.item_id_url = ('/%s/%s' %
                             (self.domain[self.known_resource]['url'],
                              self.item_id))
-        self.item_name_url = ('/%s/%s/' %
+        self.item_name_url = ('/%s/%s' %
                               (self.domain[self.known_resource]['url'],
                                self.item_name))
-        self.alt_ref = response['_items'][1]['ref']
+        self.alt_ref = self.response_item(response, 1)['ref']
 
         response, status = self.get('payments', '?max_results=1')
-        self.readonly_id = response['_items'][0]['_id']
-        self.readonly_id_url = ('%s%s/' % (self.readonly_resource_url,
+        self.readonly_id = self.response_item(response)['_id']
+        self.readonly_id_url = ('%s/%s' % (self.readonly_resource_url,
                                            self.readonly_id))
 
         response, status = self.get('users')
-        user = response['_items'][0]
+        user = self.response_item(response)
         self.user_id = user[self.app.config['ID_FIELD']]
         self.user_username = user['username']
         self.user_name = user['ref']
         self.user_etag = user['etag']
-        self.user_id_url = ('/%s/%s/' %
+        self.user_id_url = ('/%s/%s' %
                             (self.domain[self.different_resource]['url'],
                              self.user_id))
+        self.user_username_url = (
+            '/%s/%s' % (self.domain[self.different_resource]['url'],
+                        self.user_username)
+        )
 
         response, status = self.get('invoices')
-        invoice = response['_items'][0]
+        invoice = self.response_item(response)
         self.invoice_id = invoice[self.app.config['ID_FIELD']]
         self.invoice_etag = invoice['etag']
-        self.invoice_id_url = ('/%s/%s/' %
+        self.invoice_id_url = ('/%s/%s' %
                                (self.domain['invoices']['url'],
                                 self.invoice_id))
+
+    def response_item(self, response, i=0):
+        if self.app.config['HATEOAS']:
+            return response['_items'][i]
+        else:
+            return response[i]
 
     def random_contacts(self, num, standard_date_fields=True):
         schema = DOMAIN['contacts']['schema']

@@ -9,7 +9,7 @@ LONG_DESCRIPTION = open('README.rst').read()
 
 setup(
     name='Eve',
-    version='0.0.9',
+    version='0.1.0-dev',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',
@@ -20,15 +20,15 @@ setup(
     packages=find_packages(),
     test_suite="eve.tests",
     install_requires=[
-        'cerberus==0.3.0',
-        'events==0.1.0',
+        'cerberus==0.4.0',
+        'events==0.2.0',
         'simplejson==3.3.0',
         'werkzeug==0.9.4',
         'markupsafe==0.18',
         'jinja2==2.7',
         'itsdangerous==0.22',
         'flask==0.10.1',
-        'pymongo==2.6',
+        'pymongo==2.6.2',
         'flask-pymongo==0.3.0',
     ],
     tests_require=['redis'],

@@ -4,8 +4,7 @@
     eve.methods.patch
     ~~~~~~~~~~~~~~~~~
 
-    This module imlements the PATCH method, supported by the resources
-    endopints.
+    This module imlements the PATCH method.
 
     :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
@@ -31,6 +30,11 @@ def patch(resource, **lookup):
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
+
+    .. versionchanged:: 0.1.0
+       Support for optional HATEOAS.
+       Re-raises `exceptions.Unauthorized`, this could occur if the
+       `auth_field` condition fails
 
     .. versionchanged:: 0.0.9
        More informative error messages.
@@ -67,7 +71,8 @@ def patch(resource, **lookup):
         # not found
         abort(404)
 
-    schema = app.config['DOMAIN'][resource]['schema']
+    resource_def = app.config['DOMAIN'][resource]
+    schema = resource_def['schema']
     validator = app.validator(schema, resource)
 
     object_id = original[config.ID_FIELD]
@@ -76,7 +81,7 @@ def patch(resource, **lookup):
 
     issues = []
 
-    # the list is needed for Py33. Yes kind of sucks.
+    # TODO the list is needed for Py33. Find a less ridiculous alternative?
     key = list(payload.keys())[0]
     value = payload[key]
 
@@ -104,15 +109,16 @@ def patch(resource, **lookup):
 
             # metadata
             response_item['etag'] = etag
-            response_item['_links'] = {'self': document_link(resource,
-                                                             object_id)}
+            if resource_def['hateoas']:
+                response_item['_links'] = {'self': document_link(resource,
+                                                                 object_id)}
         else:
             issues.extend(validator.errors)
     except ValidationError as e:
         # TODO should probably log the error and abort 400 instead (when we
         # got logging)
         issues.append(str(e))
-    except exceptions.InternalServerError as e:
+    except (exceptions.InternalServerError, exceptions.Unauthorized) as e:
         raise e
     except Exception as e:
         # consider all other exceptions as Bad Requests

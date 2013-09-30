@@ -12,12 +12,13 @@
 """
 
 import math
-from datetime import datetime
 from flask import current_app as app, abort
-from .common import ratelimit
+import simplejson as json
+from .common import ratelimit, epoch, date_created, last_updated
 from eve.auth import requires_auth
 from eve.utils import parse_request, document_etag, document_link, \
-    collection_link, home_link, querydef, resource_uri, config
+    collection_link, home_link, querydef, resource_uri, config, \
+    debug_error_message
 
 
 @ratelimit()
@@ -27,11 +28,15 @@ def get(resource):
 
     :param resource: the name of the resource.
 
-    .. versionchanged: 0.0.9
+    .. versionchanged:: 0.1.0
+       Support for optional HATEOAS.
+       Support for embeddable documents.
+
+    .. versionchanged:: 0.0.9
        Event hooks renamed to be more robuts and consistent: 'on_getting'
        renamed to 'on_fetch'.
 
-    .. versionchanged: 0.0.8
+    .. versionchanged:: 0.0.8
        'on_getting' and 'on_getting_<resource>' events are raised when
        documents have been read from the database and are about to be sent to
        the client.
@@ -55,23 +60,28 @@ def get(resource):
 
     documents = []
     response = {}
-    last_updated = _epoch()
+    last_update = epoch()
 
     req = parse_request(resource)
     cursor = app.data.find(resource, req)
-    for document in cursor:
-        document[config.LAST_UPDATED] = _last_updated(document)
-        document[config.DATE_CREATED] = _date_created(document)
 
-        if document[config.LAST_UPDATED] > last_updated:
-            last_updated = document[config.LAST_UPDATED]
+    for document in cursor:
+        document[config.LAST_UPDATED] = last_updated(document)
+        document[config.DATE_CREATED] = date_created(document)
+
+        if document[config.LAST_UPDATED] > last_update:
+            last_update = document[config.LAST_UPDATED]
 
         # document metadata
         document['etag'] = document_etag(document)
-        document['_links'] = {'self': document_link(resource,
-                                                    document[config.ID_FIELD])}
+        if config.DOMAIN[resource]['hateoas']:
+            document['_links'] = {'self':
+                                  document_link(resource,
+                                                document[config.ID_FIELD])}
 
         documents.append(document)
+
+    _resolve_embedded_documents(resource, req, documents)
 
     if req.if_modified_since and len(documents) == 0:
         # the if-modified-since conditional request returned no documents, we
@@ -81,7 +91,7 @@ def get(resource):
         last_modified = None
     else:
         status = 200
-        last_modified = last_updated if last_updated > _epoch() else None
+        last_modified = last_update if last_update > epoch() else None
 
         # notify registered callback functions. Please note that, should the
         # functions modify the documents, the last_modified and etag won't be
@@ -91,8 +101,12 @@ def get(resource):
         getattr(app, "on_fetch_resource")(resource, documents)
         getattr(app, "on_fetch_resource_%s" % resource)(documents)
 
-        response['_items'] = documents
-        response['_links'] = _pagination_links(resource, req, cursor.count())
+        if config.DOMAIN[resource]['hateoas']:
+            response['_items'] = documents
+            response['_links'] = _pagination_links(resource, req,
+                                                   cursor.count())
+        else:
+            response = documents
 
     etag = None
     return response, last_modified, etag, status
@@ -105,6 +119,9 @@ def getitem(resource, **lookup):
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
+
+    .. versionchanged:: 0.1.0
+       Support for optional HATEOAS.
 
     .. versionchanged: 0.0.8
        'on_getting_item' event is raised when a document has been read from the
@@ -139,7 +156,8 @@ def getitem(resource, **lookup):
         # need to update the document field as well since the etag must
         # be computed on the same document representation that might have
         # been used in the collection 'get' method
-        last_modified = document[config.LAST_UPDATED] = _last_updated(document)
+        last_modified = document[config.LAST_UPDATED] = last_updated(document)
+        document[config.DATE_CREATED] = date_created(document)
         document['etag'] = document_etag(document)
 
         if req.if_none_match and document['etag'] == req.if_none_match:
@@ -153,11 +171,12 @@ def getitem(resource, **lookup):
             # resolution (1 second).
             return response, last_modified, document['etag'], 304
 
-        response['_links'] = {
-            'self': document_link(resource, document[config.ID_FIELD]),
-            'collection': collection_link(resource),
-            'parent': home_link()
-        }
+        if config.DOMAIN[resource]['hateoas']:
+            response['_links'] = {
+                'self': document_link(resource, document[config.ID_FIELD]),
+                'collection': collection_link(resource),
+                'parent': home_link()
+            }
 
         # notify registered callback functions. Please note that, should the
         # functions modify the document, last_modified and etag  won't be
@@ -174,6 +193,65 @@ def getitem(resource, **lookup):
         return response, last_modified, document['etag'], 200
 
     abort(404)
+
+
+def _resolve_embedded_documents(resource, req, documents):
+    """Loops through the documents, adding embedded representations
+    of any fields that are (1) defined eligible for embedding in the
+    DOMAIN and (2) requested to be embedded in the current `req`
+
+    Currently we only support a single layer of embedding,
+    i.e. /invoices/?embedded={"user":1}
+    *NOT*  /invoices/?embedded={"user.friends":1}
+
+    :param resource: the resource name.
+    :param req: and instace of :class:`eve.utils.ParsedRequest`.
+    :param documents: list of documents returned by the query.
+
+    .. versionadded:: 0.1.0
+    """
+    if req.embedded:
+        # Parse the embedded clause, we are expecting
+        # something like:   '{"user":1}'
+        try:
+            client_embedding = json.loads(req.embedded)
+        except ValueError:
+            abort(400, description=debug_error_message(
+                'Unable to parse `embedded` clause'
+            ))
+
+        # Build the list of fields where embedding is being requested
+        try:
+            embedded_fields = [k for k, v in client_embedding.items()
+                               if v == 1]
+        except AttributeError:
+            # We got something other than a dict
+            abort(400, description=debug_error_message(
+                'Unable to parse `embedded` clause'
+            ))
+
+        # For each field, is the field allowed to be embedded?
+        # Pick out fields that have a `data_relation` where `embeddable=True`
+        enabled_embedded_fields = []
+        for field in embedded_fields:
+            # Reject bogus field names
+            if field in config.DOMAIN[resource]['schema']:
+                field_definition = config.DOMAIN[resource]['schema'][field]
+                if 'data_relation' in field_definition and \
+                        field_definition['data_relation'].get('embeddable'):
+                    # or could raise 400 here
+                    enabled_embedded_fields.append(field)
+
+        for document in documents:
+            for field in enabled_embedded_fields:
+                field_definition = config.DOMAIN[resource]['schema'][field]
+                # Retrieve and serialize the requested document
+                embedded_doc = app.data.find_one(
+                    field_definition['data_relation']['collection'],
+                    **{config.ID_FIELD: document[field]}
+                )
+                if embedded_doc:
+                    document[field] = embedded_doc
 
 
 def _pagination_links(resource, req, documents_count):
@@ -222,44 +300,3 @@ def _pagination_links(resource, req, documents_count):
                               (resource_uri(resource), q)}
 
     return _links
-
-
-def _last_updated(document):
-    """Fixes document's LAST_UPDATED field value. Flask-PyMongo returns
-    timezone-aware values while stdlib datetime values are timezone-naive.
-    Comparisions between the two would fail.
-
-    If LAST_UPDATE is missing we assume that it has been created outside of the
-    API context and inject a default value, to allow for proper computing of
-    Last-Modified header tag. By design all documents return a LAST_UPDATED
-    (and we don't want to break existing clients).
-
-    :param document: the document to be processed.
-
-    .. versionadded:: 0.0.5
-    """
-    if config.LAST_UPDATED in document:
-        return document[config.LAST_UPDATED].replace(tzinfo=None)
-    else:
-        return _epoch()
-
-
-def _date_created(document):
-    """If DATE_CREATED is missing we assume that it has been created outside of
-    the API context and inject a default value. By design all documents
-    return a DATE_CREATED (and we dont' want to break existing clients).
-
-    :param document: the document to be processed.
-
-    .. versionadded:: 0.0.5
-    """
-    return document[config.DATE_CREATED] if config.DATE_CREATED in document \
-        else _epoch()
-
-
-def _epoch():
-    """ A datetime.min alternative which won't crash on us.
-
-    .. versionadded:: 0.0.5
-    """
-    return datetime(1970, 1, 1)

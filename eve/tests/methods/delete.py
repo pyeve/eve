@@ -82,6 +82,13 @@ class TestDelete(TestBase):
         r = self.test_client.get(self.user_id_url)
         self.assert404(r.status_code)
 
+    def test_delete_with_post_override(self):
+        # POST request with DELETE override turns into a DELETE
+        headers = [('X-HTTP-Method-Override', 'DELETE'),
+                   ('If-Match', self.item_etag)]
+        r = self.test_client.post(self.item_id_url, data={}, headers=headers)
+        self.assert200(r.status_code)
+
     def delete(self, url, headers=None):
         r = self.test_client.delete(url, headers=headers)
         return self.parse_response(r)

@@ -62,6 +62,9 @@ class Eve(Flask, Events):
                   feature, if enabled.
     :param kwargs: optional, standard, Flask parameters.
 
+    .. versionchanged:: 0.1.0
+       Now supporting both "trailing slashes" and "no-trailing slashes" URLs.
+
     .. versionchanged:: 0.0.7
        'redis' argument added to handle an accessory Redis server (currently
        used by the Rate-Limiting feature).
@@ -175,6 +178,9 @@ class Eve(Flask, Events):
         """ Makes sure that REST methods expressed in the configuration
         settings are supported.
 
+        .. versionchanged:: 0.1.0
+        Support for PUT method.
+
         .. versionchanged:: 0.0.4
            Support for 'allowed_roles' and 'allowed_item_roles'
 
@@ -183,7 +189,7 @@ class Eve(Flask, Events):
         """
 
         supported_resource_methods = ['GET', 'POST', 'DELETE']
-        supported_item_methods = ['GET', 'PATCH', 'DELETE']
+        supported_item_methods = ['GET', 'PATCH', 'DELETE', 'PUT']
 
         # make sure that global resource methods are supported.
         self.validate_methods(supported_resource_methods,
@@ -257,6 +263,9 @@ class Eve(Flask, Events):
         :param resource: resource name.
         :param schema: schema definition for the resource.
 
+        .. versionchanged:: 0.1.0
+           Validation for 'embeddable' fields.
+
         .. versionchanged:: 0.0.5
            Validation of the 'data_relation' field rule.
            Now collecting offending items in a list and inserting results into
@@ -281,10 +290,23 @@ class Eve(Flask, Events):
                     raise SchemaException("'collection' key is mandatory for "
                                           "the 'data_relation' rule in "
                                           "'%s: %s'" % (resource, field))
+                # If the field is listed as `embeddable`
+                # it must be type == 'objectid'
+                # TODO: allow serializing a list( type == 'objectid')
+                if ruleset['data_relation'].get('embeddable', False):
+                    if ruleset['type'] != 'objectid':
+                        raise SchemaException(
+                            "In order for the 'data_relation' rule to be "
+                            "embeddable it must be of type 'objectid'"
+                        )
 
     def set_defaults(self):
         """ When not provided, fills individual resource settings with default
         or global configuration settings.
+
+        .. versionchanged:: 0.1.0
+          'embedding'.
+           Support for optional HATEOAS.
 
         .. versionchanged:: 0.0.9
            'auth_username_field' renamed to 'auth_field'.
@@ -342,6 +364,7 @@ class Eve(Flask, Events):
             settings.setdefault('allowed_filters',
                                 self.config['ALLOWED_FILTERS'])
             settings.setdefault('sorting', self.config['SORTING'])
+            settings.setdefault('embedding', self.config['EMBEDDING'])
             settings.setdefault('pagination', self.config['PAGINATION'])
             settings.setdefault('projection', self.config['PROJECTION'])
             # TODO make sure that this we really need the test below
@@ -357,6 +380,8 @@ class Eve(Flask, Events):
                                 self.config['EXTRA_RESPONSE_FIELDS'])
             settings.setdefault('mongo_write_concern',
                                 self.config['MONGO_WRITE_CONCERN'])
+            settings.setdefault('hateoas',
+                                self.config['HATEOAS'])
 
             # empty schemas are allowed for read-only access to resources
             schema = settings.setdefault('schema', {})
@@ -399,7 +424,7 @@ class Eve(Flask, Events):
         """ When not provided, fills individual schema settings with default
         or global configuration settings.
 
-        :param schema: the resoursce schema to be intialized with default
+        :param schema: the resource schema to be initialized with default
                        values
 
         .. versionchanged: 0.0.7
@@ -442,6 +467,11 @@ class Eve(Flask, Events):
         prefix = api_prefix(self.config['URL_PREFIX'],
                             self.config['API_VERSION'])
 
+        # we choose not to care about trailing slashes at all.
+        # Both '/resource/' and '/resource' will work, same with
+        # '/resource/<id>/' and '/resource/<id>'
+        self.url_map.strict_slashes = False
+
         # home page (API entry point)
         self.add_url_rule('%s/' % prefix, 'home', view_func=home_endpoint,
                           methods=['GET', 'OPTIONS'])
@@ -452,17 +482,15 @@ class Eve(Flask, Events):
             datasources[resource] = settings['datasource']
 
             # resource endpoint
-            url = '%s/<regex("%s"):url>/' % (prefix, settings['url'])
+            url = '%s/<regex("%s"):url>' % (prefix, settings['url'])
             self.add_url_rule(url, view_func=collections_endpoint,
                               methods=settings['resource_methods'] +
                               ['OPTIONS'])
 
             # item endpoint
             if settings['item_lookup']:
-                item_url = '%s<regex("%s"):%s>/' % \
-                    (url,
-                     settings['item_url'],
-                     settings['item_lookup_field'])
+                item_url = '%s/<regex("%s"):%s>' % \
+                    (url, settings['item_url'], settings['item_lookup_field'])
 
                 self.add_url_rule(item_url, view_func=item_endpoint,
                                   methods=settings['item_methods']
@@ -479,9 +507,9 @@ class Eve(Flask, Events):
                 if lookup:
                     l_type = settings['schema'][lookup['field']]['type']
                     if l_type == 'integer':
-                        item_url = '%s<int:%s>/' % (url, lookup['field'])
+                        item_url = '%s/<int:%s>' % (url, lookup['field'])
                     else:
-                        item_url = '%s<regex("%s"):%s>/' % (url,
+                        item_url = '%s/<regex("%s"):%s>' % (url,
                                                             lookup['url'],
                                                             lookup['field'])
                     self.add_url_rule(item_url, view_func=item_endpoint,

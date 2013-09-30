@@ -43,8 +43,11 @@ config = Config()
 class ParsedRequest(object):
     """ This class, by means of its attributes, describes a client request.
 
+    .. versonchanged:: 0.1.0
+       'embedded' keyword.
+
     .. versionchanged:: 0.0.6
-        projection queries ('?projection={"name": 1}')
+       Projection queries ('?projection={"name": 1}')
     """
     # `where` value of the query string (?where). Defaults to None.
     where = None
@@ -71,12 +74,18 @@ class ParsedRequest(object):
     # `If-Match` request header value. Default to None.
     if_match = None
 
+    # `embedded` value of the query string (?embedded). Defaults to None.
+    embedded = None
+
 
 def parse_request(resource):
     """ Parses a client request, returning instance of :class:`ParsedRequest`
     containing relevant request data.
 
     :param resource: the resource currently being accessed by the client.
+
+    .. versionchagend:: 0.1.0
+       Support for embedded documents.
 
     .. versionchanged:: 0.0.6
        projection queries ('?projection={"name": 1}')
@@ -95,6 +104,8 @@ def parse_request(resource):
         r.projection = args.get('projection')
     if config.DOMAIN[resource]['sorting']:
         r.sort = args.get('sort')
+    if config.DOMAIN[resource]['embedding']:
+        r.embedded = args.get('embedded')
 
     max_results_default = config.PAGINATION_DEFAULT if \
         config.DOMAIN[resource]['pagination'] else 0
@@ -174,11 +185,14 @@ def document_link(resource, document_id):
     :param resource: the resource name.
     :param document_id: the document unique identifier.
 
+    .. versionchanged:: 0.1.0
+       No more trailing slashes in links.
+
     .. versionchanged:: 0.0.3
        Now returning a JSON link
     """
     return {'title': '%s' % config.DOMAIN[resource]['item_title'],
-            'href': '%s%s/' % (resource_uri(resource), document_id)}
+            'href': '%s/%s' % (resource_uri(resource), document_id)}
 
 
 def home_link():
@@ -194,10 +208,13 @@ def home_link():
 def resource_uri(resource):
     """ Returns the absolute URI to a resource.
 
+    .. versionchanged:: 0.1.0
+       No more trailing slashes in links.
+
     :param resource: the resource name.
     """
-    return '%s%s/%s/' % (config.SERVER_NAME, api_prefix(),
-                         config.URLS[resource])
+    return '%s%s/%s' % (config.SERVER_NAME, api_prefix(),
+                        config.URLS[resource])
 
 
 def api_prefix(url_prefix=None, api_version=None):
@@ -279,16 +296,16 @@ def extract_key_values(key, d):
 
 
 def request_method():
-    """ Returns flask 'request.method', but taking our support for POST with
-    'X-HTTP-Method-Override' as a PATCH alternative into consideration.
+    """ Returns the proper request method, also taking into account the
+    possibile override requested by the client (via 'X-HTTP-Method-Override'
+    header).
+
+    .. versionchanged: 0.1.0
+       Supports overriding of any HTTP Method (#95).
 
     .. versionadded: 0.0.7
     """
-    if request.method == 'POST' and 'X-HTTP-Method-Override' in \
-       request.headers:
-        return 'PATCH'
-    else:
-        return request.method
+    return request.headers.get('X-HTTP-Method-Override', request.method)
 
 
 def debug_error_message(msg):
@@ -315,7 +332,7 @@ def validate_filters(where, resource):
     """
     allowed = config.DOMAIN[resource]['allowed_filters']
     if '*' not in allowed:
-        for filt, cond in list(where.items()):
+        for filt, cond in where.items():
             if filt not in allowed:
                 return "filter on '%s' not allowed" % filt
     return None

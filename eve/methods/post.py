@@ -41,6 +41,10 @@ def post(resource, payl=None):
                  See https://github.com/nicolaiarocci/eve/issues/74 for a
                  discussion, and a typical use case.
 
+    .. versionchanged:: 0.1.0
+       More robust handling of auth_field.
+       Support for optional HATEOAS.
+
     .. versionchanged: 0.0.9
        Event hooks renamed to be more robuts and consistent: 'on_posting'
        renamed to 'on_insert'.
@@ -102,13 +106,14 @@ def post(resource, payl=None):
                 document[config.LAST_UPDATED] = \
                     document[config.DATE_CREATED] = date_utc
 
-                # if 'user-restricted resource access' is enabled and there's
-                # an Auth request active, inject the username into the document
+                # if 'user-restricted resource access' is enabled
+                # and there's an Auth request active,
+                # inject the auth_field into the document
                 auth_field = resource_def['auth_field']
                 if auth_field:
-                    userid = app.auth.user_id
-                    if userid and request.authorization:
-                        document[auth_field] = userid
+                    auth_field_value = getattr(app.auth, auth_field)
+                    if auth_field_value and request.authorization:
+                        document[auth_field] = auth_field_value
 
             else:
                 # validation errors added to list of document issues
@@ -145,9 +150,10 @@ def post(resource, payl=None):
             document = documents.pop(0)
             response_item[config.LAST_UPDATED] = document[config.LAST_UPDATED]
             response_item['etag'] = document_etag(document)
-            response_item['_links'] = \
-                {'self': document_link(resource,
-                                       response_item[config.ID_FIELD])}
+            if resource_def['hateoas']:
+                response_item['_links'] = \
+                    {'self': document_link(resource,
+                                           response_item[config.ID_FIELD])}
 
             # add any additional field that might be needed
             allowed_fields = [x for x in resource_def['extra_response_fields']

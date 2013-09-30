@@ -1,3 +1,5 @@
+import simplejson as json
+from bson import ObjectId
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
 
@@ -177,27 +179,7 @@ class TestGet(TestBase):
 
     def test_get(self):
         response, status = self.get(self.known_resource)
-        self.assert200(status)
-
-        links = response['_links']
-        self.assertEqual(len(links), 4)
-        self.assertHomeLink(links)
-        self.assertResourceLink(links, self.known_resource)
-        self.assertNextLink(links, 2)
-
-        resource = response['_items']
-        self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
-
-        for item in resource:
-            self.assertItem(item)
-
-        etag = item.get('etag')
-        self.assertTrue(etag is not None)
-        # TODO figure a way to test etag match. Even removing the etag field
-        # itself won't help since the 'item' dict is unordered (and therefore
-        # doesn't match the original representation)
-        #del(item['etag'])
-        #self.assertEqual(hashlib.sha1(str(item)).hexdigest(), etag)
+        self.assertGet(response, status)
 
     def test_get_same_collection_different_resource(self):
         """ the 'users' resource is actually using the same db collection as
@@ -255,6 +237,97 @@ class TestGet(TestBase):
         r = self.test_client.get('%s%s' % (self.known_resource_url,
                                            '?where=%s' % where))
         self.assert200(r.status_code)
+
+    def test_get_with_post_override(self):
+        # POST request with GET override turns into a GET
+        headers = [('X-HTTP-Method-Override', 'GET')]
+        r = self.test_client.post(self.known_resource_url, headers=headers)
+        response, status = self.parse_response(r)
+        self.assertGet(response, status)
+
+    def assertGet(self, response, status):
+        self.assert200(status)
+
+        links = response['_links']
+        self.assertEqual(len(links), 4)
+        self.assertHomeLink(links)
+        self.assertResourceLink(links, self.known_resource)
+        self.assertNextLink(links, 2)
+
+        resource = response['_items']
+        self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
+
+        for item in resource:
+            self.assertItem(item)
+
+        etag = item.get('etag')
+        self.assertTrue(etag is not None)
+        # TODO figure a way to test etag match. Even removing the etag field
+        # itself won't help since the 'item' dict is unordered (and therefore
+        # doesn't match the original representation)
+        #del(item['etag'])
+        #self.assertEqual(hashlib.sha1(str(item)).hexdigest(), etag)
+
+    def test_get_embedded(self):
+        # We need to assign a `person` to our test invoice
+        _db = self.connection[MONGO_DBNAME]
+
+        fake_contact = self.random_contacts(1)
+        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
+                            {'$set': {'person': fake_contact_id}})
+
+        invoices = self.domain['invoices']
+
+        # Test that we get 400 if can't parse dict
+        embedded = 'not-a-dict'
+        r = self.test_client.get('%s/%s' % (invoices['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert400(r.status_code)
+
+        # Test that doesn't come embedded if asking for a field that
+        # isn't embedded (global setting is True by default)
+        embedded = '{"person": 1}'
+        r = self.test_client.get('%s/%s' % (invoices['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue(content['_items'][0]['person'], self.item_id)
+
+        # Set field to be embedded
+        invoices['schema']['person']['data_relation']['embeddable'] = True
+
+        # Test that global setting applies even if field is set to embedded
+        invoices['embedding'] = False
+        r = self.test_client.get('%s/%s' % (invoices['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue(content['_items'][0]['person'], self.item_id)
+
+        # Test that it works
+        invoices['embedding'] = True
+        r = self.test_client.get('%s/%s' % (invoices['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('location' in content['_items'][0]['person'])
+
+        # Test that it ignores a bogus field
+        embedded = '{"person": 1, "not-a-real-field": 1}'
+        r = self.test_client.get('%s/%s' % (invoices['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('location' in content['_items'][0]['person'])
+
+        # Test that it ignores a real field with a bogus value
+        embedded = '{"person": 1, "inv_number": "not-a-real-value"}'
+        r = self.test_client.get('%s/%s' % (invoices['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('location' in content['_items'][0]['person'])
 
 
 class TestGetItem(TestBase):
@@ -333,7 +406,7 @@ class TestGetItem(TestBase):
 
     def test_getitem_by_name_different_resource(self):
         response, status = self.get(self.different_resource,
-                                    item=self.user_name)
+                                    item=self.user_username)
         self.assertItemResponse(response, status, self.different_resource)
         response, status = self.get(self.different_resource,
                                     item=self.unknown_item_name)
@@ -348,8 +421,14 @@ class TestGetItem(TestBase):
         contacts[0]['ref'] = ref
         _db = self.connection[MONGO_DBNAME]
         _db.contacts.insert(contacts)
-        response, status = self.get(self.known_resource,
-                                    item=ref)
+        response, status = self.get(self.known_resource, item=ref)
+        self.assertItemResponse(response, status)
+
+    def test_get_with_post_override(self):
+        # POST request with GET override turns into a GET
+        headers = [('X-HTTP-Method-Override', 'GET')]
+        r = self.test_client.post(self.item_id_url, headers=headers)
+        response, status = self.parse_response(r)
         self.assertItemResponse(response, status)
 
 

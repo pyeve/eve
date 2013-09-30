@@ -11,6 +11,7 @@
 """
 
 import time
+from datetime import datetime
 from flask import current_app as app, request, abort, g, Response
 import simplejson as json
 from ..utils import str_to_date, parse_request, document_etag, config, \
@@ -37,6 +38,7 @@ def get_document(resource, **lookup):
     req = parse_request(resource)
     document = app.data.find_one(resource, **lookup)
     if document:
+
         if not req.if_match:
             # we don't allow editing unless the client provides an etag
             # for the document
@@ -44,8 +46,11 @@ def get_document(resource, **lookup):
                 'An etag must be provided to edit a document'
             ))
 
-        document[config.LAST_UPDATED] = document[config.LAST_UPDATED].replace(
-            tzinfo=None)
+        # ensure the retrieved document has LAST_UPDATED and DATE_CREATED,
+        # eventually with same default values as in GET.
+        document[config.LAST_UPDATED] = last_updated(document)
+        document[config.DATE_CREATED] = date_created(document)
+
         if req.if_match != document_etag(document):
             # client and server etags must match, or we don't allow editing
             # (ensures that client's version of the document is up to date)
@@ -63,8 +68,11 @@ def parse(value, resource):
     :param value: the string to be evaluated.
     :param resource: name of the involved resource.
 
+    .. versionchanged:: 0.1.0
+       Support for PUT method.
+
     .. versionchanged:: 0.0.5
-        Support for 'application/json' Content-Type.
+       Support for 'application/json' Content-Type.
 
     .. versionchanged:: 0.0.4
        When parsing POST requests, eventual default values are injected in
@@ -86,7 +94,7 @@ def parse(value, resource):
         document[date_field] = str_to_date(document[date_field])
 
     # update the document with eventual default values
-    if request_method() == 'POST':
+    if request_method() in ('POST', 'PUT'):
         defaults = app.config['DOMAIN'][resource]['defaults']
         missing_defaults = defaults.difference(set(document.keys()))
         schema = config.DOMAIN[resource]['schema']
@@ -202,3 +210,56 @@ def ratelimit():
             return f(*args, **kwargs)
         return rate_limited
     return decorator
+
+
+def last_updated(document):
+    """Fixes document's LAST_UPDATED field value. Flask-PyMongo returns
+    timezone-aware values while stdlib datetime values are timezone-naive.
+    Comparisions between the two would fail.
+
+    If LAST_UPDATE is missing we assume that it has been created outside of the
+    API context and inject a default value, to allow for proper computing of
+    Last-Modified header tag. By design all documents return a LAST_UPDATED
+    (and we don't want to break existing clients).
+
+    :param document: the document to be processed.
+
+    .. versionchanged:: 0.1.0
+       Moved to common.py and renamed as public, so it can also be used by edit
+       methods (via get_document()).
+
+    .. versionadded:: 0.0.5
+    """
+    if config.LAST_UPDATED in document:
+        return document[config.LAST_UPDATED].replace(tzinfo=None)
+    else:
+        return epoch()
+
+
+def date_created(document):
+    """If DATE_CREATED is missing we assume that it has been created outside of
+    the API context and inject a default value. By design all documents
+    return a DATE_CREATED (and we dont' want to break existing clients).
+
+    :param document: the document to be processed.
+
+    .. versionchanged:: 0.1.0
+       Moved to common.py and renamed as public, so it can also be used by edit
+       methods (via get_document()).
+
+    .. versionadded:: 0.0.5
+    """
+    return document[config.DATE_CREATED] if config.DATE_CREATED in document \
+        else epoch()
+
+
+def epoch():
+    """ A datetime.min alternative which won't crash on us.
+
+    .. versionchanged:: 0.1.0
+       Moved to common.py and renamed as public, so it can also be used by edit
+       methods (via get_document()).
+
+    .. versionadded:: 0.0.5
+    """
+    return datetime(1970, 1, 1)

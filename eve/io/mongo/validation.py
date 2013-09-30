@@ -53,6 +53,19 @@ class Validator(Validator):
         self.object_id = object_id
         return super(Validator, self).validate_update(document)
 
+    def validate_replace(self, document, object_id):
+        """ Validation method to be invoked when performing a document
+        replacement. This differs from :func:`validation_update` since in this
+        case we want to perform a full :func:`validate` (the new document is to
+        be considered a new insertion and required fields needs validation).
+        However, like with validate_update, we also want the current object_id
+        not to be checked when validationg 'unique' values.
+
+        .. versionadded:: 0.1.0
+        """
+        self.object_id = object_id
+        return super(Validator, self).validate(document)
+
     def _validate_unique(self, unique, field, value):
         """ Enables validation for `unique` schema attribute.
 

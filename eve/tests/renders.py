@@ -166,20 +166,18 @@ class TestEventHooks(TestBase):
         self.patch()
         self.assertTrue(self.passed)
 
-    def test_on_PATCH_with_post_override(self):
-        def global_hook(resource, request, payload):
+    def test_on_PUT(self):
+        def general_hook(resource, request, payload):
             self.callback_value = resource
-        self.app.on_PATCH += global_hook
-        self.patch()
-        self.post(extra=[('X-HTTP-Method-Override', 'True')])
+        self.app.on_PUT += general_hook
+        self.put()
         self.assertEqual(self.callback_value, self.known_resource)
 
-    def test_on_PATCH_with_post_override_resource(self):
+    def test_on_PUT_resource(self):
         def resource_hook(request, payload):
             self.passed = True
-        self.app.on_PATCH_contacts += resource_hook
-        self.patch()
-        self.post(extra=[('X-HTTP-Method-Override', 'True')])
+        self.app.on_PUT_contacts += resource_hook
+        self.put()
         self.assertTrue(self.passed)
 
     def test_on_DELETE(self):
@@ -196,7 +194,7 @@ class TestEventHooks(TestBase):
         self.delete()
         self.assertTrue(self.passed)
 
-    def test_on_insert(self):
+    def test_on_insert_POST(self):
         def general_hook(resource, documents):
             self.assertEqual(resource, self.known_resource)
             self.assertEqual(len(documents), 1)
@@ -205,12 +203,29 @@ class TestEventHooks(TestBase):
         self.post()
         self.assertTrue(self.passed)
 
-    def test_on_insert_resource(self):
+    def test_on_insert_PUT(self):
+        def general_hook(resource, documents):
+            self.assertEqual(resource, self.known_resource)
+            self.assertEqual(len(documents), 1)
+            self.passed = True
+        self.app.on_insert += general_hook
+        self.put()
+        self.assertTrue(self.passed)
+
+    def test_on_insert_resource_POST(self):
         def resource_hook(documents):
             self.assertEqual(len(documents), 1)
             self.passed = True
         self.app.on_insert_contacts += resource_hook
         self.post()
+        self.assertTrue(self.passed)
+
+    def test_on_insert_resource_PUT(self):
+        def resource_hook(documents):
+            self.assertEqual(len(documents), 1)
+            self.passed = True
+        self.app.on_insert_contacts += resource_hook
+        self.put()
         self.assertTrue(self.passed)
 
     def test_on_fetch(self):
@@ -255,3 +270,9 @@ class TestEventHooks(TestBase):
     def delete(self):
         self.test_client.delete(self.item_id_url, headers=[('If-Match',
                                                             self.item_etag)])
+
+    def put(self):
+        headers = [('Content-Type', 'application/x-www-form-urlencoded'),
+                   ('If-Match', self.item_etag)]
+        data = {'item1': json.dumps({"ref": "0123456789012345678901234"})}
+        self.test_client.put(self.item_id_url, data=data, headers=headers)

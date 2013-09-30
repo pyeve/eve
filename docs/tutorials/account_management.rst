@@ -2,13 +2,13 @@ RESTful Account Management
 ==========================
 .. admonition:: Please note
 
-    This tutorial assumes that the :ref:`quickstart` and the :ref:`auth` guides
-    have been read already.
+    This tutorial assumes that you've read the :ref:`quickstart` and the
+    :ref:`auth` guides.
 
-Except the relatively rare occurence of open (and generally read-only) public
+Except for the relatively rare occurence of open (and generally read-only) public
 APIs, most services are only accessible to authenticated users.  A common
 pattern is that users create their account on a website or with a mobile
-application.  Once they have an account they are allowed to consume one or more
+application.  Once they have an account, they are allowed to consume one or more
 APIs. This is the model followed by most social networks and service providers
 (Twitter, Facebook, Netflix, etc.) So how do you, the service provider, manage
 to create, edit and delete accounts while using the same API that is being
@@ -32,7 +32,7 @@ Accounts with Basic Authentication
 Our tasks are as follows:
 
 1. Make an endpoint available for all account management activities
-   (``/accounts/``). 
+   (``/accounts``). 
 2. Secure the endpoint, so that it is only accessible to clients
    that we control: our own website, mobile apps with account
    management capabilities, etc.
@@ -40,7 +40,7 @@ Our tasks are as follows:
    accounts (created by means of the above mentioned endpoint).
 4. Allow authenticated users to only access resources created by themselves.
 
-1. The ``/accounts/`` endpoint
+1. The ``/accounts`` endpoint
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The account management endpoint is no different than any other API endpoint.
 It is just a matter of declaring it in our settings file. Let's declare the
@@ -66,8 +66,8 @@ Then, let's define the endpoint.
 
     accounts = {
         # the standard account entry point is defined as
-        # '/accounts/<ObjectId>/'. We define  an additional read-only entry 
-        # point accessible at '/accounts/<username>/'. 
+        # '/accounts/<ObjectId>'. We define  an additional read-only entry 
+        # point accessible at '/accounts/<username>'. 
         'additional_lookup': {
             'url': '[\w]+',
             'field': 'username',
@@ -82,16 +82,16 @@ Then, let's define the endpoint.
         'schema': schema,
     }
 
-We defined an additional read-only entry point at ``/accounts/<username>/``.
-This isn't a necessity really, but it can come in handy to easily verify if
+We defined an additional read-only entry point at ``/accounts/<username>``.
+This isn't really a necessity, but it can come in handy to easily verify if
 a username has been taken already, or to retrieve an account without knowing
-its ``ObjectId`` beforehand. Of course, both informations can also be achieved
-by querying the resource endpoint (``/accounts/?where={"username":
+its ``ObjectId`` beforehand. Of course, both pieces of information can also be
+found by querying the resource endpoint (``/accounts?where={"username":
 "johndoe"}``), but then we would need to parse the response payload, whereas by
 hitting our new endpoint with a GET request we will obtain the bare account
 data, or a ``404 Not Found`` if the account does not exist.
 
-Once the endpoint has been configured we need to add it to the API domain:
+Once the endpoint has been configured, we need to add it to the API domain:
 
 ::
 
@@ -102,7 +102,7 @@ Once the endpoint has been configured we need to add it to the API domain:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 2a. Hard-coding our way in
 ''''''''''''''''''''''''''
-Securing the endpoint can be achieved by allowing only well known `superusers`
+Securing the endpoint can be achieved by allowing only well-known `superusers`
 to operate on it. Our authentication class, which is defined in the launch
 script, can be hard-coded to handle the case:
 
@@ -114,7 +114,7 @@ script, can be hard-coded to handle the case:
 
 
     class BCryptAuth(BasicAuth):
-        def check_auth(self, username, password, allowed_roles, resource):
+        def check_auth(self, username, password, allowed_roles, resource, method):
             if resource = 'accounts':
                 return username == 'superuser' and password = 'password'
             else:
@@ -144,7 +144,7 @@ Hard-coding usernames and passwords might very well do the job, but it is
 hardly the best approach that we can take here. What if another `superurser`
 account needs access to the endpoint? Updating the script each time
 a privileged user joins the ranks does not seem appropriate (it isn't).
-Fortunately the :ref:`roleaccess` feature can help us here. You see where we
+Fortunately, the :ref:`roleaccess` feature can help us here. You see where we
 are going with this: the idea is that only accounts with `superuser` and
 `admin` roles will be granted access to the endpoint.
 
@@ -180,8 +180,8 @@ only so let's update the endpoint definition accordingly.
 
     accounts = {
         # the standard account entry point is defined as
-        # '/accounts/<ObjectId>/'. We define  an additional read-only entry 
-        # point accessible at '/accounts/<username>/'. 
+        # '/accounts/<ObjectId>'. We define  an additional read-only entry 
+        # point accessible at '/accounts/<username>'. 
         'additional_lookup': {
             'url': '[\w]+',
             'field': 'username',
@@ -209,7 +209,7 @@ Finally, a rewrite of our authentication class is in order.
 
 
     class RolesAuth(BasicAuth):
-        def check_auth(self, username, password, allowed_roles, resource):
+        def check_auth(self, username, password, allowed_roles, resource, method):
             # use Eve's own db driver; no additional connections/resources are used
             accounts = app.data.driver.db['accounts']
             lookup = {'username': username}
@@ -224,9 +224,9 @@ Finally, a rewrite of our authentication class is in order.
         app = Eve(auth=RolesAuth)
         app.run()
 
-What the above snippet does is securing all API endpoints with role-base access
+What the above snippet does is secure all API endpoints with role-base access
 control. It is, in fact, the same snippet seen in :ref:`roleaccess`. This
-tecnique allows us to keep the code untouched as we add more `superuser` or
+technique allows us to keep the code untouched as we add more `superuser` or
 `admin` accounts (and we'll probably be adding them by accessing our very own
 API). Also, should the need arise, we could easily restrict access to more
 endpoints just by updating the settings file, again without touching the
@@ -240,7 +240,7 @@ an authentication class to the ``Eve`` object enables authentication for the
 whole API: every time an endpoint is hit with a request, the class instance is
 invoked.
 
-Of course you can still fine-tune security, for example by allowing public
+Of course, you can still fine-tune security, for example by allowing public
 access to certain endpoints, or to certain HTTP methods. See :ref:`auth` for
 more details.
 
@@ -282,7 +282,7 @@ value:
 
 
     class RolesAuth(BasicAuth):
-        def check_auth(self, username, password, allowed_roles, resource):
+        def check_auth(self, username, password, allowed_roles, resource, method):
             # use Eve's own db driver; no additional connections/resources are used
             accounts = app.data.driver.db['accounts']
             lookup = {'username': username}
@@ -300,11 +300,11 @@ value:
         app = Eve(auth=RolesAuth)
         app.run()
 
-This is all we need to do. Now, when a user hits the, say, ``/invoices/``
+This is all we need to do. Now, when a user hits the, say, ``/invoices``
 endpoint with a GET request, he will only be served with the invoices created
 by his own account. The same will happen with DELETE and PATCH, making it
 impossible for an authenticated user to accidentally retrieve, edit or delete
-other people data.
+other people's data.
 
 Accounts with Token Authentication
 ----------------------------------
@@ -321,7 +321,7 @@ to the client.
 In light of this, let's review our updated task list:
   
 1. Make an endpoint available for all account management activities
-   (``/accounts/``). 
+   (``/accounts``). 
 2. Secure the endpoint so that it is only accessible to clients (tokens) that
    we control.
 3. On account creation, generate and store its token.
@@ -370,8 +370,8 @@ user roles.
 
     accounts = {
         # the standard account entry point is defined as
-        # '/accounts/<ObjectId>/'. We define  an additional read-only entry 
-        # point accessible at '/accounts/<username>/'. 
+        # '/accounts/<ObjectId>'. We define  an additional read-only entry 
+        # point accessible at '/accounts/<username>'. 
         'additional_lookup': {
             'url': '[\w]+',
             'field': 'username',
@@ -389,7 +389,7 @@ user roles.
         'schema': schema,
     }
 
-And finally here is our launch script which is of course using a ``TokenAuth``
+And finally, here is our launch script which is, of course, using a ``TokenAuth``
 subclass this time around:
 
 .. code-block:: python
@@ -399,7 +399,7 @@ subclass this time around:
 
 
     class RolesAuth(TokenAuth):
-        def check_auth(self, token,  allowed_roles, resource):
+        def check_auth(self, token,  allowed_roles, resource, method):
             # use Eve's own db driver; no additional connections/resources are used
             accounts = app.data.driver.db['accounts']
             lookup = {'token': token}
@@ -417,7 +417,7 @@ subclass this time around:
 3. Building custom tokens on account creation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The code above has a problem: it won't authenticate anybody, as we aren't
-generating any token yet. Consequently clients aren't getting their auth tokens
+generating any token yet. Consequently, clients aren't getting their auth tokens
 back so they don't really know how to authenticate. Let's fix that by using the
 awesome :ref:`eventhooks` feature.  We'll update our launch script by
 registering a callback function that will be called when a new account is about
@@ -433,7 +433,7 @@ to be stored to the database.
 
 
     class RolesAuth(TokenAuth):
-        def check_auth(self, token,  allowed_roles, resource):
+        def check_auth(self, token,  allowed_roles, resource, method):
             # use Eve's own db driver; no additional connections/resources are used
             accounts = app.data.driver.db['accounts']
             lookup = {'token': token}
@@ -454,10 +454,10 @@ to be stored to the database.
 
     if __name__ == '__main__':
         app = Eve(auth=RolesAuth)
-        app.on_posting_accounts += add_token
+        app.on_POST_accounts += add_token
         app.run()
 
-As you can see we are subscribing to the `on_posting` event of the `accounts`
+As you can see, we are subscribing to the ``on_POST`` event of the `accounts`
 endpoint with our ``add_token`` function. This callback will receive
 `documents` as an argument, which is a list of validated documents accepted for
 database insertion. We simply add (or replace in the unlikely case that the
@@ -472,9 +472,9 @@ we are on SSL, and there are cases where sending the auth token just makes
 sense, like when the client is a mobile application and we want the user to use
 the service right away.
 
-Normally only automatically handled fields (``ID_FIELD``, ``LAST_UPDATED``,
+Normally, only automatically handled fields (``ID_FIELD``, ``LAST_UPDATED``,
 ``DATE_CREATED``, ``etag``) are included with POST response payloads.
-Fortunately there's a setting which allows  us to inject additional fields in
+Fortunately, there's a setting which allows us to inject additional fields in
 responses, and that is ``EXTRA_RESPONSE_FIELDS``, with its endpoint-level
 equivalent, ``extra_response_fields``. All we need to do is update our endpoint
 definition accordingly:
@@ -484,8 +484,8 @@ definition accordingly:
 
     accounts = {
         # the standard account entry point is defined as
-        # '/accounts/<ObjectId>/'. We define  an additional read-only entry 
-        # point accessible at '/accounts/<username>/'. 
+        # '/accounts/<ObjectId>'. We define  an additional read-only entry 
+        # point accessible at '/accounts/<username>'. 
         'additional_lookup': {
             'url': '[\w]+',
             'field': 'username',
@@ -506,7 +506,7 @@ definition accordingly:
         'schema': schema,
     }
 
-From now on responses to POST requests aimed at the ``/accounts/`` endpoint
+From now on responses to POST requests aimed at the ``/accounts`` endpoint
 will include the newly generated auth token, allowing the client to consume
 other API endpoints right away.
 

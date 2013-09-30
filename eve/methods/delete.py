@@ -4,8 +4,7 @@
     eve.methods.delete
     ~~~~~~~~~~~~~~~~~~
 
-    This module imlements the DELETE method, currently supported by the item
-    endopints.
+    This module imlements the DELETE method.
 
     :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.

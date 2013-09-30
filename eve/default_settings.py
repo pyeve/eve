@@ -11,6 +11,10 @@
     :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.1.0
+       'EMBEDDING' added and set to True.
+       'HATEOAS' added and set to True.
+
     .. versionchanged:: 0.0.9
        'FILTERS' boolean changed to 'ALLOWED_FILTERS' list.
        'AUTH_USERNAME_FIELD' renamed to 'AUTH_FIELD', and default value set to
@@ -46,9 +50,11 @@ CACHE_EXPIRES = 0
 ITEM_CACHE_CONTROL = ''
 X_DOMAINS = None                # CORS disabled by default.
 X_HEADERS = None                # CORS disabled by default.
+HATEOAS = True                  # HATEOAS enabled by default.
 
 ALLOWED_FILTERS = ['*']         # filtering enabled by default
 SORTING = True                  # sorting enabled by default.
+EMBEDDING = True                # embedding enabled by default
 PROJECTION = True               # projection enabled by default
 PAGINATION = True               # pagination enabled by default.
 PAGINATION_LIMIT = 50

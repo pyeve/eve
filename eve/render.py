@@ -10,15 +10,15 @@
     :license: BSD, see LICENSE for more details.
 """
 
-import datetime
 import time
+import datetime
 import simplejson as json
-from flask import make_response, request, Response, current_app as app
-from bson.objectid import ObjectId
+from werkzeug import utils
 from functools import wraps
-from xml.sax.saxutils import escape
+from bson.objectid import ObjectId
 from eve.methods.common import get_rate_limit
 from eve.utils import date_to_str, config, request_method
+from flask import make_response, request, Response, current_app as app
 
 # mapping between supported mime types and render functions.
 _MIME_TYPES = [{'mime': ('application/json',), 'renderer': 'render_json'},
@@ -32,6 +32,9 @@ def raise_event(f):
     function has been executed. Returns both the flask.request object and the
     response payload to the callback.
 
+    .. versionchanged:: 0.1.0
+       Support for PUT.
+
     .. versionchanged:: 0.0.9
        To emphasize the fact that they are tied to a method, in `on_<method>`
        events, <method> is now uppercase.
@@ -42,7 +45,7 @@ def raise_event(f):
     def decorated(*args, **kwargs):
         r = f(*args, **kwargs)
         method = request_method()
-        if method in ('GET', 'POST', 'PATCH', 'DELETE'):
+        if method in ('GET', 'POST', 'PATCH', 'DELETE', 'PUT'):
             event_name = 'on_' + method
             resource = args[0] if args else None
             # general hook
@@ -94,6 +97,9 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     :param etag: ETag header value.
     :param status: response status.
 
+    .. versionchanged:: 0.1.0
+       Support for optional HATEOAS.
+
     .. versionchanged:: 0.0.9
        Support for Python 3.3.
 
@@ -116,7 +122,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         mime, renderer = _best_mime()
 
         # invoke the render function and obtain the corresponding rendered item
-        rendered = globals()[renderer](**dct)
+        rendered = globals()[renderer](dct)
 
         # build the main wsgi rensponse object
         resp = make_response(rendered, status)
@@ -205,20 +211,29 @@ class APIEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def render_json(**data):
+def render_json(data):
     """ JSON render function
+
+    .. versionchanged:: 0.1.0
+       Support for optional HATEOAS.
     """
     return json.dumps(data, cls=APIEncoder)
 
 
-def render_xml(**data):
+def render_xml(data):
     """ XML render function.
 
     :param data: the data stream to be rendered as xml.
 
+    .. versionchanged:: 0.1.0
+       Support for optional HATEOAS.
+
     .. versionchanged:: 0.0.3
        Support for HAL-like hyperlinks and resource descriptors.
     """
+    if isinstance(data, list):
+        data = {'_items': data}
+
     xml = ''
     if data:
         xml += xml_root_open(data)
@@ -236,6 +251,9 @@ def xml_root_open(data):
 
     :param data: the data stream to be rendered as xml.
 
+    .. versionchanged:: 0.1.0
+       Support for optional HATEOAS.
+
     .. versionchanged:: 0.0.6
        Links are now properly escaped.
 
@@ -245,7 +263,7 @@ def xml_root_open(data):
     href = title = ''
     if links and 'self' in links:
         self_ = links.pop('self')
-        href = ' href="%s" ' % escape(self_['href'])
+        href = ' href="%s" ' % utils.escape(self_['href'])
         if 'title' in self_:
             title = ' title="%s" ' % self_['title']
     return '<resource%s%s>' % (href, title)
@@ -262,15 +280,16 @@ def xml_add_links(data):
 
     .. versionadded:: 0.0.3
     """
+    xml = ''
     chunk = '<link rel="%s" href="%s" title="%s" />'
     links = data.pop('_links', {})
-    xml = ''
     for rel, link in links.items():
         if isinstance(link, list):
-            xml += ''.join([chunk % (rel, escape(d['href']), d['title'])
+            xml += ''.join([chunk % (rel, utils.escape(d['href']), d['title'])
                             for d in link])
         else:
-            xml += ''.join(chunk % (rel, escape(link['href']), link['title']))
+            xml += ''.join(chunk % (rel, utils.escape(link['href']),
+                                    link['title']))
     return xml
 
 

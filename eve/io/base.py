@@ -9,9 +9,8 @@
     :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-
-from eve.utils import config
-from flask import request
+from eve.utils import config, debug_error_message
+from flask import request, abort
 
 
 class ConnectionException(Exception):
@@ -39,6 +38,9 @@ class DataLayer(object):
 
     Admittedly, this interface is a Mongo rip-off. See the io.mongo
     package for an implementation example.
+
+    .. versionchanged:: 0.1.0
+    Support for PUT method.
 
     .. versionchanged:: 0.0.6
        support for 'projections' has been added. For more information see
@@ -99,6 +101,23 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
+    def find_list_of_ids(self, resource, ids, client_projection=None):
+        """Retrieves a list of documents based on a list of primary keys
+        The primary key is the field defined in `ID_FIELD`.
+        This is a separate function to allow us to use per-database
+        optimizations for this type of query
+
+        :param resource: resource name.
+        :param ids: a list of ids corresponding to the documents
+        to retrieve
+        :param client_projection: a specific projection to use
+        :return: a list of documents matching the ids in `ids` from the
+        collection specified in `resource`
+
+        .. versionadded:: 0.1.0
+        """
+        raise NotImplementedError
+
     def insert(self, resource, doc_or_docs):
         """Inserts a document into a resource collection/table.
 
@@ -126,6 +145,19 @@ class DataLayer(object):
 
         raise NotImplementedError
 
+    def replace(self, resource, id_, document):
+        """Replaces a collection/table document/row.
+        :param resource: resource being accessed. You should then use
+                         the ``_datasource`` helper function to retrieve
+                         the actual datasource name.
+        :param id_: the unique id of the document.
+        :param document: the new json document
+
+        .. versionadded:: 0.1.0
+        """
+
+        raise NotImplementedError
+
     def remove(self, resource, id_=None):
         """Removes a document/row or an entire set of documents/rows from a
         database collection/table.
@@ -137,6 +169,37 @@ class DataLayer(object):
                     all the documents/rows in the collection/table should be
                     removed.
 
+        """
+        raise NotImplementedError
+
+    def combine_queries(self, query_a, query_b):
+        """
+        Takes two db queries and applies db-specific syntax to produce
+        the intersection.
+
+        .. versionadded: 0.1.0
+           Support for intelligent combination of db queries
+        """
+        raise NotImplementedError
+
+    def get_value_from_query(self, query, field_name):
+        """
+        Parses the given potentially-complex query and returns the value
+        being assigned to the field given in `field_name`.
+
+        This mainly exists to deal with more complicated compound queries
+
+        .. versionadded: 0.1.0
+           Support for parsing values embedded in compound db queries
+        """
+        raise NotImplementedError
+
+    def query_contains_field(self, query, field_name):
+        """ For the specified field name, does the query contain it?
+        Used know whether we need to parse a compound query
+
+        .. versionadded: 0.1.0
+           Support for parsing values embedded in compound db queries
         """
         raise NotImplementedError
 
@@ -156,6 +219,10 @@ class DataLayer(object):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to
 
+        .. versionchanged:: 0.1.0
+           Calls `combine_queries` to merge query and filter_
+           Updated logic performing `auth_field` check
+
         .. versionchanged:: 0.0.9
            Storing self.app.auth.userid in auth_field when 'user-restricted
            resource access' is enabled.
@@ -174,7 +241,16 @@ class DataLayer(object):
         datasource, filter_, projection_ = self._datasource(resource)
         if filter_:
             if query:
-                query.update(filter_)
+                # Can't just dump one set of query operators into another
+                # e.g. if the dataset contains a custom datasource pattern
+                #   'filter': {'username': {'$exists': True}}
+                # and we try to filter on the field `username`,
+                # which is correct?
+
+                # Solution: call the db driver `combine_queries` operation
+                # which will apply db-specific syntax to produce the
+                # intersection of the two queries
+                query = self.combine_queries(query, filter_)
             else:
                 query = filter_
 
@@ -188,24 +264,45 @@ class DataLayer(object):
             fields = projection_
 
         # If the current HTTP method is in `public_methods` or
-        # `public_item_methods`, skip the `auth_username_field` check
+        # `public_item_methods`, skip the `auth_field` check
 
-        if (
-            # Are we looking at a *collection* and is the HTTP method
-            # not in `public_item_methods` ...
-            request.endpoint == 'collections_endpoint' and request.method
-            not in config.DOMAIN[resource]['public_methods']
-        ) or (
-            # ... or if we are looking at an *item* is
-            # the HTTP method not in `public_methods`?
-            request.endpoint == 'item_endpoint' and request.method
-            not in config.DOMAIN[resource]['public_item_methods']
-        ):
-            # if 'user-restricted resource access' is enabled and there's an
-            # Auth request active, add the username field to the query
-            auth_field = config.DOMAIN[resource].get('auth_field')
-            if auth_field and self.app.auth.user_id:
-                if request.authorization and query is not None:
-                    query.update({auth_field: self.app.auth.user_id})
+        if request.endpoint == 'collections_endpoint':
+            # We need to check against `public_methods`
+            public_method_list_to_check = 'public_methods'
+        else:
+            # We need to check against `public_item_methods`
+            public_method_list_to_check = 'public_item_methods'
 
+        # Is the HTTP method not public?
+        resource_dict = config.DOMAIN[resource]
+        if request.method not in resource_dict[public_method_list_to_check]:
+            # We need to run the 'user-restricted resource access' check
+            auth_field = resource_dict.get('auth_field', None)
+            if auth_field and request.authorization and self.app.auth \
+                    and query is not None:
+                # If the auth_field *replaces* a field in the query,
+                # and the values are /different/, deny the request
+                # This prevents the auth_field condition from
+                # overwriting the query (issue #77)
+                curr_req_auth_value = getattr(self.app.auth, auth_field)
+                auth_field_in_query = \
+                    self.app.data.query_contains_field(query,
+                                                       auth_field)
+                if auth_field_in_query and \
+                        self.app.data.get_value_from_query(
+                            query, auth_field) != curr_req_auth_value:
+                    abort(401, description=debug_error_message(
+                        'Incompatible User-Restricted Resource request. '
+                        'Request was for "%s"="%s" but `auth_field` '
+                        'requires "%s"="%s".' % (
+                            auth_field,
+                            self.app.data.get_value_from_query(
+                                query, auth_field),
+                            auth_field,
+                            curr_req_auth_value)
+                    ))
+                else:
+                    query = self.app.data.combine_queries(
+                        query, {auth_field: curr_req_auth_value}
+                    )
         return datasource, query, fields
