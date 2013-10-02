@@ -129,8 +129,6 @@ def post(resource, payl=None):
         if len(doc_issues) == 0:
             documents.append(document)
 
-    print issues
-
     if len(documents):
         # notify callbacks
         getattr(app, "on_insert")(resource, documents)
