@@ -70,7 +70,7 @@ class BasicAuth(object):
 
     def authenticate(self):
         """ Returns a standard a 401 response that enables basic auth.
-        Ovverride if you want to change the response and/or the realm.
+        Override if you want to change the response and/or the realm.
         """
         return Response(
             'Please provide proper credentials', 401,
@@ -115,7 +115,7 @@ class HMACAuth(BasicAuth):
         raise NotImplementedError
 
     def authenticate(self):
-        """ Returns a standard a 401. Ovverride if you want to change the
+        """ Returns a standard a 401. Override if you want to change the
         response.
         """
         return Response('Please provide proper credentials', 401)
@@ -158,7 +158,7 @@ class TokenAuth(BasicAuth):
 
     def authenticate(self):
         """ Returns a standard a 401 response that enables basic auth.
-        Ovverride if you want to change the response and/or the realm.
+        Override if you want to change the response and/or the realm.
         """
         return Response(
             'Please provide proper credentials', 401,
