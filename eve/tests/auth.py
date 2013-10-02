@@ -12,7 +12,7 @@ class ValidBasicAuth(BasicAuth):
     def check_auth(self, username, password, allowed_roles, resource,
                    method):
         self.user_id = 123
-        # This MUST BE AN OBJECTID, not a string.
+        # This must be an ObjectId, not a string.
         self._id = ObjectId('deadbeefdeadbeefdeadbeef')
         self.username = 'admin'
         return username == 'admin' and password == 'secret' and  \

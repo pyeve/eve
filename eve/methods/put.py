@@ -73,9 +73,9 @@ def put(resource, **lookup):
             # an Auth request active, inject the username into the document
             auth_field = resource_def['auth_field']
             if auth_field:
-                userid = app.auth.user_id
-                if userid and request.authorization:
-                    document[auth_field] = userid
+                request_auth_value = app.auth.request_auth_value
+                if request_auth_value and request.authorization:
+                    document[auth_field] = request_auth_value
             etag = document_etag(document)
 
             app.data.replace(resource, object_id, document)
