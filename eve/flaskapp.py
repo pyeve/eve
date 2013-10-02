@@ -282,7 +282,7 @@ class Eve(Flask, Events):
         if offenders:
             raise SchemaException('field(s) "%s" not allowed in "%s" schema '
                                   '(they will be handled automatically).'
-                                  % (resource, ', '.join(offenders)))
+                                  % (', '.join(offenders), resource))
 
         for field, ruleset in schema.items():
             if 'data_relation' in ruleset:
