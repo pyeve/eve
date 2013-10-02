@@ -208,7 +208,7 @@ Pagination
 ----------
 Resource pagination is enabled by default in order to improve performance and
 preserve bandwith. When a consumer requests a resource, the first N items
-matching the query are serverd, and links to subsequent/previous pages are
+matching the query are served, and links to subsequent/previous pages are
 provided with the response. Default and maximum page size is customizable, and
 consumers can request specific pages via the query string:
 
