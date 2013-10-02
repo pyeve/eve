@@ -143,7 +143,7 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue('title' in link)
         self.assertTrue('href' in link)
         self.assertEqual('home', link['title'])
-        self.assertEqual("%s" % self.app.config['SERVER_NAME'], link['href'])
+        self.assertEqual("%s" % self.app.config.get('SERVER_NAME', ''), link['href'])
 
     def assertResourceLink(self, links, resource):
         self.assertTrue('self' in links)
@@ -152,7 +152,7 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue('href' in link)
         url = self.domain[resource]['url']
         self.assertEqual(url, link['title'])
-        self.assertEqual("%s/%s" % (self.app.config['SERVER_NAME'], url),
+        self.assertEqual("%s/%s" % (self.app.config.get('SERVER_NAME', ''), url),
                          link['href'])
 
     def assertCollectionLink(self, links, resource):
@@ -162,7 +162,7 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue('href' in link)
         url = self.domain[resource]['url']
         self.assertEqual(url, link['title'])
-        self.assertEqual("%s/%s" % (self.app.config['SERVER_NAME'], url),
+        self.assertEqual("%s/%s" % (self.app.config.get('SERVER_NAME', ''), url),
                          link['href'])
 
     def assertNextLink(self, links, page):

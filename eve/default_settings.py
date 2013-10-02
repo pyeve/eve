@@ -41,7 +41,7 @@ DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
 
 API_VERSION = ''
 URL_PREFIX = ''
-SERVER_NAME = '127.0.0.1:5000'
+SERVER_NAME = None
 LAST_UPDATED = 'updated'
 DATE_CREATED = 'created'
 ID_FIELD = '_id'

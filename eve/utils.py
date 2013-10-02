@@ -201,8 +201,9 @@ def home_link():
     .. versionchanged:: 0.0.3
        Now returning a JSON link.
     """
+    server_name = config.SERVER_NAME if config.SERVER_NAME else ''
     return {'title': 'home',
-            'href': '%s%s' % (config.SERVER_NAME, api_prefix())}
+            'href': '%s%s' % (server_name, api_prefix())}
 
 
 def resource_uri(resource):
@@ -213,7 +214,8 @@ def resource_uri(resource):
 
     :param resource: the resource name.
     """
-    return '%s%s/%s' % (config.SERVER_NAME, api_prefix(),
+    server_name = config.SERVER_NAME if config.SERVER_NAME else ''
+    return '%s%s/%s' % (server_name, api_prefix(),
                         config.URLS[resource])
 
 
