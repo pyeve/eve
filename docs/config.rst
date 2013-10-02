@@ -402,7 +402,7 @@ always lowercase.
                                 is the way to go.
 
 ``sorting``                     ``True`` if sorting is enabled, ``False`` 
-                                otherwise. Locally ovverrides ``SORTING``.
+                                otherwise. Locally overrides ``SORTING``.
                                 
 ``pagination``                  ``True`` if pagination is enabled, ``False``
                                 otherwise. Locally overrides ``PAGINATION``.
