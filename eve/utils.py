@@ -198,6 +198,9 @@ def document_link(resource, document_id):
 def home_link():
     """ Returns a link to the API entry point/home page.
 
+    .. versionchanged:: 0.1.1
+       Handle the case of SERVER_NAME being None.
+
     .. versionchanged:: 0.0.3
        Now returning a JSON link.
     """
@@ -208,6 +211,9 @@ def home_link():
 
 def resource_uri(resource):
     """ Returns the absolute URI to a resource.
+
+    .. versionchanged:: 0.1.1
+       Handle the case of SERVER_NAME being None.
 
     .. versionchanged:: 0.1.0
        No more trailing slashes in links.

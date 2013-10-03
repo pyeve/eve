@@ -11,6 +11,9 @@
     :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.1.1
+       'SERVER_NAME' defaults to None.
+
     .. versionchanged:: 0.1.0
        'EMBEDDING' added and set to True.
        'HATEOAS' added and set to True.

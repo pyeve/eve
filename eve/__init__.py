@@ -9,6 +9,9 @@
     :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.1.1
+       'SERVER_NAME' defaults to None.
+
     .. versionchagned:: 0.0.9
        'DATE_FORMAT now using GMT instead of UTC.
 
