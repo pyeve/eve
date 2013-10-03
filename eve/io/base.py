@@ -40,7 +40,7 @@ class DataLayer(object):
     package for an implementation example.
 
     .. versionchanged:: 0.1.0
-    Support for PUT method.
+       Support for PUT method.
 
     .. versionchanged:: 0.0.6
        support for 'projections' has been added. For more information see
@@ -218,6 +218,9 @@ class DataLayer(object):
     def _datasource_ex(self, resource, query=None, client_projection=None):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to
+
+        .. versionchanged:: 0.1.1
+           auth.request_auth_value is now used to store the auth_field value.
 
         .. versionchanged:: 0.1.0
            Calls `combine_queries` to merge query and filter_

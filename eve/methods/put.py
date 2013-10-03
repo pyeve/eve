@@ -31,6 +31,9 @@ def put(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
 
+    .. versionchanged:: 0.1.1
+        auth.request_auth_value is now used to store the auth_field value.
+
     .. versionadded:: 0.1.0
     """
     resource_def = app.config['DOMAIN'][resource]

@@ -49,6 +49,9 @@ class BasicAuth(object):
     """ Implements Basic AUTH logic. Should be subclassed to implement custom
     authorization checking.
 
+    .. versionchanged:: 0.1.1
+        auth.request_auth_value is now used to store the auth_field value.
+
     .. versionchanged:: 0.0.9
        Support for user_id property.
 

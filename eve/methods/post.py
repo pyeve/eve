@@ -41,6 +41,9 @@ def post(resource, payl=None):
                  See https://github.com/nicolaiarocci/eve/issues/74 for a
                  discussion, and a typical use case.
 
+    .. versionchanged:: 0.1.1
+        auth.request_auth_value is now used to store the auth_field value.
+
     .. versionchanged:: 0.1.0
        More robust handling of auth_field.
        Support for optional HATEOAS.
