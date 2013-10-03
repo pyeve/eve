@@ -263,6 +263,9 @@ class Eve(Flask, Events):
         :param resource: resource name.
         :param schema: schema definition for the resource.
 
+        .. versionchanged:: 0.1.1
+           Fix order of string arguments in exception message.
+
         .. versionchanged:: 0.1.0
            Validation for 'embeddable' fields.
 
@@ -282,7 +285,7 @@ class Eve(Flask, Events):
         if offenders:
             raise SchemaException('field(s) "%s" not allowed in "%s" schema '
                                   '(they will be handled automatically).'
-                                  % (resource, ', '.join(offenders)))
+                                  % (', '.join(offenders), resource))
 
         for field, ruleset in schema.items():
             if 'data_relation' in ruleset:
