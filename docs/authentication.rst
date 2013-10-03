@@ -410,8 +410,9 @@ trasparently to the user) adding a ``user_id`` field to every stored
 document. This will then be used to retrieve/edit/delete documents stored by
 the user.
 
-But how do you set the ``auth_field`` value? By simply setting it in your
-custom class. Let us revise our BCrypt-authentication example from above:
+But how do you set the ``auth_field`` value? By simply setting the
+``request_auth_value`` property in your auth class. Let us revise our
+BCrypt-authentication example from above:
 
 .. code-block:: python
    :emphasize-lines: 25-28
@@ -443,7 +444,7 @@ custom class. Let us revise our BCrypt-authentication example from above:
             # set 'auth_field' value to the account's ObjectId 
             # (instead of _id, you might want to use ID_FIELD)
             if account and '_id' in account:
-                self.user_id = account['_id']
+                self.request_auth_value = account['_id']
             return account and \
                 bcrypt.hashpw(password, account['password']) == account['password']
 

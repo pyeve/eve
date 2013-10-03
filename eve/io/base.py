@@ -40,7 +40,7 @@ class DataLayer(object):
     package for an implementation example.
 
     .. versionchanged:: 0.1.0
-    Support for PUT method.
+       Support for PUT method.
 
     .. versionchanged:: 0.0.6
        support for 'projections' has been added. For more information see
@@ -219,6 +219,9 @@ class DataLayer(object):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to
 
+        .. versionchanged:: 0.1.1
+           auth.request_auth_value is now used to store the auth_field value.
+
         .. versionchanged:: 0.1.0
            Calls `combine_queries` to merge query and filter_
            Updated logic performing `auth_field` check
@@ -284,13 +287,12 @@ class DataLayer(object):
                 # and the values are /different/, deny the request
                 # This prevents the auth_field condition from
                 # overwriting the query (issue #77)
-                curr_req_auth_value = getattr(self.app.auth, auth_field)
+                request_auth_value = self.app.auth.request_auth_value
                 auth_field_in_query = \
-                    self.app.data.query_contains_field(query,
-                                                       auth_field)
+                    self.app.data.query_contains_field(query, auth_field)
                 if auth_field_in_query and \
                         self.app.data.get_value_from_query(
-                            query, auth_field) != curr_req_auth_value:
+                            query, auth_field) != request_auth_value:
                     abort(401, description=debug_error_message(
                         'Incompatible User-Restricted Resource request. '
                         'Request was for "%s"="%s" but `auth_field` '
@@ -299,10 +301,10 @@ class DataLayer(object):
                             self.app.data.get_value_from_query(
                                 query, auth_field),
                             auth_field,
-                            curr_req_auth_value)
+                            request_auth_value)
                     ))
                 else:
                     query = self.app.data.combine_queries(
-                        query, {auth_field: curr_req_auth_value}
+                        query, {auth_field: request_auth_value}
                     )
         return datasource, query, fields

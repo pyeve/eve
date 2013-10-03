@@ -10,6 +10,8 @@ Not released yet.
 
 Enhancements
 ~~~~~~~~~~~~
+- ``auth.user_id`` renamed to ``auth.request_auth_value`` for better
+  consistency with the ``auth_field`` setting. Closes #132 (Ryan Shea).
 - Same behavior as Flask, SERVER_NAME now defaults to None. It allows much
   easier development on distant machine that may changes IP (Ronan Delacroix).
 

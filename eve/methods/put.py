@@ -31,6 +31,9 @@ def put(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
 
+    .. versionchanged:: 0.1.1
+        auth.request_auth_value is now used to store the auth_field value.
+
     .. versionadded:: 0.1.0
     """
     resource_def = app.config['DOMAIN'][resource]
@@ -73,9 +76,9 @@ def put(resource, **lookup):
             # an Auth request active, inject the username into the document
             auth_field = resource_def['auth_field']
             if auth_field:
-                userid = app.auth.user_id
-                if userid and request.authorization:
-                    document[auth_field] = userid
+                request_auth_value = app.auth.request_auth_value
+                if request_auth_value and request.authorization:
+                    document[auth_field] = request_auth_value
             etag = document_etag(document)
 
             # notify callbacks

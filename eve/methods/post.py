@@ -41,6 +41,9 @@ def post(resource, payl=None):
                  See https://github.com/nicolaiarocci/eve/issues/74 for a
                  discussion, and a typical use case.
 
+    .. versionchanged:: 0.1.1
+        auth.request_auth_value is now used to store the auth_field value.
+
     .. versionchanged:: 0.1.0
        More robust handling of auth_field.
        Support for optional HATEOAS.
@@ -111,10 +114,9 @@ def post(resource, payl=None):
                 # inject the auth_field into the document
                 auth_field = resource_def['auth_field']
                 if auth_field:
-                    auth_field_value = getattr(app.auth, auth_field)
-                    if auth_field_value and request.authorization:
-                        document[auth_field] = auth_field_value
-
+                    request_auth_value = app.auth.request_auth_value
+                    if request_auth_value and request.authorization:
+                        document[auth_field] = request_auth_value
             else:
                 # validation errors added to list of document issues
                 doc_issues.extend(validator.errors)
