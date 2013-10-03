@@ -9,12 +9,7 @@ from eve.tests import TestBase
 
 
 class ValidBasicAuth(BasicAuth):
-    def check_auth(self, username, password, allowed_roles, resource,
-                   method):
-        self.user_id = 123
-        # This must be an ObjectId, not a string.
-        self._id = ObjectId('deadbeefdeadbeefdeadbeef')
-        self.username = 'admin'
+    def check_auth(self, username, password, allowed_roles, resource, method):
         return username == 'admin' and password == 'secret' and  \
             (allowed_roles == ['admin'] if allowed_roles else True)
 
@@ -250,6 +245,7 @@ class TestUserRestrictedAccess(TestBase):
         for resource, settings in self.app.config['DOMAIN'].items():
             settings[self.field_name] = 'username'
         self.resource['public_methods'] = []
+        self.app.auth.request_auth_value = 'admin'
 
     def test_get(self):
         data, status = self.parse_response(
@@ -303,6 +299,9 @@ class TestUserRestrictedAccess(TestBase):
         We need to make sure we *match* an object ID when it is the
         same
         """
+        _id = ObjectId('deadbeefdeadbeefdeadbeef')
+        self.app.auth.request_auth_value = _id
+
         # set auth_field to `_id`
         self.app.config['DOMAIN']['users'][self.field_name] = \
             self.app.config['ID_FIELD']
@@ -319,13 +318,13 @@ class TestUserRestrictedAccess(TestBase):
 
         # Create a user account belonging to admin
         new_user = self.random_contacts(1)[0]
-        new_user['_id'] = ObjectId(self.app.auth._id)
+        new_user['_id'] = _id
         new_user['username'] = 'admin'
         _db = self.connection[self.app.config['MONGO_DBNAME']]
         _db.contacts.insert(new_user)
 
         # Retrieving /the same/ user by id returns OK
-        filter_query_2 = filter_by_id % new_user['_id']
+        filter_query_2 = filter_by_id % 'deadbeefdeadbeefdeadbeef'
         data2, status2 = self.parse_response(
             self.test_client.get('%s?%s' % (user_url, filter_query_2),
                                  headers=self.valid_auth))
@@ -333,7 +332,7 @@ class TestUserRestrictedAccess(TestBase):
         self.assertEqual(len(data2['_items']), 1)
 
     def test_collection_get_public(self):
-        """ Test that if GET is in `public_methods` the `auth_username_field`
+        """ Test that if GET is in `public_methods` the `auth_field`
         criteria is overruled
         """
         self.resource['public_methods'].append('GET')
@@ -345,8 +344,8 @@ class TestUserRestrictedAccess(TestBase):
         self.assertEqual(len(data['_items']), 25)
 
     def test_item_get_public(self):
-        """ Test that if GET is in `public_item_methods` the
-        `auth_username_field` criteria is overruled
+        """ Test that if GET is in `public_item_methods` the `auth_field`
+        criteria is overruled
         """
         self.resource['public_item_methods'].append('GET')
         data, status = self.parse_response(
