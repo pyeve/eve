@@ -8,6 +8,11 @@ Version 0.1.1
 
 Not released yet.
 
+Enhancements
+~~~~~~~~~~~~
+- Same behavior as Flask, SERVER_NAME now defaults to None. It allows much
+  easier development on distant machine that may changes IP (Ronan Delacroix).
+
 Version 0.1
 -----------
 

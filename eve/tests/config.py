@@ -306,7 +306,8 @@ class TestConfig(TestBase):
                              self.app.config['SOURCES'][resource])
 
     def test_url_rules(self):
-        map_adapter = self.app.url_map.bind(self.app.config['SERVER_NAME'])
+        map_adapter = self.app.url_map.bind(self.app.config.get(
+            'SERVER_NAME', ''))
 
         for resource, settings in self.domain.items():
             for method in settings['resource_methods']:
