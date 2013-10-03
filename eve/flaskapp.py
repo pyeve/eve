@@ -263,6 +263,9 @@ class Eve(Flask, Events):
         :param resource: resource name.
         :param schema: schema definition for the resource.
 
+        .. versionchanged:: 0.1.1
+           Fix order of string arguments in exception message.
+
         .. versionchanged:: 0.1.0
            Validation for 'embeddable' fields.
 
