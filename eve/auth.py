@@ -58,7 +58,7 @@ class BasicAuth(object):
     .. versionadded:: 0.0.4
     """
     def __init__(self):
-        self.user_id = None
+        self.request_auth_value = None
 
     def check_auth(self, username, password, allowed_roles, resource, method):
         """ This function is called to check if a username / password
