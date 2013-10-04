@@ -151,7 +151,6 @@ class Eve(Flask, Events):
         if os.path.isabs(self.settings):
             pyfile = self.settings
         else:
-            # assume the path is relative to the calling script folder
             abspath = os.path.abspath(os.path.dirname(sys.argv[0]))
             pyfile = os.path.join(abspath, self.settings)
         self.config.from_pyfile(pyfile)
