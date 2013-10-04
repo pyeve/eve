@@ -71,13 +71,11 @@ class TestMinimal(unittest.TestCase):
         v = json.loads(r.get_data()) if r.status_code == 200 else None
         return v, r.status_code
 
-    def assertValidationError(self, response, key, matches):
-        self.assertTrue(key in response)
-        k = response[key]
-        self.assertTrue('status' in k)
-        self.assertTrue(eve.STATUS_ERR in k['status'])
-        self.assertTrue('issues' in k)
-        issues = k['issues']
+    def assertValidationError(self, response, matches):
+        self.assertTrue('status' in response)
+        self.assertTrue(eve.STATUS_ERR in response['status'])
+        self.assertTrue('issues' in response)
+        issues = response['issues']
         self.assertTrue(len(issues))
 
         for match in matches:
