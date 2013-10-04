@@ -109,6 +109,10 @@ def payload():
     then returns the request payload as a dict. If request Content-Type is
     unsupported, aborts with a 400 (Bad Request).
 
+    .. versionchanged:: 0.1.1
+       Payload returned as a standard python dict regardless of request content
+       type.
+
     .. versionchanged:: 0.0.9
        More informative error messages.
        request.get_json() replaces the now deprecated request.json
@@ -124,7 +128,7 @@ def payload():
     if content_type == 'application/json':
         return request.get_json()
     elif content_type == 'application/x-www-form-urlencoded':
-        return request.form if len(request.form) else \
+        return request.form.to_dict() if len(request.form) else \
             abort(400, description=debug_error_message(
                 'No form-urlencoded data supplied'
             ))
