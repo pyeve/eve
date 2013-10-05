@@ -113,7 +113,7 @@ def post(resource, payl=None):
                 # and there's an Auth request active,
                 # inject the auth_field into the document
                 auth_field = resource_def['auth_field']
-                if auth_field:
+                if app.auth and auth_field:
                     request_auth_value = app.auth.request_auth_value
                     if request_auth_value and request.authorization:
                         document[auth_field] = request_auth_value
