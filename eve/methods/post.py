@@ -98,7 +98,11 @@ def post(resource, payl=None):
     # validation, and additional fields
     if payl is None:
         payl = payload()
-    for key, value in payl.items():
+
+    if isinstance(payl, dict):
+        payl = [payl]
+
+    for value in payl:
         document = []
         doc_issues = []
         try:
@@ -140,8 +144,8 @@ def post(resource, payl=None):
         ids = app.data.insert(resource, documents)
 
     # build response payload
-    response = {}
-    for key, doc_issues in zip(payl.keys(), issues):
+    response = []
+    for doc_issues in issues:
         response_item = {}
         if len(doc_issues):
             response_item['status'] = config.STATUS_ERR
@@ -163,6 +167,9 @@ def post(resource, payl=None):
             for field in allowed_fields:
                 response_item[field] = document[field]
 
-        response[key] = response_item
+        response.append(response_item)
+
+    if len(response) == 1:
+        response = response.pop(0)
 
     return response, None, None, 200
