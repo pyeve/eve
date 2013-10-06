@@ -242,7 +242,7 @@ Save `settings.py` and launch `run.py`. We can now insert documents at the
 
 .. code-block:: console
 
-    $ curl -d 'item1={"firstname": "barack", "lastname": "obama"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://127.0.0.1:5000/people
+    $ curl -d '[{"firstname": "barack", "lastname": "obama"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json'  http://127.0.0.1:5000/people
     HTTP/1.0 200 OK
 
 We can also update and delete items (but not the whole resource since we

@@ -9,7 +9,7 @@ will be updated only if validation passes.
 
 .. code-block:: console
 
-    $ curl -d 'item1={"firstname": "bill", "lastname": "clinton"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://eve-demo.herokuapp.com/people
+    $ curl -d '{"firstname": "bill", "lastname": "clinton"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
     HTTP/1.1 200 OK
 
 The response will contain a success/error state for each item provided in the
@@ -17,24 +17,22 @@ request:
 
 .. code-block:: javascript
 
-      {
-        "item2": {
+    [
+        {
             "status": "ERR",
-            "issues": [
-                "value 'romney' for field 'lastname' not unique"
-            ]
+            "issues": ["value 'romney' for field 'lastname' not unique"]
         },
-        "item1": {
+        {
             "status": "OK",
             "updated": "Thu, 22 Nov 2012 15:29:08 GMT",
             "_id": "50ae44c49fa12500024def5d",
             "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d", "title": "person"}}
         }
-    }
+    ]
 
-In the example above, ``item2`` did not validate and was rejected, while
-``item1`` was successfully created. The API maintainer has complete control of
-data validation.
+In the example above, the first document did not validate and was rejected,
+while the second was successfully created. The API maintainer has complete
+control of data validation.
 
 Extending Data Validation
 -------------------------
@@ -149,7 +147,7 @@ a payload like this will be accepted:
 
 .. code-block:: console
 
-    $ curl -d 'item1={"firstname": "bill", "lastname": "clinton"}' -d 'item1={"firstname": "bill", "age":70}' http://eve-demo.herokuapp.com/people
+    $ curl -d '[{"firstname": "bill", "lastname": "clinton"}, {"firstname": "bill", "age":70}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
     HTTP/1.1 200 OK
 
 .. admonition:: Please note

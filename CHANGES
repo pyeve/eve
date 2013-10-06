@@ -10,6 +10,16 @@ Not released yet.
 
 Enhancements
 ~~~~~~~~~~~~
+- item-id wrappers in POST/PATCH/PUT requests and responses have been removed.
+  Requests for single document insertion/edition are performed by just
+  submitting the relevant document. Bulk insert requests are performed by
+  submitting a JSON list of documents. The response to bulk insert requests
+  will be a list itself, in which every item will contain the state of the
+  corresponding request document. 
+
+  Please note that this is a breaking change. Also be aware that when the
+  request content-type is ``x-www-form-urlencoded``, single document insert
+  is performed. Closes #139.
 - ``auth.user_id`` renamed to ``auth.request_auth_value`` for better
   consistency with the ``auth_field`` setting. Closes #132 (Ryan Shea).
 - Same behavior as Flask, SERVER_NAME now defaults to None. It allows much
