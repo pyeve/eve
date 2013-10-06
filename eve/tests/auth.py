@@ -41,8 +41,11 @@ class TestBasicAuth(TestBase):
         super(TestBasicAuth, self).setUp()
         self.app = Eve(settings=self.settings_file, auth=ValidBasicAuth)
         self.test_client = self.app.test_client()
-        self.valid_auth = [('Authorization', 'Basic YWRtaW46c2VjcmV0')]
-        self.invalid_auth = [('Authorization', 'Basic IDontThinkSo')]
+        self.content_type = ('Content-Type', 'application/json')
+        self.valid_auth = [('Authorization', 'Basic YWRtaW46c2VjcmV0'),
+                           self.content_type]
+        self.invalid_auth = [('Authorization', 'Basic IDontThinkSo'),
+                             self.content_type]
         for resource, schema in self.app.config['DOMAIN'].items():
             schema['allowed_roles'] = ['admin']
             schema['allowed_item_roles'] = ['admin']
@@ -80,7 +83,7 @@ class TestBasicAuth(TestBase):
                                  headers=self.valid_auth)
         self.assert200(r.status_code)
         r = self.test_client.post(self.known_resource_url,
-                                  data={"item1": json.dumps({"k": "value"})},
+                                  data=json.dumps({"k": "value"}),
                                   headers=self.valid_auth)
         self.assert200(r.status_code)
         r = self.test_client.delete(self.known_resource_url,
@@ -91,7 +94,7 @@ class TestBasicAuth(TestBase):
         r = self.test_client.get(self.item_id_url, headers=self.valid_auth)
         self.assert200(r.status_code)
         r = self.test_client.patch(self.item_id_url,
-                                   data={"item1": json.dumps({"k": "value"})},
+                                   data=json.dumps({"k": "value"}),
                                    headers=self.valid_auth)
         self.assert403(r.status_code)
         r = self.test_client.delete(self.item_id_url, headers=self.valid_auth)
@@ -197,7 +200,8 @@ class TestTokenAuth(TestBasicAuth):
         super(TestTokenAuth, self).setUp()
         self.app = Eve(settings=self.settings_file, auth=ValidTokenAuth)
         self.test_client = self.app.test_client()
-        self.valid_auth = [('Authorization', 'Basic dGVzdF90b2tlbjo=')]
+        self.valid_auth = [('Authorization', 'Basic dGVzdF90b2tlbjo='),
+                           self.content_type]
 
     def test_custom_auth(self):
         self.assertEqual(type(self.app.auth), ValidTokenAuth)
@@ -208,7 +212,8 @@ class TestHMACAuth(TestBasicAuth):
         super(TestHMACAuth, self).setUp()
         self.app = Eve(settings=self.settings_file, auth=ValidHMACAuth)
         self.test_client = self.app.test_client()
-        self.valid_auth = [('Authorization', 'admin:secret')]
+        self.valid_auth = [('Authorization', 'admin:secret'),
+                           self.content_type]
 
     def test_custom_auth(self):
         self.assertEqual(type(self.app.auth), ValidHMACAuth)
@@ -239,9 +244,7 @@ class TestUserRestrictedAccess(TestBase):
         self.valid_auth = [('Authorization', 'Basic YWRtaW46c2VjcmV0')]
         self.invalid_auth = [('Authorization', 'Basic IDontThinkSo')]
         self.field_name = 'auth_field'
-        self.data = json.dumps(
-            {'item1': {"ref": "0123456789123456789012345"}}
-        )
+        self.data = json.dumps({"ref": "0123456789123456789012345"})
         for resource, settings in self.app.config['DOMAIN'].items():
             settings[self.field_name] = 'username'
         self.resource['public_methods'] = []
@@ -366,9 +369,9 @@ class TestUserRestrictedAccess(TestBase):
 
     def test_patch(self):
         new_ref = "9999999999999999999999999"
-        changes = {'item1': {"ref": new_ref}}
+        changes = json.dumps({"ref": new_ref})
         data, status = self.post()
-        url = '%s/%s' % (self.known_resource_url, data['item1']['_id'])
+        url = '%s/%s' % (self.known_resource_url, data['_id'])
         response = self.test_client.get(url, headers=self.valid_auth)
         etag = response.headers['ETag']
         headers = [('If-Match', etag),
@@ -386,7 +389,7 @@ class TestUserRestrictedAccess(TestBase):
 
     def test_delete(self):
         data, status = self.post()
-        url = '%s/%s' % (self.known_resource_url, data['item1']['_id'])
+        url = '%s/%s' % (self.known_resource_url, data['_id'])
         response = self.test_client.get(url, headers=self.valid_auth)
         etag = response.headers['ETag']
         headers = [('If-Match', etag),

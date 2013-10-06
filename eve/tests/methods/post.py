@@ -160,7 +160,7 @@ class TestPost(TestBase):
 
     def test_post_allow_unknown(self):
         del(self.domain['contacts']['schema']['ref']['required'])
-        data = {"item1": json.dumps({"unknown": "unknown"})}
+        data = {"unknown": "unknown"}
         r, status = self.post(self.known_resource_url, data=data)
         self.assert200(status)
         self.assertValidationError(r, "unknown")
