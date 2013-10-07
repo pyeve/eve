@@ -47,9 +47,9 @@ User's Guide
     :maxdepth: 2
 
     foreword
-    features
     install
     quickstart
+    features
     config
     validation
     authentication
