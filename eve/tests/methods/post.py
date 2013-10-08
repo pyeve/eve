@@ -106,6 +106,27 @@ class TestPost(TestBase):
         data = {'item1': '{"%s": "%s"}' % ('ref', '9234567890123456789054321')}
         self.assertPostItem(data, test_field, test_value)
 
+    def test_post_default_value_none(self):
+        # default values that assimilate to None (0, '', False) were ignored
+        # prior to 0.1.1
+        title = self.domain['contacts']['schema']['title']
+        title['default'] = ''
+        self.app.set_defaults()
+        data = {'item1': '{"%s": "%s"}' % ('ref', 'UUUUUUUUUUUUUUUUUUUUUUUUU')}
+        self.assertPostItem(data, 'title', '')
+
+        title['type'] = 'integer'
+        title['default'] = 0
+        self.app.set_defaults()
+        data = {'item1': '{"%s": "%s"}' % ('ref', 'TTTTTTTTTTTTTTTTTTTTTTTTT')}
+        self.assertPostItem(data, 'title', 0)
+
+        title['type'] = 'boolean'
+        title['default'] = False
+        self.app.set_defaults()
+        data = {'item1': '{"%s": "%s"}' % ('ref', 'QQQQQQQQQQQQQQQQQQQQQQQQQ')}
+        self.assertPostItem(data, 'title', False)
+
     def test_multi_post(self):
         items = [
             ('ref', "9234567890123456789054321"),

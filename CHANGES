@@ -17,6 +17,8 @@ Enhancements
 
 Fixes
 ~~~~~
+- 'default' field values that could be assimilated to ``None`` (0, None, "")
+  would be ignored.
 - POST and PUT would fail with 400 if there was no auth class while
   ``auth_field`` was set for a resource.
 - Fix order of string arguments in exception message in

@@ -306,6 +306,10 @@ class Eve(Flask, Events):
         """ When not provided, fills individual resource settings with default
         or global configuration settings.
 
+        .. versionchanged:: 0.1.1
+           'default' values that could be assimilated to None (0, None, "")
+           would be ignored.
+
         .. versionchanged:: 0.1.0
           'embedding'.
            Support for optional HATEOAS.
@@ -420,7 +424,7 @@ class Eve(Flask, Events):
             # TODO support default values for embedded documents.
             settings['defaults'] = \
                 set(field for field, definition in schema.items()
-                    if definition.get('default'))
+                    if 'default' in definition)
 
     def set_schema_defaults(self, schema):
         """ When not provided, fills individual schema settings with default
