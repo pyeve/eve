@@ -72,6 +72,8 @@ easier development on distant machine that may changes IP (Ronan Delacroix).</li
 <div class="section" id="fixes">
 <h3>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>&#8216;default&#8217; field values that could be assimilated to <tt class="docutils literal"><span class="pre">None</span></tt> (0, None, &#8220;&#8221;)
+would be ignored.</li>
 <li>POST and PUT would fail with 400 if there was no auth class while
 <tt class="docutils literal"><span class="pre">auth_field</span></tt> was set for a resource.</li>
 <li>Fix order of string arguments in exception message in
