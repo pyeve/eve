@@ -689,8 +689,8 @@ least one document passed validation and is going to be inserted. `documents`
 is a list and only contains documents ready for insertion (payload documents
 that did not pass validation are not included).
 
-There is also support for ``on_after_insert(resource, documents, ids)`` and
-``on_after_insert_<resource>(documents, ids)`` event hooks, raised after
+There is also support for ``on_after_insert(resource, documents)`` and
+``on_after_insert_<resource>(documents)`` event hooks, raised after
 documents have been inserted into the database. Callback functions could
 use these to manipulate objects after they've been created, or to use IDs
 of created objects.

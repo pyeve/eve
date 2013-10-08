@@ -229,10 +229,9 @@ class TestEventHooks(TestBase):
         self.assertTrue(self.passed)
 
     def test_on_after_insert_POST(self):
-        def general_hook(resource, documents, ids):
+        def general_hook(resource, documents):
             self.assertEqual(resource, self.known_resource)
             self.assertEqual(len(documents), 1)
-            self.assertEqual(ids[0], documents[0]['_id'])
             self.passed = True
         self.app.on_after_insert += general_hook
         self.post()
@@ -248,9 +247,8 @@ class TestEventHooks(TestBase):
         self.assertTrue(self.passed)
 
     def test_on_after_insert_resource_POST(self):
-        def resource_hook(documents, ids):
+        def resource_hook(documents):
             self.assertEqual(len(documents), 1)
-            self.assertEqual(ids[0], documents[0]['_id'])
             self.passed = True
         self.app.on_after_insert_contacts += resource_hook
         self.post()

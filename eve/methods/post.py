@@ -139,8 +139,8 @@ def post(resource, payl=None):
         # bulk insert
         ids = app.data.insert(resource, documents)
         # notify post-insert callbacks
-        getattr(app, "on_after_insert")(resource, documents, ids)
-        getattr(app, "on_after_insert_%s" % resource)(documents, ids)
+        getattr(app, "on_after_insert")(resource, documents)
+        getattr(app, "on_after_insert_%s" % resource)(documents)
 
     # build response payload
     response = {}
