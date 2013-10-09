@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
     eve.io.mongo.mongo (eve.io.mongo)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -15,20 +13,29 @@ import itertools
 from bson.errors import InvalidId
 import simplejson as json
 import pymongo
-import sys
 from flask import abort
 from flask.ext.pymongo import PyMongo
-from datetime import datetime
 from bson import ObjectId
 from eve import ID_FIELD
 from eve.io.mongo.parser import parse, ParseError
 from eve.io.base import DataLayer, ConnectionException
-from eve.utils import config, debug_error_message, validate_filters
+from eve.methods.common import serialize
+from eve.utils import config, debug_error_message, validate_filters, \
+    str_to_date
 
 
 class Mongo(DataLayer):
     """ MongoDB data access layer for Eve REST API.
+
+    .. versionchanged:: 0.1.1
+       'serializers' added.
+       '_jsondatetime' function removed.
     """
+
+    serializers = {
+        'objectid': ObjectId,
+        'datetime': str_to_date
+    }
 
     def init_app(self, app):
         """
@@ -96,8 +103,8 @@ class Mongo(DataLayer):
 
         if req.where:
             try:
-                spec = self._sanitize(
-                    self._jsondatetime(json.loads(req.where)))
+                spec = self._sanitize(serialize(json.loads(req.where),
+                                                resource))
             except:
                 try:
                     spec = parse(req.where)
@@ -188,10 +195,13 @@ class Mongo(DataLayer):
         :return: a list of documents matching the ids in `ids` from the
         collection specified in `resource`
 
+        .. versionchanged:: 0.1.1
+           Using config.ID_FIELD instead of hard coded '_id'.
+
         .. versionadded:: 0.1.0
         """
         query = {'$or': [
-            {'_id': id_} for id_ in ids
+            {config.ID_FIELD: id_} for id_ in ids
         ]}
 
         datasource, spec, projection = self._datasource_ex(
@@ -390,35 +400,6 @@ class Mongo(DataLayer):
         except KeyError:
             return False
         return True
-
-    def _jsondatetime(self, source):
-        """ Recursively iterates a JSON dictionary, turning RFC-1123 strings
-        into datetime values.
-
-        .. versionchanged:: 0.1.0
-           Datetime conversion was failing on Py2, since 0.0.9 :P
-
-        .. versionchanged:: 0.0.9
-           support for Python 3.3.
-
-        .. versionadded:: 0.0.4
-        """
-
-        if sys.version_info[0] == 3:
-            _str_type = str
-        else:
-            _str_type = basestring  # noqa
-
-        for k, v in source.items():
-            if isinstance(v, dict):
-                self._jsondatetime(v)
-            elif isinstance(v, _str_type):
-                try:
-                    source[k] = datetime.strptime(v, config.DATE_FORMAT)
-                except:
-                    pass
-
-        return source
 
     def _sanitize(self, spec):
         """ Makes sure that only allowed operators are included in the query,

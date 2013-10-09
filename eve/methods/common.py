@@ -14,9 +14,9 @@ import time
 from datetime import datetime
 from flask import current_app as app, request, abort, g, Response
 import simplejson as json
-from ..utils import str_to_date, parse_request, document_etag, config, \
-    request_method, debug_error_message
 from functools import wraps
+from eve.utils import parse_request, document_etag, config, request_method, \
+    debug_error_message
 
 
 def get_document(resource, **lookup):
@@ -68,6 +68,9 @@ def parse(value, resource):
     :param value: the string to be evaluated.
     :param resource: name of the involved resource.
 
+    .. versionchanged:: 0.1.1
+       Serialize data-specific values as needed.
+
     .. versionchanged:: 0.1.0
        Support for PUT method.
 
@@ -86,12 +89,10 @@ def parse(value, resource):
         # already a json
         document = value
 
-    # By design, dates are expressed as RFC-1123 strings. We convert them
-    # to proper datetimes.
-    dates = app.config['DOMAIN'][resource]['dates']
-    document_dates = dates.intersection(set(document.keys()))
-    for date_field in document_dates:
-        document[date_field] = str_to_date(document[date_field])
+    # if needed, get field values serialized by the data diver being used.
+    # If any error occurs, assume validation will take care of it (i.e. a badly
+    # formatted objectid).
+    document = serialize(document, resource, ignore_error=True)
 
     # update the document with eventual default values
     if request_method() in ('POST', 'PUT'):
@@ -263,3 +264,27 @@ def epoch():
     .. versionadded:: 0.0.5
     """
     return datetime(1970, 1, 1)
+
+
+def serialize(document, resource, ignore_error=False):
+    """Handles field values that require data-aware serialization. Relies
+    on the app.data.serializers dictionary.
+
+    .. versionadded:: 0.1.1
+    """
+    # TODO handle nested documents
+    if app.data.serializers:
+        schema = config.DOMAIN[resource]['schema']
+        for key in document:
+            if key in schema:
+                _type = schema[key]['type']
+                if _type in app.data.serializers:
+                    try:
+                        document[key] = \
+                            app.data.serializers[_type](document[key])
+                    except:
+                        if ignore_error:
+                            pass
+                        else:
+                            raise
+    return document

@@ -145,7 +145,6 @@ class TestPost(TestBase):
                                              items[4])),
         }
         r = self.perform_post(data, ['item1', 'item3'])
-
         self.assertValidationError(r, 'item2', ("required", "ref"))
         self.assertValidationError(r, 'item4', ("unique", "ref"))
         self.assertValidationError(r, 'item5', ("ObjectId", "tid"))

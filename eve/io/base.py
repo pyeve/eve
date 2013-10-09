@@ -39,6 +39,9 @@ class DataLayer(object):
     Admittedly, this interface is a Mongo rip-off. See the io.mongo
     package for an implementation example.
 
+    .. versionchanged:: 0.1.1
+       'serializers' dictionary added.
+
     .. versionchanged:: 0.1.0
        Support for PUT method.
 
@@ -51,6 +54,11 @@ class DataLayer(object):
     .. versionchanged:: 0.0.4
        the _datasource helper function has been added.
     """
+
+    # if custom serialize functions are needed, add them to the 'serializers'
+    # dictionary, eg:
+    # serializers = {'objectid': ObjectId, 'datetime': serialize_date}
+    serializers = {}
 
     def __init__(self, app):
         """ Implements the Flask extension pattern.

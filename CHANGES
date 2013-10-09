@@ -17,6 +17,8 @@ Enhancements
 
 Fixes
 ~~~~~
+- ObjectId are properly serialized on POST/PATCH/PUT methods and when applying
+  filters. Limitations: still not handling nested documents.
 - 'default' field values that could be assimilated to ``None`` (0, None, "")
   would be ignored.
 - POST and PUT would fail with 400 if there was no auth class while
