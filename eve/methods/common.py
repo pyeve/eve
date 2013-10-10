@@ -92,7 +92,10 @@ def parse(value, resource):
     # if needed, get field values serialized by the data diver being used.
     # If any error occurs, assume validation will take care of it (i.e. a badly
     # formatted objectid).
-    document = serialize(document, resource, ignore_error=True)
+    try:
+        document = serialize(document, resource)
+    except:
+        pass
 
     # update the document with eventual default values
     if request_method() in ('POST', 'PUT'):
@@ -266,7 +269,7 @@ def epoch():
     return datetime(1970, 1, 1)
 
 
-def serialize(document, resource, ignore_error=False):
+def serialize(document, resource):
     """Handles field values that require data-aware serialization. Relies
     on the app.data.serializers dictionary.
 
@@ -279,12 +282,6 @@ def serialize(document, resource, ignore_error=False):
             if key in schema:
                 _type = schema[key]['type']
                 if _type in app.data.serializers:
-                    try:
-                        document[key] = \
-                            app.data.serializers[_type](document[key])
-                    except:
-                        if ignore_error:
-                            pass
-                        else:
-                            raise
+                    document[key] = \
+                        app.data.serializers[_type](document[key])
     return document
