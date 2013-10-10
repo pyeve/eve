@@ -161,8 +161,7 @@ resources/methods will be secured unless they are made explicitly public.
             # use Eve's own db driver; no additional connections/resources are used
             accounts = app.data.driver.db['accounts']
             account = accounts.find_one({'username': username})
-            return account and \
-                bcrypt.hashpw(password, account['password']) == account['password']
+            return account and bcrypt.hashpw(password, account['password']) == account['password']
 
 
     if __name__ == '__main__':
