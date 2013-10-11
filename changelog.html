@@ -63,6 +63,8 @@
 <div class="section" id="enhancements">
 <h3>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>ObjectId are properly serialized on POST/PATCH/PUT methods.</li>
+<li>Queries on ObjectId and datetime values in nested documents.</li>
 <li><tt class="docutils literal"><span class="pre">auth.user_id</span></tt> renamed to <tt class="docutils literal"><span class="pre">auth.request_auth_value</span></tt> for better
 consistency with the <tt class="docutils literal"><span class="pre">auth_field</span></tt> setting. Closes #132 (Ryan Shea).</li>
 <li>Same behavior as Flask, SERVER_NAME now defaults to None. It allows much
