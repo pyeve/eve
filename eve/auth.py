@@ -67,7 +67,11 @@ class BasicAuth(object):
         """ This function is called to check if a username / password
         combination is valid. Must be overridden with custom logic.
 
+        :param username: username provided with current request.
+        :param password: password provided with current request
+        :param allowed_roles: allowed user roles.
         :param resource: resource being requested.
+        :param method: HTTP method being executed (POST, GET, etc.)
         """
         raise NotImplementedError
 
@@ -109,11 +113,12 @@ class HMACAuth(BasicAuth):
         overridden with custom logic.
 
         :param userid: user id included with the request.
-        :param hmac: hash included with the request.
+        :param hmac_hash: hash included with the request.
         :param headers: request headers. Suitable for hash computing.
         :param data: request data. Suitable for hash computing.
         :param allowed_roles: allowed user roles.
         :param resource: resource being requested.
+        :param method: HTTP method being executed (POST, GET, etc.)
         """
         raise NotImplementedError
 
@@ -156,6 +161,7 @@ class TokenAuth(BasicAuth):
         :param token: decoded user name.
         :param allowed_roles: allowed user roles
         :param resource: resource being requested.
+        :param method: HTTP method being executed (POST, GET, etc.)
         """
         raise NotImplementedError
 
