@@ -8,6 +8,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
+import sys
 import ast
 import itertools
 from bson.errors import InvalidId
@@ -16,10 +17,10 @@ import pymongo
 from flask import abort
 from flask.ext.pymongo import PyMongo
 from bson import ObjectId
+from datetime import datetime
 from eve import ID_FIELD
 from eve.io.mongo.parser import parse, ParseError
 from eve.io.base import DataLayer, ConnectionException
-from eve.methods.common import serialize
 from eve.utils import config, debug_error_message, validate_filters, \
     str_to_date
 
@@ -29,7 +30,6 @@ class Mongo(DataLayer):
 
     .. versionchanged:: 0.1.1
        'serializers' added.
-       '_jsondatetime' function removed.
     """
 
     serializers = {
@@ -63,6 +63,11 @@ class Mongo(DataLayer):
 
         :param resource: resource name.
         :param req: a :class:`ParsedRequest`instance.
+
+        .. versionchanged:: 0.1.1
+           Better query handling. We're now properly casting objectid-like
+           strings to ObjectIds. Also, we're casting both datetimes and
+           objectids even when the query was originally in python syntax.
 
         .. versionchanged:: 0.0.9
            More informative error messages.
@@ -103,8 +108,7 @@ class Mongo(DataLayer):
 
         if req.where:
             try:
-                spec = self._sanitize(serialize(json.loads(req.where),
-                                                resource))
+                spec = self._sanitize(json.loads(req.where))
             except:
                 try:
                     spec = parse(req.where)
@@ -112,6 +116,7 @@ class Mongo(DataLayer):
                     abort(400, description=debug_error_message(
                         'Unable to parse `where` clause'
                     ))
+            spec = self._mongotize(spec)
 
         bad_filter = validate_filters(spec, resource)
         if bad_filter:
@@ -400,6 +405,49 @@ class Mongo(DataLayer):
         except KeyError:
             return False
         return True
+
+    def _mongotize(self, source):
+        """ Recursively iterates a JSON dictionary, turning RFC-1123 strings
+        into datetime values and ObjectId-link strings into ObjectIds.
+
+        .. versionchanged:: 0.1.1
+           Renamed from _jsondatetime to _mongotize, as it now handles
+           ObjectIds too.
+
+        .. versionchanged:: 0.1.0
+           Datetime conversion was failing on Py2, since 0.0.9 :P
+
+        .. versionchanged:: 0.0.9
+           support for Python 3.3.
+
+        .. versionadded:: 0.0.4
+        """
+        if sys.version_info[0] == 3:
+            _str_type = str
+        else:
+            _str_type = basestring  # noqa
+
+        def try_cast(v):
+            try:
+                return datetime.strptime(v, config.DATE_FORMAT)
+            except:
+                try:
+                    return ObjectId(v)
+                except:
+                    return v
+
+        for k, v in source.items():
+            if isinstance(v, dict):
+                self._mongotize(v)
+            elif isinstance(v, list):
+                i = 0
+                for v1 in v:
+                    source[k][i] = try_cast(v1)
+                    i += 1
+            elif isinstance(v, _str_type):
+                source[k] = try_cast(v)
+
+        return source
 
     def _sanitize(self, spec):
         """ Makes sure that only allowed operators are included in the query,
