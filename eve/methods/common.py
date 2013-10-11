@@ -269,19 +269,49 @@ def epoch():
     return datetime(1970, 1, 1)
 
 
-def serialize(document, resource):
-    """Handles field values that require data-aware serialization. Relies
-    on the app.data.serializers dictionary.
+def serialize(document, resource=None, schema=None):
+    """Recursively handles field values that require data-aware serialization.
+    Relies on the app.data.serializers dictionary.
 
     .. versionadded:: 0.1.1
     """
-    # TODO handle nested documents
     if app.data.serializers:
-        schema = config.DOMAIN[resource]['schema']
-        for key in document:
-            if key in schema:
-                _type = schema[key]['type']
-                if _type in app.data.serializers:
-                    document[key] = \
-                        app.data.serializers[_type](document[key])
+        if resource:
+            schema = config.DOMAIN[resource]['schema']
+        for field in document:
+            if field in schema:
+                field_schema = schema[field]
+                field_type = field_schema['type']
+                if 'schema' in field_schema:
+                    field_schema = field_schema['schema']
+                    if 'dict' in (field_type, field_schema['type']):
+                        # either a dict or a list of dicts
+                        embedded = [document[field]] if field_type == 'dict' \
+                            else document[field]
+                        for subdocument in embedded:
+                            serialize(subdocument,
+                                      schema=field_schema['schema'])
+                    else:
+                        # a list of one type, arbirtrary length
+                        field_type = field_schema['type']
+                        if field_type in app.data.serializers:
+                            i = 0
+                            for v in document[field]:
+                                document[field][i] = \
+                                    app.data.serializers[field_type](v)
+                                i += 1
+                elif 'items' in field_schema:
+                    # a list of multiple types, fixed length
+                    i = 0
+                    for s, v in zip(field_schema['items'], document[field]):
+                        field_type = s['type'] if 'type' in s else None
+                        if field_type in app.data.serializers:
+                            document[field][i] = \
+                                app.data.serializers[field_type](
+                                    document[field][i])
+                        i += 1
+                elif field_type in app.data.serializers:
+                    # a simple field
+                    document[field] = \
+                        app.data.serializers[field_type](document[field])
     return document
