@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
     eve.io.mongo.mongo (eve.io.mongo)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -10,25 +8,34 @@
     :license: BSD, see LICENSE for more details.
 """
 
+import sys
 import ast
 import itertools
 from bson.errors import InvalidId
 import simplejson as json
 import pymongo
-import sys
 from flask import abort
 from flask.ext.pymongo import PyMongo
-from datetime import datetime
 from bson import ObjectId
+from datetime import datetime
 from eve import ID_FIELD
 from eve.io.mongo.parser import parse, ParseError
 from eve.io.base import DataLayer, ConnectionException
-from eve.utils import config, debug_error_message, validate_filters
+from eve.utils import config, debug_error_message, validate_filters, \
+    str_to_date
 
 
 class Mongo(DataLayer):
     """ MongoDB data access layer for Eve REST API.
+
+    .. versionchanged:: 0.1.1
+       'serializers' added.
     """
+
+    serializers = {
+        'objectid': ObjectId,
+        'datetime': str_to_date
+    }
 
     def init_app(self, app):
         """
@@ -56,6 +63,11 @@ class Mongo(DataLayer):
 
         :param resource: resource name.
         :param req: a :class:`ParsedRequest`instance.
+
+        .. versionchanged:: 0.1.1
+           Better query handling. We're now properly casting objectid-like
+           strings to ObjectIds. Also, we're casting both datetimes and
+           objectids even when the query was originally in python syntax.
 
         .. versionchanged:: 0.0.9
            More informative error messages.
@@ -96,8 +108,7 @@ class Mongo(DataLayer):
 
         if req.where:
             try:
-                spec = self._sanitize(
-                    self._jsondatetime(json.loads(req.where)))
+                spec = self._sanitize(json.loads(req.where))
             except:
                 try:
                     spec = parse(req.where)
@@ -105,6 +116,7 @@ class Mongo(DataLayer):
                     abort(400, description=debug_error_message(
                         'Unable to parse `where` clause'
                     ))
+            spec = self._mongotize(spec)
 
         bad_filter = validate_filters(spec, resource)
         if bad_filter:
@@ -188,10 +200,13 @@ class Mongo(DataLayer):
         :return: a list of documents matching the ids in `ids` from the
         collection specified in `resource`
 
+        .. versionchanged:: 0.1.1
+           Using config.ID_FIELD instead of hard coded '_id'.
+
         .. versionadded:: 0.1.0
         """
         query = {'$or': [
-            {'_id': id_} for id_ in ids
+            {config.ID_FIELD: id_} for id_ in ids
         ]}
 
         datasource, spec, projection = self._datasource_ex(
@@ -391,9 +406,13 @@ class Mongo(DataLayer):
             return False
         return True
 
-    def _jsondatetime(self, source):
+    def _mongotize(self, source):
         """ Recursively iterates a JSON dictionary, turning RFC-1123 strings
-        into datetime values.
+        into datetime values and ObjectId-link strings into ObjectIds.
+
+        .. versionchanged:: 0.1.1
+           Renamed from _jsondatetime to _mongotize, as it now handles
+           ObjectIds too.
 
         .. versionchanged:: 0.1.0
            Datetime conversion was failing on Py2, since 0.0.9 :P
@@ -403,20 +422,30 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.0.4
         """
-
         if sys.version_info[0] == 3:
             _str_type = str
         else:
             _str_type = basestring  # noqa
 
+        def try_cast(v):
+            try:
+                return datetime.strptime(v, config.DATE_FORMAT)
+            except:
+                try:
+                    return ObjectId(v)
+                except:
+                    return v
+
         for k, v in source.items():
             if isinstance(v, dict):
-                self._jsondatetime(v)
+                self._mongotize(v)
+            elif isinstance(v, list):
+                i = 0
+                for v1 in v:
+                    source[k][i] = try_cast(v1)
+                    i += 1
             elif isinstance(v, _str_type):
-                try:
-                    source[k] = datetime.strptime(v, config.DATE_FORMAT)
-                except:
-                    pass
+                source[k] = try_cast(v)
 
         return source
 

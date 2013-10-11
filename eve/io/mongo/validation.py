@@ -12,12 +12,10 @@
     :license: BSD, see LICENSE for more details.
 """
 
-import re
 from eve.utils import config
 from bson import ObjectId
 from flask import current_app as app
 from cerberus import Validator
-from cerberus.errors import ERROR_BAD_TYPE
 
 
 class Validator(Validator):
@@ -109,6 +107,10 @@ class Validator(Validator):
                        unique or not.
         :param field: field name.
         :param value: field value.
+
+        .. versionchanged:: 0.1.1
+           regex check replaced by proper type check.
         """
-        if not re.match('[a-f0-9]{24}', value):
-            self._error(ERROR_BAD_TYPE % (field, 'ObjectId'))
+        if not isinstance(value, ObjectId):
+            self._error("value '%s' for field '%s' cannot be converted to a "
+                        "ObjectId" % (value, field))

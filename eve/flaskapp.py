@@ -309,6 +309,8 @@ class Eve(Flask, Events):
         .. versionchanged:: 0.1.1
            'default' values that could be assimilated to None (0, None, "")
            would be ignored.
+           'dates' helper removed as datetime conversion is now handled by
+           the eve.methods.common.data_parse function.
 
         .. versionchanged:: 0.1.0
           'embedding'.
@@ -408,15 +410,6 @@ class Eve(Flask, Events):
             projection[self.config['ID_FIELD']] = 1
             projection[self.config['LAST_UPDATED']] = 1
             projection[self.config['DATE_CREATED']] = 1
-
-            # `dates` helper set contains the names of the schema fields
-            # defined as `datetime` types. It will come in handy when
-            # we will be parsing incoming documents
-
-            # TODO support date fields for embedded documents.
-            settings['dates'] = \
-                set(field for field, definition in schema.items()
-                    if definition.get('type') == 'datetime')
 
             # 'defaults' helper set contains the names of fields with
             # default values in their schema definition.

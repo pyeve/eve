@@ -14,9 +14,9 @@ import time
 from datetime import datetime
 from flask import current_app as app, request, abort, g, Response
 import simplejson as json
-from ..utils import str_to_date, parse_request, document_etag, config, \
-    request_method, debug_error_message
 from functools import wraps
+from eve.utils import parse_request, document_etag, config, request_method, \
+    debug_error_message
 
 
 def get_document(resource, **lookup):
@@ -68,6 +68,9 @@ def parse(value, resource):
     :param value: the string to be evaluated.
     :param resource: name of the involved resource.
 
+    .. versionchanged:: 0.1.1
+       Serialize data-specific values as needed.
+
     .. versionchanged:: 0.1.0
        Support for PUT method.
 
@@ -86,12 +89,13 @@ def parse(value, resource):
         # already a json
         document = value
 
-    # By design, dates are expressed as RFC-1123 strings. We convert them
-    # to proper datetimes.
-    dates = app.config['DOMAIN'][resource]['dates']
-    document_dates = dates.intersection(set(document.keys()))
-    for date_field in document_dates:
-        document[date_field] = str_to_date(document[date_field])
+    # if needed, get field values serialized by the data diver being used.
+    # If any error occurs, assume validation will take care of it (i.e. a badly
+    # formatted objectid).
+    try:
+        document = serialize(document, resource)
+    except:
+        pass
 
     # update the document with eventual default values
     if request_method() in ('POST', 'PUT'):
@@ -267,3 +271,51 @@ def epoch():
     .. versionadded:: 0.0.5
     """
     return datetime(1970, 1, 1)
+
+
+def serialize(document, resource=None, schema=None):
+    """Recursively handles field values that require data-aware serialization.
+    Relies on the app.data.serializers dictionary.
+
+    .. versionadded:: 0.1.1
+    """
+    if app.data.serializers:
+        if resource:
+            schema = config.DOMAIN[resource]['schema']
+        for field in document:
+            if field in schema:
+                field_schema = schema[field]
+                field_type = field_schema['type']
+                if 'schema' in field_schema:
+                    field_schema = field_schema['schema']
+                    if 'dict' in (field_type, field_schema['type']):
+                        # either a dict or a list of dicts
+                        embedded = [document[field]] if field_type == 'dict' \
+                            else document[field]
+                        for subdocument in embedded:
+                            serialize(subdocument,
+                                      schema=field_schema['schema'])
+                    else:
+                        # a list of one type, arbirtrary length
+                        field_type = field_schema['type']
+                        if field_type in app.data.serializers:
+                            i = 0
+                            for v in document[field]:
+                                document[field][i] = \
+                                    app.data.serializers[field_type](v)
+                                i += 1
+                elif 'items' in field_schema:
+                    # a list of multiple types, fixed length
+                    i = 0
+                    for s, v in zip(field_schema['items'], document[field]):
+                        field_type = s['type'] if 'type' in s else None
+                        if field_type in app.data.serializers:
+                            document[field][i] = \
+                                app.data.serializers[field_type](
+                                    document[field][i])
+                        i += 1
+                elif field_type in app.data.serializers:
+                    # a simple field
+                    document[field] = \
+                        app.data.serializers[field_type](document[field])
+    return document

@@ -233,7 +233,48 @@ class TestPost(TestBase):
         self.assert200(r.status_code)
         self.assertPostResponse(json.loads(r.get_data()))
 
-    def perform_post(self, data, valid_items=[0]):
+    def test_post_list_of_objectid(self):
+        objectid = '50656e4538345b39dd0414f0'
+        del(self.domain['contacts']['schema']['ref']['required'])
+        document = {'id_list': ['%s' % objectid]}
+        data = {'item1': json.dumps(document)}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert200(status)
+        r, status = self.get(self.known_resource, '?where={"id_list": '
+                             '{"$in": ["%s"]}}' % objectid)
+        self.assert200(status)
+        self.assertTrue(len(r), 1)
+        self.assertTrue('%s' % objectid in r['_items'][0]['id_list'])
+
+    def test_post_nested_dict_objectid(self):
+        objectid = '50656e4538345b39dd0414f0'
+        del(self.domain['contacts']['schema']['ref']['required'])
+        document = {'id_list_of_dict': [{'id': '%s' % objectid}]}
+        data = {'item1': json.dumps(document)}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert200(status)
+        r, status = self.get(self.known_resource,
+                             '?where={"id_list_of_dict.id": ' '"%s"}'
+                             % objectid)
+        self.assertTrue(len(r), 1)
+        self.assertTrue('%s' % objectid in
+                        r['_items'][0]['id_list_of_dict'][0]['id'])
+
+    def test_post_list_fixed_len(self):
+        objectid = '50656e4538345b39dd0414f0'
+        del(self.domain['contacts']['schema']['ref']['required'])
+        document = {'id_list_fixed_len': ['%s' % objectid]}
+        data = {'item1': json.dumps(document)}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert200(status)
+        r, status = self.get(self.known_resource,
+                             '?where={"id_list_fixed_len": '
+                             '{"$in": ["%s"]}}' % objectid)
+        self.assert200(status)
+        self.assertTrue(len(r), 1)
+        self.assertTrue('%s' % objectid in r['_items'][0]['id_list_fixed_len'])
+
+    def perform_post(self, data, valid_items=['item1']):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert200(status)
         self.assertPostResponse(r, valid_items)

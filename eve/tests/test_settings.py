@@ -71,6 +71,18 @@ contacts = {
         'title': {
             'type': 'string',
             'default': 'Mr.',
+        },
+        'id_list': {
+            'type': 'list',
+            'schema': {'type': 'objectid'}
+        },
+        'id_list_of_dict': {
+            'type': 'list',
+            'schema': {'type': 'dict', 'schema': {'id': {'type': 'objectid'}}}
+        },
+        'id_list_fixed_len': {
+            'type': 'list',
+            'items': [{'type': 'objectid'}]
         }
     }
 }

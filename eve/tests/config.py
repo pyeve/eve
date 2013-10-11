@@ -245,27 +245,6 @@ class TestConfig(TestBase):
         else:
             self.fail("SchemaException expected but not raised.")
 
-    def test_schema_dates(self):
-        self.domain.clear()
-        self.domain['resource'] = {
-            'schema': {
-                'born': {
-                    'type': 'datetime',
-                },
-                'name': {
-                    'type': 'string',
-                },
-                'another_date': {
-                    'type': 'datetime',
-                }
-            }
-        }
-        self.app.set_defaults()
-        settings = self.domain['resource']
-        self.assertNotEqual(settings.get('dates'), None)
-        self.assertEqual(type(settings['dates']), set)
-        self.assertEqual(len(settings['dates']), 2)
-
     def test_schema_defaults(self):
         self.domain.clear()
         self.domain['resource'] = {

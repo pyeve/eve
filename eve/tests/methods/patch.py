@@ -51,8 +51,7 @@ class TestPatch(TestBase):
 
     def test_bad_request(self):
         r, status = self.patch(self.item_id_url,
-                               data='"ref": "hey, gonna bomb"',
-                               headers=[('If-Match', self.item_etag)])
+                               data={}, headers=[('If-Match', self.item_etag)])
         self.assert400(status)
 
     def test_unique_value(self):
