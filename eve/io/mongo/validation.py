@@ -114,3 +114,18 @@ class Validator(Validator):
         if not isinstance(value, ObjectId):
             self._error("value '%s' for field '%s' cannot be converted to a "
                         "ObjectId" % (value, field))
+
+    def _validate_type_uuid(self, field, value):
+        """ Enabled validation for `uuid` schema attribute.
+
+        :param field: field name.
+        :param value: field value.
+
+        .. versionadded: 0.1.1
+        """
+        try:
+            uuid.UUID(value)
+        except ValueError:
+            self._error("value '%s' for field '%s' cannot be converted to a "
+                        "UUID" % (value, field))
+
