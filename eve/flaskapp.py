@@ -144,16 +144,18 @@ class Eve(Flask, Events):
         self.config.from_object('eve.default_settings')
 
         # overwrite the defaults with custom user settings:
-
-        # TODO perhaps we should support non-existing settings file, in order
-        # to allow for envvar_only scenarios. However, we should probably
-        # issue a warning
-        if os.path.isabs(self.settings):
-            pyfile = self.settings
+        if isinstance(self.settings, dict):
+            self.config.update(self.settings)
         else:
-            abspath = os.path.abspath(os.path.dirname(sys.argv[0]))
-            pyfile = os.path.join(abspath, self.settings)
-        self.config.from_pyfile(pyfile)
+            # TODO perhaps we should support non-existing settings file, in order
+            # to allow for envvar_only scenarios. However, we should probably
+            # issue a warning
+            if os.path.isabs(self.settings):
+                pyfile = self.settings
+            else:
+                abspath = os.path.abspath(os.path.dirname(sys.argv[0]))
+                pyfile = os.path.join(abspath, self.settings)
+            self.config.from_pyfile(pyfile)
 
         #overwrite settings with custom environment variable
         envvar = 'EVE_SETTINGS'
@@ -516,3 +518,4 @@ class Eve(Flask, Events):
         self.config['RESOURCES'] = resources
         self.config['URLS'] = urls
         self.config['SOURCES'] = datasources
+
