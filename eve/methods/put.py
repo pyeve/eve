@@ -87,6 +87,10 @@ def put(resource, **lookup):
 
             app.data.replace(resource, object_id, document)
 
+            # notify post-insert callbacks
+            getattr(app, "on_after_insert")(resource, [document])
+            getattr(app, "on_after_insert_%s" % resource)([document])
+
             response_item[config.ID_FIELD] = object_id
             response_item[config.LAST_UPDATED] = last_modified
 
