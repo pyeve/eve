@@ -49,11 +49,6 @@ class TestPatch(TestBase):
                                headers=[('If-Match', 'not-quite-right')])
         self.assert412(status)
 
-    def test_bad_request(self):
-        r, status = self.patch(self.item_id_url,
-                               data={}, headers=[('If-Match', self.item_etag)])
-        self.assert400(status)
-
     def test_unique_value(self):
         # TODO
         # for the time being we are happy with testing only Eve's custom

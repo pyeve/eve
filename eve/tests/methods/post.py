@@ -104,19 +104,19 @@ class TestPost(TestBase):
         title = self.domain['contacts']['schema']['title']
         title['default'] = ''
         self.app.set_defaults()
-        data = {'item1': '{"%s": "%s"}' % ('ref', 'UUUUUUUUUUUUUUUUUUUUUUUUU')}
+        data = {"ref": "UUUUUUUUUUUUUUUUUUUUUUUUU"}
         self.assertPostItem(data, 'title', '')
 
         title['type'] = 'integer'
         title['default'] = 0
         self.app.set_defaults()
-        data = {'item1': '{"%s": "%s"}' % ('ref', 'TTTTTTTTTTTTTTTTTTTTTTTTT')}
+        data = {"ref": "TTTTTTTTTTTTTTTTTTTTTTTTT"}
         self.assertPostItem(data, 'title', 0)
 
         title['type'] = 'boolean'
         title['default'] = False
         self.app.set_defaults()
-        data = {'item1': '{"%s": "%s"}' % ('ref', 'QQQQQQQQQQQQQQQQQQQQQQQQQ')}
+        data = {"ref": "QQQQQQQQQQQQQQQQQQQQQQQQQ"}
         self.assertPostItem(data, 'title', False)
 
     def test_multi_post(self):
@@ -236,8 +236,7 @@ class TestPost(TestBase):
     def test_post_list_of_objectid(self):
         objectid = '50656e4538345b39dd0414f0'
         del(self.domain['contacts']['schema']['ref']['required'])
-        document = {'id_list': ['%s' % objectid]}
-        data = {'item1': json.dumps(document)}
+        data = {'id_list': ['%s' % objectid]}
         r, status = self.post(self.known_resource_url, data=data)
         self.assert200(status)
         r, status = self.get(self.known_resource, '?where={"id_list": '
@@ -249,8 +248,7 @@ class TestPost(TestBase):
     def test_post_nested_dict_objectid(self):
         objectid = '50656e4538345b39dd0414f0'
         del(self.domain['contacts']['schema']['ref']['required'])
-        document = {'id_list_of_dict': [{'id': '%s' % objectid}]}
-        data = {'item1': json.dumps(document)}
+        data = {'id_list_of_dict': [{'id': '%s' % objectid}]}
         r, status = self.post(self.known_resource_url, data=data)
         self.assert200(status)
         r, status = self.get(self.known_resource,
@@ -263,8 +261,7 @@ class TestPost(TestBase):
     def test_post_list_fixed_len(self):
         objectid = '50656e4538345b39dd0414f0'
         del(self.domain['contacts']['schema']['ref']['required'])
-        document = {'id_list_fixed_len': ['%s' % objectid]}
-        data = {'item1': json.dumps(document)}
+        data = {'id_list_fixed_len': ['%s' % objectid]}
         r, status = self.post(self.known_resource_url, data=data)
         self.assert200(status)
         r, status = self.get(self.known_resource,
@@ -274,7 +271,7 @@ class TestPost(TestBase):
         self.assertTrue(len(r), 1)
         self.assertTrue('%s' % objectid in r['_items'][0]['id_list_fixed_len'])
 
-    def perform_post(self, data, valid_items=['item1']):
+    def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert200(status)
         self.assertPostResponse(r, valid_items)
