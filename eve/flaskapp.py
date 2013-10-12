@@ -512,7 +512,7 @@ class Eve(Flask, Events):
                                                             lookup['url'],
                                                             lookup['field'])
                     self.add_url_rule(item_url, view_func=item_endpoint,
-                                      methods=['GET'])
+                                      methods=['GET', 'OPTIONS'])
         self.config['RESOURCES'] = resources
         self.config['URLS'] = urls
         self.config['SOURCES'] = datasources
