@@ -478,7 +478,7 @@ always lowercase.
                                 `field` and `url`. The former is the name of
                                 the field used for the lookup. If the field
                                 type (as defined in the resource schema_) is
-                                a string, then you put a regex in `url`.  If it
+                                a string, then you put a url rule in `url`.  If it
                                 is an integer, then you just omit `url`, as it
                                 is automatically handled.  See the code snippet
                                 below for an usage example of this feature.
@@ -555,7 +555,7 @@ API settings:
         # additional read-only entry point. This way consumers can also perform 
         # GET requests at '/people/<lastname>'.
         'additional_lookup': {
-            'url': '[\w]+',
+            'url': 'regex("[\w]+")',
             'field': 'lastname'
         },
 

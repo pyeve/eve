@@ -11,6 +11,7 @@
 """
 
 import time
+import uuid
 import datetime
 import simplejson as json
 from werkzeug import utils
@@ -207,6 +208,9 @@ class APIEncoder(json.JSONEncoder):
             return obj.isoformat()
         elif isinstance(obj, ObjectId):
             # BSON/Mongo ObjectId is rendered as a string
+            return str(obj)
+        elif isinstance(obj, uuid.UUID):
+            # UUID is rendered as a string
             return str(obj)
         return json.JSONEncoder.default(self, obj)
 

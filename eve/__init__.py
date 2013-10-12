@@ -47,3 +47,4 @@ STATUS_ERR = "ERR"
 
 # must be the last line (will raise W402 on pyflakes)
 from eve.flaskapp import Eve  # noqa
+
