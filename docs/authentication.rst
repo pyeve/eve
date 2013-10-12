@@ -263,7 +263,7 @@ The ``eve.auth.HMACAuth`` class allows for custom, Amazon S3-like, HMAC (Hash
 Message Authentication Code) authentication, which is basically a very secure
 custom authentication scheme built around the `Authorization` header.
   
-How HMAC Authenticaton Works
+How HMAC Authentication Works
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The server provides the client with a user id and a secret key through some
 out-of-band technique (e.g., the service sends the client an e-mail
