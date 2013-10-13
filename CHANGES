@@ -19,6 +19,7 @@ Enhancements
 
 Fixes
 ~~~~~
+- CORS support was not available for ``additional_lookup`` urls (Petr Jašek.)
 - 'default' field values that could be assimilated to ``None`` (0, None, "")
   would be ignored.
 - POST and PUT would fail with 400 if there was no auth class while

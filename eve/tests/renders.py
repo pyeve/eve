@@ -102,6 +102,18 @@ class TestRenders(TestBase):
             methods = settings['resource_methods'] + ['OPTIONS']
             self.test_CORS_OPTIONS(url, methods)
 
+    def test_CORS_OPTIONS_item(self):
+        prefix = api_prefix(self.app.config['URL_PREFIX'],
+                            self.app.config['API_VERSION'])
+
+        url = '%s%s' % (prefix, self.item_id_url)
+        methods = (self.domain[self.known_resource]['resource_methods'] +
+                   ['OPTIONS'])
+        self.test_CORS_OPTIONS(url, methods)
+        url = '%s%s/%s' % (prefix, self.known_resource_url, self.item_ref)
+        methods = ['GET', 'OPTIONS']
+        self.test_CORS_OPTIONS(url, methods)
+
 
 class TestEventHooks(TestBase):
     #TODO not sure this is the right place for this class really.
