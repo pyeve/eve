@@ -266,17 +266,17 @@ class TestEventHooks(TestBase):
         self.assertTrue(self.passed)
 
     def post(self, extra=None):
-        headers = [('Content-Type', 'application/x-www-form-urlencoded')]
-        data = {'item1': json.dumps({"ref": "0123456789012345678901234"})}
+        headers = [('Content-Type', 'application/json')]
+        data = json.dumps({"ref": "0123456789012345678901234"})
         if extra:
             headers.extend(extra)
         self.test_client.post(self.known_resource_url, data=data,
                               headers=headers)
 
     def patch(self):
-        headers = [('Content-Type', 'application/x-www-form-urlencoded'),
+        headers = [('Content-Type', 'application/json'),
                    ('If-Match', self.item_etag)]
-        data = {'item1': json.dumps({"ref": "i'm unique"})}
+        data = json.dumps({"ref": "i'm unique"})
         self.test_client.patch(self.item_id_url, data=data, headers=headers)
 
     def delete(self):
@@ -284,7 +284,7 @@ class TestEventHooks(TestBase):
                                                             self.item_etag)])
 
     def put(self):
-        headers = [('Content-Type', 'application/x-www-form-urlencoded'),
+        headers = [('Content-Type', 'application/json'),
                    ('If-Match', self.item_etag)]
-        data = {'item1': json.dumps({"ref": "0123456789012345678901234"})}
+        data = json.dumps({"ref": "0123456789012345678901234"})
         self.test_client.put(self.item_id_url, data=data, headers=headers)

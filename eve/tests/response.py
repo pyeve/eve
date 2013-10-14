@@ -62,7 +62,7 @@ class TestNoHateoas(TestBase):
         r = self.test_client.post(self.known_resource_url, data=data,
                                   headers=headers)
         response = json.loads(r.get_data().decode())
-        self.assertTrue('_links' not in response['item1'])
+        self.assertTrue('_links' not in response)
 
     def test_patch_no_hateoas(self):
         data = {'item1': json.dumps({"ref": "0000000000000000000000000"})}
@@ -71,4 +71,4 @@ class TestNoHateoas(TestBase):
         r = self.test_client.patch(self.item_id_url, data=data,
                                    headers=headers)
         response = json.loads(r.get_data().decode())
-        self.assertTrue('_links' not in response['item1'])
+        self.assertTrue('_links' not in response)

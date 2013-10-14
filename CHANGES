@@ -10,6 +10,16 @@ Not released yet.
 
 Enhancements
 ~~~~~~~~~~~~
+- item-id wrappers have been removed from POST/PATCH/PUT requests and
+  responses. Requests for single document insertion/edition are now performed
+  by just submitting the relevant document. Bulk insert requests are performed
+  by submitting a list of documents. The response to bulk requests
+  is a list itself in which every list item contains the state of the
+  corresponding request document. 
+
+  Please note that this is a breaking change. Also be aware that when the
+  request content-type is ``x-www-form-urlencoded``, single document insert
+  is performed. Closes #139.
 - ObjectId are properly serialized on POST/PATCH/PUT methods. 
 - Queries on ObjectId and datetime values in nested documents.
 - ``auth.user_id`` renamed to ``auth.request_auth_value`` for better
