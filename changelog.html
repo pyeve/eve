@@ -62,18 +62,33 @@
 <p>Not released yet.</p>
 <div class="section" id="enhancements">
 <h3>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
-<li>ObjectId are properly serialized on POST/PATCH/PUT methods.</li>
-<li>Queries on ObjectId and datetime values in nested documents.</li>
-<li><tt class="docutils literal"><span class="pre">auth.user_id</span></tt> renamed to <tt class="docutils literal"><span class="pre">auth.request_auth_value</span></tt> for better
-consistency with the <tt class="docutils literal"><span class="pre">auth_field</span></tt> setting. Closes #132 (Ryan Shea).</li>
-<li>Same behavior as Flask, SERVER_NAME now defaults to None. It allows much
-easier development on distant machine that may changes IP (Ronan Delacroix).</li>
+<ul>
+<li><p class="first">item-id wrappers have been removed from POST/PATCH/PUT requests and
+responses. Requests for single document insertion/edition are now performed
+by just submitting the relevant document. Bulk insert requests are performed
+by submitting a list of documents. The response to bulk requests
+is a list itself in which every list item contains the state of the
+corresponding request document.</p>
+<p>Please note that this is a breaking change. Also be aware that when the
+request content-type is <tt class="docutils literal"><span class="pre">x-www-form-urlencoded</span></tt>, single document insert
+is performed. Closes #139.</p>
+</li>
+<li><p class="first">ObjectId are properly serialized on POST/PATCH/PUT methods.</p>
+</li>
+<li><p class="first">Queries on ObjectId and datetime values in nested documents.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">auth.user_id</span></tt> renamed to <tt class="docutils literal"><span class="pre">auth.request_auth_value</span></tt> for better
+consistency with the <tt class="docutils literal"><span class="pre">auth_field</span></tt> setting. Closes #132 (Ryan Shea).</p>
+</li>
+<li><p class="first">Same behavior as Flask, SERVER_NAME now defaults to None. It allows much
+easier development on distant machine that may changes IP (Ronan Delacroix).</p>
+</li>
 </ul>
 </div>
 <div class="section" id="fixes">
 <h3>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>CORS support was not available for <tt class="docutils literal"><span class="pre">additional_lookup</span></tt> urls (Petr Jašek.)</li>
 <li>&#8216;default&#8217; field values that could be assimilated to <tt class="docutils literal"><span class="pre">None</span></tt> (0, None, &#8220;&#8221;)
 would be ignored.</li>
 <li>POST and PUT would fail with 400 if there was no auth class while

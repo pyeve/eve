@@ -409,13 +409,11 @@ It's a win, and the response payload looks something like this:
 .. code-block:: javascript
 
     {
-        "data": {
-            "status": "OK",
-            "updated": "Fri, 23 Nov 2012 08:11:19 GMT",
-            "_id": "50adfa4038345b1049c88a37",
-            "etag": "372fbbebf54dfe61742556f17a8461ca9a6f5a11"
-            "_links": {"self": "..."}
-        }
+        "status": "OK",
+        "updated": "Fri, 23 Nov 2012 08:11:19 GMT",
+        "_id": "50adfa4038345b1049c88a37",
+        "etag": "372fbbebf54dfe61742556f17a8461ca9a6f5a11"
+        "_links": {"self": "..."}
     }
 
 This time we got our patch in, and the server returned the new ``ETag``.  We
@@ -425,38 +423,65 @@ subsequent `conditional requests`_.
 Concurrency control applies to all document edition methods: ``PATCH`` (edit),
 ``PUT`` (replace), ``DELETE`` (delete).
 
-Multiple Insertions
--------------------
-Clients can send a stream of multiple documents to be inserted at once. 
+Bulk Inserts
+------------
+A client may submit a single document for insertion:
 
 .. code-block:: console
 
-    $ curl -d 'item1={"firstname": "barack", "lastname": "obama"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://eve-demo.herokuapp.com/people
+    $ curl -d '{"firstname": "barack", "lastname": "obama"}' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
     HTTP/1.1 200 OK
 
-The response will provide detailed state information about each document
-inserted (creation date, link to the item endpoint, primary key/id, etc.).
-Errors on one document won't prevent the insertion of other documents in the
-data stream.
+In this case the response payload will just contain the relevant document
+metadata:
 
 .. code-block:: javascript
 
     {
-        "item2": {
+        "status": "OK",
+        "updated": "Thu, 22 Nov 2012 15:22:27 GMT",
+        "_id": "50ae43339fa12500024def5b",
+        "etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
+        "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b", "title": "person"}}
+    }
+
+However, in order to reduce the number of loopbacks, a client might also submit
+multiple documents with a single request. All if needs to do is enclose the
+documents in a JSON list: 
+
+.. code-block:: console
+
+    $ curl -d '[{"firstname": "barack", "lastname": "obama"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
+    HTTP/1.1 200 OK
+
+The response will be a list itself, with the state of each document:
+
+.. code-block:: javascript
+
+    [
+        {
             "status": "OK",
             "updated": "Thu, 22 Nov 2012 15:22:27 GMT",
             "_id": "50ae43339fa12500024def5b",
             "etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
             "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b", "title": "person"}}
         },
-        "item1": {
+        {
             "status": "OK",
             "updated": "Thu, 22 Nov 2012 15:22:27 GMT",
             "_id": "50ae43339fa12500024def5c",
             "etag": "62d356f623c7d9dc864ffa5facc47dced4ba6907"
             "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5c", "title": "person"}}
         }
-    }
+    ]
+
+Evenutal validation errors on one document won't prevent the insertion of other
+submitted documents. 
+
+When multiple documents are submitted the API takes advantage of MongoDB *bulk
+insert* capabilities which means that not only there's just one single request
+traveling from the client to the remote API, but also that only one loopback is
+performed between the API server and the database.
 
 Data Validation
 ---------------
@@ -467,7 +492,7 @@ will only be updated if validation passes.
 
 .. code-block:: console
 
-    $ curl -d 'item1={"firstname": "bill", "lastname": "clinton"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://eve-demo.herokuapp.com/people
+    $ curl -d '[{"firstname": "bill", "lastname": "clinton"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
     HTTP/1.1 200 OK
 
 The response will contain a success/error state for each item provided in the
@@ -475,26 +500,26 @@ request:
 
 .. code-block:: javascript
 
-      {
-        "item2": {
+    [
+        {
             "status": "ERR",
             "issues": [
                 "value 'romney' for field 'lastname' not unique"
             ]
         },
-        "item1": {
+        {
             "status": "OK",
             "updated": "Thu, 22 Nov 2012 15:29:08 GMT",
             "_id": "50ae44c49fa12500024def5d",
             "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d", "title": "person"}}
         }
-    }
+    ]
 
-In the example above, ``item2`` did not validate and was rejected, while
-``item1`` was successfully created. The API maintainer has complete control on
-data validation. Optionally, you can decide to allow for unknown fields to be
-inserted/updated on one or more endpoints. For more information see
-:ref:`validation`.
+In the example above, the first document did not validate and was rejected,
+while the second was successfully created. The API maintainer has complete
+control on data validation. Optionally, you can decide to allow for unknown
+fields to be inserted/updated on one or more endpoints. For more information
+see :ref:`validation`.
 
 Extensible Data Validation
 --------------------------
