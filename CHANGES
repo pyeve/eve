@@ -10,6 +10,7 @@ Not released yet.
 
 Enhancements
 ~~~~~~~~~~~~
+- PyMongo 2.6.3 is now supported.
 - item-id wrappers have been removed from POST/PATCH/PUT requests and
   responses. Requests for single document insertion/edition are now performed
   by just submitting the relevant document. Bulk insert requests are performed
