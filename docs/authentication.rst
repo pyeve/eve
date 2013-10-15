@@ -161,8 +161,8 @@ resources/methods will be secured unless they are made explicitly public.
             # use Eve's own db driver; no additional connections/resources are used
             accounts = app.data.driver.db['accounts']
             account = accounts.find_one({'username': username})
-            return account and \
-                bcrypt.hashpw(password, account['password']) == account['password']
+            return (account and 
+                bcrypt.hashpw(password, account['password']) == account['password'])
 
 
     if __name__ == '__main__':
@@ -202,8 +202,8 @@ resources/methods will be secured unless they are made explicitly public.
             # use Eve's own db driver; no additional connections/resources are used
             accounts = app.data.driver.db['accounts']
             account = accounts.find_one({'username': username})
-            return account and \
-                check_password_hash(account['password'], password)
+            return (account and 
+                check_password_hash(account['password'], password))
 
 
     if __name__ == '__main__':
@@ -321,8 +321,8 @@ Eve `repository`_.
                 secret_key = user['secret_key']
             # in this implementation we only hash request data, ignoring the
             # headers.
-            return user and \
-                hmac.new(secret_key, data, sha1).hexdigest() == hmac_hash
+            return (user and 
+                hmac.new(secret_key, data, sha1).hexdigest() == hmac_hash)
 
 
     if __name__ == '__main__':
@@ -445,8 +445,8 @@ BCrypt-authentication example from above:
             # (instead of _id, you might want to use ID_FIELD)
             if account and '_id' in account:
                 self.request_auth_value = account['_id']
-            return account and \
-                bcrypt.hashpw(password, account['password']) == account['password']
+            return (account and 
+                bcrypt.hashpw(password, account['password']) == account['password'])
 
 
     if __name__ == '__main__':
