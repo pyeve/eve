@@ -288,13 +288,14 @@ def serialize(document, resource=None, schema=None):
                 field_type = field_schema['type']
                 if 'schema' in field_schema:
                     field_schema = field_schema['schema']
-                    if 'dict' in (field_type, field_schema['type']):
+                    if 'dict' in (field_type, field_schema.get('type', '')):
                         # either a dict or a list of dicts
                         embedded = [document[field]] if field_type == 'dict' \
                             else document[field]
                         for subdocument in embedded:
-                            serialize(subdocument,
-                                      schema=field_schema['schema'])
+                            if 'schema' in field_schema:
+                                serialize(subdocument,
+                                          schema=field_schema['schema'])
                     else:
                         # a list of one type, arbirtrary length
                         field_type = field_schema['type']
