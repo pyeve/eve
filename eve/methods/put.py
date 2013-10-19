@@ -41,9 +41,9 @@ def put(resource, **lookup):
     validator = app.validator(schema, resource)
 
     payload = payload_()
-    if len(payload) > 1:
-        abort(400, description=debug_error_message(
-            'Only one update-per-document supported'))
+    #if len(payload) > 1:
+    #    abort(400, description=debug_error_message(
+    #        'Only one update-per-document supported'))
 
     original = get_document(resource, **lookup)
     if not original:
