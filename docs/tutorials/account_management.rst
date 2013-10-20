@@ -292,7 +292,7 @@ value:
             account = accounts.find_one(lookup)
             # set 'AUTH_FIELD' value to the account's ObjectId 
             # (instead of _Id, you might want to use ID_FIELD)
-            self.user_id = account['_id']
+            self.request_auth_value = account['_id']
             return account and check_password_hash(account['password'], password)
 
 
