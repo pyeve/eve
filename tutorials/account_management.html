@@ -318,7 +318,7 @@ value:</p>
          <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">(</span><span class="n">lookup</span><span class="p">)</span>
 <span class="hll">         <span class="c"># set &#39;AUTH_FIELD&#39; value to the account&#39;s ObjectId</span>
 </span><span class="hll">         <span class="c"># (instead of _Id, you might want to use ID_FIELD)</span>
-</span><span class="hll">         <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">account</span><span class="p">[</span><span class="s">&#39;_id&#39;</span><span class="p">]</span>
+</span><span class="hll">         <span class="bp">self</span><span class="o">.</span><span class="n">request_auth_value</span> <span class="o">=</span> <span class="n">account</span><span class="p">[</span><span class="s">&#39;_id&#39;</span><span class="p">]</span>
 </span>         <span class="k">return</span> <span class="n">account</span> <span class="ow">and</span> <span class="n">check_password_hash</span><span class="p">(</span><span class="n">account</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">],</span> <span class="n">password</span><span class="p">)</span>
 
 
