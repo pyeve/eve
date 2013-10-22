@@ -32,7 +32,7 @@ Or even a single class function:
    $ python setup.py test -s eve.tests.methods.get.TestGetItem.test_get_max_results
 
 RateLimiting and Redis
----------------------
+----------------------
 While there are no test requirements for most of the suite, please be advised
 that in order to execute the :ref:`ratelimiting` tests you need a running
 Redis_ server, and redispy_ must be installed. The Rate-Limiting tests are
