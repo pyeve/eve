@@ -434,7 +434,13 @@ class Mongo(DataLayer):
                 try:
                     return ObjectId(v)
                 except:
-                    return v
+                    if isinstance(v, dict):
+                        nv = dict()
+                        for ik, iv in v.items():
+                            nv[ik] = try_cast(iv)
+                        return nv
+                    else:
+                        return v
 
         for k, v in source.items():
             if isinstance(v, dict):
