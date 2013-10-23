@@ -442,7 +442,10 @@ class Mongo(DataLayer):
             elif isinstance(v, list):
                 i = 0
                 for v1 in v:
-                    source[k][i] = try_cast(v1)
+                    if isinstance(v1, dict):
+                        source[k][i] = self._mongotize(v1)
+                    else:
+                        source[k][i] = try_cast(v1)
                     i += 1
             elif isinstance(v, _str_type):
                 source[k] = try_cast(v)
