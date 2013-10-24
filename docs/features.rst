@@ -42,7 +42,7 @@ By default, Eve will make known database collections available as resource
 endpoints (persistent identifiers in REST idiom). So a database ``people``
 collection will be avaliable at the ``example.com/people`` API endpoint.  You
 can customize the URIs though, so the API endpoint could become, say,
-``example.com/customers``. Consider the following request:
+``example.com/customers/overseas``. Consider the following request:
 
 .. code-block:: console
 
