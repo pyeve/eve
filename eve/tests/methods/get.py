@@ -262,13 +262,15 @@ class TestGet(TestBase):
         response, status = self.parse_response(r)
         self.assertGet(response, status)
 
-    def assertGet(self, response, status):
+    def assertGet(self, response, status, resource=None):
         self.assert200(status)
 
         links = response['_links']
         self.assertEqual(len(links), 4)
         self.assertHomeLink(links)
-        self.assertResourceLink(links, self.known_resource)
+        if not resource:
+            resource = self.known_resource
+        self.assertResourceLink(links, resource)
         self.assertNextLink(links, 2)
 
         resource = response['_items']
@@ -345,6 +347,10 @@ class TestGet(TestBase):
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
         self.assertTrue('location' in content['_items'][0]['person'])
+
+    def test_get_nested_resource(self):
+        response, status = self.get('users/overseas')
+        self.assertGet(response, status, 'users_overseas')
 
 
 class TestGetItem(TestBase):

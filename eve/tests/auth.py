@@ -138,7 +138,7 @@ class TestBasicAuth(TestBase):
             del(settings['public_methods'])
         self.app.set_defaults()
         for resource in domain:
-            url = '/%s/' % self.app.config['URLS'][resource]
+            url = self.app.config['URLS'][resource]
             r = self.test_client.get(url)
             self.assert200(r.status_code)
             r = self.test_client.post(url, data={'key1': 'value1'})

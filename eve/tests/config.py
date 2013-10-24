@@ -279,7 +279,8 @@ class TestConfig(TestBase):
             self.assertEqual(settings['url'],
                              self.app.config['URLS'][resource])
             self.assertEqual(resource,
-                             self.app.config['RESOURCES'][settings['url']])
+                             self.app.config['RESOURCES']['/' +
+                                                          settings['url']])
 
             self.assertEqual(settings['datasource'],
                              self.app.config['SOURCES'][resource])

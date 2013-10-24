@@ -76,3 +76,7 @@ class TestEndPoints(TestBase):
         self.assert200(r.status_code)
         r = self.test_prefix.get('/prefix/v1/contacts/')
         self.assert200(r.status_code)
+
+    def test_nested_endpoint(self):
+        r = self.test_client.get('/users/overseas')
+        self.assert200(r.status_code)

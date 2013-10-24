@@ -110,6 +110,9 @@ invoices = {
     }
 }
 
+users_overseas = copy.deepcopy(users)
+users_overseas['url'] = 'users/overseas'
+users_overseas['datasource'] = {'source': 'contacts'}
 
 payments = {
     'resource_methods': ['GET'],
@@ -121,6 +124,7 @@ empty = copy.deepcopy(invoices)
 DOMAIN = {
     'contacts': contacts,
     'users': users,
+    'users_overseas': users_overseas,
     'invoices': invoices,
     'payments': payments,
     'empty': empty,
