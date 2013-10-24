@@ -27,7 +27,7 @@
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="top" title="Eve 0.1.1 documentation" href="index.html" />
     <link rel="next" title="Data Validation" href="validation.html" />
-    <link rel="prev" title="Quickstart" href="quickstart.html" />
+    <link rel="prev" title="Features" href="features.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -47,7 +47,7 @@
           <a href="validation.html" title="Data Validation"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="quickstart.html" title="Quickstart"
+          <a href="features.html" title="Features"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">Eve 0.1.1 documentation</a> &raquo;</li> 
       </ul>
@@ -476,11 +476,17 @@ always lowercase.</p>
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">url</span></tt></td>
-<td>The endpoint URL. If omitted, the resource key
+<td>The endpoint URL. If omitted the resource key
 of the <tt class="docutils literal"><span class="pre">DOMAIN</span></tt> dict will be used to build
 the URL. As an example, <tt class="docutils literal"><span class="pre">contacts</span></tt> would make
 the <cite>people</cite> resource available at
-<tt class="docutils literal"><span class="pre">/contacts</span></tt> (instead of <tt class="docutils literal"><span class="pre">/people</span></tt>).</td>
+<tt class="docutils literal"><span class="pre">/contacts</span></tt> (instead of <tt class="docutils literal"><span class="pre">/people</span></tt>). URL can
+be as complex as needed and can be nested
+relative to another API endpoint (you can have
+a <tt class="docutils literal"><span class="pre">/contacts</span></tt> endpoint and then
+a <tt class="docutils literal"><span class="pre">/contacts/overseas</span></tt> endpoint. Both are
+independent of each other and freely
+configurable.)</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">allowed_filters</span></tt></td>
 <td><p class="first">List of fields on which filtering is allowed.
@@ -768,7 +774,7 @@ of fixed length.</td>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
 <td>Validation schema for <tt class="docutils literal"><span class="pre">dict</span></tt> types and
 arbitrary length <tt class="docutils literal"><span class="pre">list</span></tt> types. For details
-and usage examples, see <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#schema" title="(in Cerberus v0.4.0)"><em class="xref std std-ref">Cerberus documentation</em></a></td>
+and usage examples, see <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#schema" title="(in Cerberus v0.4.1)"><em class="xref std std-ref">Cerberus documentation</em></a></td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">unique</span></tt></td>
 <td><p class="first">The value of the field must be unique within
@@ -954,7 +960,7 @@ come in handy when you want to protect insertion and modification behind an
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="quickstart.html" title="previous chapter">Quickstart</a></li>
+      <li>Previous: <a href="features.html" title="previous chapter">Features</a></li>
       <li>Next: <a href="validation.html" title="next chapter">Data Validation</a></li>
   </ul></li>
 </ul>

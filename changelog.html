@@ -63,14 +63,20 @@
 <div class="section" id="enhancements">
 <h3>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h3>
 <ul>
+<li><p class="first">Nested endpoint urls. Endpoints with deep paths like <tt class="docutils literal"><span class="pre">/contacts/overseas</span></tt>
+can now function in conjuction with top-level endpoints (<tt class="docutils literal"><span class="pre">/contacts</span></tt>).
+Endpoints are completely independent of each other and can each allow item
+lookups (<tt class="docutils literal"><span class="pre">/contacts/&lt;id&gt;</span></tt> and <tt class="docutils literal"><span class="pre">contacts/overseas/&lt;id&gt;</span></tt>) and different
+access methods.</p>
+</li>
 <li><p class="first">PyMongo 2.6.3 is now supported.</p>
 </li>
 <li><p class="first">item-id wrappers have been removed from POST/PATCH/PUT requests and
 responses. Requests for single document insertion/edition are now performed
 by just submitting the relevant document. Bulk insert requests are performed
-by submitting a list of documents. The response to bulk requests
-is a list itself in which every list item contains the state of the
-corresponding request document.</p>
+by submitting a list of documents. The response to bulk requests is a list
+itself in which every list item contains the state of the corresponding
+request document.</p>
 <p>Please note that this is a breaking change. Also be aware that when the
 request content-type is <tt class="docutils literal"><span class="pre">x-www-form-urlencoded</span></tt>, single document insert
 is performed. Closes #139.</p>
