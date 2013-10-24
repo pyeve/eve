@@ -18,13 +18,16 @@ from eve.render import send_response
 from eve.auth import requires_auth
 from eve.utils import resource_uri, config, request_method, \
     debug_error_message
-from flask import abort
+from flask import abort, request
 
 
-def collections_endpoint(url):
+def collections_endpoint():
     """ Resource endpoint handler
 
     :param url: the url that led here
+
+    .. versionchanged:: 0.1.1
+       Relying on request.path for determining the current endpoint url.
 
     .. versionchanged:: 0.0.7
        Using 'utils.request_method' helper function now.
@@ -36,6 +39,7 @@ def collections_endpoint(url):
         Support for DELETE resource method.
     """
 
+    url = request.path.rstrip('/')
     resource = config.RESOURCES[url]
     response = None
     method = request_method()
@@ -52,11 +56,14 @@ def collections_endpoint(url):
     return send_response(resource, response)
 
 
-def item_endpoint(url, **lookup):
+def item_endpoint(**lookup):
     """ Item endpoint handler
 
     :param url: the url that led here
     :param lookup: the query
+
+    .. versionchanged:: 0.1.1
+       Relying on request.path for determining the current endpoint url.
 
     .. versionchanged:: 0.1.0
        Support for PUT method.
@@ -67,7 +74,8 @@ def item_endpoint(url, **lookup):
     .. versionchanged:: 0.0.6
        Support for HEAD requests
     """
-    resource = config.RESOURCES[url]
+    k = request.path.rstrip('/').rfind('/')
+    resource = config.RESOURCES[request.path[:k]]
     response = None
     method = request_method()
     if method in ('GET', 'HEAD'):

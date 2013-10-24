@@ -213,6 +213,9 @@ def resource_uri(resource):
     """ Returns the absolute URI to a resource.
 
     .. versionchanged:: 0.1.1
+       URL prefixes are now included in config.URLS items, no more need to
+       explicitly add them to resource links.
+
        Handle the case of SERVER_NAME being None.
 
     .. versionchanged:: 0.1.0
@@ -221,8 +224,7 @@ def resource_uri(resource):
     :param resource: the resource name.
     """
     server_name = config.SERVER_NAME if config.SERVER_NAME else ''
-    return '%s%s/%s' % (server_name, api_prefix(),
-                        config.URLS[resource])
+    return '%s/%s' % (server_name, config.URLS[resource])
 
 
 def api_prefix(url_prefix=None, api_version=None):

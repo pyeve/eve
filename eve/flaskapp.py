@@ -444,6 +444,11 @@ class Eve(Flask, Events):
         """ Builds the API url map. Methods are enabled for each mapped
         endpoint, as configured in the settings.
 
+        .. versionchanged:: 0.1.1
+           Simplified URL rules. Not using regexes anymore to return the
+           endpoint URL to the endpoint function. This allows for nested
+           endpoints to function properly.
+
         .. versionchanged:: 0.0.9
            Handle the case of 'additional_lookup' field being an integer.
 
@@ -476,12 +481,12 @@ class Eve(Flask, Events):
                           methods=['GET', 'OPTIONS'])
 
         for resource, settings in self.config['DOMAIN'].items():
-            resources[settings['url']] = resource
+            url = '%s/%s' % (prefix, settings['url'])
+            resources[url] = resource
             urls[resource] = settings['url']
             datasources[resource] = settings['datasource']
 
             # resource endpoint
-            url = '%s/<regex("%s"):url>' % (prefix, settings['url'])
             self.add_url_rule(url, view_func=collections_endpoint,
                               methods=settings['resource_methods'] +
                               ['OPTIONS'])
