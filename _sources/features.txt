@@ -635,7 +635,7 @@ like this:
                 'author:' {
                     'type': 'objectid', 
                     'data_relation': {
-                        'collection': 'user', 
+                        'resource': 'users', 
                         'field': '_id', 
                         'embeddable': True
                     },
