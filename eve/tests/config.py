@@ -127,8 +127,8 @@ class TestConfig(TestBase):
     def test_validate_schema(self):
         # lack of 'collection' key for 'data_collection' rule
         schema = self.domain['invoices']['schema']
-        del(schema['person']['data_relation']['collection'])
-        self.assertValidateSchemaFailure('invoices', schema, 'collection')
+        del(schema['person']['data_relation']['resource'])
+        self.assertValidateSchemaFailure('invoices', schema, 'resource')
 
     def test_set_schema_defaults(self):
         # default data_relation field value

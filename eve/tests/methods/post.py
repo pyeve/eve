@@ -168,8 +168,8 @@ class TestPost(TestBase):
         data = {"person": self.unknown_item_id}
         r, status = self.post('/invoices/', data=data)
         self.assert200(status)
-        expected = ("value '%s' for field '%s' must exist in collection "
-                    "collection '%s', field '%s'" %
+        expected = ("value '%s' for field '%s' must exist in "
+                    "resource '%s', field '%s'" %
                     (self.unknown_item_id, 'person', 'contacts',
                      self.app.config['ID_FIELD']))
         self.assertValidationError(r, expected)

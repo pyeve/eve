@@ -105,7 +105,7 @@ invoices = {
         'inv_number': {'type': 'string'},
         'person': {
             'type': 'objectid',
-            'data_relation': {'collection': 'contacts'}
+            'data_relation': {'resource': 'contacts'}
         }
     }
 }

@@ -263,6 +263,7 @@ class Eve(Flask, Events):
         :param schema: schema definition for the resource.
 
         .. versionchanged:: 0.1.1
+           'collection' setting renamed to 'resource' (data_relation).
            Fix order of string arguments in exception message.
 
         .. versionchanged:: 0.1.0
@@ -288,8 +289,8 @@ class Eve(Flask, Events):
 
         for field, ruleset in schema.items():
             if 'data_relation' in ruleset:
-                if 'collection' not in ruleset['data_relation']:
-                    raise SchemaException("'collection' key is mandatory for "
+                if 'resource' not in ruleset['data_relation']:
+                    raise SchemaException("'resource' key is mandatory for "
                                           "the 'data_relation' rule in "
                                           "'%s: %s'" % (resource, field))
                 # If the field is listed as `embeddable`
@@ -437,8 +438,7 @@ class Eve(Flask, Events):
         # set default 'field' value for all 'data_relation' rulesets, however
         # nested
         for data_relation in list(extract_key_values('data_relation', schema)):
-            data_relation.setdefault('field',
-                                     self.config['ID_FIELD'])
+            data_relation.setdefault('field', self.config['ID_FIELD'])
 
     def _add_url_rules(self):
         """ Builds the API url map. Methods are enabled for each mapped

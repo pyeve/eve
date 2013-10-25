@@ -88,7 +88,7 @@ class TestPut(TestBase):
         headers = [('If-Match', self.invoice_etag)]
         r, status = self.put(self.invoice_id_url, data=data, headers=headers)
         self.assert200(status)
-        expected = ("value '%s' for field '%s' must exist in collection "
+        expected = ("value '%s' for field '%s' must exist in resource "
                     "collection '%s', field '%s'" %
                     (self.unknown_item_id, 'person', 'contacts',
                      self.app.config['ID_FIELD']))

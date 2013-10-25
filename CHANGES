@@ -10,12 +10,15 @@ Not released yet.
 
 Enhancements
 ~~~~~~~~~~~~
-- Nested endpoints. Endpoints with deep paths like ``/contacts/overseas``
-  can now function in conjuction with top-level endpoints (``/contacts``).
-  Endpoints are completely independent: each can allow item
-  lookups (``/contacts/<id>`` and ``contacts/overseas/<id>``) and different
-  access methods. Previously, while you could have complex urls, you could not
-  get nested endpoints to work properly.
+- ``collection`` (used when setting up a data relation, see Embedded Resource
+  Serialization) has been renamed to ``resource`` in order to avoid confusion
+  between the Eve schema and underlying MongoDB collections. 
+- Nested endpoints. Endpoints with deep paths like ``/contacts/overseas`` can
+  now function in conjuction with top-level endpoints (``/contacts``).
+  Endpoints are completely independent: each can allow item lookups
+  (``/contacts/<id>`` and ``contacts/overseas/<id>``) and different access
+  methods. Previously, while you could have complex urls, you could not get
+  nested endpoints to work properly.
 - PyMongo 2.6.3 is now supported.
 - item-id wrappers have been removed from POST/PATCH/PUT requests and
   responses. Requests for single document insertion/edition are now performed

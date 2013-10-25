@@ -208,6 +208,9 @@ def _resolve_embedded_documents(resource, req, documents):
     :param req: and instace of :class:`eve.utils.ParsedRequest`.
     :param documents: list of documents returned by the query.
 
+    .. versonchanged:: 0.1.1
+       'collection' key has been renamed to 'resource' (data_relation).
+
     .. versionadded:: 0.1.0
     """
     if req.embedded:
@@ -247,7 +250,7 @@ def _resolve_embedded_documents(resource, req, documents):
                 field_definition = config.DOMAIN[resource]['schema'][field]
                 # Retrieve and serialize the requested document
                 embedded_doc = app.data.find_one(
-                    field_definition['data_relation']['collection'],
+                    field_definition['data_relation']['resource'],
                     **{config.ID_FIELD: document[field]}
                 )
                 if embedded_doc:

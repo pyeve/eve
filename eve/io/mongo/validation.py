@@ -91,13 +91,16 @@ class Validator(Validator):
         :param field: field name.
         :param value: field value.
 
+        .. versionchanged:: 0.1.1
+           'collection' key renamed to 'resource' (data_relation)
+
         .. versionadded: 0.0.5
         """
         query = {data_relation['field']: value}
-        if not app.data.find_one(data_relation['collection'], **query):
+        if not app.data.find_one(data_relation['resource'], **query):
                 self._error("value '%s' for field '%s' must exist in "
-                            "collection '%s', field '%s'" %
-                            (value, field, data_relation['collection'],
+                            "resource '%s', field '%s'" %
+                            (value, field, data_relation['resource'],
                              data_relation['field']))
 
     def _validate_type_objectid(self, field, value):
