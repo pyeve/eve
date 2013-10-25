@@ -673,8 +673,8 @@ defining the field validation rules. Allowed validation rules are:
                                 that the value must satisfy in order to
                                 validate. It is a dict with three keys:
 
-                                - ``collection``: the name of the database collection being referenced;
-                                - ``field``: the field name in the foreign collection;
+                                - ``resource``: the name of the resource being referenced;
+                                - ``field``: the field name in the foreign resource;
                                 - ``embeddable``: set to ``True`` if clients can request the referenced document to be embedded with the serialization. See :ref:`embedded_docs`. Defaults to ``False``.
 
 ``nullable``                    If ``True`` the field value can be set to 
