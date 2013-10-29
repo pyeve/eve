@@ -660,9 +660,11 @@ like this:</p>
      <span class="p">}</span>
 </pre></div>
 </div>
-<p>A GET like <tt class="docutils literal"><span class="pre">/emails?embedded={&quot;author&quot;:1}</span></tt> would return a fully embedded user
-document whereas the same request without the <tt class="docutils literal"><span class="pre">embedded</span></tt> argument would just
-return the user <tt class="docutils literal"><span class="pre">ObjectId</span></tt>.</p>
+<p>A GET like this: <tt class="docutils literal"><span class="pre">/emails?embedded={&quot;author&quot;:1}</span></tt> would return a fully
+embedded users document, whereas the same request without the <tt class="docutils literal"><span class="pre">embedded</span></tt>
+argument would just return the user <tt class="docutils literal"><span class="pre">ObjectId</span></tt>. Embedded resource
+serialization is available at both resource and item
+(<tt class="docutils literal"><span class="pre">/emails/&lt;id&gt;/?embedded={&quot;author&quot;:1}</span></tt>) endpoints.</p>
 <p>Embedding can be enabled or disabled both at global level (by setting
 <tt class="docutils literal"><span class="pre">EMBEDDING</span></tt> to either <tt class="docutils literal"><span class="pre">True</span></tt> or <tt class="docutils literal"><span class="pre">False</span></tt>) and at resource level (by
 toggling the <tt class="docutils literal"><span class="pre">embedding</span></tt> value). Furthermore, only fields with the

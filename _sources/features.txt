@@ -645,9 +645,11 @@ like this:
             }
         }
 
-A GET like ``/emails?embedded={"author":1}`` would return a fully embedded user
-document whereas the same request without the ``embedded`` argument would just
-return the user ``ObjectId``. 
+A GET like this: ``/emails?embedded={"author":1}`` would return a fully
+embedded users document, whereas the same request without the ``embedded``
+argument would just return the user ``ObjectId``. Embedded resource
+serialization is available at both resource and item
+(``/emails/<id>/?embedded={"author":1}``) endpoints.
 
 Embedding can be enabled or disabled both at global level (by setting
 ``EMBEDDING`` to either ``True`` or ``False``) and at resource level (by
