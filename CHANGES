@@ -10,6 +10,8 @@ Not released yet.
 
 Enhancements
 ~~~~~~~~~~~~
+- Embedded Resource Serialization also available at item endpoints
+  (``/invoices/<id>/?embedded={'person':1}``),
 - ``collection`` (used when setting up a data relation, see Embedded Resource
   Serialization) has been renamed to ``resource`` in order to avoid confusion
   between the Eve schema and underlying MongoDB collections. 

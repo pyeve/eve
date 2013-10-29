@@ -120,6 +120,9 @@ def getitem(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
 
+    .. versionchanged:: 0.1.1
+       Support for Embeded Resource Serialization.
+
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
 
@@ -170,6 +173,8 @@ def getitem(resource, **lookup):
             # this after the etag since Last-Modified dates have lower
             # resolution (1 second).
             return response, last_modified, document['etag'], 304
+
+        _resolve_embedded_documents(resource, req, [document])
 
         if config.DOMAIN[resource]['hateoas']:
             response['_links'] = {
