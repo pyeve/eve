@@ -320,3 +320,21 @@ def serialize(document, resource=None, schema=None):
                     document[field] = \
                         app.data.serializers[field_type](document[field])
     return document
+
+def pre_event(f):
+    """ Enable a Hook pre http request.
+    """
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        method = request_method()
+        if method in ('GET', 'POST', 'PATCH', 'DELETE', 'PUT'):
+            event_name = 'on_pre_' + method
+            resource = args[0] if args else None
+            # general hook
+            getattr(app, event_name)(resource, request)
+            if resource:
+                # resource hook
+                getattr(app, event_name + '_' + resource)(request)
+        r = f(*args, **kwargs)
+        return r
+    return decorated
