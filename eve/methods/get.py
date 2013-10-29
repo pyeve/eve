@@ -155,6 +155,7 @@ def getitem(resource, **lookup):
 
     req = parse_request(resource)
     document = app.data.find_one(resource, **lookup)
+
     if document:
         # need to update the document field as well since the etag must
         # be computed on the same document representation that might have

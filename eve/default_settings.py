@@ -71,7 +71,7 @@ PUBLIC_ITEM_METHODS = []
 ALLOWED_ITEM_ROLES = None
 ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
-ITEM_URL = '[a-f0-9]{24}'
+ITEM_URL = 'regex("[a-f0-9]{24}")'
 
 # list of extra fields to be included with every POST response. This list
 # should not include the 'standard' fields (ID_FIELD, LAST_UPDATED,

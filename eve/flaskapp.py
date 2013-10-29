@@ -33,13 +33,11 @@ class EveWSGIRequestHandler(WSGIRequestHandler):
         return 'Eve/%s ' % eve.__version__ + super(EveWSGIRequestHandler,
                                                    self).server_version
 
-
 class RegexConverter(BaseConverter):
     """ Extend werkzeug routing by supporting regex for urls/API endpoints """
     def __init__(self, url_map, *items):
         super(RegexConverter, self).__init__(url_map)
         self.regex = items[0]
-
 
 class Eve(Flask, Events):
     """The main Eve object. On initialization it will load Eve settings, then
@@ -60,6 +58,7 @@ class Eve(Flask, Events):
                  requests. Must be a :class: `eve.auth.BasicAuth` subclass.
     :param redis: the redis (pyredis) instance used by the Rate-Limiting
                   feature, if enabled.
+    :param url_converters: dictionary of flask url_converters to add
     :param kwargs: optional, standard, Flask parameters.
 
     .. versionchanged:: 0.1.0
@@ -78,6 +77,7 @@ class Eve(Flask, Events):
     """
     def __init__(self, import_name=__package__, settings='settings.py',
                  validator=Validator, data=Mongo, auth=None, redis=None,
+                 url_converters={ },
                  **kwargs):
         """Eve main WSGI app is implemented as a Flask subclass. Since we want
         to be able to launch our API by simply invoking Flask's run() method,
@@ -98,6 +98,11 @@ class Eve(Flask, Events):
         super(Eve, self).__init__(import_name, **kwargs)
         # enable regex routing
         self.url_map.converters['regex'] = RegexConverter
+
+        # add custom converters
+        for k, v in url_converters.items():
+            self.url_map.converters[k] = v
+
         self.validator = validator
         self.settings = settings
 
@@ -144,16 +149,18 @@ class Eve(Flask, Events):
         self.config.from_object('eve.default_settings')
 
         # overwrite the defaults with custom user settings:
-
-        # TODO perhaps we should support non-existing settings file, in order
-        # to allow for envvar_only scenarios. However, we should probably
-        # issue a warning
-        if os.path.isabs(self.settings):
-            pyfile = self.settings
+        if isinstance(self.settings, dict):
+            self.config.update(self.settings)
         else:
-            abspath = os.path.abspath(os.path.dirname(sys.argv[0]))
-            pyfile = os.path.join(abspath, self.settings)
-        self.config.from_pyfile(pyfile)
+            # TODO perhaps we should support non-existing settings file, in order
+            # to allow for envvar_only scenarios. However, we should probably
+            # issue a warning
+            if os.path.isabs(self.settings):
+                pyfile = self.settings
+            else:
+                abspath = os.path.abspath(os.path.dirname(sys.argv[0]))
+                pyfile = os.path.join(abspath, self.settings)
+            self.config.from_pyfile(pyfile)
 
         #overwrite settings with custom environment variable
         envvar = 'EVE_SETTINGS'
@@ -493,7 +500,7 @@ class Eve(Flask, Events):
 
             # item endpoint
             if settings['item_lookup']:
-                item_url = '%s/<regex("%s"):%s>' % \
+                item_url = '%s/<%s:%s>' % \
                     (url, settings['item_url'], settings['item_lookup_field'])
 
                 self.add_url_rule(item_url, view_func=item_endpoint,
@@ -513,11 +520,10 @@ class Eve(Flask, Events):
                     if l_type == 'integer':
                         item_url = '%s/<int:%s>' % (url, lookup['field'])
                     else:
-                        item_url = '%s/<regex("%s"):%s>' % (url,
-                                                            lookup['url'],
-                                                            lookup['field'])
+                        item_url = '%s/<%s:%s>' % (url, lookup['url'], lookup['field'])
                     self.add_url_rule(item_url, view_func=item_endpoint,
                                       methods=['GET', 'OPTIONS'])
         self.config['RESOURCES'] = resources
         self.config['URLS'] = urls
         self.config['SOURCES'] = datasources
+
