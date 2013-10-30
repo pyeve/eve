@@ -82,7 +82,6 @@ class Eve(Flask, Events):
     #: Allowed methods for item endpoints
     supported_item_methods = ['GET', 'PATCH', 'DELETE', 'PUT']
 
-
     def __init__(self, import_name=__package__, settings='settings.py',
                  validator=Validator, data=Mongo, auth=None, redis=None,
                  **kwargs):
@@ -227,9 +226,8 @@ class Eve(Flask, Events):
            'PATCH' in settings['item_methods']:
             if len(settings['schema']) == 0:
                 raise ConfigException('A resource schema must be provided '
-                                      'when POST or PATCH methods are '
-                                      'allowed for a resource [%s].' %
-                                       resource)
+                                      'when POST or PATCH methods are allowed'
+                                      'for a resource [%s].' % resource)
 
         self.validate_roles('allowed_roles', settings, resource)
         self.validate_roles('allowed_item_roles', settings, resource)
@@ -422,7 +420,7 @@ class Eve(Flask, Events):
         default_projection = {}
         default_projection.update(dict((field, 1) for (field) in schema))
         projection = settings['datasource'].setdefault('projection',
-                                                           default_projection)
+                                                       default_projection)
         # despite projection, automatic fields are always included.
         projection[self.config['ID_FIELD']] = 1
         projection[self.config['LAST_UPDATED']] = 1
@@ -530,9 +528,9 @@ class Eve(Flask, Events):
            Support for API_VERSION as an endpoint prefix.
         """
         # helpers
-        self.config['RESOURCES'] = {} # maps urls to resources (DOMAIN keys)
-        self.config['URLS'] = {}      # maps resources to urls
-        self.config['SOURCES'] = {}   # maps resources to their datasources
+        self.config['RESOURCES'] = {}  # maps urls to resources (DOMAIN keys)
+        self.config['URLS'] = {}       # maps resources to urls
+        self.config['SOURCES'] = {}    # maps resources to their datasources
 
         # we choose not to care about trailing slashes at all.
         # Both '/resource/' and '/resource' will work, same with
@@ -561,4 +559,3 @@ class Eve(Flask, Events):
         self._set_resource_defaults(resource, settings)
         self._validate_resource_settings(resource, settings)
         self._add_resource_url_rules(resource, settings)
- 
