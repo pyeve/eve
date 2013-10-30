@@ -39,7 +39,7 @@ def delete(resource, **lookup):
     if not original:
         abort(404)
 
-    app.data.remove(resource, lookup[config.ID_FIELD])
+    app.data.remove(resource, original[config.ID_FIELD])
     return {}, None, None, 200
 
 
