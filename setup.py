@@ -8,7 +8,7 @@ LONG_DESCRIPTION = open('README.rst').read()
 
 setup(
     name='Eve',
-    version='0.1',
+    version='0.1.1',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',
@@ -27,7 +27,7 @@ setup(
         'jinja2==2.7',
         'itsdangerous==0.22',
         'flask==0.10.1',
-        'pymongo==2.6.2',
+        'pymongo==2.6.3',
         'flask-pymongo==0.3.0',
     ],
     tests_require=['redis'],

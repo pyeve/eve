@@ -13,14 +13,6 @@ class TestPut(TestBase):
         r, status = self.put(self.readonly_id_url, data={})
         self.assert405(status)
 
-    def test_bad_form_length(self):
-        r, status = self.put(self.item_id_url, data={})
-        self.assert400(status)
-
-        r, status = self.put(self.item_id_url,
-                             data={'key1': 'value1', 'key2': 'value2'})
-        self.assert400(status)
-
     def test_unknown_id(self):
         r, status = self.put(self.unknown_item_id_url,
                              data={'key1': 'value1'})
@@ -56,58 +48,56 @@ class TestPut(TestBase):
 
     def test_bad_request(self):
         r, status = self.put(self.item_id_url,
-                             data={'key1': '{"ref"="hey, gonna bomb"}'},
+                             data='"ref": "hey, gonna bomb"',
                              headers=[('If-Match', self.item_etag)])
         self.assert400(status)
 
     def test_unique_value(self):
         r, status = self.put(self.item_id_url,
-                             data={'key1': '{"ref": "%s"}' % self.alt_ref},
+                             data={"ref": "%s" % self.alt_ref},
                              headers=[('If-Match', self.item_etag)])
         self.assert200(status)
-        self.assertValidationError(r, 'key1', ("field 'ref'", self.alt_ref,
-                                               'not unique'))
+        self.assertValidationError(r, ("field 'ref'", self.alt_ref,
+                                       'not unique'))
 
     def test_allow_unknown(self):
-        changes = {'key1': json.dumps({"unknown": "unknown"})}
+        changes = {"unknown": "unknown"}
         r, status = self.put(self.item_id_url, data=changes,
                              headers=[('If-Match', self.item_etag)])
         self.assert200(status)
-        self.assertValidationError(r, 'key1', 'unknown field')
+        self.assertValidationError(r, 'unknown field')
         self.app.config['DOMAIN'][self.known_resource]['allow_unknown'] = True
-        changes = {'key1': json.dumps({"unknown": "unknown",
-                                       "ref": "1234567890123456789012345"})}
+        changes = {"unknown": "unknown", "ref": "1234567890123456789012345"}
         r, status = self.put(self.item_id_url, data=changes,
                              headers=[('If-Match', self.item_etag)])
         self.assert200(status)
-        self.assertPutResponse(r, 'key1', self.item_id)
+        self.assertPutResponse(r, self.item_id)
 
-    def test_put_json(self):
+    def test_put_x_www_form_urlencoded(self):
         field = "ref"
         test_value = "1234567890123456789012345"
-        changes = json.dumps({'key1': {field: test_value}})
-        headers = [('If-Match', self.item_etag),
-                   ('Content-Type', 'application/json')]
+        changes = {field: test_value}
+        headers = [('If-Match', self.item_etag)]
         r, status = self.parse_response(self.test_client.put(
             self.item_id_url, data=changes, headers=headers))
         self.assert200(status)
-        self.assertTrue('OK' in r['key1']['status'])
+        self.assertTrue('OK' in r['status'])
 
     def test_put_referential_integrity(self):
-        data = {'item1': json.dumps({"person": self.unknown_item_id})}
+        data = {"person": self.unknown_item_id}
         headers = [('If-Match', self.invoice_etag)]
         r, status = self.put(self.invoice_id_url, data=data, headers=headers)
         self.assert200(status)
-        expected = ("value '%s' for field '%s' must exist in collection "
+        expected = ("value '%s' for field '%s' must exist in resource "
                     "collection '%s', field '%s'" %
                     (self.unknown_item_id, 'person', 'contacts',
                      self.app.config['ID_FIELD']))
-        self.assertValidationError(r, 'item1', expected)
+        self.assertValidationError(r, expected)
 
-        data = {'item1': json.dumps({"person": self.item_id})}
+        data = {"person": self.item_id}
         r, status = self.put(self.invoice_id_url, data=data, headers=headers)
         self.assert200(status)
-        self.assertPutResponse(r, 'item1', self.invoice_id)
+        self.assertPutResponse(r, self.invoice_id)
 
     def test_put_write_concern_success(self):
         # 0 and 1 are the only valid values for 'w' on our mongod instance (1
@@ -115,7 +105,7 @@ class TestPut(TestBase):
         self.domain['contacts']['mongo_write_concern'] = {'w': 0}
         field = "ref"
         test_value = "X234567890123456789012345"
-        changes = {'key1': json.dumps({field: test_value})}
+        changes = {field: test_value}
         r, status = self.put(self.item_id_url, data=changes,
                              headers=[('If-Match', self.item_etag)])
         self.assert200(status)
@@ -125,7 +115,7 @@ class TestPut(TestBase):
         self.domain['contacts']['mongo_write_concern'] = {'w': 2}
         field = "ref"
         test_value = "X234567890123456789012345"
-        changes = {'key1': json.dumps({field: test_value})}
+        changes = {field: test_value}
         r, status = self.put(self.item_id_url, data=changes,
                              headers=[('If-Match', self.item_etag)])
         self.assert500(status)
@@ -133,7 +123,7 @@ class TestPut(TestBase):
     def test_put_string(self):
         field = "ref"
         test_value = "1234567890123456789012345"
-        changes = {'key1': json.dumps({field: test_value})}
+        changes = {field: test_value}
         r = self.perform_put(changes)
         db_value = self.compare_put_with_get(field, r)
         self.assertEqual(db_value, test_value)
@@ -142,39 +132,37 @@ class TestPut(TestBase):
         # POST request with PUT override turns into a PUT
         field = "ref"
         test_value = "1234567890123456789012345"
-        changes = {'key1': json.dumps({field: test_value})}
+        changes = {field: test_value}
         headers = [('X-HTTP-Method-Override', 'PUT'),
                    ('If-Match', self.item_etag),
                    ('Content-Type', 'application/x-www-form-urlencoded')]
         r = self.test_client.post(self.item_id_url, data=changes,
                                   headers=headers)
         self.assert200(r.status_code)
-        self.assertPutResponse(json.loads(r.get_data()), 'key1', self.item_id)
+        self.assertPutResponse(json.loads(r.get_data()), self.item_id)
 
     def perform_put(self, changes):
         r, status = self.put(self.item_id_url,
                              data=changes,
                              headers=[('If-Match', self.item_etag)])
         self.assert200(status)
-        self.assertPutResponse(r, 'key1', self.item_id)
+        self.assertPutResponse(r, self.item_id)
         return r
 
-    def assertPutResponse(self, response, key, item_id):
-        self.assertTrue(key in response)
-        k = response[key]
-        self.assertTrue('status' in k)
-        self.assertTrue(STATUS_OK in k['status'])
-        self.assertFalse('issues' in k)
-        self.assertTrue(ID_FIELD in k)
-        self.assertEqual(k[ID_FIELD], item_id)
-        self.assertTrue(LAST_UPDATED in k)
-        self.assertTrue('etag' in k)
-        self.assertTrue('_links') in k
-        self.assertItemLink(k['_links'], item_id)
+    def assertPutResponse(self, response, item_id):
+        self.assertTrue('status' in response)
+        self.assertTrue(STATUS_OK in response['status'])
+        self.assertFalse('issues' in response)
+        self.assertTrue(ID_FIELD in response)
+        self.assertEqual(response[ID_FIELD], item_id)
+        self.assertTrue(LAST_UPDATED in response)
+        self.assertTrue('etag' in response)
+        self.assertTrue('_links') in response
+        self.assertItemLink(response['_links'], item_id)
 
     def put(self, url, data, headers=[]):
-        headers.append(('Content-Type', 'application/x-www-form-urlencoded'))
-        r = self.test_client.put(url, data=data, headers=headers)
+        headers.append(('Content-Type', 'application/json'))
+        r = self.test_client.put(url, data=json.dumps(data), headers=headers)
         return self.parse_response(r)
 
     def compare_put_with_get(self, fields, put_response):
@@ -182,7 +170,7 @@ class TestPut(TestBase):
         r, status = self.parse_response(raw_r)
         self.assert200(status)
         self.assertEqual(raw_r.headers.get('ETag'),
-                         put_response['key1']['etag'])
+                         put_response['etag'])
         if isinstance(fields, str):
             return r[fields]
         else:

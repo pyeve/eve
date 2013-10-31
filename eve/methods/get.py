@@ -120,6 +120,9 @@ def getitem(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
 
+    .. versionchanged:: 0.1.1
+       Support for Embeded Resource Serialization.
+
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
 
@@ -171,6 +174,8 @@ def getitem(resource, **lookup):
             # resolution (1 second).
             return response, last_modified, document['etag'], 304
 
+        _resolve_embedded_documents(resource, req, [document])
+
         if config.DOMAIN[resource]['hateoas']:
             response['_links'] = {
                 'self': document_link(resource, document[config.ID_FIELD]),
@@ -207,6 +212,9 @@ def _resolve_embedded_documents(resource, req, documents):
     :param resource: the resource name.
     :param req: and instace of :class:`eve.utils.ParsedRequest`.
     :param documents: list of documents returned by the query.
+
+    .. versonchanged:: 0.1.1
+       'collection' key has been renamed to 'resource' (data_relation).
 
     .. versionadded:: 0.1.0
     """
@@ -247,7 +255,7 @@ def _resolve_embedded_documents(resource, req, documents):
                 field_definition = config.DOMAIN[resource]['schema'][field]
                 # Retrieve and serialize the requested document
                 embedded_doc = app.data.find_one(
-                    field_definition['data_relation']['collection'],
+                    field_definition['data_relation']['resource'],
                     **{config.ID_FIELD: document[field]}
                 )
                 if embedded_doc:

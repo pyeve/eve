@@ -71,13 +71,11 @@ class TestMinimal(unittest.TestCase):
         v = json.loads(r.get_data()) if r.status_code == 200 else None
         return v, r.status_code
 
-    def assertValidationError(self, response, key, matches):
-        self.assertTrue(key in response)
-        k = response[key]
-        self.assertTrue('status' in k)
-        self.assertTrue(eve.STATUS_ERR in k['status'])
-        self.assertTrue('issues' in k)
-        issues = k['issues']
+    def assertValidationError(self, response, matches):
+        self.assertTrue('status' in response)
+        self.assertTrue(eve.STATUS_ERR in response['status'])
+        self.assertTrue('issues' in response)
+        issues = response['issues']
         self.assertTrue(len(issues))
 
         for match in matches:
@@ -143,7 +141,8 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue('title' in link)
         self.assertTrue('href' in link)
         self.assertEqual('home', link['title'])
-        self.assertEqual("%s" % self.app.config['SERVER_NAME'], link['href'])
+        self.assertEqual("%s" % self.app.config.get('SERVER_NAME', ''),
+                         link['href'])
 
     def assertResourceLink(self, links, resource):
         self.assertTrue('self' in links)
@@ -152,7 +151,8 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue('href' in link)
         url = self.domain[resource]['url']
         self.assertEqual(url, link['title'])
-        self.assertEqual("%s/%s" % (self.app.config['SERVER_NAME'], url),
+        self.assertEqual("%s/%s" % (self.app.config.get('SERVER_NAME', ''),
+                                    url),
                          link['href'])
 
     def assertCollectionLink(self, links, resource):
@@ -162,8 +162,8 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue('href' in link)
         url = self.domain[resource]['url']
         self.assertEqual(url, link['title'])
-        self.assertEqual("%s/%s" % (self.app.config['SERVER_NAME'], url),
-                         link['href'])
+        self.assertEqual("%s/%s" % (self.app.config.get('SERVER_NAME', ''),
+                                    url), link['href'])
 
     def assertNextLink(self, links, page):
         self.assertTrue('next' in links)

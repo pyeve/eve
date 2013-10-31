@@ -71,6 +71,18 @@ contacts = {
         'title': {
             'type': 'string',
             'default': 'Mr.',
+        },
+        'id_list': {
+            'type': 'list',
+            'schema': {'type': 'objectid'}
+        },
+        'id_list_of_dict': {
+            'type': 'list',
+            'schema': {'type': 'dict', 'schema': {'id': {'type': 'objectid'}}}
+        },
+        'id_list_fixed_len': {
+            'type': 'list',
+            'items': [{'type': 'objectid'}]
         }
     }
 }
@@ -93,11 +105,14 @@ invoices = {
         'inv_number': {'type': 'string'},
         'person': {
             'type': 'objectid',
-            'data_relation': {'collection': 'contacts'}
+            'data_relation': {'resource': 'contacts'}
         }
     }
 }
 
+users_overseas = copy.deepcopy(users)
+users_overseas['url'] = 'users/overseas'
+users_overseas['datasource'] = {'source': 'contacts'}
 
 payments = {
     'resource_methods': ['GET'],
@@ -109,6 +124,7 @@ empty = copy.deepcopy(invoices)
 DOMAIN = {
     'contacts': contacts,
     'users': users,
+    'users_overseas': users_overseas,
     'invoices': invoices,
     'payments': payments,
     'empty': empty,

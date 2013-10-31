@@ -151,7 +151,6 @@ class Eve(Flask, Events):
         if os.path.isabs(self.settings):
             pyfile = self.settings
         else:
-            # assume the path is relative to the calling script folder
             abspath = os.path.abspath(os.path.dirname(sys.argv[0]))
             pyfile = os.path.join(abspath, self.settings)
         self.config.from_pyfile(pyfile)
@@ -263,6 +262,10 @@ class Eve(Flask, Events):
         :param resource: resource name.
         :param schema: schema definition for the resource.
 
+        .. versionchanged:: 0.1.1
+           'collection' setting renamed to 'resource' (data_relation).
+           Fix order of string arguments in exception message.
+
         .. versionchanged:: 0.1.0
            Validation for 'embeddable' fields.
 
@@ -282,12 +285,12 @@ class Eve(Flask, Events):
         if offenders:
             raise SchemaException('field(s) "%s" not allowed in "%s" schema '
                                   '(they will be handled automatically).'
-                                  % (resource, ', '.join(offenders)))
+                                  % (', '.join(offenders), resource))
 
         for field, ruleset in schema.items():
             if 'data_relation' in ruleset:
-                if 'collection' not in ruleset['data_relation']:
-                    raise SchemaException("'collection' key is mandatory for "
+                if 'resource' not in ruleset['data_relation']:
+                    raise SchemaException("'resource' key is mandatory for "
                                           "the 'data_relation' rule in "
                                           "'%s: %s'" % (resource, field))
                 # If the field is listed as `embeddable`
@@ -303,6 +306,12 @@ class Eve(Flask, Events):
     def set_defaults(self):
         """ When not provided, fills individual resource settings with default
         or global configuration settings.
+
+        .. versionchanged:: 0.1.1
+           'default' values that could be assimilated to None (0, None, "")
+           would be ignored.
+           'dates' helper removed as datetime conversion is now handled by
+           the eve.methods.common.data_parse function.
 
         .. versionchanged:: 0.1.0
           'embedding'.
@@ -403,22 +412,13 @@ class Eve(Flask, Events):
             projection[self.config['LAST_UPDATED']] = 1
             projection[self.config['DATE_CREATED']] = 1
 
-            # `dates` helper set contains the names of the schema fields
-            # defined as `datetime` types. It will come in handy when
-            # we will be parsing incoming documents
-
-            # TODO support date fields for embedded documents.
-            settings['dates'] = \
-                set(field for field, definition in schema.items()
-                    if definition.get('type') == 'datetime')
-
             # 'defaults' helper set contains the names of fields with
             # default values in their schema definition.
 
             # TODO support default values for embedded documents.
             settings['defaults'] = \
                 set(field for field, definition in schema.items()
-                    if definition.get('default'))
+                    if 'default' in definition)
 
     def set_schema_defaults(self, schema):
         """ When not provided, fills individual schema settings with default
@@ -438,12 +438,16 @@ class Eve(Flask, Events):
         # set default 'field' value for all 'data_relation' rulesets, however
         # nested
         for data_relation in list(extract_key_values('data_relation', schema)):
-            data_relation.setdefault('field',
-                                     self.config['ID_FIELD'])
+            data_relation.setdefault('field', self.config['ID_FIELD'])
 
     def _add_url_rules(self):
         """ Builds the API url map. Methods are enabled for each mapped
         endpoint, as configured in the settings.
+
+        .. versionchanged:: 0.1.1
+           Simplified URL rules. Not using regexes anymore to return the
+           endpoint URL to the endpoint function. This allows for nested
+           endpoints to function properly.
 
         .. versionchanged:: 0.0.9
            Handle the case of 'additional_lookup' field being an integer.
@@ -477,12 +481,12 @@ class Eve(Flask, Events):
                           methods=['GET', 'OPTIONS'])
 
         for resource, settings in self.config['DOMAIN'].items():
-            resources[settings['url']] = resource
+            url = '%s/%s' % (prefix, settings['url'])
+            resources[url] = resource
             urls[resource] = settings['url']
             datasources[resource] = settings['datasource']
 
             # resource endpoint
-            url = '%s/<regex("%s"):url>' % (prefix, settings['url'])
             self.add_url_rule(url, view_func=collections_endpoint,
                               methods=settings['resource_methods'] +
                               ['OPTIONS'])
@@ -513,7 +517,7 @@ class Eve(Flask, Events):
                                                             lookup['url'],
                                                             lookup['field'])
                     self.add_url_rule(item_url, view_func=item_endpoint,
-                                      methods=['GET'])
+                                      methods=['GET', 'OPTIONS'])
         self.config['RESOURCES'] = resources
         self.config['URLS'] = urls
         self.config['SOURCES'] = datasources

@@ -31,6 +31,10 @@ def put(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
 
+    .. versionchanged:: 0.1.1
+       auth.request_auth_value is now used to store the auth_field value.
+       Item-identifier wrapper stripped from both request and response payload.
+
     .. versionadded:: 0.1.0
     """
     resource_def = app.config['DOMAIN'][resource]
@@ -38,10 +42,6 @@ def put(resource, **lookup):
     validator = app.validator(schema, resource)
 
     payload = payload_()
-    if len(payload) > 1:
-        abort(400, description=debug_error_message(
-            'Only one update-per-document supported'))
-
     original = get_document(resource, **lookup)
     if not original:
         # not found
@@ -52,14 +52,10 @@ def put(resource, **lookup):
     issues = []
     object_id = original[config.ID_FIELD]
 
-    # TODO the list is needed for Py33. Find a less ridiculous alternative?
-    key = list(payload.keys())[0]
-    document = payload[key]
-
-    response_item = {}
+    response = {}
 
     try:
-        document = parse(document, resource)
+        document = parse(payload, resource)
         validation = validator.validate_replace(document, object_id)
         if validation:
             last_modified = datetime.utcnow().replace(microsecond=0)
@@ -72,10 +68,10 @@ def put(resource, **lookup):
             # if 'user-restricted resource access' is enabled and there's
             # an Auth request active, inject the username into the document
             auth_field = resource_def['auth_field']
-            if auth_field:
-                userid = app.auth.user_id
-                if userid and request.authorization:
-                    document[auth_field] = userid
+            if app.auth and auth_field:
+                request_auth_value = app.auth.request_auth_value
+                if request_auth_value and request.authorization:
+                    document[auth_field] = request_auth_value
             etag = document_etag(document)
 
             # notify callbacks
@@ -84,14 +80,14 @@ def put(resource, **lookup):
 
             app.data.replace(resource, object_id, document)
 
-            response_item[config.ID_FIELD] = object_id
-            response_item[config.LAST_UPDATED] = last_modified
+            response[config.ID_FIELD] = object_id
+            response[config.LAST_UPDATED] = last_modified
 
             # metadata
-            response_item['etag'] = etag
+            response['etag'] = etag
             if resource_def['hateoas']:
-                response_item['_links'] = {'self': document_link(resource,
-                                                                 object_id)}
+                response['_links'] = {'self': document_link(resource,
+                                                            object_id)}
         else:
             issues.extend(validator.errors)
     except ValidationError as e:
@@ -107,11 +103,9 @@ def put(resource, **lookup):
         ))
 
     if len(issues):
-        response_item['issues'] = issues
-        response_item['status'] = config.STATUS_ERR
+        response['issues'] = issues
+        response['status'] = config.STATUS_ERR
     else:
-        response_item['status'] = config.STATUS_OK
+        response['status'] = config.STATUS_OK
 
-    response = {}
-    response[key] = response_item
     return response, last_modified, etag, 200

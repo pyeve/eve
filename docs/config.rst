@@ -383,12 +383,18 @@ always lowercase.
 
 .. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
 
-=============================== =========================================
-``url``                         The endpoint URL. If omitted, the resource key 
+=============================== ===============================================
+``url``                         The endpoint URL. If omitted the resource key 
                                 of the ``DOMAIN`` dict will be used to build
                                 the URL. As an example, ``contacts`` would make
                                 the `people` resource available at
-                                ``/contacts`` (instead of ``/people``).
+                                ``/contacts`` (instead of ``/people``). URL can
+                                be as complex as needed and can be nested
+                                relative to another API endpoint (you can have
+                                a ``/contacts`` endpoint and then
+                                a ``/contacts/overseas`` endpoint. Both are
+                                independent of each other and freely
+                                configurable.)
 
 ``allowed_filters``             List of fields on which filtering is allowed. 
                                 Can be set to ``[]`` (no filters allowed), or
@@ -402,7 +408,7 @@ always lowercase.
                                 is the way to go.
 
 ``sorting``                     ``True`` if sorting is enabled, ``False`` 
-                                otherwise. Locally ovverrides ``SORTING``.
+                                otherwise. Locally overrides ``SORTING``.
                                 
 ``pagination``                  ``True`` if pagination is enabled, ``False``
                                 otherwise. Locally overrides ``PAGINATION``.
@@ -538,7 +544,7 @@ always lowercase.
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data
                                 validation. See `Schema Definition`_.
-=============================== =========================================
+=============================== ===============================================
 
 Here's an example of resource customization, mostly done by overriding global
 API settings:
@@ -667,8 +673,8 @@ defining the field validation rules. Allowed validation rules are:
                                 that the value must satisfy in order to
                                 validate. It is a dict with three keys:
 
-                                - ``collection``: the name of the database collection being referenced;
-                                - ``field``: the field name in the foreign collection;
+                                - ``resource``: the name of the resource being referenced;
+                                - ``field``: the field name in the foreign resource;
                                 - ``embeddable``: set to ``True`` if clients can request the referenced document to be embedded with the serialization. See :ref:`embedded_docs`. Defaults to ``False``.
 
 ``nullable``                    If ``True`` the field value can be set to 

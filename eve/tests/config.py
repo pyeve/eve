@@ -127,8 +127,8 @@ class TestConfig(TestBase):
     def test_validate_schema(self):
         # lack of 'collection' key for 'data_collection' rule
         schema = self.domain['invoices']['schema']
-        del(schema['person']['data_relation']['collection'])
-        self.assertValidateSchemaFailure('invoices', schema, 'collection')
+        del(schema['person']['data_relation']['resource'])
+        self.assertValidateSchemaFailure('invoices', schema, 'resource')
 
     def test_set_schema_defaults(self):
         # default data_relation field value
@@ -245,27 +245,6 @@ class TestConfig(TestBase):
         else:
             self.fail("SchemaException expected but not raised.")
 
-    def test_schema_dates(self):
-        self.domain.clear()
-        self.domain['resource'] = {
-            'schema': {
-                'born': {
-                    'type': 'datetime',
-                },
-                'name': {
-                    'type': 'string',
-                },
-                'another_date': {
-                    'type': 'datetime',
-                }
-            }
-        }
-        self.app.set_defaults()
-        settings = self.domain['resource']
-        self.assertNotEqual(settings.get('dates'), None)
-        self.assertEqual(type(settings['dates']), set)
-        self.assertEqual(len(settings['dates']), 2)
-
     def test_schema_defaults(self):
         self.domain.clear()
         self.domain['resource'] = {
@@ -300,13 +279,15 @@ class TestConfig(TestBase):
             self.assertEqual(settings['url'],
                              self.app.config['URLS'][resource])
             self.assertEqual(resource,
-                             self.app.config['RESOURCES'][settings['url']])
+                             self.app.config['RESOURCES']['/' +
+                                                          settings['url']])
 
             self.assertEqual(settings['datasource'],
                              self.app.config['SOURCES'][resource])
 
     def test_url_rules(self):
-        map_adapter = self.app.url_map.bind(self.app.config['SERVER_NAME'])
+        map_adapter = self.app.url_map.bind(self.app.config.get(
+            'SERVER_NAME', ''))
 
         for resource, settings in self.domain.items():
             for method in settings['resource_methods']:

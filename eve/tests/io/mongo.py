@@ -6,7 +6,6 @@ from datetime import datetime
 from eve.io.mongo.parser import parse, ParseError
 from eve.io.mongo import Validator, Mongo
 from eve.utils import config
-from cerberus.errors import ERROR_BAD_TYPE
 
 
 class TestPythonParser(TestCase):
@@ -95,12 +94,11 @@ class TestMongoValidator(TestCase):
         doc = {'id': 'not_an_object_id'}
         v = Validator(schema, None)
         self.assertFalse(v.validate(doc))
-        self.assertTrue(ERROR_BAD_TYPE % ('id', 'ObjectId') in
-                        v.errors)
+        self.assertTrue('ObjectId' in v.errors[0])
 
     def test_objectid_success(self):
         schema = {'id': {'type': 'objectid'}}
-        doc = {'id': '50656e4538345b39dd0414f0'}
+        doc = {'id': ObjectId('50656e4538345b39dd0414f0')}
         v = Validator(schema, None)
         self.assertTrue(v.validate(doc))
 

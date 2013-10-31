@@ -12,12 +12,10 @@
     :license: BSD, see LICENSE for more details.
 """
 
-import re
 from eve.utils import config
 from bson import ObjectId
 from flask import current_app as app
 from cerberus import Validator
-from cerberus.errors import ERROR_BAD_TYPE
 
 
 class Validator(Validator):
@@ -93,13 +91,16 @@ class Validator(Validator):
         :param field: field name.
         :param value: field value.
 
+        .. versionchanged:: 0.1.1
+           'collection' key renamed to 'resource' (data_relation)
+
         .. versionadded: 0.0.5
         """
         query = {data_relation['field']: value}
-        if not app.data.find_one(data_relation['collection'], **query):
+        if not app.data.find_one(data_relation['resource'], **query):
                 self._error("value '%s' for field '%s' must exist in "
-                            "collection '%s', field '%s'" %
-                            (value, field, data_relation['collection'],
+                            "resource '%s', field '%s'" %
+                            (value, field, data_relation['resource'],
                              data_relation['field']))
 
     def _validate_type_objectid(self, field, value):
@@ -109,6 +110,10 @@ class Validator(Validator):
                        unique or not.
         :param field: field name.
         :param value: field value.
+
+        .. versionchanged:: 0.1.1
+           regex check replaced by proper type check.
         """
-        if not re.match('[a-f0-9]{24}', value):
-            self._error(ERROR_BAD_TYPE % (field, 'ObjectId'))
+        if not isinstance(value, ObjectId):
+            self._error("value '%s' for field '%s' cannot be converted to a "
+                        "ObjectId" % (value, field))

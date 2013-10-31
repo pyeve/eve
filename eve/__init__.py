@@ -9,12 +9,15 @@
     :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.1.1
+       'SERVER_NAME' defaults to None.
+
     .. versionchagned:: 0.0.9
        'DATE_FORMAT now using GMT instead of UTC.
 
 """
 
-__version__ = '0.1'
+__version__ = '0.1.1'
 
 #DEBUG = True
 
@@ -23,7 +26,7 @@ DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
 
 URL_PREFIX = ''
 API_VERSION = ''
-SERVER_NAME = 'localhost:5000'
+SERVER_NAME = None
 PAGINATION = True
 PAGINATION_LIMIT = 50
 PAGINATION_DEFAULT = 25

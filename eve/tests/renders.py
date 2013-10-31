@@ -102,6 +102,18 @@ class TestRenders(TestBase):
             methods = settings['resource_methods'] + ['OPTIONS']
             self.test_CORS_OPTIONS(url, methods)
 
+    def test_CORS_OPTIONS_item(self):
+        prefix = api_prefix(self.app.config['URL_PREFIX'],
+                            self.app.config['API_VERSION'])
+
+        url = '%s%s' % (prefix, self.item_id_url)
+        methods = (self.domain[self.known_resource]['resource_methods'] +
+                   ['OPTIONS'])
+        self.test_CORS_OPTIONS(url, methods)
+        url = '%s%s/%s' % (prefix, self.known_resource_url, self.item_ref)
+        methods = ['GET', 'OPTIONS']
+        self.test_CORS_OPTIONS(url, methods)
+
 
 class TestEventHooks(TestBase):
     #TODO not sure this is the right place for this class really.
@@ -254,17 +266,17 @@ class TestEventHooks(TestBase):
         self.assertTrue(self.passed)
 
     def post(self, extra=None):
-        headers = [('Content-Type', 'application/x-www-form-urlencoded')]
-        data = {'item1': json.dumps({"ref": "0123456789012345678901234"})}
+        headers = [('Content-Type', 'application/json')]
+        data = json.dumps({"ref": "0123456789012345678901234"})
         if extra:
             headers.extend(extra)
         self.test_client.post(self.known_resource_url, data=data,
                               headers=headers)
 
     def patch(self):
-        headers = [('Content-Type', 'application/x-www-form-urlencoded'),
+        headers = [('Content-Type', 'application/json'),
                    ('If-Match', self.item_etag)]
-        data = {'item1': json.dumps({"ref": "i'm unique"})}
+        data = json.dumps({"ref": "i'm unique"})
         self.test_client.patch(self.item_id_url, data=data, headers=headers)
 
     def delete(self):
@@ -272,7 +284,7 @@ class TestEventHooks(TestBase):
                                                             self.item_etag)])
 
     def put(self):
-        headers = [('Content-Type', 'application/x-www-form-urlencoded'),
+        headers = [('Content-Type', 'application/json'),
                    ('If-Match', self.item_etag)]
-        data = {'item1': json.dumps({"ref": "0123456789012345678901234"})}
+        data = json.dumps({"ref": "0123456789012345678901234"})
         self.test_client.put(self.item_id_url, data=data, headers=headers)

@@ -9,12 +9,7 @@ from eve.tests import TestBase
 
 
 class ValidBasicAuth(BasicAuth):
-    def check_auth(self, username, password, allowed_roles, resource,
-                   method):
-        self.user_id = 123
-        # This MUST BE AN OBJECTID, not a string.
-        self._id = ObjectId('deadbeefdeadbeefdeadbeef')
-        self.username = 'admin'
+    def check_auth(self, username, password, allowed_roles, resource, method):
         return username == 'admin' and password == 'secret' and  \
             (allowed_roles == ['admin'] if allowed_roles else True)
 
@@ -46,8 +41,11 @@ class TestBasicAuth(TestBase):
         super(TestBasicAuth, self).setUp()
         self.app = Eve(settings=self.settings_file, auth=ValidBasicAuth)
         self.test_client = self.app.test_client()
-        self.valid_auth = [('Authorization', 'Basic YWRtaW46c2VjcmV0')]
-        self.invalid_auth = [('Authorization', 'Basic IDontThinkSo')]
+        self.content_type = ('Content-Type', 'application/json')
+        self.valid_auth = [('Authorization', 'Basic YWRtaW46c2VjcmV0'),
+                           self.content_type]
+        self.invalid_auth = [('Authorization', 'Basic IDontThinkSo'),
+                             self.content_type]
         for resource, schema in self.app.config['DOMAIN'].items():
             schema['allowed_roles'] = ['admin']
             schema['allowed_item_roles'] = ['admin']
@@ -85,7 +83,7 @@ class TestBasicAuth(TestBase):
                                  headers=self.valid_auth)
         self.assert200(r.status_code)
         r = self.test_client.post(self.known_resource_url,
-                                  data={"item1": json.dumps({"k": "value"})},
+                                  data=json.dumps({"k": "value"}),
                                   headers=self.valid_auth)
         self.assert200(r.status_code)
         r = self.test_client.delete(self.known_resource_url,
@@ -96,7 +94,7 @@ class TestBasicAuth(TestBase):
         r = self.test_client.get(self.item_id_url, headers=self.valid_auth)
         self.assert200(r.status_code)
         r = self.test_client.patch(self.item_id_url,
-                                   data={"item1": json.dumps({"k": "value"})},
+                                   data=json.dumps({"k": "value"}),
                                    headers=self.valid_auth)
         self.assert403(r.status_code)
         r = self.test_client.delete(self.item_id_url, headers=self.valid_auth)
@@ -140,7 +138,7 @@ class TestBasicAuth(TestBase):
             del(settings['public_methods'])
         self.app.set_defaults()
         for resource in domain:
-            url = '/%s/' % self.app.config['URLS'][resource]
+            url = self.app.config['URLS'][resource]
             r = self.test_client.get(url)
             self.assert200(r.status_code)
             r = self.test_client.post(url, data={'key1': 'value1'})
@@ -202,7 +200,8 @@ class TestTokenAuth(TestBasicAuth):
         super(TestTokenAuth, self).setUp()
         self.app = Eve(settings=self.settings_file, auth=ValidTokenAuth)
         self.test_client = self.app.test_client()
-        self.valid_auth = [('Authorization', 'Basic dGVzdF90b2tlbjo=')]
+        self.valid_auth = [('Authorization', 'Basic dGVzdF90b2tlbjo='),
+                           self.content_type]
 
     def test_custom_auth(self):
         self.assertEqual(type(self.app.auth), ValidTokenAuth)
@@ -213,7 +212,8 @@ class TestHMACAuth(TestBasicAuth):
         super(TestHMACAuth, self).setUp()
         self.app = Eve(settings=self.settings_file, auth=ValidHMACAuth)
         self.test_client = self.app.test_client()
-        self.valid_auth = [('Authorization', 'admin:secret')]
+        self.valid_auth = [('Authorization', 'admin:secret'),
+                           self.content_type]
 
     def test_custom_auth(self):
         self.assertEqual(type(self.app.auth), ValidHMACAuth)
@@ -244,12 +244,11 @@ class TestUserRestrictedAccess(TestBase):
         self.valid_auth = [('Authorization', 'Basic YWRtaW46c2VjcmV0')]
         self.invalid_auth = [('Authorization', 'Basic IDontThinkSo')]
         self.field_name = 'auth_field'
-        self.data = json.dumps(
-            {'item1': {"ref": "0123456789123456789012345"}}
-        )
+        self.data = json.dumps({"ref": "0123456789123456789012345"})
         for resource, settings in self.app.config['DOMAIN'].items():
             settings[self.field_name] = 'username'
         self.resource['public_methods'] = []
+        self.app.auth.request_auth_value = 'admin'
 
     def test_get(self):
         data, status = self.parse_response(
@@ -303,6 +302,9 @@ class TestUserRestrictedAccess(TestBase):
         We need to make sure we *match* an object ID when it is the
         same
         """
+        _id = ObjectId('deadbeefdeadbeefdeadbeef')
+        self.app.auth.request_auth_value = _id
+
         # set auth_field to `_id`
         self.app.config['DOMAIN']['users'][self.field_name] = \
             self.app.config['ID_FIELD']
@@ -319,13 +321,13 @@ class TestUserRestrictedAccess(TestBase):
 
         # Create a user account belonging to admin
         new_user = self.random_contacts(1)[0]
-        new_user['_id'] = ObjectId(self.app.auth._id)
+        new_user['_id'] = _id
         new_user['username'] = 'admin'
         _db = self.connection[self.app.config['MONGO_DBNAME']]
         _db.contacts.insert(new_user)
 
         # Retrieving /the same/ user by id returns OK
-        filter_query_2 = filter_by_id % new_user['_id']
+        filter_query_2 = filter_by_id % 'deadbeefdeadbeefdeadbeef'
         data2, status2 = self.parse_response(
             self.test_client.get('%s?%s' % (user_url, filter_query_2),
                                  headers=self.valid_auth))
@@ -333,7 +335,7 @@ class TestUserRestrictedAccess(TestBase):
         self.assertEqual(len(data2['_items']), 1)
 
     def test_collection_get_public(self):
-        """ Test that if GET is in `public_methods` the `auth_username_field`
+        """ Test that if GET is in `public_methods` the `auth_field`
         criteria is overruled
         """
         self.resource['public_methods'].append('GET')
@@ -345,8 +347,8 @@ class TestUserRestrictedAccess(TestBase):
         self.assertEqual(len(data['_items']), 25)
 
     def test_item_get_public(self):
-        """ Test that if GET is in `public_item_methods` the
-        `auth_username_field` criteria is overruled
+        """ Test that if GET is in `public_item_methods` the `auth_field`
+        criteria is overruled
         """
         self.resource['public_item_methods'].append('GET')
         data, status = self.parse_response(
@@ -367,9 +369,9 @@ class TestUserRestrictedAccess(TestBase):
 
     def test_patch(self):
         new_ref = "9999999999999999999999999"
-        changes = {'item1': {"ref": new_ref}}
+        changes = json.dumps({"ref": new_ref})
         data, status = self.post()
-        url = '%s/%s' % (self.known_resource_url, data['item1']['_id'])
+        url = '%s/%s' % (self.known_resource_url, data['_id'])
         response = self.test_client.get(url, headers=self.valid_auth)
         etag = response.headers['ETag']
         headers = [('If-Match', etag),
@@ -387,7 +389,7 @@ class TestUserRestrictedAccess(TestBase):
 
     def test_delete(self):
         data, status = self.post()
-        url = '%s/%s' % (self.known_resource_url, data['item1']['_id'])
+        url = '%s/%s' % (self.known_resource_url, data['_id'])
         response = self.test_client.get(url, headers=self.valid_auth)
         etag = response.headers['ETag']
         headers = [('If-Match', etag),

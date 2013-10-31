@@ -11,6 +11,9 @@
     :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.1.1
+       'SERVER_NAME' defaults to None.
+
     .. versionchanged:: 0.1.0
        'EMBEDDING' added and set to True.
        'HATEOAS' added and set to True.
@@ -41,7 +44,7 @@ DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
 
 API_VERSION = ''
 URL_PREFIX = ''
-SERVER_NAME = '127.0.0.1:5000'
+SERVER_NAME = None
 LAST_UPDATED = 'updated'
 DATE_CREATED = 'created'
 ID_FIELD = '_id'
