@@ -17,7 +17,7 @@ from eve.validation import ValidationError
 from flask import current_app as app, abort, request
 from eve.utils import document_etag, document_link, config, debug_error_message
 from eve.methods.common import get_document, parse, payload as payload_, \
-    ratelimit
+    ratelimit, resolve_default_values
 
 
 @ratelimit()
@@ -30,6 +30,11 @@ def put(resource, **lookup):
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
+
+    .. versionchanged:: 0.2
+       explictly resolve default values instead of letting them be resolved
+       by common.parse. This avoids a validation error when a read-only field
+       also has a default value.
 
     .. versionchanged:: 0.1.1
        auth.request_auth_value is now used to store the auth_field value.
@@ -72,6 +77,8 @@ def put(resource, **lookup):
                 request_auth_value = app.auth.request_auth_value
                 if request_auth_value and request.authorization:
                     document[auth_field] = request_auth_value
+            resolve_default_values(document, resource)
+
             etag = document_etag(document)
 
             # notify callbacks

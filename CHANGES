@@ -8,6 +8,11 @@ Version 0.2
 
 Not released yet.
 
+Fixes
+~~~~~
+- A read-only field with a default value would trigger a validation error on
+  POST and PUT methods.
+
 Version 0.1.1
 -------------
 

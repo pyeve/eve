@@ -97,14 +97,6 @@ def parse(value, resource):
     except:
         pass
 
-    # update the document with eventual default values
-    if request_method() in ('POST', 'PUT'):
-        defaults = app.config['DOMAIN'][resource]['defaults']
-        missing_defaults = defaults.difference(set(document.keys()))
-        schema = config.DOMAIN[resource]['schema']
-        for missing_field in missing_defaults:
-            document[missing_field] = schema[missing_field]['default']
-
     return document
 
 
@@ -320,3 +312,19 @@ def serialize(document, resource=None, schema=None):
                     document[field] = \
                         app.data.serializers[field_type](document[field])
     return document
+
+
+def resolve_default_values(document, resource):
+    """Add any defined default value for missing document fields.
+
+    :param document: the document being posted or replaced
+    :param resource: the resource to which the document belongs
+
+    .. versionadded:: 0.2
+    """
+    if request_method() in ('POST', 'PUT'):
+        defaults = app.config['DOMAIN'][resource]['defaults']
+        missing_defaults = defaults.difference(set(document.keys()))
+        schema = config.DOMAIN[resource]['schema']
+        for missing_field in missing_defaults:
+            document[missing_field] = schema[missing_field]['default']

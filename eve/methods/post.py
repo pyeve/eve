@@ -16,7 +16,8 @@ from flask import current_app as app, request
 from eve.utils import document_link, config, document_etag
 from eve.auth import requires_auth
 from eve.validation import ValidationError
-from eve.methods.common import parse, payload, ratelimit
+from eve.methods.common import parse, payload, ratelimit, \
+    resolve_default_values
 
 
 @ratelimit()
@@ -41,8 +42,13 @@ def post(resource, payl=None):
                  See https://github.com/nicolaiarocci/eve/issues/74 for a
                  discussion, and a typical use case.
 
+    .. versionchanged:: 0.2
+       explictly resolve default values instead of letting them be resolved
+       by common.parse. This avoids a validation error when a read-only field
+       also has a default value.
+
     .. versionchanged:: 0.1.1
-        auth.request_auth_value is now used to store the auth_field value.
+       auth.request_auth_value is now used to store the auth_field value.
 
     .. versionchanged:: 0.1.0
        More robust handling of auth_field.
@@ -121,6 +127,8 @@ def post(resource, payl=None):
                     request_auth_value = app.auth.request_auth_value
                     if request_auth_value and request.authorization:
                         document[auth_field] = request_auth_value
+
+                resolve_default_values(document, resource)
             else:
                 # validation errors added to list of document issues
                 doc_issues.extend(validator.errors)
