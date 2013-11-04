@@ -8,6 +8,12 @@ Version 0.2
 
 Not released yet.
 
+Enhancements
+~~~~~~~~~~~~
+- New method ``Eve.register_resource()`` for registering new resource after
+  initialization of Eve object. This is needed for simpler initialization API
+  of all ORM/ODM extensions (Stanislav Heller).
+
 Fixes
 ~~~~~
 - A read-only field with a default value would trigger a validation error on
