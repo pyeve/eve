@@ -62,6 +62,11 @@ class Eve(Flask, Events):
                   feature, if enabled.
     :param kwargs: optional, standard, Flask parameters.
 
+    .. versionchanged:: 0.2
+       New method Eve.register_resource() for registering new resource after
+       initialization of Eve object. This is needed for simpler initialization
+       API of all ORM/ODM extensions.
+
     .. versionchanged:: 0.1.0
        Now supporting both "trailing slashes" and "no-trailing slashes" URLs.
 
@@ -98,6 +103,9 @@ class Eve(Flask, Events):
             5. activate the chosen data layer
             6. instance the authentication layer if needed
             7. set the redis instance to be used by the Rate-Limiting feature
+
+        .. versionchanged:: 0.2
+           Validate and set defaults for each resource
         """
 
         # TODO should we support standard Flask parameters as well?
@@ -184,6 +192,10 @@ class Eve(Flask, Events):
         """ Makes sure that REST methods expressed in the configuration
         settings are supported.
 
+        .. versionchanged:: 0.2.0
+           Default supported methods are now class-level attributes.
+           Resource validation delegated to _validate_resource_settings().
+
         .. versionchanged:: 0.1.0
         Support for PUT method.
 
@@ -212,6 +224,8 @@ class Eve(Flask, Events):
 
         :param resource: name of the resource which settings refer to.
         :param settings: settings of resource to be validated.
+
+        .. versionadded:: 0.2
         """
         self.validate_methods(self.supported_resource_methods,
                               settings['resource_methods'],
@@ -316,6 +330,10 @@ class Eve(Flask, Events):
     def set_defaults(self):
         """ When not provided, fills individual resource settings with default
         or global configuration settings.
+
+        .. versionchanged:: 0.2
+           Setting of actual resource defaults is delegated to
+           _set_resource_defaults().
 
         .. versionchanged:: 0.1.1
            'default' values that could be assimilated to None (0, None, "")
@@ -458,6 +476,8 @@ class Eve(Flask, Events):
     def api_prefix(self):
         """
         Prefix to API endpoints.
+
+        .. versionadded:: 0.2
         """
         return api_prefix(self.config['URL_PREFIX'],
                           self.config['API_VERSION'])
@@ -465,6 +485,8 @@ class Eve(Flask, Events):
     def _add_resource_url_rules(self, resource, settings):
         """ Builds the API url map for one resource. Methods are enabled for
         each mapped endpoint, as configured in the settings.
+
+        .. versionadded:: 0.2
         """
         url = '%s/%s' % (self.api_prefix, settings['url'])
         self.config['RESOURCES'][url] = resource
@@ -507,6 +529,9 @@ class Eve(Flask, Events):
     def _add_url_rules(self):
         """ Builds the API url map. Methods are enabled for each mapped
         endpoint, as configured in the settings.
+
+        .. versionchanged:: 0.2
+           Delegate adding of resource rules to _add_resource_rules().
 
         .. versionchanged:: 0.1.1
            Simplified URL rules. Not using regexes anymore to return the
@@ -554,8 +579,11 @@ class Eve(Flask, Events):
 
         :param resource: resource name.
         :param settings: settings for given resource.
+
+        .. versionadded:: 0.2
         """
         self.config['DOMAIN'][resource] = settings
         self._set_resource_defaults(resource, settings)
         self._validate_resource_settings(resource, settings)
         self._add_resource_url_rules(resource, settings)
+
