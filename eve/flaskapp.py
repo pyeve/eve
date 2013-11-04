@@ -586,4 +586,3 @@ class Eve(Flask, Events):
         self._set_resource_defaults(resource, settings)
         self._validate_resource_settings(resource, settings)
         self._add_resource_url_rules(resource, settings)
-
