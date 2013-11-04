@@ -141,9 +141,12 @@ class TestConfig(TestBase):
         self.domain.clear()
         resource = 'plurals'
         self.domain[resource] = {}
-
         self.app.set_defaults()
+        self._test_defaults_for_resource(resource)
+        settings = self.domain[resource]
+        self.assertEqual(len(settings['schema']), 0)
 
+    def _test_defaults_for_resource(self, resource):
         settings = self.domain[resource]
         self.assertEqual(settings['url'], resource)
         self.assertEqual(settings['resource_methods'],
@@ -187,10 +190,11 @@ class TestConfig(TestBase):
 
         self.assertNotEqual(settings['schema'], None)
         self.assertEqual(type(settings['schema']), dict)
-        self.assertEqual(len(settings['schema']), 0)
 
     def test_datasource(self):
-        resource = 'invoices'
+        self._test_datasource_for_resource('invoices')
+
+    def _test_datasource_for_resource(self, resource):
         datasource = self.domain[resource]['datasource']
         schema = self.domain[resource]['schema']
         compare = [key for key in datasource['projection'] if key in schema]
@@ -296,3 +300,22 @@ class TestConfig(TestBase):
 
             # TODO test item endpoints as well. gonna be tricky since
             # we have to reverse regexes here. will be fun.
+
+    def test_register_resource(self):
+        resource = 'resource'
+        settings = {
+            'schema': {
+                'title': {
+                    'type': 'string',
+                    'default': 'Mr.',
+                },
+                'price': {
+                    'type': 'integer',
+                    'default': 100
+                },
+            }
+        }
+        self.app.register_resource(resource, settings)
+        self._test_defaults_for_resource(resource)
+        self._test_datasource_for_resource(resource)
+        self.test_validate_roles()
