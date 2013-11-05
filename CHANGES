@@ -17,6 +17,10 @@ Enhancements
 - New method ``Eve.register_resource()`` for registering new resource after
   initialization of Eve object. This is needed for simpler initialization API
   of all ORM/ODM extensions (Stanislav Heller).
+- JSON encoding is now handled at the DataLayer level allowing for specialized,
+  granular, data-aware encoding. Also, since the JSON encoder is now a class
+  attribute, extensions can replace the pre-defined data layer encoder with
+  their own implementation. Closes #102.
 
 Fixes
 ~~~~~
@@ -36,7 +40,7 @@ Enhancements
   (``/invoices/<id>/?embedded={'person':1}``),
 - ``collection`` (used when setting up a data relation, see Embedded Resource
   Serialization) has been renamed to ``resource`` in order to avoid confusion
-  between the Eve schema and underlying MongoDB collections. 
+  between the Eve schema and underlying MongoDB collections.
 - Nested endpoints. Endpoints with deep paths like ``/contacts/overseas`` can
   now function in conjuction with top-level endpoints (``/contacts``).
   Endpoints are completely independent: each can allow item lookups
@@ -52,7 +56,7 @@ Enhancements
   request document. Please note that this is a breaking change. Also be aware
   that when the request content-type is ``x-www-form-urlencoded``, single
   document insert is performed. Closes #139.
-- ObjectId are properly serialized on POST/PATCH/PUT methods. 
+- ObjectId are properly serialized on POST/PATCH/PUT methods.
 - Queries on ObjectId and datetime values in nested documents.
 - ``auth.user_id`` renamed to ``auth.request_auth_value`` for better
   consistency with the ``auth_field`` setting. Closes #132 (Ryan Shea).
@@ -74,7 +78,7 @@ Version 0.1
 
 Released on September 30th, 2013.
 
-New Features 
+New Features
 ~~~~~~~~~~~~
 - ``PUT`` method for completely replace a document while keeping the same
   unique identifier. Closes #96.

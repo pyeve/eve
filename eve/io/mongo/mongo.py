@@ -20,13 +20,31 @@ from bson import ObjectId
 from datetime import datetime
 from eve import ID_FIELD
 from eve.io.mongo.parser import parse, ParseError
-from eve.io.base import DataLayer, ConnectionException
+from eve.io.base import DataLayer, ConnectionException, BaseJSONEncoder
 from eve.utils import config, debug_error_message, validate_filters, \
     str_to_date
 
 
+class MongoJSONEncoder(BaseJSONEncoder):
+    """ Propretary JSONEconder subclass used by the json render function.
+    This is needed to address the encoding of special values.
+
+    .. versionadded:: 0.2
+    """
+    def default(self, obj):
+        if isinstance(obj, ObjectId):
+            # BSON/Mongo ObjectId is rendered as a string
+            return str(obj)
+        else:
+            # delegate rendering to base class method
+            return super(MongoJSONEncoder, self).default(obj)
+
+
 class Mongo(DataLayer):
     """ MongoDB data access layer for Eve REST API.
+
+    .. versionchanged:: 0.2
+       Provide the specialized json serializer class as ``json_encoder_class``.
 
     .. versionchanged:: 0.1.1
        'serializers' added.
@@ -36,6 +54,10 @@ class Mongo(DataLayer):
         'objectid': ObjectId,
         'datetime': str_to_date
     }
+
+    # JSON serializer  s a class attribute. Allows extensions to replace it
+    # with their own implementation.
+    json_encoder_class = MongoJSONEncoder
 
     def init_app(self, app):
         """
@@ -235,7 +257,7 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
-        datasource, filter_, _ = self._datasource_ex(resource)
+        datasource, _, _ = self._datasource_ex(resource)
         try:
             return self.driver.db[datasource].insert(doc_or_docs,
                                                      **self._wc(resource))

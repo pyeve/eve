@@ -4,8 +4,9 @@ from unittest import TestCase
 from bson import ObjectId
 from datetime import datetime
 from eve.io.mongo.parser import parse, ParseError
-from eve.io.mongo import Validator, Mongo
+from eve.io.mongo import Validator, Mongo, MongoJSONEncoder
 from eve.utils import config
+import simplejson as json
 
 
 class TestPythonParser(TestCase):
@@ -118,6 +119,11 @@ class TestMongoDriver(TestCase):
             combined,
             {'$and': [{'username': {'$exists': True}}, {'username': 'mike'}]}
         )
+
+    def test_json_encoder_class(self):
+        mongo = Mongo(None)
+        self.assertTrue((mongo.json_encoder_class(), MongoJSONEncoder))
+        self.assertTrue((mongo.json_encoder_class(), json.JSONEncoder))
 
     def test_get_value_from_query(self):
         mongo = Mongo(None)
