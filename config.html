@@ -62,8 +62,8 @@
 <span id="config"></span><h1>Configuration Handling<a class="headerlink" href="#configuration-handling" title="Permalink to this headline">¶</a></h1>
 <p>Generally Eve configuration is best done with configuration files. The
 configuration files themselves are actual Python files.</p>
-<div class="section" id="configuration-files">
-<h2>Configuration Files<a class="headerlink" href="#configuration-files" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="configuration-with-files">
+<h2>Configuration with Files<a class="headerlink" href="#configuration-with-files" title="Permalink to this headline">¶</a></h2>
 <p>On startup, Eve will look for a <cite>settings.py</cite> file in the application folder.
 You can choose an alternative filename/path. Just pass it as an argument when
 you instantiate the application.</p>
@@ -73,8 +73,26 @@ you instantiate the application.</p>
 <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="configuration-with-a-dictionary">
+<h2>Configuration with a Dictionary<a class="headerlink" href="#configuration-with-a-dictionary" title="Permalink to this headline">¶</a></h2>
+<p>Alternatively, you can choose to provide a settings dictionary:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">my_settings</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;MONGO_HOST&#39;</span><span class="p">:</span> <span class="s">&#39;localhost&#39;</span><span class="p">,</span>
+    <span class="s">&#39;MONGO_PORT&#39;</span><span class="p">:</span> <span class="mi">27017</span><span class="p">,</span>
+    <span class="s">&#39;MONGO_DBNAME&#39;</span><span class="p">:</span> <span class="s">&#39;the_db_name&#39;</span>
+    <span class="s">&#39;DOMAIN&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;contacts&#39;</span><span class="p">:</span> <span class="p">{}}</span>
+<span class="p">}</span>
+
+<span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="n">my_settings</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="development-production">
-<h3>Development / Production<a class="headerlink" href="#development-production" title="Permalink to this headline">¶</a></h3>
+<h2>Development / Production<a class="headerlink" href="#development-production" title="Permalink to this headline">¶</a></h2>
 <p>Most applications need more than one configuration. There should be at least
 separate configurations for the production server and the one used during
 development. The easiest way to handle this is to use a default configuration
@@ -116,7 +134,6 @@ from the <a class="reference internal" href="index.html#demo"><em>Live demo</em>
     <span class="c"># let&#39;s not forget the API entry point</span>
     <span class="n">SERVER_NAME</span> <span class="o">=</span> <span class="s">&#39;localhost:5000&#39;</span>
 </pre></div>
-</div>
 </div>
 </div>
 <div class="section" id="global-configuration">
@@ -938,10 +955,9 @@ come in handy when you want to protect insertion and modification behind an
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Configuration Handling</a><ul>
-<li><a class="reference internal" href="#configuration-files">Configuration Files</a><ul>
+<li><a class="reference internal" href="#configuration-with-files">Configuration with Files</a></li>
+<li><a class="reference internal" href="#configuration-with-a-dictionary">Configuration with a Dictionary</a></li>
 <li><a class="reference internal" href="#development-production">Development / Production</a></li>
-</ul>
-</li>
 <li><a class="reference internal" href="#global-configuration">Global Configuration</a></li>
 <li><a class="reference internal" href="#domain-configuration">Domain Configuration</a><ul>
 <li><a class="reference internal" href="#resource-item-endpoints">Resource / Item Endpoints</a></li>

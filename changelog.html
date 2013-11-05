@@ -60,12 +60,33 @@
 <div class="section" id="version-0-2">
 <h2>Version 0.2<a class="headerlink" href="#version-0-2" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
+<div class="section" id="new-features">
+<h3>New Features<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>You can now choose to provide custom settings as a Python dictionary.</li>
+</ul>
+</div>
+<div class="section" id="enhancements">
+<h3>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>New method <tt class="docutils literal"><span class="pre">Eve.register_resource()</span></tt> for registering new resource after
+initialization of Eve object. This is needed for simpler initialization API
+of all ORM/ODM extensions (Stanislav Heller).</li>
+</ul>
+</div>
+<div class="section" id="fixes">
+<h3>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>A read-only field with a default value would trigger a validation error on
+POST and PUT methods.</li>
+</ul>
+</div>
 </div>
 <div class="section" id="version-0-1-1">
 <h2>Version 0.1.1<a class="headerlink" href="#version-0-1-1" title="Permalink to this headline">¶</a></h2>
 <p>Released on October 31th, 2013.</p>
-<div class="section" id="enhancements">
-<h3>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id1">
+<h3>Enhancements<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>DELETE now uses the original document ID_FIELD when issuing the delete
 command to the underlying data layer (Xavi Cubillas).</li>
@@ -97,8 +118,8 @@ consistency with the <tt class="docutils literal"><span class="pre">auth_field</
 easier development on distant machine that may changes IP (Ronan Delacroix).</li>
 </ul>
 </div>
-<div class="section" id="fixes">
-<h3>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id2">
+<h3>Fixes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>CORS support was not available for <tt class="docutils literal"><span class="pre">additional_lookup</span></tt> urls (Petr Jašek.)</li>
 <li>&#8216;default&#8217; field values that could be assimilated to <tt class="docutils literal"><span class="pre">None</span></tt> (0, None, &#8220;&#8221;)
@@ -113,8 +134,8 @@ flaskapp.validate_schema() (Roy Smith).</li>
 <div class="section" id="version-0-1">
 <h2>Version 0.1<a class="headerlink" href="#version-0-1" title="Permalink to this headline">¶</a></h2>
 <p>Released on September 30th, 2013.</p>
-<div class="section" id="new-features">
-<h3>New Features<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h3>New Features<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">PUT</span></tt> method for completely replace a document while keeping the same
 unique identifier. Closes #96.</li>
@@ -127,8 +148,8 @@ level.</li>
 <li><tt class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></tt> supported for all HTTP Methods. Closes #95.</li>
 </ul>
 </div>
-<div class="section" id="id1">
-<h3>Enhancements<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id4">
+<h3>Enhancements<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>HTTP method is now passed into <tt class="docutils literal"><span class="pre">authenticate()</span></tt> and <tt class="docutils literal"><span class="pre">check_auth()</span></tt> (Ken
 Carpenter). Closes #90 .</li>
@@ -141,8 +162,8 @@ introduced in v0.0.9.</li>
 <li>Cerberus 0.4.0 is now supported.</li>
 </ul>
 </div>
-<div class="section" id="id2">
-<h3>Fixes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id5">
+<h3>Fixes<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Item <tt class="docutils literal"><span class="pre">GET</span></tt> on documents with non-existent &#8216;created&#8217; field (because
 stored outside of API context) were not returning a default value for the
@@ -495,16 +516,21 @@ signature, allowing for further subclassing.</li>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Eve Changelog</a><ul>
-<li><a class="reference internal" href="#version-0-2">Version 0.2</a></li>
-<li><a class="reference internal" href="#version-0-1-1">Version 0.1.1</a><ul>
+<li><a class="reference internal" href="#version-0-2">Version 0.2</a><ul>
+<li><a class="reference internal" href="#new-features">New Features</a></li>
 <li><a class="reference internal" href="#enhancements">Enhancements</a></li>
 <li><a class="reference internal" href="#fixes">Fixes</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#version-0-1">Version 0.1</a><ul>
-<li><a class="reference internal" href="#new-features">New Features</a></li>
+<li><a class="reference internal" href="#version-0-1-1">Version 0.1.1</a><ul>
 <li><a class="reference internal" href="#id1">Enhancements</a></li>
 <li><a class="reference internal" href="#id2">Fixes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#version-0-1">Version 0.1</a><ul>
+<li><a class="reference internal" href="#id3">New Features</a></li>
+<li><a class="reference internal" href="#id4">Enhancements</a></li>
+<li><a class="reference internal" href="#id5">Fixes</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#version-0-0-9">Version 0.0.9</a></li>
