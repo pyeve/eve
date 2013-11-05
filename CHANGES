@@ -8,6 +8,10 @@ Version 0.2
 
 Not released yet.
 
+New Features
+~~~~~~~~~~~~
+- You can now choose to provide custom settings as a Python dictionary.
+
 Enhancements
 ~~~~~~~~~~~~
 - New method ``Eve.register_resource()`` for registering new resource after

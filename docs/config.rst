@@ -5,21 +5,39 @@ Configuration Handling
 Generally Eve configuration is best done with configuration files. The
 configuration files themselves are actual Python files. 
 
-Configuration Files
--------------------
+Configuration with Files
+------------------------
 On startup, Eve will look for a `settings.py` file in the application folder.
 You can choose an alternative filename/path. Just pass it as an argument when
 you instantiate the application.
 
-::
+.. code-block:: python
     
     from eve import Eve
 
     app = Eve(settings='my_settings.py')
     app.run()
 
+Configuration with a Dictionary
+-------------------------------
+Alternatively, you can choose to provide a settings dictionary:
+
+.. code-block:: python
+    
+    my_settings = {
+        'MONGO_HOST': 'localhost',
+        'MONGO_PORT': 27017,
+        'MONGO_DBNAME': 'the_db_name'
+        'DOMAIN': {'contacts': {}} 
+    }
+
+    from eve import Eve
+
+    app = Eve(settings=my_settings)
+    app.run()
+
 Development / Production
-''''''''''''''''''''''''
+------------------------
 Most applications need more than one configuration. There should be at least
 separate configurations for the production server and the one used during
 development. The easiest way to handle this is to use a default configuration

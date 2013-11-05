@@ -49,6 +49,13 @@ class TestConfig(TestBase):
                                                                     '$regex'])
         self.assertEqual(self.app.config['MONGO_WRITE_CONCERN'], {'w': 1})
 
+    def test_settings_as_dict(self):
+        my_settings = {'API_VERSION': 'override!', 'DOMAIN': {'contacts': {}}}
+        self.app = Eve(settings=my_settings)
+        self.assertEqual(self.app.config['API_VERSION'], 'override!')
+        # did not reset other defaults
+        self.assertEqual(self.app.config['MONGO_WRITE_CONCERN'], {'w': 1})
+
     def test_unexisting_pyfile_config(self):
         self.assertRaises(IOError, Eve, settings='an_unexisting_pyfile.py')
 
@@ -71,7 +78,6 @@ class TestConfig(TestBase):
         class MyTestDataLayer(DataLayer):
             def init_app(self, app):
                 pass
-            pass
         self.app = Eve(data=MyTestDataLayer, settings=self.settings_file)
         self.assertEqual(type(self.app.data), MyTestDataLayer)
 
@@ -293,7 +299,7 @@ class TestConfig(TestBase):
         map_adapter = self.app.url_map.bind(self.app.config.get(
             'SERVER_NAME', ''))
 
-        for resource, settings in self.domain.items():
+        for _, settings in self.domain.items():
             for method in settings['resource_methods']:
                 self.assertTrue(map_adapter.test('/%s/' % settings['url'],
                                                  method))
