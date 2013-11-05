@@ -8,3 +8,5 @@ MarkupSafe==0.18
 pymongo==2.6.3
 simplejson==3.3.0
 Werkzeug==0.9.4
+pyelasticsearch==0.6.1
+requests==2.0.1
