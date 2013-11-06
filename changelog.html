@@ -72,6 +72,10 @@
 <li>New method <tt class="docutils literal"><span class="pre">Eve.register_resource()</span></tt> for registering new resource after
 initialization of Eve object. This is needed for simpler initialization API
 of all ORM/ODM extensions (Stanislav Heller).</li>
+<li>JSON encoding is now handled at the DataLayer level allowing for specialized,
+granular, data-aware encoding. Also, since the JSON encoder is now a class
+attribute, extensions can replace the pre-defined data layer encoder with
+their own implementation. Closes #102.</li>
 </ul>
 </div>
 <div class="section" id="fixes">
