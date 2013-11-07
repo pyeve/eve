@@ -1,4 +1,5 @@
 
+import ast
 from datetime import datetime
 from pyelasticsearch import ElasticSearch
 from pyelasticsearch.exceptions import ElasticHttpNotFoundError
@@ -63,35 +64,39 @@ class Elastic(DataLayer):
         self.index = app.config['ELASTICSEARCH_INDEX']
 
     def find(self, resource, req):
-        args = dict()
+        query = {
+            'query': {
+                'query_string': {
+                    'query': request.args.get('q', '*'),
+                    'default_field': request.args.get('df', '_all'),
+                    'default_operator': 'AND'
+                }
+            }
+        }
 
-        if req.max_results:
-            args['size'] = req.max_results
+        # skip sorting when there is a query to use score
+        if req.sort and 'q' not in request.args:
+            query['sort'] = []
+            sort = ast.literal_eval(req.sort)
+            for (key, sortdir) in sort:
+                query['sort'].append(dict([(key, 'asc' if sortdir > 0 else 'desc')]))
 
-        if req.page > 1:
-            args['es_from'] = (req.page - 1) * req.max_results
-
-        query = request.args.get('q', '*:*')
         if req.where:
             where = json.loads(req.where)
             if where:
-                query = {
-                    'query': {
-                        'filtered': {
-                            'query': {
-                                'query_string': {
-                                    'query': request.args.get('q', '*:*')
-                                }
-                            },
-                            'filter': {
-                                'term': where
-                            }
-                        }
-                    }
+                query['filter'] = {
+                    'term': where
                 }
 
+        if req.max_results:
+            query['size'] = req.max_results
+
+        if req.page > 1:
+            query['from'] = (req.page - 1) * req.max_results
+
+        print(query)
         datasource, filter_, projection = self._datasource_ex(resource)
-        return self._parse_hits(self.es.search(query=query, index=self.index, doc_type=datasource, es_fields=self._fields(projection),  **args))
+        return self._parse_hits(self.es.search(query=query, index=self.index, doc_type=datasource, es_fields=self._fields(projection)))
 
     def find_one(self, resource, **lookup):
         datasource, filter_, projection = self._datasource_ex(resource, lookup)
@@ -125,12 +130,12 @@ class Elastic(DataLayer):
         datasource, filter_, fields = self._datasource_ex(resource)
         return self._parse_hits(self.es.multi_get(ids, self.index, dataresource, fields))
 
-    def insert(self, resource, doc_or_docs):
+    def insert(self, resource, doc_or_docs, **kwargs):
         datasource, filter_, _ = self._datasource_ex(resource)
 
         ids = []
         for doc in doc_or_docs:
-            doc.update(self.es.index(self.index, datasource, doc, id=doc.get('_id')))
+            doc.update(self.es.index(self.index, datasource, doc, id=doc.get('_id'), **kwargs))
             ids.append(doc['_id'])
         self.es.refresh(self.index)
         return ids
