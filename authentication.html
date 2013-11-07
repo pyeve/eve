@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Authentication &mdash; Eve 0.2-dev documentation</title>
+    <title>Authentication and Authorization &mdash; Eve 0.2-dev documentation</title>
     
     <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -58,20 +58,33 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="authentication">
-<span id="auth"></span><h1>Authentication<a class="headerlink" href="#authentication" title="Permalink to this headline">¶</a></h1>
-<p>You can restrict access to all API endpoints, or only some of them. You can
-protect some HTTP verbs while leaving others open. For example, you can allow
-public read-only access while leaving item creation and edition restricted to
-authorized users only. You can also allow &#8216;GET&#8217; access for certain requests and
-&#8216;POST&#8217; access for others by checking the method parameter. There is also
-support for role-based access control.</p>
-<p>Authentication is one of those areas where customization is very important.
-This is why you are provided with a handful of base authorization classes. They
-should be subclassed in order to implement custom logic. As you will see in the
-code snippets below, no matter which authentication scheme you pick, the only
-thing that you need to do is override the <tt class="docutils literal"><span class="pre">check_auth()</span></tt> method. When you
-instantiate the Eve app, you pass your custom class, like this:</p>
+  <div class="section" id="authentication-and-authorization">
+<span id="auth"></span><h1>Authentication and Authorization<a class="headerlink" href="#authentication-and-authorization" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction-to-security">
+<h2>Introduction to Security<a class="headerlink" href="#introduction-to-security" title="Permalink to this headline">¶</a></h2>
+<p>Authentication is the mechanism whereby systems may securely identify their
+users. Eve supports several authentication schemes: Basic Authentication, Token
+Authentication, HMAC Authentication.</p>
+<p>Authorization is the mehcanism by which a system determines what level of
+access a particular (authenticated) user should have access to resources
+controlled by the system. In Eve, you can restrict access to all API endpoints,
+or only some of them. You can protect some HTTP verbs while leaving others
+open. For example, you can allow public read-only access while leaving item
+creation and edition restricted to authorized users only. You can also allow
+<tt class="docutils literal"><span class="pre">GET</span></tt> access for certain requests and <tt class="docutils literal"><span class="pre">POST</span></tt> access for others by checking
+the method parameter. There is also support for role-based access control.</p>
+<p>Security is one of those areas where customization is very important. This is
+why you are provided with a handful of base authentication classes. They
+implement the basic authentication mechanism and must be subclassed in order
+to implement authorization logic. No matter which authentication scheme you
+pick the only thing that you need to do in your subclass is override the
+<tt class="docutils literal"><span class="pre">check_auth()</span></tt> method.</p>
+</div>
+<div class="section" id="global-authentication">
+<h2>Global Authentication<a class="headerlink" href="#global-authentication" title="Permalink to this headline">¶</a></h2>
+<p>To enable authentication for your API just pass the custom auth class on
+app instantiation. In our example we&#8217;re going to use the <tt class="docutils literal"><span class="pre">BasicAuth</span></tt> base
+class, which implements the <a class="reference internal" href="#basic"><em>Basic Authentication</em></a> scheme:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">BasicAuth</span>
 
 <span class="k">class</span> <span class="nc">MyBasicAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
@@ -87,24 +100,67 @@ instantiate the Eve app, you pass your custom class, like this:</p>
 to provide the correct credentials in order to consume the API:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://example.com
 <span class="go">HTTP/1.1 401 UNAUTHORIZED</span>
-<span class="go">WWW-Authenticate: Basic realm:&quot;eve&quot;</span>
-<span class="go">Content-Type: text/html; charset=utf-8</span>
-<span class="go">Content-Length: 33</span>
-<span class="go">Server: Eve/0.0.4 Werkzeug/0.8.3 Python/2.7.3</span>
-<span class="go">Date: Thu, 14 Feb 2013 14:21:11 GMT</span>
-
 <span class="go">Please provide proper credentials.</span>
 
 <span class="gp">$</span> curl -H <span class="s2">&quot;Authorization: Basic YWRtaW46c2VjcmV0&quot;</span> -i http://example.com
 <span class="go">HTTP/1.1 200 OK</span>
-<span class="go">Content-Type: application/json</span>
-<span class="go">Content-Length: 194</span>
-<span class="go">Server: Eve/0.0.4 Werkzeug/0.8.3 Python/2.7.3</span>
-<span class="go">Date: Thu, 14 Feb 2013 14:23:39 GMT</span>
 </pre></div>
 </div>
-<p>By default, access is restricted to <em>all</em> endpoints, for <em>all</em> HTTP verbs
+<p>By default access is restricted to all endpoints for all HTTP verbs
 (methods), effectively locking down the whole API.</p>
+<p>But what if your authorization logic is more complex, and you only want to
+secure some endpoints or apply different logics depending on the
+endpoint being consumed? You could get away with just adding logic to your
+authentication class, maybe with something like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyBasicAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">resource</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;zipcodes&#39;</span><span class="p">,</span> <span class="s">&#39;countries&#39;</span><span class="p">):</span>
+            <span class="c"># &#39;zipcodes&#39; and &#39;countries&#39; are public</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># all the other resources are secured</span>
+            <span class="k">return</span> <span class="n">username</span> <span class="o">==</span> <span class="s">&#39;admin&#39;</span> <span class="ow">and</span> <span class="n">password</span> <span class="o">==</span> <span class="s">&#39;secret&#39;</span>
+</pre></div>
+</div>
+<p>If needed, this approach also allows to take the request <tt class="docutils literal"><span class="pre">method</span></tt> into
+consideration, for example to allow <tt class="docutils literal"><span class="pre">GET</span></tt> requests for everyone while forcing
+validation on edits (<tt class="docutils literal"><span class="pre">POST</span></tt>, <tt class="docutils literal"><span class="pre">PUT</span></tt>, <tt class="docutils literal"><span class="pre">PATCH</span></tt>, <tt class="docutils literal"><span class="pre">DELETE</span></tt>).</p>
+</div>
+<div class="section" id="endpoint-level-authentication">
+<h2>Endpoint-level Authentication<a class="headerlink" href="#endpoint-level-authentication" title="Permalink to this headline">¶</a></h2>
+<p>The <em>one class to bind them all</em> approach seen above is probably good for most
+use cases but as soon as authorization logic gets more complicated it could
+easily lead to complex and unmanageable code, something you don&#8217;t really want
+to have when dealing with security.</p>
+<p>Wouldn&#8217;t it be nice if we could have specialized auth classes that we could
+freely apply to selected endpoints? This way the global level auth class, the
+one passed to the Eve constructor as seen above, would still be active on all
+endpoints except those where different authorization logic is needed.
+Alternatively, we could even choose to <em>not</em> provide a global auth class,
+effectively making all endpoints public, except the ones we want protected.
+With a system like this we could even choose to have some endpoints protected
+with, say, Basic Authentication while others are secured with Token, or HMAC
+Authentication!</p>
+<p>Well, turns out this is actually possible by simply enabling the
+resource-level <tt class="docutils literal"><span class="pre">authentication</span></tt> setting when we are defining the API
+<a class="reference internal" href="config.html#domain"><em>domain</em></a>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;people&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;authentication&#39;</span><span class="p">:</span> <span class="n">MySuperCoolAuth</span><span class="p">,</span>
+        <span class="o">...</span>
+        <span class="p">},</span>
+    <span class="s">&#39;invoices&#39;</span><span class="p">:</span> <span class="o">...</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>And that&#8217;s it. The <cite>people</cite> endpoint will now be using the <tt class="docutils literal"><span class="pre">MySuperCoolAuth</span></tt>
+class for authentication, while the <tt class="docutils literal"><span class="pre">invoices</span></tt> endpoint  will be using the
+general-purpose auth class if provided or else it will just be open to the
+public.</p>
+<p>There are other features and options that you can use to reduce complexity in
+your auth classes, especially (but not only) when using the global level
+authentication system. Lets review them.</p>
+</div>
 <div class="section" id="global-endpoint-security">
 <h2>Global Endpoint Security<a class="headerlink" href="#global-endpoint-security" title="Permalink to this headline">¶</a></h2>
 <p>You might want a public read-only API where only authorized users can write,
@@ -512,7 +568,10 @@ folder of the Eve <a class="reference external" href="https://github.com/nicolai
 </p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Authentication</a><ul>
+<li><a class="reference internal" href="#">Authentication and Authorization</a><ul>
+<li><a class="reference internal" href="#introduction-to-security">Introduction to Security</a></li>
+<li><a class="reference internal" href="#global-authentication">Global Authentication</a></li>
+<li><a class="reference internal" href="#endpoint-level-authentication">Endpoint-level Authentication</a></li>
 <li><a class="reference internal" href="#global-endpoint-security">Global Endpoint Security</a></li>
 <li><a class="reference internal" href="#custom-endpoint-security">Custom Endpoint Security</a></li>
 <li><a class="reference internal" href="#basic-authentication">Basic Authentication</a><ul>

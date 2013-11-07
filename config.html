@@ -674,7 +674,15 @@ to check that it&#8217;s being written to multiple
 servers.)</p>
 </td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">authentication</span></tt></td>
+<td>A class with the authorization logic for the
+endpoint. If not provided the eventual
+general purpose auth class (passed as
+application constructor argument) will be used.
+For details on authentication and authorization
+see <a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a>.  Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>,</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
 <td>A dict defining the actual data structure being
 handled by the resource. Enables data
 validation. See <a class="reference internal" href="#schema-definition">Schema Definition</a>.</td>
