@@ -8,7 +8,6 @@ from flask import request, json
 from eve.io.base import DataLayer, ConnectionException
 from eve.utils import config
 
-
 DATE_FORMATS = (
     '%Y-%m-%dT%H:%M:%S.%f%z',
     '%Y-%m-%dT%H:%M:%S%z',
@@ -36,6 +35,7 @@ def convert_dates(doc):
         doc[config.DATE_CREATED] = parse_date(doc[config.DATE_CREATED])
 
 class ElasticCursor(object):
+    """Search results cursor."""
 
     def __init__(self, hits):
         self.hits = hits;
@@ -56,6 +56,7 @@ class ElasticCursor(object):
         return self.hits['hits']['total']
 
 class Elastic(DataLayer):
+    """ElasticSearch data layer."""
 
     def init_app(self, app):
         app.config.setdefault('ELASTICSEARCH_URL', 'http://localhost:9200/')
@@ -94,7 +95,6 @@ class Elastic(DataLayer):
         if req.page > 1:
             query['from'] = (req.page - 1) * req.max_results
 
-        print(query)
         datasource, filter_, projection = self._datasource_ex(resource)
         return self._parse_hits(self.es.search(query=query, index=self.index, doc_type=datasource, es_fields=self._fields(projection)))
 
@@ -102,9 +102,15 @@ class Elastic(DataLayer):
         datasource, filter_, projection = self._datasource_ex(resource, lookup)
 
         if config.ID_FIELD in lookup:
-            hit = self.es.get(self.index, datasource, id=lookup[config.ID_FIELD], fields=self._fields(projection))
+
+            try:
+                hit = self.es.get(self.index, datasource, id=lookup[config.ID_FIELD], fields=self._fields(projection))
+            except ElasticHttpNotFoundError:
+                return
+
             if not hit['exists']:
                 return
+
             doc = hit.get('fields', hit.get('_source', {}))
             doc['_id'] = hit.get('_id')
             convert_dates(doc)
