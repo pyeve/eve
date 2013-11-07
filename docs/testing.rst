@@ -46,7 +46,7 @@ yourself with
     $ pip install redis
     
 Continuous Integration
----------------------
+----------------------
 Each time code is pushed to either the ``develop`` or the ``master``  branch
 the whole test-suite is executed on Travis-CI. This is also the case for
 pull-requests. When a pull request is submitted and the CI run fails two things
