@@ -46,13 +46,13 @@ class TestBasicAuth(TestBase):
                            self.content_type]
         self.invalid_auth = [('Authorization', 'Basic IDontThinkSo'),
                              self.content_type]
-        for resource, schema in self.app.config['DOMAIN'].items():
+        for _, schema in self.app.config['DOMAIN'].items():
             schema['allowed_roles'] = ['admin']
             schema['allowed_item_roles'] = ['admin']
         self.app.set_defaults()
 
     def test_custom_auth(self):
-        self.assertEqual(type(self.app.auth), ValidBasicAuth)
+        self.assertEqual(self.app.auth, ValidBasicAuth)
 
     def test_restricted_home_access(self):
         r = self.test_client.get('/')
@@ -150,7 +150,7 @@ class TestBasicAuth(TestBase):
     def test_public_methods_but_locked_resource(self):
         self.app.config['PUBLIC_METHODS'] = ['GET']
         domain = self.app.config['DOMAIN']
-        for resource, settings in domain.items():
+        for _, settings in domain.items():
             del(settings['public_methods'])
         self.app.set_defaults()
         domain[self.known_resource]['public_methods'] = []
@@ -160,7 +160,7 @@ class TestBasicAuth(TestBase):
     def test_public_methods_but_locked_item(self):
         self.app.config['PUBLIC_ITEM_METHODS'] = ['GET']
         domain = self.app.config['DOMAIN']
-        for resource, settings in domain.items():
+        for _, settings in domain.items():
             del(settings['public_item_methods'])
         self.app.set_defaults()
         domain[self.known_resource]['public_item_methods'] = []
@@ -169,7 +169,7 @@ class TestBasicAuth(TestBase):
 
     def test_public_methods_item(self):
         self.app.config['PUBLIC_ITEM_METHODS'] = ['GET']
-        for resource, settings in self.app.config['DOMAIN'].items():
+        for _, settings in self.app.config['DOMAIN'].items():
             del(settings['public_item_methods'])
         self.app.set_defaults()
         # we're happy with testing just one client endpoint, but for sake of
@@ -204,7 +204,7 @@ class TestTokenAuth(TestBasicAuth):
                            self.content_type]
 
     def test_custom_auth(self):
-        self.assertEqual(type(self.app.auth), ValidTokenAuth)
+        self.assertEqual(self.app.auth, ValidTokenAuth)
 
 
 class TestHMACAuth(TestBasicAuth):
@@ -216,7 +216,7 @@ class TestHMACAuth(TestBasicAuth):
                            self.content_type]
 
     def test_custom_auth(self):
-        self.assertEqual(type(self.app.auth), ValidHMACAuth)
+        self.assertEqual(self.app.auth, ValidHMACAuth)
 
     def test_bad_auth_class(self):
         self.app = Eve(settings=self.settings_file, auth=BadHMACAuth)
@@ -245,7 +245,7 @@ class TestUserRestrictedAccess(TestBase):
         self.invalid_auth = [('Authorization', 'Basic IDontThinkSo')]
         self.field_name = 'auth_field'
         self.data = json.dumps({"ref": "0123456789123456789012345"})
-        for resource, settings in self.app.config['DOMAIN'].items():
+        for _, settings in self.app.config['DOMAIN'].items():
             settings[self.field_name] = 'username'
         self.resource['public_methods'] = []
         self.app.auth.request_auth_value = 'admin'
@@ -280,7 +280,7 @@ class TestUserRestrictedAccess(TestBase):
         This test verifies that the `auth_field` does not overwrite
         a `client_filter` or url param.
         """
-        data, status = self.parse_response(
+        _, status = self.parse_response(
             self.test_client.get(self.user_username_url,
                                  headers=self.valid_auth))
         self.assert401(status)
@@ -292,7 +292,7 @@ class TestUserRestrictedAccess(TestBase):
         self.app.config['DOMAIN']['users'][self.field_name] = \
             self.app.config['ID_FIELD']
 
-        data, status = self.parse_response(
+        _, status = self.parse_response(
             self.test_client.get(self.user_id_url,
                                  headers=self.valid_auth))
         self.assert401(status)
@@ -314,7 +314,7 @@ class TestUserRestrictedAccess(TestBase):
         filter_by_id = 'where=_id==ObjectId("%s")'
         filter_query = filter_by_id % self.user_id
 
-        data, status = self.parse_response(
+        _, status = self.parse_response(
             self.test_client.get('%s?%s' % (user_url, filter_query),
                                  headers=self.valid_auth))
         self.assert401(status)
@@ -358,7 +358,7 @@ class TestUserRestrictedAccess(TestBase):
         self.assertEqual(data['_id'], self.item_id)
 
     def test_post(self):
-        response, status = self.post()
+        _, status = self.post()
         self.assert200(status)
         data, status = self.parse_response(
             self.test_client.get(self.known_resource_url,
@@ -404,3 +404,41 @@ class TestUserRestrictedAccess(TestBase):
                                   headers=self.valid_auth,
                                   content_type='application/json')
         return self.parse_response(r)
+
+
+class TestResourceAuth(TestBase):
+    def test_resource_only_auth(self):
+        # no auth at the API level
+        self.app = Eve(settings=self.settings_file)
+        self.test_client = self.app.test_client()
+        # explicit auth for just one resource
+        self.app.config['DOMAIN']['contacts']['authentication'] = \
+            ValidBasicAuth
+        self.app.config['DOMAIN']['empty']['authentication'] = ValidTokenAuth
+        self.app.set_defaults()
+        basic_auth = [('Authorization', 'Basic YWRtaW46c2VjcmV0')]
+        token_auth = [('Authorization', 'Basic dGVzdF90b2tlbjo=')]
+
+        # 'contacts' endpoints are protected
+        r = self.test_client.get(self.known_resource_url)
+        self.assert401(r.status_code)
+        r = self.test_client.get(self.item_id_url)
+        self.assert401(r.status_code)
+        # both with BasicAuth.
+        _, status = self.parse_response(
+            self.test_client.get(self.known_resource_url, headers=basic_auth))
+        self.assert200(status)
+        _, status = self.parse_response(
+            self.test_client.get(self.item_id_url, headers=basic_auth))
+        self.assert200(status)
+
+        # 'empty' resource endpoint is also protected
+        r = self.test_client.get(self.empty_resource_url)
+        self.assert401(r.status_code)
+        # but with TokenAuth
+        r = self.test_client.get(self.empty_resource_url, headers=token_auth)
+        self.assert200(r.status_code)
+
+        # other resources are not protected
+        r = self.test_client.get(self.readonly_resource_url)
+        self.assert200(r.status_code)

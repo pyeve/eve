@@ -63,6 +63,7 @@ class Eve(Flask, Events):
     :param kwargs: optional, standard, Flask parameters.
 
     .. versionchanged:: 0.2
+       Support for endpoint-level authenticatoin classes.
        New method Eve.register_resource() for registering new resource after
        initialization of Eve object. This is needed for simpler initialization
        API of all ORM/ODM extensions.
@@ -105,6 +106,7 @@ class Eve(Flask, Events):
             7. set the redis instance to be used by the Rate-Limiting feature
 
         .. versionchanged:: 0.2
+           Support for endpoint-level authenticatoin classes.
            Validate and set defaults for each resource
         """
 
@@ -117,15 +119,16 @@ class Eve(Flask, Events):
 
         self.load_config()
         self.validate_domain_struct()
+
+        self.data = data(self)
+        self.auth = auth
+        self.redis = redis
+
         # validate and set defaults for each resource
         for resource, settings in self.config['DOMAIN'].items():
             self._set_resource_defaults(resource, settings)
             self._validate_resource_settings(resource, settings)
         self._add_url_rules()
-
-        self.data = data(self)
-        self.auth = auth() if auth else None
-        self.redis = redis
 
     def run(self, host=None, port=None, debug=None, **options):
         """Pass our own subclass of :class:`werkzeug.serving.WSGIRequestHandler
@@ -384,7 +387,11 @@ class Eve(Flask, Events):
             self._set_resource_defaults(resource, settings)
 
     def _set_resource_defaults(self, resource, settings):
-        """ Low-level method which sets default values for one resource. """
+        """ Low-level method which sets default values for one resource.
+
+        .. versionchanged:: 0.2
+        Support for endpoint-level authenticatoin classes.
+        """
         settings.setdefault('url', resource)
         settings.setdefault('resource_methods',
                             self.config['RESOURCE_METHODS'])
@@ -425,6 +432,7 @@ class Eve(Flask, Events):
                             self.config['MONGO_WRITE_CONCERN'])
         settings.setdefault('hateoas',
                             self.config['HATEOAS'])
+        settings.setdefault('authentication', self.auth if self.auth else None)
 
         # empty schemas are allowed for read-only access to resources
         schema = settings.setdefault('schema', {})
