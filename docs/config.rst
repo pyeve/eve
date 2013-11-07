@@ -559,9 +559,17 @@ always lowercase.
                                 to check that it's being written to multiple
                                 servers.)
                                 
+``authentication``              A class with the authorization logic for the 
+                                endpoint. If not provided the eventual
+                                general purpose auth class (passed as
+                                application constructor argument) will be used. 
+                                For details on authentication and authorization 
+                                see :ref:`auth`.  Defaults to ``None``,
+                                
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data
                                 validation. See `Schema Definition`_.
+
 =============================== ===============================================
 
 Here's an example of resource customization, mostly done by overriding global
