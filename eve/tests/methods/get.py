@@ -112,13 +112,11 @@ class TestGet(TestBase):
 
     def test_get_mongo_query_blacklist(self):
         where = '{"$where": "this.ref == ''%s''"}' % self.item_name
-        response, status = self.get(self.known_resource,
-                                    '?where=%s' % where)
+        _, status = self.get(self.known_resource, '?where=%s' % where)
         self.assert400(status)
 
         where = '{"ref": {"$regex": "%s"}}' % self.item_name
-        response, status = self.get(self.known_resource,
-                                    '?where=%s' % where)
+        _, status = self.get(self.known_resource, '?where=%s' % where)
         self.assert400(status)
 
     def test_get_where_python_syntax(self):
@@ -184,6 +182,21 @@ class TestGet(TestBase):
         self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
         for i in range(len(resource)):
             self.assertEqual(resource[i]['prog'], i)
+
+    def test_get_default_sort(self):
+        s = self.app.config['DOMAIN'][self.known_resource]['datasource']
+
+        # set default sort to 'prog', desc.
+        s['sort'] = [('prog', -1)]
+        self.app.set_defaults()
+        response, _ = self.get(self.known_resource)
+        self.assertEqual(response['_items'][0]['prog'], 100)
+
+        # set default sort to 'prog', asc.
+        s['sort'] = [('prog', 1)]
+        self.app.set_defaults()
+        response, _ = self.get(self.known_resource)
+        self.assertEqual(response['_items'][0]['prog'], 0)
 
     def test_get_if_modified_since(self):
         self.assertIfModifiedSince(self.known_resource_url)
@@ -374,8 +387,7 @@ class TestGetItem(TestBase):
         self.assertItem(response)
 
     def test_disallowed_getitem(self):
-        response, status = self.get(self.empty_resource,
-                                    item=self.item_id)
+        _, status = self.get(self.empty_resource, item=self.item_id)
         self.assert404(status)
 
     def test_getitem_by_id(self):
