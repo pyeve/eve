@@ -225,7 +225,7 @@ resource settings. Defaults to <tt class="docutils literal"><span class="pre">['
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PUBLIC_METHODS</span></tt></td>
 <td>A list of HTTP methods supported at resource
 endpoints, open to public access even when
-<a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a> is enabled. Can be overridden by
+<a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> is enabled. Can be overridden by
 resource settings. Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">ITEM_METHODS</span></tt></td>
@@ -241,18 +241,18 @@ to <tt class="docutils literal"><span class="pre">['GET']</span></tt>.</td>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></tt></td>
 <td>A list of HTTP methods supported at item
 endpoints, left open to public access when when
-<a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a> is enabled. Can be overridden by
+<a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> is enabled. Can be overridden by
 resource settings. Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">ALLOWED_ROLES</span></tt></td>
 <td>A list of allowed <cite>roles</cite> for resource
 endpoints. Can be overridden by resource
-settings. See <a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a> for more
+settings. See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more
 information. Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ALLOWED_ITEM_ROLES</span></tt></td>
 <td>A list of allowed <cite>roles</cite> for item endpoints.
-See <a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a> for more information. Can be
+See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more information. Can be
 overridden by resource settings.  Defaults to
 <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
 </tr>
@@ -538,7 +538,7 @@ keyword instead.</p>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">public_methods</span></tt></td>
 <td>A list of HTTP methods supported at resource
 endpoint, open to public access even when
-<a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a> is enabled. Locally overrides
+<a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> is enabled. Locally overrides
 <tt class="docutils literal"><span class="pre">PUBLIC_METHODS</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">item_methods</span></tt></td>
@@ -552,18 +552,18 @@ Locally overrides <tt class="docutils literal"><span class="pre">ITEM_METHODS</s
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">public_item_methods</span></tt></td>
 <td>A list of HTTP methods supported at item
 endpoint, left open to public access when
-<a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a> is enabled. Locally overrides
+<a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> is enabled. Locally overrides
 <tt class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">allowed_roles</span></tt></td>
 <td>A list of allowed <cite>roles</cite> for resource
-endpoint. See <a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a> for more
+endpoint. See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more
 information. Locally overrides
 <tt class="docutils literal"><span class="pre">ALLOWED_ROLES</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">allowed_item_roles</span></tt></td>
 <td>A list of allowed <cite>roles</cite> for item endpoint.
-See <a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a> for more information.
+See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more information.
 Locally overrides <tt class="docutils literal"><span class="pre">ALLOWED_ITEM_ROLES</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">cache_control</span></tt></td>
@@ -680,9 +680,16 @@ endpoint. If not provided the eventual
 general purpose auth class (passed as
 application constructor argument) will be used.
 For details on authentication and authorization
-see <a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a>.  Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>,</td>
+see <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a>.  Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>,</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">embedded_fields</span></tt></td>
+<td>A list of fields for which <a class="reference internal" href="features.html#embedded-docs"><em>Embedded Resource Serialization</em></a>
+is enabled by default. For this feature to work
+properly fields in the list must be
+<tt class="docutils literal"><span class="pre">embeddable</span></tt>, and <tt class="docutils literal"><span class="pre">embedding</span></tt> must be
+active for the resource.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
 <td>A dict defining the actual data structure being
 handled by the resource. Enables data
 validation. See <a class="reference internal" href="#schema-definition">Schema Definition</a>.</td>
@@ -857,15 +864,46 @@ which was originally set up in <a class="reference internal" href="#domain-confi
 </div>
 <div class="section" id="advanced-datasource-patterns">
 <h2>Advanced Datasource Patterns<a class="headerlink" href="#advanced-datasource-patterns" title="Permalink to this headline">¶</a></h2>
-<p>The <tt class="docutils literal"><span class="pre">datasource</span></tt> keyword allows you to explicitly link API resources to
-database collections (if you omit it, the domain resource key is assumed to be
-the name of the database collection itself). It is a dictionary with three allowed
-keys: <cite>source</cite>, <cite>filter</cite> and <cite>projection</cite>. <tt class="docutils literal"><span class="pre">source</span></tt> dictates the database
-collection consumed by the resource, <tt class="docutils literal"><span class="pre">filter</span></tt> expresses the underlying
-query used to retrieve and validate data, and <tt class="docutils literal"><span class="pre">projection</span></tt> allows you to
-redefine the exposed fieldset.</p>
+<p>The <tt class="docutils literal"><span class="pre">datasource</span></tt> keyword allows to explicitly link API resources to database
+collections. If omitted, the domain resource key is assumed to also be the name
+of the database collection. It is a dictionary with four allowed keys:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="40%" />
+<col width="60%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">source</span></tt></td>
+<td>Name of the database collection consumed by the
+resource.  If omitted, the resource name is
+assumed to also be a valid collection name. See
+<a class="reference internal" href="#source"><em>Multiple API Endpoints, One Datasource</em></a>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">filter</span></tt></td>
+<td>Database query used to retrieve and validate
+data. If omitted, by default the whole
+collection is retrievied. See <a class="reference internal" href="#filter"><em>Predefined Database Filters</em></a>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">projection</span></tt></td>
+<td>Fieldset exposed by the endpoint. If omitted,
+by default all fields will be returned to the
+client. See <a class="reference internal" href="#projection"><em>Limiting the Fieldset Exposed by the API Endpoint</em></a>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">default_sort</span></tt></td>
+<td><p class="first">Default sorting for documents retrieved at the
+endpoint. If omitted, documents will be
+returned with the default database order.
+A valid statement would be:</p>
+<p><tt class="docutils literal"><span class="pre">'datasource':</span> <span class="pre">{'default_sort':</span> <span class="pre">[('name':</span>
+<span class="pre">1)]}</span></tt></p>
+<p class="last">For more informations on sort and filters see
+<a class="reference internal" href="features.html#filters"><em>Filtering and Sorting</em></a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
 <div class="section" id="predefined-database-filters">
-<h3>Predefined Database Filters<a class="headerlink" href="#predefined-database-filters" title="Permalink to this headline">¶</a></h3>
+<span id="filter"></span><h3>Predefined Database Filters<a class="headerlink" href="#predefined-database-filters" title="Permalink to this headline">¶</a></h3>
 <p>Database filters for the API endpoint are set with the <tt class="docutils literal"><span class="pre">filter</span></tt> keyword.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -884,7 +922,7 @@ then you will probably want to set the validation rules accordingly (in our
 example, &#8216;username&#8217; should probably be a required field).</p>
 </div>
 <div class="section" id="multiple-api-endpoints-one-datasource">
-<h3>Multiple API Endpoints, One Datasource<a class="headerlink" href="#multiple-api-endpoints-one-datasource" title="Permalink to this headline">¶</a></h3>
+<span id="source"></span><h3>Multiple API Endpoints, One Datasource<a class="headerlink" href="#multiple-api-endpoints-one-datasource" title="Permalink to this headline">¶</a></h3>
 <p>Multiple API endpoints can target the same database collection. For
 example you can set both <tt class="docutils literal"><span class="pre">/admins</span></tt> and <tt class="docutils literal"><span class="pre">/users</span></tt> to read and write from
 the same <cite>people</cite> collection on the database.</p>
@@ -900,7 +938,7 @@ the same <cite>people</cite> collection on the database.</p>
 <cite>people</cite> collection with a <cite>userlevel</cite> of 1.</p>
 </div>
 <div class="section" id="limiting-the-fieldset-exposed-by-the-api-endpoint">
-<h3>Limiting the Fieldset Exposed by the API Endpoint<a class="headerlink" href="#limiting-the-fieldset-exposed-by-the-api-endpoint" title="Permalink to this headline">¶</a></h3>
+<span id="projection"></span><h3>Limiting the Fieldset Exposed by the API Endpoint<a class="headerlink" href="#limiting-the-fieldset-exposed-by-the-api-endpoint" title="Permalink to this headline">¶</a></h3>
 <p>By default API responses to GET requests will include all fields defined by the
 corresponding resource <a class="reference internal" href="#schema">schema</a>. The <tt class="docutils literal"><span class="pre">projection</span></tt> setting of the <cite>datasource</cite>
 resource keyword allows you to redefine the fieldset.</p>
@@ -915,7 +953,7 @@ resource keyword allows you to redefine the fieldset.</p>
 matter the <a class="reference internal" href="#schema">schema</a> defined for the resource. Please note that POST and PATCH
 methods will still allow the whole schema to be manipulated. This feature can
 come in handy when you want to protect insertion and modification behind an
-<a class="reference internal" href="authentication.html#auth"><em>Authentication</em></a> scheme while leaving read access open to the public.</p>
+<a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> scheme while leaving read access open to the public.</p>
 </div>
 </div>
 </div>
