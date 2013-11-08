@@ -390,7 +390,9 @@ class Eve(Flask, Events):
         """ Low-level method which sets default values for one resource.
 
         .. versionchanged:: 0.2
-        Support for endpoint-level authenticatoin classes.
+           'default_sort',
+           'embedded_fields'.
+           Support for endpoint-level authenticatoin classes.
         """
         settings.setdefault('url', resource)
         settings.setdefault('resource_methods',

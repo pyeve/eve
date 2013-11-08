@@ -86,6 +86,9 @@ class Mongo(DataLayer):
         :param resource: resource name.
         :param req: a :class:`ParsedRequest`instance.
 
+        .. versionchagend:: 0.2
+           Support for 'default_sort'.
+
         .. versionchanged:: 0.1.1
            Better query handling. We're now properly casting objectid-like
            strings to ObjectIds. Also, we're casting both datetimes and

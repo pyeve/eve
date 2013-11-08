@@ -247,6 +247,9 @@ class DataLayer(object):
         accessed.
 
         :param resource: resource being accessed.
+
+        .. versionchanged:: 0.2
+           Support for 'default_sort'.
         """
 
         return (config.SOURCES[resource]['source'],
@@ -259,6 +262,9 @@ class DataLayer(object):
                        client_sort=None):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to
+
+        .. versionchanged:: 0.2
+           Support for 'default_sort'.
 
         .. versionchanged:: 0.1.1
            auth.request_auth_value is now used to store the auth_field value.

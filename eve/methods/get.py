@@ -213,6 +213,9 @@ def _resolve_embedded_documents(resource, req, documents):
     :param req: and instace of :class:`eve.utils.ParsedRequest`.
     :param documents: list of documents returned by the query.
 
+    .. versionchagend:: 0.2
+        Support for 'embedded_fields'.
+
     .. versonchanged:: 0.1.1
        'collection' key has been renamed to 'resource' (data_relation).
 
