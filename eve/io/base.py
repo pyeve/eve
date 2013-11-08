@@ -252,7 +252,7 @@ class DataLayer(object):
         return (config.SOURCES[resource]['source'],
                 config.SOURCES[resource]['filter'],
                 config.SOURCES[resource]['projection'],
-                config.SOURCES[resource]['sort'],
+                config.SOURCES[resource]['default_sort'],
                 )
 
     def _datasource_ex(self, resource, query=None, client_projection=None,

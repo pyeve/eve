@@ -443,7 +443,7 @@ class Eve(Flask, Events):
         settings.setdefault('datasource', datasource)
         settings['datasource'].setdefault('source', resource)
         settings['datasource'].setdefault('filter', None)
-        settings['datasource'].setdefault('sort', None)
+        settings['datasource'].setdefault('default_sort', None)
 
         # enable retrieval of actual schema fields only. Eventual db
         # fields not included in the schema won't be returned.

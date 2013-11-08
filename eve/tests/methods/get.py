@@ -187,13 +187,13 @@ class TestGet(TestBase):
         s = self.app.config['DOMAIN'][self.known_resource]['datasource']
 
         # set default sort to 'prog', desc.
-        s['sort'] = [('prog', -1)]
+        s['default_sort'] = [('prog', -1)]
         self.app.set_defaults()
         response, _ = self.get(self.known_resource)
         self.assertEqual(response['_items'][0]['prog'], 100)
 
         # set default sort to 'prog', asc.
-        s['sort'] = [('prog', 1)]
+        s['default_sort'] = [('prog', 1)]
         self.app.set_defaults()
         response, _ = self.get(self.known_resource)
         self.assertEqual(response['_items'][0]['prog'], 0)
