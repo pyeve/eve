@@ -253,9 +253,10 @@ class DataLayer(object):
                 config.SOURCES[resource]['filter'],
                 config.SOURCES[resource]['projection'],
                 config.SOURCES[resource]['sort'],
-        )
+                )
 
-    def _datasource_ex(self, resource, query=None, client_projection=None, client_sort=None):
+    def _datasource_ex(self, resource, query=None, client_projection=None,
+                       client_sort=None):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to
 

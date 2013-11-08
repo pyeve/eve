@@ -198,7 +198,8 @@ class Mongo(DataLayer):
                 # Returns a type error when {'_id': {...}}
                 pass
 
-        datasource, filter_, projection, sort = self._datasource_ex(resource, lookup)
+        datasource, filter_, projection, _ = self._datasource_ex(resource,
+                                                                 lookup)
 
         document = self.driver.db[datasource].find_one(filter_, projection)
         return document
@@ -239,7 +240,7 @@ class Mongo(DataLayer):
             {config.ID_FIELD: id_} for id_ in ids
         ]}
 
-        datasource, spec, projection = self._datasource_ex(
+        datasource, spec, projection, _ = self._datasource_ex(
             resource, query=query, client_projection=client_projection
         )
 
@@ -265,7 +266,7 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
-        datasource, _, _ = self._datasource_ex(resource)
+        datasource, _, _, _ = self._datasource_ex(resource)
         try:
             return self.driver.db[datasource].insert(doc_or_docs,
                                                      **self._wc(resource))
@@ -292,8 +293,9 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
-        datasource, filter_, _ = self._datasource_ex(resource,
-                                                     {ID_FIELD: ObjectId(id_)})
+        datasource, filter_, _, _ = self._datasource_ex(resource,
+                                                        {ID_FIELD:
+                                                         ObjectId(id_)})
 
         # TODO consider using find_and_modify() instead. The document might
         # have changed since the ETag was computed. This would require getting
@@ -312,8 +314,9 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.1.0
         """
-        datasource, filter_, _ = self._datasource_ex(resource,
-                                                     {ID_FIELD: ObjectId(id_)})
+        datasource, filter_, _, _ = self._datasource_ex(resource,
+                                                        {ID_FIELD:
+                                                         ObjectId(id_)})
 
         # TODO consider using find_and_modify() instead. The document might
         # have changed since the ETag was computed. This would require getting
@@ -346,7 +349,7 @@ class Mongo(DataLayer):
             Support for deletion of entire documents collection.
         """
         query = {ID_FIELD: ObjectId(id_)} if id_ else None
-        datasource, filter_, _ = self._datasource_ex(resource, query)
+        datasource, filter_, _, _ = self._datasource_ex(resource, query)
         try:
             self.driver.db[datasource].remove(filter_, **self._wc(resource))
         except pymongo.errors.OperationFailure as e:
