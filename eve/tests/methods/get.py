@@ -318,7 +318,7 @@ class TestGet(TestBase):
         self.assert400(r.status_code)
 
         # Test that doesn't come embedded if asking for a field that
-        # isn't embedded (global setting is True by default)
+        # isn't embedded (global setting is False by default)
         embedded = '{"person": 1}'
         r = self.test_client.get('%s/%s' % (invoices['url'],
                                             '?embedded=%s' % embedded))
@@ -365,6 +365,57 @@ class TestGet(TestBase):
         r = self.test_client.get('%s/%s/%s' % (invoices['url'],
                                                self.invoice_id,
                                                '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('location' in content['person'])
+
+    def test_get_default_embedding(self):
+        # We need to assign a `person` to our test invoice
+        _db = self.connection[MONGO_DBNAME]
+
+        fake_contact = self.random_contacts(1)
+        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
+                            {'$set': {'person': fake_contact_id}})
+
+        invoices = self.domain['invoices']
+
+        # Turn default field embedding on
+        invoices['embedded_fields'] = ['person']
+
+        # Test that doesn't come embedded if asking for a field that
+        # isn't embedded (global setting is False by default)
+        r = self.test_client.get(invoices['url'])
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue(content['_items'][0]['person'], self.item_id)
+
+        # Set field to be embedded
+        invoices['schema']['person']['data_relation']['embeddable'] = True
+
+        # Test that global setting applies even if field is set to embedded
+        invoices['embedding'] = False
+        r = self.test_client.get(invoices['url'])
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue(content['_items'][0]['person'], self.item_id)
+
+        # Test that it works
+        invoices['embedding'] = True
+        r = self.test_client.get(invoices['url'])
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('location' in content['_items'][0]['person'])
+
+        # Test that it ignores a bogus field
+        invoices['embedded_fields'] = ['person', 'not-really']
+        r = self.test_client.get(invoices['url'])
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('location' in content['_items'][0]['person'])
+
+        # Test that it works with item endpoint too
+        r = self.test_client.get('%s/%s' % (invoices['url'], self.invoice_id))
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
         self.assertTrue('location' in content['person'])
