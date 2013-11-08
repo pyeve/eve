@@ -218,41 +218,42 @@ def _resolve_embedded_documents(resource, req, documents):
 
     .. versionadded:: 0.1.0
     """
-    if req.embedded or config.DOMAIN[resource]['embedded_fields']:
+    embedded_fields = []
+    if req.embedded:
+        # Parse the embedded clause, we are expecting
+        # something like:   '{"user":1}'
+        try:
+            client_embedding = json.loads(req.embedded)
+        except ValueError:
+            abort(400, description=debug_error_message(
+                'Unable to parse `embedded` clause'
+            ))
 
-        if req.embedded:
-            # Parse the embedded clause, we are expecting
-            # something like:   '{"user":1}'
-            try:
-                client_embedding = json.loads(req.embedded)
-            except ValueError:
-                abort(400, description=debug_error_message(
-                    'Unable to parse `embedded` clause'
-                ))
+        # Build the list of fields where embedding is being requested
+        try:
+            embedded_fields = [k for k, v in client_embedding.items()
+                               if v == 1]
+        except AttributeError:
+            # We got something other than a dict
+            abort(400, description=debug_error_message(
+                'Unable to parse `embedded` clause'
+            ))
 
-            # Build the list of fields where embedding is being requested
-            try:
-                embedded_fields = [k for k, v in client_embedding.items()
-                                   if v == 1]
-            except AttributeError:
-                # We got something other than a dict
-                abort(400, description=debug_error_message(
-                    'Unable to parse `embedded` clause'
-                ))
-        else:
-            embedded_fields = config.DOMAIN[resource]['embedded_fields']
+    embedded_fields = list(
+        set(config.DOMAIN[resource]['embedded_fields']) |
+        set(embedded_fields))
 
-        # For each field, is the field allowed to be embedded?
-        # Pick out fields that have a `data_relation` where `embeddable=True`
-        enabled_embedded_fields = []
-        for field in embedded_fields:
-            # Reject bogus field names
-            if field in config.DOMAIN[resource]['schema']:
-                field_definition = config.DOMAIN[resource]['schema'][field]
-                if 'data_relation' in field_definition and \
-                        field_definition['data_relation'].get('embeddable'):
-                    # or could raise 400 here
-                    enabled_embedded_fields.append(field)
+    # For each field, is the field allowed to be embedded?
+    # Pick out fields that have a `data_relation` where `embeddable=True`
+    enabled_embedded_fields = []
+    for field in embedded_fields:
+        # Reject bogus field names
+        if field in config.DOMAIN[resource]['schema']:
+            field_definition = config.DOMAIN[resource]['schema'][field]
+            if 'data_relation' in field_definition and \
+                    field_definition['data_relation'].get('embeddable'):
+                # or could raise 400 here
+                enabled_embedded_fields.append(field)
 
         for document in documents:
             for field in enabled_embedded_fields:
