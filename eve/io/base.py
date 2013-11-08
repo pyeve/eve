@@ -287,7 +287,11 @@ class DataLayer(object):
         if client_sort:
             sort = client_sort
         else:
-            sort = sort_
+            # default sort is activated only if 'sorting' is enabled for the
+            # resource.
+            # TODO Consider raising a validation error on startup instead?
+            sort = sort_ if sort_ and config.DOMAIN[resource]['sorting'] else \
+                None
 
         if filter_:
             if query:
