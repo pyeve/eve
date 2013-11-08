@@ -183,21 +183,27 @@ and the native Python syntax:
     HTTP/1.1 200 OK
 
 Both query formats allow for conditional and logical And/Or operators, however
-nested and combined. Sorting is supported as well:
-
-.. code-block:: console
-
-    $ curl -i http://eve-demo.herokuapp.com/people?sort=[("lastname", -1)]
-    HTTP/1.1 200 OK
-
-Currently sort directives use a pure MongoDB syntax; support for a more general
-syntax (``sort=lastname``) is planned.
+nested and combined. 
 
 Filters are enabled by default on all document fields. However, the API
 maintainer can choose to disable them all and/or whitelist allowed ones (see
 ``ALLOWED_FILTERS`` in :ref:`global`). If scraping, or fear of DB DoS attacks
 by querying on non-indexed fields is a concern, then whitelisting allowed
 filters is the way to go.
+
+Sorting is supported as well:
+
+.. code-block:: console
+
+    $ curl -i http://eve-demo.herokuapp.com/people?sort=[("lastname", -1)]
+    HTTP/1.1 200 OK
+
+Sorting is enabled by default and can be disabled both globally and/or at
+resource level (see ``SORTING`` in :ref:`global` and ``sorting`` in
+:ref:`domain`). It is also possible to set the default sort at every API
+endpoints (see ``default_sort`` in :ref:`domain`). Currently, sort directives
+use a pure MongoDB syntax; support for a more general syntax
+(``sort=lastname``) is planned.
 
 .. admonition:: Please note
 

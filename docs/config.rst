@@ -729,14 +729,40 @@ which was originally set up in `Domain Configuration`_:
 
 Advanced Datasource Patterns
 ----------------------------
-The ``datasource`` keyword allows you to explicitly link API resources to
-database collections (if you omit it, the domain resource key is assumed to be
-the name of the database collection itself). It is a dictionary with three allowed
-keys: `source`, `filter` and `projection`. ``source`` dictates the database
-collection consumed by the resource, ``filter`` expresses the underlying
-query used to retrieve and validate data, and ``projection`` allows you to
-redefine the exposed fieldset.
+The ``datasource`` keyword allows to explicitly link API resources to database
+collections. If omitted, the domain resource key is assumed to also be the name
+of the database collection. It is a dictionary with four allowed keys: 
 
+.. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
+
+=============================== ==============================================
+``source``                      Name of the database collection consumed by the 
+                                resource.  If omitted, the resource name is
+                                assumed to also be a valid collection name. See
+                                :ref:`source`.
+
+``filter``                      Database query used to retrieve and validate 
+                                data. If omitted, by default the whole
+                                collection is retrievied. See :ref:`filter`.
+
+``projection``                  Fieldset exposed by the endpoint. If omitted,
+                                by default all fields will be returned to the
+                                client. See :ref:`projection`.
+
+``default_sort``                Default sorting for documents retrieved at the
+                                endpoint. If omitted, documents will be
+                                returned with the default database order.
+                                A valid statement would be:
+
+                                ``'datasource': {'default_sort': [('name':
+                                1)]}``
+
+                                For more informations on sort and filters see
+                                :ref:`filters`.
+
+=============================== ==============================================
+
+.. _filter:
 
 Predefined Database Filters
 '''''''''''''''''''''''''''
@@ -761,6 +787,8 @@ requests. If your resource allows POST requests (document insertions),
 then you will probably want to set the validation rules accordingly (in our
 example, 'username' should probably be a required field).
 
+.. _source:
+
 Multiple API Endpoints, One Datasource
 ''''''''''''''''''''''''''''''''''''''
 Multiple API endpoints can target the same database collection. For
@@ -778,6 +806,8 @@ the same `people` collection on the database.
 
 The above setting will retrieve, edit and delete only documents from the
 `people` collection with a `userlevel` of 1.
+
+.. _projection:
 
 Limiting the Fieldset Exposed by the API Endpoint
 '''''''''''''''''''''''''''''''''''''''''''''''''
