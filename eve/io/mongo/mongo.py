@@ -122,11 +122,13 @@ class Mongo(DataLayer):
 
         # TODO should validate on unknown sort fields (mongo driver doesn't
         # return an error)
-        if req.sort:
-            args['sort'] = ast.literal_eval(req.sort)
 
         client_projection = {}
+        client_sort = {}
         spec = {}
+
+        if req.sort:
+            client_sort = ast.literal_eval(req.sort)
 
         if req.where:
             try:
@@ -152,8 +154,11 @@ class Mongo(DataLayer):
                     'Unable to parse `projection` clause'
                 ))
 
-        datasource, spec, projection = self._datasource_ex(resource, spec,
-                                                           client_projection)
+        datasource, spec, projection, sort = self._datasource_ex(
+            resource,
+            spec,
+            client_projection,
+            client_sort)
 
         if req.if_modified_since:
             spec[config.LAST_UPDATED] = \
@@ -161,6 +166,9 @@ class Mongo(DataLayer):
 
         if len(spec) > 0:
             args['spec'] = spec
+
+        if sort is not None:
+            args['sort'] = sort
 
         if projection is not None:
             args['fields'] = projection
@@ -190,7 +198,7 @@ class Mongo(DataLayer):
                 # Returns a type error when {'_id': {...}}
                 pass
 
-        datasource, filter_, projection = self._datasource_ex(resource, lookup)
+        datasource, filter_, projection, sort = self._datasource_ex(resource, lookup)
 
         document = self.driver.db[datasource].find_one(filter_, projection)
         return document

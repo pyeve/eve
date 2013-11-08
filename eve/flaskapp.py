@@ -415,6 +415,7 @@ class Eve(Flask, Events):
                             self.config['ALLOWED_FILTERS'])
         settings.setdefault('sorting', self.config['SORTING'])
         settings.setdefault('embedding', self.config['EMBEDDING'])
+        settings.setdefault('embedded_fields', [])
         settings.setdefault('pagination', self.config['PAGINATION'])
         settings.setdefault('projection', self.config['PROJECTION'])
         # TODO make sure that this we really need the test below
@@ -442,6 +443,7 @@ class Eve(Flask, Events):
         settings.setdefault('datasource', datasource)
         settings['datasource'].setdefault('source', resource)
         settings['datasource'].setdefault('filter', None)
+        settings['datasource'].setdefault('sort', None)
 
         # enable retrieval of actual schema fields only. Eventual db
         # fields not included in the schema won't be returned.

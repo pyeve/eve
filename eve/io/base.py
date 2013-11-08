@@ -251,9 +251,11 @@ class DataLayer(object):
 
         return (config.SOURCES[resource]['source'],
                 config.SOURCES[resource]['filter'],
-                config.SOURCES[resource]['projection'])
+                config.SOURCES[resource]['projection'],
+                config.SOURCES[resource]['sort'],
+        )
 
-    def _datasource_ex(self, resource, query=None, client_projection=None):
+    def _datasource_ex(self, resource, query=None, client_projection=None, client_sort=None):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to
 
@@ -279,7 +281,13 @@ class DataLayer(object):
         .. versionadded:: 0.0.4
         """
 
-        datasource, filter_, projection_ = self._datasource(resource)
+        datasource, filter_, projection_, sort_ = self._datasource(resource)
+
+        if client_sort:
+            sort = client_sort
+        else:
+            sort = sort_
+
         if filter_:
             if query:
                 # Can't just dump one set of query operators into another
@@ -345,4 +353,4 @@ class DataLayer(object):
                     query = self.app.data.combine_queries(
                         query, {auth_field: request_auth_value}
                     )
-        return datasource, query, fields
+        return datasource, query, fields, sort
