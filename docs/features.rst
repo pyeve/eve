@@ -663,10 +663,21 @@ toggling the ``embedding`` value). Furthermore, only fields with the
 ``embeddable`` value explicitly set to ``True`` will allow the embedding of
 referenced documents.
 
-Limitations: currenly we only support a single layer of embedding, i.e.
-``/emails?embedded={"author": 1}`` but *not* ``/emails?embedded={"author.friends": 1}``. This
-feature is about serialization on GET requests. There's no support for POST,
-PUT or PATCH of embedded documents.
+Predefined Resource Serialization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+It is also possible to elect some fields for predefined resource
+serializaation. The ``embedded_fields`` option accepts a list of fields. If the
+listed fields are embeddable and they are actually referencing documents in other
+collections (and embedding is enbaled for the resource), then the referenced
+documents will be embedded by default.
+
+Limitations
+~~~~~~~~~~~
+Currenly we only support a single layer of embedding, i.e.
+``/emails?embedded={"author": 1}`` but *not*
+``/emails?embedded={"author.friends": 1}``. This feature is about serialization
+on GET requests. There's no support for POST, PUT or PATCH of embedded
+documents.
 
 Document embedding is enabled by default.
 

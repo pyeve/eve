@@ -566,6 +566,12 @@ always lowercase.
                                 For details on authentication and authorization 
                                 see :ref:`auth`.  Defaults to ``None``,
                                 
+``embedded_fields``             A list of fields for which :ref:`embedded_docs`
+                                is enabled by default. For this feature to work
+                                properly fields in the list must be
+                                ``embeddable``, and ``embedding`` must be
+                                active for the resource.
+
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data
                                 validation. See `Schema Definition`_.
