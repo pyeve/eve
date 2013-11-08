@@ -213,11 +213,15 @@ def _resolve_embedded_documents(resource, req, documents):
     :param req: and instace of :class:`eve.utils.ParsedRequest`.
     :param documents: list of documents returned by the query.
 
+    .. versionchagend:: 0.2
+        Support for 'embedded_fields'.
+
     .. versonchanged:: 0.1.1
        'collection' key has been renamed to 'resource' (data_relation).
 
     .. versionadded:: 0.1.0
     """
+    embedded_fields = []
     if req.embedded:
         # Parse the embedded clause, we are expecting
         # something like:   '{"user":1}'
@@ -238,17 +242,21 @@ def _resolve_embedded_documents(resource, req, documents):
                 'Unable to parse `embedded` clause'
             ))
 
-        # For each field, is the field allowed to be embedded?
-        # Pick out fields that have a `data_relation` where `embeddable=True`
-        enabled_embedded_fields = []
-        for field in embedded_fields:
-            # Reject bogus field names
-            if field in config.DOMAIN[resource]['schema']:
-                field_definition = config.DOMAIN[resource]['schema'][field]
-                if 'data_relation' in field_definition and \
-                        field_definition['data_relation'].get('embeddable'):
-                    # or could raise 400 here
-                    enabled_embedded_fields.append(field)
+    embedded_fields = list(
+        set(config.DOMAIN[resource]['embedded_fields']) |
+        set(embedded_fields))
+
+    # For each field, is the field allowed to be embedded?
+    # Pick out fields that have a `data_relation` where `embeddable=True`
+    enabled_embedded_fields = []
+    for field in embedded_fields:
+        # Reject bogus field names
+        if field in config.DOMAIN[resource]['schema']:
+            field_definition = config.DOMAIN[resource]['schema'][field]
+            if 'data_relation' in field_definition and \
+                    field_definition['data_relation'].get('embeddable'):
+                # or could raise 400 here
+                enabled_embedded_fields.append(field)
 
         for document in documents:
             for field in enabled_embedded_fields:

@@ -247,15 +247,24 @@ class DataLayer(object):
         accessed.
 
         :param resource: resource being accessed.
+
+        .. versionchanged:: 0.2
+           Support for 'default_sort'.
         """
 
         return (config.SOURCES[resource]['source'],
                 config.SOURCES[resource]['filter'],
-                config.SOURCES[resource]['projection'])
+                config.SOURCES[resource]['projection'],
+                config.SOURCES[resource]['default_sort'],
+                )
 
-    def _datasource_ex(self, resource, query=None, client_projection=None):
+    def _datasource_ex(self, resource, query=None, client_projection=None,
+                       client_sort=None):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to
+
+        .. versionchanged:: 0.2
+           Support for 'default_sort'.
 
         .. versionchanged:: 0.1.1
            auth.request_auth_value is now used to store the auth_field value.
@@ -279,7 +288,17 @@ class DataLayer(object):
         .. versionadded:: 0.0.4
         """
 
-        datasource, filter_, projection_ = self._datasource(resource)
+        datasource, filter_, projection_, sort_ = self._datasource(resource)
+
+        if client_sort:
+            sort = client_sort
+        else:
+            # default sort is activated only if 'sorting' is enabled for the
+            # resource.
+            # TODO Consider raising a validation error on startup instead?
+            sort = sort_ if sort_ and config.DOMAIN[resource]['sorting'] else \
+                None
+
         if filter_:
             if query:
                 # Can't just dump one set of query operators into another
@@ -345,4 +364,4 @@ class DataLayer(object):
                     query = self.app.data.combine_queries(
                         query, {auth_field: request_auth_value}
                     )
-        return datasource, query, fields
+        return datasource, query, fields, sort
