@@ -691,6 +691,17 @@ documents will be embedded by default.</p>
 on GET requests. There&#8217;s no support for POST, PUT or PATCH of embedded
 documents.</p>
 <p>Document embedding is enabled by default.</p>
+<div class="admonition-please-note admonition">
+<p class="first admonition-title">Please note</p>
+<p class="last">When it comes to MongoDB, what embedded resource serialization deals with
+is <em>document references</em> (linked documents), something different from
+<em>embedded documents</em>, also supported by Eve (see <a class="reference external" href="http://docs.mongodb.org/manual/core/data-model-design">MongoDB Data Model
+Design</a>). Embedded resource serialization is a nice feature that can
+really help with normalizing your data model for the client.  However, when
+deciding wether to enable it or not, especially by default, keep in mind
+that each embedded resource being looked up will require a database lookup,
+which can easily lead to performance issues.</p>
+</div>
 </div>
 </div>
 <div class="section" id="event-hooks">

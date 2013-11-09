@@ -681,6 +681,17 @@ documents.
 
 Document embedding is enabled by default.
 
+.. admonition:: Please note
+
+    When it comes to MongoDB, what embedded resource serialization deals with
+    is *document references* (linked documents), something different from
+    *embedded documents*, also supported by Eve (see `MongoDB Data Model
+    Design`_). Embedded resource serialization is a nice feature that can
+    really help with normalizing your data model for the client.  However, when
+    deciding wether to enable it or not, especially by default, keep in mind
+    that each embedded resource being looked up will require a database lookup,
+    which can easily lead to performance issues. 
+
 .. _eventhooks:
 
 Event Hooks
@@ -828,3 +839,4 @@ for unittesting_ and an `extensive documentation`_.
 .. _`extensive documentation`: http://flask.pocoo.org/docs/
 .. _`this`: https://speakerdeck.com/nicola/developing-restful-web-apis-with-python-flask-and-mongodb?slide=113
 .. _Events: https://github.com/nicolaiarocci/events
+.. _`MongoDB Data Model Design`: http://docs.mongodb.org/manual/core/data-model-design
