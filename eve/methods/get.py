@@ -14,7 +14,7 @@
 import math
 from flask import current_app as app, abort
 import simplejson as json
-from .common import ratelimit, epoch, date_created, last_updated
+from .common import ratelimit, epoch, date_created, last_updated, pre_event
 from eve.auth import requires_auth
 from eve.utils import parse_request, document_etag, document_link, \
     collection_link, home_link, querydef, resource_uri, config, \
@@ -23,10 +23,14 @@ from eve.utils import parse_request, document_etag, document_link, \
 
 @ratelimit()
 @requires_auth('resource')
+@pre_event
 def get(resource):
     """Retrieves the resource documents that match the current request.
 
     :param resource: the name of the resource.
+
+    .. versionchanged:: 0.2
+       Raise 'on_pre_<method>' event.
 
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
@@ -114,6 +118,7 @@ def get(resource):
 
 @ratelimit()
 @requires_auth('item')
+@pre_event
 def getitem(resource, **lookup):
     """ Retrieves and returns a single document.
 

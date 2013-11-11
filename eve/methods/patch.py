@@ -17,11 +17,12 @@ from eve.utils import document_etag, document_link, config, debug_error_message
 from eve.auth import requires_auth
 from eve.validation import ValidationError
 from eve.methods.common import get_document, parse, payload as payload_, \
-    ratelimit
+    ratelimit, pre_event
 
 
 @ratelimit()
 @requires_auth('item')
+@pre_event
 def patch(resource, **lookup):
     """Perform a document patch/update. Updates are first validated against
     the resource schema. If validation passes, the document is updated and
@@ -30,6 +31,9 @@ def patch(resource, **lookup):
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
+
+    .. versionchanged:: 0.2
+       Raise 'on_pre_<method>' event.
 
     .. versionchanged:: 0.1.1
        Item-identifier wrapper stripped from both request and response payload.

@@ -17,11 +17,12 @@ from eve.utils import document_link, config, document_etag
 from eve.auth import requires_auth
 from eve.validation import ValidationError
 from eve.methods.common import parse, payload, ratelimit, \
-    resolve_default_values
+    resolve_default_values, pre_event
 
 
 @ratelimit()
 @requires_auth('resource')
+@pre_event
 def post(resource, payl=None):
     """ Adds one or more documents to a resource. Each document is validated
     against the domain schema. If validation passes the document is inserted
@@ -43,7 +44,8 @@ def post(resource, payl=None):
                  discussion, and a typical use case.
 
     .. versionchanged:: 0.2
-       explictly resolve default values instead of letting them be resolved
+       Raise 'on_pre_<method>' event.
+       Explictly resolve default values instead of letting them be resolved
        by common.parse. This avoids a validation error when a read-only field
        also has a default value.
 

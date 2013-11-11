@@ -17,11 +17,12 @@ from eve.validation import ValidationError
 from flask import current_app as app, abort, request
 from eve.utils import document_etag, document_link, config, debug_error_message
 from eve.methods.common import get_document, parse, payload as payload_, \
-    ratelimit, resolve_default_values
+    ratelimit, resolve_default_values, pre_event
 
 
 @ratelimit()
 @requires_auth('item')
+@pre_event
 def put(resource, **lookup):
     """Perform a document replacement. Updates are first validated against
     the resource schema. If validation passes, the document is repalced and
@@ -32,6 +33,7 @@ def put(resource, **lookup):
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.2
+       Raise pre_<method> event.
        explictly resolve default values instead of letting them be resolved
        by common.parse. This avoids a validation error when a read-only field
        also has a default value.
