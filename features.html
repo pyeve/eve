@@ -706,30 +706,57 @@ which can easily lead to performance issues.</p>
 </div>
 <div class="section" id="event-hooks">
 <span id="eventhooks"></span><h2>Event Hooks<a class="headerlink" href="#event-hooks" title="Permalink to this headline">¶</a></h2>
-<p>Each time a GET, POST, PATCH, DELETE method has been executed, both global
-<tt class="docutils literal"><span class="pre">on_&lt;method&gt;</span></tt> and resource-level <tt class="docutils literal"><span class="pre">on_&lt;method&gt;_&lt;resource&gt;</span></tt> events will be
-raised. You can subscribe to these events with multiple callback functions.
-Callbacks will receive the original <cite>flask.request</cite> object and the response
-payload as arguments.</p>
-<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">general_callback</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
-<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;A GET on the &quot;</span><span class="si">%s</span><span class="s">&quot; endpoint was just performed!&#39;</span> <span class="o">%</span> <span class="n">resource</span>
+<div class="section" id="pre-request-event-hooks">
+<h3>Pre-Request Event Hooks<a class="headerlink" href="#pre-request-event-hooks" title="Permalink to this headline">¶</a></h3>
+<p>When a GET, POST, PATCH, PUT, DELETE request is received, both
+a <tt class="docutils literal"><span class="pre">on_pre_&lt;method&gt;</span></tt> and a <tt class="docutils literal"><span class="pre">on_pre_&lt;method&gt;_&lt;resource&gt;</span></tt> event is raised.
+You can subscribe to these events with multiple callback functions. Callbacks
+will receive the resource being requested and the original <cite>flask.request</cite>
+object as arguments. <tt class="docutils literal"><span class="pre">pre</span></tt> events are raised before any actions is taken by
+the API itself.</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">pre_get_callback</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;A GET request on the &quot;</span><span class="si">%s</span><span class="s">&quot; endpoint has just been received!&#39;</span> <span class="o">%</span> <span class="n">resource</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">contacts_callback</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
-<span class="gp">... </span><span class="k">print</span> <span class="s">&#39;A get on &quot;contacts&quot; was just performed!&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">pre_contacts_get_callback</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;A GET request on the contacts endpoint has just been received!&#39;</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_GET</span> <span class="o">+=</span> <span class="n">general_callback</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_GET_contacts</span> <span class="o">+=</span> <span class="n">contacts_callback</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_pre_GET</span> <span class="o">+=</span> <span class="n">pre_get_callback</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_pre_GET_contacts</span> <span class="o">+=</span> <span class="n">pre_contacts_get_callback</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="section" id="manipulating-inbound-documents">
-<h3>Manipulating inbound documents<a class="headerlink" href="#manipulating-inbound-documents" title="Permalink to this headline">¶</a></h3>
-<p>There is also support for <tt class="docutils literal"><span class="pre">on_insert(resource,</span> <span class="pre">documents)</span></tt> and
-<tt class="docutils literal"><span class="pre">on_insert_&lt;resource&gt;(documents)</span></tt> event hooks, raised when documents are
-about to be stored in the database.  Callback functions could hook into these
-events to arbitrarily add new fields, or edit existing ones.</p>
+</div>
+<div class="section" id="post-request-event-hooks">
+<h3>Post-Request Event Hooks<a class="headerlink" href="#post-request-event-hooks" title="Permalink to this headline">¶</a></h3>
+<p>When a GET, POST, PATCH, PUT, DELETE method has been executed, both
+a <tt class="docutils literal"><span class="pre">on_post_&lt;method&gt;</span></tt> and <tt class="docutils literal"><span class="pre">on_post_&lt;method&gt;_&lt;resource&gt;</span></tt> event is raised. You
+can subscribe to these events with multiple callback functions. Callbacks will
+receive the resource accessed, original <cite>flask.request</cite> object and the response
+payload.</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">post_get_callback</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;A GET on the &quot;</span><span class="si">%s</span><span class="s">&quot; endpoint was just performed!&#39;</span> <span class="o">%</span> <span class="n">resource</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">post_contacts_get_callback</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+<span class="gp">... </span><span class="k">print</span> <span class="s">&#39;A get on &quot;contacts&quot; was just performed!&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_post_GET</span> <span class="o">+=</span> <span class="n">post_get_callback</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_post_GET_contacts</span> <span class="o">+=</span> <span class="n">post_contacts_get_callback</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-on-insert-event-hooks">
+<h3>The <tt class="docutils literal"><span class="pre">on_insert</span></tt> Event Hooks<a class="headerlink" href="#the-on-insert-event-hooks" title="Permalink to this headline">¶</a></h3>
+<p>When documents are abou tto be stored in th edatabase, both
+a <tt class="docutils literal"><span class="pre">on_insert(resource,</span> <span class="pre">documents)</span></tt> and <tt class="docutils literal"><span class="pre">on_insert_&lt;resource&gt;(documents)</span></tt>
+event is raised.  Callback functions could hook into these events to
+arbitrarily add new fields, or edit existing ones.</p>
 <div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_insert</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">documents</span><span class="p">):</span>
 <span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to store documents to &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource</span>
 
@@ -743,16 +770,15 @@ events to arbitrarily add new fields, or edit existing ones.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p><tt class="docutils literal"><span class="pre">on_insert</span></tt> is raised on every resource being updated, while
+<p><tt class="docutils literal"><span class="pre">on_insert</span></tt> is raised on every resource being updated while
 <tt class="docutils literal"><span class="pre">on_insert_&lt;resource&gt;</span></tt> is raised when the <cite>&lt;resource&gt;</cite> endpoint has been hit
 with a POST request. In both circumstances, the event will be raised only if at
 least one document passed validation and is going to be inserted. <cite>documents</cite>
 is a list and only contains documents ready for insertion (payload documents
 that did not pass validation are not included).</p>
-<p>To provide seamless event handling features, Eve relies on the <a class="reference external" href="https://github.com/nicolaiarocci/events">Events</a> package.</p>
 </div>
-<div class="section" id="manipulating-outbound-documents">
-<h3>Manipulating outbound documents<a class="headerlink" href="#manipulating-outbound-documents" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="the-on-fech-event-hooks">
+<h3>The <tt class="docutils literal"><span class="pre">on_fech</span></tt> Event Hooks<a class="headerlink" href="#the-on-fech-event-hooks" title="Permalink to this headline">¶</a></h3>
 <p>The following events:</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">on_fetch_resource(resource,</span> <span class="pre">documents)</span></tt></li>
@@ -787,6 +813,10 @@ documents as needed before they are returned to the client.</p>
 <p>Please be aware that <tt class="docutils literal"><span class="pre">last_modified</span></tt> and <tt class="docutils literal"><span class="pre">etag</span></tt> headers will always be
 consistent with the state of the documents on the database (they  won&#8217;t be
 updated to reflect changes eventually applied by the callback functions).</p>
+<div class="admonition-please-note admonition">
+<p class="first admonition-title">Please note</p>
+<p class="last">To provide seamless event handling features Eve relies on the <a class="reference external" href="https://github.com/nicolaiarocci/events">Events</a> package.</p>
+</div>
 </div>
 </div>
 <div class="section" id="rate-limiting">
@@ -903,8 +933,10 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 </ul>
 </li>
 <li><a class="reference internal" href="#event-hooks">Event Hooks</a><ul>
-<li><a class="reference internal" href="#manipulating-inbound-documents">Manipulating inbound documents</a></li>
-<li><a class="reference internal" href="#manipulating-outbound-documents">Manipulating outbound documents</a></li>
+<li><a class="reference internal" href="#pre-request-event-hooks">Pre-Request Event Hooks</a></li>
+<li><a class="reference internal" href="#post-request-event-hooks">Post-Request Event Hooks</a></li>
+<li><a class="reference internal" href="#the-on-insert-event-hooks">The <tt class="docutils literal"><span class="pre">on_insert</span></tt> Event Hooks</a></li>
+<li><a class="reference internal" href="#the-on-fech-event-hooks">The <tt class="docutils literal"><span class="pre">on_fech</span></tt> Event Hooks</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#rate-limiting">Rate Limiting</a></li>

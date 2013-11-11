@@ -696,32 +696,59 @@ Document embedding is enabled by default.
 
 Event Hooks
 -----------
-Each time a GET, POST, PATCH, DELETE method has been executed, both global
-``on_<method>`` and resource-level ``on_<method>_<resource>`` events will be
-raised. You can subscribe to these events with multiple callback functions.
-Callbacks will receive the original `flask.request` object and the response
-payload as arguments.
+Pre-Request Event Hooks
+~~~~~~~~~~~~~~~~~~~~~~~
+When a GET, POST, PATCH, PUT, DELETE request is received, both
+a ``on_pre_<method>`` and a ``on_pre_<method>_<resource>`` event is raised.
+You can subscribe to these events with multiple callback functions. Callbacks
+will receive the resource being requested and the original `flask.request`
+object as arguments. ``pre`` events are raised before any actions is taken by
+the API itself.
 
 .. code-block:: pycon
 
-    >>> def general_callback(resource, request, payload):
-    ...  print 'A GET on the "%s" endpoint was just performed!' % resource
+    >>> def pre_get_callback(resource, request):
+    ...  print 'A GET request on the "%s" endpoint has just been received!' % resource
 
-    >>> def contacts_callback(request, payload):
-    ... print 'A get on "contacts" was just performed!'
+    >>> def pre_contacts_get_callback(request):
+    ...  print 'A GET request on the contacts endpoint has just been received!'
 
     >>> app = Eve()
-    >>> app.on_GET += general_callback
-    >>> app.on_GET_contacts += contacts_callback
+
+    >>> app.on_pre_GET += pre_get_callback
+    >>> app.on_pre_GET_contacts += pre_contacts_get_callback
 
     >>> app.run()
 
-Manipulating inbound documents 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-There is also support for ``on_insert(resource, documents)`` and
-``on_insert_<resource>(documents)`` event hooks, raised when documents are
-about to be stored in the database.  Callback functions could hook into these
-events to arbitrarily add new fields, or edit existing ones.
+Post-Request Event Hooks
+~~~~~~~~~~~~~~~~~~~~~~~~
+When a GET, POST, PATCH, PUT, DELETE method has been executed, both
+a ``on_post_<method>`` and ``on_post_<method>_<resource>`` event is raised. You
+can subscribe to these events with multiple callback functions. Callbacks will
+receive the resource accessed, original `flask.request` object and the response
+payload.
+
+.. code-block:: pycon
+
+    >>> def post_get_callback(resource, request, payload):
+    ...  print 'A GET on the "%s" endpoint was just performed!' % resource
+
+    >>> def post_contacts_get_callback(request, payload):
+    ... print 'A get on "contacts" was just performed!'
+
+    >>> app = Eve()
+    
+    >>> app.on_post_GET += post_get_callback
+    >>> app.on_post_GET_contacts += post_contacts_get_callback
+
+    >>> app.run()
+
+The ``on_insert`` Event Hooks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When documents are abou tto be stored in th edatabase, both
+a ``on_insert(resource, documents)`` and ``on_insert_<resource>(documents)``
+event is raised.  Callback functions could hook into these events to
+arbitrarily add new fields, or edit existing ones.
 
 .. code-block:: pycon
 
@@ -737,17 +764,15 @@ events to arbitrarily add new fields, or edit existing ones.
 
     >>> app.run()
 
-``on_insert`` is raised on every resource being updated, while
+``on_insert`` is raised on every resource being updated while
 ``on_insert_<resource>`` is raised when the `<resource>` endpoint has been hit
 with a POST request. In both circumstances, the event will be raised only if at
 least one document passed validation and is going to be inserted. `documents`
 is a list and only contains documents ready for insertion (payload documents
 that did not pass validation are not included).
 
-To provide seamless event handling features, Eve relies on the Events_ package.
-
-Manipulating outbound documents
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``on_fech`` Event Hooks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The following events:
 
 - ``on_fetch_resource(resource, documents)``
@@ -784,6 +809,10 @@ documents as needed before they are returned to the client.
 Please be aware that ``last_modified`` and ``etag`` headers will always be
 consistent with the state of the documents on the database (they  won't be
 updated to reflect changes eventually applied by the callback functions).
+
+.. admonition:: Please note
+
+    To provide seamless event handling features Eve relies on the Events_ package.
 
 
 .. _ratelimiting:
