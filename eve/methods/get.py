@@ -112,6 +112,9 @@ def get(resource):
         else:
             response = documents
 
+        if hasattr(cursor, 'info'):
+            getattr(cursor, 'info')(response)
+
     etag = None
     return response, last_modified, etag, status
 

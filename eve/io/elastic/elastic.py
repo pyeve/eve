@@ -38,6 +38,7 @@ class ElasticCursor(object):
     """Search results cursor."""
 
     def __init__(self, hits):
+        """Parse hits into docs."""
         self.hits = hits;
         self.docs = []
         for hit in hits['hits']['hits']:
@@ -50,13 +51,25 @@ class ElasticCursor(object):
         return self.docs[key]
 
     def first(self):
+        """Get first doc."""
         return self.docs[0] if self.docs else None
 
     def count(self):
-        return self.hits['hits']['total']
+        """Get hits count."""
+        return int(self.hits['hits']['total'])
+
+    def info(self, response):
+        """Add additional info to response."""
+        if 'facets' in self.hits:
+            response['_facets'] = self.hits['facets']
 
 class Elastic(DataLayer):
     """ElasticSearch data layer."""
+
+    serializers = {
+        'integer': int,
+        'datetime': parse_date
+    }
 
     def init_app(self, app):
         app.config.setdefault('ELASTICSEARCH_URL', 'http://localhost:9200/')
@@ -94,6 +107,10 @@ class Elastic(DataLayer):
 
         if req.page > 1:
             query['from'] = (req.page - 1) * req.max_results
+
+        source_config = config.SOURCES[resource]
+        if 'facets' in source_config:
+            query['facets'] = source_config['facets']
 
         datasource, filter_, projection = self._datasource_ex(resource)
         return self._parse_hits(self.es.search(query=query, index=self.index, doc_type=datasource, es_fields=self._fields(projection)))
