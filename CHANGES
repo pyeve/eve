@@ -8,13 +8,17 @@ Version 0.2
 
 Not released yet.
 
-- [new] ``embedded_fields`` activates default Embedded Resource Serialization on
-  a list of selected document fields. Eventual embedding requests by clients
+- [new] ``pre_<method>`` and ``pre_<method>_<resource>`` event hooks are now
+  available. They are raised when a request is received and before processing
+  it. The resource involved and the Flask request object is returned to the
+  callback function (dccrazyboy).
+- [new] ``embedded_fields`` activates default Embedded Resource Serialization
+  on a list of selected document fields. Eventual embedding requests by clients
   will be processed along with default embedding. In order for default
   embedding to work, the field must be defined as embeddable, and embedding
   must be active for the resource (with help from Christoph Witzany).
-- [new] ``default_sort`` option added to the ``datasource`` resource setting. It
-  allows to set default sorting for the endpoint. Default sorting will be
+- [new] ``default_sort`` option added to the ``datasource`` resource setting.
+  It allows to set default sorting for the endpoint. Default sorting will be
   overriden by a client request that happens to include a ``?sort`` argument
   within the query string (with help from Christoph Witzany).
 - [new] You can now choose to provide custom settings as a Python dictionary.
