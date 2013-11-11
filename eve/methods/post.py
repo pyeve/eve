@@ -44,7 +44,8 @@ def post(resource, payl=None):
                  discussion, and a typical use case.
 
     .. versionchanged:: 0.2
-       explictly resolve default values instead of letting them be resolved
+       Raise 'on_pre_<method>' event.
+       Explictly resolve default values instead of letting them be resolved
        by common.parse. This avoids a validation error when a read-only field
        also has a default value.
 

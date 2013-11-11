@@ -26,6 +26,9 @@ def delete(resource, **lookup):
     :param resource: name of the resource to which the item(s) belong.
     :param **lookup: item lookup query.
 
+    .. versionchanged:: 0.2
+       Raise pre_<method> event.
+
     .. versionchanged:: 0.0.7
        Support for Rate-Limiting.
 

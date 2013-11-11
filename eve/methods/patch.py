@@ -32,6 +32,9 @@ def patch(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
 
+    .. versionchanged:: 0.2
+       Raise 'on_pre_<method>' event.
+
     .. versionchanged:: 0.1.1
        Item-identifier wrapper stripped from both request and response payload.
 

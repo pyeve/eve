@@ -29,6 +29,9 @@ def get(resource):
 
     :param resource: the name of the resource.
 
+    .. versionchanged:: 0.2
+       Raise 'on_pre_<method>' event.
+
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
        Support for embeddable documents.

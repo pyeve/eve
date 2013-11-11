@@ -332,6 +332,8 @@ def resolve_default_values(document, resource):
 
 def pre_event(f):
     """ Enable a Hook pre http request.
+
+    .. versionadded:: 0.2
     """
     @wraps(f)
     def decorated(*args, **kwargs):
