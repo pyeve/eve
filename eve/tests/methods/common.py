@@ -1,6 +1,7 @@
 from eve.tests import TestBase
 import simplejson as json
 
+
 class TestPreEventHooks(TestBase):
     def setUp(self):
         super(TestPreEventHooks, self).setUp()
@@ -85,7 +86,7 @@ class TestPreEventHooks(TestBase):
         self.app.on_pre_DELETE_contacts += pre_hook
         self.delete()
         self.assertTrue(self.passed)
-        
+
     def post(self, extra=None):
         headers = [('Content-Type', 'application/json')]
         data = json.dumps({"ref": "0123456789012345678901234"})
