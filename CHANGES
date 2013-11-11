@@ -10,7 +10,7 @@ Not released yet.
 
 - [new] ``pre_<method>`` and ``pre_<method>_<resource>`` event hooks are now
   available. They are raised when a request is received and before processing
-  it. The resource involved and the Flask request object is returned to the
+  it. The resource involved and the Flask request object are returned to the
   callback function (dccrazyboy).
 - [change] For better consistency with new ``pre_<method>`` hooks,
   ``on_<method>`` event hooks have been renamed to ``on_post_<method>``.
