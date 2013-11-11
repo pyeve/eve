@@ -17,11 +17,12 @@ from eve.utils import document_link, config, document_etag
 from eve.auth import requires_auth
 from eve.validation import ValidationError
 from eve.methods.common import parse, payload, ratelimit, \
-    resolve_default_values
+    resolve_default_values, pre_event
 
 
 @ratelimit()
 @requires_auth('resource')
+@pre_event
 def post(resource, payl=None):
     """ Adds one or more documents to a resource. Each document is validated
     against the domain schema. If validation passes the document is inserted
