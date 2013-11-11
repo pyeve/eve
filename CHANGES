@@ -12,6 +12,8 @@ Not released yet.
   available. They are raised when a request is received and before processing
   it. The resource involved and the Flask request object is returned to the
   callback function (dccrazyboy).
+- [change] For better consistency with new ``pre_<method>`` hooks,
+  ``on_<method>`` event hooks have been renamed to ``on_post_<method>``.
 - [new] ``embedded_fields`` activates default Embedded Resource Serialization
   on a list of selected document fields. Eventual embedding requests by clients
   will be processed along with default embedding. In order for default

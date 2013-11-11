@@ -124,10 +124,10 @@ class TestEventHooks(TestBase):
         self.callback_value = None
         self.documents = None
 
-    def test_on_GET(self):
+    def test_on_post_GET(self):
         def general_hook(resource, request, payload):
             self.callback_value = resource
-        self.app.on_GET += general_hook
+        self.app.on_post_GET += general_hook
         # homepage
         self.test_client.get('/')
         self.assertEqual(self.callback_value, None)
@@ -138,10 +138,10 @@ class TestEventHooks(TestBase):
         self.test_client.get(self.item_id_url)
         self.assertEqual(self.callback_value, self.known_resource)
 
-    def test_GET_resource(self):
+    def test_post_GET_resource(self):
         def resource_hook(request, payload):
             self.passed = True
-        self.app.on_GET_contacts += resource_hook
+        self.app.on_post_GET_contacts += resource_hook
         # resource endpoint
         self.test_client.get(self.known_resource_url)
         self.assertTrue(self.passed)
@@ -150,59 +150,59 @@ class TestEventHooks(TestBase):
         self.test_client.get(self.item_id_url)
         self.assertTrue(self.passed)
 
-    def test_on_POST(self):
+    def test_on_post_POST(self):
         def general_hook(resource, request, payload):
             self.callback_value = resource
-        self.app.on_POST += general_hook
+        self.app.on_post_POST += general_hook
         self.post()
         self.assertEqual(self.callback_value, self.known_resource)
 
-    def test_on_POST_resource(self):
+    def test_on_POST_post_resource(self):
         def resource_hook(request, payload):
             self.passed = True
-        self.app.on_POST_contacts += resource_hook
+        self.app.on_post_POST_contacts += resource_hook
         self.post()
         self.assertTrue(self.passed)
 
-    def test_on_PATCH(self):
+    def test_on_post_PATCH(self):
         def general_hook(resource, request, payload):
             self.callback_value = resource
-        self.app.on_PATCH += general_hook
+        self.app.on_post_PATCH += general_hook
         self.patch()
         self.assertEqual(self.callback_value, self.known_resource)
 
-    def test_on_PATCH_resource(self):
+    def test_on_post_PATCH_resource(self):
         def resource_hook(request, payload):
             self.passed = True
-        self.app.on_PATCH_contacts += resource_hook
+        self.app.on_post_PATCH_contacts += resource_hook
         self.patch()
         self.assertTrue(self.passed)
 
-    def test_on_PUT(self):
+    def test_on_post_PUT(self):
         def general_hook(resource, request, payload):
             self.callback_value = resource
-        self.app.on_PUT += general_hook
+        self.app.on_post_PUT += general_hook
         self.put()
         self.assertEqual(self.callback_value, self.known_resource)
 
-    def test_on_PUT_resource(self):
+    def test_on_post_PUT_resource(self):
         def resource_hook(request, payload):
             self.passed = True
-        self.app.on_PUT_contacts += resource_hook
+        self.app.on_post_PUT_contacts += resource_hook
         self.put()
         self.assertTrue(self.passed)
 
-    def test_on_DELETE(self):
+    def test_on_post_DELETE(self):
         def general_hook(resource, request, payload):
             self.callback_value = resource
-        self.app.on_DELETE += general_hook
+        self.app.on_post_DELETE += general_hook
         self.delete()
         self.assertEqual(self.callback_value, self.known_resource)
 
-    def test_on_DELETE_resource(self):
+    def test_on_post_DELETE_resource(self):
         def resource_hook(request, payload):
             self.passed = True
-        self.app.on_DELETE_contacts += resource_hook
+        self.app.on_post_DELETE_contacts += resource_hook
         self.delete()
         self.assertTrue(self.passed)
 

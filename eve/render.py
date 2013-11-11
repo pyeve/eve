@@ -31,6 +31,10 @@ def raise_event(f):
     function has been executed. Returns both the flask.request object and the
     response payload to the callback.
 
+    .. versionchanged:: 0.2
+       Renamed 'on_<method>' hooks to 'on_post_<method>' for coherence
+       with new 'on_pre_<method>' hooks.
+
     .. versionchanged:: 0.1.0
        Support for PUT.
 
@@ -45,7 +49,7 @@ def raise_event(f):
         r = f(*args, **kwargs)
         method = request_method()
         if method in ('GET', 'POST', 'PATCH', 'DELETE', 'PUT'):
-            event_name = 'on_' + method
+            event_name = 'on_post_' + method
             resource = args[0] if args else None
             # general hook
             getattr(app, event_name)(resource, request, r)
