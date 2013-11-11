@@ -8,37 +8,29 @@ Version 0.2
 
 Not released yet.
 
-New Features
-~~~~~~~~~~~~
-- ``embedded_fields`` activates default Embedded Resource Serialization on
+- [new] ``embedded_fields`` activates default Embedded Resource Serialization on
   a list of selected document fields. Eventual embedding requests by clients
   will be processed along with default embedding. In order for default
   embedding to work, the field must be defined as embeddable, and embedding
   must be active for the resource (with help from Christoph Witzany).
-- ``default_sort`` option added to the ``datasource`` resource setting. It
+- [new] ``default_sort`` option added to the ``datasource`` resource setting. It
   allows to set default sorting for the endpoint. Default sorting will be
   overriden by a client request that happens to include a ``?sort`` argument
   within the query string (with help from Christoph Witzany).
-- You can now choose to provide custom settings as a Python dictionary.
-
-Enhancements
-~~~~~~~~~~~~
-- Custom authentication classes can now be set at endpoint level. When set, an
-  endpoint-level auth class will override the eventual global level auth class.
-  Authentication docs have been updated (and greatly revised) accordingly.
-  Closes #89.
-- JSON encoding is now handled at the DataLayer level allowing for specialized,
-  granular, data-aware encoding. Also, since the JSON encoder is now a class
-  attribute, extensions can replace the pre-defined data layer encoder with
-  their own implementation. Closes #102.
-- New method ``Eve.register_resource()`` for registering new resource after
-  initialization of Eve object. This is needed for simpler initialization API
-  of all ORM/ODM extensions (Stanislav Heller).
-
-Fixes
-~~~~~
-- A read-only field with a default value would trigger a validation error on
-  POST and PUT methods.
+- [new] You can now choose to provide custom settings as a Python dictionary.
+- [new] New method ``Eve.register_resource()`` for registering new resource
+  after initialization of Eve object. This is needed for simpler initialization
+  API of all ORM/ODM extensions (Stanislav Heller).
+- [change] Custom authentication classes can now be set at endpoint level. When
+  set, an endpoint-level auth class will override the eventual global level
+  auth class.  Authentication docs have been updated (and greatly revised)
+  accordingly.  Closes #89.
+- [change] JSON encoding is now handled at the DataLayer level allowing for
+  specialized, granular, data-aware encoding. Also, since the JSON encoder is
+  now a class attribute, extensions can replace the pre-defined data layer
+  encoder with their own implementation. Closes #102.
+- [fix] A read-only field with a default value would trigger a validation error
+  on POST and PUT methods.
 
 Version 0.1.1
 -------------
