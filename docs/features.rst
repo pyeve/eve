@@ -183,21 +183,27 @@ and the native Python syntax:
     HTTP/1.1 200 OK
 
 Both query formats allow for conditional and logical And/Or operators, however
-nested and combined. Sorting is supported as well:
-
-.. code-block:: console
-
-    $ curl -i http://eve-demo.herokuapp.com/people?sort=[("lastname", -1)]
-    HTTP/1.1 200 OK
-
-Currently sort directives use a pure MongoDB syntax; support for a more general
-syntax (``sort=lastname``) is planned.
+nested and combined. 
 
 Filters are enabled by default on all document fields. However, the API
 maintainer can choose to disable them all and/or whitelist allowed ones (see
 ``ALLOWED_FILTERS`` in :ref:`global`). If scraping, or fear of DB DoS attacks
 by querying on non-indexed fields is a concern, then whitelisting allowed
 filters is the way to go.
+
+Sorting is supported as well:
+
+.. code-block:: console
+
+    $ curl -i http://eve-demo.herokuapp.com/people?sort=[("lastname", -1)]
+    HTTP/1.1 200 OK
+
+Sorting is enabled by default and can be disabled both globally and/or at
+resource level (see ``SORTING`` in :ref:`global` and ``sorting`` in
+:ref:`domain`). It is also possible to set the default sort at every API
+endpoints (see ``default_sort`` in :ref:`domain`). Currently, sort directives
+use a pure MongoDB syntax; support for a more general syntax
+(``sort=lastname``) is planned.
 
 .. admonition:: Please note
 
@@ -384,7 +390,7 @@ Consider the following workflow:
 
 .. code-block:: console
 
-    $ curl -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d 'data={"firstname": "ronald"}'
+    $ curl -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
     HTTP/1.1 403 FORBIDDEN
 
 We attempted an edit, but we did not provide an ``ETag`` for the item, so we got
@@ -392,7 +398,7 @@ a not-so-nice ``403 FORBIDDEN``. Let's try again:
 
 .. code-block:: console
 
-    $ curl -H "If-Match: 1234567890123456789012345678901234567890" -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d 'data={"firstname": "ronald"}'
+    $ curl -H "If-Match: 1234567890123456789012345678901234567890" -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
     HTTP/1.1 412 PRECONDITION FAILED
 
 What went wrong this time? We provided the mandatory ``If-Match`` header, but
@@ -401,7 +407,7 @@ currently stored on the server, so we got a ``402 PRECONDITION FAILED`` again!
 
 .. code-block:: console
 
-    $ curl -H "If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012" -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37 -d 'data={"firstname": "ronald"}'
+    $ curl -H "If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012" -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37 -d '{"firstname": "ronald"}'
     HTTP/1.1 200 OK
 
 It's a win, and the response payload looks something like this:
@@ -657,43 +663,92 @@ toggling the ``embedding`` value). Furthermore, only fields with the
 ``embeddable`` value explicitly set to ``True`` will allow the embedding of
 referenced documents.
 
-Limitations: currenly we only support a single layer of embedding, i.e.
-``/emails?{"author": 1}`` but *not* ``/emails?{"author.firends": 1}``. This
-feature is about serialization on GET requests. There's no support for POST,
-PUT or PATCH of embedded documents.
+Predefined Resource Serialization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+It is also possible to elect some fields for predefined resource
+serializaation. The ``embedded_fields`` option accepts a list of fields. If the
+listed fields are embeddable and they are actually referencing documents in other
+collections (and embedding is enbaled for the resource), then the referenced
+documents will be embedded by default.
+
+Limitations
+~~~~~~~~~~~
+Currenly we only support a single layer of embedding, i.e.
+``/emails?embedded={"author": 1}`` but *not*
+``/emails?embedded={"author.friends": 1}``. This feature is about serialization
+on GET requests. There's no support for POST, PUT or PATCH of embedded
+documents.
 
 Document embedding is enabled by default.
+
+.. admonition:: Please note
+
+    When it comes to MongoDB, what embedded resource serialization deals with
+    is *document references* (linked documents), something different from
+    *embedded documents*, also supported by Eve (see `MongoDB Data Model
+    Design`_). Embedded resource serialization is a nice feature that can
+    really help with normalizing your data model for the client.  However, when
+    deciding wether to enable it or not, especially by default, keep in mind
+    that each embedded resource being looked up will require a database lookup,
+    which can easily lead to performance issues. 
 
 .. _eventhooks:
 
 Event Hooks
 -----------
-Each time a GET, POST, PATCH, DELETE method has been executed, both global
-``on_<method>`` and resource-level ``on_<method>_<resource>`` events will be
-raised. You can subscribe to these events with multiple callback functions.
-Callbacks will receive the original `flask.request` object and the response
-payload as arguments.
+Pre-Request Event Hooks
+~~~~~~~~~~~~~~~~~~~~~~~
+When a GET, POST, PATCH, PUT, DELETE request is received, both
+a ``on_pre_<method>`` and a ``on_pre_<method>_<resource>`` event is raised.
+You can subscribe to these events with multiple callback functions. Callbacks
+will receive the resource being requested and the original `flask.request`
+object as arguments. ``pre`` events are raised before any actions is taken by
+the API itself.
 
 .. code-block:: pycon
 
-    >>> def general_callback(resource, request, payload):
-    ...  print 'A GET on the "%s" endpoint was just performed!' % resource
+    >>> def pre_get_callback(resource, request):
+    ...  print 'A GET request on the "%s" endpoint has just been received!' % resource
 
-    >>> def contacts_callback(request, payload):
-    ... print 'A get on "contacts" was just performed!'
+    >>> def pre_contacts_get_callback(request):
+    ...  print 'A GET request on the contacts endpoint has just been received!'
 
     >>> app = Eve()
-    >>> app.on_GET += general_callback
-    >>> app.on_GET_contacts += contacts_callback
+
+    >>> app.on_pre_GET += pre_get_callback
+    >>> app.on_pre_GET_contacts += pre_contacts_get_callback
 
     >>> app.run()
 
-Manipulating inbound documents 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-There is also support for ``on_insert(resource, documents)`` and
-``on_insert_<resource>(documents)`` event hooks, raised when documents are
-about to be stored in the database.  Callback functions could hook into these
-events to arbitrarily add new fields, or edit existing ones.
+Post-Request Event Hooks
+~~~~~~~~~~~~~~~~~~~~~~~~
+When a GET, POST, PATCH, PUT, DELETE method has been executed, both
+a ``on_post_<method>`` and ``on_post_<method>_<resource>`` event is raised. You
+can subscribe to these events with multiple callback functions. Callbacks will
+receive the resource accessed, original `flask.request` object and the response
+payload.
+
+.. code-block:: pycon
+
+    >>> def post_get_callback(resource, request, payload):
+    ...  print 'A GET on the "%s" endpoint was just performed!' % resource
+
+    >>> def post_contacts_get_callback(request, payload):
+    ... print 'A get on "contacts" was just performed!'
+
+    >>> app = Eve()
+    
+    >>> app.on_post_GET += post_get_callback
+    >>> app.on_post_GET_contacts += post_contacts_get_callback
+
+    >>> app.run()
+
+The ``on_insert`` Event Hooks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When documents are abou tto be stored in th edatabase, both
+a ``on_insert(resource, documents)`` and ``on_insert_<resource>(documents)``
+event is raised.  Callback functions could hook into these events to
+arbitrarily add new fields, or edit existing ones.
 
 .. code-block:: pycon
 
@@ -709,17 +764,15 @@ events to arbitrarily add new fields, or edit existing ones.
 
     >>> app.run()
 
-``on_insert`` is raised on every resource being updated, while
+``on_insert`` is raised on every resource being updated while
 ``on_insert_<resource>`` is raised when the `<resource>` endpoint has been hit
 with a POST request. In both circumstances, the event will be raised only if at
 least one document passed validation and is going to be inserted. `documents`
 is a list and only contains documents ready for insertion (payload documents
 that did not pass validation are not included).
 
-To provide seamless event handling features, Eve relies on the Events_ package.
-
-Manipulating outbound documents
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``on_fech`` Event Hooks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The following events:
 
 - ``on_fetch_resource(resource, documents)``
@@ -756,6 +809,10 @@ documents as needed before they are returned to the client.
 Please be aware that ``last_modified`` and ``etag`` headers will always be
 consistent with the state of the documents on the database (they  won't be
 updated to reflect changes eventually applied by the callback functions).
+
+.. admonition:: Please note
+
+    To provide seamless event handling features Eve relies on the Events_ package.
 
 
 .. _ratelimiting:
@@ -811,3 +868,4 @@ for unittesting_ and an `extensive documentation`_.
 .. _`extensive documentation`: http://flask.pocoo.org/docs/
 .. _`this`: https://speakerdeck.com/nicola/developing-restful-web-apis-with-python-flask-and-mongodb?slide=113
 .. _Events: https://github.com/nicolaiarocci/events
+.. _`MongoDB Data Model Design`: http://docs.mongodb.org/manual/core/data-model-design

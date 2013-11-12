@@ -46,12 +46,6 @@ class TestPut(TestBase):
                              headers=[('If-Match', 'not-quite-right')])
         self.assert412(status)
 
-    def test_bad_request(self):
-        r, status = self.put(self.item_id_url,
-                             data='"ref": "hey, gonna bomb"',
-                             headers=[('If-Match', self.item_etag)])
-        self.assert400(status)
-
     def test_unique_value(self):
         r, status = self.put(self.item_id_url,
                              data={"ref": "%s" % self.alt_ref},
@@ -140,6 +134,14 @@ class TestPut(TestBase):
                                   headers=headers)
         self.assert200(r.status_code)
         self.assertPutResponse(json.loads(r.get_data()), self.item_id)
+
+    def test_put_default_value(self):
+        test_field = 'title'
+        test_value = "Mr."
+        data = {'ref': '9234567890123456789054321'}
+        r = self.perform_put(data)
+        db_value = self.compare_put_with_get(test_field, r)
+        self.assertEqual(test_value, db_value)
 
     def perform_put(self, changes):
         r, status = self.put(self.item_id_url,

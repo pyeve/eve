@@ -11,6 +11,24 @@
 """
 from eve.utils import config, debug_error_message
 from flask import request, abort
+import simplejson as json
+from eve.utils import date_to_str
+import datetime
+
+
+class BaseJSONEncoder(json.JSONEncoder):
+    """ Propretary JSONEconder subclass used by the json render function.
+    This is needed to address the encoding of special values.
+    """
+    def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            # convert any datetime to RFC 1123 format
+            return date_to_str(obj)
+        elif isinstance(obj, (datetime.time, datetime.date)):
+            # should not happen since the only supported date-like format
+            # supported at dmain schema level is 'datetime' .
+            return obj.isoformat()
+        return json.JSONEncoder.default(self, obj)
 
 
 class ConnectionException(Exception):
@@ -39,6 +57,9 @@ class DataLayer(object):
     Admittedly, this interface is a Mongo rip-off. See the io.mongo
     package for an implementation example.
 
+    .. versionchanged:: 0.2
+       Allow subclasses to provide their own specialized json encoder.
+
     .. versionchanged:: 0.1.1
        'serializers' dictionary added.
 
@@ -60,9 +81,18 @@ class DataLayer(object):
     # serializers = {'objectid': ObjectId, 'datetime': serialize_date}
     serializers = {}
 
+    # json.JSONEncoder subclass for serializing data to json.
+    # Subclasses should provide their own specialized encoder (see
+    # eve.io.mongo.MongoJSONEncoder).
+    json_encoder_class = BaseJSONEncoder
+
     def __init__(self, app):
         """ Implements the Flask extension pattern.
+
+        .. versionchanged:: 0.2
+           Explicit initialize self.driver to None.
         """
+        self.driver = None
         if app is not None:
             self.app = app
             self.init_app(self.app)
@@ -217,15 +247,24 @@ class DataLayer(object):
         accessed.
 
         :param resource: resource being accessed.
+
+        .. versionchanged:: 0.2
+           Support for 'default_sort'.
         """
 
         return (config.SOURCES[resource]['source'],
                 config.SOURCES[resource]['filter'],
-                config.SOURCES[resource]['projection'])
+                config.SOURCES[resource]['projection'],
+                config.SOURCES[resource]['default_sort'],
+                )
 
-    def _datasource_ex(self, resource, query=None, client_projection=None):
+    def _datasource_ex(self, resource, query=None, client_projection=None,
+                       client_sort=None):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to
+
+        .. versionchanged:: 0.2
+           Support for 'default_sort'.
 
         .. versionchanged:: 0.1.1
            auth.request_auth_value is now used to store the auth_field value.
@@ -249,7 +288,17 @@ class DataLayer(object):
         .. versionadded:: 0.0.4
         """
 
-        datasource, filter_, projection_ = self._datasource(resource)
+        datasource, filter_, projection_, sort_ = self._datasource(resource)
+
+        if client_sort:
+            sort = client_sort
+        else:
+            # default sort is activated only if 'sorting' is enabled for the
+            # resource.
+            # TODO Consider raising a validation error on startup instead?
+            sort = sort_ if sort_ and config.DOMAIN[resource]['sorting'] else \
+                None
+
         if filter_:
             if query:
                 # Can't just dump one set of query operators into another
@@ -315,4 +364,4 @@ class DataLayer(object):
                     query = self.app.data.combine_queries(
                         query, {auth_field: request_auth_value}
                     )
-        return datasource, query, fields
+        return datasource, query, fields, sort

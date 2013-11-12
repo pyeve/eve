@@ -97,14 +97,6 @@ def parse(value, resource):
     except:
         pass
 
-    # update the document with eventual default values
-    if request_method() in ('POST', 'PUT'):
-        defaults = app.config['DOMAIN'][resource]['defaults']
-        missing_defaults = defaults.difference(set(document.keys()))
-        schema = config.DOMAIN[resource]['schema']
-        for missing_field in missing_defaults:
-            document[missing_field] = schema[missing_field]['default']
-
     return document
 
 
@@ -320,3 +312,40 @@ def serialize(document, resource=None, schema=None):
                     document[field] = \
                         app.data.serializers[field_type](document[field])
     return document
+
+
+def resolve_default_values(document, resource):
+    """Add any defined default value for missing document fields.
+
+    :param document: the document being posted or replaced
+    :param resource: the resource to which the document belongs
+
+    .. versionadded:: 0.2
+    """
+    if request_method() in ('POST', 'PUT'):
+        defaults = app.config['DOMAIN'][resource]['defaults']
+        missing_defaults = defaults.difference(set(document.keys()))
+        schema = config.DOMAIN[resource]['schema']
+        for missing_field in missing_defaults:
+            document[missing_field] = schema[missing_field]['default']
+
+
+def pre_event(f):
+    """ Enable a Hook pre http request.
+
+    .. versionadded:: 0.2
+    """
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        method = request_method()
+        if method in ('GET', 'POST', 'PATCH', 'DELETE', 'PUT'):
+            event_name = 'on_pre_' + method
+            resource = args[0] if args else None
+            # general hook
+            getattr(app, event_name)(resource, request)
+            if resource:
+                # resource hook
+                getattr(app, event_name + '_' + resource)(request)
+        r = f(*args, **kwargs)
+        return r
+    return decorated

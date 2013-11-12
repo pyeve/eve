@@ -5,21 +5,39 @@ Configuration Handling
 Generally Eve configuration is best done with configuration files. The
 configuration files themselves are actual Python files. 
 
-Configuration Files
--------------------
+Configuration with Files
+------------------------
 On startup, Eve will look for a `settings.py` file in the application folder.
 You can choose an alternative filename/path. Just pass it as an argument when
 you instantiate the application.
 
-::
+.. code-block:: python
     
     from eve import Eve
 
     app = Eve(settings='my_settings.py')
     app.run()
 
+Configuration with a Dictionary
+-------------------------------
+Alternatively, you can choose to provide a settings dictionary:
+
+.. code-block:: python
+    
+    my_settings = {
+        'MONGO_HOST': 'localhost',
+        'MONGO_PORT': 27017,
+        'MONGO_DBNAME': 'the_db_name'
+        'DOMAIN': {'contacts': {}} 
+    }
+
+    from eve import Eve
+
+    app = Eve(settings=my_settings)
+    app.run()
+
 Development / Production
-''''''''''''''''''''''''
+------------------------
 Most applications need more than one configuration. There should be at least
 separate configurations for the production server and the one used during
 development. The easiest way to handle this is to use a default configuration
@@ -541,9 +559,23 @@ always lowercase.
                                 to check that it's being written to multiple
                                 servers.)
                                 
+``authentication``              A class with the authorization logic for the 
+                                endpoint. If not provided the eventual
+                                general purpose auth class (passed as
+                                application constructor argument) will be used. 
+                                For details on authentication and authorization 
+                                see :ref:`auth`.  Defaults to ``None``,
+                                
+``embedded_fields``             A list of fields for which :ref:`embedded_docs`
+                                is enabled by default. For this feature to work
+                                properly fields in the list must be
+                                ``embeddable``, and ``embedding`` must be
+                                active for the resource.
+
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data
                                 validation. See `Schema Definition`_.
+
 =============================== ===============================================
 
 Here's an example of resource customization, mostly done by overriding global
@@ -703,14 +735,40 @@ which was originally set up in `Domain Configuration`_:
 
 Advanced Datasource Patterns
 ----------------------------
-The ``datasource`` keyword allows you to explicitly link API resources to
-database collections (if you omit it, the domain resource key is assumed to be
-the name of the database collection itself). It is a dictionary with three allowed
-keys: `source`, `filter` and `projection`. ``source`` dictates the database
-collection consumed by the resource, ``filter`` expresses the underlying
-query used to retrieve and validate data, and ``projection`` allows you to
-redefine the exposed fieldset.
+The ``datasource`` keyword allows to explicitly link API resources to database
+collections. If omitted, the domain resource key is assumed to also be the name
+of the database collection. It is a dictionary with four allowed keys: 
 
+.. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
+
+=============================== ==============================================
+``source``                      Name of the database collection consumed by the 
+                                resource.  If omitted, the resource name is
+                                assumed to also be a valid collection name. See
+                                :ref:`source`.
+
+``filter``                      Database query used to retrieve and validate 
+                                data. If omitted, by default the whole
+                                collection is retrievied. See :ref:`filter`.
+
+``projection``                  Fieldset exposed by the endpoint. If omitted,
+                                by default all fields will be returned to the
+                                client. See :ref:`projection`.
+
+``default_sort``                Default sorting for documents retrieved at the
+                                endpoint. If omitted, documents will be
+                                returned with the default database order.
+                                A valid statement would be:
+
+                                ``'datasource': {'default_sort': [('name':
+                                1)]}``
+
+                                For more informations on sort and filters see
+                                :ref:`filters`.
+
+=============================== ==============================================
+
+.. _filter:
 
 Predefined Database Filters
 '''''''''''''''''''''''''''
@@ -735,6 +793,8 @@ requests. If your resource allows POST requests (document insertions),
 then you will probably want to set the validation rules accordingly (in our
 example, 'username' should probably be a required field).
 
+.. _source:
+
 Multiple API Endpoints, One Datasource
 ''''''''''''''''''''''''''''''''''''''
 Multiple API endpoints can target the same database collection. For
@@ -752,6 +812,8 @@ the same `people` collection on the database.
 
 The above setting will retrieve, edit and delete only documents from the
 `people` collection with a `userlevel` of 1.
+
+.. _projection:
 
 Limiting the Fieldset Exposed by the API Endpoint
 '''''''''''''''''''''''''''''''''''''''''''''''''

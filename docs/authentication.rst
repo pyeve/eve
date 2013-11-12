@@ -1,22 +1,36 @@
 .. _auth:
 
-Authentication
-==============
-You can restrict access to all API endpoints, or only some of them. You can
-protect some HTTP verbs while leaving others open. For example, you can allow
-public read-only access while leaving item creation and edition restricted to
-authorized users only. You can also allow 'GET' access for certain requests and
-'POST' access for others by checking the method parameter. There is also
-support for role-based access control.
+Authentication and Authorization
+================================
+Introduction to Security
+------------------------
+Authentication is the mechanism whereby systems may securely identify their
+users. Eve supports several authentication schemes: Basic Authentication, Token
+Authentication, HMAC Authentication.
 
-Authentication is one of those areas where customization is very important.
-This is why you are provided with a handful of base authorization classes. They
-should be subclassed in order to implement custom logic. As you will see in the
-code snippets below, no matter which authentication scheme you pick, the only
-thing that you need to do is override the ``check_auth()`` method. When you
-instantiate the Eve app, you pass your custom class, like this:
+Authorization is the mehcanism by which a system determines what level of
+access a particular (authenticated) user should have access to resources
+controlled by the system. In Eve, you can restrict access to all API endpoints,
+or only some of them. You can protect some HTTP verbs while leaving others
+open. For example, you can allow public read-only access while leaving item
+creation and edition restricted to authorized users only. You can also allow
+``GET`` access for certain requests and ``POST`` access for others by checking
+the method parameter. There is also support for role-based access control.
 
-::
+Security is one of those areas where customization is very important. This is
+why you are provided with a handful of base authentication classes. They
+implement the basic authentication mechanism and must be subclassed in order
+to implement authorization logic. No matter which authentication scheme you
+pick the only thing that you need to do in your subclass is override the
+``check_auth()`` method. 
+
+Global Authentication
+---------------------
+To enable authentication for your API just pass the custom auth class on
+app instantiation. In our example we're going to use the ``BasicAuth`` base
+class, which implements the :ref:`basic` scheme:
+
+.. code-block:: python
 
     from eve.auth import BasicAuth
 
@@ -35,23 +49,73 @@ to provide the correct credentials in order to consume the API:
 
     $ curl -i http://example.com
     HTTP/1.1 401 UNAUTHORIZED
-    WWW-Authenticate: Basic realm:"eve"
-    Content-Type: text/html; charset=utf-8
-    Content-Length: 33
-    Server: Eve/0.0.4 Werkzeug/0.8.3 Python/2.7.3
-    Date: Thu, 14 Feb 2013 14:21:11 GMT
-
     Please provide proper credentials.
 
     $ curl -H "Authorization: Basic YWRtaW46c2VjcmV0" -i http://example.com
     HTTP/1.1 200 OK
-    Content-Type: application/json
-    Content-Length: 194
-    Server: Eve/0.0.4 Werkzeug/0.8.3 Python/2.7.3
-    Date: Thu, 14 Feb 2013 14:23:39 GMT
 
-By default, access is restricted to *all* endpoints, for *all* HTTP verbs
-(methods), effectively locking down the whole API.
+By default access is restricted to all endpoints for all HTTP verbs
+(methods), effectively locking down the whole API. 
+
+But what if your authorization logic is more complex, and you only want to
+secure some endpoints or apply different logics depending on the
+endpoint being consumed? You could get away with just adding logic to your
+authentication class, maybe with something like this:
+
+.. code-block:: python
+
+    class MyBasicAuth(BasicAuth):
+        def check_auth(self, username, password, allowed_roles, resource, method):
+            if resource in ('zipcodes', 'countries'):
+                # 'zipcodes' and 'countries' are public
+                return True
+            else:
+                # all the other resources are secured
+                return username == 'admin' and password == 'secret'
+
+If needed, this approach also allows to take the request ``method`` into
+consideration, for example to allow ``GET`` requests for everyone while forcing
+validation on edits (``POST``, ``PUT``, ``PATCH``, ``DELETE``). 
+
+Endpoint-level Authentication
+-----------------------------
+The *one class to bind them all* approach seen above is probably good for most
+use cases but as soon as authorization logic gets more complicated it could
+easily lead to complex and unmanageable code, something you don't really want
+to have when dealing with security. 
+
+Wouldn't it be nice if we could have specialized auth classes that we could
+freely apply to selected endpoints? This way the global level auth class, the
+one passed to the Eve constructor as seen above, would still be active on all
+endpoints except those where different authorization logic is needed.
+Alternatively, we could even choose to *not* provide a global auth class,
+effectively making all endpoints public, except the ones we want protected.
+With a system like this we could even choose to have some endpoints protected
+with, say, Basic Authentication while others are secured with Token, or HMAC
+Authentication! 
+
+Well, turns out this is actually possible by simply enabling the
+resource-level ``authentication`` setting when we are defining the API
+:ref:`domain <domain>`.
+
+.. code-block:: python
+
+    DOMAIN = {
+        'people': {
+            'authentication': MySuperCoolAuth,
+            ...
+            },
+        'invoices': ... 
+        }
+
+And that's it. The `people` endpoint will now be using the ``MySuperCoolAuth``
+class for authentication, while the ``invoices`` endpoint  will be using the
+general-purpose auth class if provided or else it will just be open to the
+public.
+
+There are other features and options that you can use to reduce complexity in
+your auth classes, especially (but not only) when using the global level
+authentication system. Lets review them.
 
 Global Endpoint Security 
 ------------------------
@@ -78,7 +142,7 @@ Suppose that you want to allow public read access to only certain resources.
 You do that by declaring public methods at resource level, while declaring the
 API :ref:`domain <domain>`:
 
-::
+.. code-block:: python
 
     DOMAIN = {
         'people': {
