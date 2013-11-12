@@ -2,7 +2,7 @@
 import ast
 from datetime import datetime
 from pyelasticsearch import ElasticSearch
-from pyelasticsearch.exceptions import ElasticHttpNotFoundError
+from pyelasticsearch.exceptions import ElasticHttpNotFoundError, ElasticHttpError, IndexAlreadyExistsError
 from bson import ObjectId
 from flask import request, json
 from eve.io.base import DataLayer, ConnectionException
@@ -37,11 +37,14 @@ def convert_dates(doc):
 class ElasticCursor(object):
     """Search results cursor."""
 
-    def __init__(self, hits):
+    empty_hits = {'hits': {'total': 0, 'hits': []}}
+
+    def __init__(self, hits=None):
         """Parse hits into docs."""
-        self.hits = hits;
+        self.hits = hits if hits else self.empty_hits
         self.docs = []
-        for hit in hits['hits']['hits']:
+
+        for hit in self.hits['hits']['hits']:
             doc = hit.get('fields', hit.get('_source', {}))
             doc[config.ID_FIELD] = hit.get('_id')
             convert_dates(doc)
@@ -76,6 +79,11 @@ class Elastic(DataLayer):
         app.config.setdefault('ELASTICSEARCH_INDEX', 'eve')
         self.es = app.extensions['elasticsearch'] = ElasticSearch(app.config['ELASTICSEARCH_URL'])
         self.index = app.config['ELASTICSEARCH_INDEX']
+
+        try:
+            self.es.create_index(self.index)
+        except IndexAlreadyExistsError:
+            pass
 
     def find(self, resource, req):
         query = {
@@ -112,8 +120,11 @@ class Elastic(DataLayer):
         if 'facets' in source_config:
             query['facets'] = source_config['facets']
 
-        datasource, filter_, projection = self._datasource_ex(resource)
-        return self._parse_hits(self.es.search(query=query, index=self.index, doc_type=datasource, es_fields=self._fields(projection)))
+        try:
+            datasource, filter_, projection = self._datasource_ex(resource)
+            return self._parse_hits(self.es.search(query=query, index=self.index, doc_type=datasource, es_fields=self._fields(projection)))
+        except ElasticHttpError:
+            return ElasticCursor()
 
     def find_one(self, resource, **lookup):
         datasource, filter_, projection = self._datasource_ex(resource, lookup)
@@ -177,8 +188,7 @@ class Elastic(DataLayer):
             return self.es.delete(self.index, datasource, id=id_, refresh=True)
         else:
             try:
-                self.es.delete_all(self.index, datasource)
-                return self.es.refresh(self.index)
+                return self.es.delete_all(self.index, datasource, refresh=True)
             except ElasticHttpNotFoundError:
                 return
 
