@@ -264,6 +264,8 @@ class DataLayer(object):
         to which an API resource refers to
 
         .. versionchanged:: 0.2
+           Difference between resource and item endpoints is now determined
+           by the presence of a '|' in request.endpoint.
            Support for 'default_sort'.
 
         .. versionchanged:: 0.1.1
@@ -326,11 +328,13 @@ class DataLayer(object):
         # If the current HTTP method is in `public_methods` or
         # `public_item_methods`, skip the `auth_field` check
 
-        if request.endpoint == 'collections_endpoint':
-            # We need to check against `public_methods`
+        if '|resource' in request.endpoint:
+            # We are on a resource endpoint and need to check against
+            # `public_methods`
             public_method_list_to_check = 'public_methods'
         else:
-            # We need to check against `public_item_methods`
+            # We are on an item endpoint and need to check against
+            # `public_item_methods`
             public_method_list_to_check = 'public_item_methods'
 
         # Is the HTTP method not public?

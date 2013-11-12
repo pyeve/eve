@@ -503,28 +503,29 @@ class Eve(Flask, Events):
         .. versionadded:: 0.2
         """
         url = '%s/%s' % (self.api_prefix, settings['url'])
-        self.config['RESOURCES'][url] = resource
         self.config['URLS'][resource] = settings['url']
         self.config['SOURCES'][resource] = settings['datasource']
 
         # resource endpoint
-        self.add_url_rule(url, view_func=collections_endpoint,
-                          methods=settings['resource_methods'] +
-                          ['OPTIONS'])
+        endpoint = resource + "|resource"
+        self.add_url_rule(url, endpoint, view_func=collections_endpoint,
+                          methods=settings['resource_methods'] + ['OPTIONS'])
 
         # item endpoint
         if settings['item_lookup']:
             item_url = '%s/<regex("%s"):%s>' % \
                 (url, settings['item_url'], settings['item_lookup_field'])
 
-            self.add_url_rule(item_url, view_func=item_endpoint,
-                              methods=settings['item_methods']
-                              + ['OPTIONS'])
+            endpoint = resource + "|item_lookup"
+            self.add_url_rule(item_url, endpoint,
+                              view_func=item_endpoint,
+                              methods=settings['item_methods'] + ['OPTIONS'])
             if 'PATCH' in settings['item_methods']:
-                # support for POST with X-HTTM-Method-Override header
-                # for clients not supporting PATCH. Also see
-                # item_endpoint() in endpoints.py
-                self.add_url_rule(item_url, view_func=item_endpoint,
+                # support for POST with X-HTTM-Method-Override header for
+                # clients not supporting PATCH. Also see item_endpoint() in
+                # endpoints.py
+                endpoint = resource + "|post_override"
+                self.add_url_rule(item_url, endpoint, view_func=item_endpoint,
                                   methods=['POST'])
 
             # also enable an alternative lookup/endpoint if allowed
@@ -537,7 +538,8 @@ class Eve(Flask, Events):
                     item_url = '%s/<regex("%s"):%s>' % (url,
                                                         lookup['url'],
                                                         lookup['field'])
-                self.add_url_rule(item_url, view_func=item_endpoint,
+                endpoint = resource + "|additional_lookup"
+                self.add_url_rule(item_url, endpoint, view_func=item_endpoint,
                                   methods=['GET', 'OPTIONS'])
 
     def _add_url_rules(self):
@@ -567,7 +569,6 @@ class Eve(Flask, Events):
            Support for API_VERSION as an endpoint prefix.
         """
         # helpers
-        self.config['RESOURCES'] = {}  # maps urls to resources (DOMAIN keys)
         self.config['URLS'] = {}       # maps resources to urls
         self.config['SOURCES'] = {}    # maps resources to their datasources
 

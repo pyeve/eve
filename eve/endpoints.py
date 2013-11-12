@@ -26,6 +26,9 @@ def collections_endpoint():
 
     :param url: the url that led here
 
+    .. versionchanged:: 0.2
+       Relying on request.endpoint to retrieve the resource being consumed.
+
     .. versionchanged:: 0.1.1
        Relying on request.path for determining the current endpoint url.
 
@@ -39,8 +42,7 @@ def collections_endpoint():
         Support for DELETE resource method.
     """
 
-    url = request.path.rstrip('/')
-    resource = config.RESOURCES[url]
+    resource = _resource()
     response = None
     method = request_method()
     if method in ('GET', 'HEAD'):
@@ -62,6 +64,9 @@ def item_endpoint(**lookup):
     :param url: the url that led here
     :param lookup: the query
 
+    .. versionchanged:: 0.2
+       Relying on request.endpoint to retrieve the resource being consumed.
+
     .. versionchanged:: 0.1.1
        Relying on request.path for determining the current endpoint url.
 
@@ -74,8 +79,7 @@ def item_endpoint(**lookup):
     .. versionchanged:: 0.0.6
        Support for HEAD requests
     """
-    k = request.path.rstrip('/').rfind('/')
-    resource = config.RESOURCES[request.path[:k]]
+    resource = _resource()
     response = None
     method = request_method()
     if method in ('GET', 'HEAD'):
@@ -112,3 +116,7 @@ def home_endpoint():
     else:
         abort(404, debug_error_message("HATEOAS is disabled so we have no data"
                                        " to display at the API homepage."))
+
+
+def _resource():
+    return request.endpoint.split('|')[0]

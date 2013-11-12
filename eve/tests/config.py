@@ -276,9 +276,6 @@ class TestConfig(TestBase):
         self.assertEqual(len(settings['defaults']), 2)
 
     def test_url_helpers(self):
-        self.assertNotEqual(self.app.config.get('RESOURCES'), None)
-        self.assertEqual(type(self.app.config['RESOURCES']), dict)
-
         self.assertNotEqual(self.app.config.get('URLS'), None)
         self.assertEqual(type(self.app.config['URLS']), dict)
 
@@ -288,10 +285,6 @@ class TestConfig(TestBase):
         for resource, settings in self.domain.items():
             self.assertEqual(settings['url'],
                              self.app.config['URLS'][resource])
-            self.assertEqual(resource,
-                             self.app.config['RESOURCES']['/' +
-                                                          settings['url']])
-
             self.assertEqual(settings['datasource'],
                              self.app.config['SOURCES'][resource])
 
