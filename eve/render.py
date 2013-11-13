@@ -325,7 +325,7 @@ def xml_dict(data):
 
     :param data: the data stream to be rendered as xml.
 
-    .. versionchanged:: 0.1.2
+    .. versionchanged:: 0.2
        Leaf values are now properly escaped.
 
     .. versionadded:: 0.0.3
