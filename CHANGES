@@ -8,6 +8,7 @@ Version 0.2
 
 Not released yet.
 
+- [fix] Properly escape leaf values in XML responses (Florian Rathgeber).
 - [change] Rely on Flask endpoints to map urls to resources.
 - [new] ``pre_<method>`` and ``pre_<method>_<resource>`` event hooks are now
   available. They are raised when a request is received and before processing

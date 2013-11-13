@@ -3,6 +3,7 @@
 from eve.tests import TestBase
 import simplejson as json
 from eve.utils import api_prefix
+from eve.tests.test_settings import MONGO_DBNAME
 
 
 class TestRenders(TestBase):
@@ -23,6 +24,20 @@ class TestRenders(TestBase):
         r = self.test_client.get('%s?max_results=1' % self.known_resource_url,
                                  headers=[('Accept', 'application/xml')])
         self.assertTrue(b'&amp;' in r.get_data())
+
+    def test_xml_leaf_escaping(self):
+        # test that even xml leaves content is being properly escaped
+
+        # We need to assign a `person` to our test invoice
+        _db = self.connection[MONGO_DBNAME]
+        fake_contact = self.random_contacts(1)
+        fake_contact[0]['ref'] = "12345 & 67890"
+        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+
+        r = self.test_client.get('%s/%s' %
+                                 (self.known_resource_url, fake_contact_id),
+                                 headers=[('Accept', 'application/xml')])
+        self.assertTrue(b'12345 &amp; 6789' in r.get_data())
 
     def test_unknown_render(self):
         r = self.test_client.get('/', headers=[('Accept', 'application/html')])

@@ -325,6 +325,9 @@ def xml_dict(data):
 
     :param data: the data stream to be rendered as xml.
 
+    .. versionchanged:: 0.2
+       Leaf values are now properly escaped.
+
     .. versionadded:: 0.0.3
     """
     xml = ''
@@ -343,5 +346,5 @@ def xml_dict(data):
                 xml += links
                 xml += "</%s>" % k
             else:
-                xml += "<%s>%s</%s>" % (k, value, k)
+                xml += "<%s>%s</%s>" % (k, utils.escape(value), k)
     return xml
