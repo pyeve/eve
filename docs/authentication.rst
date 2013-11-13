@@ -406,7 +406,7 @@ At the global level this feature is enabled by setting ``AUTH_FIELD`` and locall
 (at the endpoint level) by setting ``auth_field``. These properties define the name
 of the field used to store the id of the user who created the document.  So for
 example by setting ``AUTH_FIELD`` to ``user_id``, you are effectively (and
-trasparently to the user) adding a ``user_id`` field to every stored
+transparently to the user) adding a ``user_id`` field to every stored
 document. This will then be used to retrieve/edit/delete documents stored by
 the user.
 
