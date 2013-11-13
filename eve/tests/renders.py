@@ -69,7 +69,10 @@ class TestRenders(TestBase):
         self.assertEqual(r.headers['Access-Control-Allow-Origin'],
                          'http://example.com, http://1on1.com')
 
-    def test_CORS_OPTIONS(self, url='/', methods=[]):
+    def test_CORS_OPTIONS(self, url='/', methods=None):
+        if methods is None:
+            methods = []
+
         r = self.test_client.open(url, method='OPTIONS')
         self.assertFalse('Access-Control-Allow-Origin' in r.headers)
         self.assertFalse('Access-Control-Allow-Methods' in r.headers)
@@ -110,7 +113,7 @@ class TestRenders(TestBase):
         prefix = api_prefix(self.app.config['URL_PREFIX'],
                             self.app.config['API_VERSION'])
 
-        for resource, settings in self.app.config['DOMAIN'].items():
+        for _, settings in self.app.config['DOMAIN'].items():
 
             # resource endpoint
             url = '%s/%s/' % (prefix, settings['url'])
