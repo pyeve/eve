@@ -580,7 +580,7 @@ see :ref:`auth`.
 CORS Cross-Origin Resource Sharing
 ----------------------------------
 Disabled by default, CORS_ allows web pages to work with REST APIs, something
-that is usually restricted by most broswers 'same domain' security policy.
+that is usually restricted by most browsers 'same domain' security policy.
 Eve-powered APIs can be accesed by the JavaScript contained in web pages.
 
 Read-only by default
