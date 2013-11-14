@@ -61,6 +61,13 @@
 <h2>Version 0.2<a class="headerlink" href="#version-0-2" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[new] Handling custom ID fields tutorial.</li>
+<li>[new] A new <tt class="docutils literal"><span class="pre">json_encoder</span></tt> initialization argument is available. It allows
+to pass custom JSONEncoder or eve.io.BaseJSONEncoder to the Eve instance.</li>
+<li>[new] A new <tt class="docutils literal"><span class="pre">url_converters</span></tt> initialization argument is available. It
+allows to pass custom Flask url converters to the Eve constructor.</li>
+<li>[new] ID_FIELD fields can now be of arbitrary types, not only ObjectIds.
+Thanks to Kelvin Hammond for contributing to this one.  Closes #136.</li>
 <li>[fix] Properly escape leaf values in XML responses (Florian Rathgeber).</li>
 <li>[change] Rely on Flask endpoints to map urls to resources.</li>
 <li>[new] <tt class="docutils literal"><span class="pre">pre_&lt;method&gt;</span></tt> and <tt class="docutils literal"><span class="pre">pre_&lt;method&gt;_&lt;resource&gt;</span></tt> event hooks are now
