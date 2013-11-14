@@ -843,6 +843,12 @@ PATCH, DELETE).
    Rate Limiting is disabled by default, and needs a Redis server running when
    enabled. A tutorial on Rate Limiting is forthcoming.
 
+Custom ID fields
+----------------
+Eve allows to extend its standard data type support. In the :ref:`custom_ids`
+tutorial we see how it is possible to use UUID values instead of MongoDB
+default ObjectIds as unique document identifiers.
+
 MongoDB Support
 ---------------
 Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL

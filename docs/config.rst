@@ -245,10 +245,10 @@ uppercase.
                                 item. Can be overridden by resource settings.
                                 Defaults to ``ID_FIELD``.
 
-``ITEM_URL``                    RegEx used to construct default item
+``ITEM_URL``                    URL rule used to construct default item
                                 endpoint URLs. Can be overridden by resource
-                                settings. Defaults ``[a-f0-9]{24}`` which is
-                                MongoDB standard ``Object_Id`` format.
+                                settings. Defaults ``regex("[a-f0-9]{24}")``
+                                which is MongoDB standard ``Object_Id`` format.
 
 ``ITEM_TITLE``                  Title to be used when building item references, 
                                 both in XML and JSON responses. Defaults to 
@@ -486,7 +486,7 @@ always lowercase.
 ``item_lookup_field``           Field used when looking up a resource
                                 item. Locally overrides ``ITEM_LOOKUP_FIELD``.
 
-``item_url``                    RegEx used to construct item endpoint URL.
+``item_url``                    Rule used to construct item endpoint URL.
                                 Locally overrides ``ITEM_URL``.
 
 ``item_title``                  Title to be used when building item references, 
@@ -502,10 +502,11 @@ always lowercase.
                                 `field` and `url`. The former is the name of
                                 the field used for the lookup. If the field
                                 type (as defined in the resource schema_) is
-                                a string, then you put a regex in `url`.  If it
-                                is an integer, then you just omit `url`, as it
-                                is automatically handled.  See the code snippet
-                                below for an usage example of this feature.
+                                a string, then you put a URL rule in `url`.  If
+                                it is an integer, then you just omit `url`, as
+                                it is automatically handled.  See the code
+                                snippet below for an usage example of this
+                                feature.
 
 ``datasource``                  Explicitly links API resources to database 
                                 collections. See `Advanced Datasource
@@ -593,7 +594,7 @@ API settings:
         # additional read-only entry point. This way consumers can also perform 
         # GET requests at '/people/<lastname>'.
         'additional_lookup': {
-            'url': '[\w]+',
+            'url': 'regex("[\w]+")',
             'field': 'lastname'
         },
 
