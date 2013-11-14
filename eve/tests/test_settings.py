@@ -14,7 +14,7 @@ ITEM_METHODS = ['GET', 'PATCH', 'DELETE', 'PUT']
 ITEM_CACHE_CONTROL = ''
 ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
-ITEM_URL = '[a-f0-9]{24}'
+#ITEM_URL = '[a-f0-9]{24}'
 
 contacts = {
     'url': 'arbitraryurl',
@@ -22,7 +22,7 @@ contacts = {
     'cache_expires': 20,
     'item_title': 'contact',
     'additional_lookup': {
-        'url': '[\w]+',   # to be unique field
+        'url': 'regex("[\w]+")',   # to be unique field
         'field': 'ref'
     },
     'datasource': {'filter': {'username': {'$exists': False}}},
