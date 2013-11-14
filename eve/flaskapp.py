@@ -60,9 +60,16 @@ class Eve(Flask, Events):
                  requests. Must be a :class: `eve.auth.BasicAuth` subclass.
     :param redis: the redis (pyredis) instance used by the Rate-Limiting
                   feature, if enabled.
+    :param url_converters: dictionary of Flask url_converters to add to
+                           supported ones (int, float, path, regex).
+    :param json_encoder: custom json encoder class. Must be a
+                         JSONEncoder subclass. You probably wnat it to be
+                         as eve.io.base.BaseJSONEncoder subclass.
     :param kwargs: optional, standard, Flask parameters.
 
     .. versionchanged:: 0.2
+       Support for additional Flask url converters.
+       Support for optional, custom json encoder class.
        Support for endpoint-level authenticatoin classes.
        New method Eve.register_resource() for registering new resource after
        initialization of Eve object. This is needed for simpler initialization
@@ -90,7 +97,7 @@ class Eve(Flask, Events):
 
     def __init__(self, import_name=__package__, settings='settings.py',
                  validator=Validator, data=Mongo, auth=None, redis=None,
-                 **kwargs):
+                 url_converters=None, json_encoder=None, **kwargs):
         """Eve main WSGI app is implemented as a Flask subclass. Since we want
         to be able to launch our API by simply invoking Flask's run() method,
         we need to enhance our super-class a little bit.
@@ -98,22 +105,24 @@ class Eve(Flask, Events):
         The tasks we need to accomplish are:
 
             1. enbale regex routing
-            2. load and validate custom API settings,
-            3. enable API endpoints
-            4. set the validator class used to validate incoming objects
-            5. activate the chosen data layer
-            6. instance the authentication layer if needed
-            7. set the redis instance to be used by the Rate-Limiting feature
+            2. enable optional url_converters, if any
+            3. enable optional json_encoder class, if any
+            4. load and validate custom API settings
+            5. enable API endpoints
+            6. set the validator class used to validate incoming objects
+            7. activate the chosen data layer
+            8. instance the authentication layer if needed
+            9. set the redis instance to be used by the Rate-Limiting feature
 
         .. versionchanged:: 0.2
+           Support for additional, optional Flask url_converters.
+           Support for optional, custom json encoder class.
            Support for endpoint-level authenticatoin classes.
            Validate and set defaults for each resource
         """
 
-        # TODO should we support standard Flask parameters as well?
         super(Eve, self).__init__(import_name, **kwargs)
-        # enable regex routing
-        self.url_map.converters['regex'] = RegexConverter
+
         self.validator = validator
         self.settings = settings
 
@@ -121,6 +130,17 @@ class Eve(Flask, Events):
         self.validate_domain_struct()
 
         self.data = data(self)
+
+        # enable regex routing
+        self.url_map.converters['regex'] = RegexConverter
+
+        # optional url_converters and json encoder
+        if url_converters:
+            self.url_map.converters.update(url_converters)
+
+        if json_encoder:
+            self.data.json_encoder_class = json_encoder
+
         self.auth = auth
         self.redis = redis
 
@@ -513,8 +533,8 @@ class Eve(Flask, Events):
 
         # item endpoint
         if settings['item_lookup']:
-            item_url = '%s/<regex("%s"):%s>' % \
-                (url, settings['item_url'], settings['item_lookup_field'])
+            item_url = '%s/<%s:%s>' % (url, settings['item_url'],
+                                       settings['item_lookup_field'])
 
             endpoint = resource + "|item_lookup"
             self.add_url_rule(item_url, endpoint,
@@ -535,9 +555,8 @@ class Eve(Flask, Events):
                 if l_type == 'integer':
                     item_url = '%s/<int:%s>' % (url, lookup['field'])
                 else:
-                    item_url = '%s/<regex("%s"):%s>' % (url,
-                                                        lookup['url'],
-                                                        lookup['field'])
+                    item_url = '%s/<%s:%s>' % (url, lookup['url'],
+                                               lookup['field'])
                 endpoint = resource + "|additional_lookup"
                 self.add_url_rule(item_url, endpoint, view_func=item_endpoint,
                                   methods=['GET', 'OPTIONS'])
