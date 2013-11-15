@@ -556,7 +556,7 @@ You can set global and individual cache-control directives for each resource.
     Date: Tue, 22 Jan 2013 09:34:14 GMT
 
 The response above includes both ``Cache-Control`` and ``Expires`` headers.
-These will minimize load on the server since cache-enbaled consumers will
+These will minimize load on the server since cache-enabled consumers will
 perform resource-intensive request only when really needed.
 
 Versioning
@@ -597,7 +597,7 @@ values.
 Predefined Database Filters
 ---------------------------
 Resource endpoints will only expose (and update) documents that match
-a predefined filter. This allows for multiple resource endpoints to seamlessy
+a predefined filter. This allows for multiple resource endpoints to seamlessly
 target the same database collection. A typical use-case would be a
 hypothetical ``people`` collection on the database being used by both the
 ``/admins`` and ``/users`` API endpoints.
@@ -666,7 +666,7 @@ referenced documents.
 Predefined Resource Serialization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 It is also possible to elect some fields for predefined resource
-serializaation. The ``embedded_fields`` option accepts a list of fields. If the
+serialization. The ``embedded_fields`` option accepts a list of fields. If the
 listed fields are embeddable and they are actually referencing documents in other
 collections (and embedding is enbaled for the resource), then the referenced
 documents will be embedded by default.
@@ -688,7 +688,7 @@ Document embedding is enabled by default.
     *embedded documents*, also supported by Eve (see `MongoDB Data Model
     Design`_). Embedded resource serialization is a nice feature that can
     really help with normalizing your data model for the client.  However, when
-    deciding wether to enable it or not, especially by default, keep in mind
+    deciding whether to enable it or not, especially by default, keep in mind
     that each embedded resource being looked up will require a database lookup,
     which can easily lead to performance issues. 
 
@@ -745,7 +745,7 @@ payload.
 
 The ``on_insert`` Event Hooks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-When documents are abou tto be stored in th edatabase, both
+When documents are about to be stored in the database, both
 a ``on_insert(resource, documents)`` and ``on_insert_<resource>(documents)``
 event is raised.  Callback functions could hook into these events to
 arbitrarily add new fields, or edit existing ones.
