@@ -1,16 +1,17 @@
 
 import ast
 import arrow
+import pyelasticsearch.exceptions as es_exceptions
 from pyelasticsearch import ElasticSearch
-from pyelasticsearch.exceptions import ElasticHttpNotFoundError, ElasticHttpError, IndexAlreadyExistsError
-from bson import ObjectId
 from flask import request, json
-from eve.io.base import DataLayer, ConnectionException
+from eve.io.base import DataLayer
 from eve.utils import config
+
 
 def parse_date(date_str):
     """Parse elastic datetime string."""
     return arrow.get(date_str).datetime
+
 
 def convert_dates(doc):
     """Convert dates in doc into datetime objects.
@@ -22,6 +23,7 @@ def convert_dates(doc):
 
     if config.DATE_CREATED in doc:
         doc[config.DATE_CREATED] = parse_date(doc[config.DATE_CREATED])
+
 
 class ElasticCursor(object):
     """Search results cursor."""
@@ -55,6 +57,7 @@ class ElasticCursor(object):
         if 'facets' in self.hits:
             response['_facets'] = self.hits['facets']
 
+
 class Elastic(DataLayer):
     """ElasticSearch data layer."""
 
@@ -66,12 +69,12 @@ class Elastic(DataLayer):
     def init_app(self, app):
         app.config.setdefault('ELASTICSEARCH_URL', 'http://localhost:9200/')
         app.config.setdefault('ELASTICSEARCH_INDEX', 'eve')
-        self.es = app.extensions['elasticsearch'] = ElasticSearch(app.config['ELASTICSEARCH_URL'])
+        self.es = ElasticSearch(app.config['ELASTICSEARCH_URL'])
         self.index = app.config['ELASTICSEARCH_INDEX']
 
         try:
             self.es.create_index(self.index)
-        except IndexAlreadyExistsError:
+        except es_exceptions.IndexAlreadyExistsError:
             pass
 
     def find(self, resource, req):
@@ -93,7 +96,8 @@ class Elastic(DataLayer):
             query['sort'] = []
             sort = ast.literal_eval(req.sort)
             for (key, sortdir) in sort:
-                query['sort'].append(dict([(key, 'asc' if sortdir > 0 else 'desc')]))
+                sort_dict = dict([(key, 'asc' if sortdir > 0 else 'desc')])
+                query['sort'].append(sort_dict)
 
         if req.where:
             where = json.loads(req.where)
@@ -113,21 +117,20 @@ class Elastic(DataLayer):
             query['facets'] = source_config['facets']
 
         try:
-            return self._parse_hits(self.es.search(query, index=self.index, doc_type=self._doc_type(resource), es_fields=self._fields(resource)))
-        except ElasticHttpError:
+            args = self._es_args(resource)
+            args['es_fiels'] = self._fields(resource)
+            return self._parse_hits(self.es.search(query, **args))
+        except es_exceptions.ElasticHttpError:
             return ElasticCursor()
 
     def find_one(self, resource, **lookup):
-        args = {
-            'index': self.index,
-            'doc_type': self._doc_type(resource),
-            'es_fields': self._fields(resource),
-        }
+        args = self._es_args(resource)
+        args['es_fields'] = self._fields(resource)
 
         if config.ID_FIELD in lookup:
             try:
                 hit = self.es.get(id=lookup[config.ID_FIELD], **args)
-            except ElasticHttpNotFoundError:
+            except es_exceptions.ElasticHttpNotFoundError:
                 return
 
             if not hit['exists']:
@@ -152,44 +155,56 @@ class Elastic(DataLayer):
                 args['size'] = 1
                 docs = self._parse_hits(self.es.search(query, **args))
                 return docs.first()
-            except ElasticHttpNotFoundError:
+            except es_exceptions.ElasticHttpNotFoundError:
                 return None
 
     def find_list_of_ids(self, resource, ids, client_projection=None):
-        return self._parse_hits(self.es.multi_get(ids, self.index, self._doc_type(resource), self._fields(resource)))
+        args = self._es_args(resource)
+        args['es_fields'] = self._fields(resource)
+        return self._parse_hits(self.es.multi_get(ids, **args))
 
     def insert(self, resource, doc_or_docs, **kwargs):
         ids = []
-        doc_type = self._doc_type(resource)
+        kwargs.update(self._es_args(resource))
         for doc in doc_or_docs:
-            doc.update(self.es.index(self.index, doc_type, doc, id=doc.get('_id'), **kwargs))
+            doc.update(self.es.index(doc=doc, id=doc.get('_id'), **kwargs))
             ids.append(doc['_id'])
         self.es.refresh(self.index)
         return ids
 
     def update(self, resource, id_, updates):
-        return self.es.update(self.index, self._doc_type(resource), id=id_, doc=updates, refresh=True)
+        args = self._es_args(resource, refresh=True)
+        return self.es.update(id=id_, doc=updates, **args)
 
     def replace(self, resource, id_, document):
-        return self.es.index(self.index, self._doc_type(resource), document, id=id_, overwrite_existing=True, refresh=True)
+        args = self._es_args(resource, refresh=True)
+        args['overwrite_existing'] = True
+        return self.es.index(document=document, id=id_, **args)
 
     def remove(self, resource, id_=None):
+        args = self.es_args(resource, refresh=True)
         if id_:
-            return self.es.delete(self.index, self._doc_type(resource), id=id_, refresh=True)
+            return self.es.delete(id=id_, **args)
         else:
             try:
-                return self.es.delete_all(self.index, self._doc_type(resource), refresh=True)
-            except ElasticHttpNotFoundError:
+                return self.es.delete_all(**args)
+            except es_exceptions.ElasticHttpNotFoundError:
                 return
 
     def _parse_hits(self, hits):
         """Parse hits response into documents."""
         return ElasticCursor(hits)
 
-    def _doc_type(self, resource):
-        """Get document type for given resource."""
+    def _es_args(self, resource, refresh=None):
+        """Get index and doctype args."""
         datasource = self._datasource(resource)
-        return datasource[0]
+        args = {
+            'index': self.index,
+            'doc_type': datasource[0],
+            }
+        if refresh:
+            args['refresh'] = refresh
+        return args
 
     def _fields(self, resource):
         """Get projection fields for given resource."""

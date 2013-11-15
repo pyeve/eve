@@ -129,7 +129,7 @@ def payload():
                 'No form-urlencoded data supplied'
             ))
     elif content_type == 'multipart/form-data':
-        return request.form.to_dict() if len(request.files) or len(request.form) else \
+        return request.form.to_dict() if len(request.files) else \
             abort(400, description=debug_error_message(
                 'No multipart data supplied'
             ))
