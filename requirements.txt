@@ -10,3 +10,5 @@ simplejson==3.3.0
 Werkzeug==0.9.4
 pyelasticsearch==0.6.1
 requests==2.0.1
+arrow==0.4.2
+python-dateutil==2.2

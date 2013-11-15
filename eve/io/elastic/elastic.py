@@ -1,6 +1,6 @@
 
 import ast
-from datetime import datetime
+import arrow
 from pyelasticsearch import ElasticSearch
 from pyelasticsearch.exceptions import ElasticHttpNotFoundError, ElasticHttpError, IndexAlreadyExistsError
 from bson import ObjectId
@@ -8,20 +8,9 @@ from flask import request, json
 from eve.io.base import DataLayer, ConnectionException
 from eve.utils import config
 
-DATE_FORMATS = (
-    '%Y-%m-%dT%H:%M:%S.%f%z',
-    '%Y-%m-%dT%H:%M:%S%z',
-    '%Y-%m-%dT%H:%M:%S',
-)
-
 def parse_date(date_str):
     """Parse elastic datetime string."""
-    for format in DATE_FORMATS:
-        try:
-            return datetime.strptime(date_str.replace('+00:', '+00'), format)
-        except ValueError:
-            pass
-    return date_str
+    return arrow.get(date_str).datetime
 
 def convert_dates(doc):
     """Convert dates in doc into datetime objects.
