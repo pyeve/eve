@@ -213,7 +213,7 @@ use a pure MongoDB syntax; support for a more general syntax
 Pagination
 ----------
 Resource pagination is enabled by default in order to improve performance and
-preserve bandwith. When a consumer requests a resource, the first N items
+preserve bandwidth. When a consumer requests a resource, the first N items
 matching the query are served, and links to subsequent/previous pages are
 provided with the response. Default and maximum page size is customizable, and
 consumers can request specific pages via the query string:
@@ -581,7 +581,7 @@ CORS Cross-Origin Resource Sharing
 ----------------------------------
 Disabled by default, CORS_ allows web pages to work with REST APIs, something
 that is usually restricted by most broswers 'same domain' security policy.
-Eve-powered APIs can be accesed by the JavaScript contained in web pages.
+Eve-powered APIs can be accessed by the JavaScript contained in web pages.
 
 Read-only by default
 --------------------
