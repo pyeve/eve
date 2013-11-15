@@ -26,11 +26,11 @@ def convert_dates(doc):
 class ElasticCursor(object):
     """Search results cursor."""
 
-    empty_hits = {'hits': {'total': 0, 'hits': []}}
+    no_hits = {'hits': {'total': 0, 'hits': []}}
 
     def __init__(self, hits=None):
         """Parse hits into docs."""
-        self.hits = hits if hits else self.empty_hits
+        self.hits = hits if hits else self.no_hits
         self.docs = []
 
         for hit in self.hits['hits']['hits']:
@@ -85,6 +85,9 @@ class Elastic(DataLayer):
             }
         }
 
+        if not req.sort and self._default_sort(resource):
+            req.sort = self._default_sort(resource)
+
         # skip sorting when there is a query to use score
         if req.sort and 'q' not in request.args:
             query['sort'] = []
@@ -110,18 +113,20 @@ class Elastic(DataLayer):
             query['facets'] = source_config['facets']
 
         try:
-            datasource, filter_, projection = self._datasource_ex(resource)
-            return self._parse_hits(self.es.search(query=query, index=self.index, doc_type=datasource, es_fields=self._fields(projection)))
+            return self._parse_hits(self.es.search(query, index=self.index, doc_type=self._doc_type(resource), es_fields=self._fields(resource)))
         except ElasticHttpError:
             return ElasticCursor()
 
     def find_one(self, resource, **lookup):
-        datasource, filter_, projection = self._datasource_ex(resource, lookup)
+        args = {
+            'index': self.index,
+            'doc_type': self._doc_type(resource),
+            'es_fields': self._fields(resource),
+        }
 
         if config.ID_FIELD in lookup:
-
             try:
-                hit = self.es.get(self.index, datasource, id=lookup[config.ID_FIELD], fields=self._fields(projection))
+                hit = self.es.get(id=lookup[config.ID_FIELD], **args)
             except ElasticHttpNotFoundError:
                 return
 
@@ -144,40 +149,36 @@ class Elastic(DataLayer):
             }
 
             try:
-                docs = self._parse_hits(self.es.search(query, index=self.index, doc_type=datasource, size=1, es_fields=self._fields(projection)))
+                args['size'] = 1
+                docs = self._parse_hits(self.es.search(query, **args))
                 return docs.first()
             except ElasticHttpNotFoundError:
                 return None
 
     def find_list_of_ids(self, resource, ids, client_projection=None):
-        datasource, filter_, fields = self._datasource_ex(resource)
-        return self._parse_hits(self.es.multi_get(ids, self.index, dataresource, fields))
+        return self._parse_hits(self.es.multi_get(ids, self.index, self._doc_type(resource), self._fields(resource)))
 
     def insert(self, resource, doc_or_docs, **kwargs):
-        datasource, filter_, _ = self._datasource_ex(resource)
-
         ids = []
+        doc_type = self._doc_type(resource)
         for doc in doc_or_docs:
-            doc.update(self.es.index(self.index, datasource, doc, id=doc.get('_id'), **kwargs))
+            doc.update(self.es.index(self.index, doc_type, doc, id=doc.get('_id'), **kwargs))
             ids.append(doc['_id'])
         self.es.refresh(self.index)
         return ids
 
     def update(self, resource, id_, updates):
-        datasource, filter_, _ = self._datasource_ex(resource)
-        return self.es.update(self.index, datasource, id_, doc=updates, refresh=True)
+        return self.es.update(self.index, self._doc_type(resource), id=id_, doc=updates, refresh=True)
 
     def replace(self, resource, id_, document):
-        datasource, filter_, _ = self._datasource_ex(resource)
-        return self.es.index(self.index, datasource, document, id=id_, overwrite_existing=True, refresh=True)
+        return self.es.index(self.index, self._doc_type(resource), document, id=id_, overwrite_existing=True, refresh=True)
 
     def remove(self, resource, id_=None):
-        datasource, filter_, _ = self._datasource_ex(resource)
         if id_:
-            return self.es.delete(self.index, datasource, id=id_, refresh=True)
+            return self.es.delete(self.index, self._doc_type(resource), id=id_, refresh=True)
         else:
             try:
-                return self.es.delete_all(self.index, datasource, refresh=True)
+                return self.es.delete_all(self.index, self._doc_type(resource), refresh=True)
             except ElasticHttpNotFoundError:
                 return
 
@@ -185,6 +186,17 @@ class Elastic(DataLayer):
         """Parse hits response into documents."""
         return ElasticCursor(hits)
 
-    def _fields(self, projection):
-        keys = projection.keys()
+    def _doc_type(self, resource):
+        """Get document type for given resource."""
+        datasource = self._datasource(resource)
+        return datasource[0]
+
+    def _fields(self, resource):
+        """Get projection fields for given resource."""
+        datasource = self._datasource(resource)
+        keys = datasource[2].keys()
         return ','.join(keys)
+
+    def _default_sort(self, resource):
+        datasource = self._datasource(resource)
+        return datasource[3]
