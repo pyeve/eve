@@ -26,7 +26,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="top" title="Eve 0.2-dev documentation" href="index.html" />
-    <link rel="next" title="Authentication" href="authentication.html" />
+    <link rel="next" title="Authentication and Authorization" href="authentication.html" />
     <link rel="prev" title="Configuration Handling" href="config.html" />
    
   
@@ -44,7 +44,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="authentication.html" title="Authentication"
+          <a href="authentication.html" title="Authentication and Authorization"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="config.html" title="Configuration Handling"
@@ -134,7 +134,7 @@ code.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">_validate_type_objectid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Enables validation for `objectid` schema attribute.</span>
 
-<span class="sd">    :param unique: Boolean, wether the field value should be</span>
+<span class="sd">    :param unique: Boolean, whether the field value should be</span>
 <span class="sd">                   unique or not.</span>
 <span class="sd">    :param field: field name.</span>
 <span class="sd">    :param value: field value.</span>
@@ -161,7 +161,7 @@ a complete list rules and data types available.</p>
 <div class="section" id="allowing-the-unknown">
 <span id="unknown"></span><h2>Allowing the Unknown<a class="headerlink" href="#allowing-the-unknown" title="Permalink to this headline">¶</a></h2>
 <p>Normally you don&#8217;t want clients to inject unknown fields in your documents.
-However, there might be circumstances where this is desiderable. During the
+However, there might be circumstances where this is desirable. During the
 development cycle, for example, or when you are dealing with very heterogeneous
 data. After all, not forcing normalized information is one of the selling
 points of MongoDB and many other NoSQL data stores.</p>
@@ -251,7 +251,7 @@ PATCH (edit).</p>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="config.html" title="previous chapter">Configuration Handling</a></li>
-      <li>Next: <a href="authentication.html" title="next chapter">Authentication</a></li>
+      <li>Next: <a href="authentication.html" title="next chapter">Authentication and Authorization</a></li>
   </ul></li>
 </ul>
 <div id="searchbox" style="display: none">

@@ -59,7 +59,7 @@ from the :ref:`demo`:
 
 ::
 
-    # We want to seamlessy run our API both locally and on Heroku, so:
+    # We want to run seamlessly our API both locally and on Heroku, so:
     if os.environ.get('PORT'):
         # We're hosted on Heroku! Use the MongoHQ sandbox as our backend.
         MONGO_HOST = 'alex.mongohq.com'
@@ -89,7 +89,7 @@ from the :ref:`demo`:
 
 Global Configuration
 --------------------
-Besides defining the general API behaviour, most global configuration settings
+Besides defining the general API behavior, most global configuration settings
 are used to define the standard endpoint ruleset, and can be fine-tuned later,
 when configuring individual endpoints. Global configuration settings are always
 uppercase. 
@@ -348,10 +348,10 @@ uppercase.
                                 with the (very rich) Mongo query dialect.
 
 ``MONGO_WRITE_CONCERN``         A dictionary defining MongoDB write concern
-                                settings. All stadard write concern settings 
+                                settings. All standard write concern settings 
                                 (w, wtimeout, j, fsync) are supported. Defaults
                                 to ``{'w': 1}``, which means 'do regular
-                                aknowledged writes' (this is also the Mongo
+                                acknowledged writes' (this is also the Mongo
                                 default).
 
                                 Please be aware that setting 'w' to a value of
@@ -548,9 +548,9 @@ always lowercase.
 
 ``mongo_write_concern``         A dictionary defining MongoDB write concern
                                 settings for the endpoint datasource. All
-                                stadard write concern settings (w, wtimeout, j,
+                                standard write concern settings (w, wtimeout, j,
                                 fsync) are supported. Defaults to ``{'w': 1}``
-                                which means 'do regular aknowledged writes'
+                                which means 'do regular acknowledged writes'
                                 (this is also the Mongo default.)
 
                                 Please be aware that setting 'w' to a value of

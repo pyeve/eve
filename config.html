@@ -109,7 +109,7 @@ allow for all kinds of nice tricks, like being able to seamlessly launch the
 same API on both local and production systems, connecting to the appropriate
 database instance as needed.  Consider the following example, taken directly
 from the <a class="reference internal" href="index.html#demo"><em>Live demo</em></a>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># We want to seamlessy run our API both locally and on Heroku, so:</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># We want to run seamlessly our API both locally and on Heroku, so:</span>
 <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;PORT&#39;</span><span class="p">):</span>
     <span class="c"># We&#39;re hosted on Heroku! Use the MongoHQ sandbox as our backend.</span>
     <span class="n">MONGO_HOST</span> <span class="o">=</span> <span class="s">&#39;alex.mongohq.com&#39;</span>
@@ -138,7 +138,7 @@ from the <a class="reference internal" href="index.html#demo"><em>Live demo</em>
 </div>
 <div class="section" id="global-configuration">
 <span id="global"></span><h2>Global Configuration<a class="headerlink" href="#global-configuration" title="Permalink to this headline">¶</a></h2>
-<p>Besides defining the general API behaviour, most global configuration settings
+<p>Besides defining the general API behavior, most global configuration settings
 are used to define the standard endpoint ruleset, and can be fine-tuned later,
 when configuring individual endpoints. Global configuration settings are always
 uppercase.</p>
@@ -443,10 +443,10 @@ with the (very rich) Mongo query dialect.</p>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></tt></td>
 <td><p class="first">A dictionary defining MongoDB write concern
-settings. All stadard write concern settings
+settings. All standard write concern settings
 (w, wtimeout, j, fsync) are supported. Defaults
 to <tt class="docutils literal"><span class="pre">{'w':</span> <span class="pre">1}</span></tt>, which means &#8216;do regular
-aknowledged writes&#8217; (this is also the Mongo
+acknowledged writes&#8217; (this is also the Mongo
 default).</p>
 <p>Please be aware that setting &#8216;w&#8217; to a value of
 2 or greater requires replication to be active
@@ -488,8 +488,8 @@ dictionary where keys are API resources and values their definitions.</p>
 always lowercase.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="40%" />
-<col width="60%" />
+<col width="39%" />
+<col width="61%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">url</span></tt></td>
@@ -663,9 +663,9 @@ Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">mongo_write_concern</span></tt></td>
 <td><p class="first">A dictionary defining MongoDB write concern
 settings for the endpoint datasource. All
-stadard write concern settings (w, wtimeout, j,
+standard write concern settings (w, wtimeout, j,
 fsync) are supported. Defaults to <tt class="docutils literal"><span class="pre">{'w':</span> <span class="pre">1}</span></tt>
-which means &#8216;do regular aknowledged writes&#8217;
+which means &#8216;do regular acknowledged writes&#8217;
 (this is also the Mongo default.)</p>
 <p class="last">Please be aware that setting &#8216;w&#8217; to a value of
 2 or greater requires replication to be active
