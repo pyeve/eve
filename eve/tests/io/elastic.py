@@ -9,7 +9,6 @@ from eve.utils import config
 class TestElasticValidator(TestCase):
     pass
 
-
 class TestElasticDriver(TestCase):
 
     def test_convert_dates(self):

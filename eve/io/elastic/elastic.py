@@ -182,7 +182,7 @@ class Elastic(DataLayer):
         return self.es.index(document=document, id=id_, **args)
 
     def remove(self, resource, id_=None):
-        args = self.es_args(resource, refresh=True)
+        args = self._es_args(resource, refresh=True)
         if id_:
             return self.es.delete(id=id_, **args)
         else:
