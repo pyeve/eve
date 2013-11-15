@@ -87,7 +87,7 @@ code.
     def _validate_type_objectid(self, field, value):
         """ Enables validation for `objectid` schema attribute.
 
-        :param unique: Boolean, wether the field value should be
+        :param unique: Boolean, whether the field value should be
                        unique or not.
         :param field: field name.
         :param value: field value.
@@ -117,7 +117,7 @@ a complete list rules and data types available.
 Allowing the Unknown
 --------------------
 Normally you don't want clients to inject unknown fields in your documents.
-However, there might be circumstances where this is desiderable. During the
+However, there might be circumstances where this is desirable. During the
 development cycle, for example, or when you are dealing with very heterogeneous
 data. After all, not forcing normalized information is one of the selling
 points of MongoDB and many other NoSQL data stores.
