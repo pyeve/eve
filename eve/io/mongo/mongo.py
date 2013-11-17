@@ -16,6 +16,7 @@ import simplejson as json
 import pymongo
 from flask import abort
 from flask.ext.pymongo import PyMongo
+from bson import json_util
 from bson import ObjectId
 from datetime import datetime
 from eve import ID_FIELD
@@ -32,12 +33,7 @@ class MongoJSONEncoder(BaseJSONEncoder):
     .. versionadded:: 0.2
     """
     def default(self, obj):
-        if isinstance(obj, ObjectId):
-            # BSON/Mongo ObjectId is rendered as a string
-            return str(obj)
-        else:
-            # delegate rendering to base class method
-            return super(MongoJSONEncoder, self).default(obj)
+        return json_util.default(obj)
 
 
 class Mongo(DataLayer):
