@@ -339,16 +339,17 @@ class DataLayer(object):
 
         # Is the HTTP method not public?
         resource_dict = config.DOMAIN[resource]
+        auth = resource_dict['authentication']
+        request_auth_value = auth.request_auth_value if auth else None
         if request.method not in resource_dict[public_method_list_to_check]:
             # We need to run the 'user-restricted resource access' check
             auth_field = resource_dict.get('auth_field', None)
-            if auth_field and request.authorization and self.app.auth \
+            if auth_field and request.authorization and request_auth_value \
                     and query is not None:
                 # If the auth_field *replaces* a field in the query,
                 # and the values are /different/, deny the request
                 # This prevents the auth_field condition from
                 # overwriting the query (issue #77)
-                request_auth_value = self.app.auth.request_auth_value
                 auth_field_in_query = \
                     self.app.data.query_contains_field(query, auth_field)
                 if auth_field_in_query and \

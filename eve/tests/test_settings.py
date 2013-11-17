@@ -121,6 +121,10 @@ payments = {
 
 empty = copy.deepcopy(invoices)
 
+user_restricted_access = copy.deepcopy(contacts)
+user_restricted_access['url'] = 'restricted'
+user_restricted_access['datasource'] = {'source': 'contacts'}
+
 DOMAIN = {
     'contacts': contacts,
     'users': users,
@@ -128,4 +132,5 @@ DOMAIN = {
     'invoices': invoices,
     'payments': payments,
     'empty': empty,
+    'restricted': user_restricted_access,
 }

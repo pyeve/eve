@@ -141,7 +141,7 @@ class Eve(Flask, Events):
         if json_encoder:
             self.data.json_encoder_class = json_encoder
 
-        self.auth = auth
+        self.auth = auth() if auth else None
         self.redis = redis
 
         # validate and set defaults for each resource
@@ -456,7 +456,6 @@ class Eve(Flask, Events):
         settings.setdefault('hateoas',
                             self.config['HATEOAS'])
         settings.setdefault('authentication', self.auth if self.auth else None)
-
         # empty schemas are allowed for read-only access to resources
         schema = settings.setdefault('schema', {})
         self.set_schema_defaults(schema)

@@ -23,24 +23,23 @@ def requires_auth(endpoint_class):
         @wraps(f)
         def decorated(*args, **kwargs):
             if args:
+                # resource or item endpoint
                 resource_name = args[0]
                 resource = app.config['DOMAIN'][args[0]]
+                if endpoint_class == 'resource':
+                    public = resource['public_methods']
+                    roles = resource['allowed_roles']
+                elif endpoint_class == 'item':
+                    public = resource['public_item_methods']
+                    roles = resource['allowed_item_roles']
+                auth = resource['authentication']
             else:
+                # home
                 resource_name = resource = None
-            if endpoint_class == 'resource':
-                public = resource['public_methods']
-                roles = resource['allowed_roles']
-                auth = resource['authentication']
-            elif endpoint_class == 'item':
-                public = resource['public_item_methods']
-                roles = resource['allowed_item_roles']
-                auth = resource['authentication']
-            elif endpoint_class == 'home':
                 public = app.config['PUBLIC_METHODS'] + ['OPTIONS']
                 roles = app.config['ALLOWED_ROLES']
                 auth = app.auth
             if auth and request.method not in public:
-                auth = auth()
                 if not auth.authorized(roles, resource_name, request.method):
                     return auth.authenticate()
             return f(*args, **kwargs)

@@ -76,7 +76,8 @@ def put(resource, **lookup):
             # an Auth request active, inject the username into the document
             auth_field = resource_def['auth_field']
             if app.auth and auth_field:
-                request_auth_value = app.auth.request_auth_value
+                request_auth_value = \
+                    resource_def['authentication'].request_auth_value
                 if request_auth_value and request.authorization:
                     document[auth_field] = request_auth_value
             resolve_default_values(document, resource)
