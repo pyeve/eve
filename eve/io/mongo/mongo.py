@@ -33,7 +33,7 @@ class MongoJSONEncoder(BaseJSONEncoder):
     .. versionadded:: 0.2
     """
     def default(self, obj):
-        # delegate rendering to base class method
+        # delegate rendering to mongo driver
         return json_util.default(obj)
 
 
