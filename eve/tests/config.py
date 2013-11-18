@@ -121,11 +121,11 @@ class TestConfig(TestBase):
         self.assertUnallowedField(eve.LAST_UPDATED)
 
     def test_validate_idfield_in_schema(self):
-        self.assertUnallowedField(eve.ID_FIELD)
+        self.assertUnallowedField(eve.ID_FIELD, 'objectid')
 
-    def assertUnallowedField(self, field):
+    def assertUnallowedField(self, field, field_type='datetime'):
         self.domain.clear()
-        schema = {field: {'type': 'datetime'}}
+        schema = {field: {'type': field_type}}
         self.domain['resource'] = {'schema': schema}
         self.app.set_defaults()
         self.assertValidateSchemaFailure('resource', schema, field)

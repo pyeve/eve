@@ -311,6 +311,9 @@ class Eve(Flask, Events):
         :param resource: resource name.
         :param schema: schema definition for the resource.
 
+        .. versionchanged:: 0.2
+           Allow ID_FIELD in resource schema if not of 'objectid' type.
+
         .. versionchanged:: 0.1.1
            'collection' setting renamed to 'resource' (data_relation).
            Fix order of string arguments in exception message.
@@ -329,7 +332,8 @@ class Eve(Flask, Events):
             offenders.append(eve.DATE_CREATED)
         if eve.LAST_UPDATED in schema:
             offenders.append(eve.LAST_UPDATED)
-        if eve.ID_FIELD in schema:
+        if eve.ID_FIELD in schema and \
+           schema[eve.ID_FIELD]['type'] == 'objectid':
             offenders.append(eve.ID_FIELD)
         if offenders:
             raise SchemaException('field(s) "%s" not allowed in "%s" schema '
