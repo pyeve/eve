@@ -31,6 +31,7 @@ def get(resource):
 
     .. versionchanged:: 0.2
        Raise 'on_pre_<method>' event.
+       Let cursor add info to response.
 
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
@@ -111,6 +112,9 @@ def get(resource):
                                                    cursor.count())
         else:
             response = documents
+
+        if hasattr(cursor, 'info'):
+            getattr(cursor, 'info')(response)
 
     etag = None
     return response, last_modified, etag, status
