@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import simplejson as json
 from werkzeug.routing import BaseConverter
 from eve.tests import TestBase, TestMinimal
 from eve import Eve
 from eve.io.base import BaseJSONEncoder
 from eve.tests.test_settings import MONGO_DBNAME
 from uuid import UUID
+from eve.io.mongo import Validator
 
 
 class UUIDEncoder(BaseJSONEncoder):
@@ -36,6 +38,18 @@ class UUIDConverter(BaseConverter):
         return str(value)
 
 
+class UUIDValidator(Validator):
+    """
+    Extends the base mongo validator adding support for the uuid data-type
+    """
+    def _validate_type_uuid(self, field, value):
+        try:
+            UUID(value)
+        except ValueError:
+            self._error("value '%s' for field '%s' cannot be converted to a "
+                        "UUID" % (value, field))
+
+
 class TestCustomConverters(TestMinimal):
     """
     Test that we can use custom types as ID_FIELD ('_id' by default).
@@ -44,9 +58,13 @@ class TestCustomConverters(TestMinimal):
 
     def setUp(self):
         uuids = {
-            'resource_methods': ['GET'],
-            'item_methods': ['GET'],
+            'resource_methods': ['GET', 'POST'],
+            'item_methods': ['GET', 'PATCH', 'PUT', 'DELETE'],
             'item_url': 'uuid',
+            'schema': {
+                '_id': {'type': 'uuid'},
+                'name': {'type': 'string'}
+            }
         }
         settings = {
             'MONGO_USERNAME': 'test_user',
@@ -58,10 +76,13 @@ class TestCustomConverters(TestMinimal):
         }
         url_converters = {'uuid': UUIDConverter}
         self.uuid_valid = '48c00ee9-4dbe-413f-9fc3-d5f12a91de1c'
+        self.url = '/uuids/%s' % self.uuid_valid
+        self.headers = [('Content-Type', 'application/json')]
 
         super(TestCustomConverters, self).setUp(settings_file=settings,
                                                 url_converters=url_converters)
 
+        self.app.validator = UUIDValidator
         self.app.data.json_encoder_class = UUIDEncoder
 
     def bulk_insert(self):
@@ -71,11 +92,44 @@ class TestCustomConverters(TestMinimal):
         fake = {'_id': UUID(self.uuid_valid), }
         _db.uuids.insert(fake)
 
-    def test_uuid(self):
-        # get the document via the Eve API (it will use the UUIDConverter
-        # class).
-        r = self.test_client.get('/uuids/%s' % self.uuid_valid)
+    def _get_etag(self):
+        r = self.test_client.get(self.url)
+        self.assert200(r.status_code)
+        return json.loads(r.get_data())['etag']
+
+    def test_get_uuid(self):
+        r = self.test_client.get(self.url)
         self.assertEqual(r.status_code, 200)
+
+    def test_patch_uuid(self):
+        etag = self._get_etag()
+        self.headers.append(('If-Match', etag))
+        r = self.test_client.patch(self.url,
+                                   data=json.dumps({"name": " a_name"}),
+                                   headers=self.headers)
+        self.assert200(r.status_code)
+
+    def test_put_uuid(self):
+        etag = self._get_etag()
+        self.headers.append(('If-Match', etag))
+        r = self.test_client.put(self.url,
+                                 data=json.dumps({"name": " a_name"}),
+                                 headers=self.headers)
+        self.assert200(r.status_code)
+
+    def test_delete_uuid(self):
+        etag = self._get_etag()
+        self.headers.append(('If-Match', etag))
+        r = self.test_client.delete(self.url, headers=self.headers)
+        self.assert200(r.status_code)
+
+    def test_post_uuid(self):
+        new_id = '48c00ee9-4dbe-413f-9fc3-d5f12a91de13'
+        data = json.dumps({'_id': new_id})
+        r = self.test_client.post('uuids', data=data, headers=self.headers)
+        self.assert200(r.status_code)
+        match_id = json.loads(r.get_data())['_id']
+        self.assertEqual(new_id, match_id)
 
 
 class TestEndPoints(TestBase):

@@ -284,6 +284,10 @@ class Mongo(DataLayer):
     def update(self, resource, id_, updates):
         """Updates a collection document.
 
+        .. versionchanged:: 0.2
+           Don't explicitly converto ID_FIELD to ObjectId anymore, so we can
+           also process different types (UUIDs etc).
+
         .. versionchanged:: 0.0.9
            More informative error messages.
 
@@ -296,9 +300,8 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
-        datasource, filter_, _, _ = self._datasource_ex(resource,
-                                                        {ID_FIELD:
-                                                         ObjectId(id_)})
+        datasource, filter_, _, _ = self._datasource_ex(resource, {ID_FIELD:
+                                                                   id_})
 
         # TODO consider using find_and_modify() instead. The document might
         # have changed since the ETag was computed. This would require getting
@@ -315,11 +318,14 @@ class Mongo(DataLayer):
     def replace(self, resource, id_, document):
         """Replaces an existing document.
 
+        .. versionchanged:: 0.2
+           Don't explicitly converto ID_FIELD to ObjectId anymore, so we can
+           also process different types (UUIDs etc).
+
         .. versionadded:: 0.1.0
         """
-        datasource, filter_, _, _ = self._datasource_ex(resource,
-                                                        {ID_FIELD:
-                                                         ObjectId(id_)})
+        datasource, filter_, _, _ = self._datasource_ex(resource, {ID_FIELD:
+                                                                   id_})
 
         # TODO consider using find_and_modify() instead. The document might
         # have changed since the ETag was computed. This would require getting
@@ -336,6 +342,10 @@ class Mongo(DataLayer):
     def remove(self, resource, id_=None):
         """Removes a document or the entire set of documents from a collection.
 
+        .. versionchanged:: 0.2
+           Don't explicitly converto ID_FIELD to ObjectId anymore, so we can
+           also process different types (UUIDs etc).
+
         .. versionchanged:: 0.0.9
            More informative error messages.
 
@@ -351,7 +361,7 @@ class Mongo(DataLayer):
         .. versionadded:: 0.0.2
             Support for deletion of entire documents collection.
         """
-        query = {ID_FIELD: ObjectId(id_)} if id_ else None
+        query = {ID_FIELD: id_} if id_ else None
         datasource, filter_, _, _ = self._datasource_ex(resource, query)
         try:
             self.driver.db[datasource].remove(filter_, **self._wc(resource))
