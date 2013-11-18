@@ -115,12 +115,73 @@ are instancing the application:
 
     app = Eve(url_converters=url_converters, json_encoder=UUIDEncoder)
 
-So our complete code snippet will now look like this:
+We are almost done!         
+
+Setting up the ``UUID`` endpoint
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Now Eve is capable of both parsing UUID link segments and rendering UUID
+values, but it still doesn't know which resources are going to use these
+features. Let's pick our ``settings.py`` module and update the API domain
+accordingly:
+
+.. code-block:: python
+   :emphasize-lines: 4
+
+    invoices = {
+        'resource_methods': ['GET'],
+        'item_methods': ['GET'],
+        'item_url': 'uuid',
+    }
+
+    DOMAIN = {
+        'invoices': invoices
+    }
+
+As you may recall, ``uuid`` was the key that we used when we built our url
+converters dictionary, the one that we then passed to the Eve instance. Now,
+thanks to the ``item_url`` setting, Eve knows that single item URLs for the
+invoices endpoint are to be treated with the ``UUIDConverter`` class. 
+
+Our API will now gladly accept UUID link segments for the invoices endpoint;
+transparently store UUID strings as UUID values, and render UUID values as
+strings. 
+
+Allowing POST operations
+~~~~~~~~~~~~~~~~~~~~~~~~
+So far the `invoices` endpoint is only allowing read operations. If we wanted
+to also enable document edition we would just add ``PATCH``, ``PUT`` and maybe
+``DELETE`` to the ``item_methods`` list, but what about document creation? 
+
+By default Eve creates a unique identifier for each newly inserted document,
+and that is of ``ObjectId`` type. This is not what we want to happen at this
+endpoint. Here we want the client itself to provide the unique identifiers, and
+we also want to validate that they are of UUID type. In order to achieve that,
+we first need to extend our data validation layer (see :ref:`validation` for details on
+custom validation):
+
+.. code-block:: python
+
+    from eve.io.mongo import Validator
+    from uuid import UUID
+
+    class UUIDValidator(Validator):
+        """
+        Extends the base mongo validator adding support for the uuid data-type
+        """
+        def _validate_type_uuid(self, field, value):
+            try:
+                UUID(value)
+            except ValueError:
+                self._error("value '%s' for field '%s' cannot be converted to a "
+                            "UUID" % (value, field))
+
+So, our complete code snippet will now look like this:
 
 .. code-block:: python
 
     from eve import Eve
     from eve.io.base import BaseJSONEncoder
+    from eve.io.mongo import Validator
     from werkzeug.routing import BaseConverter
     from uuid import UUID
 
@@ -158,47 +219,44 @@ So our complete code snippet will now look like this:
                 # will properly render ObjectIds, datetimes, etc.)
                 return super(UUIDEncoder, self).default(obj)
 
-    app = Eve(url_converters=url_converters, json_encoder=UUIDEncoder)
+    class UUIDValidator(Validator):
+        """
+        Extends the base mongo validator adding support for the uuid data-type
+        """
+        def _validate_type_uuid(self, field, value):
+            try:
+                UUID(value)
+            except ValueError:
+                self._error("value '%s' for field '%s' cannot be converted to a "
+                            "UUID" % (value, field))
+
+    app = Eve(url_converters=url_converters, json_encoder=UUIDEncoder,
+              validator=UUIDValidator)
 
     if __name__ == '__main__':
         app.run()
 
-We are almost done!         
-
-Setting up the ``UUID`` endpoint
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Now Eve is capable of both parsing UUID link segments and rendering UUID
-values, but it still doesn't know which resources are going to use these
-features. Let's pick our ``settings.py`` module and update the API domain
-accordingly:
+We also need to enable edit and insertion methods for the endpoint, and of
+course add a resource schema which will be used to validate the document
+fields. This is our updated ``settings.py`` script:
 
 .. code-block:: python
-   :emphasize-lines: 4
+   :emphasize-lines: 5-6
 
     invoices = {
-        'resource_methods': ['GET'],
-        'item_methods': ['GET'],
+        'resource_methods': ['GET', 'POST'],
+        'item_methods': ['GET', 'PATCH', 'PUT', 'DELETE'],
         'item_url': 'uuid',
+        'schema': {
+            '_id': {'type': 'uuid'},
+        },
     }
 
     DOMAIN = {
         'invoices': invoices
     }
 
-For the sake of the example, this API has only one read-only endpoint (this way
-we don't have to also setup a :ref:`schema`). What really matters however, is
-the ``item_url`` setting. As you may recall, ``uuid`` was the key that we used
-when we build our url converters dictionary, the one that we then passed to the
-Eve instance. So now Eve knows that single item URLs for the invoices endpoint
-are to be treated with the ``UUIDConverter`` class. 
-
-Our API will now gladly accept UUID link segments for the invoices endpoint;
-transparently store UUID strings as UUID values, and render UUID values as
-strings. As a final touch you probably also want to extend the data validation
-layer, adding support for UUID data types. For details on how to achieve that,
-see :ref:`validation`.
-
-That's all, folks! 
+Now we're also accepting new document, and allowing clients to edit them.
 
 .. _`custom url converters`: http://werkzeug.pocoo.org/docs/routing/#custom-converters
 .. _Flask: http://flask.pocoo.org/

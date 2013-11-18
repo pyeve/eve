@@ -161,9 +161,63 @@ are instancing the application:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">url_converters</span><span class="o">=</span><span class="n">url_converters</span><span class="p">,</span> <span class="n">json_encoder</span><span class="o">=</span><span class="n">UUIDEncoder</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>So our complete code snippet will now look like this:</p>
+<p>We are almost done!</p>
+</div>
+<div class="section" id="setting-up-the-uuid-endpoint">
+<h3>Setting up the <tt class="docutils literal"><span class="pre">UUID</span></tt> endpoint<a class="headerlink" href="#setting-up-the-uuid-endpoint" title="Permalink to this headline">¶</a></h3>
+<p>Now Eve is capable of both parsing UUID link segments and rendering UUID
+values, but it still doesn&#8217;t know which resources are going to use these
+features. Let&#8217;s pick our <tt class="docutils literal"><span class="pre">settings.py</span></tt> module and update the API domain
+accordingly:</p>
+<div class="highlight-python"><div class="highlight"><pre> <span class="n">invoices</span> <span class="o">=</span> <span class="p">{</span>
+     <span class="s">&#39;resource_methods&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">],</span>
+     <span class="s">&#39;item_methods&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">],</span>
+<span class="hll">     <span class="s">&#39;item_url&#39;</span><span class="p">:</span> <span class="s">&#39;uuid&#39;</span><span class="p">,</span>
+</span> <span class="p">}</span>
+
+ <span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
+     <span class="s">&#39;invoices&#39;</span><span class="p">:</span> <span class="n">invoices</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+<p>As you may recall, <tt class="docutils literal"><span class="pre">uuid</span></tt> was the key that we used when we built our url
+converters dictionary, the one that we then passed to the Eve instance. Now,
+thanks to the <tt class="docutils literal"><span class="pre">item_url</span></tt> setting, Eve knows that single item URLs for the
+invoices endpoint are to be treated with the <tt class="docutils literal"><span class="pre">UUIDConverter</span></tt> class.</p>
+<p>Our API will now gladly accept UUID link segments for the invoices endpoint;
+transparently store UUID strings as UUID values, and render UUID values as
+strings.</p>
+</div>
+<div class="section" id="allowing-post-operations">
+<h3>Allowing POST operations<a class="headerlink" href="#allowing-post-operations" title="Permalink to this headline">¶</a></h3>
+<p>So far the <cite>invoices</cite> endpoint is only allowing read operations. If we wanted
+to also enable document edition we would just add <tt class="docutils literal"><span class="pre">PATCH</span></tt>, <tt class="docutils literal"><span class="pre">PUT</span></tt> and maybe
+<tt class="docutils literal"><span class="pre">DELETE</span></tt> to the <tt class="docutils literal"><span class="pre">item_methods</span></tt> list, but what about document creation?</p>
+<p>By default Eve creates a unique identifier for each newly inserted document,
+and that is of <tt class="docutils literal"><span class="pre">ObjectId</span></tt> type. This is not what we want to happen at this
+endpoint. Here we want the client itself to provide the unique identifiers, and
+we also want to validate that they are of UUID type. In order to achieve that,
+we first need to extend our data validation layer (see <a class="reference internal" href="../validation.html#validation"><em>Data Validation</em></a> for details on
+custom validation):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve.io.mongo</span> <span class="kn">import</span> <span class="n">Validator</span>
+<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
+
+<span class="k">class</span> <span class="nc">UUIDValidator</span><span class="p">(</span><span class="n">Validator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extends the base mongo validator adding support for the uuid data-type</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">_validate_type_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">UUID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="s">&quot;value &#39;</span><span class="si">%s</span><span class="s">&#39; for field &#39;</span><span class="si">%s</span><span class="s">&#39; cannot be converted to a &quot;</span>
+                        <span class="s">&quot;UUID&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">field</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>So, our complete code snippet will now look like this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
 <span class="kn">from</span> <span class="nn">eve.io.base</span> <span class="kn">import</span> <span class="n">BaseJSONEncoder</span>
+<span class="kn">from</span> <span class="nn">eve.io.mongo</span> <span class="kn">import</span> <span class="n">Validator</span>
 <span class="kn">from</span> <span class="nn">werkzeug.routing</span> <span class="kn">import</span> <span class="n">BaseConverter</span>
 <span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
 
@@ -201,43 +255,42 @@ are instancing the application:</p>
             <span class="c"># will properly render ObjectIds, datetimes, etc.)</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">UUIDEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
 
-<span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">url_converters</span><span class="o">=</span><span class="n">url_converters</span><span class="p">,</span> <span class="n">json_encoder</span><span class="o">=</span><span class="n">UUIDEncoder</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">UUIDValidator</span><span class="p">(</span><span class="n">Validator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extends the base mongo validator adding support for the uuid data-type</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">_validate_type_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">UUID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="s">&quot;value &#39;</span><span class="si">%s</span><span class="s">&#39; for field &#39;</span><span class="si">%s</span><span class="s">&#39; cannot be converted to a &quot;</span>
+                        <span class="s">&quot;UUID&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">field</span><span class="p">))</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">url_converters</span><span class="o">=</span><span class="n">url_converters</span><span class="p">,</span> <span class="n">json_encoder</span><span class="o">=</span><span class="n">UUIDEncoder</span><span class="p">,</span>
+          <span class="n">validator</span><span class="o">=</span><span class="n">UUIDValidator</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>We are almost done!</p>
-</div>
-<div class="section" id="setting-up-the-uuid-endpoint">
-<h3>Setting up the <tt class="docutils literal"><span class="pre">UUID</span></tt> endpoint<a class="headerlink" href="#setting-up-the-uuid-endpoint" title="Permalink to this headline">¶</a></h3>
-<p>Now Eve is capable of both parsing UUID link segments and rendering UUID
-values, but it still doesn&#8217;t know which resources are going to use these
-features. Let&#8217;s pick our <tt class="docutils literal"><span class="pre">settings.py</span></tt> module and update the API domain
-accordingly:</p>
+<p>We also need to enable edit and insertion methods for the endpoint, and of
+course add a resource schema which will be used to validate the document
+fields. This is our updated <tt class="docutils literal"><span class="pre">settings.py</span></tt> script:</p>
 <div class="highlight-python"><div class="highlight"><pre> <span class="n">invoices</span> <span class="o">=</span> <span class="p">{</span>
-     <span class="s">&#39;resource_methods&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">],</span>
-     <span class="s">&#39;item_methods&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">],</span>
-<span class="hll">     <span class="s">&#39;item_url&#39;</span><span class="p">:</span> <span class="s">&#39;uuid&#39;</span><span class="p">,</span>
-</span> <span class="p">}</span>
+     <span class="s">&#39;resource_methods&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">],</span>
+     <span class="s">&#39;item_methods&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;PATCH&#39;</span><span class="p">,</span> <span class="s">&#39;PUT&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">],</span>
+     <span class="s">&#39;item_url&#39;</span><span class="p">:</span> <span class="s">&#39;uuid&#39;</span><span class="p">,</span>
+<span class="hll">     <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class="hll">         <span class="s">&#39;_id&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;uuid&#39;</span><span class="p">},</span>
+</span>     <span class="p">},</span>
+ <span class="p">}</span>
 
  <span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
      <span class="s">&#39;invoices&#39;</span><span class="p">:</span> <span class="n">invoices</span>
  <span class="p">}</span>
 </pre></div>
 </div>
-<p>For the sake of the example, this API has only one read-only endpoint (this way
-we don&#8217;t have to also setup a <a class="reference internal" href="../config.html#schema"><em>Schema Definition</em></a>). What really matters however, is
-the <tt class="docutils literal"><span class="pre">item_url</span></tt> setting. As you may recall, <tt class="docutils literal"><span class="pre">uuid</span></tt> was the key that we used
-when we build our url converters dictionary, the one that we then passed to the
-Eve instance. So now Eve knows that single item URLs for the invoices endpoint
-are to be treated with the <tt class="docutils literal"><span class="pre">UUIDConverter</span></tt> class.</p>
-<p>Our API will now gladly accept UUID link segments for the invoices endpoint;
-transparently store UUID strings as UUID values, and render UUID values as
-strings. As a final touch you probably also want to extend the data validation
-layer, adding support for UUID data types. For details on how to achieve that,
-see <a class="reference internal" href="../validation.html#validation"><em>Data Validation</em></a>.</p>
-<p>That&#8217;s all, folks!</p>
+<p>Now we&#8217;re also accepting new document, and allowing clients to edit them.</p>
 </div>
 </div>
 </div>
@@ -290,6 +343,7 @@ see <a class="reference internal" href="../validation.html#validation"><em>Data 
 <li><a class="reference internal" href="#custom-jsonencoder">Custom JSONEncoder</a></li>
 <li><a class="reference internal" href="#passing-the-uuid-juice-to-eve">Passing the <tt class="docutils literal"><span class="pre">UUID</span></tt> juice to Eve</a></li>
 <li><a class="reference internal" href="#setting-up-the-uuid-endpoint">Setting up the <tt class="docutils literal"><span class="pre">UUID</span></tt> endpoint</a></li>
+<li><a class="reference internal" href="#allowing-post-operations">Allowing POST operations</a></li>
 </ul>
 </li>
 </ul>
