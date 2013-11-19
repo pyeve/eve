@@ -397,7 +397,7 @@ a not-so-nice ``403 FORBIDDEN``. Let's try again:
 
 What went wrong this time? We provided the mandatory ``If-Match`` header, but
 it's value did not match the ``ETag`` computed on the representation of the item
-currently stored on the server, so we got a ``402 PRECONDITION FAILED`` again!
+currently stored on the server, so we got a ``412 PRECONDITION FAILED`` again!
 
 .. code-block:: console
 
