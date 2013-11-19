@@ -449,7 +449,7 @@ a not-so-nice <tt class="docutils literal"><span class="pre">403</span> <span cl
 </div>
 <p>What went wrong this time? We provided the mandatory <tt class="docutils literal"><span class="pre">If-Match</span></tt> header, but
 it&#8217;s value did not match the <tt class="docutils literal"><span class="pre">ETag</span></tt> computed on the representation of the item
-currently stored on the server, so we got a <tt class="docutils literal"><span class="pre">402</span> <span class="pre">PRECONDITION</span> <span class="pre">FAILED</span></tt> again!</p>
+currently stored on the server, so we got a <tt class="docutils literal"><span class="pre">412</span> <span class="pre">PRECONDITION</span> <span class="pre">FAILED</span></tt> again!</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012&quot;</span> -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37 -d <span class="s1">&#39;{&quot;firstname&quot;: &quot;ronald&quot;}&#39;</span>
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
