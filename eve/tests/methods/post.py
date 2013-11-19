@@ -2,6 +2,7 @@ from eve.tests import TestBase
 from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, DATE_CREATED
 import simplejson as json
 from ast import literal_eval
+import io
 
 
 class TestPost(TestBase):
@@ -270,6 +271,13 @@ class TestPost(TestBase):
         self.assert200(status)
         self.assertTrue(len(r), 1)
         self.assertTrue('%s' % objectid in r['_items'][0]['id_list_fixed_len'])
+
+    def tests_post_multipart(self):
+        data = {'picture': io.BytesIO(b'test data')}
+        headers = [('Content-Type', 'multipart/form-data')]
+        url = self.known_resource_url
+        r = self.test_client.post(url, data=data, headers=headers)
+        self.assert200(r.status_code)
 
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
