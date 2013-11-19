@@ -110,8 +110,8 @@ primary endpoint and will match your database primary key structure (i.e., an
 
     $ curl -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c
     HTTP/1.1 200 OK
-    Etag: 448a928514cbff5b0b516f60bcdf27cc75213280
-    Last-Modified: Wed, 28 Aug 2013 03:02:24 GMT
+    Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
+    Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT 
     ... 
 
 The second, which is optional and read-only, will match a field with unique values since Eve
@@ -151,15 +151,14 @@ As you can see, item endpoints provide their own HATEOAS_ directives.
 
 .. admonition:: Please Note
 
-    According to REST principles resource items should have one unique
+    According to REST principles resource items should only have one unique
     identifier. Eve abides by providing one default endpoint per item. Adding
-    a secondary convenience, endpoint is a decision that should pondered
-    carefully.
+    a secondary endpoint is a decision that should pondered carefully.
 
     Consider our example above. Even without the ``/people/<lastname>``
     endpoint, a client could always retrieve a person by querying the resource
     endpoint by last name: ``/people/?where={"lastname": "Doe"}``. Actually the
-    whole example is fubar as there could be multiple people sharing the same
+    whole example is fubar, as there could be multiple people sharing the same
     last name, but you get the idea.
 
 .. _filters:
