@@ -47,5 +47,7 @@ STATUS_ERR = "ERR"
 
 ISSUES_FIELD = 'issues'
 
+OPTIONAL_IF_MATCH = False
+
 # must be the last line (will raise W402 on pyflakes)
 from eve.flaskapp import Eve  # noqa
