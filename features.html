@@ -468,6 +468,11 @@ also get the new <tt class="docutils literal"><span class="pre">updated</span></
 subsequent <a class="reference internal" href="#id1">conditional requests</a>.</p>
 <p>Concurrency control applies to all document edition methods: <tt class="docutils literal"><span class="pre">PATCH</span></tt> (edit),
 <tt class="docutils literal"><span class="pre">PUT</span></tt> (replace), <tt class="docutils literal"><span class="pre">DELETE</span></tt> (delete).</p>
+<p>If your use case requires, you can opt to completely disable concurrency
+control. ETag match checks can be disabled by setting the <tt class="docutils literal"><span class="pre">IF_MATCH</span></tt>
+configuration variable to <tt class="docutils literal"><span class="pre">False</span></tt> (see <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a>). You should be careful
+about disabling this feature, as you would effectively open your API to the
+risk of older versions replacing your documents.</p>
 </div>
 <div class="section" id="bulk-inserts">
 <h2>Bulk Inserts<a class="headerlink" href="#bulk-inserts" title="Permalink to this headline">¶</a></h2>

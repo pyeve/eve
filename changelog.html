@@ -61,6 +61,13 @@
 <h2>Version 0.2<a class="headerlink" href="#version-0-2" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[new] <tt class="docutils literal"><span class="pre">IF_MATCH</span></tt> allows to disable checks for ETag matches on edit, replace
+and delete requests. If disabled, requests without an If-Match header will be
+honored without returning a 403 error. Defaults to True (enabled by default).</li>
+<li>[new] <tt class="docutils literal"><span class="pre">LINKS</span></tt> allows to customize the links field. Default to &#8216;_links&#8217;.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">ITEMS</span></tt> allows to customize the items field. Default to &#8216;_items&#8217;.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">STATUS</span></tt> allows to customize the status field. Default to &#8216;status&#8217;.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">ISSUES</span></tt> allows to customize the issues field. Default to &#8216;issues&#8217;.</li>
 <li>[new] Handling custom ID fields tutorial.</li>
 <li>[new] A new <tt class="docutils literal"><span class="pre">json_encoder</span></tt> initialization argument is available. It allows
 to pass custom JSONEncoder or eve.io.BaseJSONEncoder to the Eve instance.</li>
