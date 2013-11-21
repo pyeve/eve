@@ -439,7 +439,7 @@ class TestGet(TestBase):
         self.app.data.find = types.MethodType(find, self.app.data)
         r, status = self.get(self.known_resource)
         self.assert200(status)
-        self.assertIn('_hits', r)
+        self.assertTrue('_hits' in r)
         self.assertEquals(r['_hits'], hits)
 
 
