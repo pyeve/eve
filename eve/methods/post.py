@@ -44,6 +44,7 @@ def post(resource, payl=None):
                  discussion, and a typical use case.
 
     .. versionchanged:: 0.2
+       Use the new ISSUES setting.
        Raise 'on_pre_<method>' event.
        Explictly resolve default values instead of letting them be resolved
        by common.parse. This avoids a validation error when a read-only field
@@ -160,7 +161,7 @@ def post(resource, payl=None):
         response_item = {}
         if len(doc_issues):
             response_item['status'] = config.STATUS_ERR
-            response_item['issues'] = doc_issues
+            response_item[config.ISSUES] = doc_issues
         else:
             response_item['status'] = config.STATUS_OK
             response_item[config.ID_FIELD] = ids.pop(0)

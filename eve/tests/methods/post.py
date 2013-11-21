@@ -1,20 +1,19 @@
 from eve.tests import TestBase
-from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, DATE_CREATED
 import simplejson as json
 from ast import literal_eval
-
+from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, DATE_CREATED, ISSUES
 
 class TestPost(TestBase):
     def test_unknown_resource(self):
-        r, status = self.post(self.unknown_resource_url, data={})
+        _, status = self.post(self.unknown_resource_url, data={})
         self.assert404(status)
 
     def test_readonly_resource(self):
-        r, status = self.post(self.readonly_resource_url, data={})
+        _, status = self.post(self.readonly_resource_url, data={})
         self.assert405(status)
 
     def test_post_to_item_endpoint(self):
-        r, status = self.post(self.item_id_url, data={})
+        _, status = self.post(self.item_id_url, data={})
         self.assert405(status)
 
     def test_validation_error(self):
@@ -28,7 +27,7 @@ class TestPost(TestBase):
 
     def test_post_empty_resource(self):
         data = []
-        for i in range(10):
+        for _ in range(10):
             data.append({"inv_number": self.random_string(10)})
         r, status = self.post(self.empty_resource_url, data=data)
         self.assert200(status)
@@ -150,7 +149,7 @@ class TestPost(TestBase):
         self.assertTrue(db_value[1] == items[2][2])
 
         # items on which validation failed should not be inserted into the db
-        response, status = self.get(self.known_resource_url, "where=prog==7")
+        _, status = self.get(self.known_resource_url, "where=prog==7")
         self.assert404(status)
 
     def test_post_x_www_form_urlencoded(self):
@@ -214,11 +213,11 @@ class TestPost(TestBase):
         test_field = 'ref'
         test_value = "1234567890123456789054321"
         data = {test_field: test_value}
-        r, status = self.post(self.known_resource_url, data=data)
+        _, status = self.post(self.known_resource_url, data=data)
         self.assert500(status)
         # 0 and 1 are the only valid values for 'w' on our mongod instance
         self.domain['contacts']['mongo_write_concern'] = {'w': 0}
-        r, status = self.post(self.known_resource_url, data=data)
+        _, status = self.post(self.known_resource_url, data=data)
         self.assert200(status)
 
     def test_post_with_get_override(self):
@@ -271,6 +270,12 @@ class TestPost(TestBase):
         self.assertTrue(len(r), 1)
         self.assertTrue('%s' % objectid in r['_items'][0]['id_list_fixed_len'])
 
+    def test_custom_issues(self):
+        self.app.config['ISSUES'] = 'errors'
+        r, status = self.post(self.known_resource_url, data={"ref": "123"})
+        self.assert200(status)
+        self.assertTrue('errors' in r and ISSUES not in r)
+
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert200(status)
@@ -292,7 +297,7 @@ class TestPost(TestBase):
             item = response[i]
             self.assertTrue('status' in item)
             self.assertTrue(STATUS_OK in item['status'])
-            self.assertFalse('issues' in item)
+            self.assertFalse(ISSUES in item)
             self.assertTrue(ID_FIELD in item)
             self.assertTrue(LAST_UPDATED in item)
             self.assertTrue('_links' in item)

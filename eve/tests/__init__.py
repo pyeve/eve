@@ -11,6 +11,7 @@ from flask.ext.pymongo import MongoClient
 from bson import ObjectId
 from eve.tests.test_settings import MONGO_PASSWORD, MONGO_USERNAME, \
     MONGO_DBNAME, DOMAIN, MONGO_HOST, MONGO_PORT
+from eve import ISSUES
 
 
 class TestMinimal(unittest.TestCase):
@@ -75,8 +76,8 @@ class TestMinimal(unittest.TestCase):
     def assertValidationError(self, response, matches):
         self.assertTrue('status' in response)
         self.assertTrue(eve.STATUS_ERR in response['status'])
-        self.assertTrue('issues' in response)
-        issues = response['issues']
+        self.assertTrue(ISSUES in response)
+        issues = response[ISSUES]
         self.assertTrue(len(issues))
 
         for match in matches:

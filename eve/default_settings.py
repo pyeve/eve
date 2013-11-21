@@ -12,6 +12,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.2
+       'ISSUES' defaults to 'issues'.
        'regex' is now part of 'ITEM_URL' default string.
 
     .. versionchanged:: 0.1.1
@@ -44,12 +45,15 @@
 # RFC 1123 (ex RFC 822)
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
 
+STATUS_OK = "OK"
+STATUS_ERR = "ERR"
+LAST_UPDATED = 'updated'
+DATE_CREATED = 'created'
+ISSUES = 'issues'
 
 API_VERSION = ''
 URL_PREFIX = ''
 SERVER_NAME = None
-LAST_UPDATED = 'updated'
-DATE_CREATED = 'created'
 ID_FIELD = '_id'
 CACHE_CONTROL = ''
 CACHE_EXPIRES = 0
@@ -87,9 +91,6 @@ AUTH_FIELD = None               # user-restricted resource access is disabled
 
 ALLOW_UNKNOWN = False           # don't allow unknown key/value pairs for
                                 # POST/PATCH payloads.
-STATUS_OK = "OK"
-STATUS_ERR = "ERR"
-
 # Rate limits are enabled by default (300 requests, 15 minutes windows).
 RATE_LIMIT_GET = None
 RATE_LIMIT_POST = None

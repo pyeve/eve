@@ -33,6 +33,7 @@ def put(resource, **lookup):
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.2
+       Use the new ISSUES setting.
        Raise pre_<method> event.
        explictly resolve default values instead of letting them be resolved
        by common.parse. This avoids a validation error when a read-only field
@@ -113,7 +114,7 @@ def put(resource, **lookup):
         ))
 
     if len(issues):
-        response['issues'] = issues
+        response[config.ISSUES] = issues
         response['status'] = config.STATUS_ERR
     else:
         response['status'] = config.STATUS_OK

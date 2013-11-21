@@ -8,6 +8,7 @@ Version 0.2
 
 Not released yet.
 
+- [new] ``ISSUES`` allows to customize the issues field. Default to 'issues'.
 - [new] Handling custom ID fields tutorial.
 - [new] A new ``json_encoder`` initialization argument is available. It allows
   to pass custom JSONEncoder or eve.io.BaseJSONEncoder to the Eve instance.

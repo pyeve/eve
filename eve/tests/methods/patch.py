@@ -1,7 +1,7 @@
 #import unittest
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
-from eve import STATUS_OK, LAST_UPDATED, ID_FIELD
+from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES
 import simplejson as json
 
 
@@ -9,42 +9,42 @@ import simplejson as json
 class TestPatch(TestBase):
 
     def test_patch_to_resource_endpoint(self):
-        r, status = self.patch(self.known_resource_url, data={})
+        _, status = self.patch(self.known_resource_url, data={})
         self.assert405(status)
 
     def test_readonly_resource(self):
-        r, status = self.patch(self.readonly_id_url, data={})
+        _, status = self.patch(self.readonly_id_url, data={})
         self.assert405(status)
 
     def test_unknown_id(self):
-        r, status = self.patch(self.unknown_item_id_url,
+        _, status = self.patch(self.unknown_item_id_url,
                                data={"key1": 'value1'})
         self.assert404(status)
 
     def test_unknown_id_different_resource(self):
         # patching a 'user' with a valid 'contact' id will 404
-        r, status = self.patch('%s/%s/' % (self.different_resource,
+        _, status = self.patch('%s/%s/' % (self.different_resource,
                                            self.item_id),
                                data={"key1": "value1"})
         self.assert404(status)
 
         # of course we can still patch a 'user'
-        r, status = self.patch('%s/%s/' % (self.different_resource,
+        _, status = self.patch('%s/%s/' % (self.different_resource,
                                            self.user_id),
                                data={'key1': '{"username": "username1"}'},
                                headers=[('If-Match', self.user_etag)])
         self.assert200(status)
 
     def test_by_name(self):
-        r, status = self.patch(self.item_name_url, data={'key1': 'value1'})
+        _, status = self.patch(self.item_name_url, data={'key1': 'value1'})
         self.assert405(status)
 
     def test_ifmatch_missing(self):
-        r, status = self.patch(self.item_id_url, data={'key1': 'value1'})
+        _, status = self.patch(self.item_id_url, data={'key1': 'value1'})
         self.assert403(status)
 
     def test_ifmatch_bad_etag(self):
-        r, status = self.patch(self.item_id_url,
+        _, status = self.patch(self.item_id_url,
                                data={'key1': 'value1'},
                                headers=[('If-Match', 'not-quite-right')])
         self.assert412(status)
@@ -236,7 +236,7 @@ class TestPatch(TestBase):
         field = "ref"
         test_value = "X234567890123456789012345"
         changes = {field: test_value}
-        r, status = self.patch(self.item_id_url,
+        _, status = self.patch(self.item_id_url,
                                data=changes,
                                headers=[('If-Match', self.item_etag)])
         self.assert200(status)
@@ -247,7 +247,7 @@ class TestPatch(TestBase):
         field = "ref"
         test_value = "X234567890123456789012345"
         changes = {field: test_value}
-        r, status = self.patch(self.item_id_url,
+        _, status = self.patch(self.item_id_url,
                                data=changes,
                                headers=[('If-Match', self.item_etag)])
         self.assert500(status)
@@ -275,19 +275,19 @@ class TestPatch(TestBase):
         field = "ref"
         test_value = "X234567890123456789012345"
         changes = {field: test_value}
-        r, status = self.patch('%s/%s' % (self.known_resource_url, _id),
+        _, status = self.patch('%s/%s' % (self.known_resource_url, _id),
                                data=changes, headers=[('If-Match', etag)])
         self.assert200(status)
 
     def assertPatchResponse(self, response, item_id):
         self.assertTrue('status' in response)
         self.assertTrue(STATUS_OK in response['status'])
-        self.assertFalse('issues' in response)
+        self.assertFalse(ISSUES in response)
         self.assertTrue(ID_FIELD in response)
         self.assertEqual(response[ID_FIELD], item_id)
         self.assertTrue(LAST_UPDATED in response)
         self.assertTrue('etag' in response)
-        self.assertTrue('_links') in response
+        self.assertTrue('_links' in response)
         self.assertItemLink(response['_links'], item_id)
 
     def patch(self, url, data, headers=[]):

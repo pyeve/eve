@@ -326,6 +326,9 @@ uppercase.
 ``HATEOAS``                     When ``False``, this option disables 
                                 :ref:`hateoas_feature`. Defaults to ``True``. 
 
+``ISSUES``                      Allows to customize the issues field. Defaults
+                                to ``issues``.
+
 ``MONGO_HOST``                  MongoDB server address. Defaults to ``localhost``.
 
 ``MONGO_PORT``                  MongoDB port. Defaults to ``27017``.
