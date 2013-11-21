@@ -160,7 +160,7 @@ def post(resource, payl=None):
         response_item = {}
         if len(doc_issues):
             response_item['status'] = config.STATUS_ERR
-            response_item['issues'] = doc_issues
+            response_item[config.ISSUES_FIELD] = doc_issues
         else:
             response_item['status'] = config.STATUS_OK
             response_item[config.ID_FIELD] = ids.pop(0)
