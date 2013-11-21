@@ -10,6 +10,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.2
+       'STATUS' defaults to 'status'.
        'ISSUES' defaults to 'issues'.
 
     .. versionchanged:: 0.1.1
@@ -48,6 +49,7 @@ STATUS_ERR = "ERR"
 LAST_UPDATED = 'updated'
 DATE_CREATED = 'created'
 ISSUES = 'issues'
+STATUS = 'status'
 
 # must be the last line (will raise W402 on pyflakes)
 from eve.flaskapp import Eve  # noqa

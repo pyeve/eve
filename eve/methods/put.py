@@ -33,6 +33,7 @@ def put(resource, **lookup):
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.2
+       Use the new STATUS setting.
        Use the new ISSUES setting.
        Raise pre_<method> event.
        explictly resolve default values instead of letting them be resolved
@@ -115,8 +116,8 @@ def put(resource, **lookup):
 
     if len(issues):
         response[config.ISSUES] = issues
-        response['status'] = config.STATUS_ERR
+        response[config.STATUS] = config.STATUS_ERR
     else:
-        response['status'] = config.STATUS_OK
+        response[config.STATUS] = config.STATUS_OK
 
     return response, last_modified, etag, 200

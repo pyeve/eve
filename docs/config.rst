@@ -225,12 +225,6 @@ uppercase.
                                 creation date. This field is automatically
                                 handled by Eve. Defaults to ``created``.
 
-``STATUS_OK``                   Status message returned when data validation is
-                                successful. Defaults to `OK`.
-
-``STATUS_ERR``                  Status message returned when data validation
-                                failed. Defaults to `ERR`.
-
 ``ID_FIELD``                    Name of the field used to uniquely identify
                                 resource items within the database. You want
                                 this field to be properly indexed on the
@@ -328,6 +322,15 @@ uppercase.
 
 ``ISSUES``                      Allows to customize the issues field. Defaults
                                 to ``issues``.
+
+``STATUS``                      Allows to customize the status field. Defaults
+                                to ``status``.
+
+``STATUS_OK``                   Status message returned when data validation is
+                                successful. Defaults to ``OK``.
+
+``STATUS_ERR``                  Status message returned when data validation
+                                failed. Defaults to ``ERR``.
 
 ``MONGO_HOST``                  MongoDB server address. Defaults to ``localhost``.
 

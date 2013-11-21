@@ -12,6 +12,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.2
+       'STATUS' defaults to 'status'.
        'ISSUES' defaults to 'issues'.
        'regex' is now part of 'ITEM_URL' default string.
 
@@ -50,6 +51,7 @@ STATUS_ERR = "ERR"
 LAST_UPDATED = 'updated'
 DATE_CREATED = 'created'
 ISSUES = 'issues'
+STATUS = 'status'
 
 API_VERSION = ''
 URL_PREFIX = ''

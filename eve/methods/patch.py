@@ -33,6 +33,7 @@ def patch(resource, **lookup):
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.2
+       Use the new STATUS setting.
        Use the new ISSUES setting.
        Raise 'on_pre_<method>' event.
 
@@ -125,8 +126,8 @@ def patch(resource, **lookup):
 
     if len(issues):
         response[config.ISSUES] = issues
-        response['status'] = config.STATUS_ERR
+        response[config.STATUS] = config.STATUS_ERR
     else:
-        response['status'] = config.STATUS_OK
+        response[config.STATUS] = config.STATUS_OK
 
     return response, last_modified, etag, 200

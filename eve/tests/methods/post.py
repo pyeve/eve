@@ -1,7 +1,8 @@
 from eve.tests import TestBase
 import simplejson as json
 from ast import literal_eval
-from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, DATE_CREATED, ISSUES
+from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, DATE_CREATED, ISSUES, STATUS
+
 
 class TestPost(TestBase):
     def test_unknown_resource(self):
@@ -275,6 +276,12 @@ class TestPost(TestBase):
         r, status = self.post(self.known_resource_url, data={"ref": "123"})
         self.assert200(status)
         self.assertTrue('errors' in r and ISSUES not in r)
+
+    def test_custom_status(self):
+        self.app.config['STATUS'] = 'report'
+        r, status = self.post(self.known_resource_url, data={"ref": "123"})
+        self.assert200(status)
+        self.assertTrue('report' in r and STATUS not in r)
 
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)

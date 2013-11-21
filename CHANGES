@@ -8,6 +8,7 @@ Version 0.2
 
 Not released yet.
 
+- [new] ``STATUS`` allows to customize the status field. Default to 'status'.
 - [new] ``ISSUES`` allows to customize the issues field. Default to 'issues'.
 - [new] Handling custom ID fields tutorial.
 - [new] A new ``json_encoder`` initialization argument is available. It allows
