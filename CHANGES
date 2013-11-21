@@ -8,6 +8,7 @@ Version 0.2
 
 Not released yet.
 
+- [new] ``LINKS`` allows to customize the links field. Default to '_links'.
 - [new] ``ITEMS`` allows to customize the items field. Default to '_items'.
 - [new] ``STATUS`` allows to customize the status field. Default to 'status'.
 - [new] ``ISSUES`` allows to customize the issues field. Default to 'issues'.

@@ -10,6 +10,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.2
+       'LINKS' defaults to '_links'.
        'ITEMS' defaults to '_items'.
        'STATUS' defaults to 'status'.
        'ISSUES' defaults to 'issues'.
@@ -52,6 +53,7 @@ DATE_CREATED = 'created'
 ISSUES = 'issues'
 STATUS = 'status'
 ITEMS = '_items'
+LINKS = '_links'
 
 # must be the last line (will raise W402 on pyflakes)
 from eve.flaskapp import Eve  # noqa

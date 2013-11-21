@@ -286,6 +286,11 @@ class TestGet(TestBase):
         r = response.get_data()
         self.assertTrue('_documents' in r and '_items' not in r)
 
+    def test_get_custom_links(self):
+        self.app.config['LINKS'] = '_navigation'
+        response, _ = self.get(self.known_resource)
+        self.assertTrue('_navigation' in response and '_links' not in response)
+
     def assertGet(self, response, status, resource=None):
         self.assert200(status)
 

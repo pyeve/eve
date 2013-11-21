@@ -111,7 +111,7 @@ def home_endpoint():
         for resource in config.DOMAIN.keys():
             links.append({'href': '%s' % resource_uri(resource),
                           'title': '%s' % config.URLS[resource]})
-        response['_links'] = {'child': links}
+        response[config.LINKS] = {'child': links}
         return send_response(None, (response,))
     else:
         abort(404, debug_error_message("HATEOAS is disabled so we have no data"

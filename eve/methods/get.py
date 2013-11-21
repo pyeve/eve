@@ -80,9 +80,9 @@ def get(resource):
         # document metadata
         document['etag'] = document_etag(document)
         if config.DOMAIN[resource]['hateoas']:
-            document['_links'] = {'self':
-                                  document_link(resource,
-                                                document[config.ID_FIELD])}
+            document[config.LINKS] = {'self':
+                                      document_link(resource,
+                                                    document[config.ID_FIELD])}
 
         documents.append(document)
 
@@ -108,8 +108,8 @@ def get(resource):
 
         if config.DOMAIN[resource]['hateoas']:
             response[config.ITEMS] = documents
-            response['_links'] = _pagination_links(resource, req,
-                                                   cursor.count())
+            response[config.LINKS] = _pagination_links(resource, req,
+                                                       cursor.count())
         else:
             response = documents
 
@@ -183,7 +183,7 @@ def getitem(resource, **lookup):
         _resolve_embedded_documents(resource, req, [document])
 
         if config.DOMAIN[resource]['hateoas']:
-            response['_links'] = {
+            response[config.LINKS] = {
                 'self': document_link(resource, document[config.ID_FIELD]),
                 'collection': collection_link(resource),
                 'parent': home_link()

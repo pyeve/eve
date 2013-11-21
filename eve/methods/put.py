@@ -98,8 +98,8 @@ def put(resource, **lookup):
             # metadata
             response['etag'] = etag
             if resource_def['hateoas']:
-                response['_links'] = {'self': document_link(resource,
-                                                            object_id)}
+                response[config.LINKS] = {'self': document_link(resource,
+                                                                object_id)}
         else:
             issues.extend(validator.errors)
     except ValidationError as e:

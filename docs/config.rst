@@ -335,6 +335,9 @@ uppercase.
 ``ITEMS``                       Allows to customize the items field. Defaults
                                 to ``_items``.
 
+``LINKS``                       Allows to customize the links field. Defaults
+                                to ``_links``.
+
 ``MONGO_HOST``                  MongoDB server address. Defaults to ``localhost``.
 
 ``MONGO_PORT``                  MongoDB port. Defaults to ``27017``.
