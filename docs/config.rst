@@ -332,6 +332,9 @@ uppercase.
 ``STATUS_ERR``                  Status message returned when data validation
                                 failed. Defaults to ``ERR``.
 
+``ITEMS``                       Allows to customize the items field. Defaults
+                                to ``_items``.
+
 ``MONGO_HOST``                  MongoDB server address. Defaults to ``localhost``.
 
 ``MONGO_PORT``                  MongoDB port. Defaults to ``27017``.

@@ -214,6 +214,9 @@ def render_xml(data):
 
     :param data: the data stream to be rendered as xml.
 
+    .. versionchanged:: 0.2
+       Use the new ITEMS configuration setting.
+
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
 
@@ -221,7 +224,7 @@ def render_xml(data):
        Support for HAL-like hyperlinks and resource descriptors.
     """
     if isinstance(data, list):
-        data = {'_items': data}
+        data = {config.ITEMS: data}
 
     xml = ''
     if data:

@@ -275,6 +275,17 @@ class TestGet(TestBase):
         response, status = self.parse_response(r)
         self.assertGet(response, status)
 
+    def test_get_custom_items(self):
+        self.app.config['ITEMS'] = '_documents'
+        response, _ = self.get(self.known_resource)
+        self.assertTrue('_documents' in response and '_items' not in response)
+
+        response = self.test_client.get(self.known_resource_url,
+                                        headers=[('Accept',
+                                                  'application/xml')])
+        r = response.get_data()
+        self.assertTrue('_documents' in r and '_items' not in r)
+
     def assertGet(self, response, status, resource=None):
         self.assert200(status)
 

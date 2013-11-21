@@ -12,6 +12,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.2
+       'ITEMS' defaults to '_items'.
        'STATUS' defaults to 'status'.
        'ISSUES' defaults to 'issues'.
        'regex' is now part of 'ITEM_URL' default string.
@@ -52,6 +53,7 @@ LAST_UPDATED = 'updated'
 DATE_CREATED = 'created'
 ISSUES = 'issues'
 STATUS = 'status'
+ITEMS = '_items'
 
 API_VERSION = ''
 URL_PREFIX = ''

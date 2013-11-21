@@ -30,6 +30,7 @@ def get(resource):
     :param resource: the name of the resource.
 
     .. versionchanged:: 0.2
+       Use the new ITEMS configuration setting.
        Raise 'on_pre_<method>' event.
 
     .. versionchanged:: 0.1.0
@@ -106,7 +107,7 @@ def get(resource):
         getattr(app, "on_fetch_resource_%s" % resource)(documents)
 
         if config.DOMAIN[resource]['hateoas']:
-            response['_items'] = documents
+            response[config.ITEMS] = documents
             response['_links'] = _pagination_links(resource, req,
                                                    cursor.count())
         else:
