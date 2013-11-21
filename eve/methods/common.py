@@ -39,7 +39,7 @@ def get_document(resource, **lookup):
     document = app.data.find_one(resource, **lookup)
     if document:
 
-        if not req.if_match:
+        if not req.if_match and config.IF_MATCH:
             # we don't allow editing unless the client provides an etag
             # for the document
             abort(403, description=debug_error_message(
@@ -51,7 +51,7 @@ def get_document(resource, **lookup):
         document[config.LAST_UPDATED] = last_updated(document)
         document[config.DATE_CREATED] = date_created(document)
 
-        if req.if_match != document_etag(document):
+        if req.if_match and req.if_match != document_etag(document):
             # client and server etags must match, or we don't allow editing
             # (ensures that client's version of the document is up to date)
             abort(412, description=debug_error_message(

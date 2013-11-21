@@ -426,7 +426,13 @@ also get the new ``updated`` value, which eventually will allow us to perform
 subsequent `conditional requests`_.
 
 Concurrency control applies to all document edition methods: ``PATCH`` (edit),
-``PUT`` (replace), ``DELETE`` (delete).
+``PUT`` (replace), ``DELETE`` (delete). 
+
+If your use case requires, you can opt to completely disable concurrency
+control. ETag match checks can be disabled by setting the ``IF_MATCH``
+configuration variable to ``False`` (see :ref:`global`). You should be careful
+about disabling this feature, as you would effectively open your API to the
+risk of older versions replacing your documents.
 
 Bulk Inserts
 ------------

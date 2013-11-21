@@ -4,7 +4,7 @@ from eve.tests import TestBase
 class TestDelete(TestBase):
     def test_unknown_resource(self):
         url = '%s%s/' % (self.unknown_resource_url, self.item_id)
-        r, status = self.delete(url)
+        _, status = self.delete(url)
         self.assert404(status)
 
     def test_delete_from_resource_endpoint(self):
@@ -18,7 +18,7 @@ class TestDelete(TestBase):
     def test_delete_from_resource_endpoint_write_concern(self):
         # should get a 500 since there's no replicaset on the mongod instance
         self.domain['contacts']['mongo_write_concern'] = {'w': 2}
-        r, status = self.delete(self.known_resource_url)
+        _, status = self.delete(self.known_resource_url)
         self.assert500(status)
 
     def test_delete_from_resource_endpoint_different_resource(self):
@@ -38,24 +38,29 @@ class TestDelete(TestBase):
 
     def test_delete_empty_resource(self):
         url = '%s%s/' % (self.empty_resource_url, self.item_id)
-        r, status = self.delete(url)
+        _, status = self.delete(url)
         self.assert404(status)
 
     def test_delete_readonly_resource(self):
-        r, status = self.delete(self.readonly_id_url)
+        _, status = self.delete(self.readonly_id_url)
         self.assert405(status)
 
     def test_delete_unknown_item(self):
         url = '%s%s/' % (self.known_resource_url, self.unknown_item_id)
-        r, status = self.delete(url)
+        _, status = self.delete(url)
         self.assert404(status)
 
     def test_delete_ifmatch_missing(self):
-        r, status = self.delete(self.item_id_url)
+        _, status = self.delete(self.item_id_url)
         self.assert403(status)
 
+    def test_delete_ifmatch_disabled(self):
+        self.app.config['IF_MATCH'] = False
+        _, status = self.delete(self.item_id_url)
+        self.assert200(status)
+
     def test_delete_ifmatch_bad_etag(self):
-        r, status = self.delete(self.item_id_url,
+        _, status = self.delete(self.item_id_url,
                                 headers=[('If-Match', 'not-quite-right')])
         self.assert412(status)
 
@@ -70,7 +75,7 @@ class TestDelete(TestBase):
     def test_delete_write_concern(self):
         # should get a 500 since there's no replicaset on the mongod instance
         self.domain['contacts']['mongo_write_concern'] = {'w': 2}
-        r, status = self.delete(self.item_id_url,
+        _, status = self.delete(self.item_id_url,
                                 headers=[('If-Match', self.item_etag)])
         self.assert500(status)
 

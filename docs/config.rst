@@ -316,7 +316,6 @@ uppercase.
 ``DEBUG``                       ``True`` to enable Debug Mode, ``False``
                                 otherwise. 
 
-
 ``HATEOAS``                     When ``False``, this option disables 
                                 :ref:`hateoas_feature`. Defaults to ``True``. 
 
@@ -337,6 +336,12 @@ uppercase.
 
 ``LINKS``                       Allows to customize the links field. Defaults
                                 to ``_links``.
+
+``IF_MATCH``                    ``True`` to enable concurrency control, ``False``
+                                otherwise. Defaults to ``True``. You should be
+                                careful about disabling this feature, as you
+                                would effectively open your API to the risk of
+                                older versions replacing your documents.
 
 ``MONGO_HOST``                  MongoDB server address. Defaults to ``localhost``.
 

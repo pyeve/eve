@@ -8,6 +8,9 @@ Version 0.2
 
 Not released yet.
 
+- [new] ``IF_MATCH`` allows to disable checks for ETag matches on edit, replace
+  and delete requests. If disabled, requests without an If-Match header will be
+  honored without returning a 403 error. Defaults to True (enabled by default). 
 - [new] ``LINKS`` allows to customize the links field. Default to '_links'.
 - [new] ``ITEMS`` allows to customize the items field. Default to '_items'.
 - [new] ``STATUS`` allows to customize the status field. Default to 'status'.

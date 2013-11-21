@@ -40,6 +40,11 @@ class TestPut(TestBase):
         _, status = self.put(self.item_id_url, data={'key1': 'value1'})
         self.assert403(status)
 
+    def test_ifmatch_disabled(self):
+        self.app.config['IF_MATCH'] = False
+        _, status = self.put(self.item_id_url, data={'key1': 'value1'})
+        self.assert200(status)
+
     def test_ifmatch_bad_etag(self):
         _, status = self.put(self.item_id_url,
                              data={'key1': 'value1'},

@@ -12,6 +12,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.2
+       IF_MAATCH defaults to True.
        'LINKS' defaults to '_links'.
        'ITEMS' defaults to '_items'.
        'STATUS' defaults to 'status'.
@@ -67,6 +68,7 @@ ITEM_CACHE_CONTROL = ''
 X_DOMAINS = None                # CORS disabled by default.
 X_HEADERS = None                # CORS disabled by default.
 HATEOAS = True                  # HATEOAS enabled by default.
+IF_MATCH = True                 # IF_MATCH (ETag match) enabled by default.
 
 ALLOWED_FILTERS = ['*']         # filtering enabled by default
 SORTING = True                  # sorting enabled by default.
