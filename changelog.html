@@ -61,6 +61,9 @@
 <h2>Version 0.2<a class="headerlink" href="#version-0-2" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[new][dev] <tt class="docutils literal"><span class="pre">extra</span></tt> cursor property, when present, will be added to <tt class="docutils literal"><span class="pre">GET</span></tt>
+responses (with same key). This feature can be used by Eve extensions to
+inject proprietary data into the response stream (Petr Jašek).</li>
 <li>[new] <tt class="docutils literal"><span class="pre">IF_MATCH</span></tt> allows to disable checks for ETag matches on edit, replace
 and delete requests. If disabled, requests without an If-Match header will be
 honored without returning a 403 error. Defaults to True (enabled by default).</li>
