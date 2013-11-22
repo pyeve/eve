@@ -283,7 +283,8 @@ class TestGet(TestBase):
         response = self.test_client.get(self.known_resource_url,
                                         headers=[('Accept',
                                                   'application/xml')])
-        r = response.get_data()
+        # Py3 compatibility hack
+        r = str(response.get_data())
         self.assertTrue('_documents' in r and '_items' not in r)
 
     def test_get_custom_links(self):
