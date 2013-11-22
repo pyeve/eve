@@ -8,6 +8,9 @@ Version 0.2
 
 Not released yet.
 
+- [new][dev] ``extra`` cursor property, when present, will be added to ``GET``
+  responses (with same key). This feature can be used by Eve extensions to
+  inject proprietary data into the response stream (Petr Jašek).
 - [new] ``IF_MATCH`` allows to disable checks for ETag matches on edit, replace
   and delete requests. If disabled, requests without an If-Match header will be
   honored without returning a 403 error. Defaults to True (enabled by default). 

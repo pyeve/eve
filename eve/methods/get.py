@@ -32,6 +32,7 @@ def get(resource):
     .. versionchanged:: 0.2
        Use the new ITEMS configuration setting.
        Raise 'on_pre_<method>' event.
+       Let cursor add extra info to response.
 
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
@@ -112,6 +113,12 @@ def get(resource):
                                                        cursor.count())
         else:
             response = documents
+
+        # the 'extra' cursor field, if present, will be added to the response.
+        # Can be used by Eve extensions to add extra, custom data to any
+        # response.
+        if hasattr(cursor, 'extra'):
+            getattr(cursor, 'extra')(response)
 
     etag = None
     return response, last_modified, etag, status

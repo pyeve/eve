@@ -1,3 +1,4 @@
+import types
 import simplejson as json
 from bson import ObjectId
 from eve.tests import TestBase
@@ -440,6 +441,23 @@ class TestGet(TestBase):
     def test_get_nested_resource(self):
         response, status = self.get('users/overseas')
         self.assertGet(response, status, 'users_overseas')
+
+    def test_cursor_extra_find(self):
+        self.app.data._find = self.app.data.find
+        hits = {'total_hits': 0}
+
+        def find(self, resource, req):
+            def extra(self, response):
+                response['_hits'] = hits
+            cursor = self._find(resource, req)
+            cursor.extra = types.MethodType(extra, cursor)
+            return cursor
+
+        self.app.data.find = types.MethodType(find, self.app.data)
+        r, status = self.get(self.known_resource)
+        self.assert200(status)
+        self.assertTrue('_hits' in r)
+        self.assertEquals(r['_hits'], hits)
 
 
 class TestGetItem(TestBase):
