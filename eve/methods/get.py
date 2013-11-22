@@ -114,6 +114,9 @@ def get(resource):
         else:
             response = documents
 
+        # the 'extra' cursor field, if present, will be added to the response.
+        # Can be used by Eve extensions to add extra, custom data to any
+        # response.
         if hasattr(cursor, 'extra'):
             getattr(cursor, 'extra')(response)
 
