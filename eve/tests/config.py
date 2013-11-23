@@ -194,6 +194,7 @@ class TestConfig(TestBase):
                          self.app.config['EXTRA_RESPONSE_FIELDS'])
         self.assertEqual(settings['mongo_write_concern'],
                          self.app.config['MONGO_WRITE_CONCERN'])
+        self.assertEqual(settings['resource_title'], settings['url'])
 
         self.assertNotEqual(settings['schema'], None)
         self.assertEqual(type(settings['schema']), dict)

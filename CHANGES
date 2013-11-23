@@ -8,6 +8,7 @@ Version 0.2
 
 Not released yet.
 
+- [new] ``resource_title`` allows to customize the endpoint title (HATEOAS).
 - [new][dev] ``extra`` cursor property, when present, will be added to ``GET``
   responses (with same key). This feature can be used by Eve extensions to
   inject proprietary data into the response stream (Petr Jašek).

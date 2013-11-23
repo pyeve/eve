@@ -414,6 +414,7 @@ class Eve(Flask, Events):
         """ Low-level method which sets default values for one resource.
 
         .. versionchanged:: 0.2
+           'resource_title',
            'default_sort',
            'embedded_fields'.
            Support for endpoint-level authenticatoin classes.
@@ -430,6 +431,7 @@ class Eve(Flask, Events):
         settings.setdefault('item_lookup_field',
                             self.config['ITEM_LOOKUP_FIELD'])
         settings.setdefault('item_url', self.config['ITEM_URL'])
+        settings.setdefault('resource_title', settings['url'])
         settings.setdefault('item_title',
                             resource.rstrip('s').capitalize())
         settings.setdefault('item_lookup', self.config['ITEM_LOOKUP'])

@@ -172,10 +172,13 @@ def collection_link(resource):
 
     :param resource: the resource name.
 
+    .. versionchanged:: 0.2
+       Use new 'resource_title' setting for link title.
+
     .. versionchanged:: 0.0.3
        Now returning a JSON link
     """
-    return {'title': '%s' % config.URLS[resource],
+    return {'title': '%s' % config.DOMAIN[resource]['resource_title'],
             'href': '%s' % resource_uri(resource)}
 
 

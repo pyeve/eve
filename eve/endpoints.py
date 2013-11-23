@@ -102,6 +102,9 @@ def item_endpoint(**lookup):
 def home_endpoint():
     """ Home/API entry point. Will provide links to each available resource
 
+    .. versionchanged:: 0.2
+       Use new 'resource_title' setting for link titles.
+
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
     """
@@ -110,7 +113,8 @@ def home_endpoint():
         links = []
         for resource in config.DOMAIN.keys():
             links.append({'href': '%s' % resource_uri(resource),
-                          'title': '%s' % config.URLS[resource]})
+                          'title': '%s' %
+                          config.DOMAIN[resource]['resource_title']})
         response[config.LINKS] = {'child': links}
         return send_response(None, (response,))
     else:

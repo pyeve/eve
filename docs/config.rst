@@ -506,6 +506,9 @@ always lowercase.
 ``item_url``                    Rule used to construct item endpoint URL.
                                 Locally overrides ``ITEM_URL``.
 
+``resource_title``              Title used when building resource links
+                                (HATEOAS). Defaults to resource's ``url``.
+
 ``item_title``                  Title to be used when building item references, 
                                 both in XML and JSON responses. Overrides
                                 ``ITEM_TITLE``.

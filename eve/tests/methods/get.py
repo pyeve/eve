@@ -459,6 +459,20 @@ class TestGet(TestBase):
         self.assertTrue('_hits' in r)
         self.assertEquals(r['_hits'], hits)
 
+    def test_get_resource_title(self):
+        # test that resource endpoints accepts custom titles.
+        self.app.config['DOMAIN'][self.known_resource]['resource_title'] = \
+            'new title'
+        response, status = self.get(self.known_resource)
+        self.assertTrue('new title' in response['_links']['self']['title'])
+        # test that the home page accepts custom titles.
+        response, status = self.get('/')
+        found = False
+        for link in response['_links']['child']:
+            if link['title'] == 'new title':
+                found = True
+                break
+        self.assertTrue(found)
 
 class TestGetItem(TestBase):
 
