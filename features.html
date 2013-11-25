@@ -121,7 +121,7 @@ a <tt class="docutils literal"><span class="pre">PATCH</span></tt>, overriding t
 </div>
 </div>
 <div class="section" id="customizable-resource-endpoints">
-<h2>Customizable resource endpoints<a class="headerlink" href="#customizable-resource-endpoints" title="Permalink to this headline">¶</a></h2>
+<span id="resource-endpoints"></span><h2>Customizable resource endpoints<a class="headerlink" href="#customizable-resource-endpoints" title="Permalink to this headline">¶</a></h2>
 <p>By default, Eve will make known database collections available as resource
 endpoints (persistent identifiers in REST idiom). So a database <tt class="docutils literal"><span class="pre">people</span></tt>
 collection will be avaliable at the <tt class="docutils literal"><span class="pre">example.com/people</span></tt> API endpoint.  You
@@ -187,6 +187,51 @@ each item provides some important, additional fields:</p>
 <p>These additional fields are automatically handled by the API (clients don&#8217;t
 need to provide them when adding/editing resources).</p>
 <p>The <tt class="docutils literal"><span class="pre">_links</span></tt> list provides <a class="reference external" href="http://en.wikipedia.org/wiki/HATEOAS">HATEOAS</a> directives.</p>
+<div class="section" id="sub-resources">
+<span id="subresources"></span><h3>Sub Resources<a class="headerlink" href="#sub-resources" title="Permalink to this headline">¶</a></h3>
+<p>Endpoints support sub-resources so you could have something like:
+<tt class="docutils literal"><span class="pre">/people/&lt;contact_id&gt;/invoices</span></tt>. When setting the <tt class="docutils literal"><span class="pre">url</span></tt> rule for such and
+enpoint you would use a regex and assign a field name to it:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">invoices</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;people/&lt;regex(&quot;[a-f0-9]{24}&quot;):contact_id&gt;/invoices&#39;</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>Then this GET to the endpoint, which would roughly translate to <em>give
+me all the invoices by &lt;contact_id&gt;</em>:</p>
+<div class="highlight-python"><pre>people/51f63e0838345b6dcd7eabff/invoices</pre>
+</div>
+<p>Would cause the underlying database collection invoices to be queried this way:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;contact_id&#39;</span><span class="p">:</span> <span class="s">&#39;51f63e0838345b6dcd7eabff&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>And this one:</p>
+<div class="highlight-python"><pre>people/51f63e0838345b6dcd7eabff/invoices?where={"number": 10}</pre>
+</div>
+<p>would be queried like:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;contact_id&#39;</span><span class="p">:</span> <span class="s">&#39;51f63e0838345b6dcd7eabff&#39;</span><span class="p">,</span> <span class="s">&quot;number&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Please note that when designing your API, most of the time you can get away
+without recurring to sub-resoucers. In the example above the same result would
+be achieved by simply exposing a <tt class="docutils literal"><span class="pre">invoices</span></tt> endpoint that clients could query
+this way:</p>
+<div class="highlight-python"><pre>invoices?where={"contact_id": 51f63e0838345b6dcd7eabff}</pre>
+</div>
+<p>or</p>
+<div class="highlight-python"><pre>invoices?where={"contact_id": 51f63e0838345b6dcd7eabff, "number": 10}</pre>
+</div>
+<p>It&#8217;s mostly a design choice, but keep in mind that when it comes to enabling
+individual documment endpoints you might occur in performance hits. This
+otherwise legit GET request:</p>
+<div class="highlight-python"><pre>people/&lt;contact_id&gt;/invoices/&lt;invoice_id&gt;</pre>
+</div>
+<p>would cause a two fields lookup on the database. This is not ideal and also not
+really needed, as <tt class="docutils literal"><span class="pre">&lt;invoice_id&gt;</span></tt> is a unique field. By contrast, if you had
+a simple resource endpoint the document lookup would happen on a single field:</p>
+<div class="highlight-python"><pre>invoices/&lt;invoice_id&gt;</pre>
+</div>
+</div>
 </div>
 <div class="section" id="customizable-multiple-item-endpoints">
 <span id="custom-item-endpoints"></span><h2>Customizable, multiple item endpoints<a class="headerlink" href="#customizable-multiple-item-endpoints" title="Permalink to this headline">¶</a></h2>
@@ -915,7 +960,10 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li><a class="reference internal" href="#overriding-http-methods">Overriding HTTP Methods</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#customizable-resource-endpoints">Customizable resource endpoints</a></li>
+<li><a class="reference internal" href="#customizable-resource-endpoints">Customizable resource endpoints</a><ul>
+<li><a class="reference internal" href="#sub-resources">Sub Resources</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#customizable-multiple-item-endpoints">Customizable, multiple item endpoints</a></li>
 <li><a class="reference internal" href="#filtering-and-sorting">Filtering and Sorting</a></li>
 <li><a class="reference internal" href="#pagination">Pagination</a></li>

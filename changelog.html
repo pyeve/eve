@@ -61,6 +61,12 @@
 <h2>Version 0.2<a class="headerlink" href="#version-0-2" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[new] Sub-Resources. It is now possible to configure endpoints such as:
+<tt class="docutils literal"><span class="pre">/companies/&lt;company_id&gt;/invoices</span></tt>. Also, the corresponding
+item endpoints, such as <tt class="docutils literal"><span class="pre">/companies/&lt;company_id&gt;/invoices/&lt;invoice_id&gt;</span></tt>,
+are available. All CRUD operations on these endpoints are allowed. Closes
+156.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">resource_title</span></tt> allows to customize the endpoint title (HATEOAS).</li>
 <li>[new][dev] <tt class="docutils literal"><span class="pre">extra</span></tt> cursor property, when present, will be added to <tt class="docutils literal"><span class="pre">GET</span></tt>
 responses (with same key). This feature can be used by Eve extensions to
 inject proprietary data into the response stream (Petr Jašek).</li>
