@@ -17,7 +17,7 @@ import datetime
 
 
 class BaseJSONEncoder(json.JSONEncoder):
-    """ Propretary JSONEconder subclass used by the json render function.
+    """ Proprietary JSONEconder subclass used by the json render function.
     This is needed to address the encoding of special values.
     """
     def default(self, obj):
@@ -32,8 +32,8 @@ class BaseJSONEncoder(json.JSONEncoder):
 
 
 class ConnectionException(Exception):
-    """Raised when DataLayer subclasses cannot find/activate to their
-    database connection
+    """ Raised when DataLayer subclasses cannot find/activate to their
+    database connection.
 
     :param driver_exception: the original exception raised by the source db
                              driver
@@ -125,7 +125,7 @@ class DataLayer(object):
         raise NotImplementedError
 
     def find_one(self, resource, **lookup):
-        """Retrieves a single document/record. Consumed when a request hits an
+        """ Retrieves a single document/record. Consumed when a request hits an
         item endpoint (`/people/id/`).
 
         :param resource: resource being accessed. You should then use the
@@ -140,10 +140,10 @@ class DataLayer(object):
         raise NotImplementedError
 
     def find_list_of_ids(self, resource, ids, client_projection=None):
-        """Retrieves a list of documents based on a list of primary keys
+        """ Retrieves a list of documents based on a list of primary keys
         The primary key is the field defined in `ID_FIELD`.
         This is a separate function to allow us to use per-database
-        optimizations for this type of query
+        optimizations for this type of query.
 
         :param resource: resource name.
         :param ids: a list of ids corresponding to the documents
@@ -157,7 +157,7 @@ class DataLayer(object):
         raise NotImplementedError
 
     def insert(self, resource, doc_or_docs):
-        """Inserts a document into a resource collection/table.
+        """ Inserts a document into a resource collection/table.
 
         :param resource: resource being accessed. You should then use
                          the ``_datasource`` helper function to retrieve both
@@ -172,7 +172,7 @@ class DataLayer(object):
         raise NotImplementedError
 
     def update(self, resource, id_, updates):
-        """Updates a collection/table document/row.
+        """ Updates a collection/table document/row.
         :param resource: resource being accessed. You should then use
                          the ``_datasource`` helper function to retrieve
                          the actual datasource name.
@@ -180,11 +180,10 @@ class DataLayer(object):
         :param updates: json updates to be performed on the database document
                         (or row).
         """
-
         raise NotImplementedError
 
     def replace(self, resource, id_, document):
-        """Replaces a collection/table document/row.
+        """ Replaces a collection/table document/row.
         :param resource: resource being accessed. You should then use
                          the ``_datasource`` helper function to retrieve
                          the actual datasource name.
@@ -193,11 +192,10 @@ class DataLayer(object):
 
         .. versionadded:: 0.1.0
         """
-
         raise NotImplementedError
 
     def remove(self, resource, id_=None):
-        """Removes a document/row or an entire set of documents/rows from a
+        """ Removes a document/row or an entire set of documents/rows from a
         database collection/table.
 
         :param resource: resource being accessed. You should then use
@@ -211,8 +209,7 @@ class DataLayer(object):
         raise NotImplementedError
 
     def combine_queries(self, query_a, query_b):
-        """
-        Takes two db queries and applies db-specific syntax to produce
+        """ Takes two db queries and applies db-specific syntax to produce
         the intersection.
 
         .. versionadded: 0.1.0
@@ -221,8 +218,7 @@ class DataLayer(object):
         raise NotImplementedError
 
     def get_value_from_query(self, query, field_name):
-        """
-        Parses the given potentially-complex query and returns the value
+        """ Parses the given potentially-complex query and returns the value
         being assigned to the field given in `field_name`.
 
         This mainly exists to deal with more complicated compound queries
@@ -234,7 +230,7 @@ class DataLayer(object):
 
     def query_contains_field(self, query, field_name):
         """ For the specified field name, does the query contain it?
-        Used know whether we need to parse a compound query
+        Used know whether we need to parse a compound query.
 
         .. versionadded: 0.1.0
            Support for parsing values embedded in compound db queries
@@ -242,7 +238,7 @@ class DataLayer(object):
         raise NotImplementedError
 
     def _datasource(self, resource):
-        """Returns a tuple with the actual name of the database
+        """ Returns a tuple with the actual name of the database
         collection/table, base query and projection for the resource being
         accessed.
 
@@ -251,7 +247,6 @@ class DataLayer(object):
         .. versionchanged:: 0.2
            Support for 'default_sort'.
         """
-
         return (config.SOURCES[resource]['source'],
                 config.SOURCES[resource]['filter'],
                 config.SOURCES[resource]['projection'],
@@ -261,7 +256,7 @@ class DataLayer(object):
     def _datasource_ex(self, resource, query=None, client_projection=None,
                        client_sort=None):
         """ Returns both db collection and exact query (base filter included)
-        to which an API resource refers to
+        to which an API resource refers to.
 
         .. versionchanged:: 0.2
            Difference between resource and item endpoints is now determined
