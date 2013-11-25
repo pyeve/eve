@@ -24,7 +24,7 @@ from eve.methods.common import get_document, parse, payload as payload_, \
 @requires_auth('item')
 @pre_event
 def patch(resource, **lookup):
-    """Perform a document patch/update. Updates are first validated against
+    """ Perform a document patch/update. Updates are first validated against
     the resource schema. If validation passes, the document is updated and
     an OK status update is returned. If validation fails, a set of validation
     issues is returned.

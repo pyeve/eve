@@ -213,9 +213,9 @@ def ratelimit():
 
 
 def last_updated(document):
-    """Fixes document's LAST_UPDATED field value. Flask-PyMongo returns
+    """ Fixes document's LAST_UPDATED field value. Flask-PyMongo returns
     timezone-aware values while stdlib datetime values are timezone-naive.
-    Comparisions between the two would fail.
+    Comparisons between the two would fail.
 
     If LAST_UPDATE is missing we assume that it has been created outside of the
     API context and inject a default value, to allow for proper computing of
@@ -237,7 +237,7 @@ def last_updated(document):
 
 
 def date_created(document):
-    """If DATE_CREATED is missing we assume that it has been created outside of
+    """ If DATE_CREATED is missing we assume that it has been created outside of
     the API context and inject a default value. By design all documents
     return a DATE_CREATED (and we dont' want to break existing clients).
 
@@ -266,7 +266,7 @@ def epoch():
 
 
 def serialize(document, resource=None, schema=None):
-    """Recursively handles field values that require data-aware serialization.
+    """ Recursively handles field values that require data-aware serialization.
     Relies on the app.data.serializers dictionary.
 
     .. versionadded:: 0.1.1
@@ -315,7 +315,7 @@ def serialize(document, resource=None, schema=None):
 
 
 def resolve_default_values(document, resource):
-    """Add any defined default value for missing document fields.
+    """ Add any defined default value for missing document fields.
 
     :param document: the document being posted or replaced
     :param resource: the resource to which the document belongs
