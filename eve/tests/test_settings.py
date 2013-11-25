@@ -125,6 +125,10 @@ user_restricted_access = copy.deepcopy(contacts)
 user_restricted_access['url'] = 'restricted'
 user_restricted_access['datasource'] = {'source': 'contacts'}
 
+users_invoices = copy.deepcopy(invoices)
+users_invoices['url'] = 'users/<regex("[a-f0-9]{24}"):person>/invoices'
+users_invoices['datasource'] = {'source': 'invoices'}
+
 DOMAIN = {
     'contacts': contacts,
     'users': users,
@@ -133,4 +137,5 @@ DOMAIN = {
     'payments': payments,
     'empty': empty,
     'restricted': user_restricted_access,
+    'peopleinvoices': users_invoices,
 }

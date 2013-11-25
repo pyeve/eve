@@ -429,7 +429,11 @@ always lowercase.
                                 a ``/contacts`` endpoint and then
                                 a ``/contacts/overseas`` endpoint. Both are
                                 independent of each other and freely
-                                configurable.)
+                                configurable).
+
+                                You can also use regexes to setup
+                                subresource-like endpoints. See
+                                :ref:`subresources`.
 
 ``allowed_filters``             List of fields on which filtering is allowed. 
                                 Can be set to ``[]`` (no filters allowed), or

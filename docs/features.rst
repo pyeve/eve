@@ -36,6 +36,8 @@ supporting the ``PATCH`` method could send a ``POST`` request with
 a ``X-HTTP-Method-Override: PATCH`` header.  The API would then perform
 a ``PATCH``, overriding the original request method.
 
+.. _resource_endpoints:
+
 Customizable resource endpoints
 -------------------------------
 By default, Eve will make known database collections available as resource
@@ -94,6 +96,76 @@ These additional fields are automatically handled by the API (clients don't
 need to provide them when adding/editing resources).
 
 The ``_links`` list provides HATEOAS_ directives.
+
+.. _subresources:
+
+Sub Resources
+~~~~~~~~~~~~~
+Endpoints support sub-resources so you could have something like:
+``/people/<contact_id>/invoices``. When setting the ``url`` rule for such and
+enpoint you would use a regex and assign a field name to it:
+
+.. code-block:: python
+
+    invoices = {
+        'url': 'people/<regex("[a-f0-9]{24}"):contact_id>/invoices'
+        ...
+
+Then this GET to the endpoint, which would roughly translate to *give
+me all the invoices by <contact_id>*:
+
+::
+
+    people/51f63e0838345b6dcd7eabff/invoices
+
+Would cause the underlying database collection invoices to be queried this way: 
+
+:: 
+
+    {'contact_id': '51f63e0838345b6dcd7eabff'}
+
+And this one: 
+
+:: 
+
+    people/51f63e0838345b6dcd7eabff/invoices?where={"number": 10}
+
+would be queried like: 
+
+::
+
+    {'contact_id': '51f63e0838345b6dcd7eabff', "number": 10}
+
+Please note that when designing your API, most of the time you can get away
+without recurring to sub-resoucers. In the example above the same result would
+be achieved by simply exposing a ``invoices`` endpoint that clients could query
+this way: 
+
+::
+
+    invoices?where={"contact_id": 51f63e0838345b6dcd7eabff}
+
+or
+
+::
+
+    invoices?where={"contact_id": 51f63e0838345b6dcd7eabff, "number": 10}
+
+It's mostly a design choice, but keep in mind that when it comes to enabling
+individual documment endpoints you might occur in performance hits. This
+otherwise legit GET request:
+
+::
+
+    people/<contact_id>/invoices/<invoice_id>
+
+would cause a two fields lookup on the database. This is not ideal and also not
+really needed, as ``<invoice_id>`` is a unique field. By contrast, if you had
+a simple resource endpoint the document lookup would happen on a single field:
+
+::
+
+    invoices/<invoice_id>
 
 .. _custom_item_endpoints:
 

@@ -294,6 +294,7 @@ class TestConfig(TestBase):
         map_adapter = self.app.url_map.bind(self.app.config.get(
             'SERVER_NAME', ''))
 
+        del(self.domain['peopleinvoices'])
         for _, settings in self.domain.items():
             for method in settings['resource_methods']:
                 self.assertTrue(map_adapter.test('/%s/' % settings['url'],

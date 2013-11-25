@@ -1,6 +1,8 @@
 import simplejson as json
 from eve.tests import TestBase
 from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES
+from eve.tests.test_settings import MONGO_DBNAME
+from bson import ObjectId
 
 
 class TestPut(TestBase):
@@ -147,6 +149,30 @@ class TestPut(TestBase):
         r = self.perform_put(data)
         db_value = self.compare_put_with_get(test_field, r)
         self.assertEqual(test_value, db_value)
+
+    def test_put_subresource(self):
+        _db = self.connection[MONGO_DBNAME]
+
+        # create random contact
+        fake_contact = self.random_contacts(1)
+        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+
+        # update first invoice to reference the new contact
+        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
+                            {'$set': {'person': fake_contact_id}})
+
+        # GET all invoices by new contact
+        response, status = self.get('users/%s/invoices/%s' %
+                                    (fake_contact_id, self.invoice_id))
+        etag = response['etag']
+
+        data = {"inv_number": "new_number"}
+        headers = [('If-Match', etag)]
+        response, status = self.put('users/%s/invoices/%s' %
+                                    (fake_contact_id, self.invoice_id),
+                                    data=data, headers=headers)
+        self.assert200(status)
+        self.assertPutResponse(response, self.invoice_id)
 
     def perform_put(self, changes):
         r, status = self.put(self.item_id_url,

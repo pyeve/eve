@@ -139,6 +139,7 @@ class TestEndPoints(TestBase):
         self.assertEqual(r.status_code, 200)
 
     def test_resource_endpoint(self):
+        del(self.domain['peopleinvoices'])
         for settings in self.domain.values():
             r = self.test_client.get('/%s/' % settings['url'])
             self.assert200(r.status_code)

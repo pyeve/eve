@@ -21,7 +21,7 @@ from eve.utils import resource_uri, config, request_method, \
 from flask import abort, request
 
 
-def collections_endpoint():
+def collections_endpoint(**lookup):
     """ Resource endpoint handler
 
     :param url: the url that led here
@@ -46,7 +46,7 @@ def collections_endpoint():
     response = None
     method = request_method()
     if method in ('GET', 'HEAD'):
-        response = get(resource)
+        response = get(resource, lookup)
     elif method == 'POST':
         response = post(resource)
     elif method == 'DELETE':
@@ -62,9 +62,10 @@ def item_endpoint(**lookup):
     """ Item endpoint handler
 
     :param url: the url that led here
-    :param lookup: the query
+    :param lookup: sub resource query
 
     .. versionchanged:: 0.2
+       Support for sub-resources.
        Relying on request.endpoint to retrieve the resource being consumed.
 
     .. versionchanged:: 0.1.1

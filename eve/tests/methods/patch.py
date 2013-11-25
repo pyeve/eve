@@ -2,6 +2,7 @@
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
 from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES
+from bson import ObjectId
 import simplejson as json
 
 
@@ -283,6 +284,30 @@ class TestPatch(TestBase):
         _, status = self.patch('%s/%s' % (self.known_resource_url, _id),
                                data=changes, headers=[('If-Match', etag)])
         self.assert200(status)
+
+    def test_patch_subresource(self):
+        _db = self.connection[MONGO_DBNAME]
+
+        # create random contact
+        fake_contact = self.random_contacts(1)
+        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+
+        # update first invoice to reference the new contact
+        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
+                            {'$set': {'person': fake_contact_id}})
+
+        # GET all invoices by new contact
+        response, status = self.get('users/%s/invoices/%s' %
+                                    (fake_contact_id, self.invoice_id))
+        etag = response['etag']
+
+        data = {"inv_number": "new_number"}
+        headers = [('If-Match', etag)]
+        response, status = self.patch('users/%s/invoices/%s' %
+                                      (fake_contact_id, self.invoice_id),
+                                      data=data, headers=headers)
+        self.assert200(status)
+        self.assertPatchResponse(response, self.invoice_id)
 
     def assertPatchResponse(self, response, item_id):
         self.assertTrue('status' in response)

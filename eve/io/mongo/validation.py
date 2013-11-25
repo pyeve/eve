@@ -105,10 +105,10 @@ class Validator(Validator):
         """
         query = {data_relation['field']: value}
         if not app.data.find_one(data_relation['resource'], **query):
-                self._error("value '%s' for field '%s' must exist in "
-                            "resource '%s', field '%s'" %
-                            (value, field, data_relation['resource'],
-                             data_relation['field']))
+            self._error("value '%s' for field '%s' must exist in "
+                        "resource '%s', field '%s'" %
+                        (value, field, data_relation['resource'],
+                         data_relation['field']))
 
     def _validate_type_objectid(self, field, value):
         """ Enables validation for `objectid` schema attribute.

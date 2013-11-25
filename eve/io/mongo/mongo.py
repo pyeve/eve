@@ -70,7 +70,7 @@ class Mongo(DataLayer):
         except Exception as e:
             raise ConnectionException(e)
 
-    def find(self, resource, req):
+    def find(self, resource, req, sub_resource_lookup):
         """Retrieves a set of documents matching a given request. Queries can
         be expressed in two different formats: the mongo query syntax, and the
         python syntax. The first kind of query would look like: ::
@@ -85,8 +85,10 @@ class Mongo(DataLayer):
 
         :param resource: resource name.
         :param req: a :class:`ParsedRequest`instance.
+        :param sub_resource_lookup: sub-resource lookup from the endpoint url.
 
         .. versionchagend:: 0.2
+           Support for sub-resources.
            Support for 'default_sort'.
 
         .. versionchanged:: 0.1.1
@@ -143,7 +145,11 @@ class Mongo(DataLayer):
                     abort(400, description=debug_error_message(
                         'Unable to parse `where` clause'
                     ))
-            spec = self._mongotize(spec)
+
+        if sub_resource_lookup:
+            spec.update(sub_resource_lookup)
+
+        spec = self._mongotize(spec)
 
         bad_filter = validate_filters(spec, resource)
         if bad_filter:
@@ -200,6 +206,8 @@ class Mongo(DataLayer):
             except (InvalidId, TypeError):
                 # Returns a type error when {'_id': {...}}
                 pass
+
+        self._mongotize(lookup)
 
         datasource, filter_, projection, _ = self._datasource_ex(resource,
                                                                  lookup)

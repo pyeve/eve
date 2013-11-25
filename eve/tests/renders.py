@@ -113,6 +113,7 @@ class TestRenders(TestBase):
         prefix = api_prefix(self.app.config['URL_PREFIX'],
                             self.app.config['API_VERSION'])
 
+        del(self.domain['peopleinvoices'])
         for _, settings in self.app.config['DOMAIN'].items():
 
             # resource endpoint

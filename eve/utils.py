@@ -194,8 +194,13 @@ def document_link(resource, document_id):
     .. versionchanged:: 0.0.3
        Now returning a JSON link
     """
+    if str(document_id) in request.path:
+        path = request.path.rstrip('/')
+        path = path[:path.rfind('/')]
+    else:
+        path = request.path
     return {'title': '%s' % config.DOMAIN[resource]['item_title'],
-            'href': '%s/%s' % (resource_uri(resource), document_id)}
+            'href': '%s/%s' % (path, document_id)}
 
 
 def home_link():
@@ -345,7 +350,7 @@ def validate_filters(where, resource):
     """
     allowed = config.DOMAIN[resource]['allowed_filters']
     if '*' not in allowed:
-        for filt, cond in where.items():
+        for filt, _ in where.items():
             if filt not in allowed:
                 return "filter on '%s' not allowed" % filt
     return None

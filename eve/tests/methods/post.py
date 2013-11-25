@@ -283,6 +283,13 @@ class TestPost(TestBase):
         self.assert200(status)
         self.assertTrue('report' in r and STATUS not in r)
 
+    def test_subresource(self):
+        data = {"person": self.item_id}
+        response, status = self.post('users/%s/invoices' % self.item_id,
+                                     data=data)
+        self.assert200(status)
+        self.assertPostResponse(response)
+
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert200(status)

@@ -446,10 +446,10 @@ class TestGet(TestBase):
         self.app.data._find = self.app.data.find
         hits = {'total_hits': 0}
 
-        def find(self, resource, req):
+        def find(self, resource, req, sub_resource_lookup):
             def extra(self, response):
                 response['_hits'] = hits
-            cursor = self._find(resource, req)
+            cursor = self._find(resource, req, sub_resource_lookup)
             cursor.extra = types.MethodType(extra, cursor)
             return cursor
 
@@ -463,16 +463,36 @@ class TestGet(TestBase):
         # test that resource endpoints accepts custom titles.
         self.app.config['DOMAIN'][self.known_resource]['resource_title'] = \
             'new title'
-        response, status = self.get(self.known_resource)
+        response, _ = self.get(self.known_resource)
         self.assertTrue('new title' in response['_links']['self']['title'])
         # test that the home page accepts custom titles.
-        response, status = self.get('/')
+        response, _ = self.get('/')
         found = False
         for link in response['_links']['child']:
             if link['title'] == 'new title':
                 found = True
                 break
         self.assertTrue(found)
+
+    def test_get_subresource(self):
+        _db = self.connection[MONGO_DBNAME]
+
+        # create random contact
+        fake_contact = self.random_contacts(1)
+        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+        # update first invoice to reference the new contact
+        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
+                            {'$set': {'person': fake_contact_id}})
+
+        # GET all invoices by new contact
+        response, status = self.get('users/%s/invoices' % fake_contact_id)
+        self.assert200(status)
+        # only 1 invoice
+        self.assertEqual(len(response['_items']), 1)
+        self.assertEqual(len(response['_links']), 2)
+        # which links to the right contact
+        self.assertEqual(response['_items'][0]['person'], str(fake_contact_id))
+
 
 class TestGetItem(TestBase):
 
@@ -648,6 +668,23 @@ class TestGetItem(TestBase):
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
         self.assertTrue('location' in content['person'])
+
+    def test_subresource_getitem(self):
+        _db = self.connection[MONGO_DBNAME]
+
+        # create random contact
+        fake_contact = self.random_contacts(1)
+        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+        # update first invoice to reference the new contact
+        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
+                            {'$set': {'person': fake_contact_id}})
+
+        # GET all invoices by new contact
+        response, status = self.get('users/%s/invoices/%s' % (fake_contact_id,
+                                                              self.invoice_id))
+        self.assert200(status)
+        self.assertEqual(response['person'], str(fake_contact_id))
+        self.assertEqual(response['_id'], self.invoice_id)
 
 
 class TestHead(TestBase):
