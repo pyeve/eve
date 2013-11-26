@@ -26,7 +26,7 @@ from eve.utils import config, debug_error_message, validate_filters, \
 
 
 class MongoJSONEncoder(BaseJSONEncoder):
-    """ Propretary JSONEconder subclass used by the json render function.
+    """ Proprietary JSONEconder subclass used by the json render function.
     This is needed to address the encoding of special values.
 
     .. versionadded:: 0.2
@@ -60,7 +60,7 @@ class Mongo(DataLayer):
     json_encoder_class = MongoJSONEncoder
 
     def init_app(self, app):
-        """
+        """ Initialize PyMongo.
         .. versionchanged:: 0.0.9
            support for Python 3.3.
         """
@@ -71,7 +71,7 @@ class Mongo(DataLayer):
             raise ConnectionException(e)
 
     def find(self, resource, req, sub_resource_lookup):
-        """Retrieves a set of documents matching a given request. Queries can
+        """ Retrieves a set of documents matching a given request. Queries can
         be expressed in two different formats: the mongo query syntax, and the
         python syntax. The first kind of query would look like: ::
 
@@ -185,7 +185,7 @@ class Mongo(DataLayer):
         return self.driver.db[datasource].find(**args)
 
     def find_one(self, resource, **lookup):
-        """Retrieves a single document.
+        """ Retrieves a single document.
 
         :param resource: resource name.
         :param **lookup: lookup query.
@@ -216,7 +216,7 @@ class Mongo(DataLayer):
         return document
 
     def find_list_of_ids(self, resource, ids, client_projection=None):
-        """Retrieves a list of documents from the collection given
+        """ Retrieves a list of documents from the collection given
         by `resource`, matching the given list of ids.
 
         This query is generated to *preserve the order* of the elements
@@ -261,7 +261,7 @@ class Mongo(DataLayer):
         return documents
 
     def insert(self, resource, doc_or_docs):
-        """Inserts a document into a resource collection.
+        """ Inserts a document into a resource collection.
 
         .. versionchanged:: 0.0.9
            More informative error messages.
@@ -290,7 +290,7 @@ class Mongo(DataLayer):
             ))
 
     def update(self, resource, id_, updates):
-        """Updates a collection document.
+        """ Updates a collection document.
 
         .. versionchanged:: 0.2
            Don't explicitly converto ID_FIELD to ObjectId anymore, so we can
@@ -324,7 +324,7 @@ class Mongo(DataLayer):
             ))
 
     def replace(self, resource, id_, document):
-        """Replaces an existing document.
+        """ Replaces an existing document.
 
         .. versionchanged:: 0.2
            Don't explicitly converto ID_FIELD to ObjectId anymore, so we can
@@ -348,7 +348,8 @@ class Mongo(DataLayer):
             ))
 
     def remove(self, resource, id_=None):
-        """Removes a document or the entire set of documents from a collection.
+        """ Removes a document or the entire set of documents from a
+        collection.
 
         .. versionchanged:: 0.2
            Don't explicitly converto ID_FIELD to ObjectId anymore, so we can
@@ -383,9 +384,8 @@ class Mongo(DataLayer):
     # of a separate MonqoQuery class
 
     def combine_queries(self, query_a, query_b):
-        """
-        Takes two db queries and applies db-specific syntax to produce
-        the intersection
+        """ Takes two db queries and applies db-specific syntax to produce
+        the intersection.
 
         This is used because we can't just dump one set of query operators
         into another.
@@ -449,7 +449,7 @@ class Mongo(DataLayer):
 
     def query_contains_field(self, query, field_name):
         """ For the specified field name, does the query contain it?
-        Used know whether we need to parse a compound query
+        Used know whether we need to parse a compound query.
 
         .. versionadded: 0.1.0
            Support for parsing values embedded in compound db queries

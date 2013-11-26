@@ -24,7 +24,7 @@ from eve.utils import parse_request, document_etag, document_link, home_link, \
 @requires_auth('resource')
 @pre_event
 def get(resource, lookup):
-    """Retrieves the resource documents that match the current request.
+    """ Retrieves the resource documents that match the current request.
 
     :param resource: the name of the resource.
 
@@ -214,9 +214,9 @@ def getitem(resource, **lookup):
 
 
 def _resolve_embedded_documents(resource, req, documents):
-    """Loops through the documents, adding embedded representations
+    """ Loops through the documents, adding embedded representations
     of any fields that are (1) defined eligible for embedding in the
-    DOMAIN and (2) requested to be embedded in the current `req`
+    DOMAIN and (2) requested to be embedded in the current `req`.
 
     Currently we only support a single layer of embedding,
     i.e. /invoices/?embedded={"user":1}
@@ -284,7 +284,7 @@ def _resolve_embedded_documents(resource, req, documents):
 
 
 def _pagination_links(resource, req, documents_count):
-    """Returns the appropriate set of resource links depending on the
+    """ Returns the appropriate set of resource links depending on the
     current page and the total number of documents returned by the query.
 
     :param resource: the resource name.

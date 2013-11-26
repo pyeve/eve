@@ -42,7 +42,7 @@ class RegexConverter(BaseConverter):
 
 
 class Eve(Flask, Events):
-    """The main Eve object. On initialization it will load Eve settings, then
+    """ The main Eve object. On initialization it will load Eve settings, then
     configure and enable the API endpoints. The API is launched by executing
     the code below:::
 
@@ -98,7 +98,7 @@ class Eve(Flask, Events):
     def __init__(self, import_name=__package__, settings='settings.py',
                  validator=Validator, data=Mongo, auth=None, redis=None,
                  url_converters=None, json_encoder=None, **kwargs):
-        """Eve main WSGI app is implemented as a Flask subclass. Since we want
+        """ Eve main WSGI app is implemented as a Flask subclass. Since we want
         to be able to launch our API by simply invoking Flask's run() method,
         we need to enhance our super-class a little bit.
 
@@ -151,7 +151,8 @@ class Eve(Flask, Events):
         self._add_url_rules()
 
     def run(self, host=None, port=None, debug=None, **options):
-        """Pass our own subclass of :class:`werkzeug.serving.WSGIRequestHandler
+        """ 
+        Pass our own subclass of :class:`werkzeug.serving.WSGIRequestHandler
         to Flask.
 
         :param host: the hostname to listen on. Set this to ``'0.0.0.0'`` to
@@ -169,7 +170,7 @@ class Eve(Flask, Events):
         super(Eve, self).run(host, port, debug, **options)
 
     def load_config(self):
-        """API settings are loaded from standard python modules. First from
+        """ API settings are loaded from standard python modules. First from
         `settings.py`(or alternative name/path passed as an argument) and
         then, when defined, from the file specified in the
         `EVE_SETTINGS` environment variable.
@@ -513,8 +514,7 @@ class Eve(Flask, Events):
 
     @property
     def api_prefix(self):
-        """
-        Prefix to API endpoints.
+        """ Prefix to API endpoints.
 
         .. versionadded:: 0.2
         """
