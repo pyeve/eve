@@ -50,7 +50,7 @@ def delete(resource, **lookup):
 @requires_auth('resource')
 @pre_event
 def delete_resource(resource):
-    """ Deletes all item of a resource (collection in MongoDB terms). Won't 
+    """ Deletes all item of a resource (collection in MongoDB terms). Won't
     drop indexes. Use with caution!
 
     .. versionchanged:: 0.0.4

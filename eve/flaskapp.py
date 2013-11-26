@@ -151,7 +151,7 @@ class Eve(Flask, Events):
         self._add_url_rules()
 
     def run(self, host=None, port=None, debug=None, **options):
-        """ 
+        """
         Pass our own subclass of :class:`werkzeug.serving.WSGIRequestHandler
         to Flask.
 
