@@ -340,7 +340,8 @@ class Mongo(DataLayer):
             ))
 
     def remove(self, resource, id_=None):
-        """ Removes a document or the entire set of documents from a collection.
+        """ Removes a document or the entire set of documents from a
+        collection.
 
         .. versionchanged:: 0.2
            Don't explicitly converto ID_FIELD to ObjectId anymore, so we can

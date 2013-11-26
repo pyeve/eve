@@ -237,8 +237,8 @@ def last_updated(document):
 
 
 def date_created(document):
-    """ If DATE_CREATED is missing we assume that it has been created outside of
-    the API context and inject a default value. By design all documents
+    """ If DATE_CREATED is missing we assume that it has been created outside 
+    of the API context and inject a default value. By design all documents
     return a DATE_CREATED (and we dont' want to break existing clients).
 
     :param document: the document to be processed.
