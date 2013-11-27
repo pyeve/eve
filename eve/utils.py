@@ -194,13 +194,8 @@ def document_link(resource, document_id):
     .. versionchanged:: 0.0.3
        Now returning a JSON link
     """
-    if str(document_id) in request.path:
-        path = request.path.rstrip('/')
-        path = path[:path.rfind('/')]
-    else:
-        path = request.path
     return {'title': '%s' % config.DOMAIN[resource]['item_title'],
-            'href': '%s/%s' % (path, document_id)}
+            'href': '%s/%s' % (resource_uri(resource), document_id)}
 
 
 def home_link():

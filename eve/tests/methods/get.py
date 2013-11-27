@@ -527,6 +527,16 @@ class TestGetItem(TestBase):
                                     item=self.unknown_item_name)
         self.assert404(status)
 
+    def test_getitem_by_name_self_href(self):
+        response, status = self.get(self.known_resource,
+                                    item=self.item_id)
+        self_href = response['_links']['self']['href']
+
+        response, status = self.get(self.known_resource,
+                                    item=self.item_name)
+
+        self.assertEquals(self_href, response['_links']['self']['href'])
+
     def test_getitem_by_integer(self):
         self.domain['contacts']['additional_lookup'] = {
             'field': 'prog'
