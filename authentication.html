@@ -398,7 +398,8 @@ Eve <a class="reference external" href="https://github.com/nicolaiarocci/eve">re
         <span class="c"># in this implementation we only hash request data, ignoring the</span>
         <span class="c"># headers.</span>
         <span class="k">return</span> <span class="n">user</span> <span class="ow">and</span> \
-            <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">secret_key</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">sha1</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span> <span class="o">==</span> <span class="n">hmac_hash</span>
+            <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">secret_key</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">sha1</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span> <span class="o">==</span> \
+                <span class="n">hmac_hash</span>
 
 
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
