@@ -62,7 +62,7 @@ class HMACAuth(HMACAuth):
         # in this implementation we only hash request data, ignoring the
         # headers.
         return user and \
-            hmac.new(secret_key, data, sha1).hexdigest() == hmac_hash
+            hmac.new(str(secret_key), str(data), sha1).hexdigest() == hmac_hash
 
 
 if __name__ == '__main__':
