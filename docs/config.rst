@@ -5,21 +5,39 @@ Configuration Handling
 Generally Eve configuration is best done with configuration files. The
 configuration files themselves are actual Python files. 
 
-Configuration Files
--------------------
+Configuration with Files
+------------------------
 On startup, Eve will look for a `settings.py` file in the application folder.
 You can choose an alternative filename/path. Just pass it as an argument when
 you instantiate the application.
 
-::
+.. code-block:: python
     
     from eve import Eve
 
     app = Eve(settings='my_settings.py')
     app.run()
 
+Configuration with a Dictionary
+-------------------------------
+Alternatively, you can choose to provide a settings dictionary:
+
+.. code-block:: python
+    
+    my_settings = {
+        'MONGO_HOST': 'localhost',
+        'MONGO_PORT': 27017,
+        'MONGO_DBNAME': 'the_db_name'
+        'DOMAIN': {'contacts': {}} 
+    }
+
+    from eve import Eve
+
+    app = Eve(settings=my_settings)
+    app.run()
+
 Development / Production
-''''''''''''''''''''''''
+------------------------
 Most applications need more than one configuration. There should be at least
 separate configurations for the production server and the one used during
 development. The easiest way to handle this is to use a default configuration
@@ -41,7 +59,7 @@ from the :ref:`demo`:
 
 ::
 
-    # We want to seamlessy run our API both locally and on Heroku, so:
+    # We want to run seamlessly our API both locally and on Heroku, so:
     if os.environ.get('PORT'):
         # We're hosted on Heroku! Use the MongoHQ sandbox as our backend.
         MONGO_HOST = 'alex.mongohq.com'
@@ -71,7 +89,7 @@ from the :ref:`demo`:
 
 Global Configuration
 --------------------
-Besides defining the general API behaviour, most global configuration settings
+Besides defining the general API behavior, most global configuration settings
 are used to define the standard endpoint ruleset, and can be fine-tuned later,
 when configuring individual endpoints. Global configuration settings are always
 uppercase. 
@@ -207,12 +225,6 @@ uppercase.
                                 creation date. This field is automatically
                                 handled by Eve. Defaults to ``created``.
 
-``STATUS_OK``                   Status message returned when data validation is
-                                successful. Defaults to `OK`.
-
-``STATUS_ERR``                  Status message returned when data validation
-                                failed. Defaults to `ERR`.
-
 ``ID_FIELD``                    Name of the field used to uniquely identify
                                 resource items within the database. You want
                                 this field to be properly indexed on the
@@ -227,10 +239,10 @@ uppercase.
                                 item. Can be overridden by resource settings.
                                 Defaults to ``ID_FIELD``.
 
-``ITEM_URL``                    RegEx used to construct default item
+``ITEM_URL``                    URL rule used to construct default item
                                 endpoint URLs. Can be overridden by resource
-                                settings. Defaults ``[a-f0-9]{24}`` which is
-                                MongoDB standard ``Object_Id`` format.
+                                settings. Defaults ``regex("[a-f0-9]{24}")``
+                                which is MongoDB standard ``Object_Id`` format.
 
 ``ITEM_TITLE``                  Title to be used when building item references, 
                                 both in XML and JSON responses. Defaults to 
@@ -304,9 +316,32 @@ uppercase.
 ``DEBUG``                       ``True`` to enable Debug Mode, ``False``
                                 otherwise. 
 
-
 ``HATEOAS``                     When ``False``, this option disables 
                                 :ref:`hateoas_feature`. Defaults to ``True``. 
+
+``ISSUES``                      Allows to customize the issues field. Defaults
+                                to ``issues``.
+
+``STATUS``                      Allows to customize the status field. Defaults
+                                to ``status``.
+
+``STATUS_OK``                   Status message returned when data validation is
+                                successful. Defaults to ``OK``.
+
+``STATUS_ERR``                  Status message returned when data validation
+                                failed. Defaults to ``ERR``.
+
+``ITEMS``                       Allows to customize the items field. Defaults
+                                to ``_items``.
+
+``LINKS``                       Allows to customize the links field. Defaults
+                                to ``_links``.
+
+``IF_MATCH``                    ``True`` to enable concurrency control, ``False``
+                                otherwise. Defaults to ``True``. You should be
+                                careful about disabling this feature, as you
+                                would effectively open your API to the risk of
+                                older versions replacing your documents.
 
 ``MONGO_HOST``                  MongoDB server address. Defaults to ``localhost``.
 
@@ -330,10 +365,10 @@ uppercase.
                                 with the (very rich) Mongo query dialect.
 
 ``MONGO_WRITE_CONCERN``         A dictionary defining MongoDB write concern
-                                settings. All stadard write concern settings 
+                                settings. All standard write concern settings 
                                 (w, wtimeout, j, fsync) are supported. Defaults
                                 to ``{'w': 1}``, which means 'do regular
-                                aknowledged writes' (this is also the Mongo
+                                acknowledged writes' (this is also the Mongo
                                 default).
 
                                 Please be aware that setting 'w' to a value of
@@ -394,7 +429,11 @@ always lowercase.
                                 a ``/contacts`` endpoint and then
                                 a ``/contacts/overseas`` endpoint. Both are
                                 independent of each other and freely
-                                configurable.)
+                                configurable).
+
+                                You can also use regexes to setup
+                                subresource-like endpoints. See
+                                :ref:`subresources`.
 
 ``allowed_filters``             List of fields on which filtering is allowed. 
                                 Can be set to ``[]`` (no filters allowed), or
@@ -468,8 +507,11 @@ always lowercase.
 ``item_lookup_field``           Field used when looking up a resource
                                 item. Locally overrides ``ITEM_LOOKUP_FIELD``.
 
-``item_url``                    RegEx used to construct item endpoint URL.
+``item_url``                    Rule used to construct item endpoint URL.
                                 Locally overrides ``ITEM_URL``.
+
+``resource_title``              Title used when building resource links
+                                (HATEOAS). Defaults to resource's ``url``.
 
 ``item_title``                  Title to be used when building item references, 
                                 both in XML and JSON responses. Overrides
@@ -484,10 +526,11 @@ always lowercase.
                                 `field` and `url`. The former is the name of
                                 the field used for the lookup. If the field
                                 type (as defined in the resource schema_) is
-                                a string, then you put a regex in `url`.  If it
-                                is an integer, then you just omit `url`, as it
-                                is automatically handled.  See the code snippet
-                                below for an usage example of this feature.
+                                a string, then you put a URL rule in `url`.  If
+                                it is an integer, then you just omit `url`, as
+                                it is automatically handled.  See the code
+                                snippet below for an usage example of this
+                                feature.
 
 ``datasource``                  Explicitly links API resources to database 
                                 collections. See `Advanced Datasource
@@ -529,9 +572,9 @@ always lowercase.
 
 ``mongo_write_concern``         A dictionary defining MongoDB write concern
                                 settings for the endpoint datasource. All
-                                stadard write concern settings (w, wtimeout, j,
+                                standard write concern settings (w, wtimeout, j,
                                 fsync) are supported. Defaults to ``{'w': 1}``
-                                which means 'do regular aknowledged writes'
+                                which means 'do regular acknowledged writes'
                                 (this is also the Mongo default.)
 
                                 Please be aware that setting 'w' to a value of
@@ -541,9 +584,23 @@ always lowercase.
                                 to check that it's being written to multiple
                                 servers.)
                                 
+``authentication``              A class with the authorization logic for the 
+                                endpoint. If not provided the eventual
+                                general purpose auth class (passed as
+                                application constructor argument) will be used. 
+                                For details on authentication and authorization 
+                                see :ref:`auth`.  Defaults to ``None``,
+                                
+``embedded_fields``             A list of fields for which :ref:`embedded_docs`
+                                is enabled by default. For this feature to work
+                                properly fields in the list must be
+                                ``embeddable``, and ``embedding`` must be
+                                active for the resource.
+
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data
                                 validation. See `Schema Definition`_.
+
 =============================== ===============================================
 
 Here's an example of resource customization, mostly done by overriding global
@@ -561,7 +618,7 @@ API settings:
         # additional read-only entry point. This way consumers can also perform 
         # GET requests at '/people/<lastname>'.
         'additional_lookup': {
-            'url': '[\w]+',
+            'url': 'regex("[\w]+")',
             'field': 'lastname'
         },
 
@@ -703,14 +760,40 @@ which was originally set up in `Domain Configuration`_:
 
 Advanced Datasource Patterns
 ----------------------------
-The ``datasource`` keyword allows you to explicitly link API resources to
-database collections (if you omit it, the domain resource key is assumed to be
-the name of the database collection itself). It is a dictionary with three allowed
-keys: `source`, `filter` and `projection`. ``source`` dictates the database
-collection consumed by the resource, ``filter`` expresses the underlying
-query used to retrieve and validate data, and ``projection`` allows you to
-redefine the exposed fieldset.
+The ``datasource`` keyword allows to explicitly link API resources to database
+collections. If omitted, the domain resource key is assumed to also be the name
+of the database collection. It is a dictionary with four allowed keys: 
 
+.. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
+
+=============================== ==============================================
+``source``                      Name of the database collection consumed by the 
+                                resource.  If omitted, the resource name is
+                                assumed to also be a valid collection name. See
+                                :ref:`source`.
+
+``filter``                      Database query used to retrieve and validate 
+                                data. If omitted, by default the whole
+                                collection is retrievied. See :ref:`filter`.
+
+``projection``                  Fieldset exposed by the endpoint. If omitted,
+                                by default all fields will be returned to the
+                                client. See :ref:`projection`.
+
+``default_sort``                Default sorting for documents retrieved at the
+                                endpoint. If omitted, documents will be
+                                returned with the default database order.
+                                A valid statement would be:
+
+                                ``'datasource': {'default_sort': [('name':
+                                1)]}``
+
+                                For more informations on sort and filters see
+                                :ref:`filters`.
+
+=============================== ==============================================
+
+.. _filter:
 
 Predefined Database Filters
 '''''''''''''''''''''''''''
@@ -735,6 +818,8 @@ requests. If your resource allows POST requests (document insertions),
 then you will probably want to set the validation rules accordingly (in our
 example, 'username' should probably be a required field).
 
+.. _source:
+
 Multiple API Endpoints, One Datasource
 ''''''''''''''''''''''''''''''''''''''
 Multiple API endpoints can target the same database collection. For
@@ -752,6 +837,8 @@ the same `people` collection on the database.
 
 The above setting will retrieve, edit and delete only documents from the
 `people` collection with a `userlevel` of 1.
+
+.. _projection:
 
 Limiting the Fieldset Exposed by the API Endpoint
 '''''''''''''''''''''''''''''''''''''''''''''''''

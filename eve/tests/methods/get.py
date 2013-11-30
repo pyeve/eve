@@ -1,3 +1,4 @@
+import types
 import simplejson as json
 from bson import ObjectId
 from eve.tests import TestBase
@@ -112,13 +113,11 @@ class TestGet(TestBase):
 
     def test_get_mongo_query_blacklist(self):
         where = '{"$where": "this.ref == ''%s''"}' % self.item_name
-        response, status = self.get(self.known_resource,
-                                    '?where=%s' % where)
+        _, status = self.get(self.known_resource, '?where=%s' % where)
         self.assert400(status)
 
         where = '{"ref": {"$regex": "%s"}}' % self.item_name
-        response, status = self.get(self.known_resource,
-                                    '?where=%s' % where)
+        _, status = self.get(self.known_resource, '?where=%s' % where)
         self.assert400(status)
 
     def test_get_where_python_syntax(self):
@@ -184,6 +183,21 @@ class TestGet(TestBase):
         self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
         for i in range(len(resource)):
             self.assertEqual(resource[i]['prog'], i)
+
+    def test_get_default_sort(self):
+        s = self.app.config['DOMAIN'][self.known_resource]['datasource']
+
+        # set default sort to 'prog', desc.
+        s['default_sort'] = [('prog', -1)]
+        self.app.set_defaults()
+        response, _ = self.get(self.known_resource)
+        self.assertEqual(response['_items'][0]['prog'], 100)
+
+        # set default sort to 'prog', asc.
+        s['default_sort'] = [('prog', 1)]
+        self.app.set_defaults()
+        response, _ = self.get(self.known_resource)
+        self.assertEqual(response['_items'][0]['prog'], 0)
 
     def test_get_if_modified_since(self):
         self.assertIfModifiedSince(self.known_resource_url)
@@ -262,6 +276,23 @@ class TestGet(TestBase):
         response, status = self.parse_response(r)
         self.assertGet(response, status)
 
+    def test_get_custom_items(self):
+        self.app.config['ITEMS'] = '_documents'
+        response, _ = self.get(self.known_resource)
+        self.assertTrue('_documents' in response and '_items' not in response)
+
+        response = self.test_client.get(self.known_resource_url,
+                                        headers=[('Accept',
+                                                  'application/xml')])
+        # Py3 compatibility hack
+        r = str(response.get_data())
+        self.assertTrue('_documents' in r and '_items' not in r)
+
+    def test_get_custom_links(self):
+        self.app.config['LINKS'] = '_navigation'
+        response, _ = self.get(self.known_resource)
+        self.assertTrue('_navigation' in response and '_links' not in response)
+
     def assertGet(self, response, status, resource=None):
         self.assert200(status)
 
@@ -305,7 +336,7 @@ class TestGet(TestBase):
         self.assert400(r.status_code)
 
         # Test that doesn't come embedded if asking for a field that
-        # isn't embedded (global setting is True by default)
+        # isn't embedded (global setting is False by default)
         embedded = '{"person": 1}'
         r = self.test_client.get('%s/%s' % (invoices['url'],
                                             '?embedded=%s' % embedded))
@@ -356,9 +387,111 @@ class TestGet(TestBase):
         content = json.loads(r.get_data())
         self.assertTrue('location' in content['person'])
 
+    def test_get_default_embedding(self):
+        # We need to assign a `person` to our test invoice
+        _db = self.connection[MONGO_DBNAME]
+
+        fake_contact = self.random_contacts(1)
+        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
+                            {'$set': {'person': fake_contact_id}})
+
+        invoices = self.domain['invoices']
+
+        # Turn default field embedding on
+        invoices['embedded_fields'] = ['person']
+
+        # Test that doesn't come embedded if asking for a field that
+        # isn't embedded (global setting is False by default)
+        r = self.test_client.get(invoices['url'])
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue(content['_items'][0]['person'], self.item_id)
+
+        # Set field to be embedded
+        invoices['schema']['person']['data_relation']['embeddable'] = True
+
+        # Test that global setting applies even if field is set to embedded
+        invoices['embedding'] = False
+        r = self.test_client.get(invoices['url'])
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue(content['_items'][0]['person'], self.item_id)
+
+        # Test that it works
+        invoices['embedding'] = True
+        r = self.test_client.get(invoices['url'])
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('location' in content['_items'][0]['person'])
+
+        # Test that it ignores a bogus field
+        invoices['embedded_fields'] = ['person', 'not-really']
+        r = self.test_client.get(invoices['url'])
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('location' in content['_items'][0]['person'])
+
+        # Test that it works with item endpoint too
+        r = self.test_client.get('%s/%s' % (invoices['url'], self.invoice_id))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('location' in content['person'])
+
     def test_get_nested_resource(self):
         response, status = self.get('users/overseas')
         self.assertGet(response, status, 'users_overseas')
+
+    def test_cursor_extra_find(self):
+        self.app.data._find = self.app.data.find
+        hits = {'total_hits': 0}
+
+        def find(self, resource, req, sub_resource_lookup):
+            def extra(self, response):
+                response['_hits'] = hits
+            cursor = self._find(resource, req, sub_resource_lookup)
+            cursor.extra = types.MethodType(extra, cursor)
+            return cursor
+
+        self.app.data.find = types.MethodType(find, self.app.data)
+        r, status = self.get(self.known_resource)
+        self.assert200(status)
+        self.assertTrue('_hits' in r)
+        self.assertEquals(r['_hits'], hits)
+
+    def test_get_resource_title(self):
+        # test that resource endpoints accepts custom titles.
+        self.app.config['DOMAIN'][self.known_resource]['resource_title'] = \
+            'new title'
+        response, _ = self.get(self.known_resource)
+        self.assertTrue('new title' in response['_links']['self']['title'])
+        # test that the home page accepts custom titles.
+        response, _ = self.get('/')
+        found = False
+        for link in response['_links']['child']:
+            if link['title'] == 'new title':
+                found = True
+                break
+        self.assertTrue(found)
+
+    def test_get_subresource(self):
+        _db = self.connection[MONGO_DBNAME]
+
+        # create random contact
+        fake_contact = self.random_contacts(1)
+        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+        # update first invoice to reference the new contact
+        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
+                            {'$set': {'person': fake_contact_id}})
+
+        # GET all invoices by new contact
+        response, status = self.get('users/%s/invoices' % fake_contact_id)
+        self.assert200(status)
+        # only 1 invoice
+        self.assertEqual(len(response['_items']), 1)
+        self.assertEqual(len(response['_links']), 2)
+        # which links to the right contact
+        self.assertEqual(response['_items'][0]['person'], str(fake_contact_id))
 
 
 class TestGetItem(TestBase):
@@ -374,8 +507,7 @@ class TestGetItem(TestBase):
         self.assertItem(response)
 
     def test_disallowed_getitem(self):
-        response, status = self.get(self.empty_resource,
-                                    item=self.item_id)
+        _, status = self.get(self.empty_resource, item=self.item_id)
         self.assert404(status)
 
     def test_getitem_by_id(self):
@@ -394,6 +526,16 @@ class TestGetItem(TestBase):
         response, status = self.get(self.known_resource,
                                     item=self.unknown_item_name)
         self.assert404(status)
+
+    def test_getitem_by_name_self_href(self):
+        response, status = self.get(self.known_resource,
+                                    item=self.item_id)
+        self_href = response['_links']['self']['href']
+
+        response, status = self.get(self.known_resource,
+                                    item=self.item_name)
+
+        self.assertEquals(self_href, response['_links']['self']['href'])
 
     def test_getitem_by_integer(self):
         self.domain['contacts']['additional_lookup'] = {
@@ -536,6 +678,23 @@ class TestGetItem(TestBase):
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
         self.assertTrue('location' in content['person'])
+
+    def test_subresource_getitem(self):
+        _db = self.connection[MONGO_DBNAME]
+
+        # create random contact
+        fake_contact = self.random_contacts(1)
+        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+        # update first invoice to reference the new contact
+        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
+                            {'$set': {'person': fake_contact_id}})
+
+        # GET all invoices by new contact
+        response, status = self.get('users/%s/invoices/%s' % (fake_contact_id,
+                                                              self.invoice_id))
+        self.assert200(status)
+        self.assertEqual(response['person'], str(fake_contact_id))
+        self.assertEqual(response['_id'], self.invoice_id)
 
 
 class TestHead(TestBase):

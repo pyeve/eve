@@ -3,6 +3,67 @@ Eve Changelog
 
 Here you can see the full list of changes between each Eve release.
 
+Version 0.2
+-----------
+
+Not released yet.
+
+- [fix] HMAC example and docs updated to align with new hmac in Python 2.7.3,
+  which is only accepting bytes string. Closes #199.
+- [new] Sub-Resources. It is now possible to configure endpoints such as:
+  ``/companies/<company_id>/invoices``. Also, the corresponding item endpoints,
+  such as ``/companies/<company_id>/invoices/<invoice_id>``, are available. All
+  CRUD operations on these endpoints are allowed. Closes 156.
+- [new] ``resource_title`` allows to customize the endpoint title (HATEOAS).
+- [new][dev] ``extra`` cursor property, when present, will be added to ``GET``
+  responses (with same key). This feature can be used by Eve extensions to
+  inject proprietary data into the response stream (Petr Jašek).
+- [new] ``IF_MATCH`` allows to disable checks for ETag matches on edit, replace
+  and delete requests. If disabled, requests without an If-Match header will be
+  honored without returning a 403 error. Defaults to True (enabled by default). 
+- [new] ``LINKS`` allows to customize the links field. Default to '_links'.
+- [new] ``ITEMS`` allows to customize the items field. Default to '_items'.
+- [new] ``STATUS`` allows to customize the status field. Default to 'status'.
+- [new] ``ISSUES`` allows to customize the issues field. Default to 'issues'.
+- [new] Handling custom ID fields tutorial.
+- [new] A new ``json_encoder`` initialization argument is available. It allows
+  to pass custom JSONEncoder or eve.io.BaseJSONEncoder to the Eve instance.
+- [new] A new ``url_converters`` initialization argument is available. It
+  allows to pass custom Flask url converters to the Eve constructor. 
+- [new] ID_FIELD fields can now be of arbitrary types, not only ObjectIds.
+  Thanks to Kelvin Hammond for contributing to this one.  Closes #136.
+- [fix] Properly escape leaf values in XML responses (Florian Rathgeber).
+- [change] Rely on Flask endpoints to map urls to resources.
+- [new] ``pre_<method>`` and ``pre_<method>_<resource>`` event hooks are now
+  available. They are raised when a request is received and before processing
+  it. The resource involved and the Flask request object are returned to the
+  callback function (dccrazyboy).
+- [change] For better consistency with new ``pre_<method>`` hooks,
+  ``on_<method>`` event hooks have been renamed to ``on_post_<method>``.
+- [new] ``embedded_fields`` activates default Embedded Resource Serialization
+  on a list of selected document fields. Eventual embedding requests by clients
+  will be processed along with default embedding. In order for default
+  embedding to work, the field must be defined as embeddable, and embedding
+  must be active for the resource (with help from Christoph Witzany).
+- [new] ``default_sort`` option added to the ``datasource`` resource setting.
+  It allows to set default sorting for the endpoint. Default sorting will be
+  overriden by a client request that happens to include a ``?sort`` argument
+  within the query string (with help from Christoph Witzany).
+- [new] You can now choose to provide custom settings as a Python dictionary.
+- [new] New method ``Eve.register_resource()`` for registering new resource
+  after initialization of Eve object. This is needed for simpler initialization
+  API of all ORM/ODM extensions (Stanislav Heller).
+- [change] Custom authentication classes can now be set at endpoint level. When
+  set, an endpoint-level auth class will override the eventual global level
+  auth class.  Authentication docs have been updated (and greatly revised)
+  accordingly.  Closes #89.
+- [change] JSON encoding is now handled at the DataLayer level allowing for
+  specialized, granular, data-aware encoding. Also, since the JSON encoder is
+  now a class attribute, extensions can replace the pre-defined data layer
+  encoder with their own implementation. Closes #102.
+- [fix] A read-only field with a default value would trigger a validation error
+  on POST and PUT methods.
+
 Version 0.1.1
 -------------
 
@@ -16,7 +77,7 @@ Enhancements
   (``/invoices/<id>/?embedded={'person':1}``),
 - ``collection`` (used when setting up a data relation, see Embedded Resource
   Serialization) has been renamed to ``resource`` in order to avoid confusion
-  between the Eve schema and underlying MongoDB collections. 
+  between the Eve schema and underlying MongoDB collections.
 - Nested endpoints. Endpoints with deep paths like ``/contacts/overseas`` can
   now function in conjuction with top-level endpoints (``/contacts``).
   Endpoints are completely independent: each can allow item lookups
@@ -32,7 +93,7 @@ Enhancements
   request document. Please note that this is a breaking change. Also be aware
   that when the request content-type is ``x-www-form-urlencoded``, single
   document insert is performed. Closes #139.
-- ObjectId are properly serialized on POST/PATCH/PUT methods. 
+- ObjectId are properly serialized on POST/PATCH/PUT methods.
 - Queries on ObjectId and datetime values in nested documents.
 - ``auth.user_id`` renamed to ``auth.request_auth_value`` for better
   consistency with the ``auth_field`` setting. Closes #132 (Ryan Shea).
@@ -54,7 +115,7 @@ Version 0.1
 
 Released on September 30th, 2013.
 
-New Features 
+New Features
 ~~~~~~~~~~~~
 - ``PUT`` method for completely replace a document while keeping the same
   unique identifier. Closes #96.

@@ -11,6 +11,14 @@
     :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.2
+       IF_MAATCH defaults to True.
+       'LINKS' defaults to '_links'.
+       'ITEMS' defaults to '_items'.
+       'STATUS' defaults to 'status'.
+       'ISSUES' defaults to 'issues'.
+       'regex' is now part of 'ITEM_URL' default string.
+
     .. versionchanged:: 0.1.1
        'SERVER_NAME' defaults to None.
 
@@ -41,12 +49,18 @@
 # RFC 1123 (ex RFC 822)
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
 
+STATUS_OK = "OK"
+STATUS_ERR = "ERR"
+LAST_UPDATED = 'updated'
+DATE_CREATED = 'created'
+ISSUES = 'issues'
+STATUS = 'status'
+ITEMS = '_items'
+LINKS = '_links'
 
 API_VERSION = ''
 URL_PREFIX = ''
 SERVER_NAME = None
-LAST_UPDATED = 'updated'
-DATE_CREATED = 'created'
 ID_FIELD = '_id'
 CACHE_CONTROL = ''
 CACHE_EXPIRES = 0
@@ -54,6 +68,7 @@ ITEM_CACHE_CONTROL = ''
 X_DOMAINS = None                # CORS disabled by default.
 X_HEADERS = None                # CORS disabled by default.
 HATEOAS = True                  # HATEOAS enabled by default.
+IF_MATCH = True                 # IF_MATCH (ETag match) enabled by default.
 
 ALLOWED_FILTERS = ['*']         # filtering enabled by default
 SORTING = True                  # sorting enabled by default.
@@ -71,7 +86,7 @@ PUBLIC_ITEM_METHODS = []
 ALLOWED_ITEM_ROLES = None
 ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
-ITEM_URL = '[a-f0-9]{24}'
+ITEM_URL = 'regex("[a-f0-9]{24}")'
 
 # list of extra fields to be included with every POST response. This list
 # should not include the 'standard' fields (ID_FIELD, LAST_UPDATED,
@@ -84,9 +99,6 @@ AUTH_FIELD = None               # user-restricted resource access is disabled
 
 ALLOW_UNKNOWN = False           # don't allow unknown key/value pairs for
                                 # POST/PATCH payloads.
-STATUS_OK = "OK"
-STATUS_ERR = "ERR"
-
 # Rate limits are enabled by default (300 requests, 15 minutes windows).
 RATE_LIMIT_GET = None
 RATE_LIMIT_POST = None

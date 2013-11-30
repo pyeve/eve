@@ -36,6 +36,8 @@ supporting the ``PATCH`` method could send a ``POST`` request with
 a ``X-HTTP-Method-Override: PATCH`` header.  The API would then perform
 a ``PATCH``, overriding the original request method.
 
+.. _resource_endpoints:
+
 Customizable resource endpoints
 -------------------------------
 By default, Eve will make known database collections available as resource
@@ -95,6 +97,76 @@ need to provide them when adding/editing resources).
 
 The ``_links`` list provides HATEOAS_ directives.
 
+.. _subresources:
+
+Sub Resources
+~~~~~~~~~~~~~
+Endpoints support sub-resources so you could have something like:
+``/people/<contact_id>/invoices``. When setting the ``url`` rule for such and
+enpoint you would use a regex and assign a field name to it:
+
+.. code-block:: python
+
+    invoices = {
+        'url': 'people/<regex("[a-f0-9]{24}"):contact_id>/invoices'
+        ...
+
+Then this GET to the endpoint, which would roughly translate to *give
+me all the invoices by <contact_id>*:
+
+::
+
+    people/51f63e0838345b6dcd7eabff/invoices
+
+Would cause the underlying database collection invoices to be queried this way: 
+
+:: 
+
+    {'contact_id': '51f63e0838345b6dcd7eabff'}
+
+And this one: 
+
+:: 
+
+    people/51f63e0838345b6dcd7eabff/invoices?where={"number": 10}
+
+would be queried like: 
+
+::
+
+    {'contact_id': '51f63e0838345b6dcd7eabff', "number": 10}
+
+Please note that when designing your API, most of the time you can get away
+without recurring to sub-resoucers. In the example above the same result would
+be achieved by simply exposing a ``invoices`` endpoint that clients could query
+this way: 
+
+::
+
+    invoices?where={"contact_id": 51f63e0838345b6dcd7eabff}
+
+or
+
+::
+
+    invoices?where={"contact_id": 51f63e0838345b6dcd7eabff, "number": 10}
+
+It's mostly a design choice, but keep in mind that when it comes to enabling
+individual documment endpoints you might occur in performance hits. This
+otherwise legit GET request:
+
+::
+
+    people/<contact_id>/invoices/<invoice_id>
+
+would cause a two fields lookup on the database. This is not ideal and also not
+really needed, as ``<invoice_id>`` is a unique field. By contrast, if you had
+a simple resource endpoint the document lookup would happen on a single field:
+
+::
+
+    invoices/<invoice_id>
+
 .. _custom_item_endpoints:
 
 Customizable, multiple item endpoints
@@ -110,8 +182,8 @@ primary endpoint and will match your database primary key structure (i.e., an
 
     $ curl -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c
     HTTP/1.1 200 OK
-    Etag: 448a928514cbff5b0b516f60bcdf27cc75213280
-    Last-Modified: Wed, 28 Aug 2013 03:02:24 GMT
+    Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
+    Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT 
     ... 
 
 The second, which is optional and read-only, will match a field with unique values since Eve
@@ -151,15 +223,14 @@ As you can see, item endpoints provide their own HATEOAS_ directives.
 
 .. admonition:: Please Note
 
-    According to REST principles resource items should have one unique
+    According to REST principles resource items should only have one unique
     identifier. Eve abides by providing one default endpoint per item. Adding
-    a secondary convenience, endpoint is a decision that should pondered
-    carefully.
+    a secondary endpoint is a decision that should pondered carefully.
 
     Consider our example above. Even without the ``/people/<lastname>``
     endpoint, a client could always retrieve a person by querying the resource
     endpoint by last name: ``/people/?where={"lastname": "Doe"}``. Actually the
-    whole example is fubar as there could be multiple people sharing the same
+    whole example is fubar, as there could be multiple people sharing the same
     last name, but you get the idea.
 
 .. _filters:
@@ -183,21 +254,27 @@ and the native Python syntax:
     HTTP/1.1 200 OK
 
 Both query formats allow for conditional and logical And/Or operators, however
-nested and combined. Sorting is supported as well:
-
-.. code-block:: console
-
-    $ curl -i http://eve-demo.herokuapp.com/people?sort=[("lastname", -1)]
-    HTTP/1.1 200 OK
-
-Currently sort directives use a pure MongoDB syntax; support for a more general
-syntax (``sort=lastname``) is planned.
+nested and combined. 
 
 Filters are enabled by default on all document fields. However, the API
 maintainer can choose to disable them all and/or whitelist allowed ones (see
 ``ALLOWED_FILTERS`` in :ref:`global`). If scraping, or fear of DB DoS attacks
 by querying on non-indexed fields is a concern, then whitelisting allowed
 filters is the way to go.
+
+Sorting is supported as well:
+
+.. code-block:: console
+
+    $ curl -i http://eve-demo.herokuapp.com/people?sort=[("lastname", -1)]
+    HTTP/1.1 200 OK
+
+Sorting is enabled by default and can be disabled both globally and/or at
+resource level (see ``SORTING`` in :ref:`global` and ``sorting`` in
+:ref:`domain`). It is also possible to set the default sort at every API
+endpoints (see ``default_sort`` in :ref:`domain`). Currently, sort directives
+use a pure MongoDB syntax; support for a more general syntax
+(``sort=lastname``) is planned.
 
 .. admonition:: Please note
 
@@ -207,7 +284,7 @@ filters is the way to go.
 Pagination
 ----------
 Resource pagination is enabled by default in order to improve performance and
-preserve bandwith. When a consumer requests a resource, the first N items
+preserve bandwidth. When a consumer requests a resource, the first N items
 matching the query are served, and links to subsequent/previous pages are
 provided with the response. Default and maximum page size is customizable, and
 consumers can request specific pages via the query string:
@@ -384,7 +461,7 @@ Consider the following workflow:
 
 .. code-block:: console
 
-    $ curl -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d 'data={"firstname": "ronald"}'
+    $ curl -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
     HTTP/1.1 403 FORBIDDEN
 
 We attempted an edit, but we did not provide an ``ETag`` for the item, so we got
@@ -392,16 +469,16 @@ a not-so-nice ``403 FORBIDDEN``. Let's try again:
 
 .. code-block:: console
 
-    $ curl -H "If-Match: 1234567890123456789012345678901234567890" -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d 'data={"firstname": "ronald"}'
+    $ curl -H "If-Match: 1234567890123456789012345678901234567890" -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
     HTTP/1.1 412 PRECONDITION FAILED
 
 What went wrong this time? We provided the mandatory ``If-Match`` header, but
 it's value did not match the ``ETag`` computed on the representation of the item
-currently stored on the server, so we got a ``402 PRECONDITION FAILED`` again!
+currently stored on the server, so we got a ``412 PRECONDITION FAILED`` again!
 
 .. code-block:: console
 
-    $ curl -H "If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012" -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37 -d 'data={"firstname": "ronald"}'
+    $ curl -H "If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012" -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37 -d '{"firstname": "ronald"}'
     HTTP/1.1 200 OK
 
 It's a win, and the response payload looks something like this:
@@ -421,7 +498,13 @@ also get the new ``updated`` value, which eventually will allow us to perform
 subsequent `conditional requests`_.
 
 Concurrency control applies to all document edition methods: ``PATCH`` (edit),
-``PUT`` (replace), ``DELETE`` (delete).
+``PUT`` (replace), ``DELETE`` (delete). 
+
+If your use case requires, you can opt to completely disable concurrency
+control. ETag match checks can be disabled by setting the ``IF_MATCH``
+configuration variable to ``False`` (see :ref:`global`). You should be careful
+about disabling this feature, as you would effectively open your API to the
+risk of older versions replacing your documents.
 
 Bulk Inserts
 ------------
@@ -550,7 +633,7 @@ You can set global and individual cache-control directives for each resource.
     Date: Tue, 22 Jan 2013 09:34:14 GMT
 
 The response above includes both ``Cache-Control`` and ``Expires`` headers.
-These will minimize load on the server since cache-enbaled consumers will
+These will minimize load on the server since cache-enabled consumers will
 perform resource-intensive request only when really needed.
 
 Versioning
@@ -575,7 +658,7 @@ CORS Cross-Origin Resource Sharing
 ----------------------------------
 Disabled by default, CORS_ allows web pages to work with REST APIs, something
 that is usually restricted by most broswers 'same domain' security policy.
-Eve-powered APIs can be accesed by the JavaScript contained in web pages.
+Eve-powered APIs can be accessed by the JavaScript contained in web pages.
 
 Read-only by default
 --------------------
@@ -591,7 +674,7 @@ values.
 Predefined Database Filters
 ---------------------------
 Resource endpoints will only expose (and update) documents that match
-a predefined filter. This allows for multiple resource endpoints to seamlessy
+a predefined filter. This allows for multiple resource endpoints to seamlessly
 target the same database collection. A typical use-case would be a
 hypothetical ``people`` collection on the database being used by both the
 ``/admins`` and ``/users`` API endpoints.
@@ -657,43 +740,92 @@ toggling the ``embedding`` value). Furthermore, only fields with the
 ``embeddable`` value explicitly set to ``True`` will allow the embedding of
 referenced documents.
 
-Limitations: currenly we only support a single layer of embedding, i.e.
-``/emails?{"author": 1}`` but *not* ``/emails?{"author.firends": 1}``. This
-feature is about serialization on GET requests. There's no support for POST,
-PUT or PATCH of embedded documents.
+Predefined Resource Serialization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+It is also possible to elect some fields for predefined resource
+serialization. The ``embedded_fields`` option accepts a list of fields. If the
+listed fields are embeddable and they are actually referencing documents in other
+collections (and embedding is enbaled for the resource), then the referenced
+documents will be embedded by default.
+
+Limitations
+~~~~~~~~~~~
+Currenly we only support a single layer of embedding, i.e.
+``/emails?embedded={"author": 1}`` but *not*
+``/emails?embedded={"author.friends": 1}``. This feature is about serialization
+on GET requests. There's no support for POST, PUT or PATCH of embedded
+documents.
 
 Document embedding is enabled by default.
+
+.. admonition:: Please note
+
+    When it comes to MongoDB, what embedded resource serialization deals with
+    is *document references* (linked documents), something different from
+    *embedded documents*, also supported by Eve (see `MongoDB Data Model
+    Design`_). Embedded resource serialization is a nice feature that can
+    really help with normalizing your data model for the client.  However, when
+    deciding whether to enable it or not, especially by default, keep in mind
+    that each embedded resource being looked up will require a database lookup,
+    which can easily lead to performance issues. 
 
 .. _eventhooks:
 
 Event Hooks
 -----------
-Each time a GET, POST, PATCH, DELETE method has been executed, both global
-``on_<method>`` and resource-level ``on_<method>_<resource>`` events will be
-raised. You can subscribe to these events with multiple callback functions.
-Callbacks will receive the original `flask.request` object and the response
-payload as arguments.
+Pre-Request Event Hooks
+~~~~~~~~~~~~~~~~~~~~~~~
+When a GET, POST, PATCH, PUT, DELETE request is received, both
+a ``on_pre_<method>`` and a ``on_pre_<method>_<resource>`` event is raised.
+You can subscribe to these events with multiple callback functions. Callbacks
+will receive the resource being requested and the original `flask.request`
+object as arguments. ``pre`` events are raised before any actions is taken by
+the API itself.
 
 .. code-block:: pycon
 
-    >>> def general_callback(resource, request, payload):
-    ...  print 'A GET on the "%s" endpoint was just performed!' % resource
+    >>> def pre_get_callback(resource, request):
+    ...  print 'A GET request on the "%s" endpoint has just been received!' % resource
 
-    >>> def contacts_callback(request, payload):
-    ... print 'A get on "contacts" was just performed!'
+    >>> def pre_contacts_get_callback(request):
+    ...  print 'A GET request on the contacts endpoint has just been received!'
 
     >>> app = Eve()
-    >>> app.on_GET += general_callback
-    >>> app.on_GET_contacts += contacts_callback
+
+    >>> app.on_pre_GET += pre_get_callback
+    >>> app.on_pre_GET_contacts += pre_contacts_get_callback
 
     >>> app.run()
 
-Manipulating inbound documents 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-There is also support for ``on_insert(resource, documents)`` and
-``on_insert_<resource>(documents)`` event hooks, raised when documents are
-about to be stored in the database.  Callback functions could hook into these
-events to arbitrarily add new fields, or edit existing ones.
+Post-Request Event Hooks
+~~~~~~~~~~~~~~~~~~~~~~~~
+When a GET, POST, PATCH, PUT, DELETE method has been executed, both
+a ``on_post_<method>`` and ``on_post_<method>_<resource>`` event is raised. You
+can subscribe to these events with multiple callback functions. Callbacks will
+receive the resource accessed, original `flask.request` object and the response
+payload.
+
+.. code-block:: pycon
+
+    >>> def post_get_callback(resource, request, payload):
+    ...  print 'A GET on the "%s" endpoint was just performed!' % resource
+
+    >>> def post_contacts_get_callback(request, payload):
+    ... print 'A get on "contacts" was just performed!'
+
+    >>> app = Eve()
+    
+    >>> app.on_post_GET += post_get_callback
+    >>> app.on_post_GET_contacts += post_contacts_get_callback
+
+    >>> app.run()
+
+The ``on_insert`` Event Hooks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When documents are about to be stored in the database, both
+a ``on_insert(resource, documents)`` and ``on_insert_<resource>(documents)``
+event is raised.  Callback functions could hook into these events to
+arbitrarily add new fields, or edit existing ones.
 
 .. code-block:: pycon
 
@@ -709,17 +841,15 @@ events to arbitrarily add new fields, or edit existing ones.
 
     >>> app.run()
 
-``on_insert`` is raised on every resource being updated, while
+``on_insert`` is raised on every resource being updated while
 ``on_insert_<resource>`` is raised when the `<resource>` endpoint has been hit
 with a POST request. In both circumstances, the event will be raised only if at
 least one document passed validation and is going to be inserted. `documents`
 is a list and only contains documents ready for insertion (payload documents
 that did not pass validation are not included).
 
-To provide seamless event handling features, Eve relies on the Events_ package.
-
-Manipulating outbound documents
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``on_fech`` Event Hooks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The following events:
 
 - ``on_fetch_resource(resource, documents)``
@@ -757,6 +887,10 @@ Please be aware that ``last_modified`` and ``etag`` headers will always be
 consistent with the state of the documents on the database (they  won't be
 updated to reflect changes eventually applied by the callback functions).
 
+.. admonition:: Please note
+
+    To provide seamless event handling features Eve relies on the Events_ package.
+
 
 .. _ratelimiting:
 
@@ -786,6 +920,12 @@ PATCH, DELETE).
    Rate Limiting is disabled by default, and needs a Redis server running when
    enabled. A tutorial on Rate Limiting is forthcoming.
 
+Custom ID Fields
+----------------
+Eve allows to extend its standard data type support. In the :ref:`custom_ids`
+tutorial we see how it is possible to use UUID values instead of MongoDB
+default ObjectIds as unique document identifiers.
+
 MongoDB Support
 ---------------
 Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL
@@ -811,3 +951,4 @@ for unittesting_ and an `extensive documentation`_.
 .. _`extensive documentation`: http://flask.pocoo.org/docs/
 .. _`this`: https://speakerdeck.com/nicola/developing-restful-web-apis-with-python-flask-and-mongodb?slide=113
 .. _Events: https://github.com/nicolaiarocci/events
+.. _`MongoDB Data Model Design`: http://docs.mongodb.org/manual/core/data-model-design

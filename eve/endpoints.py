@@ -21,10 +21,13 @@ from eve.utils import resource_uri, config, request_method, \
 from flask import abort, request
 
 
-def collections_endpoint():
+def collections_endpoint(**lookup):
     """ Resource endpoint handler
 
     :param url: the url that led here
+
+    .. versionchanged:: 0.2
+       Relying on request.endpoint to retrieve the resource being consumed.
 
     .. versionchanged:: 0.1.1
        Relying on request.path for determining the current endpoint url.
@@ -39,12 +42,11 @@ def collections_endpoint():
         Support for DELETE resource method.
     """
 
-    url = request.path.rstrip('/')
-    resource = config.RESOURCES[url]
+    resource = _resource()
     response = None
     method = request_method()
     if method in ('GET', 'HEAD'):
-        response = get(resource)
+        response = get(resource, lookup)
     elif method == 'POST':
         response = post(resource)
     elif method == 'DELETE':
@@ -60,7 +62,11 @@ def item_endpoint(**lookup):
     """ Item endpoint handler
 
     :param url: the url that led here
-    :param lookup: the query
+    :param lookup: sub resource query
+
+    .. versionchanged:: 0.2
+       Support for sub-resources.
+       Relying on request.endpoint to retrieve the resource being consumed.
 
     .. versionchanged:: 0.1.1
        Relying on request.path for determining the current endpoint url.
@@ -74,8 +80,7 @@ def item_endpoint(**lookup):
     .. versionchanged:: 0.0.6
        Support for HEAD requests
     """
-    k = request.path.rstrip('/').rfind('/')
-    resource = config.RESOURCES[request.path[:k]]
+    resource = _resource()
     response = None
     method = request_method()
     if method in ('GET', 'HEAD'):
@@ -98,6 +103,9 @@ def item_endpoint(**lookup):
 def home_endpoint():
     """ Home/API entry point. Will provide links to each available resource
 
+    .. versionchanged:: 0.2
+       Use new 'resource_title' setting for link titles.
+
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
     """
@@ -106,9 +114,14 @@ def home_endpoint():
         links = []
         for resource in config.DOMAIN.keys():
             links.append({'href': '%s' % resource_uri(resource),
-                          'title': '%s' % config.URLS[resource]})
-        response['_links'] = {'child': links}
+                          'title': '%s' %
+                          config.DOMAIN[resource]['resource_title']})
+        response[config.LINKS] = {'child': links}
         return send_response(None, (response,))
     else:
         abort(404, debug_error_message("HATEOAS is disabled so we have no data"
                                        " to display at the API homepage."))
+
+
+def _resource():
+    return request.endpoint.split('|')[0]

@@ -48,6 +48,14 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.config['MONGO_QUERY_BLACKLIST'], ['$where',
                                                                     '$regex'])
         self.assertEqual(self.app.config['MONGO_WRITE_CONCERN'], {'w': 1})
+        self.assertEqual(self.app.config['ISSUES'], 'issues')
+
+    def test_settings_as_dict(self):
+        my_settings = {'API_VERSION': 'override!', 'DOMAIN': {'contacts': {}}}
+        self.app = Eve(settings=my_settings)
+        self.assertEqual(self.app.config['API_VERSION'], 'override!')
+        # did not reset other defaults
+        self.assertEqual(self.app.config['MONGO_WRITE_CONCERN'], {'w': 1})
 
     def test_unexisting_pyfile_config(self):
         self.assertRaises(IOError, Eve, settings='an_unexisting_pyfile.py')
@@ -71,7 +79,6 @@ class TestConfig(TestBase):
         class MyTestDataLayer(DataLayer):
             def init_app(self, app):
                 pass
-            pass
         self.app = Eve(data=MyTestDataLayer, settings=self.settings_file)
         self.assertEqual(type(self.app.data), MyTestDataLayer)
 
@@ -115,11 +122,11 @@ class TestConfig(TestBase):
         self.assertUnallowedField(eve.LAST_UPDATED)
 
     def test_validate_idfield_in_schema(self):
-        self.assertUnallowedField(eve.ID_FIELD)
+        self.assertUnallowedField(eve.ID_FIELD, 'objectid')
 
-    def assertUnallowedField(self, field):
+    def assertUnallowedField(self, field, field_type='datetime'):
         self.domain.clear()
-        schema = {field: {'type': 'datetime'}}
+        schema = {field: {'type': field_type}}
         self.domain['resource'] = {'schema': schema}
         self.app.set_defaults()
         self.assertValidateSchemaFailure('resource', schema, field)
@@ -141,9 +148,12 @@ class TestConfig(TestBase):
         self.domain.clear()
         resource = 'plurals'
         self.domain[resource] = {}
-
         self.app.set_defaults()
+        self._test_defaults_for_resource(resource)
+        settings = self.domain[resource]
+        self.assertEqual(len(settings['schema']), 0)
 
+    def _test_defaults_for_resource(self, resource):
         settings = self.domain[resource]
         self.assertEqual(settings['url'], resource)
         self.assertEqual(settings['resource_methods'],
@@ -184,13 +194,15 @@ class TestConfig(TestBase):
                          self.app.config['EXTRA_RESPONSE_FIELDS'])
         self.assertEqual(settings['mongo_write_concern'],
                          self.app.config['MONGO_WRITE_CONCERN'])
+        self.assertEqual(settings['resource_title'], settings['url'])
 
         self.assertNotEqual(settings['schema'], None)
         self.assertEqual(type(settings['schema']), dict)
-        self.assertEqual(len(settings['schema']), 0)
 
     def test_datasource(self):
-        resource = 'invoices'
+        self._test_datasource_for_resource('invoices')
+
+    def _test_datasource_for_resource(self, resource):
         datasource = self.domain[resource]['datasource']
         schema = self.domain[resource]['schema']
         compare = [key for key in datasource['projection'] if key in schema]
@@ -266,9 +278,6 @@ class TestConfig(TestBase):
         self.assertEqual(len(settings['defaults']), 2)
 
     def test_url_helpers(self):
-        self.assertNotEqual(self.app.config.get('RESOURCES'), None)
-        self.assertEqual(type(self.app.config['RESOURCES']), dict)
-
         self.assertNotEqual(self.app.config.get('URLS'), None)
         self.assertEqual(type(self.app.config['URLS']), dict)
 
@@ -278,10 +287,6 @@ class TestConfig(TestBase):
         for resource, settings in self.domain.items():
             self.assertEqual(settings['url'],
                              self.app.config['URLS'][resource])
-            self.assertEqual(resource,
-                             self.app.config['RESOURCES']['/' +
-                                                          settings['url']])
-
             self.assertEqual(settings['datasource'],
                              self.app.config['SOURCES'][resource])
 
@@ -289,10 +294,30 @@ class TestConfig(TestBase):
         map_adapter = self.app.url_map.bind(self.app.config.get(
             'SERVER_NAME', ''))
 
-        for resource, settings in self.domain.items():
+        del(self.domain['peopleinvoices'])
+        for _, settings in self.domain.items():
             for method in settings['resource_methods']:
                 self.assertTrue(map_adapter.test('/%s/' % settings['url'],
                                                  method))
 
             # TODO test item endpoints as well. gonna be tricky since
             # we have to reverse regexes here. will be fun.
+
+    def test_register_resource(self):
+        resource = 'resource'
+        settings = {
+            'schema': {
+                'title': {
+                    'type': 'string',
+                    'default': 'Mr.',
+                },
+                'price': {
+                    'type': 'integer',
+                    'default': 100
+                },
+            }
+        }
+        self.app.register_resource(resource, settings)
+        self._test_defaults_for_resource(resource)
+        self._test_datasource_for_resource(resource)
+        self.test_validate_roles()

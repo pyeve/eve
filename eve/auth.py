@@ -23,23 +23,25 @@ def requires_auth(endpoint_class):
         @wraps(f)
         def decorated(*args, **kwargs):
             if args:
+                # resource or item endpoint
                 resource_name = args[0]
                 resource = app.config['DOMAIN'][args[0]]
+                if endpoint_class == 'resource':
+                    public = resource['public_methods']
+                    roles = resource['allowed_roles']
+                elif endpoint_class == 'item':
+                    public = resource['public_item_methods']
+                    roles = resource['allowed_item_roles']
+                auth = resource['authentication']
             else:
+                # home
                 resource_name = resource = None
-            if endpoint_class == 'resource':
-                public = resource['public_methods']
-                roles = resource['allowed_roles']
-            elif endpoint_class == 'item':
-                public = resource['public_item_methods']
-                roles = resource['allowed_item_roles']
-            elif endpoint_class == 'home':
                 public = app.config['PUBLIC_METHODS'] + ['OPTIONS']
                 roles = app.config['ALLOWED_ROLES']
-            if app.auth and request.method not in public:
-                if not app.auth.authorized(roles, resource_name,
-                                           request.method):
-                    return app.auth.authenticate()
+                auth = app.auth
+            if auth and request.method not in public:
+                if not auth.authorized(roles, resource_name, request.method):
+                    return auth.authenticate()
             return f(*args, **kwargs)
         return decorated
     return fdec
@@ -47,7 +49,7 @@ def requires_auth(endpoint_class):
 
 class BasicAuth(object):
     """ Implements Basic AUTH logic. Should be subclassed to implement custom
-    authorization checking.
+    authentication checking.
 
     .. versionchanged:: 0.1.1
         auth.request_auth_value is now used to store the auth_field value.
@@ -147,7 +149,7 @@ class HMACAuth(BasicAuth):
 
 class TokenAuth(BasicAuth):
     """ Implements Token AUTH logic. Should be subclassed to implement custom
-    authorization checking.
+    authentication checking.
 
     .. versionchanged:: 0.0.7
        Support for 'resource' argument.

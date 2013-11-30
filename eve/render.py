@@ -15,7 +15,6 @@ import datetime
 import simplejson as json
 from werkzeug import utils
 from functools import wraps
-from bson.objectid import ObjectId
 from eve.methods.common import get_rate_limit
 from eve.utils import date_to_str, config, request_method
 from flask import make_response, request, Response, current_app as app
@@ -32,6 +31,10 @@ def raise_event(f):
     function has been executed. Returns both the flask.request object and the
     response payload to the callback.
 
+    .. versionchanged:: 0.2
+       Renamed 'on_<method>' hooks to 'on_post_<method>' for coherence
+       with new 'on_pre_<method>' hooks.
+
     .. versionchanged:: 0.1.0
        Support for PUT.
 
@@ -46,7 +49,7 @@ def raise_event(f):
         r = f(*args, **kwargs)
         method = request_method()
         if method in ('GET', 'POST', 'PATCH', 'DELETE', 'PUT'):
-            event_name = 'on_' + method
+            event_name = 'on_post_' + method
             resource = args[0] if args else None
             # general hook
             getattr(app, event_name)(resource, request, r)
@@ -193,37 +196,26 @@ def _best_mime():
     return best_match, renders[best_match]
 
 
-class APIEncoder(json.JSONEncoder):
-    """ Propretary JSONEconder subclass used by the json render function.
-    This is needed to address the encoding of special values.
-    """
-    def default(self, obj):
-        if isinstance(obj, datetime.datetime):
-            # convert any datetime to RFC 1123 format
-            return date_to_str(obj)
-        elif isinstance(obj, (datetime.time, datetime.date)):
-            # should not happen since the only supported date-like format
-            # supported at dmain schema level is 'datetime' .
-            return obj.isoformat()
-        elif isinstance(obj, ObjectId):
-            # BSON/Mongo ObjectId is rendered as a string
-            return str(obj)
-        return json.JSONEncoder.default(self, obj)
-
-
 def render_json(data):
     """ JSON render function
+
+    .. versionchanged:: 0.2
+       Json encoder class is now inferred by the active data layer, allowing
+       for customized, data-aware JSON encoding.
 
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
     """
-    return json.dumps(data, cls=APIEncoder)
+    return json.dumps(data, cls=app.data.json_encoder_class)
 
 
 def render_xml(data):
     """ XML render function.
 
     :param data: the data stream to be rendered as xml.
+
+    .. versionchanged:: 0.2
+       Use the new ITEMS configuration setting.
 
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
@@ -232,7 +224,7 @@ def render_xml(data):
        Support for HAL-like hyperlinks and resource descriptors.
     """
     if isinstance(data, list):
-        data = {'_items': data}
+        data = {config.ITEMS: data}
 
     xml = ''
     if data:
@@ -336,6 +328,9 @@ def xml_dict(data):
 
     :param data: the data stream to be rendered as xml.
 
+    .. versionchanged:: 0.2
+       Leaf values are now properly escaped.
+
     .. versionadded:: 0.0.3
     """
     xml = ''
@@ -354,5 +349,5 @@ def xml_dict(data):
                 xml += links
                 xml += "</%s>" % k
             else:
-                xml += "<%s>%s</%s>" % (k, value, k)
+                xml += "<%s>%s</%s>" % (k, utils.escape(value), k)
     return xml

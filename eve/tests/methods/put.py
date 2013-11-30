@@ -1,56 +1,57 @@
 import simplejson as json
 from eve.tests import TestBase
-from eve import STATUS_OK, LAST_UPDATED, ID_FIELD
+from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES
+from eve.tests.test_settings import MONGO_DBNAME
+from bson import ObjectId
 
 
 class TestPut(TestBase):
     # TODO consider making a base codebase out of 'patch' and 'put' tests
     def test_put_to_resource_endpoint(self):
-        r, status = self.put(self.known_resource_url, data={})
+        _, status = self.put(self.known_resource_url, data={})
         self.assert405(status)
 
     def test_readonly_resource(self):
-        r, status = self.put(self.readonly_id_url, data={})
+        _, status = self.put(self.readonly_id_url, data={})
         self.assert405(status)
 
     def test_unknown_id(self):
-        r, status = self.put(self.unknown_item_id_url,
+        _, status = self.put(self.unknown_item_id_url,
                              data={'key1': 'value1'})
         self.assert404(status)
 
     def test_unknown_id_different_resource(self):
         # replacing a 'user' with a valid 'contact' id will 404
-        r, status = self.put('%s/%s/' % (self.different_resource,
+        _, status = self.put('%s/%s/' % (self.different_resource,
                                          self.item_id),
                              data={'key1': 'value1'})
         self.assert404(status)
 
         # of course we can still put a 'user'
-        r, status = self.put('%s/%s/' % (self.different_resource,
+        _, status = self.put('%s/%s/' % (self.different_resource,
                                          self.user_id),
                              data={'key1': '{"username": "username1"}'},
                              headers=[('If-Match', self.user_etag)])
         self.assert200(status)
 
     def test_by_name(self):
-        r, status = self.put(self.item_name_url, data={'key1': 'value1'})
+        _, status = self.put(self.item_name_url, data={'key1': 'value1'})
         self.assert405(status)
 
     def test_ifmatch_missing(self):
-        r, status = self.put(self.item_id_url, data={'key1': 'value1'})
+        _, status = self.put(self.item_id_url, data={'key1': 'value1'})
         self.assert403(status)
 
+    def test_ifmatch_disabled(self):
+        self.app.config['IF_MATCH'] = False
+        _, status = self.put(self.item_id_url, data={'key1': 'value1'})
+        self.assert200(status)
+
     def test_ifmatch_bad_etag(self):
-        r, status = self.put(self.item_id_url,
+        _, status = self.put(self.item_id_url,
                              data={'key1': 'value1'},
                              headers=[('If-Match', 'not-quite-right')])
         self.assert412(status)
-
-    def test_bad_request(self):
-        r, status = self.put(self.item_id_url,
-                             data='"ref": "hey, gonna bomb"',
-                             headers=[('If-Match', self.item_etag)])
-        self.assert400(status)
 
     def test_unique_value(self):
         r, status = self.put(self.item_id_url,
@@ -106,7 +107,7 @@ class TestPut(TestBase):
         field = "ref"
         test_value = "X234567890123456789012345"
         changes = {field: test_value}
-        r, status = self.put(self.item_id_url, data=changes,
+        _, status = self.put(self.item_id_url, data=changes,
                              headers=[('If-Match', self.item_etag)])
         self.assert200(status)
 
@@ -116,7 +117,7 @@ class TestPut(TestBase):
         field = "ref"
         test_value = "X234567890123456789012345"
         changes = {field: test_value}
-        r, status = self.put(self.item_id_url, data=changes,
+        _, status = self.put(self.item_id_url, data=changes,
                              headers=[('If-Match', self.item_etag)])
         self.assert500(status)
 
@@ -141,6 +142,38 @@ class TestPut(TestBase):
         self.assert200(r.status_code)
         self.assertPutResponse(json.loads(r.get_data()), self.item_id)
 
+    def test_put_default_value(self):
+        test_field = 'title'
+        test_value = "Mr."
+        data = {'ref': '9234567890123456789054321'}
+        r = self.perform_put(data)
+        db_value = self.compare_put_with_get(test_field, r)
+        self.assertEqual(test_value, db_value)
+
+    def test_put_subresource(self):
+        _db = self.connection[MONGO_DBNAME]
+
+        # create random contact
+        fake_contact = self.random_contacts(1)
+        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+
+        # update first invoice to reference the new contact
+        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
+                            {'$set': {'person': fake_contact_id}})
+
+        # GET all invoices by new contact
+        response, status = self.get('users/%s/invoices/%s' %
+                                    (fake_contact_id, self.invoice_id))
+        etag = response['etag']
+
+        data = {"inv_number": "new_number"}
+        headers = [('If-Match', etag)]
+        response, status = self.put('users/%s/invoices/%s' %
+                                    (fake_contact_id, self.invoice_id),
+                                    data=data, headers=headers)
+        self.assert200(status)
+        self.assertPutResponse(response, self.invoice_id)
+
     def perform_put(self, changes):
         r, status = self.put(self.item_id_url,
                              data=changes,
@@ -152,12 +185,12 @@ class TestPut(TestBase):
     def assertPutResponse(self, response, item_id):
         self.assertTrue('status' in response)
         self.assertTrue(STATUS_OK in response['status'])
-        self.assertFalse('issues' in response)
+        self.assertFalse(ISSUES in response)
         self.assertTrue(ID_FIELD in response)
         self.assertEqual(response[ID_FIELD], item_id)
         self.assertTrue(LAST_UPDATED in response)
         self.assertTrue('etag' in response)
-        self.assertTrue('_links') in response
+        self.assertTrue('_links' in response)
         self.assertItemLink(response['_links'], item_id)
 
     def put(self, url, data, headers=[]):

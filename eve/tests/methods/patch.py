@@ -1,7 +1,8 @@
 #import unittest
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
-from eve import STATUS_OK, LAST_UPDATED, ID_FIELD
+from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES
+from bson import ObjectId
 import simplejson as json
 
 
@@ -9,42 +10,47 @@ import simplejson as json
 class TestPatch(TestBase):
 
     def test_patch_to_resource_endpoint(self):
-        r, status = self.patch(self.known_resource_url, data={})
+        _, status = self.patch(self.known_resource_url, data={})
         self.assert405(status)
 
     def test_readonly_resource(self):
-        r, status = self.patch(self.readonly_id_url, data={})
+        _, status = self.patch(self.readonly_id_url, data={})
         self.assert405(status)
 
     def test_unknown_id(self):
-        r, status = self.patch(self.unknown_item_id_url,
+        _, status = self.patch(self.unknown_item_id_url,
                                data={"key1": 'value1'})
         self.assert404(status)
 
     def test_unknown_id_different_resource(self):
         # patching a 'user' with a valid 'contact' id will 404
-        r, status = self.patch('%s/%s/' % (self.different_resource,
+        _, status = self.patch('%s/%s/' % (self.different_resource,
                                            self.item_id),
                                data={"key1": "value1"})
         self.assert404(status)
 
         # of course we can still patch a 'user'
-        r, status = self.patch('%s/%s/' % (self.different_resource,
+        _, status = self.patch('%s/%s/' % (self.different_resource,
                                            self.user_id),
                                data={'key1': '{"username": "username1"}'},
                                headers=[('If-Match', self.user_etag)])
         self.assert200(status)
 
     def test_by_name(self):
-        r, status = self.patch(self.item_name_url, data={'key1': 'value1'})
+        _, status = self.patch(self.item_name_url, data={'key1': 'value1'})
         self.assert405(status)
 
     def test_ifmatch_missing(self):
-        r, status = self.patch(self.item_id_url, data={'key1': 'value1'})
+        _, status = self.patch(self.item_id_url, data={'key1': 'value1'})
         self.assert403(status)
 
+    def test_ifmatch_disabled(self):
+        self.app.config['IF_MATCH'] = False
+        _, status = self.patch(self.item_id_url, data={'key1': 'value1'})
+        self.assert200(status)
+
     def test_ifmatch_bad_etag(self):
-        r, status = self.patch(self.item_id_url,
+        _, status = self.patch(self.item_id_url,
                                data={'key1': 'value1'},
                                headers=[('If-Match', 'not-quite-right')])
         self.assert412(status)
@@ -236,7 +242,7 @@ class TestPatch(TestBase):
         field = "ref"
         test_value = "X234567890123456789012345"
         changes = {field: test_value}
-        r, status = self.patch(self.item_id_url,
+        _, status = self.patch(self.item_id_url,
                                data=changes,
                                headers=[('If-Match', self.item_etag)])
         self.assert200(status)
@@ -247,7 +253,7 @@ class TestPatch(TestBase):
         field = "ref"
         test_value = "X234567890123456789012345"
         changes = {field: test_value}
-        r, status = self.patch(self.item_id_url,
+        _, status = self.patch(self.item_id_url,
                                data=changes,
                                headers=[('If-Match', self.item_etag)])
         self.assert500(status)
@@ -275,19 +281,43 @@ class TestPatch(TestBase):
         field = "ref"
         test_value = "X234567890123456789012345"
         changes = {field: test_value}
-        r, status = self.patch('%s/%s' % (self.known_resource_url, _id),
+        _, status = self.patch('%s/%s' % (self.known_resource_url, _id),
                                data=changes, headers=[('If-Match', etag)])
         self.assert200(status)
+
+    def test_patch_subresource(self):
+        _db = self.connection[MONGO_DBNAME]
+
+        # create random contact
+        fake_contact = self.random_contacts(1)
+        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+
+        # update first invoice to reference the new contact
+        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
+                            {'$set': {'person': fake_contact_id}})
+
+        # GET all invoices by new contact
+        response, status = self.get('users/%s/invoices/%s' %
+                                    (fake_contact_id, self.invoice_id))
+        etag = response['etag']
+
+        data = {"inv_number": "new_number"}
+        headers = [('If-Match', etag)]
+        response, status = self.patch('users/%s/invoices/%s' %
+                                      (fake_contact_id, self.invoice_id),
+                                      data=data, headers=headers)
+        self.assert200(status)
+        self.assertPatchResponse(response, self.invoice_id)
 
     def assertPatchResponse(self, response, item_id):
         self.assertTrue('status' in response)
         self.assertTrue(STATUS_OK in response['status'])
-        self.assertFalse('issues' in response)
+        self.assertFalse(ISSUES in response)
         self.assertTrue(ID_FIELD in response)
         self.assertEqual(response[ID_FIELD], item_id)
         self.assertTrue(LAST_UPDATED in response)
         self.assertTrue('etag' in response)
-        self.assertTrue('_links') in response
+        self.assertTrue('_links' in response)
         self.assertItemLink(response['_links'], item_id)
 
     def patch(self, url, data, headers=[]):

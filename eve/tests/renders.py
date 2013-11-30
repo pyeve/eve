@@ -3,6 +3,7 @@
 from eve.tests import TestBase
 import simplejson as json
 from eve.utils import api_prefix
+from eve.tests.test_settings import MONGO_DBNAME
 
 
 class TestRenders(TestBase):
@@ -23,6 +24,20 @@ class TestRenders(TestBase):
         r = self.test_client.get('%s?max_results=1' % self.known_resource_url,
                                  headers=[('Accept', 'application/xml')])
         self.assertTrue(b'&amp;' in r.get_data())
+
+    def test_xml_leaf_escaping(self):
+        # test that even xml leaves content is being properly escaped
+
+        # We need to assign a `person` to our test invoice
+        _db = self.connection[MONGO_DBNAME]
+        fake_contact = self.random_contacts(1)
+        fake_contact[0]['ref'] = "12345 & 67890"
+        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+
+        r = self.test_client.get('%s/%s' %
+                                 (self.known_resource_url, fake_contact_id),
+                                 headers=[('Accept', 'application/xml')])
+        self.assertTrue(b'12345 &amp; 6789' in r.get_data())
 
     def test_unknown_render(self):
         r = self.test_client.get('/', headers=[('Accept', 'application/html')])
@@ -54,7 +69,10 @@ class TestRenders(TestBase):
         self.assertEqual(r.headers['Access-Control-Allow-Origin'],
                          'http://example.com, http://1on1.com')
 
-    def test_CORS_OPTIONS(self, url='/', methods=[]):
+    def test_CORS_OPTIONS(self, url='/', methods=None):
+        if methods is None:
+            methods = []
+
         r = self.test_client.open(url, method='OPTIONS')
         self.assertFalse('Access-Control-Allow-Origin' in r.headers)
         self.assertFalse('Access-Control-Allow-Methods' in r.headers)
@@ -95,7 +113,8 @@ class TestRenders(TestBase):
         prefix = api_prefix(self.app.config['URL_PREFIX'],
                             self.app.config['API_VERSION'])
 
-        for resource, settings in self.app.config['DOMAIN'].items():
+        del(self.domain['peopleinvoices'])
+        for _, settings in self.app.config['DOMAIN'].items():
 
             # resource endpoint
             url = '%s/%s/' % (prefix, settings['url'])
@@ -124,10 +143,10 @@ class TestEventHooks(TestBase):
         self.callback_value = None
         self.documents = None
 
-    def test_on_GET(self):
+    def test_on_post_GET(self):
         def general_hook(resource, request, payload):
             self.callback_value = resource
-        self.app.on_GET += general_hook
+        self.app.on_post_GET += general_hook
         # homepage
         self.test_client.get('/')
         self.assertEqual(self.callback_value, None)
@@ -138,10 +157,10 @@ class TestEventHooks(TestBase):
         self.test_client.get(self.item_id_url)
         self.assertEqual(self.callback_value, self.known_resource)
 
-    def test_GET_resource(self):
+    def test_post_GET_resource(self):
         def resource_hook(request, payload):
             self.passed = True
-        self.app.on_GET_contacts += resource_hook
+        self.app.on_post_GET_contacts += resource_hook
         # resource endpoint
         self.test_client.get(self.known_resource_url)
         self.assertTrue(self.passed)
@@ -150,59 +169,59 @@ class TestEventHooks(TestBase):
         self.test_client.get(self.item_id_url)
         self.assertTrue(self.passed)
 
-    def test_on_POST(self):
+    def test_on_post_POST(self):
         def general_hook(resource, request, payload):
             self.callback_value = resource
-        self.app.on_POST += general_hook
+        self.app.on_post_POST += general_hook
         self.post()
         self.assertEqual(self.callback_value, self.known_resource)
 
-    def test_on_POST_resource(self):
+    def test_on_POST_post_resource(self):
         def resource_hook(request, payload):
             self.passed = True
-        self.app.on_POST_contacts += resource_hook
+        self.app.on_post_POST_contacts += resource_hook
         self.post()
         self.assertTrue(self.passed)
 
-    def test_on_PATCH(self):
+    def test_on_post_PATCH(self):
         def general_hook(resource, request, payload):
             self.callback_value = resource
-        self.app.on_PATCH += general_hook
+        self.app.on_post_PATCH += general_hook
         self.patch()
         self.assertEqual(self.callback_value, self.known_resource)
 
-    def test_on_PATCH_resource(self):
+    def test_on_post_PATCH_resource(self):
         def resource_hook(request, payload):
             self.passed = True
-        self.app.on_PATCH_contacts += resource_hook
+        self.app.on_post_PATCH_contacts += resource_hook
         self.patch()
         self.assertTrue(self.passed)
 
-    def test_on_PUT(self):
+    def test_on_post_PUT(self):
         def general_hook(resource, request, payload):
             self.callback_value = resource
-        self.app.on_PUT += general_hook
+        self.app.on_post_PUT += general_hook
         self.put()
         self.assertEqual(self.callback_value, self.known_resource)
 
-    def test_on_PUT_resource(self):
+    def test_on_post_PUT_resource(self):
         def resource_hook(request, payload):
             self.passed = True
-        self.app.on_PUT_contacts += resource_hook
+        self.app.on_post_PUT_contacts += resource_hook
         self.put()
         self.assertTrue(self.passed)
 
-    def test_on_DELETE(self):
+    def test_on_post_DELETE(self):
         def general_hook(resource, request, payload):
             self.callback_value = resource
-        self.app.on_DELETE += general_hook
+        self.app.on_post_DELETE += general_hook
         self.delete()
         self.assertEqual(self.callback_value, self.known_resource)
 
-    def test_on_DELETE_resource(self):
+    def test_on_post_DELETE_resource(self):
         def resource_hook(request, payload):
             self.passed = True
-        self.app.on_DELETE_contacts += resource_hook
+        self.app.on_post_DELETE_contacts += resource_hook
         self.delete()
         self.assertTrue(self.passed)
 

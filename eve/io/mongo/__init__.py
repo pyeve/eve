@@ -11,5 +11,5 @@
 """
 
 # flake8: noqa
-from eve.io.mongo.mongo import Mongo
+from eve.io.mongo.mongo import Mongo, MongoJSONEncoder
 from eve.io.mongo.validation import Validator

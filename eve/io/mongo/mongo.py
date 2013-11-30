@@ -20,13 +20,31 @@ from bson import ObjectId
 from datetime import datetime
 from eve import ID_FIELD
 from eve.io.mongo.parser import parse, ParseError
-from eve.io.base import DataLayer, ConnectionException
+from eve.io.base import DataLayer, ConnectionException, BaseJSONEncoder
 from eve.utils import config, debug_error_message, validate_filters, \
     str_to_date
 
 
+class MongoJSONEncoder(BaseJSONEncoder):
+    """ Proprietary JSONEconder subclass used by the json render function.
+    This is needed to address the encoding of special values.
+
+    .. versionadded:: 0.2
+    """
+    def default(self, obj):
+        if isinstance(obj, ObjectId):
+            # BSON/Mongo ObjectId is rendered as a string
+            return str(obj)
+        else:
+            # delegate rendering to base class method
+            return super(MongoJSONEncoder, self).default(obj)
+
+
 class Mongo(DataLayer):
     """ MongoDB data access layer for Eve REST API.
+
+    .. versionchanged:: 0.2
+       Provide the specialized json serializer class as ``json_encoder_class``.
 
     .. versionchanged:: 0.1.1
        'serializers' added.
@@ -37,8 +55,12 @@ class Mongo(DataLayer):
         'datetime': str_to_date
     }
 
+    # JSON serializer  s a class attribute. Allows extensions to replace it
+    # with their own implementation.
+    json_encoder_class = MongoJSONEncoder
+
     def init_app(self, app):
-        """
+        """ Initialize PyMongo.
         .. versionchanged:: 0.0.9
            support for Python 3.3.
         """
@@ -48,8 +70,8 @@ class Mongo(DataLayer):
         except Exception as e:
             raise ConnectionException(e)
 
-    def find(self, resource, req):
-        """Retrieves a set of documents matching a given request. Queries can
+    def find(self, resource, req, sub_resource_lookup):
+        """ Retrieves a set of documents matching a given request. Queries can
         be expressed in two different formats: the mongo query syntax, and the
         python syntax. The first kind of query would look like: ::
 
@@ -63,6 +85,11 @@ class Mongo(DataLayer):
 
         :param resource: resource name.
         :param req: a :class:`ParsedRequest`instance.
+        :param sub_resource_lookup: sub-resource lookup from the endpoint url.
+
+        .. versionchagend:: 0.2
+           Support for sub-resources.
+           Support for 'default_sort'.
 
         .. versionchanged:: 0.1.1
            Better query handling. We're now properly casting objectid-like
@@ -100,11 +127,13 @@ class Mongo(DataLayer):
 
         # TODO should validate on unknown sort fields (mongo driver doesn't
         # return an error)
-        if req.sort:
-            args['sort'] = ast.literal_eval(req.sort)
 
         client_projection = {}
+        client_sort = {}
         spec = {}
+
+        if req.sort:
+            client_sort = ast.literal_eval(req.sort)
 
         if req.where:
             try:
@@ -116,7 +145,11 @@ class Mongo(DataLayer):
                     abort(400, description=debug_error_message(
                         'Unable to parse `where` clause'
                     ))
-            spec = self._mongotize(spec)
+
+        if sub_resource_lookup:
+            spec.update(sub_resource_lookup)
+
+        spec = self._mongotize(spec)
 
         bad_filter = validate_filters(spec, resource)
         if bad_filter:
@@ -130,8 +163,11 @@ class Mongo(DataLayer):
                     'Unable to parse `projection` clause'
                 ))
 
-        datasource, spec, projection = self._datasource_ex(resource, spec,
-                                                           client_projection)
+        datasource, spec, projection, sort = self._datasource_ex(
+            resource,
+            spec,
+            client_projection,
+            client_sort)
 
         if req.if_modified_since:
             spec[config.LAST_UPDATED] = \
@@ -140,13 +176,16 @@ class Mongo(DataLayer):
         if len(spec) > 0:
             args['spec'] = spec
 
+        if sort is not None:
+            args['sort'] = sort
+
         if projection is not None:
             args['fields'] = projection
 
         return self.driver.db[datasource].find(**args)
 
     def find_one(self, resource, **lookup):
-        """Retrieves a single document.
+        """ Retrieves a single document.
 
         :param resource: resource name.
         :param **lookup: lookup query.
@@ -168,13 +207,16 @@ class Mongo(DataLayer):
                 # Returns a type error when {'_id': {...}}
                 pass
 
-        datasource, filter_, projection = self._datasource_ex(resource, lookup)
+        self._mongotize(lookup)
+
+        datasource, filter_, projection, _ = self._datasource_ex(resource,
+                                                                 lookup)
 
         document = self.driver.db[datasource].find_one(filter_, projection)
         return document
 
     def find_list_of_ids(self, resource, ids, client_projection=None):
-        """Retrieves a list of documents from the collection given
+        """ Retrieves a list of documents from the collection given
         by `resource`, matching the given list of ids.
 
         This query is generated to *preserve the order* of the elements
@@ -209,7 +251,7 @@ class Mongo(DataLayer):
             {config.ID_FIELD: id_} for id_ in ids
         ]}
 
-        datasource, spec, projection = self._datasource_ex(
+        datasource, spec, projection, _ = self._datasource_ex(
             resource, query=query, client_projection=client_projection
         )
 
@@ -219,7 +261,7 @@ class Mongo(DataLayer):
         return documents
 
     def insert(self, resource, doc_or_docs):
-        """Inserts a document into a resource collection.
+        """ Inserts a document into a resource collection.
 
         .. versionchanged:: 0.0.9
            More informative error messages.
@@ -235,7 +277,7 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
-        datasource, filter_, _ = self._datasource_ex(resource)
+        datasource, _, _, _ = self._datasource_ex(resource)
         try:
             return self.driver.db[datasource].insert(doc_or_docs,
                                                      **self._wc(resource))
@@ -248,7 +290,11 @@ class Mongo(DataLayer):
             ))
 
     def update(self, resource, id_, updates):
-        """Updates a collection document.
+        """ Updates a collection document.
+
+        .. versionchanged:: 0.2
+           Don't explicitly converto ID_FIELD to ObjectId anymore, so we can
+           also process different types (UUIDs etc).
 
         .. versionchanged:: 0.0.9
            More informative error messages.
@@ -262,8 +308,8 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
-        datasource, filter_, _ = self._datasource_ex(resource,
-                                                     {ID_FIELD: ObjectId(id_)})
+        datasource, filter_, _, _ = self._datasource_ex(resource, {ID_FIELD:
+                                                                   id_})
 
         # TODO consider using find_and_modify() instead. The document might
         # have changed since the ETag was computed. This would require getting
@@ -278,12 +324,16 @@ class Mongo(DataLayer):
             ))
 
     def replace(self, resource, id_, document):
-        """Replaces an existing document.
+        """ Replaces an existing document.
+
+        .. versionchanged:: 0.2
+           Don't explicitly converto ID_FIELD to ObjectId anymore, so we can
+           also process different types (UUIDs etc).
 
         .. versionadded:: 0.1.0
         """
-        datasource, filter_, _ = self._datasource_ex(resource,
-                                                     {ID_FIELD: ObjectId(id_)})
+        datasource, filter_, _, _ = self._datasource_ex(resource, {ID_FIELD:
+                                                                   id_})
 
         # TODO consider using find_and_modify() instead. The document might
         # have changed since the ETag was computed. This would require getting
@@ -298,7 +348,12 @@ class Mongo(DataLayer):
             ))
 
     def remove(self, resource, id_=None):
-        """Removes a document or the entire set of documents from a collection.
+        """ Removes a document or the entire set of documents from a
+        collection.
+
+        .. versionchanged:: 0.2
+           Don't explicitly converto ID_FIELD to ObjectId anymore, so we can
+           also process different types (UUIDs etc).
 
         .. versionchanged:: 0.0.9
            More informative error messages.
@@ -315,8 +370,8 @@ class Mongo(DataLayer):
         .. versionadded:: 0.0.2
             Support for deletion of entire documents collection.
         """
-        query = {ID_FIELD: ObjectId(id_)} if id_ else None
-        datasource, filter_, _ = self._datasource_ex(resource, query)
+        query = {ID_FIELD: id_} if id_ else None
+        datasource, filter_, _, _ = self._datasource_ex(resource, query)
         try:
             self.driver.db[datasource].remove(filter_, **self._wc(resource))
         except pymongo.errors.OperationFailure as e:
@@ -329,9 +384,8 @@ class Mongo(DataLayer):
     # of a separate MonqoQuery class
 
     def combine_queries(self, query_a, query_b):
-        """
-        Takes two db queries and applies db-specific syntax to produce
-        the intersection
+        """ Takes two db queries and applies db-specific syntax to produce
+        the intersection.
 
         This is used because we can't just dump one set of query operators
         into another.
@@ -395,7 +449,7 @@ class Mongo(DataLayer):
 
     def query_contains_field(self, query, field_name):
         """ For the specified field name, does the query contain it?
-        Used know whether we need to parse a compound query
+        Used know whether we need to parse a compound query.
 
         .. versionadded: 0.1.0
            Support for parsing values embedded in compound db queries

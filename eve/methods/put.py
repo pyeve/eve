@@ -17,19 +17,28 @@ from eve.validation import ValidationError
 from flask import current_app as app, abort, request
 from eve.utils import document_etag, document_link, config, debug_error_message
 from eve.methods.common import get_document, parse, payload as payload_, \
-    ratelimit
+    ratelimit, resolve_default_values, pre_event
 
 
 @ratelimit()
 @requires_auth('item')
+@pre_event
 def put(resource, **lookup):
-    """Perform a document replacement. Updates are first validated against
+    """ Perform a document replacement. Updates are first validated against
     the resource schema. If validation passes, the document is repalced and
     an OK status update is returned. If validation fails a set of validation
     issues is returned.
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
+
+    .. versionchanged:: 0.2
+       Use the new STATUS setting.
+       Use the new ISSUES setting.
+       Raise pre_<method> event.
+       explictly resolve default values instead of letting them be resolved
+       by common.parse. This avoids a validation error when a read-only field
+       also has a default value.
 
     .. versionchanged:: 0.1.1
        auth.request_auth_value is now used to store the auth_field value.
@@ -69,9 +78,12 @@ def put(resource, **lookup):
             # an Auth request active, inject the username into the document
             auth_field = resource_def['auth_field']
             if app.auth and auth_field:
-                request_auth_value = app.auth.request_auth_value
+                request_auth_value = \
+                    resource_def['authentication'].request_auth_value
                 if request_auth_value and request.authorization:
                     document[auth_field] = request_auth_value
+            resolve_default_values(document, resource)
+
             etag = document_etag(document)
 
             # notify callbacks
@@ -86,8 +98,8 @@ def put(resource, **lookup):
             # metadata
             response['etag'] = etag
             if resource_def['hateoas']:
-                response['_links'] = {'self': document_link(resource,
-                                                            object_id)}
+                response[config.LINKS] = {'self': document_link(resource,
+                                                                object_id)}
         else:
             issues.extend(validator.errors)
     except ValidationError as e:
@@ -103,9 +115,9 @@ def put(resource, **lookup):
         ))
 
     if len(issues):
-        response['issues'] = issues
-        response['status'] = config.STATUS_ERR
+        response[config.ISSUES] = issues
+        response[config.STATUS] = config.STATUS_ERR
     else:
-        response['status'] = config.STATUS_OK
+        response[config.STATUS] = config.STATUS_OK
 
     return response, last_modified, etag, 200
