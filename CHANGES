@@ -6,10 +6,8 @@ Here you can see the full list of changes between each Eve release.
 Version 0.2
 -----------
 
-Not released yet.
+Released on 30 November, 2013.
 
-- [fix] HMAC example and docs updated to align with new hmac in Python 2.7.3,
-  which is only accepting bytes string. Closes #199.
 - [new] Sub-Resources. It is now possible to configure endpoints such as:
   ``/companies/<company_id>/invoices``. Also, the corresponding item endpoints,
   such as ``/companies/<company_id>/invoices/<invoice_id>``, are available. All
@@ -32,14 +30,10 @@ Not released yet.
   allows to pass custom Flask url converters to the Eve constructor. 
 - [new] ID_FIELD fields can now be of arbitrary types, not only ObjectIds.
   Thanks to Kelvin Hammond for contributing to this one.  Closes #136.
-- [fix] Properly escape leaf values in XML responses (Florian Rathgeber).
-- [change] Rely on Flask endpoints to map urls to resources.
 - [new] ``pre_<method>`` and ``pre_<method>_<resource>`` event hooks are now
   available. They are raised when a request is received and before processing
   it. The resource involved and the Flask request object are returned to the
   callback function (dccrazyboy).
-- [change] For better consistency with new ``pre_<method>`` hooks,
-  ``on_<method>`` event hooks have been renamed to ``on_post_<method>``.
 - [new] ``embedded_fields`` activates default Embedded Resource Serialization
   on a list of selected document fields. Eventual embedding requests by clients
   will be processed along with default embedding. In order for default
@@ -53,6 +47,9 @@ Not released yet.
 - [new] New method ``Eve.register_resource()`` for registering new resource
   after initialization of Eve object. This is needed for simpler initialization
   API of all ORM/ODM extensions (Stanislav Heller).
+- [change] Rely on Flask endpoints to map urls to resources.
+- [change] For better consistency with new ``pre_<method>`` hooks,
+  ``on_<method>`` event hooks have been renamed to ``on_post_<method>``.
 - [change] Custom authentication classes can now be set at endpoint level. When
   set, an endpoint-level auth class will override the eventual global level
   auth class.  Authentication docs have been updated (and greatly revised)
@@ -60,7 +57,10 @@ Not released yet.
 - [change] JSON encoding is now handled at the DataLayer level allowing for
   specialized, granular, data-aware encoding. Also, since the JSON encoder is
   now a class attribute, extensions can replace the pre-defined data layer
-  encoder with their own implementation. Closes #102.
+  encoder with their own implementation. Closes #102. - [fix] HMAC example and
+  docs updated to align with new hmac in Python 2.7.3, which is only accepting
+  bytes string. Closes #199.
+- [fix] Properly escape leaf values in XML responses (Florian Rathgeber).
 - [fix] A read-only field with a default value would trigger a validation error
   on POST and PUT methods.
 
