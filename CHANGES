@@ -62,9 +62,9 @@ Released on 30 November, 2013.
 - [change] JSON encoding is now handled at the DataLayer level allowing for
   specialized, granular, data-aware encoding. Also, since the JSON encoder is
   now a class attribute, extensions can replace the pre-defined data layer
-  encoder with their own implementation. Closes #102. - [fix] HMAC example and
-  docs updated to align with new hmac in Python 2.7.3, which is only accepting
-  bytes string. Closes #199.
+  encoder with their own implementation. Closes #102. 
+- [fix] HMAC example and docs updated to align with new hmac in Python 2.7.3,
+  which is only accepting bytes string. Closes #199.
 - [fix] Properly escape leaf values in XML responses (Florian Rathgeber).
 - [fix] A read-only field with a default value would trigger a validation error
   on POST and PUT methods.
