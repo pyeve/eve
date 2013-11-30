@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Eve Changelog &mdash; Eve 0.2-dev documentation</title>
+    <title>Eve Changelog &mdash; Eve 0.3-dev documentation</title>
     
     <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.2-dev',
+        VERSION:     '0.3-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.2-dev documentation" href="index.html" />
+    <link rel="top" title="Eve 0.3-dev documentation" href="index.html" />
     <link rel="prev" title="Licensing" href="license.html" />
    
   
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="license.html" title="Licensing"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Eve 0.2-dev documentation</a> &raquo;</li> 
+        <li><a href="index.html">Eve 0.3-dev documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -57,15 +57,18 @@
   <div class="section" id="eve-changelog">
 <span id="changelog"></span><h1>Eve Changelog<a class="headerlink" href="#eve-changelog" title="Permalink to this headline">¶</a></h1>
 <p>Here you can see the full list of changes between each Eve release.</p>
+<div class="section" id="version-0-3">
+<h2>Version 0.3<a class="headerlink" href="#version-0-3" title="Permalink to this headline">¶</a></h2>
+<p>Not released yet.</p>
+</div>
 <div class="section" id="version-0-2">
 <h2>Version 0.2<a class="headerlink" href="#version-0-2" title="Permalink to this headline">¶</a></h2>
-<p>Not released yet.</p>
+<p>Released on 30 November, 2013.</p>
 <ul class="simple">
 <li>[new] Sub-Resources. It is now possible to configure endpoints such as:
-<tt class="docutils literal"><span class="pre">/companies/&lt;company_id&gt;/invoices</span></tt>. Also, the corresponding
-item endpoints, such as <tt class="docutils literal"><span class="pre">/companies/&lt;company_id&gt;/invoices/&lt;invoice_id&gt;</span></tt>,
-are available. All CRUD operations on these endpoints are allowed. Closes
-156.</li>
+<tt class="docutils literal"><span class="pre">/companies/&lt;company_id&gt;/invoices</span></tt>. Also, the corresponding item endpoints,
+such as <tt class="docutils literal"><span class="pre">/companies/&lt;company_id&gt;/invoices/&lt;invoice_id&gt;</span></tt>, are available. All
+CRUD operations on these endpoints are allowed. Closes 156.</li>
 <li>[new] <tt class="docutils literal"><span class="pre">resource_title</span></tt> allows to customize the endpoint title (HATEOAS).</li>
 <li>[new][dev] <tt class="docutils literal"><span class="pre">extra</span></tt> cursor property, when present, will be added to <tt class="docutils literal"><span class="pre">GET</span></tt>
 responses (with same key). This feature can be used by Eve extensions to
@@ -84,14 +87,10 @@ to pass custom JSONEncoder or eve.io.BaseJSONEncoder to the Eve instance.</li>
 allows to pass custom Flask url converters to the Eve constructor.</li>
 <li>[new] ID_FIELD fields can now be of arbitrary types, not only ObjectIds.
 Thanks to Kelvin Hammond for contributing to this one.  Closes #136.</li>
-<li>[fix] Properly escape leaf values in XML responses (Florian Rathgeber).</li>
-<li>[change] Rely on Flask endpoints to map urls to resources.</li>
 <li>[new] <tt class="docutils literal"><span class="pre">pre_&lt;method&gt;</span></tt> and <tt class="docutils literal"><span class="pre">pre_&lt;method&gt;_&lt;resource&gt;</span></tt> event hooks are now
 available. They are raised when a request is received and before processing
 it. The resource involved and the Flask request object are returned to the
 callback function (dccrazyboy).</li>
-<li>[change] For better consistency with new <tt class="docutils literal"><span class="pre">pre_&lt;method&gt;</span></tt> hooks,
-<tt class="docutils literal"><span class="pre">on_&lt;method&gt;</span></tt> event hooks have been renamed to <tt class="docutils literal"><span class="pre">on_post_&lt;method&gt;</span></tt>.</li>
 <li>[new] <tt class="docutils literal"><span class="pre">embedded_fields</span></tt> activates default Embedded Resource Serialization
 on a list of selected document fields. Eventual embedding requests by clients
 will be processed along with default embedding. In order for default
@@ -105,6 +104,9 @@ within the query string (with help from Christoph Witzany).</li>
 <li>[new] New method <tt class="docutils literal"><span class="pre">Eve.register_resource()</span></tt> for registering new resource
 after initialization of Eve object. This is needed for simpler initialization
 API of all ORM/ODM extensions (Stanislav Heller).</li>
+<li>[change] Rely on Flask endpoints to map urls to resources.</li>
+<li>[change] For better consistency with new <tt class="docutils literal"><span class="pre">pre_&lt;method&gt;</span></tt> hooks,
+<tt class="docutils literal"><span class="pre">on_&lt;method&gt;</span></tt> event hooks have been renamed to <tt class="docutils literal"><span class="pre">on_post_&lt;method&gt;</span></tt>.</li>
 <li>[change] Custom authentication classes can now be set at endpoint level. When
 set, an endpoint-level auth class will override the eventual global level
 auth class.  Authentication docs have been updated (and greatly revised)
@@ -112,7 +114,10 @@ accordingly.  Closes #89.</li>
 <li>[change] JSON encoding is now handled at the DataLayer level allowing for
 specialized, granular, data-aware encoding. Also, since the JSON encoder is
 now a class attribute, extensions can replace the pre-defined data layer
-encoder with their own implementation. Closes #102.</li>
+encoder with their own implementation. Closes #102. - [fix] HMAC example and
+docs updated to align with new hmac in Python 2.7.3, which is only accepting
+bytes string. Closes #199.</li>
+<li>[fix] Properly escape leaf values in XML responses (Florian Rathgeber).</li>
 <li>[fix] A read-only field with a default value would trigger a validation error
 on POST and PUT methods.</li>
 </ul>
@@ -555,6 +560,7 @@ signature, allowing for further subclassing.</li>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Eve Changelog</a><ul>
+<li><a class="reference internal" href="#version-0-3">Version 0.3</a></li>
 <li><a class="reference internal" href="#version-0-2">Version 0.2</a></li>
 <li><a class="reference internal" href="#version-0-1-1">Version 0.1.1</a><ul>
 <li><a class="reference internal" href="#enhancements">Enhancements</a></li>
