@@ -244,7 +244,7 @@ file:</p>
     <span class="c"># additional read-only entry point. This way consumers can also perform</span>
     <span class="c"># GET requests at &#39;/people/&lt;lastname&gt;&#39;.</span>
     <span class="s">&#39;additional_lookup&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;[\w]+&#39;</span><span class="p">,</span>
+        <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;regex(&quot;[\w]+&quot;)&#39;</span><span class="p">,</span>
         <span class="s">&#39;field&#39;</span><span class="p">:</span> <span class="s">&#39;lastname&#39;</span>
     <span class="p">},</span>
 
