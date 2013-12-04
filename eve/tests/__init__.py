@@ -80,8 +80,9 @@ class TestMinimal(unittest.TestCase):
         issues = response[ISSUES]
         self.assertTrue(len(issues))
 
-        for match in matches:
-            self.assertTrue(match in issues[0])
+        for k, v in matches.items():
+            self.assertTrue(k in issues)
+            self.assertTrue(v in issues[k])
 
     def assertExpires(self, resource):
         # TODO if we ever get access to response.date (it is None), compare

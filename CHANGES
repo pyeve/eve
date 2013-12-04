@@ -8,6 +8,10 @@ Version 0.3
 
 Not released yet.
 
+- [change] Validation errors are now reported as a dictionary with offending fields as
+  keys and issues descriptions as values.
+- [change] Cerberus v0.5 is now required.
+
 Version 0.2
 -----------
 

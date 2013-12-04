@@ -58,15 +58,15 @@ class TestPut(TestBase):
                              data={"ref": "%s" % self.alt_ref},
                              headers=[('If-Match', self.item_etag)])
         self.assert200(status)
-        self.assertValidationError(r, ("field 'ref'", self.alt_ref,
-                                       'not unique'))
+        self.assertValidationError(r, {'ref': "value '%s' is not unique" %
+                                       self.alt_ref})
 
     def test_allow_unknown(self):
         changes = {"unknown": "unknown"}
         r, status = self.put(self.item_id_url, data=changes,
                              headers=[('If-Match', self.item_etag)])
         self.assert200(status)
-        self.assertValidationError(r, 'unknown field')
+        self.assertValidationError(r, {'unknown': 'unknown field'})
         self.app.config['DOMAIN'][self.known_resource]['allow_unknown'] = True
         changes = {"unknown": "unknown", "ref": "1234567890123456789012345"}
         r, status = self.put(self.item_id_url, data=changes,
@@ -89,11 +89,10 @@ class TestPut(TestBase):
         headers = [('If-Match', self.invoice_etag)]
         r, status = self.put(self.invoice_id_url, data=data, headers=headers)
         self.assert200(status)
-        expected = ("value '%s' for field '%s' must exist in resource "
-                    "collection '%s', field '%s'" %
-                    (self.unknown_item_id, 'person', 'contacts',
+        expected = ("value '%s' must exist in resource '%s', field '%s'" %
+                    (self.unknown_item_id, 'contacts',
                      self.app.config['ID_FIELD']))
-        self.assertValidationError(r, expected)
+        self.assertValidationError(r, {'person': expected})
 
         data = {"person": self.item_id}
         r, status = self.put(self.invoice_id_url, data=data, headers=headers)

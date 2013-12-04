@@ -32,6 +32,9 @@ def put(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
 
+    .. versionchanged:: 0.3
+       Support for new validation format introduced with Cerberus v0.5.
+
     .. versionchanged:: 0.2
        Use the new STATUS setting.
        Use the new ISSUES setting.
@@ -58,7 +61,7 @@ def put(resource, **lookup):
 
     last_modified = None
     etag = None
-    issues = []
+    issues = {}
     object_id = original[config.ID_FIELD]
 
     response = {}
@@ -101,11 +104,11 @@ def put(resource, **lookup):
                 response[config.LINKS] = {'self': document_link(resource,
                                                                 object_id)}
         else:
-            issues.extend(validator.errors)
+            issues = validator.errors
     except ValidationError as e:
         # TODO should probably log the error and abort 400 instead (when we
         # got logging)
-        issues.append(str(e))
+        issues['validator exception'] = str(e)
     except exceptions.InternalServerError as e:
         raise e
     except Exception as e:

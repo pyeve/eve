@@ -43,6 +43,9 @@ def post(resource, payl=None):
                  See https://github.com/nicolaiarocci/eve/issues/74 for a
                  discussion, and a typical use case.
 
+    .. versionchanged:: 0.3
+       Support for new validation format introduced with Cerberus v0.5.
+
     .. versionchanged:: 0.2
        Use the new STATUS setting.
        Use the new ISSUES setting.
@@ -114,7 +117,7 @@ def post(resource, payl=None):
 
     for value in payl:
         document = []
-        doc_issues = []
+        doc_issues = {}
         try:
             document = parse(value, resource)
             validation = validator.validate(document)
@@ -136,13 +139,13 @@ def post(resource, payl=None):
                 resolve_default_values(document, resource)
             else:
                 # validation errors added to list of document issues
-                doc_issues.extend(validator.errors)
+                doc_issues = validator.errors
         except ValidationError as e:
-            raise e
+            doc_issues['validation exception'] = str(e)
         except Exception as e:
             # most likely a problem with the incoming payload, report back to
             # the client as if it was a validation issue
-            doc_issues.append(str(e))
+            doc_issues['exception'] = str(e)
 
         issues.append(doc_issues)
 

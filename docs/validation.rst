@@ -20,7 +20,7 @@ request:
     [
         {
             "status": "ERR",
-            "issues": ["value 'romney' for field 'lastname' not unique"]
+            "issues": {"lastname": "value 'clinton' not unique"}
         },
         {
             "status": "OK",
@@ -55,7 +55,7 @@ that:
     class MyValidator(Validator):
         def _validate_isodd(self, isodd, field, value):
             if isodd and not bool(value & 1):
-                self._error("Value for field '%s' must be an odd number" % field)
+                self._error(field, "Value must be an odd number")
 
     app = Eve(validator=MyValidator)
 
@@ -67,7 +67,7 @@ By subclassing the base Mongo validator class and then adding a custom
 grammar and now the new custom rule ``isodd`` is available in your schema. You
 can now do something like:
 
-.. code-block:: javascript
+.. code-block:: python
 
     'schema': {
         'oddity': {
@@ -82,7 +82,7 @@ You can also add new data types by simply adding ``_validate_type_<typename>``
 methods to your subclass. Consider the following snippet from the Eve source
 code.
 
-::
+.. code-block:: python
 
     def _validate_type_objectid(self, field, value):
         """ Enables validation for `objectid` schema attribute.
@@ -93,12 +93,12 @@ code.
         :param value: field value.
         """
         if not re.match('[a-f0-9]{24}', value):
-            self._error(ERROR_BAD_TYPE % (field, 'ObjectId'))
+            self._error(field, ERROR_BAD_TYPE % 'ObjectId')
 
 This method enables support for MongoDB ``ObjectId`` type in your schema,
 allowing something like this:
 
-.. code-block:: javascript
+.. code-block:: python
 
     'schema': {
         'owner': {
@@ -130,7 +130,7 @@ can also enable this feature only for certain endpoints by setting the
 
 Consider the following domain:
 
-.. code-block:: javascript
+.. code-block:: python
 
     DOMAIN: {
         'people': {

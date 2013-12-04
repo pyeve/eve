@@ -20,11 +20,11 @@ class TestPost(TestBase):
     def test_validation_error(self):
         r, status = self.post(self.known_resource_url, data={"ref": "123"})
         self.assert200(status)
-        self.assertValidationError(r, ("min length for field 'ref' is 25",))
+        self.assertValidationError(r, {'ref': 'min length is 25'})
 
         r, status = self.post(self.known_resource_url, data={"prog": 123})
         self.assert200(status)
-        self.assertValidationError(r, ("required", "ref"))
+        self.assertValidationError(r, {'ref': 'required'})
 
     def test_post_empty_resource(self):
         data = []
@@ -136,21 +136,21 @@ class TestPost(TestBase):
         ]
         r = self.perform_post(data, [0, 2])
 
-        self.assertValidationError(r[1], ("required", "ref"))
-        self.assertValidationError(r[3], ("unique", "ref"))
-        self.assertValidationError(r[4], ("ObjectId", "tid"))
+        self.assertValidationError(r[1], {'ref': 'required'})
+        self.assertValidationError(r[3], {'ref': 'unique'})
+        self.assertValidationError(r[4], {'tid': 'ObjectId'})
 
         item_id = r[0][ID_FIELD]
-        db_value = self.compare_post_with_get(item_id, "ref")
+        db_value = self.compare_post_with_get(item_id, 'ref')
         self.assertTrue(db_value == items[0][1])
 
         item_id = r[2][ID_FIELD]
-        db_value = self.compare_post_with_get(item_id, ["ref", "role"])
+        db_value = self.compare_post_with_get(item_id, ['ref', 'role'])
         self.assertTrue(db_value[0] == items[2][1])
         self.assertTrue(db_value[1] == items[2][2])
 
         # items on which validation failed should not be inserted into the db
-        _, status = self.get(self.known_resource_url, "where=prog==7")
+        _, status = self.get(self.known_resource_url, 'where=prog==7')
         self.assert404(status)
 
     def test_post_x_www_form_urlencoded(self):
@@ -168,11 +168,10 @@ class TestPost(TestBase):
         data = {"person": self.unknown_item_id}
         r, status = self.post('/invoices/', data=data)
         self.assert200(status)
-        expected = ("value '%s' for field '%s' must exist in "
-                    "resource '%s', field '%s'" %
-                    (self.unknown_item_id, 'person', 'contacts',
+        expected = ("value '%s' must exist in resource '%s', field '%s'" %
+                    (self.unknown_item_id, 'contacts',
                      self.app.config['ID_FIELD']))
-        self.assertValidationError(r, expected)
+        self.assertValidationError(r, {'person': expected})
 
         data = {"person": self.item_id}
         r, status = self.post('/invoices/', data=data)
@@ -184,7 +183,7 @@ class TestPost(TestBase):
         data = {"unknown": "unknown"}
         r, status = self.post(self.known_resource_url, data=data)
         self.assert200(status)
-        self.assertValidationError(r, "unknown")
+        self.assertValidationError(r, {'unknown': 'unknown'})
         self.app.config['DOMAIN'][self.known_resource]['allow_unknown'] = True
         r, status = self.post(self.known_resource_url, data=data)
         self.assert200(status)
