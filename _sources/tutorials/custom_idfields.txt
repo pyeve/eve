@@ -172,8 +172,8 @@ custom validation):
             try:
                 UUID(value)
             except ValueError:
-                self._error("value '%s' for field '%s' cannot be converted to a "
-                            "UUID" % (value, field))
+                self._error(field, "value '%s' cannot be converted to a UUID" % 
+                            value)
 
 So, our complete code snippet will now look like this:
 
@@ -227,8 +227,8 @@ So, our complete code snippet will now look like this:
             try:
                 UUID(value)
             except ValueError:
-                self._error("value '%s' for field '%s' cannot be converted to a "
-                            "UUID" % (value, field))
+                self._error(field, "value '%s' cannot be converted to a UUID" % 
+                            value)
 
     app = Eve(url_converters=url_converters, json_encoder=UUIDEncoder,
               validator=UUIDValidator)

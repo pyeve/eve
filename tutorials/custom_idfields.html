@@ -210,8 +210,8 @@ custom validation):</p>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">UUID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="s">&quot;value &#39;</span><span class="si">%s</span><span class="s">&#39; for field &#39;</span><span class="si">%s</span><span class="s">&#39; cannot be converted to a &quot;</span>
-                        <span class="s">&quot;UUID&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">field</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s">&quot;value &#39;</span><span class="si">%s</span><span class="s">&#39; cannot be converted to a UUID&quot;</span> <span class="o">%</span>
+                        <span class="n">value</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>So, our complete code snippet will now look like this:</p>
@@ -263,8 +263,8 @@ custom validation):</p>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">UUID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="s">&quot;value &#39;</span><span class="si">%s</span><span class="s">&#39; for field &#39;</span><span class="si">%s</span><span class="s">&#39; cannot be converted to a &quot;</span>
-                        <span class="s">&quot;UUID&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">field</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s">&quot;value &#39;</span><span class="si">%s</span><span class="s">&#39; cannot be converted to a UUID&quot;</span> <span class="o">%</span>
+                        <span class="n">value</span><span class="p">)</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">url_converters</span><span class="o">=</span><span class="n">url_converters</span><span class="p">,</span> <span class="n">json_encoder</span><span class="o">=</span><span class="n">UUIDEncoder</span><span class="p">,</span>
           <span class="n">validator</span><span class="o">=</span><span class="n">UUIDValidator</span><span class="p">)</span>

@@ -586,9 +586,7 @@ request:
     [
         {
             "status": "ERR",
-            "issues": [
-                "value 'romney' for field 'lastname' not unique"
-            ]
+            "issues": {"lastname": "value 'clinton' not unique"}
         },
         {
             "status": "OK",

@@ -73,7 +73,7 @@ request:</p>
 <div class="highlight-javascript"><div class="highlight"><pre><span class="p">[</span>
     <span class="p">{</span>
         <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="s2">&quot;ERR&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;issues&quot;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;value &#39;romney&#39; for field &#39;lastname&#39; not unique&quot;</span><span class="p">]</span>
+        <span class="s2">&quot;issues&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;lastname&quot;</span><span class="o">:</span> <span class="s2">&quot;value &#39;clinton&#39; not unique&quot;</span><span class="p">}</span>
     <span class="p">},</span>
     <span class="p">{</span>
         <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
@@ -105,7 +105,7 @@ that:</p>
 <span class="k">class</span> <span class="nc">MyValidator</span><span class="p">(</span><span class="n">Validator</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">_validate_isodd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isodd</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">isodd</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="n">value</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="s">&quot;Value for field &#39;</span><span class="si">%s</span><span class="s">&#39; must be an odd number&quot;</span> <span class="o">%</span> <span class="n">field</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s">&quot;Value must be an odd number&quot;</span><span class="p">)</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">validator</span><span class="o">=</span><span class="n">MyValidator</span><span class="p">)</span>
 
@@ -117,10 +117,10 @@ that:</p>
 <tt class="docutils literal"><span class="pre">_validate_&lt;rulename&gt;</span></tt> method, you extended the available <a class="reference internal" href="config.html#schema"><em>Schema Definition</em></a>
 grammar and now the new custom rule <tt class="docutils literal"><span class="pre">isodd</span></tt> is available in your schema. You
 can now do something like:</p>
-<div class="highlight-javascript"><div class="highlight"><pre><span class="s1">&#39;schema&#39;</span><span class="o">:</span> <span class="p">{</span>
-    <span class="s1">&#39;oddity&#39;</span><span class="o">:</span> <span class="p">{</span>
-        <span class="s1">&#39;isodd&#39;</span><span class="o">:</span> <span class="nx">True</span><span class="p">,</span>
-        <span class="s1">&#39;type&#39;</span><span class="o">:</span> <span class="s1">&#39;integer&#39;</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&#39;oddity&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;isodd&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;integer&#39;</span>
       <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -140,15 +140,15 @@ code.</p>
 <span class="sd">    :param value: field value.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&#39;[a-f0-9]{24}&#39;</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="n">ERROR_BAD_TYPE</span> <span class="o">%</span> <span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s">&#39;ObjectId&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">ERROR_BAD_TYPE</span> <span class="o">%</span> <span class="s">&#39;ObjectId&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This method enables support for MongoDB <tt class="docutils literal"><span class="pre">ObjectId</span></tt> type in your schema,
 allowing something like this:</p>
-<div class="highlight-javascript"><div class="highlight"><pre><span class="s1">&#39;schema&#39;</span><span class="o">:</span> <span class="p">{</span>
-    <span class="s1">&#39;owner&#39;</span><span class="o">:</span> <span class="p">{</span>
-        <span class="s1">&#39;type&#39;</span><span class="o">:</span> <span class="s1">&#39;objectid&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;required&#39;</span><span class="o">:</span> <span class="nx">True</span><span class="p">,</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&#39;owner&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;objectid&#39;</span><span class="p">,</span>
+        <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">}</span>
 </pre></div>
@@ -171,11 +171,11 @@ normally, while unknown fields will be quietly stored without a glitch. You
 can also enable this feature only for certain endpoints by setting the
 <tt class="docutils literal"><span class="pre">allow_unknown</span></tt> local option.</p>
 <p>Consider the following domain:</p>
-<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">DOMAIN</span><span class="o">:</span> <span class="p">{</span>
-    <span class="s1">&#39;people&#39;</span><span class="o">:</span> <span class="p">{</span>
-        <span class="s1">&#39;allow_unknown&#39;</span><span class="o">:</span> <span class="nx">True</span><span class="p">,</span>
-        <span class="s1">&#39;schema&#39;</span><span class="o">:</span> <span class="p">{</span>
-            <span class="s1">&#39;firstname&#39;</span><span class="o">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="o">:</span> <span class="s1">&#39;string&#39;</span><span class="p">},</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">DOMAIN</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&#39;people&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;allow_unknown&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;firstname&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">},</span>
             <span class="p">}</span>
         <span class="p">}</span>
     <span class="p">}</span>
