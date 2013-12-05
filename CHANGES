@@ -8,6 +8,10 @@ Version 0.3
 
 Not released yet.
 
+- [change] GET: when If-Modified-Since header is present, either no documents
+  (304) or all documents (200) are sent per the HTTP spec. Original behavior
+  can be achieved with: ``/resource?where={"updated":{"$gt":"if-modified-since-date"}}`` (Josh
+  Villbrandt).
 - [change] Validation errors are now reported as a dictionary with offending fields as
   keys and issues descriptions as values.
 - [change] Cerberus v0.5 is now required.
