@@ -18,6 +18,7 @@ from .common import ratelimit, epoch, date_created, last_updated, pre_event
 from eve.auth import requires_auth
 from eve.utils import parse_request, document_etag, document_link, home_link, \
     querydef, config, debug_error_message
+import copy
 
 
 @ratelimit()
@@ -27,6 +28,12 @@ def get(resource, lookup):
     """ Retrieves the resource documents that match the current request.
 
     :param resource: the name of the resource.
+
+    .. versionchanged:: 0.3
+       When If-Modified-Since header is present, either no documents (304) or
+       all documents (200) are sent per the HTTP spec. Original behavior can be
+       achieved with:
+           /resource?where={"updated":{"$gt":"if-modified-since-date"}}
 
     .. versionchanged:: 0.2
        Use the new ITEMS configuration setting.
@@ -65,10 +72,27 @@ def get(resource, lookup):
 
     documents = []
     response = {}
-    last_update = epoch()
-
+    etag = None
     req = parse_request(resource)
-    cursor = app.data.find(resource, req, lookup)
+
+    if req.if_modified_since:
+        # client has made this request before, has it changed?
+        preflight_req = copy.copy(req)
+        preflight_req.max_results = 1
+
+        cursor = app.data.find(resource, preflight_req)
+        if cursor.count() == 0:
+            # the if-modified-since conditional request returned no documents,
+            # we send back a 304 Not-Modified, which means that the client
+            # already has the up-to-date representation of the resultset.
+            status = 304
+            last_modified = None
+            return response, last_modified, etag, status
+
+    # continue processing the full request
+    last_update = epoch()
+    req.if_modified_since = None
+    cursor = app.data.find(resource, req)
 
     for document in cursor:
         document[config.LAST_UPDATED] = last_updated(document)
@@ -88,38 +112,30 @@ def get(resource, lookup):
 
     _resolve_embedded_documents(resource, req, documents)
 
-    if req.if_modified_since and len(documents) == 0:
-        # the if-modified-since conditional request returned no documents, we
-        # send back a 304 Not-Modified, which means that the client already
-        # has the up-to-date representation of the resultset.
-        status = 304
-        last_modified = None
+    status = 200
+    last_modified = last_update if last_update > epoch() else None
+
+    # notify registered callback functions. Please note that, should the
+    # functions modify the documents, the last_modified and etag won't be
+    # updated to reflect the changes (they always reflect the documents
+    # state on the database.)
+
+    getattr(app, "on_fetch_resource")(resource, documents)
+    getattr(app, "on_fetch_resource_%s" % resource)(documents)
+
+    if config.DOMAIN[resource]['hateoas']:
+        response[config.ITEMS] = documents
+        response[config.LINKS] = _pagination_links(resource, req,
+                                                   cursor.count())
     else:
-        status = 200
-        last_modified = last_update if last_update > epoch() else None
+        response = documents
 
-        # notify registered callback functions. Please note that, should the
-        # functions modify the documents, the last_modified and etag won't be
-        # updated to reflect the changes (they always reflect the documents
-        # state on the database.)
+    # the 'extra' cursor field, if present, will be added to the response.
+    # Can be used by Eve extensions to add extra, custom data to any
+    # response.
+    if hasattr(cursor, 'extra'):
+        getattr(cursor, 'extra')(response)
 
-        getattr(app, "on_fetch_resource")(resource, documents)
-        getattr(app, "on_fetch_resource_%s" % resource)(documents)
-
-        if config.DOMAIN[resource]['hateoas']:
-            response[config.ITEMS] = documents
-            response[config.LINKS] = _pagination_links(resource, req,
-                                                       cursor.count())
-        else:
-            response = documents
-
-        # the 'extra' cursor field, if present, will be added to the response.
-        # Can be used by Eve extensions to add extra, custom data to any
-        # response.
-        if hasattr(cursor, 'extra'):
-            getattr(cursor, 'extra')(response)
-
-    etag = None
     return response, last_modified, etag, status
 
 
