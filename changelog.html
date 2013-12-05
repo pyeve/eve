@@ -61,6 +61,10 @@
 <h2>Version 0.3<a class="headerlink" href="#version-0-3" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[change] GET: when If-Modified-Since header is present, either no documents
+(304) or all documents (200) are sent per the HTTP spec. Original behavior
+can be achieved with: <tt class="docutils literal"><span class="pre">/resource?where={&quot;updated&quot;:{&quot;$gt&quot;:&quot;if-modified-since-date&quot;}}</span></tt> (Josh
+Villbrandt).</li>
 <li>[change] Validation errors are now reported as a dictionary with offending fields as
 keys and issues descriptions as values.</li>
 <li>[change] Cerberus v0.5 is now required.</li>
