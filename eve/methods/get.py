@@ -80,7 +80,7 @@ def get(resource, lookup):
         preflight_req = copy.copy(req)
         preflight_req.max_results = 1
 
-        cursor = app.data.find(resource, preflight_req)
+        cursor = app.data.find(resource, preflight_req, lookup)
         if cursor.count() == 0:
             # the if-modified-since conditional request returned no documents,
             # we send back a 304 Not-Modified, which means that the client
@@ -92,7 +92,7 @@ def get(resource, lookup):
     # continue processing the full request
     last_update = epoch()
     req.if_modified_since = None
-    cursor = app.data.find(resource, req)
+    cursor = app.data.find(resource, req, lookup)
 
     for document in cursor:
         document[config.LAST_UPDATED] = last_updated(document)
