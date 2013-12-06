@@ -18,7 +18,6 @@ from flask import abort
 from flask.ext.pymongo import PyMongo
 from bson import ObjectId
 from datetime import datetime
-from eve import ID_FIELD
 from eve.io.mongo.parser import parse, ParseError
 from eve.io.base import DataLayer, ConnectionException, BaseJSONEncoder
 from eve.utils import config, debug_error_message, validate_filters, \
@@ -190,6 +189,9 @@ class Mongo(DataLayer):
         :param resource: resource name.
         :param **lookup: lookup query.
 
+        .. versionchanged:: 0.3.0
+           Custom ID_FIELD lookups would raise an exception. See #203.
+
         .. versionchanged:: 0.1.0
            ID_FIELD to ObjectID conversion is done before `_datasource_ex` is
            called.
@@ -202,7 +204,7 @@ class Mongo(DataLayer):
         """
         if config.ID_FIELD in lookup:
             try:
-                lookup[ID_FIELD] = ObjectId(lookup[ID_FIELD])
+                lookup[config.ID_FIELD] = ObjectId(lookup[config.ID_FIELD])
             except (InvalidId, TypeError):
                 # Returns a type error when {'_id': {...}}
                 pass
@@ -292,8 +294,11 @@ class Mongo(DataLayer):
     def update(self, resource, id_, updates):
         """ Updates a collection document.
 
+        .. versionchanged:: 0.3.0
+           Custom ID_FIELD lookups would fail. See #203.
+
         .. versionchanged:: 0.2
-           Don't explicitly converto ID_FIELD to ObjectId anymore, so we can
+           Don't explicitly convert ID_FIELD to ObjectId anymore, so we can
            also process different types (UUIDs etc).
 
         .. versionchanged:: 0.0.9
@@ -308,8 +313,8 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
-        datasource, filter_, _, _ = self._datasource_ex(resource, {ID_FIELD:
-                                                                   id_})
+        datasource, filter_, _, _ = self._datasource_ex(resource,
+                                                        {config.ID_FIELD: id_})
 
         # TODO consider using find_and_modify() instead. The document might
         # have changed since the ETag was computed. This would require getting
@@ -326,14 +331,17 @@ class Mongo(DataLayer):
     def replace(self, resource, id_, document):
         """ Replaces an existing document.
 
+        .. versionchanged:: 0.3.0
+           Custom ID_FIELD lookups would fail. See #203.
+
         .. versionchanged:: 0.2
            Don't explicitly converto ID_FIELD to ObjectId anymore, so we can
            also process different types (UUIDs etc).
 
         .. versionadded:: 0.1.0
         """
-        datasource, filter_, _, _ = self._datasource_ex(resource, {ID_FIELD:
-                                                                   id_})
+        datasource, filter_, _, _ = self._datasource_ex(resource,
+                                                        {config.ID_FIELD: id_})
 
         # TODO consider using find_and_modify() instead. The document might
         # have changed since the ETag was computed. This would require getting
@@ -370,7 +378,7 @@ class Mongo(DataLayer):
         .. versionadded:: 0.0.2
             Support for deletion of entire documents collection.
         """
-        query = {ID_FIELD: id_} if id_ else None
+        query = {config.ID_FIELD: id_} if id_ else None
         datasource, filter_, _, _ = self._datasource_ex(resource, query)
         try:
             self.driver.db[datasource].remove(filter_, **self._wc(resource))
