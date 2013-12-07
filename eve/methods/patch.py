@@ -33,6 +33,7 @@ def patch(resource, **lookup):
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.3
+       When IF_MATCH is disabled, no etag is included in the payload.
        Support for new validation format introduced with Cerberus v0.5.
 
     .. versionchanged:: 0.2
@@ -101,15 +102,14 @@ def patch(resource, **lookup):
             # some datetime precision magic
             updates[config.LAST_UPDATED] = original[config.LAST_UPDATED] = \
                 datetime.utcnow().replace(microsecond=0)
-            etag = document_etag(original)
-
             app.data.update(resource, object_id, updates)
             response[config.ID_FIELD] = object_id
             last_modified = response[config.LAST_UPDATED] = \
                 original[config.LAST_UPDATED]
 
             # metadata
-            response['etag'] = etag
+            if config.IF_MATCH:
+                etag = response['etag'] = document_etag(original)
             if resource_def['hateoas']:
                 response[config.LINKS] = {'self': document_link(resource,
                                                                 object_id)}

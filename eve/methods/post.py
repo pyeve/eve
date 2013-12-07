@@ -44,6 +44,7 @@ def post(resource, payl=None):
                  discussion, and a typical use case.
 
     .. versionchanged:: 0.3
+       When IF_MATCH is disabled, no etag is included in the payload.
        Support for new validation format introduced with Cerberus v0.5.
 
     .. versionchanged:: 0.2
@@ -171,7 +172,8 @@ def post(resource, payl=None):
             response_item[config.ID_FIELD] = ids.pop(0)
             document = documents.pop(0)
             response_item[config.LAST_UPDATED] = document[config.LAST_UPDATED]
-            response_item['etag'] = document_etag(document)
+            if config.IF_MATCH:
+                response_item['etag'] = document_etag(document)
             if resource_def['hateoas']:
                 response_item[config.LINKS] = \
                     {'self': document_link(resource,

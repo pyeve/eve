@@ -33,6 +33,7 @@ def put(resource, **lookup):
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.3
+       When IF_MATCH is disabled, no etag is included in the payload.
        Support for new validation format introduced with Cerberus v0.5.
 
     .. versionchanged:: 0.2
@@ -87,8 +88,6 @@ def put(resource, **lookup):
                     document[auth_field] = request_auth_value
             resolve_default_values(document, resource)
 
-            etag = document_etag(document)
-
             # notify callbacks
             getattr(app, "on_insert")(resource, [document])
             getattr(app, "on_insert_%s" % resource)([document])
@@ -99,7 +98,8 @@ def put(resource, **lookup):
             response[config.LAST_UPDATED] = last_modified
 
             # metadata
-            response['etag'] = etag
+            if config.IF_MATCH:
+                etag = response['etag'] = document_etag(document)
             if resource_def['hateoas']:
                 response[config.LINKS] = {'self': document_link(resource,
                                                                 object_id)}

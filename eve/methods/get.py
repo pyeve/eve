@@ -30,6 +30,7 @@ def get(resource, lookup):
     :param resource: the name of the resource.
 
     .. versionchanged:: 0.3
+       When IF_MATCH is disabled, no etag is included in the payload.
        When If-Modified-Since header is present, either no documents (304) or
        all documents (200) are sent per the HTTP spec. Original behavior can be
        achieved with:
@@ -102,7 +103,9 @@ def get(resource, lookup):
             last_update = document[config.LAST_UPDATED]
 
         # document metadata
-        document['etag'] = document_etag(document)
+        if config.IF_MATCH:
+            document['etag'] = document_etag(document)
+
         if config.DOMAIN[resource]['hateoas']:
             document[config.LINKS] = {'self':
                                       document_link(resource,
@@ -147,6 +150,9 @@ def getitem(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
 
+    .. versionchanged:: 0.3
+       When IF_MATCH is disabled, no etag is included in the payload.
+
     .. versionchanged:: 0.1.1
        Support for Embeded Resource Serialization.
 
@@ -188,12 +194,15 @@ def getitem(resource, **lookup):
         # been used in the collection 'get' method
         last_modified = document[config.LAST_UPDATED] = last_updated(document)
         document[config.DATE_CREATED] = date_created(document)
-        document['etag'] = document_etag(document)
 
-        if req.if_none_match and document['etag'] == req.if_none_match:
-            # request etag matches the current server representation of the
-            # document, return a 304 Not-Modified.
-            return response, last_modified, document['etag'], 304
+        etag = None
+        if config.IF_MATCH:
+            etag = document['etag'] = document_etag(document)
+
+            if req.if_none_match and document['etag'] == req.if_none_match:
+                # request etag matches the current server representation of the
+                # document, return a 304 Not-Modified.
+                return response, last_modified, etag, 304
 
         if req.if_modified_since and last_modified <= req.if_modified_since:
             # request If-Modified-Since conditional request match. We test
@@ -224,7 +233,7 @@ def getitem(resource, **lookup):
                 item_title)(document[config.ID_FIELD], document)
 
         response.update(document)
-        return response, last_modified, document['etag'], 200
+        return response, last_modified, etag, 200
 
     abort(404)
 

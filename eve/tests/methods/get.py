@@ -493,6 +493,15 @@ class TestGet(TestBase):
         # which links to the right contact
         self.assertEqual(response['_items'][0]['person'], str(fake_contact_id))
 
+    def test_get_ifmatch_disabled(self):
+        # when IF_MATCH is disabled no etag is present in payload
+        self.app.config['IF_MATCH'] = False
+        response, status = self.get(self.known_resource)
+        resource = response['_items']
+
+        for r in resource:
+            self.assertTrue('etag' not in r)
+
 
 class TestGetItem(TestBase):
 
@@ -695,6 +704,12 @@ class TestGetItem(TestBase):
         self.assert200(status)
         self.assertEqual(response['person'], str(fake_contact_id))
         self.assertEqual(response['_id'], self.invoice_id)
+
+    def test_getitem_ifmatch_disabled(self):
+        # when IF_MATCH is disabled no etag is present in payload
+        self.app.config['IF_MATCH'] = False
+        response, _ = self.get(self.known_resource, item=self.item_id)
+        self.assertTrue('etag' not in response)
 
 
 class TestHead(TestBase):
