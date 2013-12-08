@@ -338,10 +338,8 @@ uppercase.
                                 to ``_links``.
 
 ``IF_MATCH``                    ``True`` to enable concurrency control, ``False``
-                                otherwise. Defaults to ``True``. You should be
-                                careful about disabling this feature, as you
-                                would effectively open your API to the risk of
-                                older versions replacing your documents.
+                                otherwise. Defaults to ``True``. See
+                                :ref:`concurrency`.
 
 ``MONGO_HOST``                  MongoDB server address. Defaults to ``localhost``.
 

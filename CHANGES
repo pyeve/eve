@@ -8,8 +8,8 @@ Version 0.3
 
 Not released yet.
 
-- [change] Exclude ``etag`` from payload when concurrency control
-  (``IF_MATCH``) is disabled. Closes #205.
+- [change] Exclude ``etag`` from both response payload and headers if
+  concurrency control is disabled (``IF_MATCH`` = ``False``). Closes #205.
 - [fix] Custom ``ID_FIELD`` would fail on update/insert methods. Fixes #203.
 - [change] GET: when If-Modified-Since header is present, either no documents
   (304) or all documents (200) are sent per the HTTP spec. Original behavior
