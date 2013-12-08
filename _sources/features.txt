@@ -448,6 +448,8 @@ or the ``If-None-Match`` header:
     HTTP/1.1 200 OK
 
 
+.. _concurrency:
+
 Data Integrity and Concurrency Control
 --------------------------------------
 API responses include a ``ETag`` header which also allows for proper
@@ -502,7 +504,8 @@ Concurrency control applies to all document edition methods: ``PATCH`` (edit),
 
 If your use case requires, you can opt to completely disable concurrency
 control. ETag match checks can be disabled by setting the ``IF_MATCH``
-configuration variable to ``False`` (see :ref:`global`). You should be careful
+configuration variable to ``False`` (see :ref:`global`). When concurrency
+control is disabled no etag is provided with responses. You should be careful
 about disabling this feature, as you would effectively open your API to the
 risk of older versions replacing your documents.
 

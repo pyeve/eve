@@ -61,12 +61,16 @@
 <h2>Version 0.3<a class="headerlink" href="#version-0-3" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[change] Exclude <tt class="docutils literal"><span class="pre">etag</span></tt> from both response payload and headers if
+concurrency control is disabled (<tt class="docutils literal"><span class="pre">IF_MATCH</span></tt> = <tt class="docutils literal"><span class="pre">False</span></tt>). Closes #205.</li>
+<li>[fix] Custom <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> would fail on update/insert methods. Fixes #203.</li>
 <li>[change] GET: when If-Modified-Since header is present, either no documents
 (304) or all documents (200) are sent per the HTTP spec. Original behavior
-can be achieved with: <tt class="docutils literal"><span class="pre">/resource?where={&quot;updated&quot;:{&quot;$gt&quot;:&quot;if-modified-since-date&quot;}}</span></tt> (Josh
+can be achieved with:
+<tt class="docutils literal"><span class="pre">/resource?where={&quot;updated&quot;:{&quot;$gt&quot;:&quot;if-modified-since-date&quot;}}</span></tt> (Josh
 Villbrandt).</li>
-<li>[change] Validation errors are now reported as a dictionary with offending fields as
-keys and issues descriptions as values.</li>
+<li>[change] Validation errors are now reported as a dictionary with offending
+fields as keys and issues descriptions as values.</li>
 <li>[change] Cerberus v0.5 is now required.</li>
 </ul>
 </div>
@@ -509,7 +513,7 @@ tags which also caused XML validation issues when processing responses
 <li>Version number in &#8216;Server&#8217; response headers.</li>
 <li>Added support for DELETE at resource endpoints. Expected behavior:
 will delete all items in the collection. Disabled by default.</li>
-<li><tt class="xref py py-class docutils literal"><span class="pre">eve.io.mongo.Validator</span></tt> now supports <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#cerberus.Validator" title="(in Cerberus v0.4.1)"><tt class="xref py py-class docutils literal"><span class="pre">Validator</span></tt></a>
+<li><tt class="xref py py-class docutils literal"><span class="pre">eve.io.mongo.Validator</span></tt> now supports <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#cerberus.Validator" title="(in Cerberus v0.5)"><tt class="xref py py-class docutils literal"><span class="pre">Validator</span></tt></a>
 signature, allowing for further subclassing.</li>
 </ul>
 </div>

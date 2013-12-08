@@ -473,7 +473,7 @@ conditional requests, only retrieving new or modified data, by using the
 </div>
 </div>
 <div class="section" id="data-integrity-and-concurrency-control">
-<h2>Data Integrity and Concurrency Control<a class="headerlink" href="#data-integrity-and-concurrency-control" title="Permalink to this headline">¶</a></h2>
+<span id="concurrency"></span><h2>Data Integrity and Concurrency Control<a class="headerlink" href="#data-integrity-and-concurrency-control" title="Permalink to this headline">¶</a></h2>
 <p>API responses include a <tt class="docutils literal"><span class="pre">ETag</span></tt> header which also allows for proper
 concurrency control. An <tt class="docutils literal"><span class="pre">ETag</span></tt> is a hash value representing the current
 state of the resource on the server. Consumers are not allowed to edit or
@@ -515,7 +515,8 @@ subsequent <a class="reference internal" href="#id1">conditional requests</a>.</
 <tt class="docutils literal"><span class="pre">PUT</span></tt> (replace), <tt class="docutils literal"><span class="pre">DELETE</span></tt> (delete).</p>
 <p>If your use case requires, you can opt to completely disable concurrency
 control. ETag match checks can be disabled by setting the <tt class="docutils literal"><span class="pre">IF_MATCH</span></tt>
-configuration variable to <tt class="docutils literal"><span class="pre">False</span></tt> (see <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a>). You should be careful
+configuration variable to <tt class="docutils literal"><span class="pre">False</span></tt> (see <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a>). When concurrency
+control is disabled no etag is provided with responses. You should be careful
 about disabling this feature, as you would effectively open your API to the
 risk of older versions replacing your documents.</p>
 </div>
