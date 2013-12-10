@@ -228,11 +228,11 @@ def getitem(resource, **lookup):
         # updated to reflect the changes (they always reflect the documents
         # state on the database).
         item_title = config.DOMAIN[resource]['item_title'].lower()
+        id_field = document[config.ID_FIELD]
+        etag = document['etag']
 
-        getattr(app, "on_fetch_item")(resource, document[config.ID_FIELD],
-                                      document)
-        getattr(app, "on_fetch_item_%s" %
-                item_title)(document[config.ID_FIELD], document)
+        getattr(app, "on_fetch_item")(resource, id_field, document)
+        getattr(app, "on_fetch_item_%s" % item_title)(id_field, document)
 
         response.update(document)
         return response, last_modified, etag, 200
