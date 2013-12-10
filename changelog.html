@@ -70,7 +70,8 @@ above).</li>
 <li>[change] <tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt> defaults to &#8216;_updated&#8217;.</li>
 <li>[change] Exclude <tt class="docutils literal"><span class="pre">etag</span></tt> from both response payload and headers if
 concurrency control is disabled (<tt class="docutils literal"><span class="pre">IF_MATCH</span></tt> = <tt class="docutils literal"><span class="pre">False</span></tt>). Closes #205.</li>
-<li>[fix] Custom <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> would fail on update/insert methods. Fixes #203.</li>
+<li>[fix] Custom <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> would fail on update/insert methods. Fixes #203
+(Jaroslav Semančík).</li>
 <li>[change] GET: when If-Modified-Since header is present, either no documents
 (304) or all documents (200) are sent per the HTTP spec. Original behavior
 can be achieved with:
