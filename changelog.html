@@ -61,6 +61,13 @@
 <h2>Version 0.3<a class="headerlink" href="#version-0-3" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[new] <tt class="docutils literal"><span class="pre">ETAG</span></tt> allows to customize the etag field. Defaults to <tt class="docutils literal"><span class="pre">_etag</span></tt>.</li>
+<li>[change] <tt class="docutils literal"><span class="pre">etag</span></tt> is now <tt class="docutils literal"><span class="pre">_etag</span></tt> in all default response payloads (see
+above).</li>
+<li>[change] <tt class="docutils literal"><span class="pre">STATUS</span></tt> defaults to &#8216;_status&#8217;.</li>
+<li>[change] <tt class="docutils literal"><span class="pre">ISSUES</span></tt> defaults to &#8216;_issues&#8217;.</li>
+<li>[change] <tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt> defaults to &#8216;_created&#8217;.</li>
+<li>[change] <tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt> defaults to &#8216;_updated&#8217;.</li>
 <li>[change] Exclude <tt class="docutils literal"><span class="pre">etag</span></tt> from both response payload and headers if
 concurrency control is disabled (<tt class="docutils literal"><span class="pre">IF_MATCH</span></tt> = <tt class="docutils literal"><span class="pre">False</span></tt>). Closes #205.</li>
 <li>[fix] Custom <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> would fail on update/insert methods. Fixes #203.</li>

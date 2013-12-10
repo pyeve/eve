@@ -64,9 +64,9 @@ The response payload will look something like this:
                 "role": ["copy", "author"], 
                 "location": {"city": "New York", "address": "4925 Lacross Road"}, 
                 "_id": "50bf198338345b1c604faf31",
-                "updated": "Wed, 05 Dec 2012 09:53:07 GMT", 
-                "created": "Wed, 05 Dec 2012 09:53:07 GMT", 
-                "etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d", 
+                "_updated": "Wed, 05 Dec 2012 09:53:07 GMT", 
+                "_created": "Wed, 05 Dec 2012 09:53:07 GMT", 
+                "_etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d", 
                 "_links": {
                     "self": {"href": "eve-demo.herokuapp.com:5000/people/50bf198338345b1c604faf31", "title": "person"},
                 },
@@ -83,14 +83,14 @@ The response payload will look something like this:
 The ``_items`` list contains the requested data. Along with its own fields,
 each item provides some important, additional fields:
 
-=========== =================================================================
-Field       Description
-=========== =================================================================
-``created`` item creation date.
-``updated`` item last updated on.
-``etag``    ETag, to be used for concurrency control and conditional requests. 
-``_id``     unique item key, also needed to access the individual item endpoint.
-=========== =================================================================
+============ =================================================================
+Field        Description
+============ =================================================================
+``_created`` item creation date.
+``_updated`` item last updated on.
+``_etag``    ETag, to be used for concurrency control and conditional requests. 
+``_id``      unique item key, also needed to access the individual item endpoint.
+============ =================================================================
 
 These additional fields are automatically handled by the API (clients don't
 need to provide them when adding/editing resources).
@@ -209,9 +209,9 @@ look something like this:
         "role": ["author"],
         "location": {"city": "Auburn", "address": "422 South Gay Street"},
         "_id": "50acfba938345b0978fccad7"
-        "updated": "Wed, 21 Nov 2012 16:04:56 GMT",
-        "created": "Wed, 21 Nov 2012 16:04:56 GMT",
-        "etag": "28995829ee85d69c4c18d597a0f68ae606a266cc",
+        "_updated": "Wed, 21 Nov 2012 16:04:56 GMT",
+        "_created": "Wed, 21 Nov 2012 16:04:56 GMT",
+        "_etag": "28995829ee85d69c4c18d597a0f68ae606a266cc",
         "_links": {
             "self": {"href": "eve-demo.herokuapp.com/people/50acfba938345b0978fccad7", "title": "person"},
             "parent": {"href": "eve-demo.herokuapp.com", "title": "home"},
@@ -364,9 +364,9 @@ a simple list of items:
             "role": ["copy", "author"], 
             "location": {"city": "New York", "address": "4925 Lacross Road"}, 
             "_id": "50bf198338345b1c604faf31",
-            "updated": "Wed, 05 Dec 2012 09:53:07 GMT", 
-            "created": "Wed, 05 Dec 2012 09:53:07 GMT", 
-            "etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d", 
+            "_updated": "Wed, 05 Dec 2012 09:53:07 GMT", 
+            "_created": "Wed, 05 Dec 2012 09:53:07 GMT", 
+            "_etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d", 
         },
         {
             "firstname": "John", 
@@ -388,9 +388,9 @@ same happens to individual item payloads:
         "lastname": "obama",
         "_id": "522f01dc15b4fc00028e6d98",
         "firstname": "barack",
-        "created": "Tue, 10 Sep 2013 11:26:20 GMT",
-        "etag": "206fb4a39815cc0ebf48b2b52d709777a55333de",
-        "updated": "Tue, 10 Sep 2013 11:26:20 GMT"
+        "_created": "Tue, 10 Sep 2013 11:26:20 GMT",
+        "_etag": "206fb4a39815cc0ebf48b2b52d709777a55333de",
+        "_updated": "Tue, 10 Sep 2013 11:26:20 GMT"
     }
 
 Why would you want to turn HATEOAS off? Well, if you know that your client
@@ -488,15 +488,15 @@ It's a win, and the response payload looks something like this:
 .. code-block:: javascript
 
     {
-        "status": "OK",
-        "updated": "Fri, 23 Nov 2012 08:11:19 GMT",
+        "_status": "OK",
+        "_updated": "Fri, 23 Nov 2012 08:11:19 GMT",
         "_id": "50adfa4038345b1049c88a37",
-        "etag": "372fbbebf54dfe61742556f17a8461ca9a6f5a11"
+        "_etag": "372fbbebf54dfe61742556f17a8461ca9a6f5a11"
         "_links": {"self": "..."}
     }
 
 This time we got our patch in, and the server returned the new ``ETag``.  We
-also get the new ``updated`` value, which eventually will allow us to perform
+also get the new ``_updated`` value, which eventually will allow us to perform
 subsequent `conditional requests`_.
 
 Concurrency control applies to all document edition methods: ``PATCH`` (edit),
@@ -524,10 +524,10 @@ metadata:
 .. code-block:: javascript
 
     {
-        "status": "OK",
-        "updated": "Thu, 22 Nov 2012 15:22:27 GMT",
+        "_status": "OK",
+        "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
         "_id": "50ae43339fa12500024def5b",
-        "etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
+        "_etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
         "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b", "title": "person"}}
     }
 
@@ -546,17 +546,17 @@ The response will be a list itself, with the state of each document:
 
     [
         {
-            "status": "OK",
-            "updated": "Thu, 22 Nov 2012 15:22:27 GMT",
+            "_status": "OK",
+            "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
             "_id": "50ae43339fa12500024def5b",
-            "etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
+            "_etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
             "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b", "title": "person"}}
         },
         {
-            "status": "OK",
-            "updated": "Thu, 22 Nov 2012 15:22:27 GMT",
+            "_status": "OK",
+            "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
             "_id": "50ae43339fa12500024def5c",
-            "etag": "62d356f623c7d9dc864ffa5facc47dced4ba6907"
+            "_etag": "62d356f623c7d9dc864ffa5facc47dced4ba6907"
             "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5c", "title": "person"}}
         }
     ]
@@ -588,12 +588,12 @@ request:
 
     [
         {
-            "status": "ERR",
-            "issues": {"lastname": "value 'clinton' not unique"}
+            "_status": "ERR",
+            "_issues": {"lastname": "value 'clinton' not unique"}
         },
         {
-            "status": "OK",
-            "updated": "Thu, 22 Nov 2012 15:29:08 GMT",
+            "_status": "OK",
+            "_updated": "Thu, 22 Nov 2012 15:29:08 GMT",
             "_id": "50ae44c49fa12500024def5d",
             "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d", "title": "person"}}
         }

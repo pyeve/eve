@@ -289,12 +289,12 @@ Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</td
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt></td>
 <td>Name of the field used to record a document&#8217;s
 last update date. This field is automatically
-handled by Eve. Defaults to <tt class="docutils literal"><span class="pre">updated</span></tt>.</td>
+handled by Eve. Defaults to <tt class="docutils literal"><span class="pre">_updated</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt></td>
 <td>Name for the field used to record a document
 creation date. This field is automatically
-handled by Eve. Defaults to <tt class="docutils literal"><span class="pre">created</span></tt>.</td>
+handled by Eve. Defaults to <tt class="docutils literal"><span class="pre">_created</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">ID_FIELD</span></tt></td>
 <td>Name of the field used to uniquely identify
@@ -357,7 +357,7 @@ by resource settings. Defaults to <tt class="docutils literal"><span class="pre"
 document fields that should be provided with
 every POST response. Normally only
 automatically handled fields (<tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>,
-<tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt>, <tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt>, <tt class="docutils literal"><span class="pre">etag</span></tt>)
+<tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt>, <tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt>, <tt class="docutils literal"><span class="pre">ETAG</span></tt>)
 are included in response payloads. Can be
 overridden by resource settings. Defaults to
 <tt class="docutils literal"><span class="pre">[]</span></tt>, effectively disabling the feature.</td>
@@ -408,11 +408,11 @@ otherwise.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">ISSUES</span></tt></td>
 <td>Allows to customize the issues field. Defaults
-to <tt class="docutils literal"><span class="pre">issues</span></tt>.</td>
+to <tt class="docutils literal"><span class="pre">_issues</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">STATUS</span></tt></td>
 <td>Allows to customize the status field. Defaults
-to <tt class="docutils literal"><span class="pre">status</span></tt>.</td>
+to <tt class="docutils literal"><span class="pre">_status</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">STATUS_OK</span></tt></td>
 <td>Status message returned when data validation is
@@ -430,27 +430,31 @@ to <tt class="docutils literal"><span class="pre">_items</span></tt>.</td>
 <td>Allows to customize the links field. Defaults
 to <tt class="docutils literal"><span class="pre">_links</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">IF_MATCH</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ETAG</span></tt></td>
+<td>Allows to customize the etag field. Defaults
+to <tt class="docutils literal"><span class="pre">_etag</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">IF_MATCH</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> to enable concurrency control, <tt class="docutils literal"><span class="pre">False</span></tt>
 otherwise. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>. See
 <a class="reference internal" href="features.html#concurrency"><em>Data Integrity and Concurrency Control</em></a>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt></td>
 <td>MongoDB server address. Defaults to <tt class="docutils literal"><span class="pre">localhost</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_PORT</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_PORT</span></tt></td>
 <td>MongoDB port. Defaults to <tt class="docutils literal"><span class="pre">27017</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_USERNAME</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_USERNAME</span></tt></td>
 <td>MongoDB user name.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_PASSWORD</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_PASSWORD</span></tt></td>
 <td>MongoDB password.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt></td>
 <td>MongoDB database name.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_QUERY_BLACKLIST</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_QUERY_BLACKLIST</span></tt></td>
 <td><p class="first">A list of Mongo query operators that are not
 allowed to be used in resource filters
 (<tt class="docutils literal"><span class="pre">?where=</span></tt>). Defaults to <tt class="docutils literal"><span class="pre">['$where',</span>
@@ -462,7 +466,7 @@ to be slow and generally can be easily replaced
 with the (very rich) Mongo query dialect.</p>
 </td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></tt></td>
 <td><p class="first">A dictionary defining MongoDB write concern
 settings. All standard write concern settings
 (w, wtimeout, j, fsync) are supported. Defaults
@@ -480,7 +484,7 @@ collection) level. See <tt class="docutils literal"><span class="pre">mongo_writ
 below.</p>
 </td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
 <td>A dict holding the API domain definition.
 See <a class="reference internal" href="#domain-configuration">Domain Configuration</a>.</td>
 </tr>
@@ -680,7 +684,7 @@ information. Defaults to <tt class="docutils literal"><span class="pre">False</s
 document fields that should be provided with
 every POST response. Normally only
 automatically handled fields (<tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>,
-<tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt>, <tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt>, <tt class="docutils literal"><span class="pre">etag</span></tt>)
+<tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt>, <tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt>, <tt class="docutils literal"><span class="pre">ETAG</span></tt>)
 are included in response payloads. Overrides
 <tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt>.</td>
 </tr>

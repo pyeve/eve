@@ -141,9 +141,9 @@ can customize the URIs though, so the API endpoint could become, say,
             <span class="s2">&quot;role&quot;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;copy&quot;</span><span class="p">,</span> <span class="s2">&quot;author&quot;</span><span class="p">],</span>
             <span class="s2">&quot;location&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;city&quot;</span><span class="o">:</span> <span class="s2">&quot;New York&quot;</span><span class="p">,</span> <span class="s2">&quot;address&quot;</span><span class="o">:</span> <span class="s2">&quot;4925 Lacross Road&quot;</span><span class="p">},</span>
             <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50bf198338345b1c604faf31&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 05 Dec 2012 09:53:07 GMT&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 05 Dec 2012 09:53:07 GMT&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;etag&quot;</span><span class="o">:</span> <span class="s2">&quot;ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 05 Dec 2012 09:53:07 GMT&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_created&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 05 Dec 2012 09:53:07 GMT&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_etag&quot;</span><span class="o">:</span> <span class="s2">&quot;ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d&quot;</span><span class="p">,</span>
             <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span>
                 <span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com:5000/people/50bf198338345b1c604faf31&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">},</span>
             <span class="p">},</span>
@@ -161,8 +161,8 @@ can customize the URIs though, so the API endpoint could become, say,
 each item provides some important, additional fields:</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="14%" />
-<col width="86%" />
+<col width="15%" />
+<col width="85%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Field</th>
@@ -170,13 +170,13 @@ each item provides some important, additional fields:</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">created</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">_created</span></tt></td>
 <td>item creation date.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">updated</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">_updated</span></tt></td>
 <td>item last updated on.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">etag</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">_etag</span></tt></td>
 <td>ETag, to be used for concurrency control and conditional requests.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">_id</span></tt></td>
@@ -266,9 +266,9 @@ look something like this:</p>
     <span class="s2">&quot;role&quot;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;author&quot;</span><span class="p">],</span>
     <span class="s2">&quot;location&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;city&quot;</span><span class="o">:</span> <span class="s2">&quot;Auburn&quot;</span><span class="p">,</span> <span class="s2">&quot;address&quot;</span><span class="o">:</span> <span class="s2">&quot;422 South Gay Street&quot;</span><span class="p">},</span>
     <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50acfba938345b0978fccad7&quot;</span>
-    <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 21 Nov 2012 16:04:56 GMT&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 21 Nov 2012 16:04:56 GMT&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;etag&quot;</span><span class="o">:</span> <span class="s2">&quot;28995829ee85d69c4c18d597a0f68ae606a266cc&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 21 Nov 2012 16:04:56 GMT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_created&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 21 Nov 2012 16:04:56 GMT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_etag&quot;</span><span class="o">:</span> <span class="s2">&quot;28995829ee85d69c4c18d597a0f68ae606a266cc&quot;</span><span class="p">,</span>
     <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span>
         <span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com/people/50acfba938345b0978fccad7&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">},</span>
         <span class="s2">&quot;parent&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;home&quot;</span><span class="p">},</span>
@@ -397,9 +397,9 @@ a simple list of items:</p>
         <span class="s2">&quot;role&quot;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;copy&quot;</span><span class="p">,</span> <span class="s2">&quot;author&quot;</span><span class="p">],</span>
         <span class="s2">&quot;location&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;city&quot;</span><span class="o">:</span> <span class="s2">&quot;New York&quot;</span><span class="p">,</span> <span class="s2">&quot;address&quot;</span><span class="o">:</span> <span class="s2">&quot;4925 Lacross Road&quot;</span><span class="p">},</span>
         <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50bf198338345b1c604faf31&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 05 Dec 2012 09:53:07 GMT&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 05 Dec 2012 09:53:07 GMT&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;etag&quot;</span><span class="o">:</span> <span class="s2">&quot;ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 05 Dec 2012 09:53:07 GMT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_created&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 05 Dec 2012 09:53:07 GMT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_etag&quot;</span><span class="o">:</span> <span class="s2">&quot;ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="p">{</span>
         <span class="s2">&quot;firstname&quot;</span><span class="o">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span>
@@ -418,9 +418,9 @@ same happens to individual item payloads:</p>
     <span class="s2">&quot;lastname&quot;</span><span class="o">:</span> <span class="s2">&quot;obama&quot;</span><span class="p">,</span>
     <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;522f01dc15b4fc00028e6d98&quot;</span><span class="p">,</span>
     <span class="s2">&quot;firstname&quot;</span><span class="o">:</span> <span class="s2">&quot;barack&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;Tue, 10 Sep 2013 11:26:20 GMT&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;etag&quot;</span><span class="o">:</span> <span class="s2">&quot;206fb4a39815cc0ebf48b2b52d709777a55333de&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Tue, 10 Sep 2013 11:26:20 GMT&quot;</span>
+    <span class="s2">&quot;_created&quot;</span><span class="o">:</span> <span class="s2">&quot;Tue, 10 Sep 2013 11:26:20 GMT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_etag&quot;</span><span class="o">:</span> <span class="s2">&quot;206fb4a39815cc0ebf48b2b52d709777a55333de&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Tue, 10 Sep 2013 11:26:20 GMT&quot;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -500,16 +500,16 @@ currently stored on the server, so we got a <tt class="docutils literal"><span c
 </div>
 <p>It&#8217;s a win, and the response payload looks something like this:</p>
 <div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
-    <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Fri, 23 Nov 2012 08:11:19 GMT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_status&quot;</span><span class="o">:</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Fri, 23 Nov 2012 08:11:19 GMT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50adfa4038345b1049c88a37&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;etag&quot;</span><span class="o">:</span> <span class="s2">&quot;372fbbebf54dfe61742556f17a8461ca9a6f5a11&quot;</span>
+    <span class="s2">&quot;_etag&quot;</span><span class="o">:</span> <span class="s2">&quot;372fbbebf54dfe61742556f17a8461ca9a6f5a11&quot;</span>
     <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="s2">&quot;...&quot;</span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>This time we got our patch in, and the server returned the new <tt class="docutils literal"><span class="pre">ETag</span></tt>.  We
-also get the new <tt class="docutils literal"><span class="pre">updated</span></tt> value, which eventually will allow us to perform
+also get the new <tt class="docutils literal"><span class="pre">_updated</span></tt> value, which eventually will allow us to perform
 subsequent <a class="reference internal" href="#id1">conditional requests</a>.</p>
 <p>Concurrency control applies to all document edition methods: <tt class="docutils literal"><span class="pre">PATCH</span></tt> (edit),
 <tt class="docutils literal"><span class="pre">PUT</span></tt> (replace), <tt class="docutils literal"><span class="pre">DELETE</span></tt> (delete).</p>
@@ -530,10 +530,10 @@ risk of older versions replacing your documents.</p>
 <p>In this case the response payload will just contain the relevant document
 metadata:</p>
 <div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
-    <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 22 Nov 2012 15:22:27 GMT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_status&quot;</span><span class="o">:</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 22 Nov 2012 15:22:27 GMT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50ae43339fa12500024def5b&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;etag&quot;</span><span class="o">:</span> <span class="s2">&quot;749093d334ebd05cf7f2b7dbfb7868605578db2c&quot;</span>
+    <span class="s2">&quot;_etag&quot;</span><span class="o">:</span> <span class="s2">&quot;749093d334ebd05cf7f2b7dbfb7868605578db2c&quot;</span>
     <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com/people/50ae43339fa12500024def5b&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">}}</span>
 <span class="p">}</span>
 </pre></div>
@@ -548,17 +548,17 @@ documents in a JSON list:</p>
 <p>The response will be a list itself, with the state of each document:</p>
 <div class="highlight-javascript"><div class="highlight"><pre><span class="p">[</span>
     <span class="p">{</span>
-        <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 22 Nov 2012 15:22:27 GMT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_status&quot;</span><span class="o">:</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 22 Nov 2012 15:22:27 GMT&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50ae43339fa12500024def5b&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;etag&quot;</span><span class="o">:</span> <span class="s2">&quot;749093d334ebd05cf7f2b7dbfb7868605578db2c&quot;</span>
+        <span class="s2">&quot;_etag&quot;</span><span class="o">:</span> <span class="s2">&quot;749093d334ebd05cf7f2b7dbfb7868605578db2c&quot;</span>
         <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com/people/50ae43339fa12500024def5b&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">}}</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 22 Nov 2012 15:22:27 GMT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_status&quot;</span><span class="o">:</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 22 Nov 2012 15:22:27 GMT&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50ae43339fa12500024def5c&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;etag&quot;</span><span class="o">:</span> <span class="s2">&quot;62d356f623c7d9dc864ffa5facc47dced4ba6907&quot;</span>
+        <span class="s2">&quot;_etag&quot;</span><span class="o">:</span> <span class="s2">&quot;62d356f623c7d9dc864ffa5facc47dced4ba6907&quot;</span>
         <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com/people/50ae43339fa12500024def5c&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">}}</span>
     <span class="p">}</span>
 <span class="p">]</span>
@@ -585,12 +585,12 @@ will only be updated if validation passes.</p>
 request:</p>
 <div class="highlight-javascript"><div class="highlight"><pre><span class="p">[</span>
     <span class="p">{</span>
-        <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="s2">&quot;ERR&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;issues&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;lastname&quot;</span><span class="o">:</span> <span class="s2">&quot;value &#39;clinton&#39; not unique&quot;</span><span class="p">}</span>
+        <span class="s2">&quot;_status&quot;</span><span class="o">:</span> <span class="s2">&quot;ERR&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_issues&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;lastname&quot;</span><span class="o">:</span> <span class="s2">&quot;value &#39;clinton&#39; not unique&quot;</span><span class="p">}</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 22 Nov 2012 15:29:08 GMT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_status&quot;</span><span class="o">:</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 22 Nov 2012 15:29:08 GMT&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50ae44c49fa12500024def5d&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">}}</span>
     <span class="p">}</span>
