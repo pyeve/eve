@@ -1,7 +1,8 @@
 from eve.tests import TestBase
 import simplejson as json
 from ast import literal_eval
-from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, DATE_CREATED, ISSUES, STATUS
+from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, DATE_CREATED, ISSUES, \
+    STATUS, ETAG
 
 
 class TestPost(TestBase):
@@ -160,7 +161,7 @@ class TestPost(TestBase):
         r, status = self.parse_response(self.test_client.post(
             self.known_resource_url, data=data))
         self.assert200(status)
-        self.assertTrue('OK' in r['status'])
+        self.assertTrue('OK' in r[STATUS])
         self.assert200(status)
         self.assertPostResponse(r)
 
@@ -282,6 +283,20 @@ class TestPost(TestBase):
         self.assert200(status)
         self.assertTrue('report' in r and STATUS not in r)
 
+    def test_custom_etag_update_date(self):
+        self.app.config['ETAG'] = '_myetag'
+        r, status = self.post(self.known_resource_url,
+                              data={"ref": "1234567890123456789054321"})
+        self.assert200(status)
+        self.assertTrue('_myetag' in r and ETAG not in r)
+
+    def test_custom_date_updated(self):
+        self.app.config['LAST_UPDATED'] = '_update_date'
+        r, status = self.post(self.known_resource_url,
+                              data={"ref": "1234567890123456789054321"})
+        self.assert200(status)
+        self.assertTrue('_update_date' in r and LAST_UPDATED not in r)
+
     def test_subresource(self):
         data = {"person": self.item_id}
         response, status = self.post('users/%s/invoices' % self.item_id,
@@ -296,7 +311,7 @@ class TestPost(TestBase):
         test_value = "1234567890123456789054321"
         data = {test_field: test_value}
         r, status = self.post(self.known_resource_url, data=data)
-        self.assertTrue('etag' not in r)
+        self.assertTrue(ETAG not in r)
 
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
@@ -307,8 +322,8 @@ class TestPost(TestBase):
     def assertPostItem(self, data, test_field, test_value):
         r = self.perform_post(data)
         item_id = r[ID_FIELD]
-        item_etag = r['etag']
-        db_value = self.compare_post_with_get(item_id, [test_field, 'etag'])
+        item_etag = r[ETAG]
+        db_value = self.compare_post_with_get(item_id, [test_field, ETAG])
         self.assertTrue(db_value[0] == test_value)
         self.assertTrue(db_value[1] == item_etag)
 
@@ -317,14 +332,14 @@ class TestPost(TestBase):
             response = [response]
         for i in valid_items:
             item = response[i]
-            self.assertTrue('status' in item)
-            self.assertTrue(STATUS_OK in item['status'])
+            self.assertTrue(STATUS in item)
+            self.assertTrue(STATUS_OK in item[STATUS])
             self.assertFalse(ISSUES in item)
             self.assertTrue(ID_FIELD in item)
             self.assertTrue(LAST_UPDATED in item)
             self.assertTrue('_links' in item)
             self.assertItemLink(item['_links'], item[ID_FIELD])
-            self.assertTrue('etag' in item)
+            self.assertTrue(ETAG in item)
 
     def compare_post_with_get(self, item_id, fields):
         raw_r = self.test_client.get("%s/%s" % (self.known_resource_url,

@@ -4,6 +4,7 @@ import simplejson as json
 from werkzeug.routing import BaseConverter
 from eve.tests import TestBase, TestMinimal
 from eve import Eve
+from eve.utils import config
 from eve.io.base import BaseJSONEncoder
 from eve.tests.test_settings import MONGO_DBNAME
 from uuid import UUID
@@ -95,7 +96,7 @@ class TestCustomConverters(TestMinimal):
     def _get_etag(self):
         r = self.test_client.get(self.url)
         self.assert200(r.status_code)
-        return json.loads(r.get_data())['etag']
+        return json.loads(r.get_data())[config.ETAG]
 
     def test_get_uuid(self):
         r = self.test_client.get(self.url)

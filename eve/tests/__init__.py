@@ -11,7 +11,7 @@ from flask.ext.pymongo import MongoClient
 from bson import ObjectId
 from eve.tests.test_settings import MONGO_PASSWORD, MONGO_USERNAME, \
     MONGO_DBNAME, DOMAIN, MONGO_HOST, MONGO_PORT
-from eve import ISSUES
+from eve import ISSUES, ETAG
 
 
 class TestMinimal(unittest.TestCase):
@@ -74,8 +74,8 @@ class TestMinimal(unittest.TestCase):
         return v, r.status_code
 
     def assertValidationError(self, response, matches):
-        self.assertTrue('status' in response)
-        self.assertTrue(eve.STATUS_ERR in response['status'])
+        self.assertTrue(eve.STATUS in response)
+        self.assertTrue(eve.STATUS_ERR in response[eve.STATUS])
         self.assertTrue(ISSUES in response)
         issues = response[ISSUES]
         self.assertTrue(len(issues))
@@ -274,7 +274,7 @@ class TestBase(TestMinimal):
         self.item_id = contact[self.app.config['ID_FIELD']]
         self.item_name = contact['ref']
         self.item_tid = contact['tid']
-        self.item_etag = contact['etag']
+        self.item_etag = contact[ETAG]
         self.item_ref = contact['ref']
         self.item_id_url = ('/%s/%s' %
                             (self.domain[self.known_resource]['url'],
@@ -294,7 +294,7 @@ class TestBase(TestMinimal):
         self.user_id = user[self.app.config['ID_FIELD']]
         self.user_username = user['username']
         self.user_name = user['ref']
-        self.user_etag = user['etag']
+        self.user_etag = user[ETAG]
         self.user_id_url = ('/%s/%s' %
                             (self.domain[self.different_resource]['url'],
                              self.user_id))
@@ -306,7 +306,7 @@ class TestBase(TestMinimal):
         response, _ = self.get('invoices')
         invoice = self.response_item(response)
         self.invoice_id = invoice[self.app.config['ID_FIELD']]
-        self.invoice_etag = invoice['etag']
+        self.invoice_etag = invoice[ETAG]
         self.invoice_id_url = ('/%s/%s' %
                                (self.domain['invoices']['url'],
                                 self.invoice_id))

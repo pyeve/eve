@@ -173,7 +173,7 @@ def post(resource, payl=None):
             document = documents.pop(0)
             response_item[config.LAST_UPDATED] = document[config.LAST_UPDATED]
             if config.IF_MATCH:
-                response_item['etag'] = document_etag(document)
+                response_item[config.ETAG] = document_etag(document)
             if resource_def['hateoas']:
                 response_item[config.LINKS] = \
                     {'self': document_link(resource,

@@ -8,6 +8,13 @@ Version 0.3
 
 Not released yet.
 
+- [new] ``ETAG`` allows to customize the etag field. Defaults to ``_etag``.
+- [change] ``etag`` is now ``_etag`` in all default response payloads (see
+  above).
+- [change] ``STATUS`` defaults to '_status'.
+- [change] ``ISSUES`` defaults to '_issues'.
+- [change] ``DATE_CREATED`` defaults to '_created'.
+- [change] ``LAST_UPDATED`` defaults to '_updated'.
 - [change] Exclude ``etag`` from both response payload and headers if
   concurrency control is disabled (``IF_MATCH`` = ``False``). Closes #205.
 - [fix] Custom ``ID_FIELD`` would fail on update/insert methods. Fixes #203.

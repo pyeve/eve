@@ -51,12 +51,13 @@ DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
 
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"
-LAST_UPDATED = 'updated'
-DATE_CREATED = 'created'
-ISSUES = 'issues'
-STATUS = 'status'
+LAST_UPDATED = '_updated'
+DATE_CREATED = '_created'
+ISSUES = '_issues'
+STATUS = '_status'
 ITEMS = '_items'
 LINKS = '_links'
+ETAG = '_etag'
 
 API_VERSION = ''
 URL_PREFIX = ''
@@ -90,7 +91,7 @@ ITEM_URL = 'regex("[a-f0-9]{24}")'
 
 # list of extra fields to be included with every POST response. This list
 # should not include the 'standard' fields (ID_FIELD, LAST_UPDATED,
-# DATE_CREATED, 'etag').
+# DATE_CREATED,ETAG).
 EXTRA_RESPONSE_FIELDS = []
 
 

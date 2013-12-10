@@ -109,7 +109,7 @@ def patch(resource, **lookup):
 
             # metadata
             if config.IF_MATCH:
-                etag = response['etag'] = document_etag(original)
+                etag = response[config.ETAG] = document_etag(original)
             if resource_def['hateoas']:
                 response[config.LINKS] = {'self': document_link(resource,
                                                                 object_id)}

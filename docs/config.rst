@@ -219,11 +219,11 @@ uppercase.
 
 ``LAST_UPDATED``                Name of the field used to record a document's 
                                 last update date. This field is automatically
-                                handled by Eve. Defaults to ``updated``.
+                                handled by Eve. Defaults to ``_updated``.
 
 ``DATE_CREATED``                Name for the field used to record a document
                                 creation date. This field is automatically
-                                handled by Eve. Defaults to ``created``.
+                                handled by Eve. Defaults to ``_created``.
 
 ``ID_FIELD``                    Name of the field used to uniquely identify
                                 resource items within the database. You want
@@ -276,7 +276,7 @@ uppercase.
                                 document fields that should be provided with
                                 every POST response. Normally only
                                 automatically handled fields (``ID_FIELD``,
-                                ``LAST_UPDATED``, ``DATE_CREATED``, ``etag``)
+                                ``LAST_UPDATED``, ``DATE_CREATED``, ``ETAG``)
                                 are included in response payloads. Can be
                                 overridden by resource settings. Defaults to
                                 ``[]``, effectively disabling the feature.
@@ -320,10 +320,10 @@ uppercase.
                                 :ref:`hateoas_feature`. Defaults to ``True``. 
 
 ``ISSUES``                      Allows to customize the issues field. Defaults
-                                to ``issues``.
+                                to ``_issues``.
 
 ``STATUS``                      Allows to customize the status field. Defaults
-                                to ``status``.
+                                to ``_status``.
 
 ``STATUS_OK``                   Status message returned when data validation is
                                 successful. Defaults to ``OK``.
@@ -336,6 +336,9 @@ uppercase.
 
 ``LINKS``                       Allows to customize the links field. Defaults
                                 to ``_links``.
+
+``ETAG``                        Allows to customize the etag field. Defaults
+                                to ``_etag``.
 
 ``IF_MATCH``                    ``True`` to enable concurrency control, ``False``
                                 otherwise. Defaults to ``True``. See
@@ -560,7 +563,7 @@ always lowercase.
                                 document fields that should be provided with
                                 every POST response. Normally only
                                 automatically handled fields (``ID_FIELD``,
-                                ``LAST_UPDATED``, ``DATE_CREATED``, ``etag``)
+                                ``LAST_UPDATED``, ``DATE_CREATED``, ``ETAG``)
                                 are included in response payloads. Overrides
                                 ``EXTRA_RESPONSE_FIELDS``. 
 

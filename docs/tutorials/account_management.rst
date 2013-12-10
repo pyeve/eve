@@ -474,7 +474,7 @@ sense, like when the client is a mobile application and we want the user to use
 the service right away.
 
 Normally, only automatically handled fields (``ID_FIELD``, ``LAST_UPDATED``,
-``DATE_CREATED``, ``etag``) are included with POST response payloads.
+``DATE_CREATED``, ``ETAG``) are included with POST response payloads.
 Fortunately, there's a setting which allows us to inject additional fields in
 responses, and that is ``EXTRA_RESPONSE_FIELDS``, with its endpoint-level
 equivalent, ``extra_response_fields``. All we need to do is update our endpoint

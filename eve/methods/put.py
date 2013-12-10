@@ -99,7 +99,7 @@ def put(resource, **lookup):
 
             # metadata
             if config.IF_MATCH:
-                etag = response['etag'] = document_etag(document)
+                etag = response[config.ETAG] = document_etag(document)
             if resource_def['hateoas']:
                 response[config.LINKS] = {'self': document_link(resource,
                                                                 object_id)}

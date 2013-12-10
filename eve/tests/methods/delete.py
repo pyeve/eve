@@ -1,5 +1,6 @@
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
+from eve import ETAG
 from bson import ObjectId
 
 
@@ -110,7 +111,7 @@ class TestDelete(TestBase):
         # GET all invoices by new contact
         response, status = self.get('users/%s/invoices/%s' %
                                     (fake_contact_id, self.invoice_id))
-        etag = response['etag']
+        etag = response[ETAG]
 
         headers = [('If-Match', etag)]
         response, status = self.delete('users/%s/invoices/%s' %

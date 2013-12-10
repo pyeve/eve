@@ -48,12 +48,13 @@ ITEM_URL = '[a-f0-9]{24}'
 
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"
-LAST_UPDATED = 'updated'
-DATE_CREATED = 'created'
-ISSUES = 'issues'
-STATUS = 'status'
+LAST_UPDATED = '_updated'
+DATE_CREATED = '_created'
+ISSUES = '_issues'
+STATUS = '_status'
 ITEMS = '_items'
 LINKS = '_links'
+ETAG = '_etag'
 
 # must be the last line (will raise W402 on pyflakes)
 from eve.flaskapp import Eve  # noqa

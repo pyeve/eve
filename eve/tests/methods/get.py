@@ -102,7 +102,7 @@ class TestGet(TestBase):
         self.assertEqual(len(resource), 1)
 
     def test_get_where_mongo_combined_date(self):
-        where = '{"$and": [{"ref": "%s"}, {"created": \
+        where = '{"$and": [{"ref": "%s"}, {"_created": \
                 {"$gte": "Tue, 01 Oct 2013 00:59:22 GMT"}}]}' % self.item_name
         response, status = self.get(self.known_resource,
                                     '?where=%s' % where)
@@ -129,7 +129,7 @@ class TestGet(TestBase):
         self.assertEqual(len(resource), 1)
 
     def test_get_where_python_syntax1(self):
-        where = 'ref == %s and created>="Tue, 01 Oct 2013 00:59:22 GMT"' \
+        where = 'ref == %s and _created>="Tue, 01 Oct 2013 00:59:22 GMT"' \
                 % self.item_name
         response, status = self.get(self.known_resource, '?where=%s' % where)
         self.assert200(status)
@@ -234,7 +234,7 @@ class TestGet(TestBase):
             # 'user' title instead of original 'contact'
             self.assertItem(item)
 
-        etag = item.get('etag')
+        etag = item.get(self.app.config['ETAG'])
         self.assertTrue(etag is not None)
 
     def test_documents_missing_standard_date_fields(self):
@@ -293,30 +293,15 @@ class TestGet(TestBase):
         response, _ = self.get(self.known_resource)
         self.assertTrue('_navigation' in response and '_links' not in response)
 
-    def assertGet(self, response, status, resource=None):
-        self.assert200(status)
-
-        links = response['_links']
-        self.assertEqual(len(links), 4)
-        self.assertHomeLink(links)
-        if not resource:
-            resource = self.known_resource
-        self.assertResourceLink(links, resource)
-        self.assertNextLink(links, 2)
-
-        resource = response['_items']
-        self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
-
-        for item in resource:
-            self.assertItem(item)
-
-        etag = item.get('etag')
-        self.assertTrue(etag is not None)
-        # TODO figure a way to test etag match. Even removing the etag field
-        # itself won't help since the 'item' dict is unordered (and therefore
-        # doesn't match the original representation)
-        #del(item['etag'])
-        #self.assertEqual(hashlib.sha1(str(item)).hexdigest(), etag)
+    def test_get_custom_auto_document_fields(self):
+        self.app.config['LAST_UPDATED'] = '_updated_on'
+        self.app.config['DATE_CREATED'] = '_created_on'
+        self.app.config['ETAG'] = '_the_etag'
+        response, _ = self.get(self.known_resource)
+        for document in response['_items']:
+            self.assertTrue('_updated_on' in document)
+            self.assertTrue('_created_on' in document)
+            self.assertTrue('_the_etag' in document)
 
     def test_get_embedded(self):
         # We need to assign a `person` to our test invoice
@@ -500,7 +485,27 @@ class TestGet(TestBase):
         resource = response['_items']
 
         for r in resource:
-            self.assertTrue('etag' not in r)
+            self.assertTrue(self.app.config['ETAG'] not in r)
+
+    def assertGet(self, response, status, resource=None):
+        self.assert200(status)
+
+        links = response['_links']
+        self.assertEqual(len(links), 4)
+        self.assertHomeLink(links)
+        if not resource:
+            resource = self.known_resource
+        self.assertResourceLink(links, resource)
+        self.assertNextLink(links, 2)
+
+        resource = response['_items']
+        self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
+
+        for item in resource:
+            self.assertItem(item)
+
+        etag = item.get(self.app.config['ETAG'])
+        self.assertTrue(etag is not None)
 
 
 class TestGetItem(TestBase):
@@ -508,7 +513,7 @@ class TestGetItem(TestBase):
     def assertItemResponse(self, response, status,
                            resource=None):
         self.assert200(status)
-        self.assertTrue('etag' in response)
+        self.assertTrue(self.app.config['ETAG'] in response)
         links = response['_links']
         self.assertEqual(len(links), 3)
         self.assertHomeLink(links)
@@ -563,7 +568,6 @@ class TestGetItem(TestBase):
 
     def test_getitem_if_none_match(self):
         r = self.test_client.get(self.item_id_url)
-
         etag = r.headers.get('ETag')
         self.assertTrue(etag is not None)
         r = self.test_client.get(self.item_id_url,
@@ -709,7 +713,16 @@ class TestGetItem(TestBase):
         # when IF_MATCH is disabled no etag is present in payload
         self.app.config['IF_MATCH'] = False
         response, _ = self.get(self.known_resource, item=self.item_id)
-        self.assertTrue('etag' not in response)
+        self.assertTrue(self.app.config['ETAG'] not in response)
+
+    def test_getitem_custom_auto_document_fields(self):
+        self.app.config['LAST_UPDATED'] = '_updated_on'
+        self.app.config['DATE_CREATED'] = '_created_on'
+        self.app.config['ETAG'] = '_the_etag'
+        response, _ = self.get(self.known_resource, item=self.item_id)
+        self.assertTrue('_updated_on' in response)
+        self.assertTrue('_created_on' in response)
+        self.assertTrue('_the_etag' in response)
 
 
 class TestHead(TestBase):

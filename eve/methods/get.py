@@ -10,15 +10,16 @@
     :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-
+import copy
 import math
-from flask import current_app as app, abort, request
+
 import simplejson as json
+
 from .common import ratelimit, epoch, date_created, last_updated, pre_event
 from eve.auth import requires_auth
 from eve.utils import parse_request, document_etag, document_link, home_link, \
     querydef, config, debug_error_message
-import copy
+from flask import current_app as app, abort, request
 
 
 @ratelimit()
@@ -104,7 +105,7 @@ def get(resource, lookup):
 
         # document metadata
         if config.IF_MATCH:
-            document['etag'] = document_etag(document)
+            document[config.ETAG] = document_etag(document)
 
         if config.DOMAIN[resource]['hateoas']:
             document[config.LINKS] = {'self':
@@ -197,9 +198,10 @@ def getitem(resource, **lookup):
 
         etag = None
         if config.IF_MATCH:
-            etag = document['etag'] = document_etag(document)
+            etag = document[config.ETAG] = document_etag(document)
 
-            if req.if_none_match and document['etag'] == req.if_none_match:
+            if req.if_none_match and document[config.ETAG] == \
+                    req.if_none_match:
                 # request etag matches the current server representation of the
                 # document, return a 304 Not-Modified.
                 return response, last_modified, etag, 304
@@ -208,7 +210,7 @@ def getitem(resource, **lookup):
             # request If-Modified-Since conditional request match. We test
             # this after the etag since Last-Modified dates have lower
             # resolution (1 second).
-            return response, last_modified, document['etag'], 304
+            return response, last_modified, document[config.ETAG], 304
 
         _resolve_embedded_documents(resource, req, [document])
 
