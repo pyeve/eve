@@ -17,7 +17,8 @@ Not released yet.
 - [change] ``LAST_UPDATED`` defaults to '_updated'.
 - [change] Exclude ``etag`` from both response payload and headers if
   concurrency control is disabled (``IF_MATCH`` = ``False``). Closes #205.
-- [fix] Custom ``ID_FIELD`` would fail on update/insert methods. Fixes #203.
+- [fix] Custom ``ID_FIELD`` would fail on update/insert methods. Fixes #203
+  (Jaroslav Semančík).
 - [change] GET: when If-Modified-Since header is present, either no documents
   (304) or all documents (200) are sent per the HTTP spec. Original behavior
   can be achieved with:
