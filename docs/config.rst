@@ -598,6 +598,14 @@ always lowercase.
                                 ``embeddable``, and ``embedding`` must be
                                 active for the resource.
 
+``query_objectid_as_string``    When enabled the Mongo parser will avoid
+                                automatically casting electable strings to
+                                ObjectIds. This can be useful in those rare
+                                occurrences where you have string fields in the
+                                database whose values can actually be casted to
+                                ObjectId values, but shouldn't. Only effects
+                                queries (``?where=``). Defaults to ``False``.
+
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data
                                 validation. See `Schema Definition`_.

@@ -8,6 +8,8 @@ Version 0.3
 
 Not released yet.
 
+- [new] ``query_objectid_as_string`` resource setting. Defaults to ``False``.
+  Addresses #207.
 - [new] ``ETAG`` allows to customize the etag field. Defaults to ``_etag``.
 - [change] ``etag`` is now ``_etag`` in all default response payloads (see
   above).

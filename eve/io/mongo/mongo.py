@@ -86,6 +86,9 @@ class Mongo(DataLayer):
         :param req: a :class:`ParsedRequest`instance.
         :param sub_resource_lookup: sub-resource lookup from the endpoint url.
 
+        .. versionchanged:: 0.3
+           Support for new _mongotize() signature.
+
         .. versionchagend:: 0.2
            Support for sub-resources.
            Support for 'default_sort'.
@@ -148,7 +151,7 @@ class Mongo(DataLayer):
         if sub_resource_lookup:
             spec.update(sub_resource_lookup)
 
-        spec = self._mongotize(spec)
+        spec = self._mongotize(spec, resource)
 
         bad_filter = validate_filters(spec, resource)
         if bad_filter:
@@ -190,6 +193,7 @@ class Mongo(DataLayer):
         :param **lookup: lookup query.
 
         .. versionchanged:: 0.3.0
+           Support for new _mongotize() signature.
            Custom ID_FIELD lookups would raise an exception. See #203.
 
         .. versionchanged:: 0.1.0
@@ -209,7 +213,7 @@ class Mongo(DataLayer):
                 # Returns a type error when {'_id': {...}}
                 pass
 
-        self._mongotize(lookup)
+        self._mongotize(lookup, resource)
 
         datasource, filter_, projection, _ = self._datasource_ex(resource,
                                                                  lookup)
@@ -468,9 +472,13 @@ class Mongo(DataLayer):
             return False
         return True
 
-    def _mongotize(self, source):
+    def _mongotize(self, source, resource):
         """ Recursively iterates a JSON dictionary, turning RFC-1123 strings
         into datetime values and ObjectId-link strings into ObjectIds.
+
+        .. versionchanged:: 0.3
+           'query_objectid_as_string' allows to bypass casting string types
+           to objectids.
 
         .. versionchanged:: 0.1.1
            Renamed from _jsondatetime to _mongotize, as it now handles
@@ -489,23 +497,29 @@ class Mongo(DataLayer):
         else:
             _str_type = basestring  # noqa
 
+        schema = config.DOMAIN[resource]
+        skip_objectid = schema.get('query_objectid_as_string', False)
+
         def try_cast(v):
             try:
                 return datetime.strptime(v, config.DATE_FORMAT)
             except:
-                try:
-                    return ObjectId(v)
-                except:
+                if not skip_objectid:
+                    try:
+                        return ObjectId(v)
+                    except:
+                        return v
+                else:
                     return v
 
         for k, v in source.items():
             if isinstance(v, dict):
-                self._mongotize(v)
+                self._mongotize(v, resource)
             elif isinstance(v, list):
                 i = 0
                 for v1 in v:
                     if isinstance(v1, dict):
-                        source[k][i] = self._mongotize(v1)
+                        source[k][i] = self._mongotize(v1, resource)
                     else:
                         source[k][i] = try_cast(v1)
                     i += 1

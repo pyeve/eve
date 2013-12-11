@@ -120,6 +120,20 @@ class TestGet(TestBase):
         _, status = self.get(self.known_resource, '?where=%s' % where)
         self.assert400(status)
 
+    def test_get_where_mongo_objectid_as_string(self):
+        where = '{"tid": "%s"}' % self.item_tid
+        response, status = self.get(self.known_resource, '?where=%s' % where)
+        self.assert200(status)
+        resource = response['_items']
+        self.assertEqual(len(resource), 1)
+
+        self.app.config['DOMAIN']['contacts']['query_objectid_as_string'] = \
+            True
+        response, status = self.get(self.known_resource, '?where=%s' % where)
+        self.assert200(status)
+        resource = response['_items']
+        self.assertEqual(len(resource), 0)
+
     def test_get_where_python_syntax(self):
         where = 'ref == %s' % self.item_name
         response, status = self.get(self.known_resource, '?where=%s' % where)
