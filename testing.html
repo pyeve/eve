@@ -81,6 +81,20 @@ locally just run:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py <span class="nb">test</span> -s eve.tests.methods.get.TestGetItem.test_get_max_results
 </pre></div>
 </div>
+<div class="section" id="using-pytest">
+<h2>Using Pytest<a class="headerlink" href="#using-pytest" title="Permalink to this headline">¶</a></h2>
+<p>You also choose to run the whole test suite using <a class="reference external" href="http://pytest.org">pytest</a>:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> py.test                           <span class="c"># rum the whole test suite</span>
+<span class="gp">$</span> py.test eve/tests/methods         <span class="c"># run all tests in the &#39;methods&#39; folder</span>
+<span class="gp">$</span> py.test -k TestGet                <span class="c"># run just the &#39;TestGet&#39; class</span>
+<span class="gp">$</span> py.test -k test_get_max_results   <span class="c"># run only one method</span>
+</pre></div>
+</div>
+<p>Please note that, just for my own convenience, the <tt class="docutils literal"><span class="pre">pytest.ini</span></tt> file is
+currently set up in such a way that any test run will abort after two failures.
+Also, if you are a <a class="reference external" href="http://en.wikipedia.org/wiki/Vim_(text_editor)">Vim</a> user (you should), you might want to check out the awesome
+<a class="reference external" href="https://github.com/alfredodeza/pytest.vim">pytest.vim</a> plugin.</p>
+</div>
 <div class="section" id="ratelimiting-and-redis">
 <h2>RateLimiting and Redis<a class="headerlink" href="#ratelimiting-and-redis" title="Permalink to this headline">¶</a></h2>
 <p>While there are no test requirements for most of the suite, please be advised
@@ -155,6 +169,7 @@ against the <tt class="docutils literal"><span class="pre">develop</span></tt> b
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Running the Tests</a><ul>
+<li><a class="reference internal" href="#using-pytest">Using Pytest</a></li>
 <li><a class="reference internal" href="#ratelimiting-and-redis">RateLimiting and Redis</a></li>
 <li><a class="reference internal" href="#continuous-integration">Continuous Integration</a></li>
 </ul>
