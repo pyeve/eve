@@ -26,10 +26,11 @@ class TestMinimal(unittest.TestCase):
         :param settings_file: the name of the settings file.  Defaults
                               to `eve/tests/test_settings.py`.
         """
+        self.this_directory = os.path.dirname(os.path.realpath(__file__))
         if settings_file is None:
             # Load the settings file, using a robust path
-            THIS_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-            settings_file = os.path.join(THIS_DIRECTORY, 'test_settings.py')
+            settings_file = os.path.join(self.this_directory,
+                                         'test_settings.py')
 
         self.connection = None
         self.known_resource_count = 101

@@ -9,6 +9,7 @@ from eve.io.base import BaseJSONEncoder
 from eve.tests.test_settings import MONGO_DBNAME
 from uuid import UUID
 from eve.io.mongo import Validator
+import os
 
 
 class UUIDEncoder(BaseJSONEncoder):
@@ -162,7 +163,7 @@ class TestEndPoints(TestBase):
         self.assert404(r.status_code)
 
     def test_api_version(self):
-        settings_file = 'eve/tests/test_version.py'
+        settings_file = os.path.join(self.this_directory, 'test_version.py')
         self.prefixapp = Eve(settings=settings_file)
         self.test_prefix = self.prefixapp.test_client()
         r = self.test_prefix.get('/')
@@ -178,7 +179,7 @@ class TestEndPoints(TestBase):
         self.assert200(r.status_code)
 
     def test_api_prefix(self):
-        settings_file = 'eve/tests/test_prefix.py'
+        settings_file = os.path.join(self.this_directory, 'test_prefix.py')
         self.prefixapp = Eve(settings=settings_file)
         self.test_prefix = self.prefixapp.test_client()
         r = self.test_prefix.get('/')
@@ -192,7 +193,8 @@ class TestEndPoints(TestBase):
         self.assert200(r.status_code)
 
     def test_api_prefix_version(self):
-        settings_file = 'eve/tests/test_prefix_version.py'
+        settings_file = os.path.join(self.this_directory,
+                                     'test_prefix_version.py')
         self.prefixapp = Eve(settings=settings_file)
         self.test_prefix = self.prefixapp.test_client()
         r = self.test_prefix.get('/')

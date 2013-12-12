@@ -239,6 +239,44 @@ class TestHMACAuth(TestBasicAuth):
         self.assert401(r.status_code)
 
 
+class TestResourceAuth(TestBase):
+    def test_resource_only_auth(self):
+        # no auth at the API level
+        self.app = Eve(settings=self.settings_file)
+        self.test_client = self.app.test_client()
+        # explicit auth for just one resource
+        self.app.config['DOMAIN']['contacts']['authentication'] = \
+            ValidBasicAuth()
+        self.app.config['DOMAIN']['empty']['authentication'] = ValidTokenAuth()
+        self.app.set_defaults()
+        basic_auth = [('Authorization', 'Basic YWRtaW46c2VjcmV0')]
+        token_auth = [('Authorization', 'Basic dGVzdF90b2tlbjo=')]
+
+        # 'contacts' endpoints are protected
+        r = self.test_client.get(self.known_resource_url)
+        self.assert401(r.status_code)
+        r = self.test_client.get(self.item_id_url)
+        self.assert401(r.status_code)
+        # both with BasicAuth.
+        _, status = self.parse_response(
+            self.test_client.get(self.known_resource_url, headers=basic_auth))
+        self.assert200(status)
+        _, status = self.parse_response(
+            self.test_client.get(self.item_id_url, headers=basic_auth))
+        self.assert200(status)
+
+        # 'empty' resource endpoint is also protected
+        r = self.test_client.get(self.empty_resource_url)
+        self.assert401(r.status_code)
+        # but with TokenAuth
+        r = self.test_client.get(self.empty_resource_url, headers=token_auth)
+        self.assert200(r.status_code)
+
+        # other resources are not protected
+        r = self.test_client.get(self.readonly_resource_url)
+        self.assert200(r.status_code)
+
+
 class TestUserRestrictedAccess(TestBase):
     def setUp(self):
         super(TestUserRestrictedAccess, self).setUp()
@@ -415,41 +453,3 @@ class TestUserRestrictedAccess(TestBase):
                                   headers=self.valid_auth,
                                   content_type='application/json')
         return self.parse_response(r)
-
-
-class TestResourceAuth(TestBase):
-    def test_resource_only_auth(self):
-        # no auth at the API level
-        self.app = Eve(settings=self.settings_file)
-        self.test_client = self.app.test_client()
-        # explicit auth for just one resource
-        self.app.config['DOMAIN']['contacts']['authentication'] = \
-            ValidBasicAuth()
-        self.app.config['DOMAIN']['empty']['authentication'] = ValidTokenAuth()
-        self.app.set_defaults()
-        basic_auth = [('Authorization', 'Basic YWRtaW46c2VjcmV0')]
-        token_auth = [('Authorization', 'Basic dGVzdF90b2tlbjo=')]
-
-        # 'contacts' endpoints are protected
-        r = self.test_client.get(self.known_resource_url)
-        self.assert401(r.status_code)
-        r = self.test_client.get(self.item_id_url)
-        self.assert401(r.status_code)
-        # both with BasicAuth.
-        _, status = self.parse_response(
-            self.test_client.get(self.known_resource_url, headers=basic_auth))
-        self.assert200(status)
-        _, status = self.parse_response(
-            self.test_client.get(self.item_id_url, headers=basic_auth))
-        self.assert200(status)
-
-        # 'empty' resource endpoint is also protected
-        r = self.test_client.get(self.empty_resource_url)
-        self.assert401(r.status_code)
-        # but with TokenAuth
-        r = self.test_client.get(self.empty_resource_url, headers=token_auth)
-        self.assert200(r.status_code)
-
-        # other resources are not protected
-        r = self.test_client.get(self.readonly_resource_url)
-        self.assert200(r.status_code)
