@@ -103,7 +103,7 @@ Sub Resources
 ~~~~~~~~~~~~~
 Endpoints support sub-resources so you could have something like:
 ``/people/<contact_id>/invoices``. When setting the ``url`` rule for such and
-enpoint you would use a regex and assign a field name to it:
+endpoint you would use a regex and assign a field name to it:
 
 .. code-block:: python
 
@@ -137,7 +137,7 @@ would be queried like:
     {'contact_id': '51f63e0838345b6dcd7eabff', "number": 10}
 
 Please note that when designing your API, most of the time you can get away
-without recurring to sub-resoucers. In the example above the same result would
+without resorting to sub-resources. In the example above the same result would
 be achieved by simply exposing a ``invoices`` endpoint that clients could query
 this way: 
 

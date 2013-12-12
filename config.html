@@ -723,7 +723,16 @@ properly fields in the list must be
 <tt class="docutils literal"><span class="pre">embeddable</span></tt>, and <tt class="docutils literal"><span class="pre">embedding</span></tt> must be
 active for the resource.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">query_objectid_as_string</span></tt></td>
+<td>When enabled the Mongo parser will avoid
+automatically casting electable strings to
+ObjectIds. This can be useful in those rare
+occurrences where you have string fields in the
+database whose values can actually be casted to
+ObjectId values, but shouldn&#8217;t. Only effects
+queries (<tt class="docutils literal"><span class="pre">?where=</span></tt>). Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
 <td>A dict defining the actual data structure being
 handled by the resource. Enables data
 validation. See <a class="reference internal" href="#schema-definition">Schema Definition</a>.</td>
