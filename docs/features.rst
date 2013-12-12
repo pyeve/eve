@@ -103,7 +103,7 @@ Sub Resources
 ~~~~~~~~~~~~~
 Endpoints support sub-resources so you could have something like:
 ``/people/<contact_id>/invoices``. When setting the ``url`` rule for such and
-enpoint you would use a regex and assign a field name to it:
+endpoint you would use a regex and assign a field name to it:
 
 .. code-block:: python
 
