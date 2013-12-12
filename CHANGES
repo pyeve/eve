@@ -8,6 +8,8 @@ Version 0.3
 
 Not released yet.
 
+- [new] pytest.ini for pytest support.
+- [fix] All tests should now run with nose and pytest. Closes #209.
 - [new] ``query_objectid_as_string`` resource setting. Defaults to ``False``.
   Addresses #207.
 - [new] ``ETAG`` allows to customize the etag field. Defaults to ``_etag``.
