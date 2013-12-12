@@ -137,7 +137,7 @@ would be queried like:
     {'contact_id': '51f63e0838345b6dcd7eabff', "number": 10}
 
 Please note that when designing your API, most of the time you can get away
-without recurring to sub-resoucers. In the example above the same result would
+without resorting to sub-resources. In the example above the same result would
 be achieved by simply exposing a ``invoices`` endpoint that clients could query
 this way: 
 
