@@ -167,6 +167,20 @@ class TestGet(TestBase):
             self.assertTrue(self.app.config['LAST_UPDATED'] in r)
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
 
+    def test_get_projection_noschema(self):
+        self.app.config['DOMAIN'][self.known_resource]['schema'] = {}
+        response, status = self.get(self.known_resource)
+        self.assert200(status)
+
+        resource = response['_items']
+
+        # fields are returned anyway since no schema = return all fields
+        for r in resource:
+            self.assertTrue('location' in r)
+            self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+            self.assertTrue(self.app.config['DATE_CREATED'] in r)
+
     def test_get_where_disabled(self):
         self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = []
         where = 'ref == %s' % self.item_name
@@ -546,6 +560,11 @@ class TestGetItem(TestBase):
         response, status = self.get(self.known_resource,
                                     item=self.unknown_item_id)
         self.assert404(status)
+
+    def test_getitem_noschema(self):
+        self.app.config['DOMAIN'][self.known_resource]['schema'] = {}
+        response, status = self.get(self.known_resource, item=self.item_id)
+        self.assertItemResponse(response, status)
 
     def test_getitem_by_name(self):
         response, status = self.get(self.known_resource,

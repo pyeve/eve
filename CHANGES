@@ -8,6 +8,7 @@ Version 0.3
 
 Not released yet.
 
+- [fix] return all document fields when resource schema is empty.
 - [new] pytest.ini for pytest support.
 - [fix] All tests should now run with nose and pytest. Closes #209.
 - [new] ``query_objectid_as_string`` resource setting. Defaults to ``False``.

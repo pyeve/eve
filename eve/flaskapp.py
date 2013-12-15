@@ -414,6 +414,9 @@ class Eve(Flask, Events):
     def _set_resource_defaults(self, resource, settings):
         """ Low-level method which sets default values for one resource.
 
+        .. versionchanged:: 0.3
+           Set projection to None when schema is not provided for the resource.
+
         .. versionchanged:: 0.2
            'resource_title',
            'default_sort',
@@ -473,19 +476,22 @@ class Eve(Flask, Events):
         settings['datasource'].setdefault('filter', None)
         settings['datasource'].setdefault('default_sort', None)
 
-        # enable retrieval of actual schema fields only. Eventual db
-        # fields not included in the schema won't be returned.
-        default_projection = {}
-        default_projection.update(dict((field, 1) for (field) in schema))
-        projection = settings['datasource'].setdefault('projection',
-                                                       default_projection)
-        # despite projection, automatic fields are always included.
-        projection[self.config['ID_FIELD']] = 1
-        projection[self.config['LAST_UPDATED']] = 1
-        projection[self.config['DATE_CREATED']] = 1
+        if len(schema):
+            # enable retrieval of actual schema fields only. Eventual db
+            # fields not included in the schema won't be returned.
+            projection = {}
+            # despite projection, automatic fields are always included.
+            projection[self.config['ID_FIELD']] = 1
+            projection[self.config['LAST_UPDATED']] = 1
+            projection[self.config['DATE_CREATED']] = 1
+            projection.update(dict((field, 1) for (field) in schema))
+        else:
+            # all fields are returned.
+            projection = None
+        settings['datasource'].setdefault('projection', projection)
 
-        # 'defaults' helper set contains the names of fields with
-        # default values in their schema definition.
+        # 'defaults' helper set contains the names of fields with default
+        # values in their schema definition.
 
         # TODO support default values for embedded documents.
         settings['defaults'] = \
