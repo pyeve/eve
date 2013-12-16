@@ -61,6 +61,8 @@
 <h2>Version 0.3<a class="headerlink" href="#version-0-3" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[fix] XML properly honors <tt class="docutils literal"><span class="pre">_LINKS</span></tt> and <tt class="docutils literal"><span class="pre">_ITEMS</span></tt> settings.</li>
+<li>[fix] return all document fields when resource schema is empty.</li>
 <li>[new] pytest.ini for pytest support.</li>
 <li>[fix] All tests should now run with nose and pytest. Closes #209.</li>
 <li>[new] <tt class="docutils literal"><span class="pre">query_objectid_as_string</span></tt> resource setting. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.
@@ -70,8 +72,14 @@ Addresses #207.</li>
 above).</li>
 <li>[change] <tt class="docutils literal"><span class="pre">STATUS</span></tt> defaults to &#8216;_status&#8217;.</li>
 <li>[change] <tt class="docutils literal"><span class="pre">ISSUES</span></tt> defaults to &#8216;_issues&#8217;.</li>
-<li>[change] <tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt> defaults to &#8216;_created&#8217;.</li>
-<li>[change] <tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt> defaults to &#8216;_updated&#8217;.</li>
+<li>[change] <tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt> defaults to &#8216;_created&#8217;. Upgrade existing
+collections by running <tt class="docutils literal"><span class="pre">db.&lt;collection&gt;.update({},</span> <span class="pre">{</span> <span class="pre">$rename:</span> <span class="pre">{</span> <span class="pre">&quot;created&quot;:</span>
+<span class="pre">&quot;_created&quot;</span> <span class="pre">}</span> <span class="pre">},</span> <span class="pre">{</span> <span class="pre">multi:</span> <span class="pre">true</span> <span class="pre">})</span></tt> in the mongo shell. If an index exists on
+the field, drop it and create a new one using the new field name.</li>
+<li>[change] <tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt> defaults to &#8216;_updated&#8217;. Upgrade existing
+collections by running <tt class="docutils literal"><span class="pre">db.&lt;collection&gt;.update({},</span> <span class="pre">{</span> <span class="pre">$rename:</span> <span class="pre">{</span> <span class="pre">&quot;updated&quot;:</span>
+<span class="pre">&quot;_updated&quot;</span> <span class="pre">}</span> <span class="pre">},</span> <span class="pre">{</span> <span class="pre">multi:</span> <span class="pre">true</span> <span class="pre">})</span></tt> in the mongo shell. If an index exists on
+the field, drop it and create a new one usung the new field name.</li>
 <li>[change] Exclude <tt class="docutils literal"><span class="pre">etag</span></tt> from both response payload and headers if
 concurrency control is disabled (<tt class="docutils literal"><span class="pre">IF_MATCH</span></tt> = <tt class="docutils literal"><span class="pre">False</span></tt>). Closes #205.</li>
 <li>[fix] Custom <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> would fail on update/insert methods. Fixes #203
