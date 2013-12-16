@@ -24,7 +24,7 @@ request:
         },
         {
             "_status": "OK",
-            "updated": "Thu, 22 Nov 2012 15:29:08 GMT",
+            "_updated": "Thu, 22 Nov 2012 15:29:08 GMT",
             "_id": "50ae44c49fa12500024def5d",
             "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d", "title": "person"}}
         }
