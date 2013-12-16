@@ -251,7 +251,7 @@ def xml_root_open(data):
 
     .. versionadded:: 0.0.3
     """
-    links = data.get('_links')
+    links = data.get(config.LINKS)
     href = title = ''
     if links and 'self' in links:
         self_ = links.pop('self')
@@ -274,7 +274,7 @@ def xml_add_links(data):
     """
     xml = ''
     chunk = '<link rel="%s" href="%s" title="%s" />'
-    links = data.pop('_links', {})
+    links = data.pop(config.LINKS, {})
     for rel, link in links.items():
         if isinstance(link, list):
             xml += ''.join([chunk % (rel, utils.escape(d['href']), d['title'])
@@ -295,7 +295,7 @@ def xml_add_items(data):
     .. versionadded:: 0.0.3
     """
     try:
-        xml = ''.join([xml_item(item) for item in data['_items']])
+        xml = ''.join([xml_item(item) for item in data[config.ITEMS]])
     except:
         xml = xml_dict(data)
     return xml
