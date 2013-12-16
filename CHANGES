@@ -19,8 +19,14 @@ Not released yet.
   above).
 - [change] ``STATUS`` defaults to '_status'.
 - [change] ``ISSUES`` defaults to '_issues'.
-- [change] ``DATE_CREATED`` defaults to '_created'.
-- [change] ``LAST_UPDATED`` defaults to '_updated'.
+- [change] ``DATE_CREATED`` defaults to '_created'. Upgrade existing
+  collections by running ``db.<collection>.update({}, { $rename: { "created":
+  "_created" } }, { multi: true })`` in the mongo shell. If an index exists on
+  the field, drop it and create a new one using the new field name.
+- [change] ``LAST_UPDATED`` defaults to '_updated'. Upgrade existing
+  collections by running ``db.<collection>.update({}, { $rename: { "updated":
+  "_updated" } }, { multi: true })`` in the mongo shell. If an index exists on
+  the field, drop it and create a new one usung the new field name.
 - [change] Exclude ``etag`` from both response payload and headers if
   concurrency control is disabled (``IF_MATCH`` = ``False``). Closes #205.
 - [fix] Custom ``ID_FIELD`` would fail on update/insert methods. Fixes #203
