@@ -309,13 +309,6 @@ class TestGet(TestBase):
         response, _ = self.get(self.known_resource)
         self.assertTrue('_documents' in response and '_items' not in response)
 
-        response = self.test_client.get(self.known_resource_url,
-                                        headers=[('Accept',
-                                                  'application/xml')])
-        # Py3 compatibility hack
-        r = str(response.get_data())
-        self.assertTrue('_documents' in r and '_items' not in r)
-
     def test_get_custom_links(self):
         self.app.config['LINKS'] = '_navigation'
         response, _ = self.get(self.known_resource)
