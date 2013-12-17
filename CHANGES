@@ -8,6 +8,10 @@ Version 0.3
 
 Not released yet.
 
+- [new] ``JSON`` allows to enable/disable JSON responses. Defaults to ``True``
+  (JSON enabled).
+- [new] ``XML`` allows to enable/disable XML responses. Defaults to ``True``
+  (XML enabled).
 - [fix] XML properly honors ``_LINKS`` and ``_ITEMS`` settings.
 - [fix] return all document fields when resource schema is empty.
 - [new] pytest.ini for pytest support.

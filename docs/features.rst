@@ -405,6 +405,8 @@ might have issues when parsing something other than a simple list of items.
     available resources, which is the standard behavior when HATEOAS is
     enabled.
 
+.. _jsonxml:
+
 JSON and XML Rendering
 ----------------------
 Eve responses are automatically rendered as JSON (the default) or XML,
@@ -424,6 +426,11 @@ edits) are in JSON format.
         <link rel="child" href="eve-demo.herokuapp.com/people" title="people" />
         <link rel="child" href="eve-demo.herokuapp.com/works" title="works" />
     </resource>
+
+XML support can be disabled by setting ``XML`` to ``False`` in the settings
+file. JSON support can be disabled by setting ``JSON`` to ``False``.  Please
+note that at least one mime type must always be enabled, either implicitly or
+explicitly. By default, both are supported.
 
 .. _conditional_requests:
 

@@ -344,6 +344,14 @@ uppercase.
                                 otherwise. Defaults to ``True``. See
                                 :ref:`concurrency`.
 
+``XML``                         ``True`` to enable XML support, ``False`` 
+                                otherwise. See :ref:`jsonxml`. Defaults to
+                                ``True``.
+
+``JSON``                        ``True`` to enable JSON support, ``False`` 
+                                otherwise. See :ref:`jsonxml`. Defaults to 
+                                ``True``.
+
 ``MONGO_HOST``                  MongoDB server address. Defaults to ``localhost``.
 
 ``MONGO_PORT``                  MongoDB port. Defaults to ``27017``.

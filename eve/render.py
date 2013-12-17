@@ -16,14 +16,14 @@ import simplejson as json
 from werkzeug import utils
 from functools import wraps
 from eve.methods.common import get_rate_limit
-from eve.utils import date_to_str, config, request_method
-from flask import make_response, request, Response, current_app as app
+from eve.utils import date_to_str, config, request_method, debug_error_message
+from flask import make_response, request, Response, current_app as app, abort
 
 # mapping between supported mime types and render functions.
-_MIME_TYPES = [{'mime': ('application/json',), 'renderer': 'render_json'},
-               {'mime': ('application/xml', 'text/xml', 'application/x-xml',),
-                'renderer': 'render_xml'}]
-_DEFAULT_MIME = 'application/json'
+_MIME_TYPES = [
+    {'mime': ('application/json',), 'renderer': 'render_json', 'tag': 'JSON'},
+    {'mime': ('application/xml', 'text/xml', 'application/x-xml',),
+     'renderer': 'render_xml', 'tag': 'XML'}]
 
 
 def raise_event(f):
@@ -184,15 +184,26 @@ def _best_mime():
     """ Returns the best match between the requested mime type and the
     ones supported by Eve. Along with the mime, also the corresponding
     render function is returns.
+
+    .. versionchanged:: 0.3
+       Support for optional renderers via XML and JSON configuration keywords.
     """
     supported = []
     renders = {}
     for mime in _MIME_TYPES:
-        for mime_type in mime['mime']:
-            supported.append(mime_type)
-            renders[mime_type] = mime['renderer']
+        # only mime types that have not been disabled via configuration
+        if app.config.get(mime['tag'], True):
+            for mime_type in mime['mime']:
+                supported.append(mime_type)
+                renders[mime_type] = mime['renderer']
+
+    if len(supported) == 0:
+        abort(500, description=debug_error_message(
+            'Configuration error: no supported mime types')
+        )
+
     best_match = request.accept_mimetypes.best_match(supported) or \
-        _DEFAULT_MIME
+        supported[0]
     return best_match, renders[best_match]
 
 
