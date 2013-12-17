@@ -438,7 +438,7 @@ enabled.</p>
 </div>
 </div>
 <div class="section" id="json-and-xml-rendering">
-<h2>JSON and XML Rendering<a class="headerlink" href="#json-and-xml-rendering" title="Permalink to this headline">¶</a></h2>
+<span id="jsonxml"></span><h2>JSON and XML Rendering<a class="headerlink" href="#json-and-xml-rendering" title="Permalink to this headline">¶</a></h2>
 <p>Eve responses are automatically rendered as JSON (the default) or XML,
 depending on the request <tt class="docutils literal"><span class="pre">Accept</span></tt> header. Inbound documents (for inserts and
 edits) are in JSON format.</p>
@@ -454,6 +454,10 @@ edits) are in JSON format.</p>
 <span class="nt">&lt;/resource&gt;</span>
 </pre></div>
 </div>
+<p>XML support can be disabled by setting <tt class="docutils literal"><span class="pre">XML</span></tt> to <tt class="docutils literal"><span class="pre">False</span></tt> in the settings
+file. JSON support can be disabled by setting <tt class="docutils literal"><span class="pre">JSON</span></tt> to <tt class="docutils literal"><span class="pre">False</span></tt>.  Please
+note that at least one mime type must always be enabled, either implicitly or
+explicitly. By default, both are supported.</p>
 </div>
 <div class="section" id="conditional-requests">
 <span id="id1"></span><h2>Conditional Requests<a class="headerlink" href="#conditional-requests" title="Permalink to this headline">¶</a></h2>
