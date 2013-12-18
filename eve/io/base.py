@@ -9,11 +9,12 @@
     :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-from eve.utils import config, debug_error_message
-from flask import request, abort
-import simplejson as json
-from eve.utils import date_to_str
 import datetime
+import simplejson as json
+from flask import request, abort
+from eve.utils import date_to_str
+from eve.auth import auth_field_and_value
+from eve.utils import config, debug_error_message
 
 
 class BaseJSONEncoder(json.JSONEncoder):
@@ -258,6 +259,10 @@ class DataLayer(object):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to.
 
+        .. versionchanged:: 0.3
+           auth_field and request_auth_value fetching is now delegated to
+           auth.auth_field_and value().
+
         .. versionchanged:: 0.2
            Difference between resource and item endpoints is now determined
            by the presence of a '|' in request.endpoint.
@@ -323,45 +328,30 @@ class DataLayer(object):
         # If the current HTTP method is in `public_methods` or
         # `public_item_methods`, skip the `auth_field` check
 
-        if '|resource' in request.endpoint:
-            # We are on a resource endpoint and need to check against
-            # `public_methods`
-            public_method_list_to_check = 'public_methods'
-        else:
-            # We are on an item endpoint and need to check against
-            # `public_item_methods`
-            public_method_list_to_check = 'public_item_methods'
-
-        # Is the HTTP method not public?
-        resource_dict = config.DOMAIN[resource]
-        auth = resource_dict['authentication']
-        request_auth_value = auth.request_auth_value if auth else None
-        if request.method not in resource_dict[public_method_list_to_check]:
-            # We need to run the 'user-restricted resource access' check
-            auth_field = resource_dict.get('auth_field', None)
-            if auth_field and request.authorization and request_auth_value \
-                    and query is not None:
-                # If the auth_field *replaces* a field in the query,
-                # and the values are /different/, deny the request
-                # This prevents the auth_field condition from
-                # overwriting the query (issue #77)
-                auth_field_in_query = \
-                    self.app.data.query_contains_field(query, auth_field)
-                if auth_field_in_query and \
+        auth_field, request_auth_value = auth_field_and_value(resource)
+        if auth_field and request.authorization and request_auth_value \
+                and query is not None:
+            # If the auth_field *replaces* a field in the query,
+            # and the values are /different/, deny the request
+            # This prevents the auth_field condition from
+            # overwriting the query (issue #77)
+            auth_field_in_query = \
+                self.app.data.query_contains_field(query, auth_field)
+            if auth_field_in_query and \
+                    self.app.data.get_value_from_query(
+                        query, auth_field) != request_auth_value:
+                abort(401, description=debug_error_message(
+                    'Incompatible User-Restricted Resource request. '
+                    'Request was for "%s"="%s" but `auth_field` '
+                    'requires "%s"="%s".' % (
+                        auth_field,
                         self.app.data.get_value_from_query(
-                            query, auth_field) != request_auth_value:
-                    abort(401, description=debug_error_message(
-                        'Incompatible User-Restricted Resource request. '
-                        'Request was for "%s"="%s" but `auth_field` '
-                        'requires "%s"="%s".' % (
-                            auth_field,
-                            self.app.data.get_value_from_query(
-                                query, auth_field),
-                            auth_field,
-                            request_auth_value)
-                    ))
-                else:
-                    query = self.app.data.combine_queries(
-                        query, {auth_field: request_auth_value}
-                    )
+                            query, auth_field),
+                        auth_field,
+                        request_auth_value)
+                ))
+            else:
+                query = self.app.data.combine_queries(
+                    query, {auth_field: request_auth_value}
+                )
         return datasource, query, fields, sort
