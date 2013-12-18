@@ -260,7 +260,9 @@ class DataLayer(object):
         to which an API resource refers to.
 
         .. versionchanged:: 0.3
-           auth_field and request_auth_value fetching is now delegated to
+           Only inject auth_field in queries when we are not creating new
+           documents.
+           'auth_field' and 'request_auth_value' fetching is now delegated to
            auth.auth_field_and value().
 
         .. versionchanged:: 0.2
@@ -328,30 +330,33 @@ class DataLayer(object):
         # If the current HTTP method is in `public_methods` or
         # `public_item_methods`, skip the `auth_field` check
 
-        auth_field, request_auth_value = auth_field_and_value(resource)
-        if auth_field and request.authorization and request_auth_value \
-                and query is not None:
-            # If the auth_field *replaces* a field in the query,
-            # and the values are /different/, deny the request
-            # This prevents the auth_field condition from
-            # overwriting the query (issue #77)
-            auth_field_in_query = \
-                self.app.data.query_contains_field(query, auth_field)
-            if auth_field_in_query and \
-                    self.app.data.get_value_from_query(
-                        query, auth_field) != request_auth_value:
-                abort(401, description=debug_error_message(
-                    'Incompatible User-Restricted Resource request. '
-                    'Request was for "%s"="%s" but `auth_field` '
-                    'requires "%s"="%s".' % (
-                        auth_field,
+        # Only inject the auth_field in the query when not creating new
+        # documents.
+        if request.method not in ('POST', 'PUT'):
+            auth_field, request_auth_value = auth_field_and_value(resource)
+            if auth_field and request.authorization and request_auth_value \
+                    and query is not None:
+                # If the auth_field *replaces* a field in the query,
+                # and the values are /different/, deny the request
+                # This prevents the auth_field condition from
+                # overwriting the query (issue #77)
+                auth_field_in_query = \
+                    self.app.data.query_contains_field(query, auth_field)
+                if auth_field_in_query and \
                         self.app.data.get_value_from_query(
-                            query, auth_field),
-                        auth_field,
-                        request_auth_value)
-                ))
-            else:
-                query = self.app.data.combine_queries(
-                    query, {auth_field: request_auth_value}
-                )
+                            query, auth_field) != request_auth_value:
+                    abort(401, description=debug_error_message(
+                        'Incompatible User-Restricted Resource request. '
+                        'Request was for "%s"="%s" but `auth_field` '
+                        'requires "%s"="%s".' % (
+                            auth_field,
+                            self.app.data.get_value_from_query(
+                                query, auth_field),
+                            auth_field,
+                            request_auth_value)
+                    ))
+                else:
+                    query = self.app.data.combine_queries(
+                        query, {auth_field: request_auth_value}
+                    )
         return datasource, query, fields, sort
