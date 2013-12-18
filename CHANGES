@@ -8,6 +8,8 @@ Version 0.3
 
 Not released yet.
 
+- [fix] ``DELETE`` on a resource endpoint honors User-Restricted Resource
+  Access. Closes #213.
 - [new] ``JSON`` allows to enable/disable JSON responses. Defaults to ``True``
   (JSON enabled).
 - [new] ``XML`` allows to enable/disable XML responses. Defaults to ``True``

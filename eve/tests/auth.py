@@ -6,6 +6,7 @@ import json
 from eve import Eve
 from eve.auth import BasicAuth, TokenAuth, HMACAuth
 from eve.tests import TestBase
+from eve.tests.test_settings import MONGO_DBNAME
 
 
 class ValidBasicAuth(BasicAuth):
@@ -423,8 +424,7 @@ class TestUserRestrictedAccess(TestBase):
         url = '%s/%s' % (self.url, data['_id'])
         response = self.test_client.get(url, headers=self.valid_auth)
         etag = response.headers['ETag']
-        headers = [('If-Match', etag),
-                   self.valid_auth[0]]
+        headers = [('If-Match', etag), self.valid_auth[0]]
         response, status = self.parse_response(
             self.test_client.patch(url, data=json.dumps(changes),
                                    headers=headers,
@@ -437,15 +437,62 @@ class TestUserRestrictedAccess(TestBase):
         self.assertEqual(data['ref'], new_ref)
 
     def test_delete(self):
-        data, status = self.post()
+        _db = self.connection[MONGO_DBNAME]
+
+        # make sure that other documents in the collections are untouched.
+        cursor = _db.contacts.find()
+        docs_num = cursor.count()
+
+        _, _ = self.post()
+
+        # after the post we only get back 1 document as it's the only one we
+        # inserted directly (others are filtered out).
+        response, status = self.parse_response(
+            self.test_client.get(self.url, headers=self.valid_auth))
+        self.assert200(status)
+        self.assertEqual(len(response[self.app.config['ITEMS']]), 1)
+
+        # delete the document we just inserted
+        response, status = self.parse_response(
+            self.test_client.delete(self.url, headers=self.valid_auth))
+        self.assert200(status)
+
+        # we now get an empty items list (other documents in collection are
+        # filtered by auth).
+        response, status = self.parse_response(
+            self.test_client.get(self.url, headers=self.valid_auth))
+        self.assert200(status)
+        # if it's a dict, we only got 1 item back which is expected
+        self.assertEqual(len(response[self.app.config['ITEMS']]), 0)
+
+        # make sure no other document has been deleted.
+        cursor = _db.contacts.find()
+        self.assertEqual(cursor.count(), docs_num)
+
+    def test_delete_item(self):
+        _db = self.connection[MONGO_DBNAME]
+
+        # make sure that other documents in the collections are untouched.
+        cursor = _db.contacts.find()
+        docs_num = cursor.count()
+
+        data, _ = self.post()
+
+        # get back the document with its new etag
         url = '%s/%s' % (self.url, data['_id'])
         response = self.test_client.get(url, headers=self.valid_auth)
         etag = response.headers['ETag']
         headers = [('If-Match', etag),
                    ('Authorization', 'Basic YWRtaW46c2VjcmV0')]
+
+        # delete the document
         response, status = self.parse_response(
             self.test_client.delete(url, headers=headers))
         self.assert200(status)
+
+        # make sure no other document has been deleted.
+        cursor = _db.contacts.find()
+        self.assertEqual(cursor.count(), docs_num)
 
     def post(self):
         r = self.test_client.post(self.url,
