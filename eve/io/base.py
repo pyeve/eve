@@ -195,17 +195,20 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
-    def remove(self, resource, id_=None):
+    def remove(self, resource, lookup={}):
         """ Removes a document/row or an entire set of documents/rows from a
         database collection/table.
 
         :param resource: resource being accessed. You should then use
                          the ``_datasource`` helper function to retrieve
                          the actual datasource name.
-        :param id_: the unique id of the document to be removed. If `None`,
-                    all the documents/rows in the collection/table should be
-                    removed.
+        :param lookup: a dict with the query that documents must match in order
+                       to qualify for deletion. For single document deletes,
+                       this is usually the unique id of the document to be
+                       removed.
 
+        .. versionchanged:: 0.3
+           '_id' arg removed; replaced with 'lookup'.
         """
         raise NotImplementedError
 

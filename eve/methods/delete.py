@@ -26,6 +26,10 @@ def delete(resource, **lookup):
     :param resource: name of the resource to which the item(s) belong.
     :param **lookup: item lookup query.
 
+    .. versionchanged:: 0.3
+       Pass the explicit query filter to the data driver, as it does not
+       support the id argument anymore.
+
     .. versionchanged:: 0.2
        Raise pre_<method> event.
 
@@ -43,20 +47,24 @@ def delete(resource, **lookup):
     if not original:
         abort(404)
 
-    app.data.remove(resource, original[config.ID_FIELD])
+    app.data.remove(resource, {config.ID_FIELD: original[config.ID_FIELD]})
     return {}, None, None, 200
 
 
 @requires_auth('resource')
 @pre_event
-def delete_resource(resource):
+def delete_resource(resource, lookup):
     """ Deletes all item of a resource (collection in MongoDB terms). Won't
     drop indexes. Use with caution!
+
+    .. versionchanged:: 0.3
+       Support for the lookup filter, which allows for develtion of
+       sub-resources (only delete documents that match a given condition).
 
     .. versionchanged:: 0.0.4
        Added the ``requires_auth`` decorator.
 
     .. versionadded:: 0.0.2
     """
-    app.data.remove(resource)
+    app.data.remove(resource, lookup)
     return {}, None, None, 200

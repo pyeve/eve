@@ -359,9 +359,13 @@ class Mongo(DataLayer):
                 'pymongo.errors.OperationFailure: %s' % e
             ))
 
-    def remove(self, resource, id_=None):
+    def remove(self, resource, lookup):
         """ Removes a document or the entire set of documents from a
         collection.
+
+        .. versionchanged:: 0.3
+           Support lookup arg, which allows to properly delete sub-resources
+           (only delete documents that meet a certain constraint).
 
         .. versionchanged:: 0.2
            Don't explicitly converto ID_FIELD to ObjectId anymore, so we can
@@ -382,8 +386,8 @@ class Mongo(DataLayer):
         .. versionadded:: 0.0.2
             Support for deletion of entire documents collection.
         """
-        query = {config.ID_FIELD: id_} if id_ else None
-        datasource, filter_, _, _ = self._datasource_ex(resource, query)
+        lookup = self._mongotize(lookup, resource)
+        datasource, filter_, _, _ = self._datasource_ex(resource, lookup)
         try:
             self.driver.db[datasource].remove(filter_, **self._wc(resource))
         except pymongo.errors.OperationFailure as e:

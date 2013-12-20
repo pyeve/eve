@@ -26,6 +26,10 @@ def collections_endpoint(**lookup):
 
     :param url: the url that led here
 
+    .. versionchanged:: 0.3
+       Pass lookup query down to delete_resource, so it can properly process
+       sub-resources.
+
     .. versionchanged:: 0.2
        Relying on request.endpoint to retrieve the resource being consumed.
 
@@ -50,7 +54,7 @@ def collections_endpoint(**lookup):
     elif method == 'POST':
         response = post(resource)
     elif method == 'DELETE':
-        response = delete_resource(resource)
+        response = delete_resource(resource, lookup)
     elif method == 'OPTIONS':
         send_response(resource, response)
     else:
