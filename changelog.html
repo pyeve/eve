@@ -61,6 +61,10 @@
 <h2>Version 0.3<a class="headerlink" href="#version-0-3" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[fix] <a href="#id1"><span class="problematic" id="id2">``</span></a>DELETE `` on sub-resources should only delete documents referenced by
+the parent. Closes #212.</li>
+<li>[fix] <tt class="docutils literal"><span class="pre">DELETE</span></tt> on a resource endpoint honors User-Restricted Resource
+Access. Closes #213.</li>
 <li>[new] <tt class="docutils literal"><span class="pre">JSON</span></tt> allows to enable/disable JSON responses. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>
 (JSON enabled).</li>
 <li>[new] <tt class="docutils literal"><span class="pre">XML</span></tt> allows to enable/disable XML responses. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>
@@ -225,8 +229,8 @@ level.</li>
 <li><tt class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></tt> supported for all HTTP Methods. Closes #95.</li>
 </ul>
 </div>
-<div class="section" id="id1">
-<h3>Enhancements<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h3>Enhancements<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>HTTP method is now passed into <tt class="docutils literal"><span class="pre">authenticate()</span></tt> and <tt class="docutils literal"><span class="pre">check_auth()</span></tt> (Ken
 Carpenter). Closes #90 .</li>
@@ -239,8 +243,8 @@ introduced in v0.0.9.</li>
 <li>Cerberus 0.4.0 is now supported.</li>
 </ul>
 </div>
-<div class="section" id="id2">
-<h3>Fixes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id4">
+<h3>Fixes<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Item <tt class="docutils literal"><span class="pre">GET</span></tt> on documents with non-existent &#8216;created&#8217; field (because
 stored outside of API context) were not returning a default value for the
@@ -606,8 +610,8 @@ signature, allowing for further subclassing.</li>
 </li>
 <li><a class="reference internal" href="#version-0-1">Version 0.1</a><ul>
 <li><a class="reference internal" href="#new-features">New Features</a></li>
-<li><a class="reference internal" href="#id1">Enhancements</a></li>
-<li><a class="reference internal" href="#id2">Fixes</a></li>
+<li><a class="reference internal" href="#id3">Enhancements</a></li>
+<li><a class="reference internal" href="#id4">Fixes</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#version-0-0-9">Version 0.0.9</a></li>
