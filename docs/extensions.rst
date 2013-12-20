@@ -6,6 +6,17 @@ that extend Eve. This list is moderated and updated on a regular basis. If you
 wrote a package for Eve and want it to show up here, just `get in touch`_ and
 show me your tool! 
 
+Eve-Mongoengine
+---------------
+
+| *by Stanislav Heller*
+
+Eve-Mongoengine_ is an Eve extension, which enables Mongoengine ORM models to
+be used as eve schema. If you use mongoengine in your application and
+simultaneously want to use Eve, instead of writing schema again in Cerberus
+format (DRY!), you can use this extension, which takes your mongoengine models
+and auto-transforms them into Cerberus schema under the hood. 
+
 Eve-Docs
 --------
 
@@ -31,3 +42,4 @@ APIs`_
 .. _eve-mocker: https://github.com/tsileo/eve-mocker
 .. _Eve-docs: https://github.com/charlesflynn/eve-docs
 .. _`get in touch`: mailto:eve@nicolaiarocci.com
+.. _Eve-Mongoengine: https://github.com/hellerstanislav/eve-mongoengine
