@@ -226,8 +226,12 @@ def resource_uri(resource):
 
     :param resource: the resource name.
     """
-    server_name = config.SERVER_NAME if config.SERVER_NAME else ''
-    return '%s/%s' % (server_name, config.URLS[resource])
+    prefix = config.SERVER_NAME if config.SERVER_NAME else ''
+    if config.URL_PREFIX:
+        prefix += '/%s' % config.URL_PREFIX
+    if config.API_VERSION:
+        prefix += '/%s' % config.API_VERSION
+    return '%s/%s' % (prefix, config.URLS[resource])
 
 
 def api_prefix(url_prefix=None, api_version=None):
