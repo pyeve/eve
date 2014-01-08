@@ -11,6 +11,10 @@
     :copyright: (c) 2013 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.3
+       'RESOURCE_TYPE_DOCUMENTS' defaults to 'documents'.
+       'RESOURCE_TYPE_OBJECTS' defaults to 'objects'.
+
     .. versionchanged:: 0.2
        IF_MAATCH defaults to True.
        'LINKS' defaults to '_links'.
@@ -58,6 +62,9 @@ STATUS = '_status'
 ITEMS = '_items'
 LINKS = '_links'
 ETAG = '_etag'
+
+RESOURCE_TYPE_DOCUMENTS = 'documents'
+RESOURCE_TYPE_OBJECTS = 'objects'
 
 API_VERSION = ''
 URL_PREFIX = ''
