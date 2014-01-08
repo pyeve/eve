@@ -115,6 +115,15 @@ class TestConfig(TestBase):
         self.app.config['DOMAIN']['test_resource'] = test
         self.assertValidateConfigFailure('PUT')
 
+    def test_validate_schema_object_item_methods(self):
+        test = {
+            'resource_type': self.app.config['RESOURCE_TYPE_OBJECTS'],
+            'resource_methods': ['PUT', 'PATCH', 'DELETE', 'GET'],
+        }
+        self.app.config['DOMAIN']['test_resource'] = test
+        # oject endpoints won't support PATCH
+        self.assertValidateConfigFailure('PATCH')
+
     def test_validate_datecreated_in_schema(self):
         self.assertUnallowedField(eve.DATE_CREATED)
 

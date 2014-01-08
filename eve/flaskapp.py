@@ -269,17 +269,22 @@ class Eve(Flask, Events):
         resource_type = settings['resource_type']
         if resource_type == self.config['RESOURCE_TYPE_DOCUMENTS']:
             supported = self.supported_item_methods
+            schema_needed = True
         elif resource_type == self.config['RESOURCE_TYPE_OBJECTS']:
             supported = self.supported_object_methods
+            # object-type endpoints don't necessarily need a schema (clients
+            # can upload objects right away; schema is needed only if meta
+            # fields are deemed necessary by the API maintainer).
+            schema_needed = False
 
         self.validate_methods(supported, settings['item_methods'],
                               '[%s] item ' % resource)
 
         # while a resource schema is optional for read-only access,
         # it is mandatory for write-access to resource/items.
-        if 'POST' in settings['resource_methods'] or \
-           'PATCH' in settings['item_methods']:
-            if len(settings['schema']) == 0:
+        if len(settings['schema']) == 0 and schema_needed:
+            if 'POST' in settings['resource_methods'] or \
+                    settings['item_methods']in ('PATCH', 'PUT'):
                 raise ConfigException('A resource schema must be provided '
                                       'when POST or PATCH methods are allowed'
                                       'for a resource [%s].' % resource)
