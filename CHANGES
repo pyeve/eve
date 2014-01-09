@@ -8,6 +8,7 @@ Version 0.3
 
 Not released yet.
 
+- [new] ``file`` data type support and validation for resource schema.
 - [new] ``multipart/form-data`` content-type is now supported for requests.
 - [fix] ``URL_PREFIX`` and ``API_VERSION`` are correctly reported in HATOEAS
   links.

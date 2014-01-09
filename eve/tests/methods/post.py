@@ -3,7 +3,7 @@ from eve.tests import TestBase
 import simplejson as json
 from ast import literal_eval
 from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, DATE_CREATED, ISSUES, \
-    STATUS, ETAG
+    STATUS, ETAG, STATUS_ERR
 
 
 class TestPost(TestBase):
@@ -93,6 +93,23 @@ class TestPost(TestBase):
         test_value = "50656e4538345b39dd0414f0"
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
+
+    def test_post_file(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+
+        # send a file with no issues
+        data = {'image': io.BytesIO(b'test data')}
+        headers = [('Content-Type', 'multipart/form-data')]
+        url = self.known_resource_url
+        r = self.test_client.post(url, data=data, headers=headers)
+        self.assert200(r.status_code)
+
+        # send something different than a file and get an error back
+        data = {'image': 'not a file'}
+        r, s = self.parse_response(
+            self.test_client.post(url, data=data, headers=headers))
+        self.assertEqual(STATUS_ERR, r[STATUS])
+        self.assertTrue('file was expected' in r[ISSUES]['image'])
 
     def test_post_default_value(self):
         test_field = 'title'

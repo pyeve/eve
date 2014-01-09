@@ -718,7 +718,7 @@ defining the field validation rules. Allowed validation rules are:
 ``type``                        Field data type. Can be one of the following:
                                 ``string``, ``integer``, ``boolean``,
                                 ``float``, ``datetime``, ``dict``, ``list``,
-                                ``objectid``.
+                                ``objectid``, ``file``.
 
 ``required``                    If ``True``, the field is mandatory on
                                 insertion.
