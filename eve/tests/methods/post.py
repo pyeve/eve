@@ -1,3 +1,4 @@
+import io
 from eve.tests import TestBase
 import simplejson as json
 from ast import literal_eval
@@ -312,6 +313,24 @@ class TestPost(TestBase):
         data = {test_field: test_value}
         r, status = self.post(self.known_resource_url, data=data)
         self.assertTrue(ETAG not in r)
+
+    def tests_post_multipart(self):
+        # send a file (request.files involved)
+        data = {'picture': io.BytesIO(b'test data')}
+        headers = [('Content-Type', 'multipart/form-data')]
+        url = self.known_resource_url
+        r = self.test_client.post(url, data=data, headers=headers)
+        self.assert200(r.status_code)
+
+        # send a form (request.form involved)
+        data = {'test': 'test'}
+        r = self.test_client.post(url, data=data, headers=headers)
+        self.assert200(r.status_code)
+
+        # empty payload should still return 400
+        data = {}
+        r = self.test_client.post(url, data=data, headers=headers)
+        self.assert400(r.status_code)
 
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)

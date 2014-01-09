@@ -105,6 +105,9 @@ def payload():
     then returns the request payload as a dict. If request Content-Type is
     unsupported, aborts with a 400 (Bad Request).
 
+    .. versionchanged:: 0.3
+       Allow 'multipart/form-data' content type.
+
     .. versionchanged:: 0.1.1
        Payload returned as a standard python dict regardless of request content
        type.
@@ -127,6 +130,19 @@ def payload():
         return request.form.to_dict() if len(request.form) else \
             abort(400, description=debug_error_message(
                 'No form-urlencoded data supplied'
+            ))
+    elif content_type == 'multipart/form-data':
+        # as multipart is also used for file uploads, we let an empty
+        # request.form go through as long as there are also files in the
+        # request.
+        if len(request.form) or len(request.files):
+            # merge form fields and request files, so we get a single payload
+            # to be validated against the resource schema.
+            return dict(request.form.to_dict().items() +
+                        request.files.to_dict().items())
+        else:
+            abort(400, description=debug_error_message(
+                'No multipart/form-data supplied'
             ))
     else:
         abort(400, description=debug_error_message(
