@@ -67,9 +67,6 @@ class Eve(Flask, Events):
                          as eve.io.base.BaseJSONEncoder subclass.
     :param kwargs: optional, standard, Flask parameters.
 
-    .. versionchanged:: 0.3
-       Support for 'object' type resource methods.
-
     .. versionchanged:: 0.2
        Support for additional Flask url converters.
        Support for optional, custom json encoder class.
@@ -254,9 +251,6 @@ class Eve(Flask, Events):
         :param resource: name of the resource which settings refer to.
         :param settings: settings of resource to be validated.
 
-        .. versionchanged:: 0.3
-           Support for 'object' type resource methods.
-
         .. versionadded:: 0.2
         """
         self.validate_methods(self.supported_resource_methods,
@@ -429,8 +423,6 @@ class Eve(Flask, Events):
            'embedded_fields'.
            Support for endpoint-level authenticatoin classes.
         """
-        settings.setdefault('resource_type',
-                            self.config['RESOURCE_TYPE_DOCUMENTS'])
         settings.setdefault('url', resource)
         settings.setdefault('resource_methods',
                             self.config['RESOURCE_METHODS'])

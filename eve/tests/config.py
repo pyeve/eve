@@ -110,7 +110,6 @@ class TestConfig(TestBase):
         test = {
             'resource_methods': ['GET'],
             'item_methods': ['POST'],
-            'resource_type': 'documents',
         }
         self.app.config['DOMAIN']['test_resource'] = test
         self.assertValidateConfigFailure('PUT')
@@ -155,8 +154,6 @@ class TestConfig(TestBase):
 
     def _test_defaults_for_resource(self, resource):
         settings = self.domain[resource]
-        self.assertEqual(settings['resource_type'],
-                         self.app.config['RESOURCE_TYPE_DOCUMENTS'])
         self.assertEqual(settings['url'], resource)
         self.assertEqual(settings['resource_methods'],
                          self.app.config['RESOURCE_METHODS'])

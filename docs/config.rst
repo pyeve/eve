@@ -352,13 +352,6 @@ uppercase.
                                 otherwise. See :ref:`jsonxml`. Defaults to 
                                 ``True``.
 
-``RESOURCE_TYPE_DOCUMENTS``     Identifier for ``resource_type`` of documents 
-                                type. This is default type for all resource
-                                endpoints. Defaults to ``documents``. 
-
-``RESOURCE_TYPE_OBJECTS``       Identifier for ``resource_type`` of object 
-                                type. Defaults to ``objects``. 
-
 ``MONGO_HOST``                  MongoDB server address. Defaults to ``localhost``.
 
 ``MONGO_PORT``                  MongoDB port. Defaults to ``27017``.
@@ -435,19 +428,6 @@ always lowercase.
 .. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
 
 =============================== ===============================================
-``resource_type``               The resource type handled by the endpoint.  Two 
-                                types are supported:
-                                ``RESOURCE_TYPE_DOCUMENTS`` and
-                                ``RESOURCE_TYPE_OBJECTS``. The former is used
-                                to store normal documents and is the default,
-                                the latter is reserved to endpoints dedicated to
-                                the storing of 'objects' (images, pdfs, files, etc.). 
-                                
-                                Object endpoints support file uploads (use the
-                                ``multipart/form-data`` enctryption type
-                                requests) and are optimized for storing large
-                                objects.
-
 ``url``                         The endpoint URL. If omitted the resource key 
                                 of the ``DOMAIN`` dict will be used to build
                                 the URL. As an example, ``contacts`` would make
