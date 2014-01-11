@@ -94,22 +94,22 @@ class TestPost(TestBase):
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 
-    def test_post_file(self):
+    def test_post_media(self):
         del(self.domain['contacts']['schema']['ref']['required'])
 
         # send a file with no issues
-        data = {'image': io.BytesIO(b'test data')}
+        data = {'media': io.BytesIO(b'test data')}
         headers = [('Content-Type', 'multipart/form-data')]
         url = self.known_resource_url
         r = self.test_client.post(url, data=data, headers=headers)
         self.assert200(r.status_code)
 
         # send something different than a file and get an error back
-        data = {'image': 'not a file'}
+        data = {'media': 'not a file'}
         r, s = self.parse_response(
             self.test_client.post(url, data=data, headers=headers))
         self.assertEqual(STATUS_ERR, r[STATUS])
-        self.assertTrue('file was expected' in r[ISSUES]['image'])
+        self.assertTrue('file was expected' in r[ISSUES]['media'])
 
     def test_post_default_value(self):
         test_field = 'title'

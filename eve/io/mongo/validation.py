@@ -134,8 +134,8 @@ class Validator(Validator):
             self._error(field, "value '%s' cannot be converted to a ObjectId"
                         % value)
 
-    def _validate_type_file(self, field, value):
-        """ Enables validation for `file` data type.
+    def _validate_type_media(self, field, value):
+        """ Enables validation for `media` data type.
 
         :param field: field name.
         :param value: field value.

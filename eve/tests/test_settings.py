@@ -34,8 +34,8 @@ contacts = {
             'required': True,
             'unique': True,
         },
-        'image': {
-            'type': 'file'
+        'media': {
+            'type': 'media'
         },
         'prog': {
             'type': 'integer'
