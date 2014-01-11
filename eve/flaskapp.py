@@ -92,14 +92,11 @@ class Eve(Flask, Events):
     .. versionchanged:: 0.0.4
        'auth' argument added to handle authentication classes
     """
-    # Allowed methods for resource endpoints
+    #: Allowed methods for resource endpoints
     supported_resource_methods = ['GET', 'POST', 'DELETE']
 
-    # Allowed methods for item endpoints
+    #: Allowed methods for item endpoints
     supported_item_methods = ['GET', 'PATCH', 'DELETE', 'PUT']
-
-    # Allowed methods for object (images, pdfs, etc.) endpoints.
-    supported_object_methods = ['GET', 'DELETE', 'PUT']
 
     def __init__(self, import_name=__package__, settings='settings.py',
                  validator=Validator, data=Mongo, auth=None, redis=None,
@@ -229,7 +226,7 @@ class Eve(Flask, Events):
            Resource validation delegated to _validate_resource_settings().
 
         .. versionchanged:: 0.1.0
-           Support for PUT method.
+        Support for PUT method.
 
         .. versionchanged:: 0.0.4
            Support for 'allowed_roles' and 'allowed_item_roles'
@@ -265,14 +262,8 @@ class Eve(Flask, Events):
         self.validate_methods(self.supported_resource_methods,
                               settings['resource_methods'],
                               '[%s] resource ' % resource)
-
-        resource_type = settings['resource_type']
-        if resource_type == self.config['RESOURCE_TYPE_DOCUMENTS']:
-            supported = self.supported_item_methods
-        elif resource_type == self.config['RESOURCE_TYPE_OBJECTS']:
-            supported = self.supported_object_methods
-
-        self.validate_methods(supported, settings['item_methods'],
+        self.validate_methods(self.supported_item_methods,
+                              settings['item_methods'],
                               '[%s] item ' % resource)
 
         # while a resource schema is optional for read-only access,
