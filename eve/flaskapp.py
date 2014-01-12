@@ -17,7 +17,7 @@ import os
 from flask import Flask
 from werkzeug.routing import BaseConverter
 from werkzeug.serving import WSGIRequestHandler
-from eve.io.mongo import Mongo, Validator
+from eve.io.mongo import Mongo, Validator, GridFSMediaStorage
 from eve.exceptions import ConfigException, SchemaException
 from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint
 from eve.utils import api_prefix, extract_key_values
@@ -97,7 +97,8 @@ class Eve(Flask, Events):
 
     def __init__(self, import_name=__package__, settings='settings.py',
                  validator=Validator, data=Mongo, auth=None, redis=None,
-                 url_converters=None, json_encoder=None, **kwargs):
+                 url_converters=None, json_encoder=None,
+                 media=GridFSMediaStorage, **kwargs):
         """ Eve main WSGI app is implemented as a Flask subclass. Since we want
         to be able to launch our API by simply invoking Flask's run() method,
         we need to enhance our super-class a little bit.
@@ -130,6 +131,7 @@ class Eve(Flask, Events):
         self.validate_domain_struct()
 
         self.data = data(self)
+        self.media = media(self)
 
         # enable regex routing
         self.url_map.converters['regex'] = RegexConverter

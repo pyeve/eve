@@ -8,6 +8,8 @@ Version 0.3
 
 Not released yet.
 
+- [new] ``media`` application argument. Allows to specify a media storage
+  class to be used to store media files. Defaults to ``GridFSMediaStorage``.
 - [new] ``GridFSMediaStorage`` class. Stores files into GridFS.
 - [new] ``MediaStorage`` class provides a standardized API for storing files,
   along with a set of default behaviors that all other storage systems can
