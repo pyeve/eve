@@ -326,8 +326,8 @@ class DataLayer(object):
             # only allow fields which are included with the standard projection
             # for the resource (avoid sniffing of private fields)
             fields = dict(
-                (field, 1) for (field) in [key for key in client_projection if
-                                           key in projection_])
+                (field, value) for field, value in client_projection.items() if
+                field in projection_)
         else:
             fields = projection_
 

@@ -16,6 +16,9 @@ Not released yet.
   inherit or override as necessary.
 - [new] ``file`` data type support and validation for resource schema.
 - [new] ``multipart/form-data`` content-type is now supported for requests.
+- [fix] Field exclusion (``?projection={"fieldname": 0}``) now supported in
+  client projections. Remember, mixing field inclusion and exclusion is still
+  not supported by MongoDB.
 - [fix] ``URL_PREFIX`` and ``API_VERSION`` are correctly reported in HATOEAS
   links.
 - [fix] ``DELETE`` on sub-resources should only delete documents referenced by

@@ -167,6 +167,21 @@ class TestGet(TestBase):
             self.assertTrue(self.app.config['LAST_UPDATED'] in r)
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
 
+        projection = '{"prog": 0}'
+        response, status = self.get(self.known_resource, '?projection=%s' %
+                                    projection)
+        self.assert200(status)
+
+        resource = response['_items']
+
+        for r in resource:
+            self.assertFalse('prog' in r)
+            self.assertTrue('location' in r)
+            self.assertTrue('role' in r)
+            self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+            self.assertTrue(self.app.config['DATE_CREATED'] in r)
+
     def test_get_projection_noschema(self):
         self.app.config['DOMAIN'][self.known_resource]['schema'] = {}
         response, status = self.get(self.known_resource)
