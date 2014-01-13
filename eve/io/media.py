@@ -38,12 +38,12 @@ class MediaStorage(object):
         """ Saves a new file using the storage system, preferably with the name
         specified. If there already exists a file with this name name, the
         storage system may modify the filename as necessary to get a unique
-        name. The actual name of the stored file will be returned, along with
-        its unique id if applicable.
+        name. Depending on the storage system, a unique id or the actual name
+        of the stored file will be returned.
         """
         raise NotImplementedError
 
-    def delete(self, if_or_filename):
+    def delete(self, id_or_filename):
         """ Deletes the file referenced by name or unique id. If deletion is
         not supported on the target storage system this will raise
         NotImplementedError instead
