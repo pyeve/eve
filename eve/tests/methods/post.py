@@ -1,4 +1,4 @@
-import io
+from cStringIO import StringIO
 from eve.tests import TestBase
 import simplejson as json
 from ast import literal_eval
@@ -98,11 +98,12 @@ class TestPost(TestBase):
         del(self.domain['contacts']['schema']['ref']['required'])
 
         # send a file with no issues
-        data = {'media': io.BytesIO(b'test data')}
+        data={'media': (StringIO('my file contents'), 'test.txt')}
         headers = [('Content-Type', 'multipart/form-data')]
         url = self.known_resource_url
-        r = self.test_client.post(url, data=data, headers=headers)
-        self.assert200(r.status_code)
+        r, s = self.parse_response(
+            self.test_client.post(url, data=data, headers=headers))
+        self.assertEqual(STATUS_OK, r[STATUS])
 
         # send something different than a file and get an error back
         data = {'media': 'not a file'}
