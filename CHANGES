@@ -8,6 +8,9 @@ Version 0.3
 
 Not released yet.
 
+- [fix] Field exclusion (``?projection={"fieldname": 0}``) now supported in
+  client projections. Remember, mixing field inclusion and exclusion is still
+  not supported by MongoDB.
 - [fix] ``URL_PREFIX`` and ``API_VERSION`` are correctly reported in HATOEAS
   links.
 - [fix] ``DELETE`` on sub-resources should only delete documents referenced by
