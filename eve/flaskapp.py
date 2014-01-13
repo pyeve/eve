@@ -65,7 +65,13 @@ class Eve(Flask, Events):
     :param json_encoder: custom json encoder class. Must be a
                          JSONEncoder subclass. You probably wnat it to be
                          as eve.io.base.BaseJSONEncoder subclass.
+    :param media: the media storage class. Must be a
+                  :class:`~eve.io.media.MediaStorage` subclass.
     :param kwargs: optional, standard, Flask parameters.
+
+    .. versionchanged:: 0.3
+       Support for optional media storage system. Defaults to
+       GridFSMediaStorage.
 
     .. versionchanged:: 0.2
        Support for additional Flask url converters.
@@ -102,24 +108,6 @@ class Eve(Flask, Events):
         """ Eve main WSGI app is implemented as a Flask subclass. Since we want
         to be able to launch our API by simply invoking Flask's run() method,
         we need to enhance our super-class a little bit.
-
-        The tasks we need to accomplish are:
-
-            1. enbale regex routing
-            2. enable optional url_converters, if any
-            3. enable optional json_encoder class, if any
-            4. load and validate custom API settings
-            5. enable API endpoints
-            6. set the validator class used to validate incoming objects
-            7. activate the chosen data layer
-            8. instance the authentication layer if needed
-            9. set the redis instance to be used by the Rate-Limiting feature
-
-        .. versionchanged:: 0.2
-           Support for additional, optional Flask url_converters.
-           Support for optional, custom json encoder class.
-           Support for endpoint-level authenticatoin classes.
-           Validate and set defaults for each resource
         """
 
         super(Eve, self).__init__(import_name, **kwargs)
@@ -130,9 +118,6 @@ class Eve(Flask, Events):
         self.load_config()
         self.validate_domain_struct()
 
-        self.data = data(self)
-        self.media = media(self)
-
         # enable regex routing
         self.url_map.converters['regex'] = RegexConverter
 
@@ -140,9 +125,11 @@ class Eve(Flask, Events):
         if url_converters:
             self.url_map.converters.update(url_converters)
 
+        self.data = data(self)
         if json_encoder:
             self.data.json_encoder_class = json_encoder
 
+        self.media = media(self) if media else None
         self.auth = auth() if auth else None
         self.redis = redis
 
@@ -418,6 +405,7 @@ class Eve(Flask, Events):
 
         .. versionchanged:: 0.3
            Set projection to None when schema is not provided for the resource.
+           Support for '_media' helper.
 
         .. versionchanged:: 0.2
            'resource_title',
@@ -499,6 +487,15 @@ class Eve(Flask, Events):
         settings['defaults'] = \
             set(field for field, definition in schema.items()
                 if 'default' in definition)
+
+        # list of all media fields for the resource
+        settings['_media'] = [field for field, definition in schema.items() if
+                              definition['type'] == 'media']
+
+        if settings['_media'] and not self.media:
+            raise ConfigException('A media storage class of type '
+                                  ' eve.io.media.MediaStorage but be defined '
+                                  'for "media" fields to be properly stored.')
 
     def set_schema_defaults(self, schema):
         """ When not provided, fills individual schema settings with default
