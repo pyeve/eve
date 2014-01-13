@@ -263,6 +263,7 @@ class DataLayer(object):
         to which an API resource refers to.
 
         .. versionchanged:: 0.3
+           Field exclusion support in client projections.
            Honor auth_field even when client query is missing.
            Only inject auth_field in queries when we are not creating new
            documents.
