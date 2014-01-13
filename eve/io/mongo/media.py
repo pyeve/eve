@@ -9,9 +9,9 @@
     :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
+from flask import Flask
 from eve.io.media import MediaStorage
 from eve.io.mongo import Mongo
-from eve.exceptions import ConfigException
 
 from gridfs import GridFS
 
@@ -37,14 +37,20 @@ class GridFSMediaStorage(MediaStorage):
         """ Make sure that the application data layer is a eve.io.mongo.Mongo
         instance.
         """
-        if self.app.data is None or not isinstance(self.app.data, Mongo):
-            raise ConfigException('Application data layer missing or wrong '
-                                  'type (must be eve.io.mongo.Mongo)')
+        if self.app is None:
+            raise TypeError('Application object cannot be None')
+
+        if not isinstance(self.app, Flask):
+            raise TypeError('Application object must be a Eve application')
 
     def fs(self):
         """ Provides the instance-level GridFS instance, instantiating it if
         needed.
         """
+        if self.app.data is None or not isinstance(self.app.data, Mongo):
+            raise TypeError("Application data object must be of eve.io.Mongo "
+                            "type.")
+
         if self._fs is None:
             self._fs = GridFS(self.app.data.driver.db)
         return self._fs
