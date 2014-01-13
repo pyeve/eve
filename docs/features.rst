@@ -702,9 +702,17 @@ dictates which fields should be returned by the API.
     HTTP/1.1 200 OK
 
 The query above will only return *lastname* and *born* out of all the fields
-available in the 'people' resource. Please note that key fields such as
-ID_FIELD, DATE_CREATED, DATE_UPDATED etc.  will still be included with the
-payload.
+available in the 'people' resource. You can also exclude fields:
+
+.. code-block:: console
+
+    $ curl -i http://eve-demo.herokuapp.com/people?projection={"born": 0}
+    HTTP/1.1 200 OK
+
+The above will return all fields but *born*. Please note that key fields such
+as ID_FIELD, DATE_CREATED, DATE_UPDATED etc.  will still be included with the
+payload. Also keep in mind that some database engines, Mongo included, do not
+allow for mixing of inclusive and exclusive selections.
 
 .. _embedded_docs:
 
