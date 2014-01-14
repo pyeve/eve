@@ -1,9 +1,8 @@
-from cStringIO import StringIO
 from eve.tests import TestBase
 import simplejson as json
 from ast import literal_eval
 from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, DATE_CREATED, ISSUES, \
-    STATUS, ETAG, STATUS_ERR
+    STATUS, ETAG
 
 
 class TestPost(TestBase):
@@ -93,24 +92,6 @@ class TestPost(TestBase):
         test_value = "50656e4538345b39dd0414f0"
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
-
-    def test_post_media(self):
-        del(self.domain['contacts']['schema']['ref']['required'])
-
-        # send a file with no issues
-        data={'media': (StringIO('my file contents'), 'test.txt')}
-        headers = [('Content-Type', 'multipart/form-data')]
-        url = self.known_resource_url
-        r, s = self.parse_response(
-            self.test_client.post(url, data=data, headers=headers))
-        self.assertEqual(STATUS_OK, r[STATUS])
-
-        # send something different than a file and get an error back
-        data = {'media': 'not a file'}
-        r, s = self.parse_response(
-            self.test_client.post(url, data=data, headers=headers))
-        self.assertEqual(STATUS_ERR, r[STATUS])
-        self.assertTrue('file was expected' in r[ISSUES]['media'])
 
     def test_post_default_value(self):
         test_field = 'title'
@@ -331,24 +312,6 @@ class TestPost(TestBase):
         data = {test_field: test_value}
         r, status = self.post(self.known_resource_url, data=data)
         self.assertTrue(ETAG not in r)
-
-    def tests_post_multipart(self):
-        # send a file (request.files involved)
-        data = {'picture': io.BytesIO(b'test data')}
-        headers = [('Content-Type', 'multipart/form-data')]
-        url = self.known_resource_url
-        r = self.test_client.post(url, data=data, headers=headers)
-        self.assert200(r.status_code)
-
-        # send a form (request.form involved)
-        data = {'test': 'test'}
-        r = self.test_client.post(url, data=data, headers=headers)
-        self.assert200(r.status_code)
-
-        # empty payload should still return 400
-        data = {}
-        r = self.test_client.post(url, data=data, headers=headers)
-        self.assert400(r.status_code)
 
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)

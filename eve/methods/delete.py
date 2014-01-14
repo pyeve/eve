@@ -13,7 +13,8 @@
 from flask import current_app as app, abort
 from eve.utils import config
 from eve.auth import requires_auth
-from eve.methods.common import get_document, ratelimit, pre_event
+from eve.methods.common import get_document, ratelimit, pre_event, \
+    resource_media_fields
 
 
 @ratelimit()
@@ -27,6 +28,7 @@ def delete(resource, **lookup):
     :param **lookup: item lookup query.
 
     .. versionchanged:: 0.3
+       Delete media files as needed.
        Pass the explicit query filter to the data driver, as it does not
        support the id argument anymore.
 
@@ -48,6 +50,12 @@ def delete(resource, **lookup):
         abort(404)
 
     app.data.remove(resource, {config.ID_FIELD: original[config.ID_FIELD]})
+
+    # media cleanup
+    media_fields = resource_media_fields(original, resource)
+    for field in media_fields:
+        app.media.delete(original[field])
+
     return {}, None, None, 200
 
 
@@ -66,5 +74,8 @@ def delete_resource(resource, lookup):
 
     .. versionadded:: 0.0.2
     """
+    # TODO if the resource schema includes media files, these won't be deleted
+    # by use of this global method (if should be disabled). Media cleanup is
+    # handled at the item endpoint by the delete() method (see above).
     app.data.remove(resource, lookup)
     return {}, None, None, 200

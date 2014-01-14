@@ -17,7 +17,7 @@ from eve.utils import document_etag, document_link, config, debug_error_message
 from eve.auth import requires_auth
 from eve.validation import ValidationError
 from eve.methods.common import get_document, parse, payload as payload_, \
-    ratelimit, pre_event
+    ratelimit, pre_event, resolve_media_files
 
 
 @ratelimit()
@@ -33,6 +33,7 @@ def patch(resource, **lookup):
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.3
+       Support for media fields.
        When IF_MATCH is disabled, no etag is included in the payload.
        Support for new validation format introduced with Cerberus v0.5.
 
@@ -93,16 +94,21 @@ def patch(resource, **lookup):
         updates = parse(payload, resource)
         validation = validator.validate_update(updates, object_id)
         if validation:
+            resolve_media_files(updates, resource, original)
+
             # the mongo driver has a different precision than the python
             # datetime. since we don't want to reload the document once it has
             # been updated, and we still have to provide an updated etag,
             # we're going to update the local version of the 'original'
             # document, and we will use it for the etag computation.
             original.update(updates)
+
             # some datetime precision magic
             updates[config.LAST_UPDATED] = original[config.LAST_UPDATED] = \
                 datetime.utcnow().replace(microsecond=0)
+
             app.data.update(resource, object_id, updates)
+
             response[config.ID_FIELD] = object_id
             last_modified = response[config.LAST_UPDATED] = \
                 original[config.LAST_UPDATED]

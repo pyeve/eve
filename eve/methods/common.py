@@ -346,6 +346,42 @@ def resolve_default_values(document, resource):
             document[missing_field] = schema[missing_field]['default']
 
 
+def resolve_media_files(document, resource, original=None):
+    """ Store any media file in the underlying media store and update the
+    document with unique ids of stored files.
+
+    :param document: the document eventually containing the media files.
+    :param resource: the resource being consumed by the request.
+    :param original: original document being replaced or edited.
+
+    .. versionadded:: 0.3
+    """
+    # TODO We're storing media files in advance, before the corresponding
+    # document is also stored. In the rare occurance that the subsequent
+    # document update fails we should probably attempt a cleanup on the storage
+    # sytem. Easier said than done though.
+    for field in resource_media_fields(document, resource):
+        if original:
+            # since file replacement is not supported by the media storage
+            # system, we first need to delete the file being replaced.
+            app.media.delete(original[field])
+
+        # store file and update document with file's unique id/filename
+        document[field] = app.media.put(document[field])
+
+
+def resource_media_fields(document, resource):
+    """ Returns a list of media fields defined in the resource schema.
+
+    :param document: the document eventually containing the media files.
+    :param resource: the resource being consumed by the request.
+
+    .. versionadded:: 0.3
+    """
+    media_fields = app.config['DOMAIN'][resource]['_media']
+    return [field for field in media_fields if field in document]
+
+
 def pre_event(f):
     """ Enable a Hook pre http request.
 
