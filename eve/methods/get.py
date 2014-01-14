@@ -15,7 +15,8 @@ import math
 
 import simplejson as json
 
-from .common import ratelimit, epoch, date_created, last_updated, pre_event
+from .common import ratelimit, epoch, date_created, last_updated, pre_event, \
+    resource_media_fields
 from eve.auth import requires_auth
 from eve.utils import parse_request, document_etag, document_link, home_link, \
     querydef, config, debug_error_message
@@ -31,6 +32,7 @@ def get(resource, lookup):
     :param resource: the name of the resource.
 
     .. versionchanged:: 0.3
+       Support for media fields.
        When IF_MATCH is disabled, no etag is included in the payload.
        When If-Modified-Since header is present, either no documents (304) or
        all documents (200) are sent per the HTTP spec. Original behavior can be
@@ -112,6 +114,8 @@ def get(resource, lookup):
                                       document_link(resource,
                                                     document[config.ID_FIELD])}
 
+        _resolve_media_files(document, resource)
+
         documents.append(document)
 
     _resolve_embedded_documents(resource, req, documents)
@@ -152,6 +156,7 @@ def getitem(resource, **lookup):
     :param **lookup: the lookup query.
 
     .. versionchanged:: 0.3
+       Support for media fields.
        When IF_MATCH is disabled, no etag is included in the payload.
 
     .. versionchanged:: 0.1.1
@@ -213,6 +218,7 @@ def getitem(resource, **lookup):
             return response, last_modified, document[config.ETAG], 304
 
         _resolve_embedded_documents(resource, req, [document])
+        _resolve_media_files(document, resource)
 
         if config.DOMAIN[resource]['hateoas']:
             response[config.LINKS] = {
@@ -366,3 +372,9 @@ def _collection_link(resource, item=False):
         path = path[:path.rfind('/')]
     server_name = config.SERVER_NAME if config.SERVER_NAME else ''
     return '%s%s' % (server_name, path)
+
+
+def _resolve_media_files(document, resource):
+    for field in resource_media_fields(document, resource):
+        _file = app.media.get(document[field])
+        document[field] = _file.read().encode("base64") if _file else None

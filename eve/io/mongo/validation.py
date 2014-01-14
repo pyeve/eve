@@ -16,6 +16,7 @@ from eve.utils import config
 from bson import ObjectId
 from flask import current_app as app
 from cerberus import Validator
+from werkzeug.datastructures import FileStorage
 
 
 class Validator(Validator):
@@ -117,10 +118,8 @@ class Validator(Validator):
                                    data_relation['field']))
 
     def _validate_type_objectid(self, field, value):
-        """ Enables validation for `objectid` schema attribute.
+        """ Enables validation for `objectid` data type.
 
-        :param unique: Boolean, wether the field value should be
-                       unique or not.
         :param field: field name.
         :param value: field value.
 
@@ -134,3 +133,14 @@ class Validator(Validator):
         if not isinstance(value, ObjectId):
             self._error(field, "value '%s' cannot be converted to a ObjectId"
                         % value)
+
+    def _validate_type_media(self, field, value):
+        """ Enables validation for `media` data type.
+
+        :param field: field name.
+        :param value: field value.
+
+        .. versionadded:: 0.3
+        """
+        if not isinstance(value, FileStorage):
+            self._error(field, "file was expected, got '%s' instead." % value)

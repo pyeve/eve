@@ -105,6 +105,9 @@ def payload():
     then returns the request payload as a dict. If request Content-Type is
     unsupported, aborts with a 400 (Bad Request).
 
+    .. versionchanged:: 0.3
+       Allow 'multipart/form-data' content type.
+
     .. versionchanged:: 0.1.1
        Payload returned as a standard python dict regardless of request content
        type.
@@ -127,6 +130,19 @@ def payload():
         return request.form.to_dict() if len(request.form) else \
             abort(400, description=debug_error_message(
                 'No form-urlencoded data supplied'
+            ))
+    elif content_type == 'multipart/form-data':
+        # as multipart is also used for file uploads, we let an empty
+        # request.form go through as long as there are also files in the
+        # request.
+        if len(request.form) or len(request.files):
+            # merge form fields and request files, so we get a single payload
+            # to be validated against the resource schema.
+            return dict(request.form.to_dict().items() +
+                        request.files.to_dict().items())
+        else:
+            abort(400, description=debug_error_message(
+                'No multipart/form-data supplied'
             ))
     else:
         abort(400, description=debug_error_message(
@@ -328,6 +344,42 @@ def resolve_default_values(document, resource):
         schema = config.DOMAIN[resource]['schema']
         for missing_field in missing_defaults:
             document[missing_field] = schema[missing_field]['default']
+
+
+def resolve_media_files(document, resource, original=None):
+    """ Store any media file in the underlying media store and update the
+    document with unique ids of stored files.
+
+    :param document: the document eventually containing the media files.
+    :param resource: the resource being consumed by the request.
+    :param original: original document being replaced or edited.
+
+    .. versionadded:: 0.3
+    """
+    # TODO We're storing media files in advance, before the corresponding
+    # document is also stored. In the rare occurance that the subsequent
+    # document update fails we should probably attempt a cleanup on the storage
+    # sytem. Easier said than done though.
+    for field in resource_media_fields(document, resource):
+        if original:
+            # since file replacement is not supported by the media storage
+            # system, we first need to delete the file being replaced.
+            app.media.delete(original[field])
+
+        # store file and update document with file's unique id/filename
+        document[field] = app.media.put(document[field])
+
+
+def resource_media_fields(document, resource):
+    """ Returns a list of media fields defined in the resource schema.
+
+    :param document: the document eventually containing the media files.
+    :param resource: the resource being consumed by the request.
+
+    .. versionadded:: 0.3
+    """
+    media_fields = app.config['DOMAIN'][resource]['_media']
+    return [field for field in media_fields if field in document]
 
 
 def pre_event(f):

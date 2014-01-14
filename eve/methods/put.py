@@ -17,7 +17,7 @@ from eve.validation import ValidationError
 from flask import current_app as app, abort, request
 from eve.utils import document_etag, document_link, config, debug_error_message
 from eve.methods.common import get_document, parse, payload as payload_, \
-    ratelimit, resolve_default_values, pre_event
+    ratelimit, resolve_default_values, pre_event, resolve_media_files
 
 
 @ratelimit()
@@ -33,6 +33,7 @@ def put(resource, **lookup):
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.3
+       Support for media fields.
        When IF_MATCH is disabled, no etag is included in the payload.
        Support for new validation format introduced with Cerberus v0.5.
 
@@ -86,7 +87,9 @@ def put(resource, **lookup):
                     resource_def['authentication'].request_auth_value
                 if request_auth_value and request.authorization:
                     document[auth_field] = request_auth_value
+
             resolve_default_values(document, resource)
+            resolve_media_files(document, resource, original)
 
             # notify callbacks
             getattr(app, "on_insert")(resource, [document])
