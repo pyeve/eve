@@ -12,6 +12,7 @@
 """
 import copy
 import math
+import base64
 
 import simplejson as json
 
@@ -377,4 +378,4 @@ def _collection_link(resource, item=False):
 def _resolve_media_files(document, resource):
     for field in resource_media_fields(document, resource):
         _file = app.media.get(document[field])
-        document[field] = _file.read().encode("base64") if _file else None
+        document[field] = base64.encodestring(_file.read()) if _file else None
