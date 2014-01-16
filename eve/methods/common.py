@@ -169,7 +169,7 @@ class RateLimit(object):
     expiration_window = 10
 
     def __init__(self, key_prefix, limit, period, send_x_headers=True):
-        self.reset = (int(time.time()) // period) * period + period
+        self.reset = int(time.time()) + period
         self.key = key_prefix + str(self.reset)
         self.limit = limit
         self.period = period
