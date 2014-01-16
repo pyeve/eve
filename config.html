@@ -826,7 +826,7 @@ defining the field validation rules. Allowed validation rules are:</p>
 <td>Field data type. Can be one of the following:
 <tt class="docutils literal"><span class="pre">string</span></tt>, <tt class="docutils literal"><span class="pre">integer</span></tt>, <tt class="docutils literal"><span class="pre">boolean</span></tt>,
 <tt class="docutils literal"><span class="pre">float</span></tt>, <tt class="docutils literal"><span class="pre">datetime</span></tt>, <tt class="docutils literal"><span class="pre">dict</span></tt>, <tt class="docutils literal"><span class="pre">list</span></tt>,
-<tt class="docutils literal"><span class="pre">objectid</span></tt>.</td>
+<tt class="docutils literal"><span class="pre">objectid</span></tt>, <tt class="docutils literal"><span class="pre">file</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">required</span></tt></td>
 <td>If <tt class="docutils literal"><span class="pre">True</span></tt>, the field is mandatory on
@@ -1003,10 +1003,20 @@ resource keyword allows you to redefine the fieldset.</p>
 </pre></div>
 </div>
 <p>The above setting will expose only the <cite>username</cite> field to GET requests, no
-matter the <a class="reference internal" href="#schema">schema</a> defined for the resource. Please note that POST and PATCH
-methods will still allow the whole schema to be manipulated. This feature can
-come in handy when you want to protect insertion and modification behind an
-<a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> scheme while leaving read access open to the public.</p>
+matter the <a class="reference internal" href="#schema">schema</a> defined for the resource.</p>
+<p>Likewise, you can esclude fields from API responses:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;projection&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>The above will include all document fields but <cite>username</cite>.</p>
+<p>Please note that POST and PATCH methods will still allow the whole schema to be
+manipulated. This feature can come in handy when, for example, you want to
+protect insertion and modification behind an <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> scheme while leaving
+read access open to the public.</p>
 </div>
 </div>
 </div>
@@ -1101,7 +1111,7 @@ come in handy when you want to protect insertion and modification behind an
       <div class="clearer"></div>
     </div>
   <div class="footer">
-    &copy; Copyright 2013. A <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
+    &copy; Copyright 2014. A <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
   </div>
   <a href="https://github.com/nicolaiarocci/eve" class="github">
       <img style="position: absolute; top: 0; right: 0; border: 0;" src="_static/forkme_right_green_007200.png" alt="Fork me on GitHub"  class="github"/>

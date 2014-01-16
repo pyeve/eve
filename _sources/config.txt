@@ -698,7 +698,7 @@ defining the field validation rules. Allowed validation rules are:
 ``type``                        Field data type. Can be one of the following:
                                 ``string``, ``integer``, ``boolean``,
                                 ``float``, ``datetime``, ``dict``, ``list``,
-                                ``objectid``.
+                                ``objectid``, ``file``.
 
 ``required``                    If ``True``, the field is mandatory on
                                 insertion.
@@ -872,9 +872,23 @@ resource keyword allows you to redefine the fieldset.
         }
 
 The above setting will expose only the `username` field to GET requests, no
-matter the schema_ defined for the resource. Please note that POST and PATCH
-methods will still allow the whole schema to be manipulated. This feature can
-come in handy when you want to protect insertion and modification behind an
-:ref:`auth` scheme while leaving read access open to the public.
+matter the schema_ defined for the resource. 
+
+Likewise, you can esclude fields from API responses:
+
+::
+
+    people = {
+        'datasource': {
+            'projection': {'username': 0}
+            }
+        }
+
+The above will include all document fields but `username`. 
+
+Please note that POST and PATCH methods will still allow the whole schema to be
+manipulated. This feature can come in handy when, for example, you want to
+protect insertion and modification behind an :ref:`auth` scheme while leaving
+read access open to the public.
 
 .. _Cerberus: http://cerberus.readthedocs.org
