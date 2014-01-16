@@ -20,6 +20,7 @@ Not released yet.
   a resource ``datasource`` it is possible to explicitly exclude media fields
   from standard responses (clients will need to explicitly add them to the
   payload with ``?projection={"image": 1}``).
+- [new] ``media`` type for schema fields.
 - [new] ``media`` application argument. Allows to specify a media storage class
   to be used to store media files. Defaults to ``GridFSMediaStorage``.
 - [new] ``GridFSMediaStorage`` class. Stores files into GridFS.
