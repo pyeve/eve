@@ -138,8 +138,11 @@ def payload():
         if len(request.form) or len(request.files):
             # merge form fields and request files, so we get a single payload
             # to be validated against the resource schema.
-            return dict(request.form.to_dict().items() +
-                        request.files.to_dict().items())
+
+            # list() is needed because Python3 items() returns a dict_view, not
+            # a list as in Python2.
+            return dict(list(request.form.to_dict().items()) +
+                        list(request.files.to_dict().items()))
         else:
             abort(400, description=debug_error_message(
                 'No multipart/form-data supplied'

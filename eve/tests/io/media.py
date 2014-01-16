@@ -1,4 +1,4 @@
-from cStringIO import StringIO
+from io import BytesIO
 from unittest import TestCase
 from eve.io.media import MediaStorage
 from eve.io.mongo import GridFSMediaStorage
@@ -28,8 +28,11 @@ class TestGridFSMediaStorage(TestBase):
         self.url = self.known_resource_url
         self.headers = [('Content-Type', 'multipart/form-data')]
         self.test_field, self.test_value = 'ref', "1234567890123456789054321"
-        self.clean = 'my file contents'
-        self.encoded = base64.encodestring(self.clean)
+        # we want an explicit binary as Py3 encodestring() expects binaries.
+        self.clean = b'my file contents'
+        # encodedstring will raise a DeprecationWarning under Python3.3, but
+        # the alternative encodebytes is not available in Python 2.
+        self.encoded = base64.encodestring(self.clean).decode('utf-8')
 
     def test_gridfs_media_storage_errors(self):
         self.assertRaises(TypeError, GridFSMediaStorage)
@@ -65,7 +68,7 @@ class TestGridFSMediaStorage(TestBase):
         self.assertEqual(returned, self.encoded)
 
         # which decodes to the original clean
-        self.assertEqual(base64.decodestring(returned), self.clean)
+        self.assertEqual(base64.decodestring(returned.encode()), self.clean)
 
     def test_gridfs_media_storage_put(self):
         r, s = self._post()
@@ -76,10 +79,10 @@ class TestGridFSMediaStorage(TestBase):
         media_id = self.assertMediaField(_id, self.encoded, self.clean)
 
         # PUT replaces the file with new one
-        clean = 'my new file contents'
-        encoded = base64.encodestring(clean)
+        clean = b'my new file contents'
+        encoded = base64.encodestring(clean).decode()
         test_field, test_value = 'ref', "9234567890123456789054321"
-        data = {'media': (StringIO(clean), 'test.txt'), test_field: test_value}
+        data = {'media': (BytesIO(clean), 'test.txt'), test_field: test_value}
         headers = [('Content-Type', 'multipart/form-data'), ('If-Match', etag)]
 
         r, s = self.parse_response(
@@ -108,10 +111,10 @@ class TestGridFSMediaStorage(TestBase):
         media_id = self.assertMediaField(_id, self.encoded, self.clean)
 
         # PATCH replaces the file with new one
-        clean = 'my new file contents'
-        encoded = base64.encodestring(clean)
+        clean = b'my new file contents'
+        encoded = base64.encodestring(clean).decode()
         test_field, test_value = 'ref', "9234567890123456789054321"
-        data = {'media': (StringIO(clean), 'test.txt'), test_field: test_value}
+        data = {'media': (BytesIO(clean), 'test.txt'), test_field: test_value}
         headers = [('Content-Type', 'multipart/form-data'), ('If-Match', etag)]
 
         r, s = self.parse_response(
@@ -160,7 +163,7 @@ class TestGridFSMediaStorage(TestBase):
         # returned value is a base64 encoded string
         self.assertEqual(returned, encoded)
         # which decodes to the original file clean
-        self.assertEqual(base64.decodestring(returned), clean)
+        self.assertEqual(base64.decodestring(returned.encode()), clean)
         return r, s
 
     def assertMediaStored(self, _id):
@@ -175,7 +178,7 @@ class TestGridFSMediaStorage(TestBase):
 
     def _post(self):
         # send a file and a required, ordinary field with no issues
-        data = {'media': (StringIO(self.clean), 'test.txt'), self.test_field:
+        data = {'media': (BytesIO(self.clean), 'test.txt'), self.test_field:
                 self.test_value}
         return self.parse_response(self.test_client.post(
             self.url, data=data, headers=self.headers))
