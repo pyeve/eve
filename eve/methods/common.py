@@ -168,16 +168,16 @@ class RateLimit(object):
     # server do not cause problems
     expiration_window = 10
 
-    def __init__(self, key_prefix, limit, period, send_x_headers=True):
+    def __init__(self, key, limit, period, send_x_headers=True):
         self.reset = int(time.time()) + period
-        self.key = key_prefix + str(self.reset)
+        self.key = key + str(self.reset)
         self.limit = limit
         self.period = period
         self.send_x_headers = send_x_headers
         p = app.redis.pipeline()
         p.incr(self.key)
         p.expireat(self.key, self.reset + self.expiration_window)
-        self.current = min(p.execute()[0], limit + 1)
+        self.current = p.execute()[0]
 
     remaining = property(lambda x: x.limit - x.current)
     over_limit = property(lambda x: x.current > x.limit)
