@@ -3,7 +3,7 @@ Events==0.2.0
 Flask-PyMongo==0.3.0
 Flask==0.10.1
 itsdangerous==0.22
-Jinja2==2.7
+Jinja2==2.7.2
 MarkupSafe==0.18
 pymongo==2.6.3
 simplejson==3.3.0

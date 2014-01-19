@@ -8,6 +8,7 @@ Version 0.3
 
 Not released yet.
 
+- [change] Jinja2 2.7.2 is now required.
 - [new] media files (images, pdf, etc.) can be uploaded as ``media`` document
   fields. When a document is requested, eventual media files will be returned as
   Base64 strings. Upload is done via ``POST``, ``PUT`` and ``PATCH`` using the
