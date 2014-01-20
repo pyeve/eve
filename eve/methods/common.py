@@ -163,20 +163,17 @@ class RateLimit(object):
 
     .. versionadded:: 0.0.7
     """
-    # We give the key extra expiration_window seconds time to expire in redis
-    # so that badly synchronized clocks between the workers and the redis
-    # server do not cause problems
-    expiration_window = 10
+    # Maybe has something complicated problems.
 
     def __init__(self, key, limit, period, send_x_headers=True):
         self.reset = int(time.time()) + period
-        self.key = key + str(self.reset)
+        self.key = key
         self.limit = limit
         self.period = period
         self.send_x_headers = send_x_headers
         p = app.redis.pipeline()
         p.incr(self.key)
-        p.expireat(self.key, self.reset + self.expiration_window)
+        p.expireat(self.key, self.reset)
         self.current = p.execute()[0]
 
     remaining = property(lambda x: x.limit - x.current)
