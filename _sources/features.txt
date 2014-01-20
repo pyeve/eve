@@ -473,8 +473,8 @@ Consider the following workflow:
     $ curl -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
     HTTP/1.1 403 FORBIDDEN
 
-We attempted an edit, but we did not provide an ``ETag`` for the item, so we got
-a not-so-nice ``403 FORBIDDEN``. Let's try again:
+We attempted an edit (``PATCH``), but we did not provide an ``ETag`` for the
+item so we got a ``403 FORBIDDEN`` back. Let's try again:
 
 .. code-block:: console
 
@@ -483,14 +483,14 @@ a not-so-nice ``403 FORBIDDEN``. Let's try again:
 
 What went wrong this time? We provided the mandatory ``If-Match`` header, but
 it's value did not match the ``ETag`` computed on the representation of the item
-currently stored on the server, so we got a ``412 PRECONDITION FAILED`` again!
+currently stored on the server, so we got a ``412 PRECONDITION FAILED``. Again!
 
 .. code-block:: console
 
     $ curl -H "If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012" -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37 -d '{"firstname": "ronald"}'
     HTTP/1.1 200 OK
 
-It's a win, and the response payload looks something like this:
+Finally! And the response payload looks something like this:
 
 .. code-block:: javascript
 
@@ -506,9 +506,11 @@ This time we got our patch in, and the server returned the new ``ETag``.  We
 also get the new ``_updated`` value, which eventually will allow us to perform
 subsequent `conditional requests`_.
 
-Concurrency control applies to all document edition methods: ``PATCH`` (edit),
-``PUT`` (replace), ``DELETE`` (delete). 
+Concurrency control applies to all edition methods: ``PATCH`` (edit), ``PUT``
+(replace), ``DELETE`` (delete). 
 
+Disabling concurrency control
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If your use case requires, you can opt to completely disable concurrency
 control. ETag match checks can be disabled by setting the ``IF_MATCH``
 configuration variable to ``False`` (see :ref:`global`). When concurrency
