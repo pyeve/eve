@@ -8,19 +8,21 @@ Version 0.3
 
 Not released yet.
 
+- [fix] RateLimit check was occasionally failing and returning a 429 (John
+  Deng).
 - [change] Jinja2 2.7.2 is now required.
 - [new] media files (images, pdf, etc.) can be uploaded as ``media`` document
-  fields. When a document is requested, eventual media files will be returned as
-  Base64 strings. Upload is done via ``POST``, ``PUT`` and ``PATCH`` using the
-  ``multipart/data-form`` content-type. For optmized performance, by default
-  files are stored in GridFS, however custom ``MediaStorage`` classes can be
-  provided to support alternative storage systems. Clients and API maintainers
-  can exploit the projections feature to include/exclude media fields from
-  requests. For example, a request like ``/url/<id>?projection={"image": 0}``
-  will return the document without the image field. Also, while setting
-  a resource ``datasource`` it is possible to explicitly exclude media fields
-  from standard responses (clients will need to explicitly add them to the
-  payload with ``?projection={"image": 1}``).
+  fields. When a document is requested, eventual media files will be returned
+  as Base64 strings. Upload is done via ``POST``, ``PUT`` and ``PATCH`` using
+  the ``multipart/data-form`` content-type. For optmized performance, by
+  default files are stored in GridFS, however custom ``MediaStorage`` classes
+  can be provided to support alternative storage systems. Clients and API
+  maintainers can exploit the projections feature to include/exclude media
+  fields from requests. For example, a request like
+  ``/url/<id>?projection={"image": 0}`` will return the document without the
+  image field. Also, while setting a resource ``datasource`` it is possible to
+  explicitly exclude media fields from standard responses (clients will need to
+  explicitly add them to the payload with ``?projection={"image": 1}``).
 - [new] ``media`` type for schema fields.
 - [new] ``media`` application argument. Allows to specify a media storage class
   to be used to store media files. Defaults to ``GridFSMediaStorage``.
