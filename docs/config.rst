@@ -775,6 +775,8 @@ which was originally set up in `Domain Configuration`_:
     # update the domain
     DOMAIN['people'] = people
 
+.. _datasource:
+
 Advanced Datasource Patterns
 ----------------------------
 The ``datasource`` keyword allows to explicitly link API resources to database

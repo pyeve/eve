@@ -944,6 +944,81 @@ Eve allows to extend its standard data type support. In the :ref:`custom_ids`
 tutorial we see how it is possible to use UUID values instead of MongoDB
 default ObjectIds as unique document identifiers.
 
+File Storage
+------------
+Media files (images, pdf, etc.) can be uploaded as ``media`` document
+fields. Upload is done via ``POST``, ``PUT`` and
+``PATCH`` as usual, but using the ``multipart/data-form`` content-type. 
+
+Let us assume that the ``accounts`` endpoint has a schema like this:
+
+.. code-block:: python
+
+    accounts = {
+        'name': {'type': 'string'},
+        'pic': {'type': 'media'},
+        ...
+    }
+
+With curl we would ``POST`` like this:
+
+.. code-block:: console
+
+    $ curl -F "name=john" -F "pic=@profile.jpg" http://example.com/accounts
+
+For optmized performance files are stored in GridFS_ by default. Custom
+``MediaStorage`` classes can be implemented and passed to the application to
+support alternative storage systems. A ``FileSystemMediaStorage`` class is in
+the works, and will soon be included with the Eve package. 
+
+As a proper developer guide is not available yet, you can peek at the
+MediaStorage_ source if you are interested in developing custom storage
+classes.
+
+When a document is requested media files will be returned as Base64 strings. 
+
+Leveraging Projections to optimize the handling of media files 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Clients and API maintainers can exploit the :ref:`projections` feature to
+include/exclude media fields from response payloads. 
+
+Suppose that a client stored a document with an image. The image field is
+called *image* and it is of ``media`` type. At a later time, the client wants
+to retrieve the same document but, in order to optimize for speed and since the
+image is cached already, it does not want to download the image along with the
+document. It can do so by requesting the field to be trimmed out of the
+response payload:
+
+.. code-block:: console
+
+    $ curl -i http://example.com/people/<id>?projection={"image": 0}
+    HTTP/1.1 200 OK
+
+The document will be returned with all its fields except the *image* field. 
+
+Moreover, when setting the ``datasource`` property for any given resource
+endpoint it is possible to explictly exclude fields (of ``media`` type, but
+also of any other type reallt) from default responses:
+
+.. code-block:: python
+
+    people = {
+        'datasource': {
+            'projection': {'image': 0}
+        },
+        ...
+    }
+
+Now clients will have to explicitly request the image field to be included with
+response payloads by sending requests like this one: 
+
+.. code-block:: console
+
+    $ curl -i http://example.com/people/<id>?projection={"image": 1}
+    HTTP/1.1 200 OK
+
+For details on the ``datasource`` setting, see :ref:`config` and :ref:`datasource`.
+
 MongoDB Support
 ---------------
 Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL
@@ -970,3 +1045,5 @@ for unittesting_ and an `extensive documentation`_.
 .. _`this`: https://speakerdeck.com/nicola/developing-restful-web-apis-with-python-flask-and-mongodb?slide=113
 .. _Events: https://github.com/nicolaiarocci/events
 .. _`MongoDB Data Model Design`: http://docs.mongodb.org/manual/core/data-model-design
+.. _GridFS: http://docs.mongodb.org/manual/core/gridfs/
+.. _MediaStorage: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/media.py
