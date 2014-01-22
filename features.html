@@ -909,6 +909,66 @@ enabled. A tutorial on Rate Limiting is forthcoming.</p>
 tutorial we see how it is possible to use UUID values instead of MongoDB
 default ObjectIds as unique document identifiers.</p>
 </div>
+<div class="section" id="file-storage">
+<h2>File Storage<a class="headerlink" href="#file-storage" title="Permalink to this headline">¶</a></h2>
+<p>Media files (images, pdf, etc.) can be uploaded as <tt class="docutils literal"><span class="pre">media</span></tt> document
+fields. Upload is done via <tt class="docutils literal"><span class="pre">POST</span></tt>, <tt class="docutils literal"><span class="pre">PUT</span></tt> and
+<tt class="docutils literal"><span class="pre">PATCH</span></tt> as usual, but using the <tt class="docutils literal"><span class="pre">multipart/data-form</span></tt> content-type.</p>
+<p>Let us assume that the <tt class="docutils literal"><span class="pre">accounts</span></tt> endpoint has a schema like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">accounts</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">},</span>
+    <span class="s">&#39;pic&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;media&#39;</span><span class="p">},</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>With curl we would <tt class="docutils literal"><span class="pre">POST</span></tt> like this:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -F <span class="s2">&quot;name=john&quot;</span> -F <span class="s2">&quot;pic=@profile.jpg&quot;</span> http://example.com/accounts
+</pre></div>
+</div>
+<p>For optmized performance files are stored in <a class="reference external" href="http://docs.mongodb.org/manual/core/gridfs/">GridFS</a> by default. Custom
+<tt class="docutils literal"><span class="pre">MediaStorage</span></tt> classes can be implemented and passed to the application to
+support alternative storage systems. A <tt class="docutils literal"><span class="pre">FileSystemMediaStorage</span></tt> class is in
+the works, and will soon be included with the Eve package.</p>
+<p>As a proper developer guide is not available yet, you can peek at the
+<a class="reference external" href="https://github.com/nicolaiarocci/eve/blob/develop/eve/io/media.py">MediaStorage</a> source if you are interested in developing custom storage
+classes.</p>
+<p>When a document is requested media files will be returned as Base64 strings.</p>
+<div class="section" id="leveraging-projections-to-optimize-the-handling-of-media-files">
+<h3>Leveraging Projections to optimize the handling of media files<a class="headerlink" href="#leveraging-projections-to-optimize-the-handling-of-media-files" title="Permalink to this headline">¶</a></h3>
+<p>Clients and API maintainers can exploit the <a class="reference internal" href="#projections"><em>Projections</em></a> feature to
+include/exclude media fields from response payloads.</p>
+<p>Suppose that a client stored a document with an image. The image field is
+called <em>image</em> and it is of <tt class="docutils literal"><span class="pre">media</span></tt> type. At a later time, the client wants
+to retrieve the same document but, in order to optimize for speed and since the
+image is cached already, it does not want to download the image along with the
+document. It can do so by requesting the field to be trimmed out of the
+response payload:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://example.com/people/&lt;id&gt;?projection<span class="o">={</span><span class="s2">&quot;image&quot;</span>: 0<span class="o">}</span>
+<span class="go">HTTP/1.1 200 OK</span>
+</pre></div>
+</div>
+<p>The document will be returned with all its fields except the <em>image</em> field.</p>
+<p>Moreover, when setting the <tt class="docutils literal"><span class="pre">datasource</span></tt> property for any given resource
+endpoint it is possible to explictly exclude fields (of <tt class="docutils literal"><span class="pre">media</span></tt> type, but
+also of any other type reallt) from default responses:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;projection&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;image&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+    <span class="p">},</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Now clients will have to explicitly request the image field to be included with
+response payloads by sending requests like this one:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://example.com/people/&lt;id&gt;?projection<span class="o">={</span><span class="s2">&quot;image&quot;</span>: 1<span class="o">}</span>
+<span class="go">HTTP/1.1 200 OK</span>
+</pre></div>
+</div>
+<p>For details on the <tt class="docutils literal"><span class="pre">datasource</span></tt> setting, see <a class="reference internal" href="config.html#config"><em>Configuration Handling</em></a> and <a class="reference internal" href="config.html#datasource"><em>Advanced Datasource Patterns</em></a>.</p>
+</div>
+</div>
 <div class="section" id="mongodb-support">
 <h2>MongoDB Support<a class="headerlink" href="#mongodb-support" title="Permalink to this headline">¶</a></h2>
 <p>Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL
@@ -1018,6 +1078,10 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 </li>
 <li><a class="reference internal" href="#rate-limiting">Rate Limiting</a></li>
 <li><a class="reference internal" href="#custom-id-fields">Custom ID Fields</a></li>
+<li><a class="reference internal" href="#file-storage">File Storage</a><ul>
+<li><a class="reference internal" href="#leveraging-projections-to-optimize-the-handling-of-media-files">Leveraging Projections to optimize the handling of media files</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#mongodb-support">MongoDB Support</a></li>
 <li><a class="reference internal" href="#powered-by-flask">Powered by Flask</a></li>
 </ul>
