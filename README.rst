@@ -55,6 +55,7 @@ Features
 * Embedded Resource Serialization
 * Event Hooks
 * Rate Limiting
+* File Storage
 * Custom ID Fields
 * MongoDB Support
 * Powered by Flask
