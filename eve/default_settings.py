@@ -100,7 +100,8 @@ AUTH_FIELD = None               # user-restricted resource access is disabled
 
 ALLOW_UNKNOWN = False           # don't allow unknown key/value pairs for
                                 # POST/PATCH payloads.
-# Rate limits are enabled by default (300 requests, 15 minutes windows).
+
+# Rate limits are disabled by default. Needs a running redis-server.
 RATE_LIMIT_GET = None
 RATE_LIMIT_POST = None
 RATE_LIMIT_PATCH = None
