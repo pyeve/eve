@@ -393,6 +393,11 @@ uppercase.
 
 ``DOMAIN``                      A dict holding the API domain definition.
                                 See `Domain Configuration`_.
+
+``JSONP_ARGUMENT``              This option will cause the response to be
+                                wrapped in a JavaScript function call if the
+                                argument is set in the request.
+                                Defaults to ``None``
 =============================== =========================================
 
 .. _domain:
