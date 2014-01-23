@@ -558,7 +558,12 @@ uppercase.
                                     loading posts themselves. Defaults to
                                     ``X-Total-Count``.
 
-=================================== =========================================
+``JSONP_ARGUMENT``                  This option will cause the response to be
+                                    wrapped in a JavaScript function call if
+                                    the argument is set in the request.
+                                    Defaults to ``None``.
+
+=============================== =========================================
 
 .. _domain:
 

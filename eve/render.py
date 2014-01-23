@@ -141,9 +141,16 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         # invoke the render function and obtain the corresponding rendered item
         rendered = globals()[renderer](dct)
 
-        # build the main wsgi rensponse object
-        resp = make_response(rendered, status)
-        resp.mimetype = mime
+    # JSONP
+    if "json" in mime:
+        jsonp_arg = config.JSONP_ARGUMENT
+        if jsonp_arg and jsonp_arg in request.args:
+            callback = request.args.get(jsonp_arg)
+            rendered = "%s(%s)" % (callback, rendered)
+
+    # build the main wsgi rensponse object
+    resp = make_response(rendered, status)
+    resp.mimetype = mime
 
     # extra headers
     if headers:
