@@ -14,7 +14,7 @@ from werkzeug import exceptions
 from datetime import datetime
 from eve.auth import requires_auth
 from eve.validation import ValidationError
-from flask import current_app as app, abort, request
+from flask import current_app as app, abort
 from eve.utils import document_etag, document_link, config, debug_error_message
 from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, resolve_default_values, pre_event, resolve_media_files, \
