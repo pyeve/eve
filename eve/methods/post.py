@@ -12,12 +12,13 @@
 """
 
 from datetime import datetime
-from flask import current_app as app, request
+from flask import current_app as app
 from eve.utils import document_link, config, document_etag
 from eve.auth import requires_auth
 from eve.validation import ValidationError
 from eve.methods.common import parse, payload, ratelimit, \
-    resolve_default_values, pre_event, resolve_media_files
+    resolve_default_values, pre_event, resolve_media_files, \
+    resolve_user_restricted_access
 
 
 @ratelimit()
@@ -44,6 +45,7 @@ def post(resource, payl=None):
                  discussion, and a typical use case.
 
     .. versionchanged:: 0.3
+       Fix #231 auth field not set if resource level authentication is set.
        Support for media fields.
        When IF_MATCH is disabled, no etag is included in the payload.
        Support for new validation format introduced with Cerberus v0.5.
@@ -128,16 +130,7 @@ def post(resource, payl=None):
                 document[config.LAST_UPDATED] = \
                     document[config.DATE_CREATED] = date_utc
 
-                # if 'user-restricted resource access' is enabled
-                # and there's an Auth request active,
-                # inject the auth_field into the document
-                auth_field = resource_def['auth_field']
-                if app.auth and auth_field:
-                    request_auth_value = \
-                        resource_def['authentication'].request_auth_value
-                    if request_auth_value and request.authorization:
-                        document[auth_field] = request_auth_value
-
+                resolve_user_restricted_access(document, resource)
                 resolve_default_values(document, resource)
                 resolve_media_files(document, resource)
             else:

@@ -382,6 +382,24 @@ def resource_media_fields(document, resource):
     return [field for field in media_fields if field in document]
 
 
+def resolve_user_restricted_access(document, resource):
+    """ Adds user restricted access medadata to the document if applicable.
+
+    :param document: the document being posted or replaced
+    :param resource: the resource to which the document belongs
+
+    .. versionadded:: 0.3
+    """
+    # if 'user-restricted resource access' is enabled and there's
+    # an Auth request active, inject the username into the document
+    resource_def = app.config['DOMAIN'][resource]
+    auth = resource_def['authentication']
+    auth_field = resource_def['auth_field']
+    if auth and auth_field:
+        if auth.request_auth_value and request.authorization:
+            document[auth_field] = auth.request_auth_value
+
+
 def pre_event(f):
     """ Enable a Hook pre http request.
 

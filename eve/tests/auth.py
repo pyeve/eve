@@ -417,6 +417,34 @@ class TestUserRestrictedAccess(TestBase):
         # len of 1 as there are is only 1 doc saved by user
         self.assertEqual(len(data['_items']), 1)
 
+    def test_post_resource_auth(self):
+        # Ticket #231.
+        # Test that user restricted access works fine if there's no global
+        # level auth, which is set at resource level instead.
+
+        # no global auth.
+        app = Eve(settings=self.settings_file)
+
+        # set auth at resource level instead.
+        resource_def = app.config['DOMAIN'][self.url]
+        resource_def['authentication'] = ValidBasicAuth()
+        resource_def['auth_field'] = 'username'
+
+        # post with valid auth - must store the document with the correct
+        # auth_field.
+        r = app.test_client().post(self.url, data=self.data,
+                                   headers=self.valid_auth,
+                                   content_type='application/json')
+        _, status = self.parse_response(r)
+
+        # Verify that we can retrieve the same document
+        data, status = self.parse_response(
+            app.test_client().get(self.url, headers=self.valid_auth))
+        self.assert200(status)
+        self.assertEqual(len(data['_items']), 1)
+        self.assertEqual(data['_items'][0]['ref'],
+                         json.loads(self.data)['ref'])
+
     def test_patch(self):
         new_ref = "9999999999999999999999999"
         changes = json.dumps({"ref": new_ref})

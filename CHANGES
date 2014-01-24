@@ -8,6 +8,7 @@ Version 0.3
 
 Not released yet.
 
+- [fix] Auth field not set if resource level authentication is set. Fixes #231.
 - [fix] RateLimit check was occasionally failing and returning a 429 (John
   Deng).
 - [change] Jinja2 2.7.2 is now required.
