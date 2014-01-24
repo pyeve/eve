@@ -487,7 +487,6 @@ class TestUserRestrictedAccess(TestBase):
         data, status = self.parse_response(r)
 
         # retrieve document metadata
-        import pdb; pdb.set_trace()  # XXX BREAKPOINT
         url = '%s/%s' % (self.url, data['_id'])
         response = app.test_client().get(url, headers=self.valid_auth)
         etag = response.headers['ETag']
