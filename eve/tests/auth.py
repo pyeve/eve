@@ -445,6 +445,70 @@ class TestUserRestrictedAccess(TestBase):
         self.assertEqual(data['_items'][0]['ref'],
                          json.loads(self.data)['ref'])
 
+    def test_put(self):
+        new_ref = "9999999999999999999999999"
+        changes = json.dumps({"ref": new_ref})
+
+        # post document
+        data, status = self.post()
+
+        # retrieve document metadata
+        url = '%s/%s' % (self.url, data['_id'])
+        response = self.test_client.get(url, headers=self.valid_auth)
+        etag = response.headers['ETag']
+
+        # perform put
+        headers = [('If-Match', etag), self.valid_auth[0]]
+        response, status = self.parse_response(
+            self.test_client.put(url, data=json.dumps(changes),
+                                 headers=headers,
+                                 content_type='application/json'))
+        self.assert200(status)
+
+        # document still accessible with same auth
+        data, status = self.parse_response(
+            self.test_client.get(url, headers=self.valid_auth))
+        self.assert200(status)
+        self.assertEqual(data['ref'], new_ref)
+
+    def test_put_resource_auth(self):
+        # no global auth.
+        app = Eve(settings=self.settings_file)
+
+        # set auth at resource level instead.
+        resource_def = app.config['DOMAIN'][self.url]
+        resource_def['authentication'] = ValidBasicAuth()
+        resource_def['auth_field'] = 'username'
+
+        # post
+        r = app.test_client().post(self.url, data=self.data,
+                                   headers=self.valid_auth,
+                                   content_type='application/json')
+        data, status = self.parse_response(r)
+
+        # retrieve document metadata
+        import pdb; pdb.set_trace()  # XXX BREAKPOINT
+        url = '%s/%s' % (self.url, data['_id'])
+        response = app.test_client().get(url, headers=self.valid_auth)
+        etag = response.headers['ETag']
+
+        new_ref = "9999999999999999999999999"
+        changes = json.dumps({"ref": new_ref})
+
+        # put
+        headers = [('If-Match', etag), self.valid_auth[0]]
+        response, status = self.parse_response(
+            app.test_client().put(url, data=json.dumps(changes),
+                                  headers=headers,
+                                  content_type='application/json'))
+        self.assert200(status)
+
+        # document still accessible with same auth
+        data, status = self.parse_response(
+            app.test_client().get(url, headers=self.valid_auth))
+        self.assert200(status)
+        self.assertEqual(data['ref'], new_ref)
+
     def test_patch(self):
         new_ref = "9999999999999999999999999"
         changes = json.dumps({"ref": new_ref})
