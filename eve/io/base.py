@@ -106,7 +106,7 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
-    def find(self, resource, req):
+    def find(self, resource, req, sub_resource_lookup):
         """ Retrieves a set of documents (rows), matching the current request.
         Consumed when a request hits a collection/document endpoint
         (`/people/`).
@@ -122,6 +122,10 @@ class DataLayer(object):
                     need proper parsing, according to the syntax that you want
                     to support with your driver. For example ``eve.io.Mongo``
                     supports both Python and Mongo-like query syntaxes.
+        :param sub_resource_lookup: sub-resource lookup from the endpoint url.
+
+        .. versionchanged:: 0.3
+           Support for sub-resources.
         """
         raise NotImplementedError
 
