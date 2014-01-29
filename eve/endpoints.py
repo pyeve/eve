@@ -8,7 +8,7 @@
     home) invokes the appropriate method handler, returning its response
     to the client, properly rendered.
 
-    :copyright: (c) 2013 by Nicola Iarocci.
+    :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
