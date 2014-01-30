@@ -6,6 +6,14 @@ that extend Eve. This list is moderated and updated on a regular basis. If you
 wrote a package for Eve and want it to show up here, just `get in touch`_ and
 show me your tool! 
 
+Eve-Elastic
+-----------
+
+| *by Petr Jašek*
+
+Eve-Elastic_ is an elasticsearch data layer for the Eve REST framework.
+Features facets support and the generation of mapping for schema. 
+
 Eve-Mongoengine
 ---------------
 
@@ -43,3 +51,4 @@ APIs`_
 .. _Eve-docs: https://github.com/charlesflynn/eve-docs
 .. _`get in touch`: mailto:eve@nicolaiarocci.com
 .. _Eve-Mongoengine: https://github.com/hellerstanislav/eve-mongoengine
+.. _Eve-Elastic: https://github.com/petrjasek/eve-elastic
