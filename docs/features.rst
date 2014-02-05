@@ -733,7 +733,7 @@ like this:
     DOMAIN = {
         'emails': {
             'schema': {
-                'author:' {
+                'author': {
                     'type': 'objectid', 
                     'data_relation': {
                         'resource': 'users', 
@@ -741,8 +741,8 @@ like this:
                         'embeddable': True
                     },
                 },
-                'subject:' {'type': 'string'},
-                'body:' {'type': 'string'}, 
+                'subject': {'type': 'string'},
+                'body': {'type': 'string'}, 
             }
         }
 
@@ -763,7 +763,7 @@ Predefined Resource Serialization
 It is also possible to elect some fields for predefined resource
 serialization. The ``embedded_fields`` option accepts a list of fields. If the
 listed fields are embeddable and they are actually referencing documents in other
-collections (and embedding is enbaled for the resource), then the referenced
+resources (and embedding is enbaled for the resource), then the referenced
 documents will be embedded by default.
 
 Limitations
