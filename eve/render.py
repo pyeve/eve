@@ -168,7 +168,8 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         resp.headers.add('Access-Control-Allow-Origin', ', '.join(domains))
         resp.headers.add('Access-Control-Allow-Headers', ', '.join(headers))
         resp.headers.add('Access-Control-Allow-Methods', methods)
-        resp.headers.add('Access-Control-Allow-Max-Age', 21600)
+        resp.headers.add('Access-Control-Allow-Max-Age',
+                         getattr(config, 'MAX_AGE', 21600))
 
     # Rate-Limiting
     limit = get_rate_limit()
