@@ -165,14 +165,10 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
             headers = config.X_HEADERS
 
         methods = app.make_default_options_response().headers['allow']
-        max_age = config.MAX_AGE
-        # max_age could be 0, so can not use bool comparison nor an 'or'
-        if max_age is None:
-            max_age = 21600
         resp.headers.add('Access-Control-Allow-Origin', ', '.join(domains))
         resp.headers.add('Access-Control-Allow-Headers', ', '.join(headers))
         resp.headers.add('Access-Control-Allow-Methods', methods)
-        resp.headers.add('Access-Control-Allow-Max-Age', max_age)
+        resp.headers.add('Access-Control-Allow-Max-Age', config.MAX_AGE)
 
     # Rate-Limiting
     limit = get_rate_limit()
