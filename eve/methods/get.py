@@ -216,7 +216,7 @@ def getitem(resource, **lookup):
             # request If-Modified-Since conditional request match. We test
             # this after the etag since Last-Modified dates have lower
             # resolution (1 second).
-            return response, last_modified, document[config.ETAG], 304
+            return response, last_modified, document.get(config.ETAG), 304
 
         _resolve_embedded_documents(resource, req, [document])
         _resolve_media_files(document, resource)

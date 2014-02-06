@@ -1,8 +1,10 @@
 import types
 import simplejson as json
+from datetime import datetime
 from bson import ObjectId
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
+from eve.utils import date_to_str
 
 
 class TestGet(TestBase):
@@ -755,6 +757,19 @@ class TestGetItem(TestBase):
         self.app.config['IF_MATCH'] = False
         response, _ = self.get(self.known_resource, item=self.item_id)
         self.assertTrue(self.app.config['ETAG'] not in response)
+
+    def test_getitem_ifmatch_disabled_if_mod_since(self):
+        # Test that #239 is fixed.
+        # IF_MATCH is disabled and If-Modified-Since request comes through. If
+        # a 304 was expected, we would crash like a mofo.
+        self.app.config['IF_MATCH'] = False
+
+        # IMS needs to see as recent as possible since the test db has just
+        # been built
+        header = [("If-Modified-Since", date_to_str(datetime.now()))]
+
+        r = self.test_client.get(self.item_id_url, headers=header)
+        self.assert304(r.status_code)
 
     def test_getitem_custom_auto_document_fields(self):
         self.app.config['LAST_UPDATED'] = '_updated_on'
