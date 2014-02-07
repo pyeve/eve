@@ -313,6 +313,29 @@ class TestPost(TestBase):
         r, status = self.post(self.known_resource_url, data=data)
         self.assertTrue(ETAG not in r)
 
+    def test_post_custom_idfield(self):
+        # test that we can post a document with a custom id_field
+        id_field = 'id'
+        test_value = '1234'
+        data = {id_field: test_value}
+
+        self.app.config['ID_FIELD'] = id_field
+        #self.app.config['url_rule'] = 'regex("[a-f0-9]{4}")'
+
+        # custom id_fields also need to be included in the resource schema
+        self.domain['contacts']['schema'][id_field] = {
+            'type': 'string',
+            'required': True,
+            'unique': True
+        }
+        del(self.domain['contacts']['schema']['ref']['required'])
+
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert200(status)
+        self.assertTrue(id_field in r)
+        self.assertTrue(ID_FIELD not in r)
+        self.assertItemLink(r['_links'], r[id_field])
+
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert200(status)
@@ -327,7 +350,7 @@ class TestPost(TestBase):
         self.assertTrue(db_value[0] == test_value)
         self.assertTrue(db_value[1] == item_etag)
 
-    def assertPostResponse(self, response, valid_items=[0]):
+    def assertPostResponse(self, response, valid_items=[0], id_field=ID_FIELD):
         if isinstance(response, dict):
             response = [response]
         for i in valid_items:

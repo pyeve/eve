@@ -74,11 +74,14 @@ def put(resource, **lookup):
         validation = validator.validate_replace(document, object_id)
         if validation:
             last_modified = datetime.utcnow().replace(microsecond=0)
-            document[config.ID_FIELD] = object_id
             document[config.LAST_UPDATED] = last_modified
-            # TODO what do we need here: the original creation date or the
-            # PUT date? Going for the former seems reasonable.
             document[config.DATE_CREATED] = original[config.DATE_CREATED]
+
+            # ID_FIELD not in document means it is not being automatically
+            # handled (it has been set to a field which exists in the resource
+            # schema.
+            if config.ID_FIELD not in document:
+                document[config.ID_FIELD] = object_id
 
             resolve_user_restricted_access(document, resource)
             resolve_default_values(document, resource)
@@ -90,15 +93,17 @@ def put(resource, **lookup):
 
             app.data.replace(resource, object_id, document)
 
-            response[config.ID_FIELD] = object_id
+            response[config.ID_FIELD] = document.get(config.ID_FIELD,
+                                                     object_id)
             response[config.LAST_UPDATED] = last_modified
 
             # metadata
             if config.IF_MATCH:
                 etag = response[config.ETAG] = document_etag(document)
             if resource_def['hateoas']:
-                response[config.LINKS] = {'self': document_link(resource,
-                                                                object_id)}
+                response[config.LINKS] = {
+                    'self': document_link(resource, response[config.ID_FIELD])
+                }
         else:
             issues = validator.errors
     except ValidationError as e:

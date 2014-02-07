@@ -109,7 +109,7 @@ def patch(resource, **lookup):
 
             app.data.update(resource, object_id, updates)
 
-            response[config.ID_FIELD] = object_id
+            response[config.ID_FIELD] = original[config.ID_FIELD]
             last_modified = response[config.LAST_UPDATED] = \
                 original[config.LAST_UPDATED]
 
@@ -117,8 +117,10 @@ def patch(resource, **lookup):
             if config.IF_MATCH:
                 etag = response[config.ETAG] = document_etag(original)
             if resource_def['hateoas']:
-                response[config.LINKS] = {'self': document_link(resource,
-                                                                object_id)}
+                response[config.LINKS] = {
+                    'self': document_link(resource, original[config.ID_FIELD])
+                }
+
         else:
             issues = validator.errors
     except ValidationError as e:

@@ -158,29 +158,34 @@ def post(resource, payl=None):
     # build response payload
     response = []
     for doc_issues in issues:
-        response_item = {}
+        item = {}
         if len(doc_issues):
-            response_item[config.STATUS] = config.STATUS_ERR
-            response_item[config.ISSUES] = doc_issues
+            item[config.STATUS] = config.STATUS_ERR
+            item[config.ISSUES] = doc_issues
         else:
-            response_item[config.STATUS] = config.STATUS_OK
-            response_item[config.ID_FIELD] = ids.pop(0)
+            item[config.STATUS] = config.STATUS_OK
+
             document = documents.pop(0)
-            response_item[config.LAST_UPDATED] = document[config.LAST_UPDATED]
+            item[config.LAST_UPDATED] = document[config.LAST_UPDATED]
+
+            # either return the custom ID_FIELD or the id returned by
+            # data.insert().
+            item[config.ID_FIELD] = document.get(config.ID_FIELD, ids.pop(0))
+
             if config.IF_MATCH:
-                response_item[config.ETAG] = document_etag(document)
+                item[config.ETAG] = document_etag(document)
+
             if resource_def['hateoas']:
-                response_item[config.LINKS] = \
-                    {'self': document_link(resource,
-                                           response_item[config.ID_FIELD])}
+                item[config.LINKS] = \
+                    {'self': document_link(resource, item[config.ID_FIELD])}
 
             # add any additional field that might be needed
             allowed_fields = [x for x in resource_def['extra_response_fields']
                               if x in document.keys()]
             for field in allowed_fields:
-                response_item[field] = document[field]
+                item[field] = document[field]
 
-        response.append(response_item)
+        response.append(item)
 
     if len(response) == 1:
         response = response.pop(0)
