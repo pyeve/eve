@@ -823,10 +823,20 @@ defining the field validation rules. Allowed validation rules are:</p>
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">type</span></tt></td>
-<td>Field data type. Can be one of the following:
-<tt class="docutils literal"><span class="pre">string</span></tt>, <tt class="docutils literal"><span class="pre">integer</span></tt>, <tt class="docutils literal"><span class="pre">boolean</span></tt>,
-<tt class="docutils literal"><span class="pre">float</span></tt>, <tt class="docutils literal"><span class="pre">datetime</span></tt>, <tt class="docutils literal"><span class="pre">dict</span></tt>, <tt class="docutils literal"><span class="pre">list</span></tt>,
-<tt class="docutils literal"><span class="pre">objectid</span></tt>, <tt class="docutils literal"><span class="pre">file</span></tt>.</td>
+<td><p class="first">Field data type. Can be one of the following:</p>
+<ul class="last simple">
+<li><tt class="docutils literal"><span class="pre">string</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">boolean</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">integer</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">float</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">number</span></tt> (integer and float values allowed)</li>
+<li><tt class="docutils literal"><span class="pre">datetime</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">dict</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">list</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">objectid</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">file</span></tt></li>
+</ul>
+</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">required</span></tt></td>
 <td>If <tt class="docutils literal"><span class="pre">True</span></tt>, the field is mandatory on
