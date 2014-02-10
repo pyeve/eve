@@ -8,6 +8,7 @@ Version 0.3
 
 Not released yet.
 
+- [new] ``number`` data type. Allows both integers and floats as field values.
 - [fix] Using primary keys other than _id. Closes #237.
 - [fix] Add tests for ``PUT`` when User Restricted Resource Access is active.
 - [fix] Auth field not set if resource level authentication is set. Fixes #231.
