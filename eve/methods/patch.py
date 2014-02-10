@@ -96,6 +96,10 @@ def patch(resource, **lookup):
         if validation:
             resolve_media_files(updates, resource, original)
 
+            # notify callbacks
+            getattr(app, "on_update")(resource, original, updates)
+            getattr(app, "on_update_%s" % resource)(original, updates)
+
             # the mongo driver has a different precision than the python
             # datetime. since we don't want to reload the document once it has
             # been updated, and we still have to provide an updated etag,

@@ -866,6 +866,33 @@ least one document passed validation and is going to be inserted. `documents`
 is a list and only contains documents ready for insertion (payload documents
 that did not pass validation are not included).
 
+The ``on_update`` Event Hooks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When a document is about to be updated in the database, both
+a ``on_update(resource, original, updates)`` and 
+``on_update_<resource>(original, updates)`` event is raised.
+Callback functions could hook into these events to verify or modify updates.
+
+.. code-block:: pycon
+
+    >>> def before_update(resource, original, updates):
+    ...  print 'About to update the document "%s" of "%s" ' % \
+            (original['_id'], resource)
+
+    >>> def before_update_contacts(original, updates):
+    ...  print 'About to update document "%s" of contacts' % original['_id']
+
+    >>> app = Eve()
+    >>> app.on_update += before_update
+    >>> app.on_update_contacts += before_update_contacts
+
+    >>> app.run()
+
+``on_update`` is raised on every resource being updated while
+``on_update_<resource>`` is raised when the `<resource>` endpoint has been hit
+with a PATCH request. In both circumstances, the event will be raised only if the
+updates to the document passed validation.
+
 The ``on_fech`` Event Hooks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The following events:
