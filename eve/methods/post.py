@@ -154,6 +154,13 @@ def post(resource, payl=None):
         getattr(app, "on_insert_%s" % resource)(documents)
         # bulk insert
         ids = app.data.insert(resource, documents)
+        # request was received and accepted; at least one document passed
+        # validation and was accepted for insertion.
+        return_code = 201
+    else:
+        # request was received and accepted; no document passed validation
+        # though.
+        return_code = 200
 
     # build response payload
     response = []
@@ -190,4 +197,4 @@ def post(resource, payl=None):
     if len(response) == 1:
         response = response.pop(0)
 
-    return response, None, None, 200
+    return response, None, None, return_code

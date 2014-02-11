@@ -32,7 +32,7 @@ class TestPost(TestBase):
         for _ in range(10):
             data.append({"inv_number": self.random_string(10)})
         r, status = self.post(self.empty_resource_url, data=data)
-        self.assert200(status)
+        self.assert201(status)
         self.assertPostResponse(r)
 
     def test_post_string(self):
@@ -160,9 +160,8 @@ class TestPost(TestBase):
         data = {test_field: test_value}
         r, status = self.parse_response(self.test_client.post(
             self.known_resource_url, data=data))
-        self.assert200(status)
+        self.assert201(status)
         self.assertTrue('OK' in r[STATUS])
-        self.assert200(status)
         self.assertPostResponse(r)
 
     def test_post_referential_integrity(self):
@@ -176,7 +175,7 @@ class TestPost(TestBase):
 
         data = {"person": self.item_id}
         r, status = self.post('/invoices/', data=data)
-        self.assert200(status)
+        self.assert201(status)
         self.assertPostResponse(r)
 
     def test_post_allow_unknown(self):
@@ -187,7 +186,7 @@ class TestPost(TestBase):
         self.assertValidationError(r, {'unknown': 'unknown'})
         self.app.config['DOMAIN'][self.known_resource]['allow_unknown'] = True
         r, status = self.post(self.known_resource_url, data=data)
-        self.assert200(status)
+        self.assert201(status)
         self.assertPostResponse(r)
 
     def test_post_with_content_type_charset(self):
@@ -196,7 +195,7 @@ class TestPost(TestBase):
         data = {test_field: test_value}
         r, status = self.post(self.known_resource_url, data=data,
                               content_type='application/json; charset=utf-8')
-        self.assert200(status)
+        self.assert201(status)
         self.assertPostResponse(r)
 
     def test_post_with_extra_response_fields(self):
@@ -205,7 +204,7 @@ class TestPost(TestBase):
         test_value = "1234567890123456789054321"
         data = {test_field: test_value}
         r, status = self.post(self.known_resource_url, data=data)
-        self.assert200(status)
+        self.assert201(status)
         self.assertTrue('ref' in r and 'notreally' not in r)
 
     def test_post_write_concern(self):
@@ -218,8 +217,10 @@ class TestPost(TestBase):
         self.assert500(status)
         # 0 and 1 are the only valid values for 'w' on our mongod instance
         self.domain['contacts']['mongo_write_concern'] = {'w': 0}
+        test_value = "1234567890123456789054329"
+        data = {test_field: test_value}
         _, status = self.post(self.known_resource_url, data=data)
-        self.assert200(status)
+        self.assert201(status)
 
     def test_post_with_get_override(self):
         # a GET request with POST override turns into a POST request.
@@ -230,7 +231,7 @@ class TestPost(TestBase):
                    ('Content-Type', 'application/json')]
         r = self.test_client.get(self.known_resource_url, data=data,
                                  headers=headers)
-        self.assert200(r.status_code)
+        self.assert201(r.status_code)
         self.assertPostResponse(json.loads(r.get_data()))
 
     def test_post_list_of_objectid(self):
@@ -238,7 +239,7 @@ class TestPost(TestBase):
         del(self.domain['contacts']['schema']['ref']['required'])
         data = {'id_list': ['%s' % objectid]}
         r, status = self.post(self.known_resource_url, data=data)
-        self.assert200(status)
+        self.assert201(status)
         r, status = self.get(self.known_resource, '?where={"id_list": '
                              '{"$in": ["%s"]}}' % objectid)
         self.assert200(status)
@@ -250,7 +251,7 @@ class TestPost(TestBase):
         del(self.domain['contacts']['schema']['ref']['required'])
         data = {'id_list_of_dict': [{'id': '%s' % objectid}]}
         r, status = self.post(self.known_resource_url, data=data)
-        self.assert200(status)
+        self.assert201(status)
         r, status = self.get(self.known_resource,
                              '?where={"id_list_of_dict.id": ' '"%s"}'
                              % objectid)
@@ -263,7 +264,7 @@ class TestPost(TestBase):
         del(self.domain['contacts']['schema']['ref']['required'])
         data = {'id_list_fixed_len': ['%s' % objectid]}
         r, status = self.post(self.known_resource_url, data=data)
-        self.assert200(status)
+        self.assert201(status)
         r, status = self.get(self.known_resource,
                              '?where={"id_list_fixed_len": '
                              '{"$in": ["%s"]}}' % objectid)
@@ -287,21 +288,21 @@ class TestPost(TestBase):
         self.app.config['ETAG'] = '_myetag'
         r, status = self.post(self.known_resource_url,
                               data={"ref": "1234567890123456789054321"})
-        self.assert200(status)
+        self.assert201(status)
         self.assertTrue('_myetag' in r and ETAG not in r)
 
     def test_custom_date_updated(self):
         self.app.config['LAST_UPDATED'] = '_update_date'
         r, status = self.post(self.known_resource_url,
                               data={"ref": "1234567890123456789054321"})
-        self.assert200(status)
+        self.assert201(status)
         self.assertTrue('_update_date' in r and LAST_UPDATED not in r)
 
     def test_subresource(self):
         data = {"person": self.item_id}
         response, status = self.post('users/%s/invoices' % self.item_id,
                                      data=data)
-        self.assert200(status)
+        self.assert201(status)
         self.assertPostResponse(response)
 
     def test_post_ifmatch_disabled(self):
@@ -331,14 +332,14 @@ class TestPost(TestBase):
         del(self.domain['contacts']['schema']['ref']['required'])
 
         r, status = self.post(self.known_resource_url, data=data)
-        self.assert200(status)
+        self.assert201(status)
         self.assertTrue(id_field in r)
         self.assertTrue(ID_FIELD not in r)
         self.assertItemLink(r['_links'], r[id_field])
 
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
-        self.assert200(status)
+        self.assert201(status)
         self.assertPostResponse(r, valid_items)
         return r
 

@@ -50,6 +50,9 @@ class TestMinimal(unittest.TestCase):
     def assert200(self, status):
         self.assertEqual(status, 200)
 
+    def assert201(self, status):
+        self.assertEqual(status, 201)
+
     def assert301(self, status):
         self.assertEqual(status, 301)
 
@@ -71,7 +74,7 @@ class TestMinimal(unittest.TestCase):
         return self.parse_response(r)
 
     def parse_response(self, r):
-        v = json.loads(r.get_data()) if r.status_code == 200 else None
+        v = json.loads(r.get_data()) if r.status_code in (200, 201) else None
         return v, r.status_code
 
     def assertValidationError(self, response, matches):

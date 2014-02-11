@@ -8,6 +8,11 @@ Version 0.3
 
 Not released yet.
 
+- [change] ``POST`` will return ``201 Created`` if at least one document was
+  accepted for insertion; ``200 OK`` otherwise (meaning the request was
+  accepted and processed). It is still client's responsability to parse the
+  response payload to check if any document did not pass validation. Addresses
+  #201 #202 #215.
 - [new] ``number`` data type. Allows both integers and floats as field values.
 - [fix] Using primary keys other than _id. Closes #237.
 - [fix] Add tests for ``PUT`` when User Restricted Resource Access is active.
