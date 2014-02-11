@@ -245,6 +245,24 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
+    def is_empty(self, resource):
+        """ Returns True if the collection is empty; False otherwise. While
+        a user could rely on self.find() method to achieve the same result,
+        this method can probably take advantage of specific datastore features
+        to provide better perfomance.
+
+        Don't forget, a 'resource' could have a pre-defined filter. If that is
+        the case, it will have to be taken into consideration when performing
+        the is_empty() check (see eve.io.mongo.mongo.py implementation).
+
+        :param resource: resource being accessed. You should then use
+                         the ``_datasource`` helper function to retrieve
+                         the actual datasource name.
+
+        .. versionadded: 0.3
+        """
+        raise NotImplementedError
+
     def _datasource(self, resource):
         """ Returns a tuple with the actual name of the database
         collection/table, base query and projection for the resource being

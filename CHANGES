@@ -8,82 +8,94 @@ Version 0.3
 
 Not released yet.
 
-- [change] ``POST`` will return ``201 Created`` if at least one document was
-  accepted for insertion; ``200 OK`` otherwise (meaning the request was
-  accepted and processed). It is still client's responsability to parse the
-  response payload to check if any document did not pass validation. Addresses
-  #201 #202 #215.
-- [new] ``number`` data type. Allows both integers and floats as field values.
+- [fix] ``GET`` with ``If-Modified-Since`` on list endpoint returns
+  incorrect 304 if resource is empty. Closes #243.
+- [change] ``POST`` will return ``201 Created`` if at least one document
+  was accepted for insertion; ``200 OK`` otherwise (meaning the request
+  was accepted and processed). It is still client's responsability to
+  parse the response payload to check if any document did not pass
+  validation. Addresses #201 #202 #215.
+- [new] ``number`` data type. Allows both integers and floats as field
+  values.
 - [fix] Using primary keys other than _id. Closes #237.
-- [fix] Add tests for ``PUT`` when User Restricted Resource Access is active.
-- [fix] Auth field not set if resource level authentication is set. Fixes #231.
-- [fix] RateLimit check was occasionally failing and returning a 429 (John
-  Deng).
+- [fix] Add tests for ``PUT`` when User Restricted Resource Access is
+  active.
+- [fix] Auth field not set if resource level authentication is set.
+  Fixes #231.
+- [fix] RateLimit check was occasionally failing and returning a 429
+  (John Deng).
 - [change] Jinja2 2.7.2 is now required.
-- [new] media files (images, pdf, etc.) can be uploaded as ``media`` document
-  fields. When a document is requested, eventual media files will be returned
-  as Base64 strings. Upload is done via ``POST``, ``PUT`` and ``PATCH`` using
-  the ``multipart/data-form`` content-type. For optmized performance, by
-  default files are stored in GridFS, however custom ``MediaStorage`` classes
-  can be provided to support alternative storage systems. Clients and API
-  maintainers can exploit the projections feature to include/exclude media
-  fields from requests. For example, a request like
-  ``/url/<id>?projection={"image": 0}`` will return the document without the
-  image field. Also, while setting a resource ``datasource`` it is possible to
-  explicitly exclude media fields from standard responses (clients will need to
-  explicitly add them to the payload with ``?projection={"image": 1}``).
+- [new] media files (images, pdf, etc.) can be uploaded as ``media``
+  document fields. When a document is requested, eventual media files
+  will be returned as Base64 strings. Upload is done via ``POST``,
+  ``PUT`` and ``PATCH`` using the ``multipart/data-form`` content-type.
+  For optmized performance, by default files are stored in GridFS,
+  however custom ``MediaStorage`` classes can be provided to support
+  alternative storage systems. Clients and API maintainers can exploit
+  the projections feature to include/exclude media fields from requests.
+  For example, a request like ``/url/<id>?projection={"image": 0}`` will
+  return the document without the image field. Also, while setting
+  a resource ``datasource`` it is possible to explicitly exclude media
+  fields from standard responses (clients will need to explicitly add
+  them to the payload with ``?projection={"image": 1}``).
 - [new] ``media`` type for schema fields.
-- [new] ``media`` application argument. Allows to specify a media storage class
-  to be used to store media files. Defaults to ``GridFSMediaStorage``.
+- [new] ``media`` application argument. Allows to specify a media
+  storage class to be used to store media files. Defaults to
+  ``GridFSMediaStorage``.
 - [new] ``GridFSMediaStorage`` class. Stores files into GridFS.
-- [new] ``MediaStorage`` class provides a standardized API for storing files,
-  along with a set of default behaviors that all other storage systems can
-  inherit or override as necessary.
+- [new] ``MediaStorage`` class provides a standardized API for storing
+  files, along with a set of default behaviors that all other storage
+  systems can inherit or override as necessary.
 - [new] ``file`` data type support and validation for resource schema.
-- [new] ``multipart/form-data`` content-type is now supported for requests.
-- [fix] Field exclusion (``?projection={"fieldname": 0}``) now supported in
-  client projections. Remember, mixing field inclusion and exclusion is still
-  not supported by MongoDB.
-- [fix] ``URL_PREFIX`` and ``API_VERSION`` are correctly reported in HATOEAS
-  links.
-- [fix] ``DELETE`` on sub-resources should only delete documents referenced by
-  the parent. Closes #212.
-- [fix] ``DELETE`` on a resource endpoint honors User-Restricted Resource
-  Access. Closes #213.
-- [new] ``JSON`` allows to enable/disable JSON responses. Defaults to ``True``
-  (JSON enabled).
-- [new] ``XML`` allows to enable/disable XML responses. Defaults to ``True``
-  (XML enabled).
+- [new] ``multipart/form-data`` content-type is now supported for
+  requests.
+- [fix] Field exclusion (``?projection={"fieldname": 0}``) now supported
+  in client projections. Remember, mixing field inclusion and exclusion
+  is still not supported by MongoDB.
+- [fix] ``URL_PREFIX`` and ``API_VERSION`` are correctly reported in
+  HATOEAS links.
+- [fix] ``DELETE`` on sub-resources should only delete documents
+  referenced by the parent. Closes #212.
+- [fix] ``DELETE`` on a resource endpoint honors User-Restricted
+  Resource Access. Closes #213.
+- [new] ``JSON`` allows to enable/disable JSON responses. Defaults to
+  ``True`` (JSON enabled).
+- [new] ``XML`` allows to enable/disable XML responses. Defaults to
+  ``True`` (XML enabled).
 - [fix] XML properly honors ``_LINKS`` and ``_ITEMS`` settings.
 - [fix] return all document fields when resource schema is empty.
 - [new] pytest.ini for pytest support.
 - [fix] All tests should now run with nose and pytest. Closes #209.
-- [new] ``query_objectid_as_string`` resource setting. Defaults to ``False``.
-  Addresses #207.
-- [new] ``ETAG`` allows to customize the etag field. Defaults to ``_etag``.
-- [change] ``etag`` is now ``_etag`` in all default response payloads (see
-  above).
+- [new] ``query_objectid_as_string`` resource setting. Defaults to
+  ``False``. Addresses #207.
+- [new] ``ETAG`` allows to customize the etag field. Defaults to
+  ``_etag``.
+- [change] ``etag`` is now ``_etag`` in all default response payloads
+  (see above).
 - [change] ``STATUS`` defaults to '_status'.
 - [change] ``ISSUES`` defaults to '_issues'.
 - [change] ``DATE_CREATED`` defaults to '_created'. Upgrade existing
-  collections by running ``db.<collection>.update({}, { $rename: { "created":
-  "_created" } }, { multi: true })`` in the mongo shell. If an index exists on
-  the field, drop it and create a new one using the new field name.
+  collections by running ``db.<collection>.update({}, { $rename:
+  { "created": "_created" } }, { multi: true })`` in the mongo shell. If
+  an index exists on the field, drop it and create a new one using the
+  new field name.
 - [change] ``LAST_UPDATED`` defaults to '_updated'. Upgrade existing
-  collections by running ``db.<collection>.update({}, { $rename: { "updated":
-  "_updated" } }, { multi: true })`` in the mongo shell. If an index exists on
-  the field, drop it and create a new one usung the new field name.
+  collections by running ``db.<collection>.update({}, { $rename:
+  { "updated": "_updated" } }, { multi: true })`` in the mongo shell. If
+  an index exists on the field, drop it and create a new one usung the
+  new field name.
 - [change] Exclude ``etag`` from both response payload and headers if
-  concurrency control is disabled (``IF_MATCH`` = ``False``). Closes #205.
-- [fix] Custom ``ID_FIELD`` would fail on update/insert methods. Fixes #203
-  (Jaroslav Semančík).
-- [change] GET: when If-Modified-Since header is present, either no documents
-  (304) or all documents (200) are sent per the HTTP spec. Original behavior
-  can be achieved with:
+  concurrency control is disabled (``IF_MATCH`` = ``False``). Closes
+  #205.
+- [fix] Custom ``ID_FIELD`` would fail on update/insert methods. Fixes
+  #203 (Jaroslav Semančík).
+- [change] GET: when If-Modified-Since header is present, either no
+  documents (304) or all documents (200) are sent per the HTTP spec.
+  Original behavior can be achieved with:
   ``/resource?where={"updated":{"$gt":"if-modified-since-date"}}`` (Josh
   Villbrandt).
-- [change] Validation errors are now reported as a dictionary with offending
-  fields as keys and issues descriptions as values.
+- [change] Validation errors are now reported as a dictionary with
+  offending fields as keys and issues descriptions as values.
 - [change] Cerberus v0.5 is now required.
 
 Version 0.2

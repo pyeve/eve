@@ -525,6 +525,24 @@ class TestGet(TestBase):
         for r in resource:
             self.assertTrue(self.app.config['ETAG'] not in r)
 
+    def test_get_ims_empty_resource(self):
+        # test that a GET with a If-Modified-Since on an empty resource does
+        # not trigger a 304 and returns a empty resource instead (#243).
+
+        # get the resource and retrieve its IMS.
+        r = self.test_client.get(self.known_resource_url)
+        last_modified = r.headers.get('Last-Modified')
+
+        # delete the whole resource content.
+        r = self.test_client.delete(self.known_resource_url)
+
+        # send a get with a IMS header from previous GET.
+        r = self.test_client.get(self.known_resource_url,
+                                 headers=[('If-Modified-Since',
+                                           last_modified)])
+        self.assert200(r.status_code)
+        self.assertEqual(json.loads(r.get_data())['_items'], [])
+
     def assertGet(self, response, status, resource=None):
         self.assert200(status)
 

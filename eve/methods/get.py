@@ -33,6 +33,7 @@ def get(resource, lookup):
     :param resource: the name of the resource.
 
     .. versionchanged:: 0.3
+       Don't return 304 if resource is empty. Fixes #243.
        Support for media fields.
        When IF_MATCH is disabled, no etag is included in the payload.
        When If-Modified-Since header is present, either no documents (304) or
@@ -87,12 +88,15 @@ def get(resource, lookup):
 
         cursor = app.data.find(resource, preflight_req, lookup)
         if cursor.count() == 0:
-            # the if-modified-since conditional request returned no documents,
-            # we send back a 304 Not-Modified, which means that the client
-            # already has the up-to-date representation of the resultset.
-            status = 304
-            last_modified = None
-            return response, last_modified, etag, status
+            # make sure the datasource is not empty (#243).
+            if not app.data.is_empty(resource):
+                # the if-modified-since conditional request returned no
+                # documents, we send back a 304 Not-Modified, which means that
+                # the client already has the up-to-date representation of the
+                # resultset.
+                status = 304
+                last_modified = None
+                return response, last_modified, etag, status
 
     # continue processing the full request
     last_update = epoch()

@@ -476,6 +476,36 @@ class Mongo(DataLayer):
             return False
         return True
 
+    def is_empty(self, resource):
+        """ Returns True if resource is empty; False otherwise. If there is no
+        predefined filter on the resource we're relying on the
+        db.collection.count(). However, if we do have a predefined filter we
+        have to fallback on the find() method, which can be much slower.
+
+        .. versionadded:: 0.3
+        """
+        datasource, filter_, _, _ = self._datasource(resource)
+        coll = self.driver.db[datasource]
+        try:
+            if not filter_:
+                # faster, but we can only affrd it if there's now predefined
+                # filter on the datasource.
+                return coll.count() == 0
+            else:
+                # fallback on find() since we have a filter to apply.
+                try:
+                    # need to check if the whole resultset is missing, no
+                    # matter the IMS header.
+                    del filter_[config.LAST_UPDATED]
+                except:
+                    pass
+                return coll.find(filter_).count() == 0
+        except pymongo.errors.OperationFailure as e:
+            # see comment in :func:`insert()`.
+            abort(500, description=debug_error_message(
+                'pymongo.errors.OperationFailure: %s' % e
+            ))
+
     def _mongotize(self, source, resource):
         """ Recursively iterates a JSON dictionary, turning RFC-1123 strings
         into datetime values and ObjectId-link strings into ObjectIds.
