@@ -525,7 +525,7 @@ A client may submit a single document for insertion:
 .. code-block:: console
 
     $ curl -d '{"firstname": "barack", "lastname": "obama"}' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
-    HTTP/1.1 200 OK
+    HTTP/1.1 201 OK
 
 In this case the response payload will just contain the relevant document
 metadata:
@@ -547,7 +547,7 @@ documents in a JSON list:
 .. code-block:: console
 
     $ curl -d '[{"firstname": "barack", "lastname": "obama"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
-    HTTP/1.1 200 OK
+    HTTP/1.1 201 OK
 
 The response will be a list itself, with the state of each document:
 
@@ -570,9 +570,6 @@ The response will be a list itself, with the state of each document:
         }
     ]
 
-Evenutal validation errors on one document won't prevent the insertion of other
-submitted documents. 
-
 When multiple documents are submitted the API takes advantage of MongoDB *bulk
 insert* capabilities which means that not only there's just one single request
 traveling from the client to the remote API, but also that only one loopback is
@@ -588,7 +585,7 @@ will only be updated if validation passes.
 .. code-block:: console
 
     $ curl -d '[{"firstname": "bill", "lastname": "clinton"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
-    HTTP/1.1 200 OK
+    HTTP/1.1 201 OK
 
 The response will contain a success/error state for each item provided in the
 request:
@@ -613,6 +610,16 @@ while the second was successfully created. The API maintainer has complete
 control on data validation. Optionally, you can decide to allow for unknown
 fields to be inserted/updated on one or more endpoints. For more information
 see :ref:`validation`.
+
+.. admonition:: Please Note
+
+    Eventual validation errors on one or more document won't prevent the
+    insertion of valid documents. The response status code will be ``201
+    Created`` if *at least one document* passed validation and has actually
+    been stored. If no document passed validation the status code will be ``200
+    OK``, meaning that the request was accepted and processed. It is still
+    client's responsability to parse the response payload and make sure that
+    all documents passed validation.
 
 Extensible Data Validation
 --------------------------

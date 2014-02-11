@@ -65,7 +65,7 @@ a <a class="reference internal" href="config.html#schema"><em>Schema Definition<
 to be inserted or updated will be validated against the schema, and a resource
 will be updated only if validation passes.</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;{&quot;firstname&quot;: &quot;bill&quot;, &quot;lastname&quot;: &quot;clinton&quot;}, {&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}]&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> http://eve-demo.herokuapp.com/people
-<span class="go">HTTP/1.1 200 OK</span>
+<span class="go">HTTP/1.1 201 OK</span>
 </pre></div>
 </div>
 <p>The response will contain a success/error state for each item provided in the
@@ -87,6 +87,16 @@ request:</p>
 <p>In the example above, the first document did not validate and was rejected,
 while the second was successfully created. The API maintainer has complete
 control of data validation.</p>
+<div class="admonition-please-note admonition">
+<p class="first admonition-title">Please Note</p>
+<p class="last">Eventual validation errors on one or more document won&#8217;t prevent the
+insertion of valid documents. The response status code will be
+<tt class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></tt> if <em>at least one document</em> passed validation and has
+actually been stored. If no document passed validation the status code will
+be <tt class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></tt>, meaning that the request was accepted and processed. It is
+still client&#8217;s responsability to parse the response payload and make sure
+that all documents passed validation.</p>
+</div>
 <div class="section" id="extending-data-validation">
 <h2>Extending Data Validation<a class="headerlink" href="#extending-data-validation" title="Permalink to this headline">¶</a></h2>
 <p>Data validation is based on the <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> validation system and it is therefore
@@ -185,7 +195,7 @@ can also enable this feature only for certain endpoints by setting the
 <tt class="docutils literal"><span class="pre">/people</span></tt> endpoint. However, since <tt class="docutils literal"><span class="pre">allow_unknown</span></tt> has been enabled, even
 a payload like this will be accepted:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;[{&quot;firstname&quot;: &quot;bill&quot;, &quot;lastname&quot;: &quot;clinton&quot;}, {&quot;firstname&quot;: &quot;bill&quot;, &quot;age&quot;:70}]&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> http://eve-demo.herokuapp.com/people
-<span class="go">HTTP/1.1 200 OK</span>
+<span class="go">HTTP/1.1 201 OK</span>
 </pre></div>
 </div>
 <div class="admonition-please-note admonition">

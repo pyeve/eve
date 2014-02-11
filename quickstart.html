@@ -268,7 +268,7 @@ file:</p>
 <p>Save <cite>settings.py</cite> and launch <cite>run.py</cite>. We can now insert documents at the
 <cite>people</cite> endpoint:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;[{&quot;firstname&quot;: &quot;barack&quot;, &quot;lastname&quot;: &quot;obama&quot;}, {&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}]&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span>  http://127.0.0.1:5000/people
-<span class="go">HTTP/1.0 200 OK</span>
+<span class="go">HTTP/1.0 201 OK</span>
 </pre></div>
 </div>
 <p>We can also update and delete items (but not the whole resource since we

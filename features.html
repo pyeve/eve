@@ -531,7 +531,7 @@ risk of older versions replacing your documents.</p>
 <h2>Bulk Inserts<a class="headerlink" href="#bulk-inserts" title="Permalink to this headline">¶</a></h2>
 <p>A client may submit a single document for insertion:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;{&quot;firstname&quot;: &quot;barack&quot;, &quot;lastname&quot;: &quot;obama&quot;}&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> http://eve-demo.herokuapp.com/people
-<span class="go">HTTP/1.1 200 OK</span>
+<span class="go">HTTP/1.1 201 OK</span>
 </pre></div>
 </div>
 <p>In this case the response payload will just contain the relevant document
@@ -549,7 +549,7 @@ metadata:</p>
 multiple documents with a single request. All if needs to do is enclose the
 documents in a JSON list:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;[{&quot;firstname&quot;: &quot;barack&quot;, &quot;lastname&quot;: &quot;obama&quot;}, {&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}]&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> http://eve-demo.herokuapp.com/people
-<span class="go">HTTP/1.1 200 OK</span>
+<span class="go">HTTP/1.1 201 OK</span>
 </pre></div>
 </div>
 <p>The response will be a list itself, with the state of each document:</p>
@@ -571,8 +571,6 @@ documents in a JSON list:</p>
 <span class="p">]</span>
 </pre></div>
 </div>
-<p>Evenutal validation errors on one document won&#8217;t prevent the insertion of other
-submitted documents.</p>
 <p>When multiple documents are submitted the API takes advantage of MongoDB <em>bulk
 insert</em> capabilities which means that not only there&#8217;s just one single request
 traveling from the client to the remote API, but also that only one loopback is
@@ -585,7 +583,7 @@ a schema definition for every resource managed by the API. Data sent to the API
 to be inserted/updated will be validated against the schema, and a resource
 will only be updated if validation passes.</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;[{&quot;firstname&quot;: &quot;bill&quot;, &quot;lastname&quot;: &quot;clinton&quot;}, {&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}]&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> http://eve-demo.herokuapp.com/people
-<span class="go">HTTP/1.1 200 OK</span>
+<span class="go">HTTP/1.1 201 OK</span>
 </pre></div>
 </div>
 <p>The response will contain a success/error state for each item provided in the
@@ -609,6 +607,16 @@ while the second was successfully created. The API maintainer has complete
 control on data validation. Optionally, you can decide to allow for unknown
 fields to be inserted/updated on one or more endpoints. For more information
 see <a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a>.</p>
+<div class="admonition-please-note admonition">
+<p class="first admonition-title">Please Note</p>
+<p class="last">Eventual validation errors on one or more document won&#8217;t prevent the
+insertion of valid documents. The response status code will be <tt class="docutils literal"><span class="pre">201</span>
+<span class="pre">Created</span></tt> if <em>at least one document</em> passed validation and has actually
+been stored. If no document passed validation the status code will be <tt class="docutils literal"><span class="pre">200</span>
+<span class="pre">OK</span></tt>, meaning that the request was accepted and processed. It is still
+client&#8217;s responsability to parse the response payload and make sure that
+all documents passed validation.</p>
+</div>
 </div>
 <div class="section" id="extensible-data-validation">
 <h2>Extensible Data Validation<a class="headerlink" href="#extensible-data-validation" title="Permalink to this headline">¶</a></h2>

@@ -10,7 +10,7 @@ will be updated only if validation passes.
 .. code-block:: console
 
     $ curl -d '{"firstname": "bill", "lastname": "clinton"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
-    HTTP/1.1 200 OK
+    HTTP/1.1 201 OK
 
 The response will contain a success/error state for each item provided in the
 request:
@@ -33,6 +33,16 @@ request:
 In the example above, the first document did not validate and was rejected,
 while the second was successfully created. The API maintainer has complete
 control of data validation.
+
+.. admonition:: Please Note
+
+    Eventual validation errors on one or more document won't prevent the
+    insertion of valid documents. The response status code will be
+    ``201 Created`` if *at least one document* passed validation and has
+    actually been stored. If no document passed validation the status code will
+    be ``200 OK``, meaning that the request was accepted and processed. It is
+    still client's responsability to parse the response payload and make sure
+    that all documents passed validation.
 
 Extending Data Validation
 -------------------------
@@ -148,7 +158,7 @@ a payload like this will be accepted:
 .. code-block:: console
 
     $ curl -d '[{"firstname": "bill", "lastname": "clinton"}, {"firstname": "bill", "age":70}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
-    HTTP/1.1 200 OK
+    HTTP/1.1 201 OK
 
 .. admonition:: Please note
 
