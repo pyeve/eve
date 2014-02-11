@@ -45,6 +45,7 @@ def post(resource, payl=None):
                  discussion, and a typical use case.
 
     .. versionchanged:: 0.3
+       Return 201 if at least one document has been successfully inserted.
        Fix #231 auth field not set if resource level authentication is set.
        Support for media fields.
        When IF_MATCH is disabled, no etag is included in the payload.
