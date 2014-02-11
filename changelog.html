@@ -61,82 +61,94 @@
 <h2>Version 0.3<a class="headerlink" href="#version-0-3" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
-<li>[change] <tt class="docutils literal"><span class="pre">POST</span></tt> will return <tt class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></tt> if at least one document was
-accepted for insertion; <tt class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></tt> otherwise (meaning the request was
-accepted and processed). It is still client&#8217;s responsability to parse the
-response payload to check if any document did not pass validation. Addresses
-#201 #202 #215.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">number</span></tt> data type. Allows both integers and floats as field values.</li>
+<li>[fix] <tt class="docutils literal"><span class="pre">GET</span></tt> with <tt class="docutils literal"><span class="pre">If-Modified-Since</span></tt> on list endpoint returns
+incorrect 304 if resource is empty. Closes #243.</li>
+<li>[change] <tt class="docutils literal"><span class="pre">POST</span></tt> will return <tt class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></tt> if at least one document
+was accepted for insertion; <tt class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></tt> otherwise (meaning the request
+was accepted and processed). It is still client&#8217;s responsability to
+parse the response payload to check if any document did not pass
+validation. Addresses #201 #202 #215.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">number</span></tt> data type. Allows both integers and floats as field
+values.</li>
 <li>[fix] Using primary keys other than _id. Closes #237.</li>
-<li>[fix] Add tests for <tt class="docutils literal"><span class="pre">PUT</span></tt> when User Restricted Resource Access is active.</li>
-<li>[fix] Auth field not set if resource level authentication is set. Fixes #231.</li>
-<li>[fix] RateLimit check was occasionally failing and returning a 429 (John
-Deng).</li>
+<li>[fix] Add tests for <tt class="docutils literal"><span class="pre">PUT</span></tt> when User Restricted Resource Access is
+active.</li>
+<li>[fix] Auth field not set if resource level authentication is set.
+Fixes #231.</li>
+<li>[fix] RateLimit check was occasionally failing and returning a 429
+(John Deng).</li>
 <li>[change] Jinja2 2.7.2 is now required.</li>
-<li>[new] media files (images, pdf, etc.) can be uploaded as <tt class="docutils literal"><span class="pre">media</span></tt> document
-fields. When a document is requested, eventual media files will be returned
-as Base64 strings. Upload is done via <tt class="docutils literal"><span class="pre">POST</span></tt>, <tt class="docutils literal"><span class="pre">PUT</span></tt> and <tt class="docutils literal"><span class="pre">PATCH</span></tt> using
-the <tt class="docutils literal"><span class="pre">multipart/data-form</span></tt> content-type. For optmized performance, by
-default files are stored in GridFS, however custom <tt class="docutils literal"><span class="pre">MediaStorage</span></tt> classes
-can be provided to support alternative storage systems. Clients and API
-maintainers can exploit the projections feature to include/exclude media
-fields from requests. For example, a request like
-<tt class="docutils literal"><span class="pre">/url/&lt;id&gt;?projection={&quot;image&quot;:</span> <span class="pre">0}</span></tt> will return the document without the
-image field. Also, while setting a resource <tt class="docutils literal"><span class="pre">datasource</span></tt> it is possible to
-explicitly exclude media fields from standard responses (clients will need to
-explicitly add them to the payload with <tt class="docutils literal"><span class="pre">?projection={&quot;image&quot;:</span> <span class="pre">1}</span></tt>).</li>
+<li>[new] media files (images, pdf, etc.) can be uploaded as <tt class="docutils literal"><span class="pre">media</span></tt>
+document fields. When a document is requested, eventual media files
+will be returned as Base64 strings. Upload is done via <tt class="docutils literal"><span class="pre">POST</span></tt>,
+<tt class="docutils literal"><span class="pre">PUT</span></tt> and <tt class="docutils literal"><span class="pre">PATCH</span></tt> using the <tt class="docutils literal"><span class="pre">multipart/data-form</span></tt> content-type.
+For optmized performance, by default files are stored in GridFS,
+however custom <tt class="docutils literal"><span class="pre">MediaStorage</span></tt> classes can be provided to support
+alternative storage systems. Clients and API maintainers can exploit
+the projections feature to include/exclude media fields from requests.
+For example, a request like <tt class="docutils literal"><span class="pre">/url/&lt;id&gt;?projection={&quot;image&quot;:</span> <span class="pre">0}</span></tt> will
+return the document without the image field. Also, while setting
+a resource <tt class="docutils literal"><span class="pre">datasource</span></tt> it is possible to explicitly exclude media
+fields from standard responses (clients will need to explicitly add
+them to the payload with <tt class="docutils literal"><span class="pre">?projection={&quot;image&quot;:</span> <span class="pre">1}</span></tt>).</li>
 <li>[new] <tt class="docutils literal"><span class="pre">media</span></tt> type for schema fields.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">media</span></tt> application argument. Allows to specify a media storage class
-to be used to store media files. Defaults to <tt class="docutils literal"><span class="pre">GridFSMediaStorage</span></tt>.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">media</span></tt> application argument. Allows to specify a media
+storage class to be used to store media files. Defaults to
+<tt class="docutils literal"><span class="pre">GridFSMediaStorage</span></tt>.</li>
 <li>[new] <tt class="docutils literal"><span class="pre">GridFSMediaStorage</span></tt> class. Stores files into GridFS.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">MediaStorage</span></tt> class provides a standardized API for storing files,
-along with a set of default behaviors that all other storage systems can
-inherit or override as necessary.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">MediaStorage</span></tt> class provides a standardized API for storing
+files, along with a set of default behaviors that all other storage
+systems can inherit or override as necessary.</li>
 <li>[new] <tt class="docutils literal"><span class="pre">file</span></tt> data type support and validation for resource schema.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">multipart/form-data</span></tt> content-type is now supported for requests.</li>
-<li>[fix] Field exclusion (<tt class="docutils literal"><span class="pre">?projection={&quot;fieldname&quot;:</span> <span class="pre">0}</span></tt>) now supported in
-client projections. Remember, mixing field inclusion and exclusion is still
-not supported by MongoDB.</li>
-<li>[fix] <tt class="docutils literal"><span class="pre">URL_PREFIX</span></tt> and <tt class="docutils literal"><span class="pre">API_VERSION</span></tt> are correctly reported in HATOEAS
-links.</li>
-<li>[fix] <tt class="docutils literal"><span class="pre">DELETE</span></tt> on sub-resources should only delete documents referenced by
-the parent. Closes #212.</li>
-<li>[fix] <tt class="docutils literal"><span class="pre">DELETE</span></tt> on a resource endpoint honors User-Restricted Resource
-Access. Closes #213.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">JSON</span></tt> allows to enable/disable JSON responses. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>
-(JSON enabled).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">XML</span></tt> allows to enable/disable XML responses. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>
-(XML enabled).</li>
+<li>[new] <tt class="docutils literal"><span class="pre">multipart/form-data</span></tt> content-type is now supported for
+requests.</li>
+<li>[fix] Field exclusion (<tt class="docutils literal"><span class="pre">?projection={&quot;fieldname&quot;:</span> <span class="pre">0}</span></tt>) now supported
+in client projections. Remember, mixing field inclusion and exclusion
+is still not supported by MongoDB.</li>
+<li>[fix] <tt class="docutils literal"><span class="pre">URL_PREFIX</span></tt> and <tt class="docutils literal"><span class="pre">API_VERSION</span></tt> are correctly reported in
+HATOEAS links.</li>
+<li>[fix] <tt class="docutils literal"><span class="pre">DELETE</span></tt> on sub-resources should only delete documents
+referenced by the parent. Closes #212.</li>
+<li>[fix] <tt class="docutils literal"><span class="pre">DELETE</span></tt> on a resource endpoint honors User-Restricted
+Resource Access. Closes #213.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">JSON</span></tt> allows to enable/disable JSON responses. Defaults to
+<tt class="docutils literal"><span class="pre">True</span></tt> (JSON enabled).</li>
+<li>[new] <tt class="docutils literal"><span class="pre">XML</span></tt> allows to enable/disable XML responses. Defaults to
+<tt class="docutils literal"><span class="pre">True</span></tt> (XML enabled).</li>
 <li>[fix] XML properly honors <tt class="docutils literal"><span class="pre">_LINKS</span></tt> and <tt class="docutils literal"><span class="pre">_ITEMS</span></tt> settings.</li>
 <li>[fix] return all document fields when resource schema is empty.</li>
 <li>[new] pytest.ini for pytest support.</li>
 <li>[fix] All tests should now run with nose and pytest. Closes #209.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">query_objectid_as_string</span></tt> resource setting. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.
-Addresses #207.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">ETAG</span></tt> allows to customize the etag field. Defaults to <tt class="docutils literal"><span class="pre">_etag</span></tt>.</li>
-<li>[change] <tt class="docutils literal"><span class="pre">etag</span></tt> is now <tt class="docutils literal"><span class="pre">_etag</span></tt> in all default response payloads (see
-above).</li>
+<li>[new] <tt class="docutils literal"><span class="pre">query_objectid_as_string</span></tt> resource setting. Defaults to
+<tt class="docutils literal"><span class="pre">False</span></tt>. Addresses #207.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">ETAG</span></tt> allows to customize the etag field. Defaults to
+<tt class="docutils literal"><span class="pre">_etag</span></tt>.</li>
+<li>[change] <tt class="docutils literal"><span class="pre">etag</span></tt> is now <tt class="docutils literal"><span class="pre">_etag</span></tt> in all default response payloads
+(see above).</li>
 <li>[change] <tt class="docutils literal"><span class="pre">STATUS</span></tt> defaults to &#8216;_status&#8217;.</li>
 <li>[change] <tt class="docutils literal"><span class="pre">ISSUES</span></tt> defaults to &#8216;_issues&#8217;.</li>
 <li>[change] <tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt> defaults to &#8216;_created&#8217;. Upgrade existing
-collections by running <tt class="docutils literal"><span class="pre">db.&lt;collection&gt;.update({},</span> <span class="pre">{</span> <span class="pre">$rename:</span> <span class="pre">{</span> <span class="pre">&quot;created&quot;:</span>
-<span class="pre">&quot;_created&quot;</span> <span class="pre">}</span> <span class="pre">},</span> <span class="pre">{</span> <span class="pre">multi:</span> <span class="pre">true</span> <span class="pre">})</span></tt> in the mongo shell. If an index exists on
-the field, drop it and create a new one using the new field name.</li>
+collections by running <tt class="docutils literal"><span class="pre">db.&lt;collection&gt;.update({},</span> <span class="pre">{</span> <span class="pre">$rename:</span>
+<span class="pre">{</span> <span class="pre">&quot;created&quot;:</span> <span class="pre">&quot;_created&quot;</span> <span class="pre">}</span> <span class="pre">},</span> <span class="pre">{</span> <span class="pre">multi:</span> <span class="pre">true</span> <span class="pre">})</span></tt> in the mongo shell. If
+an index exists on the field, drop it and create a new one using the
+new field name.</li>
 <li>[change] <tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt> defaults to &#8216;_updated&#8217;. Upgrade existing
-collections by running <tt class="docutils literal"><span class="pre">db.&lt;collection&gt;.update({},</span> <span class="pre">{</span> <span class="pre">$rename:</span> <span class="pre">{</span> <span class="pre">&quot;updated&quot;:</span>
-<span class="pre">&quot;_updated&quot;</span> <span class="pre">}</span> <span class="pre">},</span> <span class="pre">{</span> <span class="pre">multi:</span> <span class="pre">true</span> <span class="pre">})</span></tt> in the mongo shell. If an index exists on
-the field, drop it and create a new one usung the new field name.</li>
+collections by running <tt class="docutils literal"><span class="pre">db.&lt;collection&gt;.update({},</span> <span class="pre">{</span> <span class="pre">$rename:</span>
+<span class="pre">{</span> <span class="pre">&quot;updated&quot;:</span> <span class="pre">&quot;_updated&quot;</span> <span class="pre">}</span> <span class="pre">},</span> <span class="pre">{</span> <span class="pre">multi:</span> <span class="pre">true</span> <span class="pre">})</span></tt> in the mongo shell. If
+an index exists on the field, drop it and create a new one usung the
+new field name.</li>
 <li>[change] Exclude <tt class="docutils literal"><span class="pre">etag</span></tt> from both response payload and headers if
-concurrency control is disabled (<tt class="docutils literal"><span class="pre">IF_MATCH</span></tt> = <tt class="docutils literal"><span class="pre">False</span></tt>). Closes #205.</li>
-<li>[fix] Custom <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> would fail on update/insert methods. Fixes #203
-(Jaroslav Semančík).</li>
-<li>[change] GET: when If-Modified-Since header is present, either no documents
-(304) or all documents (200) are sent per the HTTP spec. Original behavior
-can be achieved with:
+concurrency control is disabled (<tt class="docutils literal"><span class="pre">IF_MATCH</span></tt> = <tt class="docutils literal"><span class="pre">False</span></tt>). Closes
+#205.</li>
+<li>[fix] Custom <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> would fail on update/insert methods. Fixes
+#203 (Jaroslav Semančík).</li>
+<li>[change] GET: when If-Modified-Since header is present, either no
+documents (304) or all documents (200) are sent per the HTTP spec.
+Original behavior can be achieved with:
 <tt class="docutils literal"><span class="pre">/resource?where={&quot;updated&quot;:{&quot;$gt&quot;:&quot;if-modified-since-date&quot;}}</span></tt> (Josh
 Villbrandt).</li>
-<li>[change] Validation errors are now reported as a dictionary with offending
-fields as keys and issues descriptions as values.</li>
+<li>[change] Validation errors are now reported as a dictionary with
+offending fields as keys and issues descriptions as values.</li>
 <li>[change] Cerberus v0.5 is now required.</li>
 </ul>
 </div>
