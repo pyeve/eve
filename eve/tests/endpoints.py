@@ -129,7 +129,7 @@ class TestCustomConverters(TestMinimal):
         new_id = '48c00ee9-4dbe-413f-9fc3-d5f12a91de13'
         data = json.dumps({'_id': new_id})
         r = self.test_client.post('uuids', data=data, headers=self.headers)
-        self.assert200(r.status_code)
+        self.assert201(r.status_code)
         match_id = json.loads(r.get_data())['_id']
         self.assertEqual(new_id, match_id)
 

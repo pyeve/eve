@@ -409,7 +409,7 @@ class TestUserRestrictedAccess(TestBase):
 
     def test_post(self):
         _, status = self.post()
-        self.assert200(status)
+        self.assert201(status)
         data, status = self.parse_response(
             self.test_client.get(self.url,
                                  headers=self.valid_auth))
