@@ -110,7 +110,7 @@ class TestRenders(TestBase):
         self.assertEqual(r.headers['Access-Control-Allow-Max-Age'],
                          '21600')
 
-        self.app.config['MAX_AGE'] = 2000
+        self.app.config['X_MAX_AGE'] = 2000
         r = self.test_client.get('/', headers=[('Origin',
                                                 'http://example.com')])
         self.assertEqual(r.headers['Access-Control-Allow-Max-Age'],
