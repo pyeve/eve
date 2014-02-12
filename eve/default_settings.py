@@ -11,8 +11,11 @@
     :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.3
+       X_MAX_AGE added and set to 21600.
+
     .. versionchanged:: 0.2
-       IF_MAATCH defaults to True.
+       IF_MATCH defaults to True.
        'LINKS' defaults to '_links'.
        'ITEMS' defaults to '_items'.
        'STATUS' defaults to 'status'.
