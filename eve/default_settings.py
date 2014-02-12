@@ -11,8 +11,11 @@
     :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.3
+       X_MAX_AGE added and set to 21600.
+
     .. versionchanged:: 0.2
-       IF_MAATCH defaults to True.
+       IF_MATCH defaults to True.
        'LINKS' defaults to '_links'.
        'ITEMS' defaults to '_items'.
        'STATUS' defaults to 'status'.
@@ -68,6 +71,7 @@ CACHE_EXPIRES = 0
 ITEM_CACHE_CONTROL = ''
 X_DOMAINS = None                # CORS disabled by default.
 X_HEADERS = None                # CORS disabled by default.
+X_MAX_AGE = 21600               # Access-Control-Max-Age when CORS is enabled
 HATEOAS = True                  # HATEOAS enabled by default.
 IF_MATCH = True                 # IF_MATCH (ETag match) enabled by default.
 

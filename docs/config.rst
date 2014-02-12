@@ -216,7 +216,11 @@ uppercase.
                                 values are: ``None`` or a list of headers names.
                                 Defaults to ``None``.
                                 
+``X_MAX_AGE``                   CORS (Cross-Origin Resource Sharing) support. 
+                                Allows to set max age for the access control 
+                                allow header. Defaults to 21600.
 
+                                
 ``LAST_UPDATED``                Name of the field used to record a document's 
                                 last update date. This field is automatically
                                 handled by Eve. Defaults to ``_updated``.

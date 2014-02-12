@@ -103,6 +103,19 @@ class TestRenders(TestBase):
         self.assertEqual(r.headers['Access-Control-Allow-Origin'],
                          'http://example.com, http://1on1.com')
 
+    def test_CORS_MAX_AGE(self):
+        self.app.config['X_DOMAINS'] = '*'
+        r = self.test_client.get('/', headers=[('Origin',
+                                                'http://example.com')])
+        self.assertEqual(r.headers['Access-Control-Allow-Max-Age'],
+                         '21600')
+
+        self.app.config['X_MAX_AGE'] = 2000
+        r = self.test_client.get('/', headers=[('Origin',
+                                                'http://example.com')])
+        self.assertEqual(r.headers['Access-Control-Allow-Max-Age'],
+                         '2000')
+
     def test_CORS_OPTIONS(self, url='/', methods=None):
         if methods is None:
             methods = []

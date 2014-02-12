@@ -100,6 +100,9 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     :param etag: ETag header value.
     :param status: response status.
 
+    .. versionchanged:: 0.3
+       Support for X_MAX_AGE.
+
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
 
@@ -168,7 +171,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         resp.headers.add('Access-Control-Allow-Origin', ', '.join(domains))
         resp.headers.add('Access-Control-Allow-Headers', ', '.join(headers))
         resp.headers.add('Access-Control-Allow-Methods', methods)
-        resp.headers.add('Access-Control-Allow-Max-Age', 21600)
+        resp.headers.add('Access-Control-Allow-Max-Age', config.X_MAX_AGE)
 
     # Rate-Limiting
     limit = get_rate_limit()
