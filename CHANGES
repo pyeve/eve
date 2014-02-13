@@ -8,6 +8,7 @@ Version 0.3
 
 Not released yet.
 
+- [fix] Serialization of sub-documents (Hannes Tiede). Closes #244.
 - [new] ``X_MAX_AGE`` allows to configure CORS Access-Control-Max-Age (David
   Buchmann).
 - [fix] ``GET`` with ``If-Modified-Since`` on list endpoint returns incorrect
