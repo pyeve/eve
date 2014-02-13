@@ -1,5 +1,8 @@
 from eve.tests import TestBase
+from eve.methods.common import serialize
 import simplejson as json
+from datetime import datetime
+from bson import ObjectId
 
 
 class TestPreEventHooks(TestBase):
@@ -110,3 +113,19 @@ class TestPreEventHooks(TestBase):
                    ('If-Match', self.item_etag)]
         data = json.dumps({"ref": "0123456789012345678901234"})
         self.test_client.put(self.item_id_url, data=data, headers=headers)
+
+
+class TestSerializer(TestBase):
+
+    def test_serialize_subdocument(self):
+        schema = {'personal': {'type': 'dict',
+                               'schema': {'best_friend': {'type': 'objectid'},
+                                          'born': {'type': 'datetime'}}}}
+        doc = {'personal': {'best_friend': '50656e4538345b39dd0414f0',
+                            'born': 'Tue, 06 Nov 2012 10:33:31 GMT'}}
+        with self.app.app_context():
+            serialized = serialize(doc, schema=schema)
+        self.assertTrue(
+            isinstance(serialized['personal']['best_friend'], ObjectId))
+        self.assertTrue(
+            isinstance(serialized['personal']['born'], datetime))
