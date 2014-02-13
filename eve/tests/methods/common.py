@@ -116,8 +116,8 @@ class TestPreEventHooks(TestBase):
 
 
 class TestSerializer(TestBase):
-
     def test_serialize_subdocument(self):
+        # tests fix for #244, serialization of sub-documents.
         schema = {'personal': {'type': 'dict',
                                'schema': {'best_friend': {'type': 'objectid'},
                                           'born': {'type': 'datetime'}}}}

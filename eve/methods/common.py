@@ -285,6 +285,9 @@ def serialize(document, resource=None, schema=None):
     """ Recursively handles field values that require data-aware serialization.
     Relies on the app.data.serializers dictionary.
 
+    .. versionchanged:: 0.3
+       Fix serialization of sub-documents. See #244.
+
     .. versionadded:: 0.1.1
     """
     if app.data.serializers:
