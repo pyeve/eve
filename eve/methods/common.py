@@ -285,6 +285,9 @@ def serialize(document, resource=None, schema=None):
     """ Recursively handles field values that require data-aware serialization.
     Relies on the app.data.serializers dictionary.
 
+    .. versionchanged:: 0.3
+       Fix serialization of sub-documents. See #244.
+
     .. versionadded:: 0.1.1
     """
     if app.data.serializers:
@@ -304,6 +307,13 @@ def serialize(document, resource=None, schema=None):
                             if 'schema' in field_schema:
                                 serialize(subdocument,
                                           schema=field_schema['schema'])
+                            # serialize fields of subdocuments
+                            for subfield, v in subdocument.items():
+                                subfield_type = \
+                                    field_schema[subfield].get('type')
+                                if subfield_type in app.data.serializers:
+                                    document[field][subfield] = \
+                                        app.data.serializers[subfield_type](v)
                     else:
                         # a list of one type, arbirtrary length
                         field_type = field_schema['type']
