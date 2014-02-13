@@ -12,6 +12,7 @@ services:
   - redis-server
 before_script:
   - "ulimit -n 1024"
+  - "ps aux | grep mongo"
   - mongo eve_test --eval 'db.addUser("test_user", "test_pw");'
 branches:
   only:
