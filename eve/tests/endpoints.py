@@ -4,10 +4,12 @@ import simplejson as json
 from werkzeug.routing import BaseConverter
 from eve.tests import TestBase, TestMinimal
 from eve import Eve
+from eve.utils import config
 from eve.io.base import BaseJSONEncoder
 from eve.tests.test_settings import MONGO_DBNAME
 from uuid import UUID
 from eve.io.mongo import Validator
+import os
 
 
 class UUIDEncoder(BaseJSONEncoder):
@@ -95,7 +97,7 @@ class TestCustomConverters(TestMinimal):
     def _get_etag(self):
         r = self.test_client.get(self.url)
         self.assert200(r.status_code)
-        return json.loads(r.get_data())['etag']
+        return json.loads(r.get_data())[config.ETAG]
 
     def test_get_uuid(self):
         r = self.test_client.get(self.url)
@@ -127,7 +129,7 @@ class TestCustomConverters(TestMinimal):
         new_id = '48c00ee9-4dbe-413f-9fc3-d5f12a91de13'
         data = json.dumps({'_id': new_id})
         r = self.test_client.post('uuids', data=data, headers=self.headers)
-        self.assert200(r.status_code)
+        self.assert201(r.status_code)
         match_id = json.loads(r.get_data())['_id']
         self.assertEqual(new_id, match_id)
 
@@ -161,7 +163,7 @@ class TestEndPoints(TestBase):
         self.assert404(r.status_code)
 
     def test_api_version(self):
-        settings_file = 'eve/tests/test_version.py'
+        settings_file = os.path.join(self.this_directory, 'test_version.py')
         self.prefixapp = Eve(settings=settings_file)
         self.test_prefix = self.prefixapp.test_client()
         r = self.test_prefix.get('/')
@@ -177,7 +179,7 @@ class TestEndPoints(TestBase):
         self.assert200(r.status_code)
 
     def test_api_prefix(self):
-        settings_file = 'eve/tests/test_prefix.py'
+        settings_file = os.path.join(self.this_directory, 'test_prefix.py')
         self.prefixapp = Eve(settings=settings_file)
         self.test_prefix = self.prefixapp.test_client()
         r = self.test_prefix.get('/')
@@ -191,7 +193,8 @@ class TestEndPoints(TestBase):
         self.assert200(r.status_code)
 
     def test_api_prefix_version(self):
-        settings_file = 'eve/tests/test_prefix_version.py'
+        settings_file = os.path.join(self.this_directory,
+                                     'test_prefix_version.py')
         self.prefixapp = Eve(settings=settings_file)
         self.test_prefix = self.prefixapp.test_client()
         r = self.test_prefix.get('/')

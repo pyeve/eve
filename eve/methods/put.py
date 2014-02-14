@@ -6,7 +6,7 @@
 
     This module imlements the PUT method.
 
-    :copyright: (c) 2013 by Nicola Iarocci.
+    :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -14,10 +14,11 @@ from werkzeug import exceptions
 from datetime import datetime
 from eve.auth import requires_auth
 from eve.validation import ValidationError
-from flask import current_app as app, abort, request
+from flask import current_app as app, abort
 from eve.utils import document_etag, document_link, config, debug_error_message
 from eve.methods.common import get_document, parse, payload as payload_, \
-    ratelimit, resolve_default_values, pre_event
+    ratelimit, resolve_default_values, pre_event, resolve_media_files, \
+    resolve_user_restricted_access
 
 
 @ratelimit()
@@ -31,6 +32,11 @@ def put(resource, **lookup):
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
+
+    .. versionchanged:: 0.3
+       Support for media fields.
+       When IF_MATCH is disabled, no etag is included in the payload.
+       Support for new validation format introduced with Cerberus v0.5.
 
     .. versionchanged:: 0.2
        Use the new STATUS setting.
@@ -58,7 +64,7 @@ def put(resource, **lookup):
 
     last_modified = None
     etag = None
-    issues = []
+    issues = {}
     object_id = original[config.ID_FIELD]
 
     response = {}
@@ -68,23 +74,18 @@ def put(resource, **lookup):
         validation = validator.validate_replace(document, object_id)
         if validation:
             last_modified = datetime.utcnow().replace(microsecond=0)
-            document[config.ID_FIELD] = object_id
             document[config.LAST_UPDATED] = last_modified
-            # TODO what do we need here: the original creation date or the
-            # PUT date? Going for the former seems reasonable.
             document[config.DATE_CREATED] = original[config.DATE_CREATED]
 
-            # if 'user-restricted resource access' is enabled and there's
-            # an Auth request active, inject the username into the document
-            auth_field = resource_def['auth_field']
-            if app.auth and auth_field:
-                request_auth_value = \
-                    resource_def['authentication'].request_auth_value
-                if request_auth_value and request.authorization:
-                    document[auth_field] = request_auth_value
-            resolve_default_values(document, resource)
+            # ID_FIELD not in document means it is not being automatically
+            # handled (it has been set to a field which exists in the resource
+            # schema.
+            if config.ID_FIELD not in document:
+                document[config.ID_FIELD] = object_id
 
-            etag = document_etag(document)
+            resolve_user_restricted_access(document, resource)
+            resolve_default_values(document, resource)
+            resolve_media_files(document, resource, original)
 
             # notify callbacks
             getattr(app, "on_insert")(resource, [document])
@@ -92,20 +93,23 @@ def put(resource, **lookup):
 
             app.data.replace(resource, object_id, document)
 
-            response[config.ID_FIELD] = object_id
+            response[config.ID_FIELD] = document.get(config.ID_FIELD,
+                                                     object_id)
             response[config.LAST_UPDATED] = last_modified
 
             # metadata
-            response['etag'] = etag
+            if config.IF_MATCH:
+                etag = response[config.ETAG] = document_etag(document)
             if resource_def['hateoas']:
-                response[config.LINKS] = {'self': document_link(resource,
-                                                                object_id)}
+                response[config.LINKS] = {
+                    'self': document_link(resource, response[config.ID_FIELD])
+                }
         else:
-            issues.extend(validator.errors)
+            issues = validator.errors
     except ValidationError as e:
         # TODO should probably log the error and abort 400 instead (when we
         # got logging)
-        issues.append(str(e))
+        issues['validator exception'] = str(e)
     except exceptions.InternalServerError as e:
         raise e
     except Exception as e:

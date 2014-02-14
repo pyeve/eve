@@ -216,14 +216,18 @@ uppercase.
                                 values are: ``None`` or a list of headers names.
                                 Defaults to ``None``.
                                 
+``X_MAX_AGE``                   CORS (Cross-Origin Resource Sharing) support. 
+                                Allows to set max age for the access control 
+                                allow header. Defaults to 21600.
 
+                                
 ``LAST_UPDATED``                Name of the field used to record a document's 
                                 last update date. This field is automatically
-                                handled by Eve. Defaults to ``updated``.
+                                handled by Eve. Defaults to ``_updated``.
 
 ``DATE_CREATED``                Name for the field used to record a document
                                 creation date. This field is automatically
-                                handled by Eve. Defaults to ``created``.
+                                handled by Eve. Defaults to ``_created``.
 
 ``ID_FIELD``                    Name of the field used to uniquely identify
                                 resource items within the database. You want
@@ -276,7 +280,7 @@ uppercase.
                                 document fields that should be provided with
                                 every POST response. Normally only
                                 automatically handled fields (``ID_FIELD``,
-                                ``LAST_UPDATED``, ``DATE_CREATED``, ``etag``)
+                                ``LAST_UPDATED``, ``DATE_CREATED``, ``ETAG``)
                                 are included in response payloads. Can be
                                 overridden by resource settings. Defaults to
                                 ``[]``, effectively disabling the feature.
@@ -320,10 +324,10 @@ uppercase.
                                 :ref:`hateoas_feature`. Defaults to ``True``. 
 
 ``ISSUES``                      Allows to customize the issues field. Defaults
-                                to ``issues``.
+                                to ``_issues``.
 
 ``STATUS``                      Allows to customize the status field. Defaults
-                                to ``status``.
+                                to ``_status``.
 
 ``STATUS_OK``                   Status message returned when data validation is
                                 successful. Defaults to ``OK``.
@@ -337,11 +341,20 @@ uppercase.
 ``LINKS``                       Allows to customize the links field. Defaults
                                 to ``_links``.
 
+``ETAG``                        Allows to customize the etag field. Defaults
+                                to ``_etag``.
+
 ``IF_MATCH``                    ``True`` to enable concurrency control, ``False``
-                                otherwise. Defaults to ``True``. You should be
-                                careful about disabling this feature, as you
-                                would effectively open your API to the risk of
-                                older versions replacing your documents.
+                                otherwise. Defaults to ``True``. See
+                                :ref:`concurrency`.
+
+``XML``                         ``True`` to enable XML support, ``False`` 
+                                otherwise. See :ref:`jsonxml`. Defaults to
+                                ``True``.
+
+``JSON``                        ``True`` to enable JSON support, ``False`` 
+                                otherwise. See :ref:`jsonxml`. Defaults to 
+                                ``True``.
 
 ``MONGO_HOST``                  MongoDB server address. Defaults to ``localhost``.
 
@@ -562,7 +575,7 @@ always lowercase.
                                 document fields that should be provided with
                                 every POST response. Normally only
                                 automatically handled fields (``ID_FIELD``,
-                                ``LAST_UPDATED``, ``DATE_CREATED``, ``etag``)
+                                ``LAST_UPDATED``, ``DATE_CREATED``, ``ETAG``)
                                 are included in response payloads. Overrides
                                 ``EXTRA_RESPONSE_FIELDS``. 
 
@@ -596,6 +609,14 @@ always lowercase.
                                 properly fields in the list must be
                                 ``embeddable``, and ``embedding`` must be
                                 active for the resource.
+
+``query_objectid_as_string``    When enabled the Mongo parser will avoid
+                                automatically casting electable strings to
+                                ObjectIds. This can be useful in those rare
+                                occurrences where you have string fields in the
+                                database whose values can actually be casted to
+                                ObjectId values, but shouldn't. Only effects
+                                queries (``?where=``). Defaults to ``False``.
 
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data
@@ -679,9 +700,17 @@ defining the field validation rules. Allowed validation rules are:
 
 =============================== ==============================================
 ``type``                        Field data type. Can be one of the following:
-                                ``string``, ``integer``, ``boolean``,
-                                ``float``, ``datetime``, ``dict``, ``list``,
-                                ``objectid``.
+
+                                - ``string``
+                                - ``boolean``
+                                - ``integer``
+                                - ``float``
+                                - ``number`` (integer and float values allowed)
+                                - ``datetime``
+                                - ``dict``
+                                - ``list``
+                                - ``objectid``
+                                - ``file``
 
 ``required``                    If ``True``, the field is mandatory on
                                 insertion.
@@ -757,6 +786,8 @@ which was originally set up in `Domain Configuration`_:
     people['schema'] = schema
     # update the domain
     DOMAIN['people'] = people
+
+.. _datasource:
 
 Advanced Datasource Patterns
 ----------------------------
@@ -855,9 +886,23 @@ resource keyword allows you to redefine the fieldset.
         }
 
 The above setting will expose only the `username` field to GET requests, no
-matter the schema_ defined for the resource. Please note that POST and PATCH
-methods will still allow the whole schema to be manipulated. This feature can
-come in handy when you want to protect insertion and modification behind an
-:ref:`auth` scheme while leaving read access open to the public.
+matter the schema_ defined for the resource. 
+
+Likewise, you can esclude fields from API responses:
+
+::
+
+    people = {
+        'datasource': {
+            'projection': {'username': 0}
+            }
+        }
+
+The above will include all document fields but `username`. 
+
+Please note that POST and PATCH methods will still allow the whole schema to be
+manipulated. This feature can come in handy when, for example, you want to
+protect insertion and modification behind an :ref:`auth` scheme while leaving
+read access open to the public.
 
 .. _Cerberus: http://cerberus.readthedocs.org

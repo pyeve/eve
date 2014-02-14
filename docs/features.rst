@@ -64,9 +64,9 @@ The response payload will look something like this:
                 "role": ["copy", "author"], 
                 "location": {"city": "New York", "address": "4925 Lacross Road"}, 
                 "_id": "50bf198338345b1c604faf31",
-                "updated": "Wed, 05 Dec 2012 09:53:07 GMT", 
-                "created": "Wed, 05 Dec 2012 09:53:07 GMT", 
-                "etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d", 
+                "_updated": "Wed, 05 Dec 2012 09:53:07 GMT", 
+                "_created": "Wed, 05 Dec 2012 09:53:07 GMT", 
+                "_etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d", 
                 "_links": {
                     "self": {"href": "eve-demo.herokuapp.com:5000/people/50bf198338345b1c604faf31", "title": "person"},
                 },
@@ -83,14 +83,14 @@ The response payload will look something like this:
 The ``_items`` list contains the requested data. Along with its own fields,
 each item provides some important, additional fields:
 
-=========== =================================================================
-Field       Description
-=========== =================================================================
-``created`` item creation date.
-``updated`` item last updated on.
-``etag``    ETag, to be used for concurrency control and conditional requests. 
-``_id``     unique item key, also needed to access the individual item endpoint.
-=========== =================================================================
+============ =================================================================
+Field        Description
+============ =================================================================
+``_created`` item creation date.
+``_updated`` item last updated on.
+``_etag``    ETag, to be used for concurrency control and conditional requests. 
+``_id``      unique item key, also needed to access the individual item endpoint.
+============ =================================================================
 
 These additional fields are automatically handled by the API (clients don't
 need to provide them when adding/editing resources).
@@ -103,7 +103,7 @@ Sub Resources
 ~~~~~~~~~~~~~
 Endpoints support sub-resources so you could have something like:
 ``/people/<contact_id>/invoices``. When setting the ``url`` rule for such and
-enpoint you would use a regex and assign a field name to it:
+endpoint you would use a regex and assign a field name to it:
 
 .. code-block:: python
 
@@ -137,7 +137,7 @@ would be queried like:
     {'contact_id': '51f63e0838345b6dcd7eabff', "number": 10}
 
 Please note that when designing your API, most of the time you can get away
-without recurring to sub-resoucers. In the example above the same result would
+without resorting to sub-resources. In the example above the same result would
 be achieved by simply exposing a ``invoices`` endpoint that clients could query
 this way: 
 
@@ -209,9 +209,9 @@ look something like this:
         "role": ["author"],
         "location": {"city": "Auburn", "address": "422 South Gay Street"},
         "_id": "50acfba938345b0978fccad7"
-        "updated": "Wed, 21 Nov 2012 16:04:56 GMT",
-        "created": "Wed, 21 Nov 2012 16:04:56 GMT",
-        "etag": "28995829ee85d69c4c18d597a0f68ae606a266cc",
+        "_updated": "Wed, 21 Nov 2012 16:04:56 GMT",
+        "_created": "Wed, 21 Nov 2012 16:04:56 GMT",
+        "_etag": "28995829ee85d69c4c18d597a0f68ae606a266cc",
         "_links": {
             "self": {"href": "eve-demo.herokuapp.com/people/50acfba938345b0978fccad7", "title": "person"},
             "parent": {"href": "eve-demo.herokuapp.com", "title": "home"},
@@ -364,9 +364,9 @@ a simple list of items:
             "role": ["copy", "author"], 
             "location": {"city": "New York", "address": "4925 Lacross Road"}, 
             "_id": "50bf198338345b1c604faf31",
-            "updated": "Wed, 05 Dec 2012 09:53:07 GMT", 
-            "created": "Wed, 05 Dec 2012 09:53:07 GMT", 
-            "etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d", 
+            "_updated": "Wed, 05 Dec 2012 09:53:07 GMT", 
+            "_created": "Wed, 05 Dec 2012 09:53:07 GMT", 
+            "_etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d", 
         },
         {
             "firstname": "John", 
@@ -388,9 +388,9 @@ same happens to individual item payloads:
         "lastname": "obama",
         "_id": "522f01dc15b4fc00028e6d98",
         "firstname": "barack",
-        "created": "Tue, 10 Sep 2013 11:26:20 GMT",
-        "etag": "206fb4a39815cc0ebf48b2b52d709777a55333de",
-        "updated": "Tue, 10 Sep 2013 11:26:20 GMT"
+        "_created": "Tue, 10 Sep 2013 11:26:20 GMT",
+        "_etag": "206fb4a39815cc0ebf48b2b52d709777a55333de",
+        "_updated": "Tue, 10 Sep 2013 11:26:20 GMT"
     }
 
 Why would you want to turn HATEOAS off? Well, if you know that your client
@@ -404,6 +404,8 @@ might have issues when parsing something other than a simple list of items.
     a ``404 Not Found``, since its only usefulness would be to return a list of
     available resources, which is the standard behavior when HATEOAS is
     enabled.
+
+.. _jsonxml:
 
 JSON and XML Rendering
 ----------------------
@@ -424,6 +426,11 @@ edits) are in JSON format.
         <link rel="child" href="eve-demo.herokuapp.com/people" title="people" />
         <link rel="child" href="eve-demo.herokuapp.com/works" title="works" />
     </resource>
+
+XML support can be disabled by setting ``XML`` to ``False`` in the settings
+file. JSON support can be disabled by setting ``JSON`` to ``False``.  Please
+note that at least one mime type must always be enabled, either implicitly or
+explicitly. By default, both are supported.
 
 .. _conditional_requests:
 
@@ -448,6 +455,8 @@ or the ``If-None-Match`` header:
     HTTP/1.1 200 OK
 
 
+.. _concurrency:
+
 Data Integrity and Concurrency Control
 --------------------------------------
 API responses include a ``ETag`` header which also allows for proper
@@ -464,8 +473,8 @@ Consider the following workflow:
     $ curl -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
     HTTP/1.1 403 FORBIDDEN
 
-We attempted an edit, but we did not provide an ``ETag`` for the item, so we got
-a not-so-nice ``403 FORBIDDEN``. Let's try again:
+We attempted an edit (``PATCH``), but we did not provide an ``ETag`` for the
+item so we got a ``403 FORBIDDEN`` back. Let's try again:
 
 .. code-block:: console
 
@@ -474,35 +483,38 @@ a not-so-nice ``403 FORBIDDEN``. Let's try again:
 
 What went wrong this time? We provided the mandatory ``If-Match`` header, but
 it's value did not match the ``ETag`` computed on the representation of the item
-currently stored on the server, so we got a ``412 PRECONDITION FAILED`` again!
+currently stored on the server, so we got a ``412 PRECONDITION FAILED``. Again!
 
 .. code-block:: console
 
     $ curl -H "If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012" -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37 -d '{"firstname": "ronald"}'
     HTTP/1.1 200 OK
 
-It's a win, and the response payload looks something like this:
+Finally! And the response payload looks something like this:
 
 .. code-block:: javascript
 
     {
-        "status": "OK",
-        "updated": "Fri, 23 Nov 2012 08:11:19 GMT",
+        "_status": "OK",
+        "_updated": "Fri, 23 Nov 2012 08:11:19 GMT",
         "_id": "50adfa4038345b1049c88a37",
-        "etag": "372fbbebf54dfe61742556f17a8461ca9a6f5a11"
+        "_etag": "372fbbebf54dfe61742556f17a8461ca9a6f5a11"
         "_links": {"self": "..."}
     }
 
 This time we got our patch in, and the server returned the new ``ETag``.  We
-also get the new ``updated`` value, which eventually will allow us to perform
+also get the new ``_updated`` value, which eventually will allow us to perform
 subsequent `conditional requests`_.
 
-Concurrency control applies to all document edition methods: ``PATCH`` (edit),
-``PUT`` (replace), ``DELETE`` (delete). 
+Concurrency control applies to all edition methods: ``PATCH`` (edit), ``PUT``
+(replace), ``DELETE`` (delete). 
 
+Disabling concurrency control
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If your use case requires, you can opt to completely disable concurrency
 control. ETag match checks can be disabled by setting the ``IF_MATCH``
-configuration variable to ``False`` (see :ref:`global`). You should be careful
+configuration variable to ``False`` (see :ref:`global`). When concurrency
+control is disabled no etag is provided with responses. You should be careful
 about disabling this feature, as you would effectively open your API to the
 risk of older versions replacing your documents.
 
@@ -513,7 +525,7 @@ A client may submit a single document for insertion:
 .. code-block:: console
 
     $ curl -d '{"firstname": "barack", "lastname": "obama"}' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
-    HTTP/1.1 200 OK
+    HTTP/1.1 201 OK
 
 In this case the response payload will just contain the relevant document
 metadata:
@@ -521,10 +533,10 @@ metadata:
 .. code-block:: javascript
 
     {
-        "status": "OK",
-        "updated": "Thu, 22 Nov 2012 15:22:27 GMT",
+        "_status": "OK",
+        "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
         "_id": "50ae43339fa12500024def5b",
-        "etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
+        "_etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
         "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b", "title": "person"}}
     }
 
@@ -535,7 +547,7 @@ documents in a JSON list:
 .. code-block:: console
 
     $ curl -d '[{"firstname": "barack", "lastname": "obama"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
-    HTTP/1.1 200 OK
+    HTTP/1.1 201 OK
 
 The response will be a list itself, with the state of each document:
 
@@ -543,23 +555,20 @@ The response will be a list itself, with the state of each document:
 
     [
         {
-            "status": "OK",
-            "updated": "Thu, 22 Nov 2012 15:22:27 GMT",
+            "_status": "OK",
+            "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
             "_id": "50ae43339fa12500024def5b",
-            "etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
+            "_etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
             "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b", "title": "person"}}
         },
         {
-            "status": "OK",
-            "updated": "Thu, 22 Nov 2012 15:22:27 GMT",
+            "_status": "OK",
+            "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
             "_id": "50ae43339fa12500024def5c",
-            "etag": "62d356f623c7d9dc864ffa5facc47dced4ba6907"
+            "_etag": "62d356f623c7d9dc864ffa5facc47dced4ba6907"
             "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5c", "title": "person"}}
         }
     ]
-
-Evenutal validation errors on one document won't prevent the insertion of other
-submitted documents. 
 
 When multiple documents are submitted the API takes advantage of MongoDB *bulk
 insert* capabilities which means that not only there's just one single request
@@ -576,7 +585,7 @@ will only be updated if validation passes.
 .. code-block:: console
 
     $ curl -d '[{"firstname": "bill", "lastname": "clinton"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
-    HTTP/1.1 200 OK
+    HTTP/1.1 201 OK
 
 The response will contain a success/error state for each item provided in the
 request:
@@ -585,14 +594,12 @@ request:
 
     [
         {
-            "status": "ERR",
-            "issues": [
-                "value 'romney' for field 'lastname' not unique"
-            ]
+            "_status": "ERR",
+            "_issues": {"lastname": "value 'clinton' not unique"}
         },
         {
-            "status": "OK",
-            "updated": "Thu, 22 Nov 2012 15:29:08 GMT",
+            "_status": "OK",
+            "_updated": "Thu, 22 Nov 2012 15:29:08 GMT",
             "_id": "50ae44c49fa12500024def5d",
             "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d", "title": "person"}}
         }
@@ -603,6 +610,16 @@ while the second was successfully created. The API maintainer has complete
 control on data validation. Optionally, you can decide to allow for unknown
 fields to be inserted/updated on one or more endpoints. For more information
 see :ref:`validation`.
+
+.. admonition:: Please Note
+
+    Eventual validation errors on one or more document won't prevent the
+    insertion of valid documents. The response status code will be ``201
+    Created`` if *at least one document* passed validation and has actually
+    been stored. If no document passed validation the status code will be ``200
+    OK``, meaning that the request was accepted and processed. It is still
+    client's responsability to parse the response payload and make sure that
+    all documents passed validation.
 
 Extensible Data Validation
 --------------------------
@@ -694,9 +711,17 @@ dictates which fields should be returned by the API.
     HTTP/1.1 200 OK
 
 The query above will only return *lastname* and *born* out of all the fields
-available in the 'people' resource. Please note that key fields such as
-ID_FIELD, DATE_CREATED, DATE_UPDATED etc.  will still be included with the
-payload.
+available in the 'people' resource. You can also exclude fields:
+
+.. code-block:: console
+
+    $ curl -i http://eve-demo.herokuapp.com/people?projection={"born": 0}
+    HTTP/1.1 200 OK
+
+The above will return all fields but *born*. Please note that key fields such
+as ID_FIELD, DATE_CREATED, DATE_UPDATED etc.  will still be included with the
+payload. Also keep in mind that some database engines, Mongo included, do not
+allow for mixing of inclusive and exclusive selections.
 
 .. _embedded_docs:
 
@@ -715,7 +740,7 @@ like this:
     DOMAIN = {
         'emails': {
             'schema': {
-                'author:' {
+                'author': {
                     'type': 'objectid', 
                     'data_relation': {
                         'resource': 'users', 
@@ -723,8 +748,8 @@ like this:
                         'embeddable': True
                     },
                 },
-                'subject:' {'type': 'string'},
-                'body:' {'type': 'string'}, 
+                'subject': {'type': 'string'},
+                'body': {'type': 'string'}, 
             }
         }
 
@@ -745,7 +770,7 @@ Predefined Resource Serialization
 It is also possible to elect some fields for predefined resource
 serialization. The ``embedded_fields`` option accepts a list of fields. If the
 listed fields are embeddable and they are actually referencing documents in other
-collections (and embedding is enbaled for the resource), then the referenced
+resources (and embedding is enbaled for the resource), then the referenced
 documents will be embedded by default.
 
 Limitations
@@ -926,6 +951,81 @@ Eve allows to extend its standard data type support. In the :ref:`custom_ids`
 tutorial we see how it is possible to use UUID values instead of MongoDB
 default ObjectIds as unique document identifiers.
 
+File Storage
+------------
+Media files (images, pdf, etc.) can be uploaded as ``media`` document
+fields. Upload is done via ``POST``, ``PUT`` and
+``PATCH`` as usual, but using the ``multipart/data-form`` content-type. 
+
+Let us assume that the ``accounts`` endpoint has a schema like this:
+
+.. code-block:: python
+
+    accounts = {
+        'name': {'type': 'string'},
+        'pic': {'type': 'media'},
+        ...
+    }
+
+With curl we would ``POST`` like this:
+
+.. code-block:: console
+
+    $ curl -F "name=john" -F "pic=@profile.jpg" http://example.com/accounts
+
+For optmized performance files are stored in GridFS_ by default. Custom
+``MediaStorage`` classes can be implemented and passed to the application to
+support alternative storage systems. A ``FileSystemMediaStorage`` class is in
+the works, and will soon be included with the Eve package. 
+
+As a proper developer guide is not available yet, you can peek at the
+MediaStorage_ source if you are interested in developing custom storage
+classes.
+
+When a document is requested media files will be returned as Base64 strings. 
+
+Leveraging Projections to optimize the handling of media files 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Clients and API maintainers can exploit the :ref:`projections` feature to
+include/exclude media fields from response payloads. 
+
+Suppose that a client stored a document with an image. The image field is
+called *image* and it is of ``media`` type. At a later time, the client wants
+to retrieve the same document but, in order to optimize for speed and since the
+image is cached already, it does not want to download the image along with the
+document. It can do so by requesting the field to be trimmed out of the
+response payload:
+
+.. code-block:: console
+
+    $ curl -i http://example.com/people/<id>?projection={"image": 0}
+    HTTP/1.1 200 OK
+
+The document will be returned with all its fields except the *image* field. 
+
+Moreover, when setting the ``datasource`` property for any given resource
+endpoint it is possible to explictly exclude fields (of ``media`` type, but
+also of any other type reallt) from default responses:
+
+.. code-block:: python
+
+    people = {
+        'datasource': {
+            'projection': {'image': 0}
+        },
+        ...
+    }
+
+Now clients will have to explicitly request the image field to be included with
+response payloads by sending requests like this one: 
+
+.. code-block:: console
+
+    $ curl -i http://example.com/people/<id>?projection={"image": 1}
+    HTTP/1.1 200 OK
+
+For details on the ``datasource`` setting, see :ref:`config` and :ref:`datasource`.
+
 MongoDB Support
 ---------------
 Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL
@@ -952,3 +1052,5 @@ for unittesting_ and an `extensive documentation`_.
 .. _`this`: https://speakerdeck.com/nicola/developing-restful-web-apis-with-python-flask-and-mongodb?slide=113
 .. _Events: https://github.com/nicolaiarocci/events
 .. _`MongoDB Data Model Design`: http://docs.mongodb.org/manual/core/data-model-design
+.. _GridFS: http://docs.mongodb.org/manual/core/gridfs/
+.. _MediaStorage: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/media.py

@@ -73,6 +73,7 @@ Support, Updates and Licensing
 
     support
     updates
+    authors
     license
 
 Changelog

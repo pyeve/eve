@@ -11,7 +11,7 @@ from flask.ext.pymongo import MongoClient
 from bson import ObjectId
 from eve.tests.test_settings import MONGO_PASSWORD, MONGO_USERNAME, \
     MONGO_DBNAME, DOMAIN, MONGO_HOST, MONGO_PORT
-from eve import ISSUES
+from eve import ISSUES, ETAG
 
 
 class TestMinimal(unittest.TestCase):
@@ -26,10 +26,11 @@ class TestMinimal(unittest.TestCase):
         :param settings_file: the name of the settings file.  Defaults
                               to `eve/tests/test_settings.py`.
         """
+        self.this_directory = os.path.dirname(os.path.realpath(__file__))
         if settings_file is None:
             # Load the settings file, using a robust path
-            THIS_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-            settings_file = os.path.join(THIS_DIRECTORY, 'test_settings.py')
+            settings_file = os.path.join(self.this_directory,
+                                         'test_settings.py')
 
         self.connection = None
         self.known_resource_count = 101
@@ -48,6 +49,9 @@ class TestMinimal(unittest.TestCase):
 
     def assert200(self, status):
         self.assertEqual(status, 200)
+
+    def assert201(self, status):
+        self.assertEqual(status, 201)
 
     def assert301(self, status):
         self.assertEqual(status, 301)
@@ -70,18 +74,19 @@ class TestMinimal(unittest.TestCase):
         return self.parse_response(r)
 
     def parse_response(self, r):
-        v = json.loads(r.get_data()) if r.status_code == 200 else None
+        v = json.loads(r.get_data()) if r.status_code in (200, 201) else None
         return v, r.status_code
 
     def assertValidationError(self, response, matches):
-        self.assertTrue('status' in response)
-        self.assertTrue(eve.STATUS_ERR in response['status'])
+        self.assertTrue(eve.STATUS in response)
+        self.assertTrue(eve.STATUS_ERR in response[eve.STATUS])
         self.assertTrue(ISSUES in response)
         issues = response[ISSUES]
         self.assertTrue(len(issues))
 
-        for match in matches:
-            self.assertTrue(match in issues[0])
+        for k, v in matches.items():
+            self.assertTrue(k in issues)
+            self.assertTrue(v in issues[k])
 
     def assertExpires(self, resource):
         # TODO if we ever get access to response.date (it is None), compare
@@ -273,7 +278,7 @@ class TestBase(TestMinimal):
         self.item_id = contact[self.app.config['ID_FIELD']]
         self.item_name = contact['ref']
         self.item_tid = contact['tid']
-        self.item_etag = contact['etag']
+        self.item_etag = contact[ETAG]
         self.item_ref = contact['ref']
         self.item_id_url = ('/%s/%s' %
                             (self.domain[self.known_resource]['url'],
@@ -293,7 +298,7 @@ class TestBase(TestMinimal):
         self.user_id = user[self.app.config['ID_FIELD']]
         self.user_username = user['username']
         self.user_name = user['ref']
-        self.user_etag = user['etag']
+        self.user_etag = user[ETAG]
         self.user_id_url = ('/%s/%s' %
                             (self.domain[self.different_resource]['url'],
                              self.user_id))
@@ -305,7 +310,7 @@ class TestBase(TestMinimal):
         response, _ = self.get('invoices')
         invoice = self.response_item(response)
         self.invoice_id = invoice[self.app.config['ID_FIELD']]
-        self.invoice_etag = invoice['etag']
+        self.invoice_etag = invoice[ETAG]
         self.invoice_id_url = ('/%s/%s' %
                                (self.domain['invoices']['url'],
                                 self.invoice_id))

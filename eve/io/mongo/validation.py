@@ -8,7 +8,7 @@
     objects incoming via POST/PATCH requests conform to the API domain.
     An extension of Cerberus Validator.
 
-    :copyright: (c) 2013 by Nicola Iarocci.
+    :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -16,6 +16,7 @@ from eve.utils import config
 from bson import ObjectId
 from flask import current_app as app
 from cerberus import Validator
+from werkzeug.datastructures import FileStorage
 
 
 class Validator(Validator):
@@ -72,6 +73,10 @@ class Validator(Validator):
         :param field: field name.
         :param value: field value.
 
+        .. versionchanged:: 0.3
+           Support for new 'self._error' signature introduced with Cerberus
+           v0.5.
+
         .. versionchanged:: 0.2
            Handle the case in which ID_FIELD is not of ObjectId type.
         """
@@ -84,8 +89,7 @@ class Validator(Validator):
                     query[config.ID_FIELD] = {'$ne': self._id}
 
             if app.data.find_one(self.resource, **query):
-                self._error("value '%s' for field '%s' not unique" %
-                            (value, field))
+                self._error(field, "value '%s' is not unique" % value)
 
     def _validate_data_relation(self, data_relation, field, value):
         """ Enables validation for `data_relation` field attribute. Makes sure
@@ -98,6 +102,10 @@ class Validator(Validator):
         :param field: field name.
         :param value: field value.
 
+        .. versionchanged:: 0.3
+           Support for new 'self._error' signature introduced with Cerberus
+           v0.5.
+
         .. versionchanged:: 0.1.1
            'collection' key renamed to 'resource' (data_relation)
 
@@ -105,22 +113,34 @@ class Validator(Validator):
         """
         query = {data_relation['field']: value}
         if not app.data.find_one(data_relation['resource'], **query):
-            self._error("value '%s' for field '%s' must exist in "
-                        "resource '%s', field '%s'" %
-                        (value, field, data_relation['resource'],
-                         data_relation['field']))
+            self._error(field, "value '%s' must exist in resource '%s', field "
+                        "'%s'." % (value, data_relation['resource'],
+                                   data_relation['field']))
 
     def _validate_type_objectid(self, field, value):
-        """ Enables validation for `objectid` schema attribute.
+        """ Enables validation for `objectid` data type.
 
-        :param unique: Boolean, wether the field value should be
-                       unique or not.
         :param field: field name.
         :param value: field value.
+
+        .. versionchanged:: 0.3
+           Support for new 'self._error' signature introduced with Cerberus
+           v0.5.
 
         .. versionchanged:: 0.1.1
            regex check replaced with proper type check.
         """
         if not isinstance(value, ObjectId):
-            self._error("value '%s' for field '%s' cannot be converted to a "
-                        "ObjectId" % (value, field))
+            self._error(field, "value '%s' cannot be converted to a ObjectId"
+                        % value)
+
+    def _validate_type_media(self, field, value):
+        """ Enables validation for `media` data type.
+
+        :param field: field name.
+        :param value: field value.
+
+        .. versionadded:: 0.3
+        """
+        if not isinstance(value, FileStorage):
+            self._error(field, "file was expected, got '%s' instead." % value)

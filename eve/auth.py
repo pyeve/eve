@@ -185,3 +185,28 @@ class TokenAuth(BasicAuth):
         auth = request.authorization
         return auth and self.check_auth(auth.username, allowed_roles, resource,
                                         method)
+
+
+def auth_field_and_value(resource):
+    """ If auth is active and the resource requires it, return both the
+    current request 'request_auth_value' and the 'auth_field' for the resource
+
+    .. versionadded:: 0.3
+    """
+    if '|resource' in request.endpoint:
+        # We are on a resource endpoint and need to check against
+        # `public_methods`
+        public_method_list_to_check = 'public_methods'
+    else:
+        # We are on an item endpoint and need to check against
+        # `public_item_methods`
+        public_method_list_to_check = 'public_item_methods'
+
+    resource_dict = app.config['DOMAIN'][resource]
+    auth = resource_dict['authentication']
+
+    request_auth_value = auth.request_auth_value if auth else None
+    auth_field = resource_dict.get('auth_field', None) if request.method not \
+        in resource_dict[public_method_list_to_check] else None
+
+    return auth_field, request_auth_value

@@ -8,7 +8,7 @@
     home) invokes the appropriate method handler, returning its response
     to the client, properly rendered.
 
-    :copyright: (c) 2013 by Nicola Iarocci.
+    :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -25,6 +25,10 @@ def collections_endpoint(**lookup):
     """ Resource endpoint handler
 
     :param url: the url that led here
+
+    .. versionchanged:: 0.3
+       Pass lookup query down to delete_resource, so it can properly process
+       sub-resources.
 
     .. versionchanged:: 0.2
        Relying on request.endpoint to retrieve the resource being consumed.
@@ -50,7 +54,7 @@ def collections_endpoint(**lookup):
     elif method == 'POST':
         response = post(resource)
     elif method == 'DELETE':
-        response = delete_resource(resource)
+        response = delete_resource(resource, lookup)
     elif method == 'OPTIONS':
         send_response(resource, response)
     else:

@@ -1,5 +1,6 @@
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
+from eve import ETAG
 from bson import ObjectId
 
 
@@ -103,6 +104,45 @@ class TestDelete(TestBase):
         fake_contact = self.random_contacts(1)
         fake_contact_id = _db.contacts.insert(fake_contact)[0]
 
+        # grab parent collection count; we will use this later to make sure we
+        # didn't delete all the users in the datanase. We add one extra invoice
+        # to make sure that the actual count will never be 1 (which would
+        # invalidate the test)
+        _db.invoices.insert({'inv_number': 1})
+        response, status = self.get('invoices')
+        invoices = len(response[self.app.config['ITEMS']])
+
+        # update first invoice to reference the new contact
+        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
+                            {'$set': {'person': fake_contact_id}})
+
+        # verify that the only document retrieved is referencing the correct
+        # parent document
+        response, status = self.get('users/%s/invoices' % fake_contact_id)
+        person_id = ObjectId(response[self.app.config['ITEMS']][0]['person'])
+        self.assertEqual(person_id, fake_contact_id)
+
+        # delete all documents at the sub-resource endpoint
+        response, status = self.delete('users/%s/invoices' % fake_contact_id)
+        self.assert200(status)
+
+        # verify that the no documents are left at the sub-resource endpoint
+        response, status = self.get('users/%s/invoices' % fake_contact_id)
+        #self.assertTrue(isinstance(response, dict))  # would be a list if > 1
+        self.assertEqual(len(response['_items']), 0)
+
+        # verify that other documents in the invoices collection have not neen
+        # deleted
+        response, status = self.get('invoices')
+        self.assertEqual(len(response['_items']), invoices - 1)
+
+    def test_delete_subresource_item(self):
+        _db = self.connection[MONGO_DBNAME]
+
+        # create random contact
+        fake_contact = self.random_contacts(1)
+        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+
         # update first invoice to reference the new contact
         _db.invoices.update({'_id': ObjectId(self.invoice_id)},
                             {'$set': {'person': fake_contact_id}})
@@ -110,7 +150,7 @@ class TestDelete(TestBase):
         # GET all invoices by new contact
         response, status = self.get('users/%s/invoices/%s' %
                                     (fake_contact_id, self.invoice_id))
-        etag = response['etag']
+        etag = response[ETAG]
 
         headers = [('If-Match', etag)]
         response, status = self.delete('users/%s/invoices/%s' %

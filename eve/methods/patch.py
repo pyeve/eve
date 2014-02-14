@@ -6,7 +6,7 @@
 
     This module imlements the PATCH method.
 
-    :copyright: (c) 2013 by Nicola Iarocci.
+    :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -17,7 +17,7 @@ from eve.utils import document_etag, document_link, config, debug_error_message
 from eve.auth import requires_auth
 from eve.validation import ValidationError
 from eve.methods.common import get_document, parse, payload as payload_, \
-    ratelimit, pre_event
+    ratelimit, pre_event, resolve_media_files
 
 
 @ratelimit()
@@ -31,6 +31,11 @@ def patch(resource, **lookup):
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
+
+    .. versionchanged:: 0.3
+       Support for media fields.
+       When IF_MATCH is disabled, no etag is included in the payload.
+       Support for new validation format introduced with Cerberus v0.5.
 
     .. versionchanged:: 0.2
        Use the new STATUS setting.
@@ -82,40 +87,46 @@ def patch(resource, **lookup):
     last_modified = None
     etag = None
 
-    issues = []
+    issues = {}
     response = {}
 
     try:
         updates = parse(payload, resource)
         validation = validator.validate_update(updates, object_id)
         if validation:
+            resolve_media_files(updates, resource, original)
+
             # the mongo driver has a different precision than the python
             # datetime. since we don't want to reload the document once it has
             # been updated, and we still have to provide an updated etag,
             # we're going to update the local version of the 'original'
             # document, and we will use it for the etag computation.
             original.update(updates)
+
             # some datetime precision magic
             updates[config.LAST_UPDATED] = original[config.LAST_UPDATED] = \
                 datetime.utcnow().replace(microsecond=0)
-            etag = document_etag(original)
 
             app.data.update(resource, object_id, updates)
-            response[config.ID_FIELD] = object_id
+
+            response[config.ID_FIELD] = original[config.ID_FIELD]
             last_modified = response[config.LAST_UPDATED] = \
                 original[config.LAST_UPDATED]
 
             # metadata
-            response['etag'] = etag
+            if config.IF_MATCH:
+                etag = response[config.ETAG] = document_etag(original)
             if resource_def['hateoas']:
-                response[config.LINKS] = {'self': document_link(resource,
-                                                                object_id)}
+                response[config.LINKS] = {
+                    'self': document_link(resource, original[config.ID_FIELD])
+                }
+
         else:
-            issues.extend(validator.errors)
+            issues = validator.errors
     except ValidationError as e:
         # TODO should probably log the error and abort 400 instead (when we
         # got logging)
-        issues.append(str(e))
+        issues['validator exception'] = str(e)
     except (exceptions.InternalServerError, exceptions.Unauthorized) as e:
         raise e
     except Exception as e:

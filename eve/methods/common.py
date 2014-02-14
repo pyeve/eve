@@ -6,7 +6,7 @@
 
     Utility functions for API methods implementations.
 
-    :copyright: (c) 2013 by Nicola Iarocci.
+    :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -105,6 +105,9 @@ def payload():
     then returns the request payload as a dict. If request Content-Type is
     unsupported, aborts with a 400 (Bad Request).
 
+    .. versionchanged:: 0.3
+       Allow 'multipart/form-data' content type.
+
     .. versionchanged:: 0.1.1
        Payload returned as a standard python dict regardless of request content
        type.
@@ -128,6 +131,22 @@ def payload():
             abort(400, description=debug_error_message(
                 'No form-urlencoded data supplied'
             ))
+    elif content_type == 'multipart/form-data':
+        # as multipart is also used for file uploads, we let an empty
+        # request.form go through as long as there are also files in the
+        # request.
+        if len(request.form) or len(request.files):
+            # merge form fields and request files, so we get a single payload
+            # to be validated against the resource schema.
+
+            # list() is needed because Python3 items() returns a dict_view, not
+            # a list as in Python2.
+            return dict(list(request.form.to_dict().items()) +
+                        list(request.files.to_dict().items()))
+        else:
+            abort(400, description=debug_error_message(
+                'No multipart/form-data supplied'
+            ))
     else:
         abort(400, description=debug_error_message(
             'Unknown or no Content-Type header supplied'))
@@ -144,21 +163,18 @@ class RateLimit(object):
 
     .. versionadded:: 0.0.7
     """
-    # We give the key extra expiration_window seconds time to expire in redis
-    # so that badly synchronized clocks between the workers and the redis
-    # server do not cause problems
-    expiration_window = 10
+    # Maybe has something complicated problems.
 
-    def __init__(self, key_prefix, limit, period, send_x_headers=True):
-        self.reset = (int(time.time()) // period) * period + period
-        self.key = key_prefix + str(self.reset)
+    def __init__(self, key, limit, period, send_x_headers=True):
+        self.reset = int(time.time()) + period
+        self.key = key
         self.limit = limit
         self.period = period
         self.send_x_headers = send_x_headers
         p = app.redis.pipeline()
         p.incr(self.key)
-        p.expireat(self.key, self.reset + self.expiration_window)
-        self.current = min(p.execute()[0], limit + 1)
+        p.expireat(self.key, self.reset)
+        self.current = p.execute()[0]
 
     remaining = property(lambda x: x.limit - x.current)
     over_limit = property(lambda x: x.current > x.limit)
@@ -269,6 +285,9 @@ def serialize(document, resource=None, schema=None):
     """ Recursively handles field values that require data-aware serialization.
     Relies on the app.data.serializers dictionary.
 
+    .. versionchanged:: 0.3
+       Fix serialization of sub-documents. See #244.
+
     .. versionadded:: 0.1.1
     """
     if app.data.serializers:
@@ -288,6 +307,13 @@ def serialize(document, resource=None, schema=None):
                             if 'schema' in field_schema:
                                 serialize(subdocument,
                                           schema=field_schema['schema'])
+                            # serialize fields of subdocuments
+                            for subfield, v in subdocument.items():
+                                subfield_type = \
+                                    field_schema[subfield].get('type')
+                                if subfield_type in app.data.serializers:
+                                    document[field][subfield] = \
+                                        app.data.serializers[subfield_type](v)
                     else:
                         # a list of one type, arbirtrary length
                         field_type = field_schema['type']
@@ -328,6 +354,60 @@ def resolve_default_values(document, resource):
         schema = config.DOMAIN[resource]['schema']
         for missing_field in missing_defaults:
             document[missing_field] = schema[missing_field]['default']
+
+
+def resolve_media_files(document, resource, original=None):
+    """ Store any media file in the underlying media store and update the
+    document with unique ids of stored files.
+
+    :param document: the document eventually containing the media files.
+    :param resource: the resource being consumed by the request.
+    :param original: original document being replaced or edited.
+
+    .. versionadded:: 0.3
+    """
+    # TODO We're storing media files in advance, before the corresponding
+    # document is also stored. In the rare occurance that the subsequent
+    # document update fails we should probably attempt a cleanup on the storage
+    # sytem. Easier said than done though.
+    for field in resource_media_fields(document, resource):
+        if original:
+            # since file replacement is not supported by the media storage
+            # system, we first need to delete the file being replaced.
+            app.media.delete(original[field])
+
+        # store file and update document with file's unique id/filename
+        document[field] = app.media.put(document[field])
+
+
+def resource_media_fields(document, resource):
+    """ Returns a list of media fields defined in the resource schema.
+
+    :param document: the document eventually containing the media files.
+    :param resource: the resource being consumed by the request.
+
+    .. versionadded:: 0.3
+    """
+    media_fields = app.config['DOMAIN'][resource]['_media']
+    return [field for field in media_fields if field in document]
+
+
+def resolve_user_restricted_access(document, resource):
+    """ Adds user restricted access medadata to the document if applicable.
+
+    :param document: the document being posted or replaced
+    :param resource: the resource to which the document belongs
+
+    .. versionadded:: 0.3
+    """
+    # if 'user-restricted resource access' is enabled and there's
+    # an Auth request active, inject the username into the document
+    resource_def = app.config['DOMAIN'][resource]
+    auth = resource_def['authentication']
+    auth_field = resource_def['auth_field']
+    if auth and auth_field:
+        if auth.request_auth_value and request.authorization:
+            document[auth_field] = auth.request_auth_value
 
 
 def pre_event(f):

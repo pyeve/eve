@@ -7,7 +7,7 @@
     This module implements the central WSGI application object as a Flask
     subclass.
 
-    :copyright: (c) 2013 by Nicola Iarocci.
+    :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -17,7 +17,7 @@ import os
 from flask import Flask
 from werkzeug.routing import BaseConverter
 from werkzeug.serving import WSGIRequestHandler
-from eve.io.mongo import Mongo, Validator
+from eve.io.mongo import Mongo, Validator, GridFSMediaStorage
 from eve.exceptions import ConfigException, SchemaException
 from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint
 from eve.utils import api_prefix, extract_key_values
@@ -65,7 +65,13 @@ class Eve(Flask, Events):
     :param json_encoder: custom json encoder class. Must be a
                          JSONEncoder subclass. You probably wnat it to be
                          as eve.io.base.BaseJSONEncoder subclass.
+    :param media: the media storage class. Must be a
+                  :class:`~eve.io.media.MediaStorage` subclass.
     :param kwargs: optional, standard, Flask parameters.
+
+    .. versionchanged:: 0.3
+       Support for optional media storage system. Defaults to
+       GridFSMediaStorage.
 
     .. versionchanged:: 0.2
        Support for additional Flask url converters.
@@ -97,28 +103,11 @@ class Eve(Flask, Events):
 
     def __init__(self, import_name=__package__, settings='settings.py',
                  validator=Validator, data=Mongo, auth=None, redis=None,
-                 url_converters=None, json_encoder=None, **kwargs):
+                 url_converters=None, json_encoder=None,
+                 media=GridFSMediaStorage, **kwargs):
         """ Eve main WSGI app is implemented as a Flask subclass. Since we want
         to be able to launch our API by simply invoking Flask's run() method,
         we need to enhance our super-class a little bit.
-
-        The tasks we need to accomplish are:
-
-            1. enbale regex routing
-            2. enable optional url_converters, if any
-            3. enable optional json_encoder class, if any
-            4. load and validate custom API settings
-            5. enable API endpoints
-            6. set the validator class used to validate incoming objects
-            7. activate the chosen data layer
-            8. instance the authentication layer if needed
-            9. set the redis instance to be used by the Rate-Limiting feature
-
-        .. versionchanged:: 0.2
-           Support for additional, optional Flask url_converters.
-           Support for optional, custom json encoder class.
-           Support for endpoint-level authenticatoin classes.
-           Validate and set defaults for each resource
         """
 
         super(Eve, self).__init__(import_name, **kwargs)
@@ -129,8 +118,6 @@ class Eve(Flask, Events):
         self.load_config()
         self.validate_domain_struct()
 
-        self.data = data(self)
-
         # enable regex routing
         self.url_map.converters['regex'] = RegexConverter
 
@@ -138,9 +125,11 @@ class Eve(Flask, Events):
         if url_converters:
             self.url_map.converters.update(url_converters)
 
+        self.data = data(self)
         if json_encoder:
             self.data.json_encoder_class = json_encoder
 
+        self.media = media(self) if media else None
         self.auth = auth() if auth else None
         self.redis = redis
 
@@ -414,6 +403,10 @@ class Eve(Flask, Events):
     def _set_resource_defaults(self, resource, settings):
         """ Low-level method which sets default values for one resource.
 
+        .. versionchanged:: 0.3
+           Set projection to None when schema is not provided for the resource.
+           Support for '_media' helper.
+
         .. versionchanged:: 0.2
            'resource_title',
            'default_sort',
@@ -473,24 +466,36 @@ class Eve(Flask, Events):
         settings['datasource'].setdefault('filter', None)
         settings['datasource'].setdefault('default_sort', None)
 
-        # enable retrieval of actual schema fields only. Eventual db
-        # fields not included in the schema won't be returned.
-        default_projection = {}
-        default_projection.update(dict((field, 1) for (field) in schema))
-        projection = settings['datasource'].setdefault('projection',
-                                                       default_projection)
-        # despite projection, automatic fields are always included.
-        projection[self.config['ID_FIELD']] = 1
-        projection[self.config['LAST_UPDATED']] = 1
-        projection[self.config['DATE_CREATED']] = 1
+        if len(schema):
+            # enable retrieval of actual schema fields only. Eventual db
+            # fields not included in the schema won't be returned.
+            projection = {}
+            # despite projection, automatic fields are always included.
+            projection[self.config['ID_FIELD']] = 1
+            projection[self.config['LAST_UPDATED']] = 1
+            projection[self.config['DATE_CREATED']] = 1
+            projection.update(dict((field, 1) for (field) in schema))
+        else:
+            # all fields are returned.
+            projection = None
+        settings['datasource'].setdefault('projection', projection)
 
-        # 'defaults' helper set contains the names of fields with
-        # default values in their schema definition.
+        # 'defaults' helper set contains the names of fields with default
+        # values in their schema definition.
 
         # TODO support default values for embedded documents.
         settings['defaults'] = \
             set(field for field, definition in schema.items()
                 if 'default' in definition)
+
+        # list of all media fields for the resource
+        settings['_media'] = [field for field, definition in schema.items() if
+                              definition['type'] == 'media']
+
+        if settings['_media'] and not self.media:
+            raise ConfigException('A media storage class of type '
+                                  ' eve.io.media.MediaStorage but be defined '
+                                  'for "media" fields to be properly stored.')
 
     def set_schema_defaults(self, schema):
         """ When not provided, fills individual schema settings with default

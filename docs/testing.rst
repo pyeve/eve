@@ -31,6 +31,22 @@ Or even a single class function:
 
    $ python setup.py test -s eve.tests.methods.get.TestGetItem.test_get_max_results
 
+Using Pytest
+-------------
+You also choose to run the whole test suite using pytest_:
+
+.. code-block:: console
+    
+    $ py.test                           # rum the whole test suite
+    $ py.test eve/tests/methods         # run all tests in the 'methods' folder
+    $ py.test -k TestGet                # run just the 'TestGet' class
+    $ py.test -k test_get_max_results   # run only one method
+
+Please note that, just for my own convenience, the ``pytest.ini`` file is
+currently set up in such a way that any test run will abort after two failures.
+Also, if you are a Vim_ user (you should), you might want to check out the awesome
+pytest.vim_ plugin.
+
 RateLimiting and Redis
 ----------------------
 While there are no test requirements for most of the suite, please be advised
@@ -63,3 +79,6 @@ against the ``develop`` branch, see :ref:`contributing`.
 .. _Redis:  http://redis.io/
 .. _redispy: https://github.com/andymccurdy/redis-py
 .. _simple: http://redis.io/topics/quickstart
+.. _pytest: http://pytest.org
+.. _pytest.vim: https://github.com/alfredodeza/pytest.vim
+.. _Vim: http://en.wikipedia.org/wiki/Vim_(text_editor)

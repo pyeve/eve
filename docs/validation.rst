@@ -10,7 +10,7 @@ will be updated only if validation passes.
 .. code-block:: console
 
     $ curl -d '{"firstname": "bill", "lastname": "clinton"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
-    HTTP/1.1 200 OK
+    HTTP/1.1 201 OK
 
 The response will contain a success/error state for each item provided in the
 request:
@@ -19,12 +19,12 @@ request:
 
     [
         {
-            "status": "ERR",
-            "issues": ["value 'romney' for field 'lastname' not unique"]
+            "_status": "ERR",
+            "_issues": {"lastname": "value 'clinton' not unique"}
         },
         {
-            "status": "OK",
-            "updated": "Thu, 22 Nov 2012 15:29:08 GMT",
+            "_status": "OK",
+            "_updated": "Thu, 22 Nov 2012 15:29:08 GMT",
             "_id": "50ae44c49fa12500024def5d",
             "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d", "title": "person"}}
         }
@@ -33,6 +33,16 @@ request:
 In the example above, the first document did not validate and was rejected,
 while the second was successfully created. The API maintainer has complete
 control of data validation.
+
+.. admonition:: Please Note
+
+    Eventual validation errors on one or more document won't prevent the
+    insertion of valid documents. The response status code will be
+    ``201 Created`` if *at least one document* passed validation and has
+    actually been stored. If no document passed validation the status code will
+    be ``200 OK``, meaning that the request was accepted and processed. It is
+    still client's responsability to parse the response payload and make sure
+    that all documents passed validation.
 
 Extending Data Validation
 -------------------------
@@ -55,7 +65,7 @@ that:
     class MyValidator(Validator):
         def _validate_isodd(self, isodd, field, value):
             if isodd and not bool(value & 1):
-                self._error("Value for field '%s' must be an odd number" % field)
+                self._error(field, "Value must be an odd number")
 
     app = Eve(validator=MyValidator)
 
@@ -67,7 +77,7 @@ By subclassing the base Mongo validator class and then adding a custom
 grammar and now the new custom rule ``isodd`` is available in your schema. You
 can now do something like:
 
-.. code-block:: javascript
+.. code-block:: python
 
     'schema': {
         'oddity': {
@@ -82,7 +92,7 @@ You can also add new data types by simply adding ``_validate_type_<typename>``
 methods to your subclass. Consider the following snippet from the Eve source
 code.
 
-::
+.. code-block:: python
 
     def _validate_type_objectid(self, field, value):
         """ Enables validation for `objectid` schema attribute.
@@ -93,12 +103,12 @@ code.
         :param value: field value.
         """
         if not re.match('[a-f0-9]{24}', value):
-            self._error(ERROR_BAD_TYPE % (field, 'ObjectId'))
+            self._error(field, ERROR_BAD_TYPE % 'ObjectId')
 
 This method enables support for MongoDB ``ObjectId`` type in your schema,
 allowing something like this:
 
-.. code-block:: javascript
+.. code-block:: python
 
     'schema': {
         'owner': {
@@ -130,7 +140,7 @@ can also enable this feature only for certain endpoints by setting the
 
 Consider the following domain:
 
-.. code-block:: javascript
+.. code-block:: python
 
     DOMAIN: {
         'people': {
@@ -148,7 +158,7 @@ a payload like this will be accepted:
 .. code-block:: console
 
     $ curl -d '[{"firstname": "bill", "lastname": "clinton"}, {"firstname": "bill", "age":70}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
-    HTTP/1.1 200 OK
+    HTTP/1.1 201 OK
 
 .. admonition:: Please note
 

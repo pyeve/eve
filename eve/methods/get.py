@@ -7,17 +7,21 @@
     This module implements the API 'GET' methods, supported by both the
     resources and single item endpoints.
 
-    :copyright: (c) 2013 by Nicola Iarocci.
+    :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-
+import copy
 import math
-from flask import current_app as app, abort, request
+import base64
+
 import simplejson as json
-from .common import ratelimit, epoch, date_created, last_updated, pre_event
+
+from .common import ratelimit, epoch, date_created, last_updated, pre_event, \
+    resource_media_fields
 from eve.auth import requires_auth
 from eve.utils import parse_request, document_etag, document_link, home_link, \
     querydef, config, debug_error_message
+from flask import current_app as app, abort, request
 
 
 @ratelimit()
@@ -27,6 +31,15 @@ def get(resource, lookup):
     """ Retrieves the resource documents that match the current request.
 
     :param resource: the name of the resource.
+
+    .. versionchanged:: 0.3
+       Don't return 304 if resource is empty. Fixes #243.
+       Support for media fields.
+       When IF_MATCH is disabled, no etag is included in the payload.
+       When If-Modified-Since header is present, either no documents (304) or
+       all documents (200) are sent per the HTTP spec. Original behavior can be
+       achieved with:
+           /resource?where={"updated":{"$gt":"if-modified-since-date"}}
 
     .. versionchanged:: 0.2
        Use the new ITEMS configuration setting.
@@ -65,9 +78,29 @@ def get(resource, lookup):
 
     documents = []
     response = {}
-    last_update = epoch()
-
+    etag = None
     req = parse_request(resource)
+
+    if req.if_modified_since:
+        # client has made this request before, has it changed?
+        preflight_req = copy.copy(req)
+        preflight_req.max_results = 1
+
+        cursor = app.data.find(resource, preflight_req, lookup)
+        if cursor.count() == 0:
+            # make sure the datasource is not empty (#243).
+            if not app.data.is_empty(resource):
+                # the if-modified-since conditional request returned no
+                # documents, we send back a 304 Not-Modified, which means that
+                # the client already has the up-to-date representation of the
+                # resultset.
+                status = 304
+                last_modified = None
+                return response, last_modified, etag, status
+
+    # continue processing the full request
+    last_update = epoch()
+    req.if_modified_since = None
     cursor = app.data.find(resource, req, lookup)
 
     for document in cursor:
@@ -78,48 +111,44 @@ def get(resource, lookup):
             last_update = document[config.LAST_UPDATED]
 
         # document metadata
-        document['etag'] = document_etag(document)
+        if config.IF_MATCH:
+            document[config.ETAG] = document_etag(document)
+
         if config.DOMAIN[resource]['hateoas']:
             document[config.LINKS] = {'self':
                                       document_link(resource,
                                                     document[config.ID_FIELD])}
 
+        _resolve_media_files(document, resource)
+
         documents.append(document)
 
     _resolve_embedded_documents(resource, req, documents)
 
-    if req.if_modified_since and len(documents) == 0:
-        # the if-modified-since conditional request returned no documents, we
-        # send back a 304 Not-Modified, which means that the client already
-        # has the up-to-date representation of the resultset.
-        status = 304
-        last_modified = None
+    status = 200
+    last_modified = last_update if last_update > epoch() else None
+
+    # notify registered callback functions. Please note that, should the
+    # functions modify the documents, the last_modified and etag won't be
+    # updated to reflect the changes (they always reflect the documents
+    # state on the database.)
+
+    getattr(app, "on_fetch_resource")(resource, documents)
+    getattr(app, "on_fetch_resource_%s" % resource)(documents)
+
+    if config.DOMAIN[resource]['hateoas']:
+        response[config.ITEMS] = documents
+        response[config.LINKS] = _pagination_links(resource, req,
+                                                   cursor.count())
     else:
-        status = 200
-        last_modified = last_update if last_update > epoch() else None
+        response = documents
 
-        # notify registered callback functions. Please note that, should the
-        # functions modify the documents, the last_modified and etag won't be
-        # updated to reflect the changes (they always reflect the documents
-        # state on the database.)
+    # the 'extra' cursor field, if present, will be added to the response.
+    # Can be used by Eve extensions to add extra, custom data to any
+    # response.
+    if hasattr(cursor, 'extra'):
+        getattr(cursor, 'extra')(response)
 
-        getattr(app, "on_fetch_resource")(resource, documents)
-        getattr(app, "on_fetch_resource_%s" % resource)(documents)
-
-        if config.DOMAIN[resource]['hateoas']:
-            response[config.ITEMS] = documents
-            response[config.LINKS] = _pagination_links(resource, req,
-                                                       cursor.count())
-        else:
-            response = documents
-
-        # the 'extra' cursor field, if present, will be added to the response.
-        # Can be used by Eve extensions to add extra, custom data to any
-        # response.
-        if hasattr(cursor, 'extra'):
-            getattr(cursor, 'extra')(response)
-
-    etag = None
     return response, last_modified, etag, status
 
 
@@ -130,6 +159,10 @@ def getitem(resource, **lookup):
     """
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
+
+    .. versionchanged:: 0.3
+       Support for media fields.
+       When IF_MATCH is disabled, no etag is included in the payload.
 
     .. versionchanged:: 0.1.1
        Support for Embeded Resource Serialization.
@@ -172,20 +205,25 @@ def getitem(resource, **lookup):
         # been used in the collection 'get' method
         last_modified = document[config.LAST_UPDATED] = last_updated(document)
         document[config.DATE_CREATED] = date_created(document)
-        document['etag'] = document_etag(document)
 
-        if req.if_none_match and document['etag'] == req.if_none_match:
-            # request etag matches the current server representation of the
-            # document, return a 304 Not-Modified.
-            return response, last_modified, document['etag'], 304
+        etag = None
+        if config.IF_MATCH:
+            etag = document[config.ETAG] = document_etag(document)
+
+            if req.if_none_match and document[config.ETAG] == \
+                    req.if_none_match:
+                # request etag matches the current server representation of the
+                # document, return a 304 Not-Modified.
+                return response, last_modified, etag, 304
 
         if req.if_modified_since and last_modified <= req.if_modified_since:
             # request If-Modified-Since conditional request match. We test
             # this after the etag since Last-Modified dates have lower
             # resolution (1 second).
-            return response, last_modified, document['etag'], 304
+            return response, last_modified, document.get(config.ETAG), 304
 
         _resolve_embedded_documents(resource, req, [document])
+        _resolve_media_files(document, resource)
 
         if config.DOMAIN[resource]['hateoas']:
             response[config.LINKS] = {
@@ -208,7 +246,7 @@ def getitem(resource, **lookup):
                 item_title)(document[config.ID_FIELD], document)
 
         response.update(document)
-        return response, last_modified, document['etag'], 200
+        return response, last_modified, etag, 200
 
     abort(404)
 
@@ -339,3 +377,9 @@ def _collection_link(resource, item=False):
         path = path[:path.rfind('/')]
     server_name = config.SERVER_NAME if config.SERVER_NAME else ''
     return '%s%s' % (server_name, path)
+
+
+def _resolve_media_files(document, resource):
+    for field in resource_media_fields(document, resource):
+        _file = app.media.get(document[field])
+        document[field] = base64.encodestring(_file.read()) if _file else None

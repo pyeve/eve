@@ -15,13 +15,12 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.import_name, eve.__package__)
 
     def test_custom_import_name(self):
-        self.app = Eve('custom_import_name',
-                       settings='eve/tests/test_settings.py')
+        self.app = Eve('custom_import_name', settings=self.settings_file)
         self.assertEqual(self.app.import_name, 'custom_import_name')
 
     def test_custom_kwargs(self):
         self.app = Eve('custom_import_name', static_folder='/',
-                       settings='eve/tests/test_settings.py')
+                       settings=self.settings_file)
         self.assertEqual(self.app.static_folder, '/')
 
     def test_regexconverter(self):
@@ -48,7 +47,7 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.config['MONGO_QUERY_BLACKLIST'], ['$where',
                                                                     '$regex'])
         self.assertEqual(self.app.config['MONGO_WRITE_CONCERN'], {'w': 1})
-        self.assertEqual(self.app.config['ISSUES'], 'issues')
+        self.assertEqual(self.app.config['ISSUES'], '_issues')
 
     def test_settings_as_dict(self):
         my_settings = {'API_VERSION': 'override!', 'DOMAIN': {'contacts': {}}}

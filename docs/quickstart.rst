@@ -215,7 +215,7 @@ file:
         # additional read-only entry point. This way consumers can also perform 
         # GET requests at '/people/<lastname>'.
         'additional_lookup': {
-            'url': '[\w]+',
+            'url': 'regex("[\w]+")',
             'field': 'lastname'
         },
 
@@ -243,7 +243,7 @@ Save `settings.py` and launch `run.py`. We can now insert documents at the
 .. code-block:: console
 
     $ curl -d '[{"firstname": "barack", "lastname": "obama"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json'  http://127.0.0.1:5000/people
-    HTTP/1.0 200 OK
+    HTTP/1.0 201 OK
 
 We can also update and delete items (but not the whole resource since we
 disabled that). We can also perform GET requests against the new `lastname`

@@ -8,7 +8,7 @@ Authentication is the mechanism whereby systems may securely identify their
 users. Eve supports several authentication schemes: Basic Authentication, Token
 Authentication, HMAC Authentication.
 
-Authorization is the mehcanism by which a system determines what level of
+Authorization is the mechanism by which a system determines what level of
 access a particular (authenticated) user should have access to resources
 controlled by the system. In Eve, you can restrict access to all API endpoints,
 or only some of them. You can protect some HTTP verbs while leaving others

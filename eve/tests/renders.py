@@ -43,6 +43,40 @@ class TestRenders(TestBase):
         r = self.test_client.get('/', headers=[('Accept', 'application/html')])
         self.assertEqual(r.content_type, 'application/json')
 
+    def test_json_xml_disabled(self):
+        self.app.config['JSON'] = False
+        self.app.config['XML'] = False
+        r = self.test_client.get(self.known_resource_url,
+                                 headers=[('Accept', 'application/json')])
+        self.assert500(r.status_code)
+        r = self.test_client.get(self.known_resource_url,
+                                 headers=[('Accept', 'application/xml')])
+        self.assert500(r.status_code)
+        r = self.test_client.get(self.known_resource_url)
+        self.assert500(r.status_code)
+
+    def test_json_disabled(self):
+        self.app.config['JSON'] = False
+        r = self.test_client.get(self.known_resource_url,
+                                 headers=[('Accept', 'application/json')])
+        self.assertTrue('application/xml' in r.content_type)
+        r = self.test_client.get(self.known_resource_url,
+                                 headers=[('Accept', 'application/xml')])
+        self.assertTrue('application/xml' in r.content_type)
+        r = self.test_client.get(self.known_resource_url)
+        self.assertTrue('application/xml' in r.content_type)
+
+    def test_xml_disabled(self):
+        self.app.config['XML'] = False
+        r = self.test_client.get(self.known_resource_url,
+                                 headers=[('Accept', 'application/xml')])
+        self.assertEqual(r.content_type, 'application/json')
+        r = self.test_client.get(self.known_resource_url,
+                                 headers=[('Accept', 'application/json')])
+        self.assertEqual(r.content_type, 'application/json')
+        r = self.test_client.get(self.known_resource_url)
+        self.assertEqual(r.content_type, 'application/json')
+
     def test_CORS(self):
         r = self.test_client.get('/')
         self.assertFalse('Access-Control-Allow-Origin' in r.headers)
@@ -68,6 +102,19 @@ class TestRenders(TestBase):
                                                 'http://not_an_example.com')])
         self.assertEqual(r.headers['Access-Control-Allow-Origin'],
                          'http://example.com, http://1on1.com')
+
+    def test_CORS_MAX_AGE(self):
+        self.app.config['X_DOMAINS'] = '*'
+        r = self.test_client.get('/', headers=[('Origin',
+                                                'http://example.com')])
+        self.assertEqual(r.headers['Access-Control-Allow-Max-Age'],
+                         '21600')
+
+        self.app.config['X_MAX_AGE'] = 2000
+        r = self.test_client.get('/', headers=[('Origin',
+                                                'http://example.com')])
+        self.assertEqual(r.headers['Access-Control-Allow-Max-Age'],
+                         '2000')
 
     def test_CORS_OPTIONS(self, url='/', methods=None):
         if methods is None:

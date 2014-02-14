@@ -8,11 +8,14 @@
     appropriately, by using a custom settings module (see the optional
     'settings' argument or the EVE_SETTING environment variable).
 
-    :copyright: (c) 2013 by Nicola Iarocci.
+    :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.3
+       X_MAX_AGE added and set to 21600.
+
     .. versionchanged:: 0.2
-       IF_MAATCH defaults to True.
+       IF_MATCH defaults to True.
        'LINKS' defaults to '_links'.
        'ITEMS' defaults to '_items'.
        'STATUS' defaults to 'status'.
@@ -51,12 +54,13 @@ DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
 
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"
-LAST_UPDATED = 'updated'
-DATE_CREATED = 'created'
-ISSUES = 'issues'
-STATUS = 'status'
+LAST_UPDATED = '_updated'
+DATE_CREATED = '_created'
+ISSUES = '_issues'
+STATUS = '_status'
 ITEMS = '_items'
 LINKS = '_links'
+ETAG = '_etag'
 
 API_VERSION = ''
 URL_PREFIX = ''
@@ -67,6 +71,7 @@ CACHE_EXPIRES = 0
 ITEM_CACHE_CONTROL = ''
 X_DOMAINS = None                # CORS disabled by default.
 X_HEADERS = None                # CORS disabled by default.
+X_MAX_AGE = 21600               # Access-Control-Max-Age when CORS is enabled
 HATEOAS = True                  # HATEOAS enabled by default.
 IF_MATCH = True                 # IF_MATCH (ETag match) enabled by default.
 
@@ -90,7 +95,7 @@ ITEM_URL = 'regex("[a-f0-9]{24}")'
 
 # list of extra fields to be included with every POST response. This list
 # should not include the 'standard' fields (ID_FIELD, LAST_UPDATED,
-# DATE_CREATED, 'etag').
+# DATE_CREATED,ETAG).
 EXTRA_RESPONSE_FIELDS = []
 
 
@@ -99,7 +104,8 @@ AUTH_FIELD = None               # user-restricted resource access is disabled
 
 ALLOW_UNKNOWN = False           # don't allow unknown key/value pairs for
                                 # POST/PATCH payloads.
-# Rate limits are enabled by default (300 requests, 15 minutes windows).
+
+# Rate limits are disabled by default. Needs a running redis-server.
 RATE_LIMIT_GET = None
 RATE_LIMIT_POST = None
 RATE_LIMIT_PATCH = None

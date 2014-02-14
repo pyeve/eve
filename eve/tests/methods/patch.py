@@ -1,7 +1,7 @@
 #import unittest
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
-from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES
+from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES, STATUS, ETAG
 from bson import ObjectId
 import simplejson as json
 
@@ -46,8 +46,9 @@ class TestPatch(TestBase):
 
     def test_ifmatch_disabled(self):
         self.app.config['IF_MATCH'] = False
-        _, status = self.patch(self.item_id_url, data={'key1': 'value1'})
+        r, status = self.patch(self.item_id_url, data={'key1': 'value1'})
         self.assert200(status)
+        self.assertTrue(ETAG not in r)
 
     def test_ifmatch_bad_etag(self):
         _, status = self.patch(self.item_id_url,
@@ -66,8 +67,8 @@ class TestPatch(TestBase):
                                data={"ref": "%s" % self.alt_ref},
                                headers=[('If-Match', self.item_etag)])
         self.assert200(status)
-        self.assertValidationError(r, ("field 'ref'", self.alt_ref,
-                                       'not unique'))
+        self.assertValidationError(r, {'ref': "value '%s' is not unique" %
+                                       self.alt_ref})
 
     def test_patch_string(self):
         field = "ref"
@@ -189,7 +190,7 @@ class TestPatch(TestBase):
         r, status = self.parse_response(raw_r)
         self.assert200(status)
         self.assertEqual(raw_r.headers.get('ETag'),
-                         patch_response['etag'])
+                         patch_response[ETAG])
         if isinstance(fields, str):
             return r[fields]
         else:
@@ -201,7 +202,7 @@ class TestPatch(TestBase):
                                data=changes,
                                headers=[('If-Match', self.item_etag)])
         self.assert200(status)
-        self.assertValidationError(r, 'unknown field')
+        self.assertValidationError(r, {'unknown': 'unknown field'})
         self.app.config['DOMAIN'][self.known_resource]['allow_unknown'] = True
         r, status = self.patch(self.item_id_url,
                                data=changes,
@@ -217,18 +218,17 @@ class TestPatch(TestBase):
         r, status = self.parse_response(self.test_client.patch(
             self.item_id_url, data=changes, headers=headers))
         self.assert200(status)
-        self.assertTrue('OK' in r['status'])
+        self.assertTrue('OK' in r[STATUS])
 
     def test_patch_referential_integrity(self):
         data = {"person": self.unknown_item_id}
         headers = [('If-Match', self.invoice_etag)]
         r, status = self.patch(self.invoice_id_url, data=data, headers=headers)
         self.assert200(status)
-        expected = ("value '%s' for field '%s' must exist in resource "
-                    "collection '%s', field '%s'" %
-                    (self.unknown_item_id, 'person', 'contacts',
+        expected = ("value '%s' must exist in resource '%s', field '%s'" %
+                    (self.unknown_item_id, 'contacts',
                      self.app.config['ID_FIELD']))
-        self.assertValidationError(r, expected)
+        self.assertValidationError(r, {'person': expected})
 
         data = {"person": self.item_id}
         r, status = self.patch(self.invoice_id_url, data=data, headers=headers)
@@ -274,7 +274,7 @@ class TestPatch(TestBase):
         # supposed to be computed on default DATE_CREATED and LAST_UPDATAED
         # values.
         response, status = self.get(self.known_resource, item=ref)
-        etag = response['etag']
+        etag = response[ETAG]
         _id = response['_id']
 
         # attempt a PATCH with the new etag.
@@ -299,7 +299,7 @@ class TestPatch(TestBase):
         # GET all invoices by new contact
         response, status = self.get('users/%s/invoices/%s' %
                                     (fake_contact_id, self.invoice_id))
-        etag = response['etag']
+        etag = response[ETAG]
 
         data = {"inv_number": "new_number"}
         headers = [('If-Match', etag)]
@@ -310,13 +310,13 @@ class TestPatch(TestBase):
         self.assertPatchResponse(response, self.invoice_id)
 
     def assertPatchResponse(self, response, item_id):
-        self.assertTrue('status' in response)
-        self.assertTrue(STATUS_OK in response['status'])
+        self.assertTrue(STATUS in response)
+        self.assertTrue(STATUS_OK in response[STATUS])
         self.assertFalse(ISSUES in response)
         self.assertTrue(ID_FIELD in response)
         self.assertEqual(response[ID_FIELD], item_id)
         self.assertTrue(LAST_UPDATED in response)
-        self.assertTrue('etag' in response)
+        self.assertTrue(ETAG in response)
         self.assertTrue('_links' in response)
         self.assertItemLink(response['_links'], item_id)
 

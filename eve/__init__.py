@@ -6,7 +6,7 @@
 
     An out-of-the-box REST Web API that's as dangerous as you want it to be.
 
-    :copyright: (c) 2013 by Nicola Iarocci.
+    :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.2
@@ -23,7 +23,7 @@
 
 """
 
-__version__ = '0.2'
+__version__ = '0.3-dev'
 
 #DEBUG = True
 
@@ -48,12 +48,13 @@ ITEM_URL = '[a-f0-9]{24}'
 
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"
-LAST_UPDATED = 'updated'
-DATE_CREATED = 'created'
-ISSUES = 'issues'
-STATUS = 'status'
+LAST_UPDATED = '_updated'
+DATE_CREATED = '_created'
+ISSUES = '_issues'
+STATUS = '_status'
 ITEMS = '_items'
 LINKS = '_links'
+ETAG = '_etag'
 
 # must be the last line (will raise W402 on pyflakes)
 from eve.flaskapp import Eve  # noqa

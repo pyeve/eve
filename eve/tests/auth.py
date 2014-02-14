@@ -6,6 +6,7 @@ import json
 from eve import Eve
 from eve.auth import BasicAuth, TokenAuth, HMACAuth
 from eve.tests import TestBase
+from eve.tests.test_settings import MONGO_DBNAME
 
 
 class ValidBasicAuth(BasicAuth):
@@ -239,6 +240,44 @@ class TestHMACAuth(TestBasicAuth):
         self.assert401(r.status_code)
 
 
+class TestResourceAuth(TestBase):
+    def test_resource_only_auth(self):
+        # no auth at the API level
+        self.app = Eve(settings=self.settings_file)
+        self.test_client = self.app.test_client()
+        # explicit auth for just one resource
+        self.app.config['DOMAIN']['contacts']['authentication'] = \
+            ValidBasicAuth()
+        self.app.config['DOMAIN']['empty']['authentication'] = ValidTokenAuth()
+        self.app.set_defaults()
+        basic_auth = [('Authorization', 'Basic YWRtaW46c2VjcmV0')]
+        token_auth = [('Authorization', 'Basic dGVzdF90b2tlbjo=')]
+
+        # 'contacts' endpoints are protected
+        r = self.test_client.get(self.known_resource_url)
+        self.assert401(r.status_code)
+        r = self.test_client.get(self.item_id_url)
+        self.assert401(r.status_code)
+        # both with BasicAuth.
+        _, status = self.parse_response(
+            self.test_client.get(self.known_resource_url, headers=basic_auth))
+        self.assert200(status)
+        _, status = self.parse_response(
+            self.test_client.get(self.item_id_url, headers=basic_auth))
+        self.assert200(status)
+
+        # 'empty' resource endpoint is also protected
+        r = self.test_client.get(self.empty_resource_url)
+        self.assert401(r.status_code)
+        # but with TokenAuth
+        r = self.test_client.get(self.empty_resource_url, headers=token_auth)
+        self.assert200(r.status_code)
+
+        # other resources are not protected
+        r = self.test_client.get(self.readonly_resource_url)
+        self.assert200(r.status_code)
+
+
 class TestUserRestrictedAccess(TestBase):
     def setUp(self):
         super(TestUserRestrictedAccess, self).setUp()
@@ -370,13 +409,104 @@ class TestUserRestrictedAccess(TestBase):
 
     def test_post(self):
         _, status = self.post()
-        self.assert200(status)
+        self.assert201(status)
         data, status = self.parse_response(
             self.test_client.get(self.url,
                                  headers=self.valid_auth))
         self.assert200(status)
         # len of 1 as there are is only 1 doc saved by user
         self.assertEqual(len(data['_items']), 1)
+
+    def test_post_resource_auth(self):
+        # Ticket #231.
+        # Test that user restricted access works fine if there's no global
+        # level auth, which is set at resource level instead.
+
+        # no global auth.
+        app = Eve(settings=self.settings_file)
+
+        # set auth at resource level instead.
+        resource_def = app.config['DOMAIN'][self.url]
+        resource_def['authentication'] = ValidBasicAuth()
+        resource_def['auth_field'] = 'username'
+
+        # post with valid auth - must store the document with the correct
+        # auth_field.
+        r = app.test_client().post(self.url, data=self.data,
+                                   headers=self.valid_auth,
+                                   content_type='application/json')
+        _, status = self.parse_response(r)
+
+        # Verify that we can retrieve the same document
+        data, status = self.parse_response(
+            app.test_client().get(self.url, headers=self.valid_auth))
+        self.assert200(status)
+        self.assertEqual(len(data['_items']), 1)
+        self.assertEqual(data['_items'][0]['ref'],
+                         json.loads(self.data)['ref'])
+
+    def test_put(self):
+        new_ref = "9999999999999999999999999"
+        changes = json.dumps({"ref": new_ref})
+
+        # post document
+        data, status = self.post()
+
+        # retrieve document metadata
+        url = '%s/%s' % (self.url, data['_id'])
+        response = self.test_client.get(url, headers=self.valid_auth)
+        etag = response.headers['ETag']
+
+        # perform put
+        headers = [('If-Match', etag), self.valid_auth[0]]
+        response, status = self.parse_response(
+            self.test_client.put(url, data=json.dumps(changes),
+                                 headers=headers,
+                                 content_type='application/json'))
+        self.assert200(status)
+
+        # document still accessible with same auth
+        data, status = self.parse_response(
+            self.test_client.get(url, headers=self.valid_auth))
+        self.assert200(status)
+        self.assertEqual(data['ref'], new_ref)
+
+    def test_put_resource_auth(self):
+        # no global auth.
+        app = Eve(settings=self.settings_file)
+
+        # set auth at resource level instead.
+        resource_def = app.config['DOMAIN'][self.url]
+        resource_def['authentication'] = ValidBasicAuth()
+        resource_def['auth_field'] = 'username'
+
+        # post
+        r = app.test_client().post(self.url, data=self.data,
+                                   headers=self.valid_auth,
+                                   content_type='application/json')
+        data, status = self.parse_response(r)
+
+        # retrieve document metadata
+        url = '%s/%s' % (self.url, data['_id'])
+        response = app.test_client().get(url, headers=self.valid_auth)
+        etag = response.headers['ETag']
+
+        new_ref = "9999999999999999999999999"
+        changes = json.dumps({"ref": new_ref})
+
+        # put
+        headers = [('If-Match', etag), self.valid_auth[0]]
+        response, status = self.parse_response(
+            app.test_client().put(url, data=json.dumps(changes),
+                                  headers=headers,
+                                  content_type='application/json'))
+        self.assert200(status)
+
+        # document still accessible with same auth
+        data, status = self.parse_response(
+            app.test_client().get(url, headers=self.valid_auth))
+        self.assert200(status)
+        self.assertEqual(data['ref'], new_ref)
 
     def test_patch(self):
         new_ref = "9999999999999999999999999"
@@ -385,8 +515,7 @@ class TestUserRestrictedAccess(TestBase):
         url = '%s/%s' % (self.url, data['_id'])
         response = self.test_client.get(url, headers=self.valid_auth)
         etag = response.headers['ETag']
-        headers = [('If-Match', etag),
-                   self.valid_auth[0]]
+        headers = [('If-Match', etag), self.valid_auth[0]]
         response, status = self.parse_response(
             self.test_client.patch(url, data=json.dumps(changes),
                                    headers=headers,
@@ -399,15 +528,62 @@ class TestUserRestrictedAccess(TestBase):
         self.assertEqual(data['ref'], new_ref)
 
     def test_delete(self):
-        data, status = self.post()
+        _db = self.connection[MONGO_DBNAME]
+
+        # make sure that other documents in the collections are untouched.
+        cursor = _db.contacts.find()
+        docs_num = cursor.count()
+
+        _, _ = self.post()
+
+        # after the post we only get back 1 document as it's the only one we
+        # inserted directly (others are filtered out).
+        response, status = self.parse_response(
+            self.test_client.get(self.url, headers=self.valid_auth))
+        self.assert200(status)
+        self.assertEqual(len(response[self.app.config['ITEMS']]), 1)
+
+        # delete the document we just inserted
+        response, status = self.parse_response(
+            self.test_client.delete(self.url, headers=self.valid_auth))
+        self.assert200(status)
+
+        # we now get an empty items list (other documents in collection are
+        # filtered by auth).
+        response, status = self.parse_response(
+            self.test_client.get(self.url, headers=self.valid_auth))
+        self.assert200(status)
+        # if it's a dict, we only got 1 item back which is expected
+        self.assertEqual(len(response[self.app.config['ITEMS']]), 0)
+
+        # make sure no other document has been deleted.
+        cursor = _db.contacts.find()
+        self.assertEqual(cursor.count(), docs_num)
+
+    def test_delete_item(self):
+        _db = self.connection[MONGO_DBNAME]
+
+        # make sure that other documents in the collections are untouched.
+        cursor = _db.contacts.find()
+        docs_num = cursor.count()
+
+        data, _ = self.post()
+
+        # get back the document with its new etag
         url = '%s/%s' % (self.url, data['_id'])
         response = self.test_client.get(url, headers=self.valid_auth)
         etag = response.headers['ETag']
         headers = [('If-Match', etag),
                    ('Authorization', 'Basic YWRtaW46c2VjcmV0')]
+
+        # delete the document
         response, status = self.parse_response(
             self.test_client.delete(url, headers=headers))
         self.assert200(status)
+
+        # make sure no other document has been deleted.
+        cursor = _db.contacts.find()
+        self.assertEqual(cursor.count(), docs_num)
 
     def post(self):
         r = self.test_client.post(self.url,
@@ -415,41 +591,3 @@ class TestUserRestrictedAccess(TestBase):
                                   headers=self.valid_auth,
                                   content_type='application/json')
         return self.parse_response(r)
-
-
-class TestResourceAuth(TestBase):
-    def test_resource_only_auth(self):
-        # no auth at the API level
-        self.app = Eve(settings=self.settings_file)
-        self.test_client = self.app.test_client()
-        # explicit auth for just one resource
-        self.app.config['DOMAIN']['contacts']['authentication'] = \
-            ValidBasicAuth()
-        self.app.config['DOMAIN']['empty']['authentication'] = ValidTokenAuth()
-        self.app.set_defaults()
-        basic_auth = [('Authorization', 'Basic YWRtaW46c2VjcmV0')]
-        token_auth = [('Authorization', 'Basic dGVzdF90b2tlbjo=')]
-
-        # 'contacts' endpoints are protected
-        r = self.test_client.get(self.known_resource_url)
-        self.assert401(r.status_code)
-        r = self.test_client.get(self.item_id_url)
-        self.assert401(r.status_code)
-        # both with BasicAuth.
-        _, status = self.parse_response(
-            self.test_client.get(self.known_resource_url, headers=basic_auth))
-        self.assert200(status)
-        _, status = self.parse_response(
-            self.test_client.get(self.item_id_url, headers=basic_auth))
-        self.assert200(status)
-
-        # 'empty' resource endpoint is also protected
-        r = self.test_client.get(self.empty_resource_url)
-        self.assert401(r.status_code)
-        # but with TokenAuth
-        r = self.test_client.get(self.empty_resource_url, headers=token_auth)
-        self.assert200(r.status_code)
-
-        # other resources are not protected
-        r = self.test_client.get(self.readonly_resource_url)
-        self.assert200(r.status_code)

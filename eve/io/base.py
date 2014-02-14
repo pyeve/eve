@@ -6,14 +6,15 @@
 
     Standard interface implemented by Eve data layers.
 
-    :copyright: (c) 2013 by Nicola Iarocci.
+    :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-from eve.utils import config, debug_error_message
-from flask import request, abort
-import simplejson as json
-from eve.utils import date_to_str
 import datetime
+import simplejson as json
+from flask import request, abort
+from eve.utils import date_to_str
+from eve.auth import auth_field_and_value
+from eve.utils import config, debug_error_message
 
 
 class BaseJSONEncoder(json.JSONEncoder):
@@ -105,7 +106,7 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
-    def find(self, resource, req):
+    def find(self, resource, req, sub_resource_lookup):
         """ Retrieves a set of documents (rows), matching the current request.
         Consumed when a request hits a collection/document endpoint
         (`/people/`).
@@ -121,6 +122,10 @@ class DataLayer(object):
                     need proper parsing, according to the syntax that you want
                     to support with your driver. For example ``eve.io.Mongo``
                     supports both Python and Mongo-like query syntaxes.
+        :param sub_resource_lookup: sub-resource lookup from the endpoint url.
+
+        .. versionchanged:: 0.3
+           Support for sub-resources.
         """
         raise NotImplementedError
 
@@ -194,17 +199,20 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
-    def remove(self, resource, id_=None):
+    def remove(self, resource, lookup={}):
         """ Removes a document/row or an entire set of documents/rows from a
         database collection/table.
 
         :param resource: resource being accessed. You should then use
                          the ``_datasource`` helper function to retrieve
                          the actual datasource name.
-        :param id_: the unique id of the document to be removed. If `None`,
-                    all the documents/rows in the collection/table should be
-                    removed.
+        :param lookup: a dict with the query that documents must match in order
+                       to qualify for deletion. For single document deletes,
+                       this is usually the unique id of the document to be
+                       removed.
 
+        .. versionchanged:: 0.3
+           '_id' arg removed; replaced with 'lookup'.
         """
         raise NotImplementedError
 
@@ -237,6 +245,24 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
+    def is_empty(self, resource):
+        """ Returns True if the collection is empty; False otherwise. While
+        a user could rely on self.find() method to achieve the same result,
+        this method can probably take advantage of specific datastore features
+        to provide better perfomance.
+
+        Don't forget, a 'resource' could have a pre-defined filter. If that is
+        the case, it will have to be taken into consideration when performing
+        the is_empty() check (see eve.io.mongo.mongo.py implementation).
+
+        :param resource: resource being accessed. You should then use
+                         the ``_datasource`` helper function to retrieve
+                         the actual datasource name.
+
+        .. versionadded: 0.3
+        """
+        raise NotImplementedError
+
     def _datasource(self, resource):
         """ Returns a tuple with the actual name of the database
         collection/table, base query and projection for the resource being
@@ -257,6 +283,14 @@ class DataLayer(object):
                        client_sort=None):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to.
+
+        .. versionchanged:: 0.3
+           Field exclusion support in client projections.
+           Honor auth_field even when client query is missing.
+           Only inject auth_field in queries when we are not creating new
+           documents.
+           'auth_field' and 'request_auth_value' fetching is now delegated to
+           auth.auth_field_and value().
 
         .. versionchanged:: 0.2
            Difference between resource and item endpoints is now determined
@@ -315,53 +349,43 @@ class DataLayer(object):
             # only allow fields which are included with the standard projection
             # for the resource (avoid sniffing of private fields)
             fields = dict(
-                (field, 1) for (field) in [key for key in client_projection if
-                                           key in projection_])
+                (field, value) for field, value in client_projection.items() if
+                field in projection_)
         else:
             fields = projection_
 
         # If the current HTTP method is in `public_methods` or
         # `public_item_methods`, skip the `auth_field` check
 
-        if '|resource' in request.endpoint:
-            # We are on a resource endpoint and need to check against
-            # `public_methods`
-            public_method_list_to_check = 'public_methods'
-        else:
-            # We are on an item endpoint and need to check against
-            # `public_item_methods`
-            public_method_list_to_check = 'public_item_methods'
-
-        # Is the HTTP method not public?
-        resource_dict = config.DOMAIN[resource]
-        auth = resource_dict['authentication']
-        request_auth_value = auth.request_auth_value if auth else None
-        if request.method not in resource_dict[public_method_list_to_check]:
-            # We need to run the 'user-restricted resource access' check
-            auth_field = resource_dict.get('auth_field', None)
-            if auth_field and request.authorization and request_auth_value \
-                    and query is not None:
-                # If the auth_field *replaces* a field in the query,
-                # and the values are /different/, deny the request
-                # This prevents the auth_field condition from
-                # overwriting the query (issue #77)
-                auth_field_in_query = \
-                    self.app.data.query_contains_field(query, auth_field)
-                if auth_field_in_query and \
-                        self.app.data.get_value_from_query(
-                            query, auth_field) != request_auth_value:
-                    abort(401, description=debug_error_message(
-                        'Incompatible User-Restricted Resource request. '
-                        'Request was for "%s"="%s" but `auth_field` '
-                        'requires "%s"="%s".' % (
-                            auth_field,
+        # Only inject the auth_field in the query when not creating new
+        # documents.
+        if request.method not in ('POST', 'PUT'):
+            auth_field, request_auth_value = auth_field_and_value(resource)
+            if auth_field and request.authorization and request_auth_value:
+                if query:
+                    # If the auth_field *replaces* a field in the query,
+                    # and the values are /different/, deny the request
+                    # This prevents the auth_field condition from
+                    # overwriting the query (issue #77)
+                    auth_field_in_query = \
+                        self.app.data.query_contains_field(query, auth_field)
+                    if auth_field_in_query and \
                             self.app.data.get_value_from_query(
-                                query, auth_field),
-                            auth_field,
-                            request_auth_value)
-                    ))
+                                query, auth_field) != request_auth_value:
+                        abort(401, description=debug_error_message(
+                            'Incompatible User-Restricted Resource request. '
+                            'Request was for "%s"="%s" but `auth_field` '
+                            'requires "%s"="%s".' % (
+                                auth_field,
+                                self.app.data.get_value_from_query(
+                                    query, auth_field),
+                                auth_field,
+                                request_auth_value)
+                        ))
+                    else:
+                        query = self.app.data.combine_queries(
+                            query, {auth_field: request_auth_value}
+                        )
                 else:
-                    query = self.app.data.combine_queries(
-                        query, {auth_field: request_auth_value}
-                    )
+                    query = {auth_field: request_auth_value}
         return datasource, query, fields, sort

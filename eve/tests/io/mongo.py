@@ -95,7 +95,8 @@ class TestMongoValidator(TestCase):
         doc = {'id': 'not_an_object_id'}
         v = Validator(schema, None)
         self.assertFalse(v.validate(doc))
-        self.assertTrue('ObjectId' in v.errors[0])
+        self.assertTrue('id' in v.errors)
+        self.assertTrue('ObjectId' in v.errors['id'])
 
     def test_objectid_success(self):
         schema = {'id': {'type': 'objectid'}}

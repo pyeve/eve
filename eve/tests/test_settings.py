@@ -34,6 +34,9 @@ contacts = {
             'required': True,
             'unique': True,
         },
+        'media': {
+            'type': 'media'
+        },
         'prog': {
             'type': 'integer'
         },

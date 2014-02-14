@@ -1,6 +1,6 @@
 import simplejson as json
 from eve.tests import TestBase
-from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES
+from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES, STATUS, ETAG
 from eve.tests.test_settings import MONGO_DBNAME
 from bson import ObjectId
 
@@ -44,8 +44,9 @@ class TestPut(TestBase):
 
     def test_ifmatch_disabled(self):
         self.app.config['IF_MATCH'] = False
-        _, status = self.put(self.item_id_url, data={'key1': 'value1'})
+        r, status = self.put(self.item_id_url, data={'key1': 'value1'})
         self.assert200(status)
+        self.assertTrue(ETAG not in r)
 
     def test_ifmatch_bad_etag(self):
         _, status = self.put(self.item_id_url,
@@ -58,15 +59,15 @@ class TestPut(TestBase):
                              data={"ref": "%s" % self.alt_ref},
                              headers=[('If-Match', self.item_etag)])
         self.assert200(status)
-        self.assertValidationError(r, ("field 'ref'", self.alt_ref,
-                                       'not unique'))
+        self.assertValidationError(r, {'ref': "value '%s' is not unique" %
+                                       self.alt_ref})
 
     def test_allow_unknown(self):
         changes = {"unknown": "unknown"}
         r, status = self.put(self.item_id_url, data=changes,
                              headers=[('If-Match', self.item_etag)])
         self.assert200(status)
-        self.assertValidationError(r, 'unknown field')
+        self.assertValidationError(r, {'unknown': 'unknown field'})
         self.app.config['DOMAIN'][self.known_resource]['allow_unknown'] = True
         changes = {"unknown": "unknown", "ref": "1234567890123456789012345"}
         r, status = self.put(self.item_id_url, data=changes,
@@ -82,18 +83,17 @@ class TestPut(TestBase):
         r, status = self.parse_response(self.test_client.put(
             self.item_id_url, data=changes, headers=headers))
         self.assert200(status)
-        self.assertTrue('OK' in r['status'])
+        self.assertTrue('OK' in r[STATUS])
 
     def test_put_referential_integrity(self):
         data = {"person": self.unknown_item_id}
         headers = [('If-Match', self.invoice_etag)]
         r, status = self.put(self.invoice_id_url, data=data, headers=headers)
         self.assert200(status)
-        expected = ("value '%s' for field '%s' must exist in resource "
-                    "collection '%s', field '%s'" %
-                    (self.unknown_item_id, 'person', 'contacts',
+        expected = ("value '%s' must exist in resource '%s', field '%s'" %
+                    (self.unknown_item_id, 'contacts',
                      self.app.config['ID_FIELD']))
-        self.assertValidationError(r, expected)
+        self.assertValidationError(r, {'person': expected})
 
         data = {"person": self.item_id}
         r, status = self.put(self.invoice_id_url, data=data, headers=headers)
@@ -164,7 +164,7 @@ class TestPut(TestBase):
         # GET all invoices by new contact
         response, status = self.get('users/%s/invoices/%s' %
                                     (fake_contact_id, self.invoice_id))
-        etag = response['etag']
+        etag = response[ETAG]
 
         data = {"inv_number": "new_number"}
         headers = [('If-Match', etag)]
@@ -183,13 +183,13 @@ class TestPut(TestBase):
         return r
 
     def assertPutResponse(self, response, item_id):
-        self.assertTrue('status' in response)
-        self.assertTrue(STATUS_OK in response['status'])
+        self.assertTrue(STATUS in response)
+        self.assertTrue(STATUS_OK in response[STATUS])
         self.assertFalse(ISSUES in response)
         self.assertTrue(ID_FIELD in response)
         self.assertEqual(response[ID_FIELD], item_id)
         self.assertTrue(LAST_UPDATED in response)
-        self.assertTrue('etag' in response)
+        self.assertTrue(ETAG in response)
         self.assertTrue('_links' in response)
         self.assertItemLink(response['_links'], item_id)
 
@@ -203,7 +203,7 @@ class TestPut(TestBase):
         r, status = self.parse_response(raw_r)
         self.assert200(status)
         self.assertEqual(raw_r.headers.get('ETag'),
-                         put_response['etag'])
+                         put_response[ETAG])
         if isinstance(fields, str):
             return r[fields]
         else:

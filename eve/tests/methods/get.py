@@ -1,8 +1,10 @@
 import types
 import simplejson as json
+from datetime import datetime
 from bson import ObjectId
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
+from eve.utils import date_to_str
 
 
 class TestGet(TestBase):
@@ -102,7 +104,7 @@ class TestGet(TestBase):
         self.assertEqual(len(resource), 1)
 
     def test_get_where_mongo_combined_date(self):
-        where = '{"$and": [{"ref": "%s"}, {"created": \
+        where = '{"$and": [{"ref": "%s"}, {"_created": \
                 {"$gte": "Tue, 01 Oct 2013 00:59:22 GMT"}}]}' % self.item_name
         response, status = self.get(self.known_resource,
                                     '?where=%s' % where)
@@ -120,6 +122,20 @@ class TestGet(TestBase):
         _, status = self.get(self.known_resource, '?where=%s' % where)
         self.assert400(status)
 
+    def test_get_where_mongo_objectid_as_string(self):
+        where = '{"tid": "%s"}' % self.item_tid
+        response, status = self.get(self.known_resource, '?where=%s' % where)
+        self.assert200(status)
+        resource = response['_items']
+        self.assertEqual(len(resource), 1)
+
+        self.app.config['DOMAIN']['contacts']['query_objectid_as_string'] = \
+            True
+        response, status = self.get(self.known_resource, '?where=%s' % where)
+        self.assert200(status)
+        resource = response['_items']
+        self.assertEqual(len(resource), 0)
+
     def test_get_where_python_syntax(self):
         where = 'ref == %s' % self.item_name
         response, status = self.get(self.known_resource, '?where=%s' % where)
@@ -129,7 +145,7 @@ class TestGet(TestBase):
         self.assertEqual(len(resource), 1)
 
     def test_get_where_python_syntax1(self):
-        where = 'ref == %s and created>="Tue, 01 Oct 2013 00:59:22 GMT"' \
+        where = 'ref == %s and _created>="Tue, 01 Oct 2013 00:59:22 GMT"' \
                 % self.item_name
         response, status = self.get(self.known_resource, '?where=%s' % where)
         self.assert200(status)
@@ -149,6 +165,35 @@ class TestGet(TestBase):
             self.assertFalse('location' in r)
             self.assertFalse('role' in r)
             self.assertTrue('prog' in r)
+            self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+            self.assertTrue(self.app.config['DATE_CREATED'] in r)
+
+        projection = '{"prog": 0}'
+        response, status = self.get(self.known_resource, '?projection=%s' %
+                                    projection)
+        self.assert200(status)
+
+        resource = response['_items']
+
+        for r in resource:
+            self.assertFalse('prog' in r)
+            self.assertTrue('location' in r)
+            self.assertTrue('role' in r)
+            self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+            self.assertTrue(self.app.config['DATE_CREATED'] in r)
+
+    def test_get_projection_noschema(self):
+        self.app.config['DOMAIN'][self.known_resource]['schema'] = {}
+        response, status = self.get(self.known_resource)
+        self.assert200(status)
+
+        resource = response['_items']
+
+        # fields are returned anyway since no schema = return all fields
+        for r in resource:
+            self.assertTrue('location' in r)
             self.assertTrue(self.app.config['ID_FIELD'] in r)
             self.assertTrue(self.app.config['LAST_UPDATED'] in r)
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
@@ -234,7 +279,7 @@ class TestGet(TestBase):
             # 'user' title instead of original 'contact'
             self.assertItem(item)
 
-        etag = item.get('etag')
+        etag = item.get(self.app.config['ETAG'])
         self.assertTrue(etag is not None)
 
     def test_documents_missing_standard_date_fields(self):
@@ -281,42 +326,20 @@ class TestGet(TestBase):
         response, _ = self.get(self.known_resource)
         self.assertTrue('_documents' in response and '_items' not in response)
 
-        response = self.test_client.get(self.known_resource_url,
-                                        headers=[('Accept',
-                                                  'application/xml')])
-        # Py3 compatibility hack
-        r = str(response.get_data())
-        self.assertTrue('_documents' in r and '_items' not in r)
-
     def test_get_custom_links(self):
         self.app.config['LINKS'] = '_navigation'
         response, _ = self.get(self.known_resource)
         self.assertTrue('_navigation' in response and '_links' not in response)
 
-    def assertGet(self, response, status, resource=None):
-        self.assert200(status)
-
-        links = response['_links']
-        self.assertEqual(len(links), 4)
-        self.assertHomeLink(links)
-        if not resource:
-            resource = self.known_resource
-        self.assertResourceLink(links, resource)
-        self.assertNextLink(links, 2)
-
-        resource = response['_items']
-        self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
-
-        for item in resource:
-            self.assertItem(item)
-
-        etag = item.get('etag')
-        self.assertTrue(etag is not None)
-        # TODO figure a way to test etag match. Even removing the etag field
-        # itself won't help since the 'item' dict is unordered (and therefore
-        # doesn't match the original representation)
-        #del(item['etag'])
-        #self.assertEqual(hashlib.sha1(str(item)).hexdigest(), etag)
+    def test_get_custom_auto_document_fields(self):
+        self.app.config['LAST_UPDATED'] = '_updated_on'
+        self.app.config['DATE_CREATED'] = '_created_on'
+        self.app.config['ETAG'] = '_the_etag'
+        response, _ = self.get(self.known_resource)
+        for document in response['_items']:
+            self.assertTrue('_updated_on' in document)
+            self.assertTrue('_created_on' in document)
+            self.assertTrue('_the_etag' in document)
 
     def test_get_embedded(self):
         # We need to assign a `person` to our test invoice
@@ -493,13 +516,60 @@ class TestGet(TestBase):
         # which links to the right contact
         self.assertEqual(response['_items'][0]['person'], str(fake_contact_id))
 
+    def test_get_ifmatch_disabled(self):
+        # when IF_MATCH is disabled no etag is present in payload
+        self.app.config['IF_MATCH'] = False
+        response, status = self.get(self.known_resource)
+        resource = response['_items']
+
+        for r in resource:
+            self.assertTrue(self.app.config['ETAG'] not in r)
+
+    def test_get_ims_empty_resource(self):
+        # test that a GET with a If-Modified-Since on an empty resource does
+        # not trigger a 304 and returns a empty resource instead (#243).
+
+        # get the resource and retrieve its IMS.
+        r = self.test_client.get(self.known_resource_url)
+        last_modified = r.headers.get('Last-Modified')
+
+        # delete the whole resource content.
+        r = self.test_client.delete(self.known_resource_url)
+
+        # send a get with a IMS header from previous GET.
+        r = self.test_client.get(self.known_resource_url,
+                                 headers=[('If-Modified-Since',
+                                           last_modified)])
+        self.assert200(r.status_code)
+        self.assertEqual(json.loads(r.get_data())['_items'], [])
+
+    def assertGet(self, response, status, resource=None):
+        self.assert200(status)
+
+        links = response['_links']
+        self.assertEqual(len(links), 4)
+        self.assertHomeLink(links)
+        if not resource:
+            resource = self.known_resource
+        self.assertResourceLink(links, resource)
+        self.assertNextLink(links, 2)
+
+        resource = response['_items']
+        self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
+
+        for item in resource:
+            self.assertItem(item)
+
+        etag = item.get(self.app.config['ETAG'])
+        self.assertTrue(etag is not None)
+
 
 class TestGetItem(TestBase):
 
     def assertItemResponse(self, response, status,
                            resource=None):
         self.assert200(status)
-        self.assertTrue('etag' in response)
+        self.assertTrue(self.app.config['ETAG'] in response)
         links = response['_links']
         self.assertEqual(len(links), 3)
         self.assertHomeLink(links)
@@ -518,6 +588,11 @@ class TestGetItem(TestBase):
         response, status = self.get(self.known_resource,
                                     item=self.unknown_item_id)
         self.assert404(status)
+
+    def test_getitem_noschema(self):
+        self.app.config['DOMAIN'][self.known_resource]['schema'] = {}
+        response, status = self.get(self.known_resource, item=self.item_id)
+        self.assertItemResponse(response, status)
 
     def test_getitem_by_name(self):
         response, status = self.get(self.known_resource,
@@ -554,7 +629,6 @@ class TestGetItem(TestBase):
 
     def test_getitem_if_none_match(self):
         r = self.test_client.get(self.item_id_url)
-
         etag = r.headers.get('ETag')
         self.assertTrue(etag is not None)
         r = self.test_client.get(self.item_id_url,
@@ -695,6 +769,34 @@ class TestGetItem(TestBase):
         self.assert200(status)
         self.assertEqual(response['person'], str(fake_contact_id))
         self.assertEqual(response['_id'], self.invoice_id)
+
+    def test_getitem_ifmatch_disabled(self):
+        # when IF_MATCH is disabled no etag is present in payload
+        self.app.config['IF_MATCH'] = False
+        response, _ = self.get(self.known_resource, item=self.item_id)
+        self.assertTrue(self.app.config['ETAG'] not in response)
+
+    def test_getitem_ifmatch_disabled_if_mod_since(self):
+        # Test that #239 is fixed.
+        # IF_MATCH is disabled and If-Modified-Since request comes through. If
+        # a 304 was expected, we would crash like a mofo.
+        self.app.config['IF_MATCH'] = False
+
+        # IMS needs to see as recent as possible since the test db has just
+        # been built
+        header = [("If-Modified-Since", date_to_str(datetime.now()))]
+
+        r = self.test_client.get(self.item_id_url, headers=header)
+        self.assert304(r.status_code)
+
+    def test_getitem_custom_auto_document_fields(self):
+        self.app.config['LAST_UPDATED'] = '_updated_on'
+        self.app.config['DATE_CREATED'] = '_created_on'
+        self.app.config['ETAG'] = '_the_etag'
+        response, _ = self.get(self.known_resource, item=self.item_id)
+        self.assertTrue('_updated_on' in response)
+        self.assertTrue('_created_on' in response)
+        self.assertTrue('_the_etag' in response)
 
 
 class TestHead(TestBase):

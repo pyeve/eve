@@ -7,17 +7,18 @@
     This module imlements the POST method, supported by the resources
     endopints.
 
-    :copyright: (c) 2013 by Nicola Iarocci.
+    :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
 from datetime import datetime
-from flask import current_app as app, request
+from flask import current_app as app
 from eve.utils import document_link, config, document_etag
 from eve.auth import requires_auth
 from eve.validation import ValidationError
 from eve.methods.common import parse, payload, ratelimit, \
-    resolve_default_values, pre_event
+    resolve_default_values, pre_event, resolve_media_files, \
+    resolve_user_restricted_access
 
 
 @ratelimit()
@@ -42,6 +43,13 @@ def post(resource, payl=None):
 
                  See https://github.com/nicolaiarocci/eve/issues/74 for a
                  discussion, and a typical use case.
+
+    .. versionchanged:: 0.3
+       Return 201 if at least one document has been successfully inserted.
+       Fix #231 auth field not set if resource level authentication is set.
+       Support for media fields.
+       When IF_MATCH is disabled, no etag is included in the payload.
+       Support for new validation format introduced with Cerberus v0.5.
 
     .. versionchanged:: 0.2
        Use the new STATUS setting.
@@ -114,7 +122,7 @@ def post(resource, payl=None):
 
     for value in payl:
         document = []
-        doc_issues = []
+        doc_issues = {}
         try:
             document = parse(value, resource)
             validation = validator.validate(document)
@@ -123,26 +131,18 @@ def post(resource, payl=None):
                 document[config.LAST_UPDATED] = \
                     document[config.DATE_CREATED] = date_utc
 
-                # if 'user-restricted resource access' is enabled
-                # and there's an Auth request active,
-                # inject the auth_field into the document
-                auth_field = resource_def['auth_field']
-                if app.auth and auth_field:
-                    request_auth_value = \
-                        resource_def['authentication'].request_auth_value
-                    if request_auth_value and request.authorization:
-                        document[auth_field] = request_auth_value
-
+                resolve_user_restricted_access(document, resource)
                 resolve_default_values(document, resource)
+                resolve_media_files(document, resource)
             else:
                 # validation errors added to list of document issues
-                doc_issues.extend(validator.errors)
+                doc_issues = validator.errors
         except ValidationError as e:
-            raise e
+            doc_issues['validation exception'] = str(e)
         except Exception as e:
             # most likely a problem with the incoming payload, report back to
             # the client as if it was a validation issue
-            doc_issues.append(str(e))
+            doc_issues['exception'] = str(e)
 
         issues.append(doc_issues)
 
@@ -155,34 +155,47 @@ def post(resource, payl=None):
         getattr(app, "on_insert_%s" % resource)(documents)
         # bulk insert
         ids = app.data.insert(resource, documents)
+        # request was received and accepted; at least one document passed
+        # validation and was accepted for insertion.
+        return_code = 201
+    else:
+        # request was received and accepted; no document passed validation
+        # though.
+        return_code = 200
 
     # build response payload
     response = []
     for doc_issues in issues:
-        response_item = {}
+        item = {}
         if len(doc_issues):
-            response_item[config.STATUS] = config.STATUS_ERR
-            response_item[config.ISSUES] = doc_issues
+            item[config.STATUS] = config.STATUS_ERR
+            item[config.ISSUES] = doc_issues
         else:
-            response_item[config.STATUS] = config.STATUS_OK
-            response_item[config.ID_FIELD] = ids.pop(0)
+            item[config.STATUS] = config.STATUS_OK
+
             document = documents.pop(0)
-            response_item[config.LAST_UPDATED] = document[config.LAST_UPDATED]
-            response_item['etag'] = document_etag(document)
+            item[config.LAST_UPDATED] = document[config.LAST_UPDATED]
+
+            # either return the custom ID_FIELD or the id returned by
+            # data.insert().
+            item[config.ID_FIELD] = document.get(config.ID_FIELD, ids.pop(0))
+
+            if config.IF_MATCH:
+                item[config.ETAG] = document_etag(document)
+
             if resource_def['hateoas']:
-                response_item[config.LINKS] = \
-                    {'self': document_link(resource,
-                                           response_item[config.ID_FIELD])}
+                item[config.LINKS] = \
+                    {'self': document_link(resource, item[config.ID_FIELD])}
 
             # add any additional field that might be needed
             allowed_fields = [x for x in resource_def['extra_response_fields']
                               if x in document.keys()]
             for field in allowed_fields:
-                response_item[field] = document[field]
+                item[field] = document[field]
 
-        response.append(response_item)
+        response.append(item)
 
     if len(response) == 1:
         response = response.pop(0)
 
-    return response, None, None, 200
+    return response, None, None, return_code
