@@ -63,7 +63,7 @@ class Eve(Flask, Events):
     :param url_converters: dictionary of Flask url_converters to add to
                            supported ones (int, float, path, regex).
     :param json_encoder: custom json encoder class. Must be a
-                         JSONEncoder subclass. You probably wnat it to be
+                         JSONEncoder subclass. You probably want it to be
                          as eve.io.base.BaseJSONEncoder subclass.
     :param media: the media storage class. Must be a
                   :class:`~eve.io.media.MediaStorage` subclass.
