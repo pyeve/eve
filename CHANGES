@@ -8,6 +8,9 @@ Version 0.4
 
 Not released yet.
 
+- ``auth`` constructor argument accepts either a class instance or a callable.
+  Closes #248.
+
 Version 0.3
 -----------
 

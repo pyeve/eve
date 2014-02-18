@@ -198,6 +198,21 @@ class TestBasicAuth(TestBase):
         # will fail because check_auth() is not implemented in the custom class
         self.assert500(r.status_code)
 
+    def test_instanced_auth(self):
+        # tests that the 'auth' argument can also be a class instance. See
+        # #248.
+
+        # current self.app instance has an instanced auth class already, and it
+        # is consistent with the super class running the test (Token, HMAC or
+        # Basic), so we are just going to use it (self.app.auth) on a new Eve
+        # instance.
+
+        auth = self.app.auth
+        self.app = Eve(settings=self.settings_file, auth=auth)
+        self.test_client = self.app.test_client()
+        r = self.test_client.get('/', headers=self.valid_auth)
+        self.assert200(r.status_code)
+
     def test_rfc2617_response(self):
         r = self.test_client.get('/')
         self.assert401(r.status_code)

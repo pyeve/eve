@@ -69,6 +69,9 @@ class Eve(Flask, Events):
                   :class:`~eve.io.media.MediaStorage` subclass.
     :param kwargs: optional, standard, Flask parameters.
 
+    .. versionchanged:: 0.4
+       'auth' argument can be either an instance or a callable. Closes #248.
+
     .. versionchanged:: 0.3
        Support for optional media storage system. Defaults to
        GridFSMediaStorage.
@@ -130,8 +133,12 @@ class Eve(Flask, Events):
             self.data.json_encoder_class = json_encoder
 
         self.media = media(self) if media else None
-        self.auth = auth() if auth else None
         self.redis = redis
+
+        if auth:
+            self.auth = auth() if callable(auth) else auth
+        else:
+            self.auth = None
 
         # validate and set defaults for each resource
         for resource, settings in self.config['DOMAIN'].items():
