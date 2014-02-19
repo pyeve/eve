@@ -184,6 +184,9 @@ class Mongo(DataLayer):
         if projection is not None:
             args['fields'] = projection
 
+        if config.ALWAYS_RETURN_ALL_FIELDS:
+            del args['fields']
+
         return self.driver.db[datasource].find(**args)
 
     def find_one(self, resource, **lookup):
