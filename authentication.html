@@ -479,8 +479,8 @@ example by setting <tt class="docutils literal"><span class="pre">AUTH_FIELD</sp
 transparently to the user) adding a <tt class="docutils literal"><span class="pre">user_id</span></tt> field to every stored
 document. This will then be used to retrieve/edit/delete documents stored by
 the user.</p>
-<p>But how do you set the <tt class="docutils literal"><span class="pre">auth_field</span></tt> value? By simply setting the
-<tt class="docutils literal"><span class="pre">request_auth_value</span></tt> property in your auth class. Let us revise our
+<p>But how do you set the <tt class="docutils literal"><span class="pre">auth_field</span></tt> value? By invoking the
+<tt class="docutils literal"><span class="pre">set_request_auth_value()</span></tt> class method. Let us revise our
 BCrypt-authentication example from above:</p>
 <div class="highlight-python"><div class="highlight"><pre> <span class="c"># -*- coding: utf-8 -*-</span>
 
@@ -509,7 +509,7 @@ BCrypt-authentication example from above:</p>
 <span class="hll">         <span class="c"># set &#39;auth_field&#39; value to the account&#39;s ObjectId</span>
 </span><span class="hll">         <span class="c"># (instead of _id, you might want to use ID_FIELD)</span>
 </span><span class="hll">         <span class="k">if</span> <span class="n">account</span> <span class="ow">and</span> <span class="s">&#39;_id&#39;</span> <span class="ow">in</span> <span class="n">account</span><span class="p">:</span>
-</span><span class="hll">             <span class="bp">self</span><span class="o">.</span><span class="n">request_auth_value</span> <span class="o">=</span> <span class="n">account</span><span class="p">[</span><span class="s">&#39;_id&#39;</span><span class="p">]</span>
+</span><span class="hll">             <span class="bp">self</span><span class="o">.</span><span class="n">set_request_auth_value</span><span class="p">(</span><span class="n">account</span><span class="p">[</span><span class="s">&#39;_id&#39;</span><span class="p">])</span>
 </span>         <span class="k">return</span> <span class="n">account</span> <span class="ow">and</span> \
              <span class="n">bcrypt</span><span class="o">.</span><span class="n">hashpw</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">account</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="n">account</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">]</span>
 
