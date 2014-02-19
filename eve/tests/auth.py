@@ -11,14 +11,11 @@ from eve.tests.test_settings import MONGO_DBNAME
 
 class ValidBasicAuth(BasicAuth):
     def __init__(self):
-        self.skip_setting_auth_value = False
+        self.request_auth_value = 'admin'
         super(ValidBasicAuth, self).__init__()
 
     def check_auth(self, username, password, allowed_roles, resource, method):
-        # ignoble hack to only set request_auth_value when the test needs it to
-        # be really set
-        if not self.skip_setting_auth_value:
-            self.request_auth_value = 'admin'
+        self.set_request_auth_value(self.request_auth_value)
         return username == 'admin' and password == 'secret' and  \
             (allowed_roles == ['admin'] if allowed_roles else True)
 
@@ -368,7 +365,6 @@ class TestUserRestrictedAccess(TestBase):
         """
         _id = ObjectId('deadbeefdeadbeefdeadbeef')
         resource_def = self.app.config['DOMAIN']['users']
-        resource_def['authentication'].skip_setting_auth_value = True
         resource_def['authentication'].request_auth_value = _id
 
         # set auth_field to `_id`

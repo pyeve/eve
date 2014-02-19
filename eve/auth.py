@@ -1,4 +1,4 @@
-from flask import request, Response, current_app as app
+from flask import request, Response, current_app as app, g
 from functools import wraps
 
 
@@ -51,6 +51,10 @@ class BasicAuth(object):
     """ Implements Basic AUTH logic. Should be subclassed to implement custom
     authentication checking.
 
+    .. versionchanged:: 0.4
+       auth.request_auth_value replaced with getter and setter methods which
+       rely on flask's 'g' object, for enhanced thread-safity.
+
     .. versionchanged:: 0.1.1
         auth.request_auth_value is now used to store the auth_field value.
 
@@ -62,8 +66,11 @@ class BasicAuth(object):
 
     .. versionadded:: 0.0.4
     """
-    def __init__(self):
-        self.request_auth_value = None
+    def set_request_auth_value(self, value):
+        g.auth_value = value
+
+    def get_request_auth_value(self):
+        return g.get("auth_value")
 
     def check_auth(self, username, password, allowed_roles, resource, method):
         """ This function is called to check if a username / password
@@ -191,6 +198,9 @@ def auth_field_and_value(resource):
     """ If auth is active and the resource requires it, return both the
     current request 'request_auth_value' and the 'auth_field' for the resource
 
+    .. versionchanged:: 0.4
+       Use new auth.request_auth_value() method.
+
     .. versionadded:: 0.3
     """
     if '|resource' in request.endpoint:
@@ -205,7 +215,7 @@ def auth_field_and_value(resource):
     resource_dict = app.config['DOMAIN'][resource]
     auth = resource_dict['authentication']
 
-    request_auth_value = auth.request_auth_value if auth else None
+    request_auth_value = auth.get_request_auth_value() if auth else None
     auth_field = resource_dict.get('auth_field', None) if request.method not \
         in resource_dict[public_method_list_to_check] else None
 

@@ -398,6 +398,9 @@ def resolve_user_restricted_access(document, resource):
     :param document: the document being posted or replaced
     :param resource: the resource to which the document belongs
 
+    .. versionchanged:: 0.4
+       Use new auth.request_auth_value() method.
+
     .. versionadded:: 0.3
     """
     # if 'user-restricted resource access' is enabled and there's
@@ -406,8 +409,9 @@ def resolve_user_restricted_access(document, resource):
     auth = resource_def['authentication']
     auth_field = resource_def['auth_field']
     if auth and auth_field:
-        if auth.request_auth_value and request.authorization:
-            document[auth_field] = auth.request_auth_value
+        request_auth_value = auth.get_request_auth_value()
+        if request_auth_value and request.authorization:
+            document[auth_field] = request_auth_value
 
 
 def pre_event(f):
