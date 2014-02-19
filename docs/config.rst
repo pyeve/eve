@@ -268,6 +268,13 @@ uppercase.
                                 endpoint. Use with caution. See :ref:`unknown`
                                 for more information. Defaults to ``False``.
 
+``ALWAYS_RETURN_ALL_FIELDS``    A prototyping feature, intended to be used in
+                                tandem with :ref:`ALLOW_UNKNOWN`.  Enabling
+                                this forces the API to always return all fields
+                                stored within a collection, thus allowing a
+                                functional without defining a schema.  Use
+                                at your own peril!  Defaults to ``False``.
+
 ``PROJECTION``                  When ``True``, this option enables the
                                 :ref:`projections` feature. Can be overridden
                                 by resource settings. Defaults to ``True``.
