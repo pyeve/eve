@@ -8,6 +8,7 @@ MONGO_DBNAME = 'eve_test'
 ID_FIELD = '_id'
 
 SERVER_NAME = 'localhost:5000'
+URL_PROTOCOL = 'http'
 
 RESOURCE_METHODS = ['GET', 'POST', 'DELETE']
 ITEM_METHODS = ['GET', 'PATCH', 'DELETE', 'PUT']
