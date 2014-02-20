@@ -61,6 +61,16 @@
 <h2>Version 0.4<a class="headerlink" href="#version-0-4" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[new] <tt class="docutils literal"><span class="pre">on_delete</span></tt> is raised on DELETE requests sent to document endpoints.
+Addresses #232.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">on_resource_delete</span></tt> is raised on DELETE requests sent to resource
+endpoints. Addresses #232.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">on_update</span></tt> is raised on PATCH requests, when a document is about to
+be updated on the database. Addresses #232.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">on_replace</span></tt> is raised on PUT requests, when a document is about to
+be replaced on the database. Addresses #232.</li>
+<li>[change] <tt class="docutils literal"><span class="pre">on_insert</span></tt> is not raised anymore on PUT requests (replaced by
+above mentioned <tt class="docutils literal"><span class="pre">on_replace</span></tt>).</li>
 <li>[change] <tt class="docutils literal"><span class="pre">auth.request_auth_value</span></tt> is no more. Yay. See below.</li>
 <li>[change] <tt class="docutils literal"><span class="pre">auth.set_request_auth_value()</span></tt> allows to set the <tt class="docutils literal"><span class="pre">auth_field</span></tt>
 value for the current request.</li>

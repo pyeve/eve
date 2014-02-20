@@ -820,34 +820,8 @@ payload.</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="the-on-insert-event-hooks">
-<h3>The <tt class="docutils literal"><span class="pre">on_insert</span></tt> Event Hooks<a class="headerlink" href="#the-on-insert-event-hooks" title="Permalink to this headline">¶</a></h3>
-<p>When documents are about to be stored in the database, both
-a <tt class="docutils literal"><span class="pre">on_insert(resource,</span> <span class="pre">documents)</span></tt> and <tt class="docutils literal"><span class="pre">on_insert_&lt;resource&gt;(documents)</span></tt>
-event is raised.  Callback functions could hook into these events to
-arbitrarily add new fields, or edit existing ones.</p>
-<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_insert</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">documents</span><span class="p">):</span>
-<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to store documents to &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_insert_contacts</span><span class="p">(</span><span class="n">documents</span><span class="p">):</span>
-<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to store contacts&#39;</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_insert</span> <span class="o">+=</span> <span class="n">before_insert</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_insert_contacts</span> <span class="o">+=</span> <span class="n">before_insert_contacts</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-</pre></div>
-</div>
-<p><tt class="docutils literal"><span class="pre">on_insert</span></tt> is raised on every resource being updated while
-<tt class="docutils literal"><span class="pre">on_insert_&lt;resource&gt;</span></tt> is raised when the <cite>&lt;resource&gt;</cite> endpoint has been hit
-with a POST request. In both circumstances, the event will be raised only if at
-least one document passed validation and is going to be inserted. <cite>documents</cite>
-is a list and only contains documents ready for insertion (payload documents
-that did not pass validation are not included).</p>
-</div>
-<div class="section" id="the-on-fech-event-hooks">
-<h3>The <tt class="docutils literal"><span class="pre">on_fech</span></tt> Event Hooks<a class="headerlink" href="#the-on-fech-event-hooks" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="the-on-fech-event">
+<h3>The <tt class="docutils literal"><span class="pre">on_fech</span></tt> Event<a class="headerlink" href="#the-on-fech-event" title="Permalink to this headline">¶</a></h3>
 <p>The following events:</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">on_fetch_resource(resource,</span> <span class="pre">documents)</span></tt></li>
@@ -879,12 +853,91 @@ documents as needed before they are returned to the client.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Please be aware that <tt class="docutils literal"><span class="pre">last_modified</span></tt> and <tt class="docutils literal"><span class="pre">etag</span></tt> headers will always be
+</div>
+<div class="section" id="the-on-insert-event">
+<h3>The <tt class="docutils literal"><span class="pre">on_insert</span></tt> Event<a class="headerlink" href="#the-on-insert-event" title="Permalink to this headline">¶</a></h3>
+<p>When a POST requests hits the API and new documents are about to be stored in
+the database, <tt class="docutils literal"><span class="pre">on_insert(resource,</span> <span class="pre">documents)</span></tt> and
+<tt class="docutils literal"><span class="pre">on_insert_&lt;resource&gt;(documents)</span></tt> events are raised.</p>
+<p><tt class="docutils literal"><span class="pre">on_insert</span></tt> is raised on every resource being updated while
+<tt class="docutils literal"><span class="pre">on_insert_&lt;resource&gt;</span></tt> is raised when the <cite>&lt;resource&gt;</cite> endpoint has been hit
+with the POST request. In both circumstances, the event will be raised only if at
+least one document passed validation and is going to be inserted. <cite>documents</cite>
+is a list of documents that are ready for insertion (documents that did not
+pass validation are not included).</p>
+<p>Callback functions could hook into these events to arbitrarily add new fields
+or edit existing ones.</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_insert</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">documents</span><span class="p">):</span>
+<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to store documents to &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_insert_contacts</span><span class="p">(</span><span class="n">documents</span><span class="p">):</span>
+<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to store contacts&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_insert</span> <span class="o">+=</span> <span class="n">before_insert</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_insert_contacts</span> <span class="o">+=</span> <span class="n">before_insert_contacts</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-on-replace-event">
+<h3>The <tt class="docutils literal"><span class="pre">on_replace</span></tt> Event<a class="headerlink" href="#the-on-replace-event" title="Permalink to this headline">¶</a></h3>
+<p>When a PUT request hits the API and a document is about to be replaced, both
+<tt class="docutils literal"><span class="pre">on_replace(resource,</span> <span class="pre">document)</span></tt> and <tt class="docutils literal"><span class="pre">on_replace_&lt;resource&gt;(document)</span></tt>
+events are raised.</p>
+<p><tt class="docutils literal"><span class="pre">on_replace</span></tt> is raised for any endpoint hit by the request while
+<tt class="docutils literal"><span class="pre">on_replace_&lt;resource&gt;</span></tt> is only raised when the <cite>&lt;resource&gt;</cite> endpoint is hit
+by the PUT. In both circumstances the event will be raised only if it passed
+validation.</p>
+<p><cite>document</cite> is the new document which is about to be stored. Callback functions
+could hook into these events to arbitrarily add or update its fields, or to
+perform other accessory action.</p>
+</div>
+<div class="section" id="the-on-update-event">
+<h3>The <tt class="docutils literal"><span class="pre">on_update</span></tt> Event<a class="headerlink" href="#the-on-update-event" title="Permalink to this headline">¶</a></h3>
+<p>When a PATCH request hits the API and a document is about to be updated, both
+<tt class="docutils literal"><span class="pre">on_update(resource,</span> <span class="pre">document)</span></tt> and <tt class="docutils literal"><span class="pre">on_update_&lt;resource&gt;(document)</span></tt>
+events are raised.</p>
+<p><tt class="docutils literal"><span class="pre">on_update</span></tt> is raised for any endpoint hit by the request while
+<tt class="docutils literal"><span class="pre">on_update_&lt;resource&gt;</span></tt> is only raised when the <cite>&lt;resource&gt;</cite> endpoint is hit
+by the PATCH. In both circumstances the event will be raised only if the proposed changes passed
+validation.</p>
+<p><cite>document</cite> is the updated document. Callback functions could hook into these
+events to arbitrarily add or update its fields, or to perform other accessory
+action.</p>
+<div class="admonition-please-note admonition">
+<p class="first admonition-title">Please note</p>
+<p class="last">Please be aware that <tt class="docutils literal"><span class="pre">last_modified</span></tt> and <tt class="docutils literal"><span class="pre">etag</span></tt> headers will always be
 consistent with the state of the documents on the database (they  won&#8217;t be
 updated to reflect changes eventually applied by the callback functions).</p>
+</div>
+</div>
+<div class="section" id="the-on-delete-events">
+<h3>The <tt class="docutils literal"><span class="pre">on_delete</span></tt> Events<a class="headerlink" href="#the-on-delete-events" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="document-deletion">
+<h4>Document deletion<a class="headerlink" href="#document-deletion" title="Permalink to this headline">¶</a></h4>
+<p>When a DELETE request hits a document endpoint both
+<tt class="docutils literal"><span class="pre">on_delete(resource,</span> <span class="pre">document)</span></tt> and <tt class="docutils literal"><span class="pre">on_delete_&lt;resource&gt;(document)</span></tt>
+events are raised.</p>
+<p><tt class="docutils literal"><span class="pre">on_delete</span></tt> is raised for any resource hit by the request while
+<tt class="docutils literal"><span class="pre">on_delete_&lt;resource&gt;</span></tt> is only raised when the <cite>&lt;resource&gt;</cite> document endpoint is hit
+by the DELETE.</p>
+<p><cite>document</cite> is the document being deleted. Callback functions could hook into
+these events to perform accessory actions. And no you can&#8217;t arbitrarily abort
+the delete operation at this point (you should probably look at
+<a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a>, or eventually disable the delete command altogether).</p>
+</div>
+<div class="section" id="resource-deleteion">
+<h4>Resource deleteion<a class="headerlink" href="#resource-deleteion" title="Permalink to this headline">¶</a></h4>
+<p>If you were brave enough to enable the DELETE command on resource endpoints
+(allowing for wipeout of the entire collection in one go), then you can be
+notified of such a disastrous occurence by hooking a callback function to the
+<tt class="docutils literal"><span class="pre">on_resource_delete(resource)</span></tt> hook.</p>
 <div class="admonition-please-note admonition">
 <p class="first admonition-title">Please note</p>
 <p class="last">To provide seamless event handling features Eve relies on the <a class="reference external" href="https://github.com/nicolaiarocci/events">Events</a> package.</p>
+</div>
 </div>
 </div>
 </div>
@@ -1080,8 +1133,15 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li><a class="reference internal" href="#event-hooks">Event Hooks</a><ul>
 <li><a class="reference internal" href="#pre-request-event-hooks">Pre-Request Event Hooks</a></li>
 <li><a class="reference internal" href="#post-request-event-hooks">Post-Request Event Hooks</a></li>
-<li><a class="reference internal" href="#the-on-insert-event-hooks">The <tt class="docutils literal"><span class="pre">on_insert</span></tt> Event Hooks</a></li>
-<li><a class="reference internal" href="#the-on-fech-event-hooks">The <tt class="docutils literal"><span class="pre">on_fech</span></tt> Event Hooks</a></li>
+<li><a class="reference internal" href="#the-on-fech-event">The <tt class="docutils literal"><span class="pre">on_fech</span></tt> Event</a></li>
+<li><a class="reference internal" href="#the-on-insert-event">The <tt class="docutils literal"><span class="pre">on_insert</span></tt> Event</a></li>
+<li><a class="reference internal" href="#the-on-replace-event">The <tt class="docutils literal"><span class="pre">on_replace</span></tt> Event</a></li>
+<li><a class="reference internal" href="#the-on-update-event">The <tt class="docutils literal"><span class="pre">on_update</span></tt> Event</a></li>
+<li><a class="reference internal" href="#the-on-delete-events">The <tt class="docutils literal"><span class="pre">on_delete</span></tt> Events</a><ul>
+<li><a class="reference internal" href="#document-deletion">Document deletion</a></li>
+<li><a class="reference internal" href="#resource-deleteion">Resource deleteion</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#rate-limiting">Rate Limiting</a></li>
