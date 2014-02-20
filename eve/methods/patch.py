@@ -32,6 +32,9 @@ def patch(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
 
+    .. versionchanged:: 0.4
+       'on_update' raised before performing the update on the database.
+
     .. versionchanged:: 0.3
        Support for media fields.
        When IF_MATCH is disabled, no etag is included in the payload.
