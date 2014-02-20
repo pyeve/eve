@@ -281,14 +281,6 @@ class TestEventHooks(TestBase):
         self.post()
         self.assertTrue(self.passed)
 
-    def test_on_replace_PUT(self):
-        def general_hook(resource, document):
-            self.assertEqual(resource, self.known_resource)
-            self.passed = True
-        self.app.on_replace += general_hook
-        self.put()
-        self.assertTrue(self.passed)
-
     def test_on_insert_resource_POST(self):
         def resource_hook(documents):
             self.assertEqual(len(documents), 1)
@@ -297,11 +289,34 @@ class TestEventHooks(TestBase):
         self.post()
         self.assertTrue(self.passed)
 
+    def test_on_replace_PUT(self):
+        def general_hook(resource, document):
+            self.assertEqual(resource, self.known_resource)
+            self.passed = True
+        self.app.on_replace += general_hook
+        self.put()
+        self.assertTrue(self.passed)
+
     def test_on_replace_resource_PUT(self):
         def resource_hook(document):
             self.passed = True
         self.app.on_replace_contacts += resource_hook
         self.put()
+        self.assertTrue(self.passed)
+
+    def test_on_update_PATCH(self):
+        def general_hook(resource, document):
+            self.assertEqual(resource, self.known_resource)
+            self.passed = True
+        self.app.on_update += general_hook
+        self.patch()
+        self.assertTrue(self.passed)
+
+    def test_on_update_resource(self):
+        def resource_hook(document):
+            self.passed = True
+        self.app.on_update_contacts += resource_hook
+        self.patch()
         self.assertTrue(self.passed)
 
     def test_on_fetch(self):
@@ -340,8 +355,8 @@ class TestEventHooks(TestBase):
     def patch(self):
         headers = [('Content-Type', 'application/json'),
                    ('If-Match', self.item_etag)]
-        data = json.dumps({"ref": "i'm unique"})
-        self.test_client.patch(self.item_id_url, data=data, headers=headers)
+        data = json.dumps({"ref": "0123456789012345678901234"})
+        r = self.test_client.patch(self.item_id_url, data=data, headers=headers)
 
     def delete(self):
         self.test_client.delete(self.item_id_url, headers=[('If-Match',

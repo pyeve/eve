@@ -107,6 +107,10 @@ def patch(resource, **lookup):
             updates[config.LAST_UPDATED] = original[config.LAST_UPDATED] = \
                 datetime.utcnow().replace(microsecond=0)
 
+            # notify callbacks
+            getattr(app, "on_update")(resource, original)
+            getattr(app, "on_update_%s" % resource)(original)
+
             app.data.update(resource, object_id, updates)
 
             response[config.ID_FIELD] = original[config.ID_FIELD]

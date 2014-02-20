@@ -890,6 +890,21 @@ validation.
 could hook into these events to arbitrarily add or update its fields, or to
 perform other accessory action.
 
+The ``on_update`` Event Hook
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When a a PATCH request hits the API and a document is about to be updated, both
+``on_update(resource, document)`` and ``on_update_<resource>(document)``
+events are raised. 
+
+``on_update`` is raised for any endpoint hit by the request while
+``on_update_<resource>`` is only raised when the `<resource>` endpoint is hit
+by the PATCH. In both circumstances the event will be raised only if the proposed changes passed
+validation. 
+
+`document` is the updated document. Callback functions could hook into these
+events to arbitrarily add or update its fields, or to perform other accessory
+action.
+
 The ``on_fech`` Event Hooks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The following events:
