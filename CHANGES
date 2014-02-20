@@ -8,6 +8,10 @@ Version 0.4
 
 Not released yet.
 
+- [new] ``on_delete`` is raised on DELETE requests sent to document endpoints.
+  Addresses #232.
+- [new] ``on_resource_delete`` is raised on DELETE requests sent to resource
+  endpoints. Addresses #232.
 - [new] ``on_update`` is raised on PATCH requests, when a document is about to
   be updated on the database. Addresses #232.
 - [new] ``on_replace`` is raised on PUT requests, when a document is about to

@@ -319,6 +319,28 @@ class TestEventHooks(TestBase):
         self.patch()
         self.assertTrue(self.passed)
 
+    def test_on_delete(self):
+        def general_hook(resource, document):
+            self.assertEqual(resource, self.known_resource)
+            self.passed = True
+        self.app.on_delete += general_hook
+        self.delete()
+        self.assertTrue(self.passed)
+
+    def test_on_resource_delete(self):
+        def resource_hook(resource):
+            self.passed = True
+        self.app.on_resource_delete += resource_hook
+        self.test_client.delete(self.known_resource_url)
+        self.assertTrue(self.passed)
+
+    def test_on_delete_resource(self):
+        def resource_hook(document):
+            self.passed = True
+        self.app.on_delete_contacts += resource_hook
+        self.delete()
+        self.assertTrue(self.passed)
+
     def test_on_fetch(self):
         def general_hook(resource, documents):
             self.assertEqual(resource, self.known_resource)
