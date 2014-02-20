@@ -281,12 +281,11 @@ class TestEventHooks(TestBase):
         self.post()
         self.assertTrue(self.passed)
 
-    def test_on_insert_PUT(self):
-        def general_hook(resource, documents):
+    def test_on_replace_PUT(self):
+        def general_hook(resource, document):
             self.assertEqual(resource, self.known_resource)
-            self.assertEqual(len(documents), 1)
             self.passed = True
-        self.app.on_insert += general_hook
+        self.app.on_replace += general_hook
         self.put()
         self.assertTrue(self.passed)
 
@@ -298,11 +297,10 @@ class TestEventHooks(TestBase):
         self.post()
         self.assertTrue(self.passed)
 
-    def test_on_insert_resource_PUT(self):
-        def resource_hook(documents):
-            self.assertEqual(len(documents), 1)
+    def test_on_replace_resource_PUT(self):
+        def resource_hook(document):
             self.passed = True
-        self.app.on_insert_contacts += resource_hook
+        self.app.on_replace_contacts += resource_hook
         self.put()
         self.assertTrue(self.passed)
 

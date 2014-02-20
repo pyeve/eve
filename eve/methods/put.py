@@ -33,6 +33,10 @@ def put(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
 
+    .. versionchanged:: 0.4
+       Raise 'on_replace' instead of 'on_insert'. The callback function gets
+       the document (as opposed to a list of just 1 document) as an argument.
+
     .. versionchanged:: 0.3
        Support for media fields.
        When IF_MATCH is disabled, no etag is included in the payload.
@@ -88,8 +92,8 @@ def put(resource, **lookup):
             resolve_media_files(document, resource, original)
 
             # notify callbacks
-            getattr(app, "on_insert")(resource, [document])
-            getattr(app, "on_insert_%s" % resource)([document])
+            getattr(app, "on_replace")(resource, document)
+            getattr(app, "on_replace_%s" % resource)(document)
 
             app.data.replace(resource, object_id, document)
 

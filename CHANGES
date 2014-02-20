@@ -8,6 +8,10 @@ Version 0.4
 
 Not released yet.
 
+- [new] ``on_replace`` is raised on PUT request, when a document is about to be
+  replaced on the database. Addresses #232.
+- [change] ``on_insert`` is not raised anymore on PUT requests (replaced by
+  above mentioned ``on_replace``).
 - [change] ``auth.request_auth_value`` is no more. Yay. See below.
 - [change] ``auth.set_request_auth_value()`` allows to set the ``auth_field``
   value for the current request.

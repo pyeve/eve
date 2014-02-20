@@ -845,12 +845,21 @@ payload.
 
     >>> app.run()
 
-The ``on_insert`` Event Hooks
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-When documents are about to be stored in the database, both
-a ``on_insert(resource, documents)`` and ``on_insert_<resource>(documents)``
-event is raised.  Callback functions could hook into these events to
-arbitrarily add new fields, or edit existing ones.
+The ``on_insert`` Event Hook
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When a POST requests hits the API and new documents are about to be stored in
+the database, ``on_insert(resource, documents)`` and
+``on_insert_<resource>(documents)`` events are raised.
+
+``on_insert`` is raised on every resource being updated while
+``on_insert_<resource>`` is raised when the `<resource>` endpoint has been hit
+with the POST request. In both circumstances, the event will be raised only if at
+least one document passed validation and is going to be inserted. `documents`
+is a list of documents that are ready for insertion (documents that did not
+pass validation are not included).
+
+Callback functions could hook into these events to arbitrarily add new fields
+or edit existing ones.
 
 .. code-block:: pycon
 
@@ -866,12 +875,20 @@ arbitrarily add new fields, or edit existing ones.
 
     >>> app.run()
 
-``on_insert`` is raised on every resource being updated while
-``on_insert_<resource>`` is raised when the `<resource>` endpoint has been hit
-with a POST request. In both circumstances, the event will be raised only if at
-least one document passed validation and is going to be inserted. `documents`
-is a list and only contains documents ready for insertion (payload documents
-that did not pass validation are not included).
+The ``on_replace`` Event Hook
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When a a PUT request hits the API and a document is about to be replaced, both
+``on_replace(resource, document)`` and ``on_replace_<resource>(document)``
+events are raised. 
+
+``on_replace`` is raised for any endpoint hit by the request while
+``on_replace_<resource>`` is only raised when the `<resource>` endpoint is hit
+by the PUT. In both circumstances the event will be raised only if it passed
+validation. 
+
+`document` is the new document which is about to be stored. Callback functions
+could hook into these events to arbitrarily add or update its fields, or to
+perform other accessory action.
 
 The ``on_fech`` Event Hooks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
