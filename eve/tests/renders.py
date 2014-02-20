@@ -272,7 +272,7 @@ class TestEventHooks(TestBase):
         self.delete()
         self.assertTrue(self.passed)
 
-    def test_on_insert_POST(self):
+    def test_on_insert(self):
         def general_hook(resource, documents):
             self.assertEqual(resource, self.known_resource)
             self.assertEqual(len(documents), 1)
@@ -281,7 +281,7 @@ class TestEventHooks(TestBase):
         self.post()
         self.assertTrue(self.passed)
 
-    def test_on_insert_resource_POST(self):
+    def test_on_insert_resource(self):
         def resource_hook(documents):
             self.assertEqual(len(documents), 1)
             self.passed = True
@@ -289,7 +289,7 @@ class TestEventHooks(TestBase):
         self.post()
         self.assertTrue(self.passed)
 
-    def test_on_replace_PUT(self):
+    def test_on_replace(self):
         def general_hook(resource, document):
             self.assertEqual(resource, self.known_resource)
             self.passed = True
@@ -297,14 +297,14 @@ class TestEventHooks(TestBase):
         self.put()
         self.assertTrue(self.passed)
 
-    def test_on_replace_resource_PUT(self):
+    def test_on_replace_resource(self):
         def resource_hook(document):
             self.passed = True
         self.app.on_replace_contacts += resource_hook
         self.put()
         self.assertTrue(self.passed)
 
-    def test_on_update_PATCH(self):
+    def test_on_update(self):
         def general_hook(resource, document):
             self.assertEqual(resource, self.known_resource)
             self.passed = True
@@ -378,7 +378,7 @@ class TestEventHooks(TestBase):
         headers = [('Content-Type', 'application/json'),
                    ('If-Match', self.item_etag)]
         data = json.dumps({"ref": "0123456789012345678901234"})
-        r = self.test_client.patch(self.item_id_url, data=data, headers=headers)
+        self.test_client.patch(self.item_id_url, data=data, headers=headers)
 
     def delete(self):
         self.test_client.delete(self.item_id_url, headers=[('If-Match',
