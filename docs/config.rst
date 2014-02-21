@@ -113,8 +113,9 @@ uppercase.
                                 ``localhost:5000/v1/``). Defaults to ``''``.
 
 ``URL_PROTOCOL``                URL protocol. Will be used to form a full URL.
-                                Setting to ``http`` will result in 
-                                ``http://localhost:5000``, e.g. Defaults to ``''``.
+                                Setting to ``http`` will result in
+                                ``http://localhost:5000``, e.g. Defaults to
+                                ``''`` for relative paths.
 
 ``ALLOWED_FILTERS``             List of fields on which filtering is allowed. 
                                 Can be set to ``[]`` (no filters allowed) or
