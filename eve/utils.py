@@ -201,15 +201,29 @@ def document_link(resource, document_id):
 def home_link():
     """ Returns a link to the API entry point/home page.
 
-    .. versionchanged:: 0.1.1
-       Handle the case of SERVER_NAME being None.
-
     .. versionchanged:: 0.0.3
        Now returning a JSON link.
     """
-    server_name = config.SERVER_NAME if config.SERVER_NAME else ''
     return {'title': 'home',
-            'href': '%s%s' % (server_name, api_prefix())}
+            'href': home_uri()}
+
+
+def home_uri():
+    """ Returns a absolute URI to API home.
+
+    .. versionchanged:: 0.4
+       Added support for URL_PROTOCOL
+       Refactored from home_link
+
+    .. versionchanged:: 0.1.1
+       Handle the case of SERVER_NAME being None.
+
+    .. versionadded:: 0.4
+    """
+    server_name = config.SERVER_NAME if config.SERVER_NAME else ''
+    if config.URL_PROTOCOL:
+        server_name = '%s://%s' % (config.URL_PROTOCOL, server_name)
+    return '%s%s' % (server_name, api_prefix())
 
 
 def resource_uri(resource):
@@ -226,12 +240,7 @@ def resource_uri(resource):
 
     :param resource: the resource name.
     """
-    prefix = config.SERVER_NAME if config.SERVER_NAME else ''
-    if config.URL_PREFIX:
-        prefix += '/%s' % config.URL_PREFIX
-    if config.API_VERSION:
-        prefix += '/%s' % config.API_VERSION
-    return '%s/%s' % (prefix, config.URLS[resource])
+    return '%s/%s' % (home_uri(), config.URLS[resource])
 
 
 def api_prefix(url_prefix=None, api_version=None):

@@ -20,8 +20,8 @@ from .common import ratelimit, epoch, date_created, last_updated, pre_event, \
     resource_media_fields
 from eve.auth import requires_auth
 from eve.utils import parse_request, document_etag, document_link, home_link, \
-    querydef, config, debug_error_message
-from flask import current_app as app, abort, request
+    querydef, config, debug_error_message, resource_uri
+from flask import current_app as app, abort
 
 
 @ratelimit()
@@ -160,6 +160,10 @@ def getitem(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
 
+    .. versionchanged:: 0.4
+       Now using resource_uri when building HATEOAS links (_collection_link
+       removed).
+
     .. versionchanged:: 0.3
        Support for media fields.
        When IF_MATCH is disabled, no etag is included in the payload.
@@ -230,7 +234,7 @@ def getitem(resource, **lookup):
                 'self': document_link(resource, document[config.ID_FIELD]),
                 'collection': {'title':
                                config.DOMAIN[resource]['resource_title'],
-                               'href': _collection_link(resource, True)},
+                               'href': resource_uri(resource)},
                 'parent': home_link()
             }
 
@@ -329,6 +333,10 @@ def _pagination_links(resource, req, documents_count):
     :param req: and instace of :class:`eve.utils.ParsedRequest`.
     :param document_count: the number of documents returned by the query.
 
+    .. versionchanged:: 0.4
+       Now using resource_uri when building HATEOAS links (_collection_link
+       removed).
+
     .. versionchanged:: 0.0.8
        Link to last page is provided if pagination is enabled (and the current
        page is not the last one).
@@ -344,13 +352,13 @@ def _pagination_links(resource, req, documents_count):
     """
     _links = {'parent': home_link(),
               'self': {'title': config.DOMAIN[resource]['resource_title'],
-                       'href': _collection_link(resource)}}
+                       'href': resource_uri(resource)}}
 
     if documents_count and config.DOMAIN[resource]['pagination']:
         if req.page * req.max_results < documents_count:
             q = querydef(req.max_results, req.where, req.sort, req.page + 1)
             _links['next'] = {'title': 'next page', 'href': '%s%s' %
-                              (_collection_link(resource), q)}
+                              (resource_uri(resource), q)}
 
             # in python 2.x dividing 2 ints produces an int and that's rounded
             # before the ceil call. Have to cast one value to float to get
@@ -361,22 +369,14 @@ def _pagination_links(resource, req, documents_count):
                                       / float(req.max_results)))
             q = querydef(req.max_results, req.where, req.sort, last_page)
             _links['last'] = {'title': 'last page', 'href': '%s%s'
-                              % (_collection_link(resource), q)}
+                              % (resource_uri(resource), q)}
 
         if req.page > 1:
             q = querydef(req.max_results, req.where, req.sort, req.page - 1)
             _links['prev'] = {'title': 'previous page', 'href': '%s%s' %
-                              (_collection_link(resource), q)}
+                              (resource_uri(resource), q)}
 
     return _links
-
-
-def _collection_link(resource, item=False):
-    path = request.path.rstrip('/')
-    if item:
-        path = path[:path.rfind('/')]
-    server_name = config.SERVER_NAME if config.SERVER_NAME else ''
-    return '%s%s' % (server_name, path)
 
 
 def _resolve_media_files(document, resource):
