@@ -160,6 +160,10 @@ def getitem(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
 
+    .. versionchanged:: 0.4
+       Now using resource_uri when building HATEOAS links (_collection_link
+       removed).
+
     .. versionchanged:: 0.3
        Support for media fields.
        When IF_MATCH is disabled, no etag is included in the payload.
@@ -328,6 +332,10 @@ def _pagination_links(resource, req, documents_count):
     :param resource: the resource name.
     :param req: and instace of :class:`eve.utils.ParsedRequest`.
     :param document_count: the number of documents returned by the query.
+
+    .. versionchanged:: 0.4
+       Now using resource_uri when building HATEOAS links (_collection_link
+       removed).
 
     .. versionchanged:: 0.0.8
        Link to last page is provided if pagination is enabled (and the current

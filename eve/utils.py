@@ -211,15 +211,14 @@ def home_link():
 def home_uri():
     """ Returns a absolute URI to API home.
 
-    .. versionchanged:: 0.2.1
-       Added support to URL_PROTOCOL
-
-    .. versionchanged:: 0.2.1
+    .. versionchanged:: 0.4
+       Added support for URL_PROTOCOL
        Refactored from home_link
 
     .. versionchanged:: 0.1.1
        Handle the case of SERVER_NAME being None.
 
+    .. versionadded:: 0.4
     """
     server_name = config.SERVER_NAME if config.SERVER_NAME else ''
     if config.URL_PROTOCOL:
