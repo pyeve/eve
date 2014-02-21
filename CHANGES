@@ -8,6 +8,8 @@ Version 0.4
 
 Not released yet.
 
+- [new] ``URL_PROTOCOL`` defines the HTTP protocol used when building HATEOAS
+  links. Defaults to ``''`` for relative paths (Junior Vidotti).
 - [new] ``on_delete`` is raised on DELETE requests sent to document endpoints.
   Addresses #232.
 - [new] ``on_resource_delete`` is raised on DELETE requests sent to resource
