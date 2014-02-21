@@ -155,12 +155,25 @@ def post(resource, payl=None):
         getattr(app, "on_insert_%s" % resource)(documents)
         # bulk insert
         ids = app.data.insert(resource, documents)
+
         # request was received and accepted; at least one document passed
         # validation and was accepted for insertion.
+
+        # from the docs:
+        # Eventual validation errors on one or more document won't prevent the
+        # insertion of valid documents. The response status code will be ``201
+        # Created`` if *at least one document* passed validation and has
+        # actually been stored.
         return_code = 201
     else:
         # request was received and accepted; no document passed validation
         # though.
+
+        # from the docs:
+        # If no document passed validation the status code will be ``200 OK``,
+        # meaning that the request was accepted and processed. It is still
+        # client's responsability to parse the response payload and make sure
+        # that all documents passed validation.
         return_code = 200
 
     # build response payload
