@@ -11,6 +11,9 @@
     :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.4
+       URL_PROTOCOL defaults to ''.
+
     .. versionchanged:: 0.3
        X_MAX_AGE added and set to 21600.
 
@@ -65,6 +68,7 @@ ETAG = '_etag'
 API_VERSION = ''
 URL_PREFIX = ''
 SERVER_NAME = None
+URL_PROTOCOL = ''
 ID_FIELD = '_id'
 CACHE_CONTROL = ''
 CACHE_EXPIRES = 0
