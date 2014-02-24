@@ -275,6 +275,7 @@ class TestBase(TestMinimal):
 
         response, _ = self.get('contacts', '?max_results=2')
         contact = self.response_item(response)
+        self.item = contact
         self.item_id = contact[self.app.config['ID_FIELD']]
         self.item_name = contact['ref']
         self.item_tid = contact['tid']

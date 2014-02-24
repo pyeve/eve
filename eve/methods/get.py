@@ -32,6 +32,10 @@ def get(resource, lookup):
 
     :param resource: the name of the resource.
 
+    .. versionchanged:: 0.4
+       Replaced ID_FIELD by item_lookup_field on self link.
+       item_lookup_field will default to ID_FIELD if blank.
+
     .. versionchanged:: 0.3
        Don't return 304 if resource is empty. Fixes #243.
        Support for media fields.
@@ -115,9 +119,10 @@ def get(resource, lookup):
             document[config.ETAG] = document_etag(document)
 
         if config.DOMAIN[resource]['hateoas']:
+            _lookup_field = config.DOMAIN[resource]['item_lookup_field']
             document[config.LINKS] = {'self':
                                       document_link(resource,
-                                                    document[config.ID_FIELD])}
+                                                    document[_lookup_field])}
 
         _resolve_media_files(document, resource)
 
@@ -163,6 +168,7 @@ def getitem(resource, **lookup):
     .. versionchanged:: 0.4
        Now using resource_uri when building HATEOAS links (_collection_link
        removed).
+       Replaced ID_FIELD by item_lookup_field on self link
 
     .. versionchanged:: 0.3
        Support for media fields.
@@ -230,8 +236,9 @@ def getitem(resource, **lookup):
         _resolve_media_files(document, resource)
 
         if config.DOMAIN[resource]['hateoas']:
+            _lookup_field = config.DOMAIN[resource]['item_lookup_field']
             response[config.LINKS] = {
-                'self': document_link(resource, document[config.ID_FIELD]),
+                'self': document_link(resource, document[_lookup_field]),
                 'collection': {'title':
                                config.DOMAIN[resource]['resource_title'],
                                'href': resource_uri(resource)},

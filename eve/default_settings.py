@@ -69,6 +69,7 @@ API_VERSION = ''
 URL_PREFIX = ''
 URL_PROTOCOL = ''               # relative HATEOAS paths by default.
 SERVER_NAME = None
+URL_PROTOCOL = ''
 ID_FIELD = '_id'
 CACHE_CONTROL = ''
 CACHE_EXPIRES = 0
