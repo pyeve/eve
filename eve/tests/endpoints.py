@@ -154,7 +154,7 @@ class TestEndPoints(TestBase):
         self.assertTrue('_created' in list(data))
         self.assertTrue('_updated' in list(data))
         self.assertTrue('_etag' in list(data))
-        self.assertTrue('_links' in list(data))        
+        self.assertTrue('_links' in list(data))
 
     def test_item_endpoint_id(self):
         data, status_code = self.get(self.known_resource, item=self.item_id)
