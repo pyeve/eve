@@ -8,6 +8,14 @@ Version 0.4
 
 Not released yet.
 
+- [fix] ``HATEOAS`` item links are now coherent actual endpoint URL even when
+  natural immutable keys are used in URLs (Junior Vidotti). Closes #256.
+- Is there a way of making a friendly item URL? I want not only an additional
+  lookup, but completely replace object_id by a natural key, when this natural
+  key is immutable. I've made some unsuccessful tests with item_lookup_field
+  and item_url.
+- Replaced ID_FIELD by item_lookup_field on self link. item_lookup_field will
+  default to ID_FIELD if blank. 
 - [new] ``URL_PROTOCOL`` defines the HTTP protocol used when building HATEOAS
   links. Defaults to ``''`` for relative paths (Junior Vidotti).
 - [new] ``on_delete`` is raised on DELETE requests sent to document endpoints.
