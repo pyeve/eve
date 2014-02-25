@@ -307,13 +307,8 @@ def serialize(document, resource=None, schema=None):
                             if 'schema' in field_schema:
                                 serialize(subdocument,
                                           schema=field_schema['schema'])
-                            # serialize fields of subdocuments
-                            for subfield, v in subdocument.items():
-                                subfield_type = \
-                                    field_schema[subfield].get('type')
-                                if subfield_type in app.data.serializers:
-                                    document[field][subfield] = \
-                                        app.data.serializers[subfield_type](v)
+                            else:
+                                serialize(subdocument, schema=field_schema)
                     else:
                         # a list of one type, arbirtrary length
                         field_type = field_schema['type']

@@ -8,6 +8,7 @@ Version 0.4
 
 Not released yet.
 
+- [fix] Trouble serializing list of dicts. Closes #265 and #244. 
 - [fix] ``HATEOAS`` item links are now coherent actual endpoint URL even when
   natural immutable keys are used in URLs (Junior Vidotti). Closes #256.
 - Replaced ID_FIELD by item_lookup_field on self link. item_lookup_field will
