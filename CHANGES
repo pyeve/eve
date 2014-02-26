@@ -8,6 +8,8 @@ Version 0.4
 
 Not released yet.
 
+- [new] validate that ID_FIELD is not set as a resource ``auth_field``.
+  Addresses #266.
 - [fix] Trouble serializing list of dicts. Closes #265 and #244. 
 - [fix] ``HATEOAS`` item links are now coherent actual endpoint URL even when
   natural immutable keys are used in URLs (Junior Vidotti). Closes #256.

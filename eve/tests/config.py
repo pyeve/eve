@@ -320,3 +320,11 @@ class TestConfig(TestBase):
         self._test_defaults_for_resource(resource)
         self._test_datasource_for_resource(resource)
         self.test_validate_roles()
+
+    def test_auth_field_as_idfield(self):
+        resource = 'resource'
+        settings = {
+            'auth_field': self.app.config['ID_FIELD'],
+        }
+        self.assertRaises(ConfigException, self.app.register_resource,
+                          resource, settings)

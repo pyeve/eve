@@ -247,6 +247,9 @@ class Eve(Flask, Events):
         :param resource: name of the resource which settings refer to.
         :param settings: settings of resource to be validated.
 
+        .. versionchanged:: 0.4
+           validate that auth_field is not set to ID_FIELD. See #266.
+
         .. versionadded:: 0.2
         """
         self.validate_methods(self.supported_resource_methods,
@@ -267,6 +270,11 @@ class Eve(Flask, Events):
 
         self.validate_roles('allowed_roles', settings, resource)
         self.validate_roles('allowed_item_roles', settings, resource)
+
+        if settings['auth_field'] == self.config['ID_FIELD']:
+            raise ConfigException('"%s": auth_field cannot be set to ID_FIELD '
+                                  '(%s)' % (resource, self.config['ID_FIELD']))
+
         self.validate_schema(resource, settings['schema'])
 
     def validate_roles(self, directive, candidate, resource):
