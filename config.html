@@ -894,10 +894,16 @@ documents carry the same value for a field
 where the &#8216;unique&#8217; constraint is set, the
 payload will validate successfully, as there
 are no duplicates in the database (yet).</p>
-<p class="last">If this is an issue, the client can always send
+<p>If this is an issue, the client can always send
 the documents one at a time for insertion, or
 validate locally before submitting the payload
 to the API.</p>
+<p class="last">Also be aware that when <a class="reference internal" href="authentication.html#user-restricted"><em>User-Restricted Resource Access</em></a>
+is enabled the rule will be validated against
+<em>user data only</em>. So in this scenario
+duplicates are allowed as long as they are
+stored by different users. Conversely, a single
+user cannot store duplicate values.</p>
 </td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">data_relation</span></tt></td>
