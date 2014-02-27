@@ -760,6 +760,13 @@ defining the field validation rules. Allowed validation rules are:
                                 validate locally before submitting the payload
                                 to the API.
 
+                                Also be aware that when :ref:`user-restricted`
+                                is enabled the rule will be validated against
+                                *user data only*. So in this scenario
+                                duplicates are allowed as long as they are
+                                stored by different users. Conversely, a single
+                                user cannot store duplicate values.
+
 ``data_relation``               Allows to specify a referential integrity rule
                                 that the value must satisfy in order to
                                 validate. It is a dict with three keys:
