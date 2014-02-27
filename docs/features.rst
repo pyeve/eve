@@ -1062,7 +1062,7 @@ The document will be returned with all its fields except the *image* field.
 
 Moreover, when setting the ``datasource`` property for any given resource
 endpoint it is possible to explictly exclude fields (of ``media`` type, but
-also of any other type reallt) from default responses:
+also of any other type really) from default responses:
 
 .. code-block:: python
 
