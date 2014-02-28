@@ -691,10 +691,10 @@ hypothetical <tt class="docutils literal"><span class="pre">people</span></tt> c
 </div>
 <div class="section" id="projections">
 <span id="id2"></span><h2>Projections<a class="headerlink" href="#projections" title="Permalink to this headline">¶</a></h2>
-<p>This feature allows you to create dynamic <em>views</em> of collections, or more precisely,
-to decide what fields should or should not be returned, using a &#8216;projection&#8217;.
-Put another way, Projections are conditional queries where the client
-dictates which fields should be returned by the API.</p>
+<p>This feature allows you to create dynamic views of collections and documents,
+or more precisely, to decide what fields should or should not be returned,
+using a &#8216;projection&#8217;. Put another way, Projections are conditional queries
+where the client dictates which fields should be returned by the API.</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people?projection<span class="o">={</span><span class="s2">&quot;lastname&quot;</span>: 1, <span class="s2">&quot;born&quot;</span>: 1<span class="o">}</span>
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
@@ -709,6 +709,13 @@ available in the &#8216;people&#8217; resource. You can also exclude fields:</p>
 as ID_FIELD, DATE_CREATED, DATE_UPDATED etc.  will still be included with the
 payload. Also keep in mind that some database engines, Mongo included, do not
 allow for mixing of inclusive and exclusive selections.</p>
+<div class="admonition-see-also admonition">
+<p class="first admonition-title">See also</p>
+<ul class="last simple">
+<li><a class="reference internal" href="config.html#projection"><em>Limiting the Fieldset Exposed by the API Endpoint</em></a></li>
+<li><a class="reference internal" href="#projection-filestorage"><em>Leveraging Projections to optimize the handling of media files</em></a></li>
+</ul>
+</div>
 </div>
 <div class="section" id="embedded-resource-serialization">
 <span id="embedded-docs"></span><h2>Embedded Resource Serialization<a class="headerlink" href="#embedded-resource-serialization" title="Permalink to this headline">¶</a></h2>
@@ -996,7 +1003,7 @@ the works, and will soon be included with the Eve package.</p>
 classes.</p>
 <p>When a document is requested media files will be returned as Base64 strings.</p>
 <div class="section" id="leveraging-projections-to-optimize-the-handling-of-media-files">
-<h3>Leveraging Projections to optimize the handling of media files<a class="headerlink" href="#leveraging-projections-to-optimize-the-handling-of-media-files" title="Permalink to this headline">¶</a></h3>
+<span id="projection-filestorage"></span><h3>Leveraging Projections to optimize the handling of media files<a class="headerlink" href="#leveraging-projections-to-optimize-the-handling-of-media-files" title="Permalink to this headline">¶</a></h3>
 <p>Clients and API maintainers can exploit the <a class="reference internal" href="#projections"><em>Projections</em></a> feature to
 include/exclude media fields from response payloads.</p>
 <p>Suppose that a client stored a document with an image. The image field is
@@ -1012,7 +1019,7 @@ response payload:</p>
 <p>The document will be returned with all its fields except the <em>image</em> field.</p>
 <p>Moreover, when setting the <tt class="docutils literal"><span class="pre">datasource</span></tt> property for any given resource
 endpoint it is possible to explictly exclude fields (of <tt class="docutils literal"><span class="pre">media</span></tt> type, but
-also of any other type reallt) from default responses:</p>
+also of any other type) from default responses:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s">&#39;projection&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;image&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
@@ -1027,7 +1034,14 @@ response payloads by sending requests like this one:</p>
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
-<p>For details on the <tt class="docutils literal"><span class="pre">datasource</span></tt> setting, see <a class="reference internal" href="config.html#config"><em>Configuration Handling</em></a> and <a class="reference internal" href="config.html#datasource"><em>Advanced Datasource Patterns</em></a>.</p>
+<div class="admonition-see-also admonition">
+<p class="first admonition-title">See also</p>
+<ul class="simple">
+<li><a class="reference internal" href="config.html#config"><em>Configuration Handling</em></a></li>
+<li><a class="reference internal" href="config.html#datasource"><em>Advanced Datasource Patterns</em></a></li>
+</ul>
+<p class="last">for details on the <tt class="docutils literal"><span class="pre">datasource</span></tt> setting.</p>
+</div>
 </div>
 </div>
 <div class="section" id="mongodb-support">

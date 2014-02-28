@@ -917,4 +917,9 @@ manipulated. This feature can come in handy when, for example, you want to
 protect insertion and modification behind an :ref:`auth` scheme while leaving
 read access open to the public.
 
+.. admonition:: See also
+
+    - :ref:`projections` 
+    - :ref:`projection_filestorage`
+
 .. _Cerberus: http://cerberus.readthedocs.org
