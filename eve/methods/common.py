@@ -36,7 +36,7 @@ def get_document(resource, **lookup):
       processing of new configuration settings: `filters`, `sorting`, `paging`.
     """
     req = parse_request(resource)
-    document = app.data.find_one(resource, **lookup)
+    document = app.data.find_one(resource, None, **lookup)
     if document:
 
         if not req.if_match and config.IF_MATCH:

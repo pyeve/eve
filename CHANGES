@@ -8,6 +8,7 @@ Version 0.4
 
 Not released yet.
 
+- [new] Client projections are also honored at item endpoints.
 - [new] validate that ID_FIELD is not set as a resource ``auth_field``.
   Addresses #266.
 - [fix] Trouble serializing list of dicts. Closes #265 and #244. 

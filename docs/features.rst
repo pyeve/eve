@@ -700,10 +700,10 @@ hypothetical ``people`` collection on the database being used by both the
 
 Projections
 -----------
-This feature allows you to create dynamic *views* of collections, or more precisely,
-to decide what fields should or should not be returned, using a 'projection'.
-Put another way, Projections are conditional queries where the client
-dictates which fields should be returned by the API.
+This feature allows you to create dynamic views of collections and documents,
+or more precisely, to decide what fields should or should not be returned,
+using a 'projection'. Put another way, Projections are conditional queries
+where the client dictates which fields should be returned by the API.
 
 .. code-block:: console
 
@@ -722,6 +722,11 @@ The above will return all fields but *born*. Please note that key fields such
 as ID_FIELD, DATE_CREATED, DATE_UPDATED etc.  will still be included with the
 payload. Also keep in mind that some database engines, Mongo included, do not
 allow for mixing of inclusive and exclusive selections.
+
+.. admonition:: See also
+
+    - :ref:`projection` 
+    - :ref:`projection_filestorage`
 
 .. _embedded_docs:
 
@@ -1041,6 +1046,8 @@ classes.
 
 When a document is requested media files will be returned as Base64 strings. 
 
+.. _projection_filestorage:
+
 Leveraging Projections to optimize the handling of media files 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Clients and API maintainers can exploit the :ref:`projections` feature to
@@ -1062,7 +1069,7 @@ The document will be returned with all its fields except the *image* field.
 
 Moreover, when setting the ``datasource`` property for any given resource
 endpoint it is possible to explictly exclude fields (of ``media`` type, but
-also of any other type really) from default responses:
+also of any other type) from default responses:
 
 .. code-block:: python
 
@@ -1081,7 +1088,12 @@ response payloads by sending requests like this one:
     $ curl -i http://example.com/people/<id>?projection={"image": 1}
     HTTP/1.1 200 OK
 
-For details on the ``datasource`` setting, see :ref:`config` and :ref:`datasource`.
+.. admonition:: See also 
+
+    - :ref:`config` 
+    - :ref:`datasource`
+
+    for details on the ``datasource`` setting.
 
 MongoDB Support
 ---------------

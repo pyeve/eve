@@ -129,18 +129,27 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
-    def find_one(self, resource, **lookup):
+    def find_one(self, resource, req, **lookup):
         """ Retrieves a single document/record. Consumed when a request hits an
         item endpoint (`/people/id/`).
 
         :param resource: resource being accessed. You should then use the
                          ``_datasource`` helper function to retrieve both the
                          db collection/table and base query (filter), if any.
+        :param req: an instance of ``eve.utils.ParsedRequest``. This contains
+                    all the constraints that must be fulfilled in order to
+                    satisfy the original request (where and sort parts, paging,
+                    etc). As we are going to only look for one document here,
+                    the only req attribute that you want to process here is
+                    ``req.projection``.
+
         :param **lookup: the lookup fields. This will most likely be a record
                          id or, if alternate lookup is supported by the API,
                          the corresponding query.
 
 
+        .. versionchanged:: 0.4
+           Added the 'req' argument.
         """
         raise NotImplementedError
 

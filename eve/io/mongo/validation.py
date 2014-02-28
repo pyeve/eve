@@ -88,7 +88,7 @@ class Validator(Validator):
                 except:
                     query[config.ID_FIELD] = {'$ne': self._id}
 
-            if app.data.find_one(self.resource, **query):
+            if app.data.find_one(self.resource, None, **query):
                 self._error(field, "value '%s' is not unique" % value)
 
     def _validate_data_relation(self, data_relation, field, value):
@@ -112,7 +112,7 @@ class Validator(Validator):
         .. versionadded: 0.0.5
         """
         query = {data_relation['field']: value}
-        if not app.data.find_one(data_relation['resource'], **query):
+        if not app.data.find_one(data_relation['resource'], None, **query):
             self._error(field, "value '%s' must exist in resource '%s', field "
                         "'%s'." % (value, data_relation['resource'],
                                    data_relation['field']))
