@@ -11,6 +11,7 @@
 """
 import datetime
 import simplejson as json
+from copy import copy
 from flask import request, abort
 from eve.utils import date_to_str
 from eve.auth import auth_field_and_value
@@ -279,14 +280,17 @@ class DataLayer(object):
 
         :param resource: resource being accessed.
 
+        .. versionchanged:: 0.4
+           Return copies to avoid accidental tampering. Fix #258.
+
         .. versionchanged:: 0.2
            Support for 'default_sort'.
         """
-        return (config.SOURCES[resource]['source'],
-                config.SOURCES[resource]['filter'],
-                config.SOURCES[resource]['projection'],
-                config.SOURCES[resource]['default_sort'],
-                )
+        source = copy(config.SOURCES[resource]['source'])
+        filter_ = copy(config.SOURCES[resource]['filter'])
+        projection = copy(config.SOURCES[resource]['projection'])
+        sort = copy(config.SOURCES[resource]['default_sort'])
+        return source, filter_, projection, sort,
 
     def _datasource_ex(self, resource, query=None, client_projection=None,
                        client_sort=None):
