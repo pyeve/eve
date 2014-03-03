@@ -61,6 +61,10 @@
 <h2>Version 0.4<a class="headerlink" href="#version-0-4" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[fix] Occasional KeyError while building <tt class="docutils literal"><span class="pre">_media</span></tt> helper dict. See #271
+(alanderex).</li>
+<li>[fix] <tt class="docutils literal"><span class="pre">If-Modified-Since</span></tt> misbehaviour when a datasource filter is set.
+Closes #258.</li>
 <li>[new] Client projections are also honored at item endpoints.</li>
 <li>[new] validate that ID_FIELD is not set as a resource <tt class="docutils literal"><span class="pre">auth_field</span></tt>.
 Addresses #266.</li>
