@@ -66,7 +66,7 @@ class TestMinimal(unittest.TestCase):
         if resource in self.domain:
             resource = self.domain[resource]['url']
         if item:
-            request = '/%s/%s' % (resource, item)
+            request = '/%s/%s%s' % (resource, item, query)
         else:
             request = '/%s%s' % (resource, query)
 

@@ -208,7 +208,7 @@ def getitem(resource, **lookup):
     response = {}
 
     req = parse_request(resource)
-    document = app.data.find_one(resource, **lookup)
+    document = app.data.find_one(resource, req, **lookup)
     if document:
         # need to update the document field as well since the etag must
         # be computed on the same document representation that might have
@@ -325,7 +325,7 @@ def _resolve_embedded_documents(resource, req, documents):
                 field_definition = config.DOMAIN[resource]['schema'][field]
                 # Retrieve and serialize the requested document
                 embedded_doc = app.data.find_one(
-                    field_definition['data_relation']['resource'],
+                    field_definition['data_relation']['resource'], None,
                     **{config.ID_FIELD: document[field]}
                 )
                 if embedded_doc:

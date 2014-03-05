@@ -798,6 +798,29 @@ class TestGetItem(TestBase):
         self.assertTrue('_created_on' in response)
         self.assertTrue('_the_etag' in response)
 
+    def test_getitem_projection(self):
+        projection = '{"prog": 1}'
+        r, status = self.get(self.known_resource, '?projection=%s' %
+                             projection, item=self.item_id)
+        self.assert200(status)
+        self.assertFalse('location' in r)
+        self.assertFalse('role' in r)
+        self.assertTrue('prog' in r)
+        self.assertTrue(self.app.config['ID_FIELD'] in r)
+        self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+        self.assertTrue(self.app.config['DATE_CREATED'] in r)
+
+        projection = '{"prog": 0}'
+        r, status = self.get(self.known_resource, '?projection=%s' %
+                             projection, item=self.item_id)
+        self.assert200(status)
+        self.assertFalse('prog' in r)
+        self.assertTrue('location' in r)
+        self.assertTrue('role' in r)
+        self.assertTrue(self.app.config['ID_FIELD'] in r)
+        self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+        self.assertTrue(self.app.config['DATE_CREATED'] in r)
+
 
 class TestHead(TestBase):
 

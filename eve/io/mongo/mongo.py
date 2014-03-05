@@ -86,6 +86,10 @@ class Mongo(DataLayer):
         :param req: a :class:`ParsedRequest`instance.
         :param sub_resource_lookup: sub-resource lookup from the endpoint url.
 
+        .. versionchanged:: 0.4
+           Refactored to use self._client_projection since projection is now
+           honored by getitem() as well.
+
         .. versionchanged:: 0.3
            Support for new _mongotize() signature.
 
@@ -130,7 +134,6 @@ class Mongo(DataLayer):
         # TODO should validate on unknown sort fields (mongo driver doesn't
         # return an error)
 
-        client_projection = {}
         client_sort = {}
         spec = {}
 
@@ -157,13 +160,7 @@ class Mongo(DataLayer):
         if bad_filter:
             abort(400, bad_filter)
 
-        if req.projection:
-            try:
-                client_projection = json.loads(req.projection)
-            except:
-                abort(400, description=debug_error_message(
-                    'Unable to parse `projection` clause'
-                ))
+        client_projection = self._client_projection(req)
 
         datasource, spec, projection, sort = self._datasource_ex(
             resource,
@@ -186,11 +183,15 @@ class Mongo(DataLayer):
 
         return self.driver.db[datasource].find(**args)
 
-    def find_one(self, resource, **lookup):
+    def find_one(self, resource, req, **lookup):
         """ Retrieves a single document.
 
         :param resource: resource name.
+        :param req: a :class:`ParsedRequest` instance.
         :param **lookup: lookup query.
+
+        .. versionchanged:: 0.4
+           Honor client projection requests.
 
         .. versionchanged:: 0.3.0
            Support for new _mongotize() signature.
@@ -215,8 +216,12 @@ class Mongo(DataLayer):
 
         self._mongotize(lookup, resource)
 
-        datasource, filter_, projection, _ = self._datasource_ex(resource,
-                                                                 lookup)
+        client_projection = self._client_projection(req)
+
+        datasource, filter_, projection, _ = self._datasource_ex(
+            resource,
+            lookup,
+            client_projection)
 
         document = self.driver.db[datasource].find_one(filter_, projection)
         return document
@@ -595,3 +600,20 @@ class Mongo(DataLayer):
         .. versionadded:: 0.0.8
         """
         return config.DOMAIN[resource]['mongo_write_concern']
+
+    def _client_projection(self, req):
+        """ Returns a properly parsed client projection if available.
+
+        :param req: a :class:`ParsedRequest` instance.
+
+        .. versionadded:: 0.4
+        """
+        client_projection = {}
+        if req and req.projection:
+            try:
+                client_projection = json.loads(req.projection)
+            except:
+                abort(400, description=debug_error_message(
+                    'Unable to parse `projection` clause'
+                ))
+        return client_projection
