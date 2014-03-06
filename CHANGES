@@ -8,6 +8,8 @@ Version 0.4
 
 Not released yet.
 
+- [fix] media files: don't try to delete a field that does not exist (Taylor
+  Brown).
 - [fix] Occasional KeyError while building ``_media`` helper dict. See #271
   (Alexander Hendorf).
 - [fix] ``If-Modified-Since`` misbehaviour when a datasource filter is set.
