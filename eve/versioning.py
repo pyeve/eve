@@ -1,5 +1,7 @@
-from flask import current_app as app
+import copy
+from flask import current_app as app, abort
 from eve.utils import config, debug_error_message
+from werkzeug.exceptions import BadRequestKeyError
 
 def versioned_id_field():
     """ Shorthand to add two commonly added versioning parameters.
@@ -23,7 +25,7 @@ def resolve_document_version(document, resource, method, latest_doc=None):
     latest_version = app.config['LATEST_VERSION']
 
     if resource_def['versioning'] == True:
-        if method == 'GET/latest':
+        if method == 'GET' and latest_doc == None:
             # especially on collection endpoints, we don't to encure an extra
             # lookup if we are already pulling the latest version
             if version not in document:
@@ -33,7 +35,7 @@ def resolve_document_version(document, resource, method, latest_doc=None):
                 document[version] = 0 # the first saved version will be 1
             document[latest_version] = document[version]
         
-        if method == 'GET/other':
+        if method == 'GET' and latest_doc != None:
             if version not in latest_doc:
                 # well it should be... the api designer must have turned on
                 # versioning after data was already in the collection or the
@@ -133,22 +135,95 @@ def versioned_fields(resource_def):
 
     return fields
 
+
 def diff_document(resource_def, old_doc, new_doc):
+    """ Returns a list of added or modified fields.
+
+    :param resource_def: a resource definition.
+    :param old_doc: the document to compare against.
+    :param new_doc: the document in question.
+
+    .. versionadded:: 0.4
+    """
     diff = {}
     fields = resource_def['schema'].keys() + [app.config['VERSION'], \
         app.config['LATEST_VERSION'], app.config['ID_FIELD'], \
         app.config['LAST_UPDATED'], app.config['DATE_CREATED']]
 
     for field in fields:
-        print field, (field in new_doc)
         if field in new_doc and (field not in old_doc or \
             new_doc[field] != old_doc[field]):
             diff[field] = new_doc[field]
 
     # This method does not show when fields are deleted.
-    
-    # I'd like to always include `_modified_by` even if it is the same value,
-    # but this isn't a field Eve natively support right now. I could make an
-    # always_include_in_diff setting...
+
+    for field in app.config['VERSION_DIFF_INCLUDE']:
+        if field in new_doc:
+            diff[field] = new_doc[field]
 
     return diff
+
+
+def synthesize_versioned_document(document, delta, resource_def):
+    """ Synthesizes an old document from the latest document and the values of
+    all versioned fields from the old version. This is accomplished by removing
+    all versioned fields from the latest document before updating fields to
+    ensure that fields with required=False can be removed.
+
+    :param document: the current version of a document.
+    :param delta: the versioned fields from a specific document version.
+    :param resource_def: a resource definition.
+
+    .. versionadded:: 0.4
+    """
+    old_doc = copy.deepcopy(document)
+    
+    delta[app.config['ID_FIELD']] = delta[versioned_id_field()]
+    del delta[versioned_id_field()]
+
+    # remove all versioned fields from document
+    fields = versioned_fields(resource_def)
+    for field in document:
+        if field in fields:
+            del old_doc[field]
+
+    # add versioned fields
+    old_doc.update(delta)
+
+    return old_doc
+
+
+def get_old_document(resource, req, lookup, document, version):
+    """ Returns an old document if appropriate, otherwise passes the given
+    document through.
+
+    :param resource: the name of the resource.
+    :param req: the parsed request object.
+    :param lookup: a dictionary of lookup parameters.
+    :param document: the current version of the document.
+    :param version: the value of the version request parameter.
+
+    .. versionadded:: 0.4
+    """
+    if version != 'all' and version != 'diffs' and version != None:
+        try:
+            version = int(version)
+            assert version > 0
+        except (ValueError, BadRequestKeyError, AssertionError):
+            abort(400, description=debug_error_message(
+                'Document version number should be an int greater than 0'
+            ))
+
+        # parameters to find specific document version
+        lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
+        del lookup[app.config['ID_FIELD']]
+        lookup[config.VERSION] = version
+
+        # synthesize old document from latest and delta
+        delta = app.data.find_one(resource+config.VERSIONS, req, **lookup)
+        if not delta:
+            abort(404)
+        document = synthesize_versioned_document(document, delta,
+            config.DOMAIN[resource])
+        
+    return document

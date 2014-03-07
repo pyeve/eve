@@ -60,9 +60,9 @@ def delete(resource, **lookup):
 
     app.data.remove(resource, {config.ID_FIELD: original[config.ID_FIELD]})
     # TODO: should attempt to delete version collection even if setting is off
-    #if app.config['DOMAIN'][resource]['versioning'] == True:
-    app.data.remove(resource+config.VERSIONS,\
-        {versioned_id_field(): original[config.ID_FIELD]})
+    if app.config['DOMAIN'][resource]['versioning'] == True:
+        app.data.remove(resource+config.VERSIONS,\
+            {versioned_id_field(): original[config.ID_FIELD]})
 
     # media cleanup
     media_fields = resource_media_fields(original, resource)

@@ -21,10 +21,9 @@ from .common import ratelimit, epoch, date_created, last_updated, pre_event, \
 from eve.auth import requires_auth
 from eve.utils import parse_request, document_etag, document_link, home_link, \
     querydef, config, debug_error_message, resource_uri
-from eve.versioning import resolve_document_version, diff_document, \
-    insert_versioning_documents, versioned_id_field, versioned_fields
+from eve.versioning import resolve_document_version, synthesize_versioned_document, \
+    versioned_id_field, get_old_document, diff_document
 from flask import current_app as app, abort, request
-from werkzeug.exceptions import BadRequestKeyError
 
 
 @ratelimit()
@@ -199,36 +198,15 @@ def getitem(resource, **lookup):
     if document:
         response = {}
         etag = None
-        return_all_versions = False
+        version = request.args.get(config.VERSION_PARAM)
+        latest_doc = None;
 
         # synthesize old document version(s)
-        latest_doc = copy.deepcopy(document)
         if resource_def['versioning'] == True:
-            version = request.args.get(config.VERSION_PARAM)
-            
-            if version == 'all' or version == 'diffs':
-                return_all_versions = True
-            elif version != None:
-                try:
-                    version = int(version)
-                    assert version > 0
-                except (ValueError, BadRequestKeyError, AssertionError):
-                    abort(400, description=debug_error_message(
-                        'Document version number should be an int > 0'
-                    ))
+            latest_doc = copy.deepcopy(document)
+            document = get_old_document(resource, req, lookup, document, version)
 
-                # parameters to find specific document version
-                lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
-                del lookup[app.config['ID_FIELD']]
-                lookup[config.VERSION] = version
-
-                # synthesize old document from latest and delta
-                delta = app.data.find_one(resource+config.VERSIONS, **lookup)
-                if not delta:
-                    abort(404)
-                document = _synthesize_previous_version(document, delta,
-                    resource_def)
-
+        # meld into response document
         _build_response_document(document, resource, embedded_fields, latest_doc)
 
         # last_modified for the response
@@ -249,34 +227,41 @@ def getitem(resource, **lookup):
             # resolution (1 second).
             return {}, last_modified, document[config.ETAG], 304
 
-        if return_all_versions:
-            # TODO: support pagination
+        if version == 'all' or version == 'diffs':
+            # TODO: support pagination?
             
-            # build all documents
-            documents = []
+            # find all versions
             lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
             del lookup[app.config['ID_FIELD']]
-            if version == 'diffs':
-                req.sort = '[("%s", 1)]' % config.VERSION
+            req.sort = '[("%s", 1)]' % config.VERSION
             cursor = app.data.find(resource+config.VERSIONS, req, lookup)
-            last_document = {}
-            for i, document in enumerate(cursor):
-                document = _synthesize_previous_version(latest_doc, document,
-                    resource_def)
-                _build_response_document(document, resource, embedded_fields,
-                    latest_doc)
-                if version == 'diffs':
-                    if i == 0:
-                        documents.append(document)
+
+            # build all versions
+            documents = []
+            if cursor.count() == 0:
+                # this is the scenario when the document existed before
+                # document versioning got turned on
+                documents.append(latest_doc)
+            else:
+                last_document = {}
+                for i, document in enumerate(cursor):
+                    document = synthesize_versioned_document(latest_doc, document,
+                        resource_def)
+                    _build_response_document(document, resource, embedded_fields,
+                        latest_doc)
+                    if version == 'diffs':
+                        if i == 0:
+                            documents.append(document)
+                        else:
+                            documents.append(diff_document(resource_def, \
+                                last_document, document))
+                        last_document = document
                     else:
-                        documents.append(diff_document(resource_def, \
-                            last_document, document))
-                    last_document = document
-                else:
-                    documents.append(document)
+                        documents.append(document)
 
-            # callbacks not currently supported with ?version=all
+            # TODO: callbacks not currently supported with ?version=all
 
+            # add documents to response
             if config.DOMAIN[resource]['hateoas']:
                 response[config.ITEMS] = documents
             else:
@@ -334,39 +319,11 @@ def _build_response_document(document, resource, embedded_fields,\
                                                 document[_lookup_field])}
     
     # add version numbers
-    if latest_doc == None:
-        resolve_document_version(document, resource, 'GET/latest')
-    else:
-        resolve_document_version(document, resource, 'GET/other', latest_doc)
+    resolve_document_version(document, resource, 'GET', latest_doc)
 
     # media and embedded documents
     _resolve_media_files(document, resource)
     _resolve_embedded_documents(document, resource, embedded_fields)
-
-
-def _synthesize_previous_version(document, delta, resource_def):
-    """ Synthesizes an old document from the latest document and the values of
-    all versioned fields from the old version. This is accomplished by removing
-    all versioned fields from the latest document before updating fields to
-    ensure that fields with required=False can be removed.
-
-    .. versionadded:: 0.4
-    """
-    old_doc = copy.deepcopy(document)
-    
-    delta[app.config['ID_FIELD']] = delta[versioned_id_field()]
-    del delta[versioned_id_field()]
-
-    # remove all versioned fields from document
-    fields = versioned_fields(resource_def)
-    for field in document:
-        if field in fields:
-            del old_doc[field]
-
-    # add versioned fields
-    old_doc.update(delta)
-
-    return old_doc
 
 
 def _resolve_embedded_fields(resource, req):

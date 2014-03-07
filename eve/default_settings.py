@@ -19,6 +19,7 @@
        'VERSION_PARAM' added and set to 'version'.
        'LATEST_VERSION' added and set to '_latest_version'.
        'VERSION_ID_SUFFIX' added and set to '_document'.
+       'VERSION_DIFF_INCLUDE' added and set to [].
 
     .. versionchanged:: 0.3
        X_MAX_AGE added and set to 21600.
@@ -76,6 +77,7 @@ LATEST_VERSION = '_latest_version' # field returned on GET requests so we know
                                 # specific version
 VERSION_ID_SUFFIX = '_document' # appended to ID_FIELD, holds the original
                                 # document id in parallel collection
+VERSION_DIFF_INCLUDE = []       # always include these fields when diffing
 
 API_VERSION = ''
 URL_PREFIX = ''
