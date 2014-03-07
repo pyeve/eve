@@ -666,13 +666,13 @@ Document Versioning
 -------------------
 Eve supports automatic version control of documents. By default, this setting is
 turned off, but it can be turned globally or configured individually for each
-resource. To enable version control, Eve creates a shadow collection that stores
-the old versions of documents. All HTTP methods act on the latest version of the
-document except when retrieving an indivual item. In this case, an addition
+resource. When enabled, Eve provides version control by storing versions of
+documents in a shadow collection. All HTTP methods act on the latest version of 
+the document except when retrieving an indivual item. In this case, an addition
 query parameter of ``?version=VERSION`` can be used to point to a specific
-version or to ``all`` versions. Additional fields ``_version`` and
-``_latest_version`` get automatically added to responses when versioning is
-turned on.
+version. Special values of  ``?version=all`` and  ``?version=diffs`` are also
+valid. Additional fields ``_version`` and ``_latest_version`` get automatically
+added to documents when versioning is turned on.
 
 It is important to note that there are a few non-standard scenarios which could
 produce unexpected results when versioning it turned on. In particular, document

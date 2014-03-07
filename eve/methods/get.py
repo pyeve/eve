@@ -21,9 +21,10 @@ from .common import ratelimit, epoch, date_created, last_updated, pre_event, \
 from eve.auth import requires_auth
 from eve.utils import parse_request, document_etag, document_link, home_link, \
     querydef, config, debug_error_message, resource_uri
-from eve.versioning import resolve_document_version, \
+from eve.versioning import resolve_document_version, diff_document, \
     insert_versioning_documents, versioned_id_field, versioned_fields
 from flask import current_app as app, abort, request
+from werkzeug.exceptions import BadRequestKeyError
 
 
 @ratelimit()
@@ -205,14 +206,13 @@ def getitem(resource, **lookup):
         if resource_def['versioning'] == True:
             version = request.args.get(config.VERSION_PARAM)
             
-            if version == 'all':
+            if version == 'all' or version == 'diffs':
                 return_all_versions = True
             elif version != None:
                 try:
                     version = int(version)
                     assert version > 0
-                except (ValueError, werkzeug.exceptions.BadRequestKeyError,
-                        AssertionError):
+                except (ValueError, BadRequestKeyError, AssertionError):
                     abort(400, description=debug_error_message(
                         'Document version number should be an int > 0'
                     ))
@@ -250,17 +250,30 @@ def getitem(resource, **lookup):
             return {}, last_modified, document[config.ETAG], 304
 
         if return_all_versions:
+            # TODO: support pagination
+            
             # build all documents
             documents = []
             lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
             del lookup[app.config['ID_FIELD']]
+            if version == 'diffs':
+                req.sort = '[("%s", 1)]' % config.VERSION
             cursor = app.data.find(resource+config.VERSIONS, req, lookup)
-            for document in cursor:
+            last_document = {}
+            for i, document in enumerate(cursor):
                 document = _synthesize_previous_version(latest_doc, document,
                     resource_def)
                 _build_response_document(document, resource, embedded_fields,
                     latest_doc)
-                documents.append(document)
+                if version == 'diffs':
+                    if i == 0:
+                        documents.append(document)
+                    else:
+                        documents.append(diff_document(resource_def, \
+                            last_document, document))
+                    last_document = document
+                else:
+                    documents.append(document)
 
             # callbacks not currently supported with ?version=all
 

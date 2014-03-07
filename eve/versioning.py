@@ -132,3 +132,23 @@ def versioned_fields(resource_def):
                 fields.append(field)
 
     return fields
+
+def diff_document(resource_def, old_doc, new_doc):
+    diff = {}
+    fields = resource_def['schema'].keys() + [app.config['VERSION'], \
+        app.config['LATEST_VERSION'], app.config['ID_FIELD'], \
+        app.config['LAST_UPDATED'], app.config['DATE_CREATED']]
+
+    for field in fields:
+        print field, (field in new_doc)
+        if field in new_doc and (field not in old_doc or \
+            new_doc[field] != old_doc[field]):
+            diff[field] = new_doc[field]
+
+    # This method does not show when fields are deleted.
+    
+    # I'd like to always include `_modified_by` even if it is the same value,
+    # but this isn't a field Eve natively support right now. I could make an
+    # always_include_in_diff setting...
+
+    return diff
