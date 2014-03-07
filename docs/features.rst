@@ -630,7 +630,7 @@ validation class to validate that. Or say you want to make sure that a VAT
 field actually matches your own country VAT algorithm; you can do that too. As
 a matter of fact, Eve's MongoDB data-layer itself extends Cerberus
 validation by implementing the ``unique`` schema field constraint. For more
-information see :ref:`validation`
+information see :ref:`validation`.
 
 .. _cache_control:
 
@@ -653,14 +653,40 @@ The response above includes both ``Cache-Control`` and ``Expires`` headers.
 These will minimize load on the server since cache-enabled consumers will
 perform resource-intensive request only when really needed.
 
-Versioning
-----------
+API Versioning
+--------------
 I'm not too fond of API versioning. I believe that clients should be
 intelligent enough to deal with API updates transparently, especially since
 Eve-powered API support HATEOAS_. When versioning is a necessity, different API
 versions should be isolated instances since so many things could be different
 between versions: caching, URIs, schemas, validation, and so on. URI versioning
 (http://api.example.com/v1/...) is supported.
+
+Document Versioning
+-------------------
+Eve supports automatic version control of documents. By default, this setting is
+turned off, but it can be turned globally or configured individually for each
+resource. To enable version control, Eve creates a shadow collection that stores
+the old versions of documents. All HTTP methods act on the latest version of the
+document except when retrieving an indivual item. In this case, an addition
+query parameter of ``?version=VERSION`` can be used to point to a specific
+version or to ``all`` versions. Additional fields ``_version`` and
+``_latest_version`` get automatically added to responses when versioning is
+turned on.
+
+It is important to note that there are a few non-standard scenarios which could
+produce unexpected results when versioning it turned on. In particular, document
+history will not be saved when modifying collections outside of the Eve
+interface. Also, if at anytime the ``VERSION`` field gets removed from the
+primary document (which cannot happen through the API when versioning is turned
+on), a subsequent write will re-initialize the ``VERSION`` number with
+``VERSION`` = 1. At this time there will be multiple versions of the document
+with the same version number. In normal practice, ``VERSIONING`` can be enable
+without worry for any new collection or any collection which has not previously
+had versioning enabled.
+
+For more information see and `Global Configuration`_ and `Domain Configuration`_.
+
 
 Authentication
 --------------

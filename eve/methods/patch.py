@@ -18,6 +18,7 @@ from eve.auth import requires_auth
 from eve.validation import ValidationError
 from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, pre_event, resolve_media_files
+from eve.versioning import resolve_document_version, insert_versioning_documents
 
 
 @ratelimit()
@@ -34,6 +35,7 @@ def patch(resource, **lookup):
 
     .. versionchanged:: 0.4
        'on_update' raised before performing the update on the database.
+       Support for document versioning.
 
     .. versionchanged:: 0.3
        Support for media fields.

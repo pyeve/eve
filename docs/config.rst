@@ -361,6 +361,35 @@ uppercase.
                                 otherwise. See :ref:`jsonxml`. Defaults to 
                                 ``True``.
 
+``VERSIONING``                  Enabled documents version control when``True``. Can be erridden by resource settings. Defaults to ``False``.
+
+``VERSIONS``                    Suffix added to the name of the primary
+                                collection to create the name of the shadow
+                                collection to store document versions. Defaults
+                                to ``_versions``. When ``VERSIONING`` is enabled
+                                , a collection such as ``myresource_versions``
+                                would be created for a resource with a
+                                datasource of ``myresource``.
+
+``VERSION_PARAM``               The URL query parameter used to access the
+                                specific version of a document. Defaults to
+                                ``version``. Omit this parameter to get the
+                                latest version of a document or use 
+                                `?version=all`` to get a list of all version of
+                                the document. Only valid for individual item
+                                endpoints.
+
+``VERSION``                     Field used to store the version number of a
+                                document. Defaults to ``_version``.
+
+``LASTEST_VERSION``             Field used to store the latest version number
+                                of a document. Defaults to ``_latest_version``.
+
+``VERSION_ID_SUFFIX``           Used in the shadow collection to store the
+                                document id. Defaults to ``_document``. If
+                                ``ID_FIELD`` is set to ``_id``, the document id
+                                will be stored in field ``_id_document``.
+
 ``MONGO_HOST``                  MongoDB server address. Defaults to ``localhost``.
 
 ``MONGO_PORT``                  MongoDB port. Defaults to ``27017``.
@@ -775,12 +804,16 @@ defining the field validation rules. Allowed validation rules are:
                                 - ``field``: the field name in the foreign resource;
                                 - ``embeddable``: set to ``True`` if clients can request the referenced document to be embedded with the serialization. See :ref:`embedded_docs`. Defaults to ``False``.
 
-``nullable``                    If ``True`` the field value can be set to 
+``nullable``                    If ``True``, the field value can be set to 
                                 ``None``. 
 
 ``default``                     The default value for the field. When serving
                                 POST (create) requests, missing fields will be
                                 assigned the configured default values.
+
+``versioned``                   If ``True``, this field will be included in the
+                                versioned history of each document when
+                                ``versioning`` is enabled. Defaults to ``True``.
 =============================== ==============================================
 
 Schema syntax is based on Cerberus_ and yes, it can be extended.  In fact, Eve

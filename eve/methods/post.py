@@ -19,6 +19,7 @@ from eve.validation import ValidationError
 from eve.methods.common import parse, payload, ratelimit, \
     resolve_default_values, pre_event, resolve_media_files, \
     resolve_user_restricted_access
+from eve.versioning import resolve_document_version, insert_versioning_documents
 
 
 @ratelimit()
@@ -33,7 +34,7 @@ def post(resource, payl=None):
 
     :param resource: name of the resource involved.
     :param payl: alternative payload. When calling post() from your own code
-                 you can provide an alternative payload This can be useful, for
+                 you can provide an alternative payload. This can be useful, for
                  example, when you have a callback function hooked to a certain
                  endpoint, and want to perform additional post() calls from
                  there.
@@ -43,6 +44,9 @@ def post(resource, payl=None):
 
                  See https://github.com/nicolaiarocci/eve/issues/74 for a
                  discussion, and a typical use case.
+
+    .. versionchanged:: 0.4
+       Support for document versioning.
 
     .. versionchanged:: 0.3
        Return 201 if at least one document has been successfully inserted.
@@ -134,6 +138,7 @@ def post(resource, payl=None):
                 resolve_user_restricted_access(document, resource)
                 resolve_default_values(document, resource)
                 resolve_media_files(document, resource)
+                resolve_document_version(document, resource, 'POST')
             else:
                 # validation errors added to list of document issues
                 doc_issues = validator.errors
@@ -153,8 +158,10 @@ def post(resource, payl=None):
         # notify callbacks
         getattr(app, "on_insert")(resource, documents)
         getattr(app, "on_insert_%s" % resource)(documents)
+
         # bulk insert
         ids = app.data.insert(resource, documents)
+        insert_versioning_documents(resource, ids, documents)
 
         # request was received and accepted; at least one document passed
         # validation and was accepted for insertion.

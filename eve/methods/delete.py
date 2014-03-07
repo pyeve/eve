@@ -15,6 +15,7 @@ from eve.utils import config
 from eve.auth import requires_auth
 from eve.methods.common import get_document, ratelimit, pre_event, \
     resource_media_fields
+from eve.versioning import versioned_id_field
 
 
 @ratelimit()
@@ -29,6 +30,7 @@ def delete(resource, **lookup):
 
     .. versionchanged:: 0.4
        'on_delete' events raised before performing the delete.
+       Support for document versioning.
 
     .. versionchanged:: 0.3
        Delete media files as needed.
@@ -57,6 +59,10 @@ def delete(resource, **lookup):
     getattr(app, "on_delete_%s" % resource)(original)
 
     app.data.remove(resource, {config.ID_FIELD: original[config.ID_FIELD]})
+    # TODO: should attempt to delete version collection even if setting is off
+    #if app.config['DOMAIN'][resource]['versioning'] == True:
+    app.data.remove(resource+config.VERSIONS,\
+        {versioned_id_field(): original[config.ID_FIELD]})
 
     # media cleanup
     media_fields = resource_media_fields(original, resource)
@@ -74,6 +80,7 @@ def delete_resource(resource, lookup):
 
     .. versionchanged:: 0.4
        'on_resource_delete' raised before performing the actual delete.
+       Support for document versioning.
 
     .. versionchanged:: 0.3
        Support for the lookup filter, which allows for develtion of
@@ -91,4 +98,8 @@ def delete_resource(resource, lookup):
     # by use of this global method (if should be disabled). Media cleanup is
     # handled at the item endpoint by the delete() method (see above).
     app.data.remove(resource, lookup)
+    # TODO: should attempt to delete version collection even if setting is off
+    #if app.config['DOMAIN'][resource]['versioning'] == True:
+    app.data.remove(resource+config.VERSIONS, lookup)
+
     return {}, None, None, 200

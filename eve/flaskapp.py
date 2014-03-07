@@ -14,6 +14,7 @@
 import eve
 import sys
 import os
+import copy
 from flask import Flask
 from werkzeug.routing import BaseConverter
 from werkzeug.serving import WSGIRequestHandler
@@ -71,6 +72,7 @@ class Eve(Flask, Events):
 
     .. versionchanged:: 0.4
        'auth' argument can be either an instance or a callable. Closes #248.
+       Made resource setup more DRY by calling register_resource.
 
     .. versionchanged:: 0.3
        Support for optional media storage system. Defaults to
@@ -140,11 +142,12 @@ class Eve(Flask, Events):
         else:
             self.auth = None
 
+        # set up home url
+        self._init_url_rules()
+
         # validate and set defaults for each resource
         for resource, settings in self.config['DOMAIN'].items():
-            self._set_resource_defaults(resource, settings)
-            self._validate_resource_settings(resource, settings)
-        self._add_url_rules()
+            self.register_resource(resource, settings)
 
     def run(self, host=None, port=None, debug=None, **options):
         """
@@ -316,6 +319,9 @@ class Eve(Flask, Events):
         :param resource: resource name.
         :param schema: schema definition for the resource.
 
+        .. versionchanged:: 0.4
+           Checks against offending document versioning fields.
+
         .. versionchanged:: 0.2
            Allow ID_FIELD in resource schema if not of 'objectid' type.
 
@@ -331,20 +337,24 @@ class Eve(Flask, Events):
            Now collecting offending items in a list and inserting results into
            the exception message.
         """
-        # TODO are there other mandatory settings? Validate them here
+        # ensure automatically handled fields aren't defined
+        fields = [eve.DATE_CREATED, eve.LAST_UPDATED]
+        #if settings['versioning'] == True: #TODO get settings in here
+        fields += [self.config['VERSION'], self.config['LATEST_VERSION'], \
+            self.config['ID_FIELD']+self.config['VERSION_ID_SUFFIX']]
         offenders = []
-        if eve.DATE_CREATED in schema:
-            offenders.append(eve.DATE_CREATED)
-        if eve.LAST_UPDATED in schema:
-            offenders.append(eve.LAST_UPDATED)
+        for field in fields:
+            if field in schema:
+                offenders.append(field)
         if eve.ID_FIELD in schema and \
-           schema[eve.ID_FIELD]['type'] == 'objectid':
+            schema[eve.ID_FIELD]['type'] == 'objectid':
             offenders.append(eve.ID_FIELD)
         if offenders:
             raise SchemaException('field(s) "%s" not allowed in "%s" schema '
                                   '(they will be handled automatically).'
                                   % (', '.join(offenders), resource))
 
+        # check data_relation rules
         for field, ruleset in schema.items():
             if 'data_relation' in ruleset:
                 if 'resource' not in ruleset['data_relation']:
@@ -361,9 +371,15 @@ class Eve(Flask, Events):
                             "embeddable it must be of type 'objectid'"
                         )
 
+        # TODO are there other mandatory settings? Validate them here
+
     def set_defaults(self):
         """ When not provided, fills individual resource settings with default
         or global configuration settings.
+
+        .. versionchanged:: 0.4
+           `versioning`
+           `VERSION` added to automatic projection (when applicable)
 
         .. versionchanged:: 0.2
            Setting of actual resource defaults is delegated to
@@ -455,6 +471,7 @@ class Eve(Flask, Events):
         settings.setdefault('embedded_fields', [])
         settings.setdefault('pagination', self.config['PAGINATION'])
         settings.setdefault('projection', self.config['PROJECTION'])
+        settings.setdefault('versioning', self.config['VERSIONING'])
         # TODO make sure that this we really need the test below
         if settings['item_lookup']:
             item_methods = self.config['ITEM_METHODS']
@@ -489,6 +506,9 @@ class Eve(Flask, Events):
             projection[self.config['ID_FIELD']] = 1
             projection[self.config['LAST_UPDATED']] = 1
             projection[self.config['DATE_CREATED']] = 1
+            if settings['versioning'] == True:
+                projection[self.config['VERSION']] = 1
+                projection[self.config['ID_FIELD']+self.config['VERSION_ID_SUFFIX']] = 1
             projection.update(dict((field, 1) for (field) in schema))
         else:
             # all fields are returned.
@@ -586,9 +606,13 @@ class Eve(Flask, Events):
                 self.add_url_rule(item_url, endpoint, view_func=item_endpoint,
                                   methods=['GET', 'OPTIONS'])
 
-    def _add_url_rules(self):
+    def _init_url_rules(self):
         """ Builds the API url map. Methods are enabled for each mapped
         endpoint, as configured in the settings.
+
+        .. versionchanged:: 0.4
+           Renamed from '_add_url_rules' to '_init_url_rules' to make code more
+           DRY. Individual resource rules get built from register_resource now.
 
         .. versionchanged:: 0.2
            Delegate adding of resource rules to _add_resource_rules().
@@ -625,9 +649,6 @@ class Eve(Flask, Events):
         self.add_url_rule('%s/' % self.api_prefix, 'home',
                           view_func=home_endpoint, methods=['GET', 'OPTIONS'])
 
-        for resource, settings in self.config['DOMAIN'].items():
-            self._add_resource_url_rules(resource, settings)
-
     def register_resource(self, resource, settings):
         """ Registers new resource to the domain.
 
@@ -639,9 +660,30 @@ class Eve(Flask, Events):
         :param resource: resource name.
         :param settings: settings for given resource.
 
+        .. versionchanged:: 0.4
+           Support for document versioning.
+
+
         .. versionadded:: 0.2
         """
+
+        # this first line only makes sense when we call this function outside of
+        # the standard Eve setup routine
         self.config['DOMAIN'][resource] = settings
+
+        # set up resource
         self._set_resource_defaults(resource, settings)
         self._validate_resource_settings(resource, settings)
         self._add_resource_url_rules(resource, settings)
+
+        # add rules for version control collections if appropriate
+        if settings['versioning'] == True:
+            versioned_resource = resource + self.config['VERSIONS']
+            self.config['DOMAIN'][versioned_resource] = \
+                copy.deepcopy(self.config['DOMAIN'][resource])
+            self.config['DOMAIN'][versioned_resource]['datasource']['source']+=\
+                self.config['VERSIONS']
+            self.config['SOURCES'][versioned_resource] = \
+                copy.deepcopy(self.config['SOURCES'][resource])
+            self.config['SOURCES'][versioned_resource]['source'] += \
+                self.config['VERSIONS']

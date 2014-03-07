@@ -21,7 +21,9 @@ from .common import ratelimit, epoch, date_created, last_updated, pre_event, \
 from eve.auth import requires_auth
 from eve.utils import parse_request, document_etag, document_link, home_link, \
     querydef, config, debug_error_message, resource_uri
-from flask import current_app as app, abort
+from eve.versioning import resolve_document_version, \
+    insert_versioning_documents, versioned_id_field, versioned_fields
+from flask import current_app as app, abort, request
 
 
 @ratelimit()
@@ -84,9 +86,12 @@ def get(resource, lookup):
     response = {}
     etag = None
     req = parse_request(resource)
+    embedded_fields = _resolve_embedded_fields(resource, req)
 
+    # facilitate cached responses
     if req.if_modified_since:
         # client has made this request before, has it changed?
+        # this request does not account for deleted documents!!! (issue #243)
         preflight_req = copy.copy(req)
         preflight_req.max_results = 1
 
@@ -108,27 +113,12 @@ def get(resource, lookup):
     cursor = app.data.find(resource, req, lookup)
 
     for document in cursor:
-        document[config.LAST_UPDATED] = last_updated(document)
-        document[config.DATE_CREATED] = date_created(document)
-
-        if document[config.LAST_UPDATED] > last_update:
-            last_update = document[config.LAST_UPDATED]
-
-        # document metadata
-        if config.IF_MATCH:
-            document[config.ETAG] = document_etag(document)
-
-        if config.DOMAIN[resource]['hateoas']:
-            _lookup_field = config.DOMAIN[resource]['item_lookup_field']
-            document[config.LINKS] = {'self':
-                                      document_link(resource,
-                                                    document[_lookup_field])}
-
-        _resolve_media_files(document, resource)
-
+        _build_response_document(document, resource, embedded_fields)
         documents.append(document)
 
-    _resolve_embedded_documents(resource, req, documents)
+        # build last update for entire response
+        if document[config.LAST_UPDATED] > last_update:
+            last_update = document[config.LAST_UPDATED]
 
     status = 200
     last_modified = last_update if last_update > epoch() else None
@@ -165,11 +155,6 @@ def getitem(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
 
-    .. versionchanged:: 0.4
-       Now using resource_uri when building HATEOAS links (_collection_link
-       removed).
-       Replaced ID_FIELD by item_lookup_field on self link
-
     .. versionchanged:: 0.3
        Support for media fields.
        When IF_MATCH is disabled, no etag is included in the payload.
@@ -205,83 +190,180 @@ def getitem(resource, **lookup):
        Superflous ``response`` container removed. Links wrapped with
        ``_links``. Links are now properly JSON formatted.
     """
-    response = {}
-
     req = parse_request(resource)
+    resource_def = config.DOMAIN[resource]
+    embedded_fields = _resolve_embedded_fields(resource, req)
+
     document = app.data.find_one(resource, req, **lookup)
     if document:
-        # need to update the document field as well since the etag must
-        # be computed on the same document representation that might have
-        # been used in the collection 'get' method
-        last_modified = document[config.LAST_UPDATED] = last_updated(document)
-        document[config.DATE_CREATED] = date_created(document)
-
+        response = {}
         etag = None
-        if config.IF_MATCH:
-            etag = document[config.ETAG] = document_etag(document)
+        return_all_versions = False
 
-            if req.if_none_match and document[config.ETAG] == \
-                    req.if_none_match:
+        # synthesize old document version(s)
+        latest_doc = copy.deepcopy(document)
+        if resource_def['versioning'] == True:
+            version = request.args.get(config.VERSION_PARAM)
+            
+            if version == 'all':
+                return_all_versions = True
+            elif version != None:
+                try:
+                    version = int(version)
+                    assert version > 0
+                except (ValueError, werkzeug.exceptions.BadRequestKeyError,
+                        AssertionError):
+                    abort(400, description=debug_error_message(
+                        'Document version number should be an int > 0'
+                    ))
+
+                # parameters to find specific document version
+                lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
+                del lookup[app.config['ID_FIELD']]
+                lookup[config.VERSION] = version
+
+                # synthesize old document from latest and delta
+                delta = app.data.find_one(resource+config.VERSIONS, **lookup)
+                if not delta:
+                    abort(404)
+                document = _synthesize_previous_version(document, delta,
+                    resource_def)
+
+        _build_response_document(document, resource, embedded_fields, latest_doc)
+
+        # last_modified for the response
+        last_modified = document[config.LAST_UPDATED]
+
+        # facilitate client caching by returning a 304 when appropriate
+        if config.IF_MATCH:
+            etag = document[config.ETAG]
+
+            if req.if_none_match and document[config.ETAG] == req.if_none_match:
                 # request etag matches the current server representation of the
                 # document, return a 304 Not-Modified.
-                return response, last_modified, etag, 304
+                return {}, last_modified, document[config.ETAG], 304
 
         if req.if_modified_since and last_modified <= req.if_modified_since:
             # request If-Modified-Since conditional request match. We test
             # this after the etag since Last-Modified dates have lower
             # resolution (1 second).
-            return response, last_modified, document.get(config.ETAG), 304
+            return {}, last_modified, document[config.ETAG], 304
 
-        _resolve_embedded_documents(resource, req, [document])
-        _resolve_media_files(document, resource)
+        if return_all_versions:
+            # build all documents
+            documents = []
+            lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
+            del lookup[app.config['ID_FIELD']]
+            cursor = app.data.find(resource+config.VERSIONS, req, lookup)
+            for document in cursor:
+                document = _synthesize_previous_version(latest_doc, document,
+                    resource_def)
+                _build_response_document(document, resource, embedded_fields,
+                    latest_doc)
+                documents.append(document)
 
+            # callbacks not currently supported with ?version=all
+
+            if config.DOMAIN[resource]['hateoas']:
+                response[config.ITEMS] = documents
+            else:
+                response = documents
+        else:
+            # notify registered callback functions. Please note that, should the
+            # functions modify the document, last_modified and etag  won't be
+            # updated to reflect the changes (they always reflect the documents
+            # state on the database).
+            item_title = config.DOMAIN[resource]['item_title'].lower()
+            getattr(app, "on_fetch_item")(resource, document[config.ID_FIELD],
+                                          document)
+            getattr(app, "on_fetch_item_%s" %
+                    item_title)(document[config.ID_FIELD], document)
+
+            response = document
+
+        # extra hateoas links
         if config.DOMAIN[resource]['hateoas']:
-            _lookup_field = config.DOMAIN[resource]['item_lookup_field']
-            response[config.LINKS] = {
-                'self': document_link(resource, document[_lookup_field]),
-                'collection': {'title':
+            if config.LINKS not in response:
+                response[config.LINKS] = {}
+            response[config.LINKS]['collection'] = {'title':
                                config.DOMAIN[resource]['resource_title'],
-                               'href': resource_uri(resource)},
-                'parent': home_link()
-            }
+                               'href': resource_uri(resource)}
+            response[config.LINKS]['parent'] = home_link()
 
-        # notify registered callback functions. Please note that, should the
-        # functions modify the document, last_modified and etag  won't be
-        # updated to reflect the changes (they always reflect the documents
-        # state on the database).
-        item_title = config.DOMAIN[resource]['item_title'].lower()
-
-        getattr(app, "on_fetch_item")(resource, document[config.ID_FIELD],
-                                      document)
-        getattr(app, "on_fetch_item_%s" %
-                item_title)(document[config.ID_FIELD], document)
-
-        response.update(document)
         return response, last_modified, etag, 200
 
     abort(404)
 
 
-def _resolve_embedded_documents(resource, req, documents):
-    """ Loops through the documents, adding embedded representations
-    of any fields that are (1) defined eligible for embedding in the
-    DOMAIN and (2) requested to be embedded in the current `req`.
+def _build_response_document(document, resource, embedded_fields,\
+    latest_doc=None):
+    """ Prepares a document for response including generation of ETag and 
+    metadata fields.
 
-    Currently we only support a single layer of embedding,
-    i.e. /invoices/?embedded={"user":1}
-    *NOT*  /invoices/?embedded={"user.friends":1}
+    .. versionadded:: 0.4
+    """
+    # need to update the document field since the etag must be computed on the
+    # same document representation that might have been used in the collection
+    # 'get' method
+    document[config.DATE_CREATED] = date_created(document)
+    document[config.LAST_UPDATED] = last_updated(document)
+    #TODO: last_update should include consideration for embedded documents
+
+    # generate ETag
+    if config.IF_MATCH:
+        document[config.ETAG] = document_etag(document)
+
+    # hateoas links
+    if config.DOMAIN[resource]['hateoas']:
+        _lookup_field = config.DOMAIN[resource]['item_lookup_field']
+        document[config.LINKS] = {'self':
+                                  document_link(resource,
+                                                document[_lookup_field])}
+    
+    # add version numbers
+    if latest_doc == None:
+        resolve_document_version(document, resource, 'GET/latest')
+    else:
+        resolve_document_version(document, resource, 'GET/other', latest_doc)
+
+    # media and embedded documents
+    _resolve_media_files(document, resource)
+    _resolve_embedded_documents(document, resource, embedded_fields)
+
+
+def _synthesize_previous_version(document, delta, resource_def):
+    """ Synthesizes an old document from the latest document and the values of
+    all versioned fields from the old version. This is accomplished by removing
+    all versioned fields from the latest document before updating fields to
+    ensure that fields with required=False can be removed.
+
+    .. versionadded:: 0.4
+    """
+    old_doc = copy.deepcopy(document)
+    
+    delta[app.config['ID_FIELD']] = delta[versioned_id_field()]
+    del delta[versioned_id_field()]
+
+    # remove all versioned fields from document
+    fields = versioned_fields(resource_def)
+    for field in document:
+        if field in fields:
+            del old_doc[field]
+
+    # add versioned fields
+    old_doc.update(delta)
+
+    return old_doc
+
+
+def _resolve_embedded_fields(resource, req):
+    """ Returns a list of validated embedded fields from the incoming request
+    or from the resource definition is the request does not specify.
 
     :param resource: the resource name.
     :param req: and instace of :class:`eve.utils.ParsedRequest`.
-    :param documents: list of documents returned by the query.
 
-    .. versionchagend:: 0.2
-        Support for 'embedded_fields'.
-
-    .. versonchanged:: 0.1.1
-       'collection' key has been renamed to 'resource' (data_relation).
-
-    .. versionadded:: 0.1.0
+    .. versionadded:: 0.4
     """
     embedded_fields = []
     if req.embedded:
@@ -320,16 +402,42 @@ def _resolve_embedded_documents(resource, req, documents):
                 # or could raise 400 here
                 enabled_embedded_fields.append(field)
 
-        for document in documents:
-            for field in enabled_embedded_fields:
-                field_definition = config.DOMAIN[resource]['schema'][field]
-                # Retrieve and serialize the requested document
-                embedded_doc = app.data.find_one(
-                    field_definition['data_relation']['resource'], None,
-                    **{config.ID_FIELD: document[field]}
-                )
-                if embedded_doc:
-                    document[field] = embedded_doc
+    return enabled_embedded_fields
+
+
+def _resolve_embedded_documents(document, resource, embedded_fields):
+    """ Loops through the documents, adding embedded representations
+    of any fields that are (1) defined eligible for embedding in the
+    DOMAIN and (2) requested to be embedded in the current `req`.
+
+    Currently we only support a single layer of embedding,
+    i.e. /invoices/?embedded={"user":1}
+    *NOT*  /invoices/?embedded={"user.friends":1}
+
+    :param resource: the resource name.
+    :param req: and instace of :class:`eve.utils.ParsedRequest`.
+    :param documents: list of documents returned by the query.
+
+    .. versionchagend:: 0.4
+        Moved parsing of embedded fields to _resolve_embedded_fields.
+
+    .. versionchagend:: 0.2
+        Support for 'embedded_fields'.
+
+    .. versonchanged:: 0.1.1
+       'collection' key has been renamed to 'resource' (data_relation).
+
+    .. versionadded:: 0.1.0
+    """
+    for field in embedded_fields:
+        field_definition = config.DOMAIN[resource]['schema'][field]
+        # Retrieve and serialize the requested document
+        embedded_doc = app.data.find_one(
+            field_definition['data_relation']['resource'], None,
+            **{config.ID_FIELD: document[field]}
+        )
+        if embedded_doc:
+            document[field] = embedded_doc
 
 
 def _pagination_links(resource, req, documents_count):

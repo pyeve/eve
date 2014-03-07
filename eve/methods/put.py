@@ -19,6 +19,7 @@ from eve.utils import document_etag, document_link, config, debug_error_message
 from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, resolve_default_values, pre_event, resolve_media_files, \
     resolve_user_restricted_access
+from eve.versioning import resolve_document_version, insert_versioning_documents
 
 
 @ratelimit()
@@ -36,6 +37,7 @@ def put(resource, **lookup):
     .. versionchanged:: 0.4
        Raise 'on_replace' instead of 'on_insert'. The callback function gets
        the document (as opposed to a list of just 1 document) as an argument.
+       Support for document versioning.
 
     .. versionchanged:: 0.3
        Support for media fields.
@@ -90,15 +92,17 @@ def put(resource, **lookup):
             resolve_user_restricted_access(document, resource)
             resolve_default_values(document, resource)
             resolve_media_files(document, resource, original)
+            resolve_document_version(document, resource, 'PUT', original)
 
             # notify callbacks
             getattr(app, "on_replace")(resource, document)
             getattr(app, "on_replace_%s" % resource)(document)
 
+            # write to db
             app.data.replace(resource, object_id, document)
+            insert_versioning_documents(resource, object_id, document)
 
-            response[config.ID_FIELD] = document.get(config.ID_FIELD,
-                                                     object_id)
+            response[config.ID_FIELD] = document.get(config.ID_FIELD, object_id)
             response[config.LAST_UPDATED] = last_modified
 
             # metadata
