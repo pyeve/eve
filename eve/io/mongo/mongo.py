@@ -151,14 +151,17 @@ class Mongo(DataLayer):
                         'Unable to parse `where` clause'
                     ))
 
+        bad_filter = validate_filters(spec, resource)
+        if bad_filter:
+            abort(400, bad_filter)
+
+        # is this safe? Can the value of sub_resource_lookup ever be provided
+        # by a client, or can we rely on it to only be set by lookup callbacks
+        # and filters configured in the settings file?
         if sub_resource_lookup:
             spec.update(sub_resource_lookup)
 
         spec = self._mongotize(spec, resource)
-
-        bad_filter = validate_filters(spec, resource)
-        if bad_filter:
-            abort(400, bad_filter)
 
         client_projection = self._client_projection(req)
 
@@ -331,6 +334,10 @@ class Mongo(DataLayer):
         try:
             self.driver.db[datasource].update(filter_, {"$set": updates},
                                               **self._wc(resource))
+        except pymongo.errors.DuplicateKeyError as e:
+            abort(400, description=debug_error_message(
+                'pymongo.errors.DuplicateKeyError: %s' % e
+            ))
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
             abort(500, description=debug_error_message(
