@@ -8,6 +8,7 @@ Version 0.4
 
 Not released yet.
 
+- [new] Python trove classifiers added to setup.py.
 - [fix] media files: don't try to delete a field that does not exist (Taylor
   Brown).
 - [fix] Occasional KeyError while building ``_media`` helper dict. See #271
