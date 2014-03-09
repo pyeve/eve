@@ -267,15 +267,16 @@ def _resolve_embedded_documents(resource, req, documents):
     of any fields that are (1) defined eligible for embedding in the
     DOMAIN and (2) requested to be embedded in the current `req`.
 
-    Currently we only support a single layer of embedding,
-    i.e. /invoices/?embedded={"user":1}
-    *NOT*  /invoices/?embedded={"user.friends":1}
+    Currently we only support two layers of embedding as long as the second
+    layer is a list of dicts,
+    i.e. /invoices/?embedded={"user":1}, /invoices/?embedded={"user.friends":1}
+    *NOT*  /invoices/?embedded={"user.friends.messages":1}
 
     :param resource: the resource name.
     :param req: and instace of :class:`eve.utils.ParsedRequest`.
     :param documents: list of documents returned by the query.
 
-    .. versionchagend:: 0.2
+    .. versionchanged:: 0.2
         Support for 'embedded_fields'.
 
     .. versonchanged:: 0.1.1
@@ -310,19 +311,42 @@ def _resolve_embedded_documents(resource, req, documents):
 
     # For each field, is the field allowed to be embedded?
     # Pick out fields that have a `data_relation` where `embeddable=True`
-    enabled_embedded_fields = []
+    enabled_embedded_fields = {}
     for field in embedded_fields:
-        # Reject bogus field names
-        if field in config.DOMAIN[resource]['schema']:
-            field_definition = config.DOMAIN[resource]['schema'][field]
-            if 'data_relation' in field_definition and \
-                    field_definition['data_relation'].get('embeddable'):
-                # or could raise 400 here
-                enabled_embedded_fields.append(field)
-
-        for document in documents:
-            for field in enabled_embedded_fields:
+        if '.' in field:
+            outer_field, inner_field = field.split('.', 1)
+            if outer_field in config.DOMAIN[resource]['schema']:
+                outer_config = config.DOMAIN[resource]['schema'][outer_field]
+                if outer_config['type'] == 'list'and \
+                                outer_config['schema']['type'] == 'dict':
+                    intermediate_config = outer_config['schema']['schema']
+                    if inner_field in intermediate_config:
+                        field_definition = intermediate_config[inner_field]
+                        if 'data_relation' in field_definition and \
+                                field_definition['data_relation']\
+                                    .get('embeddable'):
+                            enabled_embedded_fields[field] = field_definition
+        else:
+            # Reject bogus field names
+            if field in config.DOMAIN[resource]['schema']:
                 field_definition = config.DOMAIN[resource]['schema'][field]
+                if 'data_relation' in field_definition and \
+                        field_definition['data_relation'].get('embeddable'):
+                    # or could raise 400 here
+                    enabled_embedded_fields[field] = field_definition
+
+    for document in documents:
+        for field, field_definition in enabled_embedded_fields.iteritems():
+            if '.' in field:
+                outer_field, inner_field = field.split('.', 1)
+                for i, sub_doc in enumerate(document[outer_field]):
+                    embedded_doc = app.data.find_one(
+                        field_definition['data_relation']['resource'],
+                        None, **{config.ID_FIELD: sub_doc[inner_field]}
+                    )
+                    if embedded_doc:
+                        document[outer_field][i] = embedded_doc
+            else:
                 # Retrieve and serialize the requested document
                 embedded_doc = app.data.find_one(
                     field_definition['data_relation']['resource'], None,
