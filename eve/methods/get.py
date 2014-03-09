@@ -85,6 +85,9 @@ def get(resource, lookup):
     etag = None
     req = parse_request(resource)
 
+    event_name = 'on_pre_GET_%s_lookup' % (resource)
+    lookup = getattr(app, event_name)(lookup) or lookup
+
     if req.if_modified_since:
         # client has made this request before, has it changed?
         preflight_req = copy.copy(req)
