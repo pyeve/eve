@@ -159,8 +159,8 @@ def post(resource, payl=None):
         # request was received and accepted; at least one document passed
         # validation and was accepted for insertion.
         # notify callbacks
-        getattr(app, "on_after_insert")(resource, ids)
-        getattr(app, "on_after_insert_%s" % resource)(ids)
+        getattr(app, "on_inserted")(resource, ids)
+        getattr(app, "on_inserted_%s" % resource)(ids)
         # from the docs:
         # Eventual validation errors on one or more document won't prevent the
         # insertion of valid documents. The response status code will be ``201
