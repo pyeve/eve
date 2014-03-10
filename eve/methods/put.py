@@ -98,8 +98,8 @@ def put(resource, **lookup):
             app.data.replace(resource, object_id, document)
 
             # notify callbacks
-            getattr(app, "on_after_replace")(resource, document)
-            getattr(app, "on_after_replace_%s" % resource)(document)
+            getattr(app, "on_replaced")(resource, document)
+            getattr(app, "on_replaced_%s" % resource)(document)
 
             response[config.ID_FIELD] = document.get(config.ID_FIELD,
                                                      object_id)
