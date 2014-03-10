@@ -19,7 +19,7 @@ editable resource at another endpoint. The following table shows Eve's
 implementation of CRUD via REST:
 
 ======= ========= ===================
-Action  HTTP Verb Context 
+Action  HTTP Verb Context
 ======= ========= ===================
 Create  POST      Collection
 Read    GET, HEAD Collection/Document
@@ -54,19 +54,19 @@ can customize the URIs though, so the API endpoint could become, say,
 The response payload will look something like this:
 
 .. code-block:: javascript
-    
+
     {
         "_items": [
             {
-                "firstname": "Mark", 
-                "lastname": "Green", 
-                "born": "Sat, 23 Feb 1985 12:00:00 GMT", 
-                "role": ["copy", "author"], 
-                "location": {"city": "New York", "address": "4925 Lacross Road"}, 
+                "firstname": "Mark",
+                "lastname": "Green",
+                "born": "Sat, 23 Feb 1985 12:00:00 GMT",
+                "role": ["copy", "author"],
+                "location": {"city": "New York", "address": "4925 Lacross Road"},
                 "_id": "50bf198338345b1c604faf31",
-                "_updated": "Wed, 05 Dec 2012 09:53:07 GMT", 
-                "_created": "Wed, 05 Dec 2012 09:53:07 GMT", 
-                "_etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d", 
+                "_updated": "Wed, 05 Dec 2012 09:53:07 GMT",
+                "_created": "Wed, 05 Dec 2012 09:53:07 GMT",
+                "_etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d",
                 "_links": {
                     "self": {"href": "eve-demo.herokuapp.com:5000/people/50bf198338345b1c604faf31", "title": "person"},
                 },
@@ -74,7 +74,7 @@ The response payload will look something like this:
             ...
         ],
         "_links": {
-            "self": {"href": "eve-demo.herokuapp.com:5000/people", "title": "people"}, 
+            "self": {"href": "eve-demo.herokuapp.com:5000/people", "title": "people"},
             "parent": {"href": "eve-demo.herokuapp.com:5000", "title": "home"}
         }
     }
@@ -88,7 +88,7 @@ Field        Description
 ============ =================================================================
 ``_created`` item creation date.
 ``_updated`` item last updated on.
-``_etag``    ETag, to be used for concurrency control and conditional requests. 
+``_etag``    ETag, to be used for concurrency control and conditional requests.
 ``_id``      unique item key, also needed to access the individual item endpoint.
 ============ =================================================================
 
@@ -118,19 +118,19 @@ me all the invoices by <contact_id>*:
 
     people/51f63e0838345b6dcd7eabff/invoices
 
-Would cause the underlying database collection invoices to be queried this way: 
+Would cause the underlying database collection invoices to be queried this way:
 
-:: 
+::
 
     {'contact_id': '51f63e0838345b6dcd7eabff'}
 
-And this one: 
+And this one:
 
-:: 
+::
 
     people/51f63e0838345b6dcd7eabff/invoices?where={"number": 10}
 
-would be queried like: 
+would be queried like:
 
 ::
 
@@ -139,7 +139,7 @@ would be queried like:
 Please note that when designing your API, most of the time you can get away
 without resorting to sub-resources. In the example above the same result would
 be achieved by simply exposing a ``invoices`` endpoint that clients could query
-this way: 
+this way:
 
 ::
 
@@ -176,15 +176,15 @@ get access to ``/people``, ``/people/<ObjectId>`` and ``/people/Doe``,
 but only to ``/works``.  When you do grant access to item endpoints, you can
 define up to two lookups, both defined with regexes. The first will be the
 primary endpoint and will match your database primary key structure (i.e., an
-``ObjectId`` in a MongoDB database).  
+``ObjectId`` in a MongoDB database).
 
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c
     HTTP/1.1 200 OK
     Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
-    Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT 
-    ... 
+    Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT
+    ...
 
 The second, which is optional and read-only, will match a field with unique values since Eve
 will retrieve only the first match anyway.
@@ -194,8 +194,8 @@ will retrieve only the first match anyway.
     $ curl -i http://eve-demo.herokuapp.com/people/Doe
     HTTP/1.1 200 OK
     Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
-    Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT 
-    ... 
+    Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT
+    ...
 
 Since we are accessing the same item, in both cases the response payload will
 look something like this:
@@ -254,7 +254,7 @@ and the native Python syntax:
     HTTP/1.1 200 OK
 
 Both query formats allow for conditional and logical And/Or operators, however
-nested and combined. 
+nested and combined.
 
 Filters are enabled by default on all document fields. However, the API
 maintainer can choose to disable them all and/or whitelist allowed ones (see
@@ -316,24 +316,24 @@ UI, or to navigate the API without knowing its structure beforehand. An example:
 ::
 
     {
-        "_links": { 
-            "self": { 
-                "href": "localhost:5000/people", 
-                "title": "people" 
-            }, 
-            "parent": { 
-                "href": "localhost:5000", 
-                "title": "home" 
-            }, 
+        "_links": {
+            "self": {
+                "href": "localhost:5000/people",
+                "title": "people"
+            },
+            "parent": {
+                "href": "localhost:5000",
+                "title": "home"
+            },
             "next": {
-                "href": "localhost:5000/people?page=2", 
-                "title": "next page" 
+                "href": "localhost:5000/people?page=2",
+                "title": "next page"
             },
             "last": {
-                "href": "localhost:5000/people?page=10", 
-                "title": "last page" 
-            } 
-        } 
+                "href": "localhost:5000/people?page=10",
+                "title": "last page"
+            }
+        }
     }
 
 A GET request to the API home page (the API entry point) will be served with
@@ -341,7 +341,7 @@ a list of links to accessible resources. From there, any client could navigate
 the API just by following the links provided with every response.
 
 Please note that ``next``, ``previous`` and ``last`` items will only be
-included when appropriate. 
+included when appropriate.
 
 Disabling HATEOAS
 ~~~~~~~~~~~~~~~~~
@@ -355,21 +355,21 @@ a simple list of items:
     HTTP/1.1 200 OK
 
 .. code-block:: javascript
-    
+
     [
         {
-            "firstname": "Mark", 
-            "lastname": "Green", 
-            "born": "Sat, 23 Feb 1985 12:00:00 GMT", 
-            "role": ["copy", "author"], 
-            "location": {"city": "New York", "address": "4925 Lacross Road"}, 
+            "firstname": "Mark",
+            "lastname": "Green",
+            "born": "Sat, 23 Feb 1985 12:00:00 GMT",
+            "role": ["copy", "author"],
+            "location": {"city": "New York", "address": "4925 Lacross Road"},
             "_id": "50bf198338345b1c604faf31",
-            "_updated": "Wed, 05 Dec 2012 09:53:07 GMT", 
-            "_created": "Wed, 05 Dec 2012 09:53:07 GMT", 
-            "_etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d", 
+            "_updated": "Wed, 05 Dec 2012 09:53:07 GMT",
+            "_created": "Wed, 05 Dec 2012 09:53:07 GMT",
+            "_etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d",
         },
         {
-            "firstname": "John", 
+            "firstname": "John",
             ...
         },
     ]
@@ -411,7 +411,7 @@ JSON and XML Rendering
 ----------------------
 Eve responses are automatically rendered as JSON (the default) or XML,
 depending on the request ``Accept`` header. Inbound documents (for inserts and
-edits) are in JSON format. 
+edits) are in JSON format.
 
 .. code-block:: console
 
@@ -440,7 +440,7 @@ Each resource representation provides information on the last time it was
 updated (``Last-Modified``), along with an hash value computed on the
 representation itself (``ETag``). These headers allow clients to perform
 conditional requests, only retrieving new or modified data, by using the
-``If-Modified-Since`` header: 
+``If-Modified-Since`` header:
 
 .. code-block:: console
 
@@ -464,7 +464,7 @@ concurrency control. An ``ETag`` is a hash value representing the current
 state of the resource on the server. Consumers are not allowed to edit or
 delete a resource unless they provide an up-to-date ``ETag`` for the resource
 they are attempting to edit. This prevents overwriting items with obsolete
-versions. 
+versions.
 
 Consider the following workflow:
 
@@ -507,7 +507,7 @@ also get the new ``_updated`` value, which eventually will allow us to perform
 subsequent `conditional requests`_.
 
 Concurrency control applies to all edition methods: ``PATCH`` (edit), ``PUT``
-(replace), ``DELETE`` (delete). 
+(replace), ``DELETE`` (delete).
 
 Disabling concurrency control
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -542,7 +542,7 @@ metadata:
 
 However, in order to reduce the number of loopbacks, a client might also submit
 multiple documents with a single request. All if needs to do is enclose the
-documents in a JSON list: 
+documents in a JSON list:
 
 .. code-block:: console
 
@@ -580,7 +580,7 @@ Data Validation
 Data validation is provided out-of-the-box. Your configuration includes
 a schema definition for every resource managed by the API. Data sent to the API
 to be inserted/updated will be validated against the schema, and a resource
-will only be updated if validation passes. 
+will only be updated if validation passes.
 
 .. code-block:: console
 
@@ -725,7 +725,7 @@ allow for mixing of inclusive and exclusive selections.
 
 .. admonition:: See also
 
-    - :ref:`projection` 
+    - :ref:`projection`
     - :ref:`projection_filestorage`
 
 .. _embedded_docs:
@@ -746,15 +746,15 @@ like this:
         'emails': {
             'schema': {
                 'author': {
-                    'type': 'objectid', 
+                    'type': 'objectid',
                     'data_relation': {
-                        'resource': 'users', 
-                        'field': '_id', 
+                        'resource': 'users',
+                        'field': '_id',
                         'embeddable': True
                     },
                 },
                 'subject': {'type': 'string'},
-                'body': {'type': 'string'}, 
+                'body': {'type': 'string'},
             }
         }
 
@@ -797,7 +797,7 @@ Document embedding is enabled by default.
     really help with normalizing your data model for the client.  However, when
     deciding whether to enable it or not, especially by default, keep in mind
     that each embedded resource being looked up will require a database lookup,
-    which can easily lead to performance issues. 
+    which can easily lead to performance issues.
 
 .. _eventhooks:
 
@@ -844,21 +844,21 @@ payload.
     ... print 'A get on "contacts" was just performed!'
 
     >>> app = Eve()
-    
+
     >>> app.on_post_GET += post_get_callback
     >>> app.on_post_GET_contacts += post_contacts_get_callback
 
     >>> app.run()
 
-The ``on_fech`` Event
+The ``on_fetch`` Event
 ~~~~~~~~~~~~~~~~~~~~~
 The following events:
 
 - ``on_fetch_resource(resource, documents)``
-- ``on_fetch_resource_<resource>(documents)`` 
-- ``on_fetch_item(resource, _id, document)`` 
-- ``on_fetch_item_<item_title>(_id, document)`` 
-  
+- ``on_fetch_resource_<resource>(documents)``
+- ``on_fetch_item(resource, _id, document)``
+- ``on_fetch_item_<item_title>(_id, document)``
+
 are raised when documents have just been read from the database and are about
 to be sent to the client. Registered callback functions can manipulate the
 documents as needed before they are returned to the client.
@@ -875,7 +875,7 @@ documents as needed before they are returned to the client.
     ...  print 'About to return an item from "%s" ' % resource
 
     >>> def before_returning_contact(_id, document):
-    ...  print 'About to return a contact' 
+    ...  print 'About to return a contact'
 
     >>> app = Eve()
     >>> app.on_fetch_resource += before_returning_items
@@ -919,12 +919,12 @@ The ``on_replace`` Event
 ~~~~~~~~~~~~~~~~~~~~~~~~
 When a PUT request hits the API and a document is about to be replaced, both
 ``on_replace(resource, document)`` and ``on_replace_<resource>(document)``
-events are raised. 
+events are raised.
 
 ``on_replace`` is raised for any endpoint hit by the request while
 ``on_replace_<resource>`` is only raised when the `<resource>` endpoint is hit
 by the PUT. In both circumstances the event will be raised only if it passed
-validation. 
+validation.
 
 `document` is the new document which is about to be stored. Callback functions
 could hook into these events to arbitrarily add or update its fields, or to
@@ -934,12 +934,12 @@ The ``on_update`` Event
 ~~~~~~~~~~~~~~~~~~~~~~~
 When a PATCH request hits the API and a document is about to be updated, both
 ``on_update(resource, document)`` and ``on_update_<resource>(document)``
-events are raised. 
+events are raised.
 
 ``on_update`` is raised for any endpoint hit by the request while
 ``on_update_<resource>`` is only raised when the `<resource>` endpoint is hit
 by the PATCH. In both circumstances the event will be raised only if the proposed changes passed
-validation. 
+validation.
 
 `document` is the updated document. Callback functions could hook into these
 events to arbitrarily add or update its fields, or to perform other accessory
@@ -957,11 +957,11 @@ Document deletion
 ^^^^^^^^^^^^^^^^^
 When a DELETE request hits a document endpoint both
 ``on_delete(resource, document)`` and ``on_delete_<resource>(document)``
-events are raised. 
+events are raised.
 
 ``on_delete`` is raised for any resource hit by the request while
 ``on_delete_<resource>`` is only raised when the `<resource>` document endpoint is hit
-by the DELETE. 
+by the DELETE.
 
 `document` is the document being deleted. Callback functions could hook into
 these events to perform accessory actions. And no you can't arbitrarily abort
@@ -1000,7 +1000,7 @@ request:
     X-RateLimit-Reset: 1370940300
 
 You can set different limits for each one of the supported methods (GET, POST,
-PATCH, DELETE). 
+PATCH, DELETE).
 
 .. admonition:: Please Note
 
@@ -1017,7 +1017,7 @@ File Storage
 ------------
 Media files (images, pdf, etc.) can be uploaded as ``media`` document
 fields. Upload is done via ``POST``, ``PUT`` and
-``PATCH`` as usual, but using the ``multipart/data-form`` content-type. 
+``PATCH`` as usual, but using the ``multipart/data-form`` content-type.
 
 Let us assume that the ``accounts`` endpoint has a schema like this:
 
@@ -1038,20 +1038,20 @@ With curl we would ``POST`` like this:
 For optmized performance files are stored in GridFS_ by default. Custom
 ``MediaStorage`` classes can be implemented and passed to the application to
 support alternative storage systems. A ``FileSystemMediaStorage`` class is in
-the works, and will soon be included with the Eve package. 
+the works, and will soon be included with the Eve package.
 
 As a proper developer guide is not available yet, you can peek at the
 MediaStorage_ source if you are interested in developing custom storage
 classes.
 
-When a document is requested media files will be returned as Base64 strings. 
+When a document is requested media files will be returned as Base64 strings.
 
 .. _projection_filestorage:
 
-Leveraging Projections to optimize the handling of media files 
+Leveraging Projections to optimize the handling of media files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Clients and API maintainers can exploit the :ref:`projections` feature to
-include/exclude media fields from response payloads. 
+include/exclude media fields from response payloads.
 
 Suppose that a client stored a document with an image. The image field is
 called *image* and it is of ``media`` type. At a later time, the client wants
@@ -1065,7 +1065,7 @@ response payload:
     $ curl -i http://example.com/people/<id>?projection={"image": 0}
     HTTP/1.1 200 OK
 
-The document will be returned with all its fields except the *image* field. 
+The document will be returned with all its fields except the *image* field.
 
 Moreover, when setting the ``datasource`` property for any given resource
 endpoint it is possible to explictly exclude fields (of ``media`` type, but
@@ -1081,16 +1081,16 @@ also of any other type) from default responses:
     }
 
 Now clients will have to explicitly request the image field to be included with
-response payloads by sending requests like this one: 
+response payloads by sending requests like this one:
 
 .. code-block:: console
 
     $ curl -i http://example.com/people/<id>?projection={"image": 1}
     HTTP/1.1 200 OK
 
-.. admonition:: See also 
+.. admonition:: See also
 
-    - :ref:`config` 
+    - :ref:`config`
     - :ref:`datasource`
 
     for details on the ``datasource`` setting.
