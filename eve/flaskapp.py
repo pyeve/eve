@@ -265,7 +265,7 @@ class Eve(Flask, Events):
            'PATCH' in settings['item_methods']:
             if len(settings['schema']) == 0:
                 raise ConfigException('A resource schema must be provided '
-                                      'when POST or PATCH methods are allowed'
+                                      'when POST or PATCH methods are allowed '
                                       'for a resource [%s].' % resource)
 
         self.validate_roles('allowed_roles', settings, resource)
