@@ -14,11 +14,48 @@ from eve.tests.test_settings import MONGO_PASSWORD, MONGO_USERNAME, \
 from eve import ISSUES, ETAG
 
 
+class ValueStack(object):
+    """
+    Descriptor to store multiple assignments in an attribute.
+
+    Due to the multiple self.app = assignments in tests, it is difficult to
+    keep track by hand of the applications created in order to close their
+    database connections. This descriptor helps with it.
+    """
+    def __init__(self, on_delete):
+        """
+        :param on_delete: Action to execute when the attribute is deleted
+        """
+        self.elements = []
+        self.on_delete = on_delete
+
+    def __set__(self, obj, val):
+        self.elements.append(val)
+
+    def __get__(self, obj, objtype):
+        return self.elements[-1] if self.elements else None
+
+    def __delete__(self, obj):
+        for item in self.elements:
+            self.on_delete(item)
+        self.elements = []
+
+
+def close_pymongo_connection(app):
+    """
+    Close the pymongo connection in an eve/flask app
+    """
+    if not 'pymongo' in app.extensions:
+        return
+    del app.extensions['pymongo']['MONGO']
+
+
 class TestMinimal(unittest.TestCase):
     """ Start the building of the tests for an application
     based on Eve by subclassing this class and provide proper settings
     using :func:`setUp()`
     """
+    app = ValueStack(close_pymongo_connection)
 
     def setUp(self, settings_file=None, url_converters=None):
         """ Prepare the test fixture
@@ -45,6 +82,7 @@ class TestMinimal(unittest.TestCase):
         self.domain = self.app.config['DOMAIN']
 
     def tearDown(self):
+        del self.app
         self.dropDB()
 
     def assert200(self, status):
