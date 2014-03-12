@@ -616,7 +616,7 @@ class TestGetItem(TestBase):
         self.domain['contacts']['additional_lookup'] = {
             'field': 'prog'
         }
-        self.app._add_url_rules()
+        self.app._add_resource_url_rules('contacts', self.domain['contacts'])
         response, status = self.get(self.known_resource,
                                     item=1)
         self.assertItemResponse(response, status)
