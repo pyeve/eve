@@ -851,7 +851,7 @@ payload.
     >>> app.run()
 
 The ``on_fetch`` Event
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 The following events:
 
 - ``on_fetch_resource(resource, documents)``
