@@ -112,6 +112,11 @@ def put(resource, **lookup):
                 response[config.LINKS] = {
                     'self': document_link(resource, response[config.ID_FIELD])
                 }
+
+            if resource_def['versioning'] == True:
+                resolve_document_version(document, resource, 'GET')
+                response[config.VERSION] = document[config.VERSION]
+                response[config.LATEST_VERSION] = document[config.LATEST_VERSION]
         else:
             issues = validator.errors
     except ValidationError as e:

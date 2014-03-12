@@ -130,6 +130,11 @@ def patch(resource, **lookup):
                     'self': document_link(resource, original[config.ID_FIELD])
                 }
 
+            if resource_def['versioning'] == True:
+                resolve_document_version(original, resource, 'GET')
+                response[config.VERSION] = original[config.VERSION]
+                response[config.LATEST_VERSION] = original[config.LATEST_VERSION]
+
         else:
             issues = validator.errors
     except ValidationError as e:

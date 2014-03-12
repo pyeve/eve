@@ -148,7 +148,8 @@ def diff_document(resource_def, old_doc, new_doc):
     diff = {}
     fields = resource_def['schema'].keys() + [app.config['VERSION'], \
         app.config['LATEST_VERSION'], app.config['ID_FIELD'], \
-        app.config['LAST_UPDATED'], app.config['DATE_CREATED']]
+        app.config['LAST_UPDATED'], app.config['DATE_CREATED'], \
+        app.config['ETAG'], app.config['LINKS']]
 
     for field in fields:
         if field in new_doc and (field not in old_doc or \

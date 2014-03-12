@@ -203,6 +203,11 @@ def post(resource, payl=None):
             if config.IF_MATCH:
                 item[config.ETAG] = document_etag(document)
 
+            if resource_def['versioning'] == True:
+                resolve_document_version(document, resource, 'GET')
+                item[config.VERSION] = document[config.VERSION]
+                item[config.LATEST_VERSION] = document[config.LATEST_VERSION]
+
             if resource_def['hateoas']:
                 item[config.LINKS] = \
                     {'self': document_link(resource, item[config.ID_FIELD])}
