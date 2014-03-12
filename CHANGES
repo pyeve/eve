@@ -8,6 +8,10 @@ Version 0.4
 
 Not released yet.
 
+- [fix] tests now run on any system without needing to set ``ulimit`` to
+  a higher value (Javier Gonel, PR#283).
+- [change] MarksupSafe 0.19 is now required.
+- [new] Python trove classifiers added to setup.py.
 - [fix] media files: don't try to delete a field that does not exist (Taylor
   Brown).
 - [fix] Occasional KeyError while building ``_media`` helper dict. See #271

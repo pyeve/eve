@@ -23,7 +23,7 @@ setup(
         'events==0.2.0',
         'simplejson==3.3.0',
         'werkzeug==0.9.4',
-        'markupsafe==0.18',
+        'markupsafe==0.19',
         'jinja2==2.7.2',
         'itsdangerous==0.22',
         'flask==0.10.1',
@@ -38,6 +38,11 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2'
+        'Programming Language :: Python :: 2.6'
+        'Programming Language :: Python :: 2.7'
+        'Programming Language :: Python :: 3'
+        'Programming Language :: Python :: 3.3'
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
 )
