@@ -36,6 +36,7 @@ def put(resource, **lookup):
     .. versionchanged:: 0.4
        Raise 'on_replace' instead of 'on_insert'. The callback function gets
        the document (as opposed to a list of just 1 document) as an argument.
+       Raise `on_replaced` after the document has been replaced
 
     .. versionchanged:: 0.3
        Support for media fields.
@@ -96,6 +97,10 @@ def put(resource, **lookup):
             getattr(app, "on_replace_%s" % resource)(document)
 
             app.data.replace(resource, object_id, document)
+
+            # notify callbacks
+            getattr(app, "on_replaced")(resource, document)
+            getattr(app, "on_replaced_%s" % resource)(document)
 
             response[config.ID_FIELD] = document.get(config.ID_FIELD,
                                                      object_id)
