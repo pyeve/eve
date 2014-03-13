@@ -193,11 +193,6 @@ class TestPut(TestBase):
         self.assertTrue('_links' in response)
         self.assertItemLink(response['_links'], item_id)
 
-    def put(self, url, data, headers=[]):
-        headers.append(('Content-Type', 'application/json'))
-        r = self.test_client.put(url, data=json.dumps(data), headers=headers)
-        return self.parse_response(r)
-
     def compare_put_with_get(self, fields, put_response):
         raw_r = self.test_client.get(self.item_id_url)
         r, status = self.parse_response(raw_r)

@@ -100,6 +100,7 @@ def patch(resource, **lookup):
         validation = validator.validate_update(updates, object_id)
         if validation:
             resolve_media_files(updates, resource, original)
+            resolve_document_version(updates, resource, 'PATCH', original)
 
             # the mongo driver has a different precision than the python
             # datetime. since we don't want to reload the document once it has
