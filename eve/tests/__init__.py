@@ -111,6 +111,11 @@ class TestMinimal(unittest.TestCase):
         r = self.test_client.get(request)
         return self.parse_response(r)
 
+    def post(self, url, data, headers=[], content_type='application/json'):
+        headers.append(('Content-Type', content_type))
+        r = self.test_client.post(url, data=json.dumps(data), headers=headers)
+        return self.parse_response(r)
+
     def put(self, url, data, headers=[]):
         headers.append(('Content-Type', 'application/json'))
         r = self.test_client.put(url, data=json.dumps(data), headers=headers)
@@ -294,8 +299,6 @@ class TestBase(TestMinimal):
     def setUp(self, url_converters=None):
         super(TestBase, self).setUp(url_converters=url_converters)
 
-        self.modSettingsBeforeData()
-
         self.known_resource = 'contacts'
         self.known_resource_url = ('/%s' %
                                    self.domain[self.known_resource]['url'])
@@ -366,16 +369,13 @@ class TestBase(TestMinimal):
                                (self.domain['invoices']['url'],
                                 self.invoice_id))
 
-    def modSettingsBeforeData(self):
-        pass
-
     def response_item(self, response, i=0):
         if self.app.config['HATEOAS']:
             return response['_items'][i]
         else:
             return response[i]
 
-    def random_contacts(self, num, standard_date_fields=True, versioning=False):
+    def random_contacts(self, num, standard_date_fields=True):
         schema = DOMAIN['contacts']['schema']
         contacts = []
         for i in range(num):
@@ -398,8 +398,6 @@ class TestBase(TestMinimal):
             if standard_date_fields:
                 contact[eve.LAST_UPDATED] = dt
                 contact[eve.DATE_CREATED] = dt
-            if versioning:
-                contact[eve.VERSION] = 1
 
             contacts.append(contact)
         return contacts
