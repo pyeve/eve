@@ -294,6 +294,8 @@ class TestBase(TestMinimal):
     def setUp(self, url_converters=None):
         super(TestBase, self).setUp(url_converters=url_converters)
 
+        self.modSettingsBeforeData()
+
         self.known_resource = 'contacts'
         self.known_resource_url = ('/%s' %
                                    self.domain[self.known_resource]['url'])
@@ -364,13 +366,16 @@ class TestBase(TestMinimal):
                                (self.domain['invoices']['url'],
                                 self.invoice_id))
 
+    def modSettingsBeforeData(self):
+        pass
+
     def response_item(self, response, i=0):
         if self.app.config['HATEOAS']:
             return response['_items'][i]
         else:
             return response[i]
 
-    def random_contacts(self, num, standard_date_fields=True):
+    def random_contacts(self, num, standard_date_fields=True, versioning=False):
         schema = DOMAIN['contacts']['schema']
         contacts = []
         for i in range(num):
@@ -393,6 +398,8 @@ class TestBase(TestMinimal):
             if standard_date_fields:
                 contact[eve.LAST_UPDATED] = dt
                 contact[eve.DATE_CREATED] = dt
+            if versioning:
+                contact[eve.VERSION] = 1
 
             contacts.append(contact)
         return contacts
