@@ -3,6 +3,7 @@ from bson import ObjectId
 
 import eve
 import json
+import copy
 from eve import Eve
 from eve.tests import TestBase
 from eve import STATUS, STATUS_OK, ETAG
@@ -56,15 +57,15 @@ class TestVersioningBase(TestBase):
             latest_version = version
         self.assertLatestVersion(response, latest_version)
 
-    def directGetDocument(self, id):
-        return self._db[self.known_resource].find_one(ObjectId(id))
+    def directGetDocument(self, _id):
+        return self._db[self.known_resource].find_one(ObjectId(_id))
 
-    def directGetShadowDocument(self, id, version):
+    def directGetShadowDocument(self, _id, version):
         id_field = self.app.config['ID_FIELD'] + \
             self.app.config['VERSION_ID_SUFFIX']
         return self._db[self.known_resource + \
             self.app.config['VERSIONS']].find_one({
-                id_field: ObjectId(id),
+                id_field: ObjectId(_id),
                 self.app.config['VERSION']: version
             })
 
@@ -120,11 +121,11 @@ class TestCompleteVersioning(TestNormalVersioning):
         item = {'ref': 'this is a post test!!!!!!'}
         response, status = self.post(self.known_resource_url, data=item)
         self.assert201(status)
-        id = response[self.app.config['ID_FIELD']]
-        
-        document = self.directGetDocument(id)
+        _id = response[self.app.config['ID_FIELD']]
+
+        document = self.directGetDocument(_id)
         self.assertTrue(document != None)
-        shadow_document = self.directGetShadowDocument(id, 1)
+        shadow_document = self.directGetShadowDocument(_id, 1)
         self.assertTrue(shadow_document != None)
 
         # # show that we only save some fields
@@ -167,7 +168,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         """ Make sure that Eve return a nice error when requesting an unknown
         version.
         """
-        response, status = self.get(self.known_resource, item=self.item_id, \
+        response, status = self.get(self.known_resource, item=self.item_id,
             query='?version=bad')
         # self.assert404(status)
 
@@ -218,16 +219,16 @@ class TestPartialVersioning(TestNormalVersioning):
         # insert versioned test data
         self.insertTestData()
 
-    def assertPrimaryAndShadowDocuments(self, version, partial = False):
+    def assertPrimaryAndShadowDocuments(self, _id, version, partial = False):
         # verify primary document fields
-        document = self.directGetDocument(self.item_id)
+        document = self.directGetDocument(_id)
         self.assertTrue(document != None)
         self.assertTrue(document[self.version_field] == version)
         self.assertTrue(self.versioned_field in document)
         self.assertTrue(self.unversioned_field in document)
 
         # verify shadow documents fields
-        shadow_document = self.directGetShadowDocument(self.item_id, version)
+        shadow_document = self.directGetShadowDocument(_id, version)
         self.assertTrue(shadow_document != None)
         self.assertTrue(self.versioned_field in shadow_document)
         if partial == True:
@@ -236,20 +237,48 @@ class TestPartialVersioning(TestNormalVersioning):
             self.assertTrue(self.unversioned_field in shadow_document)
 
     def test_get(self):
+        """ Test that get response successfully synthesize old document versions
+        with new field values.
         """
-        """
-        # assume a document is in the DB that is only partially versioned
+        fields = [self.versioned_field, self.unversioned_field]
+        query='?where={"%s":"%s"}' % (self.app.config['ID_FIELD'], self.item_id)
+        response, status = self.get(self.known_resource, query=query)
+        response = response['_items'][0]
 
-        # show that we can still synthesize the entire document
-        #self.compareToGetItem(self.item_id, compare_to = self.version_test_fields, contact)
+        # get always returns the latest version of a document
+        self.assertResponseVersion(response, status, 1)
+        self.assertEqualFields(self.item, response, fields)
 
     def test_getitem(self):
-        """ 
+        """ Test that get response successfully synthesize both old and new
+        document versions when partial versioning is in place.
         """
-        # assume a document is in the DB that is only partially versioned
+        fields = [self.versioned_field, self.unversioned_field]
+        # put a second version
+        response, status = self.put(self.item_id_url, data=self.item_change,
+                                    headers=[('If-Match', self.item_etag)])
 
-        # show that we can still synthesize the entire document
-        #self.compareToGetItem(self.item_id, compare_to = self.version_test_fields, contact)
+        # build expected response since the state of version 1 will change
+        new_version_1 = copy.copy(self.item)
+        new_version_1[self.unversioned_field] = \
+            self.item_change[self.unversioned_field]
+
+        # check the get of the first version
+        response, status = self.get(self.known_resource, item=self.item_id,
+                                    query='?version=1')
+        self.assertResponseVersion(response, status, 1, 2)
+        self.assertEqualFields(new_version_1, response, fields)
+
+        # check the get of the second version
+        response, status = self.get(self.known_resource, item=self.item_id,
+                                    query='?version=2')
+        self.assertResponseVersion(response, status, 2)
+        self.assertEqualFields(self.item_change, response, fields)
+
+        # check the get without version specified and make sure it is version 2
+        response, status = self.get(self.known_resource, item=self.item_id)
+        self.assertResponseVersion(response, status, 2)
+        self.assertEqualFields(self.item_change, response, fields)
 
     def test_post(self):
         """ Verify that partial version control can happen on POST.
@@ -257,11 +286,15 @@ class TestPartialVersioning(TestNormalVersioning):
         response, status = self.post(self.known_resource_url,
             data=self.item_change)
         self.assert201(status)
-        self.assertPrimaryAndShadowDocuments(1, partial=True)
+        _id = response[self.app.config['ID_FIELD']]
+        self.assertPrimaryAndShadowDocuments(_id, 1, partial=True)
 
     def test_multi_post(self):
+        """ Eve literally throws single documents into an array before
+        processing them in a POST, so I don't feel the need to specially test
+        the versioning features here. Making a stub nontheless.
         """
-        """
+        self.assertTrue(True)
 
     def test_put(self):
         """ Verify that partial version control can happen on PUT.
@@ -271,7 +304,7 @@ class TestPartialVersioning(TestNormalVersioning):
         self.assert200(status)
         self.assertTrue(STATUS in response)
         self.assertTrue(STATUS_OK in response[STATUS])
-        self.assertPrimaryAndShadowDocuments(2, partial=True)
+        self.assertPrimaryAndShadowDocuments(self.item_id, 2, partial=True)
 
     def test_patch(self):
         """ Verify that partial version control can happen on PATCH.
@@ -281,7 +314,7 @@ class TestPartialVersioning(TestNormalVersioning):
         self.assert200(status)
         self.assertTrue(STATUS in response)
         self.assertTrue(STATUS_OK in response[STATUS])
-        self.assertPrimaryAndShadowDocuments(2, partial=True)
+        self.assertPrimaryAndShadowDocuments(self.item_id, 2, partial=True)
 
     def test_version_control_the_unkown(self):
         """ Currently, the versioning scheme assumes true unless a field is
