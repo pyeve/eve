@@ -58,6 +58,8 @@ def delete(resource, **lookup):
 
     app.data.remove(resource, {config.ID_FIELD: original[config.ID_FIELD]})
 
+    getattr(app, "on_deleted")(resource, original)
+    getattr(app, "on_deleted_%s" % resource)(original)
     # media cleanup
     media_fields = resource_media_fields(original, resource)
     for field in media_fields:
