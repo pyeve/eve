@@ -481,7 +481,7 @@ class TestGet(TestBase):
         r, status = self.get(self.known_resource)
         self.assert200(status)
         self.assertTrue('_hits' in r)
-        self.assertEquals(r['_hits'], hits)
+        self.assertEqual(r['_hits'], hits)
 
     def test_get_resource_title(self):
         # test that resource endpoints accepts custom titles.
@@ -611,7 +611,7 @@ class TestGetItem(TestBase):
         response, status = self.get(self.known_resource,
                                     item=self.item_name)
 
-        self.assertEquals(self_href, response['_links']['self']['href'])
+        self.assertEqual(self_href, response['_links']['self']['href'])
 
     def test_getitem_by_integer(self):
         self.domain['contacts']['additional_lookup'] = {
