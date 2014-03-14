@@ -388,6 +388,21 @@ class TestCompleteVersioning(TestNormalVersioning):
         """
         pass # TODO
 
+    def test_get_projection(self):
+        """ Verify that projections happen smoothing when versioning is on.
+        """
+        pass # TODO
+
+    def test_getitem_projection(self):
+        """ Verify that projections happen smoothing when versioning is on.
+        """
+        pass # TODO
+
+    def test_getitem_version_all_projection(self):
+        """ Verify that projections happen smoothing when versioning is on.
+        """
+        pass # TODO
+
 
 class TestPartialVersioning(TestNormalVersioning):
     def setUp(self):
