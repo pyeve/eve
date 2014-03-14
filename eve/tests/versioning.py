@@ -5,28 +5,35 @@ import eve
 import json
 from eve import Eve
 from eve.tests import TestBase
-from eve import ETAG
+from eve import STATUS, STATUS_OK, ETAG
+from eve.tests.test_settings import MONGO_DBNAME
+from bson.objectid import ObjectId
 
 
 class TestVersioningBase(TestBase):
     def setUp(self):
-        self.unversioned_field = 'title'
         self.versioned_field = 'ref'
+        self.unversioned_field = 'prog'
 
         super(TestVersioningBase, self).setUp()
 
         self.version_field = self.app.config['VERSION']
         self.latest_version_field = self.app.config['LATEST_VERSION']
 
+        self._db = self.connection[MONGO_DBNAME]
+
     def enableVersioning(self, partial=False):
         if partial == True:
             contact_schema = self.app.config['DOMAIN']['contacts']['schema']
             contact_schema[self.unversioned_field]['versioned'] = False
-            print contact_schema
         for resource, settings in self.app.config['DOMAIN'].items():
             settings['versioning'] = True
             settings['datasource'].pop('projection', None)
             self.app.register_resource(resource, settings)
+
+    def assertEqualFields(self, obj1, obj2, fields):
+        for field in fields:
+            self.assertEqual(obj1[field], obj2[field])
 
     def assertVersion(self, response, version):
         self.assertTrue(self.version_field in response)
@@ -39,8 +46,7 @@ class TestVersioningBase(TestBase):
     def compareToGetItem(self, item, fields, compare_to):
         response, status = self.get(self.known_resource, item=item)
         self.assert200(status)
-        for field in fields:
-            self.assertEqual(response[field], compare_to[field])
+        self.assertEqualFields(response, compare_to, fields)
 
     def assertResponseVersion(self, response, status, version,
         latest_version = None):
@@ -50,25 +56,34 @@ class TestVersioningBase(TestBase):
             latest_version = version
         self.assertLatestVersion(response, latest_version)
 
+    def directGetDocument(self, id):
+        return self._db[self.known_resource].find_one(ObjectId(id))
+
+    def directGetShadowDocument(self, id, version):
+        id_field = self.app.config['ID_FIELD'] + \
+            self.app.config['VERSION_ID_SUFFIX']
+        return self._db[self.known_resource + \
+            self.app.config['VERSIONS']].find_one({
+                id_field: ObjectId(id),
+                self.app.config['VERSION']: version
+            })
+
 
 class TestNormalVersioning(TestVersioningBase):
     def setUp(self):
         super(TestNormalVersioning, self).setUp()
 
-        # turn on version after data has been inserted into the db
-        self.enableVersioning()
-
         # create some dummy contacts to use for versioning tests
         self.item = {
             self.versioned_field: 'ref value 1..............',
-            self.unversioned_field: 'title value 1'
+            self.unversioned_field: 123
         }
         self.item_change = {
             self.versioned_field: 'ref value 2..............',
-            self.unversioned_field: 'title value 2'
+            self.unversioned_field: 456
         }
 
-        # post the dummy contact
+    def insertTestData(self):
         contact, status = self.post(self.known_resource_url, data=self.item)
         self.assert201(status)
         self.item_id = contact[self.app.config['ID_FIELD']]
@@ -82,6 +97,12 @@ class TestCompleteVersioning(TestNormalVersioning):
     def setUp(self):
         super(TestCompleteVersioning, self).setUp()
 
+        # turn on version after data has been inserted into the db
+        self.enableVersioning()
+
+        # insert versioned test data
+        self.insertTestData()
+
     def test_get(self):
         """
         """
@@ -93,10 +114,18 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertTrue(True)
 
     def test_post(self):
-        """ This test class tests getitem in every other test case. This is
-        meant to be an empty stub so we don't forget that.
+        """ 
         """
         # post a new document
+        item = {'ref': 'this is a post test!!!!!!'}
+        response, status = self.post(self.known_resource_url, data=item)
+        self.assert201(status)
+        id = response[self.app.config['ID_FIELD']]
+        
+        document = self.directGetDocument(id)
+        self.assertTrue(document != None)
+        shadow_document = self.directGetShadowDocument(id, 1)
+        self.assertTrue(shadow_document != None)
 
         # # show that we only save some fields
         # shadow = self.getShadowDocument(self.item_id, version = 1)
@@ -173,10 +202,38 @@ class TestCompleteVersioning(TestNormalVersioning):
         when versioning is turned on.
         """
 
+    def test_version_control_the_unkown(self):
+        """
+        """
+        # this probably doesn't work yet...
+
 
 class TestPartialVersioning(TestNormalVersioning):
     def setUp(self):
         super(TestPartialVersioning, self).setUp()
+
+        # turn on version after data has been inserted into the db
+        self.enableVersioning(partial=True)
+
+        # insert versioned test data
+        self.insertTestData()
+
+    def assertPrimaryAndShadowDocuments(self, version, partial = False):
+        # verify primary document fields
+        document = self.directGetDocument(self.item_id)
+        self.assertTrue(document != None)
+        self.assertTrue(document[self.version_field] == version)
+        self.assertTrue(self.versioned_field in document)
+        self.assertTrue(self.unversioned_field in document)
+
+        # verify shadow documents fields
+        shadow_document = self.directGetShadowDocument(self.item_id, version)
+        self.assertTrue(shadow_document != None)
+        self.assertTrue(self.versioned_field in shadow_document)
+        if partial == True:
+            self.assertTrue(self.unversioned_field not in shadow_document)
+        else:
+            self.assertTrue(self.unversioned_field in shadow_document)
 
     def test_get(self):
         """
@@ -195,35 +252,45 @@ class TestPartialVersioning(TestNormalVersioning):
         #self.compareToGetItem(self.item_id, compare_to = self.version_test_fields, contact)
 
     def test_post(self):
+        """ Verify that partial version control can happen on POST.
         """
-        """
-        # post a new document
-
-        # show that we only save some fields
-        #use backdoor to check
-        # shadow = self.getShadowDocument(self.item_id, version = 1)
-        # self.assertTrue(f not in shadow for f in self.unversioned_fields)
-        # self.assertTrue(f in shadow for f in self.versioned_fields)
+        response, status = self.post(self.known_resource_url,
+            data=self.item_change)
+        self.assert201(status)
+        self.assertPrimaryAndShadowDocuments(1, partial=True)
 
     def test_multi_post(self):
         """
         """
 
     def test_put(self):
+        """ Verify that partial version control can happen on PUT.
         """
-        """
-        # put a new document
-
-        # show that we only save some fields
-        #use backdoor to check
+        response, status = self.put(self.item_id_url, data=self.item_change,
+                                    headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+        self.assertTrue(STATUS in response)
+        self.assertTrue(STATUS_OK in response[STATUS])
+        self.assertPrimaryAndShadowDocuments(2, partial=True)
 
     def test_patch(self):
+        """ Verify that partial version control can happen on PATCH.
         """
-        """
-        # patch a new document
+        response, status = self.patch(self.item_id_url, data=self.item_change,
+                                    headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+        self.assertTrue(STATUS in response)
+        self.assertTrue(STATUS_OK in response[STATUS])
+        self.assertPrimaryAndShadowDocuments(2, partial=True)
 
-        # show that we only save some fields
-        #use backdoor to check
+    def test_version_control_the_unkown(self):
+        """ Currently, the versioning scheme assumes true unless a field is
+        explicetely marked to not be version controlled. That means, if
+        'allow_unknown' is enabled, those fields are always version controlled.
+        This scenario is already tested under TestCompleteVersioning. If this
+        behavior changes in the future, this stub should be filled out.
+        """
+        self.assertTrue(True)
 
 
 class TestLateVersioning(TestVersioningBase):
@@ -258,7 +325,7 @@ class TestLateVersioning(TestVersioningBase):
         """
         changes = {"ref": "this is a different value"}
         response, status = self.put(self.item_id_url, data=changes,
-                             headers=[('If-Match', self.item_etag)])
+                                    headers=[('If-Match', self.item_etag)])
         self.assertResponseVersion(response, status, 1)
 
         # make sure that this saved to the db too (if it didn't, version == 0)
@@ -272,7 +339,7 @@ class TestLateVersioning(TestVersioningBase):
         """
         changes = {"ref": "this is a different value"}
         response, status = self.patch(self.item_id_url, data=changes,
-                             headers=[('If-Match', self.item_etag)])
+                                    headers=[('If-Match', self.item_etag)])
         self.assertResponseVersion(response, status, 1)
 
         # make sure that this saved to the db too (if it didn't, version == 0)
@@ -281,7 +348,9 @@ class TestLateVersioning(TestVersioningBase):
         self.assertEqual(response[ETAG], response2[ETAG])
 
     def test_data_relation_with_version(self):
+        """ Make sure that Eve doesn't mind doing a data relation explicetely to
+        version 0 of a document. This should only be allowed if the shadow
+        collection it empty.
         """
-        """
-        #todo: any special considerations for a data relation version to a recently version collection?!
+        pass # todo
         

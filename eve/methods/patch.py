@@ -118,6 +118,7 @@ def patch(resource, **lookup):
             getattr(app, "on_update_%s" % resource)(original)
 
             app.data.update(resource, object_id, updates)
+            insert_versioning_documents(resource, object_id, original)
 
             response[config.ID_FIELD] = original[config.ID_FIELD]
             last_modified = response[config.LAST_UPDATED] = \
