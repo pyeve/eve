@@ -178,7 +178,12 @@ def synthesize_versioned_document(document, delta, resource_def):
     .. versionadded:: 0.4
     """
     old_doc = copy.deepcopy(document)
-    
+
+    if versioned_id_field() not in delta:
+        abort(400, description=debug_error_message(
+            'You must include %s in any projection with a version query.' \
+            % versioned_id_field()
+        ))
     delta[app.config['ID_FIELD']] = delta[versioned_id_field()]
     del delta[versioned_id_field()]
 
