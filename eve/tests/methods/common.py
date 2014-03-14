@@ -1,6 +1,5 @@
 from eve.tests import TestBase
 from eve.methods.common import serialize
-import simplejson as json
 from datetime import datetime
 from bson import ObjectId
 

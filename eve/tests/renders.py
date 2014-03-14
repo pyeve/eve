@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from eve.tests import TestBase
-import simplejson as json
 from eve.utils import api_prefix
 from eve.tests.test_settings import MONGO_DBNAME
 
