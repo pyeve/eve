@@ -668,22 +668,23 @@ Eve supports automatic version control of documents. By default, this setting is
 turned off, but it can be turned globally or configured individually for each
 resource. When enabled, Eve provides version control by storing versions of
 documents in a shadow collection. All HTTP methods act on the latest version of 
-the document except when retrieving an indivual item. In this case, an addition
+the document except when retrieving an indivual item. In this case, adding a
 query parameter of ``?version=VERSION`` can be used to point to a specific
 version. Special values of  ``?version=all`` and  ``?version=diffs`` are also
-valid. Additional fields ``_version`` and ``_latest_version`` get automatically
-added to documents when versioning is turned on.
+valid. (Bonus tip - try a projection on top of ``?version=all``!) Additional
+fields called ``_version`` and ``_latest_version`` get automatically added to
+documents when versioning is turned on.
 
 It is important to note that there are a few non-standard scenarios which could
-produce unexpected results when versioning it turned on. In particular, document
+produce unexpected results when versioning is turned on. In particular, document
 history will not be saved when modifying collections outside of the Eve
-interface. Also, if at anytime the ``VERSION`` field gets removed from the
+generated API. Also, if at anytime the ``VERSION`` field gets removed from the
 primary document (which cannot happen through the API when versioning is turned
 on), a subsequent write will re-initialize the ``VERSION`` number with
 ``VERSION`` = 1. At this time there will be multiple versions of the document
 with the same version number. In normal practice, ``VERSIONING`` can be enable
-without worry for any new collection or any collection which has not previously
-had versioning enabled.
+without worry for any new collection or even an existing collection which has
+not previously had versioning enabled.
 
 For more information see and `Global Configuration`_ and `Domain Configuration`_.
 
