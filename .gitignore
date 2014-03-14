@@ -37,6 +37,9 @@ pip-log.txt
 # SublimeText project files
 *.sublime-*
 
+# vim temp files
+*.swp
+
 #virtualenv
 Include
 Lib
