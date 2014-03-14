@@ -46,14 +46,8 @@ class TestVersioningBase(TestBase):
         self.assertTrue(self.latest_version_field in response)
         self.assertEqual(response[self.latest_version_field], latest_version)
 
-    def compareToGetItem(self, item, fields, compare_to):
-        response, status = self.get(self.known_resource, item=item)
-        self.assert200(status)
-        self.assertEqualFields(response, compare_to, fields)
-
-    def assertResponseVersion(self, response, status, version,
+    def assertDocumentVersions(self, response, version,
         latest_version = None):
-        self.assert200(status)
         self.assertVersion(response, version)
         if latest_version == None:
             latest_version = version
@@ -136,17 +130,18 @@ class TestNormalVersioning(TestVersioningBase):
         # verify that no unexpected fields exist
         num_meta_fields = 4 # see previous block
         if partial == True:
-            self.assertEquals(len(shadow_document.keys()), num_meta_fields+1)
+            self.assertEqual(len(shadow_document.keys()), num_meta_fields+1)
         else:
-            self.assertEquals(len(shadow_document.keys()), num_meta_fields+2)
+            self.assertEqual(len(shadow_document.keys()), num_meta_fields+2)
 
     def do_test_get(self):
         query='?where={"%s":"%s"}' % (self.app.config['ID_FIELD'], self.item_id)
         response, status = self.get(self.known_resource, query=query)
-        response = response['_items'][0]
+        response = response[self.app.config['ITEMS']][0]
 
         # get always returns the latest version of a document
-        self.assertResponseVersion(response, status, 1)
+        self.assert200(status)
+        self.assertDocumentVersions(response, 1)
         self.assertEqualFields(self.item, response, self.fields)
 
     def do_test_getitem(self, partial):
@@ -165,18 +160,21 @@ class TestNormalVersioning(TestVersioningBase):
         # check the get of the first version
         response, status = self.get(self.known_resource, item=self.item_id,
                                     query='?version=1')
-        self.assertResponseVersion(response, status, 1, 2)
+        self.assert200(status)
+        self.assertDocumentVersions(response, 1, 2)
         self.assertEqualFields(version_1, response, self.fields)
 
         # check the get of the second version
         response, status = self.get(self.known_resource, item=self.item_id,
                                     query='?version=2')
-        self.assertResponseVersion(response, status, 2)
+        self.assert200(status)
+        self.assertDocumentVersions(response, 2)
         self.assertEqualFields(self.item_change, response, self.fields)
 
         # check the get without version specified and make sure it is version 2
         response, status = self.get(self.known_resource, item=self.item_id)
-        self.assertResponseVersion(response, status, 2)
+        self.assert200(status)
+        self.assertDocumentVersions(response, 2)
         self.assertEqualFields(self.item_change, response, self.fields)
 
     def do_test_post(self, partial):
@@ -279,7 +277,9 @@ class TestCompleteVersioning(TestNormalVersioning):
         """ Make sure that Eve return a nice error when requesting an unknown
         version.
         """
-
+        response, status = self.get(self.known_resource, item=self.item_id,
+            query='?version=2')
+        self.assert404(status)
 
     def test_getitem_version_bad_format(self):
         """ Make sure that Eve return a nice error when requesting an unknown
@@ -287,28 +287,95 @@ class TestCompleteVersioning(TestNormalVersioning):
         """
         response, status = self.get(self.known_resource, item=self.item_id,
             query='?version=bad')
-        # self.assert404(status)
+        self.assert400(status)
 
     def test_getitem_version_all(self):
+        """ Verify that all documents are returned which each appearing exactly
+        as it would if it were accessed explicitly.
         """
-        """
-        # test with HATEOS on and off
+        meta_fields = self.fields + [self.app.config['ID_FIELD'],
+            self.app.config['LAST_UPDATED'], self.app.config['ETAG'],
+            self.app.config['DATE_CREATED'], self.app.config['LINKS'],
+            self.version_field, self.latest_version_field]
 
-    def test_getitem_version_list(self):
-        """
-        """
-        # test with HATEOS on and off
-        # note - i might not even add this feature, is essentially ?version=all with a projection
+        # put a second version
+        response, status = self.put(self.item_id_url, data=self.item_change,
+                                    headers=[('If-Match', self.item_etag)])
+        etag2 = response[self.app.config['ETAG']]
+
+        # get query
+        response, status = self.get(self.known_resource, item=self.item_id,
+            query='?version=all')
+        self.assert200(status)
+        items = response[self.app.config['ITEMS']]
+        self.assertEqual(len(items), 2)
+
+        # check the get of the first version
+        self.assertDocumentVersions(items[0], 1, 2)
+        self.assertEqualFields(self.item, items[0], self.fields)
+        self.assertTrue(field in items[0] for field in meta_fields)
+        self.assertEqual(len(items[0].keys()), len(meta_fields))
+        self.assertEqual(items[0][self.app.config['ETAG']], self.item_etag)
+
+        # # check the get of the second version
+        self.assertDocumentVersions(items[1], 2)
+        self.assertEqualFields(self.item_change, items[1], self.fields)
+        self.assertTrue(field in items[1] for field in meta_fields)
+        self.assertEqual(len(items[1].keys()), len(meta_fields))
+        self.assertEqual(items[1][self.app.config['ETAG']], etag2)
+
+        # TODO: also test with HATEOS off
 
     def test_getitem_version_diffs(self):
+        """ Verify that the first document is returned in its entirety and that
+        subsequent documents are simply diff to the previous version.
         """
-        """
-        # test with HATEOS on and off
+        meta_fields = self.fields + [self.app.config['ID_FIELD'],
+            self.app.config['LAST_UPDATED'], self.app.config['ETAG'],
+            self.app.config['DATE_CREATED'], self.app.config['LINKS'],
+            self.version_field, self.latest_version_field]
+
+        # put a second version
+        response, status = self.put(self.item_id_url, data=self.item_change,
+                                    headers=[('If-Match', self.item_etag)])
+        etag2 = response[self.app.config['ETAG']]
+
+        # get query
+        response, status = self.get(self.known_resource, item=self.item_id,
+            query='?version=diffs')
+        self.assert200(status)
+        items = response[self.app.config['ITEMS']]
+        self.assertEqual(len(items), 2)
+
+        # check the get of the first version
+        self.assertDocumentVersions(items[0], 1, 2)
+        self.assertEqualFields(self.item, items[0], self.fields)
+        self.assertTrue(field in items[0] for field in meta_fields)
+        self.assertEqual(len(items[0].keys()), len(meta_fields))
+        self.assertEqual(items[0][self.app.config['ETAG']], self.item_etag)
+
+        # # check the get of the second version
+        self.assertVersion(items[1], 2)
+        self.assertEqualFields(self.item_change, items[1], self.fields)
+        changed_fields = self.fields + [self.version_field,
+            self.app.config['LAST_UPDATED'], self.app.config['ETAG']]
+        self.assertTrue(field in items[1] for field in changed_fields)
+        # since the test routine happens so fast, `LAST_UPDATED` is probably not
+        # in the diff (the date output only has a one second resolution)
+        self.assertTrue(len(items[1].keys()) == len(changed_fields) or \
+            len(items[1].keys()) == len(changed_fields) - 1)
+        self.assertEqual(items[1][self.app.config['ETAG']], etag2)
+
+        # TODO: could also verify that a 3rd iteration is a diff of the 2nd
+        # iteration and not a diff of the 1st iteration...
+
+        # TODO: also test with HATEOS off
 
     def test_data_relation_with_version(self):
         """ Make sure that Eve correctly validates a data_relation with a
         version and returns the version with the data_relation in the response.
         """
+        pass # TODO
         # test good id and good version
 
         # test good id and bad version
@@ -319,6 +386,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         """ Make sure that Eve still correctly handles vanilla data_relations
         when versioning is turned on.
         """
+        pass # TODO
 
 
 class TestPartialVersioning(TestNormalVersioning):
@@ -367,7 +435,7 @@ class TestPartialVersioning(TestNormalVersioning):
 
     def test_version_control_the_unkown(self):
         """ Currently, the versioning scheme assumes true unless a field is
-        explicetely marked to not be version controlled. That means, if
+        explicitly marked to not be version controlled. That means, if
         'allow_unknown' is enabled, those fields are always version controlled.
         This is the same behavior as under TestCompleteVersioning.
         """
@@ -387,7 +455,7 @@ class TestLateVersioning(TestVersioningBase):
         """
         response, status = self.get(self.known_resource)
         self.assert200(status)
-        items = response['_items']
+        items = response[self.app.config['ITEMS']]
         self.assertEqual(len(items), self.app.config['PAGINATION_DEFAULT'])
         for item in items:
             self.assertVersion(item, 0)
@@ -398,7 +466,8 @@ class TestLateVersioning(TestVersioningBase):
         been modified since version control has been turned on.
         """
         response, status = self.get(self.known_resource, item=self.item_id)
-        self.assertResponseVersion(response, status, 0)
+        self.assert200(status)
+        self.assertDocumentVersions(response, 0)
 
     def test_put(self):
         """ Make sure that Eve still sets version = 1 for documents that where
@@ -407,11 +476,13 @@ class TestLateVersioning(TestVersioningBase):
         changes = {"ref": "this is a different value"}
         response, status = self.put(self.item_id_url, data=changes,
                                     headers=[('If-Match', self.item_etag)])
-        self.assertResponseVersion(response, status, 1)
+        self.assert200(status)
+        self.assertDocumentVersions(response, 1)
 
         # make sure that this saved to the db too (if it didn't, version == 0)
         response2, status = self.get(self.known_resource, item=self.item_id)
-        self.assertResponseVersion(response2, status, 1)
+        self.assert200(status)
+        self.assertDocumentVersions(response2, 1)
         self.assertEqual(response[ETAG], response2[ETAG])
 
     def test_patch(self):
@@ -421,17 +492,19 @@ class TestLateVersioning(TestVersioningBase):
         changes = {"ref": "this is a different value"}
         response, status = self.patch(self.item_id_url, data=changes,
                                     headers=[('If-Match', self.item_etag)])
-        self.assertResponseVersion(response, status, 1)
+        self.assert200(status)
+        self.assertDocumentVersions(response, 1)
 
         # make sure that this saved to the db too (if it didn't, version == 0)
         response2, status = self.get(self.known_resource, item=self.item_id)
-        self.assertResponseVersion(response2, status, 1)
+        self.assert200(status)
+        self.assertDocumentVersions(response2, 1)
         self.assertEqual(response[ETAG], response2[ETAG])
 
     def test_data_relation_with_version(self):
-        """ Make sure that Eve doesn't mind doing a data relation explicetely to
+        """ Make sure that Eve doesn't mind doing a data relation explicitly to
         version 0 of a document. This should only be allowed if the shadow
         collection it empty.
         """
-        pass # todo
+        pass # TODO
         
