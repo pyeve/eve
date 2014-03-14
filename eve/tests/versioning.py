@@ -21,6 +21,8 @@ class TestVersioningBase(TestBase):
 
         self.version_field = self.app.config['VERSION']
         self.latest_version_field = self.app.config['LATEST_VERSION']
+        self.document_id_field = self.app.config['ID_FIELD'] + \
+            self.app.config['VERSION_ID_SUFFIX']
 
         self._db = self.connection[MONGO_DBNAME]
 
@@ -57,20 +59,23 @@ class TestVersioningBase(TestBase):
         return self._db[self.known_resource].find_one(ObjectId(_id))
 
     def directGetShadowDocument(self, _id, version):
-        id_field = self.app.config['ID_FIELD'] + \
-            self.app.config['VERSION_ID_SUFFIX']
         return self._db[self.known_resource + \
             self.app.config['VERSIONS']].find_one({
-                id_field: ObjectId(_id),
+                self.document_id_field: ObjectId(_id),
                 self.app.config['VERSION']: version
             })
 
     def assertNumShadowDocuments(self, _id, num):
-        id_field = self.app.config['ID_FIELD'] + \
-            self.app.config['VERSION_ID_SUFFIX']
         documents = self._db[self.known_resource + \
-            self.app.config['VERSIONS']].find({id_field: ObjectId(_id)})
+            self.app.config['VERSIONS']].find({
+                self.document_id_field: ObjectId(_id)
+            })
         self.assertEqual(documents.count(), num)
+
+    def assertGoodPutPatch(self, response, status):
+        self.assert200(status)
+        self.assertTrue(STATUS in response)
+        self.assertTrue(STATUS_OK in response[STATUS])
 
 
 class TestNormalVersioning(TestVersioningBase):
@@ -111,7 +116,7 @@ class TestNormalVersioning(TestVersioningBase):
         self.assertEqual(document[self.versioned_field],
             shadow_document[self.versioned_field])
         if partial == True:
-            self.assertTrue(self.unversioned_field not in shadow_document)
+            self.assertFalse(self.unversioned_field in shadow_document)
         else:
             self.assertTrue(self.unversioned_field in shadow_document)
             self.assertEqual(document[self.unversioned_field],
@@ -119,11 +124,9 @@ class TestNormalVersioning(TestVersioningBase):
 
         # verify meta fields
         self.assertTrue(shadow_document[self.version_field] == version)
-        document_id_field = self.app.config['ID_FIELD'] + \
-            self.app.config['VERSION_ID_SUFFIX']
-        self.assertTrue(document_id_field in shadow_document)
+        self.assertTrue(self.document_id_field in shadow_document)
         self.assertEqual(document[self.app.config['ID_FIELD']],
-            shadow_document[document_id_field])
+            shadow_document[self.document_id_field])
         self.assertTrue(self.app.config['ID_FIELD'] in shadow_document)
         self.assertTrue(self.app.config['LAST_UPDATED'] in shadow_document)
 
@@ -148,6 +151,7 @@ class TestNormalVersioning(TestVersioningBase):
         # put a second version
         response, status = self.put(self.item_id_url, data=self.item_change,
                                     headers=[('If-Match', self.item_etag)])
+        self.assertGoodPutPatch(response, status)
 
         if partial == True:
             # build expected response since the state of version 1 will change
@@ -197,9 +201,7 @@ class TestNormalVersioning(TestVersioningBase):
     def do_test_put(self, partial):
         response, status = self.put(self.item_id_url, data=self.item_change,
                                     headers=[('If-Match', self.item_etag)])
-        self.assert200(status)
-        self.assertTrue(STATUS in response)
-        self.assertTrue(STATUS_OK in response[STATUS])
+        self.assertGoodPutPatch(response, status)
         self.assertPrimaryAndShadowDocuments(self.item_id, 2, partial=partial)
 
         document = self.directGetDocument(self.item_id)
@@ -210,9 +212,7 @@ class TestNormalVersioning(TestVersioningBase):
     def do_test_patch(self, partial):
         response, status = self.patch(self.item_id_url, data=self.item_change,
                                     headers=[('If-Match', self.item_etag)])
-        self.assert200(status)
-        self.assertTrue(STATUS in response)
-        self.assertTrue(STATUS_OK in response[STATUS])
+        self.assertGoodPutPatch(response, status)
         self.assertPrimaryAndShadowDocuments(self.item_id, 2, partial=partial)
 
         document = self.directGetDocument(self.item_id)
@@ -301,6 +301,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         # put a second version
         response, status = self.put(self.item_id_url, data=self.item_change,
                                     headers=[('If-Match', self.item_etag)])
+        self.assertGoodPutPatch(response, status)
         etag2 = response[self.app.config['ETAG']]
 
         # get query
@@ -338,6 +339,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         # put a second version
         response, status = self.put(self.item_id_url, data=self.item_change,
                                     headers=[('If-Match', self.item_etag)])
+        self.assertGoodPutPatch(response, status)
         etag2 = response[self.app.config['ETAG']]
 
         # get query
@@ -388,20 +390,55 @@ class TestCompleteVersioning(TestNormalVersioning):
         """
         pass # TODO
 
-    def test_get_projection(self):
-        """ Verify that projections happen smoothing when versioning is on.
-        """
-        pass # TODO
-
     def test_getitem_projection(self):
         """ Verify that projections happen smoothing when versioning is on.
         """
-        pass # TODO
+        # test inclusive projection
+        response, status = self.get(self.known_resource, item=self.item_id,
+            query='?projection={"%s": 1}' % self.unversioned_field)
+        self.assert200(status)
+        self.assertTrue(self.unversioned_field in response)
+        self.assertFalse(self.versioned_field in response)
+
+        # test exclusive projection
+        response, status = self.get(self.known_resource, item=self.item_id,
+            query='?projection={"%s": 0}' % self.unversioned_field)
+        self.assert200(status)
+        self.assertFalse(self.unversioned_field in response)
+        self.assertTrue(self.versioned_field in response)
 
     def test_getitem_version_all_projection(self):
         """ Verify that projections happen smoothing when versioning is on.
         """
-        pass # TODO
+        # put a second version
+        response, status = self.put(self.item_id_url, data=self.item_change,
+                                    headers=[('If-Match', self.item_etag)])
+        self.assertGoodPutPatch(response, status)
+
+        # test inclusive projection
+        projection = '{"%s": 1, "%s": 1, "%s": 1}' % (self.unversioned_field,
+            self.version_field, self.document_id_field)
+        response, status = self.get(self.known_resource, item=self.item_id,
+            query='?version=all&projection=%s' % projection)
+        self.assert200(status)
+        items = response[self.app.config['ITEMS']]
+        self.assertEqual(len(items), 2)
+        for item in items:
+            self.assertTrue(self.unversioned_field in item)
+            self.assertFalse(self.versioned_field in item)
+            if item[self.version_field] == 1:
+                self.assertEqual(item[self.unversioned_field],
+                    self.item[self.unversioned_field])
+            else:
+                self.assertEqual(item[self.unversioned_field],
+                    self.item_change[self.unversioned_field])
+
+        # test exclusive projection
+        projection = '{"%s": 0, "%s": 1, "%s": 1}' % (self.unversioned_field,
+            self.version_field, self.document_id_field)
+        # TODO: As you can see, this query will fail right now. To support
+        # this type of query, Eve needs to do an inversion on the projection
+        # before passing it to MongoDB.
 
 
 class TestPartialVersioning(TestNormalVersioning):
@@ -491,7 +528,7 @@ class TestLateVersioning(TestVersioningBase):
         changes = {"ref": "this is a different value"}
         response, status = self.put(self.item_id_url, data=changes,
                                     headers=[('If-Match', self.item_etag)])
-        self.assert200(status)
+        self.assertGoodPutPatch(response, status)
         self.assertDocumentVersions(response, 1)
 
         # make sure that this saved to the db too (if it didn't, version == 0)
@@ -507,7 +544,7 @@ class TestLateVersioning(TestVersioningBase):
         changes = {"ref": "this is a different value"}
         response, status = self.patch(self.item_id_url, data=changes,
                                     headers=[('If-Match', self.item_etag)])
-        self.assert200(status)
+        self.assertGoodPutPatch(response, status)
         self.assertDocumentVersions(response, 1)
 
         # make sure that this saved to the db too (if it didn't, version == 0)
