@@ -1,6 +1,5 @@
 from eve.tests import TestBase
 import simplejson as json
-from ast import literal_eval
 from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, DATE_CREATED, ISSUES, \
     STATUS, ETAG
 
@@ -121,19 +120,12 @@ class TestPost(TestBase):
         self.assertPostItem(data, 'title', False)
 
     def test_multi_post(self):
-        items = [
-            ('ref', "9234567890123456789054321"),
-            ('prog', 7),
-            ('ref', "5432112345678901234567890", ["agent"]),
-            ('ref', self.item_ref),
-            ('ref', "9234567890123456789054321", "12345678"),
-        ]
         data = [
-            literal_eval('{"%s": "%s"}' % items[0]),
-            literal_eval('{"%s": %s}' % items[1]),
-            literal_eval('{"%s": "%s", "role": %s}' % items[2]),
-            literal_eval('{"%s": "%s"}' % items[3]),
-            literal_eval('{"%s": "%s", "tid": "%s"}' % items[4]),
+            {"ref": "9234567890123456789054321"},
+            {"prog": 7},
+            {"ref": "5432112345678901234567890", "role": ["agent"]},
+            {"ref": self.item_ref},
+            {"ref": "9234567890123456789054321", "tid": "12345678"},
         ]
         r = self.perform_post(data, [0, 2])
 
@@ -143,12 +135,12 @@ class TestPost(TestBase):
 
         item_id = r[0][ID_FIELD]
         db_value = self.compare_post_with_get(item_id, 'ref')
-        self.assertTrue(db_value == items[0][1])
+        self.assertTrue(db_value == data[0]['ref'])
 
         item_id = r[2][ID_FIELD]
         db_value = self.compare_post_with_get(item_id, ['ref', 'role'])
-        self.assertTrue(db_value[0] == items[2][1])
-        self.assertTrue(db_value[1] == items[2][2])
+        self.assertTrue(db_value[0] == data[2]['ref'])
+        self.assertTrue(db_value[1] == data[2]['role'])
 
         # items on which validation failed should not be inserted into the db
         _, status = self.get(self.known_resource_url, 'where=prog==7')
