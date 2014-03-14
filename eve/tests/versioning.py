@@ -369,26 +369,9 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertEqual(items[1][self.app.config['ETAG']], etag2)
 
         # TODO: could also verify that a 3rd iteration is a diff of the 2nd
-        # iteration and not a diff of the 1st iteration...
+        # iteration and not a diff of the 1st iteration by mistake...
 
         # TODO: also test with HATEOS off
-
-    def test_data_relation_with_version(self):
-        """ Make sure that Eve correctly validates a data_relation with a
-        version and returns the version with the data_relation in the response.
-        """
-        pass # TODO
-        # test good id and good version
-
-        # test good id and bad version
-
-        # test bad id
-
-    def test_data_relation_without_version(self):
-        """ Make sure that Eve still correctly handles vanilla data_relations
-        when versioning is turned on.
-        """
-        pass # TODO
 
     def test_getitem_projection(self):
         """ Verify that projections happen smoothing when versioning is on.
@@ -437,8 +420,58 @@ class TestCompleteVersioning(TestNormalVersioning):
         projection = '{"%s": 0, "%s": 1, "%s": 1}' % (self.unversioned_field,
             self.version_field, self.document_id_field)
         # TODO: As you can see, this query will fail right now. To support
-        # this type of query, Eve needs to do an inversion on the projection
-        # before passing it to MongoDB.
+        # this type of query, Eve needs to normalize the projection before
+        # passing it to MongoDB.
+
+    def test_post_referential_integrity(self):
+        """ Make sure that Eve still correctly handles vanilla data_relations
+        when versioning is turned on.
+        """
+        data = {"person": self.unknown_item_id}
+        r, status = self.post('/invoices/', data=data)
+        self.assert200(status)
+        expected = ("value '%s' must exist in resource '%s', field '%s'" %
+                    (self.unknown_item_id, 'contacts',
+                     self.app.config['ID_FIELD']))
+        self.assertValidationError(r, {'person': expected})
+
+        data = {"person": self.item_id}
+        r, status = self.post('/invoices/', data=data)
+        self.assert201(status)
+
+    def test_post_referential_integrity_with_version(self):
+        """ Make sure that Eve correctly validates a data_relation with a
+        version and returns the version with the data_relation in the response.
+        """
+        # enable versioning in the data_relation
+        invoice_schema = self.domain['invoices']['schema']
+        invoice_schema['person']['data_relation']['versioned'] = True
+
+        # perform test with with bad version
+
+        # perform test with bad field
+
+        # perform good test
+        # data = {"person": self.unknown_item_id}
+        # r, status = self.post('/invoices/', data=data)
+        # self.assert200(status)
+        # expected = ("value '%s' must exist in resource '%s', field '%s'" %
+        #             (self.unknown_item_id, 'contacts',
+        #              self.app.config['ID_FIELD']) + " at version '%s'" %
+        #             1)
+        # self.assertValidationError(r, {'person': expected})
+
+        # data = {"person": self.item_id}
+        # r, status = self.post('/invoices/', data=data)
+        # self.assert201(status)
+
+        # TODO: could do similar referential checks against different versions
+
+    def test_embedded_referential_integrity_with_version(self):
+        """ Make sure that Eve send the correct embedded document when the
+        data_relation points to a specific version.
+        """
+        pass #todo
 
 
 class TestPartialVersioning(TestNormalVersioning):

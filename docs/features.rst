@@ -662,6 +662,8 @@ versions should be isolated instances since so many things could be different
 between versions: caching, URIs, schemas, validation, and so on. URI versioning
 (http://api.example.com/v1/...) is supported.
 
+.. _document_versioning:
+
 Document Versioning
 -------------------
 Eve supports automatic version control of documents. By default, this setting is
