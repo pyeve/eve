@@ -850,18 +850,119 @@ payload.
 
     >>> app.run()
 
-The ``on_fetch`` Event
-~~~~~~~~~~~~~~~~~~~~~~
-The following events:
+Database event hooks
+~~~~~~~~~~~~~~~~~~~~
 
-- ``on_fetch_resource(resource, documents)``
-- ``on_fetch_resource_<resource>(documents)``
-- ``on_fetch_item(resource, _id, document)``
-- ``on_fetch_item_<item_title>(_id, document)``
+Database event hooks work like request event hooks. These events are fired
+before and after a database action. Here is an example of how events are
+configured:
 
-are raised when documents have just been read from the database and are about
-to be sent to the client. Registered callback functions can manipulate the
-documents as needed before they are returned to the client.
+.. code-block:: pycon
+
+   >>> def add_signature(resource, item):
+   ...     item['SIGNATURE'] = "A %s from eve" % resource
+
+   >>> app = Eve()
+   >>> app.on_fetched_item += add_signature
+
+The events are fired for resources and items if the action is available for
+both. And for each action two events will be fired: a generic one and another
+with the name of the resource.
+
+Let's see an overview of what events are available:
+
+
++-------+--------+------+-----------------------------------------+
+|Action |What    |When  |Event name / method signature            |
++=======+========+======+=========================================+
+|Fetch  |Resource|After || ``on_fetched_resource``                |
+|       |        |      || ``def event(resource_name, items)``    |
+|       |        |      +-----------------------------------------+
+|       |        |      || ``on_fetched_resource_<resource_name>``|
+|       |        |      || ``def event(items)``                   |
+|       +--------+------+-----------------------------------------+
+|       |Item    |After || ``on_fetched_item``                    |
+|       |        |      || ``def event(resource_name, id, item)`` |
+|       |        |      +-----------------------------------------+
+|       |        |      || ``on_fetched_item_<resource>``         |
+|       |        |      || ``def event(id, item)``                |
++-------+--------+------+-----------------------------------------+
+|Insert |Item/s  |Before|| ``on_insert``                          |
+|       |        |      || ``def event(resource_name, items)``    |
+|       |        |      +-----------------------------------------+
+|       |        |      || ``on_insert_<resource_name>``          |
+|       |        |      || ``def event(items)``                   |
+|       |        +------+-----------------------------------------+
+|       |        |After || ``on_inserted``                        |
+|       |        |      || ``def event(resource_name, items)``    |
+|       |        |      +-----------------------------------------+
+|       |        |      || ``on_inserted_<resource_name>``        |
+|       |        |      || ``def event(items)``                   |
++-------+--------+------+-----------------------------------------+
+|Replace|Item    |Before|| ``on_replace``                         |
+|       |        |      || ``def event(resource_name, item)``     |
+|       |        |      +-----------------------------------------+
+|       |        |      || ``on_replace_<resource_name>``         |
+|       |        |      || ``def event(item)``                    |
+|       |        +------+-----------------------------------------+
+|       |        |After || ``on_replaced``                        |
+|       |        |      || ``def event(resource_name, item)``     |
+|       |        |      +-----------------------------------------+
+|       |        |      || ``on_replaced_<resource_name>``        |
+|       |        |      || ``def event(item)``                    |
++-------+--------+------+-----------------------------------------+
+|Update |Item    |Before|| ``on_update``                          |
+|       |        |      || ``def event(resource_name, item)``     |
+|       |        |      +-----------------------------------------+
+|       |        |      || ``on_update_<resource_name>``          |
+|       |        |      || ``def event(item)``                    |
+|       |        +------+-----------------------------------------+
+|       |        |After || ``on_updated``                         |
+|       |        |      || ``def event(resource_name, item)``     |
+|       |        |      +-----------------------------------------+
+|       |        |      || ``on_updated_<resource_name>``         |
+|       |        |      || ``def event(item)``                    |
++-------+--------+------+-----------------------------------------+
+|Delete |Item    |Before|| ``on_delete_item``                     |
+|       |        |      || ``def event(resource_name, item)``     |
+|       |        |      +-----------------------------------------+
+|       |        |      || ``on_delete_item_<resource_name>``     |
+|       |        |      || ``def event(item)``                    |
+|       |        +------+-----------------------------------------+
+|       |        |After || ``on_deleted_item``                    |
+|       |        |      || ``def event(resource_name, item)``     |
+|       |        |      +-----------------------------------------+
+|       |        |      || ``on_deleted_item_<resource_name>``    |
+|       |        |      || ``def event(item)``                    |
+|       +--------+------+-----------------------------------------+
+|       |Resource|Before|| ``on_delete_resource``                 |
+|       |        |      || ``def event(resource_name, item)``     |
+|       |        |      +-----------------------------------------+
+|       |        |      || ``on_delete_resource_<resource_name>`` |
+|       |        |      || ``def event(item)``                    |
+|       |        +------+-----------------------------------------+
+|       |        |After || ``on_deleted_resource``                |
+|       |        |      || ``def event(resource_name, item)``     |
+|       |        |      +-----------------------------------------+
+|       |        |      || ``on_deleted_resource_<resource_name>``|
+|       |        |      || ``def event(item)``                    |
++-------+--------+------+-----------------------------------------+
+
+
+
+Fetch Events
+^^^^^^^^^^^^
+
+These are the fetch events with their method signature:
+
+- ``on_fetched_resource(resource, documents)``
+- ``on_fetched_resource_<resource>(documents)``
+- ``on_fetched_item(resource, id, document)``
+- ``on_fetched_item_<resource>(id, document)``
+
+They are raised when documents have just been read from the database and are
+about to be sent to the client. Registered callback functions can manipulate
+the documents as needed before they are returned to the client.
 
 .. code-block:: pycon
 
@@ -878,15 +979,23 @@ documents as needed before they are returned to the client.
     ...  print 'About to return a contact'
 
     >>> app = Eve()
-    >>> app.on_fetch_resource += before_returning_items
-    >>> app.on_fetch_resource_contacts += before_returning_contacts
-    >>> app.on_fetch_item += before_returning_item
-    >>> app.on_fetch_item_contact += before_returning_contact
+    >>> app.on_fetched_resource += before_returning_items
+    >>> app.on_fetched_resource_contacts += before_returning_contacts
+    >>> app.on_fetched_item += before_returning_item
+    >>> app.on_fetched_item_contact += before_returning_contact
 
     >>> app.run()
 
-The ``on_insert`` Event
-~~~~~~~~~~~~~~~~~~~~~~~
+Insert Events
+^^^^^^^^^^^^^
+
+These are the insert events with their method signature:
+
+- ``on_insert(resource, items)``
+- ``on_insert_<resource>(items)``
+- ``on_inserted(resource, items)``
+- ``on_inserted_<resource>(items)``
+
 When a POST requests hits the API and new documents are about to be stored in
 the database, ``on_insert(resource, documents)`` and
 ``on_insert_<resource>(documents)`` events are raised.
@@ -915,8 +1024,16 @@ or edit existing ones.
 
     >>> app.run()
 
-The ``on_replace`` Event
-~~~~~~~~~~~~~~~~~~~~~~~~
+Replace Events
+^^^^^^^^^^^^^^
+
+These are the replace events with their method signature:
+
+- ``on_replace(resource, item)``
+- ``on_replace_<resource>(item)``
+- ``on_replaced(resource, item)``
+- ``on_replaced_<resource>(item)``
+
 When a PUT request hits the API and a document is about to be replaced, both
 ``on_replace(resource, document)`` and ``on_replace_<resource>(document)``
 events are raised.
@@ -930,8 +1047,16 @@ validation.
 could hook into these events to arbitrarily add or update its fields, or to
 perform other accessory action.
 
-The ``on_update`` Event
-~~~~~~~~~~~~~~~~~~~~~~~
+Update Events
+^^^^^^^^^^^^^
+
+These are the update events with their method signature:
+
+- ``on_update(resource, item)``
+- ``on_update_<resource>(item)``
+- ``on_updated(resource, item)``
+- ``on_updated_<resource>(item)``
+
 When a PATCH request hits the API and a document is about to be updated, both
 ``on_update(resource, document)`` and ``on_update_<resource>(document)``
 events are raised.
@@ -951,10 +1076,23 @@ action.
     consistent with the state of the documents on the database (they  won't be
     updated to reflect changes eventually applied by the callback functions).
 
-The ``on_delete`` Events
-~~~~~~~~~~~~~~~~~~~~~~~~
-Document deletion
-^^^^^^^^^^^^^^^^^
+Delete Events
+^^^^^^^^^^^^^
+
+These are the delete events with their method signature:
+
+- ``on_delete_item(resource_name, item)``
+- ``on_delete_item_<resource_name>(item)``
+- ``on_deleted_item(resource_name, item)``
+- ``on_deleted_item_<resource_name>(item)``
+- ``on_delete_resource(resource_name)``
+- ``on_delete_resource_<resource_name>()``
+- ``on_deleted_resource(resource_name)``
+- ``on_deleted_resource_<resource_name>()``
+
+Documents
+.........
+
 When a DELETE request hits a document endpoint both
 ``on_delete(resource, document)`` and ``on_delete_<resource>(document)``
 events are raised.
@@ -968,12 +1106,14 @@ these events to perform accessory actions. And no you can't arbitrarily abort
 the delete operation at this point (you should probably look at
 :ref:`validation`, or eventually disable the delete command altogether).
 
-Resource deleteion
-^^^^^^^^^^^^^^^^^^
+Resources
+.........
+
 If you were brave enough to enable the DELETE command on resource endpoints
 (allowing for wipeout of the entire collection in one go), then you can be
 notified of such a disastrous occurence by hooking a callback function to the
 ``on_resource_delete(resource)`` hook.
+
 
 .. admonition:: Please note
 

@@ -1,6 +1,11 @@
-from eve.tests import TestBase
+from bson import ObjectId
 import simplejson as json
 from ast import literal_eval
+
+from eve.tests import TestBase
+from eve.tests.utils import DummyEvent
+from eve.tests.test_settings import MONGO_DBNAME
+
 from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, DATE_CREATED, ISSUES, \
     STATUS, ETAG
 
@@ -384,3 +389,70 @@ class TestPost(TestBase):
         headers.append(('Content-Type', content_type))
         r = self.test_client.post(url, data=json.dumps(data), headers=headers)
         return self.parse_response(r)
+
+
+class TestEvents(TestBase):
+    new_contact_id = "0123456789012345678901234"
+
+    def test_on_pre_POST(self):
+        devent = DummyEvent(self.before_insert)
+        self.app.on_pre_POST += devent
+        self.post()
+        self.assertIsNotNone(devent.called)
+
+    def test_on_pre_POST_contacts(self):
+        devent = DummyEvent(self.before_insert)
+        self.app.on_pre_POST_contacts += devent
+        self.post()
+        self.assertIsNotNone(devent.called)
+
+    def test_on_post_POST(self):
+        devent = DummyEvent(self.after_insert)
+        self.app.on_post_POST += devent
+        self.post()
+        self.assertEqual(devent.called[0], self.known_resource)
+
+    def test_on_POST_post_resource(self):
+        devent = DummyEvent(self.after_insert)
+        self.app.on_post_POST_contacts += devent
+        self.post()
+        self.assertIsNotNone(devent.called)
+
+    def test_on_insert(self):
+        devent = DummyEvent(self.before_insert, True)
+        self.app.on_insert += devent
+        self.post()
+        self.assertEqual(self.known_resource, devent.called[0])
+        self.assertEqual(self.new_contact_id, devent.called[1][0]['ref'])
+
+    def test_on_insert_contacts(self):
+        devent = DummyEvent(self.before_insert, True)
+        self.app.on_insert_contacts += devent
+        self.post()
+        self.assertEqual(self.new_contact_id, devent.called[0][0]['ref'])
+
+    def test_on_inserted(self):
+        devent = DummyEvent(self.after_insert, True)
+        self.app.on_inserted += devent
+        self.post()
+        self.assertEqual(self.known_resource, devent.called[0])
+        self.assertEqual(self.new_contact_id, devent.called[1][0]['ref'])
+
+    def test_on_inserted_contacts(self):
+        devent = DummyEvent(self.after_insert, True)
+        self.app.on_inserted_contacts += devent
+        self.post()
+        self.assertEqual(self.new_contact_id, devent.called[0][0]['ref'])
+
+    def post(self):
+        headers = [('Content-Type', 'application/json')]
+        data = json.dumps({"ref": self.new_contact_id})
+        self.test_client.post(
+            self.known_resource_url, data=data, headers=headers)
+
+    def before_insert(self):
+        db = self.connection[MONGO_DBNAME]
+        return db.contacts.find_one({"ref": self.new_contact_id}) is None
+
+    def after_insert(self):
+        return not self.before_insert()

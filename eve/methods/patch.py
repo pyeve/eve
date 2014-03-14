@@ -34,6 +34,7 @@ def patch(resource, **lookup):
 
     .. versionchanged:: 0.4
        'on_update' raised before performing the update on the database.
+       'on_updated' raised after performing the update on the database.
 
     .. versionchanged:: 0.3
        Support for media fields.
@@ -115,6 +116,10 @@ def patch(resource, **lookup):
             getattr(app, "on_update_%s" % resource)(original)
 
             app.data.update(resource, object_id, updates)
+
+            # nofity callbacks
+            getattr(app, "on_updated")(resource, original)
+            getattr(app, "on_updated_%s" % resource)(original)
 
             response[config.ID_FIELD] = original[config.ID_FIELD]
             last_modified = response[config.LAST_UPDATED] = \

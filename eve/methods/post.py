@@ -58,6 +58,7 @@ def post(resource, payl=None):
        Explictly resolve default values instead of letting them be resolved
        by common.parse. This avoids a validation error when a read-only field
        also has a default value.
+       Added ``on_inserted*`` events after the database insert
 
     .. versionchanged:: 0.1.1
        auth.request_auth_value is now used to store the auth_field value.
@@ -156,6 +157,9 @@ def post(resource, payl=None):
         # bulk insert
         ids = app.data.insert(resource, documents)
 
+        # notify callbacks
+        getattr(app, "on_inserted")(resource, documents)
+        getattr(app, "on_inserted_%s" % resource)(documents)
         # request was received and accepted; at least one document passed
         # validation and was accepted for insertion.
 
