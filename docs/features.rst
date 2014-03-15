@@ -696,6 +696,11 @@ target the same database collection. A typical use-case would be a
 hypothetical ``people`` collection on the database being used by both the
 ``/admins`` and ``/users`` API endpoints.
 
+.. admonition:: See also
+
+    - :ref:`datasource`
+    - :ref:`filter`
+
 .. _projections:
 
 Projections
