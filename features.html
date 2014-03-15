@@ -675,11 +675,11 @@ Eve-powered APIs can be accessed by the JavaScript contained in web pages.</p>
 <p>If all you need is a read-only API, then you can have it up and running in
 a matter of minutes.</p>
 </div>
-<div class="section" id="default-values">
-<h2>Default Values<a class="headerlink" href="#default-values" title="Permalink to this headline">¶</a></h2>
-<p>It is possible to set default values for fields. When serving POST
-(create) requests, missing fields will be assigned the configured default
-values.</p>
+<div class="section" id="default-and-nullable-values">
+<h2>Default and Nullable Values<a class="headerlink" href="#default-and-nullable-values" title="Permalink to this headline">¶</a></h2>
+<p>Fields can have default values and nullable types. When serving POST (create)
+requests, missing fields will be assigned the configured default values. See
+<tt class="docutils literal"><span class="pre">default</span></tt> and <tt class="docutils literal"><span class="pre">nullable</span></tt> keywords in <a class="reference internal" href="config.html#schema"><em>Schema Definition</em></a> for more informations.</p>
 </div>
 <div class="section" id="predefined-database-filters">
 <h2>Predefined Database Filters<a class="headerlink" href="#predefined-database-filters" title="Permalink to this headline">¶</a></h2>
@@ -1143,7 +1143,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li><a class="reference internal" href="#authentication">Authentication</a></li>
 <li><a class="reference internal" href="#cors-cross-origin-resource-sharing">CORS Cross-Origin Resource Sharing</a></li>
 <li><a class="reference internal" href="#read-only-by-default">Read-only by default</a></li>
-<li><a class="reference internal" href="#default-values">Default Values</a></li>
+<li><a class="reference internal" href="#default-and-nullable-values">Default and Nullable Values</a></li>
 <li><a class="reference internal" href="#predefined-database-filters">Predefined Database Filters</a></li>
 <li><a class="reference internal" href="#projections">Projections</a></li>
 <li><a class="reference internal" href="#embedded-resource-serialization">Embedded Resource Serialization</a><ul>
