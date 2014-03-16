@@ -866,8 +866,10 @@ configured:
    >>> app.on_fetched_item += add_signature
 
 The events are fired for resources and items if the action is available for
-both. And for each action two events will be fired: a generic one and another
-with the name of the resource.
+both. And for each action two events will be fired: 
+
+- Generic: ``on_<action_name>``
+- With the name of the resource: ``on_<action_name>_<resource_name>``
 
 Let's see an overview of what events are available:
 
@@ -887,7 +889,7 @@ Let's see an overview of what events are available:
 |       |        |      || ``on_fetched_item_<resource>``         |
 |       |        |      || ``def event(id, item)``                |
 +-------+--------+------+-----------------------------------------+
-|Insert |Item/s  |Before|| ``on_insert``                          |
+|Insert |Items   |Before|| ``on_insert``                          |
 |       |        |      || ``def event(resource_name, items)``    |
 |       |        |      +-----------------------------------------+
 |       |        |      || ``on_insert_<resource_name>``          |
@@ -955,27 +957,27 @@ Fetch Events
 
 These are the fetch events with their method signature:
 
-- ``on_fetched_resource(resource, documents)``
-- ``on_fetched_resource_<resource>(documents)``
-- ``on_fetched_item(resource, id, document)``
-- ``on_fetched_item_<resource>(id, document)``
+- ``on_fetched_resource(resource_name, items)``
+- ``on_fetched_resource_<resource_name>(items)``
+- ``on_fetched_item(resource_name, id, item)``
+- ``on_fetched_item_<resource_name>(id, item)``
 
-They are raised when documents have just been read from the database and are
+They are raised when items have just been read from the database and are
 about to be sent to the client. Registered callback functions can manipulate
-the documents as needed before they are returned to the client.
+the items as needed before they are returned to the client.
 
 .. code-block:: pycon
 
-    >>> def before_returning_items(resource, documents):
-    ...  print 'About to return items from "%s" ' % resource
+    >>> def before_returning_items(resource_name, items):
+    ...  print 'About to return items from "%s" ' % resource_name
 
-    >>> def before_returning_contacts(documents):
+    >>> def before_returning_contacts(items):
     ...  print 'About to return contacts'
 
-    >>> def before_returning_item(resource, _id, document):
-    ...  print 'About to return an item from "%s" ' % resource
+    >>> def before_returning_item(resource_name, _id, item):
+    ...  print 'About to return an item from "%s" ' % resource_name
 
-    >>> def before_returning_contact(_id, document):
+    >>> def before_returning_contact(_id, item):
     ...  print 'About to return a contact'
 
     >>> app = Eve()
@@ -984,96 +986,108 @@ the documents as needed before they are returned to the client.
     >>> app.on_fetched_item += before_returning_item
     >>> app.on_fetched_item_contact += before_returning_contact
 
-    >>> app.run()
 
 Insert Events
 ^^^^^^^^^^^^^
 
 These are the insert events with their method signature:
 
-- ``on_insert(resource, items)``
-- ``on_insert_<resource>(items)``
-- ``on_inserted(resource, items)``
-- ``on_inserted_<resource>(items)``
+- ``on_insert(resource_name, items)``
+- ``on_insert_<resource_name>(items)``
+- ``on_inserted(resource_name, items)``
+- ``on_inserted_<resource_name>(items)``
 
-When a POST requests hits the API and new documents are about to be stored in
-the database, ``on_insert(resource, documents)`` and
-``on_insert_<resource>(documents)`` events are raised.
+When a POST requests hits the API and new items are about to be stored in
+the database, these vents are fired:
 
-``on_insert`` is raised on every resource being updated while
-``on_insert_<resource>`` is raised when the `<resource>` endpoint has been hit
-with the POST request. In both circumstances, the event will be raised only if at
-least one document passed validation and is going to be inserted. `documents`
-is a list of documents that are ready for insertion (documents that did not
-pass validation are not included).
+- ``on_insert`` for every resource endpoint.
+- ``on_insert_<resource_name>`` for the specific `<resource_name>` resource
+  endpoint.
 
 Callback functions could hook into these events to arbitrarily add new fields
 or edit existing ones.
 
+After the items have been inserted, these two events are fired:
+
+- ``on_inserted`` for every resource endpoint.
+- ``on_inserted_<resource_name>`` for the specific `<resource_name>` resource
+  endpoint.
+
+.. admonition:: Validation errors
+
+    Items passed to these events as arguments come in a list. And only those items
+    that passed validation are sent.
+
+Example:
+
 .. code-block:: pycon
 
-    >>> def before_insert(resource, documents):
-    ...  print 'About to store documents to "%s" ' % resource
+    >>> def before_insert(resource_name, items):
+    ...  print 'About to store items to "%s" ' % resource
 
-    >>> def before_insert_contacts(documents):
+    >>> def after_insert_contacts(items):
     ...  print 'About to store contacts'
 
     >>> app = Eve()
     >>> app.on_insert += before_insert
-    >>> app.on_insert_contacts += before_insert_contacts
+    >>> app.on_inserted_contacts += after_insert_contacts
 
-    >>> app.run()
 
 Replace Events
 ^^^^^^^^^^^^^^
 
 These are the replace events with their method signature:
 
-- ``on_replace(resource, item)``
-- ``on_replace_<resource>(item)``
-- ``on_replaced(resource, item)``
-- ``on_replaced_<resource>(item)``
+- ``on_replace(resource_name, item)``
+- ``on_replace_<resource_name>(item)``
+- ``on_replaced(resource_name, item)``
+- ``on_replaced_<resource_name>(item)``
 
-When a PUT request hits the API and a document is about to be replaced, both
-``on_replace(resource, document)`` and ``on_replace_<resource>(document)``
-events are raised.
+When a PUT request hits the API and a item is about to be replaced after
+passing validation, these events are fired:
 
-``on_replace`` is raised for any endpoint hit by the request while
-``on_replace_<resource>`` is only raised when the `<resource>` endpoint is hit
-by the PUT. In both circumstances the event will be raised only if it passed
-validation.
+- ``on_replace`` for any resource item endpoint.
+- ``on_replace_<resource_name>`` for the specific resource endpoint.
 
-`document` is the new document which is about to be stored. Callback functions
+`item` is the new item which is about to be stored. Callback functions
 could hook into these events to arbitrarily add or update its fields, or to
 perform other accessory action.
+
+After the item has been replaced, these other two events are fired:
+
+- ``on_replaced`` for any resource item endpoint.
+- ``on_replaced_<resource_name>`` for the specific resource endpont.
 
 Update Events
 ^^^^^^^^^^^^^
 
 These are the update events with their method signature:
 
-- ``on_update(resource, item)``
-- ``on_update_<resource>(item)``
-- ``on_updated(resource, item)``
-- ``on_updated_<resource>(item)``
+- ``on_update(resource_name, item)``
+- ``on_update_<resource_name>(item)``
+- ``on_updated(resource_name, item)``
+- ``on_updated_<resource_name>(item)``
 
-When a PATCH request hits the API and a document is about to be updated, both
-``on_update(resource, document)`` and ``on_update_<resource>(document)``
-events are raised.
+When a PATCH request hits the API and a item is about to be updated after
+passing validation, these events are fired  `before` the item is updated:
 
-``on_update`` is raised for any endpoint hit by the request while
-``on_update_<resource>`` is only raised when the `<resource>` endpoint is hit
-by the PATCH. In both circumstances the event will be raised only if the proposed changes passed
-validation.
+- ``on_update`` for any resource endpoint.
+- ``on_update_<resource_name>`` is fired only when the `<resource>` endpoint is hit.
 
-`document` is the updated document. Callback functions could hook into these
+Here `item` is the updated item. Callback functions could hook into these
 events to arbitrarily add or update its fields, or to perform other accessory
 action.
+
+`After` the item has been updated: 
+
+- ``on_updated(resource_name, item)`` is fired for any resource endpoint.
+- ``on_updated_<resource_name>(item)`` is fired only when the `<resource_name>`
+  endpoint is hit.
 
 .. admonition:: Please note
 
     Please be aware that ``last_modified`` and ``etag`` headers will always be
-    consistent with the state of the documents on the database (they  won't be
+    consistent with the state of the items on the database (they  won't be
     updated to reflect changes eventually applied by the callback functions).
 
 Delete Events
@@ -1090,18 +1104,20 @@ These are the delete events with their method signature:
 - ``on_deleted_resource(resource_name)``
 - ``on_deleted_resource_<resource_name>()``
 
-Documents
-.........
+Items
+.....
 
-When a DELETE request hits a document endpoint both
-``on_delete(resource, document)`` and ``on_delete_<resource>(document)``
-events are raised.
+When a DELETE request hits a item endpoint and `before` the item is deleted,
+these events are fired:
 
-``on_delete`` is raised for any resource hit by the request while
-``on_delete_<resource>`` is only raised when the `<resource>` document endpoint is hit
-by the DELETE.
+- ``on_delete_item`` for any resource hit by the request.
+- ``on_delete_item_<resource_name>`` for the specific `<resource_name>` item endpoint
+  hit by the DELETE.
 
-`document` is the document being deleted. Callback functions could hook into
+`After` the item has been deleted the ``on_deleted_item(resource_name,
+item)`` and ``on_deleted_item_<resource_name>(item)`` are raised.
+
+`item` is the item being deleted. Callback functions could hook into
 these events to perform accessory actions. And no you can't arbitrarily abort
 the delete operation at this point (you should probably look at
 :ref:`validation`, or eventually disable the delete command altogether).
@@ -1112,7 +1128,8 @@ Resources
 If you were brave enough to enable the DELETE command on resource endpoints
 (allowing for wipeout of the entire collection in one go), then you can be
 notified of such a disastrous occurence by hooking a callback function to the
-``on_resource_delete(resource)`` hook.
+``on_delete_resource(resource_name)`` or
+``on_delete_resource_<resource_name>()`` hooks.
 
 
 .. admonition:: Please note
