@@ -450,7 +450,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertValidationError(r, {self.document_id_field:
             'unknown field'})
 
-    def test_post_referential_integrity(self):
+    def test_referential_integrity(self):
         """ Make sure that Eve still correctly handles vanilla data_relations
         when versioning is turned on. (Copied from tests/methods/post.py.)
         """
@@ -493,7 +493,7 @@ class TestDataRelationVersionNotVersioned(TestNormalVersioning):
         # insert versioned test data
         self.insertTestData()
 
-    def test_post_referential_integrity_with_version(self):
+    def test_referential_integrity(self):
         """ Make sure that Eve correctly validates a data_relation with a
         version and returns the version with the data_relation in the response.
         """
@@ -553,10 +553,36 @@ class TestDataRelationVersionNotVersioned(TestNormalVersioning):
                                     headers=[('If-Match', self.item_etag)])
         self.assertGoodPutPatch(response, status)
 
-        # good everything... this should work
+        # reference first version... this should work
+        data = {"person": {value_field: self.item_id, version_field: 1}}
+        r, status = self.post('/invoices/', data=data)
+        self.assert201(status)
+
+        # reference second version... this should work
         data = {"person": {value_field: self.item_id, version_field: 2}}
         r, status = self.post('/invoices/', data=data)
         self.assert201(status)
+
+    def test_embedded(self):
+        """ Perform a quick check to make sure that Eve can embedded with a
+        version in the data relation.
+        """
+        data_relation = \
+            self.domain['invoices']['schema']['person']['data_relation']
+        value_field = data_relation['field']
+
+        # add embeddable data relation
+        data = {"person": {value_field: self.item_id, self.version_field: 1}}
+        response, status = self.post('/invoices/', data=data)
+        invoice_id = response[self.app.config['ID_FIELD']]
+        self.assert201(status)
+
+        # test that it works
+        response, status = self.get(self.domain['invoices']['url'],
+            item=invoice_id, query='?embedded={"person": 1}')
+        print response['person']
+        self.assert200(status)
+        self.assertTrue('location' in response['person'])
 
 
 class TestDataRelationVersionVersioned(TestNormalVersioning):
@@ -584,7 +610,7 @@ class TestDataRelationVersionVersioned(TestNormalVersioning):
         # insert versioned test data
         self.insertTestData()
 
-    def test_post_referential_integrity_with_version(self):
+    def test_referential_integrity(self):
         """ Make sure that Eve correctly distinguishes between versions when
         referencing fields that aren't '_id'.
         """
