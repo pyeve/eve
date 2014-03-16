@@ -31,7 +31,8 @@ class TestVersioningBase(TestBase):
         if partial == True:
             contact_schema = self.domain['contacts']['schema']
             contact_schema[self.unversioned_field]['versioned'] = False
-        for resource, settings in self.domain.items():
+        domain = copy.copy(self.domain)
+        for resource, settings in domain.items():
             settings['versioning'] = True
             settings['datasource'].pop('projection', None)
             self.app.register_resource(resource, settings)
