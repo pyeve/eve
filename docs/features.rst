@@ -711,11 +711,11 @@ Read-only by default
 If all you need is a read-only API, then you can have it up and running in
 a matter of minutes.
 
-Default Values
---------------
-It is possible to set default values for fields. When serving POST
-(create) requests, missing fields will be assigned the configured default
-values.
+Default and Nullable Values
+---------------------------
+Fields can have default values and nullable types. When serving POST (create)
+requests, missing fields will be assigned the configured default values. See
+``default`` and ``nullable`` keywords in :ref:`schema` for more informations.
 
 Predefined Database Filters
 ---------------------------
@@ -724,6 +724,11 @@ a predefined filter. This allows for multiple resource endpoints to seamlessly
 target the same database collection. A typical use-case would be a
 hypothetical ``people`` collection on the database being used by both the
 ``/admins`` and ``/users`` API endpoints.
+
+.. admonition:: See also
+
+    - :ref:`datasource`
+    - :ref:`filter`
 
 .. _projections:
 
