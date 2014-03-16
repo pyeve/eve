@@ -17,6 +17,7 @@ from bson import ObjectId
 from flask import current_app as app
 from cerberus import Validator
 from werkzeug.datastructures import FileStorage
+from eve.versioning import versioned_fields
 
 
 class Validator(Validator):
@@ -129,32 +130,34 @@ class Validator(Validator):
                         " if '%s' isn't versioned" % data_relation['resource'])
                 else:
                     collection = data_relation['resource']
-                    query = {data_relation['field']: value[value_field]}
+                    query = {}
 
                     # tweak the query if the foreign field is versioned
-                    # if resouce_def[value_field].setdefault('versioned', True):
-                    #     # the field is versioned, search the shadow collection
-                    #     collection += config.VERSIONS
-
-                    #     # add the version to the query
-                    #     query[version_field] = value[version_field]
+                    if value_field in versioned_fields(resouce_def):
+                        self._error(field, 'not implemented')
+                        # # the field is versioned, search the shadow collection
+                        # collection += config.VERSIONS
                         
-                    #     # special consideration for _id overloading
-                    #     if data_relation['field'] == config.ID_FIELD:
-                    #         query[data_relation['field'] + \
-                    #             config.VERSION_ID_SUFFIX] = value[value_field]
-                    #     else:
-                    #         query[data_relation['field']] = value[value_field]
-                    # else:
-                    #     # the field is not versioned, search the primary doc
-                    #     query[data_relation['field']] = value[value_field]
+                        # # special consideration for _id overloading
+                        # if value_field == config.ID_FIELD:
+                        #     query[value_field + config.VERSION_ID_SUFFIX] = \
+                        #         value[value_field]
+                        # else:
+                        #     query[value_field] = value[value_field]
+
+                        # # add the version to the query
+                        # query[version_field] = value[version_field]
+                    else:
+                        # the field is not versioned, search the primary doc
+                        query[value_field] = value[value_field]
+                        query[version_field] = {'$gte': value[version_field]}
                     
                     # perform search
                     if not app.data.find_one(collection, None, **query):
                         self._error(field, "value '%s' must exist in resource"
-                            " '%s', field '%s' at version '%s'." % (value,
-                            data_relation['resource'], data_relation['field'],
-                            value[version_field]))
+                            " '%s', field '%s' at version '%s'." %
+                            (value[value_field], data_relation['resource'],
+                            data_relation['field'], value[version_field]))
             else:
                 self._error(field, "versioned data_relation must be a dict with"
                     " fields '%s' and '%s'" % (value_field, version_field))

@@ -228,22 +228,6 @@ class TestCompleteVersioning(TestNormalVersioning):
     def setUp(self):
         super(TestCompleteVersioning, self).setUp()
 
-        # enable versioning in the invoice data_relation definition
-        invoice_schema = self.domain['invoices']['schema']
-        invoice_schema['person'] = {
-            'type': 'dict',
-            'schema': {
-                '_id': {'type': 'objectid'},
-                self.app.config['VERSION']: {'type': 'integer'}
-            },
-            'data_relation': {
-                'version': True,
-                'resource': 'contacts',
-                'embeddable': True
-                #'field': '_id' is auto filled
-            }
-        }
-
         # turn on version after data has been inserted into the db
         self.enableVersioning()
 
@@ -462,6 +446,33 @@ class TestCompleteVersioning(TestNormalVersioning):
         r, status = self.post('/invoices/', data=data)
         self.assert201(status)
 
+
+class TestDataRelationVersionNotVersioned(TestNormalVersioning):
+    def setUp(self):
+        super(TestDataRelationVersionNotVersioned, self).setUp()
+
+        # enable versioning in the invoice data_relation definition
+        invoice_schema = self.domain['invoices']['schema']
+        invoice_schema['person'] = {
+            'type': 'dict',
+            'schema': {
+                '_id': {'type': 'objectid'},
+                self.app.config['VERSION']: {'type': 'integer'}
+            },
+            'data_relation': {
+                'version': True,
+                'resource': 'contacts',
+                'embeddable': True
+                #'field': '_id' is auto filled
+            }
+        }
+
+        # turn on version after data has been inserted into the db
+        self.enableVersioning()
+
+        # insert versioned test data
+        self.insertTestData()
+
     def test_post_referential_integrity_with_version(self):
         """ Make sure that Eve correctly validates a data_relation with a
         version and returns the version with the data_relation in the response.
@@ -496,63 +507,85 @@ class TestCompleteVersioning(TestNormalVersioning):
         data = {"person": {value_field: 'bad', version_field: 1}}
         r, status = self.post('/invoices/', data=data)
         self.assert200(status)
-        self.assertTrue(ISSUES in r)
         self.assertValidationError(r, {'person': {
             value_field: "value 'bad' cannot be converted to a ObjectId"}}) 
-        # self.assertTrue(r[ISSUES] == 
 
         # unknown id
         data = {"person": {value_field: self.unknown_item_id, version_field: 1}}
         r, status = self.post('/invoices/', data=data)
-        print r
         self.assert200(status)
-        # self.assertTrue(ISSUES in r)
-        # self.assertTrue(r[ISSUES] == {'person': {
-        #     value_field: "value 'bad' cannot be converted to a ObjectId"}})
-        # data = {"person": {value_field: self.unknown_item_id, version_field: 1}}
+        self.assertValidationError(r, {'person': "value '%s' must exist in "
+                            "resource '%s', field '%s' at version '%s'." %
+                            (self.unknown_item_id, 'contacts',
+                            value_field, 1)})
+
+        # version doesn't exist
+        data = {"person": {value_field: self.item_id, version_field: 2}}
+        r, status = self.post('/invoices/', data=data)
+        self.assert200(status)
+        self.assertValidationError(r, {'person': "value '%s' must exist in "
+                            "resource '%s', field '%s' at version '%s'." %
+                            (self.item_id, 'contacts',
+                            value_field, 2)}) 
+
+        # put a second version
+        response, status = self.put(self.item_id_url, data=self.item_change,
+                                    headers=[('If-Match', self.item_etag)])
+        self.assertGoodPutPatch(response, status)
+
+        # good everything... this should work
+        data = {"person": {value_field: self.item_id, version_field: 2}}
+        r, status = self.post('/invoices/', data=data)
+        self.assert201(status)
+
+
+class TestDataRelationVersionVersioned(TestNormalVersioning):
+    def setUp(self):
+        super(TestDataRelationVersionVersioned, self).setUp()
+
+        # enable versioning in the invoice data_relation definition
+        invoice_schema = self.domain['invoices']['schema']
+        invoice_schema['person'] = {
+            'type': 'dict',
+            'schema': {
+                '_id': {'type': 'objectid'},
+                self.app.config['VERSION']: {'type': 'integer'}
+            },
+            'data_relation': {
+                'version': True,
+                'resource': 'contacts',
+                'embeddable': True
+                #'field': '_id' is auto filled
+            }
+        }
+
+        # turn on version after data has been inserted into the db
+        self.enableVersioning()
+
+        # insert versioned test data
+        self.insertTestData()
+
+    def test_post_referential_integrity_with_version(self):
+        """ Make sure that Eve correctly distinguishes between versions when
+        referencing fields that aren't '_id'.
+        """
+        # put a new version
+
+        # good everything... this should work
+        # data = {"person": {value_field: self.item_id, version_field: 2}}
+        # r, status = self.post('/invoices/', data=data)
+        # print r
+        # self.assert201(status)
+
+        # field doesn't exist in this version
+        # data = {"person": {value_field: self.item_id, version_field: 2}}
         # r, status = self.post('/invoices/', data=data)
         # print r
         # self.assert200(status)
-        # self.assertValidationError(r, {'person': validation_error_format})
-
-        # version doesn't exist
-
-        # put a new version
-
-        # field doesn't exist in this version
-
-        # good everything... this should work
-
-
-
-
-
-
-
-
-        # perform test with bad field
-
-        # perform good test
-        # data = {"person": self.unknown_item_id}
-        # r, status = self.post('/invoices/', data=data)
-        # self.assert200(status)
-        # expected = ("value '%s' must exist in resource '%s', field '%s'" %
-        #             (self.unknown_item_id, 'contacts',
-        #              self.app.config['ID_FIELD']) + " at version '%s'" %
-        #             1)
-        # self.assertValidationError(r, {'person': expected})
-
-        # data = {"person": self.item_id}
-        # r, status = self.post('/invoices/', data=data)
-        # self.assert201(status)
-
-        # TODO: could do similar referential checks against different versions
-
-    def test_embedded_referential_integrity_with_version(self):
-        """ Make sure that Eve send the correct embedded document when the
-        data_relation points to a specific version.
-        """
-        pass #todo
+        # self.assertValidationError(r, {'person': "value '%s' must exist in "
+        #                     "resource '%s', field '%s' at version '%s'." %
+        #                     (self.unknown_item_id, 'contacts',
+        #                     value_field, 2)})
 
 
 class TestPartialVersioning(TestNormalVersioning):
