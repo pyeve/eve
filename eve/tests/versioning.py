@@ -423,16 +423,36 @@ class TestCompleteVersioning(TestNormalVersioning):
         # this type of query, Eve needs to normalize the projection before
         # passing it to MongoDB.
 
-    def test_unallow_automatic_fields(self):
+    def test_automatic_fields(self):
         """ Make sure that Eve throws an error if we try to set a versioning
         field manually.
         """
+        # set _version
+        self.item_change[self.version_field] = '1'
+        r, status = self.post(self.known_resource_url,
+            data=self.item_change)
+        self.assert200(status)
+        self.assertValidationError(r, {self.version_field: 'unknown field'})
 
-        pass # todo
+        # set _latest_version
+        self.item_change[self.latest_version_field] = '1'
+        r, status = self.post(self.known_resource_url,
+            data=self.item_change)
+        self.assert200(status)
+        self.assertValidationError(r, {self.latest_version_field:
+            'unknown field'})
+
+        # set _id_document
+        self.item_change[self.document_id_field] = '1'
+        r, status = self.post(self.known_resource_url,
+            data=self.item_change)
+        self.assert200(status)
+        self.assertValidationError(r, {self.document_id_field:
+            'unknown field'})
 
     def test_post_referential_integrity(self):
         """ Make sure that Eve still correctly handles vanilla data_relations
-        when versioning is turned on. (Coped from tests/methods/post.py.)
+        when versioning is turned on. (Copied from tests/methods/post.py.)
         """
         data = {"person": self.unknown_item_id}
         r, status = self.post('/invoices/', data=data)
@@ -548,14 +568,13 @@ class TestDataRelationVersionVersioned(TestNormalVersioning):
         invoice_schema['person'] = {
             'type': 'dict',
             'schema': {
-                '_id': {'type': 'objectid'},
+                'ref': {'type': 'string'},
                 self.app.config['VERSION']: {'type': 'integer'}
             },
             'data_relation': {
                 'version': True,
                 'resource': 'contacts',
-                'embeddable': True
-                #'field': '_id' is auto filled
+                'field': 'ref'
             }
         }
 
@@ -569,23 +588,23 @@ class TestDataRelationVersionVersioned(TestNormalVersioning):
         """ Make sure that Eve correctly distinguishes between versions when
         referencing fields that aren't '_id'.
         """
-        # put a new version
+        # put a second version
+        response, status = self.put(self.item_id_url, data=self.item_change,
+                                    headers=[('If-Match', self.item_etag)])
+        self.assertGoodPutPatch(response, status)
 
-        # good everything... this should work
-        # data = {"person": {value_field: self.item_id, version_field: 2}}
-        # r, status = self.post('/invoices/', data=data)
-        # print r
-        # self.assert201(status)
+        # try saving a field from the first version against version 2
+        data = {"person": {'ref': self.item['ref'], self.version_field: 2}}
+        r, status = self.post('/invoices/', data=data)
+        self.assert200(status)
+        self.assertValidationError(r, {'person': "value '%s' must exist in "
+                            "resource '%s', field '%s' at version '%s'." %
+                            (self.item['ref'], 'contacts', 'ref', 2)})
 
-        # field doesn't exist in this version
-        # data = {"person": {value_field: self.item_id, version_field: 2}}
-        # r, status = self.post('/invoices/', data=data)
-        # print r
-        # self.assert200(status)
-        # self.assertValidationError(r, {'person': "value '%s' must exist in "
-        #                     "resource '%s', field '%s' at version '%s'." %
-        #                     (self.unknown_item_id, 'contacts',
-        #                     value_field, 2)})
+        # try saving against the first version...this should work
+        data = {"person": {'ref': self.item['ref'], self.version_field: 1}}
+        r, status = self.post('/invoices/', data=data)
+        self.assert201(status)
 
 
 class TestPartialVersioning(TestNormalVersioning):

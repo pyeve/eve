@@ -374,7 +374,7 @@ class Eve(Flask, Events):
                         value_field not in ruleset['schema'] or \
                         'type' not in ruleset['schema'][value_field]:
                             raise SchemaException(
-                                "Must have schema with type defined for %s when"
+                                "Must defined type for '%s' in schema when "
                                 "declaring an embedded data_relation with"
                                 " version." % value_field
                             )

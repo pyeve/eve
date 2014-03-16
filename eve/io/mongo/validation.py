@@ -134,19 +134,18 @@ class Validator(Validator):
 
                     # tweak the query if the foreign field is versioned
                     if value_field in versioned_fields(resouce_def):
-                        self._error(field, 'not implemented')
-                        # # the field is versioned, search the shadow collection
-                        # collection += config.VERSIONS
+                        # the field is versioned, search the shadow collection
+                        collection += config.VERSIONS
                         
-                        # # special consideration for _id overloading
-                        # if value_field == config.ID_FIELD:
-                        #     query[value_field + config.VERSION_ID_SUFFIX] = \
-                        #         value[value_field]
-                        # else:
-                        #     query[value_field] = value[value_field]
+                        # special consideration for _id overloading
+                        if value_field == config.ID_FIELD:
+                            query[value_field + config.VERSION_ID_SUFFIX] = \
+                                value[value_field]
+                        else:
+                            query[value_field] = value[value_field]
 
-                        # # add the version to the query
-                        # query[version_field] = value[version_field]
+                        # add the version to the query
+                        query[version_field] = value[version_field]
                     else:
                         # the field is not versioned, search the primary doc
                         query[value_field] = value[value_field]
