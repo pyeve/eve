@@ -18,7 +18,8 @@ from eve.auth import requires_auth
 from eve.validation import ValidationError
 from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, pre_event, resolve_media_files
-from eve.versioning import resolve_document_version, insert_versioning_documents
+from eve.versioning import resolve_document_version, \
+    insert_versioning_documents
 
 
 @ratelimit()
@@ -132,10 +133,11 @@ def patch(resource, **lookup):
                     'self': document_link(resource, original[config.ID_FIELD])
                 }
 
-            if resource_def['versioning'] == True:
+            if resource_def['versioning'] is True:
                 resolve_document_version(original, resource, 'GET')
                 response[config.VERSION] = original[config.VERSION]
-                response[config.LATEST_VERSION] = original[config.LATEST_VERSION]
+                response[config.LATEST_VERSION] = \
+                    original[config.LATEST_VERSION]
 
         else:
             issues = validator.errors

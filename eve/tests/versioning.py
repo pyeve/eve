@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
-from bson import ObjectId
 
-import eve
-import json
+from bson import ObjectId
 import copy
-from eve import Eve
 from eve.tests import TestBase
-from eve import STATUS, STATUS_OK, ISSUES, ETAG
+from eve import STATUS, STATUS_OK, ETAG
 from eve.tests.test_settings import MONGO_DBNAME
-from bson.objectid import ObjectId
 
 
 class TestVersioningBase(TestBase):
@@ -28,7 +24,7 @@ class TestVersioningBase(TestBase):
 
     def enableVersioning(self, partial=False):
         del(self.domain['contacts']['schema']['title']['default'])
-        if partial == True:
+        if partial is True:
             contact_schema = self.domain['contacts']['schema']
             contact_schema[self.unversioned_field]['versioned'] = False
         domain = copy.copy(self.domain)
@@ -49,10 +45,9 @@ class TestVersioningBase(TestBase):
         self.assertTrue(self.latest_version_field in response)
         self.assertEqual(response[self.latest_version_field], latest_version)
 
-    def assertDocumentVersions(self, response, version,
-        latest_version = None):
+    def assertDocumentVersions(self, response, version, latest_version=None):
         self.assertVersion(response, version)
-        if latest_version == None:
+        if latest_version is None:
             latest_version = version
         self.assertLatestVersion(response, latest_version)
 
@@ -60,17 +55,15 @@ class TestVersioningBase(TestBase):
         return self._db[self.known_resource].find_one(ObjectId(_id))
 
     def directGetShadowDocument(self, _id, version):
-        return self._db[self.known_resource + \
-            self.app.config['VERSIONS']].find_one({
-                self.document_id_field: ObjectId(_id),
-                self.app.config['VERSION']: version
-            })
+        return self._db[
+            self.known_resource + self.app.config['VERSIONS']].find_one({
+            self.document_id_field: ObjectId(_id),
+            self.app.config['VERSION']: version})
 
     def assertNumShadowDocuments(self, _id, num):
-        documents = self._db[self.known_resource + \
-            self.app.config['VERSIONS']].find({
-                self.document_id_field: ObjectId(_id)
-            })
+        documents = self._db[
+            self.known_resource + self.app.config['VERSIONS']].find({
+            self.document_id_field: ObjectId(_id)})
         self.assertEqual(documents.count(), num)
 
     def assertGoodPutPatch(self, response, status):
@@ -102,44 +95,48 @@ class TestNormalVersioning(TestVersioningBase):
                             (self.domain[self.known_resource]['url'],
                              self.item_id))
 
-    def assertPrimaryAndShadowDocuments(self, _id, version, partial = False):
+    def assertPrimaryAndShadowDocuments(self, _id, version, partial=False):
         # verify primary document fields
         document = self.directGetDocument(_id)
-        self.assertTrue(document != None)
+        self.assertTrue(document is not None)
         self.assertTrue(document[self.version_field] == version)
         self.assertTrue(self.versioned_field in document)
         self.assertTrue(self.unversioned_field in document)
 
         # verify shadow documents fields
         shadow_document = self.directGetShadowDocument(_id, version)
-        self.assertTrue(shadow_document != None)
+        self.assertTrue(shadow_document is not None)
         self.assertTrue(self.versioned_field in shadow_document)
-        self.assertEqual(document[self.versioned_field],
+        self.assertEqual(
+            document[self.versioned_field],
             shadow_document[self.versioned_field])
-        if partial == True:
+        if partial is True:
             self.assertFalse(self.unversioned_field in shadow_document)
         else:
             self.assertTrue(self.unversioned_field in shadow_document)
-            self.assertEqual(document[self.unversioned_field],
+            self.assertEqual(
+                document[self.unversioned_field],
                 shadow_document[self.unversioned_field])
 
         # verify meta fields
         self.assertTrue(shadow_document[self.version_field] == version)
         self.assertTrue(self.document_id_field in shadow_document)
-        self.assertEqual(document[self.app.config['ID_FIELD']],
+        self.assertEqual(
+            document[self.app.config['ID_FIELD']],
             shadow_document[self.document_id_field])
         self.assertTrue(self.app.config['ID_FIELD'] in shadow_document)
         self.assertTrue(self.app.config['LAST_UPDATED'] in shadow_document)
 
         # verify that no unexpected fields exist
-        num_meta_fields = 4 # see previous block
-        if partial == True:
+        num_meta_fields = 4  # see previous block
+        if partial is True:
             self.assertEqual(len(shadow_document.keys()), num_meta_fields+1)
         else:
             self.assertEqual(len(shadow_document.keys()), num_meta_fields+2)
 
     def do_test_get(self):
-        query='?where={"%s":"%s"}' % (self.app.config['ID_FIELD'], self.item_id)
+        query = '?where={"%s":"%s"}' % \
+            (self.app.config['ID_FIELD'], self.item_id)
         response, status = self.get(self.known_resource, query=query)
         response = response[self.app.config['ITEMS']][0]
 
@@ -154,7 +151,7 @@ class TestNormalVersioning(TestVersioningBase):
                                     headers=[('If-Match', self.item_etag)])
         self.assertGoodPutPatch(response, status)
 
-        if partial == True:
+        if partial is True:
             # build expected response since the state of version 1 will change
             version_1 = copy.copy(self.item)
             version_1[self.unversioned_field] = \
@@ -185,8 +182,8 @@ class TestNormalVersioning(TestVersioningBase):
     def do_test_post(self, partial):
         """ Verify that partial version control can happen on POST.
         """
-        response, status = self.post(self.known_resource_url,
-            data=self.item_change)
+        response, status = self.post(
+            self.known_resource_url, data=self.item_change)
         self.assert201(status)
         _id = response[self.app.config['ID_FIELD']]
         self.assertPrimaryAndShadowDocuments(_id, 1, partial=partial)
@@ -211,8 +208,9 @@ class TestNormalVersioning(TestVersioningBase):
         self.assertNumShadowDocuments(self.item_id, 2)
 
     def do_test_patch(self, partial):
-        response, status = self.patch(self.item_id_url, data=self.item_change,
-                                    headers=[('If-Match', self.item_etag)])
+        response, status = self.patch(
+            self.item_id_url, data=self.item_change,
+            headers=[('If-Match', self.item_etag)])
         self.assertGoodPutPatch(response, status)
         self.assertPrimaryAndShadowDocuments(self.item_id, 2, partial=partial)
 
@@ -278,36 +276,38 @@ class TestCompleteVersioning(TestNormalVersioning):
         """ Make sure that Eve return a nice error when requesting an unknown
         version.
         """
-        response, status = self.get(self.known_resource, item=self.item_id,
-            query='?version=2')
+        response, status = self.get(
+            self.known_resource, item=self.item_id, query='?version=2')
         self.assert404(status)
 
     def test_getitem_version_bad_format(self):
         """ Make sure that Eve return a nice error when requesting an unknown
         version.
         """
-        response, status = self.get(self.known_resource, item=self.item_id,
-            query='?version=bad')
+        response, status = self.get(
+            self.known_resource, item=self.item_id, query='?version=bad')
         self.assert400(status)
 
     def test_getitem_version_all(self):
         """ Verify that all documents are returned which each appearing exactly
         as it would if it were accessed explicitly.
         """
-        meta_fields = self.fields + [self.app.config['ID_FIELD'],
+        meta_fields = self.fields + [
+            self.app.config['ID_FIELD'],
             self.app.config['LAST_UPDATED'], self.app.config['ETAG'],
             self.app.config['DATE_CREATED'], self.app.config['LINKS'],
             self.version_field, self.latest_version_field]
 
         # put a second version
-        response, status = self.put(self.item_id_url, data=self.item_change,
-                                    headers=[('If-Match', self.item_etag)])
+        response, status = self.put(
+            self.item_id_url, data=self.item_change,
+            headers=[('If-Match', self.item_etag)])
         self.assertGoodPutPatch(response, status)
         etag2 = response[self.app.config['ETAG']]
 
         # get query
-        response, status = self.get(self.known_resource, item=self.item_id,
-            query='?version=all')
+        response, status = self.get(
+            self.known_resource, item=self.item_id, query='?version=all')
         self.assert200(status)
         items = response[self.app.config['ITEMS']]
         self.assertEqual(len(items), 2)
@@ -332,20 +332,22 @@ class TestCompleteVersioning(TestNormalVersioning):
         """ Verify that the first document is returned in its entirety and that
         subsequent documents are simply diff to the previous version.
         """
-        meta_fields = self.fields + [self.app.config['ID_FIELD'],
+        meta_fields = self.fields + [
+            self.app.config['ID_FIELD'],
             self.app.config['LAST_UPDATED'], self.app.config['ETAG'],
             self.app.config['DATE_CREATED'], self.app.config['LINKS'],
             self.version_field, self.latest_version_field]
 
         # put a second version
-        response, status = self.put(self.item_id_url, data=self.item_change,
-                                    headers=[('If-Match', self.item_etag)])
+        response, status = self.put(
+            self.item_id_url, data=self.item_change,
+            headers=[('If-Match', self.item_etag)])
         self.assertGoodPutPatch(response, status)
         etag2 = response[self.app.config['ETAG']]
 
         # get query
-        response, status = self.get(self.known_resource, item=self.item_id,
-            query='?version=diffs')
+        response, status = self.get(
+            self.known_resource, item=self.item_id, query='?version=diffs')
         self.assert200(status)
         items = response[self.app.config['ITEMS']]
         self.assertEqual(len(items), 2)
@@ -360,12 +362,15 @@ class TestCompleteVersioning(TestNormalVersioning):
         # # check the get of the second version
         self.assertVersion(items[1], 2)
         self.assertEqualFields(self.item_change, items[1], self.fields)
-        changed_fields = self.fields + [self.version_field,
-            self.app.config['LAST_UPDATED'], self.app.config['ETAG']]
+        changed_fields = self.fields + [
+            self.version_field,
+            self.app.config['LAST_UPDATED'],
+            self.app.config['ETAG']]
         self.assertTrue(field in items[1] for field in changed_fields)
-        # since the test routine happens so fast, `LAST_UPDATED` is probably not
-        # in the diff (the date output only has a one second resolution)
-        self.assertTrue(len(items[1].keys()) == len(changed_fields) or \
+        # since the test routine happens so fast, `LAST_UPDATED` is probably
+        # not in the diff (the date output only has a one second resolution)
+        self.assertTrue(
+            len(items[1].keys()) == len(changed_fields) or
             len(items[1].keys()) == len(changed_fields) - 1)
         self.assertEqual(items[1][self.app.config['ETAG']], etag2)
 
@@ -378,14 +383,16 @@ class TestCompleteVersioning(TestNormalVersioning):
         """ Verify that projections happen smoothing when versioning is on.
         """
         # test inclusive projection
-        response, status = self.get(self.known_resource, item=self.item_id,
+        response, status = self.get(
+            self.known_resource, item=self.item_id,
             query='?projection={"%s": 1}' % self.unversioned_field)
         self.assert200(status)
         self.assertTrue(self.unversioned_field in response)
         self.assertFalse(self.versioned_field in response)
 
         # test exclusive projection
-        response, status = self.get(self.known_resource, item=self.item_id,
+        response, status = self.get(
+            self.known_resource, item=self.item_id,
             query='?projection={"%s": 0}' % self.unversioned_field)
         self.assert200(status)
         self.assertFalse(self.unversioned_field in response)
@@ -395,14 +402,16 @@ class TestCompleteVersioning(TestNormalVersioning):
         """ Verify that projections happen smoothing when versioning is on.
         """
         # put a second version
-        response, status = self.put(self.item_id_url, data=self.item_change,
-                                    headers=[('If-Match', self.item_etag)])
+        response, status = self.put(
+            self.item_id_url, data=self.item_change,
+            headers=[('If-Match', self.item_etag)])
         self.assertGoodPutPatch(response, status)
 
         # test inclusive projection
-        projection = '{"%s": 1, "%s": 1, "%s": 1}' % (self.unversioned_field,
-            self.version_field, self.document_id_field)
-        response, status = self.get(self.known_resource, item=self.item_id,
+        projection = '{"%s": 1, "%s": 1, "%s": 1}' % (
+            self.unversioned_field, self.version_field, self.document_id_field)
+        response, status = self.get(
+            self.known_resource, item=self.item_id,
             query='?version=all&projection=%s' % projection)
         self.assert200(status)
         items = response[self.app.config['ITEMS']]
@@ -411,15 +420,17 @@ class TestCompleteVersioning(TestNormalVersioning):
             self.assertTrue(self.unversioned_field in item)
             self.assertFalse(self.versioned_field in item)
             if item[self.version_field] == 1:
-                self.assertEqual(item[self.unversioned_field],
+                self.assertEqual(
+                    item[self.unversioned_field],
                     self.item[self.unversioned_field])
             else:
-                self.assertEqual(item[self.unversioned_field],
+                self.assertEqual(
+                    item[self.unversioned_field],
                     self.item_change[self.unversioned_field])
 
         # test exclusive projection
-        projection = '{"%s": 0, "%s": 1, "%s": 1}' % (self.unversioned_field,
-            self.version_field, self.document_id_field)
+        projection = '{"%s": 0, "%s": 1, "%s": 1}' % (
+            self.unversioned_field, self.version_field, self.document_id_field)
         # TODO: As you can see, this query will fail right now. To support
         # this type of query, Eve needs to normalize the projection before
         # passing it to MongoDB.
@@ -430,26 +441,26 @@ class TestCompleteVersioning(TestNormalVersioning):
         """
         # set _version
         self.item_change[self.version_field] = '1'
-        r, status = self.post(self.known_resource_url,
-            data=self.item_change)
+        r, status = self.post(
+            self.known_resource_url, data=self.item_change)
         self.assert200(status)
         self.assertValidationError(r, {self.version_field: 'unknown field'})
 
         # set _latest_version
         self.item_change[self.latest_version_field] = '1'
-        r, status = self.post(self.known_resource_url,
-            data=self.item_change)
+        r, status = self.post(
+            self.known_resource_url, data=self.item_change)
         self.assert200(status)
-        self.assertValidationError(r, {self.latest_version_field:
-            'unknown field'})
+        self.assertValidationError(
+            r, {self.latest_version_field: 'unknown field'})
 
         # set _id_document
         self.item_change[self.document_id_field] = '1'
-        r, status = self.post(self.known_resource_url,
-            data=self.item_change)
+        r, status = self.post(
+            self.known_resource_url, data=self.item_change)
         self.assert200(status)
-        self.assertValidationError(r, {self.document_id_field:
-            'unknown field'})
+        self.assertValidationError(
+            r, {self.document_id_field: 'unknown field'})
 
     def test_referential_integrity(self):
         """ Make sure that Eve still correctly handles vanilla data_relations
@@ -502,9 +513,9 @@ class TestDataRelationVersionNotVersioned(TestNormalVersioning):
             self.domain['invoices']['schema']['person']['data_relation']
         value_field = data_relation['field']
         version_field = self.app.config['VERSION']
-        validation_error_format = ("versioned data_relation must be a dict with"
-            " fields '%s' and '%s'" % (value_field, version_field))
-        validation_error_value = "fill me in..."
+        validation_error_format = (
+            "versioned data_relation must be a dict"
+            " with fields '%s' and '%s'" % (value_field, version_field))
 
         # must be a dict
         data = {"person": self.item_id}
@@ -528,26 +539,28 @@ class TestDataRelationVersionNotVersioned(TestNormalVersioning):
         data = {"person": {value_field: 'bad', version_field: 1}}
         r, status = self.post('/invoices/', data=data)
         self.assert200(status)
-        self.assertValidationError(r, {'person': {
-            value_field: "value 'bad' cannot be converted to a ObjectId"}}) 
+        self.assertValidationError(
+            r, {'person': {
+                value_field: "value 'bad' cannot be converted to a ObjectId"}})
 
         # unknown id
-        data = {"person": {value_field: self.unknown_item_id, version_field: 1}}
+        data = {"person": {
+            value_field: self.unknown_item_id, version_field: 1}}
         r, status = self.post('/invoices/', data=data)
         self.assert200(status)
-        self.assertValidationError(r, {'person': "value '%s' must exist in "
-                            "resource '%s', field '%s' at version '%s'." %
-                            (self.unknown_item_id, 'contacts',
-                            value_field, 1)})
+        self.assertValidationError(
+            r, {'person': "value '%s' must exist in "
+                "resource '%s', field '%s' at version '%s'." %
+                (self.unknown_item_id, 'contacts', value_field, 1)})
 
         # version doesn't exist
         data = {"person": {value_field: self.item_id, version_field: 2}}
         r, status = self.post('/invoices/', data=data)
         self.assert200(status)
-        self.assertValidationError(r, {'person': "value '%s' must exist in "
-                            "resource '%s', field '%s' at version '%s'." %
-                            (self.item_id, 'contacts',
-                            value_field, 2)}) 
+        self.assertValidationError(
+            r, {'person': "value '%s' must exist in "
+                "resource '%s', field '%s' at version '%s'." %
+                (self.item_id, 'contacts', value_field, 2)})
 
         # put a second version
         response, status = self.put(self.item_id_url, data=self.item_change,
@@ -579,7 +592,8 @@ class TestDataRelationVersionNotVersioned(TestNormalVersioning):
         self.assert201(status)
 
         # test that it works
-        response, status = self.get(self.domain['invoices']['url'],
+        response, status = self.get(
+            self.domain['invoices']['url'],
             item=invoice_id, query='?embedded={"person": 1}')
         self.assert200(status)
         self.assertTrue('ref' in response['person'])
@@ -623,9 +637,10 @@ class TestDataRelationVersionVersioned(TestNormalVersioning):
         data = {"person": {'ref': self.item['ref'], self.version_field: 2}}
         r, status = self.post('/invoices/', data=data)
         self.assert200(status)
-        self.assertValidationError(r, {'person': "value '%s' must exist in "
-                            "resource '%s', field '%s' at version '%s'." %
-                            (self.item['ref'], 'contacts', 'ref', 2)})
+        self.assertValidationError(
+            r, {'person': "value '%s' must exist in "
+                "resource '%s', field '%s' at version '%s'." %
+                (self.item['ref'], 'contacts', 'ref', 2)})
 
         # try saving against the first version...this should work
         data = {"person": {'ref': self.item['ref'], self.version_field: 1}}
@@ -734,8 +749,9 @@ class TestLateVersioning(TestVersioningBase):
         already in the database before version control was turned on.
         """
         changes = {"ref": "this is a different value"}
-        response, status = self.patch(self.item_id_url, data=changes,
-                                    headers=[('If-Match', self.item_etag)])
+        response, status = self.patch(
+            self.item_id_url, data=changes,
+            headers=[('If-Match', self.item_etag)])
         self.assertGoodPutPatch(response, status)
         self.assertDocumentVersions(response, 1)
 
@@ -750,5 +766,4 @@ class TestLateVersioning(TestVersioningBase):
         version 0 of a document. This should only be allowed if the shadow
         collection it empty.
         """
-        pass # TODO
-        
+        pass  # TODO

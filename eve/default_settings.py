@@ -73,7 +73,7 @@ LINKS = '_links'
 ETAG = '_etag'
 VERSION = '_version'            # field that stores the version number
 LATEST_VERSION = '_latest_version'  # field returned on GET requests so we know
-                                # if we have the latest copy even if we access 
+                                # if we have the latest copy even if we access
                                 # a specific version
 VERSION_ID_SUFFIX = '_document'  # appended to ID_FIELD, holds the original
                                 # document id in parallel collection

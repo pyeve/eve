@@ -17,7 +17,7 @@ from bson import ObjectId
 from flask import current_app as app
 from cerberus import Validator
 from werkzeug.datastructures import FileStorage
-from eve.versioning import versioned_fields, get_data_version_relation_document
+from eve.versioning import get_data_version_relation_document
 
 
 class Validator(Validator):
@@ -117,34 +117,40 @@ class Validator(Validator):
 
         .. versionadded: 0.0.5
         """
-        if 'version' in data_relation and data_relation['version'] == True:
+        if 'version' in data_relation and data_relation['version'] is True:
             value_field = data_relation['field']
             version_field = app.config['VERSION']
 
             # check value format
             if isinstance(value, dict) and value_field in value \
-            and version_field in value:
+                    and version_field in value:
                 resource_def = config.DOMAIN[data_relation['resource']]
-                if resource_def['versioning'] == False:
-                    self._error(field, "can't save a version with data_relation"
-                        " if '%s' isn't versioned" % data_relation['resource'])
+                if resource_def['versioning'] is False:
+                    self._error(
+                        field, "can't save a version with"
+                        " data_relation if '%s' isn't versioned" %
+                        data_relation['resource'])
                 else:
                     search = get_data_version_relation_document(data_relation,
                                                                 value)
                     if not search:
-                        self._error(field, "value '%s' must exist in resource"
-                            " '%s', field '%s' at version '%s'." %
-                            (value[value_field], data_relation['resource'],
-                            data_relation['field'], value[version_field]))
+                        self._error(
+                            field, "value '%s' must exist in resource"
+                            " '%s', field '%s' at version '%s'." % (
+                                value[value_field], data_relation['resource'],
+                                data_relation['field'], value[version_field]))
             else:
-                self._error(field, "versioned data_relation must be a dict with"
-                    " fields '%s' and '%s'" % (value_field, version_field))
+                self._error(
+                    field, "versioned data_relation must be a dict"
+                    " with fields '%s' and '%s'" %
+                    (value_field, version_field))
         else:
             query = {data_relation['field']: value}
             if not app.data.find_one(data_relation['resource'], None, **query):
-                self._error(field, "value '%s' must exist in resource '%s'"
-                            ", field '%s'." % (value, data_relation['resource'],
-                                       data_relation['field']))
+                self._error(
+                    field,
+                    "value '%s' must exist in resource '%s', field '%s'." %
+                    (value, data_relation['resource'], data_relation['field']))
 
     def _validate_type_objectid(self, field, value):
         """ Enables validation for `objectid` data type.

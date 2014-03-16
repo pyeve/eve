@@ -341,8 +341,10 @@ class Eve(Flask, Events):
         # ensure automatically handled fields aren't defined
         fields = [eve.DATE_CREATED, eve.LAST_UPDATED]
         # TODO: only add the following checks if settings['versioning'] == True
-        fields += [self.config['VERSION'], self.config['LATEST_VERSION'],
-                self.config['ID_FIELD']+self.config['VERSION_ID_SUFFIX']]
+        fields += [
+            self.config['VERSION'],
+            self.config['LATEST_VERSION'],
+            self.config['ID_FIELD'] + self.config['VERSION_ID_SUFFIX']]
         offenders = []
         for field in fields:
             if field in schema:
@@ -526,8 +528,9 @@ class Eve(Flask, Events):
             projection[self.config['DATE_CREATED']] = 1
             if settings['versioning'] is True:
                 projection[self.config['VERSION']] = 1
-                projection[self.config['ID_FIELD'] + \
-                        self.config['VERSION_ID_SUFFIX']] = 1
+                projection[
+                    self.config['ID_FIELD'] +
+                    self.config['VERSION_ID_SUFFIX']] = 1
             projection.update(dict((field, 1) for (field) in schema))
         else:
             # all fields are returned.
@@ -699,7 +702,7 @@ class Eve(Flask, Events):
         self._add_resource_url_rules(resource, settings)
 
         # add rules for version control collections if appropriate
-        if settings['versioning'] == True:
+        if settings['versioning'] is True:
             versioned_resource = resource + self.config['VERSIONS']
             self.config['DOMAIN'][versioned_resource] = \
                 copy.deepcopy(self.config['DOMAIN'][resource])

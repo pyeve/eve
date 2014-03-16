@@ -60,8 +60,9 @@ def delete(resource, **lookup):
 
     app.data.remove(resource, {config.ID_FIELD: original[config.ID_FIELD]})
     # TODO: should attempt to delete version collection even if setting is off
-    if app.config['DOMAIN'][resource]['versioning'] == True:
-        app.data.remove(resource+config.VERSIONS,\
+    if app.config['DOMAIN'][resource]['versioning'] is True:
+        app.data.remove(
+            resource + config.VERSIONS,
             {versioned_id_field(): original[config.ID_FIELD]})
 
     # media cleanup
@@ -99,7 +100,7 @@ def delete_resource(resource, lookup):
     # handled at the item endpoint by the delete() method (see above).
     app.data.remove(resource, lookup)
     # TODO: should attempt to delete version collection even if setting is off
-    if app.config['DOMAIN'][resource]['versioning'] == True:
+    if app.config['DOMAIN'][resource]['versioning'] is True:
         app.data.remove(resource+config.VERSIONS, lookup)
 
     return {}, None, None, 200

@@ -21,9 +21,9 @@ from .common import ratelimit, epoch, date_created, last_updated, pre_event, \
 from eve.auth import requires_auth
 from eve.utils import parse_request, document_etag, document_link, home_link, \
     querydef, config, debug_error_message, resource_uri
-from eve.versioning import resolve_document_version, synthesize_versioned_document, \
-    versioned_id_field, get_old_document, diff_document, \
-    get_data_version_relation_document
+from eve.versioning import resolve_document_version, \
+    synthesize_versioned_document, versioned_id_field, get_old_document, \
+    diff_document, get_data_version_relation_document
 from flask import current_app as app, abort, request
 
 
@@ -200,15 +200,17 @@ def getitem(resource, **lookup):
         response = {}
         etag = None
         version = request.args.get(config.VERSION_PARAM)
-        latest_doc = None;
+        latest_doc = None
 
         # synthesize old document version(s)
-        if resource_def['versioning'] == True:
+        if resource_def['versioning'] is True:
             latest_doc = copy.deepcopy(document)
-            document = get_old_document(resource, req, lookup, document, version)
+            document = get_old_document(
+                resource, req, lookup, document, version)
 
         # meld into response document
-        _build_response_document(document, resource, embedded_fields, latest_doc)
+        _build_response_document(
+            document, resource, embedded_fields, latest_doc)
 
         # last_modified for the response
         last_modified = document[config.LAST_UPDATED]
@@ -217,7 +219,7 @@ def getitem(resource, **lookup):
         if config.IF_MATCH:
             etag = document[config.ETAG]
 
-            if req.if_none_match and document[config.ETAG] == req.if_none_match:
+            if req.if_none_match and etag == req.if_none_match:
                 # request etag matches the current server representation of the
                 # document, return a 304 Not-Modified.
                 return {}, last_modified, document[config.ETAG], 304
@@ -230,7 +232,7 @@ def getitem(resource, **lookup):
 
         if version == 'all' or version == 'diffs':
             # TODO: support pagination?
-            
+
             # find all versions
             lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
             del lookup[app.config['ID_FIELD']]
@@ -246,16 +248,16 @@ def getitem(resource, **lookup):
             else:
                 last_document = {}
                 for i, document in enumerate(cursor):
-                    document = synthesize_versioned_document(latest_doc, document,
-                        resource_def)
-                    _build_response_document(document, resource, embedded_fields,
-                        latest_doc)
+                    document = synthesize_versioned_document(
+                        latest_doc, document, resource_def)
+                    _build_response_document(
+                        document, resource, embedded_fields, latest_doc)
                     if version == 'diffs':
                         if i == 0:
                             documents.append(document)
                         else:
-                            documents.append(diff_document(resource_def, \
-                                last_document, document))
+                            documents.append(diff_document(
+                                resource_def, last_document, document))
                         last_document = document
                     else:
                         documents.append(document)
@@ -268,10 +270,10 @@ def getitem(resource, **lookup):
             else:
                 response = documents
         else:
-            # notify registered callback functions. Please note that, should the
-            # functions modify the document, last_modified and etag  won't be
-            # updated to reflect the changes (they always reflect the documents
-            # state on the database).
+            # notify registered callback functions. Please note that, should
+            # the functions modify the document, last_modified and etag  won't
+            # be updated to reflect the changes (they always reflect the
+            # documents state on the database).
             item_title = config.DOMAIN[resource]['item_title'].lower()
             getattr(app, "on_fetch_item")(resource, document[config.ID_FIELD],
                                           document)
@@ -284,9 +286,9 @@ def getitem(resource, **lookup):
         if config.DOMAIN[resource]['hateoas']:
             if config.LINKS not in response:
                 response[config.LINKS] = {}
-            response[config.LINKS]['collection'] = {'title':
-                               config.DOMAIN[resource]['resource_title'],
-                               'href': resource_uri(resource)}
+            response[config.LINKS]['collection'] = {
+                'title': config.DOMAIN[resource]['resource_title'],
+                'href': resource_uri(resource)}
             response[config.LINKS]['parent'] = home_link()
 
         return response, last_modified, etag, 200
@@ -294,9 +296,9 @@ def getitem(resource, **lookup):
     abort(404)
 
 
-def _build_response_document(document, resource, embedded_fields,\
-    latest_doc=None):
-    """ Prepares a document for response including generation of ETag and 
+def _build_response_document(
+        document, resource, embedded_fields, latest_doc=None):
+    """ Prepares a document for response including generation of ETag and
     metadata fields.
 
     :param document: the document to embed other documents into.
@@ -323,7 +325,7 @@ def _build_response_document(document, resource, embedded_fields,\
         document[config.LINKS] = {'self':
                                   document_link(resource,
                                                 document[_lookup_field])}
-    
+
     # add version numbers
     resolve_document_version(document, resource, 'GET', latest_doc)
 
@@ -406,20 +408,22 @@ def _resolve_embedded_documents(document, resource, embedded_fields):
 
     .. versionadded:: 0.1.0
     """
+    schema = config.DOMAIN[resource]['schema']
     for field in embedded_fields:
-        data_relation =config.DOMAIN[resource]['schema'][field]['data_relation']
+        data_relation = schema[field]['data_relation']
         # Retrieve and serialize the requested document
-        if 'version' in data_relation and data_relation['version'] == True:
+        if 'version' in data_relation and data_relation['version'] is True:
             # grab the specific version
-            embedded_doc = get_data_version_relation_document(data_relation, 
-                document[field])
+            embedded_doc = get_data_version_relation_document(
+                data_relation, document[field])
 
             # grab the latest version
             latest_embedded_doc = get_data_version_relation_document(
                 data_relation, document[field], latest=True)
 
             # build the response document
-            _build_response_document(embedded_doc, data_relation['resource'],
+            _build_response_document(
+                embedded_doc, data_relation['resource'],
                 [], latest_embedded_doc)
         else:
             embedded_doc = app.data.find_one(

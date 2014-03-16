@@ -19,7 +19,8 @@ from eve.validation import ValidationError
 from eve.methods.common import parse, payload, ratelimit, \
     resolve_default_values, pre_event, resolve_media_files, \
     resolve_user_restricted_access
-from eve.versioning import resolve_document_version, insert_versioning_documents
+from eve.versioning import resolve_document_version, \
+    insert_versioning_documents
 
 
 @ratelimit()
@@ -34,10 +35,10 @@ def post(resource, payl=None):
 
     :param resource: name of the resource involved.
     :param payl: alternative payload. When calling post() from your own code
-                 you can provide an alternative payload. This can be useful, for
-                 example, when you have a callback function hooked to a certain
-                 endpoint, and want to perform additional post() calls from
-                 there.
+                 you can provide an alternative payload. This can be useful,
+                 for example, when you have a callback function hooked to a
+                 certain endpoint, and want to perform additional post() calls
+                 from there.
 
                  Please be advised that in order to successfully use this
                  option, a request context must be available.
@@ -203,7 +204,7 @@ def post(resource, payl=None):
             if config.IF_MATCH:
                 item[config.ETAG] = document_etag(document)
 
-            if resource_def['versioning'] == True:
+            if resource_def['versioning'] is True:
                 resolve_document_version(document, resource, 'GET')
                 item[config.VERSION] = document[config.VERSION]
                 item[config.LATEST_VERSION] = document[config.LATEST_VERSION]

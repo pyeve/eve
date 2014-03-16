@@ -3,12 +3,14 @@ from flask import current_app as app, abort
 from eve.utils import config, debug_error_message
 from werkzeug.exceptions import BadRequestKeyError
 
+
 def versioned_id_field():
     """ Shorthand to add two commonly added versioning parameters.
 
     .. versionadded: 0.4
     """
     return app.config['ID_FIELD']+app.config['VERSION_ID_SUFFIX']
+
 
 def resolve_document_version(document, resource, method, latest_doc=None):
     """ Version number logic for all methods.
@@ -24,35 +26,35 @@ def resolve_document_version(document, resource, method, latest_doc=None):
     version = app.config['VERSION']
     latest_version = app.config['LATEST_VERSION']
 
-    if resource_def['versioning'] == True:
-        if method == 'GET' and latest_doc == None:
+    if resource_def['versioning'] is True:
+        if method == 'GET' and latest_doc is None:
             # especially on collection endpoints, we don't to encure an extra
             # lookup if we are already pulling the latest version
             if version not in document:
                 # well it should be... the api designer must have turned on
                 # versioning after data was already in the collection or the
                 # collection has been modified without respecting versioning
-                document[version] = 0 # the first saved version will be 1
+                document[version] = 0  # the first saved version will be 1
             document[latest_version] = document[version]
-        
-        if method == 'GET' and latest_doc != None:
+
+        if method == 'GET' and latest_doc is not None:
             if version not in latest_doc:
                 # well it should be... the api designer must have turned on
                 # versioning after data was already in the collection or the
                 # collection has been modified without respecting versioning
-                document[version] = 0 # the first saved version will be 1
+                document[version] = 0  # the first saved version will be 1
                 document[latest_version] = document[version]
             else:
                 document[latest_version] = latest_doc[version]
                 if version not in document:
-                    # this version was put in the database before versioning was
-                    # turned on or outside of Eve
+                    # this version was put in the database before versioning
+                    # was turned on or outside of Eve
                     document[version] = 0
-        
+
         if method == 'POST':
             # this one is easy! it is a new document
             document[version] = 1
-        
+
         if method == 'PUT' or method == 'PATCH':
             if not latest_doc:
                 abort(500, description=debug_error_message(
@@ -64,9 +66,10 @@ def resolve_document_version(document, resource, method, latest_doc=None):
             else:
                 # if versioning was just turned on, then we will start
                 # versioning now. if the db was modified outside of Eve or
-                # versioning was turned of for a while, version numbers will not
-                # be consistent! you have been warned
+                # versioning was turned of for a while, version numbers will
+                # not be consistent! you have been warned
                 document[version] = 1
+
 
 def insert_versioning_documents(resource, ids, documents):
     """ Insert versioning copy of document. Intended for POST, PUT, and PATCH.
@@ -82,19 +85,19 @@ def insert_versioning_documents(resource, ids, documents):
     # push back versioned items if applicable
     # note: MongoDB doesn't have transactions! if the server dies, no
     # history will be saved.
-    if resource_def['versioning'] == True:
+    if resource_def['versioning'] is True:
         # force inputs as lists
         if not isinstance(ids, list):
             ids = [ids]
         if not isinstance(documents, list):
             documents = [documents]
-        
+
         # make sure we have the same number in each list
         if len(ids) != len(documents):
             abort(500, description=debug_error_message(
                 'Must have the same number of ids and documents'
             ))
-        
+
         # build vesioning documents
         version = app.config['VERSION']
         versioned_documents = []
@@ -110,7 +113,7 @@ def insert_versioning_documents(resource, ids, documents):
             # push special fields
             ver_doc[versioned_id_field()] = ids[index]
             ver_doc[version] = document[version]
-        
+
             # add document to the stack
             versioned_documents.append(ver_doc)
 
@@ -125,12 +128,13 @@ def versioned_fields(resource_def):
 
     .. versionadded:: 0.4
     """
+    schema = resource_def['schema']
     fields = []
-    if resource_def['versioning'] == True:
+    if resource_def['versioning'] is True:
         fields.append(app.config['LAST_UPDATED'])
-        for field in resource_def['schema']:
-            if field not in resource_def['schema'] or \
-                resource_def['schema'][field].get('versioned', True) == True:
+        for field in schema:
+            if field not in schema or \
+                    schema[field].get('versioned', True) is True:
                 fields.append(field)
 
     return fields
@@ -146,14 +150,18 @@ def diff_document(resource_def, old_doc, new_doc):
     .. versionadded:: 0.4
     """
     diff = {}
-    fields = resource_def['schema'].keys() + [app.config['VERSION'], \
-        app.config['LATEST_VERSION'], app.config['ID_FIELD'], \
-        app.config['LAST_UPDATED'], app.config['DATE_CREATED'], \
-        app.config['ETAG'], app.config['LINKS']]
+    fields = resource_def['schema'].keys() + [
+        app.config['VERSION'],
+        app.config['LATEST_VERSION'],
+        app.config['ID_FIELD'],
+        app.config['LAST_UPDATED'],
+        app.config['DATE_CREATED'],
+        app.config['ETAG'],
+        app.config['LINKS']]
 
     for field in fields:
-        if field in new_doc and (field not in old_doc or \
-            new_doc[field] != old_doc[field]):
+        if field in new_doc and \
+                (field not in old_doc or new_doc[field] != old_doc[field]):
             diff[field] = new_doc[field]
 
     # This method does not show when fields are deleted.
@@ -181,7 +189,7 @@ def synthesize_versioned_document(document, delta, resource_def):
 
     if versioned_id_field() not in delta:
         abort(400, description=debug_error_message(
-            'You must include %s in any projection with a version query.' \
+            'You must include %s in any projection with a version query.'
             % versioned_id_field()
         ))
     delta[app.config['ID_FIELD']] = delta[versioned_id_field()]
@@ -211,7 +219,7 @@ def get_old_document(resource, req, lookup, document, version):
 
     .. versionadded:: 0.4
     """
-    if version != 'all' and version != 'diffs' and version != None:
+    if version != 'all' and version != 'diffs' and version is not None:
         try:
             version = int(version)
             assert version > 0
@@ -229,10 +237,13 @@ def get_old_document(resource, req, lookup, document, version):
         delta = app.data.find_one(resource+config.VERSIONS, req, **lookup)
         if not delta:
             abort(404)
-        document = synthesize_versioned_document(document, delta,
+        document = synthesize_versioned_document(
+            document,
+            delta,
             config.DOMAIN[resource])
-        
+
     return document
+
 
 def get_data_version_relation_document(data_relation, reference, latest=False):
     """ Returns an old document if appropriate, otherwise passes the given
@@ -240,7 +251,7 @@ def get_data_version_relation_document(data_relation, reference, latest=False):
 
     :param data_relation: the schema definition describing the data_relation.
     :param reference: a dictionary with a value_field and a version_field.
-    :param latest: whether we should obey the version param in reference or not.
+    :param latest: if we should obey the version param in reference or not.
 
     .. versionadded:: 0.4
     """
@@ -251,10 +262,10 @@ def get_data_version_relation_document(data_relation, reference, latest=False):
     query = {}
 
     # tweak the query if the foreign field is versioned
-    if value_field in versioned_fields(resource_def) and latest == False:
+    if value_field in versioned_fields(resource_def) and latest is False:
         # the field is versioned, search the shadow collection
         collection += app.config['VERSIONS']
-        
+
         # special consideration for _id overloading
         if value_field == app.config['ID_FIELD']:
             query[value_field + app.config['VERSION_ID_SUFFIX']] = \
@@ -267,7 +278,7 @@ def get_data_version_relation_document(data_relation, reference, latest=False):
     else:
         # the field is not versioned, search the primary doc
         query[value_field] = reference[value_field]
-        if latest == False:
+        if latest is False:
             query[version_field] = {'$gte': reference[version_field]}
 
     return app.data.find_one(collection, None, **query)

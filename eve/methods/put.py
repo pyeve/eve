@@ -19,7 +19,8 @@ from eve.utils import document_etag, document_link, config, debug_error_message
 from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, resolve_default_values, pre_event, resolve_media_files, \
     resolve_user_restricted_access
-from eve.versioning import resolve_document_version, insert_versioning_documents
+from eve.versioning import resolve_document_version, \
+    insert_versioning_documents
 
 
 @ratelimit()
@@ -102,7 +103,8 @@ def put(resource, **lookup):
             app.data.replace(resource, object_id, document)
             insert_versioning_documents(resource, object_id, document)
 
-            response[config.ID_FIELD] = document.get(config.ID_FIELD, object_id)
+            response[config.ID_FIELD] = document.get(
+                config.ID_FIELD, object_id)
             response[config.LAST_UPDATED] = last_modified
 
             # metadata
@@ -113,10 +115,11 @@ def put(resource, **lookup):
                     'self': document_link(resource, response[config.ID_FIELD])
                 }
 
-            if resource_def['versioning'] == True:
+            if resource_def['versioning'] is True:
                 resolve_document_version(document, resource, 'GET')
                 response[config.VERSION] = document[config.VERSION]
-                response[config.LATEST_VERSION] = document[config.LATEST_VERSION]
+                response[config.LATEST_VERSION] = \
+                    document[config.LATEST_VERSION]
         else:
             issues = validator.errors
     except ValidationError as e:
