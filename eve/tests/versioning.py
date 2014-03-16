@@ -19,8 +19,14 @@ class TestVersioningBase(TestBase):
         self.latest_version_field = self.app.config['LATEST_VERSION']
         self.document_id_field = self.app.config['ID_FIELD'] + \
             self.app.config['VERSION_ID_SUFFIX']
+        self.known_resource_shadow = self.known_resource + \
+            self.app.config['VERSIONS']
 
         self._db = self.connection[MONGO_DBNAME]
+
+    def tearDown(self):
+        super(TestVersioningBase, self).tearDown()
+        self.connection.close()
 
     def enableVersioning(self, partial=False):
         del(self.domain['contacts']['schema']['title']['default'])
@@ -56,15 +62,25 @@ class TestVersioningBase(TestBase):
 
     def directGetShadowDocument(self, _id, version):
         return self._db[
-            self.known_resource + self.app.config['VERSIONS']].find_one({
+            self.known_resource_shadow].find_one({
             self.document_id_field: ObjectId(_id),
             self.app.config['VERSION']: version})
 
-    def assertNumShadowDocuments(self, _id, num):
-        documents = self._db[
-            self.known_resource + self.app.config['VERSIONS']].find({
-            self.document_id_field: ObjectId(_id)})
-        self.assertEqual(documents.count(), num)
+    def countDocuments(self, _id=None):
+        query = {}
+        if _id is not None:
+            query[self.app.config['ID_FIELD']] = ObjectId(_id)
+
+        documents = self._db[self.known_resource].find(query)
+        return documents.count()
+
+    def countShadowDocuments(self, _id=None):
+        query = {}
+        if _id is not None:
+            query[self.document_id_field] = ObjectId(_id)
+
+        documents = self._db[self.known_resource_shadow].find(query)
+        return documents.count()
 
     def assertGoodPutPatch(self, response, status):
         self.assert200(status)
@@ -180,8 +196,6 @@ class TestNormalVersioning(TestVersioningBase):
         self.assertEqualFields(self.item_change, response, self.fields)
 
     def do_test_post(self, partial):
-        """ Verify that partial version control can happen on POST.
-        """
         response, status = self.post(
             self.known_resource_url, data=self.item_change)
         self.assert201(status)
@@ -191,7 +205,7 @@ class TestNormalVersioning(TestVersioningBase):
         document = self.directGetDocument(_id)
         self.assertEqualFields(self.item_change, document, self.fields)
 
-        self.assertNumShadowDocuments(self.item_id, 1)
+        self.assertTrue(self.countShadowDocuments(self.item_id) == 1)
 
     def do_test_multi_post(self):
         self.assertTrue(True)
@@ -205,7 +219,7 @@ class TestNormalVersioning(TestVersioningBase):
         document = self.directGetDocument(self.item_id)
         self.assertEqualFields(self.item_change, document, self.fields)
 
-        self.assertNumShadowDocuments(self.item_id, 2)
+        self.assertTrue(self.countShadowDocuments(self.item_id) == 2)
 
     def do_test_patch(self, partial):
         response, status = self.patch(
@@ -217,7 +231,7 @@ class TestNormalVersioning(TestVersioningBase):
         document = self.directGetDocument(self.item_id)
         self.assertEqualFields(self.item_change, document, self.fields)
 
-        self.assertNumShadowDocuments(self.item_id, 2)
+        self.assertTrue(self.countShadowDocuments(self.item_id) == 2)
 
     def do_test_version_control_the_unkown(self):
         self.assertTrue(True)
@@ -477,6 +491,42 @@ class TestCompleteVersioning(TestNormalVersioning):
         data = {"person": self.item_id}
         r, status = self.post('/invoices/', data=data)
         self.assert201(status)
+
+    def test_delete(self):
+        """ Verify that we don't throw an error if we delete a resource that is
+        supposed to be versioned but whose shadow collection does not exist.
+        """
+        # turn off filter setting
+        self.domain['contacts']['datasource']['filter'] = None
+
+        # verify the primary collection exists but the shadow does not
+        self.assertTrue(self.countDocuments() > 0)
+        self.assertTrue(self.countShadowDocuments() > 0)
+
+        # delete resource and verify no errors
+        response, status = self.delete(self.known_resource_url)
+        self.assert200(status)
+
+        # verify that there are 0 documents in both collections
+        self.assertTrue(self.countDocuments() == 0)
+        self.assertTrue(self.countShadowDocuments() == 0)
+
+    def test_deleteitem(self):
+        """ Verify that we don't throw an error if we delete an item that is
+        supposed to be versioned but that doesn't have any shadow copies.
+        """
+        # verify the primary document exists but no shadow documents do
+        self.assertTrue(self.countDocuments(self.item_id) > 0)
+        self.assertTrue(self.countShadowDocuments(self.item_id) > 0)
+
+        # delete resource and verify no errors
+        response, status = self.delete(
+            self.item_id_url, headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+
+        # verify that neither primary or shadow documents exist
+        self.assertTrue(self.countDocuments(self.item_id) == 0)
+        self.assertTrue(self.countShadowDocuments(self.item_id) == 0)
 
 
 class TestDataRelationVersionNotVersioned(TestNormalVersioning):
@@ -761,7 +811,43 @@ class TestLateVersioning(TestVersioningBase):
         self.assertDocumentVersions(response2, 1)
         self.assertEqual(response[ETAG], response2[ETAG])
 
-    def test_data_relation_with_version(self):
+    def test_delete(self):
+        """ Verify that we don't throw an error if we delete a resource that is
+        supposed to be versioned but whose shadow collection does not exist.
+        """
+        # turn off filter setting
+        self.domain['contacts']['datasource']['filter'] = None
+
+        # verify the primary collection exists but the shadow does not
+        self.assertTrue(self.countDocuments() > 0)
+        self.assertTrue(self.countShadowDocuments() == 0)
+
+        # delete resource and verify no errors
+        response, status = self.delete(self.known_resource_url)
+        self.assert200(status)
+
+        # verify that there are 0 documents in both collections
+        self.assertTrue(self.countDocuments() == 0)
+        self.assertTrue(self.countShadowDocuments() == 0)
+
+    def test_deleteitem(self):
+        """ Verify that we don't throw an error if we delete an item that is
+        supposed to be versioned but that doesn't have any shadow copies.
+        """
+        # verify the primary document exists but no shadow documents do
+        self.assertTrue(self.countDocuments(self.item_id) > 0)
+        self.assertTrue(self.countShadowDocuments(self.item_id) == 0)
+
+        # delete resource and verify no errors
+        response, status = self.delete(
+            self.item_id_url, headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+
+        # verify that neither primary or shadow documents exist
+        self.assertTrue(self.countDocuments(self.item_id) == 0)
+        self.assertTrue(self.countShadowDocuments(self.item_id) == 0)
+
+    def test_referential_integrity(self):
         """ Make sure that Eve doesn't mind doing a data relation explicitly to
         version 0 of a document. This should only be allowed if the shadow
         collection it empty.
