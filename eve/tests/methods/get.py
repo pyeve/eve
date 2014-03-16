@@ -1,4 +1,3 @@
-import types
 import simplejson as json
 from datetime import datetime
 from bson import ObjectId
