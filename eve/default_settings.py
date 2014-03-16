@@ -72,10 +72,10 @@ ITEMS = '_items'
 LINKS = '_links'
 ETAG = '_etag'
 VERSION = '_version'            # field that stores the version number
-LATEST_VERSION = '_latest_version' # field returned on GET requests so we know
-                                # if we have the latest copy even if we access a
-                                # specific version
-VERSION_ID_SUFFIX = '_document' # appended to ID_FIELD, holds the original
+LATEST_VERSION = '_latest_version'  # field returned on GET requests so we know
+                                # if we have the latest copy even if we access 
+                                # a specific version
+VERSION_ID_SUFFIX = '_document'  # appended to ID_FIELD, holds the original
                                 # document id in parallel collection
 VERSION_DIFF_INCLUDE = []       # always include these fields when diffing
 
@@ -102,8 +102,8 @@ PAGINATION = True               # pagination enabled by default.
 PAGINATION_LIMIT = 50
 PAGINATION_DEFAULT = 25
 VERSIONING = False              # turn document versioning on or off
-VERSIONS = '_versions'          # suffix for parallel collection w/ old versions
-VERSION_PARAM = 'version'       # URL param to access a specific version of a document
+VERSIONS = '_versions'          # suffix for parallel collection w/old versions
+VERSION_PARAM = 'version'       # URL param for specific version of a document
 
 RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']

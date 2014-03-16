@@ -341,14 +341,14 @@ class Eve(Flask, Events):
         # ensure automatically handled fields aren't defined
         fields = [eve.DATE_CREATED, eve.LAST_UPDATED]
         # TODO: only add the following checks if settings['versioning'] == True
-        fields += [self.config['VERSION'], self.config['LATEST_VERSION'], \
-            self.config['ID_FIELD']+self.config['VERSION_ID_SUFFIX']]
+        fields += [self.config['VERSION'], self.config['LATEST_VERSION'],
+                self.config['ID_FIELD']+self.config['VERSION_ID_SUFFIX']]
         offenders = []
         for field in fields:
             if field in schema:
                 offenders.append(field)
         if eve.ID_FIELD in schema and \
-            schema[eve.ID_FIELD]['type'] == 'objectid':
+                schema[eve.ID_FIELD]['type'] == 'objectid':
             offenders.append(eve.ID_FIELD)
         if offenders:
             raise SchemaException('field(s) "%s" not allowed in "%s" schema '
@@ -371,8 +371,8 @@ class Eve(Flask, Events):
                     value_field = ruleset['data_relation']['field']
                     if ruleset['data_relation'].get('version', False):
                         if 'schema' not in ruleset or \
-                        value_field not in ruleset['schema'] or \
-                        'type' not in ruleset['schema'][value_field]:
+                                value_field not in ruleset['schema'] or \
+                                'type' not in ruleset['schema'][value_field]:
                             raise SchemaException(
                                 "Must defined type for '%s' in schema when "
                                 "declaring an embedded data_relation with"
@@ -524,9 +524,10 @@ class Eve(Flask, Events):
             projection[self.config['ID_FIELD']] = 1
             projection[self.config['LAST_UPDATED']] = 1
             projection[self.config['DATE_CREATED']] = 1
-            if settings['versioning'] == True:
+            if settings['versioning'] is True:
                 projection[self.config['VERSION']] = 1
-                projection[self.config['ID_FIELD']+self.config['VERSION_ID_SUFFIX']] = 1
+                projection[self.config['ID_FIELD'] + \
+                        self.config['VERSION_ID_SUFFIX']] = 1
             projection.update(dict((field, 1) for (field) in schema))
         else:
             # all fields are returned.
@@ -688,8 +689,8 @@ class Eve(Flask, Events):
         .. versionadded:: 0.2
         """
 
-        # this first line only makes sense when we call this function outside of
-        # the standard Eve setup routine, but it doesn't hurt to still call it
+        # this line only makes sense when we call this function outside of the
+        # standard Eve setup routine, but it doesn't hurt to still call it
         self.config['DOMAIN'][resource] = settings
 
         # set up resource
@@ -702,8 +703,8 @@ class Eve(Flask, Events):
             versioned_resource = resource + self.config['VERSIONS']
             self.config['DOMAIN'][versioned_resource] = \
                 copy.deepcopy(self.config['DOMAIN'][resource])
-            self.config['DOMAIN'][versioned_resource]['datasource']['source']+=\
-                self.config['VERSIONS']
+            self.config['DOMAIN'][versioned_resource]['datasource']['source'] \
+                += self.config['VERSIONS']
             self.config['SOURCES'][versioned_resource] = \
                 copy.deepcopy(self.config['SOURCES'][resource])
             self.config['SOURCES'][versioned_resource]['source'] += \
