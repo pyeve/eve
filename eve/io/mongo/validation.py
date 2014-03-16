@@ -99,8 +99,13 @@ class Validator(Validator):
         :param data_relation: a dict following keys:
             'collection': foreign collection name
             'field': foreign field name
+            'version': True if this relation points to a specific version
+            'type': the type for the reference field if 'version': True
         :param field: field name.
         :param value: field value.
+
+        .. versionchanged:: 0.4
+           Support for document versioning.
 
         .. versionchanged:: 0.3
            Support for new 'self._error' signature introduced with Cerberus
@@ -111,11 +116,54 @@ class Validator(Validator):
 
         .. versionadded: 0.0.5
         """
-        query = {data_relation['field']: value}
-        if not app.data.find_one(data_relation['resource'], None, **query):
-            self._error(field, "value '%s' must exist in resource '%s', field "
-                        "'%s'." % (value, data_relation['resource'],
-                                   data_relation['field']))
+        if 'version' in data_relation and data_relation['version'] == True:
+            value_field = data_relation['field']
+            version_field = app.config['VERSION']
+
+            # check value format
+            if isinstance(value, dict) and value_field in value \
+            and version_field in value:
+                resouce_def = config.DOMAIN[data_relation['resource']]
+                if resouce_def['versioning'] == False:
+                    self._error(field, "can't save a version with data_relation"
+                        " if '%s' isn't versioned" % data_relation['resource'])
+                else:
+                    collection = data_relation['resource']
+                    query = {data_relation['field']: value[value_field]}
+
+                    # tweak the query if the foreign field is versioned
+                    # if resouce_def[value_field].setdefault('versioned', True):
+                    #     # the field is versioned, search the shadow collection
+                    #     collection += config.VERSIONS
+
+                    #     # add the version to the query
+                    #     query[version_field] = value[version_field]
+                        
+                    #     # special consideration for _id overloading
+                    #     if data_relation['field'] == config.ID_FIELD:
+                    #         query[data_relation['field'] + \
+                    #             config.VERSION_ID_SUFFIX] = value[value_field]
+                    #     else:
+                    #         query[data_relation['field']] = value[value_field]
+                    # else:
+                    #     # the field is not versioned, search the primary doc
+                    #     query[data_relation['field']] = value[value_field]
+                    
+                    # perform search
+                    if not app.data.find_one(collection, None, **query):
+                        self._error(field, "value '%s' must exist in resource"
+                            " '%s', field '%s' at version '%s'." % (value,
+                            data_relation['resource'], data_relation['field'],
+                            value[version_field]))
+            else:
+                self._error(field, "versioned data_relation must be a dict with"
+                    " fields '%s' and '%s'" % (value_field, version_field))
+        else:
+            query = {data_relation['field']: value}
+            if not app.data.find_one(data_relation['resource'], None, **query):
+                self._error(field, "value '%s' must exist in resource '%s'"
+                            ", field '%s'." % (value, data_relation['resource'],
+                                       data_relation['field']))
 
     def _validate_type_objectid(self, field, value):
         """ Enables validation for `objectid` data type.

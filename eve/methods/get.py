@@ -390,6 +390,7 @@ def _resolve_embedded_documents(document, resource, embedded_fields):
 
     .. versionchagend:: 0.4
         Moved parsing of embedded fields to _resolve_embedded_fields.
+        Support for document versioning.
 
     .. versionchagend:: 0.2
         Support for 'embedded_fields'.
@@ -400,12 +401,16 @@ def _resolve_embedded_documents(document, resource, embedded_fields):
     .. versionadded:: 0.1.0
     """
     for field in embedded_fields:
-        field_definition = config.DOMAIN[resource]['schema'][field]
+        data_relation =config.DOMAIN[resource]['schema'][field]['data_relation']
         # Retrieve and serialize the requested document
-        embedded_doc = app.data.find_one(
-            field_definition['data_relation']['resource'], None,
-            **{config.ID_FIELD: document[field]}
-        )
+        if 'versioned' in data_relation and data_relation['versioned'] == True:
+            # TODO: grab a specific version of the document
+            embedded_doc = None
+        else:
+            embedded_doc = app.data.find_one(
+                data_relation['resource'], None,
+                **{config.ID_FIELD: document[field]}
+            )
         if embedded_doc:
             document[field] = embedded_doc
 

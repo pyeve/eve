@@ -799,6 +799,42 @@ toggling the ``embedding`` value). Furthermore, only fields with the
 ``embeddable`` value explicitly set to ``True`` will allow the embedding of
 referenced documents.
 
+Embedding also works with a data_relation to a specific version of a document,
+but the schema looks a little bit different. To enable the data_relation to a
+specific version, add ``'version': True`` to the data_relation block. You'll
+also want to change the ``type`` to ``dict`` and add the ``schema`` definition
+shown below.
+
+.. code-block:: python
+   :emphasize-lines: 5, 6, 11
+
+    DOMAIN = {
+        'emails': {
+            'schema': {
+                'author': {
+                    'type': 'dict',
+                    'schema': {
+                        '_id': {'type': 'objectid'},
+                        '_version': {'type': 'integer'}
+                    },
+                    'data_relation': {
+                        'resource': 'users',
+                        'field': '_id',
+                        'embeddable': True,
+                        'version': True,
+                    },
+                },
+                'subject': {'type': 'string'},
+                'body': {'type': 'string'},
+            }
+        }
+
+As you can see, ``'version': True`` changes the expected value of a
+data_relation field to a dictionary with fields names ``data_relation['field']``
+and ``VERSION``. With ``'field': '_id'`` in the data_relation definition above
+and ``VERSION = '_version'`` in the Eve config, the value of the data_relation
+in this scenario would be a dictionary with fields ``_id`` and ``_version``.
+
 Predefined Resource Serialization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 It is also possible to elect some fields for predefined resource

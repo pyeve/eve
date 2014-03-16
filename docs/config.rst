@@ -803,7 +803,7 @@ defining the field validation rules. Allowed validation rules are:
                                 - ``resource``: the name of the resource being referenced;
                                 - ``field``: the field name in the foreign resource;
                                 - ``embeddable``: set to ``True`` if clients can request the referenced document to be embedded with the serialization. See :ref:`embedded_docs`. Defaults to ``False``.
-                                - ``versioned``: set to ``True`` to require a ``_version`` with the data relation. See :ref:`document_versioning`. Defaults to ``False``.
+                                - ``version``: set to ``True`` to require a ``_version`` with the data relation. See :ref:`document_versioning`. Defaults to ``False``.
 
 ``nullable``                    If ``True``, the field value can be set to 
                                 ``None``. 

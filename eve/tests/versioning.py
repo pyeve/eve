@@ -6,7 +6,7 @@ import json
 import copy
 from eve import Eve
 from eve.tests import TestBase
-from eve import STATUS, STATUS_OK, ETAG
+from eve import STATUS, STATUS_OK, ISSUES, ETAG
 from eve.tests.test_settings import MONGO_DBNAME
 from bson.objectid import ObjectId
 
@@ -228,6 +228,22 @@ class TestCompleteVersioning(TestNormalVersioning):
     def setUp(self):
         super(TestCompleteVersioning, self).setUp()
 
+        # enable versioning in the invoice data_relation definition
+        invoice_schema = self.domain['invoices']['schema']
+        invoice_schema['person'] = {
+            'type': 'dict',
+            'schema': {
+                '_id': {'type': 'objectid'},
+                self.app.config['VERSION']: {'type': 'integer'}
+            },
+            'data_relation': {
+                'version': True,
+                'resource': 'contacts',
+                'embeddable': True
+                #'field': '_id' is auto filled
+            }
+        }
+
         # turn on version after data has been inserted into the db
         self.enableVersioning()
 
@@ -423,9 +439,16 @@ class TestCompleteVersioning(TestNormalVersioning):
         # this type of query, Eve needs to normalize the projection before
         # passing it to MongoDB.
 
+    def test_unallow_automatic_fields(self):
+        """ Make sure that Eve throws an error if we try to set a versioning
+        field manually.
+        """
+
+        pass # todo
+
     def test_post_referential_integrity(self):
         """ Make sure that Eve still correctly handles vanilla data_relations
-        when versioning is turned on.
+        when versioning is turned on. (Coped from tests/methods/post.py.)
         """
         data = {"person": self.unknown_item_id}
         r, status = self.post('/invoices/', data=data)
@@ -443,11 +466,69 @@ class TestCompleteVersioning(TestNormalVersioning):
         """ Make sure that Eve correctly validates a data_relation with a
         version and returns the version with the data_relation in the response.
         """
-        # enable versioning in the data_relation
-        invoice_schema = self.domain['invoices']['schema']
-        invoice_schema['person']['data_relation']['versioned'] = True
+        data_relation = \
+            self.domain['invoices']['schema']['person']['data_relation']
+        value_field = data_relation['field']
+        version_field = self.app.config['VERSION']
+        validation_error_format = ("versioned data_relation must be a dict with"
+            " fields '%s' and '%s'" % (value_field, version_field))
+        validation_error_value = "fill me in..."
 
-        # perform test with with bad version
+        # must be a dict
+        data = {"person": self.item_id}
+        r, status = self.post('/invoices/', data=data)
+        self.assert200(status)
+        self.assertValidationError(r, {'person': 'must be of dict type'})
+
+        # must have _id
+        data = {"person": {value_field: self.item_id}}
+        r, status = self.post('/invoices/', data=data)
+        self.assert200(status)
+        self.assertValidationError(r, {'person': validation_error_format})
+
+        # must have _version
+        data = {"person": {version_field: 1}}
+        r, status = self.post('/invoices/', data=data)
+        self.assert200(status)
+        self.assertValidationError(r, {'person': validation_error_format})
+
+        # bad id format
+        data = {"person": {value_field: 'bad', version_field: 1}}
+        r, status = self.post('/invoices/', data=data)
+        self.assert200(status)
+        self.assertTrue(ISSUES in r)
+        self.assertValidationError(r, {'person': {
+            value_field: "value 'bad' cannot be converted to a ObjectId"}}) 
+        # self.assertTrue(r[ISSUES] == 
+
+        # unknown id
+        data = {"person": {value_field: self.unknown_item_id, version_field: 1}}
+        r, status = self.post('/invoices/', data=data)
+        print r
+        self.assert200(status)
+        # self.assertTrue(ISSUES in r)
+        # self.assertTrue(r[ISSUES] == {'person': {
+        #     value_field: "value 'bad' cannot be converted to a ObjectId"}})
+        # data = {"person": {value_field: self.unknown_item_id, version_field: 1}}
+        # r, status = self.post('/invoices/', data=data)
+        # print r
+        # self.assert200(status)
+        # self.assertValidationError(r, {'person': validation_error_format})
+
+        # version doesn't exist
+
+        # put a new version
+
+        # field doesn't exist in this version
+
+        # good everything... this should work
+
+
+
+
+
+
+
 
         # perform test with bad field
 

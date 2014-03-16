@@ -321,6 +321,7 @@ class Eve(Flask, Events):
 
         .. versionchanged:: 0.4
            Checks against offending document versioning fields.
+           Supports embedded data_relation with version.
 
         .. versionchanged:: 0.2
            Allow ID_FIELD in resource schema if not of 'objectid' type.
@@ -339,7 +340,7 @@ class Eve(Flask, Events):
         """
         # ensure automatically handled fields aren't defined
         fields = [eve.DATE_CREATED, eve.LAST_UPDATED]
-        #if settings['versioning'] == True: #TODO get settings in here
+        # TODO: only add the following checks if settings['versioning'] == True
         fields += [self.config['VERSION'], self.config['LATEST_VERSION'], \
             self.config['ID_FIELD']+self.config['VERSION_ID_SUFFIX']]
         offenders = []
@@ -365,7 +366,24 @@ class Eve(Flask, Events):
                 # it must be type == 'objectid'
                 # TODO: allow serializing a list( type == 'objectid')
                 if ruleset['data_relation'].get('embeddable', False):
-                    if ruleset['type'] != 'objectid':
+
+                    # special care for data_relations with a version
+                    value_field = ruleset['data_relation']['field']
+                    if ruleset['data_relation'].get('version', False):
+                        if 'schema' not in ruleset or \
+                        value_field not in ruleset['schema'] or \
+                        'type' not in ruleset['schema'][value_field]:
+                            raise SchemaException(
+                                "Must have schema with type defined for %s when"
+                                "declaring an embedded data_relation with"
+                                " version." % value_field
+                            )
+                        else:
+                            type = ruleset['schema'][value_field]['type']
+                    else:
+                        type = ruleset['type']
+
+                    if type != 'objectid':
                         raise SchemaException(
                             "In order for the 'data_relation' rule to be "
                             "embeddable it must be of type 'objectid'"
@@ -551,6 +569,9 @@ class Eve(Flask, Events):
         # nested
         for data_relation in list(extract_key_values('data_relation', schema)):
             data_relation.setdefault('field', self.config['ID_FIELD'])
+
+        # TODO: find a way to autofill "self.app.config['VERSION']: \
+        # {'type': 'integer'}" for data_relations
 
     @property
     def api_prefix(self):
