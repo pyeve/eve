@@ -580,9 +580,8 @@ class TestDataRelationVersionNotVersioned(TestNormalVersioning):
         # test that it works
         response, status = self.get(self.domain['invoices']['url'],
             item=invoice_id, query='?embedded={"person": 1}')
-        print response['person']
         self.assert200(status)
-        self.assertTrue('location' in response['person'])
+        self.assertTrue('ref' in response['person'])
 
 
 class TestDataRelationVersionVersioned(TestNormalVersioning):

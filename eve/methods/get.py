@@ -22,7 +22,8 @@ from eve.auth import requires_auth
 from eve.utils import parse_request, document_etag, document_link, home_link, \
     querydef, config, debug_error_message, resource_uri
 from eve.versioning import resolve_document_version, synthesize_versioned_document, \
-    versioned_id_field, get_old_document, diff_document
+    versioned_id_field, get_old_document, diff_document, \
+    get_data_version_relation_document
 from flask import current_app as app, abort, request
 
 
@@ -298,6 +299,11 @@ def _build_response_document(document, resource, embedded_fields,\
     """ Prepares a document for response including generation of ETag and 
     metadata fields.
 
+    :param document: the document to embed other documents into.
+    :param resource: the resource name.
+    :param embedded_fields: the list of fields we are allowed to embed.
+    :param document: the latest version of document.
+
     .. versionadded:: 0.4
     """
     # need to update the document field since the etag must be computed on the
@@ -384,9 +390,9 @@ def _resolve_embedded_documents(document, resource, embedded_fields):
     i.e. /invoices/?embedded={"user":1}
     *NOT*  /invoices/?embedded={"user.friends":1}
 
+    :param document: the document to embed other documents into.
     :param resource: the resource name.
-    :param req: and instace of :class:`eve.utils.ParsedRequest`.
-    :param documents: list of documents returned by the query.
+    :param embedded_fields: the list of fields we are allowed to embed.
 
     .. versionchagend:: 0.4
         Moved parsing of embedded fields to _resolve_embedded_fields.
@@ -403,9 +409,18 @@ def _resolve_embedded_documents(document, resource, embedded_fields):
     for field in embedded_fields:
         data_relation =config.DOMAIN[resource]['schema'][field]['data_relation']
         # Retrieve and serialize the requested document
-        if 'versioned' in data_relation and data_relation['versioned'] == True:
-            # TODO: grab a specific version of the document
-            embedded_doc = None
+        if 'version' in data_relation and data_relation['version'] == True:
+            # grab the specific version
+            embedded_doc = get_data_version_relation_document(data_relation, 
+                document[field])
+
+            # grab the latest version
+            latest_embedded_doc = get_data_version_relation_document(
+                data_relation, document[field], latest=True)
+
+            # build the response document
+            _build_response_document(embedded_doc, data_relation['resource'],
+                [], latest_embedded_doc)
         else:
             embedded_doc = app.data.find_one(
                 data_relation['resource'], None,

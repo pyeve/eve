@@ -17,7 +17,7 @@ from bson import ObjectId
 from flask import current_app as app
 from cerberus import Validator
 from werkzeug.datastructures import FileStorage
-from eve.versioning import versioned_fields
+from eve.versioning import versioned_fields, get_data_version_relation_document
 
 
 class Validator(Validator):
@@ -124,35 +124,14 @@ class Validator(Validator):
             # check value format
             if isinstance(value, dict) and value_field in value \
             and version_field in value:
-                resouce_def = config.DOMAIN[data_relation['resource']]
-                if resouce_def['versioning'] == False:
+                resource_def = config.DOMAIN[data_relation['resource']]
+                if resource_def['versioning'] == False:
                     self._error(field, "can't save a version with data_relation"
                         " if '%s' isn't versioned" % data_relation['resource'])
                 else:
-                    collection = data_relation['resource']
-                    query = {}
-
-                    # tweak the query if the foreign field is versioned
-                    if value_field in versioned_fields(resouce_def):
-                        # the field is versioned, search the shadow collection
-                        collection += config.VERSIONS
-                        
-                        # special consideration for _id overloading
-                        if value_field == config.ID_FIELD:
-                            query[value_field + config.VERSION_ID_SUFFIX] = \
-                                value[value_field]
-                        else:
-                            query[value_field] = value[value_field]
-
-                        # add the version to the query
-                        query[version_field] = value[version_field]
-                    else:
-                        # the field is not versioned, search the primary doc
-                        query[value_field] = value[value_field]
-                        query[version_field] = {'$gte': value[version_field]}
-                    
-                    # perform search
-                    if not app.data.find_one(collection, None, **query):
+                    search = get_data_version_relation_document(data_relation,
+                                                                value)
+                    if not search:
                         self._error(field, "value '%s' must exist in resource"
                             " '%s', field '%s' at version '%s'." %
                             (value[value_field], data_relation['resource'],

@@ -233,3 +233,41 @@ def get_old_document(resource, req, lookup, document, version):
             config.DOMAIN[resource])
         
     return document
+
+def get_data_version_relation_document(data_relation, reference, latest=False):
+    """ Returns an old document if appropriate, otherwise passes the given
+    document through.
+
+    :param data_relation: the schema definition describing the data_relation.
+    :param reference: a dictionary with a value_field and a version_field.
+    :param latest: whether we should obey the version param in reference or not.
+
+    .. versionadded:: 0.4
+    """
+    value_field = data_relation['field']
+    version_field = app.config['VERSION']
+    collection = data_relation['resource']
+    resource_def = app.config['DOMAIN'][data_relation['resource']]
+    query = {}
+
+    # tweak the query if the foreign field is versioned
+    if value_field in versioned_fields(resource_def) and latest == False:
+        # the field is versioned, search the shadow collection
+        collection += app.config['VERSIONS']
+        
+        # special consideration for _id overloading
+        if value_field == app.config['ID_FIELD']:
+            query[value_field + app.config['VERSION_ID_SUFFIX']] = \
+                reference[value_field]
+        else:
+            query[value_field] = reference[value_field]
+
+        # add the version to the query
+        query[version_field] = reference[version_field]
+    else:
+        # the field is not versioned, search the primary doc
+        query[value_field] = reference[value_field]
+        if latest == False:
+            query[version_field] = {'$gte': reference[version_field]}
+
+    return app.data.find_one(collection, None, **query)
