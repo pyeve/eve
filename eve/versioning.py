@@ -150,7 +150,7 @@ def diff_document(resource_def, old_doc, new_doc):
     .. versionadded:: 0.4
     """
     diff = {}
-    fields = resource_def['schema'].keys() + [
+    fields = list(resource_def['schema'].keys()) + [
         app.config['VERSION'],
         app.config['LATEST_VERSION'],
         app.config['ID_FIELD'],
