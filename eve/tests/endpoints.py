@@ -190,8 +190,8 @@ class TestEndPoints(TestBase):
 
     def test_api_version(self):
         settings_file = os.path.join(self.this_directory, 'test_version.py')
-        self.prefixapp = Eve(settings=settings_file)
-        self.test_prefix = self.prefixapp.test_client()
+        self.app = Eve(settings=settings_file)
+        self.test_prefix = self.app.test_client()
         r = self.test_prefix.get('/')
         self.assert404(r.status_code)
         r = self.test_prefix.get('/v1/')
@@ -206,8 +206,8 @@ class TestEndPoints(TestBase):
 
     def test_api_prefix(self):
         settings_file = os.path.join(self.this_directory, 'test_prefix.py')
-        self.prefixapp = Eve(settings=settings_file)
-        self.test_prefix = self.prefixapp.test_client()
+        self.app = Eve(settings=settings_file)
+        self.test_prefix = self.app.test_client()
         r = self.test_prefix.get('/')
         self.assert404(r.status_code)
         r = self.test_prefix.get('/prefix/')
@@ -221,8 +221,8 @@ class TestEndPoints(TestBase):
     def test_api_prefix_version(self):
         settings_file = os.path.join(self.this_directory,
                                      'test_prefix_version.py')
-        self.prefixapp = Eve(settings=settings_file)
-        self.test_prefix = self.prefixapp.test_client()
+        self.app = Eve(settings=settings_file)
+        self.test_prefix = self.app.test_client()
         r = self.test_prefix.get('/')
         self.assert404(r.status_code)
         r = self.test_prefix.get('/prefix/v1/')

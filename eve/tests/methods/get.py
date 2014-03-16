@@ -1,4 +1,3 @@
-import types
 import simplejson as json
 from datetime import datetime
 from bson import ObjectId
@@ -466,17 +465,17 @@ class TestGet(TestBase):
         self.assertGet(response, status, 'users_overseas')
 
     def test_cursor_extra_find(self):
-        self.app.data._find = self.app.data.find
+        _find = self.app.data.find
         hits = {'total_hits': 0}
 
-        def find(self, resource, req, sub_resource_lookup):
-            def extra(self, response):
+        def find(resource, req, sub_resource_lookup):
+            def extra(response):
                 response['_hits'] = hits
-            cursor = self._find(resource, req, sub_resource_lookup)
-            cursor.extra = types.MethodType(extra, cursor)
+            cursor = _find(resource, req, sub_resource_lookup)
+            cursor.extra = extra
             return cursor
 
-        self.app.data.find = types.MethodType(find, self.app.data)
+        self.app.data.find = find
         r, status = self.get(self.known_resource)
         self.assert200(status)
         self.assertTrue('_hits' in r)

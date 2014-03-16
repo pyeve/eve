@@ -48,6 +48,7 @@ def close_pymongo_connection(app):
     if not 'pymongo' in app.extensions:
         return
     del app.extensions['pymongo']['MONGO']
+    del app.media
 
 
 class TestMinimal(unittest.TestCase):
