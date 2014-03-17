@@ -910,18 +910,18 @@ class TestEvents(TestBase):
         self.app.on_fetched_item += self.devent
         self.get_item()
         self.assertEqual('contacts', self.devent.called[0])
-        self.assertEqual(self.item_id, str(self.devent.called[1]))
         self.assertEqual(
             self.item_id,
-            str(self.devent.called[2][self.app.config['ID_FIELD']]))
+            str(self.devent.called[1][self.app.config['ID_FIELD']]))
+        self.assertEqual(2, len(self.devent.called))
 
     def test_on_fetched_item_contacts(self):
         self.app.on_fetched_item_contacts += self.devent
         self.get_item()
-        self.assertEqual(self.item_id, str(self.devent.called[0]))
         self.assertEqual(
             self.item_id,
-            str(self.devent.called[1][self.app.config['ID_FIELD']]))
+            str(self.devent.called[0][self.app.config['ID_FIELD']]))
+        self.assertEqual(1, len(self.devent.called))
 
     def get_resource(self):
         self.test_client.get(self.known_resource_url)

@@ -866,7 +866,7 @@ configured:
    >>> app.on_fetched_item += add_signature
 
 The events are fired for resources and items if the action is available for
-both. And for each action two events will be fired: 
+both. And for each action two events will be fired:
 
 - Generic: ``on_<action_name>``
 - With the name of the resource: ``on_<action_name>_<resource_name>``
@@ -884,10 +884,10 @@ Let's see an overview of what events are available:
 |       |        |      || ``def event(items)``                   |
 |       +--------+------+-----------------------------------------+
 |       |Item    |After || ``on_fetched_item``                    |
-|       |        |      || ``def event(resource_name, id, item)`` |
+|       |        |      || ``def event(resource_name, item)``     |
 |       |        |      +-----------------------------------------+
 |       |        |      || ``on_fetched_item_<resource>``         |
-|       |        |      || ``def event(id, item)``                |
+|       |        |      || ``def event(item)``                    |
 +-------+--------+------+-----------------------------------------+
 |Insert |Items   |Before|| ``on_insert``                          |
 |       |        |      || ``def event(resource_name, items)``    |
@@ -959,8 +959,8 @@ These are the fetch events with their method signature:
 
 - ``on_fetched_resource(resource_name, items)``
 - ``on_fetched_resource_<resource_name>(items)``
-- ``on_fetched_item(resource_name, id, item)``
-- ``on_fetched_item_<resource_name>(id, item)``
+- ``on_fetched_item(resource_name, item)``
+- ``on_fetched_item_<resource_name>(item)``
 
 They are raised when items have just been read from the database and are
 about to be sent to the client. Registered callback functions can manipulate
@@ -974,10 +974,10 @@ the items as needed before they are returned to the client.
     >>> def before_returning_contacts(items):
     ...  print 'About to return contacts'
 
-    >>> def before_returning_item(resource_name, _id, item):
+    >>> def before_returning_item(resource_name, item):
     ...  print 'About to return an item from "%s" ' % resource_name
 
-    >>> def before_returning_contact(_id, item):
+    >>> def before_returning_contact(item):
     ...  print 'About to return a contact'
 
     >>> app = Eve()

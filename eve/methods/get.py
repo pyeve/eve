@@ -251,10 +251,8 @@ def getitem(resource, **lookup):
         # functions modify the document, last_modified and etag  won't be
         # updated to reflect the changes (they always reflect the documents
         # state on the database).
-        getattr(app, "on_fetched_item")(resource, document[config.ID_FIELD],
-                                        document)
-        getattr(app, "on_fetched_item_%s" %
-                resource)(document[config.ID_FIELD], document)
+        getattr(app, "on_fetched_item")(resource, document)
+        getattr(app, "on_fetched_item_%s" % resource)(document)
 
         response.update(document)
         return response, last_modified, etag, 200
