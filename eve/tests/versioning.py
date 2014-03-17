@@ -39,6 +39,26 @@ class TestVersioningBase(TestBase):
             settings['datasource'].pop('projection', None)
             self.app.register_resource(resource, settings)
 
+    def enableDataVersionRelation(self, embeddable=True):
+        field = {
+            'type': 'dict',
+            'schema': {
+                self.app.config['VERSION']: {'type': 'integer'}
+            },
+            'data_relation': {
+                'version': True,
+                'resource': 'contacts'
+            }
+        }
+        if embeddable is True:
+            field['schema'][self.app.config['ID_FIELD']] = {'type': 'objectid'}
+            field['data_relation']['embeddable'] = True
+            #field['data_relation']['field'] = '_id' is auto filled
+        else:
+            field['schema']['ref'] = {'type': 'string'}
+            field['data_relation']['field'] = 'ref'
+        self.domain['invoices']['schema']['person'] = field
+
     def assertEqualFields(self, obj1, obj2, fields):
         for field in fields:
             self.assertEqual(obj1[field], obj2[field])
@@ -534,20 +554,7 @@ class TestDataRelationVersionNotVersioned(TestNormalVersioning):
         super(TestDataRelationVersionNotVersioned, self).setUp()
 
         # enable versioning in the invoice data_relation definition
-        invoice_schema = self.domain['invoices']['schema']
-        invoice_schema['person'] = {
-            'type': 'dict',
-            'schema': {
-                '_id': {'type': 'objectid'},
-                self.app.config['VERSION']: {'type': 'integer'}
-            },
-            'data_relation': {
-                'version': True,
-                'resource': 'contacts',
-                'embeddable': True
-                #'field': '_id' is auto filled
-            }
-        }
+        self.enableDataVersionRelation(embeddable=True)
 
         # turn on version after data has been inserted into the db
         self.enableVersioning()
@@ -638,7 +645,7 @@ class TestDataRelationVersionNotVersioned(TestNormalVersioning):
         # add embeddable data relation
         data = {"person": {value_field: self.item_id, self.version_field: 1}}
         response, status = self.post('/invoices/', data=data)
-        invoice_id = response[self.app.config['ID_FIELD']]
+        invoice_id = response[value_field]
         self.assert201(status)
 
         # test that it works
@@ -654,19 +661,7 @@ class TestDataRelationVersionVersioned(TestNormalVersioning):
         super(TestDataRelationVersionVersioned, self).setUp()
 
         # enable versioning in the invoice data_relation definition
-        invoice_schema = self.domain['invoices']['schema']
-        invoice_schema['person'] = {
-            'type': 'dict',
-            'schema': {
-                'ref': {'type': 'string'},
-                self.app.config['VERSION']: {'type': 'integer'}
-            },
-            'data_relation': {
-                'version': True,
-                'resource': 'contacts',
-                'field': 'ref'
-            }
-        }
+        self.enableDataVersionRelation(embeddable=False)
 
         # turn on version after data has been inserted into the db
         self.enableVersioning()
@@ -754,6 +749,9 @@ class TestPartialVersioning(TestNormalVersioning):
 class TestLateVersioning(TestVersioningBase):
     def setUp(self):
         super(TestLateVersioning, self).setUp()
+
+        # enable versioning in the invoice data_relation definition
+        self.enableDataVersionRelation(embeddable=True)
 
         # turn on version after data has been inserted into the db
         self.enableVersioning()
@@ -852,4 +850,47 @@ class TestLateVersioning(TestVersioningBase):
         version 0 of a document. This should only be allowed if the shadow
         collection it empty.
         """
-        pass  # TODO
+        data_relation = \
+            self.domain['invoices']['schema']['person']['data_relation']
+        value_field = data_relation['field']
+        version_field = self.app.config['VERSION']
+
+        # verify that Eve will take version = 0 if no shadow docs exist
+        data = {"person": {value_field: self.item_id, version_field: 0}}
+        response, status = self.post('/invoices/', data=data)
+        invoice_id = response[value_field]
+        self.assert201(status)
+
+        # verify that we can embed across the data_relation w/ version = 0
+        response, status = self.get(
+            self.domain['invoices']['url'],
+            item=invoice_id, query='?embedded={"person": 1}')
+        self.assert200(status)
+        self.assertTrue('ref' in response['person'])
+
+        # put a change to the document (will be version = 1)
+        changes = {"ref": "this is a different value"}
+        response, status = self.put(self.item_id_url, data=changes,
+                                    headers=[('If-Match', self.item_etag)])
+        self.assertGoodPutPatch(response, status)
+        self.assertDocumentVersions(response, 1)
+
+        # verify that Eve will not take version = 0 now
+        data = {"person": {value_field: self.item_id, version_field: 0}}
+        r, status = self.post('/invoices/', data=data)
+        self.assert200(status)
+        self.assertValidationError(
+            r, {'person': "value '%s' must exist in "
+                "resource '%s', field '%s' at version '%s'." %
+                (self.item_id, 'contacts', value_field, 0)})
+
+        # verify that we can still embed with out-of-date version = 0
+        response, status = self.get(
+            self.domain['invoices']['url'],
+            item=invoice_id, query='?embedded={"person": 1}')
+        self.assert200(status)
+        self.assertTrue('ref' in response['person'])
+
+        # The test for data_relation with version == 1 and embedding across a
+        # data relation with version > 0 is the normal behavior. This is tested
+        # in TestDataRelationVersionNotVersioned.test_referential_integrity().

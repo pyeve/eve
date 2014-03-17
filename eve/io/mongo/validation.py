@@ -17,7 +17,8 @@ from bson import ObjectId
 from flask import current_app as app
 from cerberus import Validator
 from werkzeug.datastructures import FileStorage
-from eve.versioning import get_data_version_relation_document
+from eve.versioning import get_data_version_relation_document, \
+    missing_version_field
 
 
 class Validator(Validator):
@@ -131,8 +132,14 @@ class Validator(Validator):
                         " data_relation if '%s' isn't versioned" %
                         data_relation['resource'])
                 else:
-                    search = get_data_version_relation_document(data_relation,
-                                                                value)
+                    # support late versioning
+                    if value[version_field] == 0:
+                        # there is a chance this document hasn't been saved
+                        # since versioning was turned on
+                        search = missing_version_field(data_relation, value)
+                    else:
+                        search = get_data_version_relation_document(
+                            data_relation, value)
                     if not search:
                         self._error(
                             field, "value '%s' must exist in resource"

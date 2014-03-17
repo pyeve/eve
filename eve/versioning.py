@@ -282,3 +282,23 @@ def get_data_version_relation_document(data_relation, reference, latest=False):
             query[version_field] = {'$gte': reference[version_field]}
 
     return app.data.find_one(collection, None, **query)
+
+
+def missing_version_field(data_relation, reference):
+    """ Returns a document if it matches the value_field but doesn't have a
+    _version field. This is the scenario when there is data in the database
+    before document versioning is turned on.
+
+    :param data_relation: the schema definition describing the data_relation.
+    :param reference: a dictionary with a value_field and a version_field.
+
+    .. versionadded:: 0.4
+    """
+    value_field = data_relation['field']
+    version_field = app.config['VERSION']
+    collection = data_relation['resource']
+    query = {}
+    query[value_field] = reference[value_field]
+    query[version_field] = {'$exists': False}
+
+    return app.data.find_one(collection, None, **query)

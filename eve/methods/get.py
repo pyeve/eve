@@ -23,7 +23,7 @@ from eve.utils import parse_request, document_etag, document_link, home_link, \
     querydef, config, debug_error_message, resource_uri
 from eve.versioning import resolve_document_version, \
     synthesize_versioned_document, versioned_id_field, get_old_document, \
-    diff_document, get_data_version_relation_document
+    diff_document, get_data_version_relation_document, missing_version_field
 from flask import current_app as app, abort, request
 
 
@@ -413,13 +413,39 @@ def _resolve_embedded_documents(document, resource, embedded_fields):
         data_relation = schema[field]['data_relation']
         # Retrieve and serialize the requested document
         if 'version' in data_relation and data_relation['version'] is True:
-            # grab the specific version
-            embedded_doc = get_data_version_relation_document(
-                data_relation, document[field])
+            # support late versioning
+            if document[field][config.VERSION] == 0:
+                # there is a chance this document hasn't been saved
+                # since versioning was turned on
+                embedded_doc = missing_version_field(
+                    data_relation, document[field])
 
-            # grab the latest version
-            latest_embedded_doc = get_data_version_relation_document(
-                data_relation, document[field], latest=True)
+                if embedded_doc is None:
+                    # this document has been saved since the data_relation was
+                    # made - we basically do not have the copy of the document
+                    # that existed when the data relation was made, but we'll
+                    # try the next best thing - the first version
+                    document[field][config.VERSION] = 1
+                    embedded_doc = get_data_version_relation_document(
+                        data_relation, document[field])
+
+                latest_embedded_doc = embedded_doc
+            else:
+                # grab the specific version
+                embedded_doc = get_data_version_relation_document(
+                    data_relation, document[field])
+
+                # grab the latest version
+                latest_embedded_doc = get_data_version_relation_document(
+                    data_relation, document[field], latest=True)
+
+            # make sure we got the documents
+            if embedded_doc is None or latest_embedded_doc is None:
+                # your database is not consistent!!! that is bad
+                abort(404, description=debug_error_message(
+                    "Unable to locate embedded documents for '%s'" %
+                    field
+                ))
 
             # build the response document
             _build_response_document(
