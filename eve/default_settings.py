@@ -13,6 +13,13 @@
 
     .. versionchanged:: 0.4
        URL_PROTOCOL added and set to ''.
+       'VERSION' added and set to '_version'.
+       'VERSIONS' added and set to '_versions'.
+       'VERSIONING' added and set to False.
+       'VERSION_PARAM' added and set to 'version'.
+       'LATEST_VERSION' added and set to '_latest_version'.
+       'VERSION_ID_SUFFIX' added and set to '_document'.
+       'VERSION_DIFF_INCLUDE' added and set to [].
 
     .. versionchanged:: 0.3
        X_MAX_AGE added and set to 21600.
@@ -64,6 +71,13 @@ STATUS = '_status'
 ITEMS = '_items'
 LINKS = '_links'
 ETAG = '_etag'
+VERSION = '_version'            # field that stores the version number
+LATEST_VERSION = '_latest_version'  # field returned on GET requests so we know
+                                # if we have the latest copy even if we access
+                                # a specific version
+VERSION_ID_SUFFIX = '_document'  # appended to ID_FIELD, holds the original
+                                # document id in parallel collection
+VERSION_DIFF_INCLUDE = []       # always include these fields when diffing
 
 API_VERSION = ''
 URL_PREFIX = ''
@@ -87,6 +101,9 @@ PROJECTION = True               # projection enabled by default
 PAGINATION = True               # pagination enabled by default.
 PAGINATION_LIMIT = 50
 PAGINATION_DEFAULT = 25
+VERSIONING = False              # turn document versioning on or off
+VERSIONS = '_versions'          # suffix for parallel collection w/old versions
+VERSION_PARAM = 'version'       # URL param for specific version of a document
 
 RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']
@@ -100,7 +117,7 @@ ITEM_URL = 'regex("[a-f0-9]{24}")'
 
 # list of extra fields to be included with every POST response. This list
 # should not include the 'standard' fields (ID_FIELD, LAST_UPDATED,
-# DATE_CREATED,ETAG).
+# DATE_CREATED, and ETAG).
 EXTRA_RESPONSE_FIELDS = []
 
 
