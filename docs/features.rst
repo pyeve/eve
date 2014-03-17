@@ -688,7 +688,7 @@ with the same version number. In normal practice, ``VERSIONING`` can be enable
 without worry for any new collection or even an existing collection which has
 not previously had versioning enabled.
 
-For more information see and `Global Configuration`_ and `Domain Configuration`_.
+For more information see and :ref:`global` and :ref:`domain`.
 
 
 Authentication
