@@ -18,6 +18,8 @@ from eve.auth import requires_auth
 from eve.validation import ValidationError
 from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, pre_event, resolve_media_files
+from eve.versioning import resolve_document_version, \
+    insert_versioning_documents
 
 
 @ratelimit()
@@ -34,6 +36,7 @@ def patch(resource, **lookup):
 
     .. versionchanged:: 0.4
        'on_update' raised before performing the update on the database.
+       Support for document versioning.
 
     .. versionchanged:: 0.3
        Support for media fields.
@@ -98,6 +101,7 @@ def patch(resource, **lookup):
         validation = validator.validate_update(updates, object_id)
         if validation:
             resolve_media_files(updates, resource, original)
+            resolve_document_version(updates, resource, 'PATCH', original)
 
             # the mongo driver has a different precision than the python
             # datetime. since we don't want to reload the document once it has
@@ -115,6 +119,7 @@ def patch(resource, **lookup):
             getattr(app, "on_update_%s" % resource)(original)
 
             app.data.update(resource, object_id, updates)
+            insert_versioning_documents(resource, object_id, original)
 
             response[config.ID_FIELD] = original[config.ID_FIELD]
             last_modified = response[config.LAST_UPDATED] = \
@@ -127,6 +132,12 @@ def patch(resource, **lookup):
                 response[config.LINKS] = {
                     'self': document_link(resource, original[config.ID_FIELD])
                 }
+
+            if resource_def['versioning'] is True:
+                resolve_document_version(original, resource, 'GET')
+                response[config.VERSION] = original[config.VERSION]
+                response[config.LATEST_VERSION] = \
+                    original[config.LATEST_VERSION]
 
         else:
             issues = validator.errors

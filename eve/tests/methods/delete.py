@@ -157,7 +157,3 @@ class TestDelete(TestBase):
                                        (fake_contact_id, self.invoice_id),
                                        headers=headers)
         self.assert200(status)
-
-    def delete(self, url, headers=None):
-        r = self.test_client.delete(url, headers=headers)
-        return self.parse_response(r)

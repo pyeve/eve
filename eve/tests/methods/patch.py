@@ -319,10 +319,3 @@ class TestPatch(TestBase):
         self.assertTrue(ETAG in response)
         self.assertTrue('_links' in response)
         self.assertItemLink(response['_links'], item_id)
-
-    def patch(self, url, data, headers=[]):
-        headers.append(('Content-Type', 'application/json'))
-        r = self.test_client.patch(url,
-                                   data=json.dumps(data),
-                                   headers=headers)
-        return self.parse_response(r)
