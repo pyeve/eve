@@ -8,6 +8,7 @@ Version 0.4
 
 Not released yet.
 
+- [new] Versioned Documents (Josh Villbrandt). Closes #224.
 - [fix] tests cleanup (Javier Gonel).
 - [fix] tests now run on any system without needing to set ``ulimit`` to
   a higher value (Javier Gonel).
