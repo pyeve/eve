@@ -144,8 +144,8 @@ when configuring individual endpoints. Global configuration settings are always
 uppercase.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="38%" />
-<col width="62%" />
+<col width="22%" />
+<col width="78%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt></td>
@@ -459,6 +459,41 @@ otherwise. See <a class="reference internal" href="features.html#jsonxml"><em>JS
 <td><tt class="docutils literal"><span class="pre">True</span></tt> to enable JSON support, <tt class="docutils literal"><span class="pre">False</span></tt>
 otherwise. See <a class="reference internal" href="features.html#jsonxml"><em>JSON and XML Rendering</em></a>. Defaults to
 <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VERSIONING</span></tt></td>
+<td>Enabled documents version control when``True``. Can be erridden by resource settings. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VERSIONS</span></tt></td>
+<td>Suffix added to the name of the primary
+collection to create the name of the shadow
+collection to store document versions. Defaults
+to <tt class="docutils literal"><span class="pre">_versions</span></tt>. When <tt class="docutils literal"><span class="pre">VERSIONING</span></tt> is enabled
+, a collection such as <tt class="docutils literal"><span class="pre">myresource_versions</span></tt>
+would be created for a resource with a
+datasource of <tt class="docutils literal"><span class="pre">myresource</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VERSION_PARAM</span></tt></td>
+<td>The URL query parameter used to access the
+specific version of a document. Defaults to
+<tt class="docutils literal"><span class="pre">version</span></tt>. Omit this parameter to get the
+latest version of a document or use
+<cite>?version=all`</cite> to get a list of all version of
+the document. Only valid for individual item
+endpoints.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VERSION</span></tt></td>
+<td>Field used to store the version number of a
+document. Defaults to <tt class="docutils literal"><span class="pre">_version</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">LASTEST_VERSION</span></tt></td>
+<td>Field used to store the latest version number
+of a document. Defaults to <tt class="docutils literal"><span class="pre">_latest_version</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VERSION_ID_SUFFIX</span></tt></td>
+<td>Used in the shadow collection to store the
+document id. Defaults to <tt class="docutils literal"><span class="pre">_document</span></tt>. If
+<tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> is set to <tt class="docutils literal"><span class="pre">_id</span></tt>, the document id
+will be stored in field <tt class="docutils literal"><span class="pre">_id_document</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt></td>
 <td>MongoDB server address. Defaults to <tt class="docutils literal"><span class="pre">localhost</span></tt>.</td>
@@ -827,107 +862,6 @@ streams.</p>
 </div>
 <p>As you can see, schema keys are the actual field names, while values are dicts
 defining the field validation rules. Allowed validation rules are:</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="16%" />
-<col width="84%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">type</span></tt></td>
-<td><p class="first">Field data type. Can be one of the following:</p>
-<ul class="last simple">
-<li><tt class="docutils literal"><span class="pre">string</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">boolean</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">integer</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">float</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">number</span></tt> (integer and float values allowed)</li>
-<li><tt class="docutils literal"><span class="pre">datetime</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">dict</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">list</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">objectid</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">file</span></tt></li>
-</ul>
-</td>
-</tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">required</span></tt></td>
-<td>If <tt class="docutils literal"><span class="pre">True</span></tt>, the field is mandatory on
-insertion.</td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">readonly</span></tt></td>
-<td>If <tt class="docutils literal"><span class="pre">True</span></tt>, the field is readonly.</td>
-</tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">minlength</span></tt>, <tt class="docutils literal"><span class="pre">maxlength</span></tt></td>
-<td>Minimum and maximum length allowed for
-<tt class="docutils literal"><span class="pre">string</span></tt> and <tt class="docutils literal"><span class="pre">list</span></tt> types.</td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">min</span></tt>, <tt class="docutils literal"><span class="pre">max</span></tt></td>
-<td>Minimum and maximum values allowed for
-<tt class="docutils literal"><span class="pre">integer</span></tt> types.</td>
-</tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">allowed</span></tt></td>
-<td>List of allowed values for <tt class="docutils literal"><span class="pre">string</span></tt> and
-<tt class="docutils literal"><span class="pre">list</span></tt> types.</td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">empty</span></tt></td>
-<td>Only applies to string fields. If <tt class="docutils literal"><span class="pre">False</span></tt>,
-validation will fail if the value is empty.
-Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
-</tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">items</span></tt></td>
-<td>Defines a list of values allowed in a <tt class="docutils literal"><span class="pre">list</span></tt>
-of fixed length.</td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
-<td>Validation schema for <tt class="docutils literal"><span class="pre">dict</span></tt> types and
-arbitrary length <tt class="docutils literal"><span class="pre">list</span></tt> types. For details
-and usage examples, see <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#schema" title="(in Cerberus v0.6.1)"><em class="xref std std-ref">Cerberus documentation</em></a></td>
-</tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">unique</span></tt></td>
-<td><p class="first">The value of the field must be unique within
-the collection.</p>
-<p>Please note: validation constraints are checked
-against the database, and not between the
-payload documents themselves. This causes an
-interesting corner case: in the event of
-a multiple documents payload where two or more
-documents carry the same value for a field
-where the &#8216;unique&#8217; constraint is set, the
-payload will validate successfully, as there
-are no duplicates in the database (yet).</p>
-<p>If this is an issue, the client can always send
-the documents one at a time for insertion, or
-validate locally before submitting the payload
-to the API.</p>
-<p class="last">Also be aware that when <a class="reference internal" href="authentication.html#user-restricted"><em>User-Restricted Resource Access</em></a>
-is enabled the rule will be validated against
-<em>user data only</em>. So in this scenario
-duplicates are allowed as long as they are
-stored by different users. Conversely, a single
-user cannot store duplicate values.</p>
-</td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">data_relation</span></tt></td>
-<td><p class="first">Allows to specify a referential integrity rule
-that the value must satisfy in order to
-validate. It is a dict with three keys:</p>
-<ul class="last simple">
-<li><tt class="docutils literal"><span class="pre">resource</span></tt>: the name of the resource being referenced;</li>
-<li><tt class="docutils literal"><span class="pre">field</span></tt>: the field name in the foreign resource;</li>
-<li><tt class="docutils literal"><span class="pre">embeddable</span></tt>: set to <tt class="docutils literal"><span class="pre">True</span></tt> if clients can request the referenced document to be embedded with the serialization. See <a class="reference internal" href="features.html#embedded-docs"><em>Embedded Resource Serialization</em></a>. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</li>
-</ul>
-</td>
-</tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">nullable</span></tt></td>
-<td>If <tt class="docutils literal"><span class="pre">True</span></tt> the field value can be set to
-<tt class="docutils literal"><span class="pre">None</span></tt>.</td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">default</span></tt></td>
-<td>The default value for the field. When serving
-POST (create) requests, missing fields will be
-assigned the configured default values.</td>
-</tr>
-</tbody>
-</table>
 <p>Schema syntax is based on <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> and yes, it can be extended.  In fact, Eve
 itself extends the original grammar by adding the <tt class="docutils literal"><span class="pre">unique</span></tt> and
 <tt class="docutils literal"><span class="pre">data_relation</span></tt> keywords, along with the <tt class="docutils literal"><span class="pre">objectid</span></tt> datatype. For more

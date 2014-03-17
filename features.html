@@ -627,7 +627,7 @@ validation class to validate that. Or say you want to make sure that a VAT
 field actually matches your own country VAT algorithm; you can do that too. As
 a matter of fact, Eve&#8217;s MongoDB data-layer itself extends Cerberus
 validation by implementing the <tt class="docutils literal"><span class="pre">unique</span></tt> schema field constraint. For more
-information see <a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a></p>
+information see <a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a>.</p>
 </div>
 <div class="section" id="resource-level-cache-control">
 <span id="cache-control"></span><h2>Resource-level Cache Control<a class="headerlink" href="#resource-level-cache-control" title="Permalink to this headline">¶</a></h2>
@@ -646,14 +646,38 @@ information see <a class="reference internal" href="validation.html#validation">
 These will minimize load on the server since cache-enabled consumers will
 perform resource-intensive request only when really needed.</p>
 </div>
-<div class="section" id="versioning">
-<h2>Versioning<a class="headerlink" href="#versioning" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="api-versioning">
+<h2>API Versioning<a class="headerlink" href="#api-versioning" title="Permalink to this headline">¶</a></h2>
 <p>I&#8217;m not too fond of API versioning. I believe that clients should be
 intelligent enough to deal with API updates transparently, especially since
 Eve-powered API support <a class="reference external" href="http://en.wikipedia.org/wiki/HATEOAS">HATEOAS</a>. When versioning is a necessity, different API
 versions should be isolated instances since so many things could be different
 between versions: caching, URIs, schemas, validation, and so on. URI versioning
 (<a class="reference external" href="http://api.example.com/v1/">http://api.example.com/v1/</a>...) is supported.</p>
+</div>
+<div class="section" id="document-versioning">
+<span id="id2"></span><h2>Document Versioning<a class="headerlink" href="#document-versioning" title="Permalink to this headline">¶</a></h2>
+<p>Eve supports automatic version control of documents. By default, this setting is
+turned off, but it can be turned globally or configured individually for each
+resource. When enabled, Eve provides version control by storing versions of
+documents in a shadow collection. All HTTP methods act on the latest version of
+the document except when retrieving an indivual item. In this case, adding a
+query parameter of <tt class="docutils literal"><span class="pre">?version=VERSION</span></tt> can be used to point to a specific
+version. Special values of  <tt class="docutils literal"><span class="pre">?version=all</span></tt> and  <tt class="docutils literal"><span class="pre">?version=diffs</span></tt> are also
+valid. (Bonus tip - try a projection on top of <tt class="docutils literal"><span class="pre">?version=all</span></tt>!) Additional
+fields called <tt class="docutils literal"><span class="pre">_version</span></tt> and <tt class="docutils literal"><span class="pre">_latest_version</span></tt> get automatically added to
+documents when versioning is turned on.</p>
+<p>It is important to note that there are a few non-standard scenarios which could
+produce unexpected results when versioning is turned on. In particular, document
+history will not be saved when modifying collections outside of the Eve
+generated API. Also, if at anytime the <tt class="docutils literal"><span class="pre">VERSION</span></tt> field gets removed from the
+primary document (which cannot happen through the API when versioning is turned
+on), a subsequent write will re-initialize the <tt class="docutils literal"><span class="pre">VERSION</span></tt> number with
+<tt class="docutils literal"><span class="pre">VERSION</span></tt> = 1. At this time there will be multiple versions of the document
+with the same version number. In normal practice, <tt class="docutils literal"><span class="pre">VERSIONING</span></tt> can be enable
+without worry for any new collection or even an existing collection which has
+not previously had versioning enabled.</p>
+<p>For more information see and <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a> and <a class="reference internal" href="config.html#domain"><em>Domain Configuration</em></a>.</p>
 </div>
 <div class="section" id="authentication">
 <h2>Authentication<a class="headerlink" href="#authentication" title="Permalink to this headline">¶</a></h2>
@@ -697,7 +721,7 @@ hypothetical <tt class="docutils literal"><span class="pre">people</span></tt> c
 </div>
 </div>
 <div class="section" id="projections">
-<span id="id2"></span><h2>Projections<a class="headerlink" href="#projections" title="Permalink to this headline">¶</a></h2>
+<span id="id3"></span><h2>Projections<a class="headerlink" href="#projections" title="Permalink to this headline">¶</a></h2>
 <p>This feature allows you to create dynamic views of collections and documents,
 or more precisely, to decide what fields should or should not be returned,
 using a &#8216;projection&#8217;. Put another way, Projections are conditional queries
@@ -758,6 +782,38 @@ serialization is available at both resource and item
 toggling the <tt class="docutils literal"><span class="pre">embedding</span></tt> value). Furthermore, only fields with the
 <tt class="docutils literal"><span class="pre">embeddable</span></tt> value explicitly set to <tt class="docutils literal"><span class="pre">True</span></tt> will allow the embedding of
 referenced documents.</p>
+<p>Embedding also works with a data_relation to a specific version of a document,
+but the schema looks a little bit different. To enable the data_relation to a
+specific version, add <tt class="docutils literal"><span class="pre">'version':</span> <span class="pre">True</span></tt> to the data_relation block. You&#8217;ll
+also want to change the <tt class="docutils literal"><span class="pre">type</span></tt> to <tt class="docutils literal"><span class="pre">dict</span></tt> and add the <tt class="docutils literal"><span class="pre">schema</span></tt> definition
+shown below.</p>
+<div class="highlight-python"><div class="highlight"><pre> <span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
+     <span class="s">&#39;emails&#39;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+             <span class="s">&#39;author&#39;</span><span class="p">:</span> <span class="p">{</span>
+<span class="hll">                 <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;dict&#39;</span><span class="p">,</span>
+</span><span class="hll">                 <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+</span>                     <span class="s">&#39;_id&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;objectid&#39;</span><span class="p">},</span>
+                     <span class="s">&#39;_version&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;integer&#39;</span><span class="p">}</span>
+                 <span class="p">},</span>
+                 <span class="s">&#39;data_relation&#39;</span><span class="p">:</span> <span class="p">{</span>
+<span class="hll">                     <span class="s">&#39;resource&#39;</span><span class="p">:</span> <span class="s">&#39;users&#39;</span><span class="p">,</span>
+</span>                     <span class="s">&#39;field&#39;</span><span class="p">:</span> <span class="s">&#39;_id&#39;</span><span class="p">,</span>
+                     <span class="s">&#39;embeddable&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                     <span class="s">&#39;version&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                 <span class="p">},</span>
+             <span class="p">},</span>
+             <span class="s">&#39;subject&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">},</span>
+             <span class="s">&#39;body&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">},</span>
+         <span class="p">}</span>
+     <span class="p">}</span>
+</pre></div>
+</div>
+<p>As you can see, <tt class="docutils literal"><span class="pre">'version':</span> <span class="pre">True</span></tt> changes the expected value of a
+data_relation field to a dictionary with fields names <tt class="docutils literal"><span class="pre">data_relation['field']</span></tt>
+and <tt class="docutils literal"><span class="pre">VERSION</span></tt>. With <tt class="docutils literal"><span class="pre">'field':</span> <span class="pre">'_id'</span></tt> in the data_relation definition above
+and <tt class="docutils literal"><span class="pre">VERSION</span> <span class="pre">=</span> <span class="pre">'_version'</span></tt> in the Eve config, the value of the data_relation
+in this scenario would be a dictionary with fields <tt class="docutils literal"><span class="pre">_id</span></tt> and <tt class="docutils literal"><span class="pre">_version</span></tt>.</p>
 <div class="section" id="predefined-resource-serialization">
 <h3>Predefined Resource Serialization<a class="headerlink" href="#predefined-resource-serialization" title="Permalink to this headline">¶</a></h3>
 <p>It is also possible to elect some fields for predefined resource
@@ -1139,7 +1195,8 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li><a class="reference internal" href="#data-validation">Data Validation</a></li>
 <li><a class="reference internal" href="#extensible-data-validation">Extensible Data Validation</a></li>
 <li><a class="reference internal" href="#resource-level-cache-control">Resource-level Cache Control</a></li>
-<li><a class="reference internal" href="#versioning">Versioning</a></li>
+<li><a class="reference internal" href="#api-versioning">API Versioning</a></li>
+<li><a class="reference internal" href="#document-versioning">Document Versioning</a></li>
 <li><a class="reference internal" href="#authentication">Authentication</a></li>
 <li><a class="reference internal" href="#cors-cross-origin-resource-sharing">CORS Cross-Origin Resource Sharing</a></li>
 <li><a class="reference internal" href="#read-only-by-default">Read-only by default</a></li>

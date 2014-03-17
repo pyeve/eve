@@ -630,7 +630,7 @@ validation class to validate that. Or say you want to make sure that a VAT
 field actually matches your own country VAT algorithm; you can do that too. As
 a matter of fact, Eve's MongoDB data-layer itself extends Cerberus
 validation by implementing the ``unique`` schema field constraint. For more
-information see :ref:`validation`
+information see :ref:`validation`.
 
 .. _cache_control:
 
@@ -653,14 +653,43 @@ The response above includes both ``Cache-Control`` and ``Expires`` headers.
 These will minimize load on the server since cache-enabled consumers will
 perform resource-intensive request only when really needed.
 
-Versioning
-----------
+API Versioning
+--------------
 I'm not too fond of API versioning. I believe that clients should be
 intelligent enough to deal with API updates transparently, especially since
 Eve-powered API support HATEOAS_. When versioning is a necessity, different API
 versions should be isolated instances since so many things could be different
 between versions: caching, URIs, schemas, validation, and so on. URI versioning
 (http://api.example.com/v1/...) is supported.
+
+.. _document_versioning:
+
+Document Versioning
+-------------------
+Eve supports automatic version control of documents. By default, this setting is
+turned off, but it can be turned globally or configured individually for each
+resource. When enabled, Eve provides version control by storing versions of
+documents in a shadow collection. All HTTP methods act on the latest version of 
+the document except when retrieving an indivual item. In this case, adding a
+query parameter of ``?version=VERSION`` can be used to point to a specific
+version. Special values of  ``?version=all`` and  ``?version=diffs`` are also
+valid. (Bonus tip - try a projection on top of ``?version=all``!) Additional
+fields called ``_version`` and ``_latest_version`` get automatically added to
+documents when versioning is turned on.
+
+It is important to note that there are a few non-standard scenarios which could
+produce unexpected results when versioning is turned on. In particular, document
+history will not be saved when modifying collections outside of the Eve
+generated API. Also, if at anytime the ``VERSION`` field gets removed from the
+primary document (which cannot happen through the API when versioning is turned
+on), a subsequent write will re-initialize the ``VERSION`` number with
+``VERSION`` = 1. At this time there will be multiple versions of the document
+with the same version number. In normal practice, ``VERSIONING`` can be enable
+without worry for any new collection or even an existing collection which has
+not previously had versioning enabled.
+
+For more information see and :ref:`global` and :ref:`domain`.
+
 
 Authentication
 --------------
@@ -774,6 +803,42 @@ Embedding can be enabled or disabled both at global level (by setting
 toggling the ``embedding`` value). Furthermore, only fields with the
 ``embeddable`` value explicitly set to ``True`` will allow the embedding of
 referenced documents.
+
+Embedding also works with a data_relation to a specific version of a document,
+but the schema looks a little bit different. To enable the data_relation to a
+specific version, add ``'version': True`` to the data_relation block. You'll
+also want to change the ``type`` to ``dict`` and add the ``schema`` definition
+shown below.
+
+.. code-block:: python
+   :emphasize-lines: 5, 6, 11
+
+    DOMAIN = {
+        'emails': {
+            'schema': {
+                'author': {
+                    'type': 'dict',
+                    'schema': {
+                        '_id': {'type': 'objectid'},
+                        '_version': {'type': 'integer'}
+                    },
+                    'data_relation': {
+                        'resource': 'users',
+                        'field': '_id',
+                        'embeddable': True,
+                        'version': True,
+                    },
+                },
+                'subject': {'type': 'string'},
+                'body': {'type': 'string'},
+            }
+        }
+
+As you can see, ``'version': True`` changes the expected value of a
+data_relation field to a dictionary with fields names ``data_relation['field']``
+and ``VERSION``. With ``'field': '_id'`` in the data_relation definition above
+and ``VERSION = '_version'`` in the Eve config, the value of the data_relation
+in this scenario would be a dictionary with fields ``_id`` and ``_version``.
 
 Predefined Resource Serialization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
