@@ -55,6 +55,7 @@ STATUS = '_status'
 ITEMS = '_items'
 LINKS = '_links'
 ETAG = '_etag'
+VERSION = '_version'
 
 # must be the last line (will raise W402 on pyflakes)
 from eve.flaskapp import Eve  # noqa

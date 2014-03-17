@@ -112,6 +112,25 @@ class TestMinimal(unittest.TestCase):
         r = self.test_client.get(request)
         return self.parse_response(r)
 
+    def post(self, url, data, headers=[], content_type='application/json'):
+        headers.append(('Content-Type', content_type))
+        r = self.test_client.post(url, data=json.dumps(data), headers=headers)
+        return self.parse_response(r)
+
+    def put(self, url, data, headers=[]):
+        headers.append(('Content-Type', 'application/json'))
+        r = self.test_client.put(url, data=json.dumps(data), headers=headers)
+        return self.parse_response(r)
+
+    def patch(self, url, data, headers=[]):
+        headers.append(('Content-Type', 'application/json'))
+        r = self.test_client.patch(url, data=json.dumps(data), headers=headers)
+        return self.parse_response(r)
+
+    def delete(self, url, headers=None):
+        r = self.test_client.delete(url, headers=headers)
+        return self.parse_response(r)
+
     def parse_response(self, r):
         v = json.loads(r.get_data()) if r.status_code in (200, 201) else None
         return v, r.status_code
