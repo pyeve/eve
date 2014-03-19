@@ -29,8 +29,9 @@ def delete(resource, **lookup):
     :param **lookup: item lookup query.
 
     .. versionchanged:: 0.4
-       'on_delete' events raised before performing the delete.
        Support for document versioning.
+       'on_delete_item' events raised before performing the delete.
+       'on_deleted_item' events raised after performing the delete.
 
     .. versionchanged:: 0.3
        Delete media files as needed.
@@ -55,8 +56,8 @@ def delete(resource, **lookup):
         abort(404)
 
     # notify callbacks
-    getattr(app, "on_delete")(resource, original)
-    getattr(app, "on_delete_%s" % resource)(original)
+    getattr(app, "on_delete_item")(resource, original)
+    getattr(app, "on_delete_item_%s" % resource)(original)
 
     app.data.remove(resource, {config.ID_FIELD: original[config.ID_FIELD]})
     # TODO: should attempt to delete version collection even if setting is off
@@ -70,6 +71,9 @@ def delete(resource, **lookup):
     for field in media_fields:
         app.media.delete(original[field])
 
+    getattr(app, "on_deleted_item")(resource, original)
+    getattr(app, "on_deleted_item_%s" % resource)(original)
+
     return {}, None, None, 200
 
 
@@ -80,8 +84,9 @@ def delete_resource(resource, lookup):
     drop indexes. Use with caution!
 
     .. versionchanged:: 0.4
-       'on_resource_delete' raised before performing the actual delete.
        Support for document versioning.
+       'on_delete_resource' raised before performing the actual delete.
+       'on_deleted_resource' raised after performing the delete
 
     .. versionchanged:: 0.3
        Support for the lookup filter, which allows for develtion of
@@ -92,15 +97,19 @@ def delete_resource(resource, lookup):
 
     .. versionadded:: 0.0.2
     """
-    # notify callbacks
-    getattr(app, "on_resource_delete")(resource)
+    getattr(app, "on_delete_resource")(resource)
+    getattr(app, "on_delete_resource_%s" % resource)()
 
     # TODO if the resource schema includes media files, these won't be deleted
     # by use of this global method (if should be disabled). Media cleanup is
     # handled at the item endpoint by the delete() method (see above).
     app.data.remove(resource, lookup)
+
     # TODO: should attempt to delete version collection even if setting is off
     if app.config['DOMAIN'][resource]['versioning'] is True:
-        app.data.remove(resource+config.VERSIONS, lookup)
+        app.data.remove(resource + config.VERSIONS, lookup)
+
+    getattr(app, "on_deleted_resource")(resource)
+    getattr(app, "on_deleted_resource_%s" % resource)()
 
     return {}, None, None, 200

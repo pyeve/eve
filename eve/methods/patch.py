@@ -37,6 +37,7 @@ def patch(resource, **lookup):
     .. versionchanged:: 0.4
        'on_update' raised before performing the update on the database.
        Support for document versioning.
+       'on_updated' raised after performing the update on the database.
 
     .. versionchanged:: 0.3
        Support for media fields.
@@ -120,6 +121,10 @@ def patch(resource, **lookup):
 
             app.data.update(resource, object_id, updates)
             insert_versioning_documents(resource, object_id, original)
+
+            # nofity callbacks
+            getattr(app, "on_updated")(resource, original)
+            getattr(app, "on_updated_%s" % resource)(original)
 
             response[config.ID_FIELD] = original[config.ID_FIELD]
             last_modified = response[config.LAST_UPDATED] = \

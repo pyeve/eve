@@ -176,7 +176,7 @@ class TestEndPoints(TestBase):
         )
         if self.app.get('URL_PROTOCOL'):
             link = '%s://%s' % (self.app.config['URL_PROTOCOL'], link)
-        self.assertEquals(data.get('_links').get('self').get('href'), link)
+        self.assertEqual(data.get('_links').get('self').get('href'), link)
 
     def test_unknown_endpoints(self):
         r = self.test_client.get('/%s/' % self.unknown_resource)

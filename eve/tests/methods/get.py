@@ -2,6 +2,7 @@ import simplejson as json
 from datetime import datetime
 from bson import ObjectId
 from eve.tests import TestBase
+from eve.tests.utils import DummyEvent
 from eve.tests.test_settings import MONGO_DBNAME
 from eve.utils import date_to_str
 
@@ -479,7 +480,7 @@ class TestGet(TestBase):
         r, status = self.get(self.known_resource)
         self.assert200(status)
         self.assertTrue('_hits' in r)
-        self.assertEquals(r['_hits'], hits)
+        self.assertEqual(r['_hits'], hits)
 
     def test_get_resource_title(self):
         # test that resource endpoints accepts custom titles.
@@ -609,7 +610,7 @@ class TestGetItem(TestBase):
         response, status = self.get(self.known_resource,
                                     item=self.item_name)
 
-        self.assertEquals(self_href, response['_links']['self']['href'])
+        self.assertEqual(self_href, response['_links']['self']['href'])
 
     def test_getitem_by_integer(self):
         self.domain['contacts']['additional_lookup'] = {
@@ -837,3 +838,92 @@ class TestHead(TestBase):
         r = self.test_client.get('/')
         self.assertTrue(not h.data)
         self.assertEqual(r.headers, h.headers)
+
+
+class TestEvents(TestBase):
+    def setUp(self):
+        super(TestEvents, self).setUp()
+        self.devent = DummyEvent(lambda: True)
+
+    def test_on_pre_GET_for_item(self):
+        self.app.on_pre_GET += self.devent
+        self.get_item()
+        self.assertEqual('contacts', self.devent.called[0])
+        self.assertIsNotNone(self.devent.called[1])
+
+    def test_on_pre_GET_resource_for_item(self):
+        self.app.on_pre_GET_contacts += self.devent
+        self.get_item()
+        self.assertIsNotNone(self.devent.called)
+
+    def test_on_pre_GET_for_resource(self):
+        self.app.on_pre_GET += self.devent
+        self.get_resource()
+        self.assertIsNotNone(self.devent.called)
+
+    def test_on_pre_GET_resource_for_resource(self):
+        self.app.on_pre_GET_contacts += self.devent
+        self.get_resource()
+        self.assertIsNotNone(self.devent.called)
+
+    def test_on_post_GET_for_item(self):
+        self.app.on_post_GET += self.devent
+        self.get_item()
+        self.assertIsNotNone(self.devent.called)
+
+    def test_on_post_GET_resource_for_item(self):
+        self.app.on_post_GET_contacts += self.devent
+        self.get_item()
+        self.assertIsNotNone(self.devent.called)
+
+    def test_on_post_GET_for_resource(self):
+        self.app.on_post_GET += self.devent
+        self.get_resource()
+        self.assertIsNotNone(self.devent.called)
+
+    def test_on_post_GET_resource_for_resource(self):
+        self.app.on_post_GET_contacts += self.devent
+        self.get_resource()
+        self.assertIsNotNone(self.devent.called)
+
+    def test_on_post_GET_homepage(self):
+        self.app.on_post_GET += self.devent
+        self.test_client.get('/')
+        self.assertIsNone(self.devent.called[0])
+        self.assertEqual(3, len(self.devent.called))
+
+    def test_on_fetched_resource(self):
+        self.app.on_fetched_resource += self.devent
+        self.get_resource()
+        self.assertEqual('contacts', self.devent.called[0])
+        self.assertEqual(
+            self.app.config['PAGINATION_DEFAULT'], len(self.devent.called[1]))
+
+    def test_on_fetched_resource_contacts(self):
+        self.app.on_fetched_resource_contacts += self.devent
+        self.get_resource()
+        self.assertEqual(
+            self.app.config['PAGINATION_DEFAULT'], len(self.devent.called[0]))
+
+    def test_on_fetched_item(self):
+        self.app.on_fetched_item += self.devent
+        self.get_item()
+        self.assertEqual('contacts', self.devent.called[0])
+        self.assertEqual(
+            self.item_id,
+            str(self.devent.called[1][self.app.config['ID_FIELD']]))
+        self.assertEqual(2, len(self.devent.called))
+
+    def test_on_fetched_item_contacts(self):
+        self.app.on_fetched_item_contacts += self.devent
+        self.get_item()
+        self.assertEqual(
+            self.item_id,
+            str(self.devent.called[0][self.app.config['ID_FIELD']]))
+        self.assertEqual(1, len(self.devent.called))
+
+    def get_resource(self):
+        self.test_client.get(self.known_resource_url)
+
+    def get_item(self):
+        self.test_client.get(self.item_id_url)

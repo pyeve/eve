@@ -1,10 +1,16 @@
 from eve.tests import TestBase
+from eve.tests.utils import DummyEvent
 from eve.tests.test_settings import MONGO_DBNAME
 from eve import ETAG
 from bson import ObjectId
 
 
 class TestDelete(TestBase):
+    def setUp(self):
+        super(TestDelete, self).setUp()
+        # Etag used to delete an item (a contact)
+        self.etag_headers = [('If-Match', self.item_etag)]
+
     def test_unknown_resource(self):
         url = '%s%s/' % (self.unknown_resource_url, self.item_id)
         _, status = self.delete(url)
@@ -68,12 +74,16 @@ class TestDelete(TestBase):
         self.assert412(status)
 
     def test_delete(self):
-        r, status = self.delete(self.item_id_url,
-                                headers=[('If-Match', self.item_etag)])
+        r, status = self.delete(self.item_id_url, headers=self.etag_headers)
         self.assert200(status)
 
         r = self.test_client.get(self.item_id_url)
         self.assert404(r.status_code)
+
+    def test_delete_non_existant(self):
+        url = self.item_id_url[:-5] + "00000"
+        r, status = self.delete(url, headers=self.etag_headers)
+        self.assert404(status)
 
     def test_delete_write_concern(self):
         # should get a 500 since there's no replicaset on the mongod instance
@@ -157,3 +167,126 @@ class TestDelete(TestBase):
                                        (fake_contact_id, self.invoice_id),
                                        headers=headers)
         self.assert200(status)
+
+    def delete(self, url, headers=None):
+        r = self.test_client.delete(url, headers=headers)
+        return self.parse_response(r)
+
+
+class TestDeleteEvents(TestBase):
+    def test_on_pre_DELETE_for_item(self):
+        devent = DummyEvent(self.before_delete)
+        self.app.on_pre_DELETE += devent
+        self.delete_item()
+        self.assertEqual('contacts', devent.called[0])
+        self.assertIsNotNone(devent.called[1])
+
+    def test_on_pre_DELETE_resource_for_item(self):
+        devent = DummyEvent(self.before_delete)
+        self.app.on_pre_DELETE_contacts += devent
+        self.delete_item()
+        self.assertIsNotNone(devent.called)
+
+    def test_on_pre_DELETE_for_resource(self):
+        devent = DummyEvent(self.before_delete)
+        self.app.on_pre_DELETE += devent
+        self.delete_resource()
+        self.assertIsNotNone(devent.called)
+
+    def test_on_pre_DELETE_resource_for_resource(self):
+        devent = DummyEvent(self.before_delete)
+        self.app.on_pre_DELETE_contacts += devent
+        self.delete_resource()
+        self.assertIsNotNone(devent.called)
+
+    def test_on_post_DELETE_for_item(self):
+        devent = DummyEvent(self.after_delete)
+        self.app.on_post_DELETE += devent
+        self.delete_item()
+        self.assertIsNotNone(devent.called)
+
+    def test_on_post_DELETE_resource_for_item(self):
+        devent = DummyEvent(self.after_delete)
+        self.app.on_post_DELETE_contacts += devent
+        self.delete_item()
+        self.assertIsNotNone(devent.called)
+
+    def test_on_post_DELETE_for_resource(self):
+        devent = DummyEvent(self.after_delete)
+        self.app.on_post_DELETE += devent
+        self.delete_resource()
+        self.assertIsNotNone(devent.called)
+
+    def test_on_post_DELETE_resource_for_resource(self):
+        devent = DummyEvent(self.after_delete)
+        self.app.on_post_DELETE_contacts += devent
+        self.delete_resource()
+        self.assertIsNotNone(devent.called)
+
+    def test_on_delete_resource(self):
+        devent = DummyEvent(self.before_delete)
+        self.app.on_delete_resource += devent
+        self.delete_resource()
+        self.assertEqual(('contacts',), devent.called)
+
+    def test_on_delete_resource_contacts(self):
+        devent = DummyEvent(self.before_delete)
+        self.app.on_delete_resource_contacts += devent
+        self.delete_resource()
+        self.assertEqual(tuple(), devent.called)
+
+    def test_on_deleted_resource(self):
+        devent = DummyEvent(self.after_delete)
+        self.app.on_deleted_resource += devent
+        self.delete_resource()
+        self.assertEqual(('contacts',), devent.called)
+
+    def test_on_deleted_resource_contacts(self):
+        devent = DummyEvent(self.after_delete)
+        self.app.on_deleted_resource_contacts += devent
+        self.delete_resource()
+        self.assertEqual(tuple(), devent.called)
+
+    def test_on_delete_item(self):
+        devent = DummyEvent(self.before_delete)
+        self.app.on_delete_item += devent
+        self.delete_item()
+        self.assertEqual('contacts', devent.called[0])
+        self.assertEqual(
+            self.item_id, str(devent.called[1][self.app.config['ID_FIELD']]))
+
+    def test_on_delete_item_contacts(self):
+        devent = DummyEvent(self.before_delete)
+        self.app.on_delete_item_contacts += devent
+        self.delete_item()
+        self.assertEqual(
+            self.item_id, str(devent.called[0][self.app.config['ID_FIELD']]))
+
+    def test_on_deleted_item(self):
+        devent = DummyEvent(self.after_delete)
+        self.app.on_deleted_item += devent
+        self.delete_item()
+        self.assertEqual('contacts', devent.called[0])
+        self.assertEqual(
+            self.item_id, str(devent.called[1][self.app.config['ID_FIELD']]))
+
+    def test_on_deleted_item_contacts(self):
+        devent = DummyEvent(self.after_delete)
+        self.app.on_deleted_item_contacts += devent
+        self.delete_item()
+        self.assertEqual(
+            self.item_id, str(devent.called[0][self.app.config['ID_FIELD']]))
+
+    def delete_resource(self):
+        self.test_client.delete(self.known_resource_url)
+
+    def delete_item(self):
+        self.test_client.delete(
+            self.item_id_url, headers=[('If-Match', self.item_etag)])
+
+    def before_delete(self):
+        db = self.connection[MONGO_DBNAME]
+        return db.contacts.find_one(ObjectId(self.item_id)) is not None
+
+    def after_delete(self):
+        return not self.before_delete()

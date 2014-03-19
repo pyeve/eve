@@ -1,9 +1,10 @@
-#import unittest
-from eve.tests import TestBase
-from eve.tests.test_settings import MONGO_DBNAME
-from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES, STATUS, ETAG
 from bson import ObjectId
 import simplejson as json
+
+from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES, STATUS, ETAG
+from eve.tests import TestBase
+from eve.tests.test_settings import MONGO_DBNAME
+from eve.tests.utils import DummyEvent
 
 
 #@unittest.skip("don't need no freakin' tests!")
@@ -319,3 +320,82 @@ class TestPatch(TestBase):
         self.assertTrue(ETAG in response)
         self.assertTrue('_links' in response)
         self.assertItemLink(response['_links'], item_id)
+
+    def patch(self, url, data, headers=[]):
+        headers.append(('Content-Type', 'application/json'))
+        r = self.test_client.patch(url,
+                                   data=json.dumps(data),
+                                   headers=headers)
+        return self.parse_response(r)
+
+
+class TestEvents(TestBase):
+    new_ref = "0123456789012345678901234"
+
+    def test_on_pre_PATCH(self):
+        devent = DummyEvent(self.before_update)
+        self.app.on_pre_PATCH += devent
+        self.patch()
+        self.assertEqual(self.known_resource, devent.called[0])
+        self.assertEqual(2, len(devent.called))
+
+    def test_on_pre_PATCH_contacts(self):
+        devent = DummyEvent(self.before_update)
+        self.app.on_pre_PATCH_contacts += devent
+        self.patch()
+        self.assertEqual(1, len(devent.called))
+
+    def test_on_post_PATCH(self):
+        devent = DummyEvent(self.after_update)
+        self.app.on_post_PATCH += devent
+        self.patch()
+        self.assertEqual(self.known_resource, devent.called[0])
+        self.assertEqual(200, devent.called[2].status_code)
+        self.assertEqual(3, len(devent.called))
+
+    def test_on_post_PATCH_contacts(self):
+        devent = DummyEvent(self.after_update)
+        self.app.on_post_PATCH_contacts += devent
+        self.patch()
+        self.assertEqual(200, devent.called[1].status_code)
+        self.assertEqual(2, len(devent.called))
+
+    def test_on_update(self):
+        devent = DummyEvent(self.before_update)
+        self.app.on_update += devent
+        self.patch()
+        self.assertEqual(self.known_resource, devent.called[0])
+        self.assertEqual(2, len(devent.called))
+
+    def test_on_update_contacts(self):
+        devent = DummyEvent(self.before_update)
+        self.app.on_update_contacts += devent
+        self.patch()
+        self.assertEqual(1, len(devent.called))
+
+    def test_on_updated(self):
+        devent = DummyEvent(self.after_update)
+        self.app.on_updated += devent
+        self.patch()
+        self.assertEqual(self.known_resource, devent.called[0])
+        self.assertEqual(2, len(devent.called))
+
+    def test_on_updated_contacts(self):
+        devent = DummyEvent(self.after_update)
+        self.app.on_updated_contacts += devent
+        self.patch()
+        self.assertEqual(1, len(devent.called))
+
+    def before_update(self):
+        db = self.connection[MONGO_DBNAME]
+        contact = db.contacts.find_one(ObjectId(self.item_id))
+        return contact['ref'] == self.item_name
+
+    def after_update(self):
+        return not self.before_update()
+
+    def patch(self):
+        headers = [('Content-Type', 'application/json'),
+                   ('If-Match', self.item_etag)]
+        data = json.dumps({"ref": self.new_ref})
+        self.test_client.patch(self.item_id_url, data=data, headers=headers)

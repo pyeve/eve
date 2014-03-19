@@ -30,9 +30,10 @@ Not released yet.
   default to ID_FIELD if blank. 
 - [new] ``URL_PROTOCOL`` defines the HTTP protocol used when building HATEOAS
   links. Defaults to ``''`` for relative paths (Junior Vidotti).
-- [new] ``on_delete`` is raised on DELETE requests sent to document endpoints.
-  Addresses #232.
-- [new] ``on_resource_delete`` is raised on DELETE requests sent to resource
+- [new] ``on_delete_item`` and ``on_deleted_item`` is raised on DELETE requests
+  sent to document endpoints. Addresses #232.
+- [new] ``on_delete_resource`` and ``on_deleted_resource`` is raised on DELETE
+  requests sent to resource
   endpoints. Addresses #232.
 - [new] ``on_update`` is raised on PATCH requests, when a document is about to
   be updated on the database. Addresses #232.

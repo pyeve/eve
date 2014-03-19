@@ -38,6 +38,7 @@ def get(resource, lookup):
     .. versionchanged:: 0.4
        Replaced ID_FIELD by item_lookup_field on self link.
        item_lookup_field will default to ID_FIELD if blank.
+       Changed ``on_fetch_*`` changed to ``on_fetched_*``.
 
     .. versionchanged:: 0.3
        Don't return 304 if resource is empty. Fixes #243.
@@ -129,8 +130,8 @@ def get(resource, lookup):
     # updated to reflect the changes (they always reflect the documents
     # state on the database.)
 
-    getattr(app, "on_fetch_resource")(resource, documents)
-    getattr(app, "on_fetch_resource_%s" % resource)(documents)
+    getattr(app, "on_fetched_resource")(resource, documents)
+    getattr(app, "on_fetched_resource_%s" % resource)(documents)
 
     if config.DOMAIN[resource]['hateoas']:
         response[config.ITEMS] = documents
@@ -155,6 +156,10 @@ def getitem(resource, **lookup):
     """
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
+
+    .. versionchanged:: 0.4
+       Support for document versioning.
+       Changed ``on_fetch_*`` changed to ``on_fetched_*``.
 
     .. versionchanged:: 0.3
        Support for media fields.
@@ -237,7 +242,7 @@ def getitem(resource, **lookup):
             lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
             del lookup[app.config['ID_FIELD']]
             req.sort = '[("%s", 1)]' % config.VERSION
-            cursor = app.data.find(resource+config.VERSIONS, req, lookup)
+            cursor = app.data.find(resource + config.VERSIONS, req, lookup)
 
             # build all versions
             documents = []
@@ -271,14 +276,11 @@ def getitem(resource, **lookup):
                 response = documents
         else:
             # notify registered callback functions. Please note that, should
-            # the functions modify the document, last_modified and etag  won't
-            # be updated to reflect the changes (they always reflect the
+            # the # functions modify the document, last_modified and etag
+            # won't be updated to reflect the changes (they always reflect the
             # documents state on the database).
-            item_title = config.DOMAIN[resource]['item_title'].lower()
-            getattr(app, "on_fetch_item")(resource, document[config.ID_FIELD],
-                                          document)
-            getattr(app, "on_fetch_item_%s" %
-                    item_title)(document[config.ID_FIELD], document)
+            getattr(app, "on_fetched_item")(resource, document)
+            getattr(app, "on_fetched_item_%s" % resource)(document)
 
             response = document
 

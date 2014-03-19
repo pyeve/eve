@@ -1,8 +1,10 @@
-import simplejson as json
-from eve.tests import TestBase
-from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES, STATUS, ETAG
-from eve.tests.test_settings import MONGO_DBNAME
 from bson import ObjectId
+import simplejson as json
+
+from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES, STATUS, ETAG
+from eve.tests import TestBase
+from eve.tests.test_settings import MONGO_DBNAME
+from eve.tests.utils import DummyEvent
 
 
 class TestPut(TestBase):
@@ -203,3 +205,75 @@ class TestPut(TestBase):
             return r[fields]
         else:
             return [r[field] for field in fields]
+
+
+class TestEvents(TestBase):
+    new_ref = "0123456789012345678901234"
+
+    def test_on_pre_PUT(self):
+        devent = DummyEvent(self.before_replace)
+        self.app.on_pre_PUT += devent
+        self.put()
+        self.assertEqual(self.known_resource, devent.called[0])
+        self.assertEqual(2, len(devent.called))
+
+    def test_on_pre_PUT_contacts(self):
+        devent = DummyEvent(self.before_replace)
+        self.app.on_pre_PUT_contacts += devent
+        self.put()
+        self.assertEqual(1, len(devent.called))
+
+    def test_on_post_PUT(self):
+        devent = DummyEvent(self.after_replace)
+        self.app.on_post_PUT += devent
+        self.put()
+        self.assertEqual(self.known_resource, devent.called[0])
+        self.assertEqual(200, devent.called[2].status_code)
+        self.assertEqual(3, len(devent.called))
+
+    def test_on_post_PUT_contacts(self):
+        devent = DummyEvent(self.after_replace)
+        self.app.on_post_PUT_contacts += devent
+        self.put()
+        self.assertEqual(200, devent.called[1].status_code)
+        self.assertEqual(2, len(devent.called))
+
+    def test_on_replace(self):
+        devent = DummyEvent(self.before_replace)
+        self.app.on_replace += devent
+        self.put()
+        self.assertEqual(self.known_resource, devent.called[0])
+        self.assertEqual(self.new_ref, devent.called[1]['ref'])
+
+    def test_on_replace_contacts(self):
+        devent = DummyEvent(self.before_replace)
+        self.app.on_replace_contacts += devent
+        self.put()
+        self.assertEqual(self.new_ref, devent.called[0]['ref'])
+
+    def test_on_replaced(self):
+        devent = DummyEvent(self.after_replace)
+        self.app.on_replaced += devent
+        self.put()
+        self.assertEqual(self.known_resource, devent.called[0])
+        self.assertEqual(self.new_ref, devent.called[1]['ref'])
+
+    def test_on_replaced_contacts(self):
+        devent = DummyEvent(self.after_replace)
+        self.app.on_replaced_contacts += devent
+        self.put()
+        self.assertEqual(self.new_ref, devent.called[0]['ref'])
+
+    def before_replace(self):
+        db = self.connection[MONGO_DBNAME]
+        contact = db.contacts.find_one(ObjectId(self.item_id))
+        return contact['ref'] == self.item_name
+
+    def after_replace(self):
+        return not self.before_replace()
+
+    def put(self):
+        headers = [('Content-Type', 'application/json'),
+                   ('If-Match', self.item_etag)]
+        data = json.dumps({"ref": self.new_ref})
+        self.test_client.put(self.item_id_url, data=data, headers=headers)
