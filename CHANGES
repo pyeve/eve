@@ -8,6 +8,8 @@ Version 0.4
 
 Not released yet.
 
+- [new] Post database events (Javier Gonel). Addresses #272.
+- [change] Review event names (Javier Gonel). 
 - [new] Versioned Documents (Josh Villbrandt). Closes #224.
 - [fix] tests cleanup (Javier Gonel).
 - [fix] tests now run on any system without needing to set ``ulimit`` to
