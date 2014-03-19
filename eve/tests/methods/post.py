@@ -389,13 +389,13 @@ class TestEvents(TestBase):
         devent = DummyEvent(self.before_insert)
         self.app.on_pre_POST += devent
         self.post()
-        self.assertIsNotNone(devent.called)
+        self.assertFalse(devent.called is None)
 
     def test_on_pre_POST_contacts(self):
         devent = DummyEvent(self.before_insert)
         self.app.on_pre_POST_contacts += devent
         self.post()
-        self.assertIsNotNone(devent.called)
+        self.assertFalse(devent.called is None)
 
     def test_on_post_POST(self):
         devent = DummyEvent(self.after_insert)
@@ -407,7 +407,7 @@ class TestEvents(TestBase):
         devent = DummyEvent(self.after_insert)
         self.app.on_post_POST_contacts += devent
         self.post()
-        self.assertIsNotNone(devent.called)
+        self.assertFalse(devent.called is None)
 
     def test_on_insert(self):
         devent = DummyEvent(self.before_insert, True)

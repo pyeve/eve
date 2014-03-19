@@ -179,49 +179,49 @@ class TestDeleteEvents(TestBase):
         self.app.on_pre_DELETE += devent
         self.delete_item()
         self.assertEqual('contacts', devent.called[0])
-        self.assertIsNotNone(devent.called[1])
+        self.assertFalse(devent.called[1] is None)
 
     def test_on_pre_DELETE_resource_for_item(self):
         devent = DummyEvent(self.before_delete)
         self.app.on_pre_DELETE_contacts += devent
         self.delete_item()
-        self.assertIsNotNone(devent.called)
+        self.assertFalse(devent.called is None)
 
     def test_on_pre_DELETE_for_resource(self):
         devent = DummyEvent(self.before_delete)
         self.app.on_pre_DELETE += devent
         self.delete_resource()
-        self.assertIsNotNone(devent.called)
+        self.assertFalse(devent.called is None)
 
     def test_on_pre_DELETE_resource_for_resource(self):
         devent = DummyEvent(self.before_delete)
         self.app.on_pre_DELETE_contacts += devent
         self.delete_resource()
-        self.assertIsNotNone(devent.called)
+        self.assertFalse(devent.called is None)
 
     def test_on_post_DELETE_for_item(self):
         devent = DummyEvent(self.after_delete)
         self.app.on_post_DELETE += devent
         self.delete_item()
-        self.assertIsNotNone(devent.called)
+        self.assertFalse(devent.called is None)
 
     def test_on_post_DELETE_resource_for_item(self):
         devent = DummyEvent(self.after_delete)
         self.app.on_post_DELETE_contacts += devent
         self.delete_item()
-        self.assertIsNotNone(devent.called)
+        self.assertFalse(devent.called is None)
 
     def test_on_post_DELETE_for_resource(self):
         devent = DummyEvent(self.after_delete)
         self.app.on_post_DELETE += devent
         self.delete_resource()
-        self.assertIsNotNone(devent.called)
+        self.assertFalse(devent.called is None)
 
     def test_on_post_DELETE_resource_for_resource(self):
         devent = DummyEvent(self.after_delete)
         self.app.on_post_DELETE_contacts += devent
         self.delete_resource()
-        self.assertIsNotNone(devent.called)
+        self.assertFalse(devent.called is None)
 
     def test_on_delete_resource(self):
         devent = DummyEvent(self.before_delete)
