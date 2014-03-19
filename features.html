@@ -890,123 +890,379 @@ payload.</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="the-on-fetch-event">
-<h3>The <tt class="docutils literal"><span class="pre">on_fetch</span></tt> Event<a class="headerlink" href="#the-on-fetch-event" title="Permalink to this headline">¶</a></h3>
-<p>The following events:</p>
-<ul class="simple">
-<li><tt class="docutils literal"><span class="pre">on_fetch_resource(resource,</span> <span class="pre">documents)</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">on_fetch_resource_&lt;resource&gt;(documents)</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">on_fetch_item(resource,</span> <span class="pre">_id,</span> <span class="pre">document)</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">on_fetch_item_&lt;item_title&gt;(_id,</span> <span class="pre">document)</span></tt></li>
-</ul>
-<p>are raised when documents have just been read from the database and are about
-to be sent to the client. Registered callback functions can manipulate the
-documents as needed before they are returned to the client.</p>
-<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_items</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">documents</span><span class="p">):</span>
-<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return items from &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource</span>
+<div class="section" id="database-event-hooks">
+<h3>Database event hooks<a class="headerlink" href="#database-event-hooks" title="Permalink to this headline">¶</a></h3>
+<p>Database event hooks work like request event hooks. These events are fired
+before and after a database action. Here is an example of how events are
+configured:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">add_signature</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">item</span><span class="p">[</span><span class="s">&#39;SIGNATURE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;A </span><span class="si">%s</span><span class="s"> from eve&quot;</span> <span class="o">%</span> <span class="n">resource</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_contacts</span><span class="p">(</span><span class="n">documents</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetched_item</span> <span class="o">+=</span> <span class="n">add_signature</span>
+</pre></div>
+</div>
+<p>The events are fired for resources and items if the action is available for
+both. And for each action two events will be fired:</p>
+<ul class="simple">
+<li>Generic: <tt class="docutils literal"><span class="pre">on_&lt;action_name&gt;</span></tt></li>
+<li>With the name of the resource: <tt class="docutils literal"><span class="pre">on_&lt;action_name&gt;_&lt;resource_name&gt;</span></tt></li>
+</ul>
+<p>Let&#8217;s see an overview of what events are available:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="13%" />
+<col width="10%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Action</th>
+<th class="head">What</th>
+<th class="head">When</th>
+<th class="head">Event name / method signature</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td rowspan="4">Fetch</td>
+<td rowspan="2">Resource</td>
+<td rowspan="2">After</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_fetched_resource</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">items)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_fetched_resource_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(items)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td rowspan="2">Item</td>
+<td rowspan="2">After</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_fetched_item</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_fetched_item_&lt;resource&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td rowspan="4">Insert</td>
+<td rowspan="4">Items</td>
+<td rowspan="2">Before</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_insert</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">items)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_insert_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(items)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td rowspan="2">After</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_inserted</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">items)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_inserted_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(items)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td rowspan="4">Replace</td>
+<td rowspan="4">Item</td>
+<td rowspan="2">Before</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_replace</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_replace_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td rowspan="2">After</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_replaced</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_replaced_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td rowspan="4">Update</td>
+<td rowspan="4">Item</td>
+<td rowspan="2">Before</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_update</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_update_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td rowspan="2">After</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_updated</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_updated_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td rowspan="8">Delete</td>
+<td rowspan="4">Item</td>
+<td rowspan="2">Before</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_delete_item</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_delete_item_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td rowspan="2">After</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_deleted_item</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_deleted_item_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td rowspan="4">Resource</td>
+<td rowspan="2">Before</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_delete_resource</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_delete_resource_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td rowspan="2">After</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_deleted_resource</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_deleted_resource_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></tt></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="fetch-events">
+<h4>Fetch Events<a class="headerlink" href="#fetch-events" title="Permalink to this headline">¶</a></h4>
+<p>These are the fetch events with their method signature:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">on_fetched_resource(resource_name,</span> <span class="pre">items)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_fetched_resource_&lt;resource_name&gt;(items)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_fetched_item(resource_name,</span> <span class="pre">item)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_fetched_item_&lt;resource_name&gt;(item)</span></tt></li>
+</ul>
+<p>They are raised when items have just been read from the database and are
+about to be sent to the client. Registered callback functions can manipulate
+the items as needed before they are returned to the client.</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_items</span><span class="p">(</span><span class="n">resource_name</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return items from &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource_name</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_contacts</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
 <span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return contacts&#39;</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_item</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">_id</span><span class="p">,</span> <span class="n">document</span><span class="p">):</span>
-<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return an item from &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_item</span><span class="p">(</span><span class="n">resource_name</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return an item from &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource_name</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_contact</span><span class="p">(</span><span class="n">_id</span><span class="p">,</span> <span class="n">document</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_contact</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
 <span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return a contact&#39;</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetch_resource</span> <span class="o">+=</span> <span class="n">before_returning_items</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetch_resource_contacts</span> <span class="o">+=</span> <span class="n">before_returning_contacts</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetch_item</span> <span class="o">+=</span> <span class="n">before_returning_item</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetch_item_contact</span> <span class="o">+=</span> <span class="n">before_returning_contact</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetched_resource</span> <span class="o">+=</span> <span class="n">before_returning_items</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetched_resource_contacts</span> <span class="o">+=</span> <span class="n">before_returning_contacts</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetched_item</span> <span class="o">+=</span> <span class="n">before_returning_item</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetched_item_contact</span> <span class="o">+=</span> <span class="n">before_returning_contact</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="the-on-insert-event">
-<h3>The <tt class="docutils literal"><span class="pre">on_insert</span></tt> Event<a class="headerlink" href="#the-on-insert-event" title="Permalink to this headline">¶</a></h3>
-<p>When a POST requests hits the API and new documents are about to be stored in
-the database, <tt class="docutils literal"><span class="pre">on_insert(resource,</span> <span class="pre">documents)</span></tt> and
-<tt class="docutils literal"><span class="pre">on_insert_&lt;resource&gt;(documents)</span></tt> events are raised.</p>
-<p><tt class="docutils literal"><span class="pre">on_insert</span></tt> is raised on every resource being updated while
-<tt class="docutils literal"><span class="pre">on_insert_&lt;resource&gt;</span></tt> is raised when the <cite>&lt;resource&gt;</cite> endpoint has been hit
-with the POST request. In both circumstances, the event will be raised only if at
-least one document passed validation and is going to be inserted. <cite>documents</cite>
-is a list of documents that are ready for insertion (documents that did not
-pass validation are not included).</p>
+<div class="section" id="insert-events">
+<h4>Insert Events<a class="headerlink" href="#insert-events" title="Permalink to this headline">¶</a></h4>
+<p>These are the insert events with their method signature:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">on_insert(resource_name,</span> <span class="pre">items)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_insert_&lt;resource_name&gt;(items)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_inserted(resource_name,</span> <span class="pre">items)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_inserted_&lt;resource_name&gt;(items)</span></tt></li>
+</ul>
+<p>When a POST requests hits the API and new items are about to be stored in
+the database, these vents are fired:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">on_insert</span></tt> for every resource endpoint.</li>
+<li><tt class="docutils literal"><span class="pre">on_insert_&lt;resource_name&gt;</span></tt> for the specific <cite>&lt;resource_name&gt;</cite> resource
+endpoint.</li>
+</ul>
 <p>Callback functions could hook into these events to arbitrarily add new fields
 or edit existing ones.</p>
-<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_insert</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">documents</span><span class="p">):</span>
-<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to store documents to &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource</span>
+<p>After the items have been inserted, these two events are fired:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">on_inserted</span></tt> for every resource endpoint.</li>
+<li><tt class="docutils literal"><span class="pre">on_inserted_&lt;resource_name&gt;</span></tt> for the specific <cite>&lt;resource_name&gt;</cite> resource
+endpoint.</li>
+</ul>
+<div class="admonition-validation-errors admonition">
+<p class="first admonition-title">Validation errors</p>
+<p class="last">Items passed to these events as arguments come in a list. And only those items
+that passed validation are sent.</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_insert</span><span class="p">(</span><span class="n">resource_name</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to store items to &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_insert_contacts</span><span class="p">(</span><span class="n">documents</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">after_insert_contacts</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
 <span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to store contacts&#39;</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_insert</span> <span class="o">+=</span> <span class="n">before_insert</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_insert_contacts</span> <span class="o">+=</span> <span class="n">before_insert_contacts</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_inserted_contacts</span> <span class="o">+=</span> <span class="n">after_insert_contacts</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="the-on-replace-event">
-<h3>The <tt class="docutils literal"><span class="pre">on_replace</span></tt> Event<a class="headerlink" href="#the-on-replace-event" title="Permalink to this headline">¶</a></h3>
-<p>When a PUT request hits the API and a document is about to be replaced, both
-<tt class="docutils literal"><span class="pre">on_replace(resource,</span> <span class="pre">document)</span></tt> and <tt class="docutils literal"><span class="pre">on_replace_&lt;resource&gt;(document)</span></tt>
-events are raised.</p>
-<p><tt class="docutils literal"><span class="pre">on_replace</span></tt> is raised for any endpoint hit by the request while
-<tt class="docutils literal"><span class="pre">on_replace_&lt;resource&gt;</span></tt> is only raised when the <cite>&lt;resource&gt;</cite> endpoint is hit
-by the PUT. In both circumstances the event will be raised only if it passed
-validation.</p>
-<p><cite>document</cite> is the new document which is about to be stored. Callback functions
+<div class="section" id="replace-events">
+<h4>Replace Events<a class="headerlink" href="#replace-events" title="Permalink to this headline">¶</a></h4>
+<p>These are the replace events with their method signature:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">on_replace(resource_name,</span> <span class="pre">item)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_replace_&lt;resource_name&gt;(item)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_replaced(resource_name,</span> <span class="pre">item)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_replaced_&lt;resource_name&gt;(item)</span></tt></li>
+</ul>
+<p>When a PUT request hits the API and a item is about to be replaced after
+passing validation, these events are fired:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">on_replace</span></tt> for any resource item endpoint.</li>
+<li><tt class="docutils literal"><span class="pre">on_replace_&lt;resource_name&gt;</span></tt> for the specific resource endpoint.</li>
+</ul>
+<p><cite>item</cite> is the new item which is about to be stored. Callback functions
 could hook into these events to arbitrarily add or update its fields, or to
 perform other accessory action.</p>
+<p>After the item has been replaced, these other two events are fired:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">on_replaced</span></tt> for any resource item endpoint.</li>
+<li><tt class="docutils literal"><span class="pre">on_replaced_&lt;resource_name&gt;</span></tt> for the specific resource endpont.</li>
+</ul>
 </div>
-<div class="section" id="the-on-update-event">
-<h3>The <tt class="docutils literal"><span class="pre">on_update</span></tt> Event<a class="headerlink" href="#the-on-update-event" title="Permalink to this headline">¶</a></h3>
-<p>When a PATCH request hits the API and a document is about to be updated, both
-<tt class="docutils literal"><span class="pre">on_update(resource,</span> <span class="pre">document)</span></tt> and <tt class="docutils literal"><span class="pre">on_update_&lt;resource&gt;(document)</span></tt>
-events are raised.</p>
-<p><tt class="docutils literal"><span class="pre">on_update</span></tt> is raised for any endpoint hit by the request while
-<tt class="docutils literal"><span class="pre">on_update_&lt;resource&gt;</span></tt> is only raised when the <cite>&lt;resource&gt;</cite> endpoint is hit
-by the PATCH. In both circumstances the event will be raised only if the proposed changes passed
-validation.</p>
-<p><cite>document</cite> is the updated document. Callback functions could hook into these
+<div class="section" id="update-events">
+<h4>Update Events<a class="headerlink" href="#update-events" title="Permalink to this headline">¶</a></h4>
+<p>These are the update events with their method signature:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">on_update(resource_name,</span> <span class="pre">item)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_update_&lt;resource_name&gt;(item)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_updated(resource_name,</span> <span class="pre">item)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_updated_&lt;resource_name&gt;(item)</span></tt></li>
+</ul>
+<p>When a PATCH request hits the API and a item is about to be updated after
+passing validation, these events are fired  <cite>before</cite> the item is updated:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">on_update</span></tt> for any resource endpoint.</li>
+<li><tt class="docutils literal"><span class="pre">on_update_&lt;resource_name&gt;</span></tt> is fired only when the <cite>&lt;resource&gt;</cite> endpoint is hit.</li>
+</ul>
+<p>Here <cite>item</cite> is the updated item. Callback functions could hook into these
 events to arbitrarily add or update its fields, or to perform other accessory
 action.</p>
+<p><cite>After</cite> the item has been updated:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">on_updated(resource_name,</span> <span class="pre">item)</span></tt> is fired for any resource endpoint.</li>
+<li><tt class="docutils literal"><span class="pre">on_updated_&lt;resource_name&gt;(item)</span></tt> is fired only when the <cite>&lt;resource_name&gt;</cite>
+endpoint is hit.</li>
+</ul>
 <div class="admonition-please-note admonition">
 <p class="first admonition-title">Please note</p>
 <p class="last">Please be aware that <tt class="docutils literal"><span class="pre">last_modified</span></tt> and <tt class="docutils literal"><span class="pre">etag</span></tt> headers will always be
-consistent with the state of the documents on the database (they  won&#8217;t be
+consistent with the state of the items on the database (they  won&#8217;t be
 updated to reflect changes eventually applied by the callback functions).</p>
 </div>
 </div>
-<div class="section" id="the-on-delete-events">
-<h3>The <tt class="docutils literal"><span class="pre">on_delete</span></tt> Events<a class="headerlink" href="#the-on-delete-events" title="Permalink to this headline">¶</a></h3>
-<div class="section" id="document-deletion">
-<h4>Document deletion<a class="headerlink" href="#document-deletion" title="Permalink to this headline">¶</a></h4>
-<p>When a DELETE request hits a document endpoint both
-<tt class="docutils literal"><span class="pre">on_delete(resource,</span> <span class="pre">document)</span></tt> and <tt class="docutils literal"><span class="pre">on_delete_&lt;resource&gt;(document)</span></tt>
-events are raised.</p>
-<p><tt class="docutils literal"><span class="pre">on_delete</span></tt> is raised for any resource hit by the request while
-<tt class="docutils literal"><span class="pre">on_delete_&lt;resource&gt;</span></tt> is only raised when the <cite>&lt;resource&gt;</cite> document endpoint is hit
-by the DELETE.</p>
-<p><cite>document</cite> is the document being deleted. Callback functions could hook into
+<div class="section" id="delete-events">
+<h4>Delete Events<a class="headerlink" href="#delete-events" title="Permalink to this headline">¶</a></h4>
+<p>These are the delete events with their method signature:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">on_delete_item(resource_name,</span> <span class="pre">item)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_delete_item_&lt;resource_name&gt;(item)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_deleted_item(resource_name,</span> <span class="pre">item)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_deleted_item_&lt;resource_name&gt;(item)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_delete_resource(resource_name)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_delete_resource_&lt;resource_name&gt;()</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_deleted_resource(resource_name)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_deleted_resource_&lt;resource_name&gt;()</span></tt></li>
+</ul>
+<div class="section" id="items">
+<h5>Items<a class="headerlink" href="#items" title="Permalink to this headline">¶</a></h5>
+<p>When a DELETE request hits a item endpoint and <cite>before</cite> the item is deleted,
+these events are fired:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">on_delete_item</span></tt> for any resource hit by the request.</li>
+<li><tt class="docutils literal"><span class="pre">on_delete_item_&lt;resource_name&gt;</span></tt> for the specific <cite>&lt;resource_name&gt;</cite> item endpoint
+hit by the DELETE.</li>
+</ul>
+<p><cite>After</cite> the item has been deleted the <tt class="docutils literal"><span class="pre">on_deleted_item(resource_name,</span>
+<span class="pre">item)</span></tt> and <tt class="docutils literal"><span class="pre">on_deleted_item_&lt;resource_name&gt;(item)</span></tt> are raised.</p>
+<p><cite>item</cite> is the item being deleted. Callback functions could hook into
 these events to perform accessory actions. And no you can&#8217;t arbitrarily abort
 the delete operation at this point (you should probably look at
 <a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a>, or eventually disable the delete command altogether).</p>
 </div>
-<div class="section" id="resource-deleteion">
-<h4>Resource deleteion<a class="headerlink" href="#resource-deleteion" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="resources">
+<h5>Resources<a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h5>
 <p>If you were brave enough to enable the DELETE command on resource endpoints
 (allowing for wipeout of the entire collection in one go), then you can be
 notified of such a disastrous occurence by hooking a callback function to the
-<tt class="docutils literal"><span class="pre">on_resource_delete(resource)</span></tt> hook.</p>
+<tt class="docutils literal"><span class="pre">on_delete_resource(resource_name)</span></tt> or
+<tt class="docutils literal"><span class="pre">on_delete_resource_&lt;resource_name&gt;()</span></tt> hooks.</p>
 <div class="admonition-please-note admonition">
 <p class="first admonition-title">Please note</p>
 <p class="last">To provide seamless event handling features Eve relies on the <a class="reference external" href="https://github.com/nicolaiarocci/events">Events</a> package.</p>
+</div>
 </div>
 </div>
 </div>
@@ -1211,13 +1467,16 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li><a class="reference internal" href="#event-hooks">Event Hooks</a><ul>
 <li><a class="reference internal" href="#pre-request-event-hooks">Pre-Request Event Hooks</a></li>
 <li><a class="reference internal" href="#post-request-event-hooks">Post-Request Event Hooks</a></li>
-<li><a class="reference internal" href="#the-on-fetch-event">The <tt class="docutils literal"><span class="pre">on_fetch</span></tt> Event</a></li>
-<li><a class="reference internal" href="#the-on-insert-event">The <tt class="docutils literal"><span class="pre">on_insert</span></tt> Event</a></li>
-<li><a class="reference internal" href="#the-on-replace-event">The <tt class="docutils literal"><span class="pre">on_replace</span></tt> Event</a></li>
-<li><a class="reference internal" href="#the-on-update-event">The <tt class="docutils literal"><span class="pre">on_update</span></tt> Event</a></li>
-<li><a class="reference internal" href="#the-on-delete-events">The <tt class="docutils literal"><span class="pre">on_delete</span></tt> Events</a><ul>
-<li><a class="reference internal" href="#document-deletion">Document deletion</a></li>
-<li><a class="reference internal" href="#resource-deleteion">Resource deleteion</a></li>
+<li><a class="reference internal" href="#database-event-hooks">Database event hooks</a><ul>
+<li><a class="reference internal" href="#fetch-events">Fetch Events</a></li>
+<li><a class="reference internal" href="#insert-events">Insert Events</a></li>
+<li><a class="reference internal" href="#replace-events">Replace Events</a></li>
+<li><a class="reference internal" href="#update-events">Update Events</a></li>
+<li><a class="reference internal" href="#delete-events">Delete Events</a><ul>
+<li><a class="reference internal" href="#items">Items</a></li>
+<li><a class="reference internal" href="#resources">Resources</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
