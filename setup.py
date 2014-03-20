@@ -16,7 +16,7 @@ setup(
     url='http://python-eve.org',
     license=open('LICENSE').read(),
     platforms=["any"],
-    packages=["eve"],
+    packages=find_packages(),
     test_suite="eve.tests",
     install_requires=[
         'cerberus==0.6',
