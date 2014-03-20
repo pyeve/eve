@@ -113,7 +113,8 @@ def patch(resource, **lookup):
             # been updated, and we still have to provide an updated etag,
             # we're going to update the local version of the 'original'
             # document, and we will use it for the etag computation.
-            updated = original.copy().update(updates)
+            updated = original.copy()
+			updated.update(updates)
 
             # notify callbacks
             getattr(app, "on_update")(resource, original, updates)
