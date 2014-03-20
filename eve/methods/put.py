@@ -97,16 +97,16 @@ def put(resource, **lookup):
             resolve_document_version(document, resource, 'PUT', original)
 
             # notify callbacks
-            getattr(app, "on_replace")(resource, document)
-            getattr(app, "on_replace_%s" % resource)(document)
+            getattr(app, "on_replace")(resource, original, document)
+            getattr(app, "on_replace_%s" % resource)(original, document)
 
             # write to db
             app.data.replace(resource, object_id, document)
             insert_versioning_documents(resource, object_id, document)
 
             # notify callbacks
-            getattr(app, "on_replaced")(resource, document)
-            getattr(app, "on_replaced_%s" % resource)(document)
+            getattr(app, "on_replaced")(resource, original, document)
+            getattr(app, "on_replaced_%s" % resource)(original, document)
 
             response[config.ID_FIELD] = document.get(config.ID_FIELD,
                                                      object_id)

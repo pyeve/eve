@@ -104,45 +104,45 @@ def patch(resource, **lookup):
             resolve_media_files(updates, resource, original)
             resolve_document_version(updates, resource, 'PATCH', original)
 
+            # some datetime precision magic
+            updates[config.LAST_UPDATED] = \
+                datetime.utcnow().replace(microsecond=0)
+
             # the mongo driver has a different precision than the python
             # datetime. since we don't want to reload the document once it has
             # been updated, and we still have to provide an updated etag,
             # we're going to update the local version of the 'original'
             # document, and we will use it for the etag computation.
-            original.update(updates)
-
-            # some datetime precision magic
-            updates[config.LAST_UPDATED] = original[config.LAST_UPDATED] = \
-                datetime.utcnow().replace(microsecond=0)
+            updated = original.copy().update(updates)
 
             # notify callbacks
-            getattr(app, "on_update")(resource, original)
-            getattr(app, "on_update_%s" % resource)(original)
+            getattr(app, "on_update")(resource, original, updates)
+            getattr(app, "on_update_%s" % resource)(original, updates)
 
             app.data.update(resource, object_id, updates)
-            insert_versioning_documents(resource, object_id, original)
+            insert_versioning_documents(resource, object_id, updated)
 
             # nofity callbacks
-            getattr(app, "on_updated")(resource, original)
-            getattr(app, "on_updated_%s" % resource)(original)
+            getattr(app, "on_updated")(resource, original, updates)
+            getattr(app, "on_updated_%s" % resource)(original, updates)
 
-            response[config.ID_FIELD] = original[config.ID_FIELD]
+            response[config.ID_FIELD] = updated[config.ID_FIELD]
             last_modified = response[config.LAST_UPDATED] = \
-                original[config.LAST_UPDATED]
+                updated[config.LAST_UPDATED]
 
             # metadata
             if config.IF_MATCH:
-                etag = response[config.ETAG] = document_etag(original)
+                etag = response[config.ETAG] = document_etag(updated)
             if resource_def['hateoas']:
                 response[config.LINKS] = {
-                    'self': document_link(resource, original[config.ID_FIELD])
+                    'self': document_link(resource, updated[config.ID_FIELD])
                 }
 
             if resource_def['versioning'] is True:
-                resolve_document_version(original, resource, 'GET')
-                response[config.VERSION] = original[config.VERSION]
+                resolve_document_version(updated, resource, 'GET')
+                response[config.VERSION] = updated[config.VERSION]
                 response[config.LATEST_VERSION] = \
-                    original[config.LATEST_VERSION]
+                    updated[config.LATEST_VERSION]
 
         else:
             issues = validator.errors
