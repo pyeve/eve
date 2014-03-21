@@ -8,6 +8,8 @@ Version 0.4
 
 Not released yet.
 
+- [new] PyPy officially supported and tested (Javier Gonel).
+- [new] tox support (Javier Gonel).
 - [new] Post database events (Javier Gonel). Addresses #272.
 - [change] Review event names (Javier Gonel). 
 - [new] Versioned Documents (Josh Villbrandt). Closes #224.
