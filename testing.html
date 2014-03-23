@@ -60,8 +60,10 @@
             
   <div class="section" id="running-the-tests">
 <h1>Running the Tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h1>
-<p>The test suite runs under Python 2.6, Python 2.7 and Python 3.3. To execute it
-locally just run:</p>
+<p>Eve runs under Python 2.6, Python 2.7, Python 3.3 and PyPy. Therefore tests
+will be run in those four platforms in our <a class="reference external" href="https://travis-ci.org/nicolaiarocci/eve/">continuous integration server</a>.</p>
+<p>The easiest way to get started is to run the tests in your local environment
+with:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py <span class="nb">test</span>
 </pre></div>
 </div>
@@ -78,16 +80,62 @@ locally just run:</p>
 </pre></div>
 </div>
 <p>Or even a single class function:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py <span class="nb">test</span> -s eve.tests.methods.get.TestGetItem.test_get_max_results
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py <span class="nb">test</span> -s eve.tests.methods.get.TestGetItem.test_expires
 </pre></div>
+</div>
+<div class="section" id="testing-with-other-python-versions">
+<h2>Testing with other python versions<a class="headerlink" href="#testing-with-other-python-versions" title="Permalink to this headline">¶</a></h2>
+<p>Before you submit a pull request, make sure your tests and changes run in
+all supported python versions: 2.6, 2.7, 3.3 and PyPy. Instead of creating all
+those environments by hand, Eve uses <a class="reference external" href="http://tox.readthedocs.org/en/latest/">tox</a>.</p>
+<p>Make sure you have all required python versions installed and run:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> pip install tox  <span class="c"># First time only</span>
+<span class="gp">$</span> tox
+</pre></div>
+</div>
+<p>This might take some time the first run as the different virtual environments
+are created and dependencies are installed. If everything is ok, you will see
+the following:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="go">_________ summary _________</span>
+<span class="go">py26: commands succeeded</span>
+<span class="go">py27: commands succeeded</span>
+<span class="go">py33: commands succeeded</span>
+<span class="go">pypy: commands succeeded</span>
+<span class="go">flake8: commands succeeded</span>
+<span class="go">congratulations :)</span>
+</pre></div>
+</div>
+<p>If something goes <strong>wrong</strong> and one test fails, you might need to run that test
+in the specific python version. You can use the created environments to run
+some specific tests. For example, if a test suite fails in Python 2.6:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">#</span> From the project folder
+<span class="gp">$</span> .tox/py26/bin/python setup.py <span class="nb">test</span> -s eve.tests.methods.get.TestGetItem
+</pre></div>
+</div>
 </div>
 <div class="section" id="using-pytest">
 <h2>Using Pytest<a class="headerlink" href="#using-pytest" title="Permalink to this headline">¶</a></h2>
 <p>You also choose to run the whole test suite using <a class="reference external" href="http://pytest.org">pytest</a>:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> py.test                           <span class="c"># rum the whole test suite</span>
-<span class="gp">$</span> py.test eve/tests/methods         <span class="c"># run all tests in the &#39;methods&#39; folder</span>
-<span class="gp">$</span> py.test -k TestGet                <span class="c"># run just the &#39;TestGet&#39; class</span>
-<span class="gp">$</span> py.test -k test_get_max_results   <span class="c"># run only one method</span>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">#</span> Run the whole <span class="nb">test </span>suite
+<span class="gp">$</span> py.test
+
+<span class="gp">#</span> Run all tests in the <span class="s1">&#39;methods&#39;</span> folder
+<span class="gp">$</span> py.test eve/tests/methods
+
+<span class="gp">#</span> Run all the tests named <span class="s1">&#39;TestEvents&#39;</span>
+<span class="gp">$</span> py.test -k TestEvents
+
+<span class="gp">#</span> Run the specific <span class="nb">test </span>class
+<span class="gp">$</span> py.test eve/tests/methods/get.py::TestEvents
+
+<span class="gp">#</span> Run the specific <span class="nb">test</span>
+<span class="gp">$</span><span class="nb"> </span>py.test eve/tests/auth.py::TestBasicAuth::test_custom_auth
+</pre></div>
+</div>
+<p>You can use <a class="reference external" href="http://pytest.org">pytest</a> from <a class="reference external" href="http://tox.readthedocs.org/en/latest/">tox</a>, but you will need to install it in the tox
+environments before using it.</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> .tox/py26/bin/pip install pytest
+<span class="gp">$</span> .tox/py26/bin/py.test
 </pre></div>
 </div>
 <p>Please note that, just for my own convenience, the <tt class="docutils literal"><span class="pre">pytest.ini</span></tt> file is
@@ -169,6 +217,7 @@ against the <tt class="docutils literal"><span class="pre">develop</span></tt> b
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Running the Tests</a><ul>
+<li><a class="reference internal" href="#testing-with-other-python-versions">Testing with other python versions</a></li>
 <li><a class="reference internal" href="#using-pytest">Using Pytest</a></li>
 <li><a class="reference internal" href="#ratelimiting-and-redis">RateLimiting and Redis</a></li>
 <li><a class="reference internal" href="#continuous-integration">Continuous Integration</a></li>

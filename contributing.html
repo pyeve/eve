@@ -84,9 +84,11 @@ submitting it).</li>
 <li>Check for unnecessary whitespace with <tt class="docutils literal"><span class="pre">git</span> <span class="pre">diff</span> <span class="pre">--check</span></tt> before committing.</li>
 <li>Make sure your commit messages are in the <a class="reference external" href="http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html">proper format</a>.</li>
 <li>If your commit fixes an open issue, reference it in the commit message (#15).</li>
-<li>Make sure your code conforms to <a class="reference external" href="http://www.python.org/dev/peps/pep-0008/">PEP8</a>.</li>
+<li>Make sure your code conforms to <a class="reference external" href="http://www.python.org/dev/peps/pep-0008/">PEP8</a> (we&#8217;re using <a class="reference external" href="http://flake8.readthedocs.org/en/latest/">flake8</a> for PEP8 and extra checks).</li>
 <li>Make sure you have added the necessary tests for your changes.</li>
 <li>Run all the tests to assure nothing else was accidentally broken.</li>
+<li>Run again the entire suite via <a class="reference external" href="http://tox.readthedocs.org/en/latest/">tox</a> to check your changes against multiple
+python versions. <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">tox;</span> <span class="pre">tox</span></tt></li>
 <li>Don&#8217;t forget to add yourself to <a class="reference external" href="https://github.com/nicolaiarocci/eve/blob/develop/AUTHORS">AUTHORS</a>.</li>
 </ul>
 <p>These guidelines also apply when helping with documentation (actually, for
