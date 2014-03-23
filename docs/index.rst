@@ -27,7 +27,7 @@ All you need to bring your API online is a database, a configuration file
 (defaults to ``settings.py``) and a launch script.  Overall, you will find that
 configuring and fine-tuning your API is a very simple process.
 
-Eve is thoroughly tested under Python 2.6, 2.7, 3.2, 3.3 and PyPy.
+Eve is thoroughly tested under Python 2.6, 2.7, 3.3 and PyPy.
 
 .. _demo:
 
