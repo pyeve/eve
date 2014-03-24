@@ -117,15 +117,15 @@ def patch(resource, **lookup):
             updated.update(updates)
 
             # notify callbacks
-            getattr(app, "on_update")(resource, original, updates)
-            getattr(app, "on_update_%s" % resource)(original, updates)
+            getattr(app, "on_update")(resource, updates, original)
+            getattr(app, "on_update_%s" % resource)(updates, original)
 
             app.data.update(resource, object_id, updates)
             insert_versioning_documents(resource, object_id, updated)
 
             # nofity callbacks
-            getattr(app, "on_updated")(resource, original, updates)
-            getattr(app, "on_updated_%s" % resource)(original, updates)
+            getattr(app, "on_updated")(resource, updates, original)
+            getattr(app, "on_updated_%s" % resource)(updates, original)
 
             response[config.ID_FIELD] = updated[config.ID_FIELD]
             last_modified = response[config.LAST_UPDATED] = \
