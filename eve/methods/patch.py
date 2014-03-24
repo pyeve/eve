@@ -114,11 +114,12 @@ def patch(resource, **lookup):
             # we're going to update the local version of the 'original'
             # document, and we will use it for the etag computation.
             updated = original.copy()
-            updated.update(updates)
 
             # notify callbacks
             getattr(app, "on_update")(resource, updates, original)
             getattr(app, "on_update_%s" % resource)(updates, original)
+
+            updated.update(updates)
 
             app.data.update(resource, object_id, updates)
             insert_versioning_documents(resource, object_id, updated)
