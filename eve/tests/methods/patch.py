@@ -365,26 +365,26 @@ class TestEvents(TestBase):
         self.app.on_update += devent
         self.patch()
         self.assertEqual(self.known_resource, devent.called[0])
-        self.assertEqual(2, len(devent.called))
+        self.assertEqual(3, len(devent.called))
 
     def test_on_update_contacts(self):
         devent = DummyEvent(self.before_update)
         self.app.on_update_contacts += devent
         self.patch()
-        self.assertEqual(1, len(devent.called))
+        self.assertEqual(2, len(devent.called))
 
     def test_on_updated(self):
         devent = DummyEvent(self.after_update)
         self.app.on_updated += devent
         self.patch()
         self.assertEqual(self.known_resource, devent.called[0])
-        self.assertEqual(2, len(devent.called))
+        self.assertEqual(3, len(devent.called))
 
     def test_on_updated_contacts(self):
         devent = DummyEvent(self.after_update)
         self.app.on_updated_contacts += devent
         self.patch()
-        self.assertEqual(1, len(devent.called))
+        self.assertEqual(2, len(devent.called))
 
     def before_update(self):
         db = self.connection[MONGO_DBNAME]
