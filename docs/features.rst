@@ -943,7 +943,6 @@ both. And for each action two events will be fired:
 
 Let's see an overview of what events are available:
 
-
 +-------+--------+------+-------------------------------------------------+
 |Action |What    |When  |Event name / method signature                    |
 +=======+========+======+=================================================+
@@ -964,7 +963,7 @@ Let's see an overview of what events are available:
 |       |        |      +-------------------------------------------------+
 |       |        |      || ``on_insert_<resource_name>``                  |
 |       |        |      || ``def event(items)``                           |
-|       |        +------+------------------------------------------------+
+|       |        +------+-------------------------------------------------+
 |       |        |After || ``on_inserted``                                |
 |       |        |      || ``def event(resource_name, items)``            |
 |       |        |      +-------------------------------------------------+
