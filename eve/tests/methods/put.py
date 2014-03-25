@@ -244,12 +244,14 @@ class TestEvents(TestBase):
         self.put()
         self.assertEqual(self.known_resource, devent.called[0])
         self.assertEqual(self.new_ref, devent.called[1]['ref'])
+        self.assertEqual(3, len(devent.called))
 
     def test_on_replace_contacts(self):
         devent = DummyEvent(self.before_replace)
         self.app.on_replace_contacts += devent
         self.put()
         self.assertEqual(self.new_ref, devent.called[0]['ref'])
+        self.assertEqual(2, len(devent.called))
 
     def test_on_replaced(self):
         devent = DummyEvent(self.after_replace)
@@ -257,12 +259,14 @@ class TestEvents(TestBase):
         self.put()
         self.assertEqual(self.known_resource, devent.called[0])
         self.assertEqual(self.new_ref, devent.called[1]['ref'])
+        self.assertEqual(3, len(devent.called))
 
     def test_on_replaced_contacts(self):
         devent = DummyEvent(self.after_replace)
         self.app.on_replaced_contacts += devent
         self.put()
         self.assertEqual(self.new_ref, devent.called[0]['ref'])
+        self.assertEqual(2, len(devent.called))
 
     def before_replace(self):
         db = self.connection[MONGO_DBNAME]

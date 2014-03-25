@@ -8,6 +8,8 @@ Version 0.4
 
 Not released yet.
 
+- [change] ``on_update(ed)`` and ``on_replace(ed)`` callbacks now receive both
+  the original document and the updates (Jaroslav Semančík).
 - [new] PyPy officially supported and tested (Javier Gonel).
 - [new] tox support (Javier Gonel).
 - [new] Post database events (Javier Gonel). Addresses #272.
@@ -37,8 +39,7 @@ Not released yet.
 - [new] ``on_delete_item`` and ``on_deleted_item`` is raised on DELETE requests
   sent to document endpoints. Addresses #232.
 - [new] ``on_delete_resource`` and ``on_deleted_resource`` is raised on DELETE
-  requests sent to resource
-  endpoints. Addresses #232.
+  requests sent to resource endpoints. Addresses #232.
 - [new] ``on_update`` is raised on PATCH requests, when a document is about to
   be updated on the database. Addresses #232.
 - [new] ``on_replace`` is raised on PUT requests, when a document is about to

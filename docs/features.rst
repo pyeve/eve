@@ -944,81 +944,81 @@ both. And for each action two events will be fired:
 Let's see an overview of what events are available:
 
 
-+-------+--------+------+-----------------------------------------+
-|Action |What    |When  |Event name / method signature            |
-+=======+========+======+=========================================+
-|Fetch  |Resource|After || ``on_fetched_resource``                |
-|       |        |      || ``def event(resource_name, items)``    |
-|       |        |      +-----------------------------------------+
-|       |        |      || ``on_fetched_resource_<resource_name>``|
-|       |        |      || ``def event(items)``                   |
-|       +--------+------+-----------------------------------------+
-|       |Item    |After || ``on_fetched_item``                    |
-|       |        |      || ``def event(resource_name, item)``     |
-|       |        |      +-----------------------------------------+
-|       |        |      || ``on_fetched_item_<resource>``         |
-|       |        |      || ``def event(item)``                    |
-+-------+--------+------+-----------------------------------------+
-|Insert |Items   |Before|| ``on_insert``                          |
-|       |        |      || ``def event(resource_name, items)``    |
-|       |        |      +-----------------------------------------+
-|       |        |      || ``on_insert_<resource_name>``          |
-|       |        |      || ``def event(items)``                   |
-|       |        +------+-----------------------------------------+
-|       |        |After || ``on_inserted``                        |
-|       |        |      || ``def event(resource_name, items)``    |
-|       |        |      +-----------------------------------------+
-|       |        |      || ``on_inserted_<resource_name>``        |
-|       |        |      || ``def event(items)``                   |
-+-------+--------+------+-----------------------------------------+
-|Replace|Item    |Before|| ``on_replace``                         |
-|       |        |      || ``def event(resource_name, item)``     |
-|       |        |      +-----------------------------------------+
-|       |        |      || ``on_replace_<resource_name>``         |
-|       |        |      || ``def event(item)``                    |
-|       |        +------+-----------------------------------------+
-|       |        |After || ``on_replaced``                        |
-|       |        |      || ``def event(resource_name, item)``     |
-|       |        |      +-----------------------------------------+
-|       |        |      || ``on_replaced_<resource_name>``        |
-|       |        |      || ``def event(item)``                    |
-+-------+--------+------+-----------------------------------------+
-|Update |Item    |Before|| ``on_update``                          |
-|       |        |      || ``def event(resource_name, item)``     |
-|       |        |      +-----------------------------------------+
-|       |        |      || ``on_update_<resource_name>``          |
-|       |        |      || ``def event(item)``                    |
-|       |        +------+-----------------------------------------+
-|       |        |After || ``on_updated``                         |
-|       |        |      || ``def event(resource_name, item)``     |
-|       |        |      +-----------------------------------------+
-|       |        |      || ``on_updated_<resource_name>``         |
-|       |        |      || ``def event(item)``                    |
-+-------+--------+------+-----------------------------------------+
-|Delete |Item    |Before|| ``on_delete_item``                     |
-|       |        |      || ``def event(resource_name, item)``     |
-|       |        |      +-----------------------------------------+
-|       |        |      || ``on_delete_item_<resource_name>``     |
-|       |        |      || ``def event(item)``                    |
-|       |        +------+-----------------------------------------+
-|       |        |After || ``on_deleted_item``                    |
-|       |        |      || ``def event(resource_name, item)``     |
-|       |        |      +-----------------------------------------+
-|       |        |      || ``on_deleted_item_<resource_name>``    |
-|       |        |      || ``def event(item)``                    |
-|       +--------+------+-----------------------------------------+
-|       |Resource|Before|| ``on_delete_resource``                 |
-|       |        |      || ``def event(resource_name, item)``     |
-|       |        |      +-----------------------------------------+
-|       |        |      || ``on_delete_resource_<resource_name>`` |
-|       |        |      || ``def event(item)``                    |
-|       |        +------+-----------------------------------------+
-|       |        |After || ``on_deleted_resource``                |
-|       |        |      || ``def event(resource_name, item)``     |
-|       |        |      +-----------------------------------------+
-|       |        |      || ``on_deleted_resource_<resource_name>``|
-|       |        |      || ``def event(item)``                    |
-+-------+--------+------+-----------------------------------------+
++-------+--------+------+-------------------------------------------------+
+|Action |What    |When  |Event name / method signature                    |
++=======+========+======+=================================================+
+|Fetch  |Resource|After || ``on_fetched_resource``                        |
+|       |        |      || ``def event(resource_name, items)``            |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_fetched_resource_<resource_name>``        |
+|       |        |      || ``def event(items)``                           |
+|       +--------+------+-------------------------------------------------+
+|       |Item    |After || ``on_fetched_item``                            |
+|       |        |      || ``def event(resource_name, item)``             |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_fetched_item_<resource_name>``            |
+|       |        |      || ``def event(item)``                            |
++-------+--------+------+-------------------------------------------------+
+|Insert |Items   |Before|| ``on_insert``                                  |
+|       |        |      || ``def event(resource_name, items)``            |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_insert_<resource_name>``                  |
+|       |        |      || ``def event(items)``                           |
+|       |        +------+------------------------------------------------+
+|       |        |After || ``on_inserted``                                |
+|       |        |      || ``def event(resource_name, items)``            |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_inserted_<resource_name>``                |
+|       |        |      || ``def event(items)``                           |
++-------+--------+------+-------------------------------------------------+
+|Replace|Item    |Before|| ``on_replace``                                 |
+|       |        |      || ``def event(resource_name, item, original)``   |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_replace_<resource_name>``                 |
+|       |        |      || ``def event(item, original)``                  |
+|       |        +------+-------------------------------------------------+
+|       |        |After || ``on_replaced``                                |
+|       |        |      || ``def event(resource_name, item, original)``   |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_replaced_<resource_name>``                |
+|       |        |      || ``def event(item, original)``                  |
++-------+--------+------+-------------------------------------------------+
+|Update |Item    |Before|| ``on_update``                                  |
+|       |        |      || ``def event(resource_name, updates, original)``|
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_update_<resource_name>``                  |
+|       |        |      || ``def event(updates, original)``               |
+|       |        +------+-------------------------------------------------+
+|       |        |After || ``on_updated``                                 |
+|       |        |      || ``def event(resource_name, updates, original)``|
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_updated_<resource_name>``                 |
+|       |        |      || ``def event(updates, original)``               |
++-------+--------+------+-------------------------------------------------+
+|Delete |Item    |Before|| ``on_delete_item``                             |
+|       |        |      || ``def event(resource_name, item)``             |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_delete_item_<resource_name>``             |
+|       |        |      || ``def event(item)``                            |
+|       |        +------+-------------------------------------------------+
+|       |        |After || ``on_deleted_item``                            |
+|       |        |      || ``def event(resource_name, item)``             |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_deleted_item_<resource_name>``            |
+|       |        |      || ``def event(item)``                            |
+|       +--------+------+-------------------------------------------------+
+|       |Resource|Before|| ``on_delete_resource``                         |
+|       |        |      || ``def event(resource_name, item)``             |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_delete_resource_<resource_name>``         |
+|       |        |      || ``def event(item)``                            |
+|       |        +------+-------------------------------------------------+
+|       |        |After || ``on_deleted_resource``                        |
+|       |        |      || ``def event(resource_name, item)``             |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_deleted_resource_<resource_name>``        |
+|       |        |      || ``def event(item)``                            |
++-------+--------+------+-------------------------------------------------+
 
 
 
@@ -1108,20 +1108,21 @@ Replace Events
 
 These are the replace events with their method signature:
 
-- ``on_replace(resource_name, item)``
-- ``on_replace_<resource_name>(item)``
-- ``on_replaced(resource_name, item)``
-- ``on_replaced_<resource_name>(item)``
+- ``on_replace(resource_name, item, original)``
+- ``on_replace_<resource_name>(item, original)``
+- ``on_replaced(resource_name, item, original)``
+- ``on_replaced_<resource_name>(item, original)``
 
-When a PUT request hits the API and a item is about to be replaced after
+When a PUT request hits the API and an item is about to be replaced after
 passing validation, these events are fired:
 
 - ``on_replace`` for any resource item endpoint.
 - ``on_replace_<resource_name>`` for the specific resource endpoint.
 
-`item` is the new item which is about to be stored. Callback functions
-could hook into these events to arbitrarily add or update its fields, or to
-perform other accessory action.
+`item` is the new item which is about to be stored. `original` is the item in
+the database that is being replaced. Callback functions could hook into these
+events to arbitrarily add or update `item` fields, or to perform other
+accessory action.
 
 After the item has been replaced, these other two events are fired:
 
@@ -1133,25 +1134,27 @@ Update Events
 
 These are the update events with their method signature:
 
-- ``on_update(resource_name, item)``
-- ``on_update_<resource_name>(item)``
-- ``on_updated(resource_name, item)``
-- ``on_updated_<resource_name>(item)``
+- ``on_update(resource_name, updates, original)``
+- ``on_update_<resource_name>(updates, original)``
+- ``on_updated(resource_name, updates, original)``
+- ``on_updated_<resource_name>(updates, original)``
 
-When a PATCH request hits the API and a item is about to be updated after
-passing validation, these events are fired  `before` the item is updated:
+When a PATCH request hits the API and an item is about to be updated after
+passing validation, these events are fired `before` the item is updated:
 
 - ``on_update`` for any resource endpoint.
-- ``on_update_<resource_name>`` is fired only when the `<resource>` endpoint is hit.
+- ``on_update_<resource_name>`` is fired only when the `<resource_name>`
+  endpoint is hit.
 
-Here `item` is the updated item. Callback functions could hook into these
-events to arbitrarily add or update its fields, or to perform other accessory
-action.
+Here `updates` stands for updates being applied to the item and `original` is
+the item in the database that is about to be updated. Callback functions
+could hook into these events to arbitrarily add or update fields in
+`updates`, or to perform other accessory action.
 
 `After` the item has been updated: 
 
-- ``on_updated(resource_name, item)`` is fired for any resource endpoint.
-- ``on_updated_<resource_name>(item)`` is fired only when the `<resource_name>`
+- ``on_updated`` is fired for any resource endpoint.
+- ``on_updated_<resource_name>`` is fired only when the `<resource_name>`
   endpoint is hit.
 
 .. admonition:: Please note
@@ -1177,7 +1180,7 @@ These are the delete events with their method signature:
 Items
 .....
 
-When a DELETE request hits a item endpoint and `before` the item is deleted,
+When a DELETE request hits an item endpoint and `before` the item is deleted,
 these events are fired:
 
 - ``on_delete_item`` for any resource hit by the request.
