@@ -61,6 +61,8 @@
 <h2>Version 0.4<a class="headerlink" href="#version-0-4" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[change] <tt class="docutils literal"><span class="pre">on_update(ed)</span></tt> and <tt class="docutils literal"><span class="pre">on_replace(ed)</span></tt> callbacks now receive both
+the original document and the updates (Jaroslav Semančík).</li>
 <li>[new] PyPy officially supported and tested (Javier Gonel).</li>
 <li>[new] tox support (Javier Gonel).</li>
 <li>[new] Post database events (Javier Gonel). Addresses #272.</li>
@@ -90,8 +92,7 @@ links. Defaults to <tt class="docutils literal"><span class="pre">''</span></tt>
 <li>[new] <tt class="docutils literal"><span class="pre">on_delete_item</span></tt> and <tt class="docutils literal"><span class="pre">on_deleted_item</span></tt> is raised on DELETE requests
 sent to document endpoints. Addresses #232.</li>
 <li>[new] <tt class="docutils literal"><span class="pre">on_delete_resource</span></tt> and <tt class="docutils literal"><span class="pre">on_deleted_resource</span></tt> is raised on DELETE
-requests sent to resource
-endpoints. Addresses #232.</li>
+requests sent to resource endpoints. Addresses #232.</li>
 <li>[new] <tt class="docutils literal"><span class="pre">on_update</span></tt> is raised on PATCH requests, when a document is about to
 be updated on the database. Addresses #232.</li>
 <li>[new] <tt class="docutils literal"><span class="pre">on_replace</span></tt> is raised on PUT requests, when a document is about to

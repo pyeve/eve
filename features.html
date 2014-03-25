@@ -911,10 +911,10 @@ both. And for each action two events will be fired:</p>
 <p>Let&#8217;s see an overview of what events are available:</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="11%" />
-<col width="13%" />
 <col width="10%" />
-<col width="66%" />
+<col width="11%" />
+<col width="9%" />
+<col width="70%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Action</th>
@@ -948,7 +948,7 @@ both. And for each action two events will be fired:</p>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
-<div class="line"><tt class="docutils literal"><span class="pre">on_fetched_item_&lt;resource&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_fetched_item_&lt;resource_name&gt;</span></tt></div>
 <div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></tt></div>
 </div>
 </td>
@@ -986,26 +986,26 @@ both. And for each action two events will be fired:</p>
 <td rowspan="2">Before</td>
 <td><div class="first last line-block">
 <div class="line"><tt class="docutils literal"><span class="pre">on_replace</span></tt></div>
-<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item,</span> <span class="pre">original)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
 <div class="line"><tt class="docutils literal"><span class="pre">on_replace_&lt;resource_name&gt;</span></tt></div>
-<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item,</span> <span class="pre">original)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-even"><td rowspan="2">After</td>
 <td><div class="first last line-block">
 <div class="line"><tt class="docutils literal"><span class="pre">on_replaced</span></tt></div>
-<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item,</span> <span class="pre">original)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
 <div class="line"><tt class="docutils literal"><span class="pre">on_replaced_&lt;resource_name&gt;</span></tt></div>
-<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item,</span> <span class="pre">original)</span></tt></div>
 </div>
 </td>
 </tr>
@@ -1014,26 +1014,26 @@ both. And for each action two events will be fired:</p>
 <td rowspan="2">Before</td>
 <td><div class="first last line-block">
 <div class="line"><tt class="docutils literal"><span class="pre">on_update</span></tt></div>
-<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">updates,</span> <span class="pre">original)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
 <div class="line"><tt class="docutils literal"><span class="pre">on_update_&lt;resource_name&gt;</span></tt></div>
-<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(updates,</span> <span class="pre">original)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-even"><td rowspan="2">After</td>
 <td><div class="first last line-block">
 <div class="line"><tt class="docutils literal"><span class="pre">on_updated</span></tt></div>
-<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">updates,</span> <span class="pre">original)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
 <div class="line"><tt class="docutils literal"><span class="pre">on_updated_&lt;resource_name&gt;</span></tt></div>
-<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(updates,</span> <span class="pre">original)</span></tt></div>
 </div>
 </td>
 </tr>
@@ -1172,20 +1172,21 @@ that passed validation are sent.</p>
 <h4>Replace Events<a class="headerlink" href="#replace-events" title="Permalink to this headline">¶</a></h4>
 <p>These are the replace events with their method signature:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">on_replace(resource_name,</span> <span class="pre">item)</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">on_replace_&lt;resource_name&gt;(item)</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">on_replaced(resource_name,</span> <span class="pre">item)</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">on_replaced_&lt;resource_name&gt;(item)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_replace(resource_name,</span> <span class="pre">item,</span> <span class="pre">original)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_replace_&lt;resource_name&gt;(item,</span> <span class="pre">original)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_replaced(resource_name,</span> <span class="pre">item,</span> <span class="pre">original)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_replaced_&lt;resource_name&gt;(item,</span> <span class="pre">original)</span></tt></li>
 </ul>
-<p>When a PUT request hits the API and a item is about to be replaced after
+<p>When a PUT request hits the API and an item is about to be replaced after
 passing validation, these events are fired:</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">on_replace</span></tt> for any resource item endpoint.</li>
 <li><tt class="docutils literal"><span class="pre">on_replace_&lt;resource_name&gt;</span></tt> for the specific resource endpoint.</li>
 </ul>
-<p><cite>item</cite> is the new item which is about to be stored. Callback functions
-could hook into these events to arbitrarily add or update its fields, or to
-perform other accessory action.</p>
+<p><cite>item</cite> is the new item which is about to be stored. <cite>original</cite> is the item in
+the database that is being replaced. Callback functions could hook into these
+events to arbitrarily add or update <cite>item</cite> fields, or to perform other
+accessory action.</p>
 <p>After the item has been replaced, these other two events are fired:</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">on_replaced</span></tt> for any resource item endpoint.</li>
@@ -1196,24 +1197,26 @@ perform other accessory action.</p>
 <h4>Update Events<a class="headerlink" href="#update-events" title="Permalink to this headline">¶</a></h4>
 <p>These are the update events with their method signature:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">on_update(resource_name,</span> <span class="pre">item)</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">on_update_&lt;resource_name&gt;(item)</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">on_updated(resource_name,</span> <span class="pre">item)</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">on_updated_&lt;resource_name&gt;(item)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_update(resource_name,</span> <span class="pre">updates,</span> <span class="pre">original)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_update_&lt;resource_name&gt;(updates,</span> <span class="pre">original)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_updated(resource_name,</span> <span class="pre">updates,</span> <span class="pre">original)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_updated_&lt;resource_name&gt;(updates,</span> <span class="pre">original)</span></tt></li>
 </ul>
-<p>When a PATCH request hits the API and a item is about to be updated after
-passing validation, these events are fired  <cite>before</cite> the item is updated:</p>
+<p>When a PATCH request hits the API and an item is about to be updated after
+passing validation, these events are fired <cite>before</cite> the item is updated:</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">on_update</span></tt> for any resource endpoint.</li>
-<li><tt class="docutils literal"><span class="pre">on_update_&lt;resource_name&gt;</span></tt> is fired only when the <cite>&lt;resource&gt;</cite> endpoint is hit.</li>
+<li><tt class="docutils literal"><span class="pre">on_update_&lt;resource_name&gt;</span></tt> is fired only when the <cite>&lt;resource_name&gt;</cite>
+endpoint is hit.</li>
 </ul>
-<p>Here <cite>item</cite> is the updated item. Callback functions could hook into these
-events to arbitrarily add or update its fields, or to perform other accessory
-action.</p>
+<p>Here <cite>updates</cite> stands for updates being applied to the item and <cite>original</cite> is
+the item in the database that is about to be updated. Callback functions
+could hook into these events to arbitrarily add or update fields in
+<cite>updates</cite>, or to perform other accessory action.</p>
 <p><cite>After</cite> the item has been updated:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">on_updated(resource_name,</span> <span class="pre">item)</span></tt> is fired for any resource endpoint.</li>
-<li><tt class="docutils literal"><span class="pre">on_updated_&lt;resource_name&gt;(item)</span></tt> is fired only when the <cite>&lt;resource_name&gt;</cite>
+<li><tt class="docutils literal"><span class="pre">on_updated</span></tt> is fired for any resource endpoint.</li>
+<li><tt class="docutils literal"><span class="pre">on_updated_&lt;resource_name&gt;</span></tt> is fired only when the <cite>&lt;resource_name&gt;</cite>
 endpoint is hit.</li>
 </ul>
 <div class="admonition-please-note admonition">
@@ -1238,7 +1241,7 @@ updated to reflect changes eventually applied by the callback functions).</p>
 </ul>
 <div class="section" id="items">
 <h5>Items<a class="headerlink" href="#items" title="Permalink to this headline">¶</a></h5>
-<p>When a DELETE request hits a item endpoint and <cite>before</cite> the item is deleted,
+<p>When a DELETE request hits an item endpoint and <cite>before</cite> the item is deleted,
 these events are fired:</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">on_delete_item</span></tt> for any resource hit by the request.</li>
