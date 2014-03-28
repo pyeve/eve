@@ -303,6 +303,9 @@ class Mongo(DataLayer):
     def update(self, resource, id_, updates):
         """ Updates a collection document.
 
+        .. versionchanged:: 0.4
+           Return a 400 on pymongo DuplicateKeyError.
+
         .. versionchanged:: 0.3.0
            Custom ID_FIELD lookups would fail. See #203.
 

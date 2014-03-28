@@ -8,6 +8,8 @@ Version 0.4
 
 Not released yet.
 
+- [new] Return a 400 response on pymongo DuplicateKeyError, with exception
+message if debug mode is on (Al B).
 - [change] ``on_update(ed)`` and ``on_replace(ed)`` callbacks now receive both
   the original document and the updates (Jaroslav Semančík).
 - [new] PyPy officially supported and tested (Javier Gonel).
