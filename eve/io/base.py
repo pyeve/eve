@@ -154,6 +154,18 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
+    def find_one_raw(self, resource, _id):
+        """ Retrieves a single, raw document. No projections or datasource
+        filters are being applied here. Just looking up the document by unique
+        id.
+
+        :param resource: resource name.
+        :param id: unique id.
+
+        .. versionadded:: 0.4
+        """
+        raise NotImplementedError
+
     def find_list_of_ids(self, resource, ids, client_projection=None):
         """ Retrieves a list of documents based on a list of primary keys
         The primary key is the field defined in `ID_FIELD`.

@@ -226,6 +226,21 @@ class Mongo(DataLayer):
         document = self.driver.db[datasource].find_one(filter_, projection)
         return document
 
+    def find_one_raw(self, resource, _id):
+        """ Retrieves a single raw document.
+
+        :param resource: resource name.
+        :param id: unique id.
+
+        .. versionadded:: 0.4
+        """
+        datasource, filter_, _, _ = self._datasource_ex(resource,
+                                                        {config.ID_FIELD: _id},
+                                                        None)
+
+        document = self.driver.db[datasource].find_one(_id)
+        return document
+
     def find_list_of_ids(self, resource, ids, client_projection=None):
         """ Retrieves a list of documents from the collection given
         by `resource`, matching the given list of ids.

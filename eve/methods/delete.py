@@ -13,8 +13,7 @@
 from flask import current_app as app, abort
 from eve.utils import config
 from eve.auth import requires_auth
-from eve.methods.common import get_document, ratelimit, pre_event, \
-    resource_media_fields
+from eve.methods.common import get_document, ratelimit, pre_event
 from eve.versioning import versioned_id_field
 
 
@@ -29,6 +28,8 @@ def delete(resource, **lookup):
     :param **lookup: item lookup query.
 
     .. versionchanged:: 0.4
+       Fix #284: If you have a media field, and set datasource projection to
+       0 for that field, the media will not be deleted.
        Support for document versioning.
        'on_delete_item' events raised before performing the delete.
        'on_deleted_item' events raised after performing the delete.
@@ -59,17 +60,30 @@ def delete(resource, **lookup):
     getattr(app, "on_delete_item")(resource, original)
     getattr(app, "on_delete_item_%s" % resource)(original)
 
+    # media cleanup
+    media_fields = app.config['DOMAIN'][resource]['_media']
+
+    # document might miss one or more media fields because of datasource and/or
+    # client projection.
+    missing_media_fields = [f for f in media_fields if f not in original]
+    if len(missing_media_fields):
+        # retrieve the whole document so we have all media fields available.
+        # Should be very a rare occurence. We can't get rid of the
+        # get_document() call since it also deals with etag matching, which is
+        # still needed. Also, this lookup should never fail.
+        # TODO not happy with this hack. Not at all. Is there a better way?
+        original = app.data.find_one_raw(resource, original[config.ID_FIELD])
+
+    for field in media_fields:
+        if field in original:
+            app.media.delete(original[field])
+
     app.data.remove(resource, {config.ID_FIELD: original[config.ID_FIELD]})
     # TODO: should attempt to delete version collection even if setting is off
     if app.config['DOMAIN'][resource]['versioning'] is True:
         app.data.remove(
             resource + config.VERSIONS,
             {versioned_id_field(): original[config.ID_FIELD]})
-
-    # media cleanup
-    media_fields = resource_media_fields(original, resource)
-    for field in media_fields:
-        app.media.delete(original[field])
 
     getattr(app, "on_deleted_item")(resource, original)
     getattr(app, "on_deleted_item_%s" % resource)(original)
