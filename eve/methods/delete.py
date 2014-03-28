@@ -101,7 +101,7 @@ def delete_resource(resource, lookup):
     getattr(app, "on_delete_resource_%s" % resource)()
 
     # TODO if the resource schema includes media files, these won't be deleted
-    # by use of this global method (if should be disabled). Media cleanup is
+    # by use of this global method (it should be disabled). Media cleanup is
     # handled at the item endpoint by the delete() method (see above).
     app.data.remove(resource, lookup)
 
