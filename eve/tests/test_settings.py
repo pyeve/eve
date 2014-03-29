@@ -8,14 +8,12 @@ MONGO_DBNAME = 'eve_test'
 ID_FIELD = '_id'
 
 SERVER_NAME = 'localhost:5000'
-# URL_PROTOCOL = 'http'
 
 RESOURCE_METHODS = ['GET', 'POST', 'DELETE']
 ITEM_METHODS = ['GET', 'PATCH', 'DELETE', 'PUT']
 ITEM_CACHE_CONTROL = ''
 ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
-# ITEM_URL = '[a-f0-9]{24}'
 
 contacts = {
     'url': 'arbitraryurl',
@@ -103,8 +101,6 @@ users['item_title'] = 'user'
 users['additional_lookup']['field'] = 'username'
 
 invoices = {
-    # 'item_lookup': False,
-    # 'item_methods': ['GET'],
     'schema': {
         'inv_number': {'type': 'string'},
         'person': {

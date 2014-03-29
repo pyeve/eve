@@ -53,7 +53,6 @@ class TestVersioningBase(TestBase):
         if embeddable is True:
             field['schema'][self.app.config['ID_FIELD']] = {'type': 'objectid'}
             field['data_relation']['embeddable'] = True
-            # field['data_relation']['field'] = '_id' is auto filled
         else:
             field['schema']['ref'] = {'type': 'string'}
             field['data_relation']['field'] = 'ref'
@@ -81,10 +80,10 @@ class TestVersioningBase(TestBase):
         return self._db[self.known_resource].find_one(ObjectId(_id))
 
     def directGetShadowDocument(self, _id, version):
-        return self._db[
-            self.known_resource_shadow].find_one({
-                self.document_id_field: ObjectId(_id),
-                self.app.config['VERSION']: version})
+        return self._db[self.known_resource_shadow].find_one(
+            {self.document_id_field: ObjectId(_id),
+             self.app.config['VERSION']: version}
+        )
 
     def countDocuments(self, _id=None):
         query = {}
@@ -166,9 +165,9 @@ class TestNormalVersioning(TestVersioningBase):
         # verify that no unexpected fields exist
         num_meta_fields = 4  # see previous block
         if partial is True:
-            self.assertEqual(len(shadow_document.keys()), num_meta_fields+1)
+            self.assertEqual(len(shadow_document.keys()), num_meta_fields + 1)
         else:
-            self.assertEqual(len(shadow_document.keys()), num_meta_fields+2)
+            self.assertEqual(len(shadow_document.keys()), num_meta_fields + 2)
 
     def do_test_get(self):
         query = '?where={"%s":"%s"}' % \
