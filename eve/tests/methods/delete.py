@@ -138,7 +138,6 @@ class TestDelete(TestBase):
 
         # verify that the no documents are left at the sub-resource endpoint
         response, status = self.get('users/%s/invoices' % fake_contact_id)
-        # self.assertTrue(isinstance(response, dict))  # would be a list if > 1
         self.assertEqual(len(response['_items']), 0)
 
         # verify that other documents in the invoices collection have not neen
