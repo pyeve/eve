@@ -53,7 +53,7 @@ class TestVersioningBase(TestBase):
         if embeddable is True:
             field['schema'][self.app.config['ID_FIELD']] = {'type': 'objectid'}
             field['data_relation']['embeddable'] = True
-            #field['data_relation']['field'] = '_id' is auto filled
+            # field['data_relation']['field'] = '_id' is auto filled
         else:
             field['schema']['ref'] = {'type': 'string'}
             field['data_relation']['field'] = 'ref'
@@ -83,8 +83,8 @@ class TestVersioningBase(TestBase):
     def directGetShadowDocument(self, _id, version):
         return self._db[
             self.known_resource_shadow].find_one({
-            self.document_id_field: ObjectId(_id),
-            self.app.config['VERSION']: version})
+                self.document_id_field: ObjectId(_id),
+                self.app.config['VERSION']: version})
 
     def countDocuments(self, _id=None):
         query = {}

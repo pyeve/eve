@@ -7,7 +7,7 @@ from eve.tests.test_settings import MONGO_DBNAME
 from eve.tests.utils import DummyEvent
 
 
-#@unittest.skip("don't need no freakin' tests!")
+# @unittest.skip("don't need no freakin' tests!")
 class TestPatch(TestBase):
 
     def test_patch_to_resource_endpoint(self):

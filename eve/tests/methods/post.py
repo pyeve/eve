@@ -317,7 +317,7 @@ class TestPost(TestBase):
         data = {id_field: test_value}
 
         self.app.config['ID_FIELD'] = id_field
-        #self.app.config['url_rule'] = 'regex("[a-f0-9]{4}")'
+        # self.app.config['url_rule'] = 'regex("[a-f0-9]{4}")'
 
         # custom id_fields also need to be included in the resource schema
         self.domain['contacts']['schema'][id_field] = {
