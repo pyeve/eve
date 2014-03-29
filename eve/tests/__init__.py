@@ -45,7 +45,7 @@ def close_pymongo_connection(app):
     """
     Close the pymongo connection in an eve/flask app
     """
-    if not 'pymongo' in app.extensions:
+    if 'pymongo' not in app.extensions:
         return
     del app.extensions['pymongo']['MONGO']
     del app.media
@@ -245,7 +245,7 @@ class TestMinimal(unittest.TestCase):
     def assertItemLink(self, links, item_id):
         self.assertTrue('self' in links)
         link = links['self']
-        #TODO we are too deep here to get a hold of the due title. Should fix.
+        # TODO we are too deep here to get a hold of the due title. Should fix.
         self.assertTrue('title' in link)
         self.assertTrue('href' in link)
         self.assertTrue('/%s' % item_id in link['href'])
