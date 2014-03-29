@@ -315,7 +315,7 @@ def _build_response_document(
     # 'get' method
     document[config.DATE_CREATED] = date_created(document)
     document[config.LAST_UPDATED] = last_updated(document)
-    #TODO: last_update should include consideration for embedded documents
+    # TODO: last_update should include consideration for embedded documents
 
     # generate ETag
     if config.IF_MATCH:
