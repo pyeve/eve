@@ -425,6 +425,9 @@ def pre_event(f):
             if resource:
                 # resource hook
                 getattr(app, event_name + '_' + resource)(request)
-        r = f(*args, **kwargs)
+        combined_args = kwargs
+        if len(args) > 1:
+            combined_args.update(args[1].items())
+        r = f(resource, **combined_args)
         return r
     return decorated

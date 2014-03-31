@@ -30,7 +30,7 @@ from flask import current_app as app, abort, request
 @ratelimit()
 @requires_auth('resource')
 @pre_event
-def get(resource, lookup):
+def get(resource, **lookup):
     """ Retrieves the resource documents that match the current request.
 
     :param resource: the name of the resource.
