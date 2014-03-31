@@ -116,6 +116,7 @@ class Eve(Flask, Events):
         self.settings = settings
 
         self.load_config()
+        self.register_schema(data)
         self.validate_domain_struct()
 
         # enable regex routing
@@ -630,3 +631,8 @@ class Eve(Flask, Events):
         self._set_resource_defaults(resource, settings)
         self._validate_resource_settings(resource, settings)
         self._add_resource_url_rules(resource, settings)
+
+    def register_schema(self, data):
+        """Register eve schema from data layer"""
+        if hasattr(data, 'register_schema'):
+            data.register_schema(self)

@@ -31,6 +31,9 @@ setup(
         'flask-pymongo==0.3.0',
     ],
     tests_require=['redis'],
+    extras_require={
+        'sqlalchemy': ['sqlalchemy']
+    },
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
