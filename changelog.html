@@ -61,6 +61,9 @@
 <h2>Version 0.4<a class="headerlink" href="#version-0-4" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[new] <cite>on_pre_&lt;METHOD&gt;</cite> events expose the <cite>lookup</cite> dictionary which allows
+for setting up dynamic database lookups on both resource and item endpoints.</li>
+<li>[fix] Make codebase compliant with latest PEP8/flake8 release (Javier Gonel).</li>
 <li>[fix] If you had a media field, and set datasource projection to 0 for that
 field, the media would not be deleted. Closes #284.</li>
 <li>[new] Return a 400 response on pymongo DuplicateKeyError, with exception

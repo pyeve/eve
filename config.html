@@ -1045,6 +1045,12 @@ clauses) and standard conditional requests (<cite>If-Modified-Since</cite>, etc.
 requests. If your resource allows POST requests (document insertions),
 then you will probably want to set the validation rules accordingly (in our
 example, &#8216;username&#8217; should probably be a required field).</p>
+<div class="admonition-static-vs-dynamic-filters admonition">
+<p class="first admonition-title">Static vs Dynamic filters</p>
+<p class="last">Predefined filters are static. You can also exploit the <a class="reference internal" href="features.html#eventhooks"><em>Event Hooks</em></a>
+system (specifically, <tt class="docutils literal"><span class="pre">on_pre_&lt;METHOD&gt;</span></tt> hooks) to set up dynamic filters
+instead.</p>
+</div>
 </div>
 <div class="section" id="multiple-api-endpoints-one-datasource">
 <span id="source"></span><h3>Multiple API Endpoints, One Datasource<a class="headerlink" href="#multiple-api-endpoints-one-datasource" title="Permalink to this headline">¶</a></h3>

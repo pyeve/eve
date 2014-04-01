@@ -849,14 +849,11 @@ which can easily lead to performance issues.</p>
 <h3>Pre-Request Event Hooks<a class="headerlink" href="#pre-request-event-hooks" title="Permalink to this headline">¶</a></h3>
 <p>When a GET, POST, PATCH, PUT, DELETE request is received, both
 a <tt class="docutils literal"><span class="pre">on_pre_&lt;method&gt;</span></tt> and a <tt class="docutils literal"><span class="pre">on_pre_&lt;method&gt;_&lt;resource&gt;</span></tt> event is raised.
-You can subscribe to these events with multiple callback functions. Callbacks
-will receive the resource being requested and the original <cite>flask.request</cite>
-object as arguments. <tt class="docutils literal"><span class="pre">pre</span></tt> events are raised before any actions is taken by
-the API itself.</p>
-<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">pre_get_callback</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+You can subscribe to these events with multiple callback functions.</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">pre_get_callback</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">lookup</span><span class="p">):</span>
 <span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;A GET request on the &quot;</span><span class="si">%s</span><span class="s">&quot; endpoint has just been received!&#39;</span> <span class="o">%</span> <span class="n">resource</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">pre_contacts_get_callback</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">pre_contacts_get_callback</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">lookup</span><span class="p">):</span>
 <span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;A GET request on the contacts endpoint has just been received!&#39;</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
@@ -866,6 +863,31 @@ the API itself.</p>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
+</div>
+<p>Callbacks will receive the resource being requested, the original
+<tt class="docutils literal"><span class="pre">flask.request</span></tt> object and the current lookup dictionary as arguments (only
+exception being the <tt class="docutils literal"><span class="pre">on_pre_POST</span></tt> hook which does not provide a <tt class="docutils literal"><span class="pre">lookup</span></tt>
+argument).</p>
+<div class="section" id="dynamic-lookup-filters">
+<h4>Dynamic Lookup Filters<a class="headerlink" href="#dynamic-lookup-filters" title="Permalink to this headline">¶</a></h4>
+<p>Since the <tt class="docutils literal"><span class="pre">lookup</span></tt> dictionary will be used by the data layer to retrieve
+resource documents, developers may choose to alter it in order to add custom
+logic to the lookup query.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">pre_GET</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">lookup</span><span class="p">):</span>
+    <span class="c"># only return documents that have a &#39;username&#39; field.</span>
+    <span class="n">lookup</span><span class="p">[</span><span class="s">&quot;username&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;$exists&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">on_pre_GET</span> <span class="o">+=</span> <span class="n">pre_GET</span>
+<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Altering the lookup dictionary at runtime would have similar effects to
+applying <a class="reference internal" href="config.html#filter"><em>Predefined Database Filters</em></a> via configuration. However, you can only set static
+filters via configuration whereas by hooking to the <tt class="docutils literal"><span class="pre">on_pre_&lt;METHOD&gt;</span></tt> events
+you are allowed to set dynamic filters instead, which allows for additional
+flexibility.</p>
 </div>
 </div>
 <div class="section" id="post-request-event-hooks">
@@ -1468,7 +1490,10 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 </ul>
 </li>
 <li><a class="reference internal" href="#event-hooks">Event Hooks</a><ul>
-<li><a class="reference internal" href="#pre-request-event-hooks">Pre-Request Event Hooks</a></li>
+<li><a class="reference internal" href="#pre-request-event-hooks">Pre-Request Event Hooks</a><ul>
+<li><a class="reference internal" href="#dynamic-lookup-filters">Dynamic Lookup Filters</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#post-request-event-hooks">Post-Request Event Hooks</a></li>
 <li><a class="reference internal" href="#database-event-hooks">Database event hooks</a><ul>
 <li><a class="reference internal" href="#fetch-events">Fetch Events</a></li>

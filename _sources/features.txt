@@ -877,17 +877,14 @@ Pre-Request Event Hooks
 ~~~~~~~~~~~~~~~~~~~~~~~
 When a GET, POST, PATCH, PUT, DELETE request is received, both
 a ``on_pre_<method>`` and a ``on_pre_<method>_<resource>`` event is raised.
-You can subscribe to these events with multiple callback functions. Callbacks
-will receive the resource being requested and the original `flask.request`
-object as arguments. ``pre`` events are raised before any actions is taken by
-the API itself.
+You can subscribe to these events with multiple callback functions. 
 
 .. code-block:: pycon
 
-    >>> def pre_get_callback(resource, request):
+    >>> def pre_get_callback(resource, request, lookup):
     ...  print 'A GET request on the "%s" endpoint has just been received!' % resource
 
-    >>> def pre_contacts_get_callback(request):
+    >>> def pre_contacts_get_callback(request, lookup):
     ...  print 'A GET request on the contacts endpoint has just been received!'
 
     >>> app = Eve()
@@ -896,6 +893,34 @@ the API itself.
     >>> app.on_pre_GET_contacts += pre_contacts_get_callback
 
     >>> app.run()
+
+Callbacks will receive the resource being requested, the original
+``flask.request`` object and the current lookup dictionary as arguments (only
+exception being the ``on_pre_POST`` hook which does not provide a ``lookup``
+argument). 
+
+Dynamic Lookup Filters
+^^^^^^^^^^^^^^^^^^^^^^
+Since the ``lookup`` dictionary will be used by the data layer to retrieve
+resource documents, developers may choose to alter it in order to add custom
+logic to the lookup query. 
+
+.. code-block:: python
+
+    def pre_GET(resource, request, lookup):
+        # only return documents that have a 'username' field.
+        lookup["username"] = {'$exists': True}
+
+    app = Eve()
+
+    app.on_pre_GET += pre_GET
+    app.run()
+
+Altering the lookup dictionary at runtime would have similar effects to
+applying :ref:`filter` via configuration. However, you can only set static
+filters via configuration whereas by hooking to the ``on_pre_<METHOD>`` events
+you are allowed to set dynamic filters instead, which allows for additional
+flexibility. 
 
 Post-Request Event Hooks
 ~~~~~~~~~~~~~~~~~~~~~~~~
