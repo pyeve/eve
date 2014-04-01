@@ -87,6 +87,8 @@ class Mongo(DataLayer):
         :param sub_resource_lookup: sub-resource lookup from the endpoint url.
 
         .. versionchanged:: 0.4
+           'allowed_filters' is now checked before adding 'sub_resource_lookup'
+           to the query, as it is considered safe.
            Refactored to use self._client_projection since projection is now
            honored by getitem() as well.
 
@@ -151,14 +153,14 @@ class Mongo(DataLayer):
                         'Unable to parse `where` clause'
                     ))
 
+        bad_filter = validate_filters(spec, resource)
+        if bad_filter:
+            abort(400, bad_filter)
+
         if sub_resource_lookup:
             spec.update(sub_resource_lookup)
 
         spec = self._mongotize(spec, resource)
-
-        bad_filter = validate_filters(spec, resource)
-        if bad_filter:
-            abort(400, bad_filter)
 
         client_projection = self._client_projection(req)
 

@@ -337,13 +337,21 @@ class TestEvents(TestBase):
         self.app.on_pre_PATCH += devent
         self.patch()
         self.assertEqual(self.known_resource, devent.called[0])
-        self.assertEqual(2, len(devent.called))
+        self.assertEqual(3, len(devent.called))
 
     def test_on_pre_PATCH_contacts(self):
         devent = DummyEvent(self.before_update)
         self.app.on_pre_PATCH_contacts += devent
         self.patch()
-        self.assertEqual(1, len(devent.called))
+        self.assertEqual(2, len(devent.called))
+
+    def test_on_PATCH_dynamic_filter(self):
+        def filter_this(resource, request, lookup):
+            lookup["_id"] = self.unknown_item_id
+        self.app.on_pre_PATCH += filter_this
+        # Would normally patch the known document; will return 404 instead.
+        r, s = self.parse_response(self.patch())
+        self.assert404(s)
 
     def test_on_post_PATCH(self):
         devent = DummyEvent(self.after_update)
@@ -398,4 +406,5 @@ class TestEvents(TestBase):
         headers = [('Content-Type', 'application/json'),
                    ('If-Match', self.item_etag)]
         data = json.dumps({"ref": self.new_ref})
-        self.test_client.patch(self.item_id_url, data=data, headers=headers)
+        return self.test_client.patch(
+            self.item_id_url, data=data, headers=headers)
