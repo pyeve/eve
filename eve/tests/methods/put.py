@@ -215,13 +215,21 @@ class TestEvents(TestBase):
         self.app.on_pre_PUT += devent
         self.put()
         self.assertEqual(self.known_resource, devent.called[0])
-        self.assertEqual(2, len(devent.called))
+        self.assertEqual(3, len(devent.called))
 
     def test_on_pre_PUT_contacts(self):
         devent = DummyEvent(self.before_replace)
         self.app.on_pre_PUT_contacts += devent
         self.put()
-        self.assertEqual(1, len(devent.called))
+        self.assertEqual(2, len(devent.called))
+
+    def test_on_pre_PUT_dynamic_filter(self):
+        def filter_this(resource, request, lookup):
+            lookup["_id"] = self.unknown_item_id
+        self.app.on_pre_PUT += filter_this
+        # Would normally delete the known document; will return 404 instead.
+        r, s = self.parse_response(self.put())
+        self.assert404(s)
 
     def test_on_post_PUT(self):
         devent = DummyEvent(self.after_replace)
@@ -280,4 +288,5 @@ class TestEvents(TestBase):
         headers = [('Content-Type', 'application/json'),
                    ('If-Match', self.item_etag)]
         data = json.dumps({"ref": self.new_ref})
-        self.test_client.put(self.item_id_url, data=data, headers=headers)
+        return self.test_client.put(self.item_id_url, data=data,
+                                    headers=headers)

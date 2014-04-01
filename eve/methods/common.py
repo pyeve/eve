@@ -412,19 +412,36 @@ def resolve_user_restricted_access(document, resource):
 def pre_event(f):
     """ Enable a Hook pre http request.
 
+    .. versionchanged:: 0.4
+       Merge 'sub_resource_lookup' (args[1]) with kwargs, so http methods can
+       all enjoy the same signature, and data layer find methods can seemingly
+       process both kind of queries.
+
     .. versionadded:: 0.2
     """
     @wraps(f)
     def decorated(*args, **kwargs):
         method = request_method()
-        if method in ('GET', 'POST', 'PATCH', 'DELETE', 'PUT'):
-            event_name = 'on_pre_' + method
-            resource = args[0] if args else None
-            # general hook
-            getattr(app, event_name)(resource, request)
-            if resource:
-                # resource hook
-                getattr(app, event_name + '_' + resource)(request)
-        r = f(*args, **kwargs)
+        event_name = 'on_pre_' + method
+        resource = args[0] if args else None
+
+        if method in ('GET', 'PATCH', 'DELETE', 'PUT'):
+            gh_params = (resource, request, kwargs)
+            rh_params = (request, kwargs)
+        elif method in ('POST'):
+            # POST hook does not support the kwargs argument
+            gh_params = (resource, request)
+            rh_params = (resource,)
+
+        # general hook
+        getattr(app, event_name)(*gh_params)
+        if resource:
+            # resource hook
+            getattr(app, event_name + '_' + resource)(*rh_params)
+
+        combined_args = kwargs
+        if len(args) > 1:
+            combined_args.update(args[1].items())
+        r = f(resource, **combined_args)
         return r
     return decorated

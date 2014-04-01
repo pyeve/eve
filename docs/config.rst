@@ -899,6 +899,12 @@ requests. If your resource allows POST requests (document insertions),
 then you will probably want to set the validation rules accordingly (in our
 example, 'username' should probably be a required field).
 
+.. admonition:: Static vs Dynamic filters
+
+    Predefined filters are static. You can also exploit the :ref:`eventhooks`
+    system (specifically, ``on_pre_<METHOD>`` hooks) to set up dynamic filters
+    instead.
+
 .. _source:
 
 Multiple API Endpoints, One Datasource
