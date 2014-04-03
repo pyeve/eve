@@ -424,7 +424,8 @@ def pre_event(f):
         method = request_method()
         event_name = 'on_pre_' + method
         resource = args[0] if args else None
-
+        gh_params = ()
+        rh_params = ()
         if method in ('GET', 'PATCH', 'DELETE', 'PUT'):
             gh_params = (resource, request, kwargs)
             rh_params = (request, kwargs)
