@@ -834,8 +834,8 @@ class TestHead(TestBase):
         self.assertHead(self.item_id_url)
 
     def assertHead(self, url):
-        h = self.test_client.head(url)
-        r = self.test_client.get(url)
+        h = self.test_client.head('/')
+        r = self.test_client.get('/')
         self.assertTrue(not h.data)
         self.assertEqual(r.headers, h.headers)
 
