@@ -14,7 +14,7 @@
 
 import ast
 import flask.ext.sqlalchemy as flask_sqlalchemy
-sqla_op = flask_sqlalchemy.sqlalchemy.sql.expression.operators
+sqla_op = flask_sqlalchemy.sqlalchemy.sql.operators
 sqla_exp = flask_sqlalchemy.sqlalchemy.sql.expression
 
 

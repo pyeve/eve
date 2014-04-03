@@ -99,6 +99,18 @@ class SQLAlchemy(DataLayer):
     json_decoder_cls = SQLAJSONDecoder
     driver = db
 
+    def __init__(self, app):
+        """ Implements the Flask extension pattern.
+
+        .. versionchanged:: 0.2
+           Explicit initialize self.driver to None.
+        """
+        if app is not None:
+            self.app = app
+            self.init_app(self.app)
+        else:
+            self.app = None
+
     def init_app(self, app):
         try:
             self.driver.app = app
@@ -134,7 +146,7 @@ class SQLAlchemy(DataLayer):
             if getattr(model_cls, '_eve_schema', None):
                 dict_update(app.config['DOMAIN'], model_cls._eve_schema)
 
-    def find(self, resource, req):
+    def find(self, resource, req, sub_resource_lookup):
         """Retrieves a set of documents matching a given request. Queries can
         be expressed in two different formats: the mongo query syntax, and the
         python syntax. The first kind of query would look like: ::
@@ -149,6 +161,7 @@ class SQLAlchemy(DataLayer):
 
         :param resource: resource name.
         :param req: a :class:`ParsedRequest`instance.
+        :param sub_resource_lookup: sub-resource lookup from the endpoint url.
         """
 
         spec = {}
@@ -252,7 +265,7 @@ class SQLAlchemy(DataLayer):
         to which an API resource refers to
         """
 
-        datasource, filter_, projection_ = self._datasource(resource)
+        datasource, filter_, projection_, sort_ = self._datasource(resource)
         if filter_:
             if query:
                 query.update(filter_)

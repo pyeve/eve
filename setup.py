@@ -32,7 +32,8 @@ setup(
     ],
     tests_require=['redis'],
     extras_require={
-        'sqlalchemy': ['sqlalchemy']
+        'sqlalchemy': ['sqlalchemy',
+                       'Flask-SQLAlchemy']
     },
     classifiers=[
         'Development Status :: 4 - Beta',
