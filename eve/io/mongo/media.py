@@ -66,11 +66,11 @@ class GridFSMediaStorage(MediaStorage):
             pass
         return _file
 
-    def put(self, content, filename=None):
+    def put(self, content, filename=None, content_type=None):
         """ Saves a new file in GridFS. Returns the unique id of the stored
         file.
         """
-        return self.fs().put(content, filename=filename)
+        return self.fs().put(content, filename=filename, content_type=content_type)
 
     def delete(self, _id):
         """ Deletes the file referenced by unique id.

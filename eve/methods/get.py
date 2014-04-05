@@ -519,4 +519,11 @@ def _pagination_links(resource, req, documents_count):
 def _resolve_media_files(document, resource):
     for field in resource_media_fields(document, resource):
         _file = app.media.get(document[field])
-        document[field] = base64.encodestring(_file.read()) if _file else None
+        if _file:
+            document[field] = {
+                'file': base64.encodestring(_file.read()),
+                'content_type': _file.content_type,
+                'name': _file.name
+            }
+        else:
+            document[field] = None

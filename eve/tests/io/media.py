@@ -65,7 +65,8 @@ class TestGridFSMediaStorage(TestBase):
         returned = r['_items'][0]['media']
 
         # returned value is a base64 encoded string
-        self.assertEqual(returned, self.encoded)
+        self.assertEqual(returned['file'], self.encoded)
+        self.assertEqual(returned['content_type'], 'text/plain')
 
         # which decodes to the original clean
         self.assertEqual(base64.decodestring(returned.encode()), self.clean)
@@ -193,7 +194,7 @@ class TestGridFSMediaStorage(TestBase):
         # GET the file at the item endpoint
         r, s = self.parse_response(self.test_client.get('%s/%s' % (self.url,
                                                                    _id)))
-        returned = r['media']
+        returned = r['media']['file']
         # returned value is a base64 encoded string
         self.assertEqual(returned, encoded)
         # which decodes to the original file clean

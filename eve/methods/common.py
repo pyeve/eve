@@ -372,7 +372,7 @@ def resolve_media_files(document, resource, original=None):
             app.media.delete(original[field])
 
         # store file and update document with file's unique id/filename
-        document[field] = app.media.put(document[field])
+        document[field] = app.media.put(document[field], content_type=document[field].mimetype)
 
 
 def resource_media_fields(document, resource):
