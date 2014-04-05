@@ -4,60 +4,68 @@ Data Validation
 ===============
 Data validation is provided out-of-the-box. Your configuration includes
 a :ref:`schema` for every resource managed by the API. Data sent to the API
-for insertion or edition will be validated against the schema, and a resource
-will be updated only if validation is passed. 
+to be inserted or updated will be validated against the schema, and a resource
+will be updated only if validation passes.
 
 .. code-block:: console
 
-    $ curl -d 'item1={"firstname": "bill", "lastname": "clinton"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://eve-demo.herokuapp.com/people/
-    HTTP/1.0 200 OK
+    $ curl -d '{"firstname": "bill", "lastname": "clinton"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
+    HTTP/1.1 201 OK
 
-The response will contain a success/error state for each item provided with the
+The response will contain a success/error state for each item provided in the
 request:
 
 .. code-block:: javascript
 
-      {
-        "item2": {
-            "status": "ERR",
-            "issues": [
-                "value 'romney' for field 'lastname' not unique"
-            ]
+    [
+        {
+            "_status": "ERR",
+            "_issues": {"lastname": "value 'clinton' not unique"}
         },
-        "item1": {
-            "status": "OK",
-            "updated": "Thu, 22 Nov 2012 15:29:08 UTC",
+        {
+            "_status": "OK",
+            "_updated": "Thu, 22 Nov 2012 15:29:08 GMT",
             "_id": "50ae44c49fa12500024def5d",
-            "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d/", "title": "person"}}
+            "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d", "title": "person"}}
         }
-    }
+    ]
 
-In the example above, ``item2`` did not validate and was rejected, while
-``item1`` was successfully created. API maintainer has complete control on
-data validation.
+In the example above, the first document did not validate and was rejected,
+while the second was successfully created. The API maintainer has complete
+control of data validation.
+
+.. admonition:: Please Note
+
+    Eventual validation errors on one or more document won't prevent the
+    insertion of valid documents. The response status code will be
+    ``201 Created`` if *at least one document* passed validation and has
+    actually been stored. If no document passed validation the status code will
+    be ``200 OK``, meaning that the request was accepted and processed. It is
+    still client's responsability to parse the response payload and make sure
+    that all documents passed validation.
 
 Extending Data Validation
 -------------------------
 Data validation is based on the Cerberus_ validation system and it is therefore
-extensible. As a matter of fact, Eve's MongoDB data-layer itself is extending
+extensible. As a matter of fact, Eve's MongoDB data-layer itself extends
 Cerberus validation, implementing the ``unique`` and ``data_relation``
 constraints and the ``ObjectId`` data type on top of the standard rules.
 
 Custom Validation Rules
 ------------------------
-Suppose that in your specific and very peculiar use case a certain value can
+Suppose that in your specific and very peculiar use case, a certain value can
 only be expressed as an odd integer. You decide to add support for a new
-``isodd`` rule to our validation schema. This is how your would go to implement
-that: 
+``isodd`` rule to our validation schema. This is how you would implement
+that:
 
-::
+.. code-block:: python
 
     from eve.io.mongo import Validator
 
     class MyValidator(Validator):
         def _validate_isodd(self, isodd, field, value):
             if isodd and not bool(value & 1):
-                self._error("Value for field '%s' must be an odd number" % field)
+                self._error(field, "Value must be an odd number")
 
     app = Eve(validator=MyValidator)
 
@@ -69,7 +77,7 @@ By subclassing the base Mongo validator class and then adding a custom
 grammar and now the new custom rule ``isodd`` is available in your schema. You
 can now do something like:
 
-.. code-block:: javascript
+.. code-block:: python
 
     'schema': {
         'oddity': {
@@ -84,23 +92,23 @@ You can also add new data types by simply adding ``_validate_type_<typename>``
 methods to your subclass. Consider the following snippet from the Eve source
 code.
 
-::
+.. code-block:: python
 
     def _validate_type_objectid(self, field, value):
         """ Enables validation for `objectid` schema attribute.
 
-        :param unique: Boolean, wether the field value should be
+        :param unique: Boolean, whether the field value should be
                        unique or not.
         :param field: field name.
         :param value: field value.
         """
         if not re.match('[a-f0-9]{24}', value):
-            self._error(ERROR_BAD_TYPE % (field, 'ObjectId'))
+            self._error(field, ERROR_BAD_TYPE % 'ObjectId')
 
 This method enables support for MongoDB ``ObjectId`` type in your schema,
 allowing something like this:
 
-.. code-block:: javascript
+.. code-block:: python
 
     'schema': {
         'owner': {
@@ -119,7 +127,7 @@ a complete list rules and data types available.
 Allowing the Unknown
 --------------------
 Normally you don't want clients to inject unknown fields in your documents.
-However, there might be circumstances where this is desiderable. During the
+However, there might be circumstances where this is desirable. During the
 development cycle, for example, or when you are dealing with very heterogeneous
 data. After all, not forcing normalized information is one of the selling
 points of MongoDB and many other NoSQL data stores.
@@ -132,7 +140,7 @@ can also enable this feature only for certain endpoints by setting the
 
 Consider the following domain:
 
-.. code-block:: javascript
+.. code-block:: python
 
     DOMAIN: {
         'people': {
@@ -144,18 +152,18 @@ Consider the following domain:
         }
 
 You normally could only add (POST) or edit (PATCH) `firstnames` to the
-``/people/`` endpoint. However, since ``allow_unknown`` has been enabled, even
+``/people`` endpoint. However, since ``allow_unknown`` has been enabled, even
 a payload like this will be accepted:
 
 .. code-block:: console
 
-    $ curl -d 'item1={"firstname": "bill", "lastname": "clinton"}' -d 'item1={"firstname": "bill", "age":70}' http://eve-demo.herokuapp.com/people/
-    HTTP/1.0 200 OK
+    $ curl -d '[{"firstname": "bill", "lastname": "clinton"}, {"firstname": "bill", "age":70}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
+    HTTP/1.1 201 OK
 
 .. admonition:: Please note
 
     Use this feature with extreme caution. Also be aware that, when this
-    options is enabled, clients will be capable of actually `adding` fields via
+    option is enabled, clients will be capable of actually `adding` fields via
     PATCH (edit).
 
 .. _Cerberus: http://cerberus.readthedocs.org

@@ -47,7 +47,7 @@ Now you can consume the API:
 
 .. code-block:: console
 
-    $ curl -i http://127.0.0.1:5000/
+    $ curl -i http://127.0.0.1:5000
     HTTP/1.0 200 OK
     Content-Type: application/json
     Content-Length: 82
@@ -61,26 +61,26 @@ payload:
 
     {
         "_links": {
-            "child": [{"href": "127.0.0.1:5000/people/", "title": "people"}]
+            "child": [{"href": "127.0.0.1:5000/people", "title": "people"}]
         }
     }
 
 API entry points adhere to the :ref:`hateoas_feature` principle and provide
-informations about the resources accessible through the API. In our case
+information about the resources accessible through the API. In our case
 there's only one child resource available, that being `people`.
 
 Try requesting `people` now:
 
 .. code-block:: console
 
-    $ curl http://127.0.0.1:5000/people/
+    $ curl http://127.0.0.1:5000/people
 
 ::
 
     {
         "_items": [], 
         "_links": {
-            "self": {"href": "127.0.0.1:5000/people/", "title": "people"}, 
+            "self": {"href": "127.0.0.1:5000/people", "title": "people"}, 
             "parent": {"href": "127.0.0.1:5000", "title": "home"}
             }
         }
@@ -93,7 +93,7 @@ By default Eve APIs are read-only:
 
 .. code-block:: console
 
-    $ curl -X DELETE http://127.0.0.1:5000/people/
+    $ curl -X DELETE http://127.0.0.1:5000/people
     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
     <title>405 Method Not Allowed</title>
     <h1>Method Not Allowed</h1>
@@ -101,7 +101,7 @@ By default Eve APIs are read-only:
 
 Since we didn't provide any database detail in `settings.py`, Eve has no clue
 about the real content of the `people` collection (it might even be
-non-existant) and seamlessly serves an empty resource, as we don't want to let
+non-existent) and seamlessly serves an empty resource, as we don't want to let
 API users down.
 
 Database Interlude
@@ -111,6 +111,9 @@ Let's connect to a database by adding the following lines to `settings.py`:
 ::
 
     # Let's just use the local mongod instance. Edit as needed.
+
+    # Please note that MONGO_HOST and MONGO_PORT could very well be left
+    # out as they already default to a bare bones local 'mongod' instance.
     MONGO_HOST = 'localhost'
     MONGO_PORT = 27017
     MONGO_USERNAME = 'user'
@@ -118,12 +121,12 @@ Let's connect to a database by adding the following lines to `settings.py`:
     MONGO_DBNAME = 'apitest'
 
 Due to MongoDB *laziness*, we don't really need to create the database
-collections. Actually, we don't even need to create the database: GET requests
-on an empty/non-existant DB will be served correctly (200 OK with an empty
-collection); DELETE/PATCH will receive appropriate responses (404 Not Found),
-and POST requests will create database and collections as needed. However, such
-an auto-managed database will perform very poorly since it lacks indexes and
-any sort of optimization.
+collections. Actually we don't even need to create the database: GET requests
+on an empty/non-existent DB will be served correctly (200 OK with an empty
+collection); DELETE/PATCH/PUT will receive appropriate responses (404 Not
+Found), and POST requests will create database and collections as needed.
+However, such an auto-managed database will perform very poorly since it lacks
+indexes and any sort of optimization.
 
 A More Complex Application
 --------------------------
@@ -137,17 +140,17 @@ operations:
     # read-only access to the endpoint).
     RESOURCE_METHODS = ['GET', 'POST', 'DELETE']
 
-    # Enable reads (GET), edits (PATCH) and deletes of individual items
-    # (defaults to read-only item access).
-    ITEM_METHODS = ['GET', 'PATCH', 'DELETE']
+    # Enable reads (GET), edits (PATCH), replacements (PUT) and deletes of
+    # individual items  (defaults to read-only item access).
+    ITEM_METHODS = ['GET', 'PATCH', 'PUT', 'DELETE']
 
-``RESOURCE_METHODS`` lists methods allowed at resource endpoints (``/people/``)
+``RESOURCE_METHODS`` lists methods allowed at resource endpoints (``/people``)
 while ``ITEM_METHODS`` lists the methods enabled at item endpoints
-(``/people/<ObjectId>/``). Both settings have a global scope and will apply to
+(``/people/<ObjectId>``). Both settings have a global scope and will apply to
 all endpoints.  You can then enable or disable HTTP methods at individual
 endpoint level, as we will soon see.
 
-Since we are enabling edition we also want to enable proper data validation.
+Since we are enabling editing we also want to enable proper data validation.
 Let's define a schema for our `people` resource.
 
 ::
@@ -187,15 +190,15 @@ Let's define a schema for our `people` resource.
         },
     }
 
-For more informations on validation see :ref:`validation`. 
+For more information on validation see :ref:`validation`. 
 
 Now let's say that we want to further customize the `people` endpoint. We want
 to: 
 
 - set the item title to *person*
-- add an extra :ref:`custom item endpoint <custom_item_endpoints>` at ``/people/<lastname>/``
+- add an extra :ref:`custom item endpoint <custom_item_endpoints>` at ``/people/<lastname>``
 - override the default :ref:`cache control directives <cache_control>`
-- disable DELETE for the ``/people/`` endpoint (we enabled it globally)
+- disable DELETE for the ``/people`` endpoint (we enabled it globally)
 
 Here is how the complete `people` definition looks in our updated `settings.py`
 file:
@@ -208,11 +211,11 @@ file:
         'item_title': 'person',
 
         # by default the standard item entry point is defined as
-        # '/people/<ObjectId>/'. We leave it untouched, and we also enable an
+        # '/people/<ObjectId>'. We leave it untouched, and we also enable an
         # additional read-only entry point. This way consumers can also perform 
-        # GET requests at '/people/<lastname>/'.
+        # GET requests at '/people/<lastname>'.
         'additional_lookup': {
-            'url': '[\w]+',
+            'url': 'regex("[\w]+")',
             'field': 'lastname'
         },
 
@@ -239,8 +242,8 @@ Save `settings.py` and launch `run.py`. We can now insert documents at the
 
 .. code-block:: console
 
-    $ curl -d 'item1={"firstname": "barack", "lastname": "obama"}' -d 'item2={"firstname": "mitt", "lastname": "romney"}' http://127.0.0.1:5000/people/
-    HTTP/1.0 200 OK
+    $ curl -d '[{"firstname": "barack", "lastname": "obama"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json'  http://127.0.0.1:5000/people
+    HTTP/1.0 201 OK
 
 We can also update and delete items (but not the whole resource since we
 disabled that). We can also perform GET requests against the new `lastname`
@@ -248,10 +251,10 @@ endpoint:
 
 .. code-block:: console
 
-    $ curl -i http://127.0.0.1:5000/people/obama/
+    $ curl -i http://127.0.0.1:5000/people/obama
     HTTP/1.0 200 OK
     Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
-    Last-Modified: Wed, 21 Nov 2012 16:04:56 UTC 
+    Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT 
     Cache-Control: 'max-age=10,must-revalidate'
     Expires: 10
     ... 
@@ -262,12 +265,12 @@ endpoint:
         "firstname": "barack",
         "lastname": "obama",
         "_id": "50acfba938345b0978fccad7"
-        "updated": "Wed, 21 Nov 2012 16:04:56 UTC",
-        "created": "Wed, 21 Nov 2012 16:04:56 UTC",
+        "updated": "Wed, 21 Nov 2012 16:04:56 GMT",
+        "created": "Wed, 21 Nov 2012 16:04:56 GMT",
         "_links": {
-            "self": {"href": "127.0.0.1/people/50acfba938345b0978fccad7/", "title": "person"},
-            "parent": {"href": "127.0.0.1/", "title": "home"},
-            "collection": {"href": "127.0.0.1/people/", "title": "people"}
+            "self": {"href": "127.0.0.1/people/50acfba938345b0978fccad7", "title": "person"},
+            "parent": {"href": "127.0.0.1", "title": "home"},
+            "collection": {"href": "127.0.0.1/people", "title": "people"}
         }
     }
 

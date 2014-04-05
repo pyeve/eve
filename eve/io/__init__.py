@@ -6,9 +6,9 @@
 
     This package implements the data layers supported by Eve.
 
-    :copyright: (c) 2012 by Nicola Iarocci.
+    :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
 # flake8: noqa
-from base import DataLayer, ConnectionException
+from eve.io.base import DataLayer, ConnectionException

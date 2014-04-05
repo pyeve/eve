@@ -5,6 +5,9 @@ settings.py
 # Python
 *.py[co]
 
+# Gedit
+*~
+
 # Packages
 *.egg
 *.egg-info
@@ -34,6 +37,9 @@ pip-log.txt
 # SublimeText project files
 *.sublime-*
 
+# vim temp files
+*.swp
+
 #virtualenv
 Include
 Lib
@@ -45,3 +51,6 @@ Scripts
 
 #Sphinx
 _build
+
+# PyCharm
+.idea

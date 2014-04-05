@@ -6,7 +6,7 @@
 
     Utility functions and classes.
 
-    :copyright: (c) 2012 by Nicola Iarocci.
+    :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -43,8 +43,11 @@ config = Config()
 class ParsedRequest(object):
     """ This class, by means of its attributes, describes a client request.
 
+    .. versonchanged:: 0.1.0
+       'embedded' keyword.
+
     .. versionchanged:: 0.0.6
-        projection queries ('?projection={"name": 1}')
+       Projection queries ('?projection={"name": 1}')
     """
     # `where` value of the query string (?where). Defaults to None.
     where = None
@@ -71,12 +74,18 @@ class ParsedRequest(object):
     # `If-Match` request header value. Default to None.
     if_match = None
 
+    # `embedded` value of the query string (?embedded). Defaults to None.
+    embedded = None
+
 
 def parse_request(resource):
     """ Parses a client request, returning instance of :class:`ParsedRequest`
     containing relevant request data.
 
     :param resource: the resource currently being accessed by the client.
+
+    .. versionchagend:: 0.1.0
+       Support for embedded documents.
 
     .. versionchanged:: 0.0.6
        projection queries ('?projection={"name": 1}')
@@ -89,12 +98,14 @@ def parse_request(resource):
 
     r = ParsedRequest()
 
-    if config.DOMAIN[resource]['filters']:
+    if config.DOMAIN[resource]['allowed_filters']:
         r.where = args.get('where')
     if config.DOMAIN[resource]['projection']:
         r.projection = args.get('projection')
     if config.DOMAIN[resource]['sorting']:
         r.sort = args.get('sort')
+    if config.DOMAIN[resource]['embedding']:
+        r.embedded = args.get('embedded')
 
     max_results_default = config.PAGINATION_DEFAULT if \
         config.DOMAIN[resource]['pagination'] else 0
@@ -161,10 +172,13 @@ def collection_link(resource):
 
     :param resource: the resource name.
 
+    .. versionchanged:: 0.2
+       Use new 'resource_title' setting for link title.
+
     .. versionchanged:: 0.0.3
        Now returning a JSON link
     """
-    return {'title': '%s' % config.URLS[resource],
+    return {'title': '%s' % config.DOMAIN[resource]['resource_title'],
             'href': '%s' % resource_uri(resource)}
 
 
@@ -174,11 +188,14 @@ def document_link(resource, document_id):
     :param resource: the resource name.
     :param document_id: the document unique identifier.
 
+    .. versionchanged:: 0.1.0
+       No more trailing slashes in links.
+
     .. versionchanged:: 0.0.3
        Now returning a JSON link
     """
     return {'title': '%s' % config.DOMAIN[resource]['item_title'],
-            'href': '%s%s/' % (resource_uri(resource), document_id)}
+            'href': '%s/%s' % (resource_uri(resource), document_id)}
 
 
 def home_link():
@@ -188,16 +205,42 @@ def home_link():
        Now returning a JSON link.
     """
     return {'title': 'home',
-            'href': '%s%s' % (config.SERVER_NAME, api_prefix())}
+            'href': home_uri()}
+
+
+def home_uri():
+    """ Returns a absolute URI to API home.
+
+    .. versionchanged:: 0.4
+       Added support for URL_PROTOCOL
+       Refactored from home_link
+
+    .. versionchanged:: 0.1.1
+       Handle the case of SERVER_NAME being None.
+
+    .. versionadded:: 0.4
+    """
+    server_name = config.SERVER_NAME if config.SERVER_NAME else ''
+    if config.URL_PROTOCOL:
+        server_name = '%s://%s' % (config.URL_PROTOCOL, server_name)
+    return '%s%s' % (server_name, api_prefix())
 
 
 def resource_uri(resource):
     """ Returns the absolute URI to a resource.
 
+    .. versionchanged:: 0.1.1
+       URL prefixes are now included in config.URLS items, no more need to
+       explicitly add them to resource links.
+
+       Handle the case of SERVER_NAME being None.
+
+    .. versionchanged:: 0.1.0
+       No more trailing slashes in links.
+
     :param resource: the resource name.
     """
-    return '%s%s/%s/' % (config.SERVER_NAME, api_prefix(),
-                         config.URLS[resource])
+    return '%s/%s' % (home_uri(), config.URLS[resource])
 
 
 def api_prefix(url_prefix=None, api_version=None):
@@ -240,7 +283,7 @@ def querydef(max_results=config.PAGINATION_DEFAULT, where=None, sort=None,
     """
     where_part = '&where=%s' % where if where else ''
     sort_part = '&sort=%s' % sort if sort else ''
-    page_part = '&page=%s' % page if page > 1 else ''
+    page_part = '&page=%s' % page if page and page > 1 else ''
     max_results_part = 'max_results=%s' % max_results \
         if max_results != config.PAGINATION_DEFAULT else ''
 
@@ -258,5 +301,64 @@ def document_etag(value):
        consistent between different runs and/or server instances (#16).
     """
     h = hashlib.sha1()
-    h.update(dumps(value, sort_keys=True))
+    h.update(dumps(value, sort_keys=True).encode('utf-8'))
     return h.hexdigest()
+
+
+def extract_key_values(key, d):
+    """ Extracts all values that match a key, even in nested dicts.
+
+    :param key: the lookup key.
+    :param d: the dict to scan.
+
+    .. versionadded: 0.0.7
+    """
+    if key in d:
+        yield d[key]
+    for k in d:
+        if isinstance(d[k], dict):
+            for j in extract_key_values(key, d[k]):
+                yield j
+
+
+def request_method():
+    """ Returns the proper request method, also taking into account the
+    possibile override requested by the client (via 'X-HTTP-Method-Override'
+    header).
+
+    .. versionchanged: 0.1.0
+       Supports overriding of any HTTP Method (#95).
+
+    .. versionadded: 0.0.7
+    """
+    return request.headers.get('X-HTTP-Method-Override', request.method)
+
+
+def debug_error_message(msg):
+    """ Returns the error message `msg` if config.DEBUG is True
+    otherwise returns `None` which will cause Werkzeug to provide
+    a generic error message
+
+    :param msg: The error message to return if config.DEBUG is True
+
+    .. versionadded: 0.0.9
+    """
+    if getattr(config, 'DEBUG', False):
+        return msg
+    return None
+
+
+def validate_filters(where, resource):
+    """ Report any filter which is not allowed by  `allowed_filters`
+
+    :param where: the where clause, as a dict.
+    :param resource: the resource being inspected.
+
+    .. versionadded: 0.0.9
+    """
+    allowed = config.DOMAIN[resource]['allowed_filters']
+    if '*' not in allowed:
+        for filt, _ in where.items():
+            if filt not in allowed:
+                return "filter on '%s' not allowed" % filt
+    return None

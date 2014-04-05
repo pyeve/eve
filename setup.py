@@ -1,39 +1,51 @@
 #!/usr/bin/env python
 
 from setuptools import setup, find_packages
-
-DESCRIPTION = ("RESTful Web API Made Simple")
+DESCRIPTION = ("REST API framework powered by Flask, MongoDB and good "
+               "intentions.")
 LONG_DESCRIPTION = open('README.rst').read()
 #VERSION = __import__('eve').__version__
 
 setup(
     name='Eve',
-    version='0.0.6-dev',
+    version='0.4-dev',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',
-    author_email='nicola@nicolaiarocci.com',
+    author_email='eve@nicolaiarocci.com',
     url='http://python-eve.org',
     license=open('LICENSE').read(),
     platforms=["any"],
     packages=find_packages(),
     test_suite="eve.tests",
     install_requires=[
-        'flask-pymongo>=0.2.0',
-        'cerberus>=0.2.0',
-        'simplejson',
-        'events'
+        'cerberus==0.6',
+        'events==0.2.0',
+        'simplejson==3.3.0',
+        'werkzeug==0.9.4',
+        'markupsafe==0.19',
+        'jinja2==2.7.2',
+        'itsdangerous==0.22',
+        'flask==0.10.1',
+        'pymongo==2.6.3',
+        'flask-pymongo==0.3.0',
     ],
     extras_require={
         'sqlalchemy': ['sqlalchemy']
     },
+    tests_require=['redis'],
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2'
+        'Programming Language :: Python :: 2.6'
+        'Programming Language :: Python :: 2.7'
+        'Programming Language :: Python :: 3'
+        'Programming Language :: Python :: 3.3'
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
 )

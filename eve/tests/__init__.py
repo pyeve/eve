@@ -1,99 +1,96 @@
 # -*- coding: utf-8 -*-
 
-import re
 import unittest
 import eve
 import string
 import random
+import os
 import simplejson as json
 from datetime import datetime, timedelta
 from flask.ext.pymongo import MongoClient
 from bson import ObjectId
-from eve import Eve, STATUS_ERR
-from test_settings import MONGO_PASSWORD, MONGO_USERNAME, MONGO_DBNAME, DOMAIN
+from eve.tests.test_settings import MONGO_PASSWORD, MONGO_USERNAME, \
+    MONGO_DBNAME, DOMAIN, MONGO_HOST, MONGO_PORT
+from eve import ISSUES, ETAG
 
 
-class TestBase(unittest.TestCase):
+class ValueStack(object):
+    """
+    Descriptor to store multiple assignments in an attribute.
 
-    def setUp(self):
-        self.known_resource_count = 100
+    Due to the multiple self.app = assignments in tests, it is difficult to
+    keep track by hand of the applications created in order to close their
+    database connections. This descriptor helps with it.
+    """
+    def __init__(self, on_delete):
+        """
+        :param on_delete: Action to execute when the attribute is deleted
+        """
+        self.elements = []
+        self.on_delete = on_delete
+
+    def __set__(self, obj, val):
+        self.elements.append(val)
+
+    def __get__(self, obj, objtype):
+        return self.elements[-1] if self.elements else None
+
+    def __delete__(self, obj):
+        for item in self.elements:
+            self.on_delete(item)
+        self.elements = []
+
+
+def close_pymongo_connection(app):
+    """
+    Close the pymongo connection in an eve/flask app
+    """
+    if 'pymongo' not in app.extensions:
+        return
+    del app.extensions['pymongo']['MONGO']
+    del app.media
+
+
+class TestMinimal(unittest.TestCase):
+    """ Start the building of the tests for an application
+    based on Eve by subclassing this class and provide proper settings
+    using :func:`setUp()`
+    """
+    app = ValueStack(close_pymongo_connection)
+
+    def setUp(self, settings_file=None, url_converters=None):
+        """ Prepare the test fixture
+
+        :param settings_file: the name of the settings file.  Defaults
+                              to `eve/tests/test_settings.py`.
+        """
+        self.this_directory = os.path.dirname(os.path.realpath(__file__))
+        if settings_file is None:
+            # Load the settings file, using a robust path
+            settings_file = os.path.join(self.this_directory,
+                                         'test_settings.py')
+
+        self.connection = None
+        self.known_resource_count = 101
         self.setupDB()
-        self.settings_file = 'eve/tests/test_settings.py'
-        self.app = Eve(settings=self.settings_file)
+
+        self.settings_file = settings_file
+        self.app = eve.Eve(settings=self.settings_file,
+                           url_converters=url_converters)
+
         self.test_client = self.app.test_client()
 
         self.domain = self.app.config['DOMAIN']
 
-        self.known_resource = 'contacts'
-        self.known_resource_url = ('/%s/' %
-                                   self.domain[self.known_resource]['url'])
-        self.empty_resource = 'empty'
-        self.empty_resource_url = '/%s/' % self.empty_resource
-
-        self.unknown_resource = 'unknown'
-        self.unknown_resource_url = '/%s/' % self.unknown_resource
-        self.unknown_item_id = '4f46445fc88e201858000000'
-        self.unknown_item_name = 'unknown'
-
-        self.unknown_item_id_url = ('/%s/%s/' %
-                                    (self.domain[self.known_resource]['url'],
-                                     self.unknown_item_id))
-        self.unknown_item_name_url = ('/%s/%s/' %
-                                      (self.domain[self.known_resource]['url'],
-                                      self.unknown_item_name))
-
-        self.readonly_resource = 'payments'
-        self.readonly_resource_url = (
-            '/%s/' % self.domain[self.readonly_resource]['url'])
-
-        self.different_resource = 'users'
-        self.different_resource_url = ('/%s/' %
-                                       self.domain[
-                                           self.different_resource]['url'])
-
-        response, status = self.get('contacts', '?max_results=2')
-        contact = response['_items'][0]
-        self.item_id = contact[self.app.config['ID_FIELD']]
-        self.item_name = contact['ref']
-        self.item_tid = contact['tid']
-        self.item_etag = contact['etag']
-        self.item_ref = contact['ref']
-        self.item_id_url = ('/%s/%s/' %
-                            (self.domain[self.known_resource]['url'],
-                             self.item_id))
-        self.item_name_url = ('/%s/%s/' %
-                              (self.domain[self.known_resource]['url'],
-                               self.item_name))
-        self.alt_ref = response['_items'][1]['ref']
-
-        response, status = self.get('payments', '?max_results=1')
-        self.readonly_id = response['_items'][0]['_id']
-        self.readonly_id_url = ('%s%s/' % (self.readonly_resource_url,
-                                           self.readonly_id))
-
-        response, status = self.get('users')
-        user = response['_items'][0]
-        self.user_id = user[self.app.config['ID_FIELD']]
-        self.user_username = user['username']
-        self.user_name = user['ref']
-        self.user_etag = user['etag']
-        self.user_id_url = ('/%s/%s/' %
-                            (self.domain[self.different_resource]['url'],
-                             self.user_id))
-
-        response, status = self.get('invoices')
-        invoice = response['_items'][0]
-        self.invoice_id = invoice[self.app.config['ID_FIELD']]
-        self.invoice_etag = invoice['etag']
-        self.invoice_id_url = ('/%s/%s/' %
-                               (self.domain['invoices']['url'],
-                                self.invoice_id))
-
     def tearDown(self):
+        del self.app
         self.dropDB()
 
     def assert200(self, status):
         self.assertEqual(status, 200)
+
+    def assert201(self, status):
+        self.assertEqual(status, 201)
 
     def assert301(self, status):
         self.assertEqual(status, 301)
@@ -108,28 +105,46 @@ class TestBase(unittest.TestCase):
         if resource in self.domain:
             resource = self.domain[resource]['url']
         if item:
-            request = '/%s/%s/' % (resource, item)
+            request = '/%s/%s%s' % (resource, item, query)
         else:
-            request = '/%s/%s' % (resource, query)
+            request = '/%s%s' % (resource, query)
 
         r = self.test_client.get(request)
         return self.parse_response(r)
 
+    def post(self, url, data, headers=[], content_type='application/json'):
+        headers.append(('Content-Type', content_type))
+        r = self.test_client.post(url, data=json.dumps(data), headers=headers)
+        return self.parse_response(r)
+
+    def put(self, url, data, headers=[]):
+        headers.append(('Content-Type', 'application/json'))
+        r = self.test_client.put(url, data=json.dumps(data), headers=headers)
+        return self.parse_response(r)
+
+    def patch(self, url, data, headers=[]):
+        headers.append(('Content-Type', 'application/json'))
+        r = self.test_client.patch(url, data=json.dumps(data), headers=headers)
+        return self.parse_response(r)
+
+    def delete(self, url, headers=None):
+        r = self.test_client.delete(url, headers=headers)
+        return self.parse_response(r)
+
     def parse_response(self, r):
-        v = json.loads(r.data) if r.status_code == 200 else None
+        v = json.loads(r.get_data()) if r.status_code in (200, 201) else None
         return v, r.status_code
 
-    def assertValidationError(self, response, key, matches):
-        self.assertTrue(key in response)
-        k = response[key]
-        self.assertTrue('status' in k)
-        self.assertTrue(STATUS_ERR in k['status'])
-        self.assertTrue('issues' in k)
-        issues = k['issues']
+    def assertValidationError(self, response, matches):
+        self.assertTrue(eve.STATUS in response)
+        self.assertTrue(eve.STATUS_ERR in response[eve.STATUS])
+        self.assertTrue(ISSUES in response)
+        issues = response[ISSUES]
         self.assertTrue(len(issues))
 
-        for match in matches:
-            self.assertTrue(match in issues[0])
+        for k, v in matches.items():
+            self.assertTrue(k in issues)
+            self.assertTrue(v in issues[k])
 
     def assertExpires(self, resource):
         # TODO if we ever get access to response.date (it is None), compare
@@ -155,26 +170,29 @@ class TestBase(unittest.TestCase):
         r = self.test_client.get(resource, headers=[('If-Modified-Since',
                                                     last_modified)])
         self.assert304(r.status_code)
-        self.assertEqual(r.data, '')
+        self.assertTrue(not r.get_data())
 
     def assertItem(self, item):
         self.assertEqual(type(item), dict)
-
-        _id = item.get(self.app.config['ID_FIELD'])
-        self.assertTrue(_id is not None)
-        match = re.compile(self.app.config['ITEM_URL']).match(_id)
-        self.assertTrue(match is not None)
-        self.assertEqual(match.group(), _id)
 
         updated_on = item.get(self.app.config['LAST_UPDATED'])
         self.assertTrue(updated_on is not None)
         try:
             datetime.strptime(updated_on, self.app.config['DATE_FORMAT'])
-        except Exception, e:
+        except Exception as e:
             self.fail('Cannot convert field "%s" to datetime: %s' %
                       (self.app.config['LAST_UPDATED'], e))
 
+        created_on = item.get(self.app.config['DATE_CREATED'])
+        self.assertTrue(updated_on is not None)
+        try:
+            datetime.strptime(created_on, self.app.config['DATE_FORMAT'])
+        except Exception as e:
+            self.fail('Cannot convert field "%s" to datetime: %s' %
+                      (self.app.config['DATE_CREATED'], e))
+
         link = item.get('_links')
+        _id = item.get(self.app.config['ID_FIELD'])
         self.assertItemLink(link, _id)
 
     def assertHomeLink(self, links):
@@ -183,7 +201,8 @@ class TestBase(unittest.TestCase):
         self.assertTrue('title' in link)
         self.assertTrue('href' in link)
         self.assertEqual('home', link['title'])
-        self.assertEqual("%s" % self.app.config['SERVER_NAME'], link['href'])
+        self.assertEqual("%s" % self.app.config.get('SERVER_NAME', ''),
+                         link['href'])
 
     def assertResourceLink(self, links, resource):
         self.assertTrue('self' in links)
@@ -192,7 +211,8 @@ class TestBase(unittest.TestCase):
         self.assertTrue('href' in link)
         url = self.domain[resource]['url']
         self.assertEqual(url, link['title'])
-        self.assertEqual("%s/%s/" % (self.app.config['SERVER_NAME'], url),
+        self.assertEqual("%s/%s" % (self.app.config.get('SERVER_NAME', ''),
+                                    url),
                          link['href'])
 
     def assertCollectionLink(self, links, resource):
@@ -202,8 +222,8 @@ class TestBase(unittest.TestCase):
         self.assertTrue('href' in link)
         url = self.domain[resource]['url']
         self.assertEqual(url, link['title'])
-        self.assertEqual("%s/%s/" % (self.app.config['SERVER_NAME'], url),
-                         link['href'])
+        self.assertEqual("%s/%s" % (self.app.config.get('SERVER_NAME', ''),
+                                    url), link['href'])
 
     def assertNextLink(self, links, page):
         self.assertTrue('next' in links)
@@ -225,13 +245,30 @@ class TestBase(unittest.TestCase):
     def assertItemLink(self, links, item_id):
         self.assertTrue('self' in links)
         link = links['self']
-        #TODO we are too deep here to get a hold of the due title. Should fix.
+        # TODO we are too deep here to get a hold of the due title. Should fix.
         self.assertTrue('title' in link)
         self.assertTrue('href' in link)
-        self.assertTrue('/%s/' % item_id in link['href'])
+        self.assertTrue('/%s' % item_id in link['href'])
+
+    def assertLastLink(self, links, page):
+        if page:
+            self.assertTrue('last' in links)
+            link = links['last']
+            self.assertTrue('title' in link)
+            self.assertTrue('href' in link)
+            self.assertEqual('last page', link['title'])
+            self.assertTrue("page=%d" % page in link['href'])
+        else:
+            self.assertTrue('last' not in links)
 
     def assert400(self, status):
         self.assertEqual(status, 400)
+
+    def assert401(self, status):
+        self.assertEqual(status, 401)
+
+    def assert401or405(self, status):
+        self.assertTrue(status == 401 or 405)
 
     def assert403(self, status):
         self.assertEqual(status, 403)
@@ -242,24 +279,106 @@ class TestBase(unittest.TestCase):
     def assert412(self, status):
         self.assertEqual(status, 412)
 
+    def assert500(self, status):
+        self.assertEqual(status, 500)
+
     def setupDB(self):
-        self.connection = MongoClient()
+        self.connection = MongoClient(MONGO_HOST, MONGO_PORT)
         self.connection.drop_database(MONGO_DBNAME)
-        self.connection[MONGO_DBNAME].add_user(MONGO_USERNAME, MONGO_PASSWORD)
+        if MONGO_USERNAME:
+            self.connection[MONGO_DBNAME].add_user(MONGO_USERNAME,
+                                                   MONGO_PASSWORD)
         self.bulk_insert()
 
     def bulk_insert(self):
-        _db = self.connection[MONGO_DBNAME]
-        _db.contacts.insert(self.random_contacts(self.known_resource_count))
-        _db.contacts.insert(self.random_users(2))
-        _db.payments.insert(self.random_payments(10))
-        _db.invoices.insert(self.random_invoices(1))
-        self.connection.close()
+        pass
 
     def dropDB(self):
-        self.connection = MongoClient()
+        self.connection = MongoClient(MONGO_HOST, MONGO_PORT)
         self.connection.drop_database(MONGO_DBNAME)
         self.connection.close()
+
+
+class TestBase(TestMinimal):
+
+    def setUp(self, url_converters=None):
+        super(TestBase, self).setUp(url_converters=url_converters)
+
+        self.known_resource = 'contacts'
+        self.known_resource_url = ('/%s' %
+                                   self.domain[self.known_resource]['url'])
+        self.empty_resource = 'empty'
+        self.empty_resource_url = '/%s' % self.empty_resource
+
+        self.unknown_resource = 'unknown'
+        self.unknown_resource_url = '/%s' % self.unknown_resource
+        self.unknown_item_id = '4f46445fc88e201858000000'
+        self.unknown_item_name = 'unknown'
+
+        self.unknown_item_id_url = ('/%s/%s' %
+                                    (self.domain[self.known_resource]['url'],
+                                     self.unknown_item_id))
+        self.unknown_item_name_url = ('/%s/%s' %
+                                      (self.domain[self.known_resource]['url'],
+                                       self.unknown_item_name))
+
+        self.readonly_resource = 'payments'
+        self.readonly_resource_url = (
+            '/%s' % self.domain[self.readonly_resource]['url'])
+
+        self.different_resource = 'users'
+        self.different_resource_url = ('/%s' %
+                                       self.domain[
+                                           self.different_resource]['url'])
+
+        response, _ = self.get('contacts', '?max_results=2')
+        contact = self.response_item(response)
+        self.item = contact
+        self.item_id = contact[self.app.config['ID_FIELD']]
+        self.item_name = contact['ref']
+        self.item_tid = contact['tid']
+        self.item_etag = contact[ETAG]
+        self.item_ref = contact['ref']
+        self.item_id_url = ('/%s/%s' %
+                            (self.domain[self.known_resource]['url'],
+                             self.item_id))
+        self.item_name_url = ('/%s/%s' %
+                              (self.domain[self.known_resource]['url'],
+                               self.item_name))
+        self.alt_ref = self.response_item(response, 1)['ref']
+
+        response, _ = self.get('payments', '?max_results=1')
+        self.readonly_id = self.response_item(response)['_id']
+        self.readonly_id_url = ('%s/%s' % (self.readonly_resource_url,
+                                           self.readonly_id))
+
+        response, _ = self.get('users')
+        user = self.response_item(response)
+        self.user_id = user[self.app.config['ID_FIELD']]
+        self.user_username = user['username']
+        self.user_name = user['ref']
+        self.user_etag = user[ETAG]
+        self.user_id_url = ('/%s/%s' %
+                            (self.domain[self.different_resource]['url'],
+                             self.user_id))
+        self.user_username_url = (
+            '/%s/%s' % (self.domain[self.different_resource]['url'],
+                        self.user_username)
+        )
+
+        response, _ = self.get('invoices')
+        invoice = self.response_item(response)
+        self.invoice_id = invoice[self.app.config['ID_FIELD']]
+        self.invoice_etag = invoice[ETAG]
+        self.invoice_id_url = ('/%s/%s' %
+                               (self.domain['invoices']['url'],
+                                self.invoice_id))
+
+    def response_item(self, response, i=0):
+        if self.app.config['HATEOAS']:
+            return response['_items'][i]
+        else:
+            return response[i]
 
     def random_contacts(self, num, standard_date_fields=True):
         schema = DOMAIN['contacts']['schema']
@@ -309,7 +428,7 @@ class TestBase(unittest.TestCase):
 
     def random_invoices(self, num):
         invoices = []
-        for i in range(num):
+        for _ in range(num):
             dt = datetime.now()
             invoice = {
                 'inv_number':  self.random_string(10),
@@ -332,7 +451,7 @@ class TestBase(unittest.TestCase):
     def random_rows(self, num):
         schema = DOMAIN['contacts']['schema']['rows']['schema']['schema']
         rows = []
-        for i in range(num):
+        for _ in range(num):
             rows.append(
                 {
                     'sku': self.random_string(schema['sku']['maxlength']),
@@ -340,3 +459,11 @@ class TestBase(unittest.TestCase):
                 }
             )
         return rows
+
+    def bulk_insert(self):
+        _db = self.connection[MONGO_DBNAME]
+        _db.contacts.insert(self.random_contacts(self.known_resource_count))
+        _db.contacts.insert(self.random_users(2))
+        _db.payments.insert(self.random_payments(10))
+        _db.invoices.insert(self.random_invoices(1))
+        self.connection.close()
