@@ -69,7 +69,7 @@ class TestGridFSMediaStorage(TestBase):
         self.assertEqual(returned['content_type'], 'text/plain')
 
         # which decodes to the original clean
-        self.assertEqual(base64.decodestring(returned.encode()), self.clean)
+        self.assertEqual(base64.decodestring(returned['file'].encode()), self.clean)
 
     def test_gridfs_media_storage_put(self):
         r, s = self._post()
