@@ -14,9 +14,10 @@ import collections
 import copy
 import ast
 import simplejson as json
-from flask import abort, request
+from datetime import datetime, date
 import flask.ext.sqlalchemy as flask_sqlalchemy
-from datetime import datetime
+
+from flask import abort, request
 from parser import parse, ParseError
 from eve.io.base import DataLayer, ConnectionException
 from eve.utils import config
@@ -25,17 +26,6 @@ from .utils import dict_update
 
 db = flask_sqlalchemy.SQLAlchemy()
 object_mapper = flask_sqlalchemy.sqlalchemy.orm.object_mapper
-
-
-class SQLAJSONDecoder(json.JSONDecoder):
-    def decode(self, s):
-        # Turn RFC-1123 strings into datetime values.
-        rv = super(SQLAJSONDecoder, self).decode(s)
-        try:
-            key, val = rv.iteritems().next()
-            return dict(key=datetime.strptime(val, config.DATE_FORMAT))
-        except:
-            return rv
 
 
 class SQLAResult(collections.MutableMapping):
@@ -48,7 +38,10 @@ class SQLAResult(collections.MutableMapping):
             if len(pkey) > 1:
                 raise ValueError  # TODO: composite primary key
             return pkey[0]
-        return getattr(self._result, key)
+        value = getattr(self._result, key)
+        if isinstance(value, date):
+            return datetime.combine(value, datetime.min.time())
+        return value
 
     def __setitem__(self, key, value):
         setattr(self._result, key, value)
@@ -96,7 +89,6 @@ class SQLAResultCollection(object):
 class SQLAlchemy(DataLayer):
     """ SQLAlchemy data access layer for Eve REST API.
     """
-    json_decoder_cls = SQLAJSONDecoder
     driver = db
 
     def __init__(self, app):
@@ -197,7 +189,7 @@ class SQLAlchemy(DataLayer):
 
         if req.sort:
             ql = []
-            for key, asc in ast.literal_eval(req.sort).iteritems():
+            for key, asc in ast.literal_eval(req.sort):
                 ql.append(
                     getattr(model, key) if asc == 1 else
                     getattr(model, key).desc()
@@ -220,8 +212,10 @@ class SQLAlchemy(DataLayer):
         datasource, filter_, _ = self._datasource_ex(resource, lookup)
         model = self.lookup_model(datasource)
         query = self.driver.session.query(model)
-
-        return SQLAResult(query.filter_by(**filter_).one())
+        try:
+            return SQLAResult(query.filter_by(**filter_).one())
+        except flask_sqlalchemy.sqlalchemy.orm.exc.NoResultFound:
+            return None
 
     def insert(self, resource, doc_or_docs):
         """Inserts a document into a resource collection.
@@ -253,7 +247,6 @@ class SQLAlchemy(DataLayer):
         """Updates a collection document.
         """
         raise NotImplementedError
-        # TODO update support
 
     def remove(self, resource, id_=None):
         """Removes a document or the entire set of documents from a collection.
