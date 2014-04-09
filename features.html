@@ -917,8 +917,8 @@ payload.</p>
 <p>Database event hooks work like request event hooks. These events are fired
 before and after a database action. Here is an example of how events are
 configured:</p>
-<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">add_signature</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="n">item</span><span class="p">[</span><span class="s">&#39;SIGNATURE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;A </span><span class="si">%s</span><span class="s"> from eve&quot;</span> <span class="o">%</span> <span class="n">resource</span>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">add_signature</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">response</span><span class="p">[</span><span class="s">&#39;SIGNATURE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;A </span><span class="si">%s</span><span class="s"> from eve&quot;</span> <span class="o">%</span> <span class="n">resource</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetched_item</span> <span class="o">+=</span> <span class="n">add_signature</span>
@@ -951,13 +951,13 @@ both. And for each action two events will be fired:</p>
 <td rowspan="2">After</td>
 <td><div class="first last line-block">
 <div class="line"><tt class="docutils literal"><span class="pre">on_fetched_resource</span></tt></div>
-<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">items)</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">response)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
 <div class="line"><tt class="docutils literal"><span class="pre">on_fetched_resource_&lt;resource_name&gt;</span></tt></div>
-<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(items)</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(response)</span></tt></div>
 </div>
 </td>
 </tr>
@@ -965,13 +965,13 @@ both. And for each action two events will be fired:</p>
 <td rowspan="2">After</td>
 <td><div class="first last line-block">
 <div class="line"><tt class="docutils literal"><span class="pre">on_fetched_item</span></tt></div>
-<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">response)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
 <div class="line"><tt class="docutils literal"><span class="pre">on_fetched_item_&lt;resource_name&gt;</span></tt></div>
-<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(response)</span></tt></div>
 </div>
 </td>
 </tr>
@@ -1120,24 +1120,24 @@ both. And for each action two events will be fired:</p>
 <h4>Fetch Events<a class="headerlink" href="#fetch-events" title="Permalink to this headline">¶</a></h4>
 <p>These are the fetch events with their method signature:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">on_fetched_resource(resource_name,</span> <span class="pre">items)</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">on_fetched_resource_&lt;resource_name&gt;(items)</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">on_fetched_item(resource_name,</span> <span class="pre">item)</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">on_fetched_item_&lt;resource_name&gt;(item)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_fetched_resource(resource_name,</span> <span class="pre">response)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_fetched_resource_&lt;resource_name&gt;(response)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_fetched_item(resource_name,</span> <span class="pre">response)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_fetched_item_&lt;resource_name&gt;(response)</span></tt></li>
 </ul>
 <p>They are raised when items have just been read from the database and are
 about to be sent to the client. Registered callback functions can manipulate
 the items as needed before they are returned to the client.</p>
-<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_items</span><span class="p">(</span><span class="n">resource_name</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_items</span><span class="p">(</span><span class="n">resource_name</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
 <span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return items from &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource_name</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_contacts</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_contacts</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
 <span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return contacts&#39;</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_item</span><span class="p">(</span><span class="n">resource_name</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_item</span><span class="p">(</span><span class="n">resource_name</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
 <span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return an item from &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource_name</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_contact</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_contact</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
 <span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return a contact&#39;</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>

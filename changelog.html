@@ -61,6 +61,9 @@
 <h2>Version 0.4<a class="headerlink" href="#version-0-4" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[change] Callbacks get whole json response on <tt class="docutils literal"><span class="pre">on_fetched</span></tt>. This allows for
+callbacks functions to alter the whole payload, even when HATEOAS is enabled
+and <tt class="docutils literal"><span class="pre">_items</span></tt> and <tt class="docutils literal"><span class="pre">_links</span></tt> metafields are present.</li>
 <li>[new] <cite>on_pre_&lt;METHOD&gt;</cite> events expose the <cite>lookup</cite> dictionary which allows
 for setting up dynamic database lookups on both resource and item endpoints.</li>
 <li>[fix] Make codebase compliant with latest PEP8/flake8 release (Javier Gonel).</li>

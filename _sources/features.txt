@@ -954,8 +954,8 @@ configured:
 
 .. code-block:: pycon
 
-   >>> def add_signature(resource, item):
-   ...     item['SIGNATURE'] = "A %s from eve" % resource
+   >>> def add_signature(resource, response):
+   ...     response['SIGNATURE'] = "A %s from eve" % resource
 
    >>> app = Eve()
    >>> app.on_fetched_item += add_signature
@@ -972,16 +972,16 @@ Let's see an overview of what events are available:
 |Action |What    |When  |Event name / method signature                    |
 +=======+========+======+=================================================+
 |Fetch  |Resource|After || ``on_fetched_resource``                        |
-|       |        |      || ``def event(resource_name, items)``            |
+|       |        |      || ``def event(resource_name, response)``         |
 |       |        |      +-------------------------------------------------+
 |       |        |      || ``on_fetched_resource_<resource_name>``        |
-|       |        |      || ``def event(items)``                           |
+|       |        |      || ``def event(response)``                        |
 |       +--------+------+-------------------------------------------------+
 |       |Item    |After || ``on_fetched_item``                            |
-|       |        |      || ``def event(resource_name, item)``             |
+|       |        |      || ``def event(resource_name, response)``         |
 |       |        |      +-------------------------------------------------+
 |       |        |      || ``on_fetched_item_<resource_name>``            |
-|       |        |      || ``def event(item)``                            |
+|       |        |      || ``def event(response)``                        |
 +-------+--------+------+-------------------------------------------------+
 |Insert |Items   |Before|| ``on_insert``                                  |
 |       |        |      || ``def event(resource_name, items)``            |
@@ -1051,10 +1051,10 @@ Fetch Events
 
 These are the fetch events with their method signature:
 
-- ``on_fetched_resource(resource_name, items)``
-- ``on_fetched_resource_<resource_name>(items)``
-- ``on_fetched_item(resource_name, item)``
-- ``on_fetched_item_<resource_name>(item)``
+- ``on_fetched_resource(resource_name, response)``
+- ``on_fetched_resource_<resource_name>(response)``
+- ``on_fetched_item(resource_name, response)``
+- ``on_fetched_item_<resource_name>(response)``
 
 They are raised when items have just been read from the database and are
 about to be sent to the client. Registered callback functions can manipulate
@@ -1062,16 +1062,16 @@ the items as needed before they are returned to the client.
 
 .. code-block:: pycon
 
-    >>> def before_returning_items(resource_name, items):
+    >>> def before_returning_items(resource_name, response):
     ...  print 'About to return items from "%s" ' % resource_name
 
-    >>> def before_returning_contacts(items):
+    >>> def before_returning_contacts(response):
     ...  print 'About to return contacts'
 
-    >>> def before_returning_item(resource_name, item):
+    >>> def before_returning_item(resource_name, response):
     ...  print 'About to return an item from "%s" ' % resource_name
 
-    >>> def before_returning_contact(item):
+    >>> def before_returning_contact(response):
     ...  print 'About to return a contact'
 
     >>> app = Eve()
