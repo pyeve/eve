@@ -36,6 +36,8 @@ def get(resource, **lookup):
     :param resource: the name of the resource.
 
     .. versionchanged:: 0.4
+       'on_fetched' events now return the whole response (HATEOAS metafields
+       included.)
        Replaced ID_FIELD by item_lookup_field on self link.
        item_lookup_field will default to ID_FIELD if blank.
        Changed ``on_fetch_*`` changed to ``on_fetched_*``.
@@ -125,20 +127,19 @@ def get(resource, **lookup):
     status = 200
     last_modified = last_update if last_update > epoch() else None
 
-    # notify registered callback functions. Please note that, should the
-    # functions modify the documents, the last_modified and etag won't be
-    # updated to reflect the changes (they always reflect the documents
-    # state on the database.)
-
-    getattr(app, "on_fetched_resource")(resource, documents)
-    getattr(app, "on_fetched_resource_%s" % resource)(documents)
-
     if config.DOMAIN[resource]['hateoas']:
         response[config.ITEMS] = documents
         response[config.LINKS] = _pagination_links(resource, req,
                                                    cursor.count())
     else:
         response = documents
+
+    # notify registered callback functions. Please note that, should the
+    # functions modify the documents, the last_modified and etag won't be
+    # updated to reflect the changes (they always reflect the documents
+    # state on the database.)
+    getattr(app, "on_fetched_resource")(resource, response)
+    getattr(app, "on_fetched_resource_%s" % resource)(response)
 
     # the 'extra' cursor field, if present, will be added to the response.
     # Can be used by Eve extensions to add extra, custom data to any
@@ -158,6 +159,8 @@ def getitem(resource, **lookup):
     :param **lookup: the lookup query.
 
     .. versionchanged:: 0.4
+       'on_fetched' now returns the whole response (HATEOAS metafields
+       included.)
        Support for document versioning.
        Changed ``on_fetch_*`` changed to ``on_fetched_*``.
 
@@ -269,21 +272,12 @@ def getitem(resource, **lookup):
                 else:
                     documents.append(document)
 
-        # TODO: callbacks not currently supported with ?version=all
-
         # add documents to response
         if config.DOMAIN[resource]['hateoas']:
             response[config.ITEMS] = documents
         else:
             response = documents
     else:
-        # notify registered callback functions. Please note that, should
-        # the # functions modify the document, last_modified and etag
-        # won't be updated to reflect the changes (they always reflect the
-        # documents state on the database).
-        getattr(app, "on_fetched_item")(resource, document)
-        getattr(app, "on_fetched_item_%s" % resource)(document)
-
         response = document
 
     # extra hateoas links
@@ -294,6 +288,16 @@ def getitem(resource, **lookup):
             'title': config.DOMAIN[resource]['resource_title'],
             'href': resource_uri(resource)}
         response[config.LINKS]['parent'] = home_link()
+
+    if version != 'all' and version != 'diffs':
+        # TODO: callbacks not currently supported with ?version=all
+
+        # notify registered callback functions. Please note that, should
+        # the # functions modify the document, last_modified and etag
+        # won't be updated to reflect the changes (they always reflect the
+        # documents state on the database).
+        getattr(app, "on_fetched_item")(resource, response)
+        getattr(app, "on_fetched_item_%s" % resource)(response)
 
     return response, last_modified, etag, 200
 

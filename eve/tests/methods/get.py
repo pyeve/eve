@@ -914,13 +914,15 @@ class TestEvents(TestBase):
         self.get_resource()
         self.assertEqual('contacts', self.devent.called[0])
         self.assertEqual(
-            self.app.config['PAGINATION_DEFAULT'], len(self.devent.called[1]))
+            self.app.config['PAGINATION_DEFAULT'],
+            len(self.devent.called[1][self.app.config['ITEMS']]))
 
     def test_on_fetched_resource_contacts(self):
         self.app.on_fetched_resource_contacts += self.devent
         self.get_resource()
         self.assertEqual(
-            self.app.config['PAGINATION_DEFAULT'], len(self.devent.called[0]))
+            self.app.config['PAGINATION_DEFAULT'],
+            len(self.devent.called[0][self.app.config['ITEMS']]))
 
     def test_on_fetched_item(self):
         self.app.on_fetched_item += self.devent
