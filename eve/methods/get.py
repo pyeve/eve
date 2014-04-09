@@ -201,101 +201,101 @@ def getitem(resource, **lookup):
     embedded_fields = _resolve_embedded_fields(resource, req)
 
     document = app.data.find_one(resource, req, **lookup)
-    if document:
-        response = {}
-        etag = None
-        version = request.args.get(config.VERSION_PARAM)
-        latest_doc = None
+    if not document:
+        abort(404)
 
-        # synthesize old document version(s)
-        if resource_def['versioning'] is True:
-            latest_doc = copy.deepcopy(document)
-            document = get_old_document(
-                resource, req, lookup, document, version)
+    response = {}
+    etag = None
+    version = request.args.get(config.VERSION_PARAM)
+    latest_doc = None
 
-        # meld into response document
-        _build_response_document(
-            document, resource, embedded_fields, latest_doc)
+    # synthesize old document version(s)
+    if resource_def['versioning'] is True:
+        latest_doc = copy.deepcopy(document)
+        document = get_old_document(
+            resource, req, lookup, document, version)
 
-        # last_modified for the response
-        last_modified = document[config.LAST_UPDATED]
+    # meld into response document
+    _build_response_document(
+        document, resource, embedded_fields, latest_doc)
 
-        # facilitate client caching by returning a 304 when appropriate
-        if config.IF_MATCH:
-            etag = document[config.ETAG]
+    # last_modified for the response
+    last_modified = document[config.LAST_UPDATED]
 
-            if req.if_none_match and etag == req.if_none_match:
-                # request etag matches the current server representation of the
-                # document, return a 304 Not-Modified.
-                return {}, last_modified, document[config.ETAG], 304
+    # facilitate client caching by returning a 304 when appropriate
+    if config.IF_MATCH:
+        etag = document[config.ETAG]
 
-        if req.if_modified_since and last_modified <= req.if_modified_since:
-            # request If-Modified-Since conditional request match. We test
-            # this after the etag since Last-Modified dates have lower
-            # resolution (1 second).
-            return {}, last_modified, document.get(config.ETAG), 304
+        if req.if_none_match and etag == req.if_none_match:
+            # request etag matches the current server representation of the
+            # document, return a 304 Not-Modified.
+            return {}, last_modified, document[config.ETAG], 304
 
-        if version == 'all' or version == 'diffs':
-            # TODO: support pagination?
+    if req.if_modified_since and last_modified <= req.if_modified_since:
+        # request If-Modified-Since conditional request match. We test
+        # this after the etag since Last-Modified dates have lower
+        # resolution (1 second).
+        return {}, last_modified, document.get(config.ETAG), 304
 
-            # find all versions
-            lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
-            del lookup[app.config['ID_FIELD']]
-            req.sort = '[("%s", 1)]' % config.VERSION
-            cursor = app.data.find(resource + config.VERSIONS, req, lookup)
+    if version == 'all' or version == 'diffs':
+        # TODO: support pagination?
 
-            # build all versions
-            documents = []
-            if cursor.count() == 0:
-                # this is the scenario when the document existed before
-                # document versioning got turned on
-                documents.append(latest_doc)
-            else:
-                last_document = {}
-                for i, document in enumerate(cursor):
-                    document = synthesize_versioned_document(
-                        latest_doc, document, resource_def)
-                    _build_response_document(
-                        document, resource, embedded_fields, latest_doc)
-                    if version == 'diffs':
-                        if i == 0:
-                            documents.append(document)
-                        else:
-                            documents.append(diff_document(
-                                resource_def, last_document, document))
-                        last_document = document
-                    else:
-                        documents.append(document)
+        # find all versions
+        lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
+        del lookup[app.config['ID_FIELD']]
+        req.sort = '[("%s", 1)]' % config.VERSION
+        cursor = app.data.find(resource + config.VERSIONS, req, lookup)
 
-            # TODO: callbacks not currently supported with ?version=all
-
-            # add documents to response
-            if config.DOMAIN[resource]['hateoas']:
-                response[config.ITEMS] = documents
-            else:
-                response = documents
+        # build all versions
+        documents = []
+        if cursor.count() == 0:
+            # this is the scenario when the document existed before
+            # document versioning got turned on
+            documents.append(latest_doc)
         else:
-            # notify registered callback functions. Please note that, should
-            # the # functions modify the document, last_modified and etag
-            # won't be updated to reflect the changes (they always reflect the
-            # documents state on the database).
-            getattr(app, "on_fetched_item")(resource, document)
-            getattr(app, "on_fetched_item_%s" % resource)(document)
+            last_document = {}
+            for i, document in enumerate(cursor):
+                document = synthesize_versioned_document(
+                    latest_doc, document, resource_def)
+                _build_response_document(
+                    document, resource, embedded_fields, latest_doc)
+                if version == 'diffs':
+                    if i == 0:
+                        documents.append(document)
+                    else:
+                        documents.append(diff_document(
+                            resource_def, last_document, document))
+                    last_document = document
+                else:
+                    documents.append(document)
 
-            response = document
+        # TODO: callbacks not currently supported with ?version=all
 
-        # extra hateoas links
+        # add documents to response
         if config.DOMAIN[resource]['hateoas']:
-            if config.LINKS not in response:
-                response[config.LINKS] = {}
-            response[config.LINKS]['collection'] = {
-                'title': config.DOMAIN[resource]['resource_title'],
-                'href': resource_uri(resource)}
-            response[config.LINKS]['parent'] = home_link()
+            response[config.ITEMS] = documents
+        else:
+            response = documents
+    else:
+        # notify registered callback functions. Please note that, should
+        # the # functions modify the document, last_modified and etag
+        # won't be updated to reflect the changes (they always reflect the
+        # documents state on the database).
+        getattr(app, "on_fetched_item")(resource, document)
+        getattr(app, "on_fetched_item_%s" % resource)(document)
 
-        return response, last_modified, etag, 200
+        response = document
 
-    abort(404)
+    # extra hateoas links
+    if config.DOMAIN[resource]['hateoas']:
+        if config.LINKS not in response:
+            response[config.LINKS] = {}
+        response[config.LINKS]['collection'] = {
+            'title': config.DOMAIN[resource]['resource_title'],
+            'href': resource_uri(resource)}
+        response[config.LINKS]['parent'] = home_link()
+
+    return response, last_modified, etag, 200
 
 
 def _build_response_document(
