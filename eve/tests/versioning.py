@@ -413,7 +413,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         # TODO: also test with HATEOS off
 
     def test_getitem_projection(self):
-        """ Verify that projections happen smoothing when versioning is on.
+        """ Verify that projections happen smoothly when versioning is on.
         """
         # test inclusive projection
         response, status = self.get(
@@ -422,6 +422,8 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assert200(status)
         self.assertTrue(self.unversioned_field in response)
         self.assertFalse(self.versioned_field in response)
+        self.assertTrue(self.version_field in response)
+        self.assertTrue(self.latest_version_field in response)
 
         # test exclusive projection
         response, status = self.get(
@@ -430,9 +432,11 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assert200(status)
         self.assertFalse(self.unversioned_field in response)
         self.assertTrue(self.versioned_field in response)
+        self.assertTrue(self.version_field in response)
+        self.assertTrue(self.latest_version_field in response)
 
     def test_getitem_version_all_projection(self):
-        """ Verify that projections happen smoothing when versioning is on.
+        """ Verify that projections happen smoothly when versioning is on.
         """
         # put a second version
         response, status = self.put(
@@ -441,8 +445,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertGoodPutPatch(response, status)
 
         # test inclusive projection
-        projection = '{"%s": 1, "%s": 1, "%s": 1}' % (
-            self.unversioned_field, self.version_field, self.document_id_field)
+        projection = '{"%s": 1}' % self.unversioned_field
         response, status = self.get(
             self.known_resource, item=self.item_id,
             query='?version=all&projection=%s' % projection)
@@ -452,6 +455,8 @@ class TestCompleteVersioning(TestNormalVersioning):
         for item in items:
             self.assertTrue(self.unversioned_field in item)
             self.assertFalse(self.versioned_field in item)
+            self.assertTrue(self.version_field in item)
+            self.assertTrue(self.latest_version_field in item)
             if item[self.version_field] == 1:
                 self.assertEqual(
                     item[self.unversioned_field],
@@ -462,11 +467,18 @@ class TestCompleteVersioning(TestNormalVersioning):
                     self.item_change[self.unversioned_field])
 
         # test exclusive projection
-        projection = '{"%s": 0, "%s": 1, "%s": 1}' % (
-            self.unversioned_field, self.version_field, self.document_id_field)
-        # TODO: As you can see, this query will fail right now. To support
-        # this type of query, Eve needs to normalize the projection before
-        # passing it to MongoDB.
+        projection = '{"%s": 0}' % self.unversioned_field
+        response, status = self.get(
+            self.known_resource, item=self.item_id,
+            query='?version=all&projection=%s' % projection)
+        self.assert200(status)
+        items = response[self.app.config['ITEMS']]
+        self.assertEqual(len(items), 2)
+        for item in items:
+            self.assertFalse(self.unversioned_field in item)
+            self.assertTrue(self.versioned_field in item)
+            self.assertTrue(self.version_field in item)
+            self.assertTrue(self.latest_version_field in item)
 
     def test_automatic_fields(self):
         """ Make sure that Eve throws an error if we try to set a versioning

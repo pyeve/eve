@@ -12,7 +12,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.4
-       URL_PROTOCOL added and set to ''.
+       'URL_PROTOCOL' added and set to ''.
        'VERSION' added and set to '_version'.
        'VERSIONS' added and set to '_versions'.
        'VERSIONING' added and set to False.
