@@ -15,7 +15,7 @@ from copy import copy
 from flask import request, abort
 from eve.utils import date_to_str
 from eve.auth import auth_field_and_value
-from eve.utils import config, debug_error_message
+from eve.utils import config, debug_error_message, auto_fields
 
 
 class BaseJSONEncoder(json.JSONEncoder):
@@ -309,6 +309,9 @@ class DataLayer(object):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to.
 
+        .. versionchanged:: 0.4
+           Always return required/auto fields (issue 282.)
+
         .. versionchanged:: 0.3
            Field exclusion support in client projections.
            Honor auth_field even when client query is missing.
@@ -370,14 +373,23 @@ class DataLayer(object):
             else:
                 query = filter_
 
+        fields = projection_
+        keep_fields = auto_fields(resource)
         if client_projection:
             # only allow fields which are included with the standard projection
             # for the resource (avoid sniffing of private fields)
-            fields = dict(
-                (field, value) for field, value in client_projection.items() if
-                field in projection_)
-        else:
-            fields = projection_
+            if 0 in client_projection.values():
+                # exclusive projection - all values are 1 unless specified
+                for field, value in client_projection.items():
+                    if value == 0 and value not in keep_fields and \
+                            field in fields:
+                        del fields[field]
+            else:
+                # inclusive projection - all values are 0 unless spec. or auto
+                for field in list(fields.keys()):
+                    if field not in client_projection and \
+                            field not in keep_fields:
+                        del fields[field]
 
         # If the current HTTP method is in `public_methods` or
         # `public_item_methods`, skip the `auth_field` check

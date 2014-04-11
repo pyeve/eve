@@ -8,6 +8,8 @@ Version 0.4
 
 Not released yet.
 
+- [fix] Automatic fields such as ``DATE_CREATD`` and ``DATE_CREATED`` are
+  correctly handled in client projections (Josh Villbrandt). Closes #282.
 - [change] Callbacks get whole json response on ``on_fetched``. This allows for
   callbacks functions to alter the whole payload, even when HATEOAS is enabled
   and ``_items`` and ``_links`` metafields are present.
