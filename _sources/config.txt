@@ -277,7 +277,7 @@ uppercase.
                                 :ref:`projections` feature. Can be overridden
                                 by resource settings. Defaults to ``True``.
 
-``EMBEDDING``                   When ``True`` this option enables the
+``EMBEDDING``                   When ``True``, this option enables the
                                 :ref:`embedded_docs` feature. Defaults to
                                 ``True``.
 
