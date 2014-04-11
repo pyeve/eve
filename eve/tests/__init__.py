@@ -12,6 +12,7 @@ from bson import ObjectId
 from eve.tests.test_settings import MONGO_PASSWORD, MONGO_USERNAME, \
     MONGO_DBNAME, DOMAIN, MONGO_HOST, MONGO_PORT
 from eve import ISSUES, ETAG
+from eve.utils import date_to_str
 
 
 class ValueStack(object):
@@ -373,6 +374,8 @@ class TestBase(TestMinimal):
         self.invoice_id_url = ('/%s/%s' %
                                (self.domain['invoices']['url'],
                                 self.invoice_id))
+
+        self.epoch = date_to_str(datetime(1970, 1, 1))
 
     def response_item(self, response, i=0):
         if self.app.config['HATEOAS']:

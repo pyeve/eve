@@ -277,9 +277,14 @@ uppercase.
                                 :ref:`projections` feature. Can be overridden
                                 by resource settings. Defaults to ``True``.
 
-``EMBEDDING``                   When ``True`` this option enables the
+``EMBEDDING``                   When ``True``, this option enables the
                                 :ref:`embedded_docs` feature. Defaults to
                                 ``True``.
+
+``BANDWIDTH_SAVER``             When ``True``, POST, PUT, and PATCH responses
+                                only return automatically handled fields and
+                                ``EXTRA_RESPONSE_FIELDS``. When ``False``, the
+                                entire document will be sent.
 
 ``EXTRA_RESPONSE_FIELDS``       Allows to configure a list of additional
                                 document fields that should be provided with
