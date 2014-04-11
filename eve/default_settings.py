@@ -13,7 +13,6 @@
 
     .. versionchanged:: 0.4
        'URL_PROTOCOL' added and set to ''.
-       'BANDWIDTH_SAVER' added and set to True.
        'VERSION' added and set to '_version'.
        'VERSIONS' added and set to '_versions'.
        'VERSIONING' added and set to False.
@@ -121,7 +120,6 @@ ITEM_URL = 'regex("[a-f0-9]{24}")'
 # list of extra fields to be included with every POST response. This list
 # should not include the 'standard' fields (ID_FIELD, LAST_UPDATED,
 # DATE_CREATED, and ETAG).
-BANDWIDTH_SAVER = True
 EXTRA_RESPONSE_FIELDS = []
 
 # user-restricted resource access is disabled by default.
