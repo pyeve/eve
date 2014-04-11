@@ -386,7 +386,7 @@ class DataLayer(object):
                         del fields[field]
             else:
                 # inclusive projection - all values are 0 unless spec. or auto
-                for field in fields.keys():
+                for field in list(fields.keys()):
                     if field not in client_projection and \
                             field not in keep_fields:
                         del fields[field]
