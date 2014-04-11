@@ -363,6 +363,7 @@ def validate_filters(where, resource):
                 return "filter on '%s' not allowed" % filt
     return None
 
+
 def auto_fields(resource):
     """ Returns a list of automatically handled fields for a resource.
 
