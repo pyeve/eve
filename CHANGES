@@ -8,6 +8,7 @@ Version 0.4
 
 Not released yet.
 
+- [change] PyMongo 2.7 is now required.
 - [fix] Automatic fields such as ``DATE_CREATD`` and ``DATE_CREATED`` are
   correctly handled in client projections (Josh Villbrandt). Closes #282.
 - [change] Callbacks get whole json response on ``on_fetched``. This allows for
