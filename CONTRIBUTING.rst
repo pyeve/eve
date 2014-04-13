@@ -23,9 +23,11 @@ Making Changes
 * Check for unnecessary whitespace with ``git diff --check`` before committing.
 * Make sure your commit messages are in the `proper format`_.
 * If your commit fixes an open issue, reference it in the commit message (#15).
-* Make sure your code conforms to PEP8_.
+* Make sure your code conforms to PEP8_ (we're using flake8_ for PEP8 and extra checks).
 * Make sure you have added the necessary tests for your changes.
 * Run all the tests to assure nothing else was accidentally broken.
+* Run again the entire suite via tox_ to check your changes against multiple
+  python versions. ``pip install tox; tox``
 * Don't forget to add yourself to AUTHORS_.
 
 These guidelines also apply when helping with documentation (actually, for
@@ -40,20 +42,20 @@ Submitting Changes
 Join us on IRC
 --------------
 If you're interested in contributing to the Eve project or have questions
-about it come join us in our little #evehq channel on irc.freenode.net. It's
-comfy and cozy over there.
+about it come join us in our little #python-eve channel on irc.freenode.net.
+It's comfy and cozy over there.
 
 First time contributor?
 -----------------------
 It's alright. We've all been there. See next chapter.
 
-Dont' know where to start? 
+Don't know where to start? 
 --------------------------
 There are usually several TODO comments scattered around the codebase, maybe
 check them out and see if you have ideas, or can help with them. Also, check
 the `open issues`_ in case there's something that sparks your interest (there's
 also a special ``contributor friendly`` label flagging some interesting feature
-requests). And what about documentation?  I suck at english so if you're fluent
+requests). And what about documentation?  I suck at English so if you're fluent
 with it (or notice any typo and/or mistake), why not help with that? In any
 case, other than GitHub help_ pages, you might want to check this excellent
 `Effective Guide to Pull Requests`_
@@ -66,6 +68,8 @@ case, other than GitHub help_ pages, you might want to check this excellent
 .. _Fork: https://help.github.com/articles/fork-a-repo
 .. _`proper format`: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 .. _PEP8: http://www.python.org/dev/peps/pep-0008/
+.. _flake8: http://flake8.readthedocs.org/en/latest/
+.. _tox: http://tox.readthedocs.org/en/latest/
 .. _help: https://help.github.com/
 .. _`Effective Guide to Pull Requests`: http://codeinthehole.com/writing/pull-requests-and-other-good-practices-for-teams-using-github/
 .. _`fork and edit`: https://github.com/blog/844-forking-with-the-edit-button

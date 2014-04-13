@@ -6,7 +6,7 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER         =
 #BUILDDIR      = _build
-BUILDDIR      = ~/code/eve-docs
+BUILDDIR      = ~/code/eve.docs
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4

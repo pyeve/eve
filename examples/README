@@ -1,2 +1,3 @@
 - security folder: Authentication snippets
 - notifications.py: how to be notified and perform custom actions when requests are received.
+- SQL: Example using SQLAlchemy and Eve to serve an API from a SQL database

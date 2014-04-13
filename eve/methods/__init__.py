@@ -6,12 +6,13 @@
 
     This package implements the HTTP methods supported by Eve.
 
-    :copyright: (c) 2012 by Nicola Iarocci.
+    :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
 # flake8: noqa
-from get import get, getitem
-from post import post
-from patch import patch
-from delete import delete, delete_resource
+from eve.methods.get import get, getitem
+from eve.methods.post import post
+from eve.methods.patch import patch
+from eve.methods.put import put
+from eve.methods.delete import delete, delete_resource

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-    eve.io.sqlalchemy.parser
+    eve.io.sql.parser
     ~~~~~~~~~~~~~~~~~~~
 
     This module implements a Python-to-SQLAlchemy syntax parser.
@@ -14,8 +14,15 @@
 
 import ast
 import flask.ext.sqlalchemy as flask_sqlalchemy
-sqla_op = flask_sqlalchemy.sqlalchemy.sql.expression.operators
+import operator as operator
+from eve.utils import weak_date
+
+sqla_op = operator
 sqla_exp = flask_sqlalchemy.sqlalchemy.sql.expression
+
+
+class ParseError(ValueError):
+    pass
 
 
 def parse(expression, model):
@@ -28,12 +35,8 @@ def parse(expression, model):
     return v.sqla_query
 
 
-class ParseError(ValueError):
-    pass
-
-
 class SQLAVisitor(ast.NodeVisitor):
-    """Implements the python-to-sqlalchemy parser. Only Python conditional
+    """Implements the python-to-sql parser. Only Python conditional
     statements are supported, however nested, combined with most common compare
     and boolean operators (And and Or).
 
@@ -65,9 +68,9 @@ class SQLAVisitor(ast.NodeVisitor):
         # perform the magic.
         self.generic_visit(node)
 
-        # if we didn't obtain a query, it is likely that an unsopported
+        # if we didn't obtain a query, it is likely that an unsupported
         # python expression has been passed.
-        if self.sqla_query == {}:
+        if self.sqla_query == []:
             raise ParseError("Only conditional statements with boolean "
                              "(and, or) and comparison operators are "
                              "supported.")
@@ -133,4 +136,8 @@ class SQLAVisitor(ast.NodeVisitor):
 
     def visit_Str(self, node):
         """ Strings """
-        self.current_value = node.s
+        try:
+            value = weak_date(node.s)
+            self.current_value = value if value is not None else node.s
+        except:
+            self.current_value = node.s
