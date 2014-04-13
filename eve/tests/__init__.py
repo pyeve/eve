@@ -83,8 +83,8 @@ class TestMinimal(unittest.TestCase):
         self.domain = self.app.config['DOMAIN']
 
     def tearDown(self):
-        del self.app
         self.dropDB()
+        del self.app
 
     def assert200(self, status):
         self.assertEqual(status, 200)

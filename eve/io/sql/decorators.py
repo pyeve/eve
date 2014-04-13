@@ -1,11 +1,17 @@
 import flask.ext.sqlalchemy as flask_sqlalchemy
-
+from eve.utils import config
 from .utils import dict_update
+
 
 __all__ = ['registerSchema']
 
 
 class registerSchema(object):
+    """
+    Class decorator that scans a Flask-SQLAlchemy db.Model class, prepare an eve schema
+    and attach it to the class attributes.
+    """
+
     sqla_type_mapping = {
         flask_sqlalchemy.sqlalchemy.types.Integer: 'integer',
     }
@@ -14,7 +20,6 @@ class registerSchema(object):
         self.resource = resource
 
     def __call__(self, cls_):
-        # FIXME: avoid multiple execution of decorator (metaclass?)
         if hasattr(cls_, '_eve_schema'):
             return cls_
 
@@ -30,26 +35,22 @@ class registerSchema(object):
             dict_update(domain[resource], cls_._eve_resource)
 
         for prop in cls_.__mapper__.iterate_properties:
+            if prop.key in (config.LAST_UPDATED, config.DATE_CREATED):
+                continue
             schema = domain[resource]['schema'][prop.key] = {}
             if len(prop.columns) > 1:
-                # Composite column property
-                raise NotImplementedError
+                raise NotImplementedError  # Composite column property
             elif len(prop.columns) == 1:
                 col = prop.columns[0]
                 if isinstance(col, flask_sqlalchemy.sqlalchemy.schema.Column):
                     schema['type'] = self.lookupColumnType(col.type)
                     schema['unique'] = col.primary_key or col.unique or False
-
-                    schema['required'] = \
-                        not col.nullable if not col.primary_key else False
+                    schema['required'] = not col.nullable if not col.primary_key else False
                     if hasattr(col.type, 'length'):
                         schema['maxlength'] = col.type.length
-                elif isinstance(
-                    col,
-                    flask_sqlalchemy.sqlalchemy.sql.expression.ColumnElement
-                ):
+                elif isinstance(col, flask_sqlalchemy.sqlalchemy.sql.expression.ColumnElement):
                     schema['type'] = 'string'
-                    # FIXME Can we do something more here?
+                    # TODO Can we do something more here?
                 else:
                     schema['type'] = 'string'
 

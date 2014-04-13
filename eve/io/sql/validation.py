@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-    eve.io.sqlalchemy.validation
+    eve.io.sql.validation
     ~~~~~~~~~~~~~~~~~~~~~~~
 
     This module implements the SQLAlchemy Validator class,

@@ -54,3 +54,6 @@ _build
 
 # PyCharm
 .idea
+
+# SQLite databases
+*.db

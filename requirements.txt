@@ -8,3 +8,5 @@ MarkupSafe==0.19
 pymongo==2.6.3
 simplejson==3.3.0
 Werkzeug==0.9.4
+SQLAlchemy==0.9.4
+Flask-SQLAlchemy==1.0
