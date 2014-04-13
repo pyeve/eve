@@ -488,11 +488,16 @@ class TestBaseSQL(TestMinimal):
 
         self.known_resource = 'people'
         self.known_resource_url = ('/%s' % self.domain[self.known_resource]['url'])
+        self.unknown_item_id = '4f46445fc88e201858000000'
+        self.unknown_item_name = 'unknown'
         response, _ = self.get(self.known_resource, '?max_results=2')
         person = self.response_item(response)
         self.item = person
         self.item_id = self.item[self.app.config['ID_FIELD']]
         self.item_firstname = self.item['firstname']
+        self.item_id_url = ('/%s/%s' %
+                            (self.domain[self.known_resource]['url'],
+                             self.item_id))
 
         self.empty_resource = 'empty'
         self.empty_resource_url = '/%s' % self.empty_resource

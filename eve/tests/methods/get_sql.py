@@ -1,6 +1,8 @@
 import simplejson as json
+from datetime import datetime
 import unittest
 from eve.tests import TestBaseSQL
+from eve.utils import date_to_str
 
 
 class TestGetSQL(TestBaseSQL):
@@ -524,79 +526,137 @@ class TestGetItem(TestBaseSQL):
                                     item=self.item_id)
         self.assert_item_response(response, status)
 
-        # response, status = self.get(self.known_resource,
-        #                             item=self.unknown_item_id)
-        # self.assert404(status)
-#
-#     def test_getitem_noschema(self):
-#         self.app.config['DOMAIN'][self.known_resource]['schema'] = {}
-#         response, status = self.get(self.known_resource, item=self.item_id)
-#         self.assertItemResponse(response, status)
-#
-#     def test_getitem_by_name(self):
-#         response, status = self.get(self.known_resource,
-#                                     item=self.item_name)
-#         self.assertItemResponse(response, status)
-#         response, status = self.get(self.known_resource,
-#                                     item=self.unknown_item_name)
-#         self.assert404(status)
-#
-#     def test_getitem_by_name_self_href(self):
-#         response, status = self.get(self.known_resource,
-#                                     item=self.item_id)
-#         self_href = response['_links']['self']['href']
-#
-#         response, status = self.get(self.known_resource,
-#                                     item=self.item_name)
-#
-#         self.assertEqual(self_href, response['_links']['self']['href'])
-#
-#     def test_getitem_by_integer(self):
-#         self.domain['contacts']['additional_lookup'] = {
-#             'field': 'prog'
-#         }
-#         self.app._add_resource_url_rules('contacts', self.domain['contacts'])
-#         response, status = self.get(self.known_resource,
-#                                     item=1)
-#         self.assertItemResponse(response, status)
-#         response, status = self.get(self.known_resource,
-#                                     item=self.known_resource_count)
-#         self.assert404(status)
-#
-#     def test_getitem_if_modified_since(self):
-#         self.assertIfModifiedSince(self.item_id_url)
-#
-#     def test_getitem_if_none_match(self):
-#         r = self.test_client.get(self.item_id_url)
-#         etag = r.headers.get('ETag')
-#         self.assertTrue(etag is not None)
-#         r = self.test_client.get(self.item_id_url,
-#                                  headers=[('If-None-Match', etag)])
-#         self.assert304(r.status_code)
-#         self.assertTrue(not r.get_data())
-#
-#     def test_cache_control(self):
-#         self.assertCacheControl(self.item_id_url)
-#
-#     def test_expires(self):
-#         self.assertExpires(self.item_id_url)
-#
-#     def test_getitem_by_id_different_resource(self):
-#         response, status = self.get(self.different_resource,
-#                                     item=self.user_id)
-#         self.assertItemResponse(response, status, self.different_resource)
-#
-#         response, status = self.get(self.different_resource,
-#                                     item=self.item_id)
-#         self.assert404(status)
-#
-#     def test_getitem_by_name_different_resource(self):
-#         response, status = self.get(self.different_resource,
-#                                     item=self.user_username)
-#         self.assertItemResponse(response, status, self.different_resource)
-#         response, status = self.get(self.different_resource,
-#                                     item=self.unknown_item_name)
-#         self.assert404(status)
+        response, status = self.get(self.known_resource,
+                                    item=self.unknown_item_id)
+        self.assert404(status)
+
+    def test_getitem_noschema(self):
+        self.app.config['DOMAIN'][self.known_resource]['schema'] = {}
+        response, status = self.get(self.known_resource, item=self.item_id)
+        self.assert_item_response(response, status)
+
+    def test_getitem_by_name(self):
+        response, status = self.get(self.known_resource,
+                                    item=self.item_firstname)
+        self.assert_item_response(response, status)
+        response, status = self.get(self.known_resource,
+                                    item=self.unknown_item_name)
+        self.assert404(status)
+
+    def test_getitem_by_name_self_href(self):
+        response, status = self.get(self.known_resource,
+                                    item=self.item_id)
+        self_href = response['_links']['self']['href']
+
+        response, status = self.get(self.known_resource,
+                                    item=self.item_firstname)
+
+        self.assertEqual(self_href, response['_links']['self']['href'])
+
+    def test_getitem_by_integer(self):
+        self.domain[self.known_resource]['additional_lookup'] = {
+            'field': 'prog'
+        }
+        self.app._add_resource_url_rules(self.known_resource, self.domain[self.known_resource])
+        response, status = self.get(self.known_resource,
+                                    item=1)
+        self.assert_item_response(response, status)
+        response, status = self.get(self.known_resource,
+                                    item=self.known_resource_count)
+        self.assert404(status)
+
+    def test_getitem_if_modified_since(self):
+        self.assertIfModifiedSince(self.item_id_url)
+
+    def test_getitem_if_none_match(self):
+        r = self.test_client.get(self.item_id_url)
+        etag = r.headers.get('ETag')
+        self.assertTrue(etag is not None)
+        r = self.test_client.get(self.item_id_url,
+                                 headers=[('If-None-Match', etag)])
+        self.assert304(r.status_code)
+        self.assertTrue(not r.get_data())
+
+    def test_cache_control(self):
+        self.assertCacheControl(self.item_id_url)
+
+    def test_expires(self):
+        self.assertExpires(self.item_id_url)
+
+    def test_get_with_post_override(self):
+        # POST request with GET override turns into a GET
+        headers = [('X-HTTP-Method-Override', 'GET')]
+        r = self.test_client.post(self.item_id_url, headers=headers)
+        response, status = self.parse_response(r)
+        self.assert_item_response(response, status)
+
+    def test_getitem_projection(self):
+        projection = '{"prog": 1}'
+        r, status = self.get(self.known_resource, '?projection=%s' %
+                             projection, item=self.item_id)
+        self.assert200(status)
+        self.assertFalse('firstname' in r)
+        self.assertFalse('lastname' in r)
+        self.assertTrue('prog' in r)
+        self.assertTrue(self.app.config['ID_FIELD'] in r)
+        self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+        self.assertTrue(self.app.config['DATE_CREATED'] in r)
+
+        projection = '{"prog": 0}'
+        r, status = self.get(self.known_resource, '?projection=%s' %
+                             projection, item=self.item_id)
+        self.assert200(status)
+        self.assertFalse('prog' in r)
+        self.assertTrue('firstname' in r)
+        self.assertTrue('lastname' in r)
+        self.assertTrue(self.app.config['ID_FIELD'] in r)
+        self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+        self.assertTrue(self.app.config['DATE_CREATED'] in r)
+
+    def test_getitem_ifmatch_disabled(self):
+        # when IF_MATCH is disabled no etag is present in payload
+        self.app.config['IF_MATCH'] = False
+        response, _ = self.get(self.known_resource, item=self.item_id)
+        self.assertTrue(self.app.config['ETAG'] not in response)
+
+    def test_getitem_ifmatch_disabled_if_mod_since(self):
+        # Test that #239 is fixed.
+        # IF_MATCH is disabled and If-Modified-Since request comes through. If
+        # a 304 was expected, we would crash like a mofo.
+        self.app.config['IF_MATCH'] = False
+
+        # IMS needs to see as recent as possible since the test db has just
+        # been built
+        header = [("If-Modified-Since", date_to_str(datetime.now()))]
+
+        r = self.test_client.get(self.item_id_url, headers=header)
+        self.assert304(r.status_code)
+
+    def test_getitem_custom_auto_document_fields(self):
+        self.app.config['LAST_UPDATED'] = '_updated_on'
+        self.app.config['DATE_CREATED'] = '_created_on'
+        self.app.config['ETAG'] = '_the_etag'
+        response, _ = self.get(self.known_resource, item=self.item_id)
+        self.assertTrue('_updated_on' in response)
+        self.assertTrue('_created_on' in response)
+        self.assertTrue('_the_etag' in response)
+
+    # def test_getitem_by_id_different_resource(self):
+    #     response, status = self.get(self.different_resource,
+    #                                 item=self.user_id)
+    #     self.assertItemResponse(response, status, self.different_resource)
+    #
+    #     response, status = self.get(self.different_resource,
+    #                                 item=self.item_id)
+    #     self.assert404(status)
+    #
+    # def test_getitem_by_name_different_resource(self):
+    #     response, status = self.get(self.different_resource,
+    #                                 item=self.user_username)
+    #     self.assertItemResponse(response, status, self.different_resource)
+    #     response, status = self.get(self.different_resource,
+    #                                 item=self.unknown_item_name)
+    #     self.assert404(status)
 #
 #     def test_getitem_missing_standard_date_fields(self):
 #         """Documents created outside the API context could be lacking the
@@ -608,13 +668,6 @@ class TestGetItem(TestBaseSQL):
 #         _db = self.connection[MONGO_DBNAME]
 #         _db.contacts.insert(contacts)
 #         response, status = self.get(self.known_resource, item=ref)
-#         self.assertItemResponse(response, status)
-#
-#     def test_get_with_post_override(self):
-#         # POST request with GET override turns into a GET
-#         headers = [('X-HTTP-Method-Override', 'GET')]
-#         r = self.test_client.post(self.item_id_url, headers=headers)
-#         response, status = self.parse_response(r)
 #         self.assertItemResponse(response, status)
 #
 #     def test_getitem_embedded(self):
@@ -708,57 +761,6 @@ class TestGetItem(TestBaseSQL):
 #         self.assert200(status)
 #         self.assertEqual(response['person'], str(fake_contact_id))
 #         self.assertEqual(response['_id'], self.invoice_id)
-#
-#     def test_getitem_ifmatch_disabled(self):
-#         # when IF_MATCH is disabled no etag is present in payload
-#         self.app.config['IF_MATCH'] = False
-#         response, _ = self.get(self.known_resource, item=self.item_id)
-#         self.assertTrue(self.app.config['ETAG'] not in response)
-#
-#     def test_getitem_ifmatch_disabled_if_mod_since(self):
-#         # Test that #239 is fixed.
-#         # IF_MATCH is disabled and If-Modified-Since request comes through. If
-#         # a 304 was expected, we would crash like a mofo.
-#         self.app.config['IF_MATCH'] = False
-#
-#         # IMS needs to see as recent as possible since the test db has just
-#         # been built
-#         header = [("If-Modified-Since", date_to_str(datetime.now()))]
-#
-#         r = self.test_client.get(self.item_id_url, headers=header)
-#         self.assert304(r.status_code)
-#
-#     def test_getitem_custom_auto_document_fields(self):
-#         self.app.config['LAST_UPDATED'] = '_updated_on'
-#         self.app.config['DATE_CREATED'] = '_created_on'
-#         self.app.config['ETAG'] = '_the_etag'
-#         response, _ = self.get(self.known_resource, item=self.item_id)
-#         self.assertTrue('_updated_on' in response)
-#         self.assertTrue('_created_on' in response)
-#         self.assertTrue('_the_etag' in response)
-#
-#     def test_getitem_projection(self):
-#         projection = '{"prog": 1}'
-#         r, status = self.get(self.known_resource, '?projection=%s' %
-#                              projection, item=self.item_id)
-#         self.assert200(status)
-#         self.assertFalse('location' in r)
-#         self.assertFalse('role' in r)
-#         self.assertTrue('prog' in r)
-#         self.assertTrue(self.app.config['ID_FIELD'] in r)
-#         self.assertTrue(self.app.config['LAST_UPDATED'] in r)
-#         self.assertTrue(self.app.config['DATE_CREATED'] in r)
-#
-#         projection = '{"prog": 0}'
-#         r, status = self.get(self.known_resource, '?projection=%s' %
-#                              projection, item=self.item_id)
-#         self.assert200(status)
-#         self.assertFalse('prog' in r)
-#         self.assertTrue('location' in r)
-#         self.assertTrue('role' in r)
-#         self.assertTrue(self.app.config['ID_FIELD'] in r)
-#         self.assertTrue(self.app.config['LAST_UPDATED'] in r)
-#         self.assertTrue(self.app.config['DATE_CREATED'] in r)
 #
 #
 # class TestHead(TestBase):

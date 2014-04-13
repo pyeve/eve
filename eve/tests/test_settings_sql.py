@@ -6,12 +6,19 @@ SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % db_filename
 
 SERVER_NAME = 'localhost:5000'
 
+ID_FIELD = '_id'
+ITEM_LOOKUP = True
+ITEM_LOOKUP_FIELD = ID_FIELD
+
+RESOURCE_METHODS = ['GET', 'POST', 'DELETE']
+ITEM_METHODS = ['GET', 'PATCH', 'DELETE', 'PUT']
+
 DOMAIN = {
     'people': {
         'item_title': 'person',
         'additional_lookup': {
-            'url': '[0-9]+',
-            'field': '_id'
+            'url': 'regex("[\w]+")',
+            'field': 'firstname'
         },
         'cache_control': 'max-age=10,must-revalidate',
         'cache_expires': 10,
