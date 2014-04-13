@@ -31,6 +31,13 @@ class registerSchema(object):
             }
         }
 
+        domain[resource]['item_lookup'] = True
+
+        # Defines the main lookup rules for this resource
+        # TODO: Make these respect the ID_FIELD config of Eve
+        domain[resource]['item_lookup_field'] = '_id'
+        domain[resource]['item_url'] = 'regex("[0-9]+")'
+
         if hasattr(cls_, '_eve_resource'):
             dict_update(domain[resource], cls_._eve_resource)
 

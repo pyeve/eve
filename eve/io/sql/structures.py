@@ -35,7 +35,7 @@ class SQLAResult(collections.MutableMapping):
             if len(pkey) > 1:
                 raise ValueError  # TODO: composite primary key
             return pkey[0]
-        return getattr(self._result, key)
+        return getattr(self._result, key, None)
 
     def __setitem__(self, key, value):
         setattr(self._result, key, value)

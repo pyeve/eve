@@ -15,6 +15,7 @@ import ast
 import simplejson as json
 from flask import abort
 import flask.ext.sqlalchemy as flask_sqlalchemy
+from sqlalchemy.orm.exc import NoResultFound
 from datetime import datetime
 from parser import parse, ParseError, sqla_op
 from eve.io.base import DataLayer, ConnectionException
@@ -138,15 +139,16 @@ class SQL(DataLayer):
         return SQLAResultCollection(query, fields, **args)
 
     def find_one(self, resource, req, **lookup):
-        # self._mongotize(lookup, resource)
-
         client_projection = self._client_projection(req)
-
         datasource, filter_, fields, _ = self._datasource_ex(resource, lookup, client_projection)
         model = self.lookup_model(datasource)
         query = self.driver.session.query(model)
 
-        return SQLAResult(query.filter_by(**filter_).one(), fields)
+        try:
+            document = query.filter_by(**filter_).one()
+        except NoResultFound:
+            abort(404)
+        return SQLAResult(document, fields)
 
     def insert(self, resource, doc_or_docs):
         """Inserts a document into a resource collection.
@@ -185,7 +187,7 @@ class SQL(DataLayer):
         source = copy.copy(config.SOURCES[resource]['source'])
         model = self.lookup_model(source)
         filter_ = config.SOURCES[resource]['filter']
-        if isinstance(filter_,(str, unicode)) and len(filter_):
+        if isinstance(filter_, (str, unicode)) and len(filter_):
             filter_ = parse(filter_, model)
         else:
             filter_ = []
