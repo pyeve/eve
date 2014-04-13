@@ -674,47 +674,7 @@ class Eve(Flask, Events):
         # home page (API entry point)
         self.add_url_rule('%s/' % self.api_prefix, 'home',
                           view_func=home_endpoint, methods=['GET', 'OPTIONS'])
-# <<<<<<< HEAD
-#         for resource, settings in self.config['DOMAIN'].items():
-#             resources[settings['url']] = resource
-#             urls[resource] = settings['url']
-#             datasources[resource] = settings['datasource']
 
-#             # resource endpoint
-#             url = '%s/<regex("%s"):url>/' % (prefix, settings['url'])
-#             self.add_url_rule(url, view_func=collections_endpoint,
-#                               methods=settings['resource_methods'] +
-#                               ['OPTIONS'])
-
-#             # item endpoint
-#             if settings['item_lookup']:
-#                 item_url = '%s<regex("%s"):%s>/' % \
-#                     (url,
-#                      settings['item_url'],
-#                      settings['item_lookup_field'])
-
-#                 self.add_url_rule(item_url, view_func=item_endpoint,
-#                                   methods=settings['item_methods']
-#                                   + ['OPTIONS'])
-#                 if 'PATCH' in settings['item_methods']:
-#                     # support for POST with X-HTTM-Method-Override header
-#                     # for clients not supporting PATCH. Also see
-#                     # item_endpoint() in endpoints.py
-#                     self.add_url_rule(item_url, view_func=item_endpoint,
-#                                       methods=['POST'])
-
-#                 # also enable an alternative lookup/endpoint if allowed
-#                 add_lookup = settings.get('additional_lookup')
-#                 if add_lookup:
-#                     item_url = '%s<regex("%s"):%s>/' % (url,
-#                                                         add_lookup['url'],
-#                                                         add_lookup['field'])
-#                     self.add_url_rule(item_url, view_func=item_endpoint,
-#                                       methods=['GET'])
-#         self.config['RESOURCES'] = resources
-#         self.config['URLS'] = urls
-#         self.config['SOURCES'] = datasources
-# =======
     def register_schema(self, data):
         """Register eve schema from data layer"""
         if hasattr(data, 'register_schema'):
