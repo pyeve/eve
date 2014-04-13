@@ -100,7 +100,7 @@ class SQL(DataLayer):
 
         client_projection = self._client_projection(req)
         datasource, args['spec'], fields, args['sort'] = self._datasource_ex(resource, [],
-                                                                                     client_projection, args['sort'])
+                                                                             client_projection, args['sort'])
         model = self.lookup_model(datasource)
         if req.where:
             try:
@@ -137,18 +137,16 @@ class SQL(DataLayer):
 
         return SQLAResultCollection(query, fields, **args)
 
-    def find_one(self, resource, **lookup):
-        """Retrieves a single document.
+    def find_one(self, resource, req, **lookup):
+        # self._mongotize(lookup, resource)
 
-        :param resource: resource name.
-        :param **lookup: lookup query.
-        """
-        # datasource, filter_, _ = self._datasource_ex(resource, lookup)
-        # model = self.lookup_model(datasource)
-        # query = self.driver.session.query(model)
-        #
-        # return SQLAResult(query.filter_by(**filter_).one())
-        raise NotImplementedError  # TODO: bring forward the previous implementation to the new changes
+        client_projection = self._client_projection(req)
+
+        datasource, filter_, fields, _ = self._datasource_ex(resource, lookup, client_projection)
+        model = self.lookup_model(datasource)
+        query = self.driver.session.query(model)
+
+        return SQLAResult(query.filter_by(**filter_).one(), fields)
 
     def insert(self, resource, doc_or_docs):
         """Inserts a document into a resource collection.

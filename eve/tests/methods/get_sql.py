@@ -1,69 +1,9 @@
 import simplejson as json
-import os
-import random
-import string
-import eve
 import unittest
-from eve.io.sql import SQL, Validator
-from eve.tests import TestBase
+from eve.tests import TestBaseSQL
 
 
-class TestGetSQL(TestBase):
-    from eve.tests import test_sql_tables
-
-    def setUp(self, url_converters=None):
-        self.connection = None
-        self.known_resource_count = 101
-        self.this_directory = os.path.dirname(os.path.realpath(__file__))
-        self.settings_file = os.path.join(self.this_directory, '../test_settings_sql.py')
-        self.app = eve.Eve(settings=self.settings_file,
-                           url_converters=url_converters,
-                           data=SQL,
-                           validator=Validator)
-        self.test_client = self.app.test_client()
-        self.domain = self.app.config['DOMAIN']
-        self.setupDB()
-
-        self.known_resource = 'people'
-        self.known_resource_url = ('/%s' % self.domain[self.known_resource]['url'])
-        response, _ = self.get(self.known_resource, '?max_results=2')
-        person = self.response_item(response)
-        self.item = person
-        self.item_id = self.item[self.app.config['ID_FIELD']]
-        self.item_firstname = self.item['firstname']
-
-        self.empty_resource = 'empty'
-        self.empty_resource_url = '/%s' % self.empty_resource
-
-    def setupDB(self):
-        self.connection = self.app.data.driver
-        self.connection.drop_all()
-        self.connection.create_all()
-        self.bulk_insert()
-
-    def bulk_insert(self):
-        sql_tables = self.test_sql_tables
-        people = self.random_people(self.known_resource_count)
-        if not self.connection.session.query(sql_tables.People).count():
-            for item in people:
-                self.connection.session.add(sql_tables.People.from_tuple(item))
-                self.connection.session.commit()
-
-    def random_people(self, num):
-
-        def random_string(length):
-            return ''.join(random.choice(string.ascii_lowercase) for _ in xrange(length)).capitalize()
-
-        people = []
-        for i in xrange(num):
-            people.append((random_string(6), random_string(6), i))
-        return people
-
-    def dropDB(self):
-        self.connection = self.app.data.driver
-        self.connection.session.remove()
-        self.connection.drop_all()
-
+class TestGetSQL(TestBaseSQL):
     def test_get_empty_resource(self):
         response, status = self.get(self.empty_resource)
         self.assert404(status)
@@ -561,32 +501,32 @@ class TestGetSQL(TestBase):
 #         self.assertEqual(len(response['_links']), 2)
 #         # which links to the right contact
 #         self.assertEqual(response['_items'][0]['person'], str(fake_contact_id))
-#
-#
-# class TestGetItem(TestBase):
-#
-#     def assertItemResponse(self, response, status,
-#                            resource=None):
-#         self.assert200(status)
-#         self.assertTrue(self.app.config['ETAG'] in response)
-#         links = response['_links']
-#         self.assertEqual(len(links), 3)
-#         self.assertHomeLink(links)
-#         self.assertCollectionLink(links, resource or self.known_resource)
-#         self.assertItem(response)
-#
-#     def test_disallowed_getitem(self):
-#         _, status = self.get(self.empty_resource, item=self.item_id)
-#         self.assert404(status)
-#
-#     def test_getitem_by_id(self):
-#         response, status = self.get(self.known_resource,
-#                                     item=self.item_id)
-#         self.assertItemResponse(response, status)
-#
-#         response, status = self.get(self.known_resource,
-#                                     item=self.unknown_item_id)
-#         self.assert404(status)
+
+
+class TestGetItem(TestBaseSQL):
+
+    def assert_item_response(self, response, status,
+                           resource=None):
+        self.assert200(status)
+        self.assertTrue(self.app.config['ETAG'] in response)
+        links = response['_links']
+        self.assertEqual(len(links), 3)
+        self.assertHomeLink(links)
+        self.assertCollectionLink(links, resource or self.known_resource)
+        self.assertItem(response)
+
+    def test_disallowed_getitem(self):
+        _, status = self.get(self.empty_resource, item=self.item_id)
+        self.assert404(status)
+
+    def test_getitem_by_id(self):
+        response, status = self.get(self.known_resource,
+                                    item=self.item_id)
+        self.assert_item_response(response, status)
+
+        # response, status = self.get(self.known_resource,
+        #                             item=self.unknown_item_id)
+        # self.assert404(status)
 #
 #     def test_getitem_noschema(self):
 #         self.app.config['DOMAIN'][self.known_resource]['schema'] = {}

@@ -7,7 +7,6 @@
     Master SQLAlchemy db.Model for all the tables to derive from.
 
 """
-
 from sqlalchemy import func
 from .sql import db
 

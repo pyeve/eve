@@ -8,6 +8,7 @@ import os
 import simplejson as json
 from datetime import datetime, timedelta
 from flask.ext.pymongo import MongoClient
+from eve.io.sql import SQL, Validator
 from bson import ObjectId
 from eve.tests.test_settings import MONGO_PASSWORD, MONGO_USERNAME, \
     MONGO_DBNAME, DOMAIN, MONGO_HOST, MONGO_PORT
@@ -298,6 +299,12 @@ class TestMinimal(unittest.TestCase):
         self.connection.drop_database(MONGO_DBNAME)
         self.connection.close()
 
+    def response_item(self, response, i=0):
+        if self.app.config['HATEOAS']:
+            return response['_items'][i]
+        else:
+            return response[i]
+
 
 class TestBase(TestMinimal):
 
@@ -373,12 +380,6 @@ class TestBase(TestMinimal):
         self.invoice_id_url = ('/%s/%s' %
                                (self.domain['invoices']['url'],
                                 self.invoice_id))
-
-    def response_item(self, response, i=0):
-        if self.app.config['HATEOAS']:
-            return response['_items'][i]
-        else:
-            return response[i]
 
     def random_contacts(self, num, standard_date_fields=True):
         schema = DOMAIN['contacts']['schema']
@@ -467,3 +468,60 @@ class TestBase(TestMinimal):
         _db.payments.insert(self.random_payments(10))
         _db.invoices.insert(self.random_invoices(1))
         self.connection.close()
+
+
+class TestBaseSQL(TestMinimal):
+    from eve.tests import test_sql_tables
+
+    def setUp(self, url_converters=None):
+        self.connection = None
+        self.known_resource_count = 101
+        self.this_directory = os.path.dirname(os.path.realpath(__file__))
+        self.settings_file = os.path.join(self.this_directory, 'test_settings_sql.py')
+        self.app = eve.Eve(settings=self.settings_file,
+                           url_converters=url_converters,
+                           data=SQL,
+                           validator=Validator)
+        self.test_client = self.app.test_client()
+        self.domain = self.app.config['DOMAIN']
+        self.setupDB()
+
+        self.known_resource = 'people'
+        self.known_resource_url = ('/%s' % self.domain[self.known_resource]['url'])
+        response, _ = self.get(self.known_resource, '?max_results=2')
+        person = self.response_item(response)
+        self.item = person
+        self.item_id = self.item[self.app.config['ID_FIELD']]
+        self.item_firstname = self.item['firstname']
+
+        self.empty_resource = 'empty'
+        self.empty_resource_url = '/%s' % self.empty_resource
+
+    def setupDB(self):
+        self.connection = self.app.data.driver
+        self.connection.drop_all()
+        self.connection.create_all()
+        self.bulk_insert()
+
+    def bulk_insert(self):
+        sql_tables = self.test_sql_tables
+        people = self.random_people(self.known_resource_count)
+        if not self.connection.session.query(sql_tables.People).count():
+            for item in people:
+                self.connection.session.add(sql_tables.People.from_tuple(item))
+                self.connection.session.commit()
+
+    def random_people(self, num):
+
+        def random_string(length):
+            return ''.join(random.choice(string.ascii_lowercase) for _ in xrange(length)).capitalize()
+
+        people = []
+        for i in xrange(num):
+            people.append((random_string(6), random_string(6), i))
+        return people
+
+    def dropDB(self):
+        self.connection = self.app.data.driver
+        self.connection.session.remove()
+        self.connection.drop_all()
