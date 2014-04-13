@@ -1,57 +1,124 @@
 .. _auth:
 
-Authentication
-==============
-You can restrict access to all API endpoints, or only some of them. You can
-protect some HTTP verbs while leaving others open. For example, you could allow
-public read-only access while leaving item creation and edition restricted to
-authorized users only. There is also support for role-based access control
+Authentication and Authorization
+================================
+Introduction to Security
+------------------------
+Authentication is the mechanism whereby systems may securely identify their
+users. Eve supports several authentication schemes: Basic Authentication, Token
+Authentication, HMAC Authentication.
 
-Authentication is one of those areas where customization is very important.
-This is why you are provided with a handful of base authorization classes. They
-should be subclassed in order to implement custom logic. As you will see in the
-code snippets below, no matter which authentication scheme you pick, the only
-thing that you need to do is override the ``check_auth()`` method. When you
-instantiate the Eve app, you pass your custom class, like this:
+Authorization is the mechanism by which a system determines what level of
+access a particular (authenticated) user should have access to resources
+controlled by the system. In Eve, you can restrict access to all API endpoints,
+or only some of them. You can protect some HTTP verbs while leaving others
+open. For example, you can allow public read-only access while leaving item
+creation and edition restricted to authorized users only. You can also allow
+``GET`` access for certain requests and ``POST`` access for others by checking
+the method parameter. There is also support for role-based access control.
 
-::
+Security is one of those areas where customization is very important. This is
+why you are provided with a handful of base authentication classes. They
+implement the basic authentication mechanism and must be subclassed in order
+to implement authorization logic. No matter which authentication scheme you
+pick the only thing that you need to do in your subclass is override the
+``check_auth()`` method. 
+
+Global Authentication
+---------------------
+To enable authentication for your API just pass the custom auth class on
+app instantiation. In our example we're going to use the ``BasicAuth`` base
+class, which implements the :ref:`basic` scheme:
+
+.. code-block:: python
 
     from eve.auth import BasicAuth
 
     class MyBasicAuth(BasicAuth):
-        def check_auth(self, username, password, allowed_roles):
+        def check_auth(self, username, password, allowed_roles, resource,
+                       method):
             return username == 'admin' and password == 'secret'
 
     app = Eve(auth=MyBasicAuth)
     app.run()
 
-All your API endpoints are now secured which means that a client will need
+All your API endpoints are now secured, which means that a client will need
 to provide the correct credentials in order to consume the API:
 
 .. code-block:: console
 
-    $ curl -i http://example.com/
-    HTTP/1.0 401 UNAUTHORIZED
-    WWW-Authenticate: Basic realm:"eve"
-    Content-Type: text/html; charset=utf-8
-    Content-Length: 33
-    Server: Eve/0.0.4 Werkzeug/0.8.3 Python/2.7.3
-    Date: Thu, 14 Feb 2013 14:21:11 GMT
-
+    $ curl -i http://example.com
+    HTTP/1.1 401 UNAUTHORIZED
     Please provide proper credentials.
 
-    $ curl -H "Authorization: Basic YWRtaW46c2VjcmV0" -i http://example.com/
-    HTTP/1.0 200 OK
-    Content-Type: application/json
-    Content-Length: 194
-    Server: Eve/0.0.4 Werkzeug/0.8.3 Python/2.7.3
-    Date: Thu, 14 Feb 2013 14:23:39 GMT
+    $ curl -H "Authorization: Basic YWRtaW46c2VjcmV0" -i http://example.com
+    HTTP/1.1 200 OK
 
-By default, access is restricted to *all* endpoints, for *all* HTTP verbs
-(methods), effectively locking down the whole API.
+By default access is restricted to all endpoints for all HTTP verbs
+(methods), effectively locking down the whole API. 
 
-Fine-Tuning Global Security 
----------------------------
+But what if your authorization logic is more complex, and you only want to
+secure some endpoints or apply different logics depending on the
+endpoint being consumed? You could get away with just adding logic to your
+authentication class, maybe with something like this:
+
+.. code-block:: python
+
+    class MyBasicAuth(BasicAuth):
+        def check_auth(self, username, password, allowed_roles, resource, method):
+            if resource in ('zipcodes', 'countries'):
+                # 'zipcodes' and 'countries' are public
+                return True
+            else:
+                # all the other resources are secured
+                return username == 'admin' and password == 'secret'
+
+If needed, this approach also allows to take the request ``method`` into
+consideration, for example to allow ``GET`` requests for everyone while forcing
+validation on edits (``POST``, ``PUT``, ``PATCH``, ``DELETE``). 
+
+Endpoint-level Authentication
+-----------------------------
+The *one class to bind them all* approach seen above is probably good for most
+use cases but as soon as authorization logic gets more complicated it could
+easily lead to complex and unmanageable code, something you don't really want
+to have when dealing with security. 
+
+Wouldn't it be nice if we could have specialized auth classes that we could
+freely apply to selected endpoints? This way the global level auth class, the
+one passed to the Eve constructor as seen above, would still be active on all
+endpoints except those where different authorization logic is needed.
+Alternatively, we could even choose to *not* provide a global auth class,
+effectively making all endpoints public, except the ones we want protected.
+With a system like this we could even choose to have some endpoints protected
+with, say, Basic Authentication while others are secured with Token, or HMAC
+Authentication! 
+
+Well, turns out this is actually possible by simply enabling the
+resource-level ``authentication`` setting when we are defining the API
+:ref:`domain <domain>`.
+
+.. code-block:: python
+
+    DOMAIN = {
+        'people': {
+            'authentication': MySuperCoolAuth,
+            ...
+            },
+        'invoices': ... 
+        }
+
+And that's it. The `people` endpoint will now be using the ``MySuperCoolAuth``
+class for authentication, while the ``invoices`` endpoint  will be using the
+general-purpose auth class if provided or else it will just be open to the
+public.
+
+There are other features and options that you can use to reduce complexity in
+your auth classes, especially (but not only) when using the global level
+authentication system. Lets review them.
+
+Global Endpoint Security 
+------------------------
 You might want a public read-only API where only authorized users can write,
 edit and delete. You can achieve that by using the ``PUBLIC_METHODS`` and
 ``PUBLIC_ITEM_METHODS`` :ref:`global settings <global>`. Add the following to
@@ -62,18 +129,20 @@ your `settings.py`:
     PUBLIC_METHODS = ['GET'] 
     PUBLIC_ITEM_METHODS = ['GET']
 
-And run your API. POST, PATCH and DELETE are still restricted while GET is
+And run your API. POST, PATCH and DELETE are still restricted, while GET is
 publicly available at all API endpoints. ``PUBLIC_METHODS`` refers to resource
-endpoints, like ``/people/``, while ``PUBLIC_ITEM_METHODS`` refers to individual
-items like ``/people/id/``.
+endpoints, like ``/people``, while ``PUBLIC_ITEM_METHODS`` refers to individual
+items like ``/people/id``.
 
-Fine-Tuning Endpoint Security
------------------------------
+.. _endpointsec:
+
+Custom Endpoint Security
+------------------------
 Suppose that you want to allow public read access to only certain resources.
 You do that by declaring public methods at resource level, while declaring the
 API :ref:`domain <domain>`:
 
-::
+.. code-block:: python
 
     DOMAIN = {
         'people': {
@@ -83,8 +152,8 @@ API :ref:`domain <domain>`:
         }
 
 Be aware that, when present, :ref:`resource settings <local>` override global
-settings. You can use this at your advantage. Suppose that you want to grant
-read access to all endpoints with the only exception of ``/invoices/``.  You
+settings. You can use this to your advantage. Suppose that you want to grant
+read access to all endpoints with the only exception of ``/invoices``.  You
 first open read access for all endpoints:
 
 ::
@@ -115,9 +184,9 @@ authentication.
 
 Basic Authentication with bcrypt
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Encoding password with bcrypt_ is a great idea. It comes at the cost of
+Encoding passwords with bcrypt_ is a great idea. It comes at the cost of
 performance, but that's precisely the point, as slow encoding means very good
-resistance to brute-force attacks. For a faster (and less safe) alternative see
+resistance to brute-force attacks. For a faster (and less safe) alternative, see
 the SHA1/MAC snippet further below. 
 
 This script assumes that user accounts are stored in an `accounts` MongoDB
@@ -129,7 +198,7 @@ resources/methods will be secured unless they are made explicitly public.
 
     You will need to install `py-bcript` for this to work.
 
-::
+.. code-block:: python
 
 
     # -*- coding: utf-8 -*-
@@ -152,7 +221,7 @@ resources/methods will be secured unless they are made explicitly public.
 
 
     class BCryptAuth(BasicAuth):
-        def check_auth(self, username, password, allowed_roles):
+        def check_auth(self, username, password, allowed_roles, resource, method):
             # use Eve's own db driver; no additional connections/resources are used
             accounts = app.data.driver.db['accounts']
             account = accounts.find_one({'username': username})
@@ -170,7 +239,7 @@ This script assumes that user accounts are stored in an `accounts` MongoDB
 collection, and that passwords are stored as SHA1/HMAC hashes. All API
 resources/methods will be secured unless they are made explicitly public.
 
-::
+.. code-block:: python
 
     # -*- coding: utf-8 -*-
 
@@ -193,7 +262,7 @@ resources/methods will be secured unless they are made explicitly public.
 
 
     class Sha1Auth(BasicAuth):
-        def check_auth(self, username, password, allowed_roles):
+        def check_auth(self, username, password, allowed_roles, resource, method):
             # use Eve's own db driver; no additional connections/resources are used
             accounts = app.data.driver.db['accounts']
             account = accounts.find_one({'username': username})
@@ -205,17 +274,20 @@ resources/methods will be secured unless they are made explicitly public.
         app = Eve(auth=Sha1Auth)
         app.run()
 
+.. _token:
+
 Token-Based Authentication
 --------------------------
-Token based authentication can be considered a specialized version of Basic
-Authentication. The Authorization header tag will contain the auth token.
+Token-based authentication can be considered a specialized version of Basic
+Authentication. The Authorization header tag will contain the auth token as the
+username, and no password.
 
 This script assumes that user accounts are stored in an `accounts` MongoDB
 collection. All API resources/methods will be secured unless they are made
 explicitly public (by fiddling with some settings you can open one or more
 resources and/or methods to public access -see docs).
 
-::
+.. code-block:: python
 
     # -*- coding: utf-8 -*-
 
@@ -234,7 +306,7 @@ resources and/or methods to public access -see docs).
 
 
     class TokenAuth(TokenAuth):
-        def check_auth(self, token, allowed_roles):
+        def check_auth(self, token, allowed_roles, resource, method):
             """For the purpose of this example the implementation is as simple as
             possible. A 'real' token should probably contain a hash of the
             username/password combo, which sould then validated against the account
@@ -255,18 +327,18 @@ The ``eve.auth.HMACAuth`` class allows for custom, Amazon S3-like, HMAC (Hash
 Message Authentication Code) authentication, which is basically a very secure
 custom authentication scheme built around the `Authorization` header.
   
-How HMAC Authenticaton Works
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+How HMAC Authentication Works
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The server provides the client with a user id and a secret key through some
 out-of-band technique (e.g., the service sends the client an e-mail
 containing the user id and secret key). The client will use the supplied
 secret key to sign all requests.
 
-When the client wants to send a request he builds the complete request and
-then using the secret key computes a hash over the complete message body (and
+When the client wants to send a request, he builds the complete request and
+then, using the secret key, computes a hash over the complete message body (and
 optionally some of the message headers if required) 
 
-Next the client add the computed hash and his userid to the message in the
+Next, the client adds the computed hash and his userid to the message in the
 Authorization header:
 
 ::
@@ -275,10 +347,10 @@ Authorization header:
 
 and sends it to the service. The service retrieves the userid from the
 message header and searches the private key for that user in its own
-database. Next he computes the hash over the message body (and selected
+database. Next it computes the hash over the message body (and selected
 headers) using the key to generate its hash. If the hash the client sends
-matches the hash the server computes the server knows the message was send by
-the real client and was not altered in any way.  
+matches the hash the server computes, then the server knows the message was
+sent by the real client and was not altered in any way.
 
 Really the only tricky part is sharing a secret key with the user and keeping
 that secure. That is why some services allow for generation of shared keys
@@ -294,7 +366,7 @@ HMAC Example
 The snippet below can also be found in the `examples/security` folder of the
 Eve `repository`_.
 
-::
+.. code-block:: python
 
     from eve import Eve
     from eve.auth import HMACAuth
@@ -303,8 +375,10 @@ Eve `repository`_.
 
 
     class HMACAuth(HMACAuth):
-        def check_auth(self, userid, hmac_hash, headers, data, allowed_roles):
-            # use Eve's own db driver; no additional connections/resources are used
+        def check_auth(self, userid, hmac_hash, headers, data, allowed_roles,
+                       resource, method):
+            # use Eve's own db driver; no additional connections/resources are 
+            # used
             accounts = app.data.driver.db['accounts']
             user = accounts.find_one({'userid': userid})
             if user:
@@ -312,20 +386,23 @@ Eve `repository`_.
             # in this implementation we only hash request data, ignoring the
             # headers.
             return user and \
-                hmac.new(secret_key, data, sha1).hexdigest() == hmac_hash
+                hmac.new(str(secret_key), str(data), sha1).hexdigest() == \
+                    hmac_hash
 
 
     if __name__ == '__main__':
         app = Eve(auth=HMACAuth)
         app.run()
 
+.. _roleaccess:
+
 Role Based Access Control
 -------------------------
 The code snippets above deliberately ignore the ``allowed_roles`` parameter.
 You can use this parameter to restrict access to authenticated users who also
-have been assigned specific roles. 
+have been assigned specific roles.
 
-First you would use the new ``ALLOWED_ROLES`` and ``ALLOWED_ITEM_ROLES`` :ref:`global
+First, you would use the new ``ALLOWED_ROLES`` and ``ALLOWED_ITEM_ROLES`` :ref:`global
 settings <global>` (or the corresponding ``allowed_roles`` and ``allowed_item_roles``
 :ref:`resource settings <local>`).
 
@@ -341,7 +418,7 @@ MongoDB collection, that passwords are stored as SHA1/HMAC hashes and that user
 roles are stored in a 'roles' array. All API resources/methods will be secured
 unless they are made explicitly public.
 
-::
+.. code-block:: python
 
     # -*- coding: utf-8 -*-
 
@@ -365,7 +442,7 @@ unless they are made explicitly public.
 
 
     class RolesAuth(BasicAuth):
-        def check_auth(self, username, password, allowed_roles):
+        def check_auth(self, username, password, allowed_roles, resource, method):
             # use Eve's own db driver; no additional connections/resources are used
             accounts = app.data.driver.db['accounts']
             lookup = {'username': username}
@@ -380,15 +457,66 @@ unless they are made explicitly public.
         app = Eve(auth=RolesAuth)
         app.run()
   
+.. _user-restricted:
+
 User-Restricted Resource Access
 -------------------------------
-When enabled, authorized users can only read/update/delete items created by
-themselves. Can be switched on and off at global level via the
-``AUTH_USERFIELD_NAME`` keyword, or at resource endpoints with the
-``auth_userfield_name`` keyword (the latter will override the former). The
-keyword contains the actual name of the field used to store the username of the
-user who created the resource item. Defaults to ``''``, which disables the
-feature.
+When this feature is enabled, each stored document is associated with the
+account that created it. This allows the API to transparently serve only
+account-created documents on all kinds of requests: read, edit, delete and of
+course create.  User authentication needs to be enabled for this to work
+properly.
+
+At the global level this feature is enabled by setting ``AUTH_FIELD`` and locally
+(at the endpoint level) by setting ``auth_field``. These properties define the name
+of the field used to store the id of the user who created the document.  So for
+example by setting ``AUTH_FIELD`` to ``user_id``, you are effectively (and
+transparently to the user) adding a ``user_id`` field to every stored
+document. This will then be used to retrieve/edit/delete documents stored by
+the user.
+
+But how do you set the ``auth_field`` value? By invoking the
+``set_request_auth_value()`` class method. Let us revise our
+BCrypt-authentication example from above:
+
+.. code-block:: python
+   :emphasize-lines: 25-28
+
+    # -*- coding: utf-8 -*-
+
+    """
+        Auth-BCrypt
+        ~~~~~~~~~~~
+
+        Securing an Eve-powered API with Basic Authentication (RFC2617).
+
+        You will need to install py-bcrypt: ``pip install py-bcrypt``
+
+        This snippet by Nicola Iarocci can be used freely for anything you like.
+        Consider it public domain.
+    """
+
+    import bcrypt
+    from eve import Eve
+    from eve.auth import BasicAuth
+
+
+    class BCryptAuth(BasicAuth):
+        def check_auth(self, username, password, allowed_roles, resource, method):
+            # use Eve's own db driver; no additional connections/resources are used
+            accounts = app.data.driver.db['accounts']
+            account = accounts.find_one({'username': username})
+            # set 'auth_field' value to the account's ObjectId 
+            # (instead of _id, you might want to use ID_FIELD)
+            if account and '_id' in account:
+                self.set_request_auth_value(account['_id'])
+            return account and \
+                bcrypt.hashpw(password, account['password']) == account['password']
+
+
+    if __name__ == '__main__':
+        app = Eve(auth=BCryptAuth)
+        app.run()
 
 .. admonition:: Please note
 

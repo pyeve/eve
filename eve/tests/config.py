@@ -11,18 +11,16 @@ from eve.io.mongo import Mongo, Validator
 
 
 class TestConfig(TestBase):
-
     def test_default_import_name(self):
         self.assertEqual(self.app.import_name, eve.__package__)
 
     def test_custom_import_name(self):
-        self.app = Eve('custom_import_name',
-                       settings='eve/tests/test_settings.py')
-        self.assertEqual(self.app.import_name, 'custom_import_name')
+        self.app = Eve('unittest', settings=self.settings_file)
+        self.assertEqual(self.app.import_name, 'unittest')
 
     def test_custom_kwargs(self):
-        self.app = Eve('custom_import_name', static_folder='/',
-                       settings='eve/tests/test_settings.py')
+        self.app = Eve('unittest', static_folder='/',
+                       settings=self.settings_file)
         self.assertEqual(self.app.static_folder, '/')
 
     def test_regexconverter(self):
@@ -37,6 +35,26 @@ class TestConfig(TestBase):
 
     def test_default_settings(self):
         self.assertEqual(self.app.settings, self.settings_file)
+
+        # TODO add tests for other global default values
+        self.assertEqual(self.app.config['RATE_LIMIT_GET'], None)
+        self.assertEqual(self.app.config['RATE_LIMIT_POST'], None)
+        self.assertEqual(self.app.config['RATE_LIMIT_PATCH'], None)
+        self.assertEqual(self.app.config['RATE_LIMIT_DELETE'], None)
+
+        self.assertEqual(self.app.config['MONGO_HOST'], 'localhost')
+        self.assertEqual(self.app.config['MONGO_PORT'], 27017)
+        self.assertEqual(self.app.config['MONGO_QUERY_BLACKLIST'], ['$where',
+                                                                    '$regex'])
+        self.assertEqual(self.app.config['MONGO_WRITE_CONCERN'], {'w': 1})
+        self.assertEqual(self.app.config['ISSUES'], '_issues')
+
+    def test_settings_as_dict(self):
+        my_settings = {'API_VERSION': 'override!', 'DOMAIN': {'contacts': {}}}
+        self.app = Eve(settings=my_settings)
+        self.assertEqual(self.app.config['API_VERSION'], 'override!')
+        # did not reset other defaults
+        self.assertEqual(self.app.config['MONGO_WRITE_CONCERN'], {'w': 1})
 
     def test_unexisting_pyfile_config(self):
         self.assertRaises(IOError, Eve, settings='an_unexisting_pyfile.py')
@@ -60,7 +78,6 @@ class TestConfig(TestBase):
         class MyTestDataLayer(DataLayer):
             def init_app(self, app):
                 pass
-            pass
         self.app = Eve(data=MyTestDataLayer, settings=self.settings_file)
         self.assertEqual(type(self.app.data), MyTestDataLayer)
 
@@ -80,7 +97,7 @@ class TestConfig(TestBase):
 
     def test_validate_item_methods(self):
         self.app.config['ITEM_METHODS'] = ['PUT', 'GET', 'POST', 'DELETE']
-        self.assertValidateConfigFailure('PUT, POST')
+        self.assertValidateConfigFailure(['POST', 'PUT'])
 
     def test_validate_schema_methods(self):
         test = {
@@ -92,7 +109,7 @@ class TestConfig(TestBase):
     def test_validate_schema_item_methods(self):
         test = {
             'resource_methods': ['GET'],
-            'item_methods': ['PUT'],
+            'item_methods': ['POST'],
         }
         self.app.config['DOMAIN']['test_resource'] = test
         self.assertValidateConfigFailure('PUT')
@@ -104,11 +121,11 @@ class TestConfig(TestBase):
         self.assertUnallowedField(eve.LAST_UPDATED)
 
     def test_validate_idfield_in_schema(self):
-        self.assertUnallowedField(eve.ID_FIELD)
+        self.assertUnallowedField(eve.ID_FIELD, 'objectid')
 
-    def assertUnallowedField(self, field):
+    def assertUnallowedField(self, field, field_type='datetime'):
         self.domain.clear()
-        schema = {field: {'type': 'datetime'}}
+        schema = {field: {'type': field_type}}
         self.domain['resource'] = {'schema': schema}
         self.app.set_defaults()
         self.assertValidateSchemaFailure('resource', schema, field)
@@ -116,8 +133,8 @@ class TestConfig(TestBase):
     def test_validate_schema(self):
         # lack of 'collection' key for 'data_collection' rule
         schema = self.domain['invoices']['schema']
-        del(schema['person']['data_relation']['collection'])
-        self.assertValidateSchemaFailure('invoices', schema, 'collection')
+        del(schema['person']['data_relation']['resource'])
+        self.assertValidateSchemaFailure('invoices', schema, 'resource')
 
     def test_set_schema_defaults(self):
         # default data_relation field value
@@ -130,9 +147,12 @@ class TestConfig(TestBase):
         self.domain.clear()
         resource = 'plurals'
         self.domain[resource] = {}
-
         self.app.set_defaults()
+        self._test_defaults_for_resource(resource)
+        settings = self.domain[resource]
+        self.assertEqual(len(settings['schema']), 0)
 
+    def _test_defaults_for_resource(self, resource):
         settings = self.domain[resource]
         self.assertEqual(settings['url'], resource)
         self.assertEqual(settings['resource_methods'],
@@ -159,24 +179,33 @@ class TestConfig(TestBase):
                          self.app.config['ITEM_URL'])
         self.assertEqual(settings['item_title'],
                          resource.rstrip('s').capitalize())
-        self.assertEqual(settings['filters'], self.app.config['FILTERS'])
+        self.assertEqual(settings['allowed_filters'],
+                         self.app.config['ALLOWED_FILTERS'])
         self.assertEqual(settings['projection'], self.app.config['PROJECTION'])
+        self.assertEqual(settings['versioning'], self.app.config['VERSIONING'])
         self.assertEqual(settings['sorting'], self.app.config['SORTING'])
+        self.assertEqual(settings['embedding'], self.app.config['EMBEDDING'])
         self.assertEqual(settings['pagination'], self.app.config['PAGINATION'])
-        self.assertEqual(settings['auth_username_field'],
-                         self.app.config['AUTH_USERNAME_FIELD'])
+        self.assertEqual(settings['auth_field'],
+                         self.app.config['AUTH_FIELD'])
         self.assertEqual(settings['allow_unknown'],
                          self.app.config['ALLOW_UNKNOWN'])
+        self.assertEqual(settings['extra_response_fields'],
+                         self.app.config['EXTRA_RESPONSE_FIELDS'])
+        self.assertEqual(settings['mongo_write_concern'],
+                         self.app.config['MONGO_WRITE_CONCERN'])
+        self.assertEqual(settings['resource_title'], settings['url'])
 
         self.assertNotEqual(settings['schema'], None)
         self.assertEqual(type(settings['schema']), dict)
-        self.assertEqual(len(settings['schema']), 0)
 
     def test_datasource(self):
-        resource = 'invoices'
+        self._test_datasource_for_resource('invoices')
+
+    def _test_datasource_for_resource(self, resource):
         datasource = self.domain[resource]['datasource']
         schema = self.domain[resource]['schema']
-        compare = filter(schema.has_key, datasource['projection'])
+        compare = [key for key in datasource['projection'] if key in schema]
         compare.extend([self.app.config['ID_FIELD'],
                         self.app.config['LAST_UPDATED'],
                         self.app.config['DATE_CREATED']])
@@ -205,46 +234,28 @@ class TestConfig(TestBase):
         try:
             self.app.validate_domain_struct()
             self.app.validate_config()
-        except ConfigException, e:
+        except ConfigException as e:
             self.fail('ConfigException not expected: %s' % e)
 
     def assertValidateConfigFailure(self, expected):
         try:
             self.app.validate_domain_struct()
             self.app.validate_config()
-        except ConfigException, e:
-            self.assertTrue(expected.lower() in str(e).lower())
+        except ConfigException as e:
+            if isinstance(expected, str):
+                expected = [expected]
+            for exp in expected:
+                self.assertTrue(exp.lower() in str(e).lower())
         else:
             self.fail("ConfigException expected but not raised.")
 
     def assertValidateSchemaFailure(self, resource, schema, expected):
         try:
             self.app.validate_schema(resource, schema)
-        except SchemaException, e:
+        except SchemaException as e:
             self.assertTrue(expected.lower() in str(e).lower())
         else:
             self.fail("SchemaException expected but not raised.")
-
-    def test_schema_dates(self):
-        self.domain.clear()
-        self.domain['resource'] = {
-            'schema': {
-                'born': {
-                    'type': 'datetime',
-                },
-                'name': {
-                    'type': 'string',
-                },
-                'another_date': {
-                    'type': 'datetime',
-                }
-            }
-        }
-        self.app.set_defaults()
-        settings = self.domain['resource']
-        self.assertNotEqual(settings.get('dates'), None)
-        self.assertEqual(type(settings['dates']), set)
-        self.assertEqual(len(settings['dates']), 2)
 
     def test_schema_defaults(self):
         self.domain.clear()
@@ -267,9 +278,6 @@ class TestConfig(TestBase):
         self.assertEqual(len(settings['defaults']), 2)
 
     def test_url_helpers(self):
-        self.assertNotEqual(self.app.config.get('RESOURCES'), None)
-        self.assertEqual(type(self.app.config['RESOURCES']), dict)
-
         self.assertNotEqual(self.app.config.get('URLS'), None)
         self.assertEqual(type(self.app.config['URLS']), dict)
 
@@ -279,19 +287,45 @@ class TestConfig(TestBase):
         for resource, settings in self.domain.items():
             self.assertEqual(settings['url'],
                              self.app.config['URLS'][resource])
-            self.assertEqual(resource,
-                             self.app.config['RESOURCES'][settings['url']])
-
             self.assertEqual(settings['datasource'],
                              self.app.config['SOURCES'][resource])
 
     def test_url_rules(self):
-        map_adapter = self.app.url_map.bind(self.app.config['SERVER_NAME'])
+        map_adapter = self.app.url_map.bind(self.app.config.get(
+            'SERVER_NAME', ''))
 
-        for resource, settings in self.domain.items():
+        del(self.domain['peopleinvoices'])
+        for _, settings in self.domain.items():
             for method in settings['resource_methods']:
                 self.assertTrue(map_adapter.test('/%s/' % settings['url'],
                                                  method))
 
             # TODO test item endpoints as well. gonna be tricky since
             # we have to reverse regexes here. will be fun.
+
+    def test_register_resource(self):
+        resource = 'resource'
+        settings = {
+            'schema': {
+                'title': {
+                    'type': 'string',
+                    'default': 'Mr.',
+                },
+                'price': {
+                    'type': 'integer',
+                    'default': 100
+                },
+            }
+        }
+        self.app.register_resource(resource, settings)
+        self._test_defaults_for_resource(resource)
+        self._test_datasource_for_resource(resource)
+        self.test_validate_roles()
+
+    def test_auth_field_as_idfield(self):
+        resource = 'resource'
+        settings = {
+            'auth_field': self.app.config['ID_FIELD'],
+        }
+        self.assertRaises(ConfigException, self.app.register_resource,
+                          resource, settings)

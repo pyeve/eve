@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-    eve.io.sqlalchemy
+    eve.io.sql
     ~~~~~~~~~~~~
 
     This package implements the SQLAlchemy data layer.
@@ -10,7 +10,9 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from sqlalchemy import SQLAlchemy, db
+from sql import SQL, db
 from validation import Validator
+from common import CommonColumns
+from decorators import registerSchema
 
-__all__ = ['SQLAlchemy', 'db', 'Validator']
+__all__ = ['SQL', 'db', 'Validator', 'CommonColumns', 'registerSchema']

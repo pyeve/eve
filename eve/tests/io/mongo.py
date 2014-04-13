@@ -4,8 +4,9 @@ from unittest import TestCase
 from bson import ObjectId
 from datetime import datetime
 from eve.io.mongo.parser import parse, ParseError
-from eve.io.mongo import Validator
-from cerberus.errors import ERROR_BAD_TYPE
+from eve.io.mongo import Validator, Mongo, MongoJSONEncoder
+from eve.utils import config
+import simplejson as json
 
 
 class TestPythonParser(TestCase):
@@ -72,7 +73,7 @@ class TestPythonParser(TestCase):
         self.assertEqual(r, {'Invoice.number': 1})
 
     def test_unparsed_statement(self):
-        self.assertRaises(ParseError, parse, 'print "hello"')
+        self.assertRaises(ParseError, parse, 'print ("hello")')
 
     def test_bad_Expr(self):
         self.assertRaises(ParseError, parse, 'a | 2')
@@ -94,12 +95,12 @@ class TestMongoValidator(TestCase):
         doc = {'id': 'not_an_object_id'}
         v = Validator(schema, None)
         self.assertFalse(v.validate(doc))
-        self.assertTrue(ERROR_BAD_TYPE % ('id', 'ObjectId') in
-                        v.errors)
+        self.assertTrue('id' in v.errors)
+        self.assertTrue('ObjectId' in v.errors['id'])
 
     def test_objectid_success(self):
         schema = {'id': {'type': 'objectid'}}
-        doc = {'id': '50656e4538345b39dd0414f0'}
+        doc = {'id': ObjectId('50656e4538345b39dd0414f0')}
         v = Validator(schema, None)
         self.assertTrue(v.validate(doc))
 
@@ -107,3 +108,50 @@ class TestMongoValidator(TestCase):
         schema = {'a_field': {'type': 'string'}}
         v = Validator(schema)
         self.assertTrue(v.transparent_schema_rules, True)
+
+
+class TestMongoDriver(TestCase):
+    def test_combine_queries(self):
+        mongo = Mongo(None)
+        query_a = {'username': {'$exists': True}}
+        query_b = {'username': 'mike'}
+        combined = mongo.combine_queries(query_a, query_b)
+        self.assertEqual(
+            combined,
+            {'$and': [{'username': {'$exists': True}}, {'username': 'mike'}]}
+        )
+
+    def test_json_encoder_class(self):
+        mongo = Mongo(None)
+        self.assertTrue((mongo.json_encoder_class(), MongoJSONEncoder))
+        self.assertTrue((mongo.json_encoder_class(), json.JSONEncoder))
+
+    def test_get_value_from_query(self):
+        mongo = Mongo(None)
+        simple_query = {config.ID_FIELD: 'abcdef012345678901234567'}
+        compound_query = {'$and': [
+            {'username': {'$exists': False}},
+            {config.ID_FIELD: 'abcdef012345678901234567'}
+        ]}
+        self.assertEqual(mongo.get_value_from_query(simple_query,
+                                                    config.ID_FIELD),
+                         'abcdef012345678901234567')
+        self.assertEqual(mongo.get_value_from_query(compound_query,
+                                                    config.ID_FIELD),
+                         'abcdef012345678901234567')
+
+    def test_query_contains_field(self):
+        mongo = Mongo(None)
+        simple_query = {config.ID_FIELD: 'abcdef012345678901234567'}
+        compound_query = {'$and': [
+            {'username': {'$exists': False}},
+            {config.ID_FIELD: 'abcdef012345678901234567'}
+        ]}
+        self.assertTrue(mongo.query_contains_field(simple_query,
+                                                   config.ID_FIELD))
+        self.assertFalse(mongo.query_contains_field(simple_query,
+                                                    'fake-field'))
+        self.assertTrue(mongo.query_contains_field(compound_query,
+                                                   config.ID_FIELD))
+        self.assertFalse(mongo.query_contains_field(compound_query,
+                                                    'fake-field'))

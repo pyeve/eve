@@ -1,14 +1,19 @@
 language: python
-python:
-  - "2.7"
-  - "2.6"
-install: pip install flake8
+python: 2.7
+env:
+  - TOX_ENV=py26
+  - TOX_ENV=py27
+  - TOX_ENV=py33
+  - TOX_ENV=pypy
+  - TOX_ENV=flake8
+install: pip install tox
 script: 
-  - flake8 --exclude="tests" eve
-  - python setup.py test
-services: mongodb
+  - tox -e $TOX_ENV
+services: 
+  - mongodb
+  - redis-server
 before_script:
-  - "ulimit -n 1024"
+    #  - "ulimit -n 1024"
   - mongo eve_test --eval 'db.addUser("test_user", "test_pw");'
 branches:
   only:
