@@ -138,7 +138,6 @@ class TestDelete(TestBase):
 
         # verify that the no documents are left at the sub-resource endpoint
         response, status = self.get('users/%s/invoices' % fake_contact_id)
-        #self.assertTrue(isinstance(response, dict))  # would be a list if > 1
         self.assertEqual(len(response['_items']), 0)
 
         # verify that other documents in the invoices collection have not neen
@@ -198,6 +197,14 @@ class TestDeleteEvents(TestBase):
         self.app.on_pre_DELETE_contacts += devent
         self.delete_resource()
         self.assertFalse(devent.called is None)
+
+    def test_on_pre_DELETE_dynamic_filter(self):
+        def filter_this(resource, request, lookup):
+            lookup["_id"] = self.unknown_item_id
+        self.app.on_pre_DELETE += filter_this
+        # Would normally delete the known document; will return 404 instead.
+        r, s = self.parse_response(self.delete_item())
+        self.assert404(s)
 
     def test_on_post_DELETE_for_item(self):
         devent = DummyEvent(self.after_delete)
@@ -281,7 +288,7 @@ class TestDeleteEvents(TestBase):
         self.test_client.delete(self.known_resource_url)
 
     def delete_item(self):
-        self.test_client.delete(
+        return self.test_client.delete(
             self.item_id_url, headers=[('If-Match', self.item_etag)])
 
     def before_delete(self):

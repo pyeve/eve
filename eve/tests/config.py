@@ -15,11 +15,11 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.import_name, eve.__package__)
 
     def test_custom_import_name(self):
-        self.app = Eve('custom_import_name', settings=self.settings_file)
-        self.assertEqual(self.app.import_name, 'custom_import_name')
+        self.app = Eve('unittest', settings=self.settings_file)
+        self.assertEqual(self.app.import_name, 'unittest')
 
     def test_custom_kwargs(self):
-        self.app = Eve('custom_import_name', static_folder='/',
+        self.app = Eve('unittest', static_folder='/',
                        settings=self.settings_file)
         self.assertEqual(self.app.static_folder, '/')
 

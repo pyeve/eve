@@ -877,17 +877,14 @@ Pre-Request Event Hooks
 ~~~~~~~~~~~~~~~~~~~~~~~
 When a GET, POST, PATCH, PUT, DELETE request is received, both
 a ``on_pre_<method>`` and a ``on_pre_<method>_<resource>`` event is raised.
-You can subscribe to these events with multiple callback functions. Callbacks
-will receive the resource being requested and the original `flask.request`
-object as arguments. ``pre`` events are raised before any actions is taken by
-the API itself.
+You can subscribe to these events with multiple callback functions. 
 
 .. code-block:: pycon
 
-    >>> def pre_get_callback(resource, request):
+    >>> def pre_get_callback(resource, request, lookup):
     ...  print 'A GET request on the "%s" endpoint has just been received!' % resource
 
-    >>> def pre_contacts_get_callback(request):
+    >>> def pre_contacts_get_callback(request, lookup):
     ...  print 'A GET request on the contacts endpoint has just been received!'
 
     >>> app = Eve()
@@ -896,6 +893,34 @@ the API itself.
     >>> app.on_pre_GET_contacts += pre_contacts_get_callback
 
     >>> app.run()
+
+Callbacks will receive the resource being requested, the original
+``flask.request`` object and the current lookup dictionary as arguments (only
+exception being the ``on_pre_POST`` hook which does not provide a ``lookup``
+argument). 
+
+Dynamic Lookup Filters
+^^^^^^^^^^^^^^^^^^^^^^
+Since the ``lookup`` dictionary will be used by the data layer to retrieve
+resource documents, developers may choose to alter it in order to add custom
+logic to the lookup query. 
+
+.. code-block:: python
+
+    def pre_GET(resource, request, lookup):
+        # only return documents that have a 'username' field.
+        lookup["username"] = {'$exists': True}
+
+    app = Eve()
+
+    app.on_pre_GET += pre_GET
+    app.run()
+
+Altering the lookup dictionary at runtime would have similar effects to
+applying :ref:`filter` via configuration. However, you can only set static
+filters via configuration whereas by hooking to the ``on_pre_<METHOD>`` events
+you are allowed to set dynamic filters instead, which allows for additional
+flexibility. 
 
 Post-Request Event Hooks
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -929,8 +954,8 @@ configured:
 
 .. code-block:: pycon
 
-   >>> def add_signature(resource, item):
-   ...     item['SIGNATURE'] = "A %s from eve" % resource
+   >>> def add_signature(resource, response):
+   ...     response['SIGNATURE'] = "A %s from eve" % resource
 
    >>> app = Eve()
    >>> app.on_fetched_item += add_signature
@@ -943,28 +968,27 @@ both. And for each action two events will be fired:
 
 Let's see an overview of what events are available:
 
-
 +-------+--------+------+-------------------------------------------------+
 |Action |What    |When  |Event name / method signature                    |
 +=======+========+======+=================================================+
 |Fetch  |Resource|After || ``on_fetched_resource``                        |
-|       |        |      || ``def event(resource_name, items)``            |
+|       |        |      || ``def event(resource_name, response)``         |
 |       |        |      +-------------------------------------------------+
 |       |        |      || ``on_fetched_resource_<resource_name>``        |
-|       |        |      || ``def event(items)``                           |
+|       |        |      || ``def event(response)``                        |
 |       +--------+------+-------------------------------------------------+
 |       |Item    |After || ``on_fetched_item``                            |
-|       |        |      || ``def event(resource_name, item)``             |
+|       |        |      || ``def event(resource_name, response)``         |
 |       |        |      +-------------------------------------------------+
 |       |        |      || ``on_fetched_item_<resource_name>``            |
-|       |        |      || ``def event(item)``                            |
+|       |        |      || ``def event(response)``                        |
 +-------+--------+------+-------------------------------------------------+
 |Insert |Items   |Before|| ``on_insert``                                  |
 |       |        |      || ``def event(resource_name, items)``            |
 |       |        |      +-------------------------------------------------+
 |       |        |      || ``on_insert_<resource_name>``                  |
 |       |        |      || ``def event(items)``                           |
-|       |        +------+------------------------------------------------+
+|       |        +------+-------------------------------------------------+
 |       |        |After || ``on_inserted``                                |
 |       |        |      || ``def event(resource_name, items)``            |
 |       |        |      +-------------------------------------------------+
@@ -1027,10 +1051,10 @@ Fetch Events
 
 These are the fetch events with their method signature:
 
-- ``on_fetched_resource(resource_name, items)``
-- ``on_fetched_resource_<resource_name>(items)``
-- ``on_fetched_item(resource_name, item)``
-- ``on_fetched_item_<resource_name>(item)``
+- ``on_fetched_resource(resource_name, response)``
+- ``on_fetched_resource_<resource_name>(response)``
+- ``on_fetched_item(resource_name, response)``
+- ``on_fetched_item_<resource_name>(response)``
 
 They are raised when items have just been read from the database and are
 about to be sent to the client. Registered callback functions can manipulate
@@ -1038,16 +1062,16 @@ the items as needed before they are returned to the client.
 
 .. code-block:: pycon
 
-    >>> def before_returning_items(resource_name, items):
+    >>> def before_returning_items(resource_name, response):
     ...  print 'About to return items from "%s" ' % resource_name
 
-    >>> def before_returning_contacts(items):
+    >>> def before_returning_contacts(response):
     ...  print 'About to return contacts'
 
-    >>> def before_returning_item(resource_name, item):
+    >>> def before_returning_item(resource_name, response):
     ...  print 'About to return an item from "%s" ' % resource_name
 
-    >>> def before_returning_contact(item):
+    >>> def before_returning_contact(response):
     ...  print 'About to return a contact'
 
     >>> app = Eve()

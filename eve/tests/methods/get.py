@@ -166,8 +166,11 @@ class TestGet(TestBase):
             self.assertFalse('role' in r)
             self.assertTrue('prog' in r)
             self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.app.config['ETAG'] in r)
             self.assertTrue(self.app.config['LAST_UPDATED'] in r)
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
+            self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+            self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
 
         projection = '{"prog": 0}'
         response, status = self.get(self.known_resource, '?projection=%s' %
@@ -181,8 +184,11 @@ class TestGet(TestBase):
             self.assertTrue('location' in r)
             self.assertTrue('role' in r)
             self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.app.config['ETAG'] in r)
             self.assertTrue(self.app.config['LAST_UPDATED'] in r)
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
+            self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+            self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
 
     def test_get_projection_noschema(self):
         self.app.config['DOMAIN'][self.known_resource]['schema'] = {}
@@ -807,8 +813,11 @@ class TestGetItem(TestBase):
         self.assertFalse('role' in r)
         self.assertTrue('prog' in r)
         self.assertTrue(self.app.config['ID_FIELD'] in r)
+        self.assertTrue(self.app.config['ETAG'] in r)
         self.assertTrue(self.app.config['LAST_UPDATED'] in r)
         self.assertTrue(self.app.config['DATE_CREATED'] in r)
+        self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+        self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
 
         projection = '{"prog": 0}'
         r, status = self.get(self.known_resource, '?projection=%s' %
@@ -818,8 +827,11 @@ class TestGetItem(TestBase):
         self.assertTrue('location' in r)
         self.assertTrue('role' in r)
         self.assertTrue(self.app.config['ID_FIELD'] in r)
+        self.assertTrue(self.app.config['ETAG'] in r)
         self.assertTrue(self.app.config['LAST_UPDATED'] in r)
         self.assertTrue(self.app.config['DATE_CREATED'] in r)
+        self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+        self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
 
 
 class TestHead(TestBase):
@@ -834,8 +846,8 @@ class TestHead(TestBase):
         self.assertHead(self.item_id_url)
 
     def assertHead(self, url):
-        h = self.test_client.head('/')
-        r = self.test_client.get('/')
+        h = self.test_client.head(url)
+        r = self.test_client.get(url)
         self.assertTrue(not h.data)
         self.assertEqual(r.headers, h.headers)
 
@@ -851,6 +863,15 @@ class TestEvents(TestBase):
         self.assertEqual('contacts', self.devent.called[0])
         self.assertFalse(self.devent.called[1] is None)
 
+    def test_on_pre_GET_item_dynamic_filter(self):
+        def filter_this(resource, request, lookup):
+            lookup["_id"] = self.item_id
+        self.app.on_pre_GET += filter_this
+        # Would normally return a 404; will return one instead.
+        r, s = self.parse_response(self.get_item())
+        self.assert200(s)
+        self.assertEqual(r[self.app.config['ID_FIELD']], self.item_id)
+
     def test_on_pre_GET_resource_for_item(self):
         self.app.on_pre_GET_contacts += self.devent
         self.get_item()
@@ -860,6 +881,14 @@ class TestEvents(TestBase):
         self.app.on_pre_GET += self.devent
         self.get_resource()
         self.assertFalse(self.devent.called is None)
+
+    def test_on_pre_GET_resource_dynamic_filter(self):
+        def filter_this(resource, request, lookup):
+            lookup["_id"] = self.item_id
+        self.app.on_pre_GET += filter_this
+        # Would normally return all documents; will only just one.
+        r, s = self.parse_response(self.get_resource())
+        self.assertEqual(len(r[self.app.config['ITEMS']]), 1)
 
     def test_on_pre_GET_resource_for_resource(self):
         self.app.on_pre_GET_contacts += self.devent
@@ -897,13 +926,15 @@ class TestEvents(TestBase):
         self.get_resource()
         self.assertEqual('contacts', self.devent.called[0])
         self.assertEqual(
-            self.app.config['PAGINATION_DEFAULT'], len(self.devent.called[1]))
+            self.app.config['PAGINATION_DEFAULT'],
+            len(self.devent.called[1][self.app.config['ITEMS']]))
 
     def test_on_fetched_resource_contacts(self):
         self.app.on_fetched_resource_contacts += self.devent
         self.get_resource()
         self.assertEqual(
-            self.app.config['PAGINATION_DEFAULT'], len(self.devent.called[0]))
+            self.app.config['PAGINATION_DEFAULT'],
+            len(self.devent.called[0][self.app.config['ITEMS']]))
 
     def test_on_fetched_item(self):
         self.app.on_fetched_item += self.devent
@@ -923,7 +954,9 @@ class TestEvents(TestBase):
         self.assertEqual(1, len(self.devent.called))
 
     def get_resource(self):
-        self.test_client.get(self.known_resource_url)
+        return self.test_client.get(self.known_resource_url)
 
-    def get_item(self):
-        self.test_client.get(self.item_id_url)
+    def get_item(self, url=None):
+        if not url:
+            url = self.item_id_url
+        return self.test_client.get(url)

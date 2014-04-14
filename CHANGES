@@ -8,6 +8,23 @@ Version 0.4
 
 Not released yet.
 
+- [change] PyMongo 2.7 is now required.
+- [fix] Automatic fields such as ``DATE_CREATD`` and ``DATE_CREATED`` are
+  correctly handled in client projections (Josh Villbrandt). Closes #282.
+- [change] Callbacks get whole json response on ``on_fetched``. This allows for
+  callbacks functions to alter the whole payload, even when HATEOAS is enabled
+  and ``_items`` and ``_links`` metafields are present.
+- [new] `on_pre_<METHOD>` events expose the `lookup` dictionary which allows
+  for setting up dynamic database lookups on both resource and item endpoints.
+- [fix] Make codebase compliant with latest PEP8/flake8 release (Javier Gonel).
+- [fix] If you had a media field, and set datasource projection to 0 for that
+  field, the media would not be deleted. Closes #284.
+- [new] Return a 400 response on pymongo DuplicateKeyError, with exception
+  message if debug mode is on (boosh).
+- [change] ``on_update(ed)`` and ``on_replace(ed)`` callbacks now receive both
+  the original document and the updates (Jaroslav Semančík).
+- [new] PyPy officially supported and tested (Javier Gonel).
+- [new] tox support (Javier Gonel).
 - [new] Post database events (Javier Gonel). Addresses #272.
 - [change] Review event names (Javier Gonel). 
 - [new] Versioned Documents (Josh Villbrandt). Closes #224.
@@ -35,8 +52,7 @@ Not released yet.
 - [new] ``on_delete_item`` and ``on_deleted_item`` is raised on DELETE requests
   sent to document endpoints. Addresses #232.
 - [new] ``on_delete_resource`` and ``on_deleted_resource`` is raised on DELETE
-  requests sent to resource
-  endpoints. Addresses #232.
+  requests sent to resource endpoints. Addresses #232.
 - [new] ``on_update`` is raised on PATCH requests, when a document is about to
   be updated on the database. Addresses #232.
 - [new] ``on_replace`` is raised on PUT requests, when a document is about to

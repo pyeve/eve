@@ -9,6 +9,9 @@
     :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.4
+       Remove unnecessary commented code.
+
     .. versionchanged:: 0.2
        'LINKS' defaults to '_links'.
        'ITEMS' defaults to '_items'.
@@ -24,8 +27,6 @@
 """
 
 __version__ = '0.4-dev'
-
-#DEBUG = True
 
 # RFC 1123 (ex RFC 822)
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'

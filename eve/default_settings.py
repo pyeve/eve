@@ -12,7 +12,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.4
-       URL_PROTOCOL added and set to ''.
+       'URL_PROTOCOL' added and set to ''.
        'VERSION' added and set to '_version'.
        'VERSIONS' added and set to '_versions'.
        'VERSIONING' added and set to False.
@@ -57,7 +57,7 @@
        access.
        'X_DOMAIN' keyword added to support Cross-Origin Resource Sharing CORS
 """
-#DEBUG = True
+# DEBUG = True
 
 # RFC 1123 (ex RFC 822)
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
@@ -72,11 +72,13 @@ ITEMS = '_items'
 LINKS = '_links'
 ETAG = '_etag'
 VERSION = '_version'            # field that stores the version number
-LATEST_VERSION = '_latest_version'  # field returned on GET requests so we know
-                                # if we have the latest copy even if we access
-                                # a specific version
-VERSION_ID_SUFFIX = '_document'  # appended to ID_FIELD, holds the original
-                                # document id in parallel collection
+
+# field returned on GET requests so we know if we have the latest copy even if
+# we access a specific version
+LATEST_VERSION = '_latest_version'
+
+# appended to ID_FIELD, holds the original document id in parallel collection
+VERSION_ID_SUFFIX = '_document'
 VERSION_DIFF_INCLUDE = []       # always include these fields when diffing
 
 API_VERSION = ''
@@ -120,12 +122,11 @@ ITEM_URL = 'regex("[a-f0-9]{24}")'
 # DATE_CREATED, and ETAG).
 EXTRA_RESPONSE_FIELDS = []
 
+# user-restricted resource access is disabled by default.
+AUTH_FIELD = None
 
-AUTH_FIELD = None               # user-restricted resource access is disabled
-                                # by default.
-
-ALLOW_UNKNOWN = False           # don't allow unknown key/value pairs for
-                                # POST/PATCH payloads.
+# don't allow unknown key/value pairs for POST/PATCH payloads.
+ALLOW_UNKNOWN = False
 
 # Rate limits are disabled by default. Needs a running redis-server.
 RATE_LIMIT_GET = None

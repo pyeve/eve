@@ -87,6 +87,8 @@ class Mongo(DataLayer):
         :param sub_resource_lookup: sub-resource lookup from the endpoint url.
 
         .. versionchanged:: 0.4
+           'allowed_filters' is now checked before adding 'sub_resource_lookup'
+           to the query, as it is considered safe.
            Refactored to use self._client_projection since projection is now
            honored by getitem() as well.
 
@@ -151,14 +153,14 @@ class Mongo(DataLayer):
                         'Unable to parse `where` clause'
                     ))
 
+        bad_filter = validate_filters(spec, resource)
+        if bad_filter:
+            abort(400, bad_filter)
+
         if sub_resource_lookup:
             spec.update(sub_resource_lookup)
 
         spec = self._mongotize(spec, resource)
-
-        bad_filter = validate_filters(spec, resource)
-        if bad_filter:
-            abort(400, bad_filter)
 
         client_projection = self._client_projection(req)
 
@@ -224,6 +226,21 @@ class Mongo(DataLayer):
             client_projection)
 
         document = self.driver.db[datasource].find_one(filter_, projection)
+        return document
+
+    def find_one_raw(self, resource, _id):
+        """ Retrieves a single raw document.
+
+        :param resource: resource name.
+        :param id: unique id.
+
+        .. versionadded:: 0.4
+        """
+        datasource, filter_, _, _ = self._datasource_ex(resource,
+                                                        {config.ID_FIELD: _id},
+                                                        None)
+
+        document = self.driver.db[datasource].find_one(_id)
         return document
 
     def find_list_of_ids(self, resource, ids, client_projection=None):
@@ -303,6 +320,9 @@ class Mongo(DataLayer):
     def update(self, resource, id_, updates):
         """ Updates a collection document.
 
+        .. versionchanged:: 0.4
+           Return a 400 on pymongo DuplicateKeyError.
+
         .. versionchanged:: 0.3.0
            Custom ID_FIELD lookups would fail. See #203.
 
@@ -331,6 +351,10 @@ class Mongo(DataLayer):
         try:
             self.driver.db[datasource].update(filter_, {"$set": updates},
                                               **self._wc(resource))
+        except pymongo.errors.DuplicateKeyError as e:
+            abort(400, description=debug_error_message(
+                'pymongo.errors.DuplicateKeyError: %s' % e
+            ))
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
             abort(500, description=debug_error_message(

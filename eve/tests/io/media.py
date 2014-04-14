@@ -155,6 +155,40 @@ class TestGridFSMediaStorage(TestBase):
                                                                    _id)))
         self.assert404(s)
 
+    def test_gridfs_media_storage_delete_projection(self):
+        """ test that #284 is fixed: If you have a media field, and set
+        datasource projection to 0 for that field, the media will not be
+        deleted
+        """
+        r, s = self._post()
+        _id = r[ID_FIELD]
+
+        # retrieve media_id and compare original and returned data
+        media_id = self.assertMediaStored(_id)
+
+        self.app.config['DOMAIN']['contacts']['datasource']['projection'] = \
+            {"media": 0}
+
+        r, s = self.parse_response(self.test_client.get('%s/%s' % (self.url,
+                                                                   _id)))
+        etag = r[ETAG]
+
+        # DELETE deletes both the document and the media file
+        headers = [('If-Match', etag)]
+
+        r, s = self.parse_response(
+            self.test_client.delete(('%s/%s' % (self.url, _id)),
+                                    headers=headers))
+        self.assert200(s)
+
+        # media doesn't exist anymore (it's been deleted)
+        self.assertFalse(self.app.media.exists(media_id))
+
+        # GET returns 404
+        r, s = self.parse_response(self.test_client.get('%s/%s' % (self.url,
+                                                                   _id)))
+        self.assert404(s)
+
     def assertMediaField(self, _id, encoded, clean):
         # GET the file at the item endpoint
         r, s = self.parse_response(self.test_client.get('%s/%s' % (self.url,

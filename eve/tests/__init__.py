@@ -12,6 +12,7 @@ from bson import ObjectId
 from eve.tests.test_settings import MONGO_PASSWORD, MONGO_USERNAME, \
     MONGO_DBNAME, DOMAIN, MONGO_HOST, MONGO_PORT
 from eve import ISSUES, ETAG
+from eve.utils import date_to_str
 
 
 class ValueStack(object):
@@ -45,7 +46,7 @@ def close_pymongo_connection(app):
     """
     Close the pymongo connection in an eve/flask app
     """
-    if not 'pymongo' in app.extensions:
+    if 'pymongo' not in app.extensions:
         return
     del app.extensions['pymongo']['MONGO']
     del app.media
@@ -245,7 +246,7 @@ class TestMinimal(unittest.TestCase):
     def assertItemLink(self, links, item_id):
         self.assertTrue('self' in links)
         link = links['self']
-        #TODO we are too deep here to get a hold of the due title. Should fix.
+        # TODO we are too deep here to get a hold of the due title. Should fix.
         self.assertTrue('title' in link)
         self.assertTrue('href' in link)
         self.assertTrue('/%s' % item_id in link['href'])
@@ -373,6 +374,8 @@ class TestBase(TestMinimal):
         self.invoice_id_url = ('/%s/%s' %
                                (self.domain['invoices']['url'],
                                 self.invoice_id))
+
+        self.epoch = date_to_str(datetime(1970, 1, 1))
 
     def response_item(self, response, i=0):
         if self.app.config['HATEOAS']:
