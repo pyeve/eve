@@ -8,6 +8,12 @@ Version 0.4
 
 Not released yet.
 
+- [change] PyMongo 2.7 is now required.
+- [fix] Automatic fields such as ``DATE_CREATD`` and ``DATE_CREATED`` are
+  correctly handled in client projections (Josh Villbrandt). Closes #282.
+- [change] Callbacks get whole json response on ``on_fetched``. This allows for
+  callbacks functions to alter the whole payload, even when HATEOAS is enabled
+  and ``_items`` and ``_links`` metafields are present.
 - [new] `on_pre_<METHOD>` events expose the `lookup` dictionary which allows
   for setting up dynamic database lookups on both resource and item endpoints.
 - [fix] Make codebase compliant with latest PEP8/flake8 release (Javier Gonel).

@@ -166,8 +166,11 @@ class TestGet(TestBase):
             self.assertFalse('role' in r)
             self.assertTrue('prog' in r)
             self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.app.config['ETAG'] in r)
             self.assertTrue(self.app.config['LAST_UPDATED'] in r)
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
+            self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+            self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
 
         projection = '{"prog": 0}'
         response, status = self.get(self.known_resource, '?projection=%s' %
@@ -181,8 +184,11 @@ class TestGet(TestBase):
             self.assertTrue('location' in r)
             self.assertTrue('role' in r)
             self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.app.config['ETAG'] in r)
             self.assertTrue(self.app.config['LAST_UPDATED'] in r)
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
+            self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+            self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
 
     def test_get_projection_noschema(self):
         self.app.config['DOMAIN'][self.known_resource]['schema'] = {}
@@ -807,8 +813,11 @@ class TestGetItem(TestBase):
         self.assertFalse('role' in r)
         self.assertTrue('prog' in r)
         self.assertTrue(self.app.config['ID_FIELD'] in r)
+        self.assertTrue(self.app.config['ETAG'] in r)
         self.assertTrue(self.app.config['LAST_UPDATED'] in r)
         self.assertTrue(self.app.config['DATE_CREATED'] in r)
+        self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+        self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
 
         projection = '{"prog": 0}'
         r, status = self.get(self.known_resource, '?projection=%s' %
@@ -818,8 +827,11 @@ class TestGetItem(TestBase):
         self.assertTrue('location' in r)
         self.assertTrue('role' in r)
         self.assertTrue(self.app.config['ID_FIELD'] in r)
+        self.assertTrue(self.app.config['ETAG'] in r)
         self.assertTrue(self.app.config['LAST_UPDATED'] in r)
         self.assertTrue(self.app.config['DATE_CREATED'] in r)
+        self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+        self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
 
 
 class TestHead(TestBase):
@@ -914,13 +926,15 @@ class TestEvents(TestBase):
         self.get_resource()
         self.assertEqual('contacts', self.devent.called[0])
         self.assertEqual(
-            self.app.config['PAGINATION_DEFAULT'], len(self.devent.called[1]))
+            self.app.config['PAGINATION_DEFAULT'],
+            len(self.devent.called[1][self.app.config['ITEMS']]))
 
     def test_on_fetched_resource_contacts(self):
         self.app.on_fetched_resource_contacts += self.devent
         self.get_resource()
         self.assertEqual(
-            self.app.config['PAGINATION_DEFAULT'], len(self.devent.called[0]))
+            self.app.config['PAGINATION_DEFAULT'],
+            len(self.devent.called[0][self.app.config['ITEMS']]))
 
     def test_on_fetched_item(self):
         self.app.on_fetched_item += self.devent
