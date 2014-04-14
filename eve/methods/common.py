@@ -432,7 +432,7 @@ def pre_event(f):
         elif method in ('POST'):
             # POST hook does not support the kwargs argument
             gh_params = (resource, request)
-            rh_params = (resource,)
+            rh_params = (request,)
 
         # general hook
         getattr(app, event_name)(*gh_params)
