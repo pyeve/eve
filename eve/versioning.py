@@ -55,7 +55,25 @@ def resolve_document_version(document, resource, method, latest_doc=None):
             # this one is easy! it is a new document
             document[version] = 1
 
-        if method == 'PUT' or method == 'PATCH':
+        if method == 'PATCH':
+            if not latest_doc:
+                abort(500, description=debug_error_message(
+                    'I need the latest document here!'
+                ))
+            if version in latest_doc:
+                if set(document.keys()).isdisjoint(versioned_fields(resource_def)):
+                    document[version] = latest_doc[version]
+                else:
+                    document[version] = latest_doc[version] + 1
+            else:
+                # if versioning was just turned on, then we will start
+                # versioning now. if the db was modified outside of Eve or
+                # versioning was turned of for a while, version numbers will
+                # not be consistent! you have been warned
+                document[version] = 1
+        
+
+        if method == 'PUT': # or method == 'PATCH':
             if not latest_doc:
                 abort(500, description=debug_error_message(
                     'I need the latest document here!'
@@ -116,7 +134,7 @@ def insert_versioning_documents(resource, ids, documents):
 
             # add document to the stack
             versioned_documents.append(ver_doc)
-
+        
         # bulk insert
         app.data.insert(resource+app.config['VERSIONS'], versioned_documents)
 
