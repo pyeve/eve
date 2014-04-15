@@ -8,6 +8,7 @@ Version 0.4
 
 Not released yet.
 
+- [fix] Tests on HEAD requests would very occasionally fail. See #316.
 - [change] PyMongo 2.7 is now required.
 - [fix] Automatic fields such as ``DATE_CREATD`` and ``DATE_CREATED`` are
   correctly handled in client projections (Josh Villbrandt). Closes #282.
