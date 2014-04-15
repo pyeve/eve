@@ -13,12 +13,13 @@
 
 from datetime import datetime
 from flask import current_app as app
-from eve.utils import document_link, config, document_etag
+from eve.utils import config, parse_request
 from eve.auth import requires_auth
 from eve.validation import ValidationError
 from eve.methods.common import parse, payload, ratelimit, \
-    resolve_default_values, pre_event, resolve_media_files, \
-    resolve_user_restricted_access
+    resolve_default_values, pre_event, store_media_files, \
+    resolve_user_restricted_access, resolve_embedded_fields, \
+    build_response_document, marshal_write_response
 from eve.versioning import resolve_document_version, \
     insert_versioning_documents
 
@@ -119,6 +120,12 @@ def post(resource, payl=None):
     documents = []
     issues = []
 
+    if config.BANDWIDTH_SAVER is True:
+        embedded_fields = []
+    else:
+        req = parse_request(resource)
+        embedded_fields = resolve_embedded_fields(resource, req)
+
     # validation, and additional fields
     if payl is None:
         payl = payload()
@@ -139,7 +146,7 @@ def post(resource, payl=None):
 
                 resolve_user_restricted_access(document, resource)
                 resolve_default_values(document, resource)
-                resolve_media_files(document, resource)
+                store_media_files(document, resource)
                 resolve_document_version(document, resource, 'POST')
             else:
                 # validation errors added to list of document issues
@@ -184,46 +191,41 @@ def post(resource, payl=None):
         # from the docs:
         # If no document passed validation the status code will be ``200 OK``,
         # meaning that the request was accepted and processed. It is still
-        # client's responsability to parse the response payload and make sure
+        # client's responsibility to parse the response payload and make sure
         # that all documents passed validation.
         return_code = 200
 
     # build response payload
     response = []
     for doc_issues in issues:
-        item = {}
         if len(doc_issues):
-            item[config.STATUS] = config.STATUS_ERR
-            item[config.ISSUES] = doc_issues
+            document = {}
+            document[config.STATUS] = config.STATUS_ERR
+            document[config.ISSUES] = doc_issues
         else:
-            item[config.STATUS] = config.STATUS_OK
-
             document = documents.pop(0)
-            item[config.LAST_UPDATED] = document[config.LAST_UPDATED]
 
             # either return the custom ID_FIELD or the id returned by
             # data.insert().
-            item[config.ID_FIELD] = document.get(config.ID_FIELD, ids.pop(0))
+            document[config.ID_FIELD] = \
+                document.get(config.ID_FIELD, ids.pop(0))
 
-            if config.IF_MATCH:
-                item[config.ETAG] = document_etag(document)
+            # build the full response document
+            build_response_document(
+                document, resource, embedded_fields, document)
 
-            if resource_def['versioning'] is True:
-                resolve_document_version(document, resource, 'GET')
-                item[config.VERSION] = document[config.VERSION]
-                item[config.LATEST_VERSION] = document[config.LATEST_VERSION]
+            # not sure why i need to do this, but it makes tests.methods.post.
+            # TestPost.test_post_custom_idfield happy
+            if config.ID_FIELD != '_id':
+                del(document['_id'])
 
-            if resource_def['hateoas']:
-                item[config.LINKS] = \
-                    {'self': document_link(resource, item[config.ID_FIELD])}
+            # add extra write meta data
+            document[config.STATUS] = config.STATUS_OK
 
-            # add any additional field that might be needed
-            allowed_fields = [x for x in resource_def['extra_response_fields']
-                              if x in document.keys()]
-            for field in allowed_fields:
-                item[field] = document[field]
+            # limit what actually gets sent to minimize bandwidth usage
+            document = marshal_write_response(document, resource)
 
-        response.append(item)
+        response.append(document)
 
     if len(response) == 1:
         response = response.pop(0)
