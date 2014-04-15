@@ -850,14 +850,15 @@ class TestHead(TestBase):
         r = self.test_client.get(url)
         self.assertTrue(not h.data)
 
-        head_expire = str_to_date(r.headers.pop('Expires'))
-        get_expire = str_to_date(h.headers.pop('Expires'))
-        self.assertEqual(r.headers, h.headers)
+        if 'Expires' in r.headers:
+            # there's a tiny chance that the two expire values will differ by
+            # one second. See #316.
+            head_expire = str_to_date(r.headers.pop('Expires'))
+            get_expire = str_to_date(h.headers.pop('Expires'))
+            d = head_expire - get_expire
+            self.assertTrue(d.seconds in (0, 1))
 
-        # there's a tiny chance that the two expire values will differ by one
-        # second. See #316.
-        d = head_expire - get_expire
-        self.assertTrue(d.seconds in (0, 1))
+        self.assertEqual(r.headers, h.headers)
 
 
 class TestEvents(TestBase):
