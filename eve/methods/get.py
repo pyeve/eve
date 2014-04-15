@@ -416,6 +416,7 @@ def _resolve_embedded_documents(document, resource, embedded_fields):
     """
     schema = config.DOMAIN[resource]['schema']
     for field in embedded_fields:
+        if field not in document: continue
         data_relation = schema[field]['data_relation']
         # Retrieve and serialize the requested document
         if 'version' in data_relation and data_relation['version'] is True:
