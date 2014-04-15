@@ -12,7 +12,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from eve.methods import get, getitem, post, patch, delete, delete_resource, put
+from eve.methods import get, getitem, post, patch, delete, deleteitem, put
 from eve.methods.common import ratelimit
 from eve.render import send_response
 from eve.auth import requires_auth
@@ -54,7 +54,7 @@ def collections_endpoint(**lookup):
     elif method == 'POST':
         response = post(resource)
     elif method == 'DELETE':
-        response = delete_resource(resource, lookup)
+        response = delete(resource, lookup)
     elif method == 'OPTIONS':
         send_response(resource, response)
     else:
@@ -94,7 +94,7 @@ def item_endpoint(**lookup):
     elif method == 'PUT':
         response = put(resource, **lookup)
     elif method == 'DELETE':
-        response = delete(resource, **lookup)
+        response = deleteitem(resource, **lookup)
     elif method == 'OPTIONS':
         send_response(resource, response)
     else:
