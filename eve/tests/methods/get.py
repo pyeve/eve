@@ -4,7 +4,7 @@ from bson import ObjectId
 from eve.tests import TestBase
 from eve.tests.utils import DummyEvent
 from eve.tests.test_settings import MONGO_DBNAME
-from eve.utils import date_to_str
+from eve.utils import date_to_str, str_to_date
 
 
 class TestGet(TestBase):
@@ -849,7 +849,15 @@ class TestHead(TestBase):
         h = self.test_client.head(url)
         r = self.test_client.get(url)
         self.assertTrue(not h.data)
+
+        head_expire = str_to_date(r.headers.pop('Expires'))
+        get_expire = str_to_date(h.headers.pop('Expires'))
         self.assertEqual(r.headers, h.headers)
+
+        # there's a tiny chance that the two expire values will differ by one
+        # second. See #316.
+        d = head_expire - get_expire
+        self.assertTrue(d.seconds in (0, 1))
 
 
 class TestEvents(TestBase):
