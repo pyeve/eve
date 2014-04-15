@@ -15,8 +15,7 @@ from datetime import datetime
 from eve.auth import requires_auth
 from eve.validation import ValidationError
 from flask import current_app as app, abort
-from eve.utils import document_etag, document_link, config, \
-    debug_error_message, parse_request
+from eve.utils import config, debug_error_message, parse_request
 from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, resolve_default_values, pre_event, store_media_files, \
     resolve_user_restricted_access, resolve_embedded_fields, \
@@ -120,24 +119,6 @@ def put(resource, **lookup):
             build_response_document(
                 document, resource, embedded_fields, document)
             response = document
-
-            # response[config.ID_FIELD] = document.get(config.ID_FIELD,
-            #                                          object_id)
-            # response[config.LAST_UPDATED] = last_modified
-
-            # # metadata
-            # if config.IF_MATCH:
-            #     etag = response[config.ETAG] = document_etag(document)
-            # if resource_def['hateoas']:
-            #     response[config.LINKS] = {
-            #         'self': document_link(resource, response[config.ID_FIELD])
-            #     }
-
-            # if resource_def['versioning'] is True:
-            #     resolve_document_version(document, resource, 'GET')
-            #     response[config.VERSION] = document[config.VERSION]
-            #     response[config.LATEST_VERSION] = \
-            #         document[config.LATEST_VERSION]
         else:
             issues = validator.errors
     except ValidationError as e:
