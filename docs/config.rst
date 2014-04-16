@@ -944,7 +944,7 @@ resource keyword allows you to redefine the fieldset.
 The above setting will expose only the `username` field to GET requests, no
 matter the schema_ defined for the resource. 
 
-Likewise, you can esclude fields from API responses:
+Likewise, you can exclude fields from API responses:
 
 ::
 
