@@ -8,6 +8,8 @@ Version 0.4
 
 Not released yet.
 
+- [fix] KeyError exception was raised when field specified in schema as
+  embeddable was missing in a particular document (Jaroslav Semančík).
 - [fix] Tests on HEAD requests would very occasionally fail. See #316.
 - [change] PyMongo 2.7 is now required.
 - [fix] Automatic fields such as ``DATE_CREATD`` and ``DATE_CREATED`` are
