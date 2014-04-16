@@ -25,8 +25,30 @@ class ParseError(ValueError):
     pass
 
 
+def parse_dictionary(filter_dict, model):
+    """
+    Parse a dictionary into a list of SQLAlchemy BinaryExpressions to be used in query filters.
+
+    :param filter_dict: Dictionary to convert
+    :param model: SQLAlchemy model class used to create the BinaryExpressions
+    :return list: List of conditions as SQLAlchemy BinaryExpressions
+    """
+    if len(filter_dict) == 0:
+        return []
+    conditions = []
+    for k, v in filter_dict.iteritems():
+        try:
+            v = int(v)
+        except ValueError:
+            pass
+        finally:
+            conditions.append(sqla_op.eq(getattr(model, k), v))
+    return conditions
+
+
 def parse(expression, model):
-    """Given a python-like conditional statement, returns the equivalent
+    """
+    Given a python-like conditional statement, returns the equivalent
     SQLAlchemy-like query expression. Conditional and boolean operators
     (==, <=, >=, !=, >, <) are supported.
     """

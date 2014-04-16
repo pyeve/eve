@@ -1,11 +1,12 @@
 import simplejson as json
 from datetime import datetime
-import unittest
+from unittest import skip
 from eve.tests import TestBaseSQL
 from eve.utils import date_to_str
 
 
 class TestGetSQL(TestBaseSQL):
+
     def test_get_empty_resource(self):
         response, status = self.get(self.empty_resource)
         self.assert404(status)
@@ -256,7 +257,7 @@ class TestGetSQL(TestBaseSQL):
             self.assertTrue('_created_on' in document)
             self.assertTrue('_the_etag' in document)
 
-    @unittest.skip("SQL extension does not support nested resources yet")
+    @skip("SQL extension does not support nested resources yet")
     def test_get_nested_resource(self):
         response, status = self.get('users/overseas')
         self.assert_get(response, status, 'users_overseas')
@@ -285,7 +286,7 @@ class TestGetSQL(TestBaseSQL):
         for r in resource:
             self.assertTrue(self.app.config['ETAG'] not in r)
 
-    @unittest.skip('SQL extension does not support delete yet')
+    @skip('SQL extension does not support delete yet')
     def test_get_ims_empty_resource(self):
         # test that a GET with a If-Modified-Since on an empty resource does
         # not trigger a 304 and returns a empty resource instead (#243).

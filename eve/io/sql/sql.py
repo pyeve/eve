@@ -10,18 +10,20 @@
     :license: BSD, see LICENSE for more details.
 """
 
-import copy
 import ast
 import simplejson as json
-from flask import abort
 import flask.ext.sqlalchemy as flask_sqlalchemy
+from flask import abort
 from sqlalchemy.orm.exc import NoResultFound
 from datetime import datetime
-from parser import parse, ParseError, sqla_op
+from copy import copy
+
 from eve.io.base import DataLayer, ConnectionException
 from eve.utils import config
+from .parser import parse, parse_dictionary, ParseError, sqla_op
 from .structures import SQLAResult, SQLAResultCollection
 from .utils import dict_update, validate_filters
+
 
 db = flask_sqlalchemy.SQLAlchemy()
 object_mapper = flask_sqlalchemy.sqlalchemy.orm.object_mapper
@@ -35,7 +37,7 @@ class SQLAJSONDecoder(json.JSONDecoder):
         try:
             key, val = rv.iteritems().next()
             return dict(key=datetime.strptime(val, config.DATE_FORMAT))
-        except:
+        except Exception, e:
             return rv
 
 
@@ -56,7 +58,9 @@ class SQL(DataLayer):
 
     @classmethod
     def lookup_model(cls, model_name):
-        """Lookup SQLAlchemy model class by its name
+        """
+        Lookup SQLAlchemy model class by its name
+
         :param model_name: Name of SQLAlchemy model.
         """
         return cls.driver.Model._decl_class_registry[model_name.capitalize()]
@@ -100,9 +104,7 @@ class SQL(DataLayer):
         }
 
         client_projection = self._client_projection(req)
-        datasource, args['spec'], fields, args['sort'] = self._datasource_ex(resource, [],
-                                                                             client_projection, args['sort'])
-        model = self.lookup_model(datasource)
+        model, args['spec'], fields, args['sort'] = self._datasource_ex(resource, [], client_projection, args['sort'])
         if req.where:
             try:
                 args['spec'] = self.combine_queries(args['spec'], parse(req.where, model))
@@ -140,15 +142,15 @@ class SQL(DataLayer):
 
     def find_one(self, resource, req, **lookup):
         client_projection = self._client_projection(req)
-        datasource, filter_, fields, _ = self._datasource_ex(resource, lookup, client_projection)
-        model = self.lookup_model(datasource)
+        model, filter_, fields, _ = self._datasource_ex(resource, [], client_projection)
+        filter_ = self.combine_queries(filter_, parse_dictionary(lookup, model))
         query = self.driver.session.query(model)
 
         try:
-            document = query.filter_by(**filter_).one()
+            document = query.filter(*filter_).one()
+            return SQLAResult(document, fields)
         except NoResultFound:
             abort(404)
-        return SQLAResult(document, fields)
 
     def insert(self, resource, doc_or_docs):
         """Inserts a document into a resource collection.
@@ -180,26 +182,51 @@ class SQL(DataLayer):
     def update(self, resource, id_, updates):
         raise NotImplementedError  # TODO: update support
 
-    def remove(self, resource, id_=None):
-        raise NotImplementedError  # TODO: remove support
+    def remove(self, resource, lookup):
+        model, filter_, _, _ = self._datasource_ex(resource, [])
+        filter_ = self.combine_queries(filter_, parse_dictionary(lookup, model))
+        query = self.driver.session.query(model)
+        if len(filter_):
+            query.filter(*filter_).delete()
+        else:
+            query.delete()
+        self.driver.session.commit()
+
+    @staticmethod
+    def _source(resource):
+        return config.SOURCES[resource]['source']
+
+    def _model(self, resource):
+        return self.lookup_model(self._source(resource))
 
     def _datasource(self, resource):
-        source = copy.copy(config.SOURCES[resource]['source'])
-        model = self.lookup_model(source)
-        filter_ = config.SOURCES[resource]['filter']
-        if isinstance(filter_, (str, unicode)) and len(filter_):
-            filter_ = parse(filter_, model)
-        else:
-            filter_ = []
-        projection = copy.copy(config.SOURCES[resource]['projection'])
-        sort = copy.copy(config.SOURCES[resource]['default_sort'])
-        return source, filter_, projection, sort,
+        """
+        Overridden from super to return the actual model class of the database
+        table instead of the name of it
+        """
+        model = self._model(resource)
 
-    def _datasource_ex(self, resource, query=None, client_projection=None,
-                       client_sort=None):
-        datasource, spec, fields_, sort = super(SQL, self)._datasource_ex(resource, query,
-                                                                          client_projection, client_sort)
-        model = self.lookup_model(datasource)
+        # TODO: check this implementation. Overwriting filter in the global config might be tricky
+        filter_ = config.SOURCES[resource]['filter']
+        if filter_ is None or len(filter_) == 0:
+            filter_ = []
+        elif isinstance(filter_, (str, unicode)):
+            filter_ = parse(filter_, model)
+        elif isinstance(filter_, dict):
+            filter_ = parse_dictionary(filter_, model)
+        elif not isinstance(filter_, list):
+            filter_ = []
+
+        projection_ = copy(config.SOURCES[resource]['projection'])
+        sort_ = copy(config.SOURCES[resource]['default_sort'])
+
+        return model, filter_, projection_, sort_
+
+    def _datasource_ex(self, resource, query=None, client_projection=None, client_sort=None):
+
+        model, filter_, fields_, sort_ = super(SQL, self)._datasource_ex(resource, query,
+                                                                         client_projection, client_sort)
+
         if len(fields_) == 0:
             fields = [prop.key for prop in class_mapper(model).iterate_properties]
         else:
@@ -209,16 +236,16 @@ class SQL(DataLayer):
             else:
                 fields = [prop.key for prop in class_mapper(model).iterate_properties
                           if prop.key.startswith('_') or prop.key in fields_]
-        return datasource, spec, fields, sort
+        return model, filter_, fields, sort_
 
     def combine_queries(self, query_a, query_b):
-        # TODO: dumb concatenation of query lists. We really need to check for duplicate queries
+        # TODO: dumb concatenation of query lists.
+        #       We really need to check for duplicate queries
         query_a.extend(query_b)
         return query_a
 
     def is_empty(self, resource):
-        datasource, filter_, _, _ = self._datasource(resource)
-        model = self.lookup_model(datasource)
+        model, filter_, _, _ = self._datasource(resource)
         query = self.driver.session.query(model)
         if len(filter_):
             return query.filter_by(*filter_).count() == 0

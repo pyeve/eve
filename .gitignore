@@ -57,3 +57,5 @@ _build
 
 # SQLite databases
 *.db
+
+*.db-journal

@@ -308,7 +308,7 @@ class TestMinimal(unittest.TestCase):
 
 class TestBase(TestMinimal):
 
-    def setUp(self, url_converters=None):
+    def setUp(self, settings_file=None, url_converters=None):
         super(TestBase, self).setUp(url_converters=url_converters)
 
         self.known_resource = 'contacts'
@@ -473,7 +473,7 @@ class TestBase(TestMinimal):
 class TestBaseSQL(TestMinimal):
     from eve.tests import test_sql_tables
 
-    def setUp(self, url_converters=None):
+    def setUp(self, settings_file=None, url_converters=None):
         self.connection = None
         self.known_resource_count = 101
         self.this_directory = os.path.dirname(os.path.realpath(__file__))
@@ -488,6 +488,8 @@ class TestBaseSQL(TestMinimal):
 
         self.known_resource = 'people'
         self.known_resource_url = ('/%s' % self.domain[self.known_resource]['url'])
+        self.unknown_resource = 'unknown'
+        self.unknown_resource_url = '/%s' % self.unknown_resource
         self.unknown_item_id = '4f46445fc88e201858000000'
         self.unknown_item_name = 'unknown'
         response, _ = self.get(self.known_resource, '?max_results=2')
@@ -495,6 +497,7 @@ class TestBaseSQL(TestMinimal):
         self.item = person
         self.item_id = self.item[self.app.config['ID_FIELD']]
         self.item_firstname = self.item['firstname']
+        self.item_etag = self.item[ETAG]
         self.item_id_url = ('/%s/%s' %
                             (self.domain[self.known_resource]['url'],
                              self.item_id))
