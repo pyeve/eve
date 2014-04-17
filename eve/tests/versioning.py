@@ -120,6 +120,9 @@ class TestNormalVersioning(TestVersioningBase):
             self.versioned_field: 'ref value 2..............',
             self.unversioned_field: 456
         }
+        self.item_change_unversioned_field = {
+            self.unversioned_field: 789
+        }
 
     def insertTestData(self):
         contact, status = self.post(self.known_resource_url, data=self.item)
@@ -241,6 +244,7 @@ class TestNormalVersioning(TestVersioningBase):
         self.assertTrue(self.countShadowDocuments(self.item_id) == 2)
 
     def do_test_patch(self, partial):
+
         response, status = self.patch(
             self.item_id_url, data=self.item_change,
             headers=[('If-Match', self.item_etag)])
@@ -249,7 +253,6 @@ class TestNormalVersioning(TestVersioningBase):
 
         document = self.directGetDocument(self.item_id)
         self.assertEqualFields(self.item_change, document, self.fields)
-
         self.assertTrue(self.countShadowDocuments(self.item_id) == 2)
 
     def do_test_version_control_the_unkown(self):
@@ -705,6 +708,18 @@ class TestDataRelationVersionVersioned(TestNormalVersioning):
 
 
 class TestPartialVersioning(TestNormalVersioning):
+
+    def do_test_patch_versioned_false(self,partial):
+        response, status = self.patch(
+            self.item_id_url, data=self.item_change_unversioned_field,
+            headers=[('If-Match', self.item_etag)])
+        self.assertGoodPutPatch(response, status)
+        self.assertPrimaryAndShadowDocuments(self.item_id, 1, partial=partial)
+        document = self.directGetDocument(self.item_id)
+        self.assertEqualFields(self.item_change_unversioned_field, document, [self.unversioned_field])
+        self.assertTrue(self.countShadowDocuments(self.item_id) == 1)
+
+
     def setUp(self):
         super(TestPartialVersioning, self).setUp()
 
@@ -747,6 +762,13 @@ class TestPartialVersioning(TestNormalVersioning):
         """ Verify that partial version control can happen on PATCH.
         """
         self.do_test_patch(partial=True)
+
+    def test_patch_versioned_false(self):
+        """ Verify that version is not incremented when a PATCH is made
+        with fields that are not being versioned
+        """
+        self.do_test_patch_versioned_false(partial=True)
+
 
     def test_version_control_the_unkown(self):
         """ Currently, the versioning scheme assumes true unless a field is

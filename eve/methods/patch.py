@@ -19,7 +19,7 @@ from eve.validation import ValidationError
 from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, pre_event, resolve_media_files
 from eve.versioning import resolve_document_version, \
-    insert_versioning_documents
+    insert_versioning_documents, versioned_fields
 
 
 @ratelimit()
@@ -122,7 +122,11 @@ def patch(resource, **lookup):
             updated.update(updates)
 
             app.data.update(resource, object_id, updates)
-            insert_versioning_documents(resource, object_id, updated)
+
+            # Somewhat clunky approach to only posting new versioned documents if 
+            # the PATCH includes versioned fields...
+            if set(updates.keys()).intersection(versioned_fields(resource_def)).difference(['_updated']):
+                insert_versioning_documents(resource, object_id, updated)
 
             # nofity callbacks
             getattr(app, "on_updated")(resource, updates, original)
