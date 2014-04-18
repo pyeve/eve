@@ -38,6 +38,7 @@ class SQLAResult(collections.MutableMapping):
             if len(pkey) > 1:
                 raise ValueError  # TODO: composite primary key
             return pkey[0]
+
         value = getattr(self._result, key)
         if isinstance(value, date):
             return datetime.combine(value, datetime.min.time())
@@ -61,7 +62,7 @@ class SQLAResult(collections.MutableMapping):
 
     def keys(self):
         return [
-            prop.key for prop in object_mapper(self._result).iterate_properties
+            prop.key for prop in object_mapper(self._result).iterate_properties if isinstance(prop, flask_sqlalchemy.sqlalchemy.orm.ColumnProperty)
         ]
 
     def _asdict(self):
@@ -155,7 +156,6 @@ class SQLAlchemy(DataLayer):
         :param req: a :class:`ParsedRequest`instance.
         :param sub_resource_lookup: sub-resource lookup from the endpoint url.
         """
-
         spec = {}
         fields = {}
 
