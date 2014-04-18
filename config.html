@@ -363,7 +363,14 @@ by resource settings. Defaults to <tt class="docutils literal"><span class="pre"
 <a class="reference internal" href="features.html#embedded-docs"><em>Embedded Resource Serialization</em></a> feature. Defaults to
 <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">BANDWIDTH_SAVER</span></tt></td>
+<td>When <tt class="docutils literal"><span class="pre">True</span></tt>, POST, PUT, and PATCH responses
+only return automatically handled fields and
+<tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt>. When <tt class="docutils literal"><span class="pre">False</span></tt>, the
+entire document will be sent. Defaults to
+<tt class="docutils literal"><span class="pre">True</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt></td>
 <td>Allows to configure a list of additional
 document fields that should be provided with
 every POST response. Normally only
@@ -373,7 +380,7 @@ are included in response payloads. Can be
 overridden by resource settings. Defaults to
 <tt class="docutils literal"><span class="pre">[]</span></tt>, effectively disabling the feature.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_GET</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_GET</span></tt></td>
 <td>A tuple expressing the rate limit on GET
 requests. The first element of the tuple is
 the number of requests allowed, while the
@@ -382,7 +389,7 @@ example, <tt class="docutils literal"><span class="pre">(300,</span> <span class
 of 300 requests every 15 minutes. Defaults
 to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_POST</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_POST</span></tt></td>
 <td>A tuple expressing the rate limit on POST
 requests. The first element of the tuple is
 the number of requests allowed, while the
@@ -391,7 +398,7 @@ example <tt class="docutils literal"><span class="pre">(300,</span> <span class=
 of 300 requests every 15 minutes. Defaults
 to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_PATCH</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_PATCH</span></tt></td>
 <td>A tuple expressing the rate limit on PATCH
 requests. The first element of the tuple is
 the number of requests allowed, while the
@@ -400,7 +407,7 @@ example <tt class="docutils literal"><span class="pre">(300,</span> <span class=
 of 300 requests every 15 minutes. Defaults
 to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_DELETE</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_DELETE</span></tt></td>
 <td>A tuple expressing the rate limit on DELETE
 requests. The first element of the tuple is
 the number of requests allowed, while the
@@ -409,61 +416,61 @@ example <tt class="docutils literal"><span class="pre">(300,</span> <span class=
 of 300 requests every 15 minutes. Defaults
 to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DEBUG</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DEBUG</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> to enable Debug Mode, <tt class="docutils literal"><span class="pre">False</span></tt>
 otherwise.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">HATEOAS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">HATEOAS</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">False</span></tt>, this option disables
 <a class="reference internal" href="features.html#hateoas-feature"><em>HATEOAS</em></a>. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ISSUES</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ISSUES</span></tt></td>
 <td>Allows to customize the issues field. Defaults
 to <tt class="docutils literal"><span class="pre">_issues</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">STATUS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">STATUS</span></tt></td>
 <td>Allows to customize the status field. Defaults
 to <tt class="docutils literal"><span class="pre">_status</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">STATUS_OK</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">STATUS_OK</span></tt></td>
 <td>Status message returned when data validation is
 successful. Defaults to <tt class="docutils literal"><span class="pre">OK</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">STATUS_ERR</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">STATUS_ERR</span></tt></td>
 <td>Status message returned when data validation
 failed. Defaults to <tt class="docutils literal"><span class="pre">ERR</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ITEMS</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ITEMS</span></tt></td>
 <td>Allows to customize the items field. Defaults
 to <tt class="docutils literal"><span class="pre">_items</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">LINKS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">LINKS</span></tt></td>
 <td>Allows to customize the links field. Defaults
 to <tt class="docutils literal"><span class="pre">_links</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ETAG</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ETAG</span></tt></td>
 <td>Allows to customize the etag field. Defaults
 to <tt class="docutils literal"><span class="pre">_etag</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">IF_MATCH</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">IF_MATCH</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> to enable concurrency control, <tt class="docutils literal"><span class="pre">False</span></tt>
 otherwise. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>. See
 <a class="reference internal" href="features.html#concurrency"><em>Data Integrity and Concurrency Control</em></a>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">XML</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">XML</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> to enable XML support, <tt class="docutils literal"><span class="pre">False</span></tt>
 otherwise. See <a class="reference internal" href="features.html#jsonxml"><em>JSON and XML Rendering</em></a>. Defaults to
 <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">JSON</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">JSON</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> to enable JSON support, <tt class="docutils literal"><span class="pre">False</span></tt>
 otherwise. See <a class="reference internal" href="features.html#jsonxml"><em>JSON and XML Rendering</em></a>. Defaults to
 <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VERSIONING</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VERSIONING</span></tt></td>
 <td>Enabled documents version control when``True``. Can be erridden by resource settings. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VERSIONS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VERSIONS</span></tt></td>
 <td>Suffix added to the name of the primary
 collection to create the name of the shadow
 collection to store document versions. Defaults
@@ -472,7 +479,7 @@ to <tt class="docutils literal"><span class="pre">_versions</span></tt>. When <t
 would be created for a resource with a
 datasource of <tt class="docutils literal"><span class="pre">myresource</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VERSION_PARAM</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VERSION_PARAM</span></tt></td>
 <td>The URL query parameter used to access the
 specific version of a document. Defaults to
 <tt class="docutils literal"><span class="pre">version</span></tt>. Omit this parameter to get the
@@ -481,36 +488,36 @@ latest version of a document or use
 the document. Only valid for individual item
 endpoints.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VERSION</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VERSION</span></tt></td>
 <td>Field used to store the version number of a
 document. Defaults to <tt class="docutils literal"><span class="pre">_version</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">LASTEST_VERSION</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">LASTEST_VERSION</span></tt></td>
 <td>Field used to store the latest version number
 of a document. Defaults to <tt class="docutils literal"><span class="pre">_latest_version</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VERSION_ID_SUFFIX</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VERSION_ID_SUFFIX</span></tt></td>
 <td>Used in the shadow collection to store the
 document id. Defaults to <tt class="docutils literal"><span class="pre">_document</span></tt>. If
 <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> is set to <tt class="docutils literal"><span class="pre">_id</span></tt>, the document id
 will be stored in field <tt class="docutils literal"><span class="pre">_id_document</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt></td>
 <td>MongoDB server address. Defaults to <tt class="docutils literal"><span class="pre">localhost</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_PORT</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_PORT</span></tt></td>
 <td>MongoDB port. Defaults to <tt class="docutils literal"><span class="pre">27017</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_USERNAME</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_USERNAME</span></tt></td>
 <td>MongoDB user name.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_PASSWORD</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_PASSWORD</span></tt></td>
 <td>MongoDB password.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt></td>
 <td>MongoDB database name.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_QUERY_BLACKLIST</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_QUERY_BLACKLIST</span></tt></td>
 <td><p class="first">A list of Mongo query operators that are not
 allowed to be used in resource filters
 (<tt class="docutils literal"><span class="pre">?where=</span></tt>). Defaults to <tt class="docutils literal"><span class="pre">['$where',</span>
@@ -522,7 +529,7 @@ to be slow and generally can be easily replaced
 with the (very rich) Mongo query dialect.</p>
 </td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></tt></td>
 <td><p class="first">A dictionary defining MongoDB write concern
 settings. All standard write concern settings
 (w, wtimeout, j, fsync) are supported. Defaults
@@ -540,7 +547,7 @@ collection) level. See <tt class="docutils literal"><span class="pre">mongo_writ
 below.</p>
 </td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
 <td>A dict holding the API domain definition.
 See <a class="reference internal" href="#domain-configuration">Domain Configuration</a>.</td>
 </tr>
@@ -1082,7 +1089,7 @@ resource keyword allows you to redefine the fieldset.</p>
 </div>
 <p>The above setting will expose only the <cite>username</cite> field to GET requests, no
 matter the <a class="reference internal" href="#schema">schema</a> defined for the resource.</p>
-<p>Likewise, you can esclude fields from API responses:</p>
+<p>Likewise, you can exclude fields from API responses:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s">&#39;projection&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
