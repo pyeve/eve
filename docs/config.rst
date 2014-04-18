@@ -281,6 +281,12 @@ uppercase.
                                 :ref:`embedded_docs` feature. Defaults to
                                 ``True``.
 
+``BANDWIDTH_SAVER``             When ``True``, POST, PUT, and PATCH responses
+                                only return automatically handled fields and
+                                ``EXTRA_RESPONSE_FIELDS``. When ``False``, the
+                                entire document will be sent. Defaults to
+                                ``True``.
+
 ``EXTRA_RESPONSE_FIELDS``       Allows to configure a list of additional
                                 document fields that should be provided with
                                 every POST response. Normally only

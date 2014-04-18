@@ -176,6 +176,24 @@ class TestPut(TestBase):
         self.assert200(status)
         self.assertPutResponse(response, self.invoice_id)
 
+    def test_put_bandwidth_saver(self):
+        changes = {'ref': '1234567890123456789012345'}
+
+        # bandwidth_saver is on by default
+        self.assertTrue(self.app.config['BANDWIDTH_SAVER'])
+        r = self.perform_put(changes)
+        self.assertFalse('ref' in r)
+        db_value = self.compare_put_with_get(self.app.config['ETAG'], r)
+        self.assertEqual(db_value, r[self.app.config['ETAG']])
+        self.item_etag = r[self.app.config['ETAG']]
+
+        # test return all fields (bandwidth_saver off)
+        self.app.config['BANDWIDTH_SAVER'] = False
+        r = self.perform_put(changes)
+        self.assertTrue('ref' in r)
+        db_value = self.compare_put_with_get(self.app.config['ETAG'], r)
+        self.assertEqual(db_value, r[self.app.config['ETAG']])
+
     def perform_put(self, changes):
         r, status = self.put(self.item_id_url,
                              data=changes,

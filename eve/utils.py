@@ -371,13 +371,15 @@ def auto_fields(resource):
 
     .. versionadded:: 0.4
     """
+    # preserved meta data
     fields = [config.ID_FIELD, config.LAST_UPDATED, config.DATE_CREATED]
+
+    # on-the-fly meta data (not in data store)
+    fields += [config.ETAG, config.ISSUES, config.STATUS, config.LINKS]
 
     if config.DOMAIN[resource]['versioning'] is True:
         fields.append(config.VERSION)
+        fields.append(config.LATEST_VERSION)  # on-the-fly meta data
         fields.append(config.ID_FIELD + config.VERSION_ID_SUFFIX)
-
-    # _etag and _latest_version are generated on the fly, so data store doesn't
-    # need to know about them
 
     return fields
