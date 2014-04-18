@@ -8,6 +8,8 @@ Version 0.4
 
 Not released yet.
 
+- [new] Ability to send entire document in write responses.
+  ``BANDWITH_SAVER`` aka Coherence Mode (Josh Villbrandt). 
 - [fix] KeyError exception was raised when field specified in schema as
   embeddable was missing in a particular document (Jaroslav Semančík).
 - [fix] Tests on HEAD requests would very occasionally fail. See #316.
