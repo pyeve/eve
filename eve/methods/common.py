@@ -363,8 +363,6 @@ def build_response_document(
 
     # hateoas links
     if config.DOMAIN[resource]['hateoas']:
-        # one implementation used this lookup field:
-        # _lookup_field = config.DOMAIN[resource]['item_lookup_field']
         document[config.LINKS] = {'self':
                                   document_link(resource,
                                                 document[config.ID_FIELD])}
