@@ -81,7 +81,18 @@ class SQL(DataLayer):
             if model_name.startswith('_'):
                 continue
             if getattr(model_cls, '_eve_schema', None):
-                dict_update(app.config['DOMAIN'], model_cls._eve_schema)
+                resource = model_name.lower()
+                eve_schema = model_cls._eve_schema
+                dict_update(app.config['DOMAIN'], eve_schema)
+
+        for k, v in app.config['DOMAIN'].iteritems():
+            if 'datasource' in v and 'source' in v['datasource']:
+                source = v['datasource']['source']
+                source = app.config['DOMAIN'].get(source)
+                if source:
+                    v['schema'] = source['schema']
+                    v['item_lookup_field'] = source['item_lookup_field']
+                    v['item_url'] = source['item_url']
 
     def find(self, resource, req, sub_resource_lookup):
         """Retrieves a set of documents matching a given request. Queries can
@@ -115,9 +126,8 @@ class SQL(DataLayer):
         if bad_filter:
             abort(400, bad_filter)
 
-        # TODO: actually use the sub_resource_lookup
-        # if sub_resource_lookup:
-        #     spec.update(sub_resource_lookup)
+        if sub_resource_lookup:
+            args['spec'] = self.combine_queries(args['spec'], parse_dictionary(sub_resource_lookup, model))
 
         if req.if_modified_since:
             updated_filter = sqla_op.gt(getattr(model, config.LAST_UPDATED),
@@ -227,15 +237,10 @@ class SQL(DataLayer):
         model, filter_, fields_, sort_ = super(SQL, self)._datasource_ex(resource, query,
                                                                          client_projection, client_sort)
 
-        if len(fields_) == 0:
-            fields = [prop.key for prop in class_mapper(model).iterate_properties]
+        if fields_.values()[0] == 0:
+            fields = [field for field in model._eve_fields if field not in fields_]
         else:
-            if fields_.values()[0] == 0:
-                fields = [prop.key for prop in class_mapper(model).iterate_properties
-                          if prop.key not in fields_]
-            else:
-                fields = [prop.key for prop in class_mapper(model).iterate_properties
-                          if prop.key.startswith('_') or prop.key in fields_]
+            fields = [field for field in model._eve_fields if field.startswith('_') or field in fields_]
         return model, filter_, fields, sort_
 
     def combine_queries(self, query_a, query_b):
