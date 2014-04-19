@@ -329,7 +329,6 @@ class TestPost(TestBase):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
         self.assertTrue(id_field in r)
-        self.assertTrue(ID_FIELD not in r)
         self.assertItemLink(r['_links'], r[id_field])
 
     def test_post_bandwidth_saver(self):

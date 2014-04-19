@@ -214,11 +214,6 @@ def post(resource, payl=None):
             build_response_document(
                 document, resource, embedded_fields, document)
 
-            # not sure why i need to do this, but it makes tests.methods.post.
-            # TestPost.test_post_custom_idfield happy
-            if config.ID_FIELD != '_id':
-                del(document['_id'])
-
             # add extra write meta data
             document[config.STATUS] = config.STATUS_OK
 
