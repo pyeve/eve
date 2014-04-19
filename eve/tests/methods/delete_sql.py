@@ -1,8 +1,5 @@
-from unittest import skip
-
 from eve.tests import TestBaseSQL
 from eve.tests.utils import DummyEvent
-from eve.tests.test_settings import MONGO_DBNAME
 from eve import ETAG
 
 
@@ -26,7 +23,6 @@ class TestDeleteSQL(TestBaseSQL):
         self.assert200(status)
         self.assertEqual(len(r['_items']), 0)
 
-    @skip("Difference resource - Not supported yet")
     def test_delete_from_resource_endpoint_different_resource(self):
         r, status = self.delete(self.different_resource_url)
         self.assert200(status)
@@ -56,11 +52,11 @@ class TestDeleteSQL(TestBaseSQL):
         _, status = self.delete(url)
         self.assert404(status)
 
-    def test_delete_ifmatch_missing(self):
+    def test_delete_if_match_missing(self):
         _, status = self.delete(self.item_id_url)
         self.assert403(status)
 
-    def test_delete_ifmatch_disabled(self):
+    def test_delete_if_match_disabled(self):
         self.app.config['IF_MATCH'] = False
         _, status = self.delete(self.item_id_url)
         self.assert200(status)
@@ -82,7 +78,6 @@ class TestDeleteSQL(TestBaseSQL):
         r, status = self.delete(url, headers=self.etag_headers)
         self.assert404(status)
 
-    @skip("Difference resource - Not supported yet")
     def test_delete_different_resource(self):
         r, status = self.delete(self.user_id_url,
                                 headers=[('If-Match', self.user_etag)])
@@ -98,65 +93,67 @@ class TestDeleteSQL(TestBaseSQL):
         r = self.test_client.post(self.item_id_url, data={}, headers=headers)
         self.assert200(r.status_code)
 
-    @skip("Subresource - Not supported yet")
     def test_delete_subresource(self):
-        _db = self.connection[MONGO_DBNAME]
+        _db = self.app.data.driver
 
-        # create random contact
-        fake_contact = self.random_contacts(1)
-        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+        # create random person
+        fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        _db.session.add(fake_person)
+        _db.session.commit()
+        fake_person_id = fake_person._id
+        fake_invoice = self.test_sql_tables.Invoices(number=4)
+        fake_invoice.people = fake_person._id
+        _db.session.add(fake_invoice)
+        _db.session.commit()
 
         # grab parent collection count; we will use this later to make sure we
-        # didn't delete all the users in the datanase. We add one extra invoice
+        # didn't delete all the users in the database. We add one extra invoice
         # to make sure that the actual count will never be 1 (which would
         # invalidate the test)
-        _db.invoices.insert({'inv_number': 1})
         response, status = self.get('invoices')
         invoices = len(response[self.app.config['ITEMS']])
 
-        # update first invoice to reference the new contact
-        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
-                            {'$set': {'person': fake_contact_id}})
-
         # verify that the only document retrieved is referencing the correct
         # parent document
-        response, status = self.get('users/%s/invoices' % fake_contact_id)
-        person_id = ObjectId(response[self.app.config['ITEMS']][0]['person'])
-        self.assertEqual(person_id, fake_contact_id)
+        response, status = self.get('users/%s/invoices' % fake_person_id)
+        person_id = response[self.app.config['ITEMS']][0]['people']
+        self.assertEqual(person_id, fake_person_id)
 
         # delete all documents at the sub-resource endpoint
-        response, status = self.delete('users/%s/invoices' % fake_contact_id)
+        response, status = self.delete('users/%s/invoices' % fake_person_id)
         self.assert200(status)
 
         # verify that the no documents are left at the sub-resource endpoint
-        response, status = self.get('users/%s/invoices' % fake_contact_id)
+        response, status = self.get('users/%s/invoices' % fake_person_id)
         self.assertEqual(len(response['_items']), 0)
 
-        # verify that other documents in the invoices collection have not neen
+        # verify that other documents in the invoices collection have not been
         # deleted
         response, status = self.get('invoices')
         self.assertEqual(len(response['_items']), invoices - 1)
 
-    @skip("Subresource - Not supported yet")
     def test_delete_subresource_item(self):
-        _db = self.connection[MONGO_DBNAME]
+        _db = self.app.data.driver
 
-        # create random contact
-        fake_contact = self.random_contacts(1)
-        fake_contact_id = _db.contacts.insert(fake_contact)[0]
-
-        # update first invoice to reference the new contact
-        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
-                            {'$set': {'person': fake_contact_id}})
+        # create random person
+        fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        _db.session.add(fake_person)
+        _db.session.commit()
+        fake_person_id = fake_person._id
+        fake_invoice = self.test_sql_tables.Invoices(number=4)
+        fake_invoice.people = fake_person._id
+        _db.session.add(fake_invoice)
+        _db.session.commit()
+        fake_invoice_id = fake_invoice._id
 
         # GET all invoices by new contact
         response, status = self.get('users/%s/invoices/%s' %
-                                    (fake_contact_id, self.invoice_id))
+                                    (fake_person_id, fake_invoice_id))
         etag = response[ETAG]
 
         headers = [('If-Match', etag)]
         response, status = self.delete('users/%s/invoices/%s' %
-                                       (fake_contact_id, self.invoice_id),
+                                       (fake_person_id, fake_invoice_id),
                                        headers=headers)
         self.assert200(status)
 

@@ -35,3 +35,10 @@ class People(CommonColumns):
     def from_tuple(cls, data):
         """Helper method to populate the db"""
         return cls(firstname=data[0], lastname=data[1])
+
+
+@registerSchema('invoices')
+class Invoices(CommonColumns):
+    __tablename__ = 'invoices'
+    number = db.Column(db.Integer)
+    people = db.Column(db.Integer, db.ForeignKey('people._id'))
