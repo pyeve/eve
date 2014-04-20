@@ -8,6 +8,7 @@ Version 0.4
 
 Not released yet.
 
+- [change] MarkupSafe 0.21 is now required.
 - [new] Ability to send entire document in write responses.
   ``BANDWITH_SAVER`` aka Coherence Mode (Josh Villbrandt). 
 - [fix] KeyError exception was raised when field specified in schema as
