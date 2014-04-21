@@ -1,11 +1,12 @@
 import simplejson as json
 from datetime import datetime
-import unittest
+from eve.tests.utils import DummyEvent
 from eve.tests import TestBaseSQL
 from eve.utils import date_to_str
 
 
 class TestGetSQL(TestBaseSQL):
+
     def test_get_empty_resource(self):
         response, status = self.get(self.empty_resource)
         self.assert404(status)
@@ -256,7 +257,6 @@ class TestGetSQL(TestBaseSQL):
             self.assertTrue('_created_on' in document)
             self.assertTrue('_the_etag' in document)
 
-    @unittest.skip("SQL extension does not support nested resources yet")
     def test_get_nested_resource(self):
         response, status = self.get('users/overseas')
         self.assert_get(response, status, 'users_overseas')
@@ -285,7 +285,6 @@ class TestGetSQL(TestBaseSQL):
         for r in resource:
             self.assertTrue(self.app.config['ETAG'] not in r)
 
-    @unittest.skip('SQL extension does not support delete yet')
     def test_get_ims_empty_resource(self):
         # test that a GET with a If-Modified-Since on an empty resource does
         # not trigger a 304 and returns a empty resource instead (#243).
@@ -304,211 +303,216 @@ class TestGetSQL(TestBaseSQL):
         self.assert200(r.status_code)
         self.assertEqual(json.loads(r.get_data())['_items'], [])
 
+    def test_get_same_collection_different_resource(self):
+        """ the 'users' resource is actually using the same db collection as
+        'contacts'. Let's verify that base filters are being applied, and
+        the right amount of items/links and the correct titles etc. are being
+        returned. Of course 'contacts' itself has its own base filter, which
+        excludes the 'users' (those with a 'username' field).
+        """
+        response, status = self.get(self.different_resource)
+        self.assert200(status)
 
-    # def test_get_same_collection_different_resource(self):
-    #     """ the 'users' resource is actually using the same db collection as
-    #     'contacts'. Let's verify that base filters are being applied, and
-    #     the right amount of items/links and the correct titles etc. are being
-    #     returned. Of course 'contacts' itself has its own base filter, which
-    #     excludes the 'users' (those with a 'username' field).
-    #     """
-    #     response, status = self.get(self.different_resource)
-    #     self.assert200(status)
-    #
-    #     links = response['_links']
-    #     self.assertEqual(len(links), 2)
-    #     self.assertHomeLink(links)
-    #     self.assertResourceLink(links, self.different_resource)
-    #
-    #     resource = response['_items']
-    #     self.assertEqual(len(resource), 2)
-    #
-    #     for item in resource:
-    #         # 'user' title instead of original 'contact'
-    #         self.assertItem(item)
-    #
-    #     etag = item.get(self.app.config['ETAG'])
-    #     self.assertTrue(etag is not None)
-    #
-    # def test_documents_missing_standard_date_fields(self):
-    #     """Documents created outside the API context could be lacking the
-    #     LAST_UPDATED and/or DATE_CREATED fields.
-    #     """
-    #     contacts = self.random_contacts(1, False)
-    #     ref = 'test_update_field'
-    #     contacts[0]['ref'] = ref
-    #     _db = self.connection[MONGO_DBNAME]
-    #     _db.contacts.insert(contacts)
-    #     where = '{"ref": "%s"}' % ref
-    #     response, status = self.get(self.known_resource,
-    #                                 '?where=%s' % where)
-    #     self.assert200(status)
-    #     resource = response['_items']
-    #     self.assertEqual(len(resource), 1)
-    #     self.assertItem(resource[0])
-#
-#     def test_get_embedded(self):
-#         # We need to assign a `person` to our test invoice
-#         _db = self.connection[MONGO_DBNAME]
-#
-#         fake_contact = self.random_contacts(1)
-#         fake_contact_id = _db.contacts.insert(fake_contact)[0]
-#         _db.invoices.update({'_id': ObjectId(self.invoice_id)},
-#                             {'$set': {'person': fake_contact_id}})
-#
-#         invoices = self.domain['invoices']
-#
-#         # Test that we get 400 if can't parse dict
-#         embedded = 'not-a-dict'
-#         r = self.test_client.get('%s/%s' % (invoices['url'],
-#                                             '?embedded=%s' % embedded))
-#         self.assert400(r.status_code)
-#
-#         # Test that doesn't come embedded if asking for a field that
-#         # isn't embedded (global setting is False by default)
-#         embedded = '{"person": 1}'
-#         r = self.test_client.get('%s/%s' % (invoices['url'],
-#                                             '?embedded=%s' % embedded))
-#         self.assert200(r.status_code)
-#         content = json.loads(r.get_data())
-#         self.assertTrue(content['_items'][0]['person'], self.item_id)
-#
-#         # Set field to be embedded
-#         invoices['schema']['person']['data_relation']['embeddable'] = True
-#
-#         # Test that global setting applies even if field is set to embedded
-#         invoices['embedding'] = False
-#         r = self.test_client.get('%s/%s' % (invoices['url'],
-#                                             '?embedded=%s' % embedded))
-#         self.assert200(r.status_code)
-#         content = json.loads(r.get_data())
-#         self.assertTrue(content['_items'][0]['person'], self.item_id)
-#
-#         # Test that it works
-#         invoices['embedding'] = True
-#         r = self.test_client.get('%s/%s' % (invoices['url'],
-#                                             '?embedded=%s' % embedded))
-#         self.assert200(r.status_code)
-#         content = json.loads(r.get_data())
-#         self.assertTrue('location' in content['_items'][0]['person'])
-#
-#         # Test that it ignores a bogus field
-#         embedded = '{"person": 1, "not-a-real-field": 1}'
-#         r = self.test_client.get('%s/%s' % (invoices['url'],
-#                                             '?embedded=%s' % embedded))
-#         self.assert200(r.status_code)
-#         content = json.loads(r.get_data())
-#         self.assertTrue('location' in content['_items'][0]['person'])
-#
-#         # Test that it ignores a real field with a bogus value
-#         embedded = '{"person": 1, "inv_number": "not-a-real-value"}'
-#         r = self.test_client.get('%s/%s' % (invoices['url'],
-#                                             '?embedded=%s' % embedded))
-#         self.assert200(r.status_code)
-#         content = json.loads(r.get_data())
-#         self.assertTrue('location' in content['_items'][0]['person'])
-#
-#         # Test that it works with item endpoint too
-#         r = self.test_client.get('%s/%s/%s' % (invoices['url'],
-#                                                self.invoice_id,
-#                                                '?embedded=%s' % embedded))
-#         self.assert200(r.status_code)
-#         content = json.loads(r.get_data())
-#         self.assertTrue('location' in content['person'])
-#
-#     def test_get_default_embedding(self):
-#         # We need to assign a `person` to our test invoice
-#         _db = self.connection[MONGO_DBNAME]
-#
-#         fake_contact = self.random_contacts(1)
-#         fake_contact_id = _db.contacts.insert(fake_contact)[0]
-#         _db.invoices.update({'_id': ObjectId(self.invoice_id)},
-#                             {'$set': {'person': fake_contact_id}})
-#
-#         invoices = self.domain['invoices']
-#
-#         # Turn default field embedding on
-#         invoices['embedded_fields'] = ['person']
-#
-#         # Test that doesn't come embedded if asking for a field that
-#         # isn't embedded (global setting is False by default)
-#         r = self.test_client.get(invoices['url'])
-#         self.assert200(r.status_code)
-#         content = json.loads(r.get_data())
-#         self.assertTrue(content['_items'][0]['person'], self.item_id)
-#
-#         # Set field to be embedded
-#         invoices['schema']['person']['data_relation']['embeddable'] = True
-#
-#         # Test that global setting applies even if field is set to embedded
-#         invoices['embedding'] = False
-#         r = self.test_client.get(invoices['url'])
-#         self.assert200(r.status_code)
-#         content = json.loads(r.get_data())
-#         self.assertTrue(content['_items'][0]['person'], self.item_id)
-#
-#         # Test that it works
-#         invoices['embedding'] = True
-#         r = self.test_client.get(invoices['url'])
-#         self.assert200(r.status_code)
-#         content = json.loads(r.get_data())
-#         self.assertTrue('location' in content['_items'][0]['person'])
-#
-#         # Test that it ignores a bogus field
-#         invoices['embedded_fields'] = ['person', 'not-really']
-#         r = self.test_client.get(invoices['url'])
-#         self.assert200(r.status_code)
-#         content = json.loads(r.get_data())
-#         self.assertTrue('location' in content['_items'][0]['person'])
-#
-#         # Test that it works with item endpoint too
-#         r = self.test_client.get('%s/%s' % (invoices['url'], self.invoice_id))
-#         self.assert200(r.status_code)
-#         content = json.loads(r.get_data())
-#         self.assertTrue('location' in content['person'])
-#
-#     def test_cursor_extra_find(self):
-#         _find = self.app.data.find
-#         hits = {'total_hits': 0}
-#
-#         def find(resource, req, sub_resource_lookup):
-#             def extra(response):
-#                 response['_hits'] = hits
-#             cursor = _find(resource, req, sub_resource_lookup)
-#             cursor.extra = extra
-#             return cursor
-#
-#         self.app.data.find = find
-#         r, status = self.get(self.known_resource)
-#         self.assert200(status)
-#         self.assertTrue('_hits' in r)
-#         self.assertEqual(r['_hits'], hits)
-#
-#
-#     def test_get_subresource(self):
-#         _db = self.connection[MONGO_DBNAME]
-#
-#         # create random contact
-#         fake_contact = self.random_contacts(1)
-#         fake_contact_id = _db.contacts.insert(fake_contact)[0]
-#         # update first invoice to reference the new contact
-#         _db.invoices.update({'_id': ObjectId(self.invoice_id)},
-#                             {'$set': {'person': fake_contact_id}})
-#
-#         # GET all invoices by new contact
-#         response, status = self.get('users/%s/invoices' % fake_contact_id)
-#         self.assert200(status)
-#         # only 1 invoice
-#         self.assertEqual(len(response['_items']), 1)
-#         self.assertEqual(len(response['_links']), 2)
-#         # which links to the right contact
-#         self.assertEqual(response['_items'][0]['person'], str(fake_contact_id))
+        links = response['_links']
+        self.assertEqual(len(links), 2)
+        self.assertHomeLink(links)
+        self.assertResourceLink(links, self.different_resource)
+
+        resource = response['_items']
+        self.assertEqual(len(resource), 5)
+
+        for item in resource:
+            # 'user' title instead of original 'contact'
+            self.assertItem(item)
+
+        etag = item.get(self.app.config['ETAG'])
+        self.assertTrue(etag is not None)
+
+    def test_documents_missing_standard_date_fields(self):
+        """Documents created outside the API context could be lacking the
+        LAST_UPDATED and/or DATE_CREATED fields.
+        """
+        _db = self.app.data.driver
+        firstname = 'Douglas'
+        person = self.test_sql_tables.People(firstname=firstname, lastname='Adams', prog=1)
+        _db.session.add(person)
+        _db.session.commit()
+        where = 'firstname == %s' % firstname
+        response, status = self.get(self.known_resource, '?where=%s' % where)
+        self.assert200(status)
+        resource = response['_items']
+        self.assertEqual(len(resource), 1)
+        self.assertItem(resource[0])
+
+    def test_get_embedded(self):
+        _db = self.app.data.driver
+
+        # create random person
+        fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        _db.session.add(fake_person)
+        _db.session.commit()
+        fake_invoice = self.test_sql_tables.Invoices(number=4)
+        fake_invoice.people = fake_person._id
+        _db.session.add(fake_invoice)
+        _db.session.commit()
+
+        invoices = self.domain['invoices']
+
+        # Test that we get 400 if can't parse dict
+        embedded = 'not-a-dict'
+        r = self.test_client.get('%s/%s' % (invoices['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert400(r.status_code)
+
+        # Test that doesn't come embedded if asking for a field that
+        # isn't embedded (global setting is False by default)
+        embedded = '{"people": 1}'
+        r = self.test_client.get('%s/%s' % (invoices['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue(content['_items'][0]['people'], self.item_id)
+
+        # Set field to be embedded
+        invoices['schema']['people']['data_relation']['embeddable'] = True
+
+        # Test that global setting applies even if field is set to embedded
+        invoices['embedding'] = False
+        r = self.test_client.get('%s/%s' % (invoices['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue(content['_items'][0]['people'], self.item_id)
+
+        # Test that it works
+        invoices['embedding'] = True
+        r = self.test_client.get('%s/%s' % (invoices['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('lastname' in content['_items'][0]['people'])
+
+        # Test that it ignores a bogus field
+        embedded = '{"people": 1, "not-a-real-field": 1}'
+        r = self.test_client.get('%s/%s' % (invoices['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('lastname' in content['_items'][0]['people'])
+
+        # Test that it ignores a real field with a bogus value
+        embedded = '{"people": 1, "number": "not-a-real-value"}'
+        r = self.test_client.get('%s/%s' % (invoices['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('lastname' in content['_items'][0]['people'])
+
+        # Test that it works with item endpoint too
+        r = self.test_client.get('%s/%s/%s' % (invoices['url'],
+                                               self.invoice_id,
+                                               '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('lastname' in content['people'])
+
+    def test_get_default_embedding(self):
+        _db = self.app.data.driver
+
+        # create random person
+        fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        _db.session.add(fake_person)
+        _db.session.commit()
+        fake_invoice = self.test_sql_tables.Invoices(number=4)
+        fake_invoice.people = fake_person._id
+        _db.session.add(fake_invoice)
+        _db.session.commit()
+
+        invoices = self.domain['invoices']
+
+        # Turn default field embedding on
+        invoices['embedded_fields'] = ['people']
+
+        # Test that doesn't come embedded if asking for a field that
+        # isn't embedded (global setting is False by default)
+        r = self.test_client.get(invoices['url'])
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue(content['_items'][0]['people'], self.item_id)
+
+        # Set field to be embedded
+        invoices['schema']['people']['data_relation']['embeddable'] = True
+
+        # Test that global setting applies even if field is set to embedded
+        invoices['embedding'] = False
+        r = self.test_client.get(invoices['url'])
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue(content['_items'][0]['people'], self.item_id)
+
+        # Test that it works
+        invoices['embedding'] = True
+        r = self.test_client.get(invoices['url'])
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('lastname' in content['_items'][0]['people'])
+
+        # Test that it ignores a bogus field
+        invoices['embedded_fields'] = ['people', 'not-really']
+        r = self.test_client.get(invoices['url'])
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('lastname' in content['_items'][0]['people'])
+
+        # Test that it works with item endpoint too
+        r = self.test_client.get('%s/%s' % (invoices['url'], self.invoice_id))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('lastname' in content['people'])
+
+    def test_cursor_extra_find(self):
+        _find = self.app.data.find
+        hits = {'total_hits': 0}
+
+        def find(resource, req, sub_resource_lookup):
+            def extra(response):
+                response['_hits'] = hits
+            cursor = _find(resource, req, sub_resource_lookup)
+            cursor.extra = extra
+            return cursor
+
+        self.app.data.find = find
+        r, status = self.get(self.known_resource)
+        self.assert200(status)
+        self.assertTrue('_hits' in r)
+        self.assertEqual(r['_hits'], hits)
+
+    def test_get_subresource(self):
+        _db = self.app.data.driver
+
+        # create random person
+        fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        _db.session.add(fake_person)
+        _db.session.commit()
+        fake_invoice = self.test_sql_tables.Invoices(number=4)
+        fake_invoice.people = fake_person._id
+        _db.session.add(fake_invoice)
+        _db.session.commit()
+
+        # GET all invoices by new contact
+        response, status = self.get('users/%s/invoices' % fake_person._id)
+        self.assert200(status)
+        # only 1 invoice
+        self.assertEqual(len(response['_items']), 1)
+        self.assertEqual(len(response['_links']), 2)
+        # which links to the right contact
+        self.assertEqual(response['_items'][0]['people'], fake_person._id)
 
 
 class TestGetItem(TestBaseSQL):
 
     def assert_item_response(self, response, status,
-                           resource=None):
+                             resource=None):
         self.assert200(status)
         self.assertTrue(self.app.config['ETAG'] in response)
         links = response['_links']
@@ -641,241 +645,248 @@ class TestGetItem(TestBaseSQL):
         self.assertTrue('_created_on' in response)
         self.assertTrue('_the_etag' in response)
 
-    # def test_getitem_by_id_different_resource(self):
-    #     response, status = self.get(self.different_resource,
-    #                                 item=self.user_id)
-    #     self.assertItemResponse(response, status, self.different_resource)
-    #
-    #     response, status = self.get(self.different_resource,
-    #                                 item=self.item_id)
-    #     self.assert404(status)
-    #
-    # def test_getitem_by_name_different_resource(self):
-    #     response, status = self.get(self.different_resource,
-    #                                 item=self.user_username)
-    #     self.assertItemResponse(response, status, self.different_resource)
-    #     response, status = self.get(self.different_resource,
-    #                                 item=self.unknown_item_name)
-    #     self.assert404(status)
-#
-#     def test_getitem_missing_standard_date_fields(self):
-#         """Documents created outside the API context could be lacking the
-#         LAST_UPDATED and/or DATE_CREATED fields.
-#         """
-#         contacts = self.random_contacts(1, False)
-#         ref = 'test_update_field'
-#         contacts[0]['ref'] = ref
-#         _db = self.connection[MONGO_DBNAME]
-#         _db.contacts.insert(contacts)
-#         response, status = self.get(self.known_resource, item=ref)
-#         self.assertItemResponse(response, status)
-#
-#     def test_getitem_embedded(self):
-#         # We need to assign a `person` to our test invoice
-#         _db = self.connection[MONGO_DBNAME]
-#
-#         fake_contact = self.random_contacts(1)
-#         fake_contact_id = _db.contacts.insert(fake_contact)[0]
-#         _db.invoices.update({'_id': ObjectId(self.invoice_id)},
-#                             {'$set': {'person': fake_contact_id}})
-#
-#         invoices = self.domain['invoices']
-#
-#         # Test that we get 400 if can't parse dict
-#         embedded = 'not-a-dict'
-#         r = self.test_client.get('%s/%s/%s' % (invoices['url'],
-#                                                self.invoice_id,
-#                                                '?embedded=%s' % embedded))
-#         self.assert400(r.status_code)
-#
-#         # Test that doesn't come embedded if asking for a field that
-#         # isn't embedded (global setting is True by default)
-#         embedded = '{"person": 1}'
-#         r = self.test_client.get('%s/%s/%s' % (invoices['url'],
-#                                                self.invoice_id,
-#                                                '?embedded=%s' % embedded))
-#         self.assert200(r.status_code)
-#         content = json.loads(r.get_data())
-#         self.assertTrue(content['person'], self.item_id)
-#
-#         # Set field to be embedded
-#         invoices['schema']['person']['data_relation']['embeddable'] = True
-#
-#         # Test that global setting applies even if field is set to embedded
-#         invoices['embedding'] = False
-#         r = self.test_client.get('%s/%s/%s' % (invoices['url'],
-#                                                self.invoice_id,
-#                                                '?embedded=%s' % embedded))
-#         self.assert200(r.status_code)
-#         content = json.loads(r.get_data())
-#         self.assertTrue(content['person'], self.item_id)
-#
-#         # Test that it works
-#         invoices['embedding'] = True
-#         r = self.test_client.get('%s/%s/%s' % (invoices['url'],
-#                                                self.invoice_id,
-#                                                '?embedded=%s' % embedded))
-#         self.assert200(r.status_code)
-#         content = json.loads(r.get_data())
-#         self.assertTrue('location' in content['person'])
-#
-#         # Test that it ignores a bogus field
-#         embedded = '{"person": 1, "not-a-real-field": 1}'
-#         r = self.test_client.get('%s/%s/%s' % (invoices['url'],
-#                                                self.invoice_id,
-#                                                '?embedded=%s' % embedded))
-#         self.assert200(r.status_code)
-#         content = json.loads(r.get_data())
-#         self.assertTrue('location' in content['person'])
-#
-#         # Test that it ignores a real field with a bogus value
-#         embedded = '{"person": 1, "inv_number": "not-a-real-value"}'
-#         r = self.test_client.get('%s/%s/%s' % (invoices['url'],
-#                                                self.invoice_id,
-#                                                '?embedded=%s' % embedded))
-#         self.assert200(r.status_code)
-#         content = json.loads(r.get_data())
-#         self.assertTrue('location' in content['person'])
-#
-#         # Test that it works with item endpoint too
-#         r = self.test_client.get('%s/%s/%s' % (invoices['url'],
-#                                                self.invoice_id,
-#                                                '?embedded=%s' % embedded))
-#         self.assert200(r.status_code)
-#         content = json.loads(r.get_data())
-#         self.assertTrue('location' in content['person'])
-#
-#     def test_subresource_getitem(self):
-#         _db = self.connection[MONGO_DBNAME]
-#
-#         # create random contact
-#         fake_contact = self.random_contacts(1)
-#         fake_contact_id = _db.contacts.insert(fake_contact)[0]
-#         # update first invoice to reference the new contact
-#         _db.invoices.update({'_id': ObjectId(self.invoice_id)},
-#                             {'$set': {'person': fake_contact_id}})
-#
-#         # GET all invoices by new contact
-#         response, status = self.get('users/%s/invoices/%s' % (fake_contact_id,
-#                                                               self.invoice_id))
-#         self.assert200(status)
-#         self.assertEqual(response['person'], str(fake_contact_id))
-#         self.assertEqual(response['_id'], self.invoice_id)
-#
-#
-# class TestHead(TestBase):
-#
-#     def test_head_home(self):
-#         self.assertHead('/')
-#
-#     def test_head_resource(self):
-#         self.assertHead(self.known_resource_url)
-#
-#     def test_head_item(self):
-#         self.assertHead(self.item_id_url)
-#
-#     def assertHead(self, url):
-#         h = self.test_client.head(url)
-#         r = self.test_client.get(url)
-#         self.assertTrue(not h.data)
-#         self.assertEqual(r.headers, h.headers)
+    def test_getitem_by_id_different_resource(self):
+        response, status = self.get(self.different_resource,
+                                    item=self.user_id)
+        self.assert_item_response(response, status, self.different_resource)
+
+        # I'm not really sure this apply to SQL DBs
+        # response, status = self.get(self.different_resource,
+        #                             item=self.item_id)
+        # self.assert404(status)
+
+    def test_getitem_by_name_different_resource(self):
+        response, status = self.get(self.different_resource,
+                                    item=self.user_firstname)
+        self.assert_item_response(response, status, self.different_resource)
+        response, status = self.get(self.different_resource,
+                                    item=self.unknown_item_name)
+        self.assert404(status)
+
+    def test_getitem_missing_standard_date_fields(self):
+        """Documents created outside the API context could be lacking the
+        LAST_UPDATED and/or DATE_CREATED fields.
+        """
+        _db = self.app.data.driver
+        firstname = 'Douglas'
+        person = self.test_sql_tables.People(firstname=firstname, lastname='Adams', prog=1)
+        _db.session.add(person)
+        _db.session.commit()
+        response, status = self.get(self.known_resource, item=firstname)
+        self.assert_item_response(response, status)
+
+    def test_getitem_embedded(self):
+        _db = self.app.data.driver
+
+        # create random person
+        fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        _db.session.add(fake_person)
+        _db.session.commit()
+        fake_person_id = fake_person._id
+        fake_invoice = self.test_sql_tables.Invoices(number=4)
+        fake_invoice.people = fake_person_id
+        _db.session.add(fake_invoice)
+        _db.session.commit()
+        fake_invoice_id = fake_invoice._id
+
+        invoices = self.domain['invoices']
+
+        # Test that we get 400 if can't parse dict
+        embedded = 'not-a-dict'
+        r = self.test_client.get('%s/%s/%s' % (invoices['url'], self.invoice_id, '?embedded=%s' % embedded))
+        self.assert400(r.status_code)
+
+        # Test that doesn't come embedded if asking for a field that
+        # isn't embedded (global setting is True by default)
+        embedded = '{"people": 1}'
+        r = self.test_client.get('%s/%s/%s' % (invoices['url'], self.invoice_id, '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue(content['people'], self.item_id)
+
+        # Set field to be embedded
+        invoices['schema']['people']['data_relation']['embeddable'] = True
+
+        # Test that global setting applies even if field is set to embedded
+        invoices['embedding'] = False
+        r = self.test_client.get('%s/%s/%s' % (invoices['url'],
+                                               self.invoice_id,
+                                               '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue(content['people'], self.item_id)
+
+        # Test that it works
+        invoices['embedding'] = True
+        r = self.test_client.get('%s/%s/%s' % (invoices['url'],
+                                               self.invoice_id,
+                                               '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('lastname' in content['people'])
+
+        # Test that it ignores a bogus field
+        embedded = '{"people": 1, "not-a-real-field": 1}'
+        r = self.test_client.get('%s/%s/%s' % (invoices['url'],
+                                               self.invoice_id,
+                                               '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('lastname' in content['people'])
+
+        # Test that it ignores a real field with a bogus value
+        embedded = '{"people": 1, "number": "not-a-real-value"}'
+        r = self.test_client.get('%s/%s/%s' % (invoices['url'],
+                                               self.invoice_id,
+                                               '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('lastname' in content['people'])
+
+        # Test that it works with item endpoint too
+        r = self.test_client.get('%s/%s/%s' % (invoices['url'],
+                                               self.invoice_id,
+                                               '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('lastname' in content['people'])
+
+    def test_subresource_getitem(self):
+        _db = self.app.data.driver
+
+        # create random person
+        fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        _db.session.add(fake_person)
+        _db.session.commit()
+        fake_invoice = self.test_sql_tables.Invoices(number=4)
+        fake_invoice.people = fake_person._id
+        _db.session.add(fake_invoice)
+        _db.session.commit()
+
+        # GET all invoices by new contact
+        response, status = self.get('users/%s/invoices/%s' % (fake_person._id, fake_invoice._id))
+        self.assert200(status)
+        self.assertEqual(response['people'], fake_person._id)
+        self.assertEqual(response['_id'], fake_invoice._id)
 
 
-# class TestEvents(TestBase):
-#     def setUp(self):
-#         super(TestEvents, self).setUp()
-#         self.devent = DummyEvent(lambda: True)
-#
-#     def test_on_pre_GET_for_item(self):
-#         self.app.on_pre_GET += self.devent
-#         self.get_item()
-#         self.assertEqual('contacts', self.devent.called[0])
-#         self.assertFalse(self.devent.called[1] is None)
-#
-#     def test_on_pre_GET_item_dynamic_filter(self):
-#         def filter_this(resource, request, lookup):
-#             lookup["_id"] = self.item_id
-#         self.app.on_pre_GET += filter_this
-#         # Would normally return a 404; will return one instead.
-#         r, s = self.parse_response(self.get_item())
-#         self.assert200(s)
-#         self.assertEqual(r[self.app.config['ID_FIELD']], self.item_id)
-#
-#     def test_on_pre_GET_resource_for_item(self):
-#         self.app.on_pre_GET_contacts += self.devent
-#         self.get_item()
-#         self.assertFalse(self.devent.called is None)
-#
-#     def test_on_pre_GET_for_resource(self):
-#         self.app.on_pre_GET += self.devent
-#         self.get_resource()
-#         self.assertFalse(self.devent.called is None)
-#
-#     def test_on_pre_GET_resource_dynamic_filter(self):
-#         def filter_this(resource, request, lookup):
-#             lookup["_id"] = self.item_id
-#         self.app.on_pre_GET += filter_this
-#         # Would normally return all documents; will only just one.
-#         r, s = self.parse_response(self.get_resource())
-#         self.assertEqual(len(r[self.app.config['ITEMS']]), 1)
-#
-#     def test_on_pre_GET_resource_for_resource(self):
-#         self.app.on_pre_GET_contacts += self.devent
-#         self.get_resource()
-#         self.assertFalse(self.devent.called is None)
-#
-#     def test_on_post_GET_for_item(self):
-#         self.app.on_post_GET += self.devent
-#         self.get_item()
-#         self.assertFalse(self.devent.called is None)
-#
-#     def test_on_post_GET_resource_for_item(self):
-#         self.app.on_post_GET_contacts += self.devent
-#         self.get_item()
-#         self.assertFalse(self.devent.called is None)
-#
-#     def test_on_post_GET_for_resource(self):
-#         self.app.on_post_GET += self.devent
-#         self.get_resource()
-#         self.assertFalse(self.devent.called is None)
-#
-#     def test_on_post_GET_resource_for_resource(self):
-#         self.app.on_post_GET_contacts += self.devent
-#         self.get_resource()
-#         self.assertFalse(self.devent.called is None)
-#
-#     def test_on_post_GET_homepage(self):
-#         self.app.on_post_GET += self.devent
-#         self.test_client.get('/')
-#         self.assertTrue(self.devent.called[0] is None)
-#         self.assertEqual(3, len(self.devent.called))
-#
-#     def test_on_fetched_resource(self):
-#         self.app.on_fetched_resource += self.devent
-#         self.get_resource()
-#         self.assertEqual('contacts', self.devent.called[0])
-#         self.assertEqual(
-#             self.app.config['PAGINATION_DEFAULT'], len(self.devent.called[1]))
-#
-#     def test_on_fetched_resource_contacts(self):
-#         self.app.on_fetched_resource_contacts += self.devent
-#         self.get_resource()
-#         self.assertEqual(
-#             self.app.config['PAGINATION_DEFAULT'], len(self.devent.called[0]))
-#
-#     def test_on_fetched_item(self):
-#         self.app.on_fetched_item += self.devent
-#         self.get_item()
-#         self.assertEqual('contacts', self.devent.called[0])
-#         self.assertEqual(
-#             self.item_id,
-#             str(self.devent.called[1][self.app.config['ID_FIELD']]))
-#         self.assertEqual(2, len(self.devent.called))
-#
-#     def test_on_fetched_item_contacts(self):
-#         self.app.on_fetched_item_contacts += self.devent
-#         self.get_item()
-#         self.assertEqual(
-#             self.item_id,
-#             str(self.devent.called[0][self.app.config['ID_FIELD']]))
-#         self.assertEqual(1, len(self.devent.called))
+class TestHead(TestBaseSQL):
+
+    def test_head_home(self):
+        self.assertHead('/')
+
+    def test_head_resource(self):
+        self.assertHead(self.known_resource_url)
+
+    def test_head_item(self):
+        self.assertHead(self.item_id_url)
+
+    def assertHead(self, url):
+        h = self.test_client.head(url)
+        r = self.test_client.get(url)
+        self.assertTrue(not h.data)
+        self.assertEqual(r.headers, h.headers)
+
+
+class TestEvents(TestBaseSQL):
+
+    def setUp(self):
+        super(TestEvents, self).setUp()
+        self.devent = DummyEvent(lambda: True)
+
+    def test_on_pre_GET_for_item(self):
+        self.app.on_pre_GET += self.devent
+        self.get_item()
+        self.assertEqual('people', self.devent.called[0])
+        self.assertFalse(self.devent.called[1] is None)
+
+    def test_on_pre_GET_item_dynamic_filter(self):
+        def filter_this(resource, request, lookup):
+            lookup["_id"] = self.item_id
+        self.app.on_pre_GET += filter_this
+        # Would normally return a 404; will return one instead.
+        r, s = self.parse_response(self.get_item())
+        self.assert200(s)
+        self.assertEqual(r[self.app.config['ID_FIELD']], self.item_id)
+
+    def test_on_pre_GET_resource_for_item(self):
+        self.app.on_pre_GET_people += self.devent
+        self.get_item()
+        self.assertFalse(self.devent.called is None)
+
+    def test_on_pre_GET_for_resource(self):
+        self.app.on_pre_GET += self.devent
+        self.get_resource()
+        self.assertFalse(self.devent.called is None)
+
+    def test_on_pre_GET_resource_dynamic_filter(self):
+        def filter_this(resource, request, lookup):
+            lookup["_id"] = self.item_id
+        self.app.on_pre_GET += filter_this
+        # Would normally return all documents; will only just one.
+        r, s = self.parse_response(self.get_resource())
+        self.assertEqual(len(r[self.app.config['ITEMS']]), 1)
+
+    def test_on_pre_GET_resource_for_resource(self):
+        self.app.on_pre_GET_people += self.devent
+        self.get_resource()
+        self.assertFalse(self.devent.called is None)
+
+    def test_on_post_GET_for_item(self):
+        self.app.on_post_GET += self.devent
+        self.get_item()
+        self.assertFalse(self.devent.called is None)
+
+    def test_on_post_GET_resource_for_item(self):
+        self.app.on_post_GET_people += self.devent
+        self.get_item()
+        self.assertFalse(self.devent.called is None)
+
+    def test_on_post_GET_for_resource(self):
+        self.app.on_post_GET += self.devent
+        self.get_resource()
+        self.assertFalse(self.devent.called is None)
+
+    def test_on_post_GET_resource_for_resource(self):
+        self.app.on_post_GET_people += self.devent
+        self.get_resource()
+        self.assertFalse(self.devent.called is None)
+
+    def test_on_post_GET_homepage(self):
+        self.app.on_post_GET += self.devent
+        self.test_client.get('/')
+        self.assertTrue(self.devent.called[0] is None)
+        self.assertEqual(3, len(self.devent.called))
+
+    def test_on_fetched_resource(self):
+        self.app.on_fetched_resource += self.devent
+        self.get_resource()
+        self.assertEqual('people', self.devent.called[0])
+        self.assertEqual(
+            self.app.config['PAGINATION_DEFAULT'], len(self.devent.called[1]))
+
+    def test_on_fetched_resource_people(self):
+        self.app.on_fetched_resource_people += self.devent
+        self.get_resource()
+        self.assertEqual(self.app.config['PAGINATION_DEFAULT'], len(self.devent.called[0]))
+
+    def test_on_fetched_item(self):
+        self.app.on_fetched_item += self.devent
+        self.get_item()
+        self.assertEqual('people', self.devent.called[0])
+        self.assertEqual(self.item_id, self.devent.called[1][self.app.config['ID_FIELD']])
+        self.assertEqual(2, len(self.devent.called))
+
+    def test_on_fetched_item_contacts(self):
+        self.app.on_fetched_item_people += self.devent
+        self.get_item()
+        self.assertEqual(self.item_id, self.devent.called[0][self.app.config['ID_FIELD']])
+        self.assertEqual(1, len(self.devent.called))
+
+    def get_item(self, url=None):
+        if not url:
+            url = self.item_id_url
+        return self.test_client.get(url)
+
+    def get_resource(self):
+        return self.test_client.get(self.known_resource_url)

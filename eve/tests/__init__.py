@@ -308,7 +308,7 @@ class TestMinimal(unittest.TestCase):
 
 class TestBase(TestMinimal):
 
-    def setUp(self, url_converters=None):
+    def setUp(self, settings_file=None, url_converters=None):
         super(TestBase, self).setUp(url_converters=url_converters)
 
         self.known_resource = 'contacts'
@@ -473,7 +473,7 @@ class TestBase(TestMinimal):
 class TestBaseSQL(TestMinimal):
     from eve.tests import test_sql_tables
 
-    def setUp(self, url_converters=None):
+    def setUp(self, settings_file=None, url_converters=None):
         self.connection = None
         self.known_resource_count = 101
         self.this_directory = os.path.dirname(os.path.realpath(__file__))
@@ -488,6 +488,8 @@ class TestBaseSQL(TestMinimal):
 
         self.known_resource = 'people'
         self.known_resource_url = ('/%s' % self.domain[self.known_resource]['url'])
+        self.unknown_resource = 'unknown'
+        self.unknown_resource_url = '/%s' % self.unknown_resource
         self.unknown_item_id = '4f46445fc88e201858000000'
         self.unknown_item_name = 'unknown'
         response, _ = self.get(self.known_resource, '?max_results=2')
@@ -495,12 +497,41 @@ class TestBaseSQL(TestMinimal):
         self.item = person
         self.item_id = self.item[self.app.config['ID_FIELD']]
         self.item_firstname = self.item['firstname']
+        self.item_etag = self.item[ETAG]
         self.item_id_url = ('/%s/%s' %
                             (self.domain[self.known_resource]['url'],
                              self.item_id))
 
         self.empty_resource = 'empty'
         self.empty_resource_url = '/%s' % self.empty_resource
+
+        self.different_resource = 'users'
+        self.different_resource_url = ('/%s' % self.domain[self.different_resource]['url'])
+
+        response, _ = self.get('users')
+        user = self.response_item(response)
+        self.user_id = user[self.app.config['ID_FIELD']]
+        self.user_firstname = user['firstname']
+        self.user_etag = user[ETAG]
+        self.user_id_url = ('/%s/%s' %
+                            (self.domain[self.different_resource]['url'],
+                             self.user_id))
+        self.user_firstname_url = ('/%s/%s' % (self.domain[self.different_resource]['url'], self.user_firstname))
+
+        response, _ = self.get('invoices')
+        invoice = self.response_item(response)
+        self.invoice_id = invoice[self.app.config['ID_FIELD']]
+        self.invoice_etag = invoice[ETAG]
+        self.invoice_id_url = ('/%s/%s' % (self.domain['invoices']['url'], self.invoice_id))
+
+        self.readonly_resource = 'payments'
+        self.readonly_resource_url = (
+            '/%s' % self.domain[self.readonly_resource]['url'])
+
+        response, _ = self.get('payments', '?max_results=1')
+        self.readonly_id = self.response_item(response)['_id']
+        self.readonly_id_url = ('%s/%s' % (self.readonly_resource_url,
+                                           self.readonly_id))
 
     def setupDB(self):
         self.connection = self.app.data.driver
@@ -510,20 +541,33 @@ class TestBaseSQL(TestMinimal):
 
     def bulk_insert(self):
         sql_tables = self.test_sql_tables
-        people = self.random_people(self.known_resource_count)
         if not self.connection.session.query(sql_tables.People).count():
-            for item in people:
-                self.connection.session.add(sql_tables.People.from_tuple(item))
-                self.connection.session.commit()
+            # load random people in db
+            people = self.random_people(self.known_resource_count)
+            people = [sql_tables.People.from_tuple(item) for item in people]
+            for person in people:
+                self.connection.session.add(person)
+            self.connection.session.commit()
+
+            # load random invoice
+            invoice = sql_tables.Invoices(number=random.randint(0, 100))
+            invoice.people = people[0]._id
+            self.connection.session.add(invoice)
+            self.connection.session.commit()
+
+            # load random payments
+            for _ in range(10):
+                payment = sql_tables.Payments(number=random.randint(0, 100), string=self.random_string(6))
+                self.connection.session.add(payment)
+            self.connection.session.commit()
+
+    def random_string(self, length=6):
+        return ''.join(random.choice(string.ascii_lowercase) for _ in xrange(length)).capitalize()
 
     def random_people(self, num):
-
-        def random_string(length):
-            return ''.join(random.choice(string.ascii_lowercase) for _ in xrange(length)).capitalize()
-
         people = []
         for i in xrange(num):
-            people.append((random_string(6), random_string(6), i))
+            people.append((self.random_string(6), self.random_string(6), i))
         return people
 
     def dropDB(self):

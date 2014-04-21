@@ -11,7 +11,7 @@
 
 
 # substitute <path for db file> with a real path to save the SQLite database file
-SQLALCHEMY_DATABASE_URI = 'sqlite://<path for db file>'
+SQLALCHEMY_DATABASE_URI = 'sqlite:////Users/dedalus/Developer/eve/examples/SQL/test.db'
 
 # The following two lines will output the SQL statements executed by SQLAlchemy. Useful while debugging
 # and in development. Turned off by default
@@ -30,6 +30,6 @@ DOMAIN = {
         },
         'cache_control': 'max-age=10,must-revalidate',
         'cache_expires': 10,
-        'resource_methods': ['GET']
+        'resource_methods': ['GET', 'POST', 'DELETE']
     }
 }
