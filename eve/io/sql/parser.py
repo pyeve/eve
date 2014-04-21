@@ -15,7 +15,7 @@
 import ast
 import flask.ext.sqlalchemy as flask_sqlalchemy
 import operator as operator
-from eve.utils import weak_date
+from eve.utils import str_to_date
 
 sqla_op = operator
 sqla_exp = flask_sqlalchemy.sqlalchemy.sql.expression
@@ -159,7 +159,7 @@ class SQLAVisitor(ast.NodeVisitor):
     def visit_Str(self, node):
         """ Strings """
         try:
-            value = weak_date(node.s)
+            value = str_to_date(node.s)
             self.current_value = value if value is not None else node.s
         except:
             self.current_value = node.s
