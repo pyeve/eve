@@ -13,3 +13,17 @@ class People(CommonColumns):
     @classmethod
     def from_tuple(cls, data):
         return cls(firstname=data[0], lastname=data[1], prog=data[2])
+
+
+@registerSchema('invoices')
+class Invoices(CommonColumns):
+    __tablename__ = 'invoices'
+    number = db.Column(db.Integer)
+    people = db.Column(db.Integer, db.ForeignKey('people._id'))
+
+
+@registerSchema('payments')
+class Payments(CommonColumns):
+    __tablename__ = 'payments'
+    number = db.Column(db.Integer)
+    string = db.Column(db.String(80))
