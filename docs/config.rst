@@ -872,8 +872,8 @@ of the database collection. It is a dictionary with four allowed keys:
                                 returned with the default database order.
                                 A valid statement would be:
 
-                                ``'datasource': {'default_sort': [{'name':
-                                1}]}``
+                                ``'datasource': {'default_sort': [('name',
+                                1)]}``
 
                                 For more informations on sort and filters see
                                 :ref:`filters`.
