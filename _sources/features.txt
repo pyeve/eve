@@ -541,7 +541,7 @@ metadata:
     }
 
 However, in order to reduce the number of loopbacks, a client might also submit
-multiple documents with a single request. All if needs to do is enclose the
+multiple documents with a single request. All it needs to do is enclose the
 documents in a JSON list:
 
 .. code-block:: console

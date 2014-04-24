@@ -546,7 +546,7 @@ metadata:</p>
 </pre></div>
 </div>
 <p>However, in order to reduce the number of loopbacks, a client might also submit
-multiple documents with a single request. All if needs to do is enclose the
+multiple documents with a single request. All it needs to do is enclose the
 documents in a JSON list:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;[{&quot;firstname&quot;: &quot;barack&quot;, &quot;lastname&quot;: &quot;obama&quot;}, {&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}]&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> http://eve-demo.herokuapp.com/people
 <span class="go">HTTP/1.1 201 OK</span>
