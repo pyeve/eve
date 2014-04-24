@@ -8,6 +8,7 @@ Version 0.4
 
 Not released yet.
 
+- [fix] Documentation improvements (Jen Montes).
 - [change] MarkupSafe 0.21 is now required.
 - [new] Ability to send entire document in write responses.
   ``BANDWITH_SAVER`` aka Coherence Mode (Josh Villbrandt). 
