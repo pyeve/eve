@@ -19,7 +19,7 @@ from datetime import datetime
 from copy import copy
 
 from eve.io.base import DataLayer, ConnectionException
-from eve.utils import config
+from eve.utils import config, debug_error_message
 from .parser import parse, parse_dictionary, ParseError, sqla_op
 from .structures import SQLAResult, SQLAResultCollection
 from .utils import dict_update, validate_filters
@@ -160,37 +160,51 @@ class SQL(DataLayer):
             document = query.filter(*filter_).one()
             return SQLAResult(document, fields)
         except NoResultFound:
-            abort(404)
+            return None
+
+    def find_one_raw(self, resource, _id):
+        raise NotImplementedError
+
+    def find_list_of_ids(self, resource, ids, client_projection=None):
+        raise NotImplementedError
 
     def insert(self, resource, doc_or_docs):
         """Inserts a document into a resource collection.
         """
-        # rv = []
-        # datasource, filter_, _ = self._datasource_ex(resource)
-        # model = self.lookup_model(datasource)
-        # for document in doc_or_docs:
-        #     sqla_document = copy.deepcopy(document)
-        #     # remove date if model doesn't have LAST_UPDATED or DATE_CREATED
-        #     if not hasattr(model, config.LAST_UPDATED) and \
-        #        config.LAST_UPDATED in sqla_document:
-        #         del sqla_document[config.LAST_UPDATED]
-        #
-        #     if not hasattr(model, config.DATE_CREATED) and \
-        #        config.DATE_CREATED in sqla_document:
-        #         del sqla_document[config.DATE_CREATED]
-        #     model_instance = model(**sqla_document)
-        #     self.driver.session.add(model_instance)
-        #     self.driver.session.commit()
-        #     mapper = self.driver.object_mapper(model_instance)
-        #     pkey = mapper.primary_key_from_instance(model_instance)
-        #     if len(pkey) > 1:
-        #         raise ValueError  # TODO: composite primary key
-        #     rv.append(pkey[0])
-        # return rv
-        raise NotImplementedError  # TODO: bring forward the previous implementation to the new changes
+        rv = []
+        model, filter_, _, _ = self._datasource_ex(resource)
+        for document in doc_or_docs:
+            model_instance = model(**document)
+            self.driver.session.add(model_instance)
+            self.driver.session.commit()
+            id = getattr(model_instance, '_id')  # TODO: respect eve ID_FIELD
+            rv.append(id)
+        return rv
+
+    def replace(self, resource, id_, document):
+        model, filter_, _, _ = self._datasource_ex(resource, [])
+        filter_ = self.combine_queries(filter_, parse_dictionary({'_id': id_}, model))  # TODO: respect eve ID_FIELD
+        query = self.driver.session.query(model)
+        old_model_instance = query.get(id_)
+        if old_model_instance is None:
+            abort(500, description=debug_error_message('Object not existent'))
+        self.driver.session.delete(old_model_instance)
+        self.driver.session.commit()
+        model_instance = model(**document)
+        model_instance._id = id_
+        self.driver.session.add(model_instance)
+        self.driver.session.commit()
 
     def update(self, resource, id_, updates):
-        raise NotImplementedError  # TODO: update support
+        model, filter_, _, _ = self._datasource_ex(resource, [])
+        filter_ = self.combine_queries(filter_, parse_dictionary({'_id': id_}, model))  # TODO: respect eve ID_FIELD
+        query = self.driver.session.query(model)
+        document = query.filter(*filter_).first()
+        if document is None:
+            abort(500, description=debug_error_message('Object not existent'))
+        for k, v in updates.iteritems():
+            setattr(document, k, v)
+            self.driver.session.commit()
 
     def remove(self, resource, lookup):
         model, filter_, _, _ = self._datasource_ex(resource, [])
