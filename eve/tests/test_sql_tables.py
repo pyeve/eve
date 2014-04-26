@@ -5,7 +5,7 @@ from eve.io.sql.sql import db
 @registerSchema('people')
 class People(CommonColumns):
     __tablename__ = 'people'
-    firstname = db.Column(db.String(80))
+    firstname = db.Column(db.String(80), unique=True)
     lastname = db.Column(db.String(120))
     fullname = db.column_property(firstname + " " + lastname)
     prog = db.Column(db.Integer)

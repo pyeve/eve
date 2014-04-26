@@ -8,7 +8,7 @@ import os
 import simplejson as json
 from datetime import datetime, timedelta
 from flask.ext.pymongo import MongoClient
-from eve.io.sql import SQL, Validator
+from eve.io.sql import SQL, ValidatorSQL
 from bson import ObjectId
 from eve.tests.test_settings import MONGO_PASSWORD, MONGO_USERNAME, \
     MONGO_DBNAME, DOMAIN, MONGO_HOST, MONGO_PORT
@@ -481,7 +481,7 @@ class TestBaseSQL(TestMinimal):
         self.app = eve.Eve(settings=self.settings_file,
                            url_converters=url_converters,
                            data=SQL,
-                           validator=Validator)
+                           validator=ValidatorSQL)
         self.test_client = self.app.test_client()
         self.domain = self.app.config['DOMAIN']
         self.setupDB()
@@ -490,8 +490,9 @@ class TestBaseSQL(TestMinimal):
         self.known_resource_url = ('/%s' % self.domain[self.known_resource]['url'])
         self.unknown_resource = 'unknown'
         self.unknown_resource_url = '/%s' % self.unknown_resource
-        self.unknown_item_id = '4f46445fc88e201858000000'
+        self.unknown_item_id = '83542635967'
         self.unknown_item_name = 'unknown'
+        self.unknown_item_id_url = ('/%s/%s' % (self.domain[self.known_resource]['url'], self.unknown_item_id))
         response, _ = self.get(self.known_resource, '?max_results=2')
         person = self.response_item(response)
         self.item = person
