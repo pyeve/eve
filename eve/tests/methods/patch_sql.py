@@ -86,7 +86,6 @@ class TestPatch(TestBaseSQL):
         db_value = self.compare_patch_with_get(field, r)
         self.assertEqual(db_value, test_value)
 
-    @unittest.skip("I don't understand the scenario here")
     def test_patch_defaults(self):
         field = 'firstname'
         test_value = 'Douglas'
