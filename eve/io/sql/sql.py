@@ -19,7 +19,7 @@ from datetime import datetime
 from copy import copy
 
 from eve.io.base import DataLayer, ConnectionException
-from eve.utils import config, debug_error_message
+from eve.utils import config, debug_error_message, str_to_date
 from .parser import parse, parse_dictionary, ParseError, sqla_op
 from .structures import SQLAResult, SQLAResultCollection
 from .utils import dict_update, validate_filters
@@ -47,6 +47,7 @@ class SQL(DataLayer):
     """
     json_decoder_cls = SQLAJSONDecoder
     driver = db
+    serializers = {'datetime': str_to_date}
 
     def init_app(self, app):
         try:
@@ -172,20 +173,22 @@ class SQL(DataLayer):
         """Inserts a document into a resource collection.
         """
         rv = []
-        model, filter_, _, _ = self._datasource_ex(resource)
+        model, filter_, fields_, _ = self._datasource_ex(resource)
         for document in doc_or_docs:
             model_instance = model(**document)
             self.driver.session.add(model_instance)
             self.driver.session.commit()
-            id = getattr(model_instance, '_id')  # TODO: respect eve ID_FIELD
-            rv.append(id)
+            # TODO: respect eve ID_FIELD
+            id_ = getattr(model_instance, '_id')
+            document.update({k: getattr(model_instance, k) for k in fields_ if getattr(model_instance, k) is not None})
+            rv.append(id_)
         return rv
 
     def replace(self, resource, id_, document):
-        model, filter_, _, _ = self._datasource_ex(resource, [])
+        model, filter_, fields_, _ = self._datasource_ex(resource, [])
         filter_ = self.combine_queries(filter_, parse_dictionary({'_id': id_}, model))  # TODO: respect eve ID_FIELD
         query = self.driver.session.query(model)
-        old_model_instance = query.get(id_)
+        old_model_instance = query.filter(*filter_).first()
         if old_model_instance is None:
             abort(500, description=debug_error_message('Object not existent'))
         self.driver.session.delete(old_model_instance)
@@ -194,6 +197,7 @@ class SQL(DataLayer):
         model_instance._id = id_
         self.driver.session.add(model_instance)
         self.driver.session.commit()
+        document.update({k: getattr(model_instance, k) for k in fields_ if getattr(model_instance, k) is not None})
 
     def update(self, resource, id_, updates):
         model, filter_, _, _ = self._datasource_ex(resource, [])
@@ -229,8 +233,6 @@ class SQL(DataLayer):
         table instead of the name of it
         """
         model = self._model(resource)
-
-        # TODO: check this implementation. Overwriting filter in the global config might be tricky
         filter_ = config.SOURCES[resource]['filter']
         if filter_ is None or len(filter_) == 0:
             filter_ = []
