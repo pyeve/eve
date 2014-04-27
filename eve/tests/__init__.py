@@ -547,18 +547,26 @@ class TestBaseSQL(TestMinimal):
             people = self.random_people(self.known_resource_count)
             people = [sql_tables.People.from_tuple(item) for item in people]
             for person in people:
+                dt = datetime.now()
+                person._created = dt
+                person._updated = dt
                 self.connection.session.add(person)
             self.connection.session.commit()
 
             # load random invoice
             invoice = sql_tables.Invoices(number=random.randint(0, 100))
             invoice.people = people[0]._id
+            invoice._created = datetime.now()
+            invoice._updated = datetime.now()
             self.connection.session.add(invoice)
             self.connection.session.commit()
 
             # load random payments
             for _ in range(10):
                 payment = sql_tables.Payments(number=random.randint(0, 100), string=self.random_string(6))
+                dt = datetime.now()
+                payment._created = dt
+                payment._updated = dt
                 self.connection.session.add(payment)
             self.connection.session.commit()
 
