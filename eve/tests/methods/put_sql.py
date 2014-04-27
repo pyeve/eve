@@ -105,9 +105,9 @@ class TestPutSQL(TestBaseSQL):
         self.assertPutResponse(json.loads(r.get_data()), self.item_id)
 
     def test_put_default_value(self):
-        test_field = 'firstname'
-        test_value = 'Douglas'
-        data = {'firstname': test_value}
+        test_field = 'title'
+        test_value = 'Mr.'
+        data = {'firstname': 'Douglas'}
         r = self.perform_put(data)
         db_value = self.compare_put_with_get(test_field, r)
         self.assertEqual(test_value, db_value)
