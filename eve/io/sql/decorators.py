@@ -6,7 +6,9 @@ from .utils import dict_update
 __all__ = ['registerSchema']
 
 
-sqla_type_mapping = {flask_sqlalchemy.sqlalchemy.types.Integer: 'integer'}
+sqla_type_mapping = {flask_sqlalchemy.sqlalchemy.types.Integer: 'integer',
+                     flask_sqlalchemy.sqlalchemy.types.DateTime: 'datetime',
+                     flask_sqlalchemy.sqlalchemy.types.DATETIME: 'datetime'}
 
 
 def lookup_column_type(intype):
@@ -71,6 +73,8 @@ class registerSchema(object):
                 schema['required'] = not col.nullable if not col.primary_key else False
                 if hasattr(col.type, 'length'):
                     schema['maxlength'] = col.type.length
+                if col.default is not None:
+                    schema['default'] = col.default.arg
             elif isinstance(col, flask_sqlalchemy.sqlalchemy.sql.expression.ColumnElement):
                 schema['type'] = 'string'  # TODO Can we do something more here?
             else:
