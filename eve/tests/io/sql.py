@@ -129,13 +129,6 @@ class TestSQLParser(TestCase):
         any_true = any(expected_expression.compare(elem) for elem in r)
         self.assertTrue(any_true)
 
-    def test_parse_dict_convert_str_to_int(self):
-        r = parse_dictionary({'prog': '5'}, self.model)
-        self.assertEqual(type(r), list)
-        self.assertTrue(len(r) == 1)
-        expected_expression = sqla_op.eq(self.model.prog, 5)
-        self.assertTrue(expected_expression.compare(r[0]))
-
 
 class TestSQLStructures(TestCase):
     from eve.tests import test_sql_tables
