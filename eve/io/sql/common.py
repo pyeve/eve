@@ -19,6 +19,6 @@ class CommonColumns(db.Model):
     WARNING: the _id column name does not respect Eve's setting for custom ID_FIELD.
     """
     __abstract__ = True
-    _created = db.Column(db.DateTime, default=func.now())
-    _updated = db.Column(db.DateTime, default=func.now(), onupdate=func.now())
+    _created = db.Column(db.DateTime)
+    _updated = db.Column(db.DateTime)
     _id = db.Column(db.Integer, primary_key=True)  # TODO: make this comply to Eve's custom ID_FIELD setting
