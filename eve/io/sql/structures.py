@@ -10,7 +10,7 @@
 """
 
 import collections
-from copy import copy
+import copy
 import flask.ext.sqlalchemy as flask_sqlalchemy
 from eve.utils import config
 
@@ -27,7 +27,7 @@ class SQLAResult(collections.MutableMapping):
         :param fields: the fields to be rendered, as a list of strings
         """
         self._result = result
-        self._fields = copy(fields)
+        self._fields = copy.copy(fields)
 
     def __getitem__(self, key):
         if key == config.ID_FIELD:
@@ -64,6 +64,9 @@ class SQLAResult(collections.MutableMapping):
     def _get_pkey(self):
         mapper = object_mapper(self._result)
         return mapper.primary_key_from_instance(self._result)
+
+    def copy(self):
+        return copy.copy(self)
 
 
 class SQLAResultCollection(object):
