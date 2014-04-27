@@ -21,25 +21,13 @@ from eve.versioning import get_data_version_relation_document, missing_version_f
 
 class ValidatorSQL(Validator):
     """ A cerberus.Validator subclass adding the `unique` constraint to
-    Cerberus standard validation.
-
-    :param schema: the validation schema, to be composed according to Cerberus
-                   documentation.
-    :param resource: the resource name.
+    Cerberus standard validation. For documentation please refer to the
+    Validator class of the eve.io.mongo package.
     """
     def __init__(self, schema, resource=None):
         self.resource = resource
         self._id = None
         super(ValidatorSQL, self).__init__(schema, transparent_schema_rules=True, allow_unknown=False)
-
-    def validate(self, document, schema=None, update=False):
-        if super(ValidatorSQL, self).validate(document, schema, update) is False:
-            return False
-        # SQL is a fixed schema db so query for rows where fields haven't been set return None or null in json
-        # In order for the etag computation to work for entries with incomplete fields, we need
-        # to insert the missing fields as None
-        document.update({k: None for k in self.schema.keys() if k not in document and k != '_id'})
-        return True
 
     def validate_update(self, document, _id):
         self._id = _id
@@ -50,13 +38,6 @@ class ValidatorSQL(Validator):
         return self.validate(document)
 
     def _validate_unique(self, unique, field, value):
-        """ Enables validation for `unique` schema attribute.
-
-        :param unique: Boolean, wether the field value should be
-                       unique or not.
-        :param field: field name.
-        :param value: field value.
-        """
         if unique:
             query = {field: value}
             if app.data.find_one(self.resource, None, **query):
