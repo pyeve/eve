@@ -145,7 +145,7 @@ def post(resource, payl=None):
                     document[config.DATE_CREATED] = date_utc
 
                 resolve_user_restricted_access(document, resource)
-                resolve_default_values(document, resource)
+                resolve_default_values(document, resource_def['defaults'])
                 store_media_files(document, resource)
                 resolve_document_version(document, resource, 'POST')
             else:

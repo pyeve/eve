@@ -21,6 +21,7 @@ from werkzeug.serving import WSGIRequestHandler
 from eve.io.mongo import Mongo, Validator, GridFSMediaStorage
 from eve.exceptions import ConfigException, SchemaException
 from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint
+from eve.methods.common import build_defaults
 from eve.utils import api_prefix, extract_key_values
 from events import Events
 
@@ -541,9 +542,7 @@ class Eve(Flask, Events):
         # values in their schema definition.
 
         # TODO support default values for embedded documents.
-        settings['defaults'] = \
-            set(field for field, definition in schema.items()
-                if 'default' in definition)
+        settings['defaults'] = build_defaults(schema)
 
         # list of all media fields for the resource
         settings['_media'] = [field for field, definition in schema.items() if

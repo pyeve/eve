@@ -273,9 +273,7 @@ class TestConfig(TestBase):
         }
         self.app.set_defaults()
         settings = self.domain['resource']
-        self.assertNotEqual(settings.get('defaults'), None)
-        self.assertEqual(type(settings['defaults']), set)
-        self.assertEqual(len(settings['defaults']), 2)
+        self.assertEqual({'title': 'Mr.', 'price': 100}, settings['defaults'])
 
     def test_url_helpers(self):
         self.assertNotEqual(self.app.config.get('URLS'), None)

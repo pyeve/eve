@@ -819,8 +819,47 @@ defining the field validation rules. Allowed validation rules are:
                                 ``None``. 
 
 ``default``                     The default value for the field. When serving
-                                POST (create) requests, missing fields will be
+                                POST and PUT requests, missing fields will be
                                 assigned the configured default values.
+
+                                It works for type ``dict`` and ``list``.
+                                The latter is restricted and works only for
+                                lists with schemas (list with a random number
+                                of elements and each element being a ``dict``)
+
+                                ::
+
+                                    schema = {
+                                      # Simple default
+                                      'title': {
+                                        'type': 'string',
+                                        'default': 'M.'
+                                      },
+                                      # Default in a dict
+                                      'others': {
+                                        'type': 'dict',
+                                        'schema': {
+                                          'code': {
+                                            'type': 'int',
+                                            'default': 100
+                                          }
+                                        }
+                                      },
+                                      # Default in a list of dicts
+                                      'mylist': {
+                                        'type': 'list',
+                                        'schema': {
+                                          'type': 'dict',
+                                          'schema': {
+                                            'name': {'type': 'string'},
+                                            'customer': {
+                                              'type': 'boolean',
+                                              'default': False
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
 
 ``versioned``                   If ``True``, this field will be included in the
                                 versioned history of each document when
