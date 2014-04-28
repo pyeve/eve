@@ -11,8 +11,8 @@
 """
 
 from sql import SQL, db
-from validation import Validator
+from validation import ValidatorSQL
 from common import CommonColumns
 from decorators import registerSchema
 
-__all__ = ['SQL', 'db', 'Validator', 'CommonColumns', 'registerSchema']
+__all__ = ['SQL', 'db', 'ValidatorSQL', 'CommonColumns', 'registerSchema']

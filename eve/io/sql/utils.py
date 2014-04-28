@@ -21,13 +21,6 @@ def dict_update(d, u):
 
 
 def validate_filters(where, resource):
-    """ Report any filter which is not allowed by  `allowed_filters`
-
-    :param where: the where clause, as list of SQLAlchemy binary expressions.
-    :param resource: the resource being inspected.
-
-    .. versionadded: 0.0.9
-    """
     allowed = config.DOMAIN[resource]['allowed_filters']
     if '*' not in allowed:
         for filt in where:

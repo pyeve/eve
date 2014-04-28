@@ -37,12 +37,7 @@ def parse_dictionary(filter_dict, model):
         return []
     conditions = []
     for k, v in filter_dict.iteritems():
-        try:
-            v = int(v)
-        except ValueError:
-            pass
-        finally:
-            conditions.append(sqla_op.eq(getattr(model, k), v))
+        conditions.append(sqla_op.eq(getattr(model, k), v))
     return conditions
 
 
@@ -79,6 +74,9 @@ class SQLAVisitor(ast.NodeVisitor):
     def __init__(self, model):
         super(SQLAVisitor, self).__init__()
         self.model = model
+        self.sqla_query = []
+        self.ops = []
+        self.current_value = None
 
     def visit_Module(self, node):
         """ Module handler, our entry point.
@@ -92,7 +90,7 @@ class SQLAVisitor(ast.NodeVisitor):
 
         # if we didn't obtain a query, it is likely that an unsupported
         # python expression has been passed.
-        if self.sqla_query == []:
+        if not len(self.sqla_query):
             raise ParseError("Only conditional statements with boolean "
                              "(and, or) and comparison operators are "
                              "supported.")
@@ -112,7 +110,7 @@ class SQLAVisitor(ast.NodeVisitor):
         self.visit(node.left)
         left = getattr(self.model, self.current_value)
 
-        operator = self.op_mapper[node.ops[0].__class__]
+        operation = self.op_mapper[node.ops[0].__class__]
 
         if node.comparators:
             comparator = node.comparators[0]
@@ -121,9 +119,9 @@ class SQLAVisitor(ast.NodeVisitor):
         value = self.current_value
 
         if self.ops:
-            self.ops[-1]['args'].append(operator(left, value))
+            self.ops[-1]['args'].append(operation(left, value))
         else:
-            self.sqla_query.append(operator(left, value))
+            self.sqla_query.append(operation(left, value))
 
     def visit_BoolOp(self, node):
         """ Boolean operator handler.
@@ -161,5 +159,5 @@ class SQLAVisitor(ast.NodeVisitor):
         try:
             value = str_to_date(node.s)
             self.current_value = value if value is not None else node.s
-        except:
+        except ValueError:
             self.current_value = node.s

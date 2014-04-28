@@ -1,3 +1,4 @@
+from datetime import datetime
 from eve.tests import TestBaseSQL
 from eve.tests.utils import DummyEvent
 from eve import ETAG
@@ -98,11 +99,15 @@ class TestDeleteSQL(TestBaseSQL):
 
         # create random person
         fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        fake_person._created = datetime.now()
+        fake_person._updated = datetime.now()
         _db.session.add(fake_person)
         _db.session.commit()
         fake_person_id = fake_person._id
         fake_invoice = self.test_sql_tables.Invoices(number=4)
         fake_invoice.people = fake_person._id
+        fake_invoice._created = datetime.now()
+        fake_invoice._updated = datetime.now()
         _db.session.add(fake_invoice)
         _db.session.commit()
 
@@ -137,11 +142,15 @@ class TestDeleteSQL(TestBaseSQL):
 
         # create random person
         fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        fake_person._created = datetime.now()
+        fake_person._updated = datetime.now()
         _db.session.add(fake_person)
         _db.session.commit()
         fake_person_id = fake_person._id
         fake_invoice = self.test_sql_tables.Invoices(number=4)
         fake_invoice.people = fake_person._id
+        fake_invoice._created = datetime.now()
+        fake_invoice._updated = datetime.now()
         _db.session.add(fake_invoice)
         _db.session.commit()
         fake_invoice_id = fake_invoice._id

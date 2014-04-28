@@ -19,7 +19,7 @@ from datetime import datetime
 from copy import copy
 
 from eve.io.base import DataLayer, ConnectionException
-from eve.utils import config
+from eve.utils import config, debug_error_message, str_to_date
 from .parser import parse, parse_dictionary, ParseError, sqla_op
 from .structures import SQLAResult, SQLAResultCollection
 from .utils import dict_update, validate_filters
@@ -37,7 +37,7 @@ class SQLAJSONDecoder(json.JSONDecoder):
         try:
             key, val = rv.iteritems().next()
             return dict(key=datetime.strptime(val, config.DATE_FORMAT))
-        except Exception, e:
+        except ValueError:
             return rv
 
 
@@ -47,6 +47,7 @@ class SQL(DataLayer):
     """
     json_decoder_cls = SQLAJSONDecoder
     driver = db
+    serializers = {'datetime': str_to_date}
 
     def init_app(self, app):
         try:
@@ -69,8 +70,7 @@ class SQL(DataLayer):
     def register_schema(cls, app, model_name=None):
         """Register eve schema for SQLAlchemy model(s)
         :param app: Flask application instance.
-        :param model_name: Name of SQLAlchemy model (register all models
-         if not provided)
+        :param model_name: Name of SQLAlchemy model (register all models if not provided)
         """
         if model_name:
             models = {model_name.capitalize(): cls.driver.Model._decl_class_registry[model_name.capitalize()]}
@@ -81,11 +81,11 @@ class SQL(DataLayer):
             if model_name.startswith('_'):
                 continue
             if getattr(model_cls, '_eve_schema', None):
-                resource = model_name.lower()
                 eve_schema = model_cls._eve_schema
                 dict_update(app.config['DOMAIN'], eve_schema)
 
         for k, v in app.config['DOMAIN'].iteritems():
+            # If a resource has a relation, copy the properties of the relation
             if 'datasource' in v and 'source' in v['datasource']:
                 source = v['datasource']['source']
                 source = app.config['DOMAIN'].get(source)
@@ -109,6 +109,7 @@ class SQL(DataLayer):
 
         :param resource: resource name.
         :param req: a :class:`ParsedRequest`instance.
+        :param sub_resource_lookup: sub-resource lookup from the endpoint url.
         """
         args = {
             'sort': ast.literal_eval(req.sort) if req.sort else None
@@ -130,8 +131,7 @@ class SQL(DataLayer):
             args['spec'] = self.combine_queries(args['spec'], parse_dictionary(sub_resource_lookup, model))
 
         if req.if_modified_since:
-            updated_filter = sqla_op.gt(getattr(model, config.LAST_UPDATED),
-                                        req.if_modified_since)
+            updated_filter = sqla_op.gt(getattr(model, config.LAST_UPDATED), req.if_modified_since)
             args['spec'].append(updated_filter)
 
         query = self.driver.session.query(model)
@@ -139,8 +139,7 @@ class SQL(DataLayer):
         if args['sort']:
             ql = []
             for sort_item in args['sort']:
-                ql.append(getattr(model, sort_item[0]) if sort_item[1] == 1 else
-                          getattr(model, sort_item[0]).desc())
+                ql.append(getattr(model, sort_item[0]) if sort_item[1] == 1 else getattr(model, sort_item[0]).desc())
             args['sort'] = ql
 
         if req.max_results:
@@ -155,42 +154,56 @@ class SQL(DataLayer):
         model, filter_, fields, _ = self._datasource_ex(resource, [], client_projection)
         filter_ = self.combine_queries(filter_, parse_dictionary(lookup, model))
         query = self.driver.session.query(model)
+        document = query.filter(*filter_).first()
+        return SQLAResult(document, fields) if document else None
 
-        try:
-            document = query.filter(*filter_).one()
-            return SQLAResult(document, fields)
-        except NoResultFound:
-            abort(404)
+    def find_one_raw(self, resource, _id):
+        raise NotImplementedError
+
+    def find_list_of_ids(self, resource, ids, client_projection=None):
+        raise NotImplementedError
 
     def insert(self, resource, doc_or_docs):
-        """Inserts a document into a resource collection.
-        """
-        # rv = []
-        # datasource, filter_, _ = self._datasource_ex(resource)
-        # model = self.lookup_model(datasource)
-        # for document in doc_or_docs:
-        #     sqla_document = copy.deepcopy(document)
-        #     # remove date if model doesn't have LAST_UPDATED or DATE_CREATED
-        #     if not hasattr(model, config.LAST_UPDATED) and \
-        #        config.LAST_UPDATED in sqla_document:
-        #         del sqla_document[config.LAST_UPDATED]
-        #
-        #     if not hasattr(model, config.DATE_CREATED) and \
-        #        config.DATE_CREATED in sqla_document:
-        #         del sqla_document[config.DATE_CREATED]
-        #     model_instance = model(**sqla_document)
-        #     self.driver.session.add(model_instance)
-        #     self.driver.session.commit()
-        #     mapper = self.driver.object_mapper(model_instance)
-        #     pkey = mapper.primary_key_from_instance(model_instance)
-        #     if len(pkey) > 1:
-        #         raise ValueError  # TODO: composite primary key
-        #     rv.append(pkey[0])
-        # return rv
-        raise NotImplementedError  # TODO: bring forward the previous implementation to the new changes
+        rv = []
+        model, filter_, fields_, _ = self._datasource_ex(resource)
+        for document in doc_or_docs:
+            model_instance = model(**document)
+            self.driver.session.add(model_instance)
+            self.driver.session.commit()
+            # TODO: respect eve ID_FIELD
+            id_ = getattr(model_instance, '_id')
+            document['_id'] = id_
+            rv.append(id_)
+        return rv
+
+    def replace(self, resource, id_, document):
+        model, filter_, fields_, _ = self._datasource_ex(resource, [])
+        filter_ = self.combine_queries(filter_, parse_dictionary({'_id': id_}, model))  # TODO: respect eve ID_FIELD
+        query = self.driver.session.query(model)
+
+        # Find and delete the old object
+        old_model_instance = query.filter(*filter_).first()
+        if old_model_instance is None:
+            abort(500, description=debug_error_message('Object not existent'))
+        self.driver.session.delete(old_model_instance)
+        self.driver.session.commit()
+
+        # create and insert the new one
+        model_instance = model(**document)
+        model_instance._id = id_
+        self.driver.session.add(model_instance)
+        self.driver.session.commit()
 
     def update(self, resource, id_, updates):
-        raise NotImplementedError  # TODO: update support
+        model, filter_, _, _ = self._datasource_ex(resource, [])
+        filter_ = self.combine_queries(filter_, parse_dictionary({'_id': id_}, model))  # TODO: respect eve ID_FIELD
+        query = self.driver.session.query(model)
+        model_instance = query.filter(*filter_).first()
+        if model_instance is None:
+            abort(500, description=debug_error_message('Object not existent'))
+        for k, v in updates.iteritems():
+            setattr(model_instance, k, v)
+            self.driver.session.commit()
 
     def remove(self, resource, lookup):
         model, filter_, _, _ = self._datasource_ex(resource, [])
@@ -212,11 +225,11 @@ class SQL(DataLayer):
     def _datasource(self, resource):
         """
         Overridden from super to return the actual model class of the database
-        table instead of the name of it
+        table instead of the name of it. We also parse the filter coming from the schema definition into
+        a SQL compatible filter
         """
         model = self._model(resource)
 
-        # TODO: check this implementation. Overwriting filter in the global config might be tricky
         filter_ = config.SOURCES[resource]['filter']
         if filter_ is None or len(filter_) == 0:
             filter_ = []

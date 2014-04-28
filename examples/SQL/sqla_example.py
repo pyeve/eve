@@ -1,9 +1,9 @@
 from eve import Eve
-from eve.io.sql import SQL, Validator
+from eve.io.sql import SQL, ValidatorSQL
 from tables import People
 
 
-app = Eve(validator=Validator, data=SQL)
+app = Eve(validator=ValidatorSQL, data=SQL)
 
 
 # Insert some example data in the db

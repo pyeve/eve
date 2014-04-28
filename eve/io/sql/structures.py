@@ -10,7 +10,7 @@
 """
 
 import collections
-from copy import copy
+import copy
 import flask.ext.sqlalchemy as flask_sqlalchemy
 from eve.utils import config
 
@@ -19,22 +19,18 @@ object_mapper = flask_sqlalchemy.sqlalchemy.orm.object_mapper
 
 class SQLAResult(collections.MutableMapping):
     """
-    Represents a particular item to be returned by Eve
+    Represents a particular item to be returned by Eve. Eve expects a dictionary while SQLAlchemy gives us
+    an object. This class provides an interface between the two requirements.
+
+    :param result: the item to be rendered, as a SQLAlchemy object
+    :param fields: the fields to be rendered, as a list of strings
     """
     def __init__(self, result, fields):
-        """
-        :param result: the item to be rendered, as a SQLAlchemy object
-        :param fields: the fields to be rendered, as a list of strings
-        """
         self._result = result
-        self._fields = copy(fields)
+        self._fields = [field for field in fields if getattr(self._result, field, None) is not None]
 
     def __getitem__(self, key):
-        if key == config.ID_FIELD:
-            pkey = self._get_pkey()
-            if len(pkey) > 1:
-                raise ValueError  # TODO: composite primary key
-            return pkey[0]
+        # TODO: composite primary key
         return getattr(self._result, key, None)
 
     def __setitem__(self, key, value):
@@ -61,21 +57,22 @@ class SQLAResult(collections.MutableMapping):
     def _asdict(self):
         return dict(self)
 
-    def _get_pkey(self):
-        mapper = object_mapper(self._result)
-        return mapper.primary_key_from_instance(self._result)
+    def copy(self):
+        return copy.copy(self)
 
 
 class SQLAResultCollection(object):
+    """
+    Collection of results. The object holds onto a Flask-SQLAlchemy query object and serves a generator off it.
+
+    :param query: Base SQLAlchemy query object for the requested resource
+    :param fields: fields to be rendered in the response, as a list of strings
+    :param spec: filter to be applied to the query
+    :param sort: sorting requirements
+    :param max_results: number of entries to be returned per page
+    :param page: page requested
+    """
     def __init__(self, query, fields, **kwargs):
-        """
-        :param query: Base SQLAlchemy query object for the requested resource
-        :param fields: fields to be rendered in the response, as a list of strings
-        :param spec: filter to be applied to the query
-        :param sort: sorting requirements
-        :param max_results: number of entries to be returned per page
-        :param page: page requested
-        """
         self._query = query
         self._fields = fields
         self._spec = kwargs.get('spec')

@@ -8,7 +8,7 @@ import os
 import simplejson as json
 from datetime import datetime, timedelta
 from flask.ext.pymongo import MongoClient
-from eve.io.sql import SQL, Validator
+from eve.io.sql import SQL, ValidatorSQL
 from bson import ObjectId
 from eve.tests.test_settings import MONGO_PASSWORD, MONGO_USERNAME, \
     MONGO_DBNAME, DOMAIN, MONGO_HOST, MONGO_PORT
@@ -481,7 +481,7 @@ class TestBaseSQL(TestMinimal):
         self.app = eve.Eve(settings=self.settings_file,
                            url_converters=url_converters,
                            data=SQL,
-                           validator=Validator)
+                           validator=ValidatorSQL)
         self.test_client = self.app.test_client()
         self.domain = self.app.config['DOMAIN']
         self.setupDB()
@@ -490,8 +490,9 @@ class TestBaseSQL(TestMinimal):
         self.known_resource_url = ('/%s' % self.domain[self.known_resource]['url'])
         self.unknown_resource = 'unknown'
         self.unknown_resource_url = '/%s' % self.unknown_resource
-        self.unknown_item_id = '4f46445fc88e201858000000'
+        self.unknown_item_id = '83542635967'
         self.unknown_item_name = 'unknown'
+        self.unknown_item_id_url = ('/%s/%s' % (self.domain[self.known_resource]['url'], self.unknown_item_id))
         response, _ = self.get(self.known_resource, '?max_results=2')
         person = self.response_item(response)
         self.item = person
@@ -546,18 +547,26 @@ class TestBaseSQL(TestMinimal):
             people = self.random_people(self.known_resource_count)
             people = [sql_tables.People.from_tuple(item) for item in people]
             for person in people:
+                dt = datetime.now()
+                person._created = dt
+                person._updated = dt
                 self.connection.session.add(person)
             self.connection.session.commit()
 
             # load random invoice
             invoice = sql_tables.Invoices(number=random.randint(0, 100))
             invoice.people = people[0]._id
+            invoice._created = datetime.now()
+            invoice._updated = datetime.now()
             self.connection.session.add(invoice)
             self.connection.session.commit()
 
             # load random payments
             for _ in range(10):
                 payment = sql_tables.Payments(number=random.randint(0, 100), string=self.random_string(6))
+                dt = datetime.now()
+                payment._created = dt
+                payment._updated = dt
                 self.connection.session.add(payment)
             self.connection.session.commit()
 

@@ -349,10 +349,14 @@ class TestGetSQL(TestBaseSQL):
 
         # create random person
         fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        fake_person._created = datetime.now()
+        fake_person._updated = datetime.now()
         _db.session.add(fake_person)
         _db.session.commit()
         fake_invoice = self.test_sql_tables.Invoices(number=4)
         fake_invoice.people = fake_person._id
+        fake_invoice._created = datetime.now()
+        fake_invoice._updated = datetime.now()
         _db.session.add(fake_invoice)
         _db.session.commit()
 
@@ -421,10 +425,14 @@ class TestGetSQL(TestBaseSQL):
 
         # create random person
         fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        fake_person._created = datetime.now()
+        fake_person._updated = datetime.now()
         _db.session.add(fake_person)
         _db.session.commit()
         fake_invoice = self.test_sql_tables.Invoices(number=4)
         fake_invoice.people = fake_person._id
+        fake_invoice._created = datetime.now()
+        fake_invoice._updated = datetime.now()
         _db.session.add(fake_invoice)
         _db.session.commit()
 
@@ -492,10 +500,14 @@ class TestGetSQL(TestBaseSQL):
 
         # create random person
         fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        fake_person._created = datetime.now()
+        fake_person._updated = datetime.now()
         _db.session.add(fake_person)
         _db.session.commit()
         fake_invoice = self.test_sql_tables.Invoices(number=4)
         fake_invoice.people = fake_person._id
+        fake_invoice._created = datetime.now()
+        fake_invoice._updated = datetime.now()
         _db.session.add(fake_invoice)
         _db.session.commit()
 
@@ -756,10 +768,14 @@ class TestGetItem(TestBaseSQL):
 
         # create random person
         fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        fake_person._created = datetime.now()
+        fake_person._updated = datetime.now()
         _db.session.add(fake_person)
         _db.session.commit()
         fake_invoice = self.test_sql_tables.Invoices(number=4)
         fake_invoice.people = fake_person._id
+        fake_invoice._created = datetime.now()
+        fake_invoice._updated = datetime.now()
         _db.session.add(fake_invoice)
         _db.session.commit()
 
@@ -773,15 +789,15 @@ class TestGetItem(TestBaseSQL):
 class TestHead(TestBaseSQL):
 
     def test_head_home(self):
-        self.assertHead('/')
+        self.assert_head('/')
 
     def test_head_resource(self):
-        self.assertHead(self.known_resource_url)
+        self.assert_head(self.known_resource_url)
 
     def test_head_item(self):
-        self.assertHead(self.item_id_url)
+        self.assert_head(self.item_id_url)
 
-    def assertHead(self, url):
+    def assert_head(self, url):
         h = self.test_client.head(url)
         r = self.test_client.get(url)
         self.assertTrue(not h.data)

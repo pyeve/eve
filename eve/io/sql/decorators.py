@@ -6,7 +6,10 @@ from .utils import dict_update
 __all__ = ['registerSchema']
 
 
-sqla_type_mapping = {flask_sqlalchemy.sqlalchemy.types.Integer: 'integer'}
+sqla_type_mapping = {flask_sqlalchemy.sqlalchemy.types.Integer: 'integer',
+                     flask_sqlalchemy.sqlalchemy.types.DateTime: 'datetime',
+                     flask_sqlalchemy.sqlalchemy.types.DATETIME: 'datetime'}
+                     # TODO: Add the remaining sensible SQL types
 
 
 def lookup_column_type(intype):
@@ -31,23 +34,19 @@ class registerSchema(object):
 
         resource = self.resource or cls_.__name__.lower()
 
+        fields = [config.LAST_UPDATED, config.DATE_CREATED]
         domain = {
             resource: {
-                'schema': {}
+                'schema': {},
+                'item_lookup': True,
+                'item_lookup_field': '_id',  # TODO: Make these respect the ID_FIELD config of Eve
+                'item_url': 'regex("[0-9]+")'
             }
         }
-
-        domain[resource]['item_lookup'] = True
-
-        # Defines the main lookup rules for this resource
-        # TODO: Make these respect the ID_FIELD config of Eve
-        domain[resource]['item_lookup_field'] = '_id'
-        domain[resource]['item_url'] = 'regex("[0-9]+")'
 
         if hasattr(cls_, '_eve_resource'):
             dict_update(domain[resource], cls_._eve_resource)
 
-        fields = [config.LAST_UPDATED, config.DATE_CREATED]
         for prop in cls_.__mapper__.iterate_properties:
             if prop.key in (config.LAST_UPDATED, config.DATE_CREATED):
                 continue
@@ -71,8 +70,11 @@ class registerSchema(object):
                 schema['required'] = not col.nullable if not col.primary_key else False
                 if hasattr(col.type, 'length'):
                     schema['maxlength'] = col.type.length
+                if col.default is not None:
+                    schema['default'] = col.default.arg
+                    col.default = None
             elif isinstance(col, flask_sqlalchemy.sqlalchemy.sql.expression.ColumnElement):
-                schema['type'] = 'string'  # TODO Can we do something more here?
+                schema['type'] = lookup_column_type(col.type)
             else:
                 schema['type'] = 'string'
             if col.foreign_keys:
