@@ -13,13 +13,13 @@
 from werkzeug import exceptions
 from datetime import datetime
 from eve.auth import requires_auth
+from eve.default_values import resolve_default_values
 from eve.validation import ValidationError
 from flask import current_app as app, abort
 from eve.utils import config, debug_error_message, parse_request
 from eve.methods.common import get_document, parse, payload as payload_, \
-    ratelimit, resolve_default_values, pre_event, store_media_files, \
-    resolve_user_restricted_access, resolve_embedded_fields, \
-    build_response_document, marshal_write_response
+    ratelimit, pre_event, store_media_files, resolve_user_restricted_access, \
+    resolve_embedded_fields, build_response_document, marshal_write_response
 from eve.versioning import resolve_document_version, \
     insert_versioning_documents
 
