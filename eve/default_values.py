@@ -51,7 +51,7 @@ def build_defaults(schema):
                 current[name] = [def_dict]
                 stack.append((
                     value['schema']['schema'], name, current, def_dict))
-                pending.add(id(current[name]))
+                pending.add(id(def_dict))
         pending.discard(id(current))
         if leave:
             # Leaves trigger the `walk up` till the next not processed node
