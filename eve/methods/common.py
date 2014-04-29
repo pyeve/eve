@@ -532,22 +532,6 @@ def marshal_write_response(document, resource):
     return document
 
 
-def resolve_default_values(document, resource):
-    """ Add any defined default value for missing document fields.
-
-    :param document: the document being posted or replaced
-    :param resource: the resource to which the document belongs
-
-    .. versionadded:: 0.2
-    """
-    if request_method() in ('POST', 'PUT'):
-        defaults = app.config['DOMAIN'][resource]['defaults']
-        missing_defaults = defaults.difference(set(document.keys()))
-        schema = config.DOMAIN[resource]['schema']
-        for missing_field in missing_defaults:
-            document[missing_field] = schema[missing_field]['default']
-
-
 def store_media_files(document, resource, original=None):
     """ Store any media file in the underlying media store and update the
     document with unique ids of stored files.
