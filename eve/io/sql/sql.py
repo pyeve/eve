@@ -14,11 +14,11 @@ import ast
 import simplejson as json
 import flask.ext.sqlalchemy as flask_sqlalchemy
 from flask import abort
-from sqlalchemy.orm.exc import NoResultFound
 from datetime import datetime
 from copy import copy
+from sqlalchemy.orm.collections import InstrumentedList
 
-from eve.io.base import DataLayer, ConnectionException
+from eve.io.base import DataLayer, ConnectionException, BaseJSONEncoder
 from eve.utils import config, debug_error_message, str_to_date
 from .parser import parse, parse_dictionary, ParseError, sqla_op
 from .structures import SQLAResult, SQLAResultCollection
@@ -46,11 +46,19 @@ class SQLAJSONDecoder(json.JSONDecoder):
             return rv
 
 
+class SQLAJSONEncoder(BaseJSONEncoder):
+    def default(self, obj):
+        if hasattr(obj, 'jsonify'): # probably relationship
+            return obj.jsonify()
+        return super(SQLAJSONEncoder, self).default(obj)
+
+
 class SQL(DataLayer):
     """
     SQLAlchemy data access layer for Eve REST API.
     """
     json_decoder_cls = SQLAJSONDecoder
+    json_encoder_class = SQLAJSONEncoder
     driver = db
     serializers = {'datetime': str_to_date}
 
@@ -69,7 +77,7 @@ class SQL(DataLayer):
 
         :param model_name: Name of SQLAlchemy model.
         """
-        return cls.driver.Model._decl_class_registry[model_name.capitalize()]
+        return cls.driver.Model._decl_class_registry[model_name]
 
     @classmethod
     def register_schema(cls, app, model_name=None):
@@ -93,7 +101,7 @@ class SQL(DataLayer):
             # If a resource has a relation, copy the properties of the relation
             if 'datasource' in v and 'source' in v['datasource']:
                 source = v['datasource']['source']
-                source = app.config['DOMAIN'].get(source)
+                source = app.config['DOMAIN'].get(source.lower())
                 if source:
                     v['schema'] = source['schema']
                     v['item_lookup_field'] = source['item_lookup_field']
@@ -121,10 +129,15 @@ class SQL(DataLayer):
         }
 
         client_projection = self._client_projection(req)
-        model, args['spec'], fields, args['sort'] = self._datasource_ex(resource, [], client_projection, args['sort'])
+        client_embedded = self._client_embedded(req)
+        model, args['spec'], fields, args['sort'] = self._datasource_ex(resource, [], client_projection, args['sort'], client_embedded)
         if req.where:
             try:
-                args['spec'] = self.combine_queries(args['spec'], parse(req.where, model))
+                try:
+                    spec = json.loads(req.where)
+                    args['spec'] = self.combine_queries(args['spec'], parse_dictionary(spec, model, ilike=True))
+                except (AttributeError, TypeError):
+                    args['spec'] = self.combine_queries(args['spec'], parse(req.where, model))
             except ParseError:
                 abort(400)
 
@@ -144,7 +157,13 @@ class SQL(DataLayer):
         if args['sort']:
             ql = []
             for sort_item in args['sort']:
-                ql.append(getattr(model, sort_item[0]) if sort_item[1] == 1 else getattr(model, sort_item[0]).desc())
+                if '.' in sort_item[0]: # sort by related mapper class
+                    rel, sort_attr = sort_item[0].split('.')
+                    rel_class = getattr(model, rel).property.mapper.class_
+                    query = query.join(rel_class)
+                    ql.append(getattr(rel_class, sort_attr) if sort_item[1] == 1 else getattr(rel_class, sort_attr).desc())
+                else:
+                    ql.append(getattr(model, sort_item[0]) if sort_item[1] == 1 else getattr(model, sort_item[0]).desc())
             args['sort'] = ql
 
         if req.max_results:
@@ -156,10 +175,19 @@ class SQL(DataLayer):
 
     def find_one(self, resource, req, **lookup):
         client_projection = self._client_projection(req)
-        model, filter_, fields, _ = self._datasource_ex(resource, [], client_projection)
-        filter_ = self.combine_queries(filter_, parse_dictionary(lookup, model))
-        query = self.driver.session.query(model)
-        document = query.filter(*filter_).first()
+        client_embedded = self._client_embedded(req)
+        model, filter_, fields, _ = self._datasource_ex(resource, [], client_projection, None, client_embedded)
+
+        if hasattr(lookup.get(config.ID_FIELD), '_sa_instance_state') \
+                or isinstance(lookup.get(config.ID_FIELD), InstrumentedList):
+            # very dummy way to get the related object
+            # that commes from embeddable parameter
+            return
+        else:
+            filter_ = self.combine_queries(filter_, parse_dictionary(lookup, model))
+            query = self.driver.session.query(model)
+            document = query.filter(*filter_).first()
+
         return SQLAResult(document, fields) if document else None
 
     def find_one_raw(self, resource, _id):
@@ -215,9 +243,10 @@ class SQL(DataLayer):
         filter_ = self.combine_queries(filter_, parse_dictionary(lookup, model))
         query = self.driver.session.query(model)
         if len(filter_):
-            query.filter(*filter_).delete()
-        else:
-            query.delete()
+            query = query.filter(*filter_)
+        for item in query:
+            self.driver.session.delete(item)
+
         self.driver.session.commit()
 
     @staticmethod
@@ -244,21 +273,17 @@ class SQL(DataLayer):
             filter_ = parse_dictionary(filter_, model)
         elif not isinstance(filter_, list):
             filter_ = []
-
         projection_ = copy(config.SOURCES[resource]['projection'])
         sort_ = copy(config.SOURCES[resource]['default_sort'])
 
         return model, filter_, projection_, sort_
 
-    def _datasource_ex(self, resource, query=None, client_projection=None, client_sort=None):
-
+    def _datasource_ex(self, resource, query=None, client_projection=None, client_sort=None, client_embedded=None):
         model, filter_, fields_, sort_ = super(SQL, self)._datasource_ex(resource, query,
                                                                          client_projection, client_sort)
-
-        if 0 in fields_.values():
-            fields = [field for field in model._eve_fields if field not in fields_]
-        else:
-            fields = [field for field in model._eve_fields if field.startswith('_') or field in fields_]
+        if client_embedded:
+            fields_.update(client_embedded)
+        fields = [field for field in fields_.keys() if fields_[field]]
         return model, filter_, fields, sort_
 
     def combine_queries(self, query_a, query_b):
@@ -274,3 +299,20 @@ class SQL(DataLayer):
             return query.filter_by(*filter_).count() == 0
         else:
             return query.count() == 0
+
+    def _client_embedded(self, req):
+        """ Returns a properly parsed client embeddable if available.
+
+        :param req: a :class:`ParsedRequest` instance.
+
+        .. versionadded:: 0.4
+        """
+        client_embedded = {}
+        if req and req.embedded:
+            try:
+                client_embedded = json.loads(req.embedded)
+            except:
+                abort(400, description=debug_error_message(
+                    'Unable to parse `embedded` clause'
+                ))
+        return client_embedded

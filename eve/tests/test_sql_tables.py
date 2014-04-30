@@ -1,16 +1,49 @@
 from eve.io.sql.decorators import registerSchema
-from eve.io.sql.common import CommonColumns
 from eve.io.sql.sql import db
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import column_property, relationship
+from sqlalchemy import (
+    Column,
+    inspect,
+    Integer,
+    String,
+    ForeignKey,
+    DateTime)
+
+Base = declarative_base()
+db.Model = Base
+
+
+class CommonColumns(Base):
+    """
+    Master SQLAlchemy Model. All the SQL tables defined for the application should inherit from this class.
+    It provides common columns such as _created, _updated and _id.
+
+    WARNING: the _id column name does not respect Eve's setting for custom ID_FIELD.
+    """
+    __abstract__ = True
+    _created = Column(DateTime)
+    _updated = Column(DateTime)
+    _id = Column(Integer, primary_key=True)  # TODO: make this comply to Eve's custom ID_FIELD setting
+
+    def jsonify(self):
+        relationships = inspect(self.__class__).relationships.keys()
+        mapper = inspect(self)
+        attrs = [a.key for a in mapper.attrs if \
+                a.key not in relationships \
+                and not a.key in mapper.expired_attributes]
+        return dict([(c, getattr(self, c, None)) for c in attrs])
+
 
 @registerSchema('people')
 class People(CommonColumns):
     __tablename__ = 'people'
-    firstname = db.Column(db.String(80), unique=True)
-    lastname = db.Column(db.String(120))
-    fullname = db.column_property(firstname + " " + lastname)
-    prog = db.Column(db.Integer)
-    born = db.Column(db.DateTime)
-    title = db.Column(db.String(20), default='Mr.')
+    firstname = Column(String(80), unique=True)
+    lastname = Column(String(120))
+    fullname = column_property(firstname + " " + lastname)
+    prog = Column(Integer)
+    born = Column(DateTime)
+    title = Column(String(20), default='Mr.')
 
     @classmethod
     def from_tuple(cls, data):
@@ -20,12 +53,13 @@ class People(CommonColumns):
 @registerSchema('invoices')
 class Invoices(CommonColumns):
     __tablename__ = 'invoices'
-    number = db.Column(db.Integer)
-    people = db.Column(db.Integer, db.ForeignKey('people._id'))
+    number = Column(Integer)
+    people_id = Column(Integer, ForeignKey('people._id'))
+    people = relationship(People)
 
 
 @registerSchema('payments')
 class Payments(CommonColumns):
     __tablename__ = 'payments'
-    number = db.Column(db.Integer)
-    string = db.Column(db.String(80))
+    number = Column(Integer)
+    string = Column(String(80))

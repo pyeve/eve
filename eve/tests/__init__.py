@@ -502,7 +502,7 @@ class TestBase(TestMinimal):
 
 
 class TestBaseSQL(TestMinimal):
-    from eve.tests import test_sql_tables
+    from eve.tests import test_sql_tables; test_sql_tables
 
     def setUp(self, settings_file=None, url_converters=None):
         self.connection = None
@@ -589,7 +589,7 @@ class TestBaseSQL(TestMinimal):
 
             # load random invoice
             invoice = sql_tables.Invoices(number=random.randint(0, 100))
-            invoice.people = people[0]._id
+            invoice.people_id = people[0]._id
             invoice._created = datetime.now()
             invoice._updated = datetime.now()
             self.connection.session.add(invoice)

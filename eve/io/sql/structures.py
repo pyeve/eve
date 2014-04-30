@@ -28,6 +28,10 @@ class SQLAResult(collections.MutableMapping):
     def __init__(self, result, fields):
         self._result = result
         self._fields = [field for field in fields if getattr(self._result, field, None) is not None]
+        if config.LAST_UPDATED not in self._fields:
+            self._fields.append(config.LAST_UPDATED)
+        if config.DATE_CREATED not in self._fields:
+            self._fields.append(config.DATE_CREATED)
 
     def __getitem__(self, key):
         # TODO: composite primary key

@@ -30,7 +30,7 @@ setup(
         'flask-pymongo==0.3.0',
     ],
     extras_require={
-        'sqlalchemy': ['sqlalchemy']
+        'sqlalchemy': ['sqlalchemy', 'Flask-SQLAlchemy']
     },
     tests_require=['redis'],
     classifiers=[
