@@ -969,9 +969,47 @@ Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</l
 <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">default</span></tt></td>
-<td>The default value for the field. When serving
-POST (create) requests, missing fields will be
-assigned the configured default values.</td>
+<td><p class="first">The default value for the field. When serving
+POST and PUT requests, missing fields will be
+assigned the configured default values.</p>
+<p>It works for type <tt class="docutils literal"><span class="pre">dict</span></tt> and <tt class="docutils literal"><span class="pre">list</span></tt>.
+The latter is restricted and works only for
+lists with schemas (list with a random number
+of elements and each element being a <tt class="docutils literal"><span class="pre">dict</span></tt>)</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="n">schema</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="c"># Simple default</span>
+  <span class="s">&#39;title&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
+    <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="s">&#39;M.&#39;</span>
+  <span class="p">},</span>
+  <span class="c"># Default in a dict</span>
+  <span class="s">&#39;others&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;dict&#39;</span><span class="p">,</span>
+    <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s">&#39;code&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;int&#39;</span><span class="p">,</span>
+        <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="mi">100</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="c"># Default in a list of dicts</span>
+  <span class="s">&#39;mylist&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+    <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;dict&#39;</span><span class="p">,</span>
+      <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">},</span>
+        <span class="s">&#39;customer&#39;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;boolean&#39;</span><span class="p">,</span>
+          <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="bp">False</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">versioned</span></tt></td>
 <td>If <tt class="docutils literal"><span class="pre">True</span></tt>, this field will be included in the
