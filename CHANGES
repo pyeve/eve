@@ -8,10 +8,12 @@ Version 0.4
 
 Not released yet.
 
+- [new] Support for default values in documents with more than one level of
+  data (Javier Gonel).
 - [fix] Documentation improvements (Jen Montes).
 - [change] MarkupSafe 0.21 is now required.
-- [new] Ability to send entire document in write responses.
-  ``BANDWITH_SAVER`` aka Coherence Mode (Josh Villbrandt). 
+- [new] Ability to send entire document in write responses. ``BANDWITH_SAVER``
+  aka Coherence Mode (Josh Villbrandt). 
 - [fix] KeyError exception was raised when field specified in schema as
   embeddable was missing in a particular document (Jaroslav Semančík).
 - [fix] Tests on HEAD requests would very occasionally fail. See #316.
