@@ -14,9 +14,10 @@ services:
   - mongodb
   - redis-server
 before_script:
-    #  - "ulimit -n 1024"
   - export PATH=/opt/python/2.7.6/bin:/opt/python/2.6.9/bin:/opt/python/3.4.0/bin:/opt/python/3.3.5/bin:/opt/python/3.2.5/bin:/opt/python/pypy-2.2.1/bin:$PATH
+  - sleep 15
   - mongo eve_test --eval 'db.addUser("test_user", "test_pw");'
+    #- travis_retry mongo eve_test --eval 'db.addUser(test_user, "test_pw");'
 branches:
   only:
     - master
