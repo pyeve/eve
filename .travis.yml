@@ -14,7 +14,11 @@ services:
   - mongodb
   - redis-server
 before_script:
-  - export PATH=/opt/python/2.7.6/bin:/opt/python/2.6.9/bin:/opt/python/3.4.0/bin:/opt/python/3.3.5/bin:/opt/python/3.2.5/bin:/opt/python/pypy-2.2.1/bin:$PATH
+    #- export PATH=/opt/python/2.7.6/bin:/opt/python/2.6.9/bin:/opt/python/3.4.0/bin:/opt/python/3.3.5/bin:/opt/python/3.2.5/bin:/opt/python/pypy-2.2.1/bin:$PATH
+    #
+    # this sleep timer is needed in order to get the mongo command to properly
+    # initialize under travis-ci. 
+    # See https://github.com/travis-ci/travis-ci/issues/1967#issuecomment-42008605
   - sleep 10
   - mongo eve_test --eval 'db.addUser("test_user", "test_pw");'
     #- travis_retry mongo eve_test --eval 'db.addUser(test_user, "test_pw");'
