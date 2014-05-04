@@ -38,7 +38,7 @@ def build_defaults(schema):
         for name, value in level_schema.items():
             if 'default' in value:
                 current[name] = value['default']
-            elif value.get('type') == 'dict':
+            elif value.get('type') == 'dict' and 'schema' in value:
                 leave = False
                 stack.append((
                     value['schema'], name, current,

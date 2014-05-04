@@ -6,6 +6,14 @@ from eve.default_values import (
 
 
 class TestBuildDefaults(unittest.TestCase):
+    def test_schemaless_dict(self):
+        schema = {
+            "address": {
+                'type': 'dict'
+            }
+        }
+        self.assertEqual({}, build_defaults(schema))
+
     def test_simple(self):
         schema = {
             "name": {'type': 'string'},
