@@ -234,7 +234,9 @@ def getitem(resource, **lookup):
         return {}, last_modified, document.get(config.ETAG), 304
 
     if version == 'all' or version == 'diffs':
-        # TODO: support pagination?
+        # TODO: support pagination? For now, no result limit.
+        if hasattr(req, 'max_results'):
+            del req.max_results
 
         # find all versions
         lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
