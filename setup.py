@@ -23,7 +23,7 @@ setup(
         'events==0.2.0',
         'simplejson==3.3.0',
         'werkzeug==0.9.4',
-        'markupsafe==0.21',
+        'markupsafe==0.23',
         'jinja2==2.7.2',
         'itsdangerous==0.22',
         'flask==0.10.1',

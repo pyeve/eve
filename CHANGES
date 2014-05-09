@@ -8,6 +8,7 @@ Version 0.4
 
 Not released yet.
 
+- [change] MarksupSafe 0.23 is now required.
 - [new] Python 3.4 is now supported.
 - [new] Support for default values in documents with more than one level of
   data (Javier Gonel).
@@ -41,7 +42,6 @@ Not released yet.
 - [fix] tests cleanup (Javier Gonel).
 - [fix] tests now run on any system without needing to set ``ulimit`` to
   a higher value (Javier Gonel).
-- [change] MarksupSafe 0.19 is now required.
 - [new] Python trove classifiers added to setup.py.
 - [fix] media files: don't try to delete a field that does not exist (Taylor
   Brown).
