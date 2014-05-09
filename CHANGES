@@ -8,12 +8,11 @@ Version 0.4
 
 Not released yet.
 
-- [change] MarksupSafe 0.23 is now required.
+- [change] MarkupSafe 0.23 is now required.
 - [new] Python 3.4 is now supported.
 - [new] Support for default values in documents with more than one level of
   data (Javier Gonel).
 - [fix] Documentation improvements (Jen Montes).
-- [change] MarkupSafe 0.21 is now required.
 - [new] Ability to send entire document in write responses. ``BANDWITH_SAVER``
   aka Coherence Mode (Josh Villbrandt). 
 - [fix] KeyError exception was raised when field specified in schema as
