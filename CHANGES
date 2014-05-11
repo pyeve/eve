@@ -8,7 +8,23 @@ Version 0.4
 
 Not released yet.
 
-- [new] `on_pre_<METHOD>` events expose the `lookup` dictionary which allows
+- [change] MarkupSafe 0.23 is now required.
+- [new] Python 3.4 is now supported.
+- [new] Support for default values in documents with more than one level of
+  data (Javier Gonel).
+- [fix] Documentation improvements (Jen Montes).
+- [new] Ability to send entire document in write responses. ``BANDWITH_SAVER``
+  aka Coherence Mode (Josh Villbrandt). 
+- [fix] KeyError exception was raised when field specified in schema as
+  embeddable was missing in a particular document (Jaroslav Semančík).
+- [fix] Tests on HEAD requests would very occasionally fail. See #316.
+- [change] PyMongo 2.7 is now required.
+- [fix] Automatic fields such as ``DATE_CREATD`` and ``DATE_CREATED`` are
+  correctly handled in client projections (Josh Villbrandt). Closes #282.
+- [change] Callbacks get whole json response on ``on_fetched``. This allows for
+  callbacks functions to alter the whole payload, even when HATEOAS is enabled
+  and ``_items`` and ``_links`` metafields are present.
+- [new] ``on_pre_<METHOD>`` events expose the `lookup` dictionary which allows
   for setting up dynamic database lookups on both resource and item endpoints.
 - [fix] Make codebase compliant with latest PEP8/flake8 release (Javier Gonel).
 - [fix] If you had a media field, and set datasource projection to 0 for that
@@ -25,7 +41,6 @@ Not released yet.
 - [fix] tests cleanup (Javier Gonel).
 - [fix] tests now run on any system without needing to set ``ulimit`` to
   a higher value (Javier Gonel).
-- [change] MarksupSafe 0.19 is now required.
 - [new] Python trove classifiers added to setup.py.
 - [fix] media files: don't try to delete a field that does not exist (Taylor
   Brown).

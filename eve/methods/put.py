@@ -13,12 +13,13 @@
 from werkzeug import exceptions
 from datetime import datetime
 from eve.auth import requires_auth
+from eve.default_values import resolve_default_values
 from eve.validation import ValidationError
 from flask import current_app as app, abort
-from eve.utils import document_etag, document_link, config, debug_error_message
+from eve.utils import config, debug_error_message, parse_request
 from eve.methods.common import get_document, parse, payload as payload_, \
-    ratelimit, resolve_default_values, pre_event, resolve_media_files, \
-    resolve_user_restricted_access
+    ratelimit, pre_event, store_media_files, resolve_user_restricted_access, \
+    resolve_embedded_fields, build_response_document, marshal_write_response
 from eve.versioning import resolve_document_version, \
     insert_versioning_documents
 
@@ -77,6 +78,12 @@ def put(resource, **lookup):
 
     response = {}
 
+    if config.BANDWIDTH_SAVER is True:
+        embedded_fields = []
+    else:
+        req = parse_request(resource)
+        embedded_fields = resolve_embedded_fields(resource, req)
+
     try:
         document = parse(payload, resource)
         validation = validator.validate_replace(document, object_id)
@@ -92,8 +99,8 @@ def put(resource, **lookup):
                 document[config.ID_FIELD] = object_id
 
             resolve_user_restricted_access(document, resource)
-            resolve_default_values(document, resource)
-            resolve_media_files(document, resource, original)
+            resolve_default_values(document, resource_def['defaults'])
+            store_media_files(document, resource, original)
             resolve_document_version(document, resource, 'PUT', original)
 
             # notify callbacks
@@ -108,23 +115,10 @@ def put(resource, **lookup):
             getattr(app, "on_replaced")(resource, document, original)
             getattr(app, "on_replaced_%s" % resource)(document, original)
 
-            response[config.ID_FIELD] = document.get(config.ID_FIELD,
-                                                     object_id)
-            response[config.LAST_UPDATED] = last_modified
-
-            # metadata
-            if config.IF_MATCH:
-                etag = response[config.ETAG] = document_etag(document)
-            if resource_def['hateoas']:
-                response[config.LINKS] = {
-                    'self': document_link(resource, response[config.ID_FIELD])
-                }
-
-            if resource_def['versioning'] is True:
-                resolve_document_version(document, resource, 'GET')
-                response[config.VERSION] = document[config.VERSION]
-                response[config.LATEST_VERSION] = \
-                    document[config.LATEST_VERSION]
+            # build the full response document
+            build_response_document(
+                document, resource, embedded_fields, document)
+            response = document
         else:
             issues = validator.errors
     except ValidationError as e:
@@ -144,5 +138,8 @@ def put(resource, **lookup):
         response[config.STATUS] = config.STATUS_ERR
     else:
         response[config.STATUS] = config.STATUS_OK
+
+    # limit what actually gets sent to minimize bandwidth usage
+    response = marshal_write_response(response, resource)
 
     return response, last_modified, etag, 200

@@ -362,3 +362,24 @@ def validate_filters(where, resource):
             if filt not in allowed:
                 return "filter on '%s' not allowed" % filt
     return None
+
+
+def auto_fields(resource):
+    """ Returns a list of automatically handled fields for a resource.
+
+    :param resource: the resource currently being accessed by the client.
+
+    .. versionadded:: 0.4
+    """
+    # preserved meta data
+    fields = [config.ID_FIELD, config.LAST_UPDATED, config.DATE_CREATED]
+
+    # on-the-fly meta data (not in data store)
+    fields += [config.ETAG, config.ISSUES, config.STATUS, config.LINKS]
+
+    if config.DOMAIN[resource]['versioning'] is True:
+        fields.append(config.VERSION)
+        fields.append(config.LATEST_VERSION)  # on-the-fly meta data
+        fields.append(config.ID_FIELD + config.VERSION_ID_SUFFIX)
+
+    return fields

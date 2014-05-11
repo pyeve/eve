@@ -12,7 +12,8 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.4
-       URL_PROTOCOL added and set to ''.
+       'URL_PROTOCOL' added and set to ''.
+       'BANDWIDTH_SAVER' added and set to True.
        'VERSION' added and set to '_version'.
        'VERSIONS' added and set to '_versions'.
        'VERSIONING' added and set to False.
@@ -119,8 +120,9 @@ ITEM_URL = 'regex("[a-f0-9]{24}")'
 
 # list of extra fields to be included with every POST response. This list
 # should not include the 'standard' fields (ID_FIELD, LAST_UPDATED,
-# DATE_CREATED, and ETAG).
+# DATE_CREATED, and ETAG). Only relevant when bandwidth saving mode is on.
 EXTRA_RESPONSE_FIELDS = []
+BANDWIDTH_SAVER = True
 
 # user-restricted resource access is disabled by default.
 AUTH_FIELD = None
