@@ -21,7 +21,7 @@ from werkzeug.serving import WSGIRequestHandler
 from eve.io.mongo import Mongo, Validator, GridFSMediaStorage
 from eve.exceptions import ConfigException, SchemaException
 from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint
-from eve.default_values import build_defaults
+from eve.defaults import build_defaults
 from eve.utils import api_prefix, extract_key_values
 from events import Events
 

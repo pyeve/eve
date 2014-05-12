@@ -1,8 +1,6 @@
 import unittest
 
-from eve.default_values import (
-    build_defaults,
-    resolve_default_values)
+from eve.defaults import build_defaults, resolve_default_values
 
 
 class TestBuildDefaults(unittest.TestCase):
