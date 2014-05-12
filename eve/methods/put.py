@@ -13,7 +13,7 @@
 from werkzeug import exceptions
 from datetime import datetime
 from eve.auth import requires_auth
-from eve.default_values import resolve_default_values
+from eve.defaults import resolve_default_values
 from eve.validation import ValidationError
 from flask import current_app as app, abort
 from eve.utils import config, debug_error_message, parse_request

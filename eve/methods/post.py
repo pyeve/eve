@@ -15,7 +15,7 @@ from datetime import datetime
 from flask import current_app as app
 from eve.utils import config, parse_request
 from eve.auth import requires_auth
-from eve.default_values import resolve_default_values
+from eve.defaults import resolve_default_values
 from eve.validation import ValidationError
 from eve.methods.common import parse, payload, ratelimit, \
     pre_event, store_media_files, resolve_user_restricted_access, \
