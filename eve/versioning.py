@@ -229,8 +229,9 @@ def get_old_document(resource, req, lookup, document, version):
             ))
 
         # parameters to find specific document version
-        lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
-        del lookup[app.config['ID_FIELD']]
+        if versioned_id_field() not in lookup:
+            lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
+            del lookup[app.config['ID_FIELD']]
         lookup[config.VERSION] = version
 
         # synthesize old document from latest and delta

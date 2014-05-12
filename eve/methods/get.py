@@ -238,7 +238,8 @@ def getitem(resource, **lookup):
         # find all versions
         lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
         del lookup[app.config['ID_FIELD']]
-        if req.sort is None:
+        if version == 'diffs' or req.sort is None:
+            # default sort for 'all', required sort for 'diffs'
             req.sort = '[("%s", 1)]' % config.VERSION
         cursor = app.data.find(resource + config.VERSIONS, req, lookup)
 
@@ -250,6 +251,14 @@ def getitem(resource, **lookup):
             documents.append(latest_doc)
         else:
             last_document = {}
+
+            # if we aren't starting on page 1, then we need to init last_doc
+            if version == 'diffs' and req.page > 1:
+                # grab the last document on the previous page to diff from
+                last_version = cursor[0][app.config['VERSION']] - 1
+                last_document = get_old_document(
+                    resource, req, lookup, latest_doc, last_version)
+
             for i, document in enumerate(cursor):
                 document = synthesize_versioned_document(
                     latest_doc, document, resource_def)
