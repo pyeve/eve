@@ -92,6 +92,7 @@ def get(resource, **lookup):
         # this request does not account for deleted documents!!! (issue #243)
         preflight_req = copy.copy(req)
         preflight_req.max_results = 1
+        preflight_req.page = 1
 
         cursor = app.data.find(resource, preflight_req, lookup)
         if cursor.count() == 0:
@@ -234,12 +235,11 @@ def getitem(resource, **lookup):
         return {}, last_modified, document.get(config.ETAG), 304
 
     if version == 'all' or version == 'diffs':
-        # TODO: support pagination?
-
         # find all versions
         lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
         del lookup[app.config['ID_FIELD']]
-        req.sort = '[("%s", 1)]' % config.VERSION
+        if req.sort is None:
+            req.sort = '[("%s", 1)]' % config.VERSION
         cursor = app.data.find(resource + config.VERSIONS, req, lookup)
 
         # build all versions
