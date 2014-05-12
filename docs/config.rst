@@ -430,13 +430,16 @@ uppercase.
                                 will still happen; Mongo will just be unable
                                 to check that it's being written to multiple
                                 servers).
-                                
+
                                 Can be overridden at endpoint (Mongo
                                 collection) level. See ``mongo_write_concern``
                                 below.
 
 ``DOMAIN``                      A dict holding the API domain definition.
                                 See `Domain Configuration`_.
+
+``EXTENDED_MEDIA_INFO``         A list of properties to forward from the file upload
+                                driver.
 =============================== =========================================
 
 .. _domain:
