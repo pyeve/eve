@@ -92,6 +92,7 @@ def get(resource, **lookup):
         # this request does not account for deleted documents!!! (issue #243)
         preflight_req = copy.copy(req)
         preflight_req.max_results = 1
+        preflight_req.page = 1
 
         cursor = app.data.find(resource, preflight_req, lookup)
         if cursor.count() == 0:
@@ -234,12 +235,12 @@ def getitem(resource, **lookup):
         return {}, last_modified, document.get(config.ETAG), 304
 
     if version == 'all' or version == 'diffs':
-        # TODO: support pagination?
-
         # find all versions
         lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
         del lookup[app.config['ID_FIELD']]
-        req.sort = '[("%s", 1)]' % config.VERSION
+        if version == 'diffs' or req.sort is None:
+            # default sort for 'all', required sort for 'diffs'
+            req.sort = '[("%s", 1)]' % config.VERSION
         cursor = app.data.find(resource + config.VERSIONS, req, lookup)
 
         # build all versions
@@ -250,6 +251,14 @@ def getitem(resource, **lookup):
             documents.append(latest_doc)
         else:
             last_document = {}
+
+            # if we aren't starting on page 1, then we need to init last_doc
+            if version == 'diffs' and req.page > 1:
+                # grab the last document on the previous page to diff from
+                last_version = cursor[0][app.config['VERSION']] - 1
+                last_document = get_old_document(
+                    resource, req, lookup, latest_doc, last_version)
+
             for i, document in enumerate(cursor):
                 document = synthesize_versioned_document(
                     latest_doc, document, resource_def)
