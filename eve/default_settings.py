@@ -118,6 +118,9 @@ ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
 ITEM_URL = 'regex("[a-f0-9]{24}")'
 
+# use a simple file response format by default
+EXTENDED_MEDIA_INFO = []
+
 # list of extra fields to be included with every POST response. This list
 # should not include the 'standard' fields (ID_FIELD, LAST_UPDATED,
 # DATE_CREATED, and ETAG). Only relevant when bandwidth saving mode is on.

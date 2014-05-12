@@ -511,7 +511,33 @@ def resolve_media_files(document, resource):
     """
     for field in resource_media_fields(document, resource):
         _file = app.media.get(document[field])
-        document[field] = base64.encodestring(_file.read()) if _file else None
+        # check if we should send a basic file response
+        if config.EXTENDED_MEDIA_INFO == []:
+            if _file:
+                document[field] = base64.encodestring(_file.read())
+            else:
+                document[field] = None
+        elif _file:
+            # otherwise we have a valid file and should send extended response
+            # start with the basic file object
+            document[field] = {
+                'file': base64.encodestring(_file.read()),
+            }
+
+            # check if we should return any special fields
+            for attribute in config.EXTENDED_MEDIA_INFO:
+                if hasattr(_file, attribute):
+                    # add extended field if found in the file object
+                    document[field].update({
+                        attribute: getattr(_file, attribute)
+                    })
+                else:
+                    # tried to select an invalid attribute
+                    abort(500, description=debug_error_message(
+                        'Invalid extended media attribute requested'
+                    ))
+        else:
+            document[field] = None
 
 
 def marshal_write_response(document, resource):
@@ -556,7 +582,9 @@ def store_media_files(document, resource, original=None):
             app.media.delete(original[field])
 
         # store file and update document with file's unique id/filename
-        document[field] = app.media.put(document[field], content_type=document[field].mimetype)
+        # also pass in mimetype for use when retrieving the file
+        document[field] = app.media.put(document[field],
+                                        content_type=document[field].mimetype)
 
 
 def resource_media_fields(document, resource):
