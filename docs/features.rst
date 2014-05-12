@@ -666,16 +666,21 @@ between versions: caching, URIs, schemas, validation, and so on. URI versioning
 
 Document Versioning
 -------------------
-Eve supports automatic version control of documents. By default, this setting is
-turned off, but it can be turned globally or configured individually for each
-resource. When enabled, Eve provides version control by storing versions of
-documents in a shadow collection. All HTTP methods act on the latest version of 
-the document except when retrieving an indivual item. In this case, adding a
-query parameter of ``?version=VERSION`` can be used to point to a specific
-version. Special values of  ``?version=all`` and  ``?version=diffs`` are also
-valid. (Bonus tip - try a projection on top of ``?version=all``!) Additional
-fields called ``_version`` and ``_latest_version`` get automatically added to
-documents when versioning is turned on.
+Eve supports automatic version control of documents. By default, this setting
+is turned off, but it can be turned globally or configured individually for
+each resource. When enabled, Eve begins automatically tracking changes to
+documents and adds the fields ``_version`` and ``_latest_version`` when
+retrieving documents.
+
+Behind the scenes, Eve stores document versions in shadow collections that
+parallels the collection of each primary resource that Eve defines. New
+document versions are automatically added to this collection during normal
+POST, PUT, and PATCH operations. A special new query parameter is available
+when GETing an item that provides access to the document versions. Access a
+specific version with ``?version=VERSION``, access all versions with
+``?version=all``, and access diffs of all versions with ``?version=diffs``.
+Collection query features like projections, pagination, and sorting work with
+``all`` and ``diff`` except for sorting which does not work on ``diff``.
 
 It is important to note that there are a few non-standard scenarios which could
 produce unexpected results when versioning is turned on. In particular, document
