@@ -61,31 +61,38 @@
 <h2>Version 0.4<a class="headerlink" href="#version-0-4" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[fix] HATEOAS links as business unit values even when regexes are
+configured for the endpoint.</li>
 <li>[change] MarkupSafe 0.23 is now required.</li>
 <li>[new] Python 3.4 is now supported.</li>
-<li>[new] Support for default values in documents with more than one level of
-data (Javier Gonel).</li>
+<li>[new] Support for default values in documents with more than one level
+of data (Javier Gonel).</li>
 <li>[fix] Documentation improvements (Jen Montes).</li>
-<li>[new] Ability to send entire document in write responses. <tt class="docutils literal"><span class="pre">BANDWITH_SAVER</span></tt>
-aka Coherence Mode (Josh Villbrandt).</li>
+<li>[new] Ability to send entire document in write responses.
+<tt class="docutils literal"><span class="pre">BANDWITH_SAVER</span></tt> aka Coherence Mode (Josh Villbrandt).</li>
 <li>[fix] KeyError exception was raised when field specified in schema as
 embeddable was missing in a particular document (Jaroslav Semančík).</li>
 <li>[fix] Tests on HEAD requests would very occasionally fail. See #316.</li>
 <li>[change] PyMongo 2.7 is now required.</li>
-<li>[fix] Automatic fields such as <tt class="docutils literal"><span class="pre">DATE_CREATD</span></tt> and <tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt> are
-correctly handled in client projections (Josh Villbrandt). Closes #282.</li>
-<li>[change] Callbacks get whole json response on <tt class="docutils literal"><span class="pre">on_fetched</span></tt>. This allows for
-callbacks functions to alter the whole payload, even when HATEOAS is enabled
-and <tt class="docutils literal"><span class="pre">_items</span></tt> and <tt class="docutils literal"><span class="pre">_links</span></tt> metafields are present.</li>
-<li>[new] <cite>on_pre_&lt;METHOD&gt;</cite> events expose the <cite>lookup</cite> dictionary which allows
-for setting up dynamic database lookups on both resource and item endpoints.</li>
-<li>[fix] Make codebase compliant with latest PEP8/flake8 release (Javier Gonel).</li>
-<li>[fix] If you had a media field, and set datasource projection to 0 for that
-field, the media would not be deleted. Closes #284.</li>
-<li>[new] Return a 400 response on pymongo DuplicateKeyError, with exception
-message if debug mode is on (boosh).</li>
-<li>[change] <tt class="docutils literal"><span class="pre">on_update(ed)</span></tt> and <tt class="docutils literal"><span class="pre">on_replace(ed)</span></tt> callbacks now receive both
-the original document and the updates (Jaroslav Semančík).</li>
+<li>[fix] Automatic fields such as <tt class="docutils literal"><span class="pre">DATE_CREATD</span></tt> and <tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt>
+are correctly handled in client projections (Josh Villbrandt). Closes
+#282.</li>
+<li>[change] Callbacks get whole json response on <tt class="docutils literal"><span class="pre">on_fetched</span></tt>. This
+allows for callbacks functions to alter the whole payload, even when
+HATEOAS is enabled and <tt class="docutils literal"><span class="pre">_items</span></tt> and <tt class="docutils literal"><span class="pre">_links</span></tt> metafields are
+present.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">on_pre_&lt;METHOD&gt;</span></tt> events expose the <cite>lookup</cite> dictionary which
+allows for setting up dynamic database lookups on both resource and
+item endpoints.</li>
+<li>[fix] Make codebase compliant with latest PEP8/flake8 release (Javier
+Gonel).</li>
+<li>[fix] If you had a media field, and set datasource projection to 0 for
+that field, the media would not be deleted. Closes #284.</li>
+<li>[new] Return a 400 response on pymongo DuplicateKeyError, with
+exception message if debug mode is on (boosh).</li>
+<li>[change] <tt class="docutils literal"><span class="pre">on_update(ed)</span></tt> and <tt class="docutils literal"><span class="pre">on_replace(ed)</span></tt> callbacks now
+receive both the original document and the updates (Jaroslav
+Semančík).</li>
 <li>[new] PyPy officially supported and tested (Javier Gonel).</li>
 <li>[new] tox support (Javier Gonel).</li>
 <li>[new] Post database events (Javier Gonel). Addresses #272.</li>
@@ -95,35 +102,36 @@ the original document and the updates (Jaroslav Semančík).</li>
 <li>[fix] tests now run on any system without needing to set <tt class="docutils literal"><span class="pre">ulimit</span></tt> to
 a higher value (Javier Gonel).</li>
 <li>[new] Python trove classifiers added to setup.py.</li>
-<li>[fix] media files: don&#8217;t try to delete a field that does not exist (Taylor
-Brown).</li>
-<li>[fix] Occasional KeyError while building <tt class="docutils literal"><span class="pre">_media</span></tt> helper dict. See #271
-(Alexander Hendorf).</li>
-<li>[fix] <tt class="docutils literal"><span class="pre">If-Modified-Since</span></tt> misbehaviour when a datasource filter is set.
-Closes #258.</li>
+<li>[fix] media files: don&#8217;t try to delete a field that does not exist
+(Taylor Brown).</li>
+<li>[fix] Occasional KeyError while building <tt class="docutils literal"><span class="pre">_media</span></tt> helper dict. See
+#271 (Alexander Hendorf).</li>
+<li>[fix] <tt class="docutils literal"><span class="pre">If-Modified-Since</span></tt> misbehaviour when a datasource filter is
+set. Closes #258.</li>
 <li>[new] Client projections are also honored at item endpoints.</li>
 <li>[new] validate that ID_FIELD is not set as a resource <tt class="docutils literal"><span class="pre">auth_field</span></tt>.
 Addresses #266.</li>
 <li>[fix] Trouble serializing list of dicts. Closes #265 and #244.</li>
-<li>[fix] <tt class="docutils literal"><span class="pre">HATEOAS</span></tt> item links are now coherent actual endpoint URL even when
-natural immutable keys are used in URLs (Junior Vidotti). Closes #256.</li>
-<li>Replaced ID_FIELD by item_lookup_field on self link. item_lookup_field will
-default to ID_FIELD if blank.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">URL_PROTOCOL</span></tt> defines the HTTP protocol used when building HATEOAS
-links. Defaults to <tt class="docutils literal"><span class="pre">''</span></tt> for relative paths (Junior Vidotti).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">on_delete_item</span></tt> and <tt class="docutils literal"><span class="pre">on_deleted_item</span></tt> is raised on DELETE requests
-sent to document endpoints. Addresses #232.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">on_delete_resource</span></tt> and <tt class="docutils literal"><span class="pre">on_deleted_resource</span></tt> is raised on DELETE
-requests sent to resource endpoints. Addresses #232.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">on_update</span></tt> is raised on PATCH requests, when a document is about to
-be updated on the database. Addresses #232.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">on_replace</span></tt> is raised on PUT requests, when a document is about to
-be replaced on the database. Addresses #232.</li>
-<li>[change] <tt class="docutils literal"><span class="pre">on_insert</span></tt> is not raised anymore on PUT requests (replaced by
-above mentioned <tt class="docutils literal"><span class="pre">on_replace</span></tt>).</li>
+<li>[fix] <tt class="docutils literal"><span class="pre">HATEOAS</span></tt> item links are now coherent actual endpoint URL even
+when natural immutable keys are used in URLs (Junior Vidotti). Closes
+#256.</li>
+<li>Replaced ID_FIELD by item_lookup_field on self link. item_lookup_field
+will default to ID_FIELD if blank.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">URL_PROTOCOL</span></tt> defines the HTTP protocol used when building
+HATEOAS links. Defaults to <tt class="docutils literal"><span class="pre">''</span></tt> for relative paths (Junior Vidotti).</li>
+<li>[new] <tt class="docutils literal"><span class="pre">on_delete_item</span></tt> and <tt class="docutils literal"><span class="pre">on_deleted_item</span></tt> is raised on DELETE
+requests sent to document endpoints. Addresses #232.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">on_delete_resource</span></tt> and <tt class="docutils literal"><span class="pre">on_deleted_resource</span></tt> is raised on
+DELETE requests sent to resource endpoints. Addresses #232.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">on_update</span></tt> is raised on PATCH requests, when a document is
+about to be updated on the database. Addresses #232.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">on_replace</span></tt> is raised on PUT requests, when a document is
+about to be replaced on the database. Addresses #232.</li>
+<li>[change] <tt class="docutils literal"><span class="pre">on_insert</span></tt> is not raised anymore on PUT requests (replaced
+by above mentioned <tt class="docutils literal"><span class="pre">on_replace</span></tt>).</li>
 <li>[change] <tt class="docutils literal"><span class="pre">auth.request_auth_value</span></tt> is no more. Yay. See below.</li>
-<li>[change] <tt class="docutils literal"><span class="pre">auth.set_request_auth_value()</span></tt> allows to set the <tt class="docutils literal"><span class="pre">auth_field</span></tt>
-value for the current request.</li>
+<li>[change] <tt class="docutils literal"><span class="pre">auth.set_request_auth_value()</span></tt> allows to set the
+<tt class="docutils literal"><span class="pre">auth_field</span></tt> value for the current request.</li>
 <li>[change] <tt class="docutils literal"><span class="pre">auth.get_request_auth_value()</span></tt> allows to retrieve the
 <tt class="docutils literal"><span class="pre">auth_field</span></tt> value for the current request.</li>
 <li>[new] <tt class="docutils literal"><span class="pre">auth</span></tt> constructor argument accepts either a class instance or

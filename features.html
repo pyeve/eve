@@ -657,16 +657,20 @@ between versions: caching, URIs, schemas, validation, and so on. URI versioning
 </div>
 <div class="section" id="document-versioning">
 <span id="id2"></span><h2>Document Versioning<a class="headerlink" href="#document-versioning" title="Permalink to this headline">¶</a></h2>
-<p>Eve supports automatic version control of documents. By default, this setting is
-turned off, but it can be turned globally or configured individually for each
-resource. When enabled, Eve provides version control by storing versions of
-documents in a shadow collection. All HTTP methods act on the latest version of
-the document except when retrieving an indivual item. In this case, adding a
-query parameter of <tt class="docutils literal"><span class="pre">?version=VERSION</span></tt> can be used to point to a specific
-version. Special values of  <tt class="docutils literal"><span class="pre">?version=all</span></tt> and  <tt class="docutils literal"><span class="pre">?version=diffs</span></tt> are also
-valid. (Bonus tip - try a projection on top of <tt class="docutils literal"><span class="pre">?version=all</span></tt>!) Additional
-fields called <tt class="docutils literal"><span class="pre">_version</span></tt> and <tt class="docutils literal"><span class="pre">_latest_version</span></tt> get automatically added to
-documents when versioning is turned on.</p>
+<p>Eve supports automatic version control of documents. By default, this setting
+is turned off, but it can be turned globally or configured individually for
+each resource. When enabled, Eve begins automatically tracking changes to
+documents and adds the fields <tt class="docutils literal"><span class="pre">_version</span></tt> and <tt class="docutils literal"><span class="pre">_latest_version</span></tt> when
+retrieving documents.</p>
+<p>Behind the scenes, Eve stores document versions in shadow collections that
+parallels the collection of each primary resource that Eve defines. New
+document versions are automatically added to this collection during normal
+POST, PUT, and PATCH operations. A special new query parameter is available
+when GETing an item that provides access to the document versions. Access a
+specific version with <tt class="docutils literal"><span class="pre">?version=VERSION</span></tt>, access all versions with
+<tt class="docutils literal"><span class="pre">?version=all</span></tt>, and access diffs of all versions with <tt class="docutils literal"><span class="pre">?version=diffs</span></tt>.
+Collection query features like projections, pagination, and sorting work with
+<tt class="docutils literal"><span class="pre">all</span></tt> and <tt class="docutils literal"><span class="pre">diff</span></tt> except for sorting which does not work on <tt class="docutils literal"><span class="pre">diff</span></tt>.</p>
 <p>It is important to note that there are a few non-standard scenarios which could
 produce unexpected results when versioning is turned on. In particular, document
 history will not be saved when modifying collections outside of the Eve
