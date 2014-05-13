@@ -14,9 +14,9 @@ import copy
 import math
 from flask import current_app as app, abort, request
 from .common import ratelimit, epoch, pre_event, resolve_embedded_fields, \
-    build_response_document
+    build_response_document, request_path
 from eve.auth import requires_auth
-from eve.utils import parse_request, home_link, querydef, config, resource_uri
+from eve.utils import parse_request, home_link, querydef, config
 from eve.versioning import synthesize_versioned_document, versioned_id_field, \
     get_old_document, diff_document
 
@@ -154,6 +154,8 @@ def getitem(resource, **lookup):
     :param **lookup: the lookup query.
 
     .. versionchanged:: 0.4
+       HATOEAS link for contains the business unit value even when
+       regexes have been configured for the resource endpoint.
        'on_fetched' now returns the whole response (HATEOAS metafields
        included.)
        Support for document versioning.
@@ -288,7 +290,7 @@ def getitem(resource, **lookup):
             response[config.LINKS] = {}
         response[config.LINKS]['collection'] = {
             'title': config.DOMAIN[resource]['resource_title'],
-            'href': resource_uri(resource)}
+            'href': request_path(strip_item_endpoint=True)}
         response[config.LINKS]['parent'] = home_link()
 
     if version != 'all' and version != 'diffs':
@@ -313,8 +315,8 @@ def _pagination_links(resource, req, documents_count):
     :param document_count: the number of documents returned by the query.
 
     .. versionchanged:: 0.4
-       Now using resource_uri when building HATEOAS links (_collection_link
-       removed).
+       HATOEAS link for contains the business unit value even when
+       regexes have been configured for the resource endpoint.
 
     .. versionchanged:: 0.0.8
        Link to last page is provided if pagination is enabled (and the current
@@ -331,13 +333,13 @@ def _pagination_links(resource, req, documents_count):
     """
     _links = {'parent': home_link(),
               'self': {'title': config.DOMAIN[resource]['resource_title'],
-                       'href': resource_uri(resource)}}
+                       'href': request_path()}}
 
     if documents_count and config.DOMAIN[resource]['pagination']:
         if req.page * req.max_results < documents_count:
             q = querydef(req.max_results, req.where, req.sort, req.page + 1)
             _links['next'] = {'title': 'next page', 'href': '%s%s' %
-                              (resource_uri(resource), q)}
+                              (request_path(), q)}
 
             # in python 2.x dividing 2 ints produces an int and that's rounded
             # before the ceil call. Have to cast one value to float to get
@@ -348,11 +350,11 @@ def _pagination_links(resource, req, documents_count):
                                       / float(req.max_results)))
             q = querydef(req.max_results, req.where, req.sort, last_page)
             _links['last'] = {'title': 'last page', 'href': '%s%s'
-                              % (resource_uri(resource), q)}
+                              % (request_path(), q)}
 
         if req.page > 1:
             q = querydef(req.max_results, req.where, req.sort, req.page - 1)
             _links['prev'] = {'title': 'previous page', 'href': '%s%s' %
-                              (resource_uri(resource), q)}
+                              (request_path(), q)}
 
     return _links
