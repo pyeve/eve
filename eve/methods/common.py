@@ -17,7 +17,7 @@ from flask import current_app as app, request, abort, g, Response
 import simplejson as json
 from functools import wraps
 from eve.utils import parse_request, document_etag, config, request_method, \
-    debug_error_message, document_link, auto_fields
+    debug_error_message, auto_fields
 from eve.versioning import resolve_document_version, \
     get_data_version_relation_document, missing_version_field
 
@@ -630,3 +630,39 @@ def pre_event(f):
         r = f(resource, **combined_args)
         return r
     return decorated
+
+
+def document_link(resource, document_id):
+    """ Returns a link to a document endpoint.
+
+    :param resource: the resource name.
+    :param document_id: the document unique identifier.
+
+    .. versionchanged:: 0.4
+       Use the regex-neutral request_path function.
+
+    .. versionchanged:: 0.1.0
+       No more trailing slashes in links.
+
+    .. versionchanged:: 0.0.3
+       Now returning a JSON link
+    """
+    return {'title': '%s' % config.DOMAIN[resource]['item_title'],
+            'href': '%s/%s' % (request_path(strip_item_endpoint=True),
+                               document_id)}
+
+
+def request_path(strip_item_endpoint=False):
+    """ Returns the current request path complete with server name if
+    available. Mostly going to be used by hatoeas functions when building
+    document/resource links. The resource URL stored in the config settings
+    might contain regexes and custom variable names, all of which are not
+    needed in the response payload.
+
+    .. versionadded:: 0.4
+    """
+    path = request.path.rstrip('/')
+    if strip_item_endpoint:
+        path = path[:path.rfind('/')]
+    server_name = config.SERVER_NAME if config.SERVER_NAME else ''
+    return '%s%s' % (server_name, path)
