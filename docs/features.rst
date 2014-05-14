@@ -1303,7 +1303,13 @@ As a proper developer guide is not available yet, you can peek at the
 MediaStorage_ source if you are interested in developing custom storage
 classes.
 
-When a document is requested media files will be returned as Base64 strings.
+When a document is requested media files will be returned as Base64 strings,
+unless the `EXTENDED_MEDIA_INFO` list is populated. This flag allows
+passthrough from the driver of additional, meta fields. For example,
+using the MongoDB driver, fields like `content_type` and `length` can be
+added to this list and will be passed-through from the underlying driver.
+Further fields can be found in the MongoDB driver [documentation](http://api.mongodb.org/python/2.7rc0/api/gridfs/grid_file.html#gridfs.grid_file.GridOut).
+
 
 .. _projection_filestorage:
 

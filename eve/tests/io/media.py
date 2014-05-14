@@ -70,6 +70,35 @@ class TestGridFSMediaStorage(TestBase):
         # which decodes to the original clean
         self.assertEqual(base64.decodestring(returned.encode()), self.clean)
 
+    def test_gridfs_media_storage_post_extended(self):
+        r, s = self._post()
+        self.assertEqual(STATUS_OK, r[STATUS])
+
+        # request extended format file response
+        self.app.config['EXTENDED_MEDIA_INFO'] = ['content_type', 'length']
+
+        # compare original and returned data
+        _id = r[ID_FIELD]
+        self.assertMediaFieldExtended(_id, self.encoded, self.clean)
+
+        # GET the file at the resource endpoint
+        where = 'where={"%s": "%s"}' % (ID_FIELD, _id)
+        r, s = self.parse_response(
+            self.test_client.get('%s?%s' % (self.url, where)))
+        self.assertEqual(len(r['_items']), 1)
+        returned = r['_items'][0]['media']
+
+        # returned value is a base64 encoded string
+        self.assertEqual(returned['file'], self.encoded)
+
+        # which decodes to the original clean
+        self.assertEqual(base64.decodestring(returned['file'].encode()),
+                         self.clean)
+
+        # also verify our extended fields
+        self.assertEqual(returned['content_type'], 'text/plain')
+        self.assertEqual(returned['length'], 16)
+
     def test_gridfs_media_storage_put(self):
         r, s = self._post()
         _id = r[ID_FIELD]
@@ -194,6 +223,17 @@ class TestGridFSMediaStorage(TestBase):
         r, s = self.parse_response(self.test_client.get('%s/%s' % (self.url,
                                                                    _id)))
         returned = r['media']
+        # returned value is a base64 encoded string
+        self.assertEqual(returned, encoded)
+        # which decodes to the original file clean
+        self.assertEqual(base64.decodestring(returned.encode()), clean)
+        return r, s
+
+    def assertMediaFieldExtended(self, _id, encoded, clean):
+        # GET the file at the item endpoint
+        r, s = self.parse_response(self.test_client.get('%s/%s' % (self.url,
+                                                                   _id)))
+        returned = r['media']['file']
         # returned value is a base64 encoded string
         self.assertEqual(returned, encoded)
         # which decodes to the original file clean
