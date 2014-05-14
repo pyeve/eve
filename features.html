@@ -1349,7 +1349,45 @@ the works, and will soon be included with the Eve package.</p>
 <p>As a proper developer guide is not available yet, you can peek at the
 <a class="reference external" href="https://github.com/nicolaiarocci/eve/blob/develop/eve/io/media.py">MediaStorage</a> source if you are interested in developing custom storage
 classes.</p>
-<p>When a document is requested media files will be returned as Base64 strings.</p>
+<p>When a document is requested media files will be returned as Base64 strings,</p>
+<div class="highlight-python"><div class="highlight"><pre> <span class="p">{</span>
+     <span class="s">&#39;_items&#39;</span><span class="p">:</span> <span class="p">[</span>
+         <span class="p">{</span>
+             <span class="s">&#39;_updated&#39;</span><span class="p">:</span><span class="s">&#39;Sat, 05 Apr 2014 15:52:53 GMT&#39;</span><span class="p">,</span>
+             <span class="s">&#39;pic&#39;</span><span class="p">:</span><span class="s">&#39;iVBORw0KGgoAAAANSUhEUgAAA4AAAAOACA...&#39;</span><span class="p">,</span>
+         <span class="p">}</span>
+     <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>However, if the <tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt> list is populated (it isn&#8217;t by
+default) the payload format will be different. This flag allows passthrough
+from the driver of additional meta fields. For example, using the MongoDB
+driver, fields like <tt class="docutils literal"><span class="pre">content_type</span></tt>, <tt class="docutils literal"><span class="pre">name</span></tt> and <tt class="docutils literal"><span class="pre">length</span></tt> can be added to
+this list and will be passed-through from the underlying driver.</p>
+<p>When <tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt> is used the field will be a dictionary
+whereas the file itself is stored under the <tt class="docutils literal"><span class="pre">file</span></tt> key and other keys
+are the meta fields. Suppose that the flag is set like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">EXTENDED_MEDIA_INFO</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;content_type&#39;</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;length&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Then the output will be something like</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&#39;_items&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s">&#39;_updated&#39;</span><span class="p">:</span><span class="s">&#39;Sat, 05 Apr 2014 15:52:53 GMT&#39;</span><span class="p">,</span>
+            <span class="s">&#39;pic&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;file&#39;</span><span class="p">:</span> <span class="s">&#39;iVBORw0KGgoAAAANSUhEUgAAA4AAAAOACA...&#39;</span><span class="p">,</span>
+                <span class="s">&#39;content_type&#39;</span><span class="p">:</span> <span class="s">&#39;text/plain&#39;</span><span class="p">,</span>
+                <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;test.txt&#39;</span><span class="p">,</span>
+                <span class="s">&#39;length&#39;</span><span class="p">:</span> <span class="mi">8129</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>For MongoDB, further fields can be found in the <a class="reference external" href="http://api.mongodb.org/python/2.7rc0/api/gridfs/grid_file.html#gridfs.grid_file.GridOut">driver documentation</a>.</p>
 <div class="section" id="leveraging-projections-to-optimize-the-handling-of-media-files">
 <span id="projection-filestorage"></span><h3>Leveraging Projections to optimize the handling of media files<a class="headerlink" href="#leveraging-projections-to-optimize-the-handling-of-media-files" title="Permalink to this headline">¶</a></h3>
 <p>Clients and API maintainers can exploit the <a class="reference internal" href="#projections"><em>Projections</em></a> feature to
