@@ -1304,11 +1304,52 @@ MediaStorage_ source if you are interested in developing custom storage
 classes.
 
 When a document is requested media files will be returned as Base64 strings,
-unless the `EXTENDED_MEDIA_INFO` list is populated. This flag allows
-passthrough from the driver of additional, meta fields. For example,
-using the MongoDB driver, fields like `content_type` and `length` can be
-added to this list and will be passed-through from the underlying driver.
-Further fields can be found in the MongoDB driver [documentation](http://api.mongodb.org/python/2.7rc0/api/gridfs/grid_file.html#gridfs.grid_file.GridOut).
+
+.. code-block:: python
+
+    {
+        '_items': [
+            {
+                '_updated':'Sat, 05 Apr 2014 15:52:53 GMT',
+                'pic':'iVBORw0KGgoAAAANSUhEUgAAA4AAAAOACA...',
+            }
+        ]
+   } 
+
+However, if the ``EXTENDED_MEDIA_INFO`` list is populated (it isn't by
+default) the payload format will be different. This flag allows passthrough
+from the driver of additional meta fields. For example, using the MongoDB
+driver, fields like ``content_type``, ``name`` and ``length`` can be added to
+this list and will be passed-through from the underlying driver. 
+
+When ``EXTENDED_MEDIA_INFO`` is used the field will be a dictionary
+whereas the file itself is stored under the ``file`` key and other keys
+are the meta fields. Suppose that the flag is set like this:
+
+.. code-block:: python
+
+    EXTENDED_MEDIA_INFO = ['content_type', 'name', 'length']
+
+Then the output will be something like
+
+.. code-block:: python
+
+    {
+        '_items': [
+            {
+                '_updated':'Sat, 05 Apr 2014 15:52:53 GMT',
+                'pic': {
+                    'file': 'iVBORw0KGgoAAAANSUhEUgAAA4AAAAOACA...',
+                    'content_type': 'text/plain',
+                    'name': 'test.txt',
+                    'length': 8129
+                }
+            }
+        ]
+    }
+
+
+For MongoDB, further fields can be found in the `driver documentation`_. 
 
 
 .. _projection_filestorage:
@@ -1388,3 +1429,4 @@ for unittesting_ and an `extensive documentation`_.
 .. _`MongoDB Data Model Design`: http://docs.mongodb.org/manual/core/data-model-design
 .. _GridFS: http://docs.mongodb.org/manual/core/gridfs/
 .. _MediaStorage: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/media.py
+.. _`driver documentation`: http://api.mongodb.org/python/2.7rc0/api/gridfs/grid_file.html#gridfs.grid_file.GridOut
