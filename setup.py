@@ -20,7 +20,7 @@ setup(
     test_suite="eve.tests",
     install_requires=[
         'cerberus==0.6',
-        'events==0.2.0',
+        'events==0.2.1',
         'simplejson==3.3.0',
         'werkzeug==0.9.4',
         'markupsafe==0.23',
