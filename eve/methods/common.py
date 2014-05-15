@@ -667,7 +667,7 @@ def document_link(resource, document_id):
     :param document_id: the document unique identifier.
 
     .. versionchanged:: 0.4
-       Use the regex-neutral request_path function.
+       Use the regex-neutral resource_link function.
 
     .. versionchanged:: 0.1.0
        No more trailing slashes in links.
@@ -676,12 +676,11 @@ def document_link(resource, document_id):
        Now returning a JSON link
     """
     return {'title': '%s' % config.DOMAIN[resource]['item_title'],
-            'href': '%s/%s' % (request_path(strip_item_endpoint=True),
-                               document_id)}
+            'href': '%s/%s' % (resource_link(), document_id)}
 
 
-def request_path(strip_item_endpoint=False):
-    """ Returns the current request path complete with server name if
+def resource_link():
+    """ Returns the current resource path complete with server name if
     available. Mostly going to be used by hatoeas functions when building
     document/resource links. The resource URL stored in the config settings
     might contain regexes and custom variable names, all of which are not
@@ -690,7 +689,7 @@ def request_path(strip_item_endpoint=False):
     .. versionadded:: 0.4
     """
     path = request.path.rstrip('/')
-    if strip_item_endpoint:
+    if '|item' in request.endpoint:
         path = path[:path.rfind('/')]
     server_name = config.SERVER_NAME if config.SERVER_NAME else ''
     return '%s%s' % (server_name, path)

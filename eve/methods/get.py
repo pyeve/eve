@@ -14,7 +14,7 @@ import copy
 import math
 from flask import current_app as app, abort, request
 from .common import ratelimit, epoch, pre_event, resolve_embedded_fields, \
-    build_response_document, request_path
+    build_response_document, resource_link
 from eve.auth import requires_auth
 from eve.utils import parse_request, home_link, querydef, config
 from eve.versioning import synthesize_versioned_document, versioned_id_field, \
@@ -290,7 +290,7 @@ def getitem(resource, **lookup):
             response[config.LINKS] = {}
         response[config.LINKS]['collection'] = {
             'title': config.DOMAIN[resource]['resource_title'],
-            'href': request_path(strip_item_endpoint=True)}
+            'href': resource_link()}
         response[config.LINKS]['parent'] = home_link()
 
     if version != 'all' and version != 'diffs':
@@ -333,13 +333,13 @@ def _pagination_links(resource, req, documents_count):
     """
     _links = {'parent': home_link(),
               'self': {'title': config.DOMAIN[resource]['resource_title'],
-                       'href': request_path()}}
+                       'href': resource_link()}}
 
     if documents_count and config.DOMAIN[resource]['pagination']:
         if req.page * req.max_results < documents_count:
             q = querydef(req.max_results, req.where, req.sort, req.page + 1)
             _links['next'] = {'title': 'next page', 'href': '%s%s' %
-                              (request_path(), q)}
+                              (resource_link(), q)}
 
             # in python 2.x dividing 2 ints produces an int and that's rounded
             # before the ceil call. Have to cast one value to float to get
@@ -350,11 +350,11 @@ def _pagination_links(resource, req, documents_count):
                                       / float(req.max_results)))
             q = querydef(req.max_results, req.where, req.sort, last_page)
             _links['last'] = {'title': 'last page', 'href': '%s%s'
-                              % (request_path(), q)}
+                              % (resource_link(), q)}
 
         if req.page > 1:
             q = querydef(req.max_results, req.where, req.sort, req.page - 1)
             _links['prev'] = {'title': 'previous page', 'href': '%s%s' %
-                              (request_path(), q)}
+                              (resource_link(), q)}
 
     return _links

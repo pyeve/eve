@@ -613,7 +613,7 @@ class Eve(Flask, Events):
                 # support for POST with X-HTTM-Method-Override header for
                 # clients not supporting PATCH. Also see item_endpoint() in
                 # endpoints.py
-                endpoint = resource + "|post_override"
+                endpoint = resource + "|item_post_override"
                 self.add_url_rule(item_url, endpoint, view_func=item_endpoint,
                                   methods=['POST'])
 
@@ -626,7 +626,7 @@ class Eve(Flask, Events):
                 else:
                     item_url = '%s/<%s:%s>' % (url, lookup['url'],
                                                lookup['field'])
-                endpoint = resource + "|additional_lookup"
+                endpoint = resource + "|item_additional_lookup"
                 self.add_url_rule(item_url, endpoint, view_func=item_endpoint,
                                   methods=['GET', 'OPTIONS'])
 
