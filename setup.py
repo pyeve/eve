@@ -19,7 +19,7 @@ setup(
     packages=find_packages(),
     test_suite="eve.tests",
     install_requires=[
-        'cerberus==0.6',
+        'cerberus==0.7',
         'events==0.2.1',
         'simplejson==3.3.0',
         'werkzeug==0.9.4',
