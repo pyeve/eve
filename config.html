@@ -875,8 +875,8 @@ streams.</p>
 defining the field validation rules. Allowed validation rules are:</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="30%" />
-<col width="70%" />
+<col width="24%" />
+<col width="76%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">type</span></tt></td>
@@ -908,7 +908,7 @@ insertion.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">min</span></tt>, <tt class="docutils literal"><span class="pre">max</span></tt></td>
 <td>Minimum and maximum values allowed for
-<tt class="docutils literal"><span class="pre">integer</span></tt> types.</td>
+<tt class="docutils literal"><span class="pre">integer</span></tt>, <tt class="docutils literal"><span class="pre">float</span></tt> and <tt class="docutils literal"><span class="pre">number</span></tt> types.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">allowed</span></tt></td>
 <td>List of allowed values for <tt class="docutils literal"><span class="pre">string</span></tt> and
@@ -1019,6 +1019,22 @@ of elements and each element being a <tt class="docutils literal"><span class="p
 <td>If <tt class="docutils literal"><span class="pre">True</span></tt>, this field will be included in the
 versioned history of each document when
 <tt class="docutils literal"><span class="pre">versioning</span></tt> is enabled. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">keyschema</span></tt></td>
+<td>Validation schema for all values of a <tt class="docutils literal"><span class="pre">dict</span></tt>.
+The dict can have arbitrary keys, the values
+for all of which must validate with given
+schema. See <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/#keyschema">keyschema example</a>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">regex</span></tt></td>
+<td>Validation will fail if field value does not
+match the provided regex rule. Only applies to
+string fields. See <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/#regex">email validation example</a></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">dependencies</span></tt></td>
+<td>This rule allows a list of fields that must be
+present in order for the target field to be
+allowed. See <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/#dependencies">dependencies example</a></td>
 </tr>
 </tbody>
 </table>

@@ -764,7 +764,7 @@ defining the field validation rules. Allowed validation rules are:
                                 ``string`` and ``list`` types.
 
 ``min``, ``max``                Minimum and maximum values allowed for
-                                ``integer`` types.
+                                ``integer``, ``float`` and ``number`` types.
 
 ``allowed``                     List of allowed values for ``string`` and 
                                 ``list`` types.
@@ -867,6 +867,21 @@ defining the field validation rules. Allowed validation rules are:
 ``versioned``                   If ``True``, this field will be included in the
                                 versioned history of each document when
                                 ``versioning`` is enabled. Defaults to ``True``.
+
+``keyschema``                   Validation schema for all values of a ``dict``.
+                                The dict can have arbitrary keys, the values
+                                for all of which must validate with given
+                                schema. See `keyschema example <http://cerberus.readthedocs.org/en/latest/#keyschema>`_.
+
+``regex``                       Validation will fail if field value does not 
+                                match the provided regex rule. Only applies to 
+                                string fields. See `email validation example <http://cerberus.readthedocs.org/en/latest/#regex>`_
+
+
+``dependencies``                This rule allows a list of fields that must be 
+                                present in order for the target field to be 
+                                allowed. See `dependencies example <http://cerberus.readthedocs.org/en/latest/#dependencies>`_
+
 =============================== ==============================================
 
 Schema syntax is based on Cerberus_ and yes, it can be extended.  In fact, Eve
