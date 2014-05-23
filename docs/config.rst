@@ -281,6 +281,12 @@ uppercase.
                                 :ref:`embedded_docs` feature. Defaults to
                                 ``True``.
 
+``BANDWIDTH_SAVER``             When ``True``, POST, PUT, and PATCH responses
+                                only return automatically handled fields and
+                                ``EXTRA_RESPONSE_FIELDS``. When ``False``, the
+                                entire document will be sent. Defaults to
+                                ``True``.
+
 ``EXTRA_RESPONSE_FIELDS``       Allows to configure a list of additional
                                 document fields that should be provided with
                                 every POST response. Normally only
@@ -424,13 +430,16 @@ uppercase.
                                 will still happen; Mongo will just be unable
                                 to check that it's being written to multiple
                                 servers).
-                                
+
                                 Can be overridden at endpoint (Mongo
                                 collection) level. See ``mongo_write_concern``
                                 below.
 
 ``DOMAIN``                      A dict holding the API domain definition.
                                 See `Domain Configuration`_.
+
+``EXTENDED_MEDIA_INFO``         A list of properties to forward from the file upload
+                                driver.
 =============================== =========================================
 
 .. _domain:
@@ -755,7 +764,7 @@ defining the field validation rules. Allowed validation rules are:
                                 ``string`` and ``list`` types.
 
 ``min``, ``max``                Minimum and maximum values allowed for
-                                ``integer`` types.
+                                ``integer``, ``float`` and ``number`` types.
 
 ``allowed``                     List of allowed values for ``string`` and 
                                 ``list`` types.
@@ -813,12 +822,66 @@ defining the field validation rules. Allowed validation rules are:
                                 ``None``. 
 
 ``default``                     The default value for the field. When serving
-                                POST (create) requests, missing fields will be
+                                POST and PUT requests, missing fields will be
                                 assigned the configured default values.
+
+                                It works for type ``dict`` and ``list``.
+                                The latter is restricted and works only for
+                                lists with schemas (list with a random number
+                                of elements and each element being a ``dict``)
+
+                                ::
+
+                                    schema = {
+                                      # Simple default
+                                      'title': {
+                                        'type': 'string',
+                                        'default': 'M.'
+                                      },
+                                      # Default in a dict
+                                      'others': {
+                                        'type': 'dict',
+                                        'schema': {
+                                          'code': {
+                                            'type': 'int',
+                                            'default': 100
+                                          }
+                                        }
+                                      },
+                                      # Default in a list of dicts
+                                      'mylist': {
+                                        'type': 'list',
+                                        'schema': {
+                                          'type': 'dict',
+                                          'schema': {
+                                            'name': {'type': 'string'},
+                                            'customer': {
+                                              'type': 'boolean',
+                                              'default': False
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
 
 ``versioned``                   If ``True``, this field will be included in the
                                 versioned history of each document when
                                 ``versioning`` is enabled. Defaults to ``True``.
+
+``keyschema``                   Validation schema for all values of a ``dict``.
+                                The dict can have arbitrary keys, the values
+                                for all of which must validate with given
+                                schema. See `keyschema example <http://cerberus.readthedocs.org/en/latest/#keyschema>`_.
+
+``regex``                       Validation will fail if field value does not 
+                                match the provided regex rule. Only applies to 
+                                string fields. See `email validation example <http://cerberus.readthedocs.org/en/latest/#regex>`_
+
+
+``dependencies``                This rule allows a list of fields that must be 
+                                present in order for the target field to be 
+                                allowed. See `dependencies example <http://cerberus.readthedocs.org/en/latest/#dependencies>`_
+
 =============================== ==============================================
 
 Schema syntax is based on Cerberus_ and yes, it can be extended.  In fact, Eve
@@ -866,7 +929,7 @@ of the database collection. It is a dictionary with four allowed keys:
                                 returned with the default database order.
                                 A valid statement would be:
 
-                                ``'datasource': {'default_sort': [('name':
+                                ``'datasource': {'default_sort': [('name',
                                 1)]}``
 
                                 For more informations on sort and filters see
@@ -944,7 +1007,7 @@ resource keyword allows you to redefine the fieldset.
 The above setting will expose only the `username` field to GET requests, no
 matter the schema_ defined for the resource. 
 
-Likewise, you can esclude fields from API responses:
+Likewise, you can exclude fields from API responses:
 
 ::
 

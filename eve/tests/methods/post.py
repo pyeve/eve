@@ -6,6 +6,7 @@ from eve.tests.test_settings import MONGO_DBNAME
 
 from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, DATE_CREATED, ISSUES, \
     STATUS, ETAG
+from eve.methods.post import post
 
 
 class TestPost(TestBase):
@@ -93,6 +94,14 @@ class TestPost(TestBase):
         del(self.domain['contacts']['schema']['ref']['required'])
         test_field = 'tid'
         test_value = "50656e4538345b39dd0414f0"
+        data = {test_field: test_value}
+        self.assertPostItem(data, test_field, test_value)
+
+    def test_post_null_objectid(self):
+        # verify that #341 is fixed.
+        del(self.domain['contacts']['schema']['ref']['required'])
+        test_field = 'tid'
+        test_value = None
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 
@@ -329,8 +338,39 @@ class TestPost(TestBase):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
         self.assertTrue(id_field in r)
-        self.assertTrue(ID_FIELD not in r)
         self.assertItemLink(r['_links'], r[id_field])
+
+    def test_post_bandwidth_saver(self):
+        data = {'inv_number': self.random_string(10)}
+
+        # bandwidth_saver is on by default
+        self.assertTrue(self.app.config['BANDWIDTH_SAVER'])
+        r, status = self.post(self.empty_resource_url, data=data)
+        self.assert201(status)
+        self.assertPostResponse(r)
+        self.assertFalse('inv_number' in r)
+        etag = r[self.app.config['ETAG']]
+        r, status = self.get(
+            self.empty_resource, '', r[self.app.config['ID_FIELD']])
+        self.assertEqual(etag, r[self.app.config['ETAG']])
+
+        # test return all fields (bandwidth_saver off)
+        self.app.config['BANDWIDTH_SAVER'] = False
+        r, status = self.post(self.empty_resource_url, data=data)
+        self.assert201(status)
+        self.assertPostResponse(r)
+        self.assertTrue('inv_number' in r)
+        etag = r[self.app.config['ETAG']]
+        r, status = self.get(
+            self.empty_resource, '', r[self.app.config['ID_FIELD']])
+        self.assertEqual(etag, r[self.app.config['ETAG']])
+
+    def test_post_alternative_payload(self):
+        payl = {"ref": "5432112345678901234567890", "role": ["agent"]}
+        with self.app.test_request_context(self.known_resource_url):
+            r, _, _, status = post(self.known_resource, payl=payl)
+        self.assert201(status)
+        self.assertPostResponse(r)
 
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)

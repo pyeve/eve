@@ -1,10 +1,10 @@
-Cerberus==0.6.0
-Events==0.2.0
+Cerberus==0.7
+Events==0.2.1
 Flask-PyMongo==0.3.0
 Flask==0.10.1
 itsdangerous==0.22
 Jinja2==2.7.2
-MarkupSafe==0.19
+MarkupSafe==0.23
 pymongo==2.7.0
 simplejson==3.3.0
 Werkzeug==0.9.4

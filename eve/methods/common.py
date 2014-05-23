@@ -11,12 +11,15 @@
 """
 
 import time
+import base64
 from datetime import datetime
 from flask import current_app as app, request, abort, g, Response
 import simplejson as json
 from functools import wraps
 from eve.utils import parse_request, document_etag, config, request_method, \
-    debug_error_message
+    debug_error_message, auto_fields
+from eve.versioning import resolve_document_version, \
+    get_data_version_relation_document, missing_version_field
 
 
 def get_document(resource, **lookup):
@@ -313,21 +316,18 @@ def serialize(document, resource=None, schema=None):
                         # a list of one type, arbirtrary length
                         field_type = field_schema['type']
                         if field_type in app.data.serializers:
-                            i = 0
-                            for v in document[field]:
+                            for i, v in enumerate(document[field]):
                                 document[field][i] = \
                                     app.data.serializers[field_type](v)
-                                i += 1
                 elif 'items' in field_schema:
                     # a list of multiple types, fixed length
-                    i = 0
-                    for s, v in zip(field_schema['items'], document[field]):
+                    for i, (s, v) in enumerate(zip(field_schema['items'],
+                                                   document[field])):
                         field_type = s['type'] if 'type' in s else None
                         if field_type in app.data.serializers:
                             document[field][i] = \
                                 app.data.serializers[field_type](
                                     document[field][i])
-                        i += 1
                 elif field_type in app.data.serializers:
                     # a simple field
                     document[field] = \
@@ -335,29 +335,236 @@ def serialize(document, resource=None, schema=None):
     return document
 
 
-def resolve_default_values(document, resource):
-    """ Add any defined default value for missing document fields.
+def build_response_document(
+        document, resource, embedded_fields, latest_doc=None):
+    """ Prepares a document for response including generation of ETag and
+    metadata fields.
 
-    :param document: the document being posted or replaced
-    :param resource: the resource to which the document belongs
+    :param document: the document to embed other documents into.
+    :param resource: the resource name.
+    :param embedded_fields: the list of fields we are allowed to embed.
+    :param document: the latest version of document.
 
-    .. versionadded:: 0.2
+    .. versionadded:: 0.4
     """
-    if request_method() in ('POST', 'PUT'):
-        defaults = app.config['DOMAIN'][resource]['defaults']
-        missing_defaults = defaults.difference(set(document.keys()))
-        schema = config.DOMAIN[resource]['schema']
-        for missing_field in missing_defaults:
-            document[missing_field] = schema[missing_field]['default']
+    # need to update the document field since the etag must be computed on the
+    # same document representation that might have been used in the collection
+    # 'get' method
+    document[config.DATE_CREATED] = date_created(document)
+    document[config.LAST_UPDATED] = last_updated(document)
+    # TODO: last_update could include consideration for embedded documents
+
+    # generate ETag
+    if config.IF_MATCH:
+        document[config.ETAG] = document_etag(document)
+
+    # hateoas links
+    if config.DOMAIN[resource]['hateoas']:
+        document[config.LINKS] = {'self':
+                                  document_link(resource,
+                                                document[config.ID_FIELD])}
+
+    # add version numbers
+    resolve_document_version(document, resource, 'GET', latest_doc)
+
+    # media and embedded documents
+    resolve_media_files(document, resource)
+    resolve_embedded_documents(document, resource, embedded_fields)
 
 
-def resolve_media_files(document, resource, original=None):
+def resolve_embedded_fields(resource, req):
+    """ Returns a list of validated embedded fields from the incoming request
+    or from the resource definition is the request does not specify.
+
+    :param resource: the resource name.
+    :param req: and instace of :class:`eve.utils.ParsedRequest`.
+
+    .. versionadded:: 0.4
+    """
+    embedded_fields = []
+    if req.embedded:
+        # Parse the embedded clause, we are expecting
+        # something like:   '{"user":1}'
+        try:
+            client_embedding = json.loads(req.embedded)
+        except ValueError:
+            abort(400, description=debug_error_message(
+                'Unable to parse `embedded` clause'
+            ))
+
+        # Build the list of fields where embedding is being requested
+        try:
+            embedded_fields = [k for k, v in client_embedding.items()
+                               if v == 1]
+        except AttributeError:
+            # We got something other than a dict
+            abort(400, description=debug_error_message(
+                'Unable to parse `embedded` clause'
+            ))
+
+    embedded_fields = list(
+        set(config.DOMAIN[resource]['embedded_fields']) |
+        set(embedded_fields))
+
+    # For each field, is the field allowed to be embedded?
+    # Pick out fields that have a `data_relation` where `embeddable=True`
+    enabled_embedded_fields = []
+    for field in embedded_fields:
+        # Reject bogus field names
+        if field in config.DOMAIN[resource]['schema']:
+            field_definition = config.DOMAIN[resource]['schema'][field]
+            if 'data_relation' in field_definition and \
+                    field_definition['data_relation'].get('embeddable'):
+                # or could raise 400 here
+                enabled_embedded_fields.append(field)
+
+    return enabled_embedded_fields
+
+
+def resolve_embedded_documents(document, resource, embedded_fields):
+    """ Loops through the documents, adding embedded representations
+    of any fields that are (1) defined eligible for embedding in the
+    DOMAIN and (2) requested to be embedded in the current `req`.
+
+    Currently we only support a single layer of embedding,
+    i.e. /invoices/?embedded={"user":1}
+    *NOT*  /invoices/?embedded={"user.friends":1}
+
+    :param document: the document to embed other documents into.
+    :param resource: the resource name.
+    :param embedded_fields: the list of fields we are allowed to embed.
+
+    .. versionchagend:: 0.4
+        Moved parsing of embedded fields to _resolve_embedded_fields.
+        Support for document versioning.
+
+    .. versionchagend:: 0.2
+        Support for 'embedded_fields'.
+
+    .. versonchanged:: 0.1.1
+       'collection' key has been renamed to 'resource' (data_relation).
+
+    .. versionadded:: 0.1.0
+    """
+    schema = config.DOMAIN[resource]['schema']
+    for field in embedded_fields:
+        data_relation = schema[field]['data_relation']
+        # Retrieve and serialize the requested document
+        if 'version' in data_relation and data_relation['version'] is True:
+            # support late versioning
+            if document[field][config.VERSION] == 0:
+                # there is a chance this document hasn't been saved
+                # since versioning was turned on
+                embedded_doc = missing_version_field(
+                    data_relation, document[field])
+
+                if embedded_doc is None:
+                    # this document has been saved since the data_relation was
+                    # made - we basically do not have the copy of the document
+                    # that existed when the data relation was made, but we'll
+                    # try the next best thing - the first version
+                    document[field][config.VERSION] = 1
+                    embedded_doc = get_data_version_relation_document(
+                        data_relation, document[field])
+
+                latest_embedded_doc = embedded_doc
+            else:
+                # grab the specific version
+                embedded_doc = get_data_version_relation_document(
+                    data_relation, document[field])
+
+                # grab the latest version
+                latest_embedded_doc = get_data_version_relation_document(
+                    data_relation, document[field], latest=True)
+
+            # make sure we got the documents
+            if embedded_doc is None or latest_embedded_doc is None:
+                # your database is not consistent!!! that is bad
+                abort(404, description=debug_error_message(
+                    "Unable to locate embedded documents for '%s'" %
+                    field
+                ))
+
+            # build the response document
+            build_response_document(
+                embedded_doc, data_relation['resource'],
+                [], latest_embedded_doc)
+        else:
+            embedded_doc = app.data.find_one(
+                data_relation['resource'], None,
+                **{config.ID_FIELD: document[field]}
+            )
+        if embedded_doc:
+            document[field] = embedded_doc
+
+
+def resolve_media_files(document, resource):
+    """ Embed media files into the response document.
+
+    :param document: the document eventually containing the media files.
+    :param resource: the resource being consumed by the request.
+
+    .. versionadded:: 0.4
+    """
+    for field in resource_media_fields(document, resource):
+        _file = app.media.get(document[field])
+        # check if we should send a basic file response
+        if config.EXTENDED_MEDIA_INFO == []:
+            if _file:
+                document[field] = base64.encodestring(_file.read())
+            else:
+                document[field] = None
+        elif _file:
+            # otherwise we have a valid file and should send extended response
+            # start with the basic file object
+            document[field] = {
+                'file': base64.encodestring(_file.read()),
+            }
+
+            # check if we should return any special fields
+            for attribute in config.EXTENDED_MEDIA_INFO:
+                if hasattr(_file, attribute):
+                    # add extended field if found in the file object
+                    document[field].update({
+                        attribute: getattr(_file, attribute)
+                    })
+                else:
+                    # tried to select an invalid attribute
+                    abort(500, description=debug_error_message(
+                        'Invalid extended media attribute requested'
+                    ))
+        else:
+            document[field] = None
+
+
+def marshal_write_response(document, resource):
+    """ Limit response document to minimize bandwidth when client supports it.
+
+    :param document: the response document.
+    :param resource: the resource being consumed by the request.
+
+    .. versionadded:: 0.4
+    """
+
+    if app.config['BANDWIDTH_SAVER'] is True:
+        # only return the automatic fields and special extra fields
+        fields = auto_fields(resource) + \
+            app.config['DOMAIN'][resource]['extra_response_fields']
+        document = dict((k, v) for (k, v) in document.items() if k in fields)
+
+    return document
+
+
+def store_media_files(document, resource, original=None):
     """ Store any media file in the underlying media store and update the
     document with unique ids of stored files.
 
     :param document: the document eventually containing the media files.
     :param resource: the resource being consumed by the request.
     :param original: original document being replaced or edited.
+
+    .. versionchanged:: 0.4
+       Renamed to store_media_files to deconflict with new resolve_media_files.
 
     .. versionadded:: 0.3
     """
@@ -372,7 +579,9 @@ def resolve_media_files(document, resource, original=None):
             app.media.delete(original[field])
 
         # store file and update document with file's unique id/filename
-        document[field] = app.media.put(document[field])
+        # also pass in mimetype for use when retrieving the file
+        document[field] = app.media.put(document[field],
+                                        content_type=document[field].mimetype)
 
 
 def resource_media_fields(document, resource):
@@ -446,3 +655,38 @@ def pre_event(f):
         r = f(resource, **combined_args)
         return r
     return decorated
+
+
+def document_link(resource, document_id):
+    """ Returns a link to a document endpoint.
+
+    :param resource: the resource name.
+    :param document_id: the document unique identifier.
+
+    .. versionchanged:: 0.4
+       Use the regex-neutral resource_link function.
+
+    .. versionchanged:: 0.1.0
+       No more trailing slashes in links.
+
+    .. versionchanged:: 0.0.3
+       Now returning a JSON link
+    """
+    return {'title': '%s' % config.DOMAIN[resource]['item_title'],
+            'href': '%s/%s' % (resource_link(), document_id)}
+
+
+def resource_link():
+    """ Returns the current resource path complete with server name if
+    available. Mostly going to be used by hatoeas functions when building
+    document/resource links. The resource URL stored in the config settings
+    might contain regexes and custom variable names, all of which are not
+    needed in the response payload.
+
+    .. versionadded:: 0.4
+    """
+    path = request.path.rstrip('/')
+    if '|item' in request.endpoint:
+        path = path[:path.rfind('/')]
+    server_name = config.SERVER_NAME if config.SERVER_NAME else ''
+    return '%s%s' % (server_name, path)

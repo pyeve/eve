@@ -140,6 +140,15 @@ class TestPatch(TestBase):
         db_value = self.compare_patch_with_get(field, r)
         self.assertEqual(db_value, test_value)
 
+    def test_patch_null_objectid(self):
+        # verify that #341 is fixed.
+        field = "tid"
+        test_value = None
+        changes = {field: test_value}
+        r = self.perform_patch(changes)
+        db_value = self.compare_patch_with_get(field, r)
+        self.assertEqual(db_value, test_value)
+
     def test_patch_defaults(self):
         field = "ref"
         test_value = "1234567890123456789012345"
@@ -309,6 +318,24 @@ class TestPatch(TestBase):
                                       data=data, headers=headers)
         self.assert200(status)
         self.assertPatchResponse(response, self.invoice_id)
+
+    def test_patch_bandwidth_saver(self):
+        changes = {'ref': '1234567890123456789012345'}
+
+        # bandwidth_saver is on by default
+        self.assertTrue(self.app.config['BANDWIDTH_SAVER'])
+        r = self.perform_patch(changes)
+        self.assertFalse('ref' in r)
+        db_value = self.compare_patch_with_get(self.app.config['ETAG'], r)
+        self.assertEqual(db_value, r[self.app.config['ETAG']])
+        self.item_etag = r[self.app.config['ETAG']]
+
+        # test return all fields (bandwidth_saver off)
+        self.app.config['BANDWIDTH_SAVER'] = False
+        r = self.perform_patch(changes)
+        self.assertTrue('ref' in r)
+        db_value = self.compare_patch_with_get(self.app.config['ETAG'], r)
+        self.assertEqual(db_value, r[self.app.config['ETAG']])
 
     def assertPatchResponse(self, response, item_id):
         self.assertTrue(STATUS in response)

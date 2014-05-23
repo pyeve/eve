@@ -1,7 +1,9 @@
+from datetime import datetime
+
+from bson import ObjectId
+
 from eve.tests import TestBase
 from eve.methods.common import serialize
-from datetime import datetime
-from bson import ObjectId
 
 
 class TestSerializer(TestBase):

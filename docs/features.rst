@@ -541,7 +541,7 @@ metadata:
     }
 
 However, in order to reduce the number of loopbacks, a client might also submit
-multiple documents with a single request. All if needs to do is enclose the
+multiple documents with a single request. All it needs to do is enclose the
 documents in a JSON list:
 
 .. code-block:: console
@@ -666,16 +666,21 @@ between versions: caching, URIs, schemas, validation, and so on. URI versioning
 
 Document Versioning
 -------------------
-Eve supports automatic version control of documents. By default, this setting is
-turned off, but it can be turned globally or configured individually for each
-resource. When enabled, Eve provides version control by storing versions of
-documents in a shadow collection. All HTTP methods act on the latest version of 
-the document except when retrieving an indivual item. In this case, adding a
-query parameter of ``?version=VERSION`` can be used to point to a specific
-version. Special values of  ``?version=all`` and  ``?version=diffs`` are also
-valid. (Bonus tip - try a projection on top of ``?version=all``!) Additional
-fields called ``_version`` and ``_latest_version`` get automatically added to
-documents when versioning is turned on.
+Eve supports automatic version control of documents. By default, this setting
+is turned off, but it can be turned globally or configured individually for
+each resource. When enabled, Eve begins automatically tracking changes to
+documents and adds the fields ``_version`` and ``_latest_version`` when
+retrieving documents.
+
+Behind the scenes, Eve stores document versions in shadow collections that
+parallels the collection of each primary resource that Eve defines. New
+document versions are automatically added to this collection during normal
+POST, PUT, and PATCH operations. A special new query parameter is available
+when GETing an item that provides access to the document versions. Access a
+specific version with ``?version=VERSION``, access all versions with
+``?version=all``, and access diffs of all versions with ``?version=diffs``.
+Collection query features like projections, pagination, and sorting work with
+``all`` and ``diff`` except for sorting which does not work on ``diff``.
 
 It is important to note that there are a few non-standard scenarios which could
 produce unexpected results when versioning is turned on. In particular, document
@@ -1298,7 +1303,54 @@ As a proper developer guide is not available yet, you can peek at the
 MediaStorage_ source if you are interested in developing custom storage
 classes.
 
-When a document is requested media files will be returned as Base64 strings.
+When a document is requested media files will be returned as Base64 strings,
+
+.. code-block:: python
+
+    {
+        '_items': [
+            {
+                '_updated':'Sat, 05 Apr 2014 15:52:53 GMT',
+                'pic':'iVBORw0KGgoAAAANSUhEUgAAA4AAAAOACA...',
+            }
+        ]
+   } 
+
+However, if the ``EXTENDED_MEDIA_INFO`` list is populated (it isn't by
+default) the payload format will be different. This flag allows passthrough
+from the driver of additional meta fields. For example, using the MongoDB
+driver, fields like ``content_type``, ``name`` and ``length`` can be added to
+this list and will be passed-through from the underlying driver. 
+
+When ``EXTENDED_MEDIA_INFO`` is used the field will be a dictionary
+whereas the file itself is stored under the ``file`` key and other keys
+are the meta fields. Suppose that the flag is set like this:
+
+.. code-block:: python
+
+    EXTENDED_MEDIA_INFO = ['content_type', 'name', 'length']
+
+Then the output will be something like
+
+.. code-block:: python
+
+    {
+        '_items': [
+            {
+                '_updated':'Sat, 05 Apr 2014 15:52:53 GMT',
+                'pic': {
+                    'file': 'iVBORw0KGgoAAAANSUhEUgAAA4AAAAOACA...',
+                    'content_type': 'text/plain',
+                    'name': 'test.txt',
+                    'length': 8129
+                }
+            }
+        ]
+    }
+
+
+For MongoDB, further fields can be found in the `driver documentation`_. 
+
 
 .. _projection_filestorage:
 
@@ -1377,3 +1429,4 @@ for unittesting_ and an `extensive documentation`_.
 .. _`MongoDB Data Model Design`: http://docs.mongodb.org/manual/core/data-model-design
 .. _GridFS: http://docs.mongodb.org/manual/core/gridfs/
 .. _MediaStorage: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/media.py
+.. _`driver documentation`: http://api.mongodb.org/python/2.7rc0/api/gridfs/grid_file.html#gridfs.grid_file.GridOut
