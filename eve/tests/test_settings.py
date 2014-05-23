@@ -69,6 +69,7 @@ contacts = {
         },
         'tid': {
             'type': 'objectid',
+            'nullable': True
         },
         'title': {
             'type': 'string',

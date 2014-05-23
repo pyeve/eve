@@ -97,6 +97,14 @@ class TestPost(TestBase):
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 
+    def test_post_null_objectid(self):
+        # verify that #341 is fixed.
+        del(self.domain['contacts']['schema']['ref']['required'])
+        test_field = 'tid'
+        test_value = None
+        data = {test_field: test_value}
+        self.assertPostItem(data, test_field, test_value)
+
     def test_post_default_value(self):
         test_field = 'title'
         test_value = "Mr."

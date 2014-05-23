@@ -8,6 +8,8 @@ Version 0.4
 
 Not released yet.
 
+- [fix] Cannot change a nullable objectid type field to contain null. Closes
+  #341.
 - [change] Cerberus 0.7 is now required.
 - [new] 'dependencies' validation rule.
 - [new] 'keyschema' validation rule.
@@ -15,40 +17,35 @@ Not released yet.
 - [new] 'set' as a core data type. 
 - [new] 'min' and 'max' now apply to floats and numbers too.
 - [change] Events 0.2.1 is now required.
-- [new] File Storage. ``EXTENDED_MEDIA_INFO`` allows a list of meta fields (file properties)
-  to forward from the file upload driver (Ben Demaree).
-- [fix] HATEOAS links as business unit values even when regexes are
-  configured for the endpoint.
+- [new] File Storage. ``EXTENDED_MEDIA_INFO`` allows a list of meta fields
+  (file properties) to forward from the file upload driver (Ben Demaree).
+- [fix] HATEOAS links as business unit values even when regexes are configured
+  for the endpoint.
 - [change] MarkupSafe 0.23 is now required.
 - [new] Python 3.4 is now supported.
-- [new] Support for default values in documents with more than one level
-  of data (Javier Gonel).
+- [new] Support for default values in documents with more than one level of
+  data (Javier Gonel).
 - [fix] Documentation improvements (Jen Montes).
-- [new] Ability to send entire document in write responses.
-  ``BANDWITH_SAVER`` aka Coherence Mode (Josh Villbrandt). 
+- [new] Ability to send entire document in write responses. ``BANDWITH_SAVER``
+  aka Coherence Mode (Josh Villbrandt). 
 - [fix] KeyError exception was raised when field specified in schema as
   embeddable was missing in a particular document (Jaroslav Semančík).
 - [fix] Tests on HEAD requests would very occasionally fail. See #316.
 - [change] PyMongo 2.7 is now required.
-- [fix] Automatic fields such as ``DATE_CREATD`` and ``DATE_CREATED``
-  are correctly handled in client projections (Josh Villbrandt). Closes
-  #282.
-- [change] Callbacks get whole json response on ``on_fetched``. This
-  allows for callbacks functions to alter the whole payload, even when
-  HATEOAS is enabled and ``_items`` and ``_links`` metafields are
-  present.
-- [new] ``on_pre_<METHOD>`` events expose the `lookup` dictionary which
-  allows for setting up dynamic database lookups on both resource and
-  item endpoints.
-- [fix] Make codebase compliant with latest PEP8/flake8 release (Javier
-  Gonel).
-- [fix] If you had a media field, and set datasource projection to 0 for
-  that field, the media would not be deleted. Closes #284.
-- [new] Return a 400 response on pymongo DuplicateKeyError, with
-  exception message if debug mode is on (boosh).
-- [change] ``on_update(ed)`` and ``on_replace(ed)`` callbacks now
-  receive both the original document and the updates (Jaroslav
-  Semančík).
+- [fix] Automatic fields such as ``DATE_CREATD`` and ``DATE_CREATED`` are
+  correctly handled in client projections (Josh Villbrandt). Closes #282.
+- [change] Callbacks get whole json response on ``on_fetched``. This allows for
+  callbacks functions to alter the whole payload, even when HATEOAS is enabled
+  and ``_items`` and ``_links`` metafields are present.
+- [new] ``on_pre_<METHOD>`` events expose the `lookup` dictionary which allows
+  for setting up dynamic database lookups on both resource and item endpoints.
+- [fix] Make codebase compliant with latest PEP8/flake8 release (Javier Gonel).
+- [fix] If you had a media field, and set datasource projection to 0 for that
+  field, the media would not be deleted. Closes #284.
+- [new] Return a 400 response on pymongo DuplicateKeyError, with exception
+  message if debug mode is on (boosh).
+- [change] ``on_update(ed)`` and ``on_replace(ed)`` callbacks now receive both
+  the original document and the updates (Jaroslav Semančík).
 - [new] PyPy officially supported and tested (Javier Gonel).
 - [new] tox support (Javier Gonel).
 - [new] Post database events (Javier Gonel). Addresses #272.
@@ -58,36 +55,35 @@ Not released yet.
 - [fix] tests now run on any system without needing to set ``ulimit`` to
   a higher value (Javier Gonel).
 - [new] Python trove classifiers added to setup.py.
-- [fix] media files: don't try to delete a field that does not exist
-  (Taylor Brown).
-- [fix] Occasional KeyError while building ``_media`` helper dict. See
-  #271 (Alexander Hendorf).
-- [fix] ``If-Modified-Since`` misbehaviour when a datasource filter is
-  set. Closes #258.
+- [fix] media files: don't try to delete a field that does not exist (Taylor
+  Brown).
+- [fix] Occasional KeyError while building ``_media`` helper dict. See #271
+  (Alexander Hendorf).
+- [fix] ``If-Modified-Since`` misbehaviour when a datasource filter is set.
+  Closes #258.
 - [new] Client projections are also honored at item endpoints.
 - [new] validate that ID_FIELD is not set as a resource ``auth_field``.
   Addresses #266.
 - [fix] Trouble serializing list of dicts. Closes #265 and #244. 
-- [fix] ``HATEOAS`` item links are now coherent actual endpoint URL even
-  when natural immutable keys are used in URLs (Junior Vidotti). Closes
-  #256.
-- Replaced ID_FIELD by item_lookup_field on self link. item_lookup_field
-  will default to ID_FIELD if blank. 
-- [new] ``URL_PROTOCOL`` defines the HTTP protocol used when building
-  HATEOAS links. Defaults to ``''`` for relative paths (Junior Vidotti).
-- [new] ``on_delete_item`` and ``on_deleted_item`` is raised on DELETE
-  requests sent to document endpoints. Addresses #232.
-- [new] ``on_delete_resource`` and ``on_deleted_resource`` is raised on
-  DELETE requests sent to resource endpoints. Addresses #232.
-- [new] ``on_update`` is raised on PATCH requests, when a document is
-  about to be updated on the database. Addresses #232.
-- [new] ``on_replace`` is raised on PUT requests, when a document is
-  about to be replaced on the database. Addresses #232.
-- [change] ``on_insert`` is not raised anymore on PUT requests (replaced
-  by above mentioned ``on_replace``).
+- [fix] ``HATEOAS`` item links are now coherent actual endpoint URL even when
+  natural immutable keys are used in URLs (Junior Vidotti). Closes #256.
+- Replaced ID_FIELD by item_lookup_field on self link. item_lookup_field will
+  default to ID_FIELD if blank. 
+- [new] ``URL_PROTOCOL`` defines the HTTP protocol used when building HATEOAS
+  links. Defaults to ``''`` for relative paths (Junior Vidotti).
+- [new] ``on_delete_item`` and ``on_deleted_item`` is raised on DELETE requests
+  sent to document endpoints. Addresses #232.
+- [new] ``on_delete_resource`` and ``on_deleted_resource`` is raised on DELETE
+  requests sent to resource endpoints. Addresses #232.
+- [new] ``on_update`` is raised on PATCH requests, when a document is about to
+  be updated on the database. Addresses #232.
+- [new] ``on_replace`` is raised on PUT requests, when a document is about to
+  be replaced on the database. Addresses #232.
+- [change] ``on_insert`` is not raised anymore on PUT requests (replaced by
+  above mentioned ``on_replace``).
 - [change] ``auth.request_auth_value`` is no more. Yay. See below.
-- [change] ``auth.set_request_auth_value()`` allows to set the
-  ``auth_field`` value for the current request.
+- [change] ``auth.set_request_auth_value()`` allows to set the ``auth_field``
+  value for the current request.
 - [change] ``auth.get_request_auth_value()`` allows to retrieve the
   ``auth_field`` value for the current request.
 - [new] ``auth`` constructor argument accepts either a class instance or
