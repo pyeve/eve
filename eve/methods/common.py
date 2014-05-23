@@ -692,4 +692,6 @@ def resource_link():
     if '|item' in request.endpoint:
         path = path[:path.rfind('/')]
     server_name = config.SERVER_NAME if config.SERVER_NAME else ''
+    if config.URL_PROTOCOL:
+        server_name = '%s://%s' % (config.URL_PROTOCOL, server_name)
     return '%s%s' % (server_name, path)
