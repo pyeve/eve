@@ -316,21 +316,18 @@ def serialize(document, resource=None, schema=None):
                         # a list of one type, arbirtrary length
                         field_type = field_schema['type']
                         if field_type in app.data.serializers:
-                            i = 0
-                            for v in document[field]:
+                            for i, v in enumerate(document[field]):
                                 document[field][i] = \
                                     app.data.serializers[field_type](v)
-                                i += 1
                 elif 'items' in field_schema:
                     # a list of multiple types, fixed length
-                    i = 0
-                    for s, v in zip(field_schema['items'], document[field]):
+                    for i, (s, v) in enumerate(zip(field_schema['items'],
+                                                   document[field])):
                         field_type = s['type'] if 'type' in s else None
                         if field_type in app.data.serializers:
                             document[field][i] = \
                                 app.data.serializers[field_type](
                                     document[field][i])
-                        i += 1
                 elif field_type in app.data.serializers:
                     # a simple field
                     document[field] = \
