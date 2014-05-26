@@ -80,49 +80,13 @@ expose a document endpoint like <tt class="docutils literal"><span class="pre">/
 <p><tt class="docutils literal"><span class="pre">/invoices/48c00ee9-4dbe-413f-9fc3-d5f12a91de1c</span></tt>.</p>
 <p>These are the steps we need to follow:</p>
 <ol class="arabic simple">
-<li>Craft a custom URL converter that can handle UUID URLs like the one above</li>
-<li>Craft a custom JSONEncoder that is capable of serializing UUIDs as strings</li>
-<li>Pass both the url converter and JSONEncoder to our Eve instance</li>
-<li>Configure our invoices resource so Eve knows it should parse UUID urls with
-the custom url converter.</li>
+<li>Craft a custom JSONEncoder that is capable of serializing UUIDs as strings
+and pass it to our Eve application.</li>
+<li>Add support for a new <tt class="docutils literal"><span class="pre">uuid</span></tt> data type so we can properly validate
+incoming uuid values.</li>
+<li>Configure our invoices endpoint so Eve knows how to properly parse UUID
+urls.</li>
 </ol>
-<div class="section" id="custom-url-converter">
-<h3>Custom URL Converter<a class="headerlink" href="#custom-url-converter" title="Permalink to this headline">¶</a></h3>
-<p>Remember, Eve is a <a class="reference external" href="http://flask.pocoo.org/">Flask</a> application which is, in turn, a wrapper around the
-magnificent <a class="reference external" href="http://werkzeug.pocoo.org/">Werkzeug</a>. This means that the features provided by these awesome
-tools are also available in Eve, <a class="reference external" href="http://werkzeug.pocoo.org/docs/routing/#custom-converters">custom url converters</a> included. A custom
-URL converter is needed in order to allow our API to convert a URL segment into
-the corresponding data type (an UUID in our case).</p>
-<p>Crafting custom converters is easy. In our case, the only thing we have to do is to
-subclass <tt class="docutils literal"><span class="pre">BaseConverter</span></tt> and pass that new converter to the <tt class="docutils literal"><span class="pre">url_map</span></tt>. A converter
-has to provide two public methods: <tt class="docutils literal"><span class="pre">to_python</span></tt> and <tt class="docutils literal"><span class="pre">to_url</span></tt>, as well as a member
-that represents a regular expression.</p>
-<p>Here is our UUID URL converter:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">werkzeug.routing</span> <span class="kn">import</span> <span class="n">BaseConverter</span>
-<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
-
-<span class="k">class</span> <span class="nc">UUIDConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    UUID converter for the Werkzeug routing system.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url_map</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">UUIDConverter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">url_map</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">to_python</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">UUID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">to_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
-<span class="c"># you can have multiple custom converters. Each converter has a key,</span>
-<span class="c"># which will be later used to designate endpoint urls, and a specialized</span>
-<span class="c"># BaseConverter subclass. In this case the url converter dictionary has</span>
-<span class="c"># only one item: our UUID converter.</span>
-<span class="n">url_converters</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;uuid&#39;</span><span class="p">:</span> <span class="n">UUIDConverter</span><span class="p">}</span>
-</pre></div>
-</div>
-</div>
 <div class="section" id="custom-jsonencoder">
 <h3>Custom JSONEncoder<a class="headerlink" href="#custom-jsonencoder" title="Permalink to this headline">¶</a></h3>
 <p>The Eve default JSON serializer is perfectly capable of serializing common data
@@ -152,53 +116,14 @@ serialization magic:</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="passing-the-uuid-juice-to-eve">
-<h3>Passing the <tt class="docutils literal"><span class="pre">UUID</span></tt> juice to Eve<a class="headerlink" href="#passing-the-uuid-juice-to-eve" title="Permalink to this headline">¶</a></h3>
-<p>Now all the missing pieces are ready, we only need to instruct Eve on how to
-use them. Eve needs to already know about the new data type when its building the
-URL map, so we need to pass our custom classes right at the beginning, when we
-are instancing the application:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">url_converters</span><span class="o">=</span><span class="n">url_converters</span><span class="p">,</span> <span class="n">json_encoder</span><span class="o">=</span><span class="n">UUIDEncoder</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>We are almost done!</p>
-</div>
-<div class="section" id="setting-up-the-uuid-endpoint">
-<h3>Setting up the <tt class="docutils literal"><span class="pre">UUID</span></tt> endpoint<a class="headerlink" href="#setting-up-the-uuid-endpoint" title="Permalink to this headline">¶</a></h3>
-<p>Now Eve is capable of both parsing UUID link segments and rendering UUID
-values, but it still doesn&#8217;t know which resources are going to use these
-features. Let&#8217;s pick our <tt class="docutils literal"><span class="pre">settings.py</span></tt> module and update the API domain
-accordingly:</p>
-<div class="highlight-python"><div class="highlight"><pre> <span class="n">invoices</span> <span class="o">=</span> <span class="p">{</span>
-     <span class="s">&#39;resource_methods&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">],</span>
-     <span class="s">&#39;item_methods&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">],</span>
-<span class="hll">     <span class="s">&#39;item_url&#39;</span><span class="p">:</span> <span class="s">&#39;uuid&#39;</span><span class="p">,</span>
-</span> <span class="p">}</span>
-
- <span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
-     <span class="s">&#39;invoices&#39;</span><span class="p">:</span> <span class="n">invoices</span>
- <span class="p">}</span>
-</pre></div>
-</div>
-<p>As you may recall, <tt class="docutils literal"><span class="pre">uuid</span></tt> was the key that we used when we built our url
-converters dictionary, the one that we then passed to the Eve instance. Now,
-thanks to the <tt class="docutils literal"><span class="pre">item_url</span></tt> setting, Eve knows that single item URLs for the
-invoices endpoint are to be treated with the <tt class="docutils literal"><span class="pre">UUIDConverter</span></tt> class.</p>
-<p>Our API will now gladly accept UUID link segments for the invoices endpoint;
-transparently store UUID strings as UUID values, and render UUID values as
-strings.</p>
-</div>
-<div class="section" id="allowing-post-operations">
-<h3>Allowing POST operations<a class="headerlink" href="#allowing-post-operations" title="Permalink to this headline">¶</a></h3>
-<p>So far the <cite>invoices</cite> endpoint is only allowing read operations. If we wanted
-to also enable document edition we would just add <tt class="docutils literal"><span class="pre">PATCH</span></tt>, <tt class="docutils literal"><span class="pre">PUT</span></tt> and maybe
-<tt class="docutils literal"><span class="pre">DELETE</span></tt> to the <tt class="docutils literal"><span class="pre">item_methods</span></tt> list, but what about document creation?</p>
+<div class="section" id="uuid-validation">
+<h3><tt class="docutils literal"><span class="pre">UUID</span></tt> Validation<a class="headerlink" href="#uuid-validation" title="Permalink to this headline">¶</a></h3>
 <p>By default Eve creates a unique identifier for each newly inserted document,
 and that is of <tt class="docutils literal"><span class="pre">ObjectId</span></tt> type. This is not what we want to happen at this
 endpoint. Here we want the client itself to provide the unique identifiers, and
 we also want to validate that they are of UUID type. In order to achieve that,
-we first need to extend our data validation layer (see <a class="reference internal" href="../validation.html#validation"><em>Data Validation</em></a> for details on
-custom validation):</p>
+we first need to extend our data validation layer (see <a class="reference internal" href="../validation.html#validation"><em>Data Validation</em></a> for
+details on custom validation):</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve.io.mongo</span> <span class="kn">import</span> <span class="n">Validator</span>
 <span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
 
@@ -214,83 +139,40 @@ custom validation):</p>
                         <span class="n">value</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>So, our complete code snippet will now look like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
-<span class="kn">from</span> <span class="nn">eve.io.base</span> <span class="kn">import</span> <span class="n">BaseJSONEncoder</span>
-<span class="kn">from</span> <span class="nn">eve.io.mongo</span> <span class="kn">import</span> <span class="n">Validator</span>
-<span class="kn">from</span> <span class="nn">werkzeug.routing</span> <span class="kn">import</span> <span class="n">BaseConverter</span>
-<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
+</div>
+<div class="section" id="uuid-urls">
+<h3><tt class="docutils literal"><span class="pre">UUID</span></tt> URLs<a class="headerlink" href="#uuid-urls" title="Permalink to this headline">¶</a></h3>
+<p>Now Eve is capable of rendering and validating UUID values but it still doesn&#8217;t know
+which resources are going to use these features. We also need to set
+<tt class="docutils literal"><span class="pre">item_url</span></tt> so uuid formed urls can be properly parsed. Let&#8217;s pick our
+<tt class="docutils literal"><span class="pre">settings.py</span></tt> module and update the API domain accordingly:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">invoices</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c"># this resource item endpoint (/invoices/&lt;id&gt;) will match a UUID regex.</span>
+    <span class="s">&#39;item_url&#39;</span><span class="p">:</span> <span class="s">&#39;regex(&quot;[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}&quot;)&#39;</span><span class="p">,</span>
+    <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="c"># set our _id field of our custom uuid type.</span>
+        <span class="s">&#39;_id&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;uuid&#39;</span><span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">}</span>
 
-<span class="k">class</span> <span class="nc">UUIDConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    UUID converter for the Werkzeug routing system.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url_map</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">UUIDConverter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">url_map</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">to_python</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">UUID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">to_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
-<span class="c"># you can have multiple custom converters. Each converter has a key,</span>
-<span class="c"># which will be later used to designate endpoint urls, and a specialized</span>
-<span class="c"># BaseConverter subclass. In this case the url converter dictionary has</span>
-<span class="c"># only one item: our UUID converter.</span>
-<span class="n">url_converters</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;uuid&#39;</span><span class="p">:</span> <span class="n">UUIDConverter</span><span class="p">}</span>
-
-<span class="k">class</span> <span class="nc">UUIDEncoder</span><span class="p">(</span><span class="n">BaseJSONEncoder</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; JSONEconder subclass used by the json render function.</span>
-<span class="sd">    This is different from BaseJSONEoncoder since it also addresses</span>
-<span class="sd">    encoding of UUID</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">UUID</span><span class="p">):</span>
-            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c"># delegate rendering to base class method (the base class</span>
-            <span class="c"># will properly render ObjectIds, datetimes, etc.)</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">UUIDEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-
-<span class="k">class</span> <span class="nc">UUIDValidator</span><span class="p">(</span><span class="n">Validator</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Extends the base mongo validator adding support for the uuid data-type</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">_validate_type_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">UUID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s">&quot;value &#39;</span><span class="si">%s</span><span class="s">&#39; cannot be converted to a UUID&quot;</span> <span class="o">%</span>
-                        <span class="n">value</span><span class="p">)</span>
-
-<span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">url_converters</span><span class="o">=</span><span class="n">url_converters</span><span class="p">,</span> <span class="n">json_encoder</span><span class="o">=</span><span class="n">UUIDEncoder</span><span class="p">,</span>
-          <span class="n">validator</span><span class="o">=</span><span class="n">UUIDValidator</span><span class="p">)</span>
-
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;invoices&#39;</span><span class="p">:</span> <span class="n">invoices</span>
+<span class="p">}</span>
 </pre></div>
 </div>
-<p>We also need to enable edit and insertion methods for the endpoint, and of
-course add a resource schema which will be used to validate the document
-fields. This is our updated <tt class="docutils literal"><span class="pre">settings.py</span></tt> script:</p>
-<div class="highlight-python"><div class="highlight"><pre> <span class="n">invoices</span> <span class="o">=</span> <span class="p">{</span>
-     <span class="s">&#39;resource_methods&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">],</span>
-     <span class="s">&#39;item_methods&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;PATCH&#39;</span><span class="p">,</span> <span class="s">&#39;PUT&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">],</span>
-     <span class="s">&#39;item_url&#39;</span><span class="p">:</span> <span class="s">&#39;uuid&#39;</span><span class="p">,</span>
-<span class="hll">     <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
-</span><span class="hll">         <span class="s">&#39;_id&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;uuid&#39;</span><span class="p">},</span>
-</span>     <span class="p">},</span>
- <span class="p">}</span>
-
- <span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
-     <span class="s">&#39;invoices&#39;</span><span class="p">:</span> <span class="n">invoices</span>
- <span class="p">}</span>
+<p>If all your API resources are going to support uuid as unique document
+identifiers then you might just want to set the global <tt class="docutils literal"><span class="pre">ITEM_URL</span></tt> to the uuid
+regex in order to avoid setting it for every single resource endpoint.</p>
+</div>
+<div class="section" id="passing-the-uuid-juice-to-eve">
+<h3>Passing the <tt class="docutils literal"><span class="pre">UUID</span></tt> juice to Eve<a class="headerlink" href="#passing-the-uuid-juice-to-eve" title="Permalink to this headline">¶</a></h3>
+<p>Now all the missing pieces are there we only need to instruct Eve on how to
+use them. Eve needs to know about the new data type when its building the
+URL map, so we need to pass our custom classes right at the beginning, when we
+are instancing the application:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">json_encoder</span><span class="o">=</span><span class="n">UUIDEncoder</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">UUIDValidator</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Now we&#8217;re also accepting new document, and allowing clients to edit them.</p>
 </div>
 </div>
 </div>
@@ -343,11 +225,10 @@ fields. This is our updated <tt class="docutils literal"><span class="pre">setti
   <ul>
 <li><a class="reference internal" href="#">Handling custom ID fields</a><ul>
 <li><a class="reference internal" href="#handling-uuid-fields">Handling <tt class="docutils literal"><span class="pre">UUID</span></tt> fields</a><ul>
-<li><a class="reference internal" href="#custom-url-converter">Custom URL Converter</a></li>
 <li><a class="reference internal" href="#custom-jsonencoder">Custom JSONEncoder</a></li>
+<li><a class="reference internal" href="#uuid-validation"><tt class="docutils literal"><span class="pre">UUID</span></tt> Validation</a></li>
+<li><a class="reference internal" href="#uuid-urls"><tt class="docutils literal"><span class="pre">UUID</span></tt> URLs</a></li>
 <li><a class="reference internal" href="#passing-the-uuid-juice-to-eve">Passing the <tt class="docutils literal"><span class="pre">UUID</span></tt> juice to Eve</a></li>
-<li><a class="reference internal" href="#setting-up-the-uuid-endpoint">Setting up the <tt class="docutils literal"><span class="pre">UUID</span></tt> endpoint</a></li>
-<li><a class="reference internal" href="#allowing-post-operations">Allowing POST operations</a></li>
 </ul>
 </li>
 </ul>
