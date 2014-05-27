@@ -976,7 +976,7 @@ Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</l
 <td><p class="first">The default value for the field. When serving
 POST and PUT requests, missing fields will be
 assigned the configured default values.</p>
-<p>It works for type <tt class="docutils literal"><span class="pre">dict</span></tt> and <tt class="docutils literal"><span class="pre">list</span></tt>.
+<p>It works also for types <tt class="docutils literal"><span class="pre">dict</span></tt> and <tt class="docutils literal"><span class="pre">list</span></tt>.
 The latter is restricted and works only for
 lists with schemas (list with a random number
 of elements and each element being a <tt class="docutils literal"><span class="pre">dict</span></tt>)</p>
@@ -991,7 +991,7 @@ of elements and each element being a <tt class="docutils literal"><span class="p
     <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;dict&#39;</span><span class="p">,</span>
     <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
       <span class="s">&#39;code&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;int&#39;</span><span class="p">,</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;integer&#39;</span><span class="p">,</span>
         <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="mi">100</span>
       <span class="p">}</span>
     <span class="p">}</span>
