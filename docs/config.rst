@@ -825,7 +825,7 @@ defining the field validation rules. Allowed validation rules are:
                                 POST and PUT requests, missing fields will be
                                 assigned the configured default values.
 
-                                It works for type ``dict`` and ``list``.
+                                It works also for types ``dict`` and ``list``.
                                 The latter is restricted and works only for
                                 lists with schemas (list with a random number
                                 of elements and each element being a ``dict``)
@@ -843,7 +843,7 @@ defining the field validation rules. Allowed validation rules are:
                                         'type': 'dict',
                                         'schema': {
                                           'code': {
-                                            'type': 'int',
+                                            'type': 'integer',
                                             'default': 100
                                           }
                                         }
