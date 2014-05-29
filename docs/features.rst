@@ -1348,13 +1348,12 @@ Then the output will be something like
         ]
     }
 
-If you have other means to retrieve the media file(custom flask endpoint) then
-the media files can be excluded from the paylod by setting to False the
-``RETURN_MEDIA_AS_BASE64_STRING`` flag. This takes into account if ``EXTENDED_MEDIA_INFO``
-is used.
-
 For MongoDB, further fields can be found in the `driver documentation`_. 
 
+If you have other means to retrieve the media files (custom Flask endpoint for
+example) then the media files can be excluded from the paylod by setting to
+``False`` the ``RETURN_MEDIA_AS_BASE64_STRING`` flag. This takes into account
+if ``EXTENDED_MEDIA_INFO`` is used.
 
 .. _projection_filestorage:
 
