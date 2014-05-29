@@ -510,15 +510,18 @@ def resolve_media_files(document, resource):
         _file = app.media.get(document[field])
         # check if we should send a basic file response
         if config.EXTENDED_MEDIA_INFO == []:
-            if _file:
+            if _file and config.RETURN_MEDIA_AS_BASE64_STRING:
                 document[field] = base64.encodestring(_file.read())
             else:
                 document[field] = None
         elif _file:
             # otherwise we have a valid file and should send extended response
             # start with the basic file object
+            ret_file = None
+            if config.RETURN_MEDIA_AS_BASE64_STRING:
+                ret_file = base64.encodestring(_file.read())
             document[field] = {
-                'file': base64.encodestring(_file.read()),
+                'file': ret_file,
             }
 
             # check if we should return any special fields
