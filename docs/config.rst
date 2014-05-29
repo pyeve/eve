@@ -440,6 +440,11 @@ uppercase.
 
 ``EXTENDED_MEDIA_INFO``         A list of properties to forward from the file upload
                                 driver.
+
+``RETURN_MEDIA_AS_BASE64_STRING`` Controls the embedding of the media type in
+the endpoint response. Acts as a global flag, defaults to True. This is useful
+when you have other means of getting the binary(like custom flask endpoints).
+
 =============================== =========================================
 
 .. _domain:
