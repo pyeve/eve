@@ -17,6 +17,11 @@ class TestPut(TestBase):
         _, status = self.put(self.readonly_id_url, data={})
         self.assert405(status)
 
+    def test_known_id(self):
+        _, status = self.put(self.item_id_url,
+                             data={'key1': 'value1'})
+        self.assert200(status)
+
     def test_unknown_id(self):
         _, status = self.put(self.unknown_item_id_url,
                              data={'key1': 'value1'})
