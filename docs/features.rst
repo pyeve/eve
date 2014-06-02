@@ -460,11 +460,11 @@ or the ``If-None-Match`` header:
 Data Integrity and Concurrency Control
 --------------------------------------
 API responses include a ``ETag`` header which also allows for proper
-concurrency control. An ``ETag`` is a hash value representing the current
-state of the resource on the server. Consumers are not allowed to edit or
-delete a resource unless they provide an up-to-date ``ETag`` for the resource
-they are attempting to edit. This prevents overwriting items with obsolete
-versions.
+concurrency control. An ``ETag`` is a hash value representing the current state
+of the resource on the server. Consumers are not allowed to edit (``PATCH`` or
+``PUT``) or delete (``DELETE``) a resource unless they provide an up-to-date
+``ETag`` for the resource they are attempting to edit. This prevents
+overwriting items with obsolete versions.
 
 Consider the following workflow:
 
