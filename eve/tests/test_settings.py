@@ -86,6 +86,14 @@ contacts = {
         'id_list_fixed_len': {
             'type': 'list',
             'items': [{'type': 'objectid'}]
+        },
+        'dependency_field1': {
+            'type': 'string',
+            'default': 'default'
+        },
+        'dependency_field2': {
+            'type': 'string',
+            'dependencies': ['dependency_field1']
         }
     }
 }

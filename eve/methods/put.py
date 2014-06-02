@@ -37,6 +37,7 @@ def put(resource, **lookup):
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.4
+       Resolve default values before validation is performed. See #353.
        Raise 'on_replace' instead of 'on_insert'. The callback function gets
        the document (as opposed to a list of just 1 document) as an argument.
        Support for document versioning.
@@ -86,6 +87,7 @@ def put(resource, **lookup):
 
     try:
         document = parse(payload, resource)
+        resolve_default_values(document, resource_def['defaults'])
         validation = validator.validate_replace(document, object_id)
         if validation:
             last_modified = datetime.utcnow().replace(microsecond=0)
@@ -99,7 +101,6 @@ def put(resource, **lookup):
                 document[config.ID_FIELD] = object_id
 
             resolve_user_restricted_access(document, resource)
-            resolve_default_values(document, resource_def['defaults'])
             store_media_files(document, resource, original)
             resolve_document_version(document, resource, 'PUT', original)
 

@@ -372,6 +372,14 @@ class TestPost(TestBase):
         self.assert201(status)
         self.assertPostResponse(r)
 
+    def test_post_dependency_fields_with_default(self):
+        # test that default values are resolved before validation. See #353.
+        del(self.domain['contacts']['schema']['ref']['required'])
+        test_field = 'dependency_field2'
+        test_value = 'a value'
+        data = {test_field: test_value}
+        self.assertPostItem(data, test_field, test_value)
+
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)

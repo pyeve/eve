@@ -48,6 +48,7 @@ def post(resource, payl=None):
                  discussion, and a typical use case.
 
     .. versionchanged:: 0.4
+       Resolve default values before validation is performed. See #353.
        Support for document versioning.
 
     .. versionchanged:: 0.3
@@ -138,6 +139,7 @@ def post(resource, payl=None):
         doc_issues = {}
         try:
             document = parse(value, resource)
+            resolve_default_values(document, resource_def['defaults'])
             validation = validator.validate(document)
             if validation:
                 # validation is successful
@@ -145,7 +147,6 @@ def post(resource, payl=None):
                     document[config.DATE_CREATED] = date_utc
 
                 resolve_user_restricted_access(document, resource)
-                resolve_default_values(document, resource_def['defaults'])
                 store_media_files(document, resource)
                 resolve_document_version(document, resource, 'POST')
             else:
