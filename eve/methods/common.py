@@ -359,7 +359,7 @@ def build_response_document(
         document[config.ETAG] = document_etag(document)
 
     # hateoas links
-    if config.DOMAIN[resource]['hateoas']:
+    if config.DOMAIN[resource]['hateoas'] and config.ID_FIELD in document:
         document[config.LINKS] = {'self':
                                   document_link(resource,
                                                 document[config.ID_FIELD])}

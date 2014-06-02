@@ -549,6 +549,13 @@ class TestGet(TestBase):
         self.assert200(r.status_code)
         self.assertEqual(json.loads(r.get_data())['_items'], [])
 
+    def test_get_idfield_doesnt_exist(self):
+        # test that a non-existing ID_FIELD will be silently handled when
+        # building HATEOAS document link (#351).
+        self.app.config['ID_FIELD'] = 'id'
+        response, status = self.get(self.known_resource)
+        self.assert200(status)
+
     def assertGet(self, response, status, resource=None):
         self.assert200(status)
 
