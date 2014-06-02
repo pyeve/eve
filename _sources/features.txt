@@ -460,11 +460,11 @@ or the ``If-None-Match`` header:
 Data Integrity and Concurrency Control
 --------------------------------------
 API responses include a ``ETag`` header which also allows for proper
-concurrency control. An ``ETag`` is a hash value representing the current
-state of the resource on the server. Consumers are not allowed to edit or
-delete a resource unless they provide an up-to-date ``ETag`` for the resource
-they are attempting to edit. This prevents overwriting items with obsolete
-versions.
+concurrency control. An ``ETag`` is a hash value representing the current state
+of the resource on the server. Consumers are not allowed to edit (``PATCH`` or
+``PUT``) or delete (``DELETE``) a resource unless they provide an up-to-date
+``ETag`` for the resource they are attempting to edit. This prevents
+overwriting items with obsolete versions.
 
 Consider the following workflow:
 
@@ -1348,9 +1348,12 @@ Then the output will be something like
         ]
     }
 
-
 For MongoDB, further fields can be found in the `driver documentation`_. 
 
+If you have other means to retrieve the media files (custom Flask endpoint for
+example) then the media files can be excluded from the paylod by setting to
+``False`` the ``RETURN_MEDIA_AS_BASE64_STRING`` flag. This takes into account
+if ``EXTENDED_MEDIA_INFO`` is used.
 
 .. _projection_filestorage:
 

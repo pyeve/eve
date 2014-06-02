@@ -479,11 +479,11 @@ conditional requests, only retrieving new or modified data, by using the
 <div class="section" id="data-integrity-and-concurrency-control">
 <span id="concurrency"></span><h2>Data Integrity and Concurrency Control<a class="headerlink" href="#data-integrity-and-concurrency-control" title="Permalink to this headline">¶</a></h2>
 <p>API responses include a <tt class="docutils literal"><span class="pre">ETag</span></tt> header which also allows for proper
-concurrency control. An <tt class="docutils literal"><span class="pre">ETag</span></tt> is a hash value representing the current
-state of the resource on the server. Consumers are not allowed to edit or
-delete a resource unless they provide an up-to-date <tt class="docutils literal"><span class="pre">ETag</span></tt> for the resource
-they are attempting to edit. This prevents overwriting items with obsolete
-versions.</p>
+concurrency control. An <tt class="docutils literal"><span class="pre">ETag</span></tt> is a hash value representing the current state
+of the resource on the server. Consumers are not allowed to edit (<tt class="docutils literal"><span class="pre">PATCH</span></tt> or
+<tt class="docutils literal"><span class="pre">PUT</span></tt>) or delete (<tt class="docutils literal"><span class="pre">DELETE</span></tt>) a resource unless they provide an up-to-date
+<tt class="docutils literal"><span class="pre">ETag</span></tt> for the resource they are attempting to edit. This prevents
+overwriting items with obsolete versions.</p>
 <p>Consider the following workflow:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d <span class="s1">&#39;{&quot;firstname&quot;: &quot;ronald&quot;}&#39;</span>
 <span class="go">HTTP/1.1 403 FORBIDDEN</span>
@@ -1388,6 +1388,10 @@ are the meta fields. Suppose that the flag is set like this:</p>
 </pre></div>
 </div>
 <p>For MongoDB, further fields can be found in the <a class="reference external" href="http://api.mongodb.org/python/2.7rc0/api/gridfs/grid_file.html#gridfs.grid_file.GridOut">driver documentation</a>.</p>
+<p>If you have other means to retrieve the media files (custom Flask endpoint for
+example) then the media files can be excluded from the paylod by setting to
+<tt class="docutils literal"><span class="pre">False</span></tt> the <tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_BASE64_STRING</span></tt> flag. This takes into account
+if <tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt> is used.</p>
 <div class="section" id="leveraging-projections-to-optimize-the-handling-of-media-files">
 <span id="projection-filestorage"></span><h3>Leveraging Projections to optimize the handling of media files<a class="headerlink" href="#leveraging-projections-to-optimize-the-handling-of-media-files" title="Permalink to this headline">¶</a></h3>
 <p>Clients and API maintainers can exploit the <a class="reference internal" href="#projections"><em>Projections</em></a> feature to

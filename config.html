@@ -144,8 +144,8 @@ when configuring individual endpoints. Global configuration settings are always
 uppercase.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="22%" />
-<col width="78%" />
+<col width="24%" />
+<col width="76%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt></td>
@@ -158,13 +158,15 @@ Supports subdomains. Defaults to
 in conjunction with <tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt> and
 <tt class="docutils literal"><span class="pre">API_VERSION</span></tt> to construct all API urls
 (e.g., <tt class="docutils literal"><span class="pre">api</span></tt> will be rendered to
-<tt class="docutils literal"><span class="pre">localhost:5000/api/</span></tt>).  Defaults to <tt class="docutils literal"><span class="pre">''</span></tt>.</td>
+<tt class="docutils literal"><span class="pre">localhost:5000/api/</span></tt>).  Defaults to
+<tt class="docutils literal"><span class="pre">''</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">API_VERSION</span></tt></td>
 <td>API version. Will be used in conjunction with
-<tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt> and <tt class="docutils literal"><span class="pre">URL_PREFIX</span></tt> to construct
-API urls (e.g., <tt class="docutils literal"><span class="pre">v1</span></tt> will be rendered to
-<tt class="docutils literal"><span class="pre">localhost:5000/v1/</span></tt>). Defaults to <tt class="docutils literal"><span class="pre">''</span></tt>.</td>
+<tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt> and <tt class="docutils literal"><span class="pre">URL_PREFIX</span></tt> to
+construct API urls (e.g., <tt class="docutils literal"><span class="pre">v1</span></tt> will be
+rendered to <tt class="docutils literal"><span class="pre">localhost:5000/v1/</span></tt>).
+Defaults to <tt class="docutils literal"><span class="pre">''</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">URL_PROTOCOL</span></tt></td>
 <td>URL protocol. Will be used to form a full URL.
@@ -174,37 +176,39 @@ Setting to <tt class="docutils literal"><span class="pre">http</span></tt> will 
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ALLOWED_FILTERS</span></tt></td>
 <td><p class="first">List of fields on which filtering is allowed.
-Can be set to <tt class="docutils literal"><span class="pre">[]</span></tt> (no filters allowed) or
-<tt class="docutils literal"><span class="pre">['*']</span></tt> (filters allowed on every field).
-Unless your API is comprised of just one
-endpoint, this global setting should be used as
-an on/off switch, delegating explicit
-whitelisting at the local level (see
-<tt class="docutils literal"><span class="pre">allowed_filters</span></tt> below). Defaults to
-<tt class="docutils literal"><span class="pre">['*']</span></tt>.</p>
+Can be set to <tt class="docutils literal"><span class="pre">[]</span></tt> (no filters allowed)
+or <tt class="docutils literal"><span class="pre">['*']</span></tt> (filters allowed on every
+field). Unless your API is comprised of
+just one endpoint, this global setting
+should be used as an on/off switch,
+delegating explicit whitelisting at the
+local level (see <tt class="docutils literal"><span class="pre">allowed_filters</span></tt>
+below). Defaults to <tt class="docutils literal"><span class="pre">['*']</span></tt>.</p>
 <p class="last"><em>Please note:</em> If API scraping or DB DoS
-attacks are a concern, then globally disabling
-filters and whitelisting valid ones at the local
-level is the way to go.</p>
+attacks are a concern, then globally
+disabling filters and whitelisting valid
+ones at the local level is the way to go.</p>
 </td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">SORTING</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> if sorting is supported for <tt class="docutils literal"><span class="pre">GET</span></tt>
-requests, otherwise <tt class="docutils literal"><span class="pre">False</span></tt>. Can be overridden
-by resource settings. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
+requests, otherwise <tt class="docutils literal"><span class="pre">False</span></tt>. Can be
+overridden by resource settings. Defaults
+to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PAGINATION</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> if pagination is enabled for <tt class="docutils literal"><span class="pre">GET</span></tt>
-requests, otherwise <tt class="docutils literal"><span class="pre">False</span></tt>. Can be overridden
-by resource settings. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
+requests, otherwise <tt class="docutils literal"><span class="pre">False</span></tt>. Can be
+overridden by resource settings. Defaults
+to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">PAGINATION_LIMIT</span></tt></td>
 <td>Maximum value allowed for <tt class="docutils literal"><span class="pre">max_results</span></tt>
-querydef parameter. Values exceeding the limit
-will be silently replaced with this value.
-You want to aim for a reasonable compromise
-between performance and transfer size. Defaults
-to 50.</td>
+querydef parameter. Values exceeding the
+limit will be silently replaced with this
+value. You want to aim for a reasonable
+compromise between performance and transfer
+size. Defaults to 50.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PAGINATION_DEFAULT</span></tt></td>
 <td>Default value for <tt class="docutils literal"><span class="pre">max_results</span></tt> applied when
@@ -213,42 +217,45 @@ the parameter is omitted.  Defaults to 25.</td>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">DATE_FORMAT</span></tt></td>
 <td>A Python date format used to parse and render
 datetime values. When serving requests,
-matching JSON strings will be parsed and stored as
-<tt class="docutils literal"><span class="pre">datetime</span></tt> values. In responses, <tt class="docutils literal"><span class="pre">datetime</span></tt>
-values will be rendered as JSON strings using
-this format. Defaults to the RFC1123 (ex RFC
-822) standard <tt class="docutils literal"><span class="pre">a,</span> <span class="pre">%d</span> <span class="pre">%b</span> <span class="pre">%Y</span> <span class="pre">%H:%M:%S</span> <span class="pre">GMT</span></tt>
+matching JSON strings will be parsed and
+stored as <tt class="docutils literal"><span class="pre">datetime</span></tt> values. In
+responses, <tt class="docutils literal"><span class="pre">datetime</span></tt> values will be
+rendered as JSON strings using this format.
+Defaults to the RFC1123 (ex RFC 822)
+standard <tt class="docutils literal"><span class="pre">a,</span> <span class="pre">%d</span> <span class="pre">%b</span> <span class="pre">%Y</span> <span class="pre">%H:%M:%S</span> <span class="pre">GMT</span></tt>
 (&#8220;Tue, 02 Apr 2013 10:29:13 GMT&#8221;).</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RESOURCE_METHODS</span></tt></td>
 <td>A list of HTTP methods supported at resource
-endpoints. Allowed values: <tt class="docutils literal"><span class="pre">GET</span></tt>, <tt class="docutils literal"><span class="pre">POST</span></tt>,
-<tt class="docutils literal"><span class="pre">DELETE</span></tt>. <tt class="docutils literal"><span class="pre">POST</span></tt> is used for insertions.
-<tt class="docutils literal"><span class="pre">DELETE</span></tt> will delete <em>all</em> resource contents
-(enable with caution). Can be overridden by
-resource settings. Defaults to <tt class="docutils literal"><span class="pre">['GET']</span></tt>.</td>
+endpoints. Allowed values: <tt class="docutils literal"><span class="pre">GET</span></tt>,
+<tt class="docutils literal"><span class="pre">POST</span></tt>, <tt class="docutils literal"><span class="pre">DELETE</span></tt>. <tt class="docutils literal"><span class="pre">POST</span></tt> is used for
+insertions. <tt class="docutils literal"><span class="pre">DELETE</span></tt> will delete <em>all</em>
+resource contents (enable with caution).
+Can be overridden by resource settings.
+Defaults to <tt class="docutils literal"><span class="pre">['GET']</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">PUBLIC_METHODS</span></tt></td>
 <td>A list of HTTP methods supported at resource
 endpoints, open to public access even when
-<a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> is enabled. Can be overridden by
-resource settings. Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
+<a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> is enabled. Can be overridden
+by resource settings. Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ITEM_METHODS</span></tt></td>
 <td>A list of HTTP methods supported at item
-endpoints. Allowed values: <tt class="docutils literal"><span class="pre">GET</span></tt>, <tt class="docutils literal"><span class="pre">PATCH</span></tt>
-and <tt class="docutils literal"><span class="pre">DELETE</span></tt>. <tt class="docutils literal"><span class="pre">PATCH</span></tt> or, for clients not
-supporting PATCH, <tt class="docutils literal"><span class="pre">POST</span></tt> with the
-<tt class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></tt> header tag, is used
-for item updates; <tt class="docutils literal"><span class="pre">DELETE</span></tt> for item deletion.
-Can be overridden by resource settings. Defaults
-to <tt class="docutils literal"><span class="pre">['GET']</span></tt>.</td>
+endpoints. Allowed values: <tt class="docutils literal"><span class="pre">GET</span></tt>,
+<tt class="docutils literal"><span class="pre">PATCH</span></tt> and <tt class="docutils literal"><span class="pre">DELETE</span></tt>. <tt class="docutils literal"><span class="pre">PATCH</span></tt> or, for
+clients not supporting PATCH, <tt class="docutils literal"><span class="pre">POST</span></tt> with
+the <tt class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></tt> header tag,
+is used for item updates; <tt class="docutils literal"><span class="pre">DELETE</span></tt> for
+item deletion. Can be overridden by
+resource settings. Defaults to <tt class="docutils literal"><span class="pre">['GET']</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></tt></td>
 <td>A list of HTTP methods supported at item
-endpoints, left open to public access when when
-<a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> is enabled. Can be overridden by
-resource settings. Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
+endpoints, left open to public access when
+when <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> is enabled. Can be
+overridden by resource settings. Defaults
+to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ALLOWED_ROLES</span></tt></td>
 <td>A list of allowed <cite>roles</cite> for resource
@@ -258,49 +265,55 @@ information. Defaults to <tt class="docutils literal"><span class="pre">[]</span
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">ALLOWED_ITEM_ROLES</span></tt></td>
 <td>A list of allowed <cite>roles</cite> for item endpoints.
-See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more information. Can be
-overridden by resource settings.  Defaults to
-<tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
+See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more information. Can
+be overridden by resource settings.
+Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">CACHE_CONTROL</span></tt></td>
 <td>Value of the <tt class="docutils literal"><span class="pre">Cache-Control</span></tt> header field
 used when serving <tt class="docutils literal"><span class="pre">GET</span></tt> requests (e.g.,
-<tt class="docutils literal"><span class="pre">max-age=20,must-revalidate</span></tt>). Leave empty if
-you don&#8217;t want to include cache directives with
-API responses. Can be overridden by resource
-settings. Defaults to <tt class="docutils literal"><span class="pre">''</span></tt>.</td>
+<tt class="docutils literal"><span class="pre">max-age=20,must-revalidate</span></tt>). Leave
+empty if you don&#8217;t want to include cache
+directives with API responses. Can be
+overridden by resource settings. Defaults
+to <tt class="docutils literal"><span class="pre">''</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">CACHE_EXPIRES</span></tt></td>
 <td>Value (in seconds) of the <tt class="docutils literal"><span class="pre">Expires</span></tt> header
-field used when serving <tt class="docutils literal"><span class="pre">GET</span></tt> requests. If
-set to a non-zero value, the header will
-always be included, regardless of the setting
-of <tt class="docutils literal"><span class="pre">CACHE_CONTROL</span></tt>. Can be overridden by
-resource settings. Defaults to 0.</td>
+field used when serving <tt class="docutils literal"><span class="pre">GET</span></tt> requests.
+If set to a non-zero value, the header will
+always be included, regardless of the
+setting of <tt class="docutils literal"><span class="pre">CACHE_CONTROL</span></tt>. Can be
+overridden by resource settings. Defaults
+to 0.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">X_DOMAINS</span></tt></td>
 <td>CORS (Cross-Origin Resource Sharing) support.
-Allows API maintainers to specify which domains
-are allowed to perform CORS requests. Allowed
-values are: <tt class="docutils literal"><span class="pre">None</span></tt>, a list of domains or &#8216;*&#8217;
-for a wide-open API. Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
+Allows API maintainers to specify which
+domains are allowed to perform CORS
+requests. Allowed values are: <tt class="docutils literal"><span class="pre">None</span></tt>,
+a list of domains or &#8216;*&#8217; for a wide-open
+API. Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">X_HEADERS</span></tt></td>
 <td>CORS (Cross-Origin Resource Sharing) support.
-Allows API maintainers to specify which headers
-are allowed to be sent with CORS requests. Allowed
-values are: <tt class="docutils literal"><span class="pre">None</span></tt> or a list of headers names.
-Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
+Allows API maintainers to specify which
+headers are allowed to be sent with CORS
+requests. Allowed values are: <tt class="docutils literal"><span class="pre">None</span></tt> or
+a list of headers names. Defaults to
+<tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">X_MAX_AGE</span></tt></td>
-<td>CORS (Cross-Origin Resource Sharing) support.
-Allows to set max age for the access control
-allow header. Defaults to 21600.</td>
+<td>CORS (Cross-Origin Resource Sharing)
+support. Allows to set max age for the
+access control allow header. Defaults to
+21600.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt></td>
 <td>Name of the field used to record a document&#8217;s
-last update date. This field is automatically
-handled by Eve. Defaults to <tt class="docutils literal"><span class="pre">_updated</span></tt>.</td>
+last update date. This field is
+automatically handled by Eve. Defaults to
+<tt class="docutils literal"><span class="pre">_updated</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt></td>
 <td>Name for the field used to record a document
@@ -309,54 +322,59 @@ handled by Eve. Defaults to <tt class="docutils literal"><span class="pre">_crea
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">ID_FIELD</span></tt></td>
 <td>Name of the field used to uniquely identify
-resource items within the database. You want
-this field to be properly indexed on the
-database.  Defaults to <tt class="docutils literal"><span class="pre">_id</span></tt>.</td>
+resource items within the database. You
+want this field to be properly indexed on
+the database.  Defaults to <tt class="docutils literal"><span class="pre">_id</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ITEM_LOOKUP</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> if item endpoints should be generally
-available acroos the API, <tt class="docutils literal"><span class="pre">False</span></tt> otherwise.
-Can be overridden by resource settings. Defaults
-to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
+available acroos the API, <tt class="docutils literal"><span class="pre">False</span></tt>
+otherwise. Can be overridden by resource
+settings. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">ITEM_LOOKUP_FIELD</span></tt></td>
 <td>Document field used when looking up a resource
-item. Can be overridden by resource settings.
-Defaults to <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>.</td>
+item. Can be overridden by resource
+settings. Defaults to <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ITEM_URL</span></tt></td>
 <td>URL rule used to construct default item
-endpoint URLs. Can be overridden by resource
-settings. Defaults <tt class="docutils literal"><span class="pre">regex(&quot;[a-f0-9]{24}&quot;)</span></tt>
-which is MongoDB standard <tt class="docutils literal"><span class="pre">Object_Id</span></tt> format.</td>
+endpoint URLs. Can be overridden by
+resource settings. Defaults
+<tt class="docutils literal"><span class="pre">regex(&quot;[a-f0-9]{24}&quot;)</span></tt> which is MongoDB
+standard <tt class="docutils literal"><span class="pre">Object_Id</span></tt> format.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">ITEM_TITLE</span></tt></td>
 <td>Title to be used when building item references,
 both in XML and JSON responses. Defaults to
-resource name, with the plural &#8216;s&#8217; stripped if
-present. Can and most likely will be overridden
-when configuring single resource endpoints.</td>
+resource name, with the plural &#8216;s&#8217; stripped
+if present. Can and most likely will be
+overridden when configuring single resource
+endpoints.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt></td>
 <td>Enables <a class="reference internal" href="authentication.html#user-restricted"><em>User-Restricted Resource Access</em></a>. When the
 feature is enabled, users can only
-read/update/delete resource items created by
-themselves. The keyword contains the actual
-name of the field used to store the id of
-the user who created the resource item. Can be
-overridden by resource settings. Defaults to
-<tt class="docutils literal"><span class="pre">None</span></tt>, which disables the feature.</td>
+read/update/delete resource items created
+by themselves. The keyword contains the
+actual name of the field used to store the
+id of the user who created the resource
+item. Can be overridden by resource
+settings. Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>, which
+disables the feature.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">True</span></tt>, this option will allow insertion
 of arbitrary, unknown fields to any API
-endpoint. Use with caution. See <a class="reference internal" href="validation.html#unknown"><em>Allowing the Unknown</em></a>
-for more information. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
+endpoint. Use with caution. See
+<a class="reference internal" href="validation.html#unknown"><em>Allowing the Unknown</em></a> for more information.
+Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PROJECTION</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">True</span></tt>, this option enables the
-<a class="reference internal" href="features.html#projections"><em>Projections</em></a> feature. Can be overridden
-by resource settings. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
+<a class="reference internal" href="features.html#projections"><em>Projections</em></a> feature. Can be
+overridden by resource settings. Defaults
+to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">EMBEDDING</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">True</span></tt>, this option enables the
@@ -365,56 +383,57 @@ by resource settings. Defaults to <tt class="docutils literal"><span class="pre"
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">BANDWIDTH_SAVER</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">True</span></tt>, POST, PUT, and PATCH responses
-only return automatically handled fields and
-<tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt>. When <tt class="docutils literal"><span class="pre">False</span></tt>, the
-entire document will be sent. Defaults to
-<tt class="docutils literal"><span class="pre">True</span></tt>.</td>
+only return automatically handled fields
+and <tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt>. When
+<tt class="docutils literal"><span class="pre">False</span></tt>, the entire document will be
+sent. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt></td>
 <td>Allows to configure a list of additional
-document fields that should be provided with
-every POST response. Normally only
+document fields that should be provided
+with every POST response. Normally only
 automatically handled fields (<tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>,
-<tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt>, <tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt>, <tt class="docutils literal"><span class="pre">ETAG</span></tt>)
-are included in response payloads. Can be
-overridden by resource settings. Defaults to
-<tt class="docutils literal"><span class="pre">[]</span></tt>, effectively disabling the feature.</td>
+<tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt>, <tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt>,
+<tt class="docutils literal"><span class="pre">ETAG</span></tt>) are included in response
+payloads. Can be overridden by resource
+settings. Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>, effectively
+disabling the feature.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_GET</span></tt></td>
 <td>A tuple expressing the rate limit on GET
 requests. The first element of the tuple is
 the number of requests allowed, while the
 second is the time window in seconds. For
-example, <tt class="docutils literal"><span class="pre">(300,</span> <span class="pre">60</span> <span class="pre">*</span> <span class="pre">15)</span></tt> would set a limit
-of 300 requests every 15 minutes. Defaults
-to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
+example, <tt class="docutils literal"><span class="pre">(300,</span> <span class="pre">60</span> <span class="pre">*</span> <span class="pre">15)</span></tt> would set
+a limit of 300 requests every 15 minutes.
+Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_POST</span></tt></td>
 <td>A tuple expressing the rate limit on POST
 requests. The first element of the tuple is
 the number of requests allowed, while the
 second is the time window in seconds. For
-example <tt class="docutils literal"><span class="pre">(300,</span> <span class="pre">60</span> <span class="pre">*</span> <span class="pre">15)</span></tt> would set a limit
-of 300 requests every 15 minutes. Defaults
-to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
+example <tt class="docutils literal"><span class="pre">(300,</span> <span class="pre">60</span> <span class="pre">*</span> <span class="pre">15)</span></tt> would set
+a limit of 300 requests every 15 minutes.
+Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_PATCH</span></tt></td>
 <td>A tuple expressing the rate limit on PATCH
 requests. The first element of the tuple is
 the number of requests allowed, while the
 second is the time window in seconds. For
-example <tt class="docutils literal"><span class="pre">(300,</span> <span class="pre">60</span> <span class="pre">*</span> <span class="pre">15)</span></tt> would set a limit
-of 300 requests every 15 minutes. Defaults
-to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
+example <tt class="docutils literal"><span class="pre">(300,</span> <span class="pre">60</span> <span class="pre">*</span> <span class="pre">15)</span></tt> would set
+a limit of 300 requests every 15 minutes.
+Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_DELETE</span></tt></td>
 <td>A tuple expressing the rate limit on DELETE
 requests. The first element of the tuple is
 the number of requests allowed, while the
 second is the time window in seconds. For
-example <tt class="docutils literal"><span class="pre">(300,</span> <span class="pre">60</span> <span class="pre">*</span> <span class="pre">15)</span></tt> would set a limit
-of 300 requests every 15 minutes. Defaults
-to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
+example <tt class="docutils literal"><span class="pre">(300,</span> <span class="pre">60</span> <span class="pre">*</span> <span class="pre">15)</span></tt> would set
+a limit of 300 requests every 15 minutes. Defaults to
+<tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DEBUG</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> to enable Debug Mode, <tt class="docutils literal"><span class="pre">False</span></tt>
@@ -473,20 +492,21 @@ otherwise. See <a class="reference internal" href="features.html#jsonxml"><em>JS
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">VERSIONS</span></tt></td>
 <td>Suffix added to the name of the primary
 collection to create the name of the shadow
-collection to store document versions. Defaults
-to <tt class="docutils literal"><span class="pre">_versions</span></tt>. When <tt class="docutils literal"><span class="pre">VERSIONING</span></tt> is enabled
-, a collection such as <tt class="docutils literal"><span class="pre">myresource_versions</span></tt>
-would be created for a resource with a
-datasource of <tt class="docutils literal"><span class="pre">myresource</span></tt>.</td>
+collection to store document versions.
+Defaults to <tt class="docutils literal"><span class="pre">_versions</span></tt>. When
+<tt class="docutils literal"><span class="pre">VERSIONING</span></tt> is enabled , a collection
+such as <tt class="docutils literal"><span class="pre">myresource_versions</span></tt> would be
+created for a resource with a datasource of
+<tt class="docutils literal"><span class="pre">myresource</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VERSION_PARAM</span></tt></td>
 <td>The URL query parameter used to access the
 specific version of a document. Defaults to
 <tt class="docutils literal"><span class="pre">version</span></tt>. Omit this parameter to get the
 latest version of a document or use
-<cite>?version=all`</cite> to get a list of all version of
-the document. Only valid for individual item
-endpoints.</td>
+<cite>?version=all`</cite> to get a list of all
+version of the document. Only valid for
+individual item endpoints.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">VERSION</span></tt></td>
 <td>Field used to store the version number of a
@@ -494,13 +514,15 @@ document. Defaults to <tt class="docutils literal"><span class="pre">_version</s
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">LASTEST_VERSION</span></tt></td>
 <td>Field used to store the latest version number
-of a document. Defaults to <tt class="docutils literal"><span class="pre">_latest_version</span></tt>.</td>
+of a document. Defaults to
+<tt class="docutils literal"><span class="pre">_latest_version</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">VERSION_ID_SUFFIX</span></tt></td>
 <td>Used in the shadow collection to store the
 document id. Defaults to <tt class="docutils literal"><span class="pre">_document</span></tt>. If
-<tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> is set to <tt class="docutils literal"><span class="pre">_id</span></tt>, the document id
-will be stored in field <tt class="docutils literal"><span class="pre">_id_document</span></tt>.</td>
+<tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> is set to <tt class="docutils literal"><span class="pre">_id</span></tt>, the
+document id will be stored in field
+<tt class="docutils literal"><span class="pre">_id_document</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt></td>
 <td>MongoDB server address. Defaults to <tt class="docutils literal"><span class="pre">localhost</span></tt>.</td>
@@ -523,28 +545,29 @@ allowed to be used in resource filters
 (<tt class="docutils literal"><span class="pre">?where=</span></tt>). Defaults to <tt class="docutils literal"><span class="pre">['$where',</span>
 <span class="pre">'$regex']</span></tt>.</p>
 <p class="last">Mongo JavaScript operators are disabled by
-default, as they might be used as vectors for
-injection attacks. Javascript queries also tend
-to be slow and generally can be easily replaced
-with the (very rich) Mongo query dialect.</p>
+default, as they might be used as vectors
+for injection attacks. Javascript queries
+also tend to be slow and generally can be
+easily replaced with the (very rich) Mongo
+query dialect.</p>
 </td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></tt></td>
 <td><p class="first">A dictionary defining MongoDB write concern
-settings. All standard write concern settings
-(w, wtimeout, j, fsync) are supported. Defaults
-to <tt class="docutils literal"><span class="pre">{'w':</span> <span class="pre">1}</span></tt>, which means &#8216;do regular
-acknowledged writes&#8217; (this is also the Mongo
-default).</p>
+settings. All standard write concern
+settings (w, wtimeout, j, fsync) are
+supported. Defaults to <tt class="docutils literal"><span class="pre">{'w':</span> <span class="pre">1}</span></tt>, which
+means &#8216;do regular acknowledged writes&#8217;
+(this is also the Mongo default).</p>
 <p>Please be aware that setting &#8216;w&#8217; to a value of
-2 or greater requires replication to be active
-or you will be getting 500 errors (the write
-will still happen; Mongo will just be unable
-to check that it&#8217;s being written to multiple
-servers).</p>
+2 or greater requires replication to be
+active or you will be getting 500 errors
+(the write will still happen; Mongo will
+just be unable to check that it&#8217;s being
+written to multiple servers).</p>
 <p class="last">Can be overridden at endpoint (Mongo
-collection) level. See <tt class="docutils literal"><span class="pre">mongo_write_concern</span></tt>
-below.</p>
+collection) level. See
+<tt class="docutils literal"><span class="pre">mongo_write_concern</span></tt> below.</p>
 </td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
@@ -554,6 +577,14 @@ See <a class="reference internal" href="#domain-configuration">Domain Configurat
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt></td>
 <td>A list of properties to forward from the file upload
 driver.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_BASE64_STRING</span></tt></td>
+<td>Controls the embedding of the media type in
+the endpoint response. This is useful when
+you have other means of getting the binary
+(like custom Flask endpoints) but still
+want clients to be able to POST/PATCH it.
+Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
 </tbody>
 </table>
