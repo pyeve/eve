@@ -31,6 +31,7 @@ class TestVersioningBase(TestBase):
     def enableVersioning(self, partial=False):
         del(self.domain['contacts']['schema']['title']['default'])
         del(self.domain['contacts']['schema']['dependency_field1']['default'])
+        del(self.domain['contacts']['schema']['read_only_field']['default'])
         if partial is True:
             contact_schema = self.domain['contacts']['schema']
             contact_schema[self.unversioned_field]['versioned'] = False
