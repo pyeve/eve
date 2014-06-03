@@ -33,7 +33,7 @@ Not released yet.
 - [fix] KeyError exception was raised when field specified in schema as
   embeddable was missing in a particular document (Jaroslav Semančík).
 - [fix] Tests on HEAD requests would very occasionally fail. See #316.
-- [change] PyMongo 2.7 is now required.
+- [change] PyMongo 2.7.1 is now required.
 - [fix] Automatic fields such as ``DATE_CREATD`` and ``DATE_CREATED`` are
   correctly handled in client projections (Josh Villbrandt). Closes #282.
 - [change] Callbacks get whole json response on ``on_fetched``. This allows for
