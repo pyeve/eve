@@ -94,6 +94,11 @@ contacts = {
         'dependency_field2': {
             'type': 'string',
             'dependencies': ['dependency_field1']
+        },
+        'read_only_field': {
+            'type': 'string',
+            'default': 'default',
+            'readonly': True
         }
     }
 }

@@ -380,6 +380,21 @@ class TestPost(TestBase):
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 
+    def test_post_readonly_field_with_default(self):
+        # test that a read only field with a 'default' setting is correctly
+        # validated now that we resolve field values before validation.
+        del(self.domain['contacts']['schema']['ref']['required'])
+        test_field = 'read_only_field'
+        # thou shalt not pass.
+        test_value = 'a random value'
+        data = {test_field: test_value}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert200(status)
+        # this will pass as value matches 'default' setting.
+        test_value = 'default'
+        data = {test_field: test_value}
+        self.assertPostItem(data, test_field, test_value)
+
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)

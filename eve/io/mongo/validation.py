@@ -176,6 +176,17 @@ class Validator(Validator):
             self._error(field, "value '%s' cannot be converted to a ObjectId"
                         % value)
 
+    def _validate_readonly(self, read_only, field, value):
+        """ Since default values are now resolved before validation we make
+        sure that a value for a read-only field is considered legit if it
+        matches an eventual 'default' setting for the field.
+
+        .. versionadded:: 0.4
+        """
+        default = config.DOMAIN[self.resource]['schema'][field].get('default')
+        if value != default:
+            super(Validator, self)._validate_readonly(read_only, field, value)
+
     def _validate_type_media(self, field, value):
         """ Enables validation for `media` data type.
 
