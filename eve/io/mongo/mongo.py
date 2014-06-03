@@ -161,7 +161,7 @@ class Mongo(DataLayer):
             abort(400, bad_filter)
 
         if sub_resource_lookup:
-            spec.update(sub_resource_lookup)
+            spec = self.combine_queries(spec, sub_resource_lookup)
 
         spec = self._mongotize(spec, resource)
 
