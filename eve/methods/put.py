@@ -37,6 +37,7 @@ def put(resource, **lookup):
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.4
+       Allow abort() to be inoked by callback functions.
        Resolve default values before validation is performed. See #353.
        Raise 'on_replace' instead of 'on_insert'. The callback function gets
        the document (as opposed to a list of just 1 document) as an argument.
@@ -126,7 +127,7 @@ def put(resource, **lookup):
         # TODO should probably log the error and abort 400 instead (when we
         # got logging)
         issues['validator exception'] = str(e)
-    except (exceptions.InternalServerError, exceptions.Unauthorized, \
+    except (exceptions.InternalServerError, exceptions.Unauthorized,
             exceptions.Forbidden, exceptions.NotFound) as e:
         raise e
     except Exception as e:
