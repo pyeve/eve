@@ -8,6 +8,8 @@ Version 0.4
 
 Not released yet.
 
+- [new] Allow some more HTTP errors (403 and 404) to be thrown from db hooks
+  (Olivier Poitrey).
 - [new] ``ALLOWED_READ_ROLES``. A list of allowed `roles` for resource
   endpoints with GET and OPTIONS methods (Olivier Poitrey).
 - [new] ``ALLOWED_WRITE_ROLES``. A list of allowed `roles` for resource
