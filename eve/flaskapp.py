@@ -289,7 +289,8 @@ class Eve(Flask, Events):
         """ Validates that user role directives are syntactically and formally
         adeguate.
 
-        :param directive: either 'allowed_[read_|write_]roles' or 'allow_item_[read_|write_]roles'.
+        :param directive: either 'allowed_[read_|write_]roles' or
+                          'allow_item_[read_|write_]roles'.
         :param candidate: the candidate setting to be validated.
         :param resource: name of the resource to which the candidate settings
                          refer to.
@@ -474,8 +475,10 @@ class Eve(Flask, Events):
         settings.setdefault('public_methods',
                             self.config['PUBLIC_METHODS'])
         settings.setdefault('allowed_roles', self.config['ALLOWED_ROLES'])
-        settings.setdefault('allowed_read_roles', self.config['ALLOWED_READ_ROLES'])
-        settings.setdefault('allowed_write_roles', self.config['ALLOWED_WRITE_ROLES'])
+        settings.setdefault('allowed_read_roles',
+                            self.config['ALLOWED_READ_ROLES'])
+        settings.setdefault('allowed_write_roles',
+                            self.config['ALLOWED_WRITE_ROLES'])
         settings.setdefault('cache_control', self.config['CACHE_CONTROL'])
         settings.setdefault('cache_expires', self.config['CACHE_EXPIRES'])
 
