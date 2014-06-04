@@ -29,15 +29,27 @@ def requires_auth(endpoint_class):
                 if endpoint_class == 'resource':
                     public = resource['public_methods']
                     roles = resource['allowed_roles']
+                    if request.method in ['GET', 'OPTIONS']:
+                        roles += resource['allowed_read_roles']
+                    else:
+                        roles += resource['allowed_write_roles']
                 elif endpoint_class == 'item':
                     public = resource['public_item_methods']
                     roles = resource['allowed_item_roles']
+                    if request.method in ['GET', 'OPTIONS']:
+                        roles += resource['allowed_item_read_roles']
+                    else:
+                        roles += resource['allowed_item_write_roles']
                 auth = resource['authentication']
             else:
                 # home
                 resource_name = resource = None
                 public = app.config['PUBLIC_METHODS'] + ['OPTIONS']
                 roles = app.config['ALLOWED_ROLES']
+                if request.method in ['GET', 'OPTIONS']:
+                    roles += app.config['ALLOWED_READ_ROLES']
+                else:
+                    roles += app.config['ALLOWED_WRITE_ROLES']
                 auth = app.auth
             if auth and request.method not in public:
                 if not auth.authorized(roles, resource_name, request.method):

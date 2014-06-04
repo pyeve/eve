@@ -197,7 +197,31 @@ uppercase.
                                     settings. See :ref:`auth` for more
                                     information. Defaults to ``[]``.
 
+``ALLOWED_READ_ROLES``              A list of allowed `roles` for resource
+                                    endpoints with GET and OPTIONS methods.
+                                    Can be overridden by resource
+                                    settings. See :ref:`auth` for more
+                                    information. Defaults to ``[]``.
+
+``ALLOWED_WRITE_ROLES``             A list of allowed `roles` for resource
+                                    endpoints with POST, PUT and DELETE
+                                    methods. Can be overridden by resource
+                                    settings. See :ref:`auth` for more
+                                    information. Defaults to ``[]``.
+
 ``ALLOWED_ITEM_ROLES``              A list of allowed `roles` for item endpoints. 
+                                    See :ref:`auth` for more information. Can
+                                    be overridden by resource settings.
+                                    Defaults to ``[]``.
+
+``ALLOWED_ITEM_READ_ROLES``         A list of allowed `roles` for item endpoints
+                                    with GET and OPTIONS methods. 
+                                    See :ref:`auth` for more information. Can
+                                    be overridden by resource settings.
+                                    Defaults to ``[]``.
+
+``ALLOWED_ITEM_WRITE_ROLES``        A list of allowed `roles` for item endpoints
+                                    with PUT, PATCH and DELETE methods.
                                     See :ref:`auth` for more information. Can
                                     be overridden by resource settings.
                                     Defaults to ``[]``.
@@ -569,6 +593,29 @@ always lowercase.
                                 endpoint. See :ref:`auth` for more
                                 information. Locally overrides
                                 ``ALLOWED_ROLES``.
+
+``allowed_read_roles``          A list of allowed `roles` for resource
+                                endpoint with GET and OPTIONS methods.
+                                See :ref:`auth` for more
+                                information. Locally overrides
+                                ``ALLOWED_READ_ROLES``.
+
+``allowed_write_roles``         A list of allowed `roles` for resource
+                                endpoint with POST, PUT and DELETE.
+                                See :ref:`auth` for more
+                                information. Locally overrides
+                                ``ALLOWED_WRITE_ROLES``.
+
+``allowed_item_read_roles``     A list of allowed `roles` for item endpoint
+                                with GET and OPTIONS methods.
+                                See :ref:`auth` for more information.
+                                Locally overrides ``ALLOWED_ITEM_READ_ROLES``.
+
+
+``allowed_item_write_roles``    A list of allowed `roles` for item endpoint
+                                with PUT, PATH and DELETE methods.
+                                See :ref:`auth` for more information.
+                                Locally overrides ``ALLOWED_ITEM_WRITE_ROLES``.
 
 ``allowed_item_roles``          A list of allowed `roles` for item endpoint. 
                                 See :ref:`auth` for more information.

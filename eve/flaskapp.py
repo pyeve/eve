@@ -273,7 +273,11 @@ class Eve(Flask, Events):
                                       'for a resource [%s].' % resource)
 
         self.validate_roles('allowed_roles', settings, resource)
+        self.validate_roles('allowed_read_roles', settings, resource)
+        self.validate_roles('allowed_write_roles', settings, resource)
         self.validate_roles('allowed_item_roles', settings, resource)
+        self.validate_roles('allowed_item_read_roles', settings, resource)
+        self.validate_roles('allowed_item_write_roles', settings, resource)
 
         if settings['auth_field'] == self.config['ID_FIELD']:
             raise ConfigException('"%s": auth_field cannot be set to ID_FIELD '
@@ -285,7 +289,8 @@ class Eve(Flask, Events):
         """ Validates that user role directives are syntactically and formally
         adeguate.
 
-        :param directive: either 'allowed_roles' or 'allow_item_roles'.
+        :param directive: either 'allowed_[read_|write_]roles' or
+                          'allow_item_[read_|write_]roles'.
         :param candidate: the candidate setting to be validated.
         :param resource: name of the resource to which the candidate settings
                          refer to.
@@ -293,9 +298,8 @@ class Eve(Flask, Events):
         .. versionadded:: 0.0.4
         """
         roles = candidate[directive]
-        if roles is not None and (not isinstance(roles, list) or not
-                                  len(roles)):
-            raise ConfigException("'%s' must be a non-empty list, or None "
+        if not isinstance(roles, list):
+            raise ConfigException("'%s' must be list"
                                   "[%s]." % (directive, resource))
 
     def validate_methods(self, allowed, proposed, item):
@@ -471,6 +475,10 @@ class Eve(Flask, Events):
         settings.setdefault('public_methods',
                             self.config['PUBLIC_METHODS'])
         settings.setdefault('allowed_roles', self.config['ALLOWED_ROLES'])
+        settings.setdefault('allowed_read_roles',
+                            self.config['ALLOWED_READ_ROLES'])
+        settings.setdefault('allowed_write_roles',
+                            self.config['ALLOWED_WRITE_ROLES'])
         settings.setdefault('cache_control', self.config['CACHE_CONTROL'])
         settings.setdefault('cache_expires', self.config['CACHE_EXPIRES'])
 
@@ -485,6 +493,10 @@ class Eve(Flask, Events):
                             self.config['PUBLIC_ITEM_METHODS'])
         settings.setdefault('allowed_item_roles',
                             self.config['ALLOWED_ITEM_ROLES'])
+        settings.setdefault('allowed_item_read_roles',
+                            self.config['ALLOWED_ITEM_READ_ROLES'])
+        settings.setdefault('allowed_item_write_roles',
+                            self.config['ALLOWED_ITEM_WRITE_ROLES'])
         settings.setdefault('allowed_filters',
                             self.config['ALLOWED_FILTERS'])
         settings.setdefault('sorting', self.config['SORTING'])
