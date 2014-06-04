@@ -263,8 +263,36 @@ endpoints. Can be overridden by resource
 settings. See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more
 information. Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
 </tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ALLOWED_READ_ROLES</span></tt></td>
+<td>A list of allowed <cite>roles</cite> for resource
+endpoints with GET and OPTIONS methods.
+Can be overridden by resource
+settings. See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more
+information. Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ALLOWED_WRITE_ROLES</span></tt></td>
+<td>A list of allowed <cite>roles</cite> for resource
+endpoints with POST, PUT and DELETE
+methods. Can be overridden by resource
+settings. See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more
+information. Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
+</tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">ALLOWED_ITEM_ROLES</span></tt></td>
 <td>A list of allowed <cite>roles</cite> for item endpoints.
+See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more information. Can
+be overridden by resource settings.
+Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ALLOWED_ITEM_READ_ROLES</span></tt></td>
+<td>A list of allowed <cite>roles</cite> for item endpoints
+with GET and OPTIONS methods.
+See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more information. Can
+be overridden by resource settings.
+Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ALLOWED_ITEM_WRITE_ROLES</span></tt></td>
+<td>A list of allowed <cite>roles</cite> for item endpoints
+with PUT, PATCH and DELETE methods.
 See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more information. Can
 be overridden by resource settings.
 Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
@@ -688,6 +716,32 @@ endpoint. See <a class="reference internal" href="authentication.html#auth"><em>
 information. Locally overrides
 <tt class="docutils literal"><span class="pre">ALLOWED_ROLES</span></tt>.</td>
 </tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">allowed_read_roles</span></tt></td>
+<td>A list of allowed <cite>roles</cite> for resource
+endpoint with GET and OPTIONS methods.
+See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more
+information. Locally overrides
+<tt class="docutils literal"><span class="pre">ALLOWED_READ_ROLES</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">allowed_write_roles</span></tt></td>
+<td>A list of allowed <cite>roles</cite> for resource
+endpoint with POST, PUT and DELETE.
+See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more
+information. Locally overrides
+<tt class="docutils literal"><span class="pre">ALLOWED_WRITE_ROLES</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">allowed_item_read_roles</span></tt></td>
+<td>A list of allowed <cite>roles</cite> for item endpoint
+with GET and OPTIONS methods.
+See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more information.
+Locally overrides <tt class="docutils literal"><span class="pre">ALLOWED_ITEM_READ_ROLES</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">allowed_item_write_roles</span></tt></td>
+<td>A list of allowed <cite>roles</cite> for item endpoint
+with PUT, PATH and DELETE methods.
+See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more information.
+Locally overrides <tt class="docutils literal"><span class="pre">ALLOWED_ITEM_WRITE_ROLES</span></tt>.</td>
+</tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">allowed_item_roles</span></tt></td>
 <td>A list of allowed <cite>roles</cite> for item endpoint.
 See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more information.
@@ -957,7 +1011,7 @@ of fixed length.</td>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
 <td>Validation schema for <tt class="docutils literal"><span class="pre">dict</span></tt> types and
 arbitrary length <tt class="docutils literal"><span class="pre">list</span></tt> types. For details
-and usage examples, see <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#schema" title="(in Cerberus v0.7)"><em class="xref std std-ref">Cerberus documentation</em></a></td>
+and usage examples, see <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#schema" title="(in Cerberus v0.7.1)"><em class="xref std std-ref">Cerberus documentation</em></a></td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">unique</span></tt></td>
 <td><p class="first">The value of the field must be unique within

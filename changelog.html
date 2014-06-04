@@ -61,6 +61,16 @@
 <h2>Version 0.4<a class="headerlink" href="#version-0-4" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[new] <tt class="docutils literal"><span class="pre">ALLOWED_READ_ROLES</span></tt>. A list of allowed <cite>roles</cite> for resource
+endpoints with GET and OPTIONS methods (Olivier Poitrey).</li>
+<li>[new] <tt class="docutils literal"><span class="pre">ALLOWED_WRITE_ROLES</span></tt>. A list of allowed <cite>roles</cite> for resource
+endpoints with POST, PUT and DELETE methods (Olivier Poitrey).</li>
+<li>[new] <tt class="docutils literal"><span class="pre">ALLOWED_ITEM_READ_ROLES</span></tt>. A list of allowed <cite>roles</cite> for item
+endpoints with GET and OPTIONS methods (Olivier Poitrey).</li>
+<li>[new] <tt class="docutils literal"><span class="pre">ALLOWED_ITEM_WRITE_ROLES</span></tt>. A list of allowed <cite>roles</cite> for item
+endpoints with PUT, PATCH and DELETE methods (Olivier Poitrey).</li>
+<li>[fix] Crash on GET requests on resource endpoints when ID_FIELD is missing on
+one or more documents. Closes #351.</li>
 <li>[fix] Cannot change a nullable objectid type field to contain null. Closes
 #341.</li>
 <li>[change] Cerberus 0.7 is now required.</li>
@@ -84,7 +94,7 @@ aka Coherence Mode (Josh Villbrandt).</li>
 <li>[fix] KeyError exception was raised when field specified in schema as
 embeddable was missing in a particular document (Jaroslav Semančík).</li>
 <li>[fix] Tests on HEAD requests would very occasionally fail. See #316.</li>
-<li>[change] PyMongo 2.7 is now required.</li>
+<li>[change] PyMongo 2.7.1 is now required.</li>
 <li>[fix] Automatic fields such as <tt class="docutils literal"><span class="pre">DATE_CREATD</span></tt> and <tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt> are
 correctly handled in client projections (Josh Villbrandt). Closes #282.</li>
 <li>[change] Callbacks get whole json response on <tt class="docutils literal"><span class="pre">on_fetched</span></tt>. This allows for
@@ -670,7 +680,7 @@ tags which also caused XML validation issues when processing responses
 <li>Version number in &#8216;Server&#8217; response headers.</li>
 <li>Added support for DELETE at resource endpoints. Expected behavior:
 will delete all items in the collection. Disabled by default.</li>
-<li><tt class="xref py py-class docutils literal"><span class="pre">eve.io.mongo.Validator</span></tt> now supports <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#cerberus.Validator" title="(in Cerberus v0.7)"><tt class="xref py py-class docutils literal"><span class="pre">Validator</span></tt></a>
+<li><tt class="xref py py-class docutils literal"><span class="pre">eve.io.mongo.Validator</span></tt> now supports <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#cerberus.Validator" title="(in Cerberus v0.7.1)"><tt class="xref py py-class docutils literal"><span class="pre">Validator</span></tt></a>
 signature, allowing for further subclassing.</li>
 </ul>
 </div>
