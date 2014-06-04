@@ -965,6 +965,18 @@ configured:
    >>> app = Eve()
    >>> app.on_fetched_item += add_signature
 
+You may use flask's ``abort()`` to interrupt the database operation:
+
+.. code-block:: pycon
+
+   >>> from flask import abort
+
+   >>> def check_update_access(resource, updates, original):
+   ...     abort(403)
+
+   >>> app = Eve()
+   >>> app.on_insert_item += check_update_access
+
 The events are fired for resources and items if the action is available for
 both. And for each action two events will be fired:
 

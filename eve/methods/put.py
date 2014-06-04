@@ -126,7 +126,8 @@ def put(resource, **lookup):
         # TODO should probably log the error and abort 400 instead (when we
         # got logging)
         issues['validator exception'] = str(e)
-    except exceptions.InternalServerError as e:
+    except (exceptions.InternalServerError, exceptions.Unauthorized, \
+            exceptions.Forbidden, exceptions.NotFound) as e:
         raise e
     except Exception as e:
         # consider all other exceptions as Bad Requests
