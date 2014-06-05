@@ -284,7 +284,7 @@ def epoch():
     return datetime(1970, 1, 1)
 
 
-def serialize(document, resource=None, schema=None):
+def serialize(document, resource=None, schema=None, fields=None):
     """ Recursively handles field values that require data-aware serialization.
     Relies on the app.data.serializers dictionary.
 
@@ -296,7 +296,9 @@ def serialize(document, resource=None, schema=None):
     if app.data.serializers:
         if resource:
             schema = config.DOMAIN[resource]['schema']
-        for field in document:
+        if not fields:
+            fields = document.keys()
+        for field in fields:
             if field in schema:
                 field_schema = schema[field]
                 field_type = field_schema['type']
@@ -597,6 +599,21 @@ def resource_media_fields(document, resource):
     """
     media_fields = app.config['DOMAIN'][resource]['_media']
     return [field for field in media_fields if field in document]
+
+
+def resolve_sub_resource_path(document, resource):
+    if not request.view_args:
+        return
+
+    schema = app.config['DOMAIN'][resource]['schema']
+    fields = []
+    for field, value in request.view_args.items():
+        if field in schema:
+            fields.append(field)
+            document[field] = value
+
+    if fields:
+        serialize(document, resource, fields=fields)
 
 
 def resolve_user_restricted_access(document, resource):

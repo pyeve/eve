@@ -8,6 +8,10 @@ Version 0.4
 
 Not released yet.
 
+- [new] Apply sub-request route's params to the created document if matching
+  the schema, e.g. a POST on ``/people/1234…/invoices`` will set the
+  ``contact_id`` field to 1234… so created invoice is automatically associated
+  with the parent resource (Olivier Poitrey).
 - [new] Allow some more HTTP errors (403 and 404) to be thrown from db hooks
   (Olivier Poitrey).
 - [new] ``ALLOWED_READ_ROLES``. A list of allowed `roles` for resource
