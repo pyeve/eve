@@ -12,7 +12,7 @@
 """
 
 from datetime import datetime
-from flask import current_app as app, request
+from flask import current_app as app
 from eve.utils import config, parse_request
 from eve.auth import requires_auth
 from eve.defaults import resolve_default_values

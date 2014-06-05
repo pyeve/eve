@@ -304,12 +304,14 @@ class TestPost(TestBase):
         self.assertTrue('_update_date' in r and LAST_UPDATED not in r)
 
     def test_subresource(self):
-        response, status = self.post('users/%s/invoices' % self.item_id, data={})
+        response, status = self.post('users/%s/invoices' %
+                                     self.item_id, data={})
         self.assert201(status)
         self.assertPostResponse(response)
 
         invoice_id = response.get(self.app.config['ID_FIELD'])
-        response, status = self.get('users/%s/invoices/%s' % (self.item_id, invoice_id))
+        response, status = self.get('users/%s/invoices/%s' %
+                                    (self.item_id, invoice_id))
         self.assert200(status)
         self.assertEqual(response.get('person'), self.item_id)
 

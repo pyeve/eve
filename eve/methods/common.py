@@ -600,6 +600,7 @@ def resource_media_fields(document, resource):
     media_fields = app.config['DOMAIN'][resource]['_media']
     return [field for field in media_fields if field in document]
 
+
 def resolve_sub_resource_path(document, resource):
     if not request.view_args:
         return
@@ -613,6 +614,7 @@ def resolve_sub_resource_path(document, resource):
 
     if fields:
         serialize(document, resource, fields=fields)
+
 
 def resolve_user_restricted_access(document, resource):
     """ Adds user restricted access medadata to the document if applicable.
