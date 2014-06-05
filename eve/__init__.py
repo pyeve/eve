@@ -57,6 +57,9 @@ ITEMS = '_items'
 LINKS = '_links'
 ETAG = '_etag'
 VERSION = '_version'
+PAGE = '_page'
+MAX_RESULTS = '_max_results'
+TOTAL = '_total'
 
 # must be the last line (will raise W402 on pyflakes)
 from eve.flaskapp import Eve  # noqa
