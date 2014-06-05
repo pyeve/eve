@@ -281,12 +281,14 @@ def xml_add_pagination(data):
 
     :param data: the data stream to be rendered as xml.
     """
+    xml = ''
     items = []
     for item in [config.PAGE, config.MAX_RESULTS, config.TOTAL]:
         if item in data:
             items.append('<%s>%d</%s>' % (item, data.get(item), item))
     if items:
-        return '<pagination>%s</pagination>' % ''.join(items)
+        xml = '<pagination>%s</pagination>' % ''.join(items)
+    return xml
 
 def xml_add_links(data):
     """ Returns as many <link> nodes as there are in the datastream. The links
