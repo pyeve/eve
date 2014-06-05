@@ -20,7 +20,8 @@ from werkzeug.routing import BaseConverter
 from werkzeug.serving import WSGIRequestHandler
 from eve.io.mongo import Mongo, Validator, GridFSMediaStorage
 from eve.exceptions import ConfigException, SchemaException
-from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint
+from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint, \
+    error_endpoint
 from eve.defaults import build_defaults
 from eve.utils import api_prefix, extract_key_values
 from events import Events
@@ -149,6 +150,8 @@ class Eve(Flask, Events):
         # validate and set defaults for each resource
         for resource, settings in self.config['DOMAIN'].items():
             self.register_resource(resource, settings)
+
+        self.register_error_handlers()
 
     def run(self, host=None, port=None, debug=None, **options):
         """
@@ -723,3 +726,7 @@ class Eve(Flask, Events):
                 copy.deepcopy(self.config['SOURCES'][resource])
             self.config['SOURCES'][versioned_resource]['source'] += \
                 self.config['VERSIONS']
+
+    def register_error_handlers(self):
+        for code in [400, 401, 403, 404]:
+            self.error_handler_spec[None][code] = error_endpoint

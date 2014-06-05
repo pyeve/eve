@@ -130,6 +130,14 @@ def home_endpoint():
         abort(404, debug_error_message("HATEOAS is disabled so we have no data"
                                        " to display at the API homepage."))
 
+def error_endpoint(error):
+    headers = None
+    if error.response:
+        headers = error.response.headers
+    response = {
+        config.STATUS: config.STATUS_ERR,
+        config.ERROR: {'code': error.code, 'message': error.description}}
+    return send_response(None, (response, None, None, error.code, headers))
 
 def _resource():
     return request.endpoint.split('|')[0]

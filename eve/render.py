@@ -89,7 +89,7 @@ def send_response(resource, response):
 
 
 def _prepare_response(resource, dct, last_modified=None, etag=None,
-                      status=200):
+                      status=200, headers=None):
     """ Prepares the response object according to the client request and
     available renderers, making sure that all accessory directives (caching,
     etag, last-modified) are present.
@@ -133,6 +133,12 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         # build the main wsgi rensponse object
         resp = make_response(rendered, status)
         resp.mimetype = mime
+
+    # extra headers
+    if headers:
+        for header, value in headers:
+            if header != 'Content-Type':
+                resp.headers.add(header, value)
 
     # cache directives
     if request.method in ('GET', 'HEAD'):
