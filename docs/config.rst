@@ -374,6 +374,9 @@ uppercase.
 ``DEBUG``                           ``True`` to enable Debug Mode, ``False``
                                     otherwise. 
 
+``ERROR``                           Allows to customize the error_code field. Defaults
+                                    to ``_error``.
+
 ``HATEOAS``                         When ``False``, this option disables 
                                     :ref:`hateoas_feature`. Defaults to ``True``. 
 

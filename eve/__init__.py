@@ -10,6 +10,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.4
+       'ERROR' defaults to '_error'.
        Remove unnecessary commented code.
 
     .. versionchanged:: 0.2
@@ -53,6 +54,7 @@ LAST_UPDATED = '_updated'
 DATE_CREATED = '_created'
 ISSUES = '_issues'
 STATUS = '_status'
+ERROR = '_error'
 ITEMS = '_items'
 LINKS = '_links'
 ETAG = '_etag'
