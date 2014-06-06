@@ -100,6 +100,9 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     :param etag: ETag header value.
     :param status: response status.
 
+    .. versionchanged:: 0.4
+       Support for optional extra headers.
+
     .. versionchanged:: 0.3
        Support for X_MAX_AGE.
 

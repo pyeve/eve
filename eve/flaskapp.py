@@ -73,6 +73,7 @@ class Eve(Flask, Events):
     :param kwargs: optional, standard, Flask parameters.
 
     .. versionchanged:: 0.4
+       Ensure all errors returns a parseable body. Closes #365.
        'auth' argument can be either an instance or a callable. Closes #248.
        Made resource setup more DRY by calling register_resource.
 
@@ -728,5 +729,10 @@ class Eve(Flask, Events):
                 self.config['VERSIONS']
 
     def register_error_handlers(self):
+        """ Register custom error handlers so we make sure that all errors
+        return a parseable body.
+
+        .. versionadded:: 0.4
+        """
         for code in [400, 401, 403, 404]:
             self.error_handler_spec[None][code] = error_endpoint
