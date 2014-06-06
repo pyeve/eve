@@ -8,6 +8,8 @@ Version 0.4
 
 Not released yet.
 
+- [new] Ensure all errors return a parseable body (JSON or XML). Closes #365
+  (Olivier Poitrey).
 - [new] Apply sub-request route's params to the created document if matching
   the schema, e.g. a POST on ``/people/1234…/invoices`` will set the
   ``contact_id`` field to 1234… so created invoice is automatically associated
