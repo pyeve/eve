@@ -29,14 +29,14 @@ def requires_auth(endpoint_class):
                 if endpoint_class == 'resource':
                     public = resource['public_methods']
                     roles = resource['allowed_roles']
-                    if request.method in ['GET', 'OPTIONS']:
+                    if request.method in ['GET', 'HEAD', 'OPTIONS']:
                         roles += resource['allowed_read_roles']
                     else:
                         roles += resource['allowed_write_roles']
                 elif endpoint_class == 'item':
                     public = resource['public_item_methods']
                     roles = resource['allowed_item_roles']
-                    if request.method in ['GET', 'OPTIONS']:
+                    if request.method in ['GET', 'HEAD', 'OPTIONS']:
                         roles += resource['allowed_item_read_roles']
                     else:
                         roles += resource['allowed_item_write_roles']
