@@ -72,7 +72,8 @@ class TestVersioningBase(TestBase):
         self.assertTrue(self.latest_version_field in response)
         self.assertEqual(response[self.latest_version_field], latest_version)
 
-    def assertDocumentVersionFields(self, response, version, latest_version=None):
+    def assertDocumentVersionFields(
+            self, response, version, latest_version=None):
         self.assertVersion(response, version)
         if latest_version is None:
             latest_version = version
@@ -882,7 +883,6 @@ class TestLateVersioning(TestVersioningBase):
         data = {"person": {value_field: self.item_id, version_field: 1}}
         response, status = self.post('/invoices/', data=data)
         self.assert201(status)
-        invoice_id = response[value_field]
 
     def test_embedded(self):
         """ Perform a quick check to make sure that Eve can embedded with a

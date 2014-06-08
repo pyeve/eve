@@ -87,14 +87,14 @@ def late_versioning_catch(document, resource):
     version = app.config['VERSION']
 
     if resource_def['versioning'] is True:
-        if version not in document:
-            # TODO: Could directly check that there are no shadow copies for this
-            # document. If there are shadow copies but the version field is in the
-            # stored document, then something is wrong. (Modified outside of Eve?)
+        # TODO: Could directly check that there are no shadow copies for this
+        # document. If there are shadow copies but the version field is in the
+        # stored document, then something is wrong. (Modified outside of Eve?)
 
-            # The API maintainer must of turned on versioning after the document
-            # was added to the database, so let's add this old version to the
-            # shadow collection now as if it was a new document.
+        if version not in document:
+            # The API maintainer must of turned on versioning after the
+            # document was added to the database, so let's add this old version
+            # to the shadow collection now as if it was a new document.
             resolve_document_version(document, resource, 'POST')
             insert_versioning_documents(resource, document)
 
