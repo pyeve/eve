@@ -20,7 +20,7 @@ from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, pre_event, store_media_files, resolve_embedded_fields, \
     build_response_document, marshal_write_response
 from eve.versioning import resolve_document_version, \
-    insert_versioning_documents
+    insert_versioning_documents, late_versioning_catch
 
 
 @ratelimit()
@@ -109,6 +109,9 @@ def patch(resource, **lookup):
         updates = parse(payload, resource)
         validation = validator.validate_update(updates, object_id)
         if validation:
+            # sneak in a shadow copy if it wasn't already there
+            late_versioning_catch(original, resource)
+
             store_media_files(updates, resource, original)
             resolve_document_version(updates, resource, 'PATCH', original)
 
@@ -130,7 +133,7 @@ def patch(resource, **lookup):
             updated.update(updates)
 
             app.data.update(resource, object_id, updates)
-            insert_versioning_documents(resource, object_id, updated)
+            insert_versioning_documents(resource, updated)
 
             # nofity callbacks
             getattr(app, "on_updated")(resource, updates, original)
