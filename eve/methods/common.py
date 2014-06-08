@@ -454,7 +454,7 @@ def resolve_embedded_documents(document, resource, embedded_fields):
         # Retrieve and serialize the requested document
         if 'version' in data_relation and data_relation['version'] is True:
             # support late versioning
-            if document[field][config.VERSION] == 0:
+            if document[field][config.VERSION] == 1:
                 # there is a chance this document hasn't been saved
                 # since versioning was turned on
                 embedded_doc = missing_version_field(

@@ -27,29 +27,31 @@ def resolve_document_version(document, resource, method, latest_doc=None):
     latest_version = app.config['LATEST_VERSION']
 
     if resource_def['versioning'] is True:
+        # especially on collection endpoints, we don't to encure an extra
+        # lookup if we are already pulling the latest version
         if method == 'GET' and latest_doc is None:
-            # especially on collection endpoints, we don't to encure an extra
-            # lookup if we are already pulling the latest version
             if version not in document:
                 # well it should be... the api designer must have turned on
                 # versioning after data was already in the collection or the
                 # collection has been modified without respecting versioning
-                document[version] = 0  # the first saved version will be 1
+                document[version] = 1  # the first saved version will be 2
             document[latest_version] = document[version]
 
+        # include latest_doc if the request is for an older version so that we
+        # can set the latest_version field in the response
         if method == 'GET' and latest_doc is not None:
             if version not in latest_doc:
                 # well it should be... the api designer must have turned on
                 # versioning after data was already in the collection or the
                 # collection has been modified without respecting versioning
-                document[version] = 0  # the first saved version will be 1
+                document[version] = 1  # the first saved version will be 2
                 document[latest_version] = document[version]
             else:
                 document[latest_version] = latest_doc[version]
                 if version not in document:
                     # this version was put in the database before versioning
                     # was turned on or outside of Eve
-                    document[version] = 0
+                    document[version] = 1
 
         if method == 'POST':
             # this one is easy! it is a new document
@@ -71,32 +73,50 @@ def resolve_document_version(document, resource, method, latest_doc=None):
                 document[version] = 1
 
 
-def insert_versioning_documents(resource, ids, documents):
-    """ Insert versioning copy of document. Intended for POST, PUT, and PATCH.
+def late_versioning_catch(document, resource):
+    """ Insert versioning copy of document for the previous version of a
+    document if it is missing. Intended for PUT and PATCH.
 
     :param resource: the resource of the request/document.
     :param ids: a list of id number coorsponding to the documents parameter.
+    :param document: the documents be written by POST, PUT, or PATCH.
+
+    .. versionadded:: 0.4
+    """
+    resource_def = app.config['DOMAIN'][resource]
+    version = app.config['VERSION']
+
+    if resource_def['versioning'] is True:
+        if version not in document:
+            # TODO: Could directly check that there are no shadow copies for this
+            # document. If there are shadow copies but the version field is in the
+            # stored document, then something is wrong. (Modified outside of Eve?)
+
+            # The API maintainer must of turned on versioning after the document
+            # was added to the database, so let's add this old version to the
+            # shadow collection now as if it was a new document.
+            resolve_document_version(document, resource, 'POST')
+            insert_versioning_documents(resource, document)
+
+
+def insert_versioning_documents(resource, documents):
+    """ Insert versioning copy of document. Intended for POST, PUT, and PATCH.
+
+    :param resource: the resource of the request/document.
     :param documents: the documents be written by POST, PUT, or PATCH.
 
     .. versionadded:: 0.4
     """
     resource_def = app.config['DOMAIN'][resource]
+    _id = app.config['ID_FIELD']
 
     # push back versioned items if applicable
     # note: MongoDB doesn't have transactions! if the server dies, no
     # history will be saved.
     if resource_def['versioning'] is True:
-        # force inputs as lists
-        if not isinstance(ids, list):
-            ids = [ids]
+        # force input as lists
         if not isinstance(documents, list):
             documents = [documents]
-
-        # make sure we have the same number in each list
-        if len(ids) != len(documents):
-            abort(500, description=debug_error_message(
-                'Must have the same number of ids and documents'
-            ))
 
         # build vesioning documents
         version = app.config['VERSION']
@@ -111,7 +131,7 @@ def insert_versioning_documents(resource, ids, documents):
                     ver_doc[field] = document[field]
 
             # push special fields
-            ver_doc[versioned_id_field()] = ids[index]
+            ver_doc[versioned_id_field()] = document[_id]
             ver_doc[version] = document[version]
 
             # add document to the stack

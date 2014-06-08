@@ -658,8 +658,8 @@ class TestDataRelationVersionNotVersioned(TestNormalVersioning):
         # add embeddable data relation
         data = {"person": {value_field: self.item_id, self.version_field: 1}}
         response, status = self.post('/invoices/', data=data)
-        invoice_id = response[value_field]
         self.assert201(status)
+        invoice_id = response[value_field]
 
         # test that it works
         response, status = self.get(
@@ -870,8 +870,23 @@ class TestLateVersioning(TestVersioningBase):
         self.assertTrue(self.countShadowDocuments(self.item_id) == 0)
 
     def test_referential_integrity(self):
-        """ Make sure that Eve doesn't mind doing a data relation to version 1
-        of a document even when the version 1 shadow copy doesn't exist.
+        """ Make sure that Eve doesn't mind doing a data relation even when the
+        shadow copy doesn't exist.
+        """
+        data_relation = \
+            self.domain['invoices']['schema']['person']['data_relation']
+        value_field = data_relation['field']
+        version_field = self.app.config['VERSION']
+
+        # verify that Eve will take version = 1 if no shadow docs exist
+        data = {"person": {value_field: self.item_id, version_field: 1}}
+        response, status = self.post('/invoices/', data=data)
+        self.assert201(status)
+        invoice_id = response[value_field]
+
+    def test_embedded(self):
+        """ Perform a quick check to make sure that Eve can embedded with a
+        version in the data relation.
         """
         data_relation = \
             self.domain['invoices']['schema']['person']['data_relation']
@@ -890,7 +905,3 @@ class TestLateVersioning(TestVersioningBase):
             item=invoice_id, query='?embedded={"person": 1}')
         self.assert200(status)
         self.assertTrue('ref' in response['person'])
-
-        # The test for data_relation with version == 1 and embedding across a
-        # data relation with version > 0 is the normal behavior. This is tested
-        # in TestDataRelationVersionNotVersioned.test_referential_integrity().
