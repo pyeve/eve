@@ -72,7 +72,7 @@ class TestVersioningBase(TestBase):
         self.assertTrue(self.latest_version_field in response)
         self.assertEqual(response[self.latest_version_field], latest_version)
 
-    def assertDocumentVersions(self, response, version, latest_version=None):
+    def assertDocumentVersionFields(self, response, version, latest_version=None):
         self.assertVersion(response, version)
         if latest_version is None:
             latest_version = version
@@ -179,7 +179,7 @@ class TestNormalVersioning(TestVersioningBase):
 
         # get always returns the latest version of a document
         self.assert200(status)
-        self.assertDocumentVersions(response, 1)
+        self.assertDocumentVersionFields(response, 1)
         self.assertEqualFields(self.item, response, self.fields)
 
     def do_test_getitem(self, partial):
@@ -200,20 +200,20 @@ class TestNormalVersioning(TestVersioningBase):
         response, status = self.get(self.known_resource, item=self.item_id,
                                     query='?version=1')
         self.assert200(status)
-        self.assertDocumentVersions(response, 1, 2)
+        self.assertDocumentVersionFields(response, 1, 2)
         self.assertEqualFields(version_1, response, self.fields)
 
         # check the get of the second version
         response, status = self.get(self.known_resource, item=self.item_id,
                                     query='?version=2')
         self.assert200(status)
-        self.assertDocumentVersions(response, 2)
+        self.assertDocumentVersionFields(response, 2)
         self.assertEqualFields(self.item_change, response, self.fields)
 
         # check the get without version specified and make sure it is version 2
         response, status = self.get(self.known_resource, item=self.item_id)
         self.assert200(status)
-        self.assertDocumentVersions(response, 2)
+        self.assertDocumentVersionFields(response, 2)
         self.assertEqualFields(self.item_change, response, self.fields)
 
     def do_test_post(self, partial):
@@ -348,14 +348,14 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertEqual(len(items), 2)
 
         # check the get of the first version
-        self.assertDocumentVersions(items[0], 1, 2)
+        self.assertDocumentVersionFields(items[0], 1, 2)
         self.assertEqualFields(self.item, items[0], self.fields)
         self.assertTrue(field in items[0] for field in meta_fields)
         self.assertEqual(len(items[0].keys()), len(meta_fields))
         self.assertEqual(items[0][self.app.config['ETAG']], self.item_etag)
 
         # # check the get of the second version
-        self.assertDocumentVersions(items[1], 2)
+        self.assertDocumentVersionFields(items[1], 2)
         self.assertEqualFields(self.item_change, items[1], self.fields)
         self.assertTrue(field in items[1] for field in meta_fields)
         self.assertEqual(len(items[1].keys()), len(meta_fields))
@@ -388,7 +388,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertEqual(len(items), 2)
 
         # check the get of the first version
-        self.assertDocumentVersions(items[0], 1, 2)
+        self.assertDocumentVersionFields(items[0], 1, 2)
         self.assertEqualFields(self.item, items[0], self.fields)
         self.assertTrue(field in items[0] for field in meta_fields)
         self.assertEqual(len(items[0].keys()), len(meta_fields))
@@ -770,56 +770,67 @@ class TestLateVersioning(TestVersioningBase):
         self.enableVersioning()
 
     def test_get(self):
-        """ Make sure that Eve returns version = 0 for documents that haven't
-        been modified since version control has been turned on.
+        """ Make sure that Eve returns version = 1 even for documents that
+        haven't been modified since version control has been turned on.
         """
         response, status = self.get(self.known_resource)
         self.assert200(status)
         items = response[self.app.config['ITEMS']]
         self.assertEqual(len(items), self.app.config['PAGINATION_DEFAULT'])
         for item in items:
-            self.assertVersion(item, 0)
-            self.assertLatestVersion(item, 0)
+            self.assertDocumentVersionFields(item, 1)
 
     def test_getitem(self):
-        """ Make sure that Eve returns version = 0 for documents that haven't
-        been modified since version control has been turned on.
+        """ Make sure that Eve returns version = 1 even for documents that
+        haven't been modified since version control has been turned on.
         """
         response, status = self.get(self.known_resource, item=self.item_id)
         self.assert200(status)
-        self.assertDocumentVersions(response, 0)
+        self.assertDocumentVersionFields(response, 1)
 
     def test_put(self):
-        """ Make sure that Eve still sets version = 1 for documents that where
-        already in the database before version control was turned on.
+        """ Make sure that Eve jumps to version = 2 and saves two shadow copies
+        (version 1 and version 2) for documents that where already in the
+        database before version control was turned on.
         """
+        # make sure there are no shadow documents
+        self.assertTrue(self.countShadowDocuments() == 0)
+
+        # put a change
         changes = {"ref": "this is a different value"}
         response, status = self.put(self.item_id_url, data=changes,
                                     headers=[('If-Match', self.item_etag)])
         self.assertGoodPutPatch(response, status)
-        self.assertDocumentVersions(response, 1)
+        self.assertDocumentVersionFields(response, 2)
 
-        # make sure that this saved to the db too (if it didn't, version == 0)
+        # make sure that this saved to the db (if it didn't, version == 1)
+        self.assertTrue(self.countShadowDocuments() == 2)
         response2, status = self.get(self.known_resource, item=self.item_id)
         self.assert200(status)
-        self.assertDocumentVersions(response2, 1)
+        self.assertDocumentVersionFields(response2, 2)
         self.assertEqual(response[ETAG], response2[ETAG])
 
     def test_patch(self):
-        """ Make sure that Eve still sets version = 1 for documents that where
-        already in the database before version control was turned on.
+        """ Make sure that Eve jumps to version = 2 and saves two shadow copies
+        (version 1 and version 2) for documents that where already in the
+        database before version control was turned on.
         """
+        # make sure there are no shadow documents
+        self.assertTrue(self.countShadowDocuments() == 0)
+
+        # patch a change
         changes = {"ref": "this is a different value"}
         response, status = self.patch(
             self.item_id_url, data=changes,
             headers=[('If-Match', self.item_etag)])
         self.assertGoodPutPatch(response, status)
-        self.assertDocumentVersions(response, 1)
+        self.assertDocumentVersionFields(response, 2)
 
-        # make sure that this saved to the db too (if it didn't, version == 0)
+        # make sure that this saved to the db (if it didn't, version == 1)
+        self.assertTrue(self.countShadowDocuments() == 2)
         response2, status = self.get(self.known_resource, item=self.item_id)
         self.assert200(status)
-        self.assertDocumentVersions(response2, 1)
+        self.assertDocumentVersionFields(response2, 2)
         self.assertEqual(response[ETAG], response2[ETAG])
 
     def test_delete(self):
@@ -859,45 +870,21 @@ class TestLateVersioning(TestVersioningBase):
         self.assertTrue(self.countShadowDocuments(self.item_id) == 0)
 
     def test_referential_integrity(self):
-        """ Make sure that Eve doesn't mind doing a data relation explicitly to
-        version 0 of a document. This should only be allowed if the shadow
-        collection it empty.
+        """ Make sure that Eve doesn't mind doing a data relation to version 1
+        of a document even when the version 1 shadow copy doesn't exist.
         """
         data_relation = \
             self.domain['invoices']['schema']['person']['data_relation']
         value_field = data_relation['field']
         version_field = self.app.config['VERSION']
 
-        # verify that Eve will take version = 0 if no shadow docs exist
-        data = {"person": {value_field: self.item_id, version_field: 0}}
+        # verify that Eve will take version = 1 if no shadow docs exist
+        data = {"person": {value_field: self.item_id, version_field: 1}}
         response, status = self.post('/invoices/', data=data)
-        invoice_id = response[value_field]
         self.assert201(status)
+        invoice_id = response[value_field]
 
-        # verify that we can embed across the data_relation w/ version = 0
-        response, status = self.get(
-            self.domain['invoices']['url'],
-            item=invoice_id, query='?embedded={"person": 1}')
-        self.assert200(status)
-        self.assertTrue('ref' in response['person'])
-
-        # put a change to the document (will be version = 1)
-        changes = {"ref": "this is a different value"}
-        response, status = self.put(self.item_id_url, data=changes,
-                                    headers=[('If-Match', self.item_etag)])
-        self.assertGoodPutPatch(response, status)
-        self.assertDocumentVersions(response, 1)
-
-        # verify that Eve will not take version = 0 now
-        data = {"person": {value_field: self.item_id, version_field: 0}}
-        r, status = self.post('/invoices/', data=data)
-        self.assert200(status)
-        self.assertValidationError(
-            r, {'person': "value '%s' must exist in "
-                "resource '%s', field '%s' at version '%s'." %
-                (self.item_id, 'contacts', value_field, 0)})
-
-        # verify that we can still embed with out-of-date version = 0
+        # verify that we can embed across the data_relation w/o shadow copy
         response, status = self.get(
             self.domain['invoices']['url'],
             item=invoice_id, query='?embedded={"person": 1}')
