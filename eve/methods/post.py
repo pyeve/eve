@@ -173,7 +173,16 @@ def post(resource, payl=None):
 
         # bulk insert
         ids = app.data.insert(resource, documents)
-        insert_versioning_documents(resource, ids, documents)
+
+        # assign document ids
+        for document in documents:
+            # either return the custom ID_FIELD or the id returned by
+            # data.insert().
+            document[config.ID_FIELD] = \
+                document.get(config.ID_FIELD, ids.pop(0))
+
+        # insert versioning docs
+        insert_versioning_documents(resource, documents)
 
         # notify callbacks
         getattr(app, "on_inserted")(resource, documents)
@@ -207,11 +216,6 @@ def post(resource, payl=None):
             document[config.ISSUES] = doc_issues
         else:
             document = documents.pop(0)
-
-            # either return the custom ID_FIELD or the id returned by
-            # data.insert().
-            document[config.ID_FIELD] = \
-                document.get(config.ID_FIELD, ids.pop(0))
 
             # build the full response document
             build_response_document(

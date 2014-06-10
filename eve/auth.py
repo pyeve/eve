@@ -1,4 +1,4 @@
-from flask import request, Response, current_app as app, g
+from flask import request, Response, current_app as app, g, abort
 from functools import wraps
 
 
@@ -29,14 +29,14 @@ def requires_auth(endpoint_class):
                 if endpoint_class == 'resource':
                     public = resource['public_methods']
                     roles = resource['allowed_roles']
-                    if request.method in ['GET', 'OPTIONS']:
+                    if request.method in ['GET', 'HEAD', 'OPTIONS']:
                         roles += resource['allowed_read_roles']
                     else:
                         roles += resource['allowed_write_roles']
                 elif endpoint_class == 'item':
                     public = resource['public_item_methods']
                     roles = resource['allowed_item_roles']
-                    if request.method in ['GET', 'OPTIONS']:
+                    if request.method in ['GET', 'HEAD', 'OPTIONS']:
                         roles += resource['allowed_item_read_roles']
                     else:
                         roles += resource['allowed_item_write_roles']
@@ -64,6 +64,7 @@ class BasicAuth(object):
     authentication checking.
 
     .. versionchanged:: 0.4
+       ensure all errors returns a parseable body #366.
        auth.request_auth_value replaced with getter and setter methods which
        rely on flask's 'g' object, for enhanced thread-safity.
 
@@ -100,9 +101,10 @@ class BasicAuth(object):
         """ Returns a standard a 401 response that enables basic auth.
         Override if you want to change the response and/or the realm.
         """
-        return Response(
-            'Please provide proper credentials', 401,
-            {'WWW-Authenticate': 'Basic realm:"%s"' % __package__})
+        resp = Response(None, 401, {'WWW-Authenticate': 'Basic realm:"%s"' %
+                                    __package__})
+        abort(401, description='Please provide proper credentials',
+              response=resp)
 
     def authorized(self, allowed_roles, resource, method):
         """ Validates the the current request is allowed to pass through.
@@ -119,6 +121,9 @@ class BasicAuth(object):
 class HMACAuth(BasicAuth):
     """ Hash Message Authentication Code (HMAC) authentication logic. Must be
     subclassed to implement custom authorization checking.
+
+    .. versionchanged:: 0.4
+       Ensure all errors returns a parseable body #366.
 
     .. versionchanged:: 0.0.9
        Replaced the now deprecated request.data with request.get_data().
@@ -147,7 +152,7 @@ class HMACAuth(BasicAuth):
         """ Returns a standard a 401. Override if you want to change the
         response.
         """
-        return Response('Please provide proper credentials', 401)
+        abort(401, description='Please provide proper credentials')
 
     def authorized(self, allowed_roles, resource, method):
         """ Validates the the current request is allowed to pass through.
@@ -170,6 +175,9 @@ class TokenAuth(BasicAuth):
     """ Implements Token AUTH logic. Should be subclassed to implement custom
     authentication checking.
 
+    .. versionchanged:: 0.4
+       Ensure all errors returns a parseable body #366.
+
     .. versionchanged:: 0.0.7
        Support for 'resource' argument.
 
@@ -190,9 +198,10 @@ class TokenAuth(BasicAuth):
         """ Returns a standard a 401 response that enables basic auth.
         Override if you want to change the response and/or the realm.
         """
-        return Response(
-            'Please provide proper credentials', 401,
-            {'WWW-Authenticate': 'Basic realm:"%s"' % __package__})
+        resp = Response(None, 401, {'WWW-Authenticate': 'Basic realm:"%s"' %
+                                    __package__})
+        abort(401, description='Please provide proper credentials',
+              response=resp)
 
     def authorized(self, allowed_roles, resource, method):
         """ Validates the the current request is allowed to pass through.

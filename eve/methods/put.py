@@ -21,7 +21,7 @@ from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, pre_event, store_media_files, resolve_user_restricted_access, \
     resolve_embedded_fields, build_response_document, marshal_write_response
 from eve.versioning import resolve_document_version, \
-    insert_versioning_documents
+    insert_versioning_documents, late_versioning_catch
 
 
 @ratelimit()
@@ -91,6 +91,10 @@ def put(resource, **lookup):
         resolve_default_values(document, resource_def['defaults'])
         validation = validator.validate_replace(document, object_id)
         if validation:
+            # sneak in a shadow copy if it wasn't already there
+            late_versioning_catch(original, resource)
+
+            # update meta
             last_modified = datetime.utcnow().replace(microsecond=0)
             document[config.LAST_UPDATED] = last_modified
             document[config.DATE_CREATED] = original[config.DATE_CREATED]
@@ -111,7 +115,7 @@ def put(resource, **lookup):
 
             # write to db
             app.data.replace(resource, object_id, document)
-            insert_versioning_documents(resource, object_id, document)
+            insert_versioning_documents(resource, document)
 
             # notify callbacks
             getattr(app, "on_replaced")(resource, document, original)
