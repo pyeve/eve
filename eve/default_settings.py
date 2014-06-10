@@ -73,9 +73,7 @@ ITEMS = '_items'
 LINKS = '_links'
 ETAG = '_etag'
 VERSION = '_version'            # field that stores the version number
-PAGE = '_page'
-MAX_RESULTS = '_max_results'
-TOTAL = '_total'
+META = '_meta'
 
 # field returned on GET requests so we know if we have the latest copy even if
 # we access a specific version

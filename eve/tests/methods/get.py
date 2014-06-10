@@ -84,9 +84,7 @@ class TestGet(TestBase):
         resource = response['_items']
         self.assertFalse(len(resource) ==
                          self.app.config['PAGINATION_DEFAULT'])
-        self.assertTrue('_page' not in response)
-        self.assertTrue('_max_results' not in response)
-        self.assertTrue('_total' not in response)
+        self.assertTrue(self.app.config['META'] not in response)
         links = response['_links']
         self.assertTrue('next' not in links)
         self.assertTrue('prev' not in links)
@@ -98,9 +96,7 @@ class TestGet(TestBase):
         self.assert200(status)
         resource = response['_items']
         self.assertEqual(len(resource), self.known_resource_count)
-        self.assertTrue('_page' not in response)
-        self.assertTrue('_max_results' not in response)
-        self.assertTrue('_total' not in response)
+        self.assertTrue(self.app.config['META'] not in response)
         links = response['_links']
         self.assertTrue('next' not in links)
         self.assertTrue('prev' not in links)

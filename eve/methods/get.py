@@ -129,9 +129,11 @@ def get(resource, **lookup):
 
     # add pagination info
     if cursor.count() and config.DOMAIN[resource]['pagination']:
-        response[config.PAGE] = req.page
-        response[config.MAX_RESULTS] = req.max_results
-        response[config.TOTAL] = cursor.count()
+        response[config.META] = {
+          'page': req.page,
+          'max_results': req.max_results,
+          'total': cursor.count(),
+        }
 
     # notify registered callback functions. Please note that, should the
     # functions modify the documents, the last_modified and etag won't be

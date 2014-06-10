@@ -392,14 +392,8 @@ uppercase.
 ``ITEMS``                           Allows to customize the items field. Defaults
                                     to ``_items``.
 
-``PAGE``                            Allows to customize the page field. Defaults
-                                    to ``_page``
-
-``MAX_RESULTS``                     Allows to customize the max_results field. Defaults
-                                    to ``_max_results``
-
-``TOTAL``                           Allows to customize the total field. Defaults
-                                    to ``_total``
+``META``                            Allows to customize the meta field. Defaults
+                                    to ``_meta``
 
 ``LINKS``                           Allows to customize the links field. Defaults
                                     to ``_links``.

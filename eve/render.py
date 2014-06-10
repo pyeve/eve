@@ -244,7 +244,7 @@ def render_xml(data):
     if data:
         xml += xml_root_open(data)
         xml += xml_add_links(data)
-        xml += xml_add_pagination(data)
+        xml += xml_add_meta(data)
         xml += xml_add_items(data)
         xml += xml_root_close()
     return xml
@@ -276,18 +276,18 @@ def xml_root_open(data):
     return '<resource%s%s>' % (href, title)
 
 
-def xml_add_pagination(data):
-    """ Returns a pagination node with page, total, max_results fields.
+def xml_add_meta(data):
+    """ Returns a meta node with page, total, max_results fields.
 
     :param data: the data stream to be rendered as xml.
     """
     xml = ''
-    items = []
-    for item in [config.PAGE, config.MAX_RESULTS, config.TOTAL]:
-        if item in data:
-            items.append('<%s>%d</%s>' % (item, data.get(item), item))
-    if items:
-        xml = '<pagination>%s</pagination>' % ''.join(items)
+    meta = []
+    if data.get(config.META):
+        for name, value in data.get(config.META).items():
+            meta.append('<%s>%d</%s>' % (name, value, name))
+    if meta:
+        xml = '<%s>%s</%s>' % (config.META, ''.join(meta), config.META)
     return xml
 
 def xml_add_links(data):
