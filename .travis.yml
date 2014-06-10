@@ -16,7 +16,7 @@ services:
 before_script:
     # timer is needed in order to get mongo to properly initialize on travis-ci
     # See https://github.com/travis-ci/travis-ci/issues/1967#issuecomment-42008605
-  - sleep 10
+  - sleep 15
   - mongo eve_test --eval 'db.addUser("test_user", "test_pw");'
 branches:
   only:
