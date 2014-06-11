@@ -61,6 +61,16 @@
 <h2>Version 0.4<a class="headerlink" href="#version-0-4" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[new][change] Add pagination info to get results whatever the HATEOAS status.
+Closes #355 (Olivier Poitrey).</li>
+<li>[new] Ensure all errors return a parseable body (JSON or XML). Closes #365
+(Olivier Poitrey).</li>
+<li>[new] Apply sub-request route&#8217;s params to the created document if matching
+the schema, e.g. a POST on <tt class="docutils literal"><span class="pre">/people/1234…/invoices</span></tt> will set the
+<tt class="docutils literal"><span class="pre">contact_id</span></tt> field to 1234… so created invoice is automatically associated
+with the parent resource (Olivier Poitrey).</li>
+<li>[new] Allow some more HTTP errors (403 and 404) to be thrown from db hooks
+(Olivier Poitrey).</li>
 <li>[new] <tt class="docutils literal"><span class="pre">ALLOWED_READ_ROLES</span></tt>. A list of allowed <cite>roles</cite> for resource
 endpoints with GET and OPTIONS methods (Olivier Poitrey).</li>
 <li>[new] <tt class="docutils literal"><span class="pre">ALLOWED_WRITE_ROLES</span></tt>. A list of allowed <cite>roles</cite> for resource

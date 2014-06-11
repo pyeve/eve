@@ -150,6 +150,11 @@ can customize the URIs though, so the API endpoint could become, say,
         <span class="p">},</span>
         <span class="p">...</span>
     <span class="p">],</span>
+    <span class="s2">&quot;_meta&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;max_results&quot;</span><span class="o">:</span> <span class="mi">25</span><span class="p">,</span>
+        <span class="s2">&quot;total&quot;</span><span class="o">:</span> <span class="mi">70</span><span class="p">,</span>
+        <span class="s2">&quot;page&quot;</span><span class="o">:</span> <span class="mi">1</span>
+    <span class="p">},</span>
     <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span>
         <span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com:5000/people&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;people&quot;</span><span class="p">},</span>
         <span class="s2">&quot;parent&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com:5000&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;home&quot;</span><span class="p">}</span>
@@ -186,7 +191,9 @@ each item provides some important, additional fields:</p>
 </table>
 <p>These additional fields are automatically handled by the API (clients don&#8217;t
 need to provide them when adding/editing resources).</p>
-<p>The <tt class="docutils literal"><span class="pre">_links</span></tt> list provides <a class="reference external" href="http://en.wikipedia.org/wiki/HATEOAS">HATEOAS</a> directives.</p>
+<p>The <tt class="docutils literal"><span class="pre">_meta</span></tt> field provides pagination data and will only be there if
+<a class="reference internal" href="#pagination"><em>Pagination</em></a> has been enabled (it is by default) and there is at least one
+document being returned. The <tt class="docutils literal"><span class="pre">_links</span></tt> list provides <a class="reference external" href="http://en.wikipedia.org/wiki/HATEOAS">HATEOAS</a> directives.</p>
 <div class="section" id="sub-resources">
 <span id="subresources"></span><h3>Sub Resources<a class="headerlink" href="#sub-resources" title="Permalink to this headline">¶</a></h3>
 <p>Endpoints support sub-resources so you could have something like:
@@ -329,7 +336,7 @@ quotes will result in <tt class="docutils literal"><span class="pre">400</span> 
 </div>
 </div>
 <div class="section" id="pagination">
-<h2>Pagination<a class="headerlink" href="#pagination" title="Permalink to this headline">¶</a></h2>
+<span id="id1"></span><h2>Pagination<a class="headerlink" href="#pagination" title="Permalink to this headline">¶</a></h2>
 <p>Resource pagination is enabled by default in order to improve performance and
 preserve bandwidth. When a consumer requests a resource, the first N items
 matching the query are served, and links to subsequent/previous pages are
@@ -382,58 +389,15 @@ the API just by following the links provided with every response.</p>
 included when appropriate.</p>
 <div class="section" id="disabling-hateoas">
 <h3>Disabling HATEOAS<a class="headerlink" href="#disabling-hateoas" title="Permalink to this headline">¶</a></h3>
-<p>HATEOAS can be disabled both at the API and/or resource level. When HATEOAS is
-disabled, response payloads have a different structure. The resource payload is
-a simple list of items:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people
-<span class="go">HTTP/1.1 200 OK</span>
-</pre></div>
-</div>
-<div class="highlight-javascript"><div class="highlight"><pre><span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;firstname&quot;</span><span class="o">:</span> <span class="s2">&quot;Mark&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;lastname&quot;</span><span class="o">:</span> <span class="s2">&quot;Green&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;born&quot;</span><span class="o">:</span> <span class="s2">&quot;Sat, 23 Feb 1985 12:00:00 GMT&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;role&quot;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;copy&quot;</span><span class="p">,</span> <span class="s2">&quot;author&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;location&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;city&quot;</span><span class="o">:</span> <span class="s2">&quot;New York&quot;</span><span class="p">,</span> <span class="s2">&quot;address&quot;</span><span class="o">:</span> <span class="s2">&quot;4925 Lacross Road&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50bf198338345b1c604faf31&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 05 Dec 2012 09:53:07 GMT&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_created&quot;</span><span class="o">:</span> <span class="s2">&quot;Wed, 05 Dec 2012 09:53:07 GMT&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_etag&quot;</span><span class="o">:</span> <span class="s2">&quot;ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;firstname&quot;</span><span class="o">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span>
-        <span class="p">...</span>
-    <span class="p">},</span>
-<span class="p">]</span>
-</pre></div>
-</div>
-<p>As you can see, the <tt class="docutils literal"><span class="pre">_links</span></tt> element is also missing from list items. The
-same happens to individual item payloads:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/522f01dc15b4fc00028e6d98
-<span class="go">HTTP/1.1 200 OK</span>
-</pre></div>
-</div>
-<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
-    <span class="s2">&quot;lastname&quot;</span><span class="o">:</span> <span class="s2">&quot;obama&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;522f01dc15b4fc00028e6d98&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;firstname&quot;</span><span class="o">:</span> <span class="s2">&quot;barack&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;_created&quot;</span><span class="o">:</span> <span class="s2">&quot;Tue, 10 Sep 2013 11:26:20 GMT&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;_etag&quot;</span><span class="o">:</span> <span class="s2">&quot;206fb4a39815cc0ebf48b2b52d709777a55333de&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;_updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Tue, 10 Sep 2013 11:26:20 GMT&quot;</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Why would you want to turn HATEOAS off? Well, if you know that your client
-application is not going to use the feature, then you might want to save on
-both bandwidth and performance. Also, some REST client libraries out there
-might have issues when parsing something other than a simple list of items.</p>
+<p>HATEOAS can be disabled both at the API and/or resource level. Why would you
+want to turn HATEOAS off? Well, if you know that your client application is not
+going to use the feature, then you might want to save on both bandwidth and
+performance.</p>
 <div class="admonition-please-note admonition">
 <p class="first admonition-title">Please note</p>
 <p class="last">When HATEOAS is disabled, the API entry point (the home page) will return
-a <tt class="docutils literal"><span class="pre">404</span> <span class="pre">Not</span> <span class="pre">Found</span></tt>, since its only usefulness would be to return a list of
-available resources, which is the standard behavior when HATEOAS is
-enabled.</p>
+a <tt class="docutils literal"><span class="pre">404</span></tt>, since its only usefulness would be to return a list of available
+resources, which is the standard behavior when HATEOAS is enabled.</p>
 </div>
 </div>
 </div>
@@ -460,7 +424,7 @@ note that at least one mime type must always be enabled, either implicitly or
 explicitly. By default, both are supported.</p>
 </div>
 <div class="section" id="conditional-requests">
-<span id="id1"></span><h2>Conditional Requests<a class="headerlink" href="#conditional-requests" title="Permalink to this headline">¶</a></h2>
+<span id="id2"></span><h2>Conditional Requests<a class="headerlink" href="#conditional-requests" title="Permalink to this headline">¶</a></h2>
 <p>Each resource representation provides information on the last time it was
 updated (<tt class="docutils literal"><span class="pre">Last-Modified</span></tt>), along with an hash value computed on the
 representation itself (<tt class="docutils literal"><span class="pre">ETag</span></tt>). These headers allow clients to perform
@@ -514,7 +478,7 @@ currently stored on the server, so we got a <tt class="docutils literal"><span c
 </div>
 <p>This time we got our patch in, and the server returned the new <tt class="docutils literal"><span class="pre">ETag</span></tt>.  We
 also get the new <tt class="docutils literal"><span class="pre">_updated</span></tt> value, which eventually will allow us to perform
-subsequent <a class="reference internal" href="#id1">conditional requests</a>.</p>
+subsequent <a class="reference internal" href="#id2">conditional requests</a>.</p>
 <p>Concurrency control applies to all edition methods: <tt class="docutils literal"><span class="pre">PATCH</span></tt> (edit), <tt class="docutils literal"><span class="pre">PUT</span></tt>
 (replace), <tt class="docutils literal"><span class="pre">DELETE</span></tt> (delete).</p>
 <div class="section" id="disabling-concurrency-control">
@@ -656,7 +620,7 @@ between versions: caching, URIs, schemas, validation, and so on. URI versioning
 (<a class="reference external" href="http://api.example.com/v1/">http://api.example.com/v1/</a>...) is supported.</p>
 </div>
 <div class="section" id="document-versioning">
-<span id="id2"></span><h2>Document Versioning<a class="headerlink" href="#document-versioning" title="Permalink to this headline">¶</a></h2>
+<span id="id3"></span><h2>Document Versioning<a class="headerlink" href="#document-versioning" title="Permalink to this headline">¶</a></h2>
 <p>Eve supports automatic version control of documents. By default, this setting
 is turned off, but it can be turned globally or configured individually for
 each resource. When enabled, Eve begins automatically tracking changes to
@@ -725,7 +689,7 @@ hypothetical <tt class="docutils literal"><span class="pre">people</span></tt> c
 </div>
 </div>
 <div class="section" id="projections">
-<span id="id3"></span><h2>Projections<a class="headerlink" href="#projections" title="Permalink to this headline">¶</a></h2>
+<span id="id4"></span><h2>Projections<a class="headerlink" href="#projections" title="Permalink to this headline">¶</a></h2>
 <p>This feature allows you to create dynamic views of collections and documents,
 or more precisely, to decide what fields should or should not be returned,
 using a &#8216;projection&#8217;. Put another way, Projections are conditional queries
@@ -926,6 +890,16 @@ configured:</p>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetched_item</span> <span class="o">+=</span> <span class="n">add_signature</span>
+</pre></div>
+</div>
+<p>You may use flask&#8217;s <tt class="docutils literal"><span class="pre">abort()</span></tt> to interrupt the database operation:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">abort</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">check_update_access</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">original</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">abort</span><span class="p">(</span><span class="mi">403</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_insert_item</span> <span class="o">+=</span> <span class="n">check_update_access</span>
 </pre></div>
 </div>
 <p>The events are fired for resources and items if the action is available for
@@ -1357,6 +1331,7 @@ classes.</p>
              <span class="s">&#39;pic&#39;</span><span class="p">:</span><span class="s">&#39;iVBORw0KGgoAAAANSUhEUgAAA4AAAAOACA...&#39;</span><span class="p">,</span>
          <span class="p">}</span>
      <span class="p">]</span>
+     <span class="o">...</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -1384,6 +1359,7 @@ are the meta fields. Suppose that the flag is set like this:</p>
             <span class="p">}</span>
         <span class="p">}</span>
     <span class="p">]</span>
+    <span class="o">...</span>
 <span class="p">}</span>
 </pre></div>
 </div>

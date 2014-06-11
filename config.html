@@ -467,29 +467,37 @@ a limit of 300 requests every 15 minutes. Defaults to
 <td><tt class="docutils literal"><span class="pre">True</span></tt> to enable Debug Mode, <tt class="docutils literal"><span class="pre">False</span></tt>
 otherwise.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">HATEOAS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ERROR</span></tt></td>
+<td>Allows to customize the error_code field. Defaults
+to <tt class="docutils literal"><span class="pre">_error</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">HATEOAS</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">False</span></tt>, this option disables
 <a class="reference internal" href="features.html#hateoas-feature"><em>HATEOAS</em></a>. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ISSUES</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ISSUES</span></tt></td>
 <td>Allows to customize the issues field. Defaults
 to <tt class="docutils literal"><span class="pre">_issues</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">STATUS</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">STATUS</span></tt></td>
 <td>Allows to customize the status field. Defaults
 to <tt class="docutils literal"><span class="pre">_status</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">STATUS_OK</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">STATUS_OK</span></tt></td>
 <td>Status message returned when data validation is
 successful. Defaults to <tt class="docutils literal"><span class="pre">OK</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">STATUS_ERR</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">STATUS_ERR</span></tt></td>
 <td>Status message returned when data validation
 failed. Defaults to <tt class="docutils literal"><span class="pre">ERR</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ITEMS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ITEMS</span></tt></td>
 <td>Allows to customize the items field. Defaults
 to <tt class="docutils literal"><span class="pre">_items</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">META</span></tt></td>
+<td>Allows to customize the meta field. Defaults
+to <tt class="docutils literal"><span class="pre">_meta</span></tt></td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">LINKS</span></tt></td>
 <td>Allows to customize the links field. Defaults

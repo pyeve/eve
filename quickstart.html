@@ -80,10 +80,7 @@ assumes that:</p>
 </div>
 <p>Just save it as <cite>run.py</cite>. Next, create a new text file with the following
 content:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">SERVER_NAME</span> <span class="o">=</span> <span class="s">&#39;127.0.0.1:5000&#39;</span>
-<span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s">&#39;people&#39;</span><span class="p">:</span> <span class="p">{},</span>
-<span class="p">}</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;people&#39;</span><span class="p">:</span> <span class="p">{}}</span>
 </pre></div>
 </div>
 <p>Save it as <cite>settings.py</cite> in the same directory where <cite>run.py</cite> is stored. This
@@ -107,7 +104,12 @@ that your API is comprised of just one accessible resource, <cite>people</cite>.
 payload:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
     <span class="s">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&quot;child&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;127.0.0.1:5000/people&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span><span class="p">}]</span>
+        <span class="s">&quot;child&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;/people&quot;</span><span class="p">,</span>
+                <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span>
+            <span class="p">}</span>
+        <span class="p">]</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -122,10 +124,16 @@ there&#8217;s only one child resource available, that being <cite>people</cite>.
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
     <span class="s">&quot;_items&quot;</span><span class="p">:</span> <span class="p">[],</span>
     <span class="s">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;127.0.0.1:5000/people&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span><span class="p">},</span>
-        <span class="s">&quot;parent&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;127.0.0.1:5000&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;home&quot;</span><span class="p">}</span>
+        <span class="s">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;/people&quot;</span><span class="p">,</span>
+            <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span>
+        <span class="p">},</span>
+        <span class="s">&quot;parent&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+            <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;home&quot;</span>
         <span class="p">}</span>
     <span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>This time we also got an <tt class="docutils literal"><span class="pre">_items</span></tt> list. The <tt class="docutils literal"><span class="pre">_links</span></tt> are relative to the
