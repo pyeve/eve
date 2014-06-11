@@ -395,6 +395,9 @@ uppercase.
 ``ITEMS``                           Allows to customize the items field. Defaults
                                     to ``_items``.
 
+``META``                            Allows to customize the meta field. Defaults
+                                    to ``_meta``
+
 ``LINKS``                           Allows to customize the links field. Defaults
                                     to ``_links``.
 

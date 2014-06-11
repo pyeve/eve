@@ -27,10 +27,7 @@ content:
 
 ::
 
-    SERVER_NAME = '127.0.0.1:5000'
-    DOMAIN = {
-        'people': {},
-    }
+    DOMAIN = {'people': {}}
 
 Save it as `settings.py` in the same directory where `run.py` is stored. This
 is the Eve configuration file, a standard Python module, and it is telling Eve
@@ -61,7 +58,12 @@ payload:
 
     {
         "_links": {
-            "child": [{"href": "127.0.0.1:5000/people", "title": "people"}]
+            "child": [
+                {
+                    "href": "/people", 
+                    "title": "people"
+                }
+            ]
         }
     }
 
@@ -80,10 +82,16 @@ Try requesting `people` now:
     {
         "_items": [], 
         "_links": {
-            "self": {"href": "127.0.0.1:5000/people", "title": "people"}, 
-            "parent": {"href": "127.0.0.1:5000", "title": "home"}
+            "self": {
+                "href": "/people", 
+                "title": "people"
+            }, 
+            "parent": {
+                "href": "", 
+                "title": "home"
             }
         }
+    }
 
 This time we also got an ``_items`` list. The ``_links`` are relative to the
 resource being accessed, so you get a link to the parent resource (the home

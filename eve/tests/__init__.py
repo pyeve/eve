@@ -196,6 +196,16 @@ class TestMinimal(unittest.TestCase):
         _id = item.get(self.app.config['ID_FIELD'])
         self.assertItemLink(link, _id)
 
+    def assertPagination(self, response, page, total, max_results):
+        self.assertTrue(self.app.config['META'] in response)
+        meta = response.get(self.app.config['META'])
+        self.assertTrue('page' in meta)
+        self.assertTrue('max_results' in meta)
+        self.assertTrue('total' in meta)
+        self.assertEqual(meta['page'], page)
+        self.assertEqual(meta['max_results'], max_results)
+        self.assertEqual(meta['total'], total)
+
     def assertHomeLink(self, links):
         self.assertTrue('parent' in links)
         link = links['parent']

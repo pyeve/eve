@@ -253,6 +253,7 @@ def render_xml(data):
     if data:
         xml += xml_root_open(data)
         xml += xml_add_links(data)
+        xml += xml_add_meta(data)
         xml += xml_add_items(data)
         xml += xml_root_close()
     return xml
@@ -282,6 +283,21 @@ def xml_root_open(data):
         if 'title' in self_:
             title = ' title="%s" ' % self_['title']
     return '<resource%s%s>' % (href, title)
+
+
+def xml_add_meta(data):
+    """ Returns a meta node with page, total, max_results fields.
+
+    :param data: the data stream to be rendered as xml.
+    """
+    xml = ''
+    meta = []
+    if data.get(config.META):
+        for name, value in data.get(config.META).items():
+            meta.append('<%s>%d</%s>' % (name, value, name))
+    if meta:
+        xml = '<%s>%s</%s>' % (config.META, ''.join(meta), config.META)
+    return xml
 
 
 def xml_add_links(data):

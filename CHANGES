@@ -8,6 +8,8 @@ Version 0.4
 
 Not released yet.
 
+- [new][change] Add pagination info to get results whatever the HATEOAS status.
+  Closes #355 (Olivier Poitrey).
 - [new] Ensure all errors return a parseable body (JSON or XML). Closes #365
   (Olivier Poitrey).
 - [new] Apply sub-request route's params to the created document if matching

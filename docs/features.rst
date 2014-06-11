@@ -73,6 +73,11 @@ The response payload will look something like this:
             },
             ...
         ],
+        "_meta": {
+            "max_results": 25,
+            "total": 70,
+            "page": 1
+        },
         "_links": {
             "self": {"href": "eve-demo.herokuapp.com:5000/people", "title": "people"},
             "parent": {"href": "eve-demo.herokuapp.com:5000", "title": "home"}
@@ -95,7 +100,9 @@ Field        Description
 These additional fields are automatically handled by the API (clients don't
 need to provide them when adding/editing resources).
 
-The ``_links`` list provides HATEOAS_ directives.
+The ``_meta`` field provides pagination data and will only be there if
+:ref:`Pagination` has been enabled (it is by default) and there is at least one
+document being returned. The ``_links`` list provides HATEOAS_ directives.
 
 .. _subresources:
 
@@ -281,6 +288,8 @@ use a pure MongoDB syntax; support for a more general syntax
     Always use double quotes to wrap field names and values. Using single
     quotes will result in ``400 Bad Request`` responses.
 
+.. _pagination:
+
 Pagination
 ----------
 Resource pagination is enabled by default in order to improve performance and
@@ -345,65 +354,16 @@ included when appropriate.
 
 Disabling HATEOAS
 ~~~~~~~~~~~~~~~~~
-HATEOAS can be disabled both at the API and/or resource level. When HATEOAS is
-disabled, response payloads have a different structure. The resource payload is
-a simple list of items:
-
-.. code-block:: console
-
-    $ curl -i http://eve-demo.herokuapp.com/people
-    HTTP/1.1 200 OK
-
-.. code-block:: javascript
-
-    [
-        {
-            "firstname": "Mark",
-            "lastname": "Green",
-            "born": "Sat, 23 Feb 1985 12:00:00 GMT",
-            "role": ["copy", "author"],
-            "location": {"city": "New York", "address": "4925 Lacross Road"},
-            "_id": "50bf198338345b1c604faf31",
-            "_updated": "Wed, 05 Dec 2012 09:53:07 GMT",
-            "_created": "Wed, 05 Dec 2012 09:53:07 GMT",
-            "_etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d",
-        },
-        {
-            "firstname": "John",
-            ...
-        },
-    ]
-
-As you can see, the ``_links`` element is also missing from list items. The
-same happens to individual item payloads:
-
-.. code-block:: console
-
-    $ curl -i http://eve-demo.herokuapp.com/people/522f01dc15b4fc00028e6d98
-    HTTP/1.1 200 OK
-
-.. code-block:: javascript
-
-    {
-        "lastname": "obama",
-        "_id": "522f01dc15b4fc00028e6d98",
-        "firstname": "barack",
-        "_created": "Tue, 10 Sep 2013 11:26:20 GMT",
-        "_etag": "206fb4a39815cc0ebf48b2b52d709777a55333de",
-        "_updated": "Tue, 10 Sep 2013 11:26:20 GMT"
-    }
-
-Why would you want to turn HATEOAS off? Well, if you know that your client
-application is not going to use the feature, then you might want to save on
-both bandwidth and performance. Also, some REST client libraries out there
-might have issues when parsing something other than a simple list of items.
+HATEOAS can be disabled both at the API and/or resource level. Why would you
+want to turn HATEOAS off? Well, if you know that your client application is not
+going to use the feature, then you might want to save on both bandwidth and
+performance. 
 
 .. admonition:: Please note
 
     When HATEOAS is disabled, the API entry point (the home page) will return
-    a ``404 Not Found``, since its only usefulness would be to return a list of
-    available resources, which is the standard behavior when HATEOAS is
-    enabled.
+    a ``404``, since its only usefulness would be to return a list of available
+    resources, which is the standard behavior when HATEOAS is enabled.
 
 .. _jsonxml:
 
@@ -1326,6 +1286,7 @@ When a document is requested media files will be returned as Base64 strings,
                 'pic':'iVBORw0KGgoAAAANSUhEUgAAA4AAAAOACA...',
             }
         ]
+        ...
    } 
 
 However, if the ``EXTENDED_MEDIA_INFO`` list is populated (it isn't by
@@ -1358,6 +1319,7 @@ Then the output will be something like
                 }
             }
         ]
+        ...
     }
 
 For MongoDB, further fields can be found in the `driver documentation`_. 
