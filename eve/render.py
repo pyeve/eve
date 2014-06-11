@@ -299,6 +299,7 @@ def xml_add_meta(data):
         xml = '<%s>%s</%s>' % (config.META, ''.join(meta), config.META)
     return xml
 
+
 def xml_add_links(data):
     """ Returns as many <link> nodes as there are in the datastream. The links
     are then removed from the datastream to allow for further processing.

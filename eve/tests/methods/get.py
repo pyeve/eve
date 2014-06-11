@@ -89,7 +89,6 @@ class TestGet(TestBase):
         self.assertTrue('next' not in links)
         self.assertTrue('prev' not in links)
 
-
     def test_get_paging_disabled_no_args(self):
         self.app.config['DOMAIN'][self.known_resource]['pagination'] = False
         response, status = self.get(self.known_resource)

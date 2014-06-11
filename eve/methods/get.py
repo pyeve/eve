@@ -130,9 +130,9 @@ def get(resource, **lookup):
     # add pagination info
     if cursor.count() and config.DOMAIN[resource]['pagination']:
         response[config.META] = {
-          'page': req.page,
-          'max_results': req.max_results,
-          'total': cursor.count(),
+            'page': req.page,
+            'max_results': req.max_results,
+            'total': cursor.count(),
         }
 
     # notify registered callback functions. Please note that, should the
