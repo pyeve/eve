@@ -133,7 +133,10 @@ class TestMinimal(unittest.TestCase):
         return self.parse_response(r)
 
     def parse_response(self, r):
-        v = json.loads(r.get_data()) if r.status_code in (200, 201) else None
+        try:
+            v = json.loads(r.get_data())
+        except json.JSONDecodeError:
+            v = None
         return v, r.status_code
 
     def assertValidationError(self, response, matches):
