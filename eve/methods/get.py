@@ -30,6 +30,7 @@ def get(resource, **lookup):
     :param resource: the name of the resource.
 
     .. versionchanged:: 0.4
+       Add pagination info whatever the HATEOAS status.
        'on_fetched' events now return the whole response (HATEOAS metafields
        included.)
        Replaced ID_FIELD by item_lookup_field on self link.

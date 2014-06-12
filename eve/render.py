@@ -237,6 +237,9 @@ def render_xml(data):
 
     :param data: the data stream to be rendered as xml.
 
+    .. versionchanged:: 0.4
+       Support for pagination info (_meta).
+
     .. versionchanged:: 0.2
        Use the new ITEMS configuration setting.
 
@@ -289,6 +292,8 @@ def xml_add_meta(data):
     """ Returns a meta node with page, total, max_results fields.
 
     :param data: the data stream to be rendered as xml.
+
+    .. versionadded:: 0.4
     """
     xml = ''
     meta = []

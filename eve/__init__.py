@@ -10,6 +10,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.4
+       'META' defaults to '_meta'.
        'ERROR' defaults to '_error'.
        Remove unnecessary commented code.
 

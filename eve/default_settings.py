@@ -12,6 +12,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.4
+       'META' added and set to '_meta'.
        'ERROR' added and set to '_error'.
        'URL_PROTOCOL' added and set to ''.
        'BANDWIDTH_SAVER' added and set to True.
