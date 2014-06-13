@@ -513,22 +513,25 @@ The response will be a list itself, with the state of each document:
 
 .. code-block:: javascript
 
-    [
-        {
-            "_status": "OK",
-            "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
-            "_id": "50ae43339fa12500024def5b",
-            "_etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
-            "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b", "title": "person"}}
-        },
-        {
-            "_status": "OK",
-            "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
-            "_id": "50ae43339fa12500024def5c",
-            "_etag": "62d356f623c7d9dc864ffa5facc47dced4ba6907"
-            "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5c", "title": "person"}}
-        }
-    ]
+    {
+        "_status": "OK",
+        "_items": [
+            {
+                "_status": "OK",
+                "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
+                "_id": "50ae43339fa12500024def5b",
+                "_etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
+                "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b", "title": "person"}}
+            },
+            {
+                "_status": "OK",
+                "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
+                "_id": "50ae43339fa12500024def5c",
+                "_etag": "62d356f623c7d9dc864ffa5facc47dced4ba6907"
+                "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5c", "title": "person"}}
+            }
+        ]
+    }
 
 When multiple documents are submitted the API takes advantage of MongoDB *bulk
 insert* capabilities which means that not only there's just one single request
@@ -552,34 +555,26 @@ request:
 
 .. code-block:: javascript
 
-    [
-        {
-            "_status": "ERR",
-            "_issues": {"lastname": "value 'clinton' not unique"}
-        },
-        {
-            "_status": "OK",
-            "_updated": "Thu, 22 Nov 2012 15:29:08 GMT",
-            "_id": "50ae44c49fa12500024def5d",
-            "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d", "title": "person"}}
-        }
+    {
+        "_status": "ERR",
+        "_error": "Some documents contains errors",
+        "_items": [
+            {
+                "_status": "ERR",
+                "_issues": {"lastname": "value 'clinton' not unique"}
+            },
+            {
+                "_status": "OK",
+            }
+        ]
     ]
 
-In the example above, the first document did not validate and was rejected,
-while the second was successfully created. The API maintainer has complete
-control on data validation. Optionally, you can decide to allow for unknown
-fields to be inserted/updated on one or more endpoints. For more information
-see :ref:`validation`.
+In the example above, the first document did not validate so the whole request
+has been rejected. For more information see :ref:`validation`.
 
-.. admonition:: Please Note
-
-    Eventual validation errors on one or more document won't prevent the
-    insertion of valid documents. The response status code will be ``201
-    Created`` if *at least one document* passed validation and has actually
-    been stored. If no document passed validation the status code will be ``200
-    OK``, meaning that the request was accepted and processed. It is still
-    client's responsability to parse the response payload and make sure that
-    all documents passed validation.
+In all cases, when all documents passed validation and where inserted correctly,
+the response status is ``201 Created``. If any document fail the validation, the
+response status is ``400 Bad Request``.
 
 Extensible Data Validation
 --------------------------
