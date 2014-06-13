@@ -162,7 +162,6 @@ def post(resource, payl=None):
             # the client as if it was a validation issue
             doc_issues['exception'] = str(e)
 
-
         if len(doc_issues):
             document = {
                 config.STATUS: config.STATUS_ERR,
@@ -232,7 +231,8 @@ def post(resource, payl=None):
     if failures:
         response[config.ERROR] = {
             "code": return_code,
-            "message": "Insertion failure: %d document(s) contain(s) error(s)" % failures,
+            "message": "Insertion failure: %d document(s) contain(s) error(s)"
+            % failures,
         }
 
     return response, None, None, return_code
