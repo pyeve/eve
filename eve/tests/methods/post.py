@@ -151,8 +151,8 @@ class TestPost(TestBase):
         self.assertValidationError(results[3], {'ref': 'unique'})
         self.assertValidationError(results[4], {'tid': 'ObjectId'})
 
-        self.assertNotIn(ID_FIELD, results[0])
-        self.assertNotIn(ID_FIELD, results[2])
+        self.assertTrue(ID_FIELD not in results[0])
+        self.assertTrue(ID_FIELD not in results[2])
 
         # items on which validation failed should not be inserted into the db
         _, status = self.get(self.known_resource_url, 'where=prog==7')
@@ -160,7 +160,8 @@ class TestPost(TestBase):
 
         # valid items part of a request containing invalid document should not
         # be inserted into the db
-        _, status = self.get(self.known_resource_url, 'where=ref==9234567890123456789054321')
+        _, status = self.get(self.known_resource_url,
+                             'where=ref==9234567890123456789054321')
         self.assert404(status)
 
     def test_post_x_www_form_urlencoded(self):
