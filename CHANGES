@@ -8,6 +8,14 @@ Version 0.4
 
 Not released yet.
 
+- [change] For bulk and non-bulk inserts, response status now always either 201
+  when everything was ok or 400 when something went wrong. For bulk inserts, if
+  at least one document doesn't validate, the whole request is rejected, and
+  none of the documents are inserted into the database. Additionnaly, this
+  commit adopts the same response format as collections: responses are always
+  a dict with a ``_status`` field at its root and an eventual ``_error`` object
+  if ``_status`` is ``ERR`` to comply with #366. Documents status are stored in
+  the ``_items`` field (Olivier Poitrey).
 - [new][change] Add pagination info to get results whatever the HATEOAS status.
   Closes #355 (Olivier Poitrey).
 - [new] Ensure all errors return a parseable body (JSON or XML). Closes #365

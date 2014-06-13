@@ -120,7 +120,8 @@ def post(resource, payl=None):
     schema = resource_def['schema']
     validator = app.validator(schema, resource)
     documents = []
-    issues = []
+    results = []
+    failures = 0
 
     if config.BANDWIDTH_SAVER is True:
         embedded_fields = []
@@ -161,12 +162,27 @@ def post(resource, payl=None):
             # the client as if it was a validation issue
             doc_issues['exception'] = str(e)
 
-        issues.append(doc_issues)
+        if len(doc_issues):
+            document = {
+                config.STATUS: config.STATUS_ERR,
+                config.ISSUES: doc_issues,
+            }
+            failures += 1
 
-        if len(doc_issues) == 0:
-            documents.append(document)
+        documents.append(document)
 
-    if len(documents):
+    if failures:
+        # If at least one document got issues, the whole request fails and a
+        # ``400 Bad Request`` status is return.
+        for document in documents:
+            if config.STATUS in document \
+               and document[config.STATUS] == config.STATUS_ERR:
+                results.append(document)
+            else:
+                results.append({config.STATUS: config.STATUS_OK})
+
+        return_code = 400
+    else:
         # notify callbacks
         getattr(app, "on_insert")(resource, documents)
         getattr(app, "on_insert_%s" % resource)(documents)
@@ -181,6 +197,18 @@ def post(resource, payl=None):
             document[config.ID_FIELD] = \
                 document.get(config.ID_FIELD, ids.pop(0))
 
+            # build the full response document
+            result = document
+            build_response_document(
+                result, resource, embedded_fields, document)
+
+            # add extra write meta data
+            result[config.STATUS] = config.STATUS_OK
+
+            # limit what actually gets sent to minimize bandwidth usage
+            result = marshal_write_response(result, resource)
+            results.append(result)
+
         # insert versioning docs
         insert_versioning_documents(resource, documents)
 
@@ -190,46 +218,21 @@ def post(resource, payl=None):
         # request was received and accepted; at least one document passed
         # validation and was accepted for insertion.
 
-        # from the docs:
-        # Eventual validation errors on one or more document won't prevent the
-        # insertion of valid documents. The response status code will be ``201
-        # Created`` if *at least one document* passed validation and has
-        # actually been stored.
         return_code = 201
+
+    if len(results) == 1:
+        response = results.pop(0)
     else:
-        # request was received and accepted; no document passed validation
-        # though.
+        response = {
+            config.STATUS: config.STATUS_ERR if failures else config.STATUS_OK,
+            config.ITEMS: results,
+        }
 
-        # from the docs:
-        # If no document passed validation the status code will be ``200 OK``,
-        # meaning that the request was accepted and processed. It is still
-        # client's responsibility to parse the response payload and make sure
-        # that all documents passed validation.
-        return_code = 200
-
-    # build response payload
-    response = []
-    for doc_issues in issues:
-        if len(doc_issues):
-            document = {}
-            document[config.STATUS] = config.STATUS_ERR
-            document[config.ISSUES] = doc_issues
-        else:
-            document = documents.pop(0)
-
-            # build the full response document
-            build_response_document(
-                document, resource, embedded_fields, document)
-
-            # add extra write meta data
-            document[config.STATUS] = config.STATUS_OK
-
-            # limit what actually gets sent to minimize bandwidth usage
-            document = marshal_write_response(document, resource)
-
-        response.append(document)
-
-    if len(response) == 1:
-        response = response.pop(0)
+    if failures:
+        response[config.ERROR] = {
+            "code": return_code,
+            "message": "Insertion failure: %d document(s) contain(s) error(s)"
+            % failures,
+        }
 
     return response, None, None, return_code
