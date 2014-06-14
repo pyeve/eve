@@ -61,6 +61,16 @@
 <h2>Version 0.4<a class="headerlink" href="#version-0-4" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[new] Data layer is now usable outside request context, for example within
+a Celery task where there&#8217;s no request context (Petr Jašek).</li>
+<li>[change] For bulk and non-bulk inserts, response status now always either 201
+when everything was ok or 400 when something went wrong. For bulk inserts, if
+at least one document doesn&#8217;t validate, the whole request is rejected, and
+none of the documents are inserted into the database. Additionnaly, this
+commit adopts the same response format as collections: responses are always
+a dict with a <tt class="docutils literal"><span class="pre">_status</span></tt> field at its root and an eventual <tt class="docutils literal"><span class="pre">_error</span></tt> object
+if <tt class="docutils literal"><span class="pre">_status</span></tt> is <tt class="docutils literal"><span class="pre">ERR</span></tt> to comply with #366. Documents status are stored in
+the <tt class="docutils literal"><span class="pre">_items</span></tt> field (Olivier Poitrey).</li>
 <li>[new][change] Add pagination info to get results whatever the HATEOAS status.
 Closes #355 (Olivier Poitrey).</li>
 <li>[new] Ensure all errors return a parseable body (JSON or XML). Closes #365
