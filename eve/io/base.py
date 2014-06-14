@@ -396,7 +396,7 @@ class DataLayer(object):
 
         # Only inject the auth_field in the query when not creating new
         # documents.
-        if request.method not in ('POST', 'PUT'):
+        if request and request.method not in ('POST', 'PUT'):
             auth_field, request_auth_value = auth_field_and_value(resource)
             if auth_field and request.authorization and request_auth_value:
                 if query:
