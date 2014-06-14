@@ -8,6 +8,8 @@ Version 0.4
 
 Not released yet.
 
+- [new] Data layer is now usable outside request context, for example within
+  a Celery task where there's no request context (Petr Jašek).
 - [change] For bulk and non-bulk inserts, response status now always either 201
   when everything was ok or 400 when something went wrong. For bulk inserts, if
   at least one document doesn't validate, the whole request is rejected, and
