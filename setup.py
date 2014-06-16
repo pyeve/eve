@@ -4,7 +4,6 @@ from setuptools import setup, find_packages
 DESCRIPTION = ("REST API framework powered by Flask, MongoDB and good "
                "intentions.")
 LONG_DESCRIPTION = open('README.rst').read()
-#VERSION = __import__('eve').__version__
 
 setup(
     name='Eve',
@@ -25,7 +24,7 @@ setup(
         'werkzeug==0.9.4',
         'markupsafe==0.23',
         'jinja2==2.7.2',
-        'itsdangerous==0.22',
+        'itsdangerous==0.24',
         'flask==0.10.1',
         'pymongo==2.7.1',
         'flask-pymongo==0.3.0',

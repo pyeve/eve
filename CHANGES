@@ -8,6 +8,7 @@ Version 0.4
 
 Not released yet.
 
+- [change] itsdangerous 0.24 is now required. Addresses #378.
 - [new] You can now start the app without any resource defined and use
   ``app.register_resource`` later as needed (Petr Jašek).
 - [new] Data layer is now usable outside request context, for example within
