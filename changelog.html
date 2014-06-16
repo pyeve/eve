@@ -61,6 +61,8 @@
 <h2>Version 0.4<a class="headerlink" href="#version-0-4" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[new] You can now start the app without any resource defined and use
+<tt class="docutils literal"><span class="pre">app.register_resource</span></tt> later as needed (Petr Jašek).</li>
 <li>[new] Data layer is now usable outside request context, for example within
 a Celery task where there&#8217;s no request context (Petr Jašek).</li>
 <li>[change] For bulk and non-bulk inserts, response status now always either 201
