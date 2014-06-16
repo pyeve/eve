@@ -8,6 +8,8 @@ Version 0.4
 
 Not released yet.
 
+- [new] You can now start the app without any resource defined and use
+  ``app.register_resource`` later as needed (Petr Jašek).
 - [new] Data layer is now usable outside request context, for example within
   a Celery task where there's no request context (Petr Jašek).
 - [change] For bulk and non-bulk inserts, response status now always either 201
