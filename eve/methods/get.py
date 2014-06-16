@@ -250,6 +250,7 @@ def getitem(resource, **lookup):
         if version == 'diffs' or req.sort is None:
             # default sort for 'all', required sort for 'diffs'
             req.sort = '[("%s", 1)]' % config.VERSION
+        req.if_modified_since = None  # we always want the full history here
         cursor = app.data.find(resource + config.VERSIONS, req, lookup)
 
         # build all versions
