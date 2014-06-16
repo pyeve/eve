@@ -89,7 +89,7 @@ class TestConfig(TestBase):
         self.assertValidateConfigFailure('must be a dict')
 
         self.app.config['DOMAIN'] = {}
-        self.assertValidateConfigFailure('must contain at least one')
+        self.assertValidateConfigSuccess()
 
     def test_validate_resource_methods(self):
         self.app.config['RESOURCE_METHODS'] = ['PUT', 'GET', 'DELETE', 'POST']

@@ -215,8 +215,6 @@ class Eve(Flask, Events):
             raise ConfigException('DOMAIN dictionary missing or wrong.')
         if not isinstance(domain, dict):
             raise ConfigException('DOMAIN must be a dict.')
-        if len(domain) == 0:
-            raise ConfigException('DOMAIN must contain at least one resource.')
 
     def validate_config(self):
         """ Makes sure that REST methods expressed in the configuration
