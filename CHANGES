@@ -43,7 +43,7 @@ Not released yet.
   one or more documents. Closes #351.
 - [fix] Cannot change a nullable objectid type field to contain null. Closes
   #341.
-- [change] Cerberus 0.7 is now required.
+- [change] Cerberus 0.7.1 is now required.
 - [new] 'dependencies' validation rule.
 - [new] 'keyschema' validation rule.
 - [new] 'regex' validation rule.
