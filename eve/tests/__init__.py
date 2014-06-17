@@ -113,17 +113,23 @@ class TestMinimal(unittest.TestCase):
         r = self.test_client.get(request)
         return self.parse_response(r)
 
-    def post(self, url, data, headers=[], content_type='application/json'):
+    def post(self, url, data, headers=None, content_type='application/json'):
+        if headers is None:
+            headers = []
         headers.append(('Content-Type', content_type))
         r = self.test_client.post(url, data=json.dumps(data), headers=headers)
         return self.parse_response(r)
 
-    def put(self, url, data, headers=[]):
+    def put(self, url, data, headers=None):
+        if headers is None:
+            headers = []
         headers.append(('Content-Type', 'application/json'))
         r = self.test_client.put(url, data=json.dumps(data), headers=headers)
         return self.parse_response(r)
 
-    def patch(self, url, data, headers=[]):
+    def patch(self, url, data, headers=None):
+        if headers is None:
+            headers = []
         headers.append(('Content-Type', 'application/json'))
         r = self.test_client.patch(url, data=json.dumps(data), headers=headers)
         return self.parse_response(r)
