@@ -54,7 +54,7 @@ class SQL(DataLayer):
             self.driver = db  # FIXME: dumb double initialisation of the driver because Eve sets it to None in __init__
             self.driver.app = app
             self.driver.init_app(app)
-        except Exception, e:
+        except Exception as e:
             raise ConnectionException(e)
 
     @classmethod
