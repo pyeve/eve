@@ -562,6 +562,13 @@ class TestGet(TestBase):
         response, status = self.get(self.known_resource)
         self.assert200(status)
 
+    def test_get_invalid_idfield_cors(self):
+        """ test that #381 is fixed. """
+        request = '/%s/badid' % self.known_resource
+        self.app.config['X_DOMAINS'] = '*'
+        r = self.test_client.get(request, headers=[('Origin', 'test.com')])
+        self.assert404(r.status_code)
+
     def assertGet(self, response, status, resource=None):
         self.assert200(status)
 

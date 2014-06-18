@@ -8,6 +8,7 @@ Version 0.4
 
 Not released yet.
 
+- [fix] return 500 instead of 404 if CORS is enabled. Closes #381.
 - [change] Jinja2 2.7.3 is now required.
 - [change] Werkzeug 0.9.6 is now required.
 - [change] simplejson 3.5.2 is now required.

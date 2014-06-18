@@ -102,6 +102,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
 
     .. versionchanged:: 0.4
        Support for optional extra headers.
+       Fix #381. 500 instead of 404 if CORS is enabled.
 
     .. versionchanged:: 0.3
        Support for X_MAX_AGE.
@@ -176,7 +177,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         else:
             headers = config.X_HEADERS
 
-        methods = app.make_default_options_response().headers['allow']
+        methods = app.make_default_options_response().headers.get('allow')
         resp.headers.add('Access-Control-Allow-Origin', ', '.join(domains))
         resp.headers.add('Access-Control-Allow-Headers', ', '.join(headers))
         resp.headers.add('Access-Control-Allow-Methods', methods)
