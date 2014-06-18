@@ -61,6 +61,10 @@
 <h2>Version 0.4<a class="headerlink" href="#version-0-4" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[fix] return 500 instead of 404 if CORS is enabled. Closes #381.</li>
+<li>[change] Jinja2 2.7.3 is now required.</li>
+<li>[change] Werkzeug 0.9.6 is now required.</li>
+<li>[change] simplejson 3.5.2 is now required.</li>
 <li>[change] itsdangerous 0.24 is now required. Addresses #378.</li>
 <li>[new] You can now start the app without any resource defined and use
 <tt class="docutils literal"><span class="pre">app.register_resource</span></tt> later as needed (Petr Jašek).</li>
