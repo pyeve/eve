@@ -20,10 +20,10 @@ setup(
     install_requires=[
         'cerberus==0.7.1',
         'events==0.2.1',
-        'simplejson==3.3.0',
-        'werkzeug==0.9.4',
+        'simplejson==3.5.2',
+        'werkzeug==0.9.6',
         'markupsafe==0.23',
-        'jinja2==2.7.2',
+        'jinja2==2.7.3',
         'itsdangerous==0.24',
         'flask==0.10.1',
         'pymongo==2.7.1',

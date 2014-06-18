@@ -8,6 +8,9 @@ Version 0.4
 
 Not released yet.
 
+- [change] Jinja2 2.7.3 is now required.
+- [change] Werkzeug 0.9.6 is now required.
+- [change] simplejson 3.5.2 is now required.
 - [change] itsdangerous 0.24 is now required. Addresses #378.
 - [new] You can now start the app without any resource defined and use
   ``app.register_resource`` later as needed (Petr Jašek).
