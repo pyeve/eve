@@ -4,7 +4,7 @@ from bson import ObjectId
 from eve.tests import TestBase
 from eve.tests.utils import DummyEvent
 from eve.tests.test_settings import MONGO_DBNAME
-from eve.utils import date_to_str
+from eve.utils import date_to_str, str_to_date
 
 
 class TestGet(TestBase):
@@ -44,6 +44,7 @@ class TestGet(TestBase):
         links = response['_links']
         self.assertNextLink(links, 2)
         self.assertLastLink(links, 5)
+        self.assertPagination(response, 1, 101, 25)
 
         page = 1
         response, status = self.get(self.known_resource,
@@ -53,6 +54,7 @@ class TestGet(TestBase):
         links = response['_links']
         self.assertNextLink(links, 2)
         self.assertLastLink(links, 5)
+        self.assertPagination(response, 1, 101, 25)
 
         page = 2
         response, status = self.get(self.known_resource,
@@ -63,6 +65,7 @@ class TestGet(TestBase):
         self.assertNextLink(links, 3)
         self.assertPrevLink(links, 1)
         self.assertLastLink(links, 5)
+        self.assertPagination(response, 2, 101, 25)
 
         page = 5
         response, status = self.get(self.known_resource,
@@ -72,6 +75,7 @@ class TestGet(TestBase):
         links = response['_links']
         self.assertPrevLink(links, 4)
         self.assertLastLink(links, None)
+        self.assertPagination(response, 5, 101, 25)
 
     def test_get_paging_disabled(self):
         self.app.config['DOMAIN'][self.known_resource]['pagination'] = False
@@ -80,6 +84,7 @@ class TestGet(TestBase):
         resource = response['_items']
         self.assertFalse(len(resource) ==
                          self.app.config['PAGINATION_DEFAULT'])
+        self.assertTrue(self.app.config['META'] not in response)
         links = response['_links']
         self.assertTrue('next' not in links)
         self.assertTrue('prev' not in links)
@@ -90,6 +95,7 @@ class TestGet(TestBase):
         self.assert200(status)
         resource = response['_items']
         self.assertEqual(len(resource), self.known_resource_count)
+        self.assertTrue(self.app.config['META'] not in response)
         links = response['_links']
         self.assertTrue('next' not in links)
         self.assertTrue('prev' not in links)
@@ -166,8 +172,11 @@ class TestGet(TestBase):
             self.assertFalse('role' in r)
             self.assertTrue('prog' in r)
             self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.app.config['ETAG'] in r)
             self.assertTrue(self.app.config['LAST_UPDATED'] in r)
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
+            self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+            self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
 
         projection = '{"prog": 0}'
         response, status = self.get(self.known_resource, '?projection=%s' %
@@ -181,8 +190,11 @@ class TestGet(TestBase):
             self.assertTrue('location' in r)
             self.assertTrue('role' in r)
             self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.app.config['ETAG'] in r)
             self.assertTrue(self.app.config['LAST_UPDATED'] in r)
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
+            self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+            self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
 
     def test_get_projection_noschema(self):
         self.app.config['DOMAIN'][self.known_resource]['schema'] = {}
@@ -543,6 +555,20 @@ class TestGet(TestBase):
         self.assert200(r.status_code)
         self.assertEqual(json.loads(r.get_data())['_items'], [])
 
+    def test_get_idfield_doesnt_exist(self):
+        # test that a non-existing ID_FIELD will be silently handled when
+        # building HATEOAS document link (#351).
+        self.app.config['ID_FIELD'] = 'id'
+        response, status = self.get(self.known_resource)
+        self.assert200(status)
+
+    def test_get_invalid_idfield_cors(self):
+        """ test that #381 is fixed. """
+        request = '/%s/badid' % self.known_resource
+        self.app.config['X_DOMAINS'] = '*'
+        r = self.test_client.get(request, headers=[('Origin', 'test.com')])
+        self.assert404(r.status_code)
+
     def assertGet(self, response, status, resource=None):
         self.assert200(status)
 
@@ -807,8 +833,11 @@ class TestGetItem(TestBase):
         self.assertFalse('role' in r)
         self.assertTrue('prog' in r)
         self.assertTrue(self.app.config['ID_FIELD'] in r)
+        self.assertTrue(self.app.config['ETAG'] in r)
         self.assertTrue(self.app.config['LAST_UPDATED'] in r)
         self.assertTrue(self.app.config['DATE_CREATED'] in r)
+        self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+        self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
 
         projection = '{"prog": 0}'
         r, status = self.get(self.known_resource, '?projection=%s' %
@@ -818,8 +847,11 @@ class TestGetItem(TestBase):
         self.assertTrue('location' in r)
         self.assertTrue('role' in r)
         self.assertTrue(self.app.config['ID_FIELD'] in r)
+        self.assertTrue(self.app.config['ETAG'] in r)
         self.assertTrue(self.app.config['LAST_UPDATED'] in r)
         self.assertTrue(self.app.config['DATE_CREATED'] in r)
+        self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+        self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
 
 
 class TestHead(TestBase):
@@ -837,6 +869,15 @@ class TestHead(TestBase):
         h = self.test_client.head(url)
         r = self.test_client.get(url)
         self.assertTrue(not h.data)
+
+        if 'Expires' in r.headers:
+            # there's a tiny chance that the two expire values will differ by
+            # one second. See #316.
+            head_expire = str_to_date(r.headers.pop('Expires'))
+            get_expire = str_to_date(h.headers.pop('Expires'))
+            d = head_expire - get_expire
+            self.assertTrue(d.seconds in (0, 1))
+
         self.assertEqual(r.headers, h.headers)
 
 
@@ -914,13 +955,15 @@ class TestEvents(TestBase):
         self.get_resource()
         self.assertEqual('contacts', self.devent.called[0])
         self.assertEqual(
-            self.app.config['PAGINATION_DEFAULT'], len(self.devent.called[1]))
+            self.app.config['PAGINATION_DEFAULT'],
+            len(self.devent.called[1][self.app.config['ITEMS']]))
 
     def test_on_fetched_resource_contacts(self):
         self.app.on_fetched_resource_contacts += self.devent
         self.get_resource()
         self.assertEqual(
-            self.app.config['PAGINATION_DEFAULT'], len(self.devent.called[0]))
+            self.app.config['PAGINATION_DEFAULT'],
+            len(self.devent.called[0][self.app.config['ITEMS']]))
 
     def test_on_fetched_item(self):
         self.app.on_fetched_item += self.devent

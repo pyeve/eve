@@ -8,7 +8,73 @@ Version 0.4
 
 Not released yet.
 
-- [new] `on_pre_<METHOD>` events expose the `lookup` dictionary which allows
+- [fix] return 500 instead of 404 if CORS is enabled. Closes #381.
+- [change] Jinja2 2.7.3 is now required.
+- [change] Werkzeug 0.9.6 is now required.
+- [change] simplejson 3.5.2 is now required.
+- [change] itsdangerous 0.24 is now required. Addresses #378.
+- [new] You can now start the app without any resource defined and use
+  ``app.register_resource`` later as needed (Petr Jašek).
+- [new] Data layer is now usable outside request context, for example within
+  a Celery task where there's no request context (Petr Jašek).
+- [change] For bulk and non-bulk inserts, response status now always either 201
+  when everything was ok or 400 when something went wrong. For bulk inserts, if
+  at least one document doesn't validate, the whole request is rejected, and
+  none of the documents are inserted into the database. Additionnaly, this
+  commit adopts the same response format as collections: responses are always
+  a dict with a ``_status`` field at its root and an eventual ``_error`` object
+  if ``_status`` is ``ERR`` to comply with #366. Documents status are stored in
+  the ``_items`` field (Olivier Poitrey).
+- [new][change] Add pagination info to get results whatever the HATEOAS status.
+  Closes #355 (Olivier Poitrey).
+- [new] Ensure all errors return a parseable body (JSON or XML). Closes #365
+  (Olivier Poitrey).
+- [new] Apply sub-request route's params to the created document if matching
+  the schema, e.g. a POST on ``/people/1234…/invoices`` will set the
+  ``contact_id`` field to 1234… so created invoice is automatically associated
+  with the parent resource (Olivier Poitrey).
+- [new] Allow some more HTTP errors (403 and 404) to be thrown from db hooks
+  (Olivier Poitrey).
+- [new] ``ALLOWED_READ_ROLES``. A list of allowed `roles` for resource
+  endpoints with GET and OPTIONS methods (Olivier Poitrey).
+- [new] ``ALLOWED_WRITE_ROLES``. A list of allowed `roles` for resource
+  endpoints with POST, PUT and DELETE methods (Olivier Poitrey).
+- [new] ``ALLOWED_ITEM_READ_ROLES``. A list of allowed `roles` for item
+  endpoints with GET and OPTIONS methods (Olivier Poitrey). 
+- [new] ``ALLOWED_ITEM_WRITE_ROLES``. A list of allowed `roles` for item
+  endpoints with PUT, PATCH and DELETE methods (Olivier Poitrey). 
+- [fix] Crash on GET requests on resource endpoints when ID_FIELD is missing on
+  one or more documents. Closes #351.
+- [fix] Cannot change a nullable objectid type field to contain null. Closes
+  #341.
+- [change] Cerberus 0.7.1 is now required.
+- [new] 'dependencies' validation rule.
+- [new] 'keyschema' validation rule.
+- [new] 'regex' validation rule.
+- [new] 'set' as a core data type. 
+- [new] 'min' and 'max' now apply to floats and numbers too.
+- [change] Events 0.2.1 is now required.
+- [new] File Storage. ``EXTENDED_MEDIA_INFO`` allows a list of meta fields
+  (file properties) to forward from the file upload driver (Ben Demaree).
+- [fix] HATEOAS links as business unit values even when regexes are configured
+  for the endpoint.
+- [change] MarkupSafe 0.23 is now required.
+- [new] Python 3.4 is now supported.
+- [new] Support for default values in documents with more than one level of
+  data (Javier Gonel).
+- [fix] Documentation improvements (Jen Montes).
+- [new] Ability to send entire document in write responses. ``BANDWITH_SAVER``
+  aka Coherence Mode (Josh Villbrandt). 
+- [fix] KeyError exception was raised when field specified in schema as
+  embeddable was missing in a particular document (Jaroslav Semančík).
+- [fix] Tests on HEAD requests would very occasionally fail. See #316.
+- [change] PyMongo 2.7.1 is now required.
+- [fix] Automatic fields such as ``DATE_CREATD`` and ``DATE_CREATED`` are
+  correctly handled in client projections (Josh Villbrandt). Closes #282.
+- [change] Callbacks get whole json response on ``on_fetched``. This allows for
+  callbacks functions to alter the whole payload, even when HATEOAS is enabled
+  and ``_items`` and ``_links`` metafields are present.
+- [new] ``on_pre_<METHOD>`` events expose the `lookup` dictionary which allows
   for setting up dynamic database lookups on both resource and item endpoints.
 - [fix] Make codebase compliant with latest PEP8/flake8 release (Javier Gonel).
 - [fix] If you had a media field, and set datasource projection to 0 for that
@@ -25,7 +91,6 @@ Not released yet.
 - [fix] tests cleanup (Javier Gonel).
 - [fix] tests now run on any system without needing to set ``ulimit`` to
   a higher value (Javier Gonel).
-- [change] MarksupSafe 0.19 is now required.
 - [new] Python trove classifiers added to setup.py.
 - [fix] media files: don't try to delete a field that does not exist (Taylor
   Brown).

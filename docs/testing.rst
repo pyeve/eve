@@ -38,7 +38,7 @@ Or even a single class function:
 Testing with other python versions
 ----------------------------------
 Before you submit a pull request, make sure your tests and changes run in
-all supported python versions: 2.6, 2.7, 3.3 and PyPy. Instead of creating all
+all supported python versions: 2.6, 2.7, 3.3, 3.4 and PyPy. Instead of creating all
 those environments by hand, Eve uses tox_.
 
 Make sure you have all required python versions installed and run:
@@ -58,6 +58,7 @@ the following:
     py26: commands succeeded
     py27: commands succeeded
     py33: commands succeeded
+    py34: commands succeeded
     pypy: commands succeeded
     flake8: commands succeeded
     congratulations :)
