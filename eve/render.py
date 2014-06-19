@@ -177,7 +177,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         else:
             headers = config.X_HEADERS
 
-        methods = app.make_default_options_response().headers.get('allow')
+        methods = app.make_default_options_response().headers.get('allow', '')
         resp.headers.add('Access-Control-Allow-Origin', ', '.join(domains))
         resp.headers.add('Access-Control-Allow-Headers', ', '.join(headers))
         resp.headers.add('Access-Control-Allow-Methods', methods)
