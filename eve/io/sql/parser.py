@@ -36,7 +36,7 @@ def parse_dictionary(filter_dict, model):
     if len(filter_dict) == 0:
         return []
     conditions = []
-    for k, v in filter_dict.iteritems():
+    for k, v in filter_dict.items():
         conditions.append(sqla_op.eq(getattr(model, k), v))
     return conditions
 

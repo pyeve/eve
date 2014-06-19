@@ -6,6 +6,7 @@ import string
 import random
 import os
 import simplejson as json
+import copy
 from datetime import datetime, timedelta
 from flask.ext.pymongo import MongoClient
 from eve.io.sql import SQL, ValidatorSQL
@@ -81,6 +82,7 @@ class TestMinimal(unittest.TestCase):
 
         self.test_client = self.app.test_client()
 
+        self.app.config = copy.deepcopy(self.app.config)
         self.domain = self.app.config['DOMAIN']
 
     def tearDown(self):
@@ -483,6 +485,7 @@ class TestBaseSQL(TestMinimal):
                            data=SQL,
                            validator=ValidatorSQL)
         self.test_client = self.app.test_client()
+        self.app.config = copy.deepcopy(self.app.config)
         self.domain = self.app.config['DOMAIN']
         self.setupDB()
 
@@ -571,11 +574,11 @@ class TestBaseSQL(TestMinimal):
             self.connection.session.commit()
 
     def random_string(self, length=6):
-        return ''.join(random.choice(string.ascii_lowercase) for _ in xrange(length)).capitalize()
+        return ''.join(random.choice(string.ascii_lowercase) for _ in range(length)).capitalize()
 
     def random_people(self, num):
         people = []
-        for i in xrange(num):
+        for i in range(num):
             people.append((self.random_string(6), self.random_string(6), i))
         return people
 

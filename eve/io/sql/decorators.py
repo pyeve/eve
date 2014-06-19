@@ -13,7 +13,7 @@ sqla_type_mapping = {flask_sqlalchemy.sqlalchemy.types.Integer: 'integer',
 
 
 def lookup_column_type(intype):
-    for sqla_type, api_type in sqla_type_mapping.iteritems():
+    for sqla_type, api_type in sqla_type_mapping.items():
         if isinstance(intype, sqla_type):
             return api_type
     return 'string'

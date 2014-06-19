@@ -29,6 +29,11 @@ db = flask_sqlalchemy.SQLAlchemy()
 object_mapper = flask_sqlalchemy.sqlalchemy.orm.object_mapper
 class_mapper = flask_sqlalchemy.sqlalchemy.orm.class_mapper
 
+try:
+    string_type = basestring
+except NameError:
+    # Python 3
+    string_type = str
 
 class SQLAJSONDecoder(json.JSONDecoder):
     def decode(self, s):
@@ -77,14 +82,14 @@ class SQL(DataLayer):
         else:
             models = cls.driver.Model._decl_class_registry
 
-        for model_name, model_cls in models.iteritems():
+        for model_name, model_cls in models.items():
             if model_name.startswith('_'):
                 continue
             if getattr(model_cls, '_eve_schema', None):
                 eve_schema = model_cls._eve_schema
                 dict_update(app.config['DOMAIN'], eve_schema)
 
-        for k, v in app.config['DOMAIN'].iteritems():
+        for k, v in app.config['DOMAIN'].items():
             # If a resource has a relation, copy the properties of the relation
             if 'datasource' in v and 'source' in v['datasource']:
                 source = v['datasource']['source']
@@ -201,9 +206,9 @@ class SQL(DataLayer):
         model_instance = query.filter(*filter_).first()
         if model_instance is None:
             abort(500, description=debug_error_message('Object not existent'))
-        for k, v in updates.iteritems():
+        for k, v in updates.items():
             setattr(model_instance, k, v)
-            self.driver.session.commit()
+        self.driver.session.commit()
 
     def remove(self, resource, lookup):
         model, filter_, _, _ = self._datasource_ex(resource, [])
@@ -233,7 +238,7 @@ class SQL(DataLayer):
         filter_ = config.SOURCES[resource]['filter']
         if filter_ is None or len(filter_) == 0:
             filter_ = []
-        elif isinstance(filter_, (str, unicode)):
+        elif isinstance(filter_, string_type):
             filter_ = parse(filter_, model)
         elif isinstance(filter_, dict):
             filter_ = parse_dictionary(filter_, model)
@@ -250,7 +255,7 @@ class SQL(DataLayer):
         model, filter_, fields_, sort_ = super(SQL, self)._datasource_ex(resource, query,
                                                                          client_projection, client_sort)
 
-        if fields_.values()[0] == 0:
+        if 0 in fields_.values():
             fields = [field for field in model._eve_fields if field not in fields_]
         else:
             fields = [field for field in model._eve_fields if field.startswith('_') or field in fields_]

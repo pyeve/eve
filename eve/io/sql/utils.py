@@ -11,13 +11,14 @@ from eve.utils import config
 
 
 def dict_update(d, u):
-    for k, v in u.iteritems():
+    for k, v in u.items():
         if isinstance(v, collections.Mapping):
-            r = dict_update(d.get(k, {}), v)
-            d[k] = r
+            if k in d and isinstance(d[k], collections.Mapping):
+                dict_update(d[k], v)
+            else:
+                d[k] = v
         else:
             d[k] = u[k]
-    return d
 
 
 def validate_filters(where, resource):
