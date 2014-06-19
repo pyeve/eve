@@ -59,3 +59,6 @@ _build
 *.db
 
 *.db-journal
+
+# Stored python history files
+.pyhist

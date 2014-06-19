@@ -10,9 +10,9 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from sql import SQL, db
-from validation import ValidatorSQL
-from common import CommonColumns
-from decorators import registerSchema
+from .sql import SQL, db
+from .validation import ValidatorSQL
+from .common import CommonColumns
+from .decorators import registerSchema
 
 __all__ = ['SQL', 'db', 'ValidatorSQL', 'CommonColumns', 'registerSchema']

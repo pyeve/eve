@@ -142,7 +142,7 @@ class TestSQLStructures(TestCase):
 
     def test_sql_result_keys(self):
         r = SQLAResult(self.person, self.fields)
-        self.assertItemsEqual(r.keys(), self.fields)
+        self.assertEqual(r.keys(), self.fields)
         self.assertEqual(len(r), len(self.fields))
         self.assertIn('prog', r.keys())
 
@@ -193,11 +193,11 @@ class TestSQLStructures(TestCase):
             self.connection.session.commit()
 
     def random_string(self, length=6):
-        return ''.join(random.choice(string.ascii_lowercase) for _ in xrange(length)).capitalize()
+        return ''.join(random.choice(string.ascii_lowercase) for _ in range(length)).capitalize()
 
     def random_people(self, num):
         people = []
-        for i in xrange(num):
+        for i in range(num):
             people.append((self.random_string(6), self.random_string(6), i))
         return people
 
