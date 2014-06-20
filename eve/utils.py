@@ -167,49 +167,32 @@ def date_to_str(date):
     return datetime.strftime(date, config.DATE_FORMAT) if date else None
 
 
-def collection_link(resource):
-    """ Returns a link to a resource endpoint.
-
-    :param resource: the resource name.
-
-    .. versionchanged:: 0.2
-       Use new 'resource_title' setting for link title.
-
-    .. versionchanged:: 0.0.3
-       Now returning a JSON link
-    """
-    return {'title': '%s' % config.DOMAIN[resource]['resource_title'],
-            'href': '%s' % resource_uri(resource)}
-
-
-def document_link(resource, document_id):
-    """ Returns a link to a document endpoint.
-
-    :param resource: the resource name.
-    :param document_id: the document unique identifier.
-
-    .. versionchanged:: 0.1.0
-       No more trailing slashes in links.
-
-    .. versionchanged:: 0.0.3
-       Now returning a JSON link
-    """
-    return {'title': '%s' % config.DOMAIN[resource]['item_title'],
-            'href': '%s/%s' % (resource_uri(resource), document_id)}
-
-
 def home_link():
     """ Returns a link to the API entry point/home page.
-
-    .. versionchanged:: 0.1.1
-       Handle the case of SERVER_NAME being None.
 
     .. versionchanged:: 0.0.3
        Now returning a JSON link.
     """
-    server_name = config.SERVER_NAME if config.SERVER_NAME else ''
     return {'title': 'home',
-            'href': '%s%s' % (server_name, api_prefix())}
+            'href': home_uri()}
+
+
+def home_uri():
+    """ Returns a absolute URI to API home.
+
+    .. versionchanged:: 0.4
+       Added support for URL_PROTOCOL
+       Refactored from home_link
+
+    .. versionchanged:: 0.1.1
+       Handle the case of SERVER_NAME being None.
+
+    .. versionadded:: 0.4
+    """
+    server_name = config.SERVER_NAME if config.SERVER_NAME else ''
+    if config.URL_PROTOCOL:
+        server_name = '%s://%s' % (config.URL_PROTOCOL, server_name)
+    return '%s%s' % (server_name, api_prefix())
 
 
 def resource_uri(resource):
@@ -226,12 +209,7 @@ def resource_uri(resource):
 
     :param resource: the resource name.
     """
-    prefix = config.SERVER_NAME if config.SERVER_NAME else ''
-    if config.URL_PREFIX:
-        prefix += '/%s' % config.URL_PREFIX
-    if config.API_VERSION:
-        prefix += '/%s' % config.API_VERSION
-    return '%s/%s' % (prefix, config.URLS[resource])
+    return '%s/%s' % (home_uri(), config.URLS[resource])
 
 
 def api_prefix(url_prefix=None, api_version=None):
@@ -353,3 +331,24 @@ def validate_filters(where, resource):
             if filt not in allowed:
                 return "filter on '%s' not allowed" % filt
     return None
+
+
+def auto_fields(resource):
+    """ Returns a list of automatically handled fields for a resource.
+
+    :param resource: the resource currently being accessed by the client.
+
+    .. versionadded:: 0.4
+    """
+    # preserved meta data
+    fields = [config.ID_FIELD, config.LAST_UPDATED, config.DATE_CREATED]
+
+    # on-the-fly meta data (not in data store)
+    fields += [config.ETAG, config.ISSUES, config.STATUS, config.LINKS]
+
+    if config.DOMAIN[resource]['versioning'] is True:
+        fields.append(config.VERSION)
+        fields.append(config.LATEST_VERSION)  # on-the-fly meta data
+        fields.append(config.ID_FIELD + config.VERSION_ID_SUFFIX)
+
+    return fields

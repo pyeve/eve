@@ -42,6 +42,9 @@ class MongoJSONEncoder(BaseJSONEncoder):
 class Mongo(DataLayer):
     """ MongoDB data access layer for Eve REST API.
 
+    .. versionchanged:: 0.4
+       Don't serialize to objectid if value is null. #341.
+
     .. versionchanged:: 0.2
        Provide the specialized json serializer class as ``json_encoder_class``.
 
@@ -50,7 +53,7 @@ class Mongo(DataLayer):
     """
 
     serializers = {
-        'objectid': ObjectId,
+        'objectid': lambda value: ObjectId(value) if value else None,
         'datetime': str_to_date
     }
 
@@ -85,6 +88,12 @@ class Mongo(DataLayer):
         :param resource: resource name.
         :param req: a :class:`ParsedRequest`instance.
         :param sub_resource_lookup: sub-resource lookup from the endpoint url.
+
+        .. versionchanged:: 0.4
+           'allowed_filters' is now checked before adding 'sub_resource_lookup'
+           to the query, as it is considered safe.
+           Refactored to use self._client_projection since projection is now
+           honored by getitem() as well.
 
         .. versionchanged:: 0.3
            Support for new _mongotize() signature.
@@ -130,7 +139,6 @@ class Mongo(DataLayer):
         # TODO should validate on unknown sort fields (mongo driver doesn't
         # return an error)
 
-        client_projection = {}
         client_sort = {}
         spec = {}
 
@@ -148,22 +156,16 @@ class Mongo(DataLayer):
                         'Unable to parse `where` clause'
                     ))
 
-        if sub_resource_lookup:
-            spec.update(sub_resource_lookup)
-
-        spec = self._mongotize(spec, resource)
-
         bad_filter = validate_filters(spec, resource)
         if bad_filter:
             abort(400, bad_filter)
 
-        if req.projection:
-            try:
-                client_projection = json.loads(req.projection)
-            except:
-                abort(400, description=debug_error_message(
-                    'Unable to parse `projection` clause'
-                ))
+        if sub_resource_lookup:
+            spec = self.combine_queries(spec, sub_resource_lookup)
+
+        spec = self._mongotize(spec, resource)
+
+        client_projection = self._client_projection(req)
 
         datasource, spec, projection, sort = self._datasource_ex(
             resource,
@@ -186,11 +188,15 @@ class Mongo(DataLayer):
 
         return self.driver.db[datasource].find(**args)
 
-    def find_one(self, resource, **lookup):
+    def find_one(self, resource, req, **lookup):
         """ Retrieves a single document.
 
         :param resource: resource name.
+        :param req: a :class:`ParsedRequest` instance.
         :param **lookup: lookup query.
+
+        .. versionchanged:: 0.4
+           Honor client projection requests.
 
         .. versionchanged:: 0.3.0
            Support for new _mongotize() signature.
@@ -215,10 +221,29 @@ class Mongo(DataLayer):
 
         self._mongotize(lookup, resource)
 
-        datasource, filter_, projection, _ = self._datasource_ex(resource,
-                                                                 lookup)
+        client_projection = self._client_projection(req)
+
+        datasource, filter_, projection, _ = self._datasource_ex(
+            resource,
+            lookup,
+            client_projection)
 
         document = self.driver.db[datasource].find_one(filter_, projection)
+        return document
+
+    def find_one_raw(self, resource, _id):
+        """ Retrieves a single raw document.
+
+        :param resource: resource name.
+        :param id: unique id.
+
+        .. versionadded:: 0.4
+        """
+        datasource, filter_, _, _ = self._datasource_ex(resource,
+                                                        {config.ID_FIELD: _id},
+                                                        None)
+
+        document = self.driver.db[datasource].find_one(_id)
         return document
 
     def find_list_of_ids(self, resource, ids, client_projection=None):
@@ -298,6 +323,9 @@ class Mongo(DataLayer):
     def update(self, resource, id_, updates):
         """ Updates a collection document.
 
+        .. versionchanged:: 0.4
+           Return a 400 on pymongo DuplicateKeyError.
+
         .. versionchanged:: 0.3.0
            Custom ID_FIELD lookups would fail. See #203.
 
@@ -326,6 +354,10 @@ class Mongo(DataLayer):
         try:
             self.driver.db[datasource].update(filter_, {"$set": updates},
                                               **self._wc(resource))
+        except pymongo.errors.DuplicateKeyError as e:
+            abort(400, description=debug_error_message(
+                'pymongo.errors.DuplicateKeyError: %s' % e
+            ))
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
             abort(500, description=debug_error_message(
@@ -550,13 +582,11 @@ class Mongo(DataLayer):
             if isinstance(v, dict):
                 self._mongotize(v, resource)
             elif isinstance(v, list):
-                i = 0
-                for v1 in v:
+                for i, v1 in enumerate(v):
                     if isinstance(v1, dict):
                         source[k][i] = self._mongotize(v1, resource)
                     else:
                         source[k][i] = try_cast(v1)
-                    i += 1
             elif isinstance(v, _str_type):
                 source[k] = try_cast(v)
 
@@ -591,3 +621,20 @@ class Mongo(DataLayer):
         .. versionadded:: 0.0.8
         """
         return config.DOMAIN[resource]['mongo_write_concern']
+
+    def _client_projection(self, req):
+        """ Returns a properly parsed client projection if available.
+
+        :param req: a :class:`ParsedRequest` instance.
+
+        .. versionadded:: 0.4
+        """
+        client_projection = {}
+        if req and req.projection:
+            try:
+                client_projection = json.loads(req.projection)
+            except:
+                abort(400, description=debug_error_message(
+                    'Unable to parse `projection` clause'
+                ))
+        return client_projection

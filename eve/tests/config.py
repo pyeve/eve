@@ -15,11 +15,11 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.import_name, eve.__package__)
 
     def test_custom_import_name(self):
-        self.app = Eve('custom_import_name', settings=self.settings_file)
-        self.assertEqual(self.app.import_name, 'custom_import_name')
+        self.app = Eve('unittest', settings=self.settings_file)
+        self.assertEqual(self.app.import_name, 'unittest')
 
     def test_custom_kwargs(self):
-        self.app = Eve('custom_import_name', static_folder='/',
+        self.app = Eve('unittest', static_folder='/',
                        settings=self.settings_file)
         self.assertEqual(self.app.static_folder, '/')
 
@@ -89,7 +89,7 @@ class TestConfig(TestBase):
         self.assertValidateConfigFailure('must be a dict')
 
         self.app.config['DOMAIN'] = {}
-        self.assertValidateConfigFailure('must contain at least one')
+        self.assertValidateConfigSuccess()
 
     def test_validate_resource_methods(self):
         self.app.config['RESOURCE_METHODS'] = ['PUT', 'GET', 'DELETE', 'POST']
@@ -161,6 +161,10 @@ class TestConfig(TestBase):
                          self.app.config['PUBLIC_METHODS'])
         self.assertEqual(settings['allowed_roles'],
                          self.app.config['ALLOWED_ROLES'])
+        self.assertEqual(settings['allowed_read_roles'],
+                         self.app.config['ALLOWED_READ_ROLES'])
+        self.assertEqual(settings['allowed_write_roles'],
+                         self.app.config['ALLOWED_WRITE_ROLES'])
         self.assertEqual(settings['cache_control'],
                          self.app.config['CACHE_CONTROL'])
         self.assertEqual(settings['cache_expires'],
@@ -171,6 +175,10 @@ class TestConfig(TestBase):
                          self.app.config['PUBLIC_ITEM_METHODS'])
         self.assertEqual(settings['allowed_item_roles'],
                          self.app.config['ALLOWED_ITEM_ROLES'])
+        self.assertEqual(settings['allowed_item_read_roles'],
+                         self.app.config['ALLOWED_ITEM_READ_ROLES'])
+        self.assertEqual(settings['allowed_item_write_roles'],
+                         self.app.config['ALLOWED_ITEM_WRITE_ROLES'])
         self.assertEqual(settings['item_lookup'],
                          self.app.config['ITEM_LOOKUP'])
         self.assertEqual(settings['item_lookup_field'],
@@ -182,6 +190,7 @@ class TestConfig(TestBase):
         self.assertEqual(settings['allowed_filters'],
                          self.app.config['ALLOWED_FILTERS'])
         self.assertEqual(settings['projection'], self.app.config['PROJECTION'])
+        self.assertEqual(settings['versioning'], self.app.config['VERSIONING'])
         self.assertEqual(settings['sorting'], self.app.config['SORTING'])
         self.assertEqual(settings['embedding'], self.app.config['EMBEDDING'])
         self.assertEqual(settings['pagination'], self.app.config['PAGINATION'])
@@ -217,17 +226,23 @@ class TestConfig(TestBase):
     def test_validate_roles(self):
         for resource in self.domain:
             self.assertValidateRoles(resource, 'allowed_roles')
+            self.assertValidateRoles(resource, 'allowed_read_roles')
+            self.assertValidateRoles(resource, 'allowed_write_roles')
             self.assertValidateRoles(resource, 'allowed_item_roles')
+            self.assertValidateRoles(resource, 'allowed_item_read_roles')
+            self.assertValidateRoles(resource, 'allowed_item_write_roles')
 
     def assertValidateRoles(self, resource, directive):
+        prev = self.domain[resource][directive]
         self.domain[resource][directive] = 'admin'
         self.assertValidateConfigFailure(directive)
         self.domain[resource][directive] = []
-        self.assertValidateConfigFailure(directive)
+        self.assertValidateConfigSuccess()
         self.domain[resource][directive] = ['admin', 'dev']
         self.assertValidateConfigSuccess()
         self.domain[resource][directive] = None
-        self.assertValidateConfigSuccess()
+        self.assertValidateConfigFailure(directive)
+        self.domain[resource][directive] = prev
 
     def assertValidateConfigSuccess(self):
         try:
@@ -272,9 +287,7 @@ class TestConfig(TestBase):
         }
         self.app.set_defaults()
         settings = self.domain['resource']
-        self.assertNotEqual(settings.get('defaults'), None)
-        self.assertEqual(type(settings['defaults']), set)
-        self.assertEqual(len(settings['defaults']), 2)
+        self.assertEqual({'title': 'Mr.', 'price': 100}, settings['defaults'])
 
     def test_url_helpers(self):
         self.assertNotEqual(self.app.config.get('URLS'), None)
@@ -320,3 +333,11 @@ class TestConfig(TestBase):
         self._test_defaults_for_resource(resource)
         self._test_datasource_for_resource(resource)
         self.test_validate_roles()
+
+    def test_auth_field_as_idfield(self):
+        resource = 'resource'
+        settings = {
+            'auth_field': self.app.config['ID_FIELD'],
+        }
+        self.assertRaises(ConfigException, self.app.register_resource,
+                          resource, settings)

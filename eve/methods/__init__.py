@@ -15,4 +15,4 @@ from eve.methods.get import get, getitem
 from eve.methods.post import post
 from eve.methods.patch import patch
 from eve.methods.put import put
-from eve.methods.delete import delete, delete_resource
+from eve.methods.delete import delete, deleteitem

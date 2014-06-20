@@ -12,6 +12,44 @@ from bson import ObjectId
 from eve.tests.test_settings import MONGO_PASSWORD, MONGO_USERNAME, \
     MONGO_DBNAME, DOMAIN, MONGO_HOST, MONGO_PORT
 from eve import ISSUES, ETAG
+from eve.utils import date_to_str
+
+
+class ValueStack(object):
+    """
+    Descriptor to store multiple assignments in an attribute.
+
+    Due to the multiple self.app = assignments in tests, it is difficult to
+    keep track by hand of the applications created in order to close their
+    database connections. This descriptor helps with it.
+    """
+    def __init__(self, on_delete):
+        """
+        :param on_delete: Action to execute when the attribute is deleted
+        """
+        self.elements = []
+        self.on_delete = on_delete
+
+    def __set__(self, obj, val):
+        self.elements.append(val)
+
+    def __get__(self, obj, objtype):
+        return self.elements[-1] if self.elements else None
+
+    def __delete__(self, obj):
+        for item in self.elements:
+            self.on_delete(item)
+        self.elements = []
+
+
+def close_pymongo_connection(app):
+    """
+    Close the pymongo connection in an eve/flask app
+    """
+    if 'pymongo' not in app.extensions:
+        return
+    del app.extensions['pymongo']['MONGO']
+    del app.media
 
 
 class TestMinimal(unittest.TestCase):
@@ -19,6 +57,7 @@ class TestMinimal(unittest.TestCase):
     based on Eve by subclassing this class and provide proper settings
     using :func:`setUp()`
     """
+    app = ValueStack(close_pymongo_connection)
 
     def setUp(self, settings_file=None, url_converters=None):
         """ Prepare the test fixture
@@ -45,6 +84,7 @@ class TestMinimal(unittest.TestCase):
         self.domain = self.app.config['DOMAIN']
 
     def tearDown(self):
+        del self.app
         self.dropDB()
 
     def assert200(self, status):
@@ -66,15 +106,43 @@ class TestMinimal(unittest.TestCase):
         if resource in self.domain:
             resource = self.domain[resource]['url']
         if item:
-            request = '/%s/%s' % (resource, item)
+            request = '/%s/%s%s' % (resource, item, query)
         else:
             request = '/%s%s' % (resource, query)
 
         r = self.test_client.get(request)
         return self.parse_response(r)
 
+    def post(self, url, data, headers=None, content_type='application/json'):
+        if headers is None:
+            headers = []
+        headers.append(('Content-Type', content_type))
+        r = self.test_client.post(url, data=json.dumps(data), headers=headers)
+        return self.parse_response(r)
+
+    def put(self, url, data, headers=None):
+        if headers is None:
+            headers = []
+        headers.append(('Content-Type', 'application/json'))
+        r = self.test_client.put(url, data=json.dumps(data), headers=headers)
+        return self.parse_response(r)
+
+    def patch(self, url, data, headers=None):
+        if headers is None:
+            headers = []
+        headers.append(('Content-Type', 'application/json'))
+        r = self.test_client.patch(url, data=json.dumps(data), headers=headers)
+        return self.parse_response(r)
+
+    def delete(self, url, headers=None):
+        r = self.test_client.delete(url, headers=headers)
+        return self.parse_response(r)
+
     def parse_response(self, r):
-        v = json.loads(r.get_data()) if r.status_code in (200, 201) else None
+        try:
+            v = json.loads(r.get_data())
+        except json.JSONDecodeError:
+            v = None
         return v, r.status_code
 
     def assertValidationError(self, response, matches):
@@ -137,13 +205,23 @@ class TestMinimal(unittest.TestCase):
         _id = item.get(self.app.config['ID_FIELD'])
         self.assertItemLink(link, _id)
 
+    def assertPagination(self, response, page, total, max_results):
+        self.assertTrue(self.app.config['META'] in response)
+        meta = response.get(self.app.config['META'])
+        self.assertTrue('page' in meta)
+        self.assertTrue('max_results' in meta)
+        self.assertTrue('total' in meta)
+        self.assertEqual(meta['page'], page)
+        self.assertEqual(meta['max_results'], max_results)
+        self.assertEqual(meta['total'], total)
+
     def assertHomeLink(self, links):
         self.assertTrue('parent' in links)
         link = links['parent']
         self.assertTrue('title' in link)
         self.assertTrue('href' in link)
         self.assertEqual('home', link['title'])
-        self.assertEqual("%s" % self.app.config.get('SERVER_NAME', ''),
+        self.assertEqual("%s" % self._get_server_name(),
                          link['href'])
 
     def assertResourceLink(self, links, resource):
@@ -153,7 +231,7 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue('href' in link)
         url = self.domain[resource]['url']
         self.assertEqual(url, link['title'])
-        self.assertEqual("%s/%s" % (self.app.config.get('SERVER_NAME', ''),
+        self.assertEqual("%s/%s" % (self._get_server_name(),
                                     url),
                          link['href'])
 
@@ -164,7 +242,7 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue('href' in link)
         url = self.domain[resource]['url']
         self.assertEqual(url, link['title'])
-        self.assertEqual("%s/%s" % (self.app.config.get('SERVER_NAME', ''),
+        self.assertEqual("%s/%s" % (self._get_server_name(),
                                     url), link['href'])
 
     def assertNextLink(self, links, page):
@@ -187,7 +265,7 @@ class TestMinimal(unittest.TestCase):
     def assertItemLink(self, links, item_id):
         self.assertTrue('self' in links)
         link = links['self']
-        #TODO we are too deep here to get a hold of the due title. Should fix.
+        # TODO we are too deep here to get a hold of the due title. Should fix.
         self.assertTrue('title' in link)
         self.assertTrue('href' in link)
         self.assertTrue('/%s' % item_id in link['href'])
@@ -235,6 +313,13 @@ class TestMinimal(unittest.TestCase):
     def bulk_insert(self):
         pass
 
+    def _get_server_name(self):
+        server_name = self.app.config.get('SERVER_NAME', '')
+        url_protocol = self.app.config.get('URL_PROTOCOL', '')
+        if url_protocol:
+            server_name = '%s://%s' % (url_protocol, server_name)
+        return server_name
+
     def dropDB(self):
         self.connection = MongoClient(MONGO_HOST, MONGO_PORT)
         self.connection.drop_database(MONGO_DBNAME)
@@ -275,6 +360,7 @@ class TestBase(TestMinimal):
 
         response, _ = self.get('contacts', '?max_results=2')
         contact = self.response_item(response)
+        self.item = contact
         self.item_id = contact[self.app.config['ID_FIELD']]
         self.item_name = contact['ref']
         self.item_tid = contact['tid']
@@ -314,6 +400,8 @@ class TestBase(TestMinimal):
         self.invoice_id_url = ('/%s/%s' %
                                (self.domain['invoices']['url'],
                                 self.invoice_id))
+
+        self.epoch = date_to_str(datetime(1970, 1, 1))
 
     def response_item(self, response, i=0):
         if self.app.config['HATEOAS']:

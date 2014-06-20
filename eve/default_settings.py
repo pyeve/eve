@@ -11,6 +11,19 @@
     :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.4
+       'META' added and set to '_meta'.
+       'ERROR' added and set to '_error'.
+       'URL_PROTOCOL' added and set to ''.
+       'BANDWIDTH_SAVER' added and set to True.
+       'VERSION' added and set to '_version'.
+       'VERSIONS' added and set to '_versions'.
+       'VERSIONING' added and set to False.
+       'VERSION_PARAM' added and set to 'version'.
+       'LATEST_VERSION' added and set to '_latest_version'.
+       'VERSION_ID_SUFFIX' added and set to '_document'.
+       'VERSION_DIFF_INCLUDE' added and set to [].
+
     .. versionchanged:: 0.3
        X_MAX_AGE added and set to 21600.
 
@@ -47,7 +60,7 @@
        access.
        'X_DOMAIN' keyword added to support Cross-Origin Resource Sharing CORS
 """
-#DEBUG = True
+# DEBUG = True
 
 # RFC 1123 (ex RFC 822)
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
@@ -58,13 +71,26 @@ LAST_UPDATED = '_updated'
 DATE_CREATED = '_created'
 ISSUES = '_issues'
 STATUS = '_status'
+ERROR = '_error'
 ITEMS = '_items'
 LINKS = '_links'
 ETAG = '_etag'
+VERSION = '_version'            # field that stores the version number
+META = '_meta'
+
+# field returned on GET requests so we know if we have the latest copy even if
+# we access a specific version
+LATEST_VERSION = '_latest_version'
+
+# appended to ID_FIELD, holds the original document id in parallel collection
+VERSION_ID_SUFFIX = '_document'
+VERSION_DIFF_INCLUDE = []       # always include these fields when diffing
 
 API_VERSION = ''
 URL_PREFIX = ''
+URL_PROTOCOL = ''               # relative HATEOAS paths by default.
 SERVER_NAME = None
+URL_PROTOCOL = ''
 ID_FIELD = '_id'
 CACHE_CONTROL = ''
 CACHE_EXPIRES = 0
@@ -82,28 +108,39 @@ PROJECTION = True               # projection enabled by default
 PAGINATION = True               # pagination enabled by default.
 PAGINATION_LIMIT = 50
 PAGINATION_DEFAULT = 25
+VERSIONING = False              # turn document versioning on or off
+VERSIONS = '_versions'          # suffix for parallel collection w/old versions
+VERSION_PARAM = 'version'       # URL param for specific version of a document
 
 RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']
 PUBLIC_METHODS = []
-ALLOWED_ROLES = None
+ALLOWED_ROLES = []
+ALLOWED_READ_ROLES = []
+ALLOWED_WRITE_ROLES = []
 PUBLIC_ITEM_METHODS = []
-ALLOWED_ITEM_ROLES = None
+ALLOWED_ITEM_ROLES = []
+ALLOWED_ITEM_READ_ROLES = []
+ALLOWED_ITEM_WRITE_ROLES = []
 ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
 ITEM_URL = 'regex("[a-f0-9]{24}")'
 
+# use a simple file response format by default
+EXTENDED_MEDIA_INFO = []
+RETURN_MEDIA_AS_BASE64_STRING = True
+
 # list of extra fields to be included with every POST response. This list
 # should not include the 'standard' fields (ID_FIELD, LAST_UPDATED,
-# DATE_CREATED,ETAG).
+# DATE_CREATED, and ETAG). Only relevant when bandwidth saving mode is on.
 EXTRA_RESPONSE_FIELDS = []
+BANDWIDTH_SAVER = True
 
+# user-restricted resource access is disabled by default.
+AUTH_FIELD = None
 
-AUTH_FIELD = None               # user-restricted resource access is disabled
-                                # by default.
-
-ALLOW_UNKNOWN = False           # don't allow unknown key/value pairs for
-                                # POST/PATCH payloads.
+# don't allow unknown key/value pairs for POST/PATCH payloads.
+ALLOW_UNKNOWN = False
 
 # Rate limits are disabled by default. Needs a running redis-server.
 RATE_LIMIT_GET = None
