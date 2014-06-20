@@ -566,6 +566,8 @@ class TestBaseSQL(TestMinimal):
         self.readonly_id_url = ('%s/%s' % (self.readonly_resource_url,
                                            self.readonly_id))
 
+        self.epoch = date_to_str(datetime(1970, 1, 1))
+
     def setupDB(self):
         self.connection = self.app.data.driver
         self.connection.drop_all()
