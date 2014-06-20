@@ -6,7 +6,7 @@ Here you can see the full list of changes between each Eve release.
 Version 0.4
 -----------
 
-Not released yet.
+Released on 20 June, 2014.
 
 - [fix] return 500 instead of 404 if CORS is enabled. Closes #381.
 - [change] Jinja2 2.7.3 is now required.
