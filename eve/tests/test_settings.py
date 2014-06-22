@@ -124,6 +124,28 @@ invoices = {
     }
 }
 
+companies = {
+    'item_title': 'company',
+    'schema': {
+        'departments': {
+            'type': 'list',
+            'schema': {
+                'type': 'dict',
+                'schema': {
+                    'title': {'type': 'string'},
+                    'members': {
+                        'type': 'list',
+                        'schema': {
+                            'type': 'objectid',
+                            'data_relation': {'resource': 'contacts'}
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 users_overseas = copy.deepcopy(users)
 users_overseas['url'] = 'users/overseas'
 users_overseas['datasource'] = {'source': 'contacts'}
@@ -152,4 +174,5 @@ DOMAIN = {
     'empty': empty,
     'restricted': user_restricted_access,
     'peopleinvoices': users_invoices,
+    'companies': companies,
 }
