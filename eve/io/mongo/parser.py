@@ -26,8 +26,10 @@ def parse(expression):
     v = MongoVisitor()
     try:
         v.visit(ast.parse(expression))
-    except SyntaxError:
-        raise ParseError(), None, sys.exc_info()[2]
+    except SyntaxError as e:
+        e = ParseError(e)
+        e.__traceback__ = sys.exc_info()[2]
+        raise e
     return v.mongo_query
 
 
