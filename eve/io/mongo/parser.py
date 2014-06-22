@@ -12,6 +12,7 @@
 """
 
 import ast
+import sys
 from datetime import datetime   # noqa
 from bson import ObjectId       # noqa
 
@@ -23,7 +24,10 @@ def parse(expression):
     supported.
     """
     v = MongoVisitor()
-    v.visit(ast.parse(expression))
+    try:
+        v.visit(ast.parse(expression))
+    except SyntaxError:
+        raise ParseError(), None, sys.exc_info()[2]
     return v.mongo_query
 
 
