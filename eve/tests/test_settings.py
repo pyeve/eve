@@ -99,7 +99,10 @@ contacts = {
             'type': 'string',
             'default': 'default',
             'readonly': True
-        }
+        },
+        'key1': {
+            'type': 'string',
+        },
     }
 }
 
