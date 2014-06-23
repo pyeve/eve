@@ -634,7 +634,8 @@ class Mongo(DataLayer):
             try:
                 client_projection = json.loads(req.projection)
                 if not isinstance(client_projection, dict):
-                    raise Exception('The projection parameter has to be a dict')
+                    raise Exception('The projection parameter has to be a '
+                                    'dict')
             except:
                 abort(400, description=debug_error_message(
                     'Unable to parse `projection` clause'
