@@ -8,7 +8,8 @@ Version 0.5
 
 Not released yet.
 
-- [fix] Fix server crash in case of invalid "where" syntax #386 (Olivier
+- [fix] Crash if client projection is not a dict #390 (Olivier Poitrey).
+- [fix] Server crash in case of invalid "where" syntax #386 (Olivier
   Poitrey).
 
 Version 0.4
