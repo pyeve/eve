@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Eve Changelog &mdash; Eve 0.4 documentation</title>
+    <title>Eve Changelog &mdash; Eve 0.5-dev documentation</title>
     
     <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.4',
+        VERSION:     '0.5-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.4 documentation" href="index.html" />
+    <link rel="top" title="Eve 0.5-dev documentation" href="index.html" />
     <link rel="prev" title="Licensing" href="license.html" />
    
   
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="license.html" title="Licensing"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Eve 0.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Eve 0.5-dev documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -57,6 +57,15 @@
   <div class="section" id="eve-changelog">
 <span id="changelog"></span><h1>Eve Changelog<a class="headerlink" href="#eve-changelog" title="Permalink to this headline">¶</a></h1>
 <p>Here you can see the full list of changes between each Eve release.</p>
+<div class="section" id="version-0-5">
+<h2>Version 0.5<a class="headerlink" href="#version-0-5" title="Permalink to this headline">¶</a></h2>
+<p>Not released yet.</p>
+<ul class="simple">
+<li>[fix] Crash if client projection is not a dict #390 (Olivier Poitrey).</li>
+<li>[fix] Server crash in case of invalid &#8220;where&#8221; syntax #386 (Olivier
+Poitrey).</li>
+</ul>
+</div>
 <div class="section" id="version-0-4">
 <h2>Version 0.4<a class="headerlink" href="#version-0-4" title="Permalink to this headline">¶</a></h2>
 <p>Released on 20 June, 2014.</p>
@@ -707,7 +716,7 @@ tags which also caused XML validation issues when processing responses
 <li>Version number in &#8216;Server&#8217; response headers.</li>
 <li>Added support for DELETE at resource endpoints. Expected behavior:
 will delete all items in the collection. Disabled by default.</li>
-<li><tt class="xref py py-class docutils literal"><span class="pre">eve.io.mongo.Validator</span></tt> now supports <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#cerberus.Validator" title="(in Cerberus v0.7.1)"><tt class="xref py py-class docutils literal"><span class="pre">Validator</span></tt></a>
+<li><tt class="xref py py-class docutils literal"><span class="pre">eve.io.mongo.Validator</span></tt> now supports <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#cerberus.Validator" title="(in Cerberus v0.7.2)"><tt class="xref py py-class docutils literal"><span class="pre">Validator</span></tt></a>
 signature, allowing for further subclassing.</li>
 </ul>
 </div>
@@ -767,6 +776,7 @@ signature, allowing for further subclassing.</li>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Eve Changelog</a><ul>
+<li><a class="reference internal" href="#version-0-5">Version 0.5</a></li>
 <li><a class="reference internal" href="#version-0-4">Version 0.4</a></li>
 <li><a class="reference internal" href="#version-0-3">Version 0.3</a></li>
 <li><a class="reference internal" href="#version-0-2">Version 0.2</a></li>
