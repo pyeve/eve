@@ -73,6 +73,11 @@ The response payload will look something like this:
             },
             ...
         ],
+        "_meta": {
+            "max_results": 25,
+            "total": 70,
+            "page": 1
+        },
         "_links": {
             "self": {"href": "eve-demo.herokuapp.com:5000/people", "title": "people"},
             "parent": {"href": "eve-demo.herokuapp.com:5000", "title": "home"}
@@ -95,7 +100,9 @@ Field        Description
 These additional fields are automatically handled by the API (clients don't
 need to provide them when adding/editing resources).
 
-The ``_links`` list provides HATEOAS_ directives.
+The ``_meta`` field provides pagination data and will only be there if
+:ref:`Pagination` has been enabled (it is by default) and there is at least one
+document being returned. The ``_links`` list provides HATEOAS_ directives.
 
 .. _subresources:
 
@@ -281,6 +288,8 @@ use a pure MongoDB syntax; support for a more general syntax
     Always use double quotes to wrap field names and values. Using single
     quotes will result in ``400 Bad Request`` responses.
 
+.. _pagination:
+
 Pagination
 ----------
 Resource pagination is enabled by default in order to improve performance and
@@ -345,65 +354,16 @@ included when appropriate.
 
 Disabling HATEOAS
 ~~~~~~~~~~~~~~~~~
-HATEOAS can be disabled both at the API and/or resource level. When HATEOAS is
-disabled, response payloads have a different structure. The resource payload is
-a simple list of items:
-
-.. code-block:: console
-
-    $ curl -i http://eve-demo.herokuapp.com/people
-    HTTP/1.1 200 OK
-
-.. code-block:: javascript
-
-    [
-        {
-            "firstname": "Mark",
-            "lastname": "Green",
-            "born": "Sat, 23 Feb 1985 12:00:00 GMT",
-            "role": ["copy", "author"],
-            "location": {"city": "New York", "address": "4925 Lacross Road"},
-            "_id": "50bf198338345b1c604faf31",
-            "_updated": "Wed, 05 Dec 2012 09:53:07 GMT",
-            "_created": "Wed, 05 Dec 2012 09:53:07 GMT",
-            "_etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d",
-        },
-        {
-            "firstname": "John",
-            ...
-        },
-    ]
-
-As you can see, the ``_links`` element is also missing from list items. The
-same happens to individual item payloads:
-
-.. code-block:: console
-
-    $ curl -i http://eve-demo.herokuapp.com/people/522f01dc15b4fc00028e6d98
-    HTTP/1.1 200 OK
-
-.. code-block:: javascript
-
-    {
-        "lastname": "obama",
-        "_id": "522f01dc15b4fc00028e6d98",
-        "firstname": "barack",
-        "_created": "Tue, 10 Sep 2013 11:26:20 GMT",
-        "_etag": "206fb4a39815cc0ebf48b2b52d709777a55333de",
-        "_updated": "Tue, 10 Sep 2013 11:26:20 GMT"
-    }
-
-Why would you want to turn HATEOAS off? Well, if you know that your client
-application is not going to use the feature, then you might want to save on
-both bandwidth and performance. Also, some REST client libraries out there
-might have issues when parsing something other than a simple list of items.
+HATEOAS can be disabled both at the API and/or resource level. Why would you
+want to turn HATEOAS off? Well, if you know that your client application is not
+going to use the feature, then you might want to save on both bandwidth and
+performance. 
 
 .. admonition:: Please note
 
     When HATEOAS is disabled, the API entry point (the home page) will return
-    a ``404 Not Found``, since its only usefulness would be to return a list of
-    available resources, which is the standard behavior when HATEOAS is
-    enabled.
+    a ``404``, since its only usefulness would be to return a list of available
+    resources, which is the standard behavior when HATEOAS is enabled.
 
 .. _jsonxml:
 
@@ -460,11 +420,11 @@ or the ``If-None-Match`` header:
 Data Integrity and Concurrency Control
 --------------------------------------
 API responses include a ``ETag`` header which also allows for proper
-concurrency control. An ``ETag`` is a hash value representing the current
-state of the resource on the server. Consumers are not allowed to edit or
-delete a resource unless they provide an up-to-date ``ETag`` for the resource
-they are attempting to edit. This prevents overwriting items with obsolete
-versions.
+concurrency control. An ``ETag`` is a hash value representing the current state
+of the resource on the server. Consumers are not allowed to edit (``PATCH`` or
+``PUT``) or delete (``DELETE``) a resource unless they provide an up-to-date
+``ETag`` for the resource they are attempting to edit. This prevents
+overwriting items with obsolete versions.
 
 Consider the following workflow:
 
@@ -541,7 +501,7 @@ metadata:
     }
 
 However, in order to reduce the number of loopbacks, a client might also submit
-multiple documents with a single request. All if needs to do is enclose the
+multiple documents with a single request. All it needs to do is enclose the
 documents in a JSON list:
 
 .. code-block:: console
@@ -553,22 +513,25 @@ The response will be a list itself, with the state of each document:
 
 .. code-block:: javascript
 
-    [
-        {
-            "_status": "OK",
-            "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
-            "_id": "50ae43339fa12500024def5b",
-            "_etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
-            "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b", "title": "person"}}
-        },
-        {
-            "_status": "OK",
-            "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
-            "_id": "50ae43339fa12500024def5c",
-            "_etag": "62d356f623c7d9dc864ffa5facc47dced4ba6907"
-            "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5c", "title": "person"}}
-        }
-    ]
+    {
+        "_status": "OK",
+        "_items": [
+            {
+                "_status": "OK",
+                "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
+                "_id": "50ae43339fa12500024def5b",
+                "_etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
+                "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b", "title": "person"}}
+            },
+            {
+                "_status": "OK",
+                "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
+                "_id": "50ae43339fa12500024def5c",
+                "_etag": "62d356f623c7d9dc864ffa5facc47dced4ba6907"
+                "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5c", "title": "person"}}
+            }
+        ]
+    }
 
 When multiple documents are submitted the API takes advantage of MongoDB *bulk
 insert* capabilities which means that not only there's just one single request
@@ -592,34 +555,26 @@ request:
 
 .. code-block:: javascript
 
-    [
-        {
-            "_status": "ERR",
-            "_issues": {"lastname": "value 'clinton' not unique"}
-        },
-        {
-            "_status": "OK",
-            "_updated": "Thu, 22 Nov 2012 15:29:08 GMT",
-            "_id": "50ae44c49fa12500024def5d",
-            "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d", "title": "person"}}
-        }
+    {
+        "_status": "ERR",
+        "_error": "Some documents contains errors",
+        "_items": [
+            {
+                "_status": "ERR",
+                "_issues": {"lastname": "value 'clinton' not unique"}
+            },
+            {
+                "_status": "OK",
+            }
+        ]
     ]
 
-In the example above, the first document did not validate and was rejected,
-while the second was successfully created. The API maintainer has complete
-control on data validation. Optionally, you can decide to allow for unknown
-fields to be inserted/updated on one or more endpoints. For more information
-see :ref:`validation`.
+In the example above, the first document did not validate so the whole request
+has been rejected. For more information see :ref:`validation`.
 
-.. admonition:: Please Note
-
-    Eventual validation errors on one or more document won't prevent the
-    insertion of valid documents. The response status code will be ``201
-    Created`` if *at least one document* passed validation and has actually
-    been stored. If no document passed validation the status code will be ``200
-    OK``, meaning that the request was accepted and processed. It is still
-    client's responsability to parse the response payload and make sure that
-    all documents passed validation.
+In all cases, when all documents passed validation and where inserted correctly,
+the response status is ``201 Created``. If any document fail the validation, the
+response status is ``400 Bad Request``.
 
 Extensible Data Validation
 --------------------------
@@ -666,16 +621,21 @@ between versions: caching, URIs, schemas, validation, and so on. URI versioning
 
 Document Versioning
 -------------------
-Eve supports automatic version control of documents. By default, this setting is
-turned off, but it can be turned globally or configured individually for each
-resource. When enabled, Eve provides version control by storing versions of
-documents in a shadow collection. All HTTP methods act on the latest version of 
-the document except when retrieving an indivual item. In this case, adding a
-query parameter of ``?version=VERSION`` can be used to point to a specific
-version. Special values of  ``?version=all`` and  ``?version=diffs`` are also
-valid. (Bonus tip - try a projection on top of ``?version=all``!) Additional
-fields called ``_version`` and ``_latest_version`` get automatically added to
-documents when versioning is turned on.
+Eve supports automatic version control of documents. By default, this setting
+is turned off, but it can be turned globally or configured individually for
+each resource. When enabled, Eve begins automatically tracking changes to
+documents and adds the fields ``_version`` and ``_latest_version`` when
+retrieving documents.
+
+Behind the scenes, Eve stores document versions in shadow collections that
+parallels the collection of each primary resource that Eve defines. New
+document versions are automatically added to this collection during normal
+POST, PUT, and PATCH operations. A special new query parameter is available
+when GETing an item that provides access to the document versions. Access a
+specific version with ``?version=VERSION``, access all versions with
+``?version=all``, and access diffs of all versions with ``?version=diffs``.
+Collection query features like projections, pagination, and sorting work with
+``all`` and ``diff`` except for sorting which does not work on ``diff``.
 
 It is important to note that there are a few non-standard scenarios which could
 produce unexpected results when versioning is turned on. In particular, document
@@ -954,11 +914,23 @@ configured:
 
 .. code-block:: pycon
 
-   >>> def add_signature(resource, item):
-   ...     item['SIGNATURE'] = "A %s from eve" % resource
+   >>> def add_signature(resource, response):
+   ...     response['SIGNATURE'] = "A %s from eve" % resource
 
    >>> app = Eve()
    >>> app.on_fetched_item += add_signature
+
+You may use flask's ``abort()`` to interrupt the database operation:
+
+.. code-block:: pycon
+
+   >>> from flask import abort
+
+   >>> def check_update_access(resource, updates, original):
+   ...     abort(403)
+
+   >>> app = Eve()
+   >>> app.on_insert_item += check_update_access
 
 The events are fired for resources and items if the action is available for
 both. And for each action two events will be fired:
@@ -972,16 +944,16 @@ Let's see an overview of what events are available:
 |Action |What    |When  |Event name / method signature                    |
 +=======+========+======+=================================================+
 |Fetch  |Resource|After || ``on_fetched_resource``                        |
-|       |        |      || ``def event(resource_name, items)``            |
+|       |        |      || ``def event(resource_name, response)``         |
 |       |        |      +-------------------------------------------------+
 |       |        |      || ``on_fetched_resource_<resource_name>``        |
-|       |        |      || ``def event(items)``                           |
+|       |        |      || ``def event(response)``                        |
 |       +--------+------+-------------------------------------------------+
 |       |Item    |After || ``on_fetched_item``                            |
-|       |        |      || ``def event(resource_name, item)``             |
+|       |        |      || ``def event(resource_name, response)``         |
 |       |        |      +-------------------------------------------------+
 |       |        |      || ``on_fetched_item_<resource_name>``            |
-|       |        |      || ``def event(item)``                            |
+|       |        |      || ``def event(response)``                        |
 +-------+--------+------+-------------------------------------------------+
 |Insert |Items   |Before|| ``on_insert``                                  |
 |       |        |      || ``def event(resource_name, items)``            |
@@ -1051,10 +1023,10 @@ Fetch Events
 
 These are the fetch events with their method signature:
 
-- ``on_fetched_resource(resource_name, items)``
-- ``on_fetched_resource_<resource_name>(items)``
-- ``on_fetched_item(resource_name, item)``
-- ``on_fetched_item_<resource_name>(item)``
+- ``on_fetched_resource(resource_name, response)``
+- ``on_fetched_resource_<resource_name>(response)``
+- ``on_fetched_item(resource_name, response)``
+- ``on_fetched_item_<resource_name>(response)``
 
 They are raised when items have just been read from the database and are
 about to be sent to the client. Registered callback functions can manipulate
@@ -1062,16 +1034,16 @@ the items as needed before they are returned to the client.
 
 .. code-block:: pycon
 
-    >>> def before_returning_items(resource_name, items):
+    >>> def before_returning_items(resource_name, response):
     ...  print 'About to return items from "%s" ' % resource_name
 
-    >>> def before_returning_contacts(items):
+    >>> def before_returning_contacts(response):
     ...  print 'About to return contacts'
 
-    >>> def before_returning_item(resource_name, item):
+    >>> def before_returning_item(resource_name, response):
     ...  print 'About to return an item from "%s" ' % resource_name
 
-    >>> def before_returning_contact(item):
+    >>> def before_returning_contact(response):
     ...  print 'About to return a contact'
 
     >>> app = Eve()
@@ -1298,7 +1270,59 @@ As a proper developer guide is not available yet, you can peek at the
 MediaStorage_ source if you are interested in developing custom storage
 classes.
 
-When a document is requested media files will be returned as Base64 strings.
+When a document is requested media files will be returned as Base64 strings,
+
+.. code-block:: python
+
+    {
+        '_items': [
+            {
+                '_updated':'Sat, 05 Apr 2014 15:52:53 GMT',
+                'pic':'iVBORw0KGgoAAAANSUhEUgAAA4AAAAOACA...',
+            }
+        ]
+        ...
+   } 
+
+However, if the ``EXTENDED_MEDIA_INFO`` list is populated (it isn't by
+default) the payload format will be different. This flag allows passthrough
+from the driver of additional meta fields. For example, using the MongoDB
+driver, fields like ``content_type``, ``name`` and ``length`` can be added to
+this list and will be passed-through from the underlying driver. 
+
+When ``EXTENDED_MEDIA_INFO`` is used the field will be a dictionary
+whereas the file itself is stored under the ``file`` key and other keys
+are the meta fields. Suppose that the flag is set like this:
+
+.. code-block:: python
+
+    EXTENDED_MEDIA_INFO = ['content_type', 'name', 'length']
+
+Then the output will be something like
+
+.. code-block:: python
+
+    {
+        '_items': [
+            {
+                '_updated':'Sat, 05 Apr 2014 15:52:53 GMT',
+                'pic': {
+                    'file': 'iVBORw0KGgoAAAANSUhEUgAAA4AAAAOACA...',
+                    'content_type': 'text/plain',
+                    'name': 'test.txt',
+                    'length': 8129
+                }
+            }
+        ]
+        ...
+    }
+
+For MongoDB, further fields can be found in the `driver documentation`_. 
+
+If you have other means to retrieve the media files (custom Flask endpoint for
+example) then the media files can be excluded from the paylod by setting to
+``False`` the ``RETURN_MEDIA_AS_BASE64_STRING`` flag. This takes into account
+if ``EXTENDED_MEDIA_INFO`` is used.
 
 .. _projection_filestorage:
 
@@ -1377,3 +1401,4 @@ for unittesting_ and an `extensive documentation`_.
 .. _`MongoDB Data Model Design`: http://docs.mongodb.org/manual/core/data-model-design
 .. _GridFS: http://docs.mongodb.org/manual/core/gridfs/
 .. _MediaStorage: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/media.py
+.. _`driver documentation`: http://api.mongodb.org/python/2.7rc0/api/gridfs/grid_file.html#gridfs.grid_file.GridOut

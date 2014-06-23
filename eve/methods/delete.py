@@ -20,7 +20,7 @@ from eve.versioning import versioned_id_field
 @ratelimit()
 @requires_auth('item')
 @pre_event
-def delete(resource, **lookup):
+def deleteitem(resource, **lookup):
     """ Deletes a resource item. Deletion will occur only if request ETag
     matches the current representation of the item.
 
@@ -93,7 +93,7 @@ def delete(resource, **lookup):
 
 @requires_auth('resource')
 @pre_event
-def delete_resource(resource, **lookup):
+def delete(resource, **lookup):
     """ Deletes all item of a resource (collection in MongoDB terms). Won't
     drop indexes. Use with caution!
 

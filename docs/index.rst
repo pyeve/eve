@@ -27,7 +27,7 @@ All you need to bring your API online is a database, a configuration file
 (defaults to ``settings.py``) and a launch script.  Overall, you will find that
 configuring and fine-tuning your API is a very simple process.
 
-Eve is thoroughly tested under Python 2.6, 2.7, 3.3 and PyPy.
+Eve is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4 and PyPy.
 
 .. _demo:
 
@@ -36,7 +36,7 @@ Live demo
 Check out the `live demo`_. If using a browser you will get XML back. For JSON
 in the browser, you might want to install Postman_ or similar extension and
 then set the ``Accept`` request header to ``application/json``. If you are
-a CLI guy (and you should), ``curl`` is your friend. The `source code`_ will
+a CLI user (and you should), ``curl`` is your friend. The `source code`_ will
 show you how easy it is to run an API with Eve. You will also find `usage
 examples`_ for all common use cases (GET, POST, PATCH, DELETE and more). There
 is also a simple `client app`_ available.

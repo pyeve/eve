@@ -225,6 +225,24 @@ class TestPatch(TestBaseSQL):
         self.assert200(status)
         self.assertPatchResponse(response, fake_invoice_id)
 
+    def test_patch_bandwidth_saver(self):
+        changes = {'prog': 1234567890}
+
+        # bandwidth_saver is on by default
+        self.assertTrue(self.app.config['BANDWIDTH_SAVER'])
+        r = self.perform_patch(changes)
+        self.assertFalse('prog' in r)
+        db_value = self.compare_patch_with_get(self.app.config['ETAG'], r)
+        self.assertEqual(db_value, r[self.app.config['ETAG']])
+        self.item_etag = r[self.app.config['ETAG']]
+
+        # test return all fields (bandwidth_saver off)
+        self.app.config['BANDWIDTH_SAVER'] = False
+        r = self.perform_patch(changes)
+        self.assertTrue('prog' in r)
+        db_value = self.compare_patch_with_get(self.app.config['ETAG'], r)
+        self.assertEqual(db_value, r[self.app.config['ETAG']])
+
     def assertPatchResponse(self, response, item_id):
         self.assertTrue(STATUS in response)
         self.assertTrue(STATUS_OK in response[STATUS])

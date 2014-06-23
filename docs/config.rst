@@ -96,342 +96,412 @@ uppercase.
 
 .. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
 
-=============================== =========================================
-``SERVER_NAME``                 Domain on which the API is being hosted. 
-                                Supports subdomains. Defaults to 
-                                ``localhost:5000``. 
+=================================== =========================================
+``SERVER_NAME``                     Domain on which the API is being hosted. 
+                                    Supports subdomains. Defaults to
+                                    ``localhost:5000``. 
 
-``URL_PREFIX``                  URL prefix for all API endpoints. Will be used 
-                                in conjunction with ``SERVER_NAME`` and 
-                                ``API_VERSION`` to construct all API urls 
-                                (e.g., ``api`` will be rendered to 
-                                ``localhost:5000/api/``).  Defaults to ``''``.
+``URL_PREFIX``                      URL prefix for all API endpoints. Will be used 
+                                    in conjunction with ``SERVER_NAME`` and
+                                    ``API_VERSION`` to construct all API urls
+                                    (e.g., ``api`` will be rendered to
+                                    ``localhost:5000/api/``).  Defaults to
+                                    ``''``.
 
-``API_VERSION``                 API version. Will be used in conjunction with 
-                                ``SERVER_NAME`` and ``URL_PREFIX`` to construct
-                                API urls (e.g., ``v1`` will be rendered to
-                                ``localhost:5000/v1/``). Defaults to ``''``.
+``API_VERSION``                     API version. Will be used in conjunction with 
+                                    ``SERVER_NAME`` and ``URL_PREFIX`` to
+                                    construct API urls (e.g., ``v1`` will be
+                                    rendered to ``localhost:5000/v1/``).
+                                    Defaults to ``''``.
 
-``URL_PROTOCOL``                URL protocol. Will be used to form a full URL.
-                                Setting to ``http`` will result in
-                                ``http://localhost:5000``, e.g. Defaults to
-                                ``''`` for relative paths.
+``URL_PROTOCOL``                    URL protocol. Will be used to form a full URL.
+                                    Setting to ``http`` will result in
+                                    ``http://localhost:5000``, e.g. Defaults to
+                                    ``''`` for relative paths.
 
-``ALLOWED_FILTERS``             List of fields on which filtering is allowed. 
-                                Can be set to ``[]`` (no filters allowed) or
-                                ``['*']`` (filters allowed on every field).
-                                Unless your API is comprised of just one
-                                endpoint, this global setting should be used as
-                                an on/off switch, delegating explicit
-                                whitelisting at the local level (see
-                                ``allowed_filters`` below). Defaults to
-                                ``['*']``.
+``ALLOWED_FILTERS``                 List of fields on which filtering is allowed. 
+                                    Can be set to ``[]`` (no filters allowed)
+                                    or ``['*']`` (filters allowed on every
+                                    field). Unless your API is comprised of
+                                    just one endpoint, this global setting
+                                    should be used as an on/off switch,
+                                    delegating explicit whitelisting at the
+                                    local level (see ``allowed_filters``
+                                    below). Defaults to ``['*']``.
 
-                                *Please note:* If API scraping or DB DoS
-                                attacks are a concern, then globally disabling
-                                filters and whitelisting valid ones at the local
-                                level is the way to go.
+                                    *Please note:* If API scraping or DB DoS
+                                    attacks are a concern, then globally
+                                    disabling filters and whitelisting valid
+                                    ones at the local level is the way to go.
 
-``SORTING``                     ``True`` if sorting is supported for ``GET``
-                                requests, otherwise ``False``. Can be overridden
-                                by resource settings. Defaults to ``True``.
+``SORTING``                         ``True`` if sorting is supported for ``GET``
+                                    requests, otherwise ``False``. Can be
+                                    overridden by resource settings. Defaults
+                                    to ``True``.
 
-``PAGINATION``                  ``True`` if pagination is enabled for ``GET`` 
-                                requests, otherwise ``False``. Can be overridden
-                                by resource settings. Defaults to ``True``.
+``PAGINATION``                      ``True`` if pagination is enabled for ``GET`` 
+                                    requests, otherwise ``False``. Can be
+                                    overridden by resource settings. Defaults
+                                    to ``True``.
 
-``PAGINATION_LIMIT``            Maximum value allowed for ``max_results``
-                                querydef parameter. Values exceeding the limit
-                                will be silently replaced with this value.
-                                You want to aim for a reasonable compromise
-                                between performance and transfer size. Defaults
-                                to 50.
+``PAGINATION_LIMIT``                Maximum value allowed for ``max_results``
+                                    querydef parameter. Values exceeding the
+                                    limit will be silently replaced with this
+                                    value. You want to aim for a reasonable
+                                    compromise between performance and transfer
+                                    size. Defaults to 50.
 
-``PAGINATION_DEFAULT``          Default value for ``max_results`` applied when 
-                                the parameter is omitted.  Defaults to 25.
+``PAGINATION_DEFAULT``              Default value for ``max_results`` applied when 
+                                    the parameter is omitted.  Defaults to 25.
 
-``DATE_FORMAT``                 A Python date format used to parse and render 
-                                datetime values. When serving requests, 
-                                matching JSON strings will be parsed and stored as
-                                ``datetime`` values. In responses, ``datetime``
-                                values will be rendered as JSON strings using
-                                this format. Defaults to the RFC1123 (ex RFC
-                                822) standard ``a, %d %b %Y %H:%M:%S GMT`` 
-                                ("Tue, 02 Apr 2013 10:29:13 GMT"). 
+``DATE_FORMAT``                     A Python date format used to parse and render 
+                                    datetime values. When serving requests,
+                                    matching JSON strings will be parsed and
+                                    stored as ``datetime`` values. In
+                                    responses, ``datetime`` values will be
+                                    rendered as JSON strings using this format.
+                                    Defaults to the RFC1123 (ex RFC 822)
+                                    standard ``a, %d %b %Y %H:%M:%S GMT``
+                                    ("Tue, 02 Apr 2013 10:29:13 GMT"). 
 
-``RESOURCE_METHODS``            A list of HTTP methods supported at resource 
-                                endpoints. Allowed values: ``GET``, ``POST``,
-                                ``DELETE``. ``POST`` is used for insertions.
-                                ``DELETE`` will delete *all* resource contents
-                                (enable with caution). Can be overridden by
-                                resource settings. Defaults to ``['GET']``.
+``RESOURCE_METHODS``                A list of HTTP methods supported at resource 
+                                    endpoints. Allowed values: ``GET``,
+                                    ``POST``, ``DELETE``. ``POST`` is used for
+                                    insertions. ``DELETE`` will delete *all*
+                                    resource contents (enable with caution).
+                                    Can be overridden by resource settings.
+                                    Defaults to ``['GET']``.
 
-``PUBLIC_METHODS``              A list of HTTP methods supported at resource
-                                endpoints, open to public access even when
-                                :ref:`auth` is enabled. Can be overridden by
-                                resource settings. Defaults to ``[]``.
+``PUBLIC_METHODS``                  A list of HTTP methods supported at resource
+                                    endpoints, open to public access even when
+                                    :ref:`auth` is enabled. Can be overridden
+                                    by resource settings. Defaults to ``[]``.
 
-``ITEM_METHODS``                A list of HTTP methods supported at item 
-                                endpoints. Allowed values: ``GET``, ``PATCH``
-                                and ``DELETE``. ``PATCH`` or, for clients not
-                                supporting PATCH, ``POST`` with the
-                                ``X-HTTP-Method-Override`` header tag, is used
-                                for item updates; ``DELETE`` for item deletion.
-                                Can be overridden by resource settings. Defaults
-                                to ``['GET']``.  
+``ITEM_METHODS``                    A list of HTTP methods supported at item 
+                                    endpoints. Allowed values: ``GET``,
+                                    ``PATCH`` and ``DELETE``. ``PATCH`` or, for
+                                    clients not supporting PATCH, ``POST`` with
+                                    the ``X-HTTP-Method-Override`` header tag,
+                                    is used for item updates; ``DELETE`` for
+                                    item deletion. Can be overridden by
+                                    resource settings. Defaults to ``['GET']``.  
 
-``PUBLIC_ITEM_METHODS``         A list of HTTP methods supported at item
-                                endpoints, left open to public access when when
-                                :ref:`auth` is enabled. Can be overridden by
-                                resource settings. Defaults to ``[]``.
+``PUBLIC_ITEM_METHODS``             A list of HTTP methods supported at item
+                                    endpoints, left open to public access when
+                                    when :ref:`auth` is enabled. Can be
+                                    overridden by resource settings. Defaults
+                                    to ``[]``.
 
-``ALLOWED_ROLES``               A list of allowed `roles` for resource
-                                endpoints. Can be overridden by resource
-                                settings. See :ref:`auth` for more
-                                information. Defaults to ``[]``.
+``ALLOWED_ROLES``                   A list of allowed `roles` for resource
+                                    endpoints. Can be overridden by resource
+                                    settings. See :ref:`auth` for more
+                                    information. Defaults to ``[]``.
 
-``ALLOWED_ITEM_ROLES``          A list of allowed `roles` for item endpoints. 
-                                See :ref:`auth` for more information. Can be
-                                overridden by resource settings.  Defaults to
-                                ``[]``.
+``ALLOWED_READ_ROLES``              A list of allowed `roles` for resource
+                                    endpoints with GET and OPTIONS methods.
+                                    Can be overridden by resource
+                                    settings. See :ref:`auth` for more
+                                    information. Defaults to ``[]``.
 
-``CACHE_CONTROL``               Value of the ``Cache-Control`` header field 
-                                used when serving ``GET`` requests (e.g., 
-                                ``max-age=20,must-revalidate``). Leave empty if
-                                you don't want to include cache directives with
-                                API responses. Can be overridden by resource
-                                settings. Defaults to ``''``.
+``ALLOWED_WRITE_ROLES``             A list of allowed `roles` for resource
+                                    endpoints with POST, PUT and DELETE
+                                    methods. Can be overridden by resource
+                                    settings. See :ref:`auth` for more
+                                    information. Defaults to ``[]``.
 
-``CACHE_EXPIRES``               Value (in seconds) of the ``Expires`` header 
-                                field used when serving ``GET`` requests. If
-                                set to a non-zero value, the header will 
-                                always be included, regardless of the setting
-                                of ``CACHE_CONTROL``. Can be overridden by
-                                resource settings. Defaults to 0.
+``ALLOWED_ITEM_ROLES``              A list of allowed `roles` for item endpoints. 
+                                    See :ref:`auth` for more information. Can
+                                    be overridden by resource settings.
+                                    Defaults to ``[]``.
 
-``X_DOMAINS``                   CORS (Cross-Origin Resource Sharing) support. 
-                                Allows API maintainers to specify which domains
-                                are allowed to perform CORS requests. Allowed
-                                values are: ``None``, a list of domains or '*'
-                                for a wide-open API. Defaults to ``None``.
+``ALLOWED_ITEM_READ_ROLES``         A list of allowed `roles` for item endpoints
+                                    with GET and OPTIONS methods. 
+                                    See :ref:`auth` for more information. Can
+                                    be overridden by resource settings.
+                                    Defaults to ``[]``.
 
-``X_HEADERS``                   CORS (Cross-Origin Resource Sharing) support. 
-                                Allows API maintainers to specify which headers
-                                are allowed to be sent with CORS requests. Allowed
-                                values are: ``None`` or a list of headers names.
-                                Defaults to ``None``.
+``ALLOWED_ITEM_WRITE_ROLES``        A list of allowed `roles` for item endpoints
+                                    with PUT, PATCH and DELETE methods.
+                                    See :ref:`auth` for more information. Can
+                                    be overridden by resource settings.
+                                    Defaults to ``[]``.
+
+``CACHE_CONTROL``                   Value of the ``Cache-Control`` header field 
+                                    used when serving ``GET`` requests (e.g.,
+                                    ``max-age=20,must-revalidate``). Leave
+                                    empty if you don't want to include cache
+                                    directives with API responses. Can be
+                                    overridden by resource settings. Defaults
+                                    to ``''``.
+
+``CACHE_EXPIRES``                   Value (in seconds) of the ``Expires`` header 
+                                    field used when serving ``GET`` requests.
+                                    If set to a non-zero value, the header will
+                                    always be included, regardless of the
+                                    setting of ``CACHE_CONTROL``. Can be
+                                    overridden by resource settings. Defaults
+                                    to 0.
+
+``X_DOMAINS``                       CORS (Cross-Origin Resource Sharing) support. 
+                                    Allows API maintainers to specify which
+                                    domains are allowed to perform CORS
+                                    requests. Allowed values are: ``None``,
+                                    a list of domains or '*' for a wide-open
+                                    API. Defaults to ``None``.
+
+``X_HEADERS``                       CORS (Cross-Origin Resource Sharing) support. 
+                                    Allows API maintainers to specify which
+                                    headers are allowed to be sent with CORS
+                                    requests. Allowed values are: ``None`` or
+                                    a list of headers names. Defaults to
+                                    ``None``.
                                 
-``X_MAX_AGE``                   CORS (Cross-Origin Resource Sharing) support. 
-                                Allows to set max age for the access control 
-                                allow header. Defaults to 21600.
+``X_MAX_AGE``                       CORS (Cross-Origin Resource Sharing) 
+                                    support. Allows to set max age for the
+                                    access control allow header. Defaults to
+                                    21600.
 
                                 
-``LAST_UPDATED``                Name of the field used to record a document's 
-                                last update date. This field is automatically
-                                handled by Eve. Defaults to ``_updated``.
+``LAST_UPDATED``                    Name of the field used to record a document's 
+                                    last update date. This field is
+                                    automatically handled by Eve. Defaults to
+                                    ``_updated``.
 
-``DATE_CREATED``                Name for the field used to record a document
-                                creation date. This field is automatically
-                                handled by Eve. Defaults to ``_created``.
+``DATE_CREATED``                    Name for the field used to record a document
+                                    creation date. This field is automatically
+                                    handled by Eve. Defaults to ``_created``.
 
-``ID_FIELD``                    Name of the field used to uniquely identify
-                                resource items within the database. You want
-                                this field to be properly indexed on the
-                                database.  Defaults to ``_id``. 
+``ID_FIELD``                        Name of the field used to uniquely identify
+                                    resource items within the database. You
+                                    want this field to be properly indexed on
+                                    the database.  Defaults to ``_id``. 
 
-``ITEM_LOOKUP``                 ``True`` if item endpoints should be generally 
-                                available acroos the API, ``False`` otherwise. 
-                                Can be overridden by resource settings. Defaults
-                                to ``True``.
+``ITEM_LOOKUP``                     ``True`` if item endpoints should be generally 
+                                    available acroos the API, ``False``
+                                    otherwise. Can be overridden by resource
+                                    settings. Defaults to ``True``.
 
-``ITEM_LOOKUP_FIELD``           Document field used when looking up a resource
-                                item. Can be overridden by resource settings.
-                                Defaults to ``ID_FIELD``.
+``ITEM_LOOKUP_FIELD``               Document field used when looking up a resource
+                                    item. Can be overridden by resource
+                                    settings. Defaults to ``ID_FIELD``.
 
-``ITEM_URL``                    URL rule used to construct default item
-                                endpoint URLs. Can be overridden by resource
-                                settings. Defaults ``regex("[a-f0-9]{24}")``
-                                which is MongoDB standard ``Object_Id`` format.
+``ITEM_URL``                        URL rule used to construct default item
+                                    endpoint URLs. Can be overridden by
+                                    resource settings. Defaults
+                                    ``regex("[a-f0-9]{24}")`` which is MongoDB
+                                    standard ``Object_Id`` format.
 
-``ITEM_TITLE``                  Title to be used when building item references, 
-                                both in XML and JSON responses. Defaults to 
-                                resource name, with the plural 's' stripped if
-                                present. Can and most likely will be overridden 
-                                when configuring single resource endpoints.
+``ITEM_TITLE``                      Title to be used when building item references, 
+                                    both in XML and JSON responses. Defaults to
+                                    resource name, with the plural 's' stripped
+                                    if present. Can and most likely will be
+                                    overridden when configuring single resource
+                                    endpoints.
 
-``AUTH_FIELD``                  Enables :ref:`user-restricted`. When the
-                                feature is enabled, users can only
-                                read/update/delete resource items created by
-                                themselves. The keyword contains the actual
-                                name of the field used to store the id of
-                                the user who created the resource item. Can be
-                                overridden by resource settings. Defaults to
-                                ``None``, which disables the feature. 
+``AUTH_FIELD``                      Enables :ref:`user-restricted`. When the
+                                    feature is enabled, users can only
+                                    read/update/delete resource items created
+                                    by themselves. The keyword contains the
+                                    actual name of the field used to store the
+                                    id of the user who created the resource
+                                    item. Can be overridden by resource
+                                    settings. Defaults to ``None``, which
+                                    disables the feature. 
 
-``ALLOW_UNKNOWN``               When ``True``, this option will allow insertion
-                                of arbitrary, unknown fields to any API
-                                endpoint. Use with caution. See :ref:`unknown`
-                                for more information. Defaults to ``False``.
+``ALLOW_UNKNOWN``                   When ``True``, this option will allow insertion
+                                    of arbitrary, unknown fields to any API
+                                    endpoint. Use with caution. See
+                                    :ref:`unknown` for more information.
+                                    Defaults to ``False``.
 
-``PROJECTION``                  When ``True``, this option enables the
-                                :ref:`projections` feature. Can be overridden
-                                by resource settings. Defaults to ``True``.
+``PROJECTION``                      When ``True``, this option enables the
+                                    :ref:`projections` feature. Can be
+                                    overridden by resource settings. Defaults
+                                    to ``True``.
 
-``EMBEDDING``                   When ``True`` this option enables the
-                                :ref:`embedded_docs` feature. Defaults to
-                                ``True``.
+``EMBEDDING``                       When ``True``, this option enables the
+                                    :ref:`embedded_docs` feature. Defaults to
+                                    ``True``.
 
-``EXTRA_RESPONSE_FIELDS``       Allows to configure a list of additional
-                                document fields that should be provided with
-                                every POST response. Normally only
-                                automatically handled fields (``ID_FIELD``,
-                                ``LAST_UPDATED``, ``DATE_CREATED``, ``ETAG``)
-                                are included in response payloads. Can be
-                                overridden by resource settings. Defaults to
-                                ``[]``, effectively disabling the feature.
+``BANDWIDTH_SAVER``                 When ``True``, POST, PUT, and PATCH responses
+                                    only return automatically handled fields
+                                    and ``EXTRA_RESPONSE_FIELDS``. When
+                                    ``False``, the entire document will be
+                                    sent. Defaults to ``True``.
 
-``RATE_LIMIT_GET``              A tuple expressing the rate limit on GET 
-                                requests. The first element of the tuple is 
-                                the number of requests allowed, while the
-                                second is the time window in seconds. For
-                                example, ``(300, 60 * 15)`` would set a limit
-                                of 300 requests every 15 minutes. Defaults
-                                to ``None``.
+``EXTRA_RESPONSE_FIELDS``           Allows to configure a list of additional
+                                    document fields that should be provided
+                                    with every POST response. Normally only
+                                    automatically handled fields (``ID_FIELD``,
+                                    ``LAST_UPDATED``, ``DATE_CREATED``,
+                                    ``ETAG``) are included in response
+                                    payloads. Can be overridden by resource
+                                    settings. Defaults to ``[]``, effectively
+                                    disabling the feature.
 
-``RATE_LIMIT_POST``             A tuple expressing the rate limit on POST 
-                                requests. The first element of the tuple is 
-                                the number of requests allowed, while the
-                                second is the time window in seconds. For
-                                example ``(300, 60 * 15)`` would set a limit
-                                of 300 requests every 15 minutes. Defaults
-                                to ``None``. 
+``RATE_LIMIT_GET``                  A tuple expressing the rate limit on GET 
+                                    requests. The first element of the tuple is
+                                    the number of requests allowed, while the
+                                    second is the time window in seconds. For
+                                    example, ``(300, 60 * 15)`` would set
+                                    a limit of 300 requests every 15 minutes.
+                                    Defaults to ``None``.
 
-``RATE_LIMIT_PATCH``            A tuple expressing the rate limit on PATCH 
-                                requests. The first element of the tuple is 
-                                the number of requests allowed, while the
-                                second is the time window in seconds. For
-                                example ``(300, 60 * 15)`` would set a limit
-                                of 300 requests every 15 minutes. Defaults
-                                to ``None``. 
+``RATE_LIMIT_POST``                 A tuple expressing the rate limit on POST 
+                                    requests. The first element of the tuple is
+                                    the number of requests allowed, while the
+                                    second is the time window in seconds. For
+                                    example ``(300, 60 * 15)`` would set
+                                    a limit of 300 requests every 15 minutes.
+                                    Defaults to ``None``. 
 
-``RATE_LIMIT_DELETE``           A tuple expressing the rate limit on DELETE 
-                                requests. The first element of the tuple is 
-                                the number of requests allowed, while the
-                                second is the time window in seconds. For
-                                example ``(300, 60 * 15)`` would set a limit
-                                of 300 requests every 15 minutes. Defaults
-                                to ``None``. 
+``RATE_LIMIT_PATCH``                A tuple expressing the rate limit on PATCH 
+                                    requests. The first element of the tuple is
+                                    the number of requests allowed, while the
+                                    second is the time window in seconds. For
+                                    example ``(300, 60 * 15)`` would set
+                                    a limit of 300 requests every 15 minutes.
+                                    Defaults to ``None``. 
 
-``DEBUG``                       ``True`` to enable Debug Mode, ``False``
-                                otherwise. 
+``RATE_LIMIT_DELETE``               A tuple expressing the rate limit on DELETE 
+                                    requests. The first element of the tuple is
+                                    the number of requests allowed, while the
+                                    second is the time window in seconds. For
+                                    example ``(300, 60 * 15)`` would set
+                                    a limit of 300 requests every 15 minutes. Defaults to
+                                    ``None``. 
 
-``HATEOAS``                     When ``False``, this option disables 
-                                :ref:`hateoas_feature`. Defaults to ``True``. 
+``DEBUG``                           ``True`` to enable Debug Mode, ``False``
+                                    otherwise. 
 
-``ISSUES``                      Allows to customize the issues field. Defaults
-                                to ``_issues``.
+``ERROR``                           Allows to customize the error_code field. Defaults
+                                    to ``_error``.
 
-``STATUS``                      Allows to customize the status field. Defaults
-                                to ``_status``.
+``HATEOAS``                         When ``False``, this option disables 
+                                    :ref:`hateoas_feature`. Defaults to ``True``. 
 
-``STATUS_OK``                   Status message returned when data validation is
-                                successful. Defaults to ``OK``.
+``ISSUES``                          Allows to customize the issues field. Defaults
+                                    to ``_issues``.
 
-``STATUS_ERR``                  Status message returned when data validation
-                                failed. Defaults to ``ERR``.
+``STATUS``                          Allows to customize the status field. Defaults
+                                    to ``_status``.
 
-``ITEMS``                       Allows to customize the items field. Defaults
-                                to ``_items``.
+``STATUS_OK``                       Status message returned when data validation is
+                                    successful. Defaults to ``OK``.
 
-``LINKS``                       Allows to customize the links field. Defaults
-                                to ``_links``.
+``STATUS_ERR``                      Status message returned when data validation
+                                    failed. Defaults to ``ERR``.
 
-``ETAG``                        Allows to customize the etag field. Defaults
-                                to ``_etag``.
+``ITEMS``                           Allows to customize the items field. Defaults
+                                    to ``_items``.
 
-``IF_MATCH``                    ``True`` to enable concurrency control, ``False``
-                                otherwise. Defaults to ``True``. See
-                                :ref:`concurrency`.
+``META``                            Allows to customize the meta field. Defaults
+                                    to ``_meta``
 
-``XML``                         ``True`` to enable XML support, ``False`` 
-                                otherwise. See :ref:`jsonxml`. Defaults to
-                                ``True``.
+``LINKS``                           Allows to customize the links field. Defaults
+                                    to ``_links``.
 
-``JSON``                        ``True`` to enable JSON support, ``False`` 
-                                otherwise. See :ref:`jsonxml`. Defaults to 
-                                ``True``.
+``ETAG``                            Allows to customize the etag field. Defaults
+                                    to ``_etag``.
 
-``VERSIONING``                  Enabled documents version control when``True``. Can be erridden by resource settings. Defaults to ``False``.
+``IF_MATCH``                        ``True`` to enable concurrency control, ``False``
+                                    otherwise. Defaults to ``True``. See
+                                    :ref:`concurrency`.
 
-``VERSIONS``                    Suffix added to the name of the primary
-                                collection to create the name of the shadow
-                                collection to store document versions. Defaults
-                                to ``_versions``. When ``VERSIONING`` is enabled
-                                , a collection such as ``myresource_versions``
-                                would be created for a resource with a
-                                datasource of ``myresource``.
+``XML``                             ``True`` to enable XML support, ``False`` 
+                                    otherwise. See :ref:`jsonxml`. Defaults to
+                                    ``True``.
 
-``VERSION_PARAM``               The URL query parameter used to access the
-                                specific version of a document. Defaults to
-                                ``version``. Omit this parameter to get the
-                                latest version of a document or use 
-                                `?version=all`` to get a list of all version of
-                                the document. Only valid for individual item
-                                endpoints.
+``JSON``                            ``True`` to enable JSON support, ``False`` 
+                                    otherwise. See :ref:`jsonxml`. Defaults to
+                                    ``True``.
 
-``VERSION``                     Field used to store the version number of a
-                                document. Defaults to ``_version``.
+``VERSIONING``                      Enabled documents version control when``True``. Can be erridden by resource settings. Defaults to ``False``.
 
-``LASTEST_VERSION``             Field used to store the latest version number
-                                of a document. Defaults to ``_latest_version``.
+``VERSIONS``                        Suffix added to the name of the primary
+                                    collection to create the name of the shadow
+                                    collection to store document versions.
+                                    Defaults to ``_versions``. When
+                                    ``VERSIONING`` is enabled , a collection
+                                    such as ``myresource_versions`` would be
+                                    created for a resource with a datasource of
+                                    ``myresource``.
 
-``VERSION_ID_SUFFIX``           Used in the shadow collection to store the
-                                document id. Defaults to ``_document``. If
-                                ``ID_FIELD`` is set to ``_id``, the document id
-                                will be stored in field ``_id_document``.
+``VERSION_PARAM``                   The URL query parameter used to access the
+                                    specific version of a document. Defaults to
+                                    ``version``. Omit this parameter to get the
+                                    latest version of a document or use
+                                    `?version=all`` to get a list of all
+                                    version of the document. Only valid for
+                                    individual item endpoints.
 
-``MONGO_HOST``                  MongoDB server address. Defaults to ``localhost``.
+``VERSION``                         Field used to store the version number of a
+                                    document. Defaults to ``_version``.
 
-``MONGO_PORT``                  MongoDB port. Defaults to ``27017``.
+``LASTEST_VERSION``                 Field used to store the latest version number
+                                    of a document. Defaults to
+                                    ``_latest_version``.
 
-``MONGO_USERNAME``              MongoDB user name.
+``VERSION_ID_SUFFIX``               Used in the shadow collection to store the
+                                    document id. Defaults to ``_document``. If
+                                    ``ID_FIELD`` is set to ``_id``, the
+                                    document id will be stored in field
+                                    ``_id_document``.
 
-``MONGO_PASSWORD``              MongoDB password.
+``MONGO_HOST``                      MongoDB server address. Defaults to ``localhost``.
 
-``MONGO_DBNAME``                MongoDB database name.
+``MONGO_PORT``                      MongoDB port. Defaults to ``27017``.
 
-``MONGO_QUERY_BLACKLIST``       A list of Mongo query operators that are not
-                                allowed to be used in resource filters
-                                (``?where=``). Defaults to ``['$where',
-                                '$regex']``. 
+``MONGO_USERNAME``                  MongoDB user name.
+
+``MONGO_PASSWORD``                  MongoDB password.
+
+``MONGO_DBNAME``                    MongoDB database name.
+
+``MONGO_QUERY_BLACKLIST``           A list of Mongo query operators that are not
+                                    allowed to be used in resource filters
+                                    (``?where=``). Defaults to ``['$where',
+                                    '$regex']``. 
                                 
-                                Mongo JavaScript operators are disabled by
-                                default, as they might be used as vectors for
-                                injection attacks. Javascript queries also tend
-                                to be slow and generally can be easily replaced
-                                with the (very rich) Mongo query dialect.
+                                    Mongo JavaScript operators are disabled by
+                                    default, as they might be used as vectors
+                                    for injection attacks. Javascript queries
+                                    also tend to be slow and generally can be
+                                    easily replaced with the (very rich) Mongo
+                                    query dialect.
 
-``MONGO_WRITE_CONCERN``         A dictionary defining MongoDB write concern
-                                settings. All standard write concern settings 
-                                (w, wtimeout, j, fsync) are supported. Defaults
-                                to ``{'w': 1}``, which means 'do regular
-                                acknowledged writes' (this is also the Mongo
-                                default).
+``MONGO_WRITE_CONCERN``             A dictionary defining MongoDB write concern
+                                    settings. All standard write concern
+                                    settings (w, wtimeout, j, fsync) are
+                                    supported. Defaults to ``{'w': 1}``, which
+                                    means 'do regular acknowledged writes'
+                                    (this is also the Mongo default).
 
-                                Please be aware that setting 'w' to a value of
-                                2 or greater requires replication to be active
-                                or you will be getting 500 errors (the write
-                                will still happen; Mongo will just be unable
-                                to check that it's being written to multiple
-                                servers).
-                                
-                                Can be overridden at endpoint (Mongo
-                                collection) level. See ``mongo_write_concern``
-                                below.
+                                    Please be aware that setting 'w' to a value of
+                                    2 or greater requires replication to be
+                                    active or you will be getting 500 errors
+                                    (the write will still happen; Mongo will
+                                    just be unable to check that it's being
+                                    written to multiple servers).
 
-``DOMAIN``                      A dict holding the API domain definition.
-                                See `Domain Configuration`_.
-=============================== =========================================
+                                    Can be overridden at endpoint (Mongo
+                                    collection) level. See
+                                    ``mongo_write_concern`` below.
+
+``DOMAIN``                          A dict holding the API domain definition.
+                                    See `Domain Configuration`_.
+
+``EXTENDED_MEDIA_INFO``             A list of properties to forward from the file upload
+                                    driver.
+
+``RETURN_MEDIA_AS_BASE64_STRING``   Controls the embedding of the media type in
+                                    the endpoint response. This is useful when
+                                    you have other means of getting the binary
+                                    (like custom Flask endpoints) but still
+                                    want clients to be able to POST/PATCH it.
+                                    Defaults to ``True``. 
+
+=================================== =========================================
 
 .. _domain:
 
@@ -529,6 +599,29 @@ always lowercase.
                                 endpoint. See :ref:`auth` for more
                                 information. Locally overrides
                                 ``ALLOWED_ROLES``.
+
+``allowed_read_roles``          A list of allowed `roles` for resource
+                                endpoint with GET and OPTIONS methods.
+                                See :ref:`auth` for more
+                                information. Locally overrides
+                                ``ALLOWED_READ_ROLES``.
+
+``allowed_write_roles``         A list of allowed `roles` for resource
+                                endpoint with POST, PUT and DELETE.
+                                See :ref:`auth` for more
+                                information. Locally overrides
+                                ``ALLOWED_WRITE_ROLES``.
+
+``allowed_item_read_roles``     A list of allowed `roles` for item endpoint
+                                with GET and OPTIONS methods.
+                                See :ref:`auth` for more information.
+                                Locally overrides ``ALLOWED_ITEM_READ_ROLES``.
+
+
+``allowed_item_write_roles``    A list of allowed `roles` for item endpoint
+                                with PUT, PATH and DELETE methods.
+                                See :ref:`auth` for more information.
+                                Locally overrides ``ALLOWED_ITEM_WRITE_ROLES``.
 
 ``allowed_item_roles``          A list of allowed `roles` for item endpoint. 
                                 See :ref:`auth` for more information.
@@ -755,7 +848,7 @@ defining the field validation rules. Allowed validation rules are:
                                 ``string`` and ``list`` types.
 
 ``min``, ``max``                Minimum and maximum values allowed for
-                                ``integer`` types.
+                                ``integer``, ``float`` and ``number`` types.
 
 ``allowed``                     List of allowed values for ``string`` and 
                                 ``list`` types.
@@ -813,12 +906,66 @@ defining the field validation rules. Allowed validation rules are:
                                 ``None``. 
 
 ``default``                     The default value for the field. When serving
-                                POST (create) requests, missing fields will be
+                                POST and PUT requests, missing fields will be
                                 assigned the configured default values.
+
+                                It works also for types ``dict`` and ``list``.
+                                The latter is restricted and works only for
+                                lists with schemas (list with a random number
+                                of elements and each element being a ``dict``)
+
+                                ::
+
+                                    schema = {
+                                      # Simple default
+                                      'title': {
+                                        'type': 'string',
+                                        'default': 'M.'
+                                      },
+                                      # Default in a dict
+                                      'others': {
+                                        'type': 'dict',
+                                        'schema': {
+                                          'code': {
+                                            'type': 'integer',
+                                            'default': 100
+                                          }
+                                        }
+                                      },
+                                      # Default in a list of dicts
+                                      'mylist': {
+                                        'type': 'list',
+                                        'schema': {
+                                          'type': 'dict',
+                                          'schema': {
+                                            'name': {'type': 'string'},
+                                            'customer': {
+                                              'type': 'boolean',
+                                              'default': False
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
 
 ``versioned``                   If ``True``, this field will be included in the
                                 versioned history of each document when
                                 ``versioning`` is enabled. Defaults to ``True``.
+
+``keyschema``                   Validation schema for all values of a ``dict``.
+                                The dict can have arbitrary keys, the values
+                                for all of which must validate with given
+                                schema. See `keyschema example <http://cerberus.readthedocs.org/en/latest/#keyschema>`_.
+
+``regex``                       Validation will fail if field value does not 
+                                match the provided regex rule. Only applies to 
+                                string fields. See `email validation example <http://cerberus.readthedocs.org/en/latest/#regex>`_
+
+
+``dependencies``                This rule allows a list of fields that must be 
+                                present in order for the target field to be 
+                                allowed. See `dependencies example <http://cerberus.readthedocs.org/en/latest/#dependencies>`_
+
 =============================== ==============================================
 
 Schema syntax is based on Cerberus_ and yes, it can be extended.  In fact, Eve
@@ -866,7 +1013,7 @@ of the database collection. It is a dictionary with four allowed keys:
                                 returned with the default database order.
                                 A valid statement would be:
 
-                                ``'datasource': {'default_sort': [('name':
+                                ``'datasource': {'default_sort': [('name',
                                 1)]}``
 
                                 For more informations on sort and filters see
@@ -944,7 +1091,7 @@ resource keyword allows you to redefine the fieldset.
 The above setting will expose only the `username` field to GET requests, no
 matter the schema_ defined for the resource. 
 
-Likewise, you can esclude fields from API responses:
+Likewise, you can exclude fields from API responses:
 
 ::
 
