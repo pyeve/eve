@@ -143,7 +143,7 @@ def put(resource, **lookup):
     if len(issues):
         response[config.ISSUES] = issues
         response[config.STATUS] = config.STATUS_ERR
-        status = 400
+        status = config.VALIDATION_ERROR_STATUS
     else:
         response[config.STATUS] = config.STATUS_OK
         status = 200

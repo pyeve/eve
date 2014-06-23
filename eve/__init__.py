@@ -62,5 +62,7 @@ ETAG = '_etag'
 VERSION = '_version'
 META = '_meta'
 
+VALIDATION_ERROR_STATUS = 422
+
 # must be the last line (will raise W402 on pyflakes)
 from eve.flaskapp import Eve  # noqa

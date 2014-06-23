@@ -78,6 +78,8 @@ ETAG = '_etag'
 VERSION = '_version'            # field that stores the version number
 META = '_meta'
 
+VALIDATION_ERROR_STATUS = 422
+
 # field returned on GET requests so we know if we have the latest copy even if
 # we access a specific version
 LATEST_VERSION = '_latest_version'

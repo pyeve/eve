@@ -574,7 +574,8 @@ has been rejected. For more information see :ref:`validation`.
 
 In all cases, when all documents passed validation and where inserted correctly,
 the response status is ``201 Created``. If any document fail the validation, the
-response status is ``400 Bad Request``.
+response status is ``422 Bad Request`` by default or any other error code defined
+by ``ERROR_STATUS`` configuration.
 
 Extensible Data Validation
 --------------------------
