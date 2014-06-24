@@ -99,6 +99,13 @@ contacts = {
             'type': 'string',
             'default': 'default',
             'readonly': True
+        },
+        'key1': {
+            'type': 'string',
+        },
+        'keyschema_dict': {
+            'type': 'dict',
+            'keyschema': {'type': 'integer'}
         }
     }
 }
