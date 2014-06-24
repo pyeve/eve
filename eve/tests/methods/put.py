@@ -26,13 +26,15 @@ class TestPut(TestBase):
         # replacing a 'user' with a valid 'contact' id will 404
         _, status = self.put('%s/%s/' % (self.different_resource,
                                          self.item_id),
-                             data={'ref': '1234567890123456789012345', 'username': 'username1'})
+                             data={'ref': '1234567890123456789012345',
+                                   'username': 'username1'})
         self.assert404(status)
 
         # of course we can still put a 'user'
         _, status = self.put('%s/%s/' % (self.different_resource,
                                          self.user_id),
-                             data={'ref': '1234567890123456789012345', 'username': 'username1'},
+                             data={'ref': '1234567890123456789012345',
+                                   'username': 'username1'},
                              headers=[('If-Match', self.user_etag)])
         self.assert200(status)
 
@@ -46,7 +48,8 @@ class TestPut(TestBase):
 
     def test_ifmatch_disabled(self):
         self.app.config['IF_MATCH'] = False
-        r, status = self.put(self.item_id_url, data={'ref': '1234567890123456789012345'})
+        r, status = self.put(self.item_id_url,
+                             data={'ref': '1234567890123456789012345'})
         self.assert200(status)
         self.assertTrue(ETAG not in r)
 

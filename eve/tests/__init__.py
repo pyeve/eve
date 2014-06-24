@@ -146,7 +146,8 @@ class TestMinimal(unittest.TestCase):
         return v, r.status_code
 
     def assertValidationErrorStatus(self, status):
-        self.assertEqual(status, self.app.config.get('VALIDATION_ERROR_STATUS'))
+        self.assertEqual(status,
+                         self.app.config.get('VALIDATION_ERROR_STATUS'))
 
     def assertValidationError(self, response, matches):
         self.assertTrue(eve.STATUS in response)
