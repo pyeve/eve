@@ -380,12 +380,14 @@ class DataLayer(object):
             keep_fields = auto_fields(resource)
             if 0 not in client_projection.values():
                 # inclusive projection - all values are 0 unless spec. or auto
-                fields = dict([(field, field in keep_fields) for field in fields.keys()])
+                fields = dict([(field, field in keep_fields) for field in
+                               fields.keys()])
             for field, value in client_projection.items():
                 field_base = field.split('.')[0]
                 if field_base not in keep_fields and field_base in fields:
                     fields[field] = value
-            fields = dict([(field, 1) for field, value in fields.items() if value])
+            fields = dict([(field, 1) for field, value in fields.items() if
+                           value])
 
         # If the current HTTP method is in `public_methods` or
         # `public_item_methods`, skip the `auth_field` check
