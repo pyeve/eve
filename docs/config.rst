@@ -417,7 +417,7 @@ uppercase.
                                     ``True``.
 
 ``VALIDATION_ERROR_STATUS``         The HTTP status code to use for validation errors.
-                                    Default to ``422``.
+                                    Defaults to ``422``.
 
 ``VERSIONING``                      Enabled documents version control when``True``. Can be erridden by resource settings. Defaults to ``False``.
 
