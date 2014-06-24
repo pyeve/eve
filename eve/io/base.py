@@ -374,22 +374,20 @@ class DataLayer(object):
                 query = filter_
 
         fields = projection_
-        keep_fields = auto_fields(resource)
         if client_projection:
             # only allow fields which are included with the standard projection
             # for the resource (avoid sniffing of private fields)
-            if 0 in client_projection.values():
-                # exclusive projection - all values are 1 unless specified
-                for field, value in client_projection.items():
-                    if value == 0 and value not in keep_fields and \
-                            field in fields:
-                        del fields[field]
-            else:
+            keep_fields = auto_fields(resource)
+            if 0 not in client_projection.values():
                 # inclusive projection - all values are 0 unless spec. or auto
-                for field in list(fields.keys()):
-                    if field not in client_projection and \
-                            field not in keep_fields:
-                        del fields[field]
+                fields = dict([(field, field in keep_fields) for field in
+                               fields.keys()])
+            for field, value in client_projection.items():
+                field_base = field.split('.')[0]
+                if field_base not in keep_fields and field_base in fields:
+                    fields[field] = value
+            fields = dict([(field, 1) for field, value in fields.items() if
+                           value])
 
         # If the current HTTP method is in `public_methods` or
         # `public_item_methods`, skip the `auth_field` check

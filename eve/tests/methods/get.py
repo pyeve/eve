@@ -196,6 +196,27 @@ class TestGet(TestBase):
             self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
             self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
 
+    def test_get_projection_subdocument(self):
+        projection = '{"location.address": 1}'
+        response, status = self.get(self.known_resource, '?projection=%s' %
+                                    projection)
+        self.assert200(status)
+
+        resource = response['_items']
+
+        for r in resource:
+            self.assertTrue('location' in r)
+            self.assertTrue('address' in r['location'])
+            self.assertFalse('city' in r['location'])
+            self.assertFalse('role' in r)
+            self.assertFalse('prog' in r)
+            self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.app.config['ETAG'] in r)
+            self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+            self.assertTrue(self.app.config['DATE_CREATED'] in r)
+            self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+            self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
+
     def test_get_projection_noschema(self):
         self.app.config['DOMAIN'][self.known_resource]['schema'] = {}
         response, status = self.get(self.known_resource)
