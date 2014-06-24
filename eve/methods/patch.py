@@ -162,10 +162,12 @@ def patch(resource, **lookup):
     if len(issues):
         response[config.ISSUES] = issues
         response[config.STATUS] = config.STATUS_ERR
+        status = config.VALIDATION_ERROR_STATUS
     else:
         response[config.STATUS] = config.STATUS_OK
+        status = 200
 
     # limit what actually gets sent to minimize bandwidth usage
     response = marshal_write_response(response, resource)
 
-    return response, last_modified, etag, 200
+    return response, last_modified, etag, status

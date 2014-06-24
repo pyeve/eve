@@ -173,7 +173,7 @@ def post(resource, payl=None):
 
     if failures:
         # If at least one document got issues, the whole request fails and a
-        # ``400 Bad Request`` status is return.
+        # ``422 Bad Request`` status is return.
         for document in documents:
             if config.STATUS in document \
                and document[config.STATUS] == config.STATUS_ERR:
@@ -181,7 +181,7 @@ def post(resource, payl=None):
             else:
                 results.append({config.STATUS: config.STATUS_OK})
 
-        return_code = 400
+        return_code = config.VALIDATION_ERROR_STATUS
     else:
         # notify callbacks
         getattr(app, "on_insert")(resource, documents)
