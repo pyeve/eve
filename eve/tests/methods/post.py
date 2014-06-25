@@ -411,8 +411,10 @@ class TestPost(TestBase):
         r, status = self.post(self.known_resource_url,
                               data={"keyschema_dict": {"k1": "1"}})
         self.assertValidationErrorStatus(status)
-        self.assertValidationError(r, {'keyschema_dict':
-                                       {'k1': 'must be of integer type'}})
+        issues = r[ISSUES]
+        self.assertTrue('keyschema_dict' in issues)
+        self.assertEqual(issues['keyschema_dict'],
+                         {'k1': 'must be of integer type'})
 
         r, status = self.post(self.known_resource_url,
                               data={"keyschema_dict": {"k1": 1}})
