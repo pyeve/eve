@@ -35,6 +35,11 @@ def patch(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
 
+    .. versionchanged:: 0.5
+       Catching all HTTPExceptions and returning them to the caller, allowing
+       for eventual flask.abort() invocations in callback functions to go
+       through. Fixes #395.
+
     .. versionchanged:: 0.4
        Allow abort() to be inoked by callback functions.
        'on_update' raised before performing the update on the database.
@@ -150,8 +155,7 @@ def patch(resource, **lookup):
         # TODO should probably log the error and abort 400 instead (when we
         # got logging)
         issues['validator exception'] = str(e)
-    except (exceptions.InternalServerError, exceptions.Unauthorized,
-            exceptions.Forbidden, exceptions.NotFound) as e:
+    except exceptions.HTTPException as e:
         raise e
     except Exception as e:
         # consider all other exceptions as Bad Requests
