@@ -8,6 +8,8 @@ Version 0.5
 
 Not released yet.
 
+- [new] ``ALLOW_UNKNOWN`` allows unknown fields to be read, not only written as
+  before. Closes #397 and #250.
 - [fix] PATCH and PUT don't respect flask.abort() in a pre-update event. Closes
   #395 (Christopher Larsen).
 - [new] ``VALIDATION_ERROR_STATUS`` allows setting of the HTTP status code to

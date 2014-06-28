@@ -292,16 +292,28 @@ class DataLayer(object):
 
         :param resource: resource being accessed.
 
+        .. versionchanged:: 0.5
+           If allow_unknown is enabled for the resource, don't return any
+           projection for the document. Addresses #397 and #250.
+
         .. versionchanged:: 0.4
            Return copies to avoid accidental tampering. Fix #258.
 
         .. versionchanged:: 0.2
            Support for 'default_sort'.
         """
-        source = copy(config.SOURCES[resource]['source'])
-        filter_ = copy(config.SOURCES[resource]['filter'])
-        projection = copy(config.SOURCES[resource]['projection'])
-        sort = copy(config.SOURCES[resource]['default_sort'])
+        dsource = config.SOURCES[resource]
+
+        source = copy(dsource['source'])
+        filter_ = copy(dsource['filter'])
+        sort = copy(dsource['default_sort'])
+
+        # if allow_unknown is enabled for the resource, then don't return
+        # the default or client projection so all document fields can be
+        # returned to the client (regardless of the resource schema).
+        allow_unknown = config.DOMAIN[resource]['allow_unknown']
+        projection = copy(dsource['projection']) if not allow_unknown else None
+
         return source, filter_, projection, sort,
 
     def _datasource_ex(self, resource, query=None, client_projection=None,

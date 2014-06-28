@@ -199,6 +199,14 @@ class TestPost(TestBase):
         self.assert201(status)
         self.assertPostResponse(r)
 
+        # test that the unknown field is also returned with subsequent get
+        # requests
+        id = r[self.app.config['ID_FIELD']]
+        r = self.test_client.get('%s/%s' % (self.known_resource_url, id))
+        r_data = json.loads(r.get_data())
+        self.assertTrue('unknown' in r_data)
+        self.assertEqual('unknown', r_data['unknown'])
+
     def test_post_with_content_type_charset(self):
         test_field = 'ref'
         test_value = "1234567890123456789054321"
