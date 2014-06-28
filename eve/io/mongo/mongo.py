@@ -312,6 +312,10 @@ class Mongo(DataLayer):
         try:
             return self.driver.db[datasource].insert(doc_or_docs,
                                                      **self._wc(resource))
+        except pymongo.errors.InvalidOperation as e:
+            abort(500, description=debug_error_message(
+                'pymongo.errors.InvalidOperation: %s' % e
+            ))
         except pymongo.errors.OperationFailure as e:
             # most likely a 'w' (write_concern) setting which needs an
             # existing ReplicaSet which doesn't exist. Please note that the

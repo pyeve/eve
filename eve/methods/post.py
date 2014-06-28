@@ -12,8 +12,8 @@
 """
 
 from datetime import datetime
-from flask import current_app as app
-from eve.utils import config, parse_request
+from flask import current_app as app, abort
+from eve.utils import config, parse_request, debug_error_message
 from eve.auth import requires_auth
 from eve.defaults import resolve_default_values
 from eve.validation import ValidationError
@@ -135,6 +135,12 @@ def post(resource, payl=None):
 
     if isinstance(payl, dict):
         payl = [payl]
+
+    if not payl:
+        # empty bulkd insert
+        abort(400, description=debug_error_message(
+            'Empty bulk insert'
+        ))
 
     for value in payl:
         document = []
