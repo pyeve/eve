@@ -8,6 +8,9 @@ Version 0.5
 
 Not released yet.
 
+- [fix] A POST with an empty array leads to a server crash. Now returns a 400
+  error isntead and ensure the server won't crash in case of mongo invalid
+  operations (Olivier Poitrey). 
 - [new] ``ALLOW_UNKNOWN`` allows unknown fields to be read, not only written as
   before. Closes #397 and #250.
 - [fix] PATCH and PUT don't respect flask.abort() in a pre-update event. Closes
