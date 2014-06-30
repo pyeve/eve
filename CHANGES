@@ -8,6 +8,7 @@ Version 0.5
 
 Not released yet.
 
+- [fix] ``test_get_sort_disabled`` occasional failure.
 - [fix] A POST with an empty array leads to a server crash. Now returns a 400
   error isntead and ensure the server won't crash in case of mongo invalid
   operations (Olivier Poitrey). 

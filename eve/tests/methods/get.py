@@ -254,13 +254,14 @@ class TestGet(TestBase):
     def test_get_sort_disabled(self):
         self.app.config['DOMAIN'][self.known_resource]['sorting'] = False
         sort = '[("prog",-1)]'
-        response, status = self.get(self.known_resource,
-                                    '?sort=%s' % sort)
+        response, status = self.get(self.known_resource, '?sort=%s' % sort)
         self.assert200(status)
         resource = response['_items']
         self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
-        for i in range(len(resource)):
-            self.assertEqual(resource[i]['prog'], i)
+
+        # this might actually fail on very rare occurences as mongodb
+        # 'natural' order is not granted to return documents in insertion order
+        self.assertEqual(resource[0]['prog'], 0)
 
     def test_get_default_sort(self):
         s = self.app.config['DOMAIN'][self.known_resource]['datasource']
