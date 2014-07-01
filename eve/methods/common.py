@@ -578,7 +578,7 @@ def store_media_files(document, resource, original=None):
     # document update fails we should probably attempt a cleanup on the storage
     # sytem. Easier said than done though.
     for field in resource_media_fields(document, resource):
-        if original and hasattr(original, field):
+        if original and field in original:
             # since file replacement is not supported by the media storage
             # system, we first need to delete the file being replaced.
             app.media.delete(original[field])
