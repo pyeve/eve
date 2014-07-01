@@ -157,8 +157,11 @@ class TestGridFSMediaStorage(TestBase):
         _id = r[ID_FIELD]
         etag = r[ETAG]
 
-        # retrieve media_id and compare original and returned data
-        media_id = self.assertMediaField(_id, self.encoded, self.clean)
+        # compare original and returned data
+        self.assertMediaField(_id, self.encoded, self.clean)
+
+        # retrieve media_id
+        media_id = self.assertMediaStored(_id)
 
         # PUT replaces the file with new one
         clean = b'my new file contents'
@@ -189,8 +192,11 @@ class TestGridFSMediaStorage(TestBase):
         _id = r[ID_FIELD]
         etag = r[ETAG]
 
-        # retrieve media_id and compare original and returned data
-        media_id = self.assertMediaField(_id, self.encoded, self.clean)
+        # compare original and returned data
+        self.assertMediaField(_id, self.encoded, self.clean)
+
+        # retrieve media_id
+        media_id = self.assertMediaStored(_id)
 
         # PATCH replaces the file with new one
         clean = b'my new file contents'
@@ -219,7 +225,9 @@ class TestGridFSMediaStorage(TestBase):
         etag = r[ETAG]
 
         # retrieve media_id and compare original and returned data
-        media_id = self.assertMediaField(_id, self.encoded, self.clean)
+        self.assertMediaField(_id, self.encoded, self.clean)
+
+        media_id = self.assertMediaStored(_id)
 
         # DELETE deletes both the document and the media file
         headers = [('If-Match', etag)]
