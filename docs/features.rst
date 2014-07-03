@@ -1348,6 +1348,13 @@ response payloads by sending requests like this one:
     - :ref:`datasource`
 
     for details on the ``datasource`` setting.
+    
+GeoJSON
+---------------
+Geographic data structures encoded in GeoJSON_ format can be defined in Eve schema.
+All GeoJSON Objects are supported. See :ref:`validation`
+
+.. _GeoJSON: http://geojson.org/
 
 MongoDB Support
 ---------------

@@ -751,6 +751,13 @@ defining the field validation rules. Allowed validation rules are:
                                 - ``list``
                                 - ``objectid``
                                 - ``file``
+                                - ``point``
+                                - ``multipoint``
+                                - ``linestring``
+                                - ``multilinestring``
+                                - ``polygon``
+                                - ``multipolygon``
+                                - ``geometrycollection``
 
 ``required``                    If ``True``, the field is mandatory on
                                 insertion.
