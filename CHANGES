@@ -8,6 +8,7 @@ Version 0.5
 
 Not released yet.
 
+- [new] Allow mongoengine to work properly with cursor counts (Johan Bloemberg) 
 - [fix] When PUTting or PATCHing media fields, they would not be properly
   replaced as needed (Stanislav Heller).
 - [fix] ``test_get_sort_disabled`` occasional failure.

@@ -125,15 +125,15 @@ def get(resource, **lookup):
 
     response[config.ITEMS] = documents
     if config.DOMAIN[resource]['hateoas']:
-        response[config.LINKS] = _pagination_links(resource, req,
-                                                   cursor.count())
+        count = cursor.count(with_limit_and_skip=False)
+        response[config.LINKS] = _pagination_links(resource, req, count)
 
     # add pagination info
     if cursor.count() and config.DOMAIN[resource]['pagination']:
         response[config.META] = {
             'page': req.page,
             'max_results': req.max_results,
-            'total': cursor.count(),
+            'total': cursor.count(with_limit_and_skip=False),
         }
 
     # notify registered callback functions. Please note that, should the
