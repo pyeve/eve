@@ -441,7 +441,7 @@ uppercase.
 ``VERSION``                         Field used to store the version number of a
                                     document. Defaults to ``_version``.
 
-``LASTEST_VERSION``                 Field used to store the latest version number
+``LATEST_VERSION``                  Field used to store the latest version number
                                     of a document. Defaults to
                                     ``_latest_version``.
 
