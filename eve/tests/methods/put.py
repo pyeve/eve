@@ -26,13 +26,15 @@ class TestPut(TestBase):
         # replacing a 'user' with a valid 'contact' id will 404
         _, status = self.put('%s/%s/' % (self.different_resource,
                                          self.item_id),
-                             data={'key1': 'value1'})
+                             data={'ref': '1234567890123456789012345',
+                                   'username': 'username1'})
         self.assert404(status)
 
         # of course we can still put a 'user'
         _, status = self.put('%s/%s/' % (self.different_resource,
                                          self.user_id),
-                             data={'key1': '{"username": "username1"}'},
+                             data={'ref': '1234567890123456789012345',
+                                   'username': 'username1'},
                              headers=[('If-Match', self.user_etag)])
         self.assert200(status)
 
@@ -46,7 +48,8 @@ class TestPut(TestBase):
 
     def test_ifmatch_disabled(self):
         self.app.config['IF_MATCH'] = False
-        r, status = self.put(self.item_id_url, data={'key1': 'value1'})
+        r, status = self.put(self.item_id_url,
+                             data={'ref': '1234567890123456789012345'})
         self.assert200(status)
         self.assertTrue(ETAG not in r)
 
@@ -60,7 +63,7 @@ class TestPut(TestBase):
         r, status = self.put(self.item_id_url,
                              data={"ref": "%s" % self.alt_ref},
                              headers=[('If-Match', self.item_etag)])
-        self.assert200(status)
+        self.assertValidationErrorStatus(status)
         self.assertValidationError(r, {'ref': "value '%s' is not unique" %
                                        self.alt_ref})
 
@@ -68,7 +71,7 @@ class TestPut(TestBase):
         changes = {"unknown": "unknown"}
         r, status = self.put(self.item_id_url, data=changes,
                              headers=[('If-Match', self.item_etag)])
-        self.assert200(status)
+        self.assertValidationErrorStatus(status)
         self.assertValidationError(r, {'unknown': 'unknown field'})
         self.app.config['DOMAIN'][self.known_resource]['allow_unknown'] = True
         changes = {"unknown": "unknown", "ref": "1234567890123456789012345"}
@@ -91,7 +94,7 @@ class TestPut(TestBase):
         data = {"person": self.unknown_item_id}
         headers = [('If-Match', self.invoice_etag)]
         r, status = self.put(self.invoice_id_url, data=data, headers=headers)
-        self.assert200(status)
+        self.assertValidationErrorStatus(status)
         expected = ("value '%s' must exist in resource '%s', field '%s'" %
                     (self.unknown_item_id, 'contacts',
                      self.app.config['ID_FIELD']))
@@ -193,6 +196,16 @@ class TestPut(TestBase):
         self.assertTrue('ref' in r)
         db_value = self.compare_put_with_get(self.app.config['ETAG'], r)
         self.assertEqual(db_value, r[self.app.config['ETAG']])
+
+    def test_put_dependency_fields_with_default(self):
+        # test that default values are resolved before validation. See #353.
+        del(self.domain['contacts']['schema']['ref']['required'])
+        field = "dependency_field2"
+        test_value = "a value"
+        changes = {field: test_value}
+        r = self.perform_put(changes)
+        db_value = self.compare_put_with_get(field, r)
+        self.assertEqual(db_value, test_value)
 
     def perform_put(self, changes):
         r, status = self.put(self.item_id_url,

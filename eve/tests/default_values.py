@@ -100,6 +100,75 @@ class TestBuildDefaults(unittest.TestCase):
         res = build_defaults(schema)
         self.assertEqual({"one": [{'title': 'M.'}]}, res)
 
+    def test_default_in_list_without_schema(self):
+        schema = {
+            "one": {
+                'type': 'list',
+                'schema': {
+                    'type': 'string',
+                    'default': 'item'
+                }
+            }
+        }
+        res = build_defaults(schema)
+        self.assertEqual({"one": ['item']}, res)
+
+    def test_lists_of_lists_with_default(self):
+        schema = {
+            'twisting': {
+                'type': 'list',  # list of groups
+                'required': True,
+                'schema': {
+                    'type': 'list',  # list of signals (in one group)
+                    'schema': {
+                        'type': 'string',
+                        'default': 'listoflist',
+                    }
+                }
+            }
+        }
+        res = build_defaults(schema)
+        self.assertEqual({'twisting': [['listoflist']]}, res)
+
+    def test_lists_of_lists_without_default(self):
+        schema = {
+            'twisting': {
+                'type': 'list',  # list of groups
+                'required': True,
+                'schema': {
+                    'type': 'list',  # list of signals (in one group)
+                    'schema': {
+                        'type': 'ObjectId',
+                        'required': True
+                    }
+                }
+            }
+        }
+        res = build_defaults(schema)
+        self.assertEqual({}, res)
+
+    def test_lists_of_lists_with_a_dict(self):
+        schema = {
+            'twisting': {
+                'type': 'list',  # list of groups
+                'required': True,
+                'schema': {
+                    'type': 'list',  # list of signals (in one group)
+                    'schema': {
+                        'type': 'dict',
+                        'schema': {
+                            'name': {
+                                'type': 'string',
+                                'default': 'me'
+                            }
+                        },
+                    }
+                }
+            }
+        }
+        res = build_defaults(schema)
+        self.assertEqual({'twisting': [[{'name': 'me'}]]}, res)
+
 
 class TestResolveDefaultValues(unittest.TestCase):
     def test_one_level(self):
@@ -135,3 +204,18 @@ class TestResolveDefaultValues(unittest.TestCase):
             {"name": "john", "title": "M."},
             {"title": "M."}]}
         self.assertEqual(expected, document)
+
+    def test_list_of_list_single_value(self):
+        document = {'one': [[], []]}
+        defaults = {'one': [['listoflist']]}
+        resolve_default_values(document, defaults)
+        # This functionality is not supported, no change in the document
+        expected = {'one': [[], []]}
+        assert expected == document
+
+    def test_list_of_list_dict_value(self):
+        document = {'one': [[{}], [{}]]}
+        defaults = {'one': [[{'name': 'banana'}]]}
+        resolve_default_values(document, defaults)
+        expected = {'one': [[{'name': 'banana'}], [{'name': 'banana'}]]}
+        assert expected == document

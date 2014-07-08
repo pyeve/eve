@@ -44,6 +44,7 @@ class TestGet(TestBase):
         links = response['_links']
         self.assertNextLink(links, 2)
         self.assertLastLink(links, 5)
+        self.assertPagination(response, 1, 101, 25)
 
         page = 1
         response, status = self.get(self.known_resource,
@@ -53,6 +54,7 @@ class TestGet(TestBase):
         links = response['_links']
         self.assertNextLink(links, 2)
         self.assertLastLink(links, 5)
+        self.assertPagination(response, 1, 101, 25)
 
         page = 2
         response, status = self.get(self.known_resource,
@@ -63,6 +65,7 @@ class TestGet(TestBase):
         self.assertNextLink(links, 3)
         self.assertPrevLink(links, 1)
         self.assertLastLink(links, 5)
+        self.assertPagination(response, 2, 101, 25)
 
         page = 5
         response, status = self.get(self.known_resource,
@@ -72,6 +75,7 @@ class TestGet(TestBase):
         links = response['_links']
         self.assertPrevLink(links, 4)
         self.assertLastLink(links, None)
+        self.assertPagination(response, 5, 101, 25)
 
     def test_get_paging_disabled(self):
         self.app.config['DOMAIN'][self.known_resource]['pagination'] = False
@@ -80,6 +84,7 @@ class TestGet(TestBase):
         resource = response['_items']
         self.assertFalse(len(resource) ==
                          self.app.config['PAGINATION_DEFAULT'])
+        self.assertTrue(self.app.config['META'] not in response)
         links = response['_links']
         self.assertTrue('next' not in links)
         self.assertTrue('prev' not in links)
@@ -90,6 +95,7 @@ class TestGet(TestBase):
         self.assert200(status)
         resource = response['_items']
         self.assertEqual(len(resource), self.known_resource_count)
+        self.assertTrue(self.app.config['META'] not in response)
         links = response['_links']
         self.assertTrue('next' not in links)
         self.assertTrue('prev' not in links)
@@ -190,6 +196,27 @@ class TestGet(TestBase):
             self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
             self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
 
+    def test_get_projection_subdocument(self):
+        projection = '{"location.address": 1}'
+        response, status = self.get(self.known_resource, '?projection=%s' %
+                                    projection)
+        self.assert200(status)
+
+        resource = response['_items']
+
+        for r in resource:
+            self.assertTrue('location' in r)
+            self.assertTrue('address' in r['location'])
+            self.assertFalse('city' in r['location'])
+            self.assertFalse('role' in r)
+            self.assertFalse('prog' in r)
+            self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.app.config['ETAG'] in r)
+            self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+            self.assertTrue(self.app.config['DATE_CREATED'] in r)
+            self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+            self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
+
     def test_get_projection_noschema(self):
         self.app.config['DOMAIN'][self.known_resource]['schema'] = {}
         response, status = self.get(self.known_resource)
@@ -227,13 +254,14 @@ class TestGet(TestBase):
     def test_get_sort_disabled(self):
         self.app.config['DOMAIN'][self.known_resource]['sorting'] = False
         sort = '[("prog",-1)]'
-        response, status = self.get(self.known_resource,
-                                    '?sort=%s' % sort)
+        response, status = self.get(self.known_resource, '?sort=%s' % sort)
         self.assert200(status)
         resource = response['_items']
         self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
-        for i in range(len(resource)):
-            self.assertEqual(resource[i]['prog'], i)
+
+        # this might actually fail on very rare occurences as mongodb
+        # 'natural' order is not granted to return documents in insertion order
+        self.assertEqual(resource[0]['prog'], 0)
 
     def test_get_default_sort(self):
         s = self.app.config['DOMAIN'][self.known_resource]['datasource']
@@ -548,6 +576,20 @@ class TestGet(TestBase):
                                            last_modified)])
         self.assert200(r.status_code)
         self.assertEqual(json.loads(r.get_data())['_items'], [])
+
+    def test_get_idfield_doesnt_exist(self):
+        # test that a non-existing ID_FIELD will be silently handled when
+        # building HATEOAS document link (#351).
+        self.app.config['ID_FIELD'] = 'id'
+        response, status = self.get(self.known_resource)
+        self.assert200(status)
+
+    def test_get_invalid_idfield_cors(self):
+        """ test that #381 is fixed. """
+        request = '/%s/badid' % self.known_resource
+        self.app.config['X_DOMAINS'] = '*'
+        r = self.test_client.get(request, headers=[('Origin', 'test.com')])
+        self.assert404(r.status_code)
 
     def assertGet(self, response, status, resource=None):
         self.assert200(status)

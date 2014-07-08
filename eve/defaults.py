@@ -35,29 +35,34 @@ def build_defaults(schema):
     level_schema, level_name, level_parent, current = stack[-1]
     while len(stack) > 0:
         leave = True
+        if isinstance(current, list):
+            level_schema = {'schema': level_schema.copy()}
         for name, value in level_schema.items():
+            default_next_level = None
             if 'default' in value:
-                current[name] = value['default']
+                try:
+                    current[name] = value['default']
+                except TypeError:
+                    current.append(value['default'])
             elif value.get('type') == 'dict' and 'schema' in value:
+                default_next_level = {}
+            elif value.get('type') == 'list' and 'schema' in value:
+                default_next_level = []
+
+            if default_next_level is not None:
                 leave = False
-                stack.append((
-                    value['schema'], name, current,
-                    current.setdefault(name, {})))
-                pending.add(id(current[name]))
-            elif value.get('type') == 'list' and 'schema' in value and \
-                    'schema' in value['schema']:
-                leave = False
-                def_dict = {}
-                current[name] = [def_dict]
-                stack.append((
-                    value['schema']['schema'], name, current, def_dict))
-                pending.add(id(def_dict))
+                next_level = add_next_level(name, current, default_next_level)
+                stack.append((value['schema'], name, current, next_level))
+                pending.add(id(next_level))
         pending.discard(id(current))
         if leave:
             # Leaves trigger the `walk up` till the next not processed node
             while id(current) not in pending:
                 if not current and level_parent is not None:
-                    del level_parent[level_name]
+                    try:
+                        del level_parent[level_name]
+                    except TypeError:
+                        level_parent.remove(current)
                 stack.pop()
                 if len(stack) == 0:
                     break
@@ -66,6 +71,14 @@ def build_defaults(schema):
             level_schema, level_name, level_parent, current = stack[-1]
 
     return current
+
+
+def add_next_level(name, current, default):
+    if isinstance(current, list):
+        current.append(default)
+    else:
+        default = current.setdefault(name, default)
+    return default
 
 
 def resolve_default_values(document, defaults):
@@ -80,6 +93,9 @@ def resolve_default_values(document, defaults):
     todo = [(defaults, document)]
     while len(todo) > 0:
         defaults, document = todo.pop()
+        if isinstance(defaults, list):
+            todo.extend((defaults[0], item) for item in document)
+            continue
         for name, value in defaults.items():
             if isinstance(value, dict):
                 # default dicts overwrite simple values

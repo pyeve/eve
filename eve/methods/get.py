@@ -30,6 +30,7 @@ def get(resource, **lookup):
     :param resource: the name of the resource.
 
     .. versionchanged:: 0.4
+       Add pagination info whatever the HATEOAS status.
        'on_fetched' events now return the whole response (HATEOAS metafields
        included.)
        Replaced ID_FIELD by item_lookup_field on self link.
@@ -122,12 +123,18 @@ def get(resource, **lookup):
     status = 200
     last_modified = last_update if last_update > epoch() else None
 
+    response[config.ITEMS] = documents
     if config.DOMAIN[resource]['hateoas']:
-        response[config.ITEMS] = documents
-        response[config.LINKS] = _pagination_links(resource, req,
-                                                   cursor.count())
-    else:
-        response = documents
+        count = cursor.count(with_limit_and_skip=False)
+        response[config.LINKS] = _pagination_links(resource, req, count)
+
+    # add pagination info
+    if cursor.count() and config.DOMAIN[resource]['pagination']:
+        response[config.META] = {
+            'page': req.page,
+            'max_results': req.max_results,
+            'total': cursor.count(with_limit_and_skip=False),
+        }
 
     # notify registered callback functions. Please note that, should the
     # functions modify the documents, the last_modified and etag won't be
@@ -243,6 +250,7 @@ def getitem(resource, **lookup):
         if version == 'diffs' or req.sort is None:
             # default sort for 'all', required sort for 'diffs'
             req.sort = '[("%s", 1)]' % config.VERSION
+        req.if_modified_since = None  # we always want the full history here
         cursor = app.data.find(resource + config.VERSIONS, req, lookup)
 
         # build all versions

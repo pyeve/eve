@@ -12,6 +12,8 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.4
+       'META' added and set to '_meta'.
+       'ERROR' added and set to '_error'.
        'URL_PROTOCOL' added and set to ''.
        'BANDWIDTH_SAVER' added and set to True.
        'VERSION' added and set to '_version'.
@@ -69,10 +71,14 @@ LAST_UPDATED = '_updated'
 DATE_CREATED = '_created'
 ISSUES = '_issues'
 STATUS = '_status'
+ERROR = '_error'
 ITEMS = '_items'
 LINKS = '_links'
 ETAG = '_etag'
 VERSION = '_version'            # field that stores the version number
+META = '_meta'
+
+VALIDATION_ERROR_STATUS = 422
 
 # field returned on GET requests so we know if we have the latest copy even if
 # we access a specific version
@@ -111,15 +117,20 @@ VERSION_PARAM = 'version'       # URL param for specific version of a document
 RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']
 PUBLIC_METHODS = []
-ALLOWED_ROLES = None
+ALLOWED_ROLES = []
+ALLOWED_READ_ROLES = []
+ALLOWED_WRITE_ROLES = []
 PUBLIC_ITEM_METHODS = []
-ALLOWED_ITEM_ROLES = None
+ALLOWED_ITEM_ROLES = []
+ALLOWED_ITEM_READ_ROLES = []
+ALLOWED_ITEM_WRITE_ROLES = []
 ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
 ITEM_URL = 'regex("[a-f0-9]{24}")'
 
 # use a simple file response format by default
 EXTENDED_MEDIA_INFO = []
+RETURN_MEDIA_AS_BASE64_STRING = True
 
 # list of extra fields to be included with every POST response. This list
 # should not include the 'standard' fields (ID_FIELD, LAST_UPDATED,

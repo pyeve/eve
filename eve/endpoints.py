@@ -131,5 +131,20 @@ def home_endpoint():
                                        " to display at the API homepage."))
 
 
+def error_endpoint(error):
+    """ Response returned when an error is raised by the API (e.g. my means of
+    an abort(4xx).
+
+    .. versionadded:: 0.4
+    """
+    headers = None
+    if error.response:
+        headers = error.response.headers
+    response = {
+        config.STATUS: config.STATUS_ERR,
+        config.ERROR: {'code': error.code, 'message': error.description}}
+    return send_response(None, (response, None, None, error.code, headers))
+
+
 def _resource():
     return request.endpoint.split('|')[0]

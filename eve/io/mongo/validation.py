@@ -29,6 +29,9 @@ class Validator(Validator):
                    documentation.
     :param resource: the resource name.
 
+    .. versionchanged:: 0.5
+       Fix crash bug with Cerberus 0.7.1+ and keyschema rule. See Cerberus #48.
+
     .. versionchanged:: 0.0.6
        Support for 'allow_unknown' which allows to successfully validate
        unknown key/value pairs.
@@ -37,7 +40,7 @@ class Validator(Validator):
        Support for 'transparent_schema_rules' introduced with Cerberus 0.0.3,
        which allows for insertion of 'default' values in POST requests.
     """
-    def __init__(self, schema, resource=None):
+    def __init__(self, schema=None, resource=None):
         self.resource = resource
         self._id = None
         super(Validator, self).__init__(schema, transparent_schema_rules=True)
@@ -132,14 +135,18 @@ class Validator(Validator):
                         " data_relation if '%s' isn't versioned" %
                         data_relation['resource'])
                 else:
+                    search = None
+
                     # support late versioning
-                    if value[version_field] == 0:
+                    if value[version_field] == 1:
                         # there is a chance this document hasn't been saved
                         # since versioning was turned on
                         search = missing_version_field(data_relation, value)
-                    else:
+
+                    if not search:
                         search = get_data_version_relation_document(
                             data_relation, value)
+
                     if not search:
                         self._error(
                             field, "value '%s' must exist in resource"
@@ -175,6 +182,17 @@ class Validator(Validator):
         if not isinstance(value, ObjectId):
             self._error(field, "value '%s' cannot be converted to a ObjectId"
                         % value)
+
+    def _validate_readonly(self, read_only, field, value):
+        """ Since default values are now resolved before validation we make
+        sure that a value for a read-only field is considered legit if it
+        matches an eventual 'default' setting for the field.
+
+        .. versionadded:: 0.4
+        """
+        default = config.DOMAIN[self.resource]['schema'][field].get('default')
+        if value != default:
+            super(Validator, self)._validate_readonly(read_only, field, value)
 
     def _validate_type_media(self, field, value):
         """ Enables validation for `media` data type.

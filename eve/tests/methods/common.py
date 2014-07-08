@@ -3,7 +3,7 @@ from datetime import datetime
 from bson import ObjectId
 
 from eve.tests import TestBase
-from eve.methods.common import serialize
+from eve.methods.common import serialize, resource_link
 
 
 class TestSerializer(TestBase):
@@ -20,3 +20,11 @@ class TestSerializer(TestBase):
             isinstance(serialized['personal']['best_friend'], ObjectId))
         self.assertTrue(
             isinstance(serialized['personal']['born'], datetime))
+
+
+class TestLinks(TestBase):
+    def test_resource_link(self):
+        with self.app.test_request_context():
+            self.app.config['URL_PROTOCOL'] = 'http'
+            self.app.config['SERVER_NAME'] = '0.0.0.0:5000'
+            self.assertEqual(resource_link(), 'http://0.0.0.0:5000')

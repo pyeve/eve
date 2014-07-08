@@ -24,12 +24,16 @@ class TestPost(TestBase):
 
     def test_validation_error(self):
         r, status = self.post(self.known_resource_url, data={"ref": "123"})
-        self.assert200(status)
+        self.assertValidationErrorStatus(status)
         self.assertValidationError(r, {'ref': 'min length is 25'})
 
         r, status = self.post(self.known_resource_url, data={"prog": 123})
-        self.assert200(status)
+        self.assertValidationErrorStatus(status)
         self.assertValidationError(r, {'ref': 'required'})
+
+    def test_post_empty_bulk_insert(self):
+        r, status = self.post(self.empty_resource_url, data=[])
+        self.assert400(status)
 
     def test_post_empty_resource(self):
         data = []
@@ -140,23 +144,28 @@ class TestPost(TestBase):
             {"ref": self.item_ref},
             {"ref": "9234567890123456789054321", "tid": "12345678"},
         ]
-        r = self.perform_post(data, [0, 2])
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assertValidationErrorStatus(status)
+        results = r['_items']
 
-        self.assertValidationError(r[1], {'ref': 'required'})
-        self.assertValidationError(r[3], {'ref': 'unique'})
-        self.assertValidationError(r[4], {'tid': 'ObjectId'})
+        self.assertEqual(results[0]['_status'], 'OK')
+        self.assertEqual(results[2]['_status'], 'OK')
 
-        item_id = r[0][ID_FIELD]
-        db_value = self.compare_post_with_get(item_id, 'ref')
-        self.assertTrue(db_value == data[0]['ref'])
+        self.assertValidationError(results[1], {'ref': 'required'})
+        self.assertValidationError(results[3], {'ref': 'unique'})
+        self.assertValidationError(results[4], {'tid': 'ObjectId'})
 
-        item_id = r[2][ID_FIELD]
-        db_value = self.compare_post_with_get(item_id, ['ref', 'role'])
-        self.assertTrue(db_value[0] == data[2]['ref'])
-        self.assertTrue(db_value[1] == data[2]['role'])
+        self.assertTrue(ID_FIELD not in results[0])
+        self.assertTrue(ID_FIELD not in results[2])
 
         # items on which validation failed should not be inserted into the db
         _, status = self.get(self.known_resource_url, 'where=prog==7')
+        self.assert404(status)
+
+        # valid items part of a request containing invalid document should not
+        # be inserted into the db
+        _, status = self.get(self.known_resource_url,
+                             'where=ref==9234567890123456789054321')
         self.assert404(status)
 
     def test_post_x_www_form_urlencoded(self):
@@ -172,7 +181,7 @@ class TestPost(TestBase):
     def test_post_referential_integrity(self):
         data = {"person": self.unknown_item_id}
         r, status = self.post('/invoices/', data=data)
-        self.assert200(status)
+        self.assertValidationErrorStatus(status)
         expected = ("value '%s' must exist in resource '%s', field '%s'" %
                     (self.unknown_item_id, 'contacts',
                      self.app.config['ID_FIELD']))
@@ -187,12 +196,20 @@ class TestPost(TestBase):
         del(self.domain['contacts']['schema']['ref']['required'])
         data = {"unknown": "unknown"}
         r, status = self.post(self.known_resource_url, data=data)
-        self.assert200(status)
+        self.assertValidationErrorStatus(status)
         self.assertValidationError(r, {'unknown': 'unknown'})
         self.app.config['DOMAIN'][self.known_resource]['allow_unknown'] = True
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
         self.assertPostResponse(r)
+
+        # test that the unknown field is also returned with subsequent get
+        # requests
+        id = r[self.app.config['ID_FIELD']]
+        r = self.test_client.get('%s/%s' % (self.known_resource_url, id))
+        r_data = json.loads(r.get_data())
+        self.assertTrue('unknown' in r_data)
+        self.assertEqual('unknown', r_data['unknown'])
 
     def test_post_with_content_type_charset(self):
         test_field = 'ref'
@@ -280,13 +297,13 @@ class TestPost(TestBase):
     def test_custom_issues(self):
         self.app.config['ISSUES'] = 'errors'
         r, status = self.post(self.known_resource_url, data={"ref": "123"})
-        self.assert200(status)
+        self.assertValidationErrorStatus(status)
         self.assertTrue('errors' in r and ISSUES not in r)
 
     def test_custom_status(self):
         self.app.config['STATUS'] = 'report'
         r, status = self.post(self.known_resource_url, data={"ref": "123"})
-        self.assert200(status)
+        self.assertValidationErrorStatus(status)
         self.assertTrue('report' in r and STATUS not in r)
 
     def test_custom_etag_update_date(self):
@@ -304,11 +321,16 @@ class TestPost(TestBase):
         self.assertTrue('_update_date' in r and LAST_UPDATED not in r)
 
     def test_subresource(self):
-        data = {"person": self.item_id}
-        response, status = self.post('users/%s/invoices' % self.item_id,
-                                     data=data)
+        response, status = self.post('users/%s/invoices' %
+                                     self.item_id, data={})
         self.assert201(status)
         self.assertPostResponse(response)
+
+        invoice_id = response.get(self.app.config['ID_FIELD'])
+        response, status = self.get('users/%s/invoices/%s' %
+                                    (self.item_id, invoice_id))
+        self.assert200(status)
+        self.assertEqual(response.get('person'), self.item_id)
 
     def test_post_ifmatch_disabled(self):
         # if IF_MATCH is disabled, then we get no etag in the payload.
@@ -372,6 +394,44 @@ class TestPost(TestBase):
         self.assert201(status)
         self.assertPostResponse(r)
 
+    def test_post_dependency_fields_with_default(self):
+        # test that default values are resolved before validation. See #353.
+        del(self.domain['contacts']['schema']['ref']['required'])
+        test_field = 'dependency_field2'
+        test_value = 'a value'
+        data = {test_field: test_value}
+        self.assertPostItem(data, test_field, test_value)
+
+    def test_post_readonly_field_with_default(self):
+        # test that a read only field with a 'default' setting is correctly
+        # validated now that we resolve field values before validation.
+        del(self.domain['contacts']['schema']['ref']['required'])
+        test_field = 'read_only_field'
+        # thou shalt not pass.
+        test_value = 'a random value'
+        data = {test_field: test_value}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assertValidationErrorStatus(status)
+        # this will pass as value matches 'default' setting.
+        test_value = 'default'
+        data = {test_field: test_value}
+        self.assertPostItem(data, test_field, test_value)
+
+    def test_post_keyschema_dict(self):
+        """ make sure Cerberus#48 is fixed """
+        del(self.domain['contacts']['schema']['ref']['required'])
+        r, status = self.post(self.known_resource_url,
+                              data={"keyschema_dict": {"k1": "1"}})
+        self.assertValidationErrorStatus(status)
+        issues = r[ISSUES]
+        self.assertTrue('keyschema_dict' in issues)
+        self.assertEqual(issues['keyschema_dict'],
+                         {'k1': 'must be of integer type'})
+
+        r, status = self.post(self.known_resource_url,
+                              data={"keyschema_dict": {"k1": 1}})
+        self.assert201(status)
+
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
@@ -387,10 +447,13 @@ class TestPost(TestBase):
         self.assertTrue(db_value[1] == item_etag)
 
     def assertPostResponse(self, response, valid_items=[0], id_field=ID_FIELD):
-        if isinstance(response, dict):
-            response = [response]
+        if '_items' in response:
+            results = response['_items']
+        else:
+            results = [response]
+
         for i in valid_items:
-            item = response[i]
+            item = results[i]
             self.assertTrue(STATUS in item)
             self.assertTrue(STATUS_OK in item[STATUS])
             self.assertFalse(ISSUES in item)

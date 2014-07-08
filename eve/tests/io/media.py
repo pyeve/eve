@@ -70,6 +70,35 @@ class TestGridFSMediaStorage(TestBase):
         # which decodes to the original clean
         self.assertEqual(base64.decodestring(returned.encode()), self.clean)
 
+    def test_gridfs_media_storage_post_excluded_file_in_result(self):
+        # send something different than a file and get an error back
+        data = {'media': 'not a file'}
+        r, s = self.parse_response(
+            self.test_client.post(self.url, data=data, headers=self.headers))
+        self.assertEqual(STATUS_ERR, r[STATUS])
+
+        # validates media fields
+        self.assertTrue('file was expected' in r[ISSUES]['media'])
+        # also validates ordinary fields
+        self.assertTrue('required' in r[ISSUES][self.test_field])
+
+        r, s = self._post()
+        self.assertEqual(STATUS_OK, r[STATUS])
+
+        self.app.config['RETURN_MEDIA_AS_BASE64_STRING'] = False
+        # compare original and returned data
+        _id = r[ID_FIELD]
+
+        # GET the file at the resource endpoint
+        where = 'where={"%s": "%s"}' % (ID_FIELD, _id)
+        r, s = self.parse_response(
+            self.test_client.get('%s?%s' % (self.url, where)))
+        self.assertEqual(len(r['_items']), 1)
+        returned = r['_items'][0]['media']
+
+        # returned value is a base64 encoded string
+        self.assertEqual(returned, None)
+
     def test_gridfs_media_storage_post_extended(self):
         r, s = self._post()
         self.assertEqual(STATUS_OK, r[STATUS])
@@ -99,13 +128,40 @@ class TestGridFSMediaStorage(TestBase):
         self.assertEqual(returned['content_type'], 'text/plain')
         self.assertEqual(returned['length'], 16)
 
+    def test_gridfs_media_storage_post_extended_excluded_file_in_result(self):
+        r, s = self._post()
+        self.assertEqual(STATUS_OK, r[STATUS])
+
+        # request extended format file response
+        self.app.config['EXTENDED_MEDIA_INFO'] = ['content_type', 'length']
+        self.app.config['RETURN_MEDIA_AS_BASE64_STRING'] = False
+        # compare original and returned data
+        _id = r[ID_FIELD]
+
+        # GET the file at the resource endpoint
+        where = 'where={"%s": "%s"}' % (ID_FIELD, _id)
+        r, s = self.parse_response(
+            self.test_client.get('%s?%s' % (self.url, where)))
+        self.assertEqual(len(r['_items']), 1)
+        returned = r['_items'][0]['media']
+
+        # returned value is None
+        self.assertEqual(returned['file'], None)
+
+        # also verify our extended fields
+        self.assertEqual(returned['content_type'], 'text/plain')
+        self.assertEqual(returned['length'], 16)
+
     def test_gridfs_media_storage_put(self):
         r, s = self._post()
         _id = r[ID_FIELD]
         etag = r[ETAG]
 
-        # retrieve media_id and compare original and returned data
-        media_id = self.assertMediaField(_id, self.encoded, self.clean)
+        # compare original and returned data
+        self.assertMediaField(_id, self.encoded, self.clean)
+
+        # retrieve media_id
+        media_id = self.assertMediaStored(_id)
 
         # PUT replaces the file with new one
         clean = b'my new file contents'
@@ -136,8 +192,11 @@ class TestGridFSMediaStorage(TestBase):
         _id = r[ID_FIELD]
         etag = r[ETAG]
 
-        # retrieve media_id and compare original and returned data
-        media_id = self.assertMediaField(_id, self.encoded, self.clean)
+        # compare original and returned data
+        self.assertMediaField(_id, self.encoded, self.clean)
+
+        # retrieve media_id
+        media_id = self.assertMediaStored(_id)
 
         # PATCH replaces the file with new one
         clean = b'my new file contents'
@@ -166,7 +225,9 @@ class TestGridFSMediaStorage(TestBase):
         etag = r[ETAG]
 
         # retrieve media_id and compare original and returned data
-        media_id = self.assertMediaField(_id, self.encoded, self.clean)
+        self.assertMediaField(_id, self.encoded, self.clean)
+
+        media_id = self.assertMediaStored(_id)
 
         # DELETE deletes both the document and the media file
         headers = [('If-Match', etag)]

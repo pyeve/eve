@@ -20,7 +20,8 @@ from werkzeug.routing import BaseConverter
 from werkzeug.serving import WSGIRequestHandler
 from eve.io.mongo import Mongo, Validator, GridFSMediaStorage
 from eve.exceptions import ConfigException, SchemaException
-from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint
+from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint, \
+    error_endpoint
 from eve.defaults import build_defaults
 from eve.utils import api_prefix, extract_key_values
 from events import Events
@@ -72,6 +73,7 @@ class Eve(Flask, Events):
     :param kwargs: optional, standard, Flask parameters.
 
     .. versionchanged:: 0.4
+       Ensure all errors returns a parseable body. Closes #365.
        'auth' argument can be either an instance or a callable. Closes #248.
        Made resource setup more DRY by calling register_resource.
 
@@ -150,6 +152,8 @@ class Eve(Flask, Events):
         for resource, settings in self.config['DOMAIN'].items():
             self.register_resource(resource, settings)
 
+        self.register_error_handlers()
+
     def run(self, host=None, port=None, debug=None, **options):
         """
         Pass our own subclass of :class:`werkzeug.serving.WSGIRequestHandler
@@ -211,8 +215,6 @@ class Eve(Flask, Events):
             raise ConfigException('DOMAIN dictionary missing or wrong.')
         if not isinstance(domain, dict):
             raise ConfigException('DOMAIN must be a dict.')
-        if len(domain) == 0:
-            raise ConfigException('DOMAIN must contain at least one resource.')
 
     def validate_config(self):
         """ Makes sure that REST methods expressed in the configuration
@@ -273,7 +275,11 @@ class Eve(Flask, Events):
                                       'for a resource [%s].' % resource)
 
         self.validate_roles('allowed_roles', settings, resource)
+        self.validate_roles('allowed_read_roles', settings, resource)
+        self.validate_roles('allowed_write_roles', settings, resource)
         self.validate_roles('allowed_item_roles', settings, resource)
+        self.validate_roles('allowed_item_read_roles', settings, resource)
+        self.validate_roles('allowed_item_write_roles', settings, resource)
 
         if settings['auth_field'] == self.config['ID_FIELD']:
             raise ConfigException('"%s": auth_field cannot be set to ID_FIELD '
@@ -285,7 +291,8 @@ class Eve(Flask, Events):
         """ Validates that user role directives are syntactically and formally
         adeguate.
 
-        :param directive: either 'allowed_roles' or 'allow_item_roles'.
+        :param directive: either 'allowed_[read_|write_]roles' or
+                          'allow_item_[read_|write_]roles'.
         :param candidate: the candidate setting to be validated.
         :param resource: name of the resource to which the candidate settings
                          refer to.
@@ -293,9 +300,8 @@ class Eve(Flask, Events):
         .. versionadded:: 0.0.4
         """
         roles = candidate[directive]
-        if roles is not None and (not isinstance(roles, list) or not
-                                  len(roles)):
-            raise ConfigException("'%s' must be a non-empty list, or None "
+        if not isinstance(roles, list):
+            raise ConfigException("'%s' must be list"
                                   "[%s]." % (directive, resource))
 
     def validate_methods(self, allowed, proposed, item):
@@ -471,6 +477,10 @@ class Eve(Flask, Events):
         settings.setdefault('public_methods',
                             self.config['PUBLIC_METHODS'])
         settings.setdefault('allowed_roles', self.config['ALLOWED_ROLES'])
+        settings.setdefault('allowed_read_roles',
+                            self.config['ALLOWED_READ_ROLES'])
+        settings.setdefault('allowed_write_roles',
+                            self.config['ALLOWED_WRITE_ROLES'])
         settings.setdefault('cache_control', self.config['CACHE_CONTROL'])
         settings.setdefault('cache_expires', self.config['CACHE_EXPIRES'])
 
@@ -485,6 +495,10 @@ class Eve(Flask, Events):
                             self.config['PUBLIC_ITEM_METHODS'])
         settings.setdefault('allowed_item_roles',
                             self.config['ALLOWED_ITEM_ROLES'])
+        settings.setdefault('allowed_item_read_roles',
+                            self.config['ALLOWED_ITEM_READ_ROLES'])
+        settings.setdefault('allowed_item_write_roles',
+                            self.config['ALLOWED_ITEM_WRITE_ROLES'])
         settings.setdefault('allowed_filters',
                             self.config['ALLOWED_FILTERS'])
         settings.setdefault('sorting', self.config['SORTING'])
@@ -711,3 +725,12 @@ class Eve(Flask, Events):
                 copy.deepcopy(self.config['SOURCES'][resource])
             self.config['SOURCES'][versioned_resource]['source'] += \
                 self.config['VERSIONS']
+
+    def register_error_handlers(self):
+        """ Register custom error handlers so we make sure that all errors
+        return a parseable body.
+
+        .. versionadded:: 0.4
+        """
+        for code in [400, 401, 403, 404, 422]:
+            self.error_handler_spec[None][code] = error_endpoint

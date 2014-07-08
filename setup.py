@@ -4,11 +4,10 @@ from setuptools import setup, find_packages
 DESCRIPTION = ("REST API framework powered by Flask, MongoDB and good "
                "intentions.")
 LONG_DESCRIPTION = open('README.rst').read()
-#VERSION = __import__('eve').__version__
 
 setup(
     name='Eve',
-    version='0.4-dev',
+    version='0.5-dev',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',
@@ -19,15 +18,15 @@ setup(
     packages=find_packages(),
     test_suite="eve.tests",
     install_requires=[
-        'cerberus==0.7',
+        'cerberus==0.7.2',
         'events==0.2.1',
-        'simplejson==3.3.0',
-        'werkzeug==0.9.4',
+        'simplejson==3.5.2',
+        'werkzeug==0.9.6',
         'markupsafe==0.23',
-        'jinja2==2.7.2',
-        'itsdangerous==0.22',
+        'jinja2==2.7.3',
+        'itsdangerous==0.24',
         'flask==0.10.1',
-        'pymongo==2.7.0',
+        'pymongo==2.7.1',
         'flask-pymongo==0.3.0',
     ],
     tests_require=['redis'],

@@ -12,14 +12,15 @@
 """
 
 from datetime import datetime
-from flask import current_app as app
-from eve.utils import config, parse_request
+from flask import current_app as app, abort
+from eve.utils import config, parse_request, debug_error_message
 from eve.auth import requires_auth
 from eve.defaults import resolve_default_values
 from eve.validation import ValidationError
 from eve.methods.common import parse, payload, ratelimit, \
     pre_event, store_media_files, resolve_user_restricted_access, \
-    resolve_embedded_fields, build_response_document, marshal_write_response
+    resolve_embedded_fields, build_response_document, marshal_write_response, \
+    resolve_sub_resource_path
 from eve.versioning import resolve_document_version, \
     insert_versioning_documents
 
@@ -48,6 +49,7 @@ def post(resource, payl=None):
                  discussion, and a typical use case.
 
     .. versionchanged:: 0.4
+       Resolve default values before validation is performed. See #353.
        Support for document versioning.
 
     .. versionchanged:: 0.3
@@ -118,7 +120,8 @@ def post(resource, payl=None):
     schema = resource_def['schema']
     validator = app.validator(schema, resource)
     documents = []
-    issues = []
+    results = []
+    failures = 0
 
     if config.BANDWIDTH_SAVER is True:
         embedded_fields = []
@@ -133,11 +136,18 @@ def post(resource, payl=None):
     if isinstance(payl, dict):
         payl = [payl]
 
+    if not payl:
+        # empty bulkd insert
+        abort(400, description=debug_error_message(
+            'Empty bulk insert'
+        ))
+
     for value in payl:
         document = []
         doc_issues = {}
         try:
             document = parse(value, resource)
+            resolve_default_values(document, resource_def['defaults'])
             validation = validator.validate(document)
             if validation:
                 # validation is successful
@@ -145,7 +155,7 @@ def post(resource, payl=None):
                     document[config.DATE_CREATED] = date_utc
 
                 resolve_user_restricted_access(document, resource)
-                resolve_default_values(document, resource_def['defaults'])
+                resolve_sub_resource_path(document, resource)
                 store_media_files(document, resource)
                 resolve_document_version(document, resource, 'POST')
             else:
@@ -158,19 +168,55 @@ def post(resource, payl=None):
             # the client as if it was a validation issue
             doc_issues['exception'] = str(e)
 
-        issues.append(doc_issues)
+        if len(doc_issues):
+            document = {
+                config.STATUS: config.STATUS_ERR,
+                config.ISSUES: doc_issues,
+            }
+            failures += 1
 
-        if len(doc_issues) == 0:
-            documents.append(document)
+        documents.append(document)
 
-    if len(documents):
+    if failures:
+        # If at least one document got issues, the whole request fails and a
+        # ``422 Bad Request`` status is return.
+        for document in documents:
+            if config.STATUS in document \
+               and document[config.STATUS] == config.STATUS_ERR:
+                results.append(document)
+            else:
+                results.append({config.STATUS: config.STATUS_OK})
+
+        return_code = config.VALIDATION_ERROR_STATUS
+    else:
         # notify callbacks
         getattr(app, "on_insert")(resource, documents)
         getattr(app, "on_insert_%s" % resource)(documents)
 
         # bulk insert
         ids = app.data.insert(resource, documents)
-        insert_versioning_documents(resource, ids, documents)
+
+        # assign document ids
+        for document in documents:
+            # either return the custom ID_FIELD or the id returned by
+            # data.insert().
+            document[config.ID_FIELD] = \
+                document.get(config.ID_FIELD, ids.pop(0))
+
+            # build the full response document
+            result = document
+            build_response_document(
+                result, resource, embedded_fields, document)
+
+            # add extra write meta data
+            result[config.STATUS] = config.STATUS_OK
+
+            # limit what actually gets sent to minimize bandwidth usage
+            result = marshal_write_response(result, resource)
+            results.append(result)
+
+        # insert versioning docs
+        insert_versioning_documents(resource, documents)
 
         # notify callbacks
         getattr(app, "on_inserted")(resource, documents)
@@ -178,51 +224,21 @@ def post(resource, payl=None):
         # request was received and accepted; at least one document passed
         # validation and was accepted for insertion.
 
-        # from the docs:
-        # Eventual validation errors on one or more document won't prevent the
-        # insertion of valid documents. The response status code will be ``201
-        # Created`` if *at least one document* passed validation and has
-        # actually been stored.
         return_code = 201
+
+    if len(results) == 1:
+        response = results.pop(0)
     else:
-        # request was received and accepted; no document passed validation
-        # though.
+        response = {
+            config.STATUS: config.STATUS_ERR if failures else config.STATUS_OK,
+            config.ITEMS: results,
+        }
 
-        # from the docs:
-        # If no document passed validation the status code will be ``200 OK``,
-        # meaning that the request was accepted and processed. It is still
-        # client's responsibility to parse the response payload and make sure
-        # that all documents passed validation.
-        return_code = 200
-
-    # build response payload
-    response = []
-    for doc_issues in issues:
-        if len(doc_issues):
-            document = {}
-            document[config.STATUS] = config.STATUS_ERR
-            document[config.ISSUES] = doc_issues
-        else:
-            document = documents.pop(0)
-
-            # either return the custom ID_FIELD or the id returned by
-            # data.insert().
-            document[config.ID_FIELD] = \
-                document.get(config.ID_FIELD, ids.pop(0))
-
-            # build the full response document
-            build_response_document(
-                document, resource, embedded_fields, document)
-
-            # add extra write meta data
-            document[config.STATUS] = config.STATUS_OK
-
-            # limit what actually gets sent to minimize bandwidth usage
-            document = marshal_write_response(document, resource)
-
-        response.append(document)
-
-    if len(response) == 1:
-        response = response.pop(0)
+    if failures:
+        response[config.ERROR] = {
+            "code": return_code,
+            "message": "Insertion failure: %d document(s) contain(s) error(s)"
+            % failures,
+        }
 
     return response, None, None, return_code

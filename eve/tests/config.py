@@ -89,7 +89,7 @@ class TestConfig(TestBase):
         self.assertValidateConfigFailure('must be a dict')
 
         self.app.config['DOMAIN'] = {}
-        self.assertValidateConfigFailure('must contain at least one')
+        self.assertValidateConfigSuccess()
 
     def test_validate_resource_methods(self):
         self.app.config['RESOURCE_METHODS'] = ['PUT', 'GET', 'DELETE', 'POST']
@@ -161,6 +161,10 @@ class TestConfig(TestBase):
                          self.app.config['PUBLIC_METHODS'])
         self.assertEqual(settings['allowed_roles'],
                          self.app.config['ALLOWED_ROLES'])
+        self.assertEqual(settings['allowed_read_roles'],
+                         self.app.config['ALLOWED_READ_ROLES'])
+        self.assertEqual(settings['allowed_write_roles'],
+                         self.app.config['ALLOWED_WRITE_ROLES'])
         self.assertEqual(settings['cache_control'],
                          self.app.config['CACHE_CONTROL'])
         self.assertEqual(settings['cache_expires'],
@@ -171,6 +175,10 @@ class TestConfig(TestBase):
                          self.app.config['PUBLIC_ITEM_METHODS'])
         self.assertEqual(settings['allowed_item_roles'],
                          self.app.config['ALLOWED_ITEM_ROLES'])
+        self.assertEqual(settings['allowed_item_read_roles'],
+                         self.app.config['ALLOWED_ITEM_READ_ROLES'])
+        self.assertEqual(settings['allowed_item_write_roles'],
+                         self.app.config['ALLOWED_ITEM_WRITE_ROLES'])
         self.assertEqual(settings['item_lookup'],
                          self.app.config['ITEM_LOOKUP'])
         self.assertEqual(settings['item_lookup_field'],
@@ -218,17 +226,23 @@ class TestConfig(TestBase):
     def test_validate_roles(self):
         for resource in self.domain:
             self.assertValidateRoles(resource, 'allowed_roles')
+            self.assertValidateRoles(resource, 'allowed_read_roles')
+            self.assertValidateRoles(resource, 'allowed_write_roles')
             self.assertValidateRoles(resource, 'allowed_item_roles')
+            self.assertValidateRoles(resource, 'allowed_item_read_roles')
+            self.assertValidateRoles(resource, 'allowed_item_write_roles')
 
     def assertValidateRoles(self, resource, directive):
+        prev = self.domain[resource][directive]
         self.domain[resource][directive] = 'admin'
         self.assertValidateConfigFailure(directive)
         self.domain[resource][directive] = []
-        self.assertValidateConfigFailure(directive)
+        self.assertValidateConfigSuccess()
         self.domain[resource][directive] = ['admin', 'dev']
         self.assertValidateConfigSuccess()
         self.domain[resource][directive] = None
-        self.assertValidateConfigSuccess()
+        self.assertValidateConfigFailure(directive)
+        self.domain[resource][directive] = prev
 
     def assertValidateConfigSuccess(self):
         try:

@@ -196,7 +196,7 @@ resources/methods will be secured unless they are made explicitly public.
 
 .. admonition:: Please note
 
-    You will need to install `py-bcript` for this to work.
+    You will need to install `py-bcrypt` for this to work.
 
 .. code-block:: python
 

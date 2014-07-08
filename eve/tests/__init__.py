@@ -113,17 +113,23 @@ class TestMinimal(unittest.TestCase):
         r = self.test_client.get(request)
         return self.parse_response(r)
 
-    def post(self, url, data, headers=[], content_type='application/json'):
+    def post(self, url, data, headers=None, content_type='application/json'):
+        if headers is None:
+            headers = []
         headers.append(('Content-Type', content_type))
         r = self.test_client.post(url, data=json.dumps(data), headers=headers)
         return self.parse_response(r)
 
-    def put(self, url, data, headers=[]):
+    def put(self, url, data, headers=None):
+        if headers is None:
+            headers = []
         headers.append(('Content-Type', 'application/json'))
         r = self.test_client.put(url, data=json.dumps(data), headers=headers)
         return self.parse_response(r)
 
-    def patch(self, url, data, headers=[]):
+    def patch(self, url, data, headers=None):
+        if headers is None:
+            headers = []
         headers.append(('Content-Type', 'application/json'))
         r = self.test_client.patch(url, data=json.dumps(data), headers=headers)
         return self.parse_response(r)
@@ -133,8 +139,15 @@ class TestMinimal(unittest.TestCase):
         return self.parse_response(r)
 
     def parse_response(self, r):
-        v = json.loads(r.get_data()) if r.status_code in (200, 201) else None
+        try:
+            v = json.loads(r.get_data())
+        except json.JSONDecodeError:
+            v = None
         return v, r.status_code
+
+    def assertValidationErrorStatus(self, status):
+        self.assertEqual(status,
+                         self.app.config.get('VALIDATION_ERROR_STATUS'))
 
     def assertValidationError(self, response, matches):
         self.assertTrue(eve.STATUS in response)
@@ -196,13 +209,23 @@ class TestMinimal(unittest.TestCase):
         _id = item.get(self.app.config['ID_FIELD'])
         self.assertItemLink(link, _id)
 
+    def assertPagination(self, response, page, total, max_results):
+        self.assertTrue(self.app.config['META'] in response)
+        meta = response.get(self.app.config['META'])
+        self.assertTrue('page' in meta)
+        self.assertTrue('max_results' in meta)
+        self.assertTrue('total' in meta)
+        self.assertEqual(meta['page'], page)
+        self.assertEqual(meta['max_results'], max_results)
+        self.assertEqual(meta['total'], total)
+
     def assertHomeLink(self, links):
         self.assertTrue('parent' in links)
         link = links['parent']
         self.assertTrue('title' in link)
         self.assertTrue('href' in link)
         self.assertEqual('home', link['title'])
-        self.assertEqual("%s" % self.app.config.get('SERVER_NAME', ''),
+        self.assertEqual("%s" % self._get_server_name(),
                          link['href'])
 
     def assertResourceLink(self, links, resource):
@@ -212,7 +235,7 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue('href' in link)
         url = self.domain[resource]['url']
         self.assertEqual(url, link['title'])
-        self.assertEqual("%s/%s" % (self.app.config.get('SERVER_NAME', ''),
+        self.assertEqual("%s/%s" % (self._get_server_name(),
                                     url),
                          link['href'])
 
@@ -223,7 +246,7 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue('href' in link)
         url = self.domain[resource]['url']
         self.assertEqual(url, link['title'])
-        self.assertEqual("%s/%s" % (self.app.config.get('SERVER_NAME', ''),
+        self.assertEqual("%s/%s" % (self._get_server_name(),
                                     url), link['href'])
 
     def assertNextLink(self, links, page):
@@ -293,6 +316,13 @@ class TestMinimal(unittest.TestCase):
 
     def bulk_insert(self):
         pass
+
+    def _get_server_name(self):
+        server_name = self.app.config.get('SERVER_NAME', '')
+        url_protocol = self.app.config.get('URL_PROTOCOL', '')
+        if url_protocol:
+            server_name = '%s://%s' % (url_protocol, server_name)
+        return server_name
 
     def dropDB(self):
         self.connection = MongoClient(MONGO_HOST, MONGO_PORT)

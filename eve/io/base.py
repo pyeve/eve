@@ -292,16 +292,28 @@ class DataLayer(object):
 
         :param resource: resource being accessed.
 
+        .. versionchanged:: 0.5
+           If allow_unknown is enabled for the resource, don't return any
+           projection for the document. Addresses #397 and #250.
+
         .. versionchanged:: 0.4
            Return copies to avoid accidental tampering. Fix #258.
 
         .. versionchanged:: 0.2
            Support for 'default_sort'.
         """
-        source = copy(config.SOURCES[resource]['source'])
-        filter_ = copy(config.SOURCES[resource]['filter'])
-        projection = copy(config.SOURCES[resource]['projection'])
-        sort = copy(config.SOURCES[resource]['default_sort'])
+        dsource = config.SOURCES[resource]
+
+        source = copy(dsource['source'])
+        filter_ = copy(dsource['filter'])
+        sort = copy(dsource['default_sort'])
+
+        # if allow_unknown is enabled for the resource, then don't return
+        # the default or client projection so all document fields can be
+        # returned to the client (regardless of the resource schema).
+        allow_unknown = config.DOMAIN[resource]['allow_unknown']
+        projection = copy(dsource['projection']) if not allow_unknown else None
+
         return source, filter_, projection, sort,
 
     def _datasource_ex(self, resource, query=None, client_projection=None,
@@ -374,29 +386,27 @@ class DataLayer(object):
                 query = filter_
 
         fields = projection_
-        keep_fields = auto_fields(resource)
         if client_projection:
             # only allow fields which are included with the standard projection
             # for the resource (avoid sniffing of private fields)
-            if 0 in client_projection.values():
-                # exclusive projection - all values are 1 unless specified
-                for field, value in client_projection.items():
-                    if value == 0 and value not in keep_fields and \
-                            field in fields:
-                        del fields[field]
-            else:
+            keep_fields = auto_fields(resource)
+            if 0 not in client_projection.values():
                 # inclusive projection - all values are 0 unless spec. or auto
-                for field in list(fields.keys()):
-                    if field not in client_projection and \
-                            field not in keep_fields:
-                        del fields[field]
+                fields = dict([(field, field in keep_fields) for field in
+                               fields.keys()])
+            for field, value in client_projection.items():
+                field_base = field.split('.')[0]
+                if field_base not in keep_fields and field_base in fields:
+                    fields[field] = value
+            fields = dict([(field, 1) for field, value in fields.items() if
+                           value])
 
         # If the current HTTP method is in `public_methods` or
         # `public_item_methods`, skip the `auth_field` check
 
         # Only inject the auth_field in the query when not creating new
         # documents.
-        if request.method not in ('POST', 'PUT'):
+        if request and request.method not in ('POST', 'PUT'):
             auth_field, request_auth_value = auth_field_and_value(resource)
             if auth_field and request.authorization and request_auth_value:
                 if query:

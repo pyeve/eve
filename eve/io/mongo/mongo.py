@@ -161,7 +161,7 @@ class Mongo(DataLayer):
             abort(400, bad_filter)
 
         if sub_resource_lookup:
-            spec.update(sub_resource_lookup)
+            spec = self.combine_queries(spec, sub_resource_lookup)
 
         spec = self._mongotize(spec, resource)
 
@@ -312,6 +312,10 @@ class Mongo(DataLayer):
         try:
             return self.driver.db[datasource].insert(doc_or_docs,
                                                      **self._wc(resource))
+        except pymongo.errors.InvalidOperation as e:
+            abort(500, description=debug_error_message(
+                'pymongo.errors.InvalidOperation: %s' % e
+            ))
         except pymongo.errors.OperationFailure as e:
             # most likely a 'w' (write_concern) setting which needs an
             # existing ReplicaSet which doesn't exist. Please note that the
@@ -633,6 +637,9 @@ class Mongo(DataLayer):
         if req and req.projection:
             try:
                 client_projection = json.loads(req.projection)
+                if not isinstance(client_projection, dict):
+                    raise Exception('The projection parameter has to be a '
+                                    'dict')
             except:
                 abort(400, description=debug_error_message(
                     'Unable to parse `projection` clause'

@@ -284,7 +284,7 @@ def epoch():
     return datetime(1970, 1, 1)
 
 
-def serialize(document, resource=None, schema=None):
+def serialize(document, resource=None, schema=None, fields=None):
     """ Recursively handles field values that require data-aware serialization.
     Relies on the app.data.serializers dictionary.
 
@@ -296,7 +296,9 @@ def serialize(document, resource=None, schema=None):
     if app.data.serializers:
         if resource:
             schema = config.DOMAIN[resource]['schema']
-        for field in document:
+        if not fields:
+            fields = document.keys()
+        for field in fields:
             if field in schema:
                 field_schema = schema[field]
                 field_type = field_schema['type']
@@ -359,7 +361,7 @@ def build_response_document(
         document[config.ETAG] = document_etag(document)
 
     # hateoas links
-    if config.DOMAIN[resource]['hateoas']:
+    if config.DOMAIN[resource]['hateoas'] and config.ID_FIELD in document:
         document[config.LINKS] = {'self':
                                   document_link(resource,
                                                 document[config.ID_FIELD])}
@@ -452,7 +454,7 @@ def resolve_embedded_documents(document, resource, embedded_fields):
         # Retrieve and serialize the requested document
         if 'version' in data_relation and data_relation['version'] is True:
             # support late versioning
-            if document[field][config.VERSION] == 0:
+            if document[field][config.VERSION] == 1:
                 # there is a chance this document hasn't been saved
                 # since versioning was turned on
                 embedded_doc = missing_version_field(
@@ -510,15 +512,18 @@ def resolve_media_files(document, resource):
         _file = app.media.get(document[field])
         # check if we should send a basic file response
         if config.EXTENDED_MEDIA_INFO == []:
-            if _file:
+            if _file and config.RETURN_MEDIA_AS_BASE64_STRING:
                 document[field] = base64.encodestring(_file.read())
             else:
                 document[field] = None
         elif _file:
             # otherwise we have a valid file and should send extended response
             # start with the basic file object
+            ret_file = None
+            if config.RETURN_MEDIA_AS_BASE64_STRING:
+                ret_file = base64.encodestring(_file.read())
             document[field] = {
-                'file': base64.encodestring(_file.read()),
+                'file': ret_file,
             }
 
             # check if we should return any special fields
@@ -573,7 +578,7 @@ def store_media_files(document, resource, original=None):
     # document update fails we should probably attempt a cleanup on the storage
     # sytem. Easier said than done though.
     for field in resource_media_fields(document, resource):
-        if original and hasattr(original, field):
+        if original and field in original:
             # since file replacement is not supported by the media storage
             # system, we first need to delete the file being replaced.
             app.media.delete(original[field])
@@ -594,6 +599,21 @@ def resource_media_fields(document, resource):
     """
     media_fields = app.config['DOMAIN'][resource]['_media']
     return [field for field in media_fields if field in document]
+
+
+def resolve_sub_resource_path(document, resource):
+    if not request.view_args:
+        return
+
+    schema = app.config['DOMAIN'][resource]['schema']
+    fields = []
+    for field, value in request.view_args.items():
+        if field in schema:
+            fields.append(field)
+            document[field] = value
+
+    if fields:
+        serialize(document, resource, fields=fields)
 
 
 def resolve_user_restricted_access(document, resource):
@@ -689,4 +709,6 @@ def resource_link():
     if '|item' in request.endpoint:
         path = path[:path.rfind('/')]
     server_name = config.SERVER_NAME if config.SERVER_NAME else ''
+    if config.URL_PROTOCOL:
+        server_name = '%s://%s' % (config.URL_PROTOCOL, server_name)
     return '%s%s' % (server_name, path)
