@@ -374,6 +374,30 @@ def build_response_document(
     resolve_embedded_documents(document, resource, embedded_fields)
 
 
+def field_definition(resource, chained_fields):
+    """ Resolves query string to resource with dot notation like
+    'people.address.city' and returns corresponding field definition
+    of the resource
+
+    :param resource: the resource name whose field to be accepted.
+    :param chained_fields: query string to retrieve field definition
+
+    .. versionadded 0.4
+    """
+    definition = config.DOMAIN[resource]
+    subfields = chained_fields.split('.')
+
+    for field in subfields:
+        try:
+            definition = definition['schema'][field]
+            if definition['type'] == 'list':
+                definition = definition['schema']
+        except KeyError:
+            return None
+
+    return definition
+
+
 def resolve_embedded_fields(resource, req):
     """ Returns a list of validated embedded fields from the incoming request
     or from the resource definition is the request does not specify.
@@ -413,14 +437,90 @@ def resolve_embedded_fields(resource, req):
     enabled_embedded_fields = []
     for field in embedded_fields:
         # Reject bogus field names
-        if field in config.DOMAIN[resource]['schema']:
-            field_definition = config.DOMAIN[resource]['schema'][field]
-            if 'data_relation' in field_definition and \
-                    field_definition['data_relation'].get('embeddable'):
+        field_def = field_definition(resource, field)
+        if field_def:
+            if field_def['type'] == 'list':
+                field_def = field_def['schema']
+            if 'data_relation' in field_def and \
+                    field_def['data_relation'].get('embeddable'):
                 # or could raise 400 here
                 enabled_embedded_fields.append(field)
 
     return enabled_embedded_fields
+
+
+def embedded_document(reference, data_relation, field_name):
+    """ Returns a document to be embedded by reference using data_relation
+    taking into account document versions
+
+    :param reference: reference to the document to be embedded.
+    :param data_relation: the relation schema definition.
+    :param field_name: field name used in abort message only
+
+    .. versionadded:: 0.4
+    """
+    # Retrieve and serialize the requested document
+    if 'version' in data_relation and data_relation['version'] is True:
+        # support late versioning
+        if reference[config.VERSION] == 1:
+            # there is a chance this document hasn't been saved
+            # since versioning was turned on
+            embedded_doc = missing_version_field(data_relation, reference)
+
+            if embedded_doc is None:
+                # this document has been saved since the data_relation was
+                # made - we basically do not have the copy of the document
+                # that existed when the data relation was made, but we'll
+                # try the next best thing - the first version
+                reference[config.VERSION] = 1
+                embedded_doc = get_data_version_relation_document(
+                    data_relation, reference)
+
+            latest_embedded_doc = embedded_doc
+        else:
+            # grab the specific version
+            embedded_doc = get_data_version_relation_document(
+                data_relation, reference)
+
+            # grab the latest version
+            latest_embedded_doc = get_data_version_relation_document(
+                data_relation, reference, latest=True)
+
+        # make sure we got the documents
+        if embedded_doc is None or latest_embedded_doc is None:
+            # your database is not consistent!!! that is bad
+            abort(404, description=debug_error_message(
+                "Unable to locate embedded documents for '%s'" %
+                field_name
+            ))
+
+        # build the response document
+        build_response_document(embedded_doc, data_relation['resource'],
+                                [], latest_embedded_doc)
+    else:
+        embedded_doc = app.data.find_one(data_relation['resource'],
+                                         None, **{config.ID_FIELD: reference})
+
+    return embedded_doc
+
+
+def subdocuments(fields_chain, document):
+    """ Traverses the given document and yields subdocuments which
+    correspond to the given fields_chain
+
+    :param fields_chain: list of nested field names.
+    :param document: document to be traversed
+
+    .. versionadded:: 0.4
+    """
+    if len(fields_chain) == 0:
+        yield document
+    else:
+        subdocument = document[fields_chain[0]]
+        docs = subdocument if isinstance(subdocument, list) else [subdocument]
+        for doc in docs:
+            for result in subdocuments(fields_chain[1:], doc):
+                yield result
 
 
 def resolve_embedded_documents(document, resource, embedded_fields):
@@ -428,15 +528,20 @@ def resolve_embedded_documents(document, resource, embedded_fields):
     of any fields that are (1) defined eligible for embedding in the
     DOMAIN and (2) requested to be embedded in the current `req`.
 
-    Currently we only support a single layer of embedding,
-    i.e. /invoices/?embedded={"user":1}
-    *NOT*  /invoices/?embedded={"user.friends":1}
+    Currently we support embedding of documents by references located
+    in any subdocuments. For example, query embedded={"user.friends":1}
+    will return a document with "user" and all his "friends" embedded,
+    but only if "user" is a subdocument and "friends" is a list of
+    references (actually, it couldn't be a list).
+    We do not support multiple layers embeddings.
 
     :param document: the document to embed other documents into.
     :param resource: the resource name.
     :param embedded_fields: the list of fields we are allowed to embed.
 
     .. versionchagend:: 0.4
+        Support for embedding documents located in subdocuments.
+        Allocated two functions embedded_document and subdocuments.
         Moved parsing of embedded fields to _resolve_embedded_fields.
         Support for document versioning.
 
@@ -448,56 +553,17 @@ def resolve_embedded_documents(document, resource, embedded_fields):
 
     .. versionadded:: 0.1.0
     """
-    schema = config.DOMAIN[resource]['schema']
     for field in embedded_fields:
-        data_relation = schema[field]['data_relation']
-        # Retrieve and serialize the requested document
-        if 'version' in data_relation and data_relation['version'] is True:
-            # support late versioning
-            if document[field][config.VERSION] == 1:
-                # there is a chance this document hasn't been saved
-                # since versioning was turned on
-                embedded_doc = missing_version_field(
-                    data_relation, document[field])
-
-                if embedded_doc is None:
-                    # this document has been saved since the data_relation was
-                    # made - we basically do not have the copy of the document
-                    # that existed when the data relation was made, but we'll
-                    # try the next best thing - the first version
-                    document[field][config.VERSION] = 1
-                    embedded_doc = get_data_version_relation_document(
-                        data_relation, document[field])
-
-                latest_embedded_doc = embedded_doc
+        data_relation = field_definition(resource, field)['data_relation']
+        getter = lambda ref: embedded_document(ref, data_relation, field)
+        fields_chain = field.split('.')
+        last_field = fields_chain[-1]
+        for subdocument in subdocuments(fields_chain[:-1], document):
+            if isinstance(subdocument[last_field], list):
+                subdocument[last_field] = list(map(getter,
+                                                   subdocument[last_field]))
             else:
-                # grab the specific version
-                embedded_doc = get_data_version_relation_document(
-                    data_relation, document[field])
-
-                # grab the latest version
-                latest_embedded_doc = get_data_version_relation_document(
-                    data_relation, document[field], latest=True)
-
-            # make sure we got the documents
-            if embedded_doc is None or latest_embedded_doc is None:
-                # your database is not consistent!!! that is bad
-                abort(404, description=debug_error_message(
-                    "Unable to locate embedded documents for '%s'" %
-                    field
-                ))
-
-            # build the response document
-            build_response_document(
-                embedded_doc, data_relation['resource'],
-                [], latest_embedded_doc)
-        else:
-            embedded_doc = app.data.find_one(
-                data_relation['resource'], None,
-                **{config.ID_FIELD: document[field]}
-            )
-        if embedded_doc:
-            document[field] = embedded_doc
+                subdocument[last_field] = getter(subdocument[last_field])
 
 
 def resolve_media_files(document, resource):
