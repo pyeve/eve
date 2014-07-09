@@ -495,6 +495,76 @@ class TestGet(TestBase):
         content = json.loads(r.get_data())
         self.assertTrue('location' in content['person'])
 
+    def test_get_reference_embedded_in_subdocuments(self):
+        _db = self.connection[MONGO_DBNAME]
+
+        contacts = self.random_contacts(2)
+        contact_ids = _db.contacts.insert(contacts)
+        company = {'departments': [{'title': 'development',
+                                   'members': contact_ids}]}
+        company_id = _db.companies.insert(company)
+
+        companies = self.domain['companies']
+        contact_ids = list(map(str, contact_ids))
+
+        # Test that doesn't come embedded if asking for a field that
+        # isn't embedded ('embeddable' is False by default)
+        embedded = '{"departments.members": 1}'
+        r = self.test_client.get('%s/%s' % (companies['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertEqual(content['_items'][0]['departments'][0]['members'],
+                         contact_ids)
+
+        # Set field to be embedded
+        department_def = companies['schema']['departments']['schema']
+        member_def = department_def['schema']['members']['schema']
+        member_def['data_relation']['embeddable'] = True
+
+        # Test that global setting applies even if field is set to embedded
+        companies['embedding'] = False
+        r = self.test_client.get('%s/%s' % (companies['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertEqual(content['_items'][0]['departments'][0]['members'],
+                         contact_ids)
+
+        # Test that it works
+        companies['embedding'] = True
+        r = self.test_client.get('%s/%s' % (companies['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('location' in
+                        content['_items'][0]['departments'][0]['members'][0])
+
+        # Test that it ignores a bogus field
+        embedded = '{"departments.members": 1, "not-a-real-field": 1}'
+        r = self.test_client.get('%s/%s' % (companies['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('location' in
+                        content['_items'][0]['departments'][0]['members'][0])
+
+        # Test that it works with item endpoint too
+        embedded = '{"departments.members": 1}'
+        r = self.test_client.get('%s/%s/%s' % (companies['url'], company_id,
+                                               '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('location' in content['departments'][0]['members'][0])
+
+        # Test default fields to be embedded
+        companies['embedded_fields'] = {"departments.members": 1}
+        r = self.test_client.get('%s/' % companies['url'])
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('location' in
+                        content['_items'][0]['departments'][0]['members'][0])
+
     def test_get_nested_resource(self):
         response, status = self.get('users/overseas')
         self.assertGet(response, status, 'users_overseas')
