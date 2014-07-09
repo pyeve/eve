@@ -382,7 +382,7 @@ def field_definition(resource, chained_fields):
     :param resource: the resource name whose field to be accepted.
     :param chained_fields: query string to retrieve field definition
 
-    .. versionadded 0.4
+    .. versionadded 0.5
     """
     definition = config.DOMAIN[resource]
     subfields = chained_fields.split('.')
@@ -404,6 +404,9 @@ def resolve_embedded_fields(resource, req):
 
     :param resource: the resource name.
     :param req: and instace of :class:`eve.utils.ParsedRequest`.
+
+    .. versionchanged:: 0.5
+       Enables subdocuments embedding. #389.
 
     .. versionadded:: 0.4
     """
@@ -457,7 +460,7 @@ def embedded_document(reference, data_relation, field_name):
     :param data_relation: the relation schema definition.
     :param field_name: field name used in abort message only
 
-    .. versionadded:: 0.4
+    .. versionadded:: 0.5
     """
     # Retrieve and serialize the requested document
     if 'version' in data_relation and data_relation['version'] is True:
@@ -511,7 +514,7 @@ def subdocuments(fields_chain, document):
     :param fields_chain: list of nested field names.
     :param document: document to be traversed
 
-    .. versionadded:: 0.4
+    .. versionadded:: 0.5
     """
     if len(fields_chain) == 0:
         yield document
@@ -539,9 +542,11 @@ def resolve_embedded_documents(document, resource, embedded_fields):
     :param resource: the resource name.
     :param embedded_fields: the list of fields we are allowed to embed.
 
+    .. versionchagend:: 0.5
+       Support for embedding documents located in subdocuments.
+       Allocated two functions embedded_document and subdocuments.
+
     .. versionchagend:: 0.4
-        Support for embedding documents located in subdocuments.
-        Allocated two functions embedded_document and subdocuments.
         Moved parsing of embedded fields to _resolve_embedded_fields.
         Support for document versioning.
 
