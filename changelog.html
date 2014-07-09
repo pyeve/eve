@@ -61,11 +61,26 @@
 <h2>Version 0.5<a class="headerlink" href="#version-0-5" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[new] Embedding of documents by references located in any subdocuments. For
+example, query <tt class="docutils literal"><span class="pre">embedded={&quot;user.friends&quot;:1}</span></tt> will return a document with
+&#8220;user&#8221; and all his &#8220;friends&#8221; embedded, but only if <tt class="docutils literal"><span class="pre">user</span></tt> is a subdocument
+and <tt class="docutils literal"><span class="pre">friends</span></tt> is a list of references (Dmitry Anoshin).</li>
+<li>[new] Allow mongoengine to work properly with cursor counts (Johan Bloemberg)</li>
+<li>[fix] When PUTting or PATCHing media fields, they would not be properly
+replaced as needed (Stanislav Heller).</li>
+<li>[fix] <tt class="docutils literal"><span class="pre">test_get_sort_disabled</span></tt> occasional failure.</li>
+<li>[fix] A POST with an empty array leads to a server crash. Now returns a 400
+error isntead and ensure the server won&#8217;t crash in case of mongo invalid
+operations (Olivier Poitrey).</li>
+<li>[new] <tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt> allows unknown fields to be read, not only written as
+before. Closes #397 and #250.</li>
+<li>[fix] PATCH and PUT don&#8217;t respect flask.abort() in a pre-update event. Closes
+#395 (Christopher Larsen).</li>
 <li>[new] <tt class="docutils literal"><span class="pre">VALIDATION_ERROR_STATUS</span></tt> allows setting of the HTTP status code to
 use for validation errors. Defaults to <tt class="docutils literal"><span class="pre">422</span></tt> (Olivier Poitrey).</li>
 <li>[fix] Validating keyschema rules would cause a TypeError since 0.4. Closes
 nicolaiarocci/cerberus#48.</li>
-<li>[new] Support for sub-document projections. Fixes #182 Olivier Poitrey).</li>
+<li>[new] Support for sub-document projections. Fixes #182 (Olivier Poitrey).</li>
 <li>[fix] Crash if client projection is not a dict #390 (Olivier Poitrey).</li>
 <li>[fix] Server crash in case of invalid &#8220;where&#8221; syntax #386 (Olivier Poitrey).</li>
 </ul>
