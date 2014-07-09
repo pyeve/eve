@@ -8,6 +8,10 @@ Version 0.5
 
 Not released yet.
 
+- [new] Embedding of documents by references located in any subdocuments. For
+  example, query ``embedded={"user.friends":1}`` will return a document with
+  "user" and all his "friends" embedded, but only if ``user`` is a subdocument
+  and ``friends`` is a list of references (Dmitry Anoshin).
 - [new] Allow mongoengine to work properly with cursor counts (Johan Bloemberg) 
 - [fix] When PUTting or PATCHing media fields, they would not be properly
   replaced as needed (Stanislav Heller).
