@@ -301,10 +301,10 @@ def serialize(document, resource=None, schema=None, fields=None):
         for field in fields:
             if field in schema:
                 field_schema = schema[field]
-                field_type = field_schema['type']
+                field_type = field_schema.get('type')
                 if 'schema' in field_schema:
                     field_schema = field_schema['schema']
-                    if 'dict' in (field_type, field_schema.get('type', '')):
+                    if 'dict' in (field_type, field_schema.get('type')):
                         # either a dict or a list of dicts
                         embedded = [document[field]] if field_type == 'dict' \
                             else document[field]
@@ -315,8 +315,8 @@ def serialize(document, resource=None, schema=None, fields=None):
                             else:
                                 serialize(subdocument, schema=field_schema)
                     else:
-                        # a list of one type, arbirtrary length
-                        field_type = field_schema['type']
+                        # a list of one type, arbitrary length
+                        field_type = field_schema.get('type')
                         if field_type in app.data.serializers:
                             for i, v in enumerate(document[field]):
                                 document[field][i] = \
@@ -325,7 +325,7 @@ def serialize(document, resource=None, schema=None, fields=None):
                     # a list of multiple types, fixed length
                     for i, (s, v) in enumerate(zip(field_schema['items'],
                                                    document[field])):
-                        field_type = s['type'] if 'type' in s else None
+                        field_type = s.get('type')
                         if field_type in app.data.serializers:
                             document[field][i] = \
                                 app.data.serializers[field_type](

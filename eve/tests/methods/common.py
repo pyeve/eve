@@ -11,9 +11,11 @@ class TestSerializer(TestBase):
         # tests fix for #244, serialization of sub-documents.
         schema = {'personal': {'type': 'dict',
                                'schema': {'best_friend': {'type': 'objectid'},
-                                          'born': {'type': 'datetime'}}}}
+                                          'born': {'type': 'datetime'}}},
+                  'without_type': {}}
         doc = {'personal': {'best_friend': '50656e4538345b39dd0414f0',
-                            'born': 'Tue, 06 Nov 2012 10:33:31 GMT'}}
+                            'born': 'Tue, 06 Nov 2012 10:33:31 GMT'},
+               'without_type': 'foo'}
         with self.app.app_context():
             serialized = serialize(doc, schema=schema)
         self.assertTrue(
