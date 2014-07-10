@@ -61,6 +61,8 @@
 <h2>Version 0.5<a class="headerlink" href="#version-0-5" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[fix] Fix serialization when <cite>type</cite> is missing in schema. #404 (Jaroslav
+Semančík).</li>
 <li>[new] Embedding of documents by references located in any subdocuments. For
 example, query <tt class="docutils literal"><span class="pre">embedded={&quot;user.friends&quot;:1}</span></tt> will return a document with
 &#8220;user&#8221; and all his &#8220;friends&#8221; embedded, but only if <tt class="docutils literal"><span class="pre">user</span></tt> is a subdocument
