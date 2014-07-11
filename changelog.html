@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -14,7 +13,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '0.5-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -61,6 +60,8 @@
 <h2>Version 0.5<a class="headerlink" href="#version-0-5" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[change] simplejson 3.5.3 is now required.</li>
+<li>[new] dev-requirements.txt added to the repo.</li>
 <li>[change] Specify a range of dependant package versions. #379 (James Stewart).</li>
 <li>[new] Support for python wheels (<a class="reference external" href="http://wheel.readthedocs.org">http://wheel.readthedocs.org</a>)</li>
 <li>[fix] Fix serialization when <cite>type</cite> is missing in schema. #404 (Jaroslav
@@ -739,7 +740,7 @@ tags which also caused XML validation issues when processing responses
 <li>Version number in &#8216;Server&#8217; response headers.</li>
 <li>Added support for DELETE at resource endpoints. Expected behavior:
 will delete all items in the collection. Disabled by default.</li>
-<li><tt class="xref py py-class docutils literal"><span class="pre">eve.io.mongo.Validator</span></tt> now supports <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#cerberus.Validator" title="(in Cerberus v0.7.2)"><tt class="xref py py-class docutils literal"><span class="pre">Validator</span></tt></a>
+<li><tt class="xref py py-class docutils literal"><span class="pre">eve.io.mongo.Validator</span></tt> now supports <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#cerberus.Validator" title="(in Cerberus v0.7.3)"><tt class="xref py py-class docutils literal"><span class="pre">Validator</span></tt></a>
 signature, allowing for further subclassing.</li>
 </ul>
 </div>

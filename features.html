@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -14,7 +13,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '0.5-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -206,14 +205,16 @@ endpoint you would use a regex and assign a field name to it:</p>
 </div>
 <p>Then this GET to the endpoint, which would roughly translate to <em>give
 me all the invoices by &lt;contact_id&gt;</em>:</p>
-<div class="highlight-python"><pre>people/51f63e0838345b6dcd7eabff/invoices</pre>
+<div class="highlight-python"><div class="highlight"><pre>people/51f63e0838345b6dcd7eabff/invoices
+</pre></div>
 </div>
 <p>Would cause the underlying database collection invoices to be queried this way:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;contact_id&#39;</span><span class="p">:</span> <span class="s">&#39;51f63e0838345b6dcd7eabff&#39;</span><span class="p">}</span>
 </pre></div>
 </div>
 <p>And this one:</p>
-<div class="highlight-python"><pre>people/51f63e0838345b6dcd7eabff/invoices?where={"number": 10}</pre>
+<div class="highlight-python"><div class="highlight"><pre>people/51f63e0838345b6dcd7eabff/invoices?where={&quot;number&quot;: 10}
+</pre></div>
 </div>
 <p>would be queried like:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;contact_id&#39;</span><span class="p">:</span> <span class="s">&#39;51f63e0838345b6dcd7eabff&#39;</span><span class="p">,</span> <span class="s">&quot;number&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}</span>
@@ -223,20 +224,24 @@ me all the invoices by &lt;contact_id&gt;</em>:</p>
 without resorting to sub-resources. In the example above the same result would
 be achieved by simply exposing a <tt class="docutils literal"><span class="pre">invoices</span></tt> endpoint that clients could query
 this way:</p>
-<div class="highlight-python"><pre>invoices?where={"contact_id": 51f63e0838345b6dcd7eabff}</pre>
+<div class="highlight-python"><div class="highlight"><pre>invoices?where={&quot;contact_id&quot;: 51f63e0838345b6dcd7eabff}
+</pre></div>
 </div>
 <p>or</p>
-<div class="highlight-python"><pre>invoices?where={"contact_id": 51f63e0838345b6dcd7eabff, "number": 10}</pre>
+<div class="highlight-python"><div class="highlight"><pre>invoices?where={&quot;contact_id&quot;: 51f63e0838345b6dcd7eabff, &quot;number&quot;: 10}
+</pre></div>
 </div>
 <p>It&#8217;s mostly a design choice, but keep in mind that when it comes to enabling
 individual documment endpoints you might occur in performance hits. This
 otherwise legit GET request:</p>
-<div class="highlight-python"><pre>people/&lt;contact_id&gt;/invoices/&lt;invoice_id&gt;</pre>
+<div class="highlight-python"><div class="highlight"><pre>people/&lt;contact_id&gt;/invoices/&lt;invoice_id&gt;
+</pre></div>
 </div>
 <p>would cause a two fields lookup on the database. This is not ideal and also not
 really needed, as <tt class="docutils literal"><span class="pre">&lt;invoice_id&gt;</span></tt> is a unique field. By contrast, if you had
 a simple resource endpoint the document lookup would happen on a single field:</p>
-<div class="highlight-python"><pre>invoices/&lt;invoice_id&gt;</pre>
+<div class="highlight-python"><div class="highlight"><pre>invoices/&lt;invoice_id&gt;
+</pre></div>
 </div>
 </div>
 </div>
@@ -1279,9 +1284,10 @@ is enabled, appropriate <tt class="docutils literal"><span class="pre">X-RateLim
 response.  Suppose that the rate limit has been set to 300 requests every 15
 minutes, this is what a user would get after hitting a endpoint with a single
 request:</p>
-<div class="highlight-python"><pre>X-RateLimit-Remaining: 299
+<div class="highlight-python"><div class="highlight"><pre>X-RateLimit-Remaining: 299
 X-RateLimit-Limit: 300
-X-RateLimit-Reset: 1370940300</pre>
+X-RateLimit-Reset: 1370940300
+</pre></div>
 </div>
 <p>You can set different limits for each one of the supported methods (GET, POST,
 PATCH, DELETE).</p>

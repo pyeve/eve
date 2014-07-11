@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -14,7 +13,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '0.5-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -360,7 +359,8 @@ then, using the secret key, computes a hash over the complete message body (and
 optionally some of the message headers if required)</p>
 <p>Next, the client adds the computed hash and his userid to the message in the
 Authorization header:</p>
-<div class="highlight-python"><pre>Authorization: johndoe:uCMfSzkjue+HSDygYB5aEg==</pre>
+<div class="highlight-python"><div class="highlight"><pre>Authorization: johndoe:uCMfSzkjue+HSDygYB5aEg==
+</pre></div>
 </div>
 <p>and sends it to the service. The service retrieves the userid from the
 message header and searches the private key for that user in its own
