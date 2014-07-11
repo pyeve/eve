@@ -8,6 +8,7 @@ Version 0.5
 
 Not released yet.
 
+- [change] Specify a range of dependant package versions. #379 (James Stewart).
 - [new] Support for python wheels (http://wheel.readthedocs.org)
 - [fix] Fix serialization when `type` is missing in schema. #404 (Jaroslav
   Semančík).
