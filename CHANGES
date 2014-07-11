@@ -8,6 +8,7 @@ Version 0.5
 
 Not released yet.
 
+- [change] simplejson 3.5.3 is now required.
 - [new] dev-requirements.txt added to the repo.
 - [change] Specify a range of dependant package versions. #379 (James Stewart).
 - [new] Support for python wheels (http://wheel.readthedocs.org)
