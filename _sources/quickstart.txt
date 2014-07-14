@@ -87,7 +87,7 @@ Try requesting `people` now:
                 "title": "people"
             }, 
             "parent": {
-                "href": "", 
+                "href": "/", 
                 "title": "home"
             }
         }
@@ -276,9 +276,9 @@ endpoint:
         "updated": "Wed, 21 Nov 2012 16:04:56 GMT",
         "created": "Wed, 21 Nov 2012 16:04:56 GMT",
         "_links": {
-            "self": {"href": "127.0.0.1/people/50acfba938345b0978fccad7", "title": "person"},
-            "parent": {"href": "127.0.0.1", "title": "home"},
-            "collection": {"href": "127.0.0.1/people", "title": "people"}
+            "self": {"href": "/people/50acfba938345b0978fccad7", "title": "person"},
+            "parent": {"href": "/", "title": "home"},
+            "collection": {"href": "/people", "title": "people"}
         }
     }
 
