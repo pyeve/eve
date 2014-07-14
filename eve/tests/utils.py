@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from eve.tests import TestBase
 from eve.utils import parse_request, str_to_date, config, weak_date, \
     date_to_str, querydef, document_etag, extract_key_values, \
-    debug_error_message, resource_uri, home_uri
+    debug_error_message
 
 
 class TestUtils(TestBase):
@@ -189,19 +189,6 @@ class TestUtils(TestBase):
             self.app.config['DEBUG'] = True
             self.assertEqual(debug_error_message('An error message'),
                              'An error message')
-
-    def test_resource_uri(self):
-        with self.app.test_request_context():
-            self.app.config['URL_PROTOCOL'] = 'http'
-            self.app.config['SERVER_NAME'] = '0.0.0.0:5000'
-            self.assertEqual(resource_uri('users'),
-                             'http://0.0.0.0:5000/users')
-
-    def test_home_uri(self):
-        with self.app.test_request_context():
-            self.app.config['URL_PROTOCOL'] = 'http'
-            self.app.config['SERVER_NAME'] = '0.0.0.0:5000'
-            self.assertEqual(home_uri(), 'http://0.0.0.0:5000')
 
 
 class DummyEvent(object):

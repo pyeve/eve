@@ -170,46 +170,13 @@ def date_to_str(date):
 def home_link():
     """ Returns a link to the API entry point/home page.
 
+    .. versionchanged:: 0.5
+       Link is relative to API root.
+
     .. versionchanged:: 0.0.3
        Now returning a JSON link.
     """
-    return {'title': 'home',
-            'href': home_uri()}
-
-
-def home_uri():
-    """ Returns a absolute URI to API home.
-
-    .. versionchanged:: 0.4
-       Added support for URL_PROTOCOL
-       Refactored from home_link
-
-    .. versionchanged:: 0.1.1
-       Handle the case of SERVER_NAME being None.
-
-    .. versionadded:: 0.4
-    """
-    server_name = config.SERVER_NAME if config.SERVER_NAME else ''
-    if config.URL_PROTOCOL:
-        server_name = '%s://%s' % (config.URL_PROTOCOL, server_name)
-    return '%s%s' % (server_name, api_prefix())
-
-
-def resource_uri(resource):
-    """ Returns the absolute URI to a resource.
-
-    .. versionchanged:: 0.1.1
-       URL prefixes are now included in config.URLS items, no more need to
-       explicitly add them to resource links.
-
-       Handle the case of SERVER_NAME being None.
-
-    .. versionchanged:: 0.1.0
-       No more trailing slashes in links.
-
-    :param resource: the resource name.
-    """
-    return '%s/%s' % (home_uri(), config.URLS[resource])
+    return {'title': 'home', 'href': '/'}
 
 
 def api_prefix(url_prefix=None, api_version=None):

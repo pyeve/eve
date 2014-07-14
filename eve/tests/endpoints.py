@@ -169,13 +169,7 @@ class TestEndPoints(TestBase):
     def test_item_self_link(self):
         data, status_code = self.get(self.known_resource, item=self.item_id)
         lookup_field = self.domain[self.known_resource]['item_lookup_field']
-        link = '%s%s/%s' % (
-            self.app.config['SERVER_NAME'],
-            self.known_resource_url,
-            self.item[lookup_field]
-        )
-        if self.app.get('URL_PROTOCOL'):
-            link = '%s://%s' % (self.app.config['URL_PROTOCOL'], link)
+        link = '%s/%s' % (self.known_resource_url, self.item[lookup_field])
         self.assertEqual(data.get('_links').get('self').get('href'), link)
 
     def test_unknown_endpoints(self):

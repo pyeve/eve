@@ -774,12 +774,12 @@ def resource_link():
     might contain regexes and custom variable names, all of which are not
     needed in the response payload.
 
+    .. versionchanged:: 0.5
+       URL is relative to API root.
+
     .. versionadded:: 0.4
     """
     path = request.path.rstrip('/')
     if '|item' in request.endpoint:
         path = path[:path.rfind('/')]
-    server_name = config.SERVER_NAME if config.SERVER_NAME else ''
-    if config.URL_PROTOCOL:
-        server_name = '%s://%s' % (config.URL_PROTOCOL, server_name)
-    return '%s%s' % (server_name, path)
+    return path
