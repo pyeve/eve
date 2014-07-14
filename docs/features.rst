@@ -68,7 +68,7 @@ The response payload will look something like this:
                 "_created": "Wed, 05 Dec 2012 09:53:07 GMT",
                 "_etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d",
                 "_links": {
-                    "self": {"href": "eve-demo.herokuapp.com:5000/people/50bf198338345b1c604faf31", "title": "person"},
+                    "self": {"href": "/people/50bf198338345b1c604faf31", "title": "person"},
                 },
             },
             ...
@@ -79,8 +79,8 @@ The response payload will look something like this:
             "page": 1
         },
         "_links": {
-            "self": {"href": "eve-demo.herokuapp.com:5000/people", "title": "people"},
-            "parent": {"href": "eve-demo.herokuapp.com:5000", "title": "home"}
+            "self": {"href": "/people", "title": "people"},
+            "parent": {"href": "/", "title": "home"}
         }
     }
 
@@ -220,9 +220,9 @@ look something like this:
         "_created": "Wed, 21 Nov 2012 16:04:56 GMT",
         "_etag": "28995829ee85d69c4c18d597a0f68ae606a266cc",
         "_links": {
-            "self": {"href": "eve-demo.herokuapp.com/people/50acfba938345b0978fccad7", "title": "person"},
-            "parent": {"href": "eve-demo.herokuapp.com", "title": "home"},
-            "collection": {"href": "http://eve-demo.herokuapp.com/people", "title": "people"}
+            "self": {"href": "/people/50acfba938345b0978fccad7", "title": "person"},
+            "parent": {"href": "/", "title": "home"},
+            "collection": {"href": "/people", "title": "people"}
         }
     }
 
@@ -327,19 +327,19 @@ UI, or to navigate the API without knowing its structure beforehand. An example:
     {
         "_links": {
             "self": {
-                "href": "localhost:5000/people",
+                "href": "/people",
                 "title": "people"
             },
             "parent": {
-                "href": "localhost:5000",
+                "href": "/",
                 "title": "home"
             },
             "next": {
-                "href": "localhost:5000/people?page=2",
+                "href": "/people?page=2",
                 "title": "next page"
             },
             "last": {
-                "href": "localhost:5000/people?page=10",
+                "href": "/people?page=10",
                 "title": "last page"
             }
         }
@@ -383,8 +383,8 @@ edits) are in JSON format.
 .. code-block:: html
 
     <resource>
-        <link rel="child" href="eve-demo.herokuapp.com/people" title="people" />
-        <link rel="child" href="eve-demo.herokuapp.com/works" title="works" />
+        <link rel="child" href="/people" title="people" />
+        <link rel="child" href="/works" title="works" />
     </resource>
 
 XML support can be disabled by setting ``XML`` to ``False`` in the settings
@@ -497,7 +497,7 @@ metadata:
         "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
         "_id": "50ae43339fa12500024def5b",
         "_etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
-        "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b", "title": "person"}}
+        "_links": {"self": {"href": "/people/50ae43339fa12500024def5b", "title": "person"}}
     }
 
 However, in order to reduce the number of loopbacks, a client might also submit
@@ -521,14 +521,14 @@ The response will be a list itself, with the state of each document:
                 "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
                 "_id": "50ae43339fa12500024def5b",
                 "_etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
-                "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b", "title": "person"}}
+                "_links": {"self": {"href": "/people/50ae43339fa12500024def5b", "title": "person"}}
             },
             {
                 "_status": "OK",
                 "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
                 "_id": "50ae43339fa12500024def5c",
                 "_etag": "62d356f623c7d9dc864ffa5facc47dced4ba6907"
-                "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5c", "title": "person"}}
+                "_links": {"self": {"href": "/people/50ae43339fa12500024def5c", "title": "person"}}
             }
         ]
     }
