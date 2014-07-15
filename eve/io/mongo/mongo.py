@@ -148,7 +148,7 @@ class Mongo(DataLayer):
         if req.sort:
             try:
                 client_sort = ast.literal_eval(req.sort)
-            except Exception, e:
+            except Exception as e:
                 abort(400, description=debug_error_message(str(e)))
 
         if req.where:
