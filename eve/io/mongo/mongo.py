@@ -89,6 +89,9 @@ class Mongo(DataLayer):
         :param req: a :class:`ParsedRequest`instance.
         :param sub_resource_lookup: sub-resource lookup from the endpoint url.
 
+        .. versionchanged:: 0.5
+           Abort with 400 in case of invalid sort syntax. #387.
+
         .. versionchanged:: 0.4
            'allowed_filters' is now checked before adding 'sub_resource_lookup'
            to the query, as it is considered safe.
@@ -143,7 +146,10 @@ class Mongo(DataLayer):
         spec = {}
 
         if req.sort:
-            client_sort = ast.literal_eval(req.sort)
+            try:
+                client_sort = ast.literal_eval(req.sort)
+            except Exception, e:
+                abort(400, description=debug_error_message(str(e)))
 
         if req.where:
             try:
