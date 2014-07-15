@@ -8,6 +8,7 @@ Version 0.5
 
 Not released yet.
 
+- [fix] Invalid sort syntax raises 500 instead of 400. Addresses #378.
 - [change] HATEOAS links are now relative to the API root. Closes #398 #401.
 - [change] simplejson 3.5.3 is now required.
 - [new] dev-requirements.txt added to the repo.
