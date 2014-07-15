@@ -57,9 +57,11 @@ class Mongo(DataLayer):
         'datetime': str_to_date
     }
 
-    # JSON serializer  s a class attribute. Allows extensions to replace it
+    # JSON serializer is a class attribute. Allows extensions to replace it
     # with their own implementation.
     json_encoder_class = MongoJSONEncoder
+
+    supported_ops = ['$gt', '$gte']
 
     def init_app(self, app):
         """ Initialize PyMongo.
@@ -606,23 +608,25 @@ class Mongo(DataLayer):
         """ Makes sure that only allowed operators are included in the query,
         aborts with a 400 otherwise.
 
+        .. versionchanged:: 0.5
+           DRY.
+
         .. versionchanged:: 0.0.9
            More informative error messages.
            Allow ``auth_username_field`` to be set to ``ID_FIELD``.
 
         .. versionadded:: 0.0.7
         """
-        if set(spec.keys()) & set(config.MONGO_QUERY_BLACKLIST):
-            abort(400, description=debug_error_message(
-                'Query contains operators banned in MONGO_QUERY_BLACKLIST'
-            ))
+        def sanitize_keys(spec):
+            if set(spec.keys()) & set(config.MONGO_QUERY_BLACKLIST):
+                abort(400, description=debug_error_message(
+                    'Query contains operators banned in MONGO_QUERY_BLACKLIST'
+                ))
+
+        sanitize_keys(spec)
         for value in spec.values():
             if isinstance(value, dict):
-                if set(value.keys()) & set(config.MONGO_QUERY_BLACKLIST):
-                    abort(400, description=debug_error_message(
-                        'Query contains operators banned '
-                        'in MONGO_QUERY_BLACKLIST'
-                    ))
+                sanitize_keys(value)
         return spec
 
     def _wc(self, resource):
