@@ -661,6 +661,12 @@ class TestGet(TestBase):
         r = self.test_client.get(request, headers=[('Origin', 'test.com')])
         self.assert404(r.status_code)
 
+    def test_get_invalid_where_syntax(self):
+        """ test that 'where' syntax with unknown '$' operator returns 400. """
+        response, status = self.get(self.known_resource,
+                                    '?where={"field": {"$foo": "bar"}}')
+        self.assert400(status)
+
     def test_get_invalid_sort_syntax(self):
         """ test that invalid sort syntax returns a 400 """
         response, status = self.get(self.known_resource, '?sort=[("prog":1)]')

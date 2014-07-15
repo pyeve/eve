@@ -43,6 +43,9 @@ class MongoJSONEncoder(BaseJSONEncoder):
 class Mongo(DataLayer):
     """ MongoDB data access layer for Eve REST API.
 
+    .. versionchanged:
+       Return 400 if unsupported query operators are used. #387.
+
     .. versionchanged:: 0.4
        Don't serialize to objectid if value is null. #341.
 
@@ -61,6 +64,15 @@ class Mongo(DataLayer):
     # JSON serializer is a class attribute. Allows extensions to replace it
     # with their own implementation.
     json_encoder_class = MongoJSONEncoder
+
+    operators = set(
+        ['$gt', '$gte', '$in', '$lt', '$lt', '$lte', '$ne', '$nin'] +
+        ['$or', '$and', '$not', '$nor'] +
+        ['$mod', '$regex', '$text', '$where'] +
+        ['$exists', '$type'] +
+        ['$geoWithin', '$geoIntersects', '$near', '$nearSphere'] +
+        ['$all', '$elemMatch', '$size']
+    )
 
     def init_app(self, app):
         """ Initialize PyMongo.
@@ -91,8 +103,8 @@ class Mongo(DataLayer):
         :param sub_resource_lookup: sub-resource lookup from the endpoint url.
 
         .. versionchanged:: 0.5
-           Properly return the error if a blacklisted MongoDB operator is used
-           in a query.
+           Return the error if a blacklisted MongoDB operator is used in query.
+           Abort with 400 if unsupported query operator is used. #387.
            Abort with 400 in case of invalid sort syntax. #387.
 
         .. versionchanged:: 0.4
@@ -614,6 +626,7 @@ class Mongo(DataLayer):
         aborts with a 400 otherwise.
 
         .. versionchanged:: 0.5
+           Abort with 400 if unsupported query operators are used. #387.
            DRY.
 
         .. versionchanged:: 0.0.9
@@ -623,6 +636,14 @@ class Mongo(DataLayer):
         .. versionadded:: 0.0.7
         """
         def sanitize_keys(spec):
+            ops = set([op for op in spec.keys() if op[0] == '$'])
+            unknown = ops - Mongo.operators
+            if unknown:
+                abort(400, description=debug_error_message(
+                    'Query contains unknown or unsupported operators: %s' %
+                    ', '.join(unknown)
+                ))
+
             if set(spec.keys()) & set(config.MONGO_QUERY_BLACKLIST):
                 abort(400, description=debug_error_message(
                     'Query contains operators banned in MONGO_QUERY_BLACKLIST'
