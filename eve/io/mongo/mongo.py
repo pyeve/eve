@@ -16,6 +16,7 @@ import simplejson as json
 import pymongo
 from flask import abort
 from flask.ext.pymongo import PyMongo
+from werkzeug.exceptions import HTTPException
 from bson import ObjectId
 from datetime import datetime
 from eve.io.mongo.parser import parse, ParseError
@@ -61,8 +62,6 @@ class Mongo(DataLayer):
     # with their own implementation.
     json_encoder_class = MongoJSONEncoder
 
-    supported_ops = ['$gt', '$gte']
-
     def init_app(self, app):
         """ Initialize PyMongo.
         .. versionchanged:: 0.0.9
@@ -92,6 +91,8 @@ class Mongo(DataLayer):
         :param sub_resource_lookup: sub-resource lookup from the endpoint url.
 
         .. versionchanged:: 0.5
+           Properly return the error if a blacklisted MongoDB operator is used
+           in a query.
            Abort with 400 in case of invalid sort syntax. #387.
 
         .. versionchanged:: 0.4
@@ -156,7 +157,11 @@ class Mongo(DataLayer):
         if req.where:
             try:
                 spec = self._sanitize(json.loads(req.where))
+            except HTTPException as e:
+                # _sanitize() is raising an HTTP exception; let it fire.
+                raise
             except:
+                # couldn't parse as mongo query; give the python parser a shot.
                 try:
                     spec = parse(req.where)
                 except ParseError:
