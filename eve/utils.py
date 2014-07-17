@@ -290,14 +290,34 @@ def validate_filters(where, resource):
     :param where: the where clause, as a dict.
     :param resource: the resource being inspected.
 
+    .. versionchanged: 0.5
+       If the data layer supports a list of allowed operators, take them
+       into consideration when validating the query string (#388).
+       Recursively validate the whole query string.
+
     .. versionadded: 0.0.9
     """
-    allowed = config.DOMAIN[resource]['allowed_filters']
-    if '*' not in allowed:
-        for filt, _ in where.items():
-            if filt not in allowed:
-                return "filter on '%s' not allowed" % filt
-    return None
+    operators = getattr(app.data, 'operators', set())
+    allowed = config.DOMAIN[resource]['allowed_filters'] + list(operators)
+
+    def validate_filter(filters):
+        r = None
+        for d in filters:
+            for key, value in d.items():
+                if key not in allowed:
+                    return "filter on '%s' not allowed" % key
+                if isinstance(value, dict):
+                    r = validate_filter([value])
+                elif isinstance(value, list):
+                    r = validate_filter(value)
+
+            # flake8: noqa
+                if r: break
+            if r: break
+
+        return r
+
+    return validate_filter([where]) if '*' not in allowed else None
 
 
 def auto_fields(resource):

@@ -672,6 +672,23 @@ class TestGet(TestBase):
         response, status = self.get(self.known_resource, '?sort=[("prog":1)]')
         self.assert400(status)
 
+    def test_get_allowed_filters_operators(self):
+        """ test that supported operators are not considered invalid filters
+            (#388). Also, test that nested filters are validated.
+        """
+        where = '?where={"$and": [{"field1": "value1"}, {"field2": "value2"}]}'
+        settings = self.app.config['DOMAIN'][self.known_resource]
+
+        # valid
+        settings['allowed_filters'] = ['field1', 'field2']
+        response, status = self.get(self.known_resource, where)
+        self.assert200(status)
+
+        # invalid
+        settings['allowed_filters'] = ['field2']
+        response, status = self.get(self.known_resource, where)
+        self.assert400(status)
+
     def assertGet(self, response, status, resource=None):
         self.assert200(status)
 

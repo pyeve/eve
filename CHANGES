@@ -8,9 +8,12 @@ Version 0.5
 
 Not released yet.
 
+- [fix] Recursively validate the whole query string.
+- [fix] If the data layer supports a list of allowed query operators, take them
+  into consideration when validating a query string. Closes #388.
 - [fix[ Abort with 400 if unsupported query operators are used. Closes #387.
-- [fix] Return the error if a blacklisted MongoDB operator is used in
-  a query (debug mode). 
+- [fix] Return the error if a blacklisted MongoDB operator is used in a query
+  (debug mode). 
 - [fix] Invalid sort syntax raises 500 instead of 400. Addresses #378.
 - [change] HATEOAS links are now relative to the API root. Closes #398 #401.
 - [change] simplejson 3.5.3 is now required.
