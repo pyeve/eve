@@ -60,9 +60,12 @@
 <h2>Version 0.5<a class="headerlink" href="#version-0-5" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[fix] Recursively validate the whole query string.</li>
+<li>[fix] If the data layer supports a list of allowed query operators, take them
+into consideration when validating a query string. Closes #388.</li>
 <li>[fix[ Abort with 400 if unsupported query operators are used. Closes #387.</li>
-<li>[fix] Return the error if a blacklisted MongoDB operator is used in
-a query (debug mode).</li>
+<li>[fix] Return the error if a blacklisted MongoDB operator is used in a query
+(debug mode).</li>
 <li>[fix] Invalid sort syntax raises 500 instead of 400. Addresses #378.</li>
 <li>[change] HATEOAS links are now relative to the API root. Closes #398 #401.</li>
 <li>[change] simplejson 3.5.3 is now required.</li>
