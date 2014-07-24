@@ -122,10 +122,13 @@ def home_endpoint():
         response = {}
         links = []
         for resource in config.DOMAIN.keys():
+            internal = config.DOMAIN[resource].get('internal_resource', False)
             if not resource.endswith(config.VERSIONS):
-                links.append({'href': '/%s' % config.URLS[resource],
-                              'title': '%s' %
-                              config.DOMAIN[resource]['resource_title']})
+                if not bool(internal):
+                    links.append({'href': '/%s' % config.URLS[resource],
+                                  'title': '%s' %
+                                  config.DOMAIN[resource]['resource_title']})
+
         response[config.LINKS] = {'child': links}
         return send_response(None, (response,))
     else:

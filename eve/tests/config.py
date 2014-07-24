@@ -297,6 +297,7 @@ class TestConfig(TestBase):
         self.assertNotEqual(self.app.config.get('SOURCES'), None)
         self.assertEqual(type(self.app.config['SOURCES']), dict)
 
+        del(self.domain['internal_transactions'])
         for resource, settings in self.domain.items():
             self.assertEqual(settings['url'],
                              self.app.config['URLS'][resource])
@@ -308,6 +309,7 @@ class TestConfig(TestBase):
             'SERVER_NAME', ''))
 
         del(self.domain['peopleinvoices'])
+        del(self.domain['internal_transactions'])
         for _, settings in self.domain.items():
             for method in settings['resource_methods']:
                 self.assertTrue(map_adapter.test('/%s/' % settings['url'],

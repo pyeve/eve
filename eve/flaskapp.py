@@ -609,9 +609,13 @@ class Eve(Flask, Events):
 
         .. versionadded:: 0.2
         """
+        self.config['SOURCES'][resource] = settings['datasource']
+
+        if bool(settings.get('internal_resource', False)):
+            return
+
         url = '%s/%s' % (self.api_prefix, settings['url'])
         self.config['URLS'][resource] = settings['url']
-        self.config['SOURCES'][resource] = settings['datasource']
 
         # resource endpoint
         endpoint = resource + "|resource"

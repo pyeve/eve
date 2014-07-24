@@ -29,6 +29,13 @@ from eve.versioning import resolve_document_version, \
 @requires_auth('resource')
 @pre_event
 def post(resource, payl=None):
+    """ Provides the monitoring decorators for an actual post.
+    :see: post_intern
+    """
+    return post_intern(resource, payl)
+
+
+def post_intern(resource, payl=None):
     """ Adds one or more documents to a resource. Each document is validated
     against the domain schema. If validation passes the document is inserted
     and ID_FIELD, LAST_UPDATED and DATE_CREATED along with a link to the

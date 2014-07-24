@@ -1111,6 +1111,34 @@ manipulated. This feature can come in handy when, for example, you want to
 protect insertion and modification behind an :ref:`auth` scheme while leaving
 read access open to the public.
 
+.. _internal_resource
+Limiting the Endpoints Exposed by the API Endpoint
+'''''''''''''''''''''''''''''''''''''''''''''''''
+By default API responses to GET requests for ``home_uri()`` will include all the
+resources included in the DOMAIN if ``HATEOAS`` is enabled. The ``internal_resource``
+setting keyword allows you to make an endpoint internal, available only for internal
+data manipulation, no HTTP calls can be made against it.
+
+::
+
+    people = {
+        'schema': {
+            'firstname': {
+                'type': 'string',
+                'minlength': 1,
+                'maxlength': 10,
+            },
+            'lastname': {
+                'type': 'string',
+                'minlength': 1,
+                'maxlength': 15,
+                'required': True,
+                'unique': True,
+            },
+        },
+        'internal_resource': ``True``
+    }
+
 .. admonition:: See also
 
     - :ref:`projections` 

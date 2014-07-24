@@ -489,10 +489,24 @@ class TestBase(TestMinimal):
             )
         return rows
 
+    def random_internal_transactions(self, num):
+        transactions = []
+        for i in range(num):
+            dt = datetime.now()
+            transaction = {
+                'internal_string':  self.random_string(10),
+                'internal_number': i,
+                eve.LAST_UPDATED: dt,
+                eve.DATE_CREATED: dt,
+            }
+            transactions.append(transaction)
+        return transactions
+
     def bulk_insert(self):
         _db = self.connection[MONGO_DBNAME]
         _db.contacts.insert(self.random_contacts(self.known_resource_count))
         _db.contacts.insert(self.random_users(2))
         _db.payments.insert(self.random_payments(10))
         _db.invoices.insert(self.random_invoices(1))
+        _db.internal_transactions.insert(self.random_internal_transactions(4))
         self.connection.close()

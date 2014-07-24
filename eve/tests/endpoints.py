@@ -142,6 +142,7 @@ class TestEndPoints(TestBase):
 
     def test_resource_endpoint(self):
         del(self.domain['peopleinvoices'])
+        del(self.domain['internal_transactions'])
         for settings in self.domain.values():
             r = self.test_client.get('/%s/' % settings['url'])
             self.assert200(r.status_code)
@@ -229,3 +230,7 @@ class TestEndPoints(TestBase):
     def test_nested_endpoint(self):
         r = self.test_client.get('/users/overseas')
         self.assert200(r.status_code)
+
+    def test_internal_endpoint(self):
+        r = self.test_client.get('/internal_transactions')
+        self.assert404(r.status_code)
