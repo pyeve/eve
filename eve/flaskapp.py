@@ -198,7 +198,10 @@ class Eve(Flask, Events):
             else:
                 abspath = os.path.abspath(os.path.dirname(sys.argv[0]))
                 pyfile = os.path.join(abspath, self.settings)
-            self.config.from_pyfile(pyfile)
+            if os.path.exists(pyfile):
+                self.config.from_pyfile(pyfile)
+            else:
+                self.config.from_object(self.settings)
 
         # overwrite settings with custom environment variable
         envvar = 'EVE_SETTINGS'
