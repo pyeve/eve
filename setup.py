@@ -3,7 +3,11 @@
 from setuptools import setup, find_packages
 DESCRIPTION = ("REST API framework powered by Flask, MongoDB and good "
                "intentions.")
-LONG_DESCRIPTION = open('README.rst').read()
+with open('README.rst') as f:
+    LONG_DESCRIPTION = f.read()
+
+with open('LICENSE') as f:
+    LICENSE = f.read()
 
 setup(
     name='Eve',
@@ -13,7 +17,7 @@ setup(
     author='Nicola Iarocci',
     author_email='eve@nicolaiarocci.com',
     url='http://python-eve.org',
-    license=open('LICENSE').read(),
+    license=LICENSE,
     platforms=["any"],
     packages=find_packages(),
     test_suite="eve.tests",
