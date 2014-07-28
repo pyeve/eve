@@ -124,16 +124,16 @@ def get(resource, **lookup):
     last_modified = last_update if last_update > epoch() else None
 
     response[config.ITEMS] = documents
+    count = cursor.count(with_limit_and_skip=False)
     if config.DOMAIN[resource]['hateoas']:
-        count = cursor.count(with_limit_and_skip=False)
         response[config.LINKS] = _pagination_links(resource, req, count)
 
     # add pagination info
-    if cursor.count() and config.DOMAIN[resource]['pagination']:
+    if config.DOMAIN[resource]['pagination']:
         response[config.META] = {
             'page': req.page,
             'max_results': req.max_results,
-            'total': cursor.count(with_limit_and_skip=False),
+            'total': count,
         }
 
     # notify registered callback functions. Please note that, should the

@@ -77,17 +77,14 @@ class TestGet(TestBase):
         self.assertLastLink(links, None)
         self.assertPagination(response, 5, 101, 25)
 
-    def test_get_paging_disabled(self):
-        self.app.config['DOMAIN'][self.known_resource]['pagination'] = False
-        response, status = self.get(self.known_resource, '?page=2')
+    def test_get_pagination_no_documents(self):
+        """ test that pagination meta is present even when no records are being
+        returned. #415.
+        """
+        response, status = self.get(self.known_resource,
+                                    '?where={"ref": "not_really"}')
         self.assert200(status)
-        resource = response['_items']
-        self.assertFalse(len(resource) ==
-                         self.app.config['PAGINATION_DEFAULT'])
-        self.assertTrue(self.app.config['META'] not in response)
-        links = response['_links']
-        self.assertTrue('next' not in links)
-        self.assertTrue('prev' not in links)
+        self.assertPagination(response, 1, 0, 25)
 
     def test_get_paging_disabled_no_args(self):
         self.app.config['DOMAIN'][self.known_resource]['pagination'] = False

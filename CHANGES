@@ -8,49 +8,60 @@ Version 0.5
 
 Not released yet.
 
-- [change] ``put`` method signature for ``MediaStorage`` base class has been
-  updated. ``filemame`` is now optional. Closes #414.
-- [change] CORS behavior to be compatible with browsers (Chrome). Eve is now
-  echoing back the contents of the Origin header if said content is whitelisted
-  in X_DOMAINS. This also safer as it avoids exposing internal server
-  configuration. Closes #408. This commit was carefully handcrafed on a flight
-  to EuroPython 2014.
+- [fix] Querying a collection should always return pagination
+  information (even when no data is being returned). Closes #415.
+- [change] ``put`` method signature for ``MediaStorage`` base class has
+  been updated. ``filemame`` is now optional. Closes #414.
+- [change] CORS behavior to be compatible with browsers (Chrome). Eve is
+  now echoing back the contents of the Origin header if said content is
+  whitelisted in X_DOMAINS. This also safer as it avoids exposing
+  internal server configuration. Closes #408. This commit was carefully
+  handcrafed on a flight to EuroPython 2014.
 - [fix] Recursively validate the whole query string.
-- [fix] If the data layer supports a list of allowed query operators, take them
-  into consideration when validating a query string. Closes #388.
-- [fix[ Abort with 400 if unsupported query operators are used. Closes #387.
-- [fix] Return the error if a blacklisted MongoDB operator is used in a query
-  (debug mode). 
+- [fix] If the data layer supports a list of allowed query operators,
+  take them into consideration when validating a query string. Closes
+  #388.
+- [fix[ Abort with 400 if unsupported query operators are used. Closes
+  #387.
+- [fix] Return the error if a blacklisted MongoDB operator is used in
+  a query (debug mode). 
 - [fix] Invalid sort syntax raises 500 instead of 400. Addresses #378.
-- [change] HATEOAS links are now relative to the API root. Closes #398 #401.
+- [change] HATEOAS links are now relative to the API root. Closes #398
+  #401.
 - [change] simplejson 3.5.3 is now required.
 - [new] dev-requirements.txt added to the repo.
-- [change] Specify a range of dependant package versions. #379 (James Stewart).
+- [change] Specify a range of dependant package versions. #379 (James
+  Stewart).
 - [new] Support for python wheels (http://wheel.readthedocs.org)
-- [fix] Fix serialization when `type` is missing in schema. #404 (Jaroslav
-  Semančík).
-- [new] Embedding of documents by references located in any subdocuments. For
-  example, query ``embedded={"user.friends":1}`` will return a document with
-  "user" and all his "friends" embedded, but only if ``user`` is a subdocument
-  and ``friends`` is a list of references (Dmitry Anoshin).
-- [new] Allow mongoengine to work properly with cursor counts (Johan Bloemberg) 
-- [fix] When PUTting or PATCHing media fields, they would not be properly
-  replaced as needed (Stanislav Heller).
+- [fix] Fix serialization when `type` is missing in schema. #404
+  (Jaroslav Semančík).
+- [new] Embedding of documents by references located in any
+  subdocuments. For example, query ``embedded={"user.friends":1}`` will
+  return a document with "user" and all his "friends" embedded, but only
+  if ``user`` is a subdocument and ``friends`` is a list of references
+  (Dmitry Anoshin).
+- [new] Allow mongoengine to work properly with cursor counts (Johan
+  Bloemberg) 
+- [fix] When PUTting or PATCHing media fields, they would not be
+  properly replaced as needed (Stanislav Heller).
 - [fix] ``test_get_sort_disabled`` occasional failure.
-- [fix] A POST with an empty array leads to a server crash. Now returns a 400
-  error isntead and ensure the server won't crash in case of mongo invalid
-  operations (Olivier Poitrey). 
-- [new] ``ALLOW_UNKNOWN`` allows unknown fields to be read, not only written as
-  before. Closes #397 and #250.
-- [fix] PATCH and PUT don't respect flask.abort() in a pre-update event. Closes
-  #395 (Christopher Larsen).
-- [new] ``VALIDATION_ERROR_STATUS`` allows setting of the HTTP status code to
-  use for validation errors. Defaults to ``422`` (Olivier Poitrey). 
-- [fix] Validating keyschema rules would cause a TypeError since 0.4. Closes
-  nicolaiarocci/cerberus#48.
-- [new] Support for sub-document projections. Fixes #182 (Olivier Poitrey).
+- [fix] A POST with an empty array leads to a server crash. Now returns
+  a 400 error isntead and ensure the server won't crash in case of mongo
+  invalid operations (Olivier Poitrey). 
+- [new] ``ALLOW_UNKNOWN`` allows unknown fields to be read, not only
+  written as before. Closes #397 and #250.
+- [fix] PATCH and PUT don't respect flask.abort() in a pre-update event.
+  Closes #395 (Christopher Larsen).
+- [new] ``VALIDATION_ERROR_STATUS`` allows setting of the HTTP status
+  code to use for validation errors. Defaults to ``422`` (Olivier
+  Poitrey). 
+- [fix] Validating keyschema rules would cause a TypeError since 0.4.
+  Closes nicolaiarocci/cerberus#48.
+- [new] Support for sub-document projections. Fixes #182 (Olivier
+  Poitrey).
 - [fix] Crash if client projection is not a dict #390 (Olivier Poitrey).
-- [fix] Server crash in case of invalid "where" syntax #386 (Olivier Poitrey).
+- [fix] Server crash in case of invalid "where" syntax #386 (Olivier
+  Poitrey).
 
 Version 0.4
 -----------
