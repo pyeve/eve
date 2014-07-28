@@ -34,13 +34,16 @@ class MediaStorage(object):
         """
         raise NotImplementedError
 
-    def put(self, content, filename, content_type=None):
+    def put(self, content, filename=None, content_type=None):
         """ Saves a new file using the storage system, preferably with the name
         specified. If there already exists a file with this name name, the
         storage system may modify the filename as necessary to get a unique
         name. Depending on the storage system, a unique id or the actual name
         of the stored file will be returned. The content type argument is used
         to appropriately identify the file when it is retrieved.
+
+        .. versionchanged:: 0.5
+           Allow filename to be optional (#414).
         """
         raise NotImplementedError
 
