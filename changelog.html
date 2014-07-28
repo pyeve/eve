@@ -60,10 +60,14 @@
 <h2>Version 0.5<a class="headerlink" href="#version-0-5" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[fix] Querying a collection should always return pagination
+information (even when no data is being returned). Closes #415.</li>
+<li>[change] <tt class="docutils literal"><span class="pre">put</span></tt> method signature for <tt class="docutils literal"><span class="pre">MediaStorage</span></tt> base class has
+been updated. <tt class="docutils literal"><span class="pre">filemame</span></tt> is now optional. Closes #414.</li>
 <li>[change] CORS behavior to be compatible with browsers (Chrome). Eve is
 now echoing back the contents of the Origin header if said content is
-whitelisted in X_DOMAINS. This also safer as it avoids exposing internal
-server configuration. Closes #408. This commit was carefully
+whitelisted in X_DOMAINS. This also safer as it avoids exposing
+internal server configuration. Closes #408. This commit was carefully
 handcrafed on a flight to EuroPython 2014.</li>
 <li>[fix] Recursively validate the whole query string.</li>
 <li>[fix] If the data layer supports a list of allowed query operators,
