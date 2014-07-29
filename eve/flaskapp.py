@@ -149,8 +149,17 @@ class Eve(Flask, Events):
         self._init_url_rules()
 
         # validate and set defaults for each resource
-        for resource, settings in self.config['DOMAIN'].items():
+
+        # Use a snapshot of the DOMAIN setup for iteration so
+        # further insertion of versioned resources do not
+        # cause a RuntimeError due to the change of size of
+        # the dict
+        domain_copy = copy.deepcopy(self.config['DOMAIN'])
+        for resource, settings in domain_copy.items():
             self.register_resource(resource, settings)
+        # it seems like both domain_copy and config['DOMAIN']
+        # suffered changes at this point, so merge them
+        # self.config['DOMAIN'].update(domain_copy)
 
         self.register_error_handlers()
 
@@ -725,6 +734,11 @@ class Eve(Flask, Events):
                 copy.deepcopy(self.config['SOURCES'][resource])
             self.config['SOURCES'][versioned_resource]['source'] += \
                 self.config['VERSIONS']
+            # the new versioned resource also needs URL rules
+            self._add_resource_url_rules(
+                versioned_resource,
+                self.config['DOMAIN'][versioned_resource]
+            )
 
     def register_error_handlers(self):
         """ Register custom error handlers so we make sure that all errors
