@@ -8,6 +8,7 @@ Version 0.5
 
 Not released yet.
 
+- [fix] Close file handles in setup.py (Harro van der Klauw)
 - [fix] Querying a collection should always return pagination
   information (even when no data is being returned). Closes #415.
 - [change] ``put`` method signature for ``MediaStorage`` base class has
