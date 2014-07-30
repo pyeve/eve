@@ -8,6 +8,8 @@ Version 0.5
 
 Not released yet.
 
+- [fix] Schema definition: a default value of [] for a list causes
+  IndexError. Closes #417.
 - [fix] Close file handles in setup.py (Harro van der Klauw)
 - [fix] Querying a collection should always return pagination
   information (even when no data is being returned). Closes #415.

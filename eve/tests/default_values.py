@@ -213,6 +213,15 @@ class TestResolveDefaultValues(unittest.TestCase):
         expected = {'one': [[], []]}
         assert expected == document
 
+    def test_list_empty_list_as_default(self):
+        # test that a default value of [] for a list does not causes IndexError
+        # (#417).
+        document = {'a': ['b']}
+        defaults = {'a': []}
+        resolve_default_values(document, defaults)
+        expected = {'a': ['b']}
+        assert expected == document
+
     def test_list_of_list_dict_value(self):
         document = {'one': [[{}], [{}]]}
         defaults = {'one': [[{'name': 'banana'}]]}
