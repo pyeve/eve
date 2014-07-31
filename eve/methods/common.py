@@ -31,6 +31,9 @@ def get_document(resource, **lookup):
     :param resource: the name of the resource to which the document belongs to.
     :param **lookup: document lookup query
 
+    .. versionchanged:: 0.5
+       ETAG are now stored with the document (#369).
+
     .. versionchanged:: 0.0.9
        More informative error messages.
 
@@ -54,12 +57,14 @@ def get_document(resource, **lookup):
         document[config.LAST_UPDATED] = last_updated(document)
         document[config.DATE_CREATED] = date_created(document)
 
-        if req.if_match and req.if_match != document_etag(document):
-            # client and server etags must match, or we don't allow editing
-            # (ensures that client's version of the document is up to date)
-            abort(412, description=debug_error_message(
-                'Client and server etags don\'t match'
-            ))
+        if req.if_match:
+            etag = document.get(config.ETAG, document_etag(document))
+            if req.if_match != etag:
+                # client and server etags must match, or we don't allow editing
+                # (ensures that client's version of the document is up to date)
+                abort(412, description=debug_error_message(
+                    'Client and server etags don\'t match'
+                ))
 
     return document
 
@@ -347,6 +352,9 @@ def build_response_document(
     :param embedded_fields: the list of fields we are allowed to embed.
     :param document: the latest version of document.
 
+    .. versionchanged:: 0.5
+       Only compute ETAG if necessary (#369).
+
     .. versionadded:: 0.4
     """
     # need to update the document field since the etag must be computed on the
@@ -356,8 +364,8 @@ def build_response_document(
     document[config.LAST_UPDATED] = last_updated(document)
     # TODO: last_update could include consideration for embedded documents
 
-    # generate ETag
-    if config.IF_MATCH:
+    # Up to v0.4 etags were not stored with the documents.
+    if config.IF_MATCH and config.ETAG not in document:
         document[config.ETAG] = document_etag(document)
 
     # hateoas links
@@ -708,6 +716,18 @@ def resolve_user_restricted_access(document, resource):
         if request_auth_value and request.authorization:
             document[auth_field] = request_auth_value
 
+
+def resolve_document_etag(documents):
+    """ Adds etags to documents.
+
+    .. versionadded:: 0.5
+    """
+    if config.IF_MATCH:
+        if not isinstance(documents, list):
+            documents = [documents]
+
+        for document in documents:
+            document[config.ETAG] = document_etag(document)
 
 def pre_event(f):
     """ Enable a Hook pre http request.

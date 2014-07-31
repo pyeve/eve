@@ -18,7 +18,7 @@ from eve.auth import requires_auth
 from eve.validation import ValidationError
 from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, pre_event, store_media_files, resolve_embedded_fields, \
-    build_response_document, marshal_write_response
+    build_response_document, marshal_write_response, resolve_document_etag
 from eve.versioning import resolve_document_version, \
     insert_versioning_documents, late_versioning_catch
 
@@ -36,6 +36,7 @@ def patch(resource, **lookup):
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.5
+       ETAG is now stored with the document (#369).
        Catching all HTTPExceptions and returning them to the caller, allowing
        for eventual flask.abort() invocations in callback functions to go
        through. Fixes #395.
@@ -136,6 +137,8 @@ def patch(resource, **lookup):
             getattr(app, "on_update_%s" % resource)(updates, original)
 
             updated.update(updates)
+
+            resolve_document_etag(updated)
 
             app.data.update(resource, object_id, updates)
             insert_versioning_documents(resource, updated)

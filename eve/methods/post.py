@@ -20,7 +20,7 @@ from eve.validation import ValidationError
 from eve.methods.common import parse, payload, ratelimit, \
     pre_event, store_media_files, resolve_user_restricted_access, \
     resolve_embedded_fields, build_response_document, marshal_write_response, \
-    resolve_sub_resource_path
+    resolve_sub_resource_path, resolve_document_etag
 from eve.versioning import resolve_document_version, \
     insert_versioning_documents
 
@@ -47,6 +47,9 @@ def post(resource, payl=None):
 
                  See https://github.com/nicolaiarocci/eve/issues/74 for a
                  discussion, and a typical use case.
+
+    .. versionchanged:: 0.5
+       ETAGS are now stored with documents (#369).
 
     .. versionchanged:: 0.4
        Resolve default values before validation is performed. See #353.
@@ -192,6 +195,9 @@ def post(resource, payl=None):
         # notify callbacks
         getattr(app, "on_insert")(resource, documents)
         getattr(app, "on_insert_%s" % resource)(documents)
+
+        # compute etags here as documents might have been updated by callbacks.
+        resolve_document_etag(documents)
 
         # bulk insert
         ids = app.data.insert(resource, documents)

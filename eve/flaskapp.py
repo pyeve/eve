@@ -326,6 +326,9 @@ class Eve(Flask, Events):
         :param resource: resource name.
         :param schema: schema definition for the resource.
 
+        .. versionchanged:: 0.5
+           Add ETAG to automatic fields check.
+
         .. versionchanged:: 0.4
            Checks against offending document versioning fields.
            Supports embedded data_relation with version.
@@ -346,7 +349,7 @@ class Eve(Flask, Events):
            the exception message.
         """
         # ensure automatically handled fields aren't defined
-        fields = [eve.DATE_CREATED, eve.LAST_UPDATED]
+        fields = [eve.DATE_CREATED, eve.LAST_UPDATED, eve.ETAG]
         # TODO: only add the following checks if settings['versioning'] == True
         fields += [
             self.config['VERSION'],
@@ -541,6 +544,7 @@ class Eve(Flask, Events):
             projection[self.config['ID_FIELD']] = 1
             projection[self.config['LAST_UPDATED']] = 1
             projection[self.config['DATE_CREATED']] = 1
+            projection[self.config['ETAG']] = 1
             if settings['versioning'] is True:
                 projection[self.config['VERSION']] = 1
                 projection[

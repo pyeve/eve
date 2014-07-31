@@ -156,6 +156,24 @@ class TestGet(TestBase):
         resource = response['_items']
         self.assertEqual(len(resource), 1)
 
+    def test_get_projection_consistent_etag(self):
+        """ Test that #369 is fixed and projection queries return consistent
+            etags (as they are now stored along with the document).
+        """
+        etag_field = self.app.config['ETAG']
+        data = {"inv_number": self.random_string(10)}
+
+        # post a new item so etag storage kicks in
+        r, status = self.post(self.empty_resource_url, data=data)
+        etag = r[etag_field]
+
+        # hit the resource endpoint with a projection query
+        projection = '{"prog": 1}'
+        r, status = self.get(self.empty_resource,
+                             '?projection=%s' % projection)
+        # compare original etag with retrieved one
+        self.assertEqual(etag, r['_items'][0][etag_field])
+
     def test_get_projection(self):
         projection = '{"prog": 1}'
         response, status = self.get(self.known_resource, '?projection=%s' %

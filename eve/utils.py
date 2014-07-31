@@ -325,13 +325,17 @@ def auto_fields(resource):
 
     :param resource: the resource currently being accessed by the client.
 
+    .. versionchanged: 0.5
+       ETAG is now a preserved meta data (#369).
+
     .. versionadded:: 0.4
     """
     # preserved meta data
-    fields = [config.ID_FIELD, config.LAST_UPDATED, config.DATE_CREATED]
+    fields = [config.ID_FIELD, config.LAST_UPDATED, config.DATE_CREATED,
+              config.ETAG]
 
     # on-the-fly meta data (not in data store)
-    fields += [config.ETAG, config.ISSUES, config.STATUS, config.LINKS]
+    fields += [config.ISSUES, config.STATUS, config.LINKS]
 
     if config.DOMAIN[resource]['versioning'] is True:
         fields.append(config.VERSION)

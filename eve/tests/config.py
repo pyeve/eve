@@ -216,7 +216,8 @@ class TestConfig(TestBase):
         compare = [key for key in datasource['projection'] if key in schema]
         compare.extend([self.app.config['ID_FIELD'],
                         self.app.config['LAST_UPDATED'],
-                        self.app.config['DATE_CREATED']])
+                        self.app.config['DATE_CREATED'],
+                        self.app.config['ETAG']])
 
         self.assertEqual(datasource['projection'],
                          dict((field, 1) for (field) in compare))
