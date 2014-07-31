@@ -729,6 +729,7 @@ def resolve_document_etag(documents):
         for document in documents:
             document[config.ETAG] = document_etag(document)
 
+
 def pre_event(f):
     """ Enable a Hook pre http request.
 
