@@ -77,6 +77,9 @@ class ParsedRequest(object):
     # `embedded` value of the query string (?embedded). Defaults to None.
     embedded = None
 
+    # `args` value of the original request. Defaults to None.
+    args = None
+
 
 def parse_request(resource):
     """ Parses a client request, returning instance of :class:`ParsedRequest`
@@ -97,6 +100,7 @@ def parse_request(resource):
     headers = request.headers
 
     r = ParsedRequest()
+    r.args = args
 
     if config.DOMAIN[resource]['allowed_filters']:
         r.where = args.get('where')

@@ -1121,24 +1121,46 @@ data manipulation, no HTTP calls can be made against it.
 
 ::
 
-    people = {
+    internal_transactions = {
         'schema': {
-            'firstname': {
-                'type': 'string',
-                'minlength': 1,
-                'maxlength': 10,
+            'entities': {
+                'type': 'list',
             },
-            'lastname': {
+            'original_resource': {
                 'type': 'string',
-                'minlength': 1,
-                'maxlength': 15,
-                'required': True,
-                'unique': True,
             },
         },
         'internal_resource': ``True``
     }
 
+An example from tests:
+
+::
+
+    def test_internal_endpoint(self):
+        self.app.on_inserted -= self.on_generic_inserted
+        self.app.on_inserted += self.on_generic_inserted
+        del(self.domain['contacts']['schema']['ref']['required'])
+        test_field = "rows"
+        test_value = [
+            {'sku': 'AT1234', 'price': 99},
+            {'sku': 'XF9876', 'price': 9999}
+        ]
+        data = {test_field: test_value}
+        resp_data, code = self.post(self.known_resource_url, data)
+        self.assert201(code)
+
+    def on_generic_inserted(self, resource, docs):
+        if resource != 'internal_transactions':
+            dt = datetime.now()
+            transaction = {
+                'entities':  [doc['_id'] for doc in docs],
+                'original_resource': resource,
+                config.LAST_UPDATED: dt,
+                config.DATE_CREATED: dt,
+            }
+            self.app.data.insert('internal_transactions', [transaction])
+    
 .. admonition:: See also
 
     - :ref:`projections` 
