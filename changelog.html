@@ -60,61 +60,65 @@
 <h2>Version 0.5<a class="headerlink" href="#version-0-5" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[fix] Media fields are now properly returned even in embedded documents.
+Closes #305.</li>
+<li>[fix] auth in domain configuration can be either a callable or a class
+instance (Gino Zhang).</li>
+<li>[change] etags are now persisted with the documents. This ensures that etags
+are consistent across queries, even when projection queries are issued.
+Please note that etags will only be stored along with new documents created
+and/or edited via API methods (POST/PUT/PATCH). Documents inserted by other
+means and those stored with v0.4 and below will keep working as previously:
+their etags will be computed on-the-fly and you will get still be getting
+inconsistent etags when projection queries are issued. Closes #369.</li>
+<li>[fix] Schema definition: a default value of [] for a list causes IndexError.
+Closes #417.</li>
 <li>[fix] Close file handles in setup.py (Harro van der Klauw)</li>
-<li>[fix] Querying a collection should always return pagination
-information (even when no data is being returned). Closes #415.</li>
-<li>[change] <tt class="docutils literal"><span class="pre">put</span></tt> method signature for <tt class="docutils literal"><span class="pre">MediaStorage</span></tt> base class has
-been updated. <tt class="docutils literal"><span class="pre">filemame</span></tt> is now optional. Closes #414.</li>
-<li>[change] CORS behavior to be compatible with browsers (Chrome). Eve is
-now echoing back the contents of the Origin header if said content is
-whitelisted in X_DOMAINS. This also safer as it avoids exposing
-internal server configuration. Closes #408. This commit was carefully
-handcrafed on a flight to EuroPython 2014.</li>
+<li>[fix] Querying a collection should always return pagination information (even
+when no data is being returned). Closes #415.</li>
+<li>[change] <tt class="docutils literal"><span class="pre">put</span></tt> method signature for <tt class="docutils literal"><span class="pre">MediaStorage</span></tt> base class has been
+updated. <tt class="docutils literal"><span class="pre">filemame</span></tt> is now optional. Closes #414.</li>
+<li>[change] CORS behavior to be compatible with browsers (Chrome). Eve is now
+echoing back the contents of the Origin header if said content is whitelisted
+in X_DOMAINS. This also safer as it avoids exposing internal server
+configuration. Closes #408. This commit was carefully handcrafed on a flight
+to EuroPython 2014.</li>
 <li>[fix] Recursively validate the whole query string.</li>
-<li>[fix] If the data layer supports a list of allowed query operators,
-take them into consideration when validating a query string. Closes
-#388.</li>
-<li>[fix[ Abort with 400 if unsupported query operators are used. Closes
-#387.</li>
-<li>[fix] Return the error if a blacklisted MongoDB operator is used in
-a query (debug mode).</li>
+<li>[fix] If the data layer supports a list of allowed query operators, take them
+into consideration when validating a query string. Closes #388.</li>
+<li>[fix[ Abort with 400 if unsupported query operators are used. Closes #387.</li>
+<li>[fix] Return the error if a blacklisted MongoDB operator is used in a query
+(debug mode).</li>
 <li>[fix] Invalid sort syntax raises 500 instead of 400. Addresses #378.</li>
-<li>[change] HATEOAS links are now relative to the API root. Closes #398
-#401.</li>
+<li>[change] HATEOAS links are now relative to the API root. Closes #398 #401.</li>
 <li>[change] simplejson 3.5.3 is now required.</li>
 <li>[new] dev-requirements.txt added to the repo.</li>
-<li>[change] Specify a range of dependant package versions. #379 (James
-Stewart).</li>
+<li>[change] Specify a range of dependant package versions. #379 (James Stewart).</li>
 <li>[new] Support for python wheels (<a class="reference external" href="http://wheel.readthedocs.org">http://wheel.readthedocs.org</a>)</li>
-<li>[fix] Fix serialization when <cite>type</cite> is missing in schema. #404
-(Jaroslav Semančík).</li>
-<li>[new] Embedding of documents by references located in any
-subdocuments. For example, query <tt class="docutils literal"><span class="pre">embedded={&quot;user.friends&quot;:1}</span></tt> will
-return a document with &#8220;user&#8221; and all his &#8220;friends&#8221; embedded, but only
-if <tt class="docutils literal"><span class="pre">user</span></tt> is a subdocument and <tt class="docutils literal"><span class="pre">friends</span></tt> is a list of references
-(Dmitry Anoshin).</li>
-<li>[new] Allow mongoengine to work properly with cursor counts (Johan
-Bloemberg)</li>
-<li>[fix] When PUTting or PATCHing media fields, they would not be
-properly replaced as needed (Stanislav Heller).</li>
+<li>[fix] Fix serialization when <cite>type</cite> is missing in schema. #404 (Jaroslav
+Semančík).</li>
+<li>[new] Embedding of documents by references located in any subdocuments. For
+example, query <tt class="docutils literal"><span class="pre">embedded={&quot;user.friends&quot;:1}</span></tt> will return a document with
+&#8220;user&#8221; and all his &#8220;friends&#8221; embedded, but only if <tt class="docutils literal"><span class="pre">user</span></tt> is a subdocument
+and <tt class="docutils literal"><span class="pre">friends</span></tt> is a list of references (Dmitry Anoshin).</li>
+<li>[new] Allow mongoengine to work properly with cursor counts (Johan Bloemberg)</li>
+<li>[fix] When PUTting or PATCHing media fields, they would not be properly
+replaced as needed (Stanislav Heller).</li>
 <li>[fix] <tt class="docutils literal"><span class="pre">test_get_sort_disabled</span></tt> occasional failure.</li>
-<li>[fix] A POST with an empty array leads to a server crash. Now returns
-a 400 error isntead and ensure the server won&#8217;t crash in case of mongo
-invalid operations (Olivier Poitrey).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt> allows unknown fields to be read, not only
-written as before. Closes #397 and #250.</li>
-<li>[fix] PATCH and PUT don&#8217;t respect flask.abort() in a pre-update event.
-Closes #395 (Christopher Larsen).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">VALIDATION_ERROR_STATUS</span></tt> allows setting of the HTTP status
-code to use for validation errors. Defaults to <tt class="docutils literal"><span class="pre">422</span></tt> (Olivier
-Poitrey).</li>
-<li>[fix] Validating keyschema rules would cause a TypeError since 0.4.
-Closes nicolaiarocci/cerberus#48.</li>
-<li>[new] Support for sub-document projections. Fixes #182 (Olivier
-Poitrey).</li>
+<li>[fix] A POST with an empty array leads to a server crash. Now returns a 400
+error isntead and ensure the server won&#8217;t crash in case of mongo invalid
+operations (Olivier Poitrey).</li>
+<li>[new] <tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt> allows unknown fields to be read, not only written as
+before. Closes #397 and #250.</li>
+<li>[fix] PATCH and PUT don&#8217;t respect flask.abort() in a pre-update event. Closes
+#395 (Christopher Larsen).</li>
+<li>[new] <tt class="docutils literal"><span class="pre">VALIDATION_ERROR_STATUS</span></tt> allows setting of the HTTP status code to
+use for validation errors. Defaults to <tt class="docutils literal"><span class="pre">422</span></tt> (Olivier Poitrey).</li>
+<li>[fix] Validating keyschema rules would cause a TypeError since 0.4. Closes
+nicolaiarocci/cerberus#48.</li>
+<li>[new] Support for sub-document projections. Fixes #182 (Olivier Poitrey).</li>
 <li>[fix] Crash if client projection is not a dict #390 (Olivier Poitrey).</li>
-<li>[fix] Server crash in case of invalid &#8220;where&#8221; syntax #386 (Olivier
-Poitrey).</li>
+<li>[fix] Server crash in case of invalid &#8220;where&#8221; syntax #386 (Olivier Poitrey).</li>
 </ul>
 </div>
 <div class="section" id="version-0-4">
