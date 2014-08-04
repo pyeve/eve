@@ -84,6 +84,9 @@ def parse_request(resource):
 
     :param resource: the resource currently being accessed by the client.
 
+    .. versionchanged:: 0.5
+       Minor DRY updates.
+
     .. versionchagend:: 0.1.0
        Support for embedded documents.
 
@@ -98,17 +101,18 @@ def parse_request(resource):
 
     r = ParsedRequest()
 
-    if config.DOMAIN[resource]['allowed_filters']:
+    settings = config.DOMAIN[resource]
+    if settings['allowed_filters']:
         r.where = args.get('where')
-    if config.DOMAIN[resource]['projection']:
+    if settings['projection']:
         r.projection = args.get('projection')
-    if config.DOMAIN[resource]['sorting']:
+    if settings['sorting']:
         r.sort = args.get('sort')
-    if config.DOMAIN[resource]['embedding']:
+    if settings['embedding']:
         r.embedded = args.get('embedded')
 
     max_results_default = config.PAGINATION_DEFAULT if \
-        config.DOMAIN[resource]['pagination'] else 0
+        settings['pagination'] else 0
     try:
         r.max_results = int(float(args['max_results']))
         assert r.max_results > 0
@@ -116,7 +120,7 @@ def parse_request(resource):
             AssertionError):
         r.max_results = max_results_default
 
-    if config.DOMAIN[resource]['pagination']:
+    if settings['pagination']:
         # TODO should probably return a 400 if 'page' is < 1 or non-numeric
         if 'page' in args:
             try:
