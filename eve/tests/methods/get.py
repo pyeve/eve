@@ -1,3 +1,5 @@
+import base64
+from io import BytesIO
 import simplejson as json
 from datetime import datetime
 from bson import ObjectId
@@ -389,6 +391,61 @@ class TestGet(TestBase):
             self.assertTrue('_updated_on' in document)
             self.assertTrue('_created_on' in document)
             self.assertTrue('_the_etag' in document)
+
+    def test_get_embedded_media(self):
+        """ test that embeedded images are properly rendered and #305 is fixed.
+        """
+
+        # add a 'digital_assets' endpoint to the API
+        self.app.register_resource(
+            'digital_assets',
+            {'schema': {'file': {'type': 'media'}}}
+        )
+
+        # add an 'images' endpoint to the API. this will expose the embedded
+        # digital assets
+        images = {
+            'image_file': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'digital_assets',
+                    'field': '_id',
+                    'embeddable': True
+                }
+            }
+        }
+        self.app.register_resource('images', {'schema': images})
+
+        # post an asset
+        asset = b'a_file'
+        data = {'file': (BytesIO(asset), 'test.txt')}
+        response, status = self.parse_response(
+            self.test_client.post("digital_assets",
+                                  data=data,
+                                  headers=[('Content-Type',
+                                            'multipart/form-data')]))
+        self.assert201(status)
+
+        # post a document to the 'images' endpoint. the document is referencing
+        # the newly posted digital asset.
+        data = {'image_file': ObjectId(response['_id'])}
+        response, status = self.parse_response(
+            self.test_client.post("images", data=data))
+        self.assert201(status)
+
+        # retrieve the document from the same endpoint, requesting for the
+        # digital asset to be embedded within the retrieved document
+        image_id = response['_id']
+        response, status = self.parse_response(
+            self.test_client.get(
+                '%s/%s%s' % ('images', image_id,
+                             '?embedded={"image_file": 1}')))
+        self.assert200(status)
+
+        # test that the embedded document contains the same data as orignially
+        # posted on the digital_asset endpoint.
+        decoded = base64.decodestring(response['image_file']['file']).encode()
+        self.assertEqual(decoded, asset)
 
     def test_get_embedded(self):
         # We need to assign a `person` to our test invoice

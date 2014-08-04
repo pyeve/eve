@@ -509,8 +509,10 @@ def embedded_document(reference, data_relation, field_name):
         build_response_document(embedded_doc, data_relation['resource'],
                                 [], latest_embedded_doc)
     else:
-        embedded_doc = app.data.find_one(data_relation['resource'],
-                                         None, **{config.ID_FIELD: reference})
+        subresource = data_relation['resource']
+        embedded_doc = app.data.find_one(subresource, None,
+                                         **{config.ID_FIELD: reference})
+        resolve_media_files(embedded_doc, subresource)
 
     return embedded_doc
 
