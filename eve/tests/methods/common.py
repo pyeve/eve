@@ -22,3 +22,23 @@ class TestSerializer(TestBase):
             isinstance(serialized['personal']['best_friend'], ObjectId))
         self.assertTrue(
             isinstance(serialized['personal']['born'], datetime))
+
+    def test_serializes(self):
+        schema = {
+            'id': {'type': 'objectid'},
+            'date': {'type': 'datetime'},
+            'count': {'type': 'integer'},
+            'average': {'type': 'float'},
+        }
+        doc = {
+            'id': '50656e4538345b39dd0414f0',
+            'date': 'Tue, 06 Nov 2012 10:33:31 GMT',
+            'count': '42',
+            'average': '42.42',
+        }
+        with self.app.app_context():
+            res = serialize(doc, schema=schema)
+        self.assertIsInstance(res['id'], ObjectId)
+        self.assertIsInstance(res['date'], datetime)
+        self.assertIsInstance(res['count'], int)
+        self.assertIsInstance(res['average'], float)
