@@ -29,14 +29,19 @@ from eve.versioning import resolve_document_version, \
 @requires_auth('resource')
 @pre_event
 def post(resource, payl=None):
-    """ Provides the monitoring decorators for an actual post.
-    :see: post_intern
     """
-    return post_intern(resource, payl)
+    Default function for handling POST requests, it has decorators for
+    rate limiting, authentication and for raising pre-request events.
+    After the decorators are applied forwards to call to :see: post_internal
+    """
+    return post_internal(resource, payl)
 
 
-def post_intern(resource, payl=None):
-    """ Adds one or more documents to a resource. Each document is validated
+def post_internal(resource, payl=None):
+    """
+    Intended for internal post calls, this method is not rate limited,
+    authentication is not checked and pre-request events are not raised.
+    Adds one or more documents to a resource. Each document is validated
     against the domain schema. If validation passes the document is inserted
     and ID_FIELD, LAST_UPDATED and DATE_CREATED along with a link to the
     document are returned. If validation fails, a list of validation issues

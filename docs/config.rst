@@ -1117,7 +1117,8 @@ Limiting the Endpoints Exposed by the API Endpoint
 By default API responses to GET requests for ``home_uri()`` will include all the
 resources included in the DOMAIN if ``HATEOAS`` is enabled. The ``internal_resource``
 setting keyword allows you to make an endpoint internal, available only for internal
-data manipulation, no HTTP calls can be made against it.
+data manipulation, no HTTP calls can be made against it, it will be excluded from the
+``HATEOAS`` links.
 
 ::
 
@@ -1133,22 +1134,17 @@ data manipulation, no HTTP calls can be made against it.
         'internal_resource': ``True``
     }
 
-An example from tests:
+An usage example that will log all the inserts happening in the system, can be used for
+auditing or a notification system:
 
-::
+.. code-block:: python
+    
+    from eve import Eve
 
-    def test_internal_endpoint(self):
-        self.app.on_inserted -= self.on_generic_inserted
-        self.app.on_inserted += self.on_generic_inserted
-        del(self.domain['contacts']['schema']['ref']['required'])
-        test_field = "rows"
-        test_value = [
-            {'sku': 'AT1234', 'price': 99},
-            {'sku': 'XF9876', 'price': 9999}
-        ]
-        data = {test_field: test_value}
-        resp_data, code = self.post(self.known_resource_url, data)
-        self.assert201(code)
+    app = Eve(settings='my_settings.py')
+    app.on_inserted -= self.on_generic_inserted
+    app.on_inserted += self.on_generic_inserted
+    app.run()
 
     def on_generic_inserted(self, resource, docs):
         if resource != 'internal_transactions':
@@ -1159,8 +1155,13 @@ An example from tests:
                 config.LAST_UPDATED: dt,
                 config.DATE_CREATED: dt,
             }
-            self.app.data.insert('internal_transactions', [transaction])
-    
+            app.data.insert('internal_transactions', [transaction])
+
+.. code-block:: console
+
+    $ curl -d '{"firstname": "barack", "lastname": "obama"}' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
+    HTTP/1.1 201 OK
+
 .. admonition:: See also
 
     - :ref:`projections` 
