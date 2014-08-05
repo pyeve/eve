@@ -791,8 +791,8 @@ def document_link(resource, document_id):
 
 
 def resource_link():
-    """ Returns the current resource path complete with server name if
-    available. Mostly going to be used by hatoeas functions when building
+    """ Returns the current resource path relative to the API entry point.
+    Mostly going to be used by hatoeas functions when building
     document/resource links. The resource URL stored in the config settings
     might contain regexes and custom variable names, all of which are not
     needed in the response payload.
@@ -803,6 +803,15 @@ def resource_link():
     .. versionadded:: 0.4
     """
     path = request.path.rstrip('/')
+
     if '|item' in request.endpoint:
         path = path[:path.rfind('/')]
+
+    def strip_prefix(hit):
+        return path[len(hit):] if path.startswith(hit) else path
+
+    if config.URL_PREFIX:
+        path = strip_prefix('/' + config.URL_PREFIX)
+    if config.API_VERSION:
+        path = strip_prefix('/' + config.API_VERSION)
     return path

@@ -226,6 +226,24 @@ class TestEndPoints(TestBase):
         r = self.test_prefix.get('/prefix/v1/contacts/')
         self.assert200(r.status_code)
 
+    def test_api_prefix_version_hateoas_links(self):
+        """ Test that #419 is closed and URL_PREFIX and API_VERSION are stipped
+        out of hateoas links since they are now relative to the API entry point
+        (root).
+        """
+        settings_file = os.path.join(self.this_directory,
+                                     'test_prefix_version.py')
+        self.app = Eve(settings=settings_file)
+        self.test_prefix = self.app.test_client()
+
+        r = self.test_prefix.get('/prefix/v1/')
+        href = json.loads(r.get_data())['_links']['child'][0]['href']
+        self.assertEqual(href, '/contacts')
+
+        r = self.test_prefix.get('/prefix/v1/contacts')
+        href = json.loads(r.get_data())['_links']['self']['href']
+        self.assertEqual(href, '/contacts')
+
     def test_nested_endpoint(self):
         r = self.test_client.get('/users/overseas')
         self.assert200(r.status_code)
