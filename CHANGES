@@ -8,6 +8,11 @@ Version 0.5
 
 Not released yet.
 
+- [new] ``post_internal()`` can be used for intenral post calls. This method is
+  not rate limited,authentication is not checked and pre-request events are not
+  raised (Magdas Adrian).
+- [new] Internal resource can be used for data manipulation using the data
+  layer (Magdas Adrian).
 - [fix] Media fields are now properly returned even in embedded documents.
   Closes #305.
 - [fix] auth in domain configuration can be either a callable or a class
