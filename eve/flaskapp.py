@@ -464,6 +464,9 @@ class Eve(Flask, Events):
     def _set_resource_defaults(self, resource, settings):
         """ Low-level method which sets default values for one resource.
 
+        .. versionchanged:: 0.5
+           'internal_resource'
+
         .. versionchanged:: 0.3
            Set projection to None when schema is not provided for the resource.
            Support for '_media' helper.
@@ -510,6 +513,8 @@ class Eve(Flask, Events):
         settings.setdefault('pagination', self.config['PAGINATION'])
         settings.setdefault('projection', self.config['PROJECTION'])
         settings.setdefault('versioning', self.config['VERSIONING'])
+        settings.setdefault('internal_resource',
+                            self.config['INTERNAL_RESOURCE'])
         # TODO make sure that this we really need the test below
         if settings['item_lookup']:
             item_methods = self.config['ITEM_METHODS']
@@ -607,11 +612,14 @@ class Eve(Flask, Events):
         """ Builds the API url map for one resource. Methods are enabled for
         each mapped endpoint, as configured in the settings.
 
+        .. versionchanged:: 0.5
+           Don't add resource to url rules if it's flagged as internal.
+
         .. versionadded:: 0.2
         """
         self.config['SOURCES'][resource] = settings['datasource']
 
-        if bool(settings.get('internal_resource', False)):
+        if settings['internal_resource']:
             return
 
         url = '%s/%s' % (self.api_prefix, settings['url'])

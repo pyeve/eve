@@ -108,6 +108,7 @@ def home_endpoint():
 
     .. versionchanged:: 0.5
        Resource URLs are relative to API root.
+       Don't list internal resources.
 
     .. versionchanged:: 0.4
        Prevent versioning collections from being added in links.
@@ -122,7 +123,7 @@ def home_endpoint():
         response = {}
         links = []
         for resource in config.DOMAIN.keys():
-            internal = config.DOMAIN[resource].get('internal_resource', False)
+            internal = config.DOMAIN[resource]['internal_resource']
             if not resource.endswith(config.VERSIONS):
                 if not bool(internal):
                     links.append({'href': '/%s' % config.URLS[resource],

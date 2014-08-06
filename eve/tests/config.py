@@ -155,6 +155,8 @@ class TestConfig(TestBase):
     def _test_defaults_for_resource(self, resource):
         settings = self.domain[resource]
         self.assertEqual(settings['url'], resource)
+        self.assertEqual(settings['internal_resource'],
+                         self.app.config['INTERNAL_RESOURCE'])
         self.assertEqual(settings['resource_methods'],
                          self.app.config['RESOURCE_METHODS'])
         self.assertEqual(settings['public_methods'],
