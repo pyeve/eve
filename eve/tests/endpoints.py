@@ -4,6 +4,7 @@ import simplejson as json
 from werkzeug.routing import BaseConverter
 from eve.tests import TestBase, TestMinimal
 from eve import Eve
+from datetime import datetime
 from eve.utils import config
 from eve.io.base import BaseJSONEncoder
 from eve.tests.test_settings import MONGO_DBNAME
@@ -142,6 +143,7 @@ class TestEndPoints(TestBase):
 
     def test_resource_endpoint(self):
         del(self.domain['peopleinvoices'])
+        del(self.domain['internal_transactions'])
         for settings in self.domain.values():
             r = self.test_client.get('/%s/' % settings['url'])
             self.assert200(r.status_code)
@@ -247,3 +249,35 @@ class TestEndPoints(TestBase):
     def test_nested_endpoint(self):
         r = self.test_client.get('/users/overseas')
         self.assert200(r.status_code)
+
+    def test_homepage_does_not_have_internal_resources(self):
+        r = self.test_client.get('/')
+        links = json.loads(r.get_data())
+        for resource in self.domain.keys():
+            internal = self.domain[resource].get('internal_resource', False)
+            if internal:
+                self.assertFalse(internal in links.keys())
+
+    def on_generic_inserted(self, resource, docs):
+        if resource != 'internal_transactions':
+            dt = datetime.now()
+            transaction = {
+                'entities':  [doc['_id'] for doc in docs],
+                'original_resource': resource,
+                config.LAST_UPDATED: dt,
+                config.DATE_CREATED: dt,
+            }
+            self.app.data.insert('internal_transactions', [transaction])
+
+    def test_internal_endpoint(self):
+        self.app.on_inserted -= self.on_generic_inserted
+        self.app.on_inserted += self.on_generic_inserted
+        del(self.domain['contacts']['schema']['ref']['required'])
+        test_field = "rows"
+        test_value = [
+            {'sku': 'AT1234', 'price': 99},
+            {'sku': 'XF9876', 'price': 9999}
+        ]
+        data = {test_field: test_value}
+        resp_data, code = self.post(self.known_resource_url, data)
+        self.assert201(code)

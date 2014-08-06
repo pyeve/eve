@@ -1111,6 +1111,57 @@ manipulated. This feature can come in handy when, for example, you want to
 protect insertion and modification behind an :ref:`auth` scheme while leaving
 read access open to the public.
 
+.. _internal_resource
+Limiting the Endpoints Exposed by the API Endpoint
+'''''''''''''''''''''''''''''''''''''''''''''''''
+By default API responses to GET requests for ``home_uri()`` will include all the
+resources included in the DOMAIN if ``HATEOAS`` is enabled. The ``internal_resource``
+setting keyword allows you to make an endpoint internal, available only for internal
+data manipulation, no HTTP calls can be made against it, it will be excluded from the
+``HATEOAS`` links.
+
+::
+
+    internal_transactions = {
+        'schema': {
+            'entities': {
+                'type': 'list',
+            },
+            'original_resource': {
+                'type': 'string',
+            },
+        },
+        'internal_resource': ``True``
+    }
+
+An usage example that will log all the inserts happening in the system, can be used for
+auditing or a notification system:
+
+.. code-block:: python
+    
+    from eve import Eve
+
+    app = Eve(settings='my_settings.py')
+    app.on_inserted -= self.on_generic_inserted
+    app.on_inserted += self.on_generic_inserted
+    app.run()
+
+    def on_generic_inserted(self, resource, docs):
+        if resource != 'internal_transactions':
+            dt = datetime.now()
+            transaction = {
+                'entities':  [doc['_id'] for doc in docs],
+                'original_resource': resource,
+                config.LAST_UPDATED: dt,
+                config.DATE_CREATED: dt,
+            }
+            app.data.insert('internal_transactions', [transaction])
+
+.. code-block:: console
+
+    $ curl -d '{"firstname": "barack", "lastname": "obama"}' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
+    HTTP/1.1 201 OK
+
 .. admonition:: See also
 
     - :ref:`projections` 
