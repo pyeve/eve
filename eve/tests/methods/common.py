@@ -47,15 +47,16 @@ class TestSerializer(TestBase):
             self.assertTrue(isinstance(res['count'], int))
             self.assertTrue(isinstance(res['average'], float))
 
-            # Fail
-            with self.assertRaises(InvalidId):
-                serialize({'id': 'test'}, schema=schema)
-
-            with self.assertRaises(ValueError):
-                serialize({'date': 'test'}, schema=schema)
-
-            with self.assertRaises(ValueError):
-                serialize({'count': '10.0'}, schema=schema)
-
-            with self.assertRaises(ValueError):
-                serialize({'average': 'test'}, schema=schema)
+            # Fails
+            self.assertRaises(InvalidId, serialize, **dict(
+                document={'id': 'test'}, schema=schema
+            ))
+            self.assertRaises(ValueError, serialize, **dict(
+                document={'date': 'test'}, schema=schema
+            ))
+            self.assertRaises(ValueError, serialize, **dict(
+                document={'count': '10.0'}, schema=schema
+            ))
+            self.assertRaises(ValueError, serialize, **dict(
+                document={'average': 'test'}, schema=schema
+            ))
