@@ -43,6 +43,9 @@ config = Config()
 class ParsedRequest(object):
     """ This class, by means of its attributes, describes a client request.
 
+    .. versuinchanged;; 9,5
+       'args' keyword.
+
     .. versonchanged:: 0.1.0
        'embedded' keyword.
 

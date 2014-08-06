@@ -33,6 +33,9 @@ def post(resource, payl=None):
     Default function for handling POST requests, it has decorators for
     rate limiting, authentication and for raising pre-request events.
     After the decorators are applied forwards to call to :see: post_internal
+
+    .. versionchanged:: 0.5
+       Split into post() and post_internal().
     """
     return post_internal(resource, payl)
 
@@ -61,6 +64,7 @@ def post_internal(resource, payl=None):
                  discussion, and a typical use case.
 
     .. versionchanged:: 0.5
+       Origina post() has been split into post() and post_internal().
        ETAGS are now stored with documents (#369).
 
     .. versionchanged:: 0.4
