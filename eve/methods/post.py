@@ -64,7 +64,7 @@ def post_internal(resource, payl=None):
                  discussion, and a typical use case.
 
     .. versionchanged:: 0.5
-       Origina post() has been split into post() and post_internal().
+       Original post() has been split into post() and post_internal().
        ETAGS are now stored with documents (#369).
 
     .. versionchanged:: 0.4
