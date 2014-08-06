@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from bson import ObjectId
+from bson.errors import InvalidId
 
 from eve.tests import TestBase
 from eve.methods.common import serialize
@@ -23,22 +24,38 @@ class TestSerializer(TestBase):
         self.assertTrue(
             isinstance(serialized['personal']['born'], datetime))
 
-    def test_serializes(self):
+    def test_mongo_serializes(self):
         schema = {
             'id': {'type': 'objectid'},
             'date': {'type': 'datetime'},
             'count': {'type': 'integer'},
             'average': {'type': 'float'},
         }
-        doc = {
-            'id': '50656e4538345b39dd0414f0',
-            'date': 'Tue, 06 Nov 2012 10:33:31 GMT',
-            'count': '42',
-            'average': '42.42',
-        }
         with self.app.app_context():
-            res = serialize(doc, schema=schema)
-        self.assertIsInstance(res['id'], ObjectId)
-        self.assertIsInstance(res['date'], datetime)
-        self.assertIsInstance(res['count'], int)
-        self.assertIsInstance(res['average'], float)
+            # Success
+            res = serialize(
+                {
+                    'id': '50656e4538345b39dd0414f0',
+                    'date': 'Tue, 06 Nov 2012 10:33:31 GMT',
+                    'count': '42',
+                    'average': '42.42',
+                },
+                schema=schema
+            )
+            self.assertTrue(isinstance(res['id'], ObjectId))
+            self.assertTrue(isinstance(res['date'], datetime))
+            self.assertTrue(isinstance(res['count'], int))
+            self.assertTrue(isinstance(res['average'], float))
+
+            # Fail
+            with self.assertRaises(InvalidId):
+                serialize({'id': 'test'}, schema=schema)
+
+            with self.assertRaises(ValueError):
+                serialize({'date': 'test'}, schema=schema)
+
+            with self.assertRaises(ValueError):
+                serialize({'count': '10.0'}, schema=schema)
+
+            with self.assertRaises(ValueError):
+                serialize({'average': 'test'}, schema=schema)
