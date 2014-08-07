@@ -60,16 +60,3 @@ class TestSerializer(TestBase):
             self.assertRaises(ValueError, serialize, **dict(
                 document={'average': 'test'}, schema=schema
             ))
-
-    def test_post_integer(self):
-        del(self.domain['contacts']['schema']['ref']['required'])
-        # Test post with application/x-www-form-urlencoded
-        # If we don't have Mongo.serializers['integer'] it would be failed
-        # with '_error'
-        #   'code': 422, '_issues': {'prog': 'must be of integer type'}
-        res = self.test_client.post(
-            self.known_resource_url,
-            data={'prog': '1'}
-        )
-        res, code = self.parse_response(res)
-        self.assertEqual(code, 201)
