@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from bson import ObjectId
+from bson.errors import InvalidId
 
 from eve.tests import TestBase
 from eve.methods.common import serialize
@@ -22,3 +23,53 @@ class TestSerializer(TestBase):
             isinstance(serialized['personal']['best_friend'], ObjectId))
         self.assertTrue(
             isinstance(serialized['personal']['born'], datetime))
+
+    def test_mongo_serializes(self):
+        schema = {
+            'id': {'type': 'objectid'},
+            'date': {'type': 'datetime'},
+            'count': {'type': 'integer'},
+            'average': {'type': 'float'},
+        }
+        with self.app.app_context():
+            # Success
+            res = serialize(
+                {
+                    'id': '50656e4538345b39dd0414f0',
+                    'date': 'Tue, 06 Nov 2012 10:33:31 GMT',
+                    'count': '42',
+                    'average': '42.42',
+                },
+                schema=schema
+            )
+            self.assertTrue(isinstance(res['id'], ObjectId))
+            self.assertTrue(isinstance(res['date'], datetime))
+            self.assertTrue(isinstance(res['count'], int))
+            self.assertTrue(isinstance(res['average'], float))
+
+            # Fails
+            self.assertRaises(InvalidId, serialize, **dict(
+                document={'id': 'test'}, schema=schema
+            ))
+            self.assertRaises(ValueError, serialize, **dict(
+                document={'date': 'test'}, schema=schema
+            ))
+            self.assertRaises(ValueError, serialize, **dict(
+                document={'count': '10.0'}, schema=schema
+            ))
+            self.assertRaises(ValueError, serialize, **dict(
+                document={'average': 'test'}, schema=schema
+            ))
+
+    def test_post_integer(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        # Test post with application/x-www-form-urlencoded
+        # If we don't have Mongo.serializers['integer'] it would be failed
+        # with '_error'
+        #   'code': 422, '_issues': {'prog': 'must be of integer type'}
+        res = self.test_client.post(
+            self.known_resource_url,
+            data={'prog': '1'}
+        )
+        res, code = self.parse_response(res)
+        self.assertEqual(code, 201)
