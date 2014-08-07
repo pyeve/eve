@@ -149,8 +149,34 @@ class TestEndPoints(TestBase):
             r = self.test_client.get('/%s' % settings['url'])
             self.assert200(r.status_code)
 
-    def test_item_endpoint(self):
-        pass
+    def assert_item_fields(self, data):
+        self.assertTrue(self.app.config['ID_FIELD'] in list(data))
+        self.assertTrue('_created' in list(data))
+        self.assertTrue('_updated' in list(data))
+        self.assertTrue('_etag' in list(data))
+        self.assertTrue('_links' in list(data))
+
+    def test_item_endpoint_id(self):
+        data, status_code = self.get(self.known_resource, item=self.item_id)
+        self.assertEqual(status_code, 200)
+        self.assert_item_fields(data)
+
+    def test_item_endpoint_additional_lookup(self):
+        data, status_code = self.get(self.known_resource, item=self.item_name)
+        self.assertEqual(status_code, 200)
+        self.assert_item_fields(data)
+
+    def test_item_self_link(self):
+        data, status_code = self.get(self.known_resource, item=self.item_id)
+        lookup_field = self.domain[self.known_resource]['item_lookup_field']
+        link = '%s%s/%s' % (
+            self.app.config['SERVER_NAME'],
+            self.known_resource_url,
+            self.item[lookup_field]
+        )
+        if self.app.get('URL_PROTOCOL'):
+            link = '%s://%s' % (self.app.config['URL_PROTOCOL'], link)
+        self.assertEqual(data.get('_links').get('self').get('href'), link)
 
     def test_unknown_endpoints(self):
         r = self.test_client.get('/%s/' % self.unknown_resource)
@@ -164,8 +190,8 @@ class TestEndPoints(TestBase):
 
     def test_api_version(self):
         settings_file = os.path.join(self.this_directory, 'test_version.py')
-        self.prefixapp = Eve(settings=settings_file)
-        self.test_prefix = self.prefixapp.test_client()
+        self.app = Eve(settings=settings_file)
+        self.test_prefix = self.app.test_client()
         r = self.test_prefix.get('/')
         self.assert404(r.status_code)
         r = self.test_prefix.get('/v1/')
@@ -180,8 +206,8 @@ class TestEndPoints(TestBase):
 
     def test_api_prefix(self):
         settings_file = os.path.join(self.this_directory, 'test_prefix.py')
-        self.prefixapp = Eve(settings=settings_file)
-        self.test_prefix = self.prefixapp.test_client()
+        self.app = Eve(settings=settings_file)
+        self.test_prefix = self.app.test_client()
         r = self.test_prefix.get('/')
         self.assert404(r.status_code)
         r = self.test_prefix.get('/prefix/')
@@ -195,8 +221,8 @@ class TestEndPoints(TestBase):
     def test_api_prefix_version(self):
         settings_file = os.path.join(self.this_directory,
                                      'test_prefix_version.py')
-        self.prefixapp = Eve(settings=settings_file)
-        self.test_prefix = self.prefixapp.test_client()
+        self.app = Eve(settings=settings_file)
+        self.test_prefix = self.app.test_client()
         r = self.test_prefix.get('/')
         self.assert404(r.status_code)
         r = self.test_prefix.get('/prefix/v1/')

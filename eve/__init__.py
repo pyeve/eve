@@ -9,6 +9,11 @@
     :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.4
+       'META' defaults to '_meta'.
+       'ERROR' defaults to '_error'.
+       Remove unnecessary commented code.
+
     .. versionchanged:: 0.2
        'LINKS' defaults to '_links'.
        'ITEMS' defaults to '_items'.
@@ -23,9 +28,7 @@
 
 """
 
-__version__ = '0.3'
-
-#DEBUG = True
+__version__ = '0.4'
 
 # RFC 1123 (ex RFC 822)
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
@@ -52,9 +55,12 @@ LAST_UPDATED = '_updated'
 DATE_CREATED = '_created'
 ISSUES = '_issues'
 STATUS = '_status'
+ERROR = '_error'
 ITEMS = '_items'
 LINKS = '_links'
 ETAG = '_etag'
+VERSION = '_version'
+META = '_meta'
 
 # must be the last line (will raise W402 on pyflakes)
 from eve.flaskapp import Eve  # noqa

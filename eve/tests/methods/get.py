@@ -1,10 +1,10 @@
-import types
 import simplejson as json
 from datetime import datetime
 from bson import ObjectId
 from eve.tests import TestBase
+from eve.tests.utils import DummyEvent
 from eve.tests.test_settings import MONGO_DBNAME
-from eve.utils import date_to_str
+from eve.utils import date_to_str, str_to_date
 
 
 class TestGet(TestBase):
@@ -44,6 +44,7 @@ class TestGet(TestBase):
         links = response['_links']
         self.assertNextLink(links, 2)
         self.assertLastLink(links, 5)
+        self.assertPagination(response, 1, 101, 25)
 
         page = 1
         response, status = self.get(self.known_resource,
@@ -53,6 +54,7 @@ class TestGet(TestBase):
         links = response['_links']
         self.assertNextLink(links, 2)
         self.assertLastLink(links, 5)
+        self.assertPagination(response, 1, 101, 25)
 
         page = 2
         response, status = self.get(self.known_resource,
@@ -63,6 +65,7 @@ class TestGet(TestBase):
         self.assertNextLink(links, 3)
         self.assertPrevLink(links, 1)
         self.assertLastLink(links, 5)
+        self.assertPagination(response, 2, 101, 25)
 
         page = 5
         response, status = self.get(self.known_resource,
@@ -72,6 +75,7 @@ class TestGet(TestBase):
         links = response['_links']
         self.assertPrevLink(links, 4)
         self.assertLastLink(links, None)
+        self.assertPagination(response, 5, 101, 25)
 
     def test_get_paging_disabled(self):
         self.app.config['DOMAIN'][self.known_resource]['pagination'] = False
@@ -80,6 +84,7 @@ class TestGet(TestBase):
         resource = response['_items']
         self.assertFalse(len(resource) ==
                          self.app.config['PAGINATION_DEFAULT'])
+        self.assertTrue(self.app.config['META'] not in response)
         links = response['_links']
         self.assertTrue('next' not in links)
         self.assertTrue('prev' not in links)
@@ -90,6 +95,7 @@ class TestGet(TestBase):
         self.assert200(status)
         resource = response['_items']
         self.assertEqual(len(resource), self.known_resource_count)
+        self.assertTrue(self.app.config['META'] not in response)
         links = response['_links']
         self.assertTrue('next' not in links)
         self.assertTrue('prev' not in links)
@@ -166,8 +172,11 @@ class TestGet(TestBase):
             self.assertFalse('role' in r)
             self.assertTrue('prog' in r)
             self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.app.config['ETAG'] in r)
             self.assertTrue(self.app.config['LAST_UPDATED'] in r)
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
+            self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+            self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
 
         projection = '{"prog": 0}'
         response, status = self.get(self.known_resource, '?projection=%s' %
@@ -181,8 +190,11 @@ class TestGet(TestBase):
             self.assertTrue('location' in r)
             self.assertTrue('role' in r)
             self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.app.config['ETAG'] in r)
             self.assertTrue(self.app.config['LAST_UPDATED'] in r)
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
+            self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+            self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
 
     def test_get_projection_noschema(self):
         self.app.config['DOMAIN'][self.known_resource]['schema'] = {}
@@ -466,21 +478,21 @@ class TestGet(TestBase):
         self.assertGet(response, status, 'users_overseas')
 
     def test_cursor_extra_find(self):
-        self.app.data._find = self.app.data.find
+        _find = self.app.data.find
         hits = {'total_hits': 0}
 
-        def find(self, resource, req, sub_resource_lookup):
-            def extra(self, response):
+        def find(resource, req, sub_resource_lookup):
+            def extra(response):
                 response['_hits'] = hits
-            cursor = self._find(resource, req, sub_resource_lookup)
-            cursor.extra = types.MethodType(extra, cursor)
+            cursor = _find(resource, req, sub_resource_lookup)
+            cursor.extra = extra
             return cursor
 
-        self.app.data.find = types.MethodType(find, self.app.data)
+        self.app.data.find = find
         r, status = self.get(self.known_resource)
         self.assert200(status)
         self.assertTrue('_hits' in r)
-        self.assertEquals(r['_hits'], hits)
+        self.assertEqual(r['_hits'], hits)
 
     def test_get_resource_title(self):
         # test that resource endpoints accepts custom titles.
@@ -542,6 +554,20 @@ class TestGet(TestBase):
                                            last_modified)])
         self.assert200(r.status_code)
         self.assertEqual(json.loads(r.get_data())['_items'], [])
+
+    def test_get_idfield_doesnt_exist(self):
+        # test that a non-existing ID_FIELD will be silently handled when
+        # building HATEOAS document link (#351).
+        self.app.config['ID_FIELD'] = 'id'
+        response, status = self.get(self.known_resource)
+        self.assert200(status)
+
+    def test_get_invalid_idfield_cors(self):
+        """ test that #381 is fixed. """
+        request = '/%s/badid' % self.known_resource
+        self.app.config['X_DOMAINS'] = '*'
+        r = self.test_client.get(request, headers=[('Origin', 'test.com')])
+        self.assert404(r.status_code)
 
     def assertGet(self, response, status, resource=None):
         self.assert200(status)
@@ -610,13 +636,13 @@ class TestGetItem(TestBase):
         response, status = self.get(self.known_resource,
                                     item=self.item_name)
 
-        self.assertEquals(self_href, response['_links']['self']['href'])
+        self.assertEqual(self_href, response['_links']['self']['href'])
 
     def test_getitem_by_integer(self):
         self.domain['contacts']['additional_lookup'] = {
             'field': 'prog'
         }
-        self.app._add_url_rules()
+        self.app._add_resource_url_rules('contacts', self.domain['contacts'])
         response, status = self.get(self.known_resource,
                                     item=1)
         self.assertItemResponse(response, status)
@@ -798,6 +824,35 @@ class TestGetItem(TestBase):
         self.assertTrue('_created_on' in response)
         self.assertTrue('_the_etag' in response)
 
+    def test_getitem_projection(self):
+        projection = '{"prog": 1}'
+        r, status = self.get(self.known_resource, '?projection=%s' %
+                             projection, item=self.item_id)
+        self.assert200(status)
+        self.assertFalse('location' in r)
+        self.assertFalse('role' in r)
+        self.assertTrue('prog' in r)
+        self.assertTrue(self.app.config['ID_FIELD'] in r)
+        self.assertTrue(self.app.config['ETAG'] in r)
+        self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+        self.assertTrue(self.app.config['DATE_CREATED'] in r)
+        self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+        self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
+
+        projection = '{"prog": 0}'
+        r, status = self.get(self.known_resource, '?projection=%s' %
+                             projection, item=self.item_id)
+        self.assert200(status)
+        self.assertFalse('prog' in r)
+        self.assertTrue('location' in r)
+        self.assertTrue('role' in r)
+        self.assertTrue(self.app.config['ID_FIELD'] in r)
+        self.assertTrue(self.app.config['ETAG'] in r)
+        self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+        self.assertTrue(self.app.config['DATE_CREATED'] in r)
+        self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+        self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
+
 
 class TestHead(TestBase):
 
@@ -811,7 +866,126 @@ class TestHead(TestBase):
         self.assertHead(self.item_id_url)
 
     def assertHead(self, url):
-        h = self.test_client.head('/')
-        r = self.test_client.get('/')
+        h = self.test_client.head(url)
+        r = self.test_client.get(url)
         self.assertTrue(not h.data)
+
+        if 'Expires' in r.headers:
+            # there's a tiny chance that the two expire values will differ by
+            # one second. See #316.
+            head_expire = str_to_date(r.headers.pop('Expires'))
+            get_expire = str_to_date(h.headers.pop('Expires'))
+            d = head_expire - get_expire
+            self.assertTrue(d.seconds in (0, 1))
+
         self.assertEqual(r.headers, h.headers)
+
+
+class TestEvents(TestBase):
+    def setUp(self):
+        super(TestEvents, self).setUp()
+        self.devent = DummyEvent(lambda: True)
+
+    def test_on_pre_GET_for_item(self):
+        self.app.on_pre_GET += self.devent
+        self.get_item()
+        self.assertEqual('contacts', self.devent.called[0])
+        self.assertFalse(self.devent.called[1] is None)
+
+    def test_on_pre_GET_item_dynamic_filter(self):
+        def filter_this(resource, request, lookup):
+            lookup["_id"] = self.item_id
+        self.app.on_pre_GET += filter_this
+        # Would normally return a 404; will return one instead.
+        r, s = self.parse_response(self.get_item())
+        self.assert200(s)
+        self.assertEqual(r[self.app.config['ID_FIELD']], self.item_id)
+
+    def test_on_pre_GET_resource_for_item(self):
+        self.app.on_pre_GET_contacts += self.devent
+        self.get_item()
+        self.assertFalse(self.devent.called is None)
+
+    def test_on_pre_GET_for_resource(self):
+        self.app.on_pre_GET += self.devent
+        self.get_resource()
+        self.assertFalse(self.devent.called is None)
+
+    def test_on_pre_GET_resource_dynamic_filter(self):
+        def filter_this(resource, request, lookup):
+            lookup["_id"] = self.item_id
+        self.app.on_pre_GET += filter_this
+        # Would normally return all documents; will only just one.
+        r, s = self.parse_response(self.get_resource())
+        self.assertEqual(len(r[self.app.config['ITEMS']]), 1)
+
+    def test_on_pre_GET_resource_for_resource(self):
+        self.app.on_pre_GET_contacts += self.devent
+        self.get_resource()
+        self.assertFalse(self.devent.called is None)
+
+    def test_on_post_GET_for_item(self):
+        self.app.on_post_GET += self.devent
+        self.get_item()
+        self.assertFalse(self.devent.called is None)
+
+    def test_on_post_GET_resource_for_item(self):
+        self.app.on_post_GET_contacts += self.devent
+        self.get_item()
+        self.assertFalse(self.devent.called is None)
+
+    def test_on_post_GET_for_resource(self):
+        self.app.on_post_GET += self.devent
+        self.get_resource()
+        self.assertFalse(self.devent.called is None)
+
+    def test_on_post_GET_resource_for_resource(self):
+        self.app.on_post_GET_contacts += self.devent
+        self.get_resource()
+        self.assertFalse(self.devent.called is None)
+
+    def test_on_post_GET_homepage(self):
+        self.app.on_post_GET += self.devent
+        self.test_client.get('/')
+        self.assertTrue(self.devent.called[0] is None)
+        self.assertEqual(3, len(self.devent.called))
+
+    def test_on_fetched_resource(self):
+        self.app.on_fetched_resource += self.devent
+        self.get_resource()
+        self.assertEqual('contacts', self.devent.called[0])
+        self.assertEqual(
+            self.app.config['PAGINATION_DEFAULT'],
+            len(self.devent.called[1][self.app.config['ITEMS']]))
+
+    def test_on_fetched_resource_contacts(self):
+        self.app.on_fetched_resource_contacts += self.devent
+        self.get_resource()
+        self.assertEqual(
+            self.app.config['PAGINATION_DEFAULT'],
+            len(self.devent.called[0][self.app.config['ITEMS']]))
+
+    def test_on_fetched_item(self):
+        self.app.on_fetched_item += self.devent
+        self.get_item()
+        self.assertEqual('contacts', self.devent.called[0])
+        self.assertEqual(
+            self.item_id,
+            str(self.devent.called[1][self.app.config['ID_FIELD']]))
+        self.assertEqual(2, len(self.devent.called))
+
+    def test_on_fetched_item_contacts(self):
+        self.app.on_fetched_item_contacts += self.devent
+        self.get_item()
+        self.assertEqual(
+            self.item_id,
+            str(self.devent.called[0][self.app.config['ID_FIELD']]))
+        self.assertEqual(1, len(self.devent.called))
+
+    def get_resource(self):
+        return self.test_client.get(self.known_resource_url)
+
+    def get_item(self, url=None):
+        if not url:
+            url = self.item_id_url
+        return self.test_client.get(url)

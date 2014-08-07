@@ -11,14 +11,11 @@ from eve.tests.test_settings import MONGO_DBNAME
 
 class ValidBasicAuth(BasicAuth):
     def __init__(self):
-        self.skip_setting_auth_value = False
+        self.request_auth_value = 'admin'
         super(ValidBasicAuth, self).__init__()
 
     def check_auth(self, username, password, allowed_roles, resource, method):
-        # ignoble hack to only set request_auth_value when the test needs it to
-        # be really set
-        if not self.skip_setting_auth_value:
-            self.request_auth_value = 'admin'
+        self.set_request_auth_value(self.request_auth_value)
         return username == 'admin' and password == 'secret' and  \
             (allowed_roles == ['admin'] if allowed_roles else True)
 
@@ -94,7 +91,7 @@ class TestBasicAuth(TestBase):
         r = self.test_client.post(self.known_resource_url,
                                   data=json.dumps({"k": "value"}),
                                   headers=self.valid_auth)
-        self.assert200(r.status_code)
+        self.assert400(r.status_code)
         r = self.test_client.delete(self.known_resource_url,
                                     headers=self.valid_auth)
         self.assert200(r.status_code)
@@ -197,6 +194,21 @@ class TestBasicAuth(TestBase):
         r = self.test_client.get('/', headers=self.valid_auth)
         # will fail because check_auth() is not implemented in the custom class
         self.assert500(r.status_code)
+
+    def test_instanced_auth(self):
+        # tests that the 'auth' argument can also be a class instance. See
+        # #248.
+
+        # current self.app instance has an instanced auth class already, and it
+        # is consistent with the super class running the test (Token, HMAC or
+        # Basic), so we are just going to use it (self.app.auth) on a new Eve
+        # instance.
+
+        auth = self.app.auth
+        self.app = Eve(settings=self.settings_file, auth=auth)
+        self.test_client = self.app.test_client()
+        r = self.test_client.get('/', headers=self.valid_auth)
+        self.assert200(r.status_code)
 
     def test_rfc2617_response(self):
         r = self.test_client.get('/')
@@ -353,7 +365,6 @@ class TestUserRestrictedAccess(TestBase):
         """
         _id = ObjectId('deadbeefdeadbeefdeadbeef')
         resource_def = self.app.config['DOMAIN']['users']
-        resource_def['authentication'].skip_setting_auth_value = True
         resource_def['authentication'].request_auth_value = _id
 
         # set auth_field to `_id`
@@ -423,23 +434,23 @@ class TestUserRestrictedAccess(TestBase):
         # level auth, which is set at resource level instead.
 
         # no global auth.
-        app = Eve(settings=self.settings_file)
+        self.app = Eve(settings=self.settings_file)
 
         # set auth at resource level instead.
-        resource_def = app.config['DOMAIN'][self.url]
+        resource_def = self.app.config['DOMAIN'][self.url]
         resource_def['authentication'] = ValidBasicAuth()
         resource_def['auth_field'] = 'username'
 
         # post with valid auth - must store the document with the correct
         # auth_field.
-        r = app.test_client().post(self.url, data=self.data,
-                                   headers=self.valid_auth,
-                                   content_type='application/json')
+        r = self.app.test_client().post(self.url, data=self.data,
+                                        headers=self.valid_auth,
+                                        content_type='application/json')
         _, status = self.parse_response(r)
 
         # Verify that we can retrieve the same document
         data, status = self.parse_response(
-            app.test_client().get(self.url, headers=self.valid_auth))
+            self.app.test_client().get(self.url, headers=self.valid_auth))
         self.assert200(status)
         self.assertEqual(len(data['_items']), 1)
         self.assertEqual(data['_items'][0]['ref'],
@@ -473,22 +484,22 @@ class TestUserRestrictedAccess(TestBase):
 
     def test_put_resource_auth(self):
         # no global auth.
-        app = Eve(settings=self.settings_file)
+        self.app = Eve(settings=self.settings_file)
 
         # set auth at resource level instead.
-        resource_def = app.config['DOMAIN'][self.url]
+        resource_def = self.app.config['DOMAIN'][self.url]
         resource_def['authentication'] = ValidBasicAuth()
         resource_def['auth_field'] = 'username'
 
         # post
-        r = app.test_client().post(self.url, data=self.data,
-                                   headers=self.valid_auth,
-                                   content_type='application/json')
+        r = self.app.test_client().post(self.url, data=self.data,
+                                        headers=self.valid_auth,
+                                        content_type='application/json')
         data, status = self.parse_response(r)
 
         # retrieve document metadata
         url = '%s/%s' % (self.url, data['_id'])
-        response = app.test_client().get(url, headers=self.valid_auth)
+        response = self.app.test_client().get(url, headers=self.valid_auth)
         etag = response.headers['ETag']
 
         new_ref = "9999999999999999999999999"
@@ -497,14 +508,14 @@ class TestUserRestrictedAccess(TestBase):
         # put
         headers = [('If-Match', etag), self.valid_auth[0]]
         response, status = self.parse_response(
-            app.test_client().put(url, data=json.dumps(changes),
-                                  headers=headers,
-                                  content_type='application/json'))
+            self.app.test_client().put(url, data=json.dumps(changes),
+                                       headers=headers,
+                                       content_type='application/json'))
         self.assert200(status)
 
         # document still accessible with same auth
         data, status = self.parse_response(
-            app.test_client().get(url, headers=self.valid_auth))
+            self.app.test_client().get(url, headers=self.valid_auth))
         self.assert200(status)
         self.assertEqual(data['ref'], new_ref)
 

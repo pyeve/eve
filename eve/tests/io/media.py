@@ -70,6 +70,88 @@ class TestGridFSMediaStorage(TestBase):
         # which decodes to the original clean
         self.assertEqual(base64.decodestring(returned.encode()), self.clean)
 
+    def test_gridfs_media_storage_post_excluded_file_in_result(self):
+        # send something different than a file and get an error back
+        data = {'media': 'not a file'}
+        r, s = self.parse_response(
+            self.test_client.post(self.url, data=data, headers=self.headers))
+        self.assertEqual(STATUS_ERR, r[STATUS])
+
+        # validates media fields
+        self.assertTrue('file was expected' in r[ISSUES]['media'])
+        # also validates ordinary fields
+        self.assertTrue('required' in r[ISSUES][self.test_field])
+
+        r, s = self._post()
+        self.assertEqual(STATUS_OK, r[STATUS])
+
+        self.app.config['RETURN_MEDIA_AS_BASE64_STRING'] = False
+        # compare original and returned data
+        _id = r[ID_FIELD]
+
+        # GET the file at the resource endpoint
+        where = 'where={"%s": "%s"}' % (ID_FIELD, _id)
+        r, s = self.parse_response(
+            self.test_client.get('%s?%s' % (self.url, where)))
+        self.assertEqual(len(r['_items']), 1)
+        returned = r['_items'][0]['media']
+
+        # returned value is a base64 encoded string
+        self.assertEqual(returned, None)
+
+    def test_gridfs_media_storage_post_extended(self):
+        r, s = self._post()
+        self.assertEqual(STATUS_OK, r[STATUS])
+
+        # request extended format file response
+        self.app.config['EXTENDED_MEDIA_INFO'] = ['content_type', 'length']
+
+        # compare original and returned data
+        _id = r[ID_FIELD]
+        self.assertMediaFieldExtended(_id, self.encoded, self.clean)
+
+        # GET the file at the resource endpoint
+        where = 'where={"%s": "%s"}' % (ID_FIELD, _id)
+        r, s = self.parse_response(
+            self.test_client.get('%s?%s' % (self.url, where)))
+        self.assertEqual(len(r['_items']), 1)
+        returned = r['_items'][0]['media']
+
+        # returned value is a base64 encoded string
+        self.assertEqual(returned['file'], self.encoded)
+
+        # which decodes to the original clean
+        self.assertEqual(base64.decodestring(returned['file'].encode()),
+                         self.clean)
+
+        # also verify our extended fields
+        self.assertEqual(returned['content_type'], 'text/plain')
+        self.assertEqual(returned['length'], 16)
+
+    def test_gridfs_media_storage_post_extended_excluded_file_in_result(self):
+        r, s = self._post()
+        self.assertEqual(STATUS_OK, r[STATUS])
+
+        # request extended format file response
+        self.app.config['EXTENDED_MEDIA_INFO'] = ['content_type', 'length']
+        self.app.config['RETURN_MEDIA_AS_BASE64_STRING'] = False
+        # compare original and returned data
+        _id = r[ID_FIELD]
+
+        # GET the file at the resource endpoint
+        where = 'where={"%s": "%s"}' % (ID_FIELD, _id)
+        r, s = self.parse_response(
+            self.test_client.get('%s?%s' % (self.url, where)))
+        self.assertEqual(len(r['_items']), 1)
+        returned = r['_items'][0]['media']
+
+        # returned value is None
+        self.assertEqual(returned['file'], None)
+
+        # also verify our extended fields
+        self.assertEqual(returned['content_type'], 'text/plain')
+        self.assertEqual(returned['length'], 16)
+
     def test_gridfs_media_storage_put(self):
         r, s = self._post()
         _id = r[ID_FIELD]
@@ -155,11 +237,56 @@ class TestGridFSMediaStorage(TestBase):
                                                                    _id)))
         self.assert404(s)
 
+    def test_gridfs_media_storage_delete_projection(self):
+        """ test that #284 is fixed: If you have a media field, and set
+        datasource projection to 0 for that field, the media will not be
+        deleted
+        """
+        r, s = self._post()
+        _id = r[ID_FIELD]
+
+        # retrieve media_id and compare original and returned data
+        media_id = self.assertMediaStored(_id)
+
+        self.app.config['DOMAIN']['contacts']['datasource']['projection'] = \
+            {"media": 0}
+
+        r, s = self.parse_response(self.test_client.get('%s/%s' % (self.url,
+                                                                   _id)))
+        etag = r[ETAG]
+
+        # DELETE deletes both the document and the media file
+        headers = [('If-Match', etag)]
+
+        r, s = self.parse_response(
+            self.test_client.delete(('%s/%s' % (self.url, _id)),
+                                    headers=headers))
+        self.assert200(s)
+
+        # media doesn't exist anymore (it's been deleted)
+        self.assertFalse(self.app.media.exists(media_id))
+
+        # GET returns 404
+        r, s = self.parse_response(self.test_client.get('%s/%s' % (self.url,
+                                                                   _id)))
+        self.assert404(s)
+
     def assertMediaField(self, _id, encoded, clean):
         # GET the file at the item endpoint
         r, s = self.parse_response(self.test_client.get('%s/%s' % (self.url,
                                                                    _id)))
         returned = r['media']
+        # returned value is a base64 encoded string
+        self.assertEqual(returned, encoded)
+        # which decodes to the original file clean
+        self.assertEqual(base64.decodestring(returned.encode()), clean)
+        return r, s
+
+    def assertMediaFieldExtended(self, _id, encoded, clean):
+        # GET the file at the item endpoint
+        r, s = self.parse_response(self.test_client.get('%s/%s' % (self.url,
+                                                                   _id)))
+        returned = r['media']['file']
         # returned value is a base64 encoded string
         self.assertEqual(returned, encoded)
         # which decodes to the original file clean

@@ -19,7 +19,7 @@ editable resource at another endpoint. The following table shows Eve's
 implementation of CRUD via REST:
 
 ======= ========= ===================
-Action  HTTP Verb Context 
+Action  HTTP Verb Context
 ======= ========= ===================
 Create  POST      Collection
 Read    GET, HEAD Collection/Document
@@ -54,27 +54,32 @@ can customize the URIs though, so the API endpoint could become, say,
 The response payload will look something like this:
 
 .. code-block:: javascript
-    
+
     {
         "_items": [
             {
-                "firstname": "Mark", 
-                "lastname": "Green", 
-                "born": "Sat, 23 Feb 1985 12:00:00 GMT", 
-                "role": ["copy", "author"], 
-                "location": {"city": "New York", "address": "4925 Lacross Road"}, 
+                "firstname": "Mark",
+                "lastname": "Green",
+                "born": "Sat, 23 Feb 1985 12:00:00 GMT",
+                "role": ["copy", "author"],
+                "location": {"city": "New York", "address": "4925 Lacross Road"},
                 "_id": "50bf198338345b1c604faf31",
-                "_updated": "Wed, 05 Dec 2012 09:53:07 GMT", 
-                "_created": "Wed, 05 Dec 2012 09:53:07 GMT", 
-                "_etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d", 
+                "_updated": "Wed, 05 Dec 2012 09:53:07 GMT",
+                "_created": "Wed, 05 Dec 2012 09:53:07 GMT",
+                "_etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d",
                 "_links": {
                     "self": {"href": "eve-demo.herokuapp.com:5000/people/50bf198338345b1c604faf31", "title": "person"},
                 },
             },
             ...
         ],
+        "_meta": {
+            "max_results": 25,
+            "total": 70,
+            "page": 1
+        },
         "_links": {
-            "self": {"href": "eve-demo.herokuapp.com:5000/people", "title": "people"}, 
+            "self": {"href": "eve-demo.herokuapp.com:5000/people", "title": "people"},
             "parent": {"href": "eve-demo.herokuapp.com:5000", "title": "home"}
         }
     }
@@ -88,14 +93,16 @@ Field        Description
 ============ =================================================================
 ``_created`` item creation date.
 ``_updated`` item last updated on.
-``_etag``    ETag, to be used for concurrency control and conditional requests. 
+``_etag``    ETag, to be used for concurrency control and conditional requests.
 ``_id``      unique item key, also needed to access the individual item endpoint.
 ============ =================================================================
 
 These additional fields are automatically handled by the API (clients don't
 need to provide them when adding/editing resources).
 
-The ``_links`` list provides HATEOAS_ directives.
+The ``_meta`` field provides pagination data and will only be there if
+:ref:`Pagination` has been enabled (it is by default) and there is at least one
+document being returned. The ``_links`` list provides HATEOAS_ directives.
 
 .. _subresources:
 
@@ -118,19 +125,19 @@ me all the invoices by <contact_id>*:
 
     people/51f63e0838345b6dcd7eabff/invoices
 
-Would cause the underlying database collection invoices to be queried this way: 
+Would cause the underlying database collection invoices to be queried this way:
 
-:: 
+::
 
     {'contact_id': '51f63e0838345b6dcd7eabff'}
 
-And this one: 
+And this one:
 
-:: 
+::
 
     people/51f63e0838345b6dcd7eabff/invoices?where={"number": 10}
 
-would be queried like: 
+would be queried like:
 
 ::
 
@@ -139,7 +146,7 @@ would be queried like:
 Please note that when designing your API, most of the time you can get away
 without resorting to sub-resources. In the example above the same result would
 be achieved by simply exposing a ``invoices`` endpoint that clients could query
-this way: 
+this way:
 
 ::
 
@@ -176,15 +183,15 @@ get access to ``/people``, ``/people/<ObjectId>`` and ``/people/Doe``,
 but only to ``/works``.  When you do grant access to item endpoints, you can
 define up to two lookups, both defined with regexes. The first will be the
 primary endpoint and will match your database primary key structure (i.e., an
-``ObjectId`` in a MongoDB database).  
+``ObjectId`` in a MongoDB database).
 
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c
     HTTP/1.1 200 OK
     Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
-    Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT 
-    ... 
+    Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT
+    ...
 
 The second, which is optional and read-only, will match a field with unique values since Eve
 will retrieve only the first match anyway.
@@ -194,8 +201,8 @@ will retrieve only the first match anyway.
     $ curl -i http://eve-demo.herokuapp.com/people/Doe
     HTTP/1.1 200 OK
     Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
-    Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT 
-    ... 
+    Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT
+    ...
 
 Since we are accessing the same item, in both cases the response payload will
 look something like this:
@@ -254,7 +261,7 @@ and the native Python syntax:
     HTTP/1.1 200 OK
 
 Both query formats allow for conditional and logical And/Or operators, however
-nested and combined. 
+nested and combined.
 
 Filters are enabled by default on all document fields. However, the API
 maintainer can choose to disable them all and/or whitelist allowed ones (see
@@ -280,6 +287,8 @@ use a pure MongoDB syntax; support for a more general syntax
 
     Always use double quotes to wrap field names and values. Using single
     quotes will result in ``400 Bad Request`` responses.
+
+.. _pagination:
 
 Pagination
 ----------
@@ -316,24 +325,24 @@ UI, or to navigate the API without knowing its structure beforehand. An example:
 ::
 
     {
-        "_links": { 
-            "self": { 
-                "href": "localhost:5000/people", 
-                "title": "people" 
-            }, 
-            "parent": { 
-                "href": "localhost:5000", 
-                "title": "home" 
-            }, 
+        "_links": {
+            "self": {
+                "href": "localhost:5000/people",
+                "title": "people"
+            },
+            "parent": {
+                "href": "localhost:5000",
+                "title": "home"
+            },
             "next": {
-                "href": "localhost:5000/people?page=2", 
-                "title": "next page" 
+                "href": "localhost:5000/people?page=2",
+                "title": "next page"
             },
             "last": {
-                "href": "localhost:5000/people?page=10", 
-                "title": "last page" 
-            } 
-        } 
+                "href": "localhost:5000/people?page=10",
+                "title": "last page"
+            }
+        }
     }
 
 A GET request to the API home page (the API entry point) will be served with
@@ -341,69 +350,20 @@ a list of links to accessible resources. From there, any client could navigate
 the API just by following the links provided with every response.
 
 Please note that ``next``, ``previous`` and ``last`` items will only be
-included when appropriate. 
+included when appropriate.
 
 Disabling HATEOAS
 ~~~~~~~~~~~~~~~~~
-HATEOAS can be disabled both at the API and/or resource level. When HATEOAS is
-disabled, response payloads have a different structure. The resource payload is
-a simple list of items:
-
-.. code-block:: console
-
-    $ curl -i http://eve-demo.herokuapp.com/people
-    HTTP/1.1 200 OK
-
-.. code-block:: javascript
-    
-    [
-        {
-            "firstname": "Mark", 
-            "lastname": "Green", 
-            "born": "Sat, 23 Feb 1985 12:00:00 GMT", 
-            "role": ["copy", "author"], 
-            "location": {"city": "New York", "address": "4925 Lacross Road"}, 
-            "_id": "50bf198338345b1c604faf31",
-            "_updated": "Wed, 05 Dec 2012 09:53:07 GMT", 
-            "_created": "Wed, 05 Dec 2012 09:53:07 GMT", 
-            "_etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d", 
-        },
-        {
-            "firstname": "John", 
-            ...
-        },
-    ]
-
-As you can see, the ``_links`` element is also missing from list items. The
-same happens to individual item payloads:
-
-.. code-block:: console
-
-    $ curl -i http://eve-demo.herokuapp.com/people/522f01dc15b4fc00028e6d98
-    HTTP/1.1 200 OK
-
-.. code-block:: javascript
-
-    {
-        "lastname": "obama",
-        "_id": "522f01dc15b4fc00028e6d98",
-        "firstname": "barack",
-        "_created": "Tue, 10 Sep 2013 11:26:20 GMT",
-        "_etag": "206fb4a39815cc0ebf48b2b52d709777a55333de",
-        "_updated": "Tue, 10 Sep 2013 11:26:20 GMT"
-    }
-
-Why would you want to turn HATEOAS off? Well, if you know that your client
-application is not going to use the feature, then you might want to save on
-both bandwidth and performance. Also, some REST client libraries out there
-might have issues when parsing something other than a simple list of items.
+HATEOAS can be disabled both at the API and/or resource level. Why would you
+want to turn HATEOAS off? Well, if you know that your client application is not
+going to use the feature, then you might want to save on both bandwidth and
+performance. 
 
 .. admonition:: Please note
 
     When HATEOAS is disabled, the API entry point (the home page) will return
-    a ``404 Not Found``, since its only usefulness would be to return a list of
-    available resources, which is the standard behavior when HATEOAS is
-    enabled.
+    a ``404``, since its only usefulness would be to return a list of available
+    resources, which is the standard behavior when HATEOAS is enabled.
 
 .. _jsonxml:
 
@@ -411,7 +371,7 @@ JSON and XML Rendering
 ----------------------
 Eve responses are automatically rendered as JSON (the default) or XML,
 depending on the request ``Accept`` header. Inbound documents (for inserts and
-edits) are in JSON format. 
+edits) are in JSON format.
 
 .. code-block:: console
 
@@ -440,7 +400,7 @@ Each resource representation provides information on the last time it was
 updated (``Last-Modified``), along with an hash value computed on the
 representation itself (``ETag``). These headers allow clients to perform
 conditional requests, only retrieving new or modified data, by using the
-``If-Modified-Since`` header: 
+``If-Modified-Since`` header:
 
 .. code-block:: console
 
@@ -460,11 +420,11 @@ or the ``If-None-Match`` header:
 Data Integrity and Concurrency Control
 --------------------------------------
 API responses include a ``ETag`` header which also allows for proper
-concurrency control. An ``ETag`` is a hash value representing the current
-state of the resource on the server. Consumers are not allowed to edit or
-delete a resource unless they provide an up-to-date ``ETag`` for the resource
-they are attempting to edit. This prevents overwriting items with obsolete
-versions. 
+concurrency control. An ``ETag`` is a hash value representing the current state
+of the resource on the server. Consumers are not allowed to edit (``PATCH`` or
+``PUT``) or delete (``DELETE``) a resource unless they provide an up-to-date
+``ETag`` for the resource they are attempting to edit. This prevents
+overwriting items with obsolete versions.
 
 Consider the following workflow:
 
@@ -507,7 +467,7 @@ also get the new ``_updated`` value, which eventually will allow us to perform
 subsequent `conditional requests`_.
 
 Concurrency control applies to all edition methods: ``PATCH`` (edit), ``PUT``
-(replace), ``DELETE`` (delete). 
+(replace), ``DELETE`` (delete).
 
 Disabling concurrency control
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -541,8 +501,8 @@ metadata:
     }
 
 However, in order to reduce the number of loopbacks, a client might also submit
-multiple documents with a single request. All if needs to do is enclose the
-documents in a JSON list: 
+multiple documents with a single request. All it needs to do is enclose the
+documents in a JSON list:
 
 .. code-block:: console
 
@@ -553,22 +513,25 @@ The response will be a list itself, with the state of each document:
 
 .. code-block:: javascript
 
-    [
-        {
-            "_status": "OK",
-            "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
-            "_id": "50ae43339fa12500024def5b",
-            "_etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
-            "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b", "title": "person"}}
-        },
-        {
-            "_status": "OK",
-            "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
-            "_id": "50ae43339fa12500024def5c",
-            "_etag": "62d356f623c7d9dc864ffa5facc47dced4ba6907"
-            "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5c", "title": "person"}}
-        }
-    ]
+    {
+        "_status": "OK",
+        "_items": [
+            {
+                "_status": "OK",
+                "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
+                "_id": "50ae43339fa12500024def5b",
+                "_etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
+                "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b", "title": "person"}}
+            },
+            {
+                "_status": "OK",
+                "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
+                "_id": "50ae43339fa12500024def5c",
+                "_etag": "62d356f623c7d9dc864ffa5facc47dced4ba6907"
+                "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5c", "title": "person"}}
+            }
+        ]
+    }
 
 When multiple documents are submitted the API takes advantage of MongoDB *bulk
 insert* capabilities which means that not only there's just one single request
@@ -580,7 +543,7 @@ Data Validation
 Data validation is provided out-of-the-box. Your configuration includes
 a schema definition for every resource managed by the API. Data sent to the API
 to be inserted/updated will be validated against the schema, and a resource
-will only be updated if validation passes. 
+will only be updated if validation passes.
 
 .. code-block:: console
 
@@ -592,34 +555,26 @@ request:
 
 .. code-block:: javascript
 
-    [
-        {
-            "_status": "ERR",
-            "_issues": {"lastname": "value 'clinton' not unique"}
-        },
-        {
-            "_status": "OK",
-            "_updated": "Thu, 22 Nov 2012 15:29:08 GMT",
-            "_id": "50ae44c49fa12500024def5d",
-            "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d", "title": "person"}}
-        }
+    {
+        "_status": "ERR",
+        "_error": "Some documents contains errors",
+        "_items": [
+            {
+                "_status": "ERR",
+                "_issues": {"lastname": "value 'clinton' not unique"}
+            },
+            {
+                "_status": "OK",
+            }
+        ]
     ]
 
-In the example above, the first document did not validate and was rejected,
-while the second was successfully created. The API maintainer has complete
-control on data validation. Optionally, you can decide to allow for unknown
-fields to be inserted/updated on one or more endpoints. For more information
-see :ref:`validation`.
+In the example above, the first document did not validate so the whole request
+has been rejected. For more information see :ref:`validation`.
 
-.. admonition:: Please Note
-
-    Eventual validation errors on one or more document won't prevent the
-    insertion of valid documents. The response status code will be ``201
-    Created`` if *at least one document* passed validation and has actually
-    been stored. If no document passed validation the status code will be ``200
-    OK``, meaning that the request was accepted and processed. It is still
-    client's responsability to parse the response payload and make sure that
-    all documents passed validation.
+In all cases, when all documents passed validation and where inserted correctly,
+the response status is ``201 Created``. If any document fail the validation, the
+response status is ``400 Bad Request``.
 
 Extensible Data Validation
 --------------------------
@@ -630,7 +585,7 @@ validation class to validate that. Or say you want to make sure that a VAT
 field actually matches your own country VAT algorithm; you can do that too. As
 a matter of fact, Eve's MongoDB data-layer itself extends Cerberus
 validation by implementing the ``unique`` schema field constraint. For more
-information see :ref:`validation`
+information see :ref:`validation`.
 
 .. _cache_control:
 
@@ -653,14 +608,48 @@ The response above includes both ``Cache-Control`` and ``Expires`` headers.
 These will minimize load on the server since cache-enabled consumers will
 perform resource-intensive request only when really needed.
 
-Versioning
-----------
+API Versioning
+--------------
 I'm not too fond of API versioning. I believe that clients should be
 intelligent enough to deal with API updates transparently, especially since
 Eve-powered API support HATEOAS_. When versioning is a necessity, different API
 versions should be isolated instances since so many things could be different
 between versions: caching, URIs, schemas, validation, and so on. URI versioning
 (http://api.example.com/v1/...) is supported.
+
+.. _document_versioning:
+
+Document Versioning
+-------------------
+Eve supports automatic version control of documents. By default, this setting
+is turned off, but it can be turned globally or configured individually for
+each resource. When enabled, Eve begins automatically tracking changes to
+documents and adds the fields ``_version`` and ``_latest_version`` when
+retrieving documents.
+
+Behind the scenes, Eve stores document versions in shadow collections that
+parallels the collection of each primary resource that Eve defines. New
+document versions are automatically added to this collection during normal
+POST, PUT, and PATCH operations. A special new query parameter is available
+when GETing an item that provides access to the document versions. Access a
+specific version with ``?version=VERSION``, access all versions with
+``?version=all``, and access diffs of all versions with ``?version=diffs``.
+Collection query features like projections, pagination, and sorting work with
+``all`` and ``diff`` except for sorting which does not work on ``diff``.
+
+It is important to note that there are a few non-standard scenarios which could
+produce unexpected results when versioning is turned on. In particular, document
+history will not be saved when modifying collections outside of the Eve
+generated API. Also, if at anytime the ``VERSION`` field gets removed from the
+primary document (which cannot happen through the API when versioning is turned
+on), a subsequent write will re-initialize the ``VERSION`` number with
+``VERSION`` = 1. At this time there will be multiple versions of the document
+with the same version number. In normal practice, ``VERSIONING`` can be enable
+without worry for any new collection or even an existing collection which has
+not previously had versioning enabled.
+
+For more information see and :ref:`global` and :ref:`domain`.
+
 
 Authentication
 --------------
@@ -682,11 +671,11 @@ Read-only by default
 If all you need is a read-only API, then you can have it up and running in
 a matter of minutes.
 
-Default Values
---------------
-It is possible to set default values for fields. When serving POST
-(create) requests, missing fields will be assigned the configured default
-values.
+Default and Nullable Values
+---------------------------
+Fields can have default values and nullable types. When serving POST (create)
+requests, missing fields will be assigned the configured default values. See
+``default`` and ``nullable`` keywords in :ref:`schema` for more informations.
 
 Predefined Database Filters
 ---------------------------
@@ -696,14 +685,19 @@ target the same database collection. A typical use-case would be a
 hypothetical ``people`` collection on the database being used by both the
 ``/admins`` and ``/users`` API endpoints.
 
+.. admonition:: See also
+
+    - :ref:`datasource`
+    - :ref:`filter`
+
 .. _projections:
 
 Projections
 -----------
-This feature allows you to create dynamic *views* of collections, or more precisely,
-to decide what fields should or should not be returned, using a 'projection'.
-Put another way, Projections are conditional queries where the client
-dictates which fields should be returned by the API.
+This feature allows you to create dynamic views of collections and documents,
+or more precisely, to decide what fields should or should not be returned,
+using a 'projection'. Put another way, Projections are conditional queries
+where the client dictates which fields should be returned by the API.
 
 .. code-block:: console
 
@@ -723,6 +717,11 @@ as ID_FIELD, DATE_CREATED, DATE_UPDATED etc.  will still be included with the
 payload. Also keep in mind that some database engines, Mongo included, do not
 allow for mixing of inclusive and exclusive selections.
 
+.. admonition:: See also
+
+    - :ref:`projection`
+    - :ref:`projection_filestorage`
+
 .. _embedded_docs:
 
 Embedded Resource Serialization
@@ -741,15 +740,15 @@ like this:
         'emails': {
             'schema': {
                 'author': {
-                    'type': 'objectid', 
+                    'type': 'objectid',
                     'data_relation': {
-                        'resource': 'users', 
-                        'field': '_id', 
+                        'resource': 'users',
+                        'field': '_id',
                         'embeddable': True
                     },
                 },
                 'subject': {'type': 'string'},
-                'body': {'type': 'string'}, 
+                'body': {'type': 'string'},
             }
         }
 
@@ -764,6 +763,42 @@ Embedding can be enabled or disabled both at global level (by setting
 toggling the ``embedding`` value). Furthermore, only fields with the
 ``embeddable`` value explicitly set to ``True`` will allow the embedding of
 referenced documents.
+
+Embedding also works with a data_relation to a specific version of a document,
+but the schema looks a little bit different. To enable the data_relation to a
+specific version, add ``'version': True`` to the data_relation block. You'll
+also want to change the ``type`` to ``dict`` and add the ``schema`` definition
+shown below.
+
+.. code-block:: python
+   :emphasize-lines: 5, 6, 11
+
+    DOMAIN = {
+        'emails': {
+            'schema': {
+                'author': {
+                    'type': 'dict',
+                    'schema': {
+                        '_id': {'type': 'objectid'},
+                        '_version': {'type': 'integer'}
+                    },
+                    'data_relation': {
+                        'resource': 'users',
+                        'field': '_id',
+                        'embeddable': True,
+                        'version': True,
+                    },
+                },
+                'subject': {'type': 'string'},
+                'body': {'type': 'string'},
+            }
+        }
+
+As you can see, ``'version': True`` changes the expected value of a
+data_relation field to a dictionary with fields names ``data_relation['field']``
+and ``VERSION``. With ``'field': '_id'`` in the data_relation definition above
+and ``VERSION = '_version'`` in the Eve config, the value of the data_relation
+in this scenario would be a dictionary with fields ``_id`` and ``_version``.
 
 Predefined Resource Serialization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -792,7 +827,7 @@ Document embedding is enabled by default.
     really help with normalizing your data model for the client.  However, when
     deciding whether to enable it or not, especially by default, keep in mind
     that each embedded resource being looked up will require a database lookup,
-    which can easily lead to performance issues. 
+    which can easily lead to performance issues.
 
 .. _eventhooks:
 
@@ -802,17 +837,14 @@ Pre-Request Event Hooks
 ~~~~~~~~~~~~~~~~~~~~~~~
 When a GET, POST, PATCH, PUT, DELETE request is received, both
 a ``on_pre_<method>`` and a ``on_pre_<method>_<resource>`` event is raised.
-You can subscribe to these events with multiple callback functions. Callbacks
-will receive the resource being requested and the original `flask.request`
-object as arguments. ``pre`` events are raised before any actions is taken by
-the API itself.
+You can subscribe to these events with multiple callback functions. 
 
 .. code-block:: pycon
 
-    >>> def pre_get_callback(resource, request):
+    >>> def pre_get_callback(resource, request, lookup):
     ...  print 'A GET request on the "%s" endpoint has just been received!' % resource
 
-    >>> def pre_contacts_get_callback(request):
+    >>> def pre_contacts_get_callback(request, lookup):
     ...  print 'A GET request on the contacts endpoint has just been received!'
 
     >>> app = Eve()
@@ -821,6 +853,34 @@ the API itself.
     >>> app.on_pre_GET_contacts += pre_contacts_get_callback
 
     >>> app.run()
+
+Callbacks will receive the resource being requested, the original
+``flask.request`` object and the current lookup dictionary as arguments (only
+exception being the ``on_pre_POST`` hook which does not provide a ``lookup``
+argument). 
+
+Dynamic Lookup Filters
+^^^^^^^^^^^^^^^^^^^^^^
+Since the ``lookup`` dictionary will be used by the data layer to retrieve
+resource documents, developers may choose to alter it in order to add custom
+logic to the lookup query. 
+
+.. code-block:: python
+
+    def pre_GET(resource, request, lookup):
+        # only return documents that have a 'username' field.
+        lookup["username"] = {'$exists': True}
+
+    app = Eve()
+
+    app.on_pre_GET += pre_GET
+    app.run()
+
+Altering the lookup dictionary at runtime would have similar effects to
+applying :ref:`filter` via configuration. However, you can only set static
+filters via configuration whereas by hooking to the ``on_pre_<METHOD>`` events
+you are allowed to set dynamic filters instead, which allows for additional
+flexibility. 
 
 Post-Request Event Hooks
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -839,83 +899,311 @@ payload.
     ... print 'A get on "contacts" was just performed!'
 
     >>> app = Eve()
-    
+
     >>> app.on_post_GET += post_get_callback
     >>> app.on_post_GET_contacts += post_contacts_get_callback
 
     >>> app.run()
 
-The ``on_insert`` Event Hooks
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-When documents are about to be stored in the database, both
-a ``on_insert(resource, documents)`` and ``on_insert_<resource>(documents)``
-event is raised.  Callback functions could hook into these events to
-arbitrarily add new fields, or edit existing ones.
+Database event hooks
+~~~~~~~~~~~~~~~~~~~~
+
+Database event hooks work like request event hooks. These events are fired
+before and after a database action. Here is an example of how events are
+configured:
 
 .. code-block:: pycon
 
-    >>> def before_insert(resource, documents):
-    ...  print 'About to store documents to "%s" ' % resource
+   >>> def add_signature(resource, response):
+   ...     response['SIGNATURE'] = "A %s from eve" % resource
 
-    >>> def before_insert_contacts(documents):
+   >>> app = Eve()
+   >>> app.on_fetched_item += add_signature
+
+You may use flask's ``abort()`` to interrupt the database operation:
+
+.. code-block:: pycon
+
+   >>> from flask import abort
+
+   >>> def check_update_access(resource, updates, original):
+   ...     abort(403)
+
+   >>> app = Eve()
+   >>> app.on_insert_item += check_update_access
+
+The events are fired for resources and items if the action is available for
+both. And for each action two events will be fired:
+
+- Generic: ``on_<action_name>``
+- With the name of the resource: ``on_<action_name>_<resource_name>``
+
+Let's see an overview of what events are available:
+
++-------+--------+------+-------------------------------------------------+
+|Action |What    |When  |Event name / method signature                    |
++=======+========+======+=================================================+
+|Fetch  |Resource|After || ``on_fetched_resource``                        |
+|       |        |      || ``def event(resource_name, response)``         |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_fetched_resource_<resource_name>``        |
+|       |        |      || ``def event(response)``                        |
+|       +--------+------+-------------------------------------------------+
+|       |Item    |After || ``on_fetched_item``                            |
+|       |        |      || ``def event(resource_name, response)``         |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_fetched_item_<resource_name>``            |
+|       |        |      || ``def event(response)``                        |
++-------+--------+------+-------------------------------------------------+
+|Insert |Items   |Before|| ``on_insert``                                  |
+|       |        |      || ``def event(resource_name, items)``            |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_insert_<resource_name>``                  |
+|       |        |      || ``def event(items)``                           |
+|       |        +------+-------------------------------------------------+
+|       |        |After || ``on_inserted``                                |
+|       |        |      || ``def event(resource_name, items)``            |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_inserted_<resource_name>``                |
+|       |        |      || ``def event(items)``                           |
++-------+--------+------+-------------------------------------------------+
+|Replace|Item    |Before|| ``on_replace``                                 |
+|       |        |      || ``def event(resource_name, item, original)``   |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_replace_<resource_name>``                 |
+|       |        |      || ``def event(item, original)``                  |
+|       |        +------+-------------------------------------------------+
+|       |        |After || ``on_replaced``                                |
+|       |        |      || ``def event(resource_name, item, original)``   |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_replaced_<resource_name>``                |
+|       |        |      || ``def event(item, original)``                  |
++-------+--------+------+-------------------------------------------------+
+|Update |Item    |Before|| ``on_update``                                  |
+|       |        |      || ``def event(resource_name, updates, original)``|
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_update_<resource_name>``                  |
+|       |        |      || ``def event(updates, original)``               |
+|       |        +------+-------------------------------------------------+
+|       |        |After || ``on_updated``                                 |
+|       |        |      || ``def event(resource_name, updates, original)``|
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_updated_<resource_name>``                 |
+|       |        |      || ``def event(updates, original)``               |
++-------+--------+------+-------------------------------------------------+
+|Delete |Item    |Before|| ``on_delete_item``                             |
+|       |        |      || ``def event(resource_name, item)``             |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_delete_item_<resource_name>``             |
+|       |        |      || ``def event(item)``                            |
+|       |        +------+-------------------------------------------------+
+|       |        |After || ``on_deleted_item``                            |
+|       |        |      || ``def event(resource_name, item)``             |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_deleted_item_<resource_name>``            |
+|       |        |      || ``def event(item)``                            |
+|       +--------+------+-------------------------------------------------+
+|       |Resource|Before|| ``on_delete_resource``                         |
+|       |        |      || ``def event(resource_name, item)``             |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_delete_resource_<resource_name>``         |
+|       |        |      || ``def event(item)``                            |
+|       |        +------+-------------------------------------------------+
+|       |        |After || ``on_deleted_resource``                        |
+|       |        |      || ``def event(resource_name, item)``             |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_deleted_resource_<resource_name>``        |
+|       |        |      || ``def event(item)``                            |
++-------+--------+------+-------------------------------------------------+
+
+
+
+Fetch Events
+^^^^^^^^^^^^
+
+These are the fetch events with their method signature:
+
+- ``on_fetched_resource(resource_name, response)``
+- ``on_fetched_resource_<resource_name>(response)``
+- ``on_fetched_item(resource_name, response)``
+- ``on_fetched_item_<resource_name>(response)``
+
+They are raised when items have just been read from the database and are
+about to be sent to the client. Registered callback functions can manipulate
+the items as needed before they are returned to the client.
+
+.. code-block:: pycon
+
+    >>> def before_returning_items(resource_name, response):
+    ...  print 'About to return items from "%s" ' % resource_name
+
+    >>> def before_returning_contacts(response):
+    ...  print 'About to return contacts'
+
+    >>> def before_returning_item(resource_name, response):
+    ...  print 'About to return an item from "%s" ' % resource_name
+
+    >>> def before_returning_contact(response):
+    ...  print 'About to return a contact'
+
+    >>> app = Eve()
+    >>> app.on_fetched_resource += before_returning_items
+    >>> app.on_fetched_resource_contacts += before_returning_contacts
+    >>> app.on_fetched_item += before_returning_item
+    >>> app.on_fetched_item_contact += before_returning_contact
+
+
+Insert Events
+^^^^^^^^^^^^^
+
+These are the insert events with their method signature:
+
+- ``on_insert(resource_name, items)``
+- ``on_insert_<resource_name>(items)``
+- ``on_inserted(resource_name, items)``
+- ``on_inserted_<resource_name>(items)``
+
+When a POST requests hits the API and new items are about to be stored in
+the database, these vents are fired:
+
+- ``on_insert`` for every resource endpoint.
+- ``on_insert_<resource_name>`` for the specific `<resource_name>` resource
+  endpoint.
+
+Callback functions could hook into these events to arbitrarily add new fields
+or edit existing ones.
+
+After the items have been inserted, these two events are fired:
+
+- ``on_inserted`` for every resource endpoint.
+- ``on_inserted_<resource_name>`` for the specific `<resource_name>` resource
+  endpoint.
+
+.. admonition:: Validation errors
+
+    Items passed to these events as arguments come in a list. And only those items
+    that passed validation are sent.
+
+Example:
+
+.. code-block:: pycon
+
+    >>> def before_insert(resource_name, items):
+    ...  print 'About to store items to "%s" ' % resource
+
+    >>> def after_insert_contacts(items):
     ...  print 'About to store contacts'
 
     >>> app = Eve()
     >>> app.on_insert += before_insert
-    >>> app.on_insert_contacts += before_insert_contacts
+    >>> app.on_inserted_contacts += after_insert_contacts
 
-    >>> app.run()
 
-``on_insert`` is raised on every resource being updated while
-``on_insert_<resource>`` is raised when the `<resource>` endpoint has been hit
-with a POST request. In both circumstances, the event will be raised only if at
-least one document passed validation and is going to be inserted. `documents`
-is a list and only contains documents ready for insertion (payload documents
-that did not pass validation are not included).
+Replace Events
+^^^^^^^^^^^^^^
 
-The ``on_fech`` Event Hooks
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The following events:
+These are the replace events with their method signature:
 
-- ``on_fetch_resource(resource, documents)``
-- ``on_fetch_resource_<resource>(documents)`` 
-- ``on_fetch_item(resource, _id, document)`` 
-- ``on_fetch_item_<item_title>(_id, document)`` 
-  
-are raised when documents have just been read from the database and are about
-to be sent to the client. Registered callback functions can manipulate the
-documents as needed before they are returned to the client.
+- ``on_replace(resource_name, item, original)``
+- ``on_replace_<resource_name>(item, original)``
+- ``on_replaced(resource_name, item, original)``
+- ``on_replaced_<resource_name>(item, original)``
 
-.. code-block:: pycon
+When a PUT request hits the API and an item is about to be replaced after
+passing validation, these events are fired:
 
-    >>> def before_returning_items(resource, documents):
-    ...  print 'About to return items from "%s" ' % resource
+- ``on_replace`` for any resource item endpoint.
+- ``on_replace_<resource_name>`` for the specific resource endpoint.
 
-    >>> def before_returning_contacts(documents):
-    ...  print 'About to return contacts'
+`item` is the new item which is about to be stored. `original` is the item in
+the database that is being replaced. Callback functions could hook into these
+events to arbitrarily add or update `item` fields, or to perform other
+accessory action.
 
-    >>> def before_returning_item(resource, _id, document):
-    ...  print 'About to return an item from "%s" ' % resource
+After the item has been replaced, these other two events are fired:
 
-    >>> def before_returning_contact(_id, document):
-    ...  print 'About to return a contact' 
+- ``on_replaced`` for any resource item endpoint.
+- ``on_replaced_<resource_name>`` for the specific resource endpont.
 
-    >>> app = Eve()
-    >>> app.on_fetch_resource += before_returning_items
-    >>> app.on_fetch_resource_contacts += before_returning_contacts
-    >>> app.on_fetch_item += before_returning_item
-    >>> app.on_fetch_item_contact += before_returning_contact
+Update Events
+^^^^^^^^^^^^^
 
-    >>> app.run()
+These are the update events with their method signature:
 
-Please be aware that ``last_modified`` and ``etag`` headers will always be
-consistent with the state of the documents on the database (they  won't be
-updated to reflect changes eventually applied by the callback functions).
+- ``on_update(resource_name, updates, original)``
+- ``on_update_<resource_name>(updates, original)``
+- ``on_updated(resource_name, updates, original)``
+- ``on_updated_<resource_name>(updates, original)``
+
+When a PATCH request hits the API and an item is about to be updated after
+passing validation, these events are fired `before` the item is updated:
+
+- ``on_update`` for any resource endpoint.
+- ``on_update_<resource_name>`` is fired only when the `<resource_name>`
+  endpoint is hit.
+
+Here `updates` stands for updates being applied to the item and `original` is
+the item in the database that is about to be updated. Callback functions
+could hook into these events to arbitrarily add or update fields in
+`updates`, or to perform other accessory action.
+
+`After` the item has been updated: 
+
+- ``on_updated`` is fired for any resource endpoint.
+- ``on_updated_<resource_name>`` is fired only when the `<resource_name>`
+  endpoint is hit.
+
+.. admonition:: Please note
+
+    Please be aware that ``last_modified`` and ``etag`` headers will always be
+    consistent with the state of the items on the database (they  won't be
+    updated to reflect changes eventually applied by the callback functions).
+
+Delete Events
+^^^^^^^^^^^^^
+
+These are the delete events with their method signature:
+
+- ``on_delete_item(resource_name, item)``
+- ``on_delete_item_<resource_name>(item)``
+- ``on_deleted_item(resource_name, item)``
+- ``on_deleted_item_<resource_name>(item)``
+- ``on_delete_resource(resource_name)``
+- ``on_delete_resource_<resource_name>()``
+- ``on_deleted_resource(resource_name)``
+- ``on_deleted_resource_<resource_name>()``
+
+Items
+.....
+
+When a DELETE request hits an item endpoint and `before` the item is deleted,
+these events are fired:
+
+- ``on_delete_item`` for any resource hit by the request.
+- ``on_delete_item_<resource_name>`` for the specific `<resource_name>` item endpoint
+  hit by the DELETE.
+
+`After` the item has been deleted the ``on_deleted_item(resource_name,
+item)`` and ``on_deleted_item_<resource_name>(item)`` are raised.
+
+`item` is the item being deleted. Callback functions could hook into
+these events to perform accessory actions. And no you can't arbitrarily abort
+the delete operation at this point (you should probably look at
+:ref:`validation`, or eventually disable the delete command altogether).
+
+Resources
+.........
+
+If you were brave enough to enable the DELETE command on resource endpoints
+(allowing for wipeout of the entire collection in one go), then you can be
+notified of such a disastrous occurence by hooking a callback function to the
+``on_delete_resource(resource_name)`` or
+``on_delete_resource_<resource_name>()`` hooks.
+
 
 .. admonition:: Please note
 
     To provide seamless event handling features Eve relies on the Events_ package.
-
 
 .. _ratelimiting:
 
@@ -938,7 +1226,7 @@ request:
     X-RateLimit-Reset: 1370940300
 
 You can set different limits for each one of the supported methods (GET, POST,
-PATCH, DELETE). 
+PATCH, DELETE).
 
 .. admonition:: Please Note
 
@@ -955,7 +1243,7 @@ File Storage
 ------------
 Media files (images, pdf, etc.) can be uploaded as ``media`` document
 fields. Upload is done via ``POST``, ``PUT`` and
-``PATCH`` as usual, but using the ``multipart/data-form`` content-type. 
+``PATCH`` as usual, but using the ``multipart/data-form`` content-type.
 
 Let us assume that the ``accounts`` endpoint has a schema like this:
 
@@ -976,18 +1264,72 @@ With curl we would ``POST`` like this:
 For optmized performance files are stored in GridFS_ by default. Custom
 ``MediaStorage`` classes can be implemented and passed to the application to
 support alternative storage systems. A ``FileSystemMediaStorage`` class is in
-the works, and will soon be included with the Eve package. 
+the works, and will soon be included with the Eve package.
 
 As a proper developer guide is not available yet, you can peek at the
 MediaStorage_ source if you are interested in developing custom storage
 classes.
 
-When a document is requested media files will be returned as Base64 strings. 
+When a document is requested media files will be returned as Base64 strings,
 
-Leveraging Projections to optimize the handling of media files 
+.. code-block:: python
+
+    {
+        '_items': [
+            {
+                '_updated':'Sat, 05 Apr 2014 15:52:53 GMT',
+                'pic':'iVBORw0KGgoAAAANSUhEUgAAA4AAAAOACA...',
+            }
+        ]
+        ...
+   } 
+
+However, if the ``EXTENDED_MEDIA_INFO`` list is populated (it isn't by
+default) the payload format will be different. This flag allows passthrough
+from the driver of additional meta fields. For example, using the MongoDB
+driver, fields like ``content_type``, ``name`` and ``length`` can be added to
+this list and will be passed-through from the underlying driver. 
+
+When ``EXTENDED_MEDIA_INFO`` is used the field will be a dictionary
+whereas the file itself is stored under the ``file`` key and other keys
+are the meta fields. Suppose that the flag is set like this:
+
+.. code-block:: python
+
+    EXTENDED_MEDIA_INFO = ['content_type', 'name', 'length']
+
+Then the output will be something like
+
+.. code-block:: python
+
+    {
+        '_items': [
+            {
+                '_updated':'Sat, 05 Apr 2014 15:52:53 GMT',
+                'pic': {
+                    'file': 'iVBORw0KGgoAAAANSUhEUgAAA4AAAAOACA...',
+                    'content_type': 'text/plain',
+                    'name': 'test.txt',
+                    'length': 8129
+                }
+            }
+        ]
+        ...
+    }
+
+For MongoDB, further fields can be found in the `driver documentation`_. 
+
+If you have other means to retrieve the media files (custom Flask endpoint for
+example) then the media files can be excluded from the paylod by setting to
+``False`` the ``RETURN_MEDIA_AS_BASE64_STRING`` flag. This takes into account
+if ``EXTENDED_MEDIA_INFO`` is used.
+
+.. _projection_filestorage:
+
+Leveraging Projections to optimize the handling of media files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Clients and API maintainers can exploit the :ref:`projections` feature to
-include/exclude media fields from response payloads. 
+include/exclude media fields from response payloads.
 
 Suppose that a client stored a document with an image. The image field is
 called *image* and it is of ``media`` type. At a later time, the client wants
@@ -1001,11 +1343,11 @@ response payload:
     $ curl -i http://example.com/people/<id>?projection={"image": 0}
     HTTP/1.1 200 OK
 
-The document will be returned with all its fields except the *image* field. 
+The document will be returned with all its fields except the *image* field.
 
 Moreover, when setting the ``datasource`` property for any given resource
 endpoint it is possible to explictly exclude fields (of ``media`` type, but
-also of any other type reallt) from default responses:
+also of any other type) from default responses:
 
 .. code-block:: python
 
@@ -1017,14 +1359,19 @@ also of any other type reallt) from default responses:
     }
 
 Now clients will have to explicitly request the image field to be included with
-response payloads by sending requests like this one: 
+response payloads by sending requests like this one:
 
 .. code-block:: console
 
     $ curl -i http://example.com/people/<id>?projection={"image": 1}
     HTTP/1.1 200 OK
 
-For details on the ``datasource`` setting, see :ref:`config` and :ref:`datasource`.
+.. admonition:: See also
+
+    - :ref:`config`
+    - :ref:`datasource`
+
+    for details on the ``datasource`` setting.
 
 MongoDB Support
 ---------------
@@ -1054,3 +1401,4 @@ for unittesting_ and an `extensive documentation`_.
 .. _`MongoDB Data Model Design`: http://docs.mongodb.org/manual/core/data-model-design
 .. _GridFS: http://docs.mongodb.org/manual/core/gridfs/
 .. _MediaStorage: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/media.py
+.. _`driver documentation`: http://api.mongodb.org/python/2.7rc0/api/gridfs/grid_file.html#gridfs.grid_file.GridOut

@@ -11,10 +11,11 @@
 """
 import datetime
 import simplejson as json
+from copy import copy
 from flask import request, abort
 from eve.utils import date_to_str
 from eve.auth import auth_field_and_value
-from eve.utils import config, debug_error_message
+from eve.utils import config, debug_error_message, auto_fields
 
 
 class BaseJSONEncoder(json.JSONEncoder):
@@ -129,18 +130,39 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
-    def find_one(self, resource, **lookup):
+    def find_one(self, resource, req, **lookup):
         """ Retrieves a single document/record. Consumed when a request hits an
         item endpoint (`/people/id/`).
 
         :param resource: resource being accessed. You should then use the
                          ``_datasource`` helper function to retrieve both the
                          db collection/table and base query (filter), if any.
+        :param req: an instance of ``eve.utils.ParsedRequest``. This contains
+                    all the constraints that must be fulfilled in order to
+                    satisfy the original request (where and sort parts, paging,
+                    etc). As we are going to only look for one document here,
+                    the only req attribute that you want to process here is
+                    ``req.projection``.
+
         :param **lookup: the lookup fields. This will most likely be a record
                          id or, if alternate lookup is supported by the API,
                          the corresponding query.
 
 
+        .. versionchanged:: 0.4
+           Added the 'req' argument.
+        """
+        raise NotImplementedError
+
+    def find_one_raw(self, resource, _id):
+        """ Retrieves a single, raw document. No projections or datasource
+        filters are being applied here. Just looking up the document by unique
+        id.
+
+        :param resource: resource name.
+        :param id: unique id.
+
+        .. versionadded:: 0.4
         """
         raise NotImplementedError
 
@@ -270,19 +292,25 @@ class DataLayer(object):
 
         :param resource: resource being accessed.
 
+        .. versionchanged:: 0.4
+           Return copies to avoid accidental tampering. Fix #258.
+
         .. versionchanged:: 0.2
            Support for 'default_sort'.
         """
-        return (config.SOURCES[resource]['source'],
-                config.SOURCES[resource]['filter'],
-                config.SOURCES[resource]['projection'],
-                config.SOURCES[resource]['default_sort'],
-                )
+        source = copy(config.SOURCES[resource]['source'])
+        filter_ = copy(config.SOURCES[resource]['filter'])
+        projection = copy(config.SOURCES[resource]['projection'])
+        sort = copy(config.SOURCES[resource]['default_sort'])
+        return source, filter_, projection, sort,
 
     def _datasource_ex(self, resource, query=None, client_projection=None,
                        client_sort=None):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to.
+
+        .. versionchanged:: 0.4
+           Always return required/auto fields (issue 282.)
 
         .. versionchanged:: 0.3
            Field exclusion support in client projections.
@@ -345,21 +373,30 @@ class DataLayer(object):
             else:
                 query = filter_
 
+        fields = projection_
+        keep_fields = auto_fields(resource)
         if client_projection:
             # only allow fields which are included with the standard projection
             # for the resource (avoid sniffing of private fields)
-            fields = dict(
-                (field, value) for field, value in client_projection.items() if
-                field in projection_)
-        else:
-            fields = projection_
+            if 0 in client_projection.values():
+                # exclusive projection - all values are 1 unless specified
+                for field, value in client_projection.items():
+                    if value == 0 and value not in keep_fields and \
+                            field in fields:
+                        del fields[field]
+            else:
+                # inclusive projection - all values are 0 unless spec. or auto
+                for field in list(fields.keys()):
+                    if field not in client_projection and \
+                            field not in keep_fields:
+                        del fields[field]
 
         # If the current HTTP method is in `public_methods` or
         # `public_item_methods`, skip the `auth_field` check
 
         # Only inject the auth_field in the query when not creating new
         # documents.
-        if request.method not in ('POST', 'PUT'):
+        if request and request.method not in ('POST', 'PUT'):
             auth_field, request_auth_value = auth_field_and_value(resource)
             if auth_field and request.authorization and request_auth_value:
                 if query:

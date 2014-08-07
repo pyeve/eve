@@ -12,7 +12,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from eve.methods import get, getitem, post, patch, delete, delete_resource, put
+from eve.methods import get, getitem, post, patch, delete, deleteitem, put
 from eve.methods.common import ratelimit
 from eve.render import send_response
 from eve.auth import requires_auth
@@ -54,7 +54,7 @@ def collections_endpoint(**lookup):
     elif method == 'POST':
         response = post(resource)
     elif method == 'DELETE':
-        response = delete_resource(resource, lookup)
+        response = delete(resource, lookup)
     elif method == 'OPTIONS':
         send_response(resource, response)
     else:
@@ -94,7 +94,7 @@ def item_endpoint(**lookup):
     elif method == 'PUT':
         response = put(resource, **lookup)
     elif method == 'DELETE':
-        response = delete(resource, **lookup)
+        response = deleteitem(resource, **lookup)
     elif method == 'OPTIONS':
         send_response(resource, response)
     else:
@@ -107,6 +107,9 @@ def item_endpoint(**lookup):
 def home_endpoint():
     """ Home/API entry point. Will provide links to each available resource
 
+    .. versionchanged:: 0.4
+       Prevent versioning collections from being added in links.
+
     .. versionchanged:: 0.2
        Use new 'resource_title' setting for link titles.
 
@@ -117,14 +120,30 @@ def home_endpoint():
         response = {}
         links = []
         for resource in config.DOMAIN.keys():
-            links.append({'href': '%s' % resource_uri(resource),
-                          'title': '%s' %
-                          config.DOMAIN[resource]['resource_title']})
+            if not resource.endswith(config.VERSIONS):
+                links.append({'href': '%s' % resource_uri(resource),
+                              'title': '%s' %
+                              config.DOMAIN[resource]['resource_title']})
         response[config.LINKS] = {'child': links}
         return send_response(None, (response,))
     else:
         abort(404, debug_error_message("HATEOAS is disabled so we have no data"
                                        " to display at the API homepage."))
+
+
+def error_endpoint(error):
+    """ Response returned when an error is raised by the API (e.g. my means of
+    an abort(4xx).
+
+    .. versionadded:: 0.4
+    """
+    headers = None
+    if error.response:
+        headers = error.response.headers
+    response = {
+        config.STATUS: config.STATUS_ERR,
+        config.ERROR: {'code': error.code, 'message': error.description}}
+    return send_response(None, (response, None, None, error.code, headers))
 
 
 def _resource():

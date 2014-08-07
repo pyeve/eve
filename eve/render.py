@@ -89,7 +89,7 @@ def send_response(resource, response):
 
 
 def _prepare_response(resource, dct, last_modified=None, etag=None,
-                      status=200):
+                      status=200, headers=None):
     """ Prepares the response object according to the client request and
     available renderers, making sure that all accessory directives (caching,
     etag, last-modified) are present.
@@ -99,6 +99,10 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     :param last_modified: Last-Modified header value.
     :param etag: ETag header value.
     :param status: response status.
+
+    .. versionchanged:: 0.4
+       Support for optional extra headers.
+       Fix #381. 500 instead of 404 if CORS is enabled.
 
     .. versionchanged:: 0.3
        Support for X_MAX_AGE.
@@ -134,6 +138,12 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         resp = make_response(rendered, status)
         resp.mimetype = mime
 
+    # extra headers
+    if headers:
+        for header, value in headers:
+            if header != 'Content-Type':
+                resp.headers.add(header, value)
+
     # cache directives
     if request.method in ('GET', 'HEAD'):
         if resource:
@@ -167,7 +177,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         else:
             headers = config.X_HEADERS
 
-        methods = app.make_default_options_response().headers['allow']
+        methods = app.make_default_options_response().headers.get('allow', '')
         resp.headers.add('Access-Control-Allow-Origin', ', '.join(domains))
         resp.headers.add('Access-Control-Allow-Headers', ', '.join(headers))
         resp.headers.add('Access-Control-Allow-Methods', methods)
@@ -228,6 +238,9 @@ def render_xml(data):
 
     :param data: the data stream to be rendered as xml.
 
+    .. versionchanged:: 0.4
+       Support for pagination info (_meta).
+
     .. versionchanged:: 0.2
        Use the new ITEMS configuration setting.
 
@@ -244,6 +257,7 @@ def render_xml(data):
     if data:
         xml += xml_root_open(data)
         xml += xml_add_links(data)
+        xml += xml_add_meta(data)
         xml += xml_add_items(data)
         xml += xml_root_close()
     return xml
@@ -273,6 +287,23 @@ def xml_root_open(data):
         if 'title' in self_:
             title = ' title="%s" ' % self_['title']
     return '<resource%s%s>' % (href, title)
+
+
+def xml_add_meta(data):
+    """ Returns a meta node with page, total, max_results fields.
+
+    :param data: the data stream to be rendered as xml.
+
+    .. versionadded:: 0.4
+    """
+    xml = ''
+    meta = []
+    if data.get(config.META):
+        for name, value in data.get(config.META).items():
+            meta.append('<%s>%d</%s>' % (name, value, name))
+    if meta:
+        xml = '<%s>%s</%s>' % (config.META, ''.join(meta), config.META)
+    return xml
 
 
 def xml_add_links(data):

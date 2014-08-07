@@ -14,12 +14,15 @@
 import eve
 import sys
 import os
+import copy
 from flask import Flask
 from werkzeug.routing import BaseConverter
 from werkzeug.serving import WSGIRequestHandler
 from eve.io.mongo import Mongo, Validator, GridFSMediaStorage
 from eve.exceptions import ConfigException, SchemaException
-from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint
+from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint, \
+    error_endpoint
+from eve.defaults import build_defaults
 from eve.utils import api_prefix, extract_key_values
 from events import Events
 
@@ -63,11 +66,16 @@ class Eve(Flask, Events):
     :param url_converters: dictionary of Flask url_converters to add to
                            supported ones (int, float, path, regex).
     :param json_encoder: custom json encoder class. Must be a
-                         JSONEncoder subclass. You probably wnat it to be
+                         JSONEncoder subclass. You probably want it to be
                          as eve.io.base.BaseJSONEncoder subclass.
     :param media: the media storage class. Must be a
                   :class:`~eve.io.media.MediaStorage` subclass.
     :param kwargs: optional, standard, Flask parameters.
+
+    .. versionchanged:: 0.4
+       Ensure all errors returns a parseable body. Closes #365.
+       'auth' argument can be either an instance or a callable. Closes #248.
+       Made resource setup more DRY by calling register_resource.
 
     .. versionchanged:: 0.3
        Support for optional media storage system. Defaults to
@@ -131,14 +139,21 @@ class Eve(Flask, Events):
             self.data.json_encoder_class = json_encoder
 
         self.media = media(self) if media else None
-        self.auth = auth() if auth else None
         self.redis = redis
+
+        if auth:
+            self.auth = auth() if callable(auth) else auth
+        else:
+            self.auth = None
+
+        # set up home url
+        self._init_url_rules()
 
         # validate and set defaults for each resource
         for resource, settings in self.config['DOMAIN'].items():
-            self._set_resource_defaults(resource, settings)
-            self._validate_resource_settings(resource, settings)
-        self._add_url_rules()
+            self.register_resource(resource, settings)
+
+        self.register_error_handlers()
 
     def run(self, host=None, port=None, debug=None, **options):
         """
@@ -186,7 +201,7 @@ class Eve(Flask, Events):
                 pyfile = os.path.join(abspath, self.settings)
             self.config.from_pyfile(pyfile)
 
-        #overwrite settings with custom environment variable
+        # overwrite settings with custom environment variable
         envvar = 'EVE_SETTINGS'
         if os.environ.get(envvar):
             self.config.from_envvar(envvar)
@@ -201,8 +216,6 @@ class Eve(Flask, Events):
             raise ConfigException('DOMAIN dictionary missing or wrong.')
         if not isinstance(domain, dict):
             raise ConfigException('DOMAIN must be a dict.')
-        if len(domain) == 0:
-            raise ConfigException('DOMAIN must contain at least one resource.')
 
     def validate_config(self):
         """ Makes sure that REST methods expressed in the configuration
@@ -241,6 +254,9 @@ class Eve(Flask, Events):
         :param resource: name of the resource which settings refer to.
         :param settings: settings of resource to be validated.
 
+        .. versionchanged:: 0.4
+           validate that auth_field is not set to ID_FIELD. See #266.
+
         .. versionadded:: 0.2
         """
         self.validate_methods(self.supported_resource_methods,
@@ -256,18 +272,28 @@ class Eve(Flask, Events):
            'PATCH' in settings['item_methods']:
             if len(settings['schema']) == 0:
                 raise ConfigException('A resource schema must be provided '
-                                      'when POST or PATCH methods are allowed'
+                                      'when POST or PATCH methods are allowed '
                                       'for a resource [%s].' % resource)
 
         self.validate_roles('allowed_roles', settings, resource)
+        self.validate_roles('allowed_read_roles', settings, resource)
+        self.validate_roles('allowed_write_roles', settings, resource)
         self.validate_roles('allowed_item_roles', settings, resource)
+        self.validate_roles('allowed_item_read_roles', settings, resource)
+        self.validate_roles('allowed_item_write_roles', settings, resource)
+
+        if settings['auth_field'] == self.config['ID_FIELD']:
+            raise ConfigException('"%s": auth_field cannot be set to ID_FIELD '
+                                  '(%s)' % (resource, self.config['ID_FIELD']))
+
         self.validate_schema(resource, settings['schema'])
 
     def validate_roles(self, directive, candidate, resource):
         """ Validates that user role directives are syntactically and formally
         adeguate.
 
-        :param directive: either 'allowed_roles' or 'allow_item_roles'.
+        :param directive: either 'allowed_[read_|write_]roles' or
+                          'allow_item_[read_|write_]roles'.
         :param candidate: the candidate setting to be validated.
         :param resource: name of the resource to which the candidate settings
                          refer to.
@@ -275,9 +301,8 @@ class Eve(Flask, Events):
         .. versionadded:: 0.0.4
         """
         roles = candidate[directive]
-        if roles is not None and (not isinstance(roles, list) or not
-                                  len(roles)):
-            raise ConfigException("'%s' must be a non-empty list, or None "
+        if not isinstance(roles, list):
+            raise ConfigException("'%s' must be list"
                                   "[%s]." % (directive, resource))
 
     def validate_methods(self, allowed, proposed, item):
@@ -302,6 +327,10 @@ class Eve(Flask, Events):
         :param resource: resource name.
         :param schema: schema definition for the resource.
 
+        .. versionchanged:: 0.4
+           Checks against offending document versioning fields.
+           Supports embedded data_relation with version.
+
         .. versionchanged:: 0.2
            Allow ID_FIELD in resource schema if not of 'objectid' type.
 
@@ -317,20 +346,26 @@ class Eve(Flask, Events):
            Now collecting offending items in a list and inserting results into
            the exception message.
         """
-        # TODO are there other mandatory settings? Validate them here
+        # ensure automatically handled fields aren't defined
+        fields = [eve.DATE_CREATED, eve.LAST_UPDATED]
+        # TODO: only add the following checks if settings['versioning'] == True
+        fields += [
+            self.config['VERSION'],
+            self.config['LATEST_VERSION'],
+            self.config['ID_FIELD'] + self.config['VERSION_ID_SUFFIX']]
         offenders = []
-        if eve.DATE_CREATED in schema:
-            offenders.append(eve.DATE_CREATED)
-        if eve.LAST_UPDATED in schema:
-            offenders.append(eve.LAST_UPDATED)
+        for field in fields:
+            if field in schema:
+                offenders.append(field)
         if eve.ID_FIELD in schema and \
-           schema[eve.ID_FIELD]['type'] == 'objectid':
+                schema[eve.ID_FIELD]['type'] == 'objectid':
             offenders.append(eve.ID_FIELD)
         if offenders:
             raise SchemaException('field(s) "%s" not allowed in "%s" schema '
                                   '(they will be handled automatically).'
                                   % (', '.join(offenders), resource))
 
+        # check data_relation rules
         for field, ruleset in schema.items():
             if 'data_relation' in ruleset:
                 if 'resource' not in ruleset['data_relation']:
@@ -341,15 +376,38 @@ class Eve(Flask, Events):
                 # it must be type == 'objectid'
                 # TODO: allow serializing a list( type == 'objectid')
                 if ruleset['data_relation'].get('embeddable', False):
-                    if ruleset['type'] != 'objectid':
+
+                    # special care for data_relations with a version
+                    value_field = ruleset['data_relation']['field']
+                    if ruleset['data_relation'].get('version', False):
+                        if 'schema' not in ruleset or \
+                                value_field not in ruleset['schema'] or \
+                                'type' not in ruleset['schema'][value_field]:
+                            raise SchemaException(
+                                "Must defined type for '%s' in schema when "
+                                "declaring an embedded data_relation with"
+                                " version." % value_field
+                            )
+                        else:
+                            type = ruleset['schema'][value_field]['type']
+                    else:
+                        type = ruleset['type']
+
+                    if type != 'objectid':
                         raise SchemaException(
                             "In order for the 'data_relation' rule to be "
                             "embeddable it must be of type 'objectid'"
                         )
 
+        # TODO are there other mandatory settings? Validate them here
+
     def set_defaults(self):
         """ When not provided, fills individual resource settings with default
         or global configuration settings.
+
+        .. versionchanged:: 0.4
+           `versioning`
+           `VERSION` added to automatic projection (when applicable)
 
         .. versionchanged:: 0.2
            Setting of actual resource defaults is delegated to
@@ -420,6 +478,10 @@ class Eve(Flask, Events):
         settings.setdefault('public_methods',
                             self.config['PUBLIC_METHODS'])
         settings.setdefault('allowed_roles', self.config['ALLOWED_ROLES'])
+        settings.setdefault('allowed_read_roles',
+                            self.config['ALLOWED_READ_ROLES'])
+        settings.setdefault('allowed_write_roles',
+                            self.config['ALLOWED_WRITE_ROLES'])
         settings.setdefault('cache_control', self.config['CACHE_CONTROL'])
         settings.setdefault('cache_expires', self.config['CACHE_EXPIRES'])
 
@@ -434,6 +496,10 @@ class Eve(Flask, Events):
                             self.config['PUBLIC_ITEM_METHODS'])
         settings.setdefault('allowed_item_roles',
                             self.config['ALLOWED_ITEM_ROLES'])
+        settings.setdefault('allowed_item_read_roles',
+                            self.config['ALLOWED_ITEM_READ_ROLES'])
+        settings.setdefault('allowed_item_write_roles',
+                            self.config['ALLOWED_ITEM_WRITE_ROLES'])
         settings.setdefault('allowed_filters',
                             self.config['ALLOWED_FILTERS'])
         settings.setdefault('sorting', self.config['SORTING'])
@@ -441,6 +507,7 @@ class Eve(Flask, Events):
         settings.setdefault('embedded_fields', [])
         settings.setdefault('pagination', self.config['PAGINATION'])
         settings.setdefault('projection', self.config['PROJECTION'])
+        settings.setdefault('versioning', self.config['VERSIONING'])
         # TODO make sure that this we really need the test below
         if settings['item_lookup']:
             item_methods = self.config['ITEM_METHODS']
@@ -475,6 +542,11 @@ class Eve(Flask, Events):
             projection[self.config['ID_FIELD']] = 1
             projection[self.config['LAST_UPDATED']] = 1
             projection[self.config['DATE_CREATED']] = 1
+            if settings['versioning'] is True:
+                projection[self.config['VERSION']] = 1
+                projection[
+                    self.config['ID_FIELD'] +
+                    self.config['VERSION_ID_SUFFIX']] = 1
             projection.update(dict((field, 1) for (field) in schema))
         else:
             # all fields are returned.
@@ -485,13 +557,11 @@ class Eve(Flask, Events):
         # values in their schema definition.
 
         # TODO support default values for embedded documents.
-        settings['defaults'] = \
-            set(field for field, definition in schema.items()
-                if 'default' in definition)
+        settings['defaults'] = build_defaults(schema)
 
         # list of all media fields for the resource
         settings['_media'] = [field for field, definition in schema.items() if
-                              definition['type'] == 'media']
+                              definition.get('type') == 'media']
 
         if settings['_media'] and not self.media:
             raise ConfigException('A media storage class of type '
@@ -517,6 +587,9 @@ class Eve(Flask, Events):
         # nested
         for data_relation in list(extract_key_values('data_relation', schema)):
             data_relation.setdefault('field', self.config['ID_FIELD'])
+
+        # TODO: find a way to autofill "self.app.config['VERSION']: \
+        # {'type': 'integer'}" for data_relations
 
     @property
     def api_prefix(self):
@@ -555,7 +628,7 @@ class Eve(Flask, Events):
                 # support for POST with X-HTTM-Method-Override header for
                 # clients not supporting PATCH. Also see item_endpoint() in
                 # endpoints.py
-                endpoint = resource + "|post_override"
+                endpoint = resource + "|item_post_override"
                 self.add_url_rule(item_url, endpoint, view_func=item_endpoint,
                                   methods=['POST'])
 
@@ -568,13 +641,17 @@ class Eve(Flask, Events):
                 else:
                     item_url = '%s/<%s:%s>' % (url, lookup['url'],
                                                lookup['field'])
-                endpoint = resource + "|additional_lookup"
+                endpoint = resource + "|item_additional_lookup"
                 self.add_url_rule(item_url, endpoint, view_func=item_endpoint,
                                   methods=['GET', 'OPTIONS'])
 
-    def _add_url_rules(self):
+    def _init_url_rules(self):
         """ Builds the API url map. Methods are enabled for each mapped
         endpoint, as configured in the settings.
+
+        .. versionchanged:: 0.4
+           Renamed from '_add_url_rules' to '_init_url_rules' to make code more
+           DRY. Individual resource rules get built from register_resource now.
 
         .. versionchanged:: 0.2
            Delegate adding of resource rules to _add_resource_rules().
@@ -611,9 +688,6 @@ class Eve(Flask, Events):
         self.add_url_rule('%s/' % self.api_prefix, 'home',
                           view_func=home_endpoint, methods=['GET', 'OPTIONS'])
 
-        for resource, settings in self.config['DOMAIN'].items():
-            self._add_resource_url_rules(resource, settings)
-
     def register_resource(self, resource, settings):
         """ Registers new resource to the domain.
 
@@ -625,14 +699,39 @@ class Eve(Flask, Events):
         :param resource: resource name.
         :param settings: settings for given resource.
 
+        .. versionchanged:: 0.4
+           Support for document versioning.
+
+
         .. versionadded:: 0.2
         """
+
+        # this line only makes sense when we call this function outside of the
+        # standard Eve setup routine, but it doesn't hurt to still call it
         self.config['DOMAIN'][resource] = settings
+
+        # set up resource
         self._set_resource_defaults(resource, settings)
         self._validate_resource_settings(resource, settings)
         self._add_resource_url_rules(resource, settings)
 
-    def register_schema(self, data):
-        """Register eve schema from data layer"""
-        if hasattr(data, 'register_schema'):
-            data.register_schema(self)
+        # add rules for version control collections if appropriate
+        if settings['versioning'] is True:
+            versioned_resource = resource + self.config['VERSIONS']
+            self.config['DOMAIN'][versioned_resource] = \
+                copy.deepcopy(self.config['DOMAIN'][resource])
+            self.config['DOMAIN'][versioned_resource]['datasource']['source'] \
+                += self.config['VERSIONS']
+            self.config['SOURCES'][versioned_resource] = \
+                copy.deepcopy(self.config['SOURCES'][resource])
+            self.config['SOURCES'][versioned_resource]['source'] += \
+                self.config['VERSIONS']
+
+    def register_error_handlers(self):
+        """ Register custom error handlers so we make sure that all errors
+        return a parseable body.
+
+        .. versionadded:: 0.4
+        """
+        for code in [400, 401, 403, 404]:
+            self.error_handler_spec[None][code] = error_endpoint

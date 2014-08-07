@@ -13,11 +13,14 @@
 from flask import current_app as app, abort
 from werkzeug import exceptions
 from datetime import datetime
-from eve.utils import document_etag, document_link, config, debug_error_message
+from eve.utils import config, debug_error_message, parse_request
 from eve.auth import requires_auth
 from eve.validation import ValidationError
 from eve.methods.common import get_document, parse, payload as payload_, \
-    ratelimit, pre_event, resolve_media_files
+    ratelimit, pre_event, store_media_files, resolve_embedded_fields, \
+    build_response_document, marshal_write_response
+from eve.versioning import resolve_document_version, \
+    insert_versioning_documents, late_versioning_catch
 
 
 @ratelimit()
@@ -31,6 +34,12 @@ def patch(resource, **lookup):
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
+
+    .. versionchanged:: 0.4
+       Allow abort() to be inoked by callback functions.
+       'on_update' raised before performing the update on the database.
+       Support for document versioning.
+       'on_updated' raised after performing the update on the database.
 
     .. versionchanged:: 0.3
        Support for media fields.
@@ -90,36 +99,50 @@ def patch(resource, **lookup):
     issues = {}
     response = {}
 
+    if config.BANDWIDTH_SAVER is True:
+        embedded_fields = []
+    else:
+        req = parse_request(resource)
+        embedded_fields = resolve_embedded_fields(resource, req)
+
     try:
         updates = parse(payload, resource)
         validation = validator.validate_update(updates, object_id)
         if validation:
-            resolve_media_files(updates, resource, original)
+            # sneak in a shadow copy if it wasn't already there
+            late_versioning_catch(original, resource)
+
+            store_media_files(updates, resource, original)
+            resolve_document_version(updates, resource, 'PATCH', original)
+
+            # some datetime precision magic
+            updates[config.LAST_UPDATED] = \
+                datetime.utcnow().replace(microsecond=0)
 
             # the mongo driver has a different precision than the python
             # datetime. since we don't want to reload the document once it has
             # been updated, and we still have to provide an updated etag,
             # we're going to update the local version of the 'original'
             # document, and we will use it for the etag computation.
-            original.update(updates)
+            updated = original.copy()
 
-            # some datetime precision magic
-            updates[config.LAST_UPDATED] = original[config.LAST_UPDATED] = \
-                datetime.utcnow().replace(microsecond=0)
+            # notify callbacks
+            getattr(app, "on_update")(resource, updates, original)
+            getattr(app, "on_update_%s" % resource)(updates, original)
+
+            updated.update(updates)
 
             app.data.update(resource, object_id, updates)
+            insert_versioning_documents(resource, updated)
 
-            response[config.ID_FIELD] = original[config.ID_FIELD]
-            last_modified = response[config.LAST_UPDATED] = \
-                original[config.LAST_UPDATED]
+            # nofity callbacks
+            getattr(app, "on_updated")(resource, updates, original)
+            getattr(app, "on_updated_%s" % resource)(updates, original)
 
-            # metadata
-            if config.IF_MATCH:
-                etag = response[config.ETAG] = document_etag(original)
-            if resource_def['hateoas']:
-                response[config.LINKS] = {
-                    'self': document_link(resource, original[config.ID_FIELD])
-                }
+            # build the full response document
+            build_response_document(
+                updated, resource, embedded_fields, updated)
+            response = updated
 
         else:
             issues = validator.errors
@@ -127,7 +150,8 @@ def patch(resource, **lookup):
         # TODO should probably log the error and abort 400 instead (when we
         # got logging)
         issues['validator exception'] = str(e)
-    except (exceptions.InternalServerError, exceptions.Unauthorized) as e:
+    except (exceptions.InternalServerError, exceptions.Unauthorized,
+            exceptions.Forbidden, exceptions.NotFound) as e:
         raise e
     except Exception as e:
         # consider all other exceptions as Bad Requests
@@ -140,5 +164,8 @@ def patch(resource, **lookup):
         response[config.STATUS] = config.STATUS_ERR
     else:
         response[config.STATUS] = config.STATUS_OK
+
+    # limit what actually gets sent to minimize bandwidth usage
+    response = marshal_write_response(response, resource)
 
     return response, last_modified, etag, 200

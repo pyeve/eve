@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import copy
 import hashlib
 from bson.json_util import dumps
 from datetime import datetime, timedelta
 from eve.tests import TestBase
 from eve.utils import parse_request, str_to_date, config, weak_date, \
     date_to_str, querydef, document_etag, extract_key_values, \
-    debug_error_message
+    debug_error_message, resource_uri, home_uri
 
 
 class TestUtils(TestBase):
@@ -188,3 +189,61 @@ class TestUtils(TestBase):
             self.app.config['DEBUG'] = True
             self.assertEqual(debug_error_message('An error message'),
                              'An error message')
+
+    def test_resource_uri(self):
+        with self.app.test_request_context():
+            self.app.config['URL_PROTOCOL'] = 'http'
+            self.app.config['SERVER_NAME'] = '0.0.0.0:5000'
+            self.assertEqual(resource_uri('users'),
+                             'http://0.0.0.0:5000/users')
+
+    def test_home_uri(self):
+        with self.app.test_request_context():
+            self.app.config['URL_PROTOCOL'] = 'http'
+            self.app.config['SERVER_NAME'] = '0.0.0.0:5000'
+            self.assertEqual(home_uri(), 'http://0.0.0.0:5000')
+
+
+class DummyEvent(object):
+    """
+    Even handler that records the call parameters and asserts a check
+
+    Usage::
+
+        app = Eve()
+        app.on_my_event = DummyEvent(element_not_deleted)
+
+    In the test::
+
+        assert app.on_my_event.called[0] == expected_param_0
+    """
+    def __init__(self, check, deepcopy=False):
+        """
+        :param check: method checking the state of something during the event.
+        :type: check: callable returning bool
+        :param deepcopy: Do we need to store a copy of the argument calls? In
+            some events arguments are changed after the event, so keeping a
+            reference to the original object doesn't allow a test to check what
+            was passed. The default is False.
+        :type deepcopy: bool
+        """
+        self.__called = None
+        self.__check = check
+        self.__deepcopy = deepcopy
+
+    def __call__(self, *args):
+        assert self.__check()
+        # In some method the arguments are changed after the events
+        if self.__deepcopy:
+            args = copy.deepcopy(args)
+        self.__called = args
+
+    @property
+    def called(self):
+        """
+        The results of the call to the event.
+
+        :rtype: It returns None if the event hasn't been called or a tuple with
+            the positional arguments of the last call if called.
+        """
+        return self.__called

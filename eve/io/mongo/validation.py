@@ -17,6 +17,8 @@ from bson import ObjectId
 from flask import current_app as app
 from cerberus import Validator
 from werkzeug.datastructures import FileStorage
+from eve.versioning import get_data_version_relation_document, \
+    missing_version_field
 
 
 class Validator(Validator):
@@ -88,7 +90,7 @@ class Validator(Validator):
                 except:
                     query[config.ID_FIELD] = {'$ne': self._id}
 
-            if app.data.find_one(self.resource, **query):
+            if app.data.find_one(self.resource, None, **query):
                 self._error(field, "value '%s' is not unique" % value)
 
     def _validate_data_relation(self, data_relation, field, value):
@@ -99,8 +101,13 @@ class Validator(Validator):
         :param data_relation: a dict following keys:
             'collection': foreign collection name
             'field': foreign field name
+            'version': True if this relation points to a specific version
+            'type': the type for the reference field if 'version': True
         :param field: field name.
         :param value: field value.
+
+        .. versionchanged:: 0.4
+           Support for document versioning.
 
         .. versionchanged:: 0.3
            Support for new 'self._error' signature introduced with Cerberus
@@ -111,11 +118,50 @@ class Validator(Validator):
 
         .. versionadded: 0.0.5
         """
-        query = {data_relation['field']: value}
-        if not app.data.find_one(data_relation['resource'], **query):
-            self._error(field, "value '%s' must exist in resource '%s', field "
-                        "'%s'." % (value, data_relation['resource'],
-                                   data_relation['field']))
+        if 'version' in data_relation and data_relation['version'] is True:
+            value_field = data_relation['field']
+            version_field = app.config['VERSION']
+
+            # check value format
+            if isinstance(value, dict) and value_field in value \
+                    and version_field in value:
+                resource_def = config.DOMAIN[data_relation['resource']]
+                if resource_def['versioning'] is False:
+                    self._error(
+                        field, "can't save a version with"
+                        " data_relation if '%s' isn't versioned" %
+                        data_relation['resource'])
+                else:
+                    search = None
+
+                    # support late versioning
+                    if value[version_field] == 1:
+                        # there is a chance this document hasn't been saved
+                        # since versioning was turned on
+                        search = missing_version_field(data_relation, value)
+
+                    if not search:
+                        search = get_data_version_relation_document(
+                            data_relation, value)
+
+                    if not search:
+                        self._error(
+                            field, "value '%s' must exist in resource"
+                            " '%s', field '%s' at version '%s'." % (
+                                value[value_field], data_relation['resource'],
+                                data_relation['field'], value[version_field]))
+            else:
+                self._error(
+                    field, "versioned data_relation must be a dict"
+                    " with fields '%s' and '%s'" %
+                    (value_field, version_field))
+        else:
+            query = {data_relation['field']: value}
+            if not app.data.find_one(data_relation['resource'], None, **query):
+                self._error(
+                    field,
+                    "value '%s' must exist in resource '%s', field '%s'." %
+                    (value, data_relation['resource'], data_relation['field']))
 
     def _validate_type_objectid(self, field, value):
         """ Enables validation for `objectid` data type.
@@ -133,6 +179,17 @@ class Validator(Validator):
         if not isinstance(value, ObjectId):
             self._error(field, "value '%s' cannot be converted to a ObjectId"
                         % value)
+
+    def _validate_readonly(self, read_only, field, value):
+        """ Since default values are now resolved before validation we make
+        sure that a value for a read-only field is considered legit if it
+        matches an eventual 'default' setting for the field.
+
+        .. versionadded:: 0.4
+        """
+        default = config.DOMAIN[self.resource]['schema'][field].get('default')
+        if value != default:
+            super(Validator, self)._validate_readonly(read_only, field, value)
 
     def _validate_type_media(self, field, value):
         """ Enables validation for `media` data type.

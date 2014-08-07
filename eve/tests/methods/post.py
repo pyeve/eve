@@ -1,8 +1,12 @@
-from eve.tests import TestBase
 import simplejson as json
-from ast import literal_eval
+
+from eve.tests import TestBase
+from eve.tests.utils import DummyEvent
+from eve.tests.test_settings import MONGO_DBNAME
+
 from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, DATE_CREATED, ISSUES, \
     STATUS, ETAG
+from eve.methods.post import post
 
 
 class TestPost(TestBase):
@@ -20,11 +24,11 @@ class TestPost(TestBase):
 
     def test_validation_error(self):
         r, status = self.post(self.known_resource_url, data={"ref": "123"})
-        self.assert200(status)
+        self.assert400(status)
         self.assertValidationError(r, {'ref': 'min length is 25'})
 
         r, status = self.post(self.known_resource_url, data={"prog": 123})
-        self.assert200(status)
+        self.assert400(status)
         self.assertValidationError(r, {'ref': 'required'})
 
     def test_post_empty_resource(self):
@@ -93,6 +97,14 @@ class TestPost(TestBase):
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 
+    def test_post_null_objectid(self):
+        # verify that #341 is fixed.
+        del(self.domain['contacts']['schema']['ref']['required'])
+        test_field = 'tid'
+        test_value = None
+        data = {test_field: test_value}
+        self.assertPostItem(data, test_field, test_value)
+
     def test_post_default_value(self):
         test_field = 'title'
         test_value = "Mr."
@@ -121,37 +133,35 @@ class TestPost(TestBase):
         self.assertPostItem(data, 'title', False)
 
     def test_multi_post(self):
-        items = [
-            ('ref', "9234567890123456789054321"),
-            ('prog', 7),
-            ('ref', "5432112345678901234567890", ["agent"]),
-            ('ref', self.item_ref),
-            ('ref', "9234567890123456789054321", "12345678"),
-        ]
         data = [
-            literal_eval('{"%s": "%s"}' % items[0]),
-            literal_eval('{"%s": %s}' % items[1]),
-            literal_eval('{"%s": "%s", "role": %s}' % items[2]),
-            literal_eval('{"%s": "%s"}' % items[3]),
-            literal_eval('{"%s": "%s", "tid": "%s"}' % items[4]),
+            {"ref": "9234567890123456789054321"},
+            {"prog": 7},
+            {"ref": "5432112345678901234567890", "role": ["agent"]},
+            {"ref": self.item_ref},
+            {"ref": "9234567890123456789054321", "tid": "12345678"},
         ]
-        r = self.perform_post(data, [0, 2])
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert400(status)
+        results = r['_items']
 
-        self.assertValidationError(r[1], {'ref': 'required'})
-        self.assertValidationError(r[3], {'ref': 'unique'})
-        self.assertValidationError(r[4], {'tid': 'ObjectId'})
+        self.assertEqual(results[0]['_status'], 'OK')
+        self.assertEqual(results[2]['_status'], 'OK')
 
-        item_id = r[0][ID_FIELD]
-        db_value = self.compare_post_with_get(item_id, 'ref')
-        self.assertTrue(db_value == items[0][1])
+        self.assertValidationError(results[1], {'ref': 'required'})
+        self.assertValidationError(results[3], {'ref': 'unique'})
+        self.assertValidationError(results[4], {'tid': 'ObjectId'})
 
-        item_id = r[2][ID_FIELD]
-        db_value = self.compare_post_with_get(item_id, ['ref', 'role'])
-        self.assertTrue(db_value[0] == items[2][1])
-        self.assertTrue(db_value[1] == items[2][2])
+        self.assertTrue(ID_FIELD not in results[0])
+        self.assertTrue(ID_FIELD not in results[2])
 
         # items on which validation failed should not be inserted into the db
         _, status = self.get(self.known_resource_url, 'where=prog==7')
+        self.assert404(status)
+
+        # valid items part of a request containing invalid document should not
+        # be inserted into the db
+        _, status = self.get(self.known_resource_url,
+                             'where=ref==9234567890123456789054321')
         self.assert404(status)
 
     def test_post_x_www_form_urlencoded(self):
@@ -167,7 +177,7 @@ class TestPost(TestBase):
     def test_post_referential_integrity(self):
         data = {"person": self.unknown_item_id}
         r, status = self.post('/invoices/', data=data)
-        self.assert200(status)
+        self.assert400(status)
         expected = ("value '%s' must exist in resource '%s', field '%s'" %
                     (self.unknown_item_id, 'contacts',
                      self.app.config['ID_FIELD']))
@@ -182,7 +192,7 @@ class TestPost(TestBase):
         del(self.domain['contacts']['schema']['ref']['required'])
         data = {"unknown": "unknown"}
         r, status = self.post(self.known_resource_url, data=data)
-        self.assert200(status)
+        self.assert400(status)
         self.assertValidationError(r, {'unknown': 'unknown'})
         self.app.config['DOMAIN'][self.known_resource]['allow_unknown'] = True
         r, status = self.post(self.known_resource_url, data=data)
@@ -275,13 +285,13 @@ class TestPost(TestBase):
     def test_custom_issues(self):
         self.app.config['ISSUES'] = 'errors'
         r, status = self.post(self.known_resource_url, data={"ref": "123"})
-        self.assert200(status)
+        self.assert400(status)
         self.assertTrue('errors' in r and ISSUES not in r)
 
     def test_custom_status(self):
         self.app.config['STATUS'] = 'report'
         r, status = self.post(self.known_resource_url, data={"ref": "123"})
-        self.assert200(status)
+        self.assert400(status)
         self.assertTrue('report' in r and STATUS not in r)
 
     def test_custom_etag_update_date(self):
@@ -299,11 +309,16 @@ class TestPost(TestBase):
         self.assertTrue('_update_date' in r and LAST_UPDATED not in r)
 
     def test_subresource(self):
-        data = {"person": self.item_id}
-        response, status = self.post('users/%s/invoices' % self.item_id,
-                                     data=data)
+        response, status = self.post('users/%s/invoices' %
+                                     self.item_id, data={})
         self.assert201(status)
         self.assertPostResponse(response)
+
+        invoice_id = response.get(self.app.config['ID_FIELD'])
+        response, status = self.get('users/%s/invoices/%s' %
+                                    (self.item_id, invoice_id))
+        self.assert200(status)
+        self.assertEqual(response.get('person'), self.item_id)
 
     def test_post_ifmatch_disabled(self):
         # if IF_MATCH is disabled, then we get no etag in the payload.
@@ -321,7 +336,6 @@ class TestPost(TestBase):
         data = {id_field: test_value}
 
         self.app.config['ID_FIELD'] = id_field
-        #self.app.config['url_rule'] = 'regex("[a-f0-9]{4}")'
 
         # custom id_fields also need to be included in the resource schema
         self.domain['contacts']['schema'][id_field] = {
@@ -334,8 +348,62 @@ class TestPost(TestBase):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
         self.assertTrue(id_field in r)
-        self.assertTrue(ID_FIELD not in r)
         self.assertItemLink(r['_links'], r[id_field])
+
+    def test_post_bandwidth_saver(self):
+        data = {'inv_number': self.random_string(10)}
+
+        # bandwidth_saver is on by default
+        self.assertTrue(self.app.config['BANDWIDTH_SAVER'])
+        r, status = self.post(self.empty_resource_url, data=data)
+        self.assert201(status)
+        self.assertPostResponse(r)
+        self.assertFalse('inv_number' in r)
+        etag = r[self.app.config['ETAG']]
+        r, status = self.get(
+            self.empty_resource, '', r[self.app.config['ID_FIELD']])
+        self.assertEqual(etag, r[self.app.config['ETAG']])
+
+        # test return all fields (bandwidth_saver off)
+        self.app.config['BANDWIDTH_SAVER'] = False
+        r, status = self.post(self.empty_resource_url, data=data)
+        self.assert201(status)
+        self.assertPostResponse(r)
+        self.assertTrue('inv_number' in r)
+        etag = r[self.app.config['ETAG']]
+        r, status = self.get(
+            self.empty_resource, '', r[self.app.config['ID_FIELD']])
+        self.assertEqual(etag, r[self.app.config['ETAG']])
+
+    def test_post_alternative_payload(self):
+        payl = {"ref": "5432112345678901234567890", "role": ["agent"]}
+        with self.app.test_request_context(self.known_resource_url):
+            r, _, _, status = post(self.known_resource, payl=payl)
+        self.assert201(status)
+        self.assertPostResponse(r)
+
+    def test_post_dependency_fields_with_default(self):
+        # test that default values are resolved before validation. See #353.
+        del(self.domain['contacts']['schema']['ref']['required'])
+        test_field = 'dependency_field2'
+        test_value = 'a value'
+        data = {test_field: test_value}
+        self.assertPostItem(data, test_field, test_value)
+
+    def test_post_readonly_field_with_default(self):
+        # test that a read only field with a 'default' setting is correctly
+        # validated now that we resolve field values before validation.
+        del(self.domain['contacts']['schema']['ref']['required'])
+        test_field = 'read_only_field'
+        # thou shalt not pass.
+        test_value = 'a random value'
+        data = {test_field: test_value}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert400(status)
+        # this will pass as value matches 'default' setting.
+        test_value = 'default'
+        data = {test_field: test_value}
+        self.assertPostItem(data, test_field, test_value)
 
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
@@ -352,10 +420,13 @@ class TestPost(TestBase):
         self.assertTrue(db_value[1] == item_etag)
 
     def assertPostResponse(self, response, valid_items=[0], id_field=ID_FIELD):
-        if isinstance(response, dict):
-            response = [response]
+        if '_items' in response:
+            results = response['_items']
+        else:
+            results = [response]
+
         for i in valid_items:
-            item = response[i]
+            item = results[i]
             self.assertTrue(STATUS in item)
             self.assertTrue(STATUS_OK in item[STATUS])
             self.assertFalse(ISSUES in item)
@@ -384,3 +455,70 @@ class TestPost(TestBase):
         headers.append(('Content-Type', content_type))
         r = self.test_client.post(url, data=json.dumps(data), headers=headers)
         return self.parse_response(r)
+
+
+class TestEvents(TestBase):
+    new_contact_id = "0123456789012345678901234"
+
+    def test_on_pre_POST(self):
+        devent = DummyEvent(self.before_insert)
+        self.app.on_pre_POST += devent
+        self.post()
+        self.assertFalse(devent.called is None)
+
+    def test_on_pre_POST_contacts(self):
+        devent = DummyEvent(self.before_insert)
+        self.app.on_pre_POST_contacts += devent
+        self.post()
+        self.assertFalse(devent.called is None)
+
+    def test_on_post_POST(self):
+        devent = DummyEvent(self.after_insert)
+        self.app.on_post_POST += devent
+        self.post()
+        self.assertEqual(devent.called[0], self.known_resource)
+
+    def test_on_POST_post_resource(self):
+        devent = DummyEvent(self.after_insert)
+        self.app.on_post_POST_contacts += devent
+        self.post()
+        self.assertFalse(devent.called is None)
+
+    def test_on_insert(self):
+        devent = DummyEvent(self.before_insert, True)
+        self.app.on_insert += devent
+        self.post()
+        self.assertEqual(self.known_resource, devent.called[0])
+        self.assertEqual(self.new_contact_id, devent.called[1][0]['ref'])
+
+    def test_on_insert_contacts(self):
+        devent = DummyEvent(self.before_insert, True)
+        self.app.on_insert_contacts += devent
+        self.post()
+        self.assertEqual(self.new_contact_id, devent.called[0][0]['ref'])
+
+    def test_on_inserted(self):
+        devent = DummyEvent(self.after_insert, True)
+        self.app.on_inserted += devent
+        self.post()
+        self.assertEqual(self.known_resource, devent.called[0])
+        self.assertEqual(self.new_contact_id, devent.called[1][0]['ref'])
+
+    def test_on_inserted_contacts(self):
+        devent = DummyEvent(self.after_insert, True)
+        self.app.on_inserted_contacts += devent
+        self.post()
+        self.assertEqual(self.new_contact_id, devent.called[0][0]['ref'])
+
+    def post(self):
+        headers = [('Content-Type', 'application/json')]
+        data = json.dumps({"ref": self.new_contact_id})
+        self.test_client.post(
+            self.known_resource_url, data=data, headers=headers)
+
+    def before_insert(self):
+        db = self.connection[MONGO_DBNAME]
+        return db.contacts.find_one({"ref": self.new_contact_id}) is None
+
+    def after_insert(self):
+        return not self.before_insert()

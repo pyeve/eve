@@ -13,12 +13,15 @@
 from werkzeug import exceptions
 from datetime import datetime
 from eve.auth import requires_auth
+from eve.defaults import resolve_default_values
 from eve.validation import ValidationError
 from flask import current_app as app, abort
-from eve.utils import document_etag, document_link, config, debug_error_message
+from eve.utils import config, debug_error_message, parse_request
 from eve.methods.common import get_document, parse, payload as payload_, \
-    ratelimit, resolve_default_values, pre_event, resolve_media_files, \
-    resolve_user_restricted_access
+    ratelimit, pre_event, store_media_files, resolve_user_restricted_access, \
+    resolve_embedded_fields, build_response_document, marshal_write_response
+from eve.versioning import resolve_document_version, \
+    insert_versioning_documents, late_versioning_catch
 
 
 @ratelimit()
@@ -32,6 +35,14 @@ def put(resource, **lookup):
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
+
+    .. versionchanged:: 0.4
+       Allow abort() to be inoked by callback functions.
+       Resolve default values before validation is performed. See #353.
+       Raise 'on_replace' instead of 'on_insert'. The callback function gets
+       the document (as opposed to a list of just 1 document) as an argument.
+       Support for document versioning.
+       Raise `on_replaced` after the document has been replaced
 
     .. versionchanged:: 0.3
        Support for media fields.
@@ -69,10 +80,21 @@ def put(resource, **lookup):
 
     response = {}
 
+    if config.BANDWIDTH_SAVER is True:
+        embedded_fields = []
+    else:
+        req = parse_request(resource)
+        embedded_fields = resolve_embedded_fields(resource, req)
+
     try:
         document = parse(payload, resource)
+        resolve_default_values(document, resource_def['defaults'])
         validation = validator.validate_replace(document, object_id)
         if validation:
+            # sneak in a shadow copy if it wasn't already there
+            late_versioning_catch(original, resource)
+
+            # update meta
             last_modified = datetime.utcnow().replace(microsecond=0)
             document[config.LAST_UPDATED] = last_modified
             document[config.DATE_CREATED] = original[config.DATE_CREATED]
@@ -84,33 +106,33 @@ def put(resource, **lookup):
                 document[config.ID_FIELD] = object_id
 
             resolve_user_restricted_access(document, resource)
-            resolve_default_values(document, resource)
-            resolve_media_files(document, resource, original)
+            store_media_files(document, resource, original)
+            resolve_document_version(document, resource, 'PUT', original)
 
             # notify callbacks
-            getattr(app, "on_insert")(resource, [document])
-            getattr(app, "on_insert_%s" % resource)([document])
+            getattr(app, "on_replace")(resource, document, original)
+            getattr(app, "on_replace_%s" % resource)(document, original)
 
+            # write to db
             app.data.replace(resource, object_id, document)
+            insert_versioning_documents(resource, document)
 
-            response[config.ID_FIELD] = document.get(config.ID_FIELD,
-                                                     object_id)
-            response[config.LAST_UPDATED] = last_modified
+            # notify callbacks
+            getattr(app, "on_replaced")(resource, document, original)
+            getattr(app, "on_replaced_%s" % resource)(document, original)
 
-            # metadata
-            if config.IF_MATCH:
-                etag = response[config.ETAG] = document_etag(document)
-            if resource_def['hateoas']:
-                response[config.LINKS] = {
-                    'self': document_link(resource, response[config.ID_FIELD])
-                }
+            # build the full response document
+            build_response_document(
+                document, resource, embedded_fields, document)
+            response = document
         else:
             issues = validator.errors
     except ValidationError as e:
         # TODO should probably log the error and abort 400 instead (when we
         # got logging)
         issues['validator exception'] = str(e)
-    except exceptions.InternalServerError as e:
+    except (exceptions.InternalServerError, exceptions.Unauthorized,
+            exceptions.Forbidden, exceptions.NotFound) as e:
         raise e
     except Exception as e:
         # consider all other exceptions as Bad Requests
@@ -123,5 +145,8 @@ def put(resource, **lookup):
         response[config.STATUS] = config.STATUS_ERR
     else:
         response[config.STATUS] = config.STATUS_OK
+
+    # limit what actually gets sent to minimize bandwidth usage
+    response = marshal_write_response(response, resource)
 
     return response, last_modified, etag, 200

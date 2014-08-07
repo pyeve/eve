@@ -1,8 +1,10 @@
-import simplejson as json
-from eve.tests import TestBase
-from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES, STATUS, ETAG
-from eve.tests.test_settings import MONGO_DBNAME
 from bson import ObjectId
+import simplejson as json
+
+from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES, STATUS, ETAG
+from eve.tests import TestBase
+from eve.tests.test_settings import MONGO_DBNAME
+from eve.tests.utils import DummyEvent
 
 
 class TestPut(TestBase):
@@ -174,6 +176,34 @@ class TestPut(TestBase):
         self.assert200(status)
         self.assertPutResponse(response, self.invoice_id)
 
+    def test_put_bandwidth_saver(self):
+        changes = {'ref': '1234567890123456789012345'}
+
+        # bandwidth_saver is on by default
+        self.assertTrue(self.app.config['BANDWIDTH_SAVER'])
+        r = self.perform_put(changes)
+        self.assertFalse('ref' in r)
+        db_value = self.compare_put_with_get(self.app.config['ETAG'], r)
+        self.assertEqual(db_value, r[self.app.config['ETAG']])
+        self.item_etag = r[self.app.config['ETAG']]
+
+        # test return all fields (bandwidth_saver off)
+        self.app.config['BANDWIDTH_SAVER'] = False
+        r = self.perform_put(changes)
+        self.assertTrue('ref' in r)
+        db_value = self.compare_put_with_get(self.app.config['ETAG'], r)
+        self.assertEqual(db_value, r[self.app.config['ETAG']])
+
+    def test_put_dependency_fields_with_default(self):
+        # test that default values are resolved before validation. See #353.
+        del(self.domain['contacts']['schema']['ref']['required'])
+        field = "dependency_field2"
+        test_value = "a value"
+        changes = {field: test_value}
+        r = self.perform_put(changes)
+        db_value = self.compare_put_with_get(field, r)
+        self.assertEqual(db_value, test_value)
+
     def perform_put(self, changes):
         r, status = self.put(self.item_id_url,
                              data=changes,
@@ -193,11 +223,6 @@ class TestPut(TestBase):
         self.assertTrue('_links' in response)
         self.assertItemLink(response['_links'], item_id)
 
-    def put(self, url, data, headers=[]):
-        headers.append(('Content-Type', 'application/json'))
-        r = self.test_client.put(url, data=json.dumps(data), headers=headers)
-        return self.parse_response(r)
-
     def compare_put_with_get(self, fields, put_response):
         raw_r = self.test_client.get(self.item_id_url)
         r, status = self.parse_response(raw_r)
@@ -208,3 +233,88 @@ class TestPut(TestBase):
             return r[fields]
         else:
             return [r[field] for field in fields]
+
+
+class TestEvents(TestBase):
+    new_ref = "0123456789012345678901234"
+
+    def test_on_pre_PUT(self):
+        devent = DummyEvent(self.before_replace)
+        self.app.on_pre_PUT += devent
+        self.put()
+        self.assertEqual(self.known_resource, devent.called[0])
+        self.assertEqual(3, len(devent.called))
+
+    def test_on_pre_PUT_contacts(self):
+        devent = DummyEvent(self.before_replace)
+        self.app.on_pre_PUT_contacts += devent
+        self.put()
+        self.assertEqual(2, len(devent.called))
+
+    def test_on_pre_PUT_dynamic_filter(self):
+        def filter_this(resource, request, lookup):
+            lookup["_id"] = self.unknown_item_id
+        self.app.on_pre_PUT += filter_this
+        # Would normally delete the known document; will return 404 instead.
+        r, s = self.parse_response(self.put())
+        self.assert404(s)
+
+    def test_on_post_PUT(self):
+        devent = DummyEvent(self.after_replace)
+        self.app.on_post_PUT += devent
+        self.put()
+        self.assertEqual(self.known_resource, devent.called[0])
+        self.assertEqual(200, devent.called[2].status_code)
+        self.assertEqual(3, len(devent.called))
+
+    def test_on_post_PUT_contacts(self):
+        devent = DummyEvent(self.after_replace)
+        self.app.on_post_PUT_contacts += devent
+        self.put()
+        self.assertEqual(200, devent.called[1].status_code)
+        self.assertEqual(2, len(devent.called))
+
+    def test_on_replace(self):
+        devent = DummyEvent(self.before_replace)
+        self.app.on_replace += devent
+        self.put()
+        self.assertEqual(self.known_resource, devent.called[0])
+        self.assertEqual(self.new_ref, devent.called[1]['ref'])
+        self.assertEqual(3, len(devent.called))
+
+    def test_on_replace_contacts(self):
+        devent = DummyEvent(self.before_replace)
+        self.app.on_replace_contacts += devent
+        self.put()
+        self.assertEqual(self.new_ref, devent.called[0]['ref'])
+        self.assertEqual(2, len(devent.called))
+
+    def test_on_replaced(self):
+        devent = DummyEvent(self.after_replace)
+        self.app.on_replaced += devent
+        self.put()
+        self.assertEqual(self.known_resource, devent.called[0])
+        self.assertEqual(self.new_ref, devent.called[1]['ref'])
+        self.assertEqual(3, len(devent.called))
+
+    def test_on_replaced_contacts(self):
+        devent = DummyEvent(self.after_replace)
+        self.app.on_replaced_contacts += devent
+        self.put()
+        self.assertEqual(self.new_ref, devent.called[0]['ref'])
+        self.assertEqual(2, len(devent.called))
+
+    def before_replace(self):
+        db = self.connection[MONGO_DBNAME]
+        contact = db.contacts.find_one(ObjectId(self.item_id))
+        return contact['ref'] == self.item_name
+
+    def after_replace(self):
+        return not self.before_replace()
+
+    def put(self):
+        headers = [('Content-Type', 'application/json'),
+                   ('If-Match', self.item_etag)]
+        data = json.dumps({"ref": self.new_ref})
+        return self.test_client.put(self.item_id_url, data=data,
+                                    headers=headers)
