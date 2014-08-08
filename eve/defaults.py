@@ -109,7 +109,11 @@ def resolve_default_values(document, defaults):
             if isinstance(value, list) and len(value):
                 existing = document.get(name)
                 if not existing:
+                    document.setdefault(name, value)
                     continue
-                todo.extend((value[0], item) for item in existing)
+                if all(isinstance(item, (dict, list)) for item in existing):
+                    todo.extend((value[0], item) for item in existing)
+                else:
+                    document.setdefault(name, existing)
             else:
                 document.setdefault(name, value)
