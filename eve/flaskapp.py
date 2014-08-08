@@ -748,5 +748,5 @@ class Eve(Flask, Events):
 
         .. versionadded:: 0.4
         """
-        for code in [400, 401, 403, 404, 422]:
+        for code in [400, 401, 403, 404, 405, 406, 409, 410, 422]:
             self.error_handler_spec[None][code] = error_endpoint
