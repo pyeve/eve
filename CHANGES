@@ -8,6 +8,7 @@ Version 0.5
 
 Not released yet.
 
+- [fix] Support for list of strings as default value for fields (hansotronic).
 - [new] Add extra 4xx response codes for proper handling. Only ``405`` Method not
   allowed, ``406`` Not acceptable, ``409`` Conflict, and ``410`` Gone have been
   added to the list (Kurt Doherty).
