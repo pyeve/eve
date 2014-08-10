@@ -1356,6 +1356,53 @@ All GeoJSON Objects are supported. See :ref:`validation`
 
 .. _GeoJSON: http://geojson.org/
 
+
+Configuring the `people` example with some geo data in a location field in Point_ format. 
+
+.. _Point: http://geojson.org/geojson-spec.html#point
+
+.. code-block:: javascript
+
+    people = {
+    	...
+        'location': {
+            'type': 'point'
+        },
+        ...
+    }
+    
+.. code-block:: console
+
+    $ curl -d '[{"firstname": "barack", "lastname": "obama", "location":
+    {"type":"Point","coordinates":[100.0,10.0]}}]' -H 'Content-Type: application/json'  
+    http://127.0.0.1:5000/people
+    {"_updated": "Wed, 06 Aug 2014 22:26:14 GMT", "_links": 
+    {"self": {"href": "/people/53e2ab86f78a4612086332f4", "title": "person"}}, 
+    "_created": "Wed, 06 Aug 2014 22:26:14 GMT", "_status": "OK", 
+    "_id": "53e2ab86f78a4612086332f4", 
+    "_etag": "198e88cd328ac9cf7d1575240852d6bdc60a0ef1"}
+    
+.. code-block:: console
+  
+  	curl -i http://127.0.0.1:5000/peopleHTTP/1.0 200 OK
+	Content-Type: application/json
+	Content-Length: 483
+	...
+	
+
+.. code-block:: javascript
+
+	{"_items": [{"_updated": "Wed, 06 Aug 2014 22:26:14 GMT", 
+	"firstname": "barack", "lastname": "obama", "_links": {"self": 
+	{"href": "/people/53e2ab86f78a4612086332f4", "title": "person"}}, 
+	"location": {"type": "Point", "coordinates": [100.0, 10.0]}, 
+	"_created": "Wed, 06 Aug 2014 22:26:14 GMT", 
+	"_id": "53e2ab86f78a4612086332f4", 
+	"_etag": "198e88cd328ac9cf7d1575240852d6bdc60a0ef1"}], 
+	"_links": {"self": {"href": "/people", "title": "people"}, 
+	"parent": {"href": "", "title": "home"}}}
+ 
+ 
 MongoDB Support
 ---------------
 Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL
