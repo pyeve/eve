@@ -4,6 +4,7 @@ env:
   - TOX_ENV=py26
   - TOX_ENV=py27
   - TOX_ENV=py33
+  - TOX_ENV=py34
   - TOX_ENV=pypy
   - TOX_ENV=flake8
 install: pip install tox
@@ -13,7 +14,9 @@ services:
   - mongodb
   - redis-server
 before_script:
-    #  - "ulimit -n 1024"
+    # timer is needed in order to get mongo to properly initialize on travis-ci
+    # See https://github.com/travis-ci/travis-ci/issues/1967#issuecomment-42008605
+  - sleep 15
   - mongo eve_test --eval 'db.addUser("test_user", "test_pw");'
 branches:
   only:

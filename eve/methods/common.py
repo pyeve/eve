@@ -17,7 +17,7 @@ from flask import current_app as app, request, abort, g, Response
 import simplejson as json
 from functools import wraps
 from eve.utils import parse_request, document_etag, config, request_method, \
-    debug_error_message, document_link, auto_fields
+    debug_error_message, auto_fields
 from eve.versioning import resolve_document_version, \
     get_data_version_relation_document, missing_version_field
 
@@ -284,7 +284,7 @@ def epoch():
     return datetime(1970, 1, 1)
 
 
-def serialize(document, resource=None, schema=None):
+def serialize(document, resource=None, schema=None, fields=None):
     """ Recursively handles field values that require data-aware serialization.
     Relies on the app.data.serializers dictionary.
 
@@ -296,7 +296,9 @@ def serialize(document, resource=None, schema=None):
     if app.data.serializers:
         if resource:
             schema = config.DOMAIN[resource]['schema']
-        for field in document:
+        if not fields:
+            fields = document.keys()
+        for field in fields:
             if field in schema:
                 field_schema = schema[field]
                 field_type = field_schema['type']
@@ -316,21 +318,18 @@ def serialize(document, resource=None, schema=None):
                         # a list of one type, arbirtrary length
                         field_type = field_schema['type']
                         if field_type in app.data.serializers:
-                            i = 0
-                            for v in document[field]:
+                            for i, v in enumerate(document[field]):
                                 document[field][i] = \
                                     app.data.serializers[field_type](v)
-                                i += 1
                 elif 'items' in field_schema:
                     # a list of multiple types, fixed length
-                    i = 0
-                    for s, v in zip(field_schema['items'], document[field]):
+                    for i, (s, v) in enumerate(zip(field_schema['items'],
+                                                   document[field])):
                         field_type = s['type'] if 'type' in s else None
                         if field_type in app.data.serializers:
                             document[field][i] = \
                                 app.data.serializers[field_type](
                                     document[field][i])
-                        i += 1
                 elif field_type in app.data.serializers:
                     # a simple field
                     document[field] = \
@@ -362,7 +361,7 @@ def build_response_document(
         document[config.ETAG] = document_etag(document)
 
     # hateoas links
-    if config.DOMAIN[resource]['hateoas']:
+    if config.DOMAIN[resource]['hateoas'] and config.ID_FIELD in document:
         document[config.LINKS] = {'self':
                                   document_link(resource,
                                                 document[config.ID_FIELD])}
@@ -455,7 +454,7 @@ def resolve_embedded_documents(document, resource, embedded_fields):
         # Retrieve and serialize the requested document
         if 'version' in data_relation and data_relation['version'] is True:
             # support late versioning
-            if document[field][config.VERSION] == 0:
+            if document[field][config.VERSION] == 1:
                 # there is a chance this document hasn't been saved
                 # since versioning was turned on
                 embedded_doc = missing_version_field(
@@ -511,7 +510,36 @@ def resolve_media_files(document, resource):
     """
     for field in resource_media_fields(document, resource):
         _file = app.media.get(document[field])
-        document[field] = base64.encodestring(_file.read()) if _file else None
+        # check if we should send a basic file response
+        if config.EXTENDED_MEDIA_INFO == []:
+            if _file and config.RETURN_MEDIA_AS_BASE64_STRING:
+                document[field] = base64.encodestring(_file.read())
+            else:
+                document[field] = None
+        elif _file:
+            # otherwise we have a valid file and should send extended response
+            # start with the basic file object
+            ret_file = None
+            if config.RETURN_MEDIA_AS_BASE64_STRING:
+                ret_file = base64.encodestring(_file.read())
+            document[field] = {
+                'file': ret_file,
+            }
+
+            # check if we should return any special fields
+            for attribute in config.EXTENDED_MEDIA_INFO:
+                if hasattr(_file, attribute):
+                    # add extended field if found in the file object
+                    document[field].update({
+                        attribute: getattr(_file, attribute)
+                    })
+                else:
+                    # tried to select an invalid attribute
+                    abort(500, description=debug_error_message(
+                        'Invalid extended media attribute requested'
+                    ))
+        else:
+            document[field] = None
 
 
 def marshal_write_response(document, resource):
@@ -530,22 +558,6 @@ def marshal_write_response(document, resource):
         document = dict((k, v) for (k, v) in document.items() if k in fields)
 
     return document
-
-
-def resolve_default_values(document, resource):
-    """ Add any defined default value for missing document fields.
-
-    :param document: the document being posted or replaced
-    :param resource: the resource to which the document belongs
-
-    .. versionadded:: 0.2
-    """
-    if request_method() in ('POST', 'PUT'):
-        defaults = app.config['DOMAIN'][resource]['defaults']
-        missing_defaults = defaults.difference(set(document.keys()))
-        schema = config.DOMAIN[resource]['schema']
-        for missing_field in missing_defaults:
-            document[missing_field] = schema[missing_field]['default']
 
 
 def store_media_files(document, resource, original=None):
@@ -572,7 +584,9 @@ def store_media_files(document, resource, original=None):
             app.media.delete(original[field])
 
         # store file and update document with file's unique id/filename
-        document[field] = app.media.put(document[field])
+        # also pass in mimetype for use when retrieving the file
+        document[field] = app.media.put(document[field],
+                                        content_type=document[field].mimetype)
 
 
 def resource_media_fields(document, resource):
@@ -585,6 +599,21 @@ def resource_media_fields(document, resource):
     """
     media_fields = app.config['DOMAIN'][resource]['_media']
     return [field for field in media_fields if field in document]
+
+
+def resolve_sub_resource_path(document, resource):
+    if not request.view_args:
+        return
+
+    schema = app.config['DOMAIN'][resource]['schema']
+    fields = []
+    for field, value in request.view_args.items():
+        if field in schema:
+            fields.append(field)
+            document[field] = value
+
+    if fields:
+        serialize(document, resource, fields=fields)
 
 
 def resolve_user_restricted_access(document, resource):
@@ -646,3 +675,40 @@ def pre_event(f):
         r = f(resource, **combined_args)
         return r
     return decorated
+
+
+def document_link(resource, document_id):
+    """ Returns a link to a document endpoint.
+
+    :param resource: the resource name.
+    :param document_id: the document unique identifier.
+
+    .. versionchanged:: 0.4
+       Use the regex-neutral resource_link function.
+
+    .. versionchanged:: 0.1.0
+       No more trailing slashes in links.
+
+    .. versionchanged:: 0.0.3
+       Now returning a JSON link
+    """
+    return {'title': '%s' % config.DOMAIN[resource]['item_title'],
+            'href': '%s/%s' % (resource_link(), document_id)}
+
+
+def resource_link():
+    """ Returns the current resource path complete with server name if
+    available. Mostly going to be used by hatoeas functions when building
+    document/resource links. The resource URL stored in the config settings
+    might contain regexes and custom variable names, all of which are not
+    needed in the response payload.
+
+    .. versionadded:: 0.4
+    """
+    path = request.path.rstrip('/')
+    if '|item' in request.endpoint:
+        path = path[:path.rfind('/')]
+    server_name = config.SERVER_NAME if config.SERVER_NAME else ''
+    if config.URL_PROTOCOL:
+        server_name = '%s://%s' % (config.URL_PROTOCOL, server_name)
+    return '%s%s' % (server_name, path)

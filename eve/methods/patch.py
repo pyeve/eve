@@ -20,7 +20,7 @@ from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, pre_event, store_media_files, resolve_embedded_fields, \
     build_response_document, marshal_write_response
 from eve.versioning import resolve_document_version, \
-    insert_versioning_documents
+    insert_versioning_documents, late_versioning_catch
 
 
 @ratelimit()
@@ -36,6 +36,7 @@ def patch(resource, **lookup):
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.4
+       Allow abort() to be inoked by callback functions.
        'on_update' raised before performing the update on the database.
        Support for document versioning.
        'on_updated' raised after performing the update on the database.
@@ -108,6 +109,9 @@ def patch(resource, **lookup):
         updates = parse(payload, resource)
         validation = validator.validate_update(updates, object_id)
         if validation:
+            # sneak in a shadow copy if it wasn't already there
+            late_versioning_catch(original, resource)
+
             store_media_files(updates, resource, original)
             resolve_document_version(updates, resource, 'PATCH', original)
 
@@ -129,7 +133,7 @@ def patch(resource, **lookup):
             updated.update(updates)
 
             app.data.update(resource, object_id, updates)
-            insert_versioning_documents(resource, object_id, updated)
+            insert_versioning_documents(resource, updated)
 
             # nofity callbacks
             getattr(app, "on_updated")(resource, updates, original)
@@ -146,7 +150,8 @@ def patch(resource, **lookup):
         # TODO should probably log the error and abort 400 instead (when we
         # got logging)
         issues['validator exception'] = str(e)
-    except (exceptions.InternalServerError, exceptions.Unauthorized) as e:
+    except (exceptions.InternalServerError, exceptions.Unauthorized,
+            exceptions.Forbidden, exceptions.NotFound) as e:
         raise e
     except Exception as e:
         # consider all other exceptions as Bad Requests
