@@ -280,8 +280,3 @@ class Validator(Validator):
             GeometryCollection(value)
         except TypeError:
             self._error(field, "GeometryCollection not correct" % value)
-<<<<<<< HEAD
-=======
-                         
- 
->>>>>>> develop
