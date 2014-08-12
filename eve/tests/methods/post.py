@@ -24,12 +24,16 @@ class TestPost(TestBase):
 
     def test_validation_error(self):
         r, status = self.post(self.known_resource_url, data={"ref": "123"})
-        self.assert400(status)
+        self.assertValidationErrorStatus(status)
         self.assertValidationError(r, {'ref': 'min length is 25'})
 
         r, status = self.post(self.known_resource_url, data={"prog": 123})
-        self.assert400(status)
+        self.assertValidationErrorStatus(status)
         self.assertValidationError(r, {'ref': 'required'})
+
+    def test_post_empty_bulk_insert(self):
+        r, status = self.post(self.empty_resource_url, data=[])
+        self.assert400(status)
 
     def test_post_empty_resource(self):
         data = []
@@ -141,7 +145,7 @@ class TestPost(TestBase):
             {"ref": "9234567890123456789054321", "tid": "12345678"},
         ]
         r, status = self.post(self.known_resource_url, data=data)
-        self.assert400(status)
+        self.assertValidationErrorStatus(status)
         results = r['_items']
 
         self.assertEqual(results[0]['_status'], 'OK')
@@ -177,7 +181,7 @@ class TestPost(TestBase):
     def test_post_referential_integrity(self):
         data = {"person": self.unknown_item_id}
         r, status = self.post('/invoices/', data=data)
-        self.assert400(status)
+        self.assertValidationErrorStatus(status)
         expected = ("value '%s' must exist in resource '%s', field '%s'" %
                     (self.unknown_item_id, 'contacts',
                      self.app.config['ID_FIELD']))
@@ -192,12 +196,20 @@ class TestPost(TestBase):
         del(self.domain['contacts']['schema']['ref']['required'])
         data = {"unknown": "unknown"}
         r, status = self.post(self.known_resource_url, data=data)
-        self.assert400(status)
+        self.assertValidationErrorStatus(status)
         self.assertValidationError(r, {'unknown': 'unknown'})
         self.app.config['DOMAIN'][self.known_resource]['allow_unknown'] = True
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
         self.assertPostResponse(r)
+
+        # test that the unknown field is also returned with subsequent get
+        # requests
+        id = r[self.app.config['ID_FIELD']]
+        r = self.test_client.get('%s/%s' % (self.known_resource_url, id))
+        r_data = json.loads(r.get_data())
+        self.assertTrue('unknown' in r_data)
+        self.assertEqual('unknown', r_data['unknown'])
 
     def test_post_with_content_type_charset(self):
         test_field = 'ref'
@@ -285,13 +297,13 @@ class TestPost(TestBase):
     def test_custom_issues(self):
         self.app.config['ISSUES'] = 'errors'
         r, status = self.post(self.known_resource_url, data={"ref": "123"})
-        self.assert400(status)
+        self.assertValidationErrorStatus(status)
         self.assertTrue('errors' in r and ISSUES not in r)
 
     def test_custom_status(self):
         self.app.config['STATUS'] = 'report'
         r, status = self.post(self.known_resource_url, data={"ref": "123"})
-        self.assert400(status)
+        self.assertValidationErrorStatus(status)
         self.assertTrue('report' in r and STATUS not in r)
 
     def test_custom_etag_update_date(self):
@@ -399,11 +411,26 @@ class TestPost(TestBase):
         test_value = 'a random value'
         data = {test_field: test_value}
         r, status = self.post(self.known_resource_url, data=data)
-        self.assert400(status)
+        self.assertValidationErrorStatus(status)
         # this will pass as value matches 'default' setting.
         test_value = 'default'
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
+
+    def test_post_keyschema_dict(self):
+        """ make sure Cerberus#48 is fixed """
+        del(self.domain['contacts']['schema']['ref']['required'])
+        r, status = self.post(self.known_resource_url,
+                              data={"keyschema_dict": {"k1": "1"}})
+        self.assertValidationErrorStatus(status)
+        issues = r[ISSUES]
+        self.assertTrue('keyschema_dict' in issues)
+        self.assertEqual(issues['keyschema_dict'],
+                         {'k1': 'must be of integer type'})
+
+        r, status = self.post(self.known_resource_url,
+                              data={"keyschema_dict": {"k1": 1}})
+        self.assert201(status)
 
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)

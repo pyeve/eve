@@ -28,7 +28,7 @@
 
 """
 
-__version__ = '0.4'
+__version__ = '0.5-dev'
 
 # RFC 1123 (ex RFC 822)
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
@@ -61,6 +61,8 @@ LINKS = '_links'
 ETAG = '_etag'
 VERSION = '_version'
 META = '_meta'
+
+VALIDATION_ERROR_STATUS = 422
 
 # must be the last line (will raise W402 on pyflakes)
 from eve.flaskapp import Eve  # noqa

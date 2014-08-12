@@ -326,6 +326,9 @@ class Eve(Flask, Events):
         :param resource: resource name.
         :param schema: schema definition for the resource.
 
+        .. versionchanged:: 0.5
+           Add ETAG to automatic fields check.
+
         .. versionchanged:: 0.4
            Checks against offending document versioning fields.
            Supports embedded data_relation with version.
@@ -346,7 +349,7 @@ class Eve(Flask, Events):
            the exception message.
         """
         # ensure automatically handled fields aren't defined
-        fields = [eve.DATE_CREATED, eve.LAST_UPDATED]
+        fields = [eve.DATE_CREATED, eve.LAST_UPDATED, eve.ETAG]
         # TODO: only add the following checks if settings['versioning'] == True
         fields += [
             self.config['VERSION'],
@@ -461,6 +464,9 @@ class Eve(Flask, Events):
     def _set_resource_defaults(self, resource, settings):
         """ Low-level method which sets default values for one resource.
 
+        .. versionchanged:: 0.5
+           'internal_resource'
+
         .. versionchanged:: 0.3
            Set projection to None when schema is not provided for the resource.
            Support for '_media' helper.
@@ -507,6 +513,8 @@ class Eve(Flask, Events):
         settings.setdefault('pagination', self.config['PAGINATION'])
         settings.setdefault('projection', self.config['PROJECTION'])
         settings.setdefault('versioning', self.config['VERSIONING'])
+        settings.setdefault('internal_resource',
+                            self.config['INTERNAL_RESOURCE'])
         # TODO make sure that this we really need the test below
         if settings['item_lookup']:
             item_methods = self.config['ITEM_METHODS']
@@ -541,6 +549,7 @@ class Eve(Flask, Events):
             projection[self.config['ID_FIELD']] = 1
             projection[self.config['LAST_UPDATED']] = 1
             projection[self.config['DATE_CREATED']] = 1
+            projection[self.config['ETAG']] = 1
             if settings['versioning'] is True:
                 projection[self.config['VERSION']] = 1
                 projection[
@@ -603,11 +612,18 @@ class Eve(Flask, Events):
         """ Builds the API url map for one resource. Methods are enabled for
         each mapped endpoint, as configured in the settings.
 
+        .. versionchanged:: 0.5
+           Don't add resource to url rules if it's flagged as internal.
+
         .. versionadded:: 0.2
         """
+        self.config['SOURCES'][resource] = settings['datasource']
+
+        if settings['internal_resource']:
+            return
+
         url = '%s/%s' % (self.api_prefix, settings['url'])
         self.config['URLS'][resource] = settings['url']
-        self.config['SOURCES'][resource] = settings['datasource']
 
         # resource endpoint
         endpoint = resource + "|resource"
@@ -732,5 +748,5 @@ class Eve(Flask, Events):
 
         .. versionadded:: 0.4
         """
-        for code in [400, 401, 403, 404]:
+        for code in [400, 401, 403, 404, 405, 406, 409, 410, 422]:
             self.error_handler_spec[None][code] = error_endpoint

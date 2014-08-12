@@ -67,7 +67,7 @@ class TestPatch(TestBase):
         r, status = self.patch(self.item_id_url,
                                data={"ref": "%s" % self.alt_ref},
                                headers=[('If-Match', self.item_etag)])
-        self.assert200(status)
+        self.assertValidationErrorStatus(status)
         self.assertValidationError(r, {'ref': "value '%s' is not unique" %
                                        self.alt_ref})
 
@@ -211,7 +211,7 @@ class TestPatch(TestBase):
         r, status = self.patch(self.item_id_url,
                                data=changes,
                                headers=[('If-Match', self.item_etag)])
-        self.assert200(status)
+        self.assertValidationErrorStatus(status)
         self.assertValidationError(r, {'unknown': 'unknown field'})
         self.app.config['DOMAIN'][self.known_resource]['allow_unknown'] = True
         r, status = self.patch(self.item_id_url,
@@ -234,7 +234,7 @@ class TestPatch(TestBase):
         data = {"person": self.unknown_item_id}
         headers = [('If-Match', self.invoice_etag)]
         r, status = self.patch(self.invoice_id_url, data=data, headers=headers)
-        self.assert200(status)
+        self.assertValidationErrorStatus(status)
         expected = ("value '%s' must exist in resource '%s', field '%s'" %
                     (self.unknown_item_id, 'contacts',
                      self.app.config['ID_FIELD']))

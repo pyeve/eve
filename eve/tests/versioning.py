@@ -164,9 +164,10 @@ class TestNormalVersioning(TestVersioningBase):
             shadow_document[self.document_id_field])
         self.assertTrue(self.app.config['ID_FIELD'] in shadow_document)
         self.assertTrue(self.app.config['LAST_UPDATED'] in shadow_document)
+        self.assertTrue(self.app.config['ETAG'] in shadow_document)
 
         # verify that no unexpected fields exist
-        num_meta_fields = 4  # see previous block
+        num_meta_fields = 5  # see previous block
         if partial is True:
             self.assertEqual(len(shadow_document.keys()), num_meta_fields + 1)
         else:
@@ -491,14 +492,14 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.item_change[self.version_field] = '1'
         r, status = self.post(
             self.known_resource_url, data=self.item_change)
-        self.assert400(status)
+        self.assertValidationErrorStatus(status)
         self.assertValidationError(r, {self.version_field: 'unknown field'})
 
         # set _latest_version
         self.item_change[self.latest_version_field] = '1'
         r, status = self.post(
             self.known_resource_url, data=self.item_change)
-        self.assert400(status)
+        self.assertValidationErrorStatus(status)
         self.assertValidationError(
             r, {self.latest_version_field: 'unknown field'})
 
@@ -506,7 +507,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.item_change[self.document_id_field] = '1'
         r, status = self.post(
             self.known_resource_url, data=self.item_change)
-        self.assert400(status)
+        self.assertValidationErrorStatus(status)
         self.assertValidationError(
             r, {self.document_id_field: 'unknown field'})
 
@@ -516,7 +517,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         """
         data = {"person": self.unknown_item_id}
         r, status = self.post('/invoices/', data=data)
-        self.assert400(status)
+        self.assertValidationErrorStatus(status)
         expected = ("value '%s' must exist in resource '%s', field '%s'" %
                     (self.unknown_item_id, 'contacts',
                      self.app.config['ID_FIELD']))
@@ -591,25 +592,25 @@ class TestDataRelationVersionNotVersioned(TestNormalVersioning):
         # must be a dict
         data = {"person": self.item_id}
         r, status = self.post('/invoices/', data=data)
-        self.assert400(status)
+        self.assertValidationErrorStatus(status)
         self.assertValidationError(r, {'person': 'must be of dict type'})
 
         # must have _id
         data = {"person": {value_field: self.item_id}}
         r, status = self.post('/invoices/', data=data)
-        self.assert400(status)
+        self.assertValidationErrorStatus(status)
         self.assertValidationError(r, {'person': validation_error_format})
 
         # must have _version
         data = {"person": {version_field: 1}}
         r, status = self.post('/invoices/', data=data)
-        self.assert400(status)
+        self.assertValidationErrorStatus(status)
         self.assertValidationError(r, {'person': validation_error_format})
 
         # bad id format
         data = {"person": {value_field: 'bad', version_field: 1}}
         r, status = self.post('/invoices/', data=data)
-        self.assert400(status)
+        self.assertValidationErrorStatus(status)
         self.assertValidationError(
             r, {'person': {
                 value_field: "value 'bad' cannot be converted to a ObjectId"}})
@@ -618,7 +619,7 @@ class TestDataRelationVersionNotVersioned(TestNormalVersioning):
         data = {"person": {
             value_field: self.unknown_item_id, version_field: 1}}
         r, status = self.post('/invoices/', data=data)
-        self.assert400(status)
+        self.assertValidationErrorStatus(status)
         self.assertValidationError(
             r, {'person': "value '%s' must exist in "
                 "resource '%s', field '%s' at version '%s'." %
@@ -627,7 +628,7 @@ class TestDataRelationVersionNotVersioned(TestNormalVersioning):
         # version doesn't exist
         data = {"person": {value_field: self.item_id, version_field: 2}}
         r, status = self.post('/invoices/', data=data)
-        self.assert400(status)
+        self.assertValidationErrorStatus(status)
         self.assertValidationError(
             r, {'person': "value '%s' must exist in "
                 "resource '%s', field '%s' at version '%s'." %
@@ -695,7 +696,7 @@ class TestDataRelationVersionVersioned(TestNormalVersioning):
         # try saving a field from the first version against version 2
         data = {"person": {'ref': self.item['ref'], self.version_field: 2}}
         r, status = self.post('/invoices/', data=data)
-        self.assert400(status)
+        self.assertValidationErrorStatus(status)
         self.assertValidationError(
             r, {'person': "value '%s' must exist in "
                 "resource '%s', field '%s' at version '%s'." %
