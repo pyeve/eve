@@ -99,6 +99,13 @@ contacts = {
             'type': 'string',
             'default': 'default',
             'readonly': True
+        },
+        'key1': {
+            'type': 'string',
+        },
+        'keyschema_dict': {
+            'type': 'dict',
+            'keyschema': {'type': 'integer'}
         }
     }
 }
@@ -124,6 +131,28 @@ invoices = {
     }
 }
 
+companies = {
+    'item_title': 'company',
+    'schema': {
+        'departments': {
+            'type': 'list',
+            'schema': {
+                'type': 'dict',
+                'schema': {
+                    'title': {'type': 'string'},
+                    'members': {
+                        'type': 'list',
+                        'schema': {
+                            'type': 'objectid',
+                            'data_relation': {'resource': 'contacts'}
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 users_overseas = copy.deepcopy(users)
 users_overseas['url'] = 'users/overseas'
 users_overseas['datasource'] = {'source': 'contacts'}
@@ -143,6 +172,12 @@ users_invoices = copy.deepcopy(invoices)
 users_invoices['url'] = 'users/<regex("[a-f0-9]{24}"):person>/invoices'
 users_invoices['datasource'] = {'source': 'invoices'}
 
+internal_transactions = {
+    'resource_methods': ['GET'],
+    'item_methods': ['GET'],
+    'internal_resource': True
+}
+
 DOMAIN = {
     'contacts': contacts,
     'users': users,
@@ -152,4 +187,6 @@ DOMAIN = {
     'empty': empty,
     'restricted': user_restricted_access,
     'peopleinvoices': users_invoices,
+    'companies': companies,
+    'internal_transactions': internal_transactions,
 }

@@ -1,0 +1,13 @@
+docutils==0.10
+flake8==2.2.2
+mccabe==0.2.1
+pep8==1.5.7
+pip-tools==0.3.4
+py==1.4.20
+pyflakes==0.8.1
+Pygments==1.6
+pytest==2.5.2
+redis==2.10.1
+Sphinx==1.2.2
+tox==1.7.1
+wheel==0.24.0

@@ -146,12 +146,16 @@ def versioned_fields(resource_def):
 
     :param resource_def: a resource definition.
 
+    .. versionchanged:: 0.5
+       ETAG is now a versioned field (#369).
+
     .. versionadded:: 0.4
     """
     schema = resource_def['schema']
     fields = []
     if resource_def['versioning'] is True:
         fields.append(app.config['LAST_UPDATED'])
+        fields.append(app.config['ETAG'])
         for field in schema:
             if field not in schema or \
                     schema[field].get('versioned', True) is True:

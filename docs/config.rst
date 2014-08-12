@@ -246,7 +246,7 @@ uppercase.
                                     Allows API maintainers to specify which
                                     domains are allowed to perform CORS
                                     requests. Allowed values are: ``None``,
-                                    a list of domains or '*' for a wide-open
+                                    a list of domains or ``'*'`` for a wide-open
                                     API. Defaults to ``None``.
 
 ``X_HEADERS``                       CORS (Cross-Origin Resource Sharing) support. 
@@ -416,7 +416,12 @@ uppercase.
                                     otherwise. See :ref:`jsonxml`. Defaults to
                                     ``True``.
 
-``VERSIONING``                      Enabled documents version control when``True``. Can be erridden by resource settings. Defaults to ``False``.
+``VALIDATION_ERROR_STATUS``         The HTTP status code to use for validation errors.
+                                    Defaults to ``422``.
+
+``VERSIONING``                      Enabled documents version control when 
+                                    ``True``. Can be overridden by resource 
+                                    settings. Defaults to ``False``.
 
 ``VERSIONS``                        Suffix added to the name of the primary
                                     collection to create the name of the shadow
@@ -438,7 +443,7 @@ uppercase.
 ``VERSION``                         Field used to store the version number of a
                                     document. Defaults to ``_version``.
 
-``LASTEST_VERSION``                 Field used to store the latest version number
+``LATEST_VERSION``                  Field used to store the latest version number
                                     of a document. Defaults to
                                     ``_latest_version``.
 
@@ -744,6 +749,13 @@ always lowercase.
                                 database whose values can actually be casted to
                                 ObjectId values, but shouldn't. Only effects
                                 queries (``?where=``). Defaults to ``False``.
+
+``internal_resource``           When ``True``, this option makes the resource 
+                                internal. No HTTP action can be performed on
+                                the endpoint, which is still accessible from
+                                the Eve data layer. See
+                                :ref:`internal_resources` for more
+                                informations. Defaults to ``False``.
 
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data

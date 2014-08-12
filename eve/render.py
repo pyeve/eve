@@ -164,7 +164,8 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         resp.headers.add('Last-Modified', date_to_str(last_modified))
 
     # CORS
-    if 'Origin' in request.headers and config.X_DOMAINS is not None:
+    origin = request.headers.get('Origin')
+    if origin and config.X_DOMAINS:
         if isinstance(config.X_DOMAINS, str):
             domains = [config.X_DOMAINS]
         else:
@@ -178,7 +179,11 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
             headers = config.X_HEADERS
 
         methods = app.make_default_options_response().headers.get('allow', '')
-        resp.headers.add('Access-Control-Allow-Origin', ', '.join(domains))
+
+        if '*' in domains or origin in domains:
+            resp.headers.add('Access-Control-Allow-Origin', origin)
+        else:
+            resp.headers.add('Access-Control-Allow-Origin', '')
         resp.headers.add('Access-Control-Allow-Headers', ', '.join(headers))
         resp.headers.add('Access-Control-Allow-Methods', methods)
         resp.headers.add('Access-Control-Allow-Max-Age', config.X_MAX_AGE)

@@ -43,6 +43,9 @@ config = Config()
 class ParsedRequest(object):
     """ This class, by means of its attributes, describes a client request.
 
+    .. versuinchanged;; 9,5
+       'args' keyword.
+
     .. versonchanged:: 0.1.0
        'embedded' keyword.
 
@@ -77,12 +80,18 @@ class ParsedRequest(object):
     # `embedded` value of the query string (?embedded). Defaults to None.
     embedded = None
 
+    # `args` value of the original request. Defaults to None.
+    args = None
+
 
 def parse_request(resource):
     """ Parses a client request, returning instance of :class:`ParsedRequest`
     containing relevant request data.
 
     :param resource: the resource currently being accessed by the client.
+
+    .. versionchanged:: 0.5
+       Minor DRY updates.
 
     .. versionchagend:: 0.1.0
        Support for embedded documents.
@@ -97,18 +106,20 @@ def parse_request(resource):
     headers = request.headers
 
     r = ParsedRequest()
+    r.args = args
 
-    if config.DOMAIN[resource]['allowed_filters']:
+    settings = config.DOMAIN[resource]
+    if settings['allowed_filters']:
         r.where = args.get('where')
-    if config.DOMAIN[resource]['projection']:
+    if settings['projection']:
         r.projection = args.get('projection')
-    if config.DOMAIN[resource]['sorting']:
+    if settings['sorting']:
         r.sort = args.get('sort')
-    if config.DOMAIN[resource]['embedding']:
+    if settings['embedding']:
         r.embedded = args.get('embedded')
 
     max_results_default = config.PAGINATION_DEFAULT if \
-        config.DOMAIN[resource]['pagination'] else 0
+        settings['pagination'] else 0
     try:
         r.max_results = int(float(args['max_results']))
         assert r.max_results > 0
@@ -116,7 +127,7 @@ def parse_request(resource):
             AssertionError):
         r.max_results = max_results_default
 
-    if config.DOMAIN[resource]['pagination']:
+    if settings['pagination']:
         # TODO should probably return a 400 if 'page' is < 1 or non-numeric
         if 'page' in args:
             try:
@@ -170,46 +181,13 @@ def date_to_str(date):
 def home_link():
     """ Returns a link to the API entry point/home page.
 
+    .. versionchanged:: 0.5
+       Link is relative to API root.
+
     .. versionchanged:: 0.0.3
        Now returning a JSON link.
     """
-    return {'title': 'home',
-            'href': home_uri()}
-
-
-def home_uri():
-    """ Returns a absolute URI to API home.
-
-    .. versionchanged:: 0.4
-       Added support for URL_PROTOCOL
-       Refactored from home_link
-
-    .. versionchanged:: 0.1.1
-       Handle the case of SERVER_NAME being None.
-
-    .. versionadded:: 0.4
-    """
-    server_name = config.SERVER_NAME if config.SERVER_NAME else ''
-    if config.URL_PROTOCOL:
-        server_name = '%s://%s' % (config.URL_PROTOCOL, server_name)
-    return '%s%s' % (server_name, api_prefix())
-
-
-def resource_uri(resource):
-    """ Returns the absolute URI to a resource.
-
-    .. versionchanged:: 0.1.1
-       URL prefixes are now included in config.URLS items, no more need to
-       explicitly add them to resource links.
-
-       Handle the case of SERVER_NAME being None.
-
-    .. versionchanged:: 0.1.0
-       No more trailing slashes in links.
-
-    :param resource: the resource name.
-    """
-    return '%s/%s' % (home_uri(), config.URLS[resource])
+    return {'title': 'home', 'href': '/'}
 
 
 def api_prefix(url_prefix=None, api_version=None):
@@ -323,14 +301,34 @@ def validate_filters(where, resource):
     :param where: the where clause, as a dict.
     :param resource: the resource being inspected.
 
+    .. versionchanged: 0.5
+       If the data layer supports a list of allowed operators, take them
+       into consideration when validating the query string (#388).
+       Recursively validate the whole query string.
+
     .. versionadded: 0.0.9
     """
-    allowed = config.DOMAIN[resource]['allowed_filters']
-    if '*' not in allowed:
-        for filt, _ in where.items():
-            if filt not in allowed:
-                return "filter on '%s' not allowed" % filt
-    return None
+    operators = getattr(app.data, 'operators', set())
+    allowed = config.DOMAIN[resource]['allowed_filters'] + list(operators)
+
+    def validate_filter(filters):
+        r = None
+        for d in filters:
+            for key, value in d.items():
+                if key not in allowed:
+                    return "filter on '%s' not allowed" % key
+                if isinstance(value, dict):
+                    r = validate_filter([value])
+                elif isinstance(value, list):
+                    r = validate_filter(value)
+
+            # flake8: noqa
+                if r: break
+            if r: break
+
+        return r
+
+    return validate_filter([where]) if '*' not in allowed else None
 
 
 def auto_fields(resource):
@@ -338,13 +336,17 @@ def auto_fields(resource):
 
     :param resource: the resource currently being accessed by the client.
 
+    .. versionchanged: 0.5
+       ETAG is now a preserved meta data (#369).
+
     .. versionadded:: 0.4
     """
     # preserved meta data
-    fields = [config.ID_FIELD, config.LAST_UPDATED, config.DATE_CREATED]
+    fields = [config.ID_FIELD, config.LAST_UPDATED, config.DATE_CREATED,
+              config.ETAG]
 
     # on-the-fly meta data (not in data store)
-    fields += [config.ETAG, config.ISSUES, config.STATUS, config.LINKS]
+    fields += [config.ISSUES, config.STATUS, config.LINKS]
 
     if config.DOMAIN[resource]['versioning'] is True:
         fields.append(config.VERSION)

@@ -16,6 +16,7 @@ import simplejson as json
 import pymongo
 from flask import abort
 from flask.ext.pymongo import PyMongo
+from werkzeug.exceptions import HTTPException
 from bson import ObjectId
 from datetime import datetime
 from eve.io.mongo.parser import parse, ParseError
@@ -42,6 +43,9 @@ class MongoJSONEncoder(BaseJSONEncoder):
 class Mongo(DataLayer):
     """ MongoDB data access layer for Eve REST API.
 
+    .. versionchanged:
+       Return 400 if unsupported query operators are used. #387.
+
     .. versionchanged:: 0.4
        Don't serialize to objectid if value is null. #341.
 
@@ -54,12 +58,23 @@ class Mongo(DataLayer):
 
     serializers = {
         'objectid': lambda value: ObjectId(value) if value else None,
-        'datetime': str_to_date
+        'datetime': str_to_date,
+        'integer': int,
+        'float': float,
     }
 
-    # JSON serializer  s a class attribute. Allows extensions to replace it
+    # JSON serializer is a class attribute. Allows extensions to replace it
     # with their own implementation.
     json_encoder_class = MongoJSONEncoder
+
+    operators = set(
+        ['$gt', '$gte', '$in', '$lt', '$lt', '$lte', '$ne', '$nin'] +
+        ['$or', '$and', '$not', '$nor'] +
+        ['$mod', '$regex', '$text', '$where'] +
+        ['$exists', '$type'] +
+        ['$geoWithin', '$geoIntersects', '$near', '$nearSphere'] +
+        ['$all', '$elemMatch', '$size']
+    )
 
     def init_app(self, app):
         """ Initialize PyMongo.
@@ -88,6 +103,11 @@ class Mongo(DataLayer):
         :param resource: resource name.
         :param req: a :class:`ParsedRequest`instance.
         :param sub_resource_lookup: sub-resource lookup from the endpoint url.
+
+        .. versionchanged:: 0.5
+           Return the error if a blacklisted MongoDB operator is used in query.
+           Abort with 400 if unsupported query operator is used. #387.
+           Abort with 400 in case of invalid sort syntax. #387.
 
         .. versionchanged:: 0.4
            'allowed_filters' is now checked before adding 'sub_resource_lookup'
@@ -143,12 +163,19 @@ class Mongo(DataLayer):
         spec = {}
 
         if req.sort:
-            client_sort = ast.literal_eval(req.sort)
+            try:
+                client_sort = ast.literal_eval(req.sort)
+            except Exception as e:
+                abort(400, description=debug_error_message(str(e)))
 
         if req.where:
             try:
                 spec = self._sanitize(json.loads(req.where))
+            except HTTPException as e:
+                # _sanitize() is raising an HTTP exception; let it fire.
+                raise
             except:
+                # couldn't parse as mongo query; give the python parser a shot.
                 try:
                     spec = parse(req.where)
                 except ParseError:
@@ -312,6 +339,10 @@ class Mongo(DataLayer):
         try:
             return self.driver.db[datasource].insert(doc_or_docs,
                                                      **self._wc(resource))
+        except pymongo.errors.InvalidOperation as e:
+            abort(500, description=debug_error_message(
+                'pymongo.errors.InvalidOperation: %s' % e
+            ))
         except pymongo.errors.OperationFailure as e:
             # most likely a 'w' (write_concern) setting which needs an
             # existing ReplicaSet which doesn't exist. Please note that the
@@ -596,23 +627,34 @@ class Mongo(DataLayer):
         """ Makes sure that only allowed operators are included in the query,
         aborts with a 400 otherwise.
 
+        .. versionchanged:: 0.5
+           Abort with 400 if unsupported query operators are used. #387.
+           DRY.
+
         .. versionchanged:: 0.0.9
            More informative error messages.
            Allow ``auth_username_field`` to be set to ``ID_FIELD``.
 
         .. versionadded:: 0.0.7
         """
-        if set(spec.keys()) & set(config.MONGO_QUERY_BLACKLIST):
-            abort(400, description=debug_error_message(
-                'Query contains operators banned in MONGO_QUERY_BLACKLIST'
-            ))
+        def sanitize_keys(spec):
+            ops = set([op for op in spec.keys() if op[0] == '$'])
+            unknown = ops - Mongo.operators
+            if unknown:
+                abort(400, description=debug_error_message(
+                    'Query contains unknown or unsupported operators: %s' %
+                    ', '.join(unknown)
+                ))
+
+            if set(spec.keys()) & set(config.MONGO_QUERY_BLACKLIST):
+                abort(400, description=debug_error_message(
+                    'Query contains operators banned in MONGO_QUERY_BLACKLIST'
+                ))
+
+        sanitize_keys(spec)
         for value in spec.values():
             if isinstance(value, dict):
-                if set(value.keys()) & set(config.MONGO_QUERY_BLACKLIST):
-                    abort(400, description=debug_error_message(
-                        'Query contains operators banned '
-                        'in MONGO_QUERY_BLACKLIST'
-                    ))
+                sanitize_keys(value)
         return spec
 
     def _wc(self, resource):
@@ -633,6 +675,9 @@ class Mongo(DataLayer):
         if req and req.projection:
             try:
                 client_projection = json.loads(req.projection)
+                if not isinstance(client_projection, dict):
+                    raise Exception('The projection parameter has to be a '
+                                    'dict')
             except:
                 abort(400, description=debug_error_message(
                     'Unable to parse `projection` clause'

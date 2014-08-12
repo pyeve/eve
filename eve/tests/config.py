@@ -155,6 +155,8 @@ class TestConfig(TestBase):
     def _test_defaults_for_resource(self, resource):
         settings = self.domain[resource]
         self.assertEqual(settings['url'], resource)
+        self.assertEqual(settings['internal_resource'],
+                         self.app.config['INTERNAL_RESOURCE'])
         self.assertEqual(settings['resource_methods'],
                          self.app.config['RESOURCE_METHODS'])
         self.assertEqual(settings['public_methods'],
@@ -216,7 +218,8 @@ class TestConfig(TestBase):
         compare = [key for key in datasource['projection'] if key in schema]
         compare.extend([self.app.config['ID_FIELD'],
                         self.app.config['LAST_UPDATED'],
-                        self.app.config['DATE_CREATED']])
+                        self.app.config['DATE_CREATED'],
+                        self.app.config['ETAG']])
 
         self.assertEqual(datasource['projection'],
                          dict((field, 1) for (field) in compare))
@@ -296,6 +299,7 @@ class TestConfig(TestBase):
         self.assertNotEqual(self.app.config.get('SOURCES'), None)
         self.assertEqual(type(self.app.config['SOURCES']), dict)
 
+        del(self.domain['internal_transactions'])
         for resource, settings in self.domain.items():
             self.assertEqual(settings['url'],
                              self.app.config['URLS'][resource])
@@ -307,6 +311,7 @@ class TestConfig(TestBase):
             'SERVER_NAME', ''))
 
         del(self.domain['peopleinvoices'])
+        del(self.domain['internal_transactions'])
         for _, settings in self.domain.items():
             for method in settings['resource_methods']:
                 self.assertTrue(map_adapter.test('/%s/' % settings['url'],

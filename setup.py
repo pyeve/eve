@@ -3,31 +3,35 @@
 from setuptools import setup, find_packages
 DESCRIPTION = ("REST API framework powered by Flask, MongoDB and good "
                "intentions.")
-LONG_DESCRIPTION = open('README.rst').read()
+with open('README.rst') as f:
+    LONG_DESCRIPTION = f.read()
+
+with open('LICENSE') as f:
+    LICENSE = f.read()
 
 setup(
     name='Eve',
-    version='0.4',
+    version='0.5-dev',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',
     author_email='eve@nicolaiarocci.com',
     url='http://python-eve.org',
-    license=open('LICENSE').read(),
+    license=LICENSE,
     platforms=["any"],
     packages=find_packages(),
     test_suite="eve.tests",
     install_requires=[
-        'cerberus==0.7.2',
-        'events==0.2.1',
-        'simplejson==3.5.2',
-        'werkzeug==0.9.6',
-        'markupsafe==0.23',
-        'jinja2==2.7.3',
-        'itsdangerous==0.24',
-        'flask==0.10.1',
-        'pymongo==2.7.1',
-        'flask-pymongo==0.3.0',
+        'cerberus>=0.7,<0.8',
+        'events>=0.2.1,<0.3',
+        'simplejson>=3.3.0,<0.4',
+        'werkzeug>=0.9.4,<0.10',
+        'markupsafe>=0.23,<1.0',
+        'jinja2>=2.7.2,<3.0',
+        'itsdangerous>=0.22,<1.0',
+        'flask>=0.10.1,<0.11',
+        'pymongo>=2.7.1,<3.0',
+        'flask-pymongo>=0.3.0,<0.4',
     ],
     tests_require=['redis'],
     classifiers=[

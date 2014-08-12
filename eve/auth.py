@@ -40,7 +40,10 @@ def requires_auth(endpoint_class):
                         roles += resource['allowed_item_read_roles']
                     else:
                         roles += resource['allowed_item_write_roles']
-                auth = resource['authentication']
+                if callable(resource['authentication']):
+                    auth = resource['authentication']()
+                else:
+                    auth = resource['authentication']
             else:
                 # home
                 resource_name = resource = None

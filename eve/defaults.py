@@ -88,12 +88,15 @@ def resolve_default_values(document, defaults):
     :param defaults: tree with the default values
     :type defaults: dict
 
+    .. versionchanged:: 0.5
+       Fix #417. A default value of [] for a list causes an IndexError.
+
     .. versionadded:: 0.2
     """
     todo = [(defaults, document)]
     while len(todo) > 0:
         defaults, document = todo.pop()
-        if isinstance(defaults, list):
+        if isinstance(defaults, list) and len(defaults):
             todo.extend((defaults[0], item) for item in document)
             continue
         for name, value in defaults.items():
@@ -103,10 +106,14 @@ def resolve_default_values(document, defaults):
                 if not isinstance(existing, dict):
                     document[name] = {}
                 todo.append((value, document[name]))
-            if isinstance(value, list):
+            if isinstance(value, list) and len(value):
                 existing = document.get(name)
                 if not existing:
+                    document.setdefault(name, value)
                     continue
-                todo.extend((value[0], item) for item in existing)
+                if all(isinstance(item, (dict, list)) for item in existing):
+                    todo.extend((value[0], item) for item in existing)
+                else:
+                    document.setdefault(name, existing)
             else:
                 document.setdefault(name, value)

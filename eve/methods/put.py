@@ -19,7 +19,8 @@ from flask import current_app as app, abort
 from eve.utils import config, debug_error_message, parse_request
 from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, pre_event, store_media_files, resolve_user_restricted_access, \
-    resolve_embedded_fields, build_response_document, marshal_write_response
+    resolve_embedded_fields, build_response_document, marshal_write_response, \
+    resolve_document_etag
 from eve.versioning import resolve_document_version, \
     insert_versioning_documents, late_versioning_catch
 
@@ -35,6 +36,12 @@ def put(resource, **lookup):
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
+
+    .. versionchanged:: 0.5
+       ETAG is now stored with the document (#369).
+       Catching all HTTPExceptions and returning them to the caller, allowing
+       for eventual flask.abort() invocations in callback functions to go
+       through. Fixes #395.
 
     .. versionchanged:: 0.4
        Allow abort() to be inoked by callback functions.
@@ -113,6 +120,8 @@ def put(resource, **lookup):
             getattr(app, "on_replace")(resource, document, original)
             getattr(app, "on_replace_%s" % resource)(document, original)
 
+            resolve_document_etag(document)
+
             # write to db
             app.data.replace(resource, object_id, document)
             insert_versioning_documents(resource, document)
@@ -131,8 +140,7 @@ def put(resource, **lookup):
         # TODO should probably log the error and abort 400 instead (when we
         # got logging)
         issues['validator exception'] = str(e)
-    except (exceptions.InternalServerError, exceptions.Unauthorized,
-            exceptions.Forbidden, exceptions.NotFound) as e:
+    except exceptions.HTTPException as e:
         raise e
     except Exception as e:
         # consider all other exceptions as Bad Requests
@@ -143,10 +151,12 @@ def put(resource, **lookup):
     if len(issues):
         response[config.ISSUES] = issues
         response[config.STATUS] = config.STATUS_ERR
+        status = config.VALIDATION_ERROR_STATUS
     else:
         response[config.STATUS] = config.STATUS_OK
+        status = 200
 
     # limit what actually gets sent to minimize bandwidth usage
     response = marshal_write_response(response, resource)
 
-    return response, last_modified, etag, 200
+    return response, last_modified, etag, status

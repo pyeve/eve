@@ -12,15 +12,15 @@
 """
 
 from datetime import datetime
-from flask import current_app as app
-from eve.utils import config, parse_request
+from flask import current_app as app, abort
+from eve.utils import config, parse_request, debug_error_message
 from eve.auth import requires_auth
 from eve.defaults import resolve_default_values
 from eve.validation import ValidationError
 from eve.methods.common import parse, payload, ratelimit, \
     pre_event, store_media_files, resolve_user_restricted_access, \
     resolve_embedded_fields, build_response_document, marshal_write_response, \
-    resolve_sub_resource_path
+    resolve_sub_resource_path, resolve_document_etag
 from eve.versioning import resolve_document_version, \
     insert_versioning_documents
 
@@ -29,7 +29,22 @@ from eve.versioning import resolve_document_version, \
 @requires_auth('resource')
 @pre_event
 def post(resource, payl=None):
-    """ Adds one or more documents to a resource. Each document is validated
+    """
+    Default function for handling POST requests, it has decorators for
+    rate limiting, authentication and for raising pre-request events.
+    After the decorators are applied forwards to call to :see: post_internal
+
+    .. versionchanged:: 0.5
+       Split into post() and post_internal().
+    """
+    return post_internal(resource, payl)
+
+
+def post_internal(resource, payl=None):
+    """
+    Intended for internal post calls, this method is not rate limited,
+    authentication is not checked and pre-request events are not raised.
+    Adds one or more documents to a resource. Each document is validated
     against the domain schema. If validation passes the document is inserted
     and ID_FIELD, LAST_UPDATED and DATE_CREATED along with a link to the
     document are returned. If validation fails, a list of validation issues
@@ -47,6 +62,10 @@ def post(resource, payl=None):
 
                  See https://github.com/nicolaiarocci/eve/issues/74 for a
                  discussion, and a typical use case.
+
+    .. versionchanged:: 0.5
+       Original post() has been split into post() and post_internal().
+       ETAGS are now stored with documents (#369).
 
     .. versionchanged:: 0.4
        Resolve default values before validation is performed. See #353.
@@ -136,6 +155,12 @@ def post(resource, payl=None):
     if isinstance(payl, dict):
         payl = [payl]
 
+    if not payl:
+        # empty bulkd insert
+        abort(400, description=debug_error_message(
+            'Empty bulk insert'
+        ))
+
     for value in payl:
         document = []
         doc_issues = {}
@@ -173,7 +198,7 @@ def post(resource, payl=None):
 
     if failures:
         # If at least one document got issues, the whole request fails and a
-        # ``400 Bad Request`` status is return.
+        # ``422 Bad Request`` status is return.
         for document in documents:
             if config.STATUS in document \
                and document[config.STATUS] == config.STATUS_ERR:
@@ -181,11 +206,14 @@ def post(resource, payl=None):
             else:
                 results.append({config.STATUS: config.STATUS_OK})
 
-        return_code = 400
+        return_code = config.VALIDATION_ERROR_STATUS
     else:
         # notify callbacks
         getattr(app, "on_insert")(resource, documents)
         getattr(app, "on_insert_%s" % resource)(documents)
+
+        # compute etags here as documents might have been updated by callbacks.
+        resolve_document_etag(documents)
 
         # bulk insert
         ids = app.data.insert(resource, documents)
