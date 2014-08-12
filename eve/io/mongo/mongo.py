@@ -42,6 +42,9 @@ class MongoJSONEncoder(BaseJSONEncoder):
 class Mongo(DataLayer):
     """ MongoDB data access layer for Eve REST API.
 
+    .. versionchanged:: 0.4
+       Don't serialize to objectid if value is null. #341.
+
     .. versionchanged:: 0.2
        Provide the specialized json serializer class as ``json_encoder_class``.
 
@@ -50,7 +53,7 @@ class Mongo(DataLayer):
     """
 
     serializers = {
-        'objectid': ObjectId,
+        'objectid': lambda value: ObjectId(value) if value else None,
         'datetime': str_to_date
     }
 
@@ -158,7 +161,7 @@ class Mongo(DataLayer):
             abort(400, bad_filter)
 
         if sub_resource_lookup:
-            spec.update(sub_resource_lookup)
+            spec = self.combine_queries(spec, sub_resource_lookup)
 
         spec = self._mongotize(spec, resource)
 
@@ -579,13 +582,11 @@ class Mongo(DataLayer):
             if isinstance(v, dict):
                 self._mongotize(v, resource)
             elif isinstance(v, list):
-                i = 0
-                for v1 in v:
+                for i, v1 in enumerate(v):
                     if isinstance(v1, dict):
                         source[k][i] = self._mongotize(v1, resource)
                     else:
                         source[k][i] = try_cast(v1)
-                    i += 1
             elif isinstance(v, _str_type):
                 source[k] = try_cast(v)
 

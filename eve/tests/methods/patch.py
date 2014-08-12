@@ -140,6 +140,15 @@ class TestPatch(TestBase):
         db_value = self.compare_patch_with_get(field, r)
         self.assertEqual(db_value, test_value)
 
+    def test_patch_null_objectid(self):
+        # verify that #341 is fixed.
+        field = "tid"
+        test_value = None
+        changes = {field: test_value}
+        r = self.perform_patch(changes)
+        db_value = self.compare_patch_with_get(field, r)
+        self.assertEqual(db_value, test_value)
+
     def test_patch_defaults(self):
         field = "ref"
         test_value = "1234567890123456789012345"

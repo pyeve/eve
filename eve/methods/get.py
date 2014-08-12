@@ -14,9 +14,9 @@ import copy
 import math
 from flask import current_app as app, abort, request
 from .common import ratelimit, epoch, pre_event, resolve_embedded_fields, \
-    build_response_document
+    build_response_document, resource_link
 from eve.auth import requires_auth
-from eve.utils import parse_request, home_link, querydef, config, resource_uri
+from eve.utils import parse_request, home_link, querydef, config
 from eve.versioning import synthesize_versioned_document, versioned_id_field, \
     get_old_document, diff_document
 
@@ -30,6 +30,7 @@ def get(resource, **lookup):
     :param resource: the name of the resource.
 
     .. versionchanged:: 0.4
+       Add pagination info whatever the HATEOAS status.
        'on_fetched' events now return the whole response (HATEOAS metafields
        included.)
        Replaced ID_FIELD by item_lookup_field on self link.
@@ -92,6 +93,7 @@ def get(resource, **lookup):
         # this request does not account for deleted documents!!! (issue #243)
         preflight_req = copy.copy(req)
         preflight_req.max_results = 1
+        preflight_req.page = 1
 
         cursor = app.data.find(resource, preflight_req, lookup)
         if cursor.count() == 0:
@@ -121,12 +123,18 @@ def get(resource, **lookup):
     status = 200
     last_modified = last_update if last_update > epoch() else None
 
+    response[config.ITEMS] = documents
     if config.DOMAIN[resource]['hateoas']:
-        response[config.ITEMS] = documents
         response[config.LINKS] = _pagination_links(resource, req,
                                                    cursor.count())
-    else:
-        response = documents
+
+    # add pagination info
+    if cursor.count() and config.DOMAIN[resource]['pagination']:
+        response[config.META] = {
+            'page': req.page,
+            'max_results': req.max_results,
+            'total': cursor.count(),
+        }
 
     # notify registered callback functions. Please note that, should the
     # functions modify the documents, the last_modified and etag won't be
@@ -153,6 +161,8 @@ def getitem(resource, **lookup):
     :param **lookup: the lookup query.
 
     .. versionchanged:: 0.4
+       HATOEAS link for contains the business unit value even when
+       regexes have been configured for the resource endpoint.
        'on_fetched' now returns the whole response (HATEOAS metafields
        included.)
        Support for document versioning.
@@ -234,12 +244,13 @@ def getitem(resource, **lookup):
         return {}, last_modified, document.get(config.ETAG), 304
 
     if version == 'all' or version == 'diffs':
-        # TODO: support pagination?
-
         # find all versions
         lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
         del lookup[app.config['ID_FIELD']]
-        req.sort = '[("%s", 1)]' % config.VERSION
+        if version == 'diffs' or req.sort is None:
+            # default sort for 'all', required sort for 'diffs'
+            req.sort = '[("%s", 1)]' % config.VERSION
+        req.if_modified_since = None  # we always want the full history here
         cursor = app.data.find(resource + config.VERSIONS, req, lookup)
 
         # build all versions
@@ -250,6 +261,14 @@ def getitem(resource, **lookup):
             documents.append(latest_doc)
         else:
             last_document = {}
+
+            # if we aren't starting on page 1, then we need to init last_doc
+            if version == 'diffs' and req.page > 1:
+                # grab the last document on the previous page to diff from
+                last_version = cursor[0][app.config['VERSION']] - 1
+                last_document = get_old_document(
+                    resource, req, lookup, latest_doc, last_version)
+
             for i, document in enumerate(cursor):
                 document = synthesize_versioned_document(
                     latest_doc, document, resource_def)
@@ -279,7 +298,7 @@ def getitem(resource, **lookup):
             response[config.LINKS] = {}
         response[config.LINKS]['collection'] = {
             'title': config.DOMAIN[resource]['resource_title'],
-            'href': resource_uri(resource)}
+            'href': resource_link()}
         response[config.LINKS]['parent'] = home_link()
 
     if version != 'all' and version != 'diffs':
@@ -304,8 +323,8 @@ def _pagination_links(resource, req, documents_count):
     :param document_count: the number of documents returned by the query.
 
     .. versionchanged:: 0.4
-       Now using resource_uri when building HATEOAS links (_collection_link
-       removed).
+       HATOEAS link for contains the business unit value even when
+       regexes have been configured for the resource endpoint.
 
     .. versionchanged:: 0.0.8
        Link to last page is provided if pagination is enabled (and the current
@@ -322,13 +341,13 @@ def _pagination_links(resource, req, documents_count):
     """
     _links = {'parent': home_link(),
               'self': {'title': config.DOMAIN[resource]['resource_title'],
-                       'href': resource_uri(resource)}}
+                       'href': resource_link()}}
 
     if documents_count and config.DOMAIN[resource]['pagination']:
         if req.page * req.max_results < documents_count:
             q = querydef(req.max_results, req.where, req.sort, req.page + 1)
             _links['next'] = {'title': 'next page', 'href': '%s%s' %
-                              (resource_uri(resource), q)}
+                              (resource_link(), q)}
 
             # in python 2.x dividing 2 ints produces an int and that's rounded
             # before the ceil call. Have to cast one value to float to get
@@ -339,11 +358,11 @@ def _pagination_links(resource, req, documents_count):
                                       / float(req.max_results)))
             q = querydef(req.max_results, req.where, req.sort, last_page)
             _links['last'] = {'title': 'last page', 'href': '%s%s'
-                              % (resource_uri(resource), q)}
+                              % (resource_link(), q)}
 
         if req.page > 1:
             q = querydef(req.max_results, req.where, req.sort, req.page - 1)
             _links['prev'] = {'title': 'previous page', 'href': '%s%s' %
-                              (resource_uri(resource), q)}
+                              (resource_link(), q)}
 
     return _links

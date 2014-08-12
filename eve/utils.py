@@ -167,37 +167,6 @@ def date_to_str(date):
     return datetime.strftime(date, config.DATE_FORMAT) if date else None
 
 
-def collection_link(resource):
-    """ Returns a link to a resource endpoint.
-
-    :param resource: the resource name.
-
-    .. versionchanged:: 0.2
-       Use new 'resource_title' setting for link title.
-
-    .. versionchanged:: 0.0.3
-       Now returning a JSON link
-    """
-    return {'title': '%s' % config.DOMAIN[resource]['resource_title'],
-            'href': '%s' % resource_uri(resource)}
-
-
-def document_link(resource, document_id):
-    """ Returns a link to a document endpoint.
-
-    :param resource: the resource name.
-    :param document_id: the document unique identifier.
-
-    .. versionchanged:: 0.1.0
-       No more trailing slashes in links.
-
-    .. versionchanged:: 0.0.3
-       Now returning a JSON link
-    """
-    return {'title': '%s' % config.DOMAIN[resource]['item_title'],
-            'href': '%s/%s' % (resource_uri(resource), document_id)}
-
-
 def home_link():
     """ Returns a link to the API entry point/home page.
 

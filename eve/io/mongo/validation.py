@@ -134,14 +134,18 @@ class Validator(Validator):
                         " data_relation if '%s' isn't versioned" %
                         data_relation['resource'])
                 else:
+                    search = None
+
                     # support late versioning
-                    if value[version_field] == 0:
+                    if value[version_field] == 1:
                         # there is a chance this document hasn't been saved
                         # since versioning was turned on
                         search = missing_version_field(data_relation, value)
-                    else:
+
+                    if not search:
                         search = get_data_version_relation_document(
                             data_relation, value)
+
                     if not search:
                         self._error(
                             field, "value '%s' must exist in resource"
@@ -177,6 +181,17 @@ class Validator(Validator):
         if not isinstance(value, ObjectId):
             self._error(field, "value '%s' cannot be converted to a ObjectId"
                         % value)
+
+    def _validate_readonly(self, read_only, field, value):
+        """ Since default values are now resolved before validation we make
+        sure that a value for a read-only field is considered legit if it
+        matches an eventual 'default' setting for the field.
+
+        .. versionadded:: 0.4
+        """
+        default = config.DOMAIN[self.resource]['schema'][field].get('default')
+        if value != default:
+            super(Validator, self)._validate_readonly(read_only, field, value)
 
     def _validate_type_media(self, field, value):
         """ Enables validation for `media` data type.
@@ -265,3 +280,8 @@ class Validator(Validator):
             GeometryCollection(value)
         except TypeError:
             self._error(field, "GeometryCollection not correct" % value)
+<<<<<<< HEAD
+=======
+                         
+ 
+>>>>>>> develop
