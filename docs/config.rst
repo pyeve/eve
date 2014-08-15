@@ -419,7 +419,9 @@ uppercase.
 ``VALIDATION_ERROR_STATUS``         The HTTP status code to use for validation errors.
                                     Defaults to ``422``.
 
-``VERSIONING``                      Enabled documents version control when``True``. Can be erridden by resource settings. Defaults to ``False``.
+``VERSIONING``                      Enabled documents version control when 
+                                    ``True``. Can be overridden by resource 
+                                    settings. Defaults to ``False``.
 
 ``VERSIONS``                        Suffix added to the name of the primary
                                     collection to create the name of the shadow
