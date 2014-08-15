@@ -60,6 +60,16 @@
 <h2>Version 0.5<a class="headerlink" href="#version-0-5" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[fix] Support for list of strings as default value for fields (hansotronic).</li>
+<li>[new] Add extra 4xx response codes for proper handling. Only <tt class="docutils literal"><span class="pre">405</span></tt> Method not
+allowed, <tt class="docutils literal"><span class="pre">406</span></tt> Not acceptable, <tt class="docutils literal"><span class="pre">409</span></tt> Conflict, and <tt class="docutils literal"><span class="pre">410</span></tt> Gone have been
+added to the list (Kurt Doherty).</li>
+<li>[new] Add serializers for integer and float types (Grisha K.)</li>
+<li>[new] <tt class="docutils literal"><span class="pre">post_internal()</span></tt> can be used for intenral post calls. This method is
+not rate limited,authentication is not checked and pre-request events are not
+raised (Magdas Adrian).</li>
+<li>[new] Internal resource can be used for data manipulation using the data
+layer (Magdas Adrian).</li>
 <li>[fix] Media fields are now properly returned even in embedded documents.
 Closes #305.</li>
 <li>[fix] auth in domain configuration can be either a callable or a class

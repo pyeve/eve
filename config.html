@@ -895,7 +895,15 @@ database whose values can actually be casted to
 ObjectId values, but shouldn&#8217;t. Only effects
 queries (<tt class="docutils literal"><span class="pre">?where=</span></tt>). Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">internal_resource</span></tt></td>
+<td>When <tt class="docutils literal"><span class="pre">True</span></tt>, this option makes the resource
+internal. No HTTP action can be performed on
+the endpoint, which is still accessible from
+the Eve data layer. See
+<a class="reference internal" href="features.html#internal-resources"><em>Internal Resources</em></a> for more
+informations. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
 <td>A dict defining the actual data structure being
 handled by the resource. Enables data
 validation. See <a class="reference internal" href="#schema-definition">Schema Definition</a>.</td>

@@ -1414,6 +1414,56 @@ response payloads by sending requests like this one:</p>
 </div>
 </div>
 </div>
+<div class="section" id="internal-resources">
+<span id="id5"></span><h2>Internal Resources<a class="headerlink" href="#internal-resources" title="Permalink to this headline">¶</a></h2>
+<p>By default responses to GET requests to the home endpoint will include all the
+resources. The <tt class="docutils literal"><span class="pre">internal_resource</span></tt> setting keyword, however, allows you to
+make an endpoint internal, available only for internal data manipulation: no
+HTTP calls can be made against it and it will be excluded from the <tt class="docutils literal"><span class="pre">HATEOAS</span></tt>
+links.</p>
+<p>An usage example would be a mechanism for logging all inserts happening in
+the system, something that can be used for auditing or a notification system.
+First we define an <tt class="docutils literal"><span class="pre">internal_transaction</span></tt> endpoint, which is flagged as an
+<tt class="docutils literal"><span class="pre">internal_resource</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre> <span class="n">internal_transactions</span> <span class="o">=</span> <span class="p">{</span>
+     <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="s">&#39;entities&#39;</span><span class="p">:</span> <span class="p">{</span>
+             <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+         <span class="p">},</span>
+         <span class="s">&#39;original_resource&#39;</span><span class="p">:</span> <span class="p">{</span>
+             <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
+         <span class="p">},</span>
+     <span class="p">},</span>
+<span class="hll">     <span class="s">&#39;internal_resource&#39;</span><span class="p">:</span> <span class="bp">True</span>
+</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>Now, if we access the home endpoint and <tt class="docutils literal"><span class="pre">HATEOAS</span></tt> is enabled, we won&#8217;t get
+the <tt class="docutils literal"><span class="pre">internal-transactions</span></tt> listed (and hitting the endpoint via HTTP wil
+return a <tt class="docutils literal"><span class="pre">404</span></tt>.) We can use the data layer to access our secret endpoint.
+Something like this:</p>
+<div class="highlight-python"><div class="highlight"><pre> <span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
+
+ <span class="k">def</span> <span class="nf">on_generic_inserted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">documents</span><span class="p">):</span>
+     <span class="k">if</span> <span class="n">resource</span> <span class="o">!=</span> <span class="s">&#39;internal_transactions&#39;</span><span class="p">:</span>
+         <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+         <span class="n">transaction</span> <span class="o">=</span> <span class="p">{</span>
+             <span class="s">&#39;entities&#39;</span><span class="p">:</span>  <span class="p">[</span><span class="n">document</span><span class="p">[</span><span class="s">&#39;_id&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">document</span> <span class="ow">in</span> <span class="n">documents</span><span class="p">],</span>
+             <span class="s">&#39;original_resource&#39;</span><span class="p">:</span> <span class="n">resource</span><span class="p">,</span>
+             <span class="n">config</span><span class="o">.</span><span class="n">LAST_UPDATED</span><span class="p">:</span> <span class="n">dt</span><span class="p">,</span>
+             <span class="n">config</span><span class="o">.</span><span class="n">DATE_CREATED</span><span class="p">:</span> <span class="n">dt</span><span class="p">,</span>
+         <span class="p">}</span>
+<span class="hll">         <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&#39;internal_transactions&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">transaction</span><span class="p">])</span>
+</span>
+ <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
+ <span class="n">app</span><span class="o">.</span><span class="n">on_inserted</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_generic_inserted</span>
+
+ <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>I admit that this example is as rudimentary as it can get, but hopefully it
+will get the point across.</p>
+</div>
 <div class="section" id="mongodb-support">
 <h2>MongoDB Support<a class="headerlink" href="#mongodb-support" title="Permalink to this headline">¶</a></h2>
 <p>Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL
@@ -1541,6 +1591,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li><a class="reference internal" href="#leveraging-projections-to-optimize-the-handling-of-media-files">Leveraging Projections to optimize the handling of media files</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#internal-resources">Internal Resources</a></li>
 <li><a class="reference internal" href="#mongodb-support">MongoDB Support</a></li>
 <li><a class="reference internal" href="#powered-by-flask">Powered by Flask</a></li>
 </ul>

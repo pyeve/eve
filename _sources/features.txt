@@ -1377,6 +1377,66 @@ response payloads by sending requests like this one:
 
     for details on the ``datasource`` setting.
 
+.. _internal_resources:
+
+Internal Resources
+------------------
+By default responses to GET requests to the home endpoint will include all the
+resources. The ``internal_resource`` setting keyword, however, allows you to
+make an endpoint internal, available only for internal data manipulation: no
+HTTP calls can be made against it and it will be excluded from the ``HATEOAS``
+links.
+
+An usage example would be a mechanism for logging all inserts happening in
+the system, something that can be used for auditing or a notification system.
+First we define an ``internal_transaction`` endpoint, which is flagged as an
+``internal_resource``:
+
+.. code-block:: python
+   :emphasize-lines: 10
+
+    internal_transactions = {
+        'schema': {
+            'entities': {
+                'type': 'list',
+            },
+            'original_resource': {
+                'type': 'string',
+            },
+        },
+        'internal_resource': True
+    }
+
+
+Now, if we access the home endpoint and ``HATEOAS`` is enabled, we won't get
+the ``internal-transactions`` listed (and hitting the endpoint via HTTP wil
+return a ``404``.) We can use the data layer to access our secret endpoint.
+Something like this:
+
+.. code-block:: python
+   :emphasize-lines: 12
+    
+    from eve import Eve
+
+    def on_generic_inserted(self, resource, documents):
+        if resource != 'internal_transactions':
+            dt = datetime.now()
+            transaction = {
+                'entities':  [document['_id'] for document in documents],
+                'original_resource': resource,
+                config.LAST_UPDATED: dt,
+                config.DATE_CREATED: dt,
+            }
+            app.data.insert('internal_transactions', [transaction])
+
+    app = Eve()
+    app.on_inserted += self.on_generic_inserted
+
+    app.run()
+
+I admit that this example is as rudimentary as it can get, but hopefully it
+will get the point across.
+
 MongoDB Support
 ---------------
 Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL

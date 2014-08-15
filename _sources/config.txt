@@ -748,6 +748,13 @@ always lowercase.
                                 ObjectId values, but shouldn't. Only effects
                                 queries (``?where=``). Defaults to ``False``.
 
+``internal_resource``           When ``True``, this option makes the resource 
+                                internal. No HTTP action can be performed on
+                                the endpoint, which is still accessible from
+                                the Eve data layer. See
+                                :ref:`internal_resources` for more
+                                informations. Defaults to ``False``.
+
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data
                                 validation. See `Schema Definition`_.
