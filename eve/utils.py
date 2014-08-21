@@ -163,7 +163,8 @@ def weak_date(date):
 
 
 def str_to_date(string):
-    """ Converts a RFC-1123 string to the corresponding datetime value.
+    """ Converts a date string formatted as defined in the configuration
+        to the corresponding datetime value.
 
     :param string: the RFC-1123 string to convert to datetime value.
     """
@@ -171,12 +172,18 @@ def str_to_date(string):
 
 
 def date_to_str(date):
-    """ Converts a datetime value to the corresponding RFC-1123 string.
+    """ Converts a datetime value to the format defined in the configuration file.
 
     :param date: the datetime value to convert.
     """
     return datetime.strftime(date, config.DATE_FORMAT) if date else None
 
+def date_to_rfc1123(date):
+    """ Converts a datetime value to the corresponding RFC-1123 string.
+
+    :param date: the datetime value to convert.
+    """
+    return datetime.strftime(date, '%a, %d %b %Y %H:%M:%S GMT') if date else None
 
 def home_link():
     """ Returns a link to the API entry point/home page.
