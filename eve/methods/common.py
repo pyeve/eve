@@ -574,6 +574,8 @@ def resolve_embedded_documents(document, resource, embedded_fields):
         fields_chain = field.split('.')
         last_field = fields_chain[-1]
         for subdocument in subdocuments(fields_chain[:-1], document):
+            if last_field not in subdocument:
+                continue
             if isinstance(subdocument[last_field], list):
                 subdocument[last_field] = list(map(getter,
                                                    subdocument[last_field]))
