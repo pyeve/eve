@@ -11,3 +11,4 @@ redis==2.10.1
 Sphinx==1.2.2
 tox==1.7.1
 wheel==0.24.0
+alabaster==0.6.0
