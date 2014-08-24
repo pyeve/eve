@@ -160,6 +160,7 @@ html_theme_options = {
     'github_user': 'nicolaiarocci',
     'github_repo': 'eve',
     'github_banner': True,
+    'github_banner_image': 'forkme_right_green_007200.png',
     'travis_button': True,
     'gittip_user': 'nicolaiarocci',
     'show_powered_by': False,
