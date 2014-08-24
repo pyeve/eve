@@ -3,9 +3,9 @@
 
 Python REST API Framework
 =========================
-Powered by Flask, MongoDB, Redis and good intentions Eve allows to
+*Powered by Flask, MongoDB, Redis and good intentions Eve allows to
 effortlessly build and deploy highly customizable, fully featured RESTful Web
-Services.
+Services*
 
 Eve is Simple
 -------------
@@ -41,8 +41,9 @@ show you how easy it is to run an API with Eve. You will also find `usage
 examples`_ for all common use cases (GET, POST, PATCH, DELETE and more). There
 is also a simple `client app`_ available.
 
+User's Guide
+------------
 .. toctree::
-    :hidden:
     :maxdepth: 2
 
     foreword
@@ -55,18 +56,34 @@ is also a simple `client app`_ available.
     tutorials/index
     extensions
 
+Developer's Guide
+-----------------
+.. toctree::
+    :maxdepth: 1
+
     contributing
     testing
+
+*A proper developer guide will be available when 1.0 is released*
+
+Support, Updates and Licensing
+------------------------------
+.. toctree::
+    :maxdepth: 1
 
     support
     updates
     authors
     license
 
+Changelog
+---------
+.. toctree::
+    :maxdepth: 2
+
     changelog
 
 .. note::
-
    This documentation is under development. Please refer to the links on the
    sidebar for more information, or to get in touch with the development team
    (that being me_).
