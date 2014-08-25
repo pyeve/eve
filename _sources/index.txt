@@ -47,6 +47,7 @@ User's Guide
     :maxdepth: 2
 
     foreword
+    rest_api_for_humans
     install
     quickstart
     features
@@ -55,7 +56,6 @@ User's Guide
     authentication
     tutorials/index
     extensions
-    rest_api_for_humans
 
 Developer's Guide
 -----------------
