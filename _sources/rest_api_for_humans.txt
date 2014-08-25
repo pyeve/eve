@@ -1,0 +1,4 @@
+REST API for Humans™
+--------------------
+.. embedly:: http://speakerdeck.com/nicola/eve-rest-api-for-humans
+
