@@ -520,6 +520,20 @@ class TestGet(TestBase):
         content = json.loads(r.get_data())
         self.assertTrue('location' in content['person'])
 
+        # Add new embeddable field to schema
+        invoices['schema']['missing-field'] = {
+            'type': 'objectid',
+            'data_relation': {'resource': 'contacts', 'embeddable': True}
+        }
+
+        # Test that it ignores embeddable field that is missing from document
+        embedded = '{"missing-field": 1}'
+        r = self.test_client.get('%s/%s' % (invoices['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertFalse('missing-field' in content['_items'][0])
+
     def test_get_default_embedding(self):
         # We need to assign a `person` to our test invoice
         _db = self.connection[MONGO_DBNAME]

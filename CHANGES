@@ -8,10 +8,13 @@ Version 0.5
 
 Not released yet.
 
+- [fix] KeyError when trying to use embedding on a field that is missing from
+  document. It was fixed earlier in #319, but came back again after new
+  embedding mechanism (Daniel Lytkin). 
 - [fix] Support for list of strings as default value for fields (hansotronic).
-- [new] Add extra 4xx response codes for proper handling. Only ``405`` Method not
-  allowed, ``406`` Not acceptable, ``409`` Conflict, and ``410`` Gone have been
-  added to the list (Kurt Doherty).
+- [new] Add extra 4xx response codes for proper handling. Only ``405`` Method
+  not allowed, ``406`` Not acceptable, ``409`` Conflict, and ``410`` Gone have
+  been added to the list (Kurt Doherty).
 - [new] Add serializers for integer and float types (Grisha K.) 
 - [new] ``post_internal()`` can be used for intenral post calls. This method is
   not rate limited,authentication is not checked and pre-request events are not
