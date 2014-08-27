@@ -49,6 +49,18 @@ First time contributor?
 -----------------------
 It's alright. We've all been there. See next chapter.
 
+Run specific tests
+------------------
+While developing it is a good idea to iterate running just the tests
+related to your change, and then run the whole suite just before the
+commit or the pull request. You can run specific tests for example
+using ``py.test``::
+
+    $ pip install pytest  # i recommend to have a virtual env activated
+    $ pip install -e .    # install Eve code in edit mode
+    $ py.test <file_path> # for example eve/tests/methods/common.py
+    
+
 Don't know where to start? 
 --------------------------
 There are usually several TODO comments scattered around the codebase, maybe
