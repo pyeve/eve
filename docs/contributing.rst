@@ -1,4 +1,4 @@
 .. _contributing:
 
-.. include:: ../contributing.rst
+.. include:: ../CONTRIBUTING.rst
 

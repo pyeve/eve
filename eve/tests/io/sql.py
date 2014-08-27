@@ -3,22 +3,22 @@
 import random
 import os
 import string
+import eve
 from datetime import datetime
 from unittest import TestCase
 from sqlalchemy.sql.elements import BooleanClauseList
 from operator import and_, or_
-import eve
 from eve.io.sql.parser import parse, parse_dictionary, ParseError, sqla_op
 from eve.io.sql.structures import SQLAResultCollection, SQLAResult
 from eve.io.sql import SQL
 from eve.utils import str_to_date
+from eve.tests.test_sql_tables import People
 
 
 class TestSQLParser(TestCase):
-    from eve.tests import test_sql_tables
 
     def setUp(self):
-        self.model = self.test_sql_tables.People
+        self.model = People
 
     def test_wrong_attribute(self):
         self.assertRaises(AttributeError, parse, 'a == 1', self.model)
@@ -131,11 +131,11 @@ class TestSQLParser(TestCase):
 
 
 class TestSQLStructures(TestCase):
-    from eve.tests import test_sql_tables
 
     def setUp(self):
-        self.person = self.test_sql_tables.People(firstname='douglas', lastname='adams', prog=5,
-                                                  _id=1, _updated=datetime.now(), _created=datetime.now())
+        self.person = People(firstname='douglas', lastname='adams', prog=5,
+                _id=1, _updated=datetime.now(), _created=datetime.now())
+
         self.fields = ['_id', '_updated', '_created', 'firstname', 'lastname', 'prog']
         self.known_resource_count = 101
         self.max_results = 25
@@ -180,14 +180,13 @@ class TestSQLStructures(TestCase):
         self.connection.drop_all()
         self.connection.create_all()
         self.bulk_insert()
-        self.query = self.test_sql_tables.People.query
+        self.query = self.connection.session.query(People)
 
     def bulk_insert(self):
-        sql_tables = self.test_sql_tables
-        if not self.connection.session.query(sql_tables.People).count():
+        if not self.connection.session.query(People).count():
             # load random people in db
             people = self.random_people(self.known_resource_count)
-            people = [sql_tables.People.from_tuple(item) for item in people]
+            people = [People.from_tuple(item) for item in people]
             for person in people:
                 self.connection.session.add(person)
             self.connection.session.commit()

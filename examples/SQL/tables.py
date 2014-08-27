@@ -1,35 +1,55 @@
-# -*- coding: utf-8 -*-
-
 """
     SQL tables.
-
-    The new SQL data layer for Eve uses SQLAlchemy, specifically Flask-SQLAlchemy, for interacting
-    with a SQL database. To prevent Flask-SQLAlchemy to define the tables twice, the new layer
-    requires the schema definition to be split into two python files, one for the tables and one for
-    the schema dictionary required by Eve (settings.py).
-
-    All defined tables should inherit from CommonColumns which attaches the _created, _updated and _id
-    columns to all tables. NOTE: The SQL data layer does not conform yet to Eve feature that lets you specify
-    a custom name for the ID field.
-
-    All tables should have the registerSchema decorator applied to them in order to be registered in Eve's
-    schema. The argument of the decorator is name of the resource for Eve.
-
+    This is a typical declarative usage of sqlalchemy,
+    It has no dependency on flask or eve iself. Pure sqlalchemy.
 """
+from sqlalchemy import inspect
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext import hybrid
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import column_property, relationship
+from sqlalchemy import func
+from sqlalchemy import (
+    Column,
+    String,
+    Integer,
+    ForeignKey,
+    DateTime)
 
-from eve.io.sql.decorators import registerSchema
-from eve.io.sql.common import CommonColumns
-from eve.io.sql import db
+Base = declarative_base()
 
-@registerSchema('people')
+
+class CommonColumns(Base):
+    __abstract__ = True
+    _created = Column(DateTime, default=func.now())
+    _updated = Column(DateTime, default=func.now(), onupdate=func.now())
+
+    @hybrid_property
+    def _id(self):
+        """
+        Eve backward compatibility
+        """
+        return self.id
+
+    def jsonify(self):
+        """
+        Used to dump related objects to json
+        """
+        relationships = inspect(self.__class__).relationships.keys()
+        mapper = inspect(self)
+        attrs = [a.key for a in mapper.attrs if \
+                a.key not in relationships \
+                and not a.key in mapper.expired_attributes]
+        attrs += [a.__name__ for a in inspect(self.__class__).all_orm_descriptors if a.extension_type is hybrid.HYBRID_PROPERTY]
+        return dict([(c, getattr(self, c, None)) for c in attrs])
+
+
 class People(CommonColumns):
     __tablename__ = 'people'
-    firstname = db.Column(db.String(80))
-    lastname = db.Column(db.String(120))
-    fullname = db.column_property(firstname + " " + lastname)
-
-    def __repr__(self):
-        return '<People %s>' % (self.fullname,)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    firstname = Column(String(80))
+    lastname = Column(String(120))
+    fullname = column_property(firstname + " " + lastname)
 
     @classmethod
     def from_tuple(cls, data):
@@ -37,8 +57,9 @@ class People(CommonColumns):
         return cls(firstname=data[0], lastname=data[1])
 
 
-@registerSchema('invoices')
 class Invoices(CommonColumns):
     __tablename__ = 'invoices'
-    number = db.Column(db.Integer)
-    people = db.Column(db.Integer, db.ForeignKey('people._id'))
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    number = Column(Integer)
+    people_id = Column(Integer, ForeignKey('people.id'))
+    people = relationship(People, uselist=False)

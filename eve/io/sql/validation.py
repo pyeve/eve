@@ -14,6 +14,7 @@
 """
 
 from cerberus import Validator
+from bson import ObjectId
 from eve.utils import config
 from flask import current_app as app
 from eve.versioning import get_data_version_relation_document, missing_version_field
@@ -74,3 +75,9 @@ class ValidatorSQL(Validator):
             if not app.data.find_one(data_relation['resource'], None, **query):
                 self._error(field, "value '%s' must exist in resource '%s', field '%s'." %
                             (value, data_relation['resource'], data_relation['field']))
+
+    def _validate_type_objectid(self, field, value):
+        """
+        This field doesn't have a meaning in SQL
+        """
+        pass

@@ -16,6 +16,8 @@ import ast
 import flask.ext.sqlalchemy as flask_sqlalchemy
 import operator as operator
 from eve.utils import str_to_date
+from sqlalchemy import String
+from sqlalchemy.ext.associationproxy import AssociationProxy
 
 sqla_op = operator
 sqla_exp = flask_sqlalchemy.sqlalchemy.sql.expression
@@ -25,7 +27,7 @@ class ParseError(ValueError):
     pass
 
 
-def parse_dictionary(filter_dict, model):
+def parse_dictionary(filter_dict, model, ilike=False):
     """
     Parse a dictionary into a list of SQLAlchemy BinaryExpressions to be used in query filters.
 
@@ -36,8 +38,24 @@ def parse_dictionary(filter_dict, model):
     if len(filter_dict) == 0:
         return []
     conditions = []
-    for k, v in filter_dict.items():
-        conditions.append(sqla_op.eq(getattr(model, k), v))
+    for k, v in filter_dict.iteritems():
+        # first check if we have FK or PK before using ilike
+        attr = getattr(model, k)
+        if isinstance(attr, AssociationProxy):
+            conditions.append(attr.contains(v))
+        else:
+            if hasattr(attr.property, 'remote_side'): # a relation
+                for fk in attr.property.remote_side:
+                    conditions.append(sqla_op.eq(fk, v))
+            else:
+                column = attr.property.columns[0]
+                if isinstance(v, list):
+                    conditions.append(getattr(model, k).in_(v))
+                elif ilike and isinstance(column.type, String) and not column.foreign_keys:
+                    conditions.append(getattr(model, k).ilike('%{0}%'.format(v)))
+                else:
+                    conditions.append(sqla_op.eq(getattr(model, k), v))
+
     return conditions
 
 

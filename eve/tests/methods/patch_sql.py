@@ -1,4 +1,3 @@
-import unittest
 import simplejson as json
 from datetime import datetime
 
@@ -155,16 +154,16 @@ class TestPatch(TestBaseSQL):
         self.assertTrue('OK' in r[STATUS])
 
     def test_patch_referential_integrity(self):
-        data = {'people': int(self.unknown_item_id)}
+        data = {'people_id': int(self.unknown_item_id)}
         headers = [('If-Match', self.invoice_etag)]
         r, status = self.patch(self.invoice_id_url, data=data, headers=headers)
         self.assert200(status)
         expected = ("value '%s' must exist in resource '%s', field '%s'" %
                     (self.unknown_item_id, 'people',
                      self.app.config['ID_FIELD']))
-        self.assertValidationError(r, {'people': expected})
+        self.assertValidationError(r, {'people_id': expected})
 
-        data = {'people': self.item_id}
+        data = {'people_id': self.item_id}
         r, status = self.patch(self.invoice_id_url, data=data, headers=headers)
         self.assert200(status)
         self.assertPatchResponse(r, self.invoice_id)
@@ -207,7 +206,7 @@ class TestPatch(TestBaseSQL):
         _db.session.commit()
         fake_person_id = fake_person._id
         fake_invoice = self.test_sql_tables.Invoices(number=4)
-        fake_invoice.people = fake_person_id
+        fake_invoice.people_id = fake_person_id
         fake_invoice._created = datetime.now()
         fake_invoice._updated = datetime.now()
         _db.session.add(fake_invoice)

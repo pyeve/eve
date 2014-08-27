@@ -105,7 +105,7 @@ class TestDeleteSQL(TestBaseSQL):
         _db.session.commit()
         fake_person_id = fake_person._id
         fake_invoice = self.test_sql_tables.Invoices(number=4)
-        fake_invoice.people = fake_person._id
+        fake_invoice.people_id = fake_person._id
         fake_invoice._created = datetime.now()
         fake_invoice._updated = datetime.now()
         _db.session.add(fake_invoice)
@@ -121,7 +121,7 @@ class TestDeleteSQL(TestBaseSQL):
         # verify that the only document retrieved is referencing the correct
         # parent document
         response, status = self.get('users/%s/invoices' % fake_person_id)
-        person_id = response[self.app.config['ITEMS']][0]['people']
+        person_id = response[self.app.config['ITEMS']][1]['people']['_id']
         self.assertEqual(person_id, fake_person_id)
 
         # delete all documents at the sub-resource endpoint
@@ -135,7 +135,7 @@ class TestDeleteSQL(TestBaseSQL):
         # verify that other documents in the invoices collection have not been
         # deleted
         response, status = self.get('invoices')
-        self.assertEqual(len(response['_items']), invoices - 1)
+        self.assertEqual(len(response['_items']), invoices - 2)
 
     def test_delete_subresource_item(self):
         _db = self.app.data.driver
@@ -148,7 +148,7 @@ class TestDeleteSQL(TestBaseSQL):
         _db.session.commit()
         fake_person_id = fake_person._id
         fake_invoice = self.test_sql_tables.Invoices(number=4)
-        fake_invoice.people = fake_person._id
+        fake_invoice.people_id = fake_person._id
         fake_invoice._created = datetime.now()
         fake_invoice._updated = datetime.now()
         _db.session.add(fake_invoice)

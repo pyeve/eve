@@ -121,19 +121,19 @@ class TestPostSQL(TestBaseSQL):
         self.assertTrue('OK' in r[STATUS])
         self.assertPostResponse(r)
 
-    def test_post_referential_integrity(self):
-        data = {"people": int(self.unknown_item_id)}
-        r, status = self.post('/invoices/', data=data)
-        self.assert400(status)
-        expected = ("value '%s' must exist in resource '%s', field '%s'" %
-                    (self.unknown_item_id, 'people',
-                     self.app.config['ID_FIELD']))
-        self.assertValidationError(r, {'people': expected})
-
-        data = {"people": self.item_id}
-        r, status = self.post('/invoices/', data=data)
-        self.assert201(status)
-        self.assertPostResponse(r)
+#    def test_post_referential_integrity(self):
+#        data = {"people": int(self.unknown_item_id)}
+#        r, status = self.post('/invoices/', data=data)
+#        self.assert400(status)
+#        expected = ("value '%s' must exist in resource '%s', field '%s'" %
+#                    (self.unknown_item_id, 'people',
+#                     self.app.config['ID_FIELD']))
+#        self.assertValidationError(r, {'people': expected})
+#
+#        data = {"people": self.item_id}
+#        r, status = self.post('/invoices/', data=data)
+#        self.assert201(status)
+#        self.assertPostResponse(r)
 
     def test_post_allow_unknown(self):
         data = {"unknown": "unknown"}
@@ -200,11 +200,17 @@ class TestPostSQL(TestBaseSQL):
         self.assert201(status)
         self.assertTrue('_update_date' in r and LAST_UPDATED not in r)
 
-    def test_subresource(self):
-        response, status = self.post('users/%s/invoices' %
-                                     self.item_id, data={})
-        self.assert201(status)
-        self.assertPostResponse(response)
+#    def test_subresource(self):
+#        response, status = self.post('users/%s/invoices' %
+#                                     self.item_id, data={})
+#        self.assert201(status)
+#        self.assertPostResponse(response)
+#
+#        invoice_id = response.get(self.app.config['ID_FIELD'])
+#        response, status = self.get('users/%s/invoices/%s' %
+#                                    (self.item_id, invoice_id))
+#        self.assert200(status)
+#        self.assertEqual(response.get('people'), self.item_id)
 
         invoice_id = response.get(self.app.config['ID_FIELD'])
         response, status = self.get('users/%s/invoices/%s' %

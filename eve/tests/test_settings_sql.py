@@ -29,20 +29,20 @@ people = {'item_title': 'person',
 import copy
 users = copy.deepcopy(people)
 users['url'] = 'users'
-users['datasource'] = {'source': 'people',
+users['datasource'] = {'source': 'People',
                        'filter': 'prog < 5'}
 users['resource_methods'] = ['DELETE', 'POST', 'GET']
 users['item_title'] = 'user'
 
 users_overseas = copy.deepcopy(users)
 users_overseas['url'] = 'users/overseas'
-users_overseas['datasource'] = {'source': 'people'}
+users_overseas['datasource'] = {'source': 'People'}
 
 invoices = {}
 
 user_invoices = copy.deepcopy(invoices)
 user_invoices['url'] = 'users/<regex("[0-9]+"):people>/invoices'
-user_invoices['datasource'] = {'source': 'invoices'}
+user_invoices['datasource'] = {'source': 'Invoices'}
 
 payments = {
     'resource_methods': ['GET'],
