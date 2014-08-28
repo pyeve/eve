@@ -16,7 +16,8 @@ import simplejson as json
 from werkzeug import utils
 from functools import wraps
 from eve.methods.common import get_rate_limit
-from eve.utils import date_to_str, config, request_method, debug_error_message
+from eve.utils import date_to_str, date_to_rfc1123, config, request_method, \
+    debug_error_message
 from flask import make_response, request, Response, current_app as app, abort
 
 # mapping between supported mime types and render functions.
@@ -161,7 +162,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     if etag:
         resp.headers.add('ETag', etag)
     if last_modified:
-        resp.headers.add('Last-Modified', date_to_str(last_modified))
+        resp.headers.add('Last-Modified', date_to_rfc1123(last_modified))
 
     # CORS
     origin = request.headers.get('Origin')
