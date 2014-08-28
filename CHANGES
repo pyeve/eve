@@ -8,6 +8,8 @@ Version 0.5
 
 Not released yet.
 
+- [fix] Do not follow DATE_FORMAT for HTTP headers. Closes #429 (Olivier
+  Poitrey).
 - [fix] Fix app initialization with resource level versioning #409 (Sebastián
   Magrí).
 - [fix] KeyError when trying to use embedding on a field that is missing from
