@@ -383,9 +383,6 @@ class Eve(Flask, Events):
                     raise SchemaException("'resource' key is mandatory for "
                                           "the 'data_relation' rule in "
                                           "'%s: %s'" % (resource, field))
-                # If the field is listed as `embeddable`
-                # it must be type == 'objectid'
-                # TODO: allow serializing a list( type == 'objectid')
                 if ruleset['data_relation'].get('embeddable', False):
 
                     # special care for data_relations with a version
@@ -399,16 +396,6 @@ class Eve(Flask, Events):
                                 "declaring an embedded data_relation with"
                                 " version." % value_field
                             )
-                        else:
-                            type = ruleset['schema'][value_field]['type']
-                    else:
-                        type = ruleset['type']
-
-                    if type != 'objectid':
-                        raise SchemaException(
-                            "In order for the 'data_relation' rule to be "
-                            "embeddable it must be of type 'objectid'"
-                        )
 
         # TODO are there other mandatory settings? Validate them here
 
