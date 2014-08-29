@@ -8,6 +8,8 @@ Version 0.5
 
 Not released yet.
 
+- [change] If-Modified-Since has been disabled on resource (collections)
+  endpoints. Closes #334.
 - [fix] Can't embed a ressource with a custom _id (non ObjectId). Closes #427.
 - [fix] Do not follow DATE_FORMAT for HTTP headers. Closes #429 (Olivier
   Poitrey).

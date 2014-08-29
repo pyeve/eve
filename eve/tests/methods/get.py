@@ -295,9 +295,6 @@ class TestGet(TestBase):
         response, _ = self.get(self.known_resource)
         self.assertEqual(response['_items'][0]['prog'], 0)
 
-    def test_get_if_modified_since(self):
-        self.assertIfModifiedSince(self.known_resource_url)
-
     def test_cache_control(self):
         self.assertCacheControl(self.known_resource_url)
 
