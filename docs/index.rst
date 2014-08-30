@@ -47,6 +47,7 @@ User's Guide
     :maxdepth: 2
 
     foreword
+    rest_api_for_humans
     install
     quickstart
     features

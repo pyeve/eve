@@ -30,8 +30,10 @@ Making Changes
   python versions. ``pip install tox; tox``
 * Don't forget to add yourself to AUTHORS_.
 
-These guidelines also apply when helping with documentation (actually, for
-typos and minor additions you might choose to `fork and edit`_).
+These guidelines also apply when helping with documentation (actually,
+for typos and minor additions you might choose to `fork and
+edit`_). See also the `running the tests`_ section in the official
+documentation.
 
 Submitting Changes
 ------------------
@@ -74,5 +76,6 @@ case, other than GitHub help_ pages, you might want to check this excellent
 .. _`Effective Guide to Pull Requests`: http://codeinthehole.com/writing/pull-requests-and-other-good-practices-for-teams-using-github/
 .. _`fork and edit`: https://github.com/blog/844-forking-with-the-edit-button
 .. _`Pull Request`: https://help.github.com/articles/creating-a-pull-request
+.. _`running the tests`: http://python-eve.org/testing#running-the-tests
 
 

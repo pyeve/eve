@@ -31,11 +31,11 @@ from eve.versioning import resolve_document_version, \
 def post(resource, payl=None):
     """
     Default function for handling POST requests, it has decorators for
-    rate limiting, authentication and for raising pre-request events.
-    After the decorators are applied forwards to call to :see: post_internal
+    rate limiting, authentication and for raising pre-request events. After the
+    decorators are applied forwards to call to :func:`post_internal`
 
     .. versionchanged:: 0.5
-       Split into post() and post_internal().
+       Split original post() into post/post_internal combo.
     """
     return post_internal(resource, payl)
 
