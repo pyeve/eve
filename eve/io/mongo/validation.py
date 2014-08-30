@@ -19,7 +19,7 @@ from cerberus import Validator
 from werkzeug.datastructures import FileStorage
 from eve.versioning import get_data_version_relation_document, \
     missing_version_field
-from eve.io.mongo.utils import Point, MultiPoint, LineString, Polygon, \
+from eve.io.mongo.geo import Point, MultiPoint, LineString, Polygon, \
     MultiLineString, MultiPolygon, GeometryCollection
 
 
