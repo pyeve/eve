@@ -7,6 +7,7 @@ from eve.tests.test_settings import MONGO_DBNAME
 from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, DATE_CREATED, ISSUES, \
     STATUS, ETAG
 from eve.methods.post import post
+from eve.methods.post import post_internal
 
 
 class TestPost(TestBase):
@@ -430,6 +431,15 @@ class TestPost(TestBase):
 
         r, status = self.post(self.known_resource_url,
                               data={"keyschema_dict": {"k1": 1}})
+        self.assert201(status)
+
+    def test_post_internal(self):
+        # test that post_internal is available and working properly.
+        test_field = 'ref'
+        test_value = "1234567890123456789054321"
+        payload = {test_field: test_value}
+        with self.app.test_request_context(self.known_resource_url):
+            r, _, _, status = post_internal(self.known_resource, payl=payload)
         self.assert201(status)
 
     def perform_post(self, data, valid_items=[0]):

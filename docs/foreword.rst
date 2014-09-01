@@ -15,7 +15,8 @@ through a RESTful Web API. Eve is the tool that allows you to do so.
 Eve provides a robust, feature rich, REST-centered API implementation,
 and you just need to configure your API settings and behavior, plug in your
 datasource, and you're good to go. See :doc:`features` for a list
-of features available to Eve-powered APIs.
+of features available to Eve-powered APIs. You might want to check the
+:doc:`rest_api_for_humans` slide deck too.
 
 API settings are stored in a standard Python module (defaults to
 ``settings.py``), which makes customization quite a trivial task. It is also

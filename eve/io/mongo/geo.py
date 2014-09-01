@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 """
-    eve.io.mongo.utils
+    eve.io.mongo.geo
     ~~~~~~~~~~~~~~~~~~~
-    Utility functions and classes for mongo IO layer
+    Geospatial functions and classes for mongo IO layer
 
     :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.

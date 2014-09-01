@@ -131,6 +131,11 @@ invoices = {
     }
 }
 
+# This resource is used to test app initialization when using resource
+# level versioning
+versioned_invoices = copy.deepcopy(invoices)
+versioned_invoices['versioning'] = True
+
 companies = {
     'item_title': 'company',
     'schema': {
@@ -183,6 +188,7 @@ DOMAIN = {
     'users': users,
     'users_overseas': users_overseas,
     'invoices': invoices,
+    'versioned_invoices': versioned_invoices,
     'payments': payments,
     'empty': empty,
     'restricted': user_restricted_access,

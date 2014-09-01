@@ -87,31 +87,13 @@ def get(resource, **lookup):
     req = parse_request(resource)
     embedded_fields = resolve_embedded_fields(resource, req)
 
-    # facilitate cached responses
-    if req.if_modified_since:
-        # client has made this request before, has it changed?
-        # this request does not account for deleted documents!!! (issue #243)
-        preflight_req = copy.copy(req)
-        preflight_req.max_results = 1
-        preflight_req.page = 1
-
-        cursor = app.data.find(resource, preflight_req, lookup)
-        if cursor.count() == 0:
-            # make sure the datasource is not empty (#243).
-            if not app.data.is_empty(resource):
-                # the if-modified-since conditional request returned no
-                # documents, we send back a 304 Not-Modified, which means that
-                # the client already has the up-to-date representation of the
-                # resultset.
-                status = 304
-                last_modified = None
-                return response, last_modified, etag, status
-
     # continue processing the full request
     last_update = epoch()
-    req.if_modified_since = None
-    cursor = app.data.find(resource, req, lookup)
 
+    # If-Modified-Since disabled on collections (#334)
+    req.if_modified_since = None
+
+    cursor = app.data.find(resource, req, lookup)
     for document in cursor:
         build_response_document(document, resource, embedded_fields)
         documents.append(document)

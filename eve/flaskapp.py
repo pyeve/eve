@@ -149,8 +149,17 @@ class Eve(Flask, Events):
         self._init_url_rules()
 
         # validate and set defaults for each resource
-        for resource, settings in self.config['DOMAIN'].items():
+
+        # Use a snapshot of the DOMAIN setup for iteration so
+        # further insertion of versioned resources do not
+        # cause a RuntimeError due to the change of size of
+        # the dict
+        domain_copy = copy.deepcopy(self.config['DOMAIN'])
+        for resource, settings in domain_copy.items():
             self.register_resource(resource, settings)
+        # it seems like both domain_copy and config['DOMAIN']
+        # suffered changes at this point, so merge them
+        # self.config['DOMAIN'].update(domain_copy)
 
         self.register_error_handlers()
 
@@ -374,9 +383,6 @@ class Eve(Flask, Events):
                     raise SchemaException("'resource' key is mandatory for "
                                           "the 'data_relation' rule in "
                                           "'%s: %s'" % (resource, field))
-                # If the field is listed as `embeddable`
-                # it must be type == 'objectid'
-                # TODO: allow serializing a list( type == 'objectid')
                 if ruleset['data_relation'].get('embeddable', False):
 
                     # special care for data_relations with a version
@@ -390,16 +396,6 @@ class Eve(Flask, Events):
                                 "declaring an embedded data_relation with"
                                 " version." % value_field
                             )
-                        else:
-                            type = ruleset['schema'][value_field]['type']
-                    else:
-                        type = ruleset['type']
-
-                    if type != 'objectid':
-                        raise SchemaException(
-                            "In order for the 'data_relation' rule to be "
-                            "embeddable it must be of type 'objectid'"
-                        )
 
         # TODO are there other mandatory settings? Validate them here
 
@@ -741,6 +737,11 @@ class Eve(Flask, Events):
                 copy.deepcopy(self.config['SOURCES'][resource])
             self.config['SOURCES'][versioned_resource]['source'] += \
                 self.config['VERSIONS']
+            # the new versioned resource also needs URL rules
+            self._add_resource_url_rules(
+                versioned_resource,
+                self.config['DOMAIN'][versioned_resource]
+            )
 
     def register_error_handlers(self):
         """ Register custom error handlers so we make sure that all errors

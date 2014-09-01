@@ -545,7 +545,7 @@ def resolve_embedded_documents(document, resource, embedded_fields):
     in any subdocuments. For example, query embedded={"user.friends":1}
     will return a document with "user" and all his "friends" embedded,
     but only if "user" is a subdocument and "friends" is a list of
-    references (actually, it couldn't be a list).
+    references.
     We do not support multiple layers embeddings.
 
     :param document: the document to embed other documents into.
@@ -574,6 +574,8 @@ def resolve_embedded_documents(document, resource, embedded_fields):
         fields_chain = field.split('.')
         last_field = fields_chain[-1]
         for subdocument in subdocuments(fields_chain[:-1], document):
+            if last_field not in subdocument:
+                continue
             if isinstance(subdocument[last_field], list):
                 subdocument[last_field] = list(map(getter,
                                                    subdocument[last_field]))
