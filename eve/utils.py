@@ -12,14 +12,12 @@
 
 import eve
 import hashlib
+import werkzeug.exceptions
 from flask import request
 from flask import current_app as app
 from datetime import datetime, timedelta
 from bson.json_util import dumps
-import werkzeug.exceptions
-
-
-RFC1123_DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
+from eve import RFC1123_DATE_FORMAT
 
 
 class Config(object):
@@ -162,7 +160,8 @@ def weak_date(date):
 
     :param date: the date to be adjusted.
     """
-    return datetime.strptime(date, RFC1123_DATE_FORMAT) + timedelta(seconds=1) if date else None
+    return datetime.strptime(date, RFC1123_DATE_FORMAT) + \
+        timedelta(seconds=1) if date else None
 
 
 def str_to_date(string):
@@ -181,12 +180,14 @@ def date_to_str(date):
     """
     return datetime.strftime(date, config.DATE_FORMAT) if date else None
 
+
 def date_to_rfc1123(date):
     """ Converts a datetime value to the corresponding RFC-1123 string.
 
     :param date: the datetime value to convert.
     """
     return datetime.strftime(date, RFC1123_DATE_FORMAT) if date else None
+
 
 def home_link():
     """ Returns a link to the API entry point/home page.
