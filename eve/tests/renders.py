@@ -38,6 +38,26 @@ class TestRenders(TestBase):
                                  headers=[('Accept', 'application/xml')])
         self.assertTrue(b'12345 &amp; 6789' in r.get_data())
 
+    def test_xml_ordered_nodes(self):
+        """ Test that xml nodes are ordered and #441 is addressed.
+        """
+        r = self.test_client.get('%s?max_results=1' % self.known_resource_url,
+                                 headers=[('Accept', 'application/xml')])
+        data = r.get_data()
+        idx1 = data.index('_created')
+        idx2 = data.index('_etag')
+        idx3 = data.index('_id')
+        idx4 = data.index('_updated')
+        self.assertTrue(idx1 < idx2 < idx3 < idx4)
+        idx1 = data.index('max_results')
+        idx2 = data.index('page')
+        idx3 = data.index('total')
+        self.assertTrue(idx1 < idx2 < idx3)
+        idx1 = data.index('last')
+        idx2 = data.index('next')
+        idx3 = data.index('parent')
+        self.assertTrue(idx1 < idx2 < idx3)
+
     def test_unknown_render(self):
         r = self.test_client.get('/', headers=[('Accept', 'application/html')])
         self.assertEqual(r.content_type, 'application/json')

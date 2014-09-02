@@ -19,6 +19,7 @@ from eve.methods.common import get_rate_limit
 from eve.utils import date_to_str, date_to_rfc1123, config, request_method, \
     debug_error_message
 from flask import make_response, request, Response, current_app as app, abort
+from collections import OrderedDict
 
 # mapping between supported mime types and render functions.
 _MIME_TYPES = [
@@ -300,12 +301,16 @@ def xml_add_meta(data):
 
     :param data: the data stream to be rendered as xml.
 
+    .. versionchanged:: 0.5
+       Always return ordered items (#441).
+
     .. versionadded:: 0.4
     """
     xml = ''
     meta = []
     if data.get(config.META):
-        for name, value in data.get(config.META).items():
+        ordered_meta = OrderedDict(sorted(data[config.META].items()))
+        for name, value in ordered_meta.items():
             meta.append('<%s>%d</%s>' % (name, value, name))
     if meta:
         xml = '<%s>%s</%s>' % (config.META, ''.join(meta), config.META)
@@ -318,6 +323,9 @@ def xml_add_links(data):
 
     :param data: the data stream to be rendered as xml.
 
+    .. versionchanged:: 0.5
+       Always return ordered items (#441).
+
     .. versionchanged:: 0.0.6
        Links are now properly escaped.
 
@@ -326,7 +334,8 @@ def xml_add_links(data):
     xml = ''
     chunk = '<link rel="%s" href="%s" title="%s" />'
     links = data.pop(config.LINKS, {})
-    for rel, link in links.items():
+    ordered_links = OrderedDict(sorted(links.items()))
+    for rel, link in ordered_links.items():
         if isinstance(link, list):
             xml += ''.join([chunk % (rel, utils.escape(d['href']), d['title'])
                             for d in link])
@@ -379,13 +388,17 @@ def xml_dict(data):
 
     :param data: the data stream to be rendered as xml.
 
+    .. versionchanged:: 0.5
+       Always return ordered items (#441).
+
     .. versionchanged:: 0.2
        Leaf values are now properly escaped.
 
     .. versionadded:: 0.0.3
     """
     xml = ''
-    for k, v in data.items():
+    ordered_items = OrderedDict(sorted(data.items()))
+    for k, v in ordered_items.items():
         if isinstance(v, datetime.datetime):
             v = date_to_str(v)
         elif isinstance(v, (datetime.time, datetime.date)):

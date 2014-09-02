@@ -8,6 +8,7 @@ Version 0.5
 
 Not released yet.
 
+- [change] XML item, meta and link nodes are now ordered. Closes #441.
 - [fix] ``utils.weak_date`` always returns a RFC-1123 date (Petr Jašek).
 - [change] If-Modified-Since has been disabled on resource (collections)
   endpoints. Closes #334.
