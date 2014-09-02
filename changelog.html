@@ -57,6 +57,10 @@
 <h2>Version 0.5<a class="headerlink" href="#version-0-5" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[change] XML item, meta and link nodes are now ordered. Closes #441.</li>
+<li>[fix] <tt class="docutils literal"><span class="pre">utils.weak_date</span></tt> always returns a RFC-1123 date (Petr Jašek).</li>
+<li>[change] If-Modified-Since has been disabled on resource (collections)
+endpoints. Closes #334.</li>
 <li>[fix] Can&#8217;t embed a ressource with a custom _id (non ObjectId). Closes #427.</li>
 <li>[fix] Do not follow DATE_FORMAT for HTTP headers. Closes #429 (Olivier
 Poitrey).</li>
