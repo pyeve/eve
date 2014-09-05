@@ -116,7 +116,7 @@ def parse_request(resource):
     if settings['projection']:
         r.projection = args.get('projection')
     if settings['sorting']:
-        if isinstance(args.get('sort'), str):
+        if isinstance(args.get('sort'), str) or isinstance(args.get('sort'), unicode):
             sort = []
             for sort_arg in [s.strip() for s in args.get('sort', "").split(",")]:
                 if sort_arg[0] == "-":
