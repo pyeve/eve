@@ -35,7 +35,9 @@ class TestUtils(TestBase):
         with self.app.test_request_context():
             self.assertEqual(parse_request(self.known_resource).sort, None)
         with self.app.test_request_context('/?sort=hello'):
-            self.assertEqual(parse_request(self.known_resource).sort, 'hello')
+            self.assertEqual(parse_request(self.known_resource).sort, [('hello', 1)])
+        with self.app.test_request_context('/?sort=col1,-col2'):
+            self.assertEqual(parse_request(self.known_resource).sort, [('col1', 1), ('col2', -1)])
 
     def test_parse_request_page(self):
         with self.app.test_request_context():
