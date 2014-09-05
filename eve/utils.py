@@ -93,7 +93,8 @@ def parse_request(resource):
 
     .. versionchanged:: 0.5
        Minor DRY updates.
-
+       Changed sorting operator
+       
     .. versionchagend:: 0.1.0
        Support for embedded documents.
 
@@ -115,7 +116,17 @@ def parse_request(resource):
     if settings['projection']:
         r.projection = args.get('projection')
     if settings['sorting']:
-        r.sort = args.get('sort')
+        if isinstance(args.get('sort'), str):
+            sort = []
+            for sort_arg in [s.split() for s in args.get('sort', "").split(",")]:
+                if sort_arg[0] == "-":
+                    sort.append((sort_arg[1:], -1))
+                else:
+                    sort.append((sort_arg, 1))
+            if len(sort) > 0:
+                r.sort = sort
+        else:
+            r.sort = args.get('sort')
     if settings['embedding']:
         r.embedded = args.get('embedded')
 
