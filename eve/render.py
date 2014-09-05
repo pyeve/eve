@@ -19,7 +19,12 @@ from eve.methods.common import get_rate_limit
 from eve.utils import date_to_str, date_to_rfc1123, config, request_method, \
     debug_error_message
 from flask import make_response, request, Response, current_app as app, abort
-from collections import OrderedDict
+
+try:
+    from collections import OrderedDict  # noqa
+except ImportError:
+    # Python 2.6 needs this back-port
+    from ordereddict import OrderedDict
 
 # mapping between supported mime types and render functions.
 _MIME_TYPES = [

@@ -9,6 +9,26 @@ with open('README.rst') as f:
 with open('LICENSE') as f:
     LICENSE = f.read()
 
+install_requires = [
+    'cerberus>=0.7,<0.8',
+    'events>=0.2.1,<0.3',
+    'simplejson>=3.3.0,<0.4',
+    'werkzeug>=0.9.4,<0.10',
+    'markupsafe>=0.23,<1.0',
+    'jinja2>=2.7.2,<3.0',
+    'itsdangerous>=0.22,<1.0',
+    'flask>=0.10.1,<0.11',
+    'pymongo>=2.7.1,<3.0',
+    'flask-pymongo>=0.3.0,<0.4',
+]
+
+try:
+    from collections import OrderedDict  # noqa
+except ImportError:
+    # Python 2.6 needs this back-port
+    install_requires.append('ordereddict')
+
+
 setup(
     name='Eve',
     version='0.5-dev',
@@ -21,18 +41,7 @@ setup(
     platforms=["any"],
     packages=find_packages(),
     test_suite="eve.tests",
-    install_requires=[
-        'cerberus>=0.7,<0.8',
-        'events>=0.2.1,<0.3',
-        'simplejson>=3.3.0,<0.4',
-        'werkzeug>=0.9.4,<0.10',
-        'markupsafe>=0.23,<1.0',
-        'jinja2>=2.7.2,<3.0',
-        'itsdangerous>=0.22,<1.0',
-        'flask>=0.10.1,<0.11',
-        'pymongo>=2.7.1,<3.0',
-        'flask-pymongo>=0.3.0,<0.4',
-    ],
+    install_requires=install_requires,
     tests_require=['redis'],
     classifiers=[
         'Development Status :: 4 - Beta',
