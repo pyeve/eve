@@ -164,7 +164,10 @@ class Mongo(DataLayer):
 
         if req.sort:
             try:
-                client_sort = ast.literal_eval(req.sort)
+                if isinstance(req.sort, str) or isinstance(req.sort, unicode):
+                    client_sort = ast.literal_eval(req.sort)
+                else:
+                    client_sort = req.sort
             except Exception as e:
                 abort(400, description=debug_error_message(str(e)))
 

@@ -13,6 +13,7 @@
 import eve
 import hashlib
 import werkzeug.exceptions
+import ast
 from flask import request
 from flask import current_app as app
 from datetime import datetime, timedelta
@@ -93,7 +94,8 @@ def parse_request(resource):
 
     .. versionchanged:: 0.5
        Minor DRY updates.
-
+       Changed sorting operator
+       
     .. versionchagend:: 0.1.0
        Support for embedded documents.
 
@@ -115,7 +117,23 @@ def parse_request(resource):
     if settings['projection']:
         r.projection = args.get('projection')
     if settings['sorting']:
-        r.sort = args.get('sort')
+        parseable = False
+        try:
+            ast.literal_eval(args.get('sort'))
+            parseable = True
+        except:
+            pass
+        if not parseable and args.get('sort') is not None:
+            sort = []
+            for sort_arg in [s.strip() for s in args.get('sort', "").split(",")]:
+                if sort_arg[0] == "-":
+                    sort.append((sort_arg[1:], -1))
+                else:
+                    sort.append((sort_arg, 1))
+            if len(sort) > 0:
+                r.sort = sort
+        else:
+            r.sort = args.get('sort')
     if settings['embedding']:
         r.embedded = args.get('embedded')
 
