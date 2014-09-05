@@ -118,7 +118,7 @@ def parse_request(resource):
     if settings['sorting']:
         if isinstance(args.get('sort'), str):
             sort = []
-            for sort_arg in [s.split() for s in args.get('sort', "").split(",")]:
+            for sort_arg in [s.strip() for s in args.get('sort', "").split(",")]:
                 if sort_arg[0] == "-":
                     sort.append((sort_arg[1:], -1))
                 else:
