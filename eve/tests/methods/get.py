@@ -754,11 +754,6 @@ class TestGet(TestBase):
                                     '?where={"field": {"$foo": "bar"}}')
         self.assert400(status)
 
-    def test_get_invalid_sort_syntax(self):
-        """ test that invalid sort syntax returns a 400 """
-        response, status = self.get(self.known_resource, '?sort=[("prog":1)]')
-        self.assert400(status)
-
     def test_get_allowed_filters_operators(self):
         """ test that supported operators are not considered invalid filters
             (#388). Also, test that nested filters are validated.
