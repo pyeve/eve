@@ -21,6 +21,22 @@ from eve.versioning import versioned_id_field
 @requires_auth('item')
 @pre_event
 def deleteitem(resource, **lookup):
+    """
+    Default function for handling PUT requests, it has decorators for
+    rate limiting, authentication and for raising pre-request events.
+    After the decorators are applied forwards to call to
+    :func:`deleteitem_internal`
+
+    .. versionchanged:: 0.5
+       Split into deleteitem() and deleteitem_internal().
+    """
+    return deleteitem_internal(resource, concurrency_check=True, **lookup)
+
+
+@ratelimit()
+@requires_auth('item')
+@pre_event
+def deleteitem_internal(resource, concurrency_check=False, **lookup):
     """ Deletes a resource item. Deletion will occur only if request ETag
     matches the current representation of the item.
 
@@ -52,7 +68,7 @@ def deleteitem(resource, **lookup):
     .. versionchanged:: 0.0.4
        Added the ``requires_auth`` decorator.
     """
-    original = get_document(resource, **lookup)
+    original = get_document(resource, concurrency_check, **lookup)
     if not original:
         abort(404)
 
