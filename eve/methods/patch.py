@@ -27,6 +27,21 @@ from eve.versioning import resolve_document_version, \
 @requires_auth('item')
 @pre_event
 def patch(resource, **lookup):
+    """
+    Default function for handling PATCH requests, it has decorators for
+    rate limiting, authentication and for raising pre-request events.
+    After the decorators are applied forwards to call to :func:`patch_internal`
+
+    .. versionchanged:: 0.5
+       Split into patch() and patch_internal().
+    """
+    return patch_internal(resource, concurrency_check=True, **lookup)
+
+
+@ratelimit()
+@requires_auth('item')
+@pre_event
+def patch_internal(resource, concurrency_check=False, **lookup):
     """ Perform a document patch/update. Updates are first validated against
     the resource schema. If validation passes, the document is updated and
     an OK status update is returned. If validation fails, a set of validation
@@ -89,7 +104,7 @@ def patch(resource, **lookup):
        JSON links. Superflous ``response`` container removed.
     """
     payload = payload_()
-    original = get_document(resource, **lookup)
+    original = get_document(resource, concurrency_check, **lookup)
     if not original:
         # not found
         abort(404)

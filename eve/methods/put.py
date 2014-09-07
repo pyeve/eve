@@ -29,6 +29,18 @@ from eve.versioning import resolve_document_version, \
 @requires_auth('item')
 @pre_event
 def put(resource, **lookup):
+    """
+    Default function for handling PUT requests, it has decorators for
+    rate limiting, authentication and for raising pre-request events.
+    After the decorators are applied forwards to call to :func:`put_internal`
+
+    .. versionchanged:: 0.5
+       Split into put() and put_internal().
+    """
+    return put_internal(resource, concurrency_check=True, **lookup)
+
+
+def put_internal(resource, concurrency_check=False, **lookup):
     """ Perform a document replacement. Updates are first validated against
     the resource schema. If validation passes, the document is repalced and
     an OK status update is returned. If validation fails a set of validation
@@ -75,7 +87,7 @@ def put(resource, **lookup):
     validator = app.validator(schema, resource)
 
     payload = payload_()
-    original = get_document(resource, **lookup)
+    original = get_document(resource, concurrency_check, **lookup)
     if not original:
         # not found
         abort(404)

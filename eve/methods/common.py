@@ -22,7 +22,7 @@ from eve.versioning import resolve_document_version, \
     get_data_version_relation_document, missing_version_field
 
 
-def get_document(resource, concurrency_check=True, **lookup):
+def get_document(resource, concurrency_check, **lookup):
     """ Retrieves and return a single document. Since this function is used by
     the editing methods (POST, PATCH, DELETE), we make sure that the client
     request references the current representation of the document before
