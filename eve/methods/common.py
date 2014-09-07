@@ -22,16 +22,19 @@ from eve.versioning import resolve_document_version, \
     get_data_version_relation_document, missing_version_field
 
 
-def get_document(resource, **lookup):
+def get_document(resource, concurrency_check=True, **lookup):
     """ Retrieves and return a single document. Since this function is used by
     the editing methods (POST, PATCH, DELETE), we make sure that the client
     request references the current representation of the document before
-    returning it.
+    returning it. However, this concurrency control may be turned off by
+    internal functions.
 
     :param resource: the name of the resource to which the document belongs to.
+    :param concurrency_check: boolean check for concurrency control
     :param **lookup: document lookup query
 
     .. versionchanged:: 0.5
+       Concurrency control optional for internal functions.
        ETAG are now stored with the document (#369).
 
     .. versionchanged:: 0.0.9
@@ -45,7 +48,7 @@ def get_document(resource, **lookup):
     document = app.data.find_one(resource, None, **lookup)
     if document:
 
-        if not req.if_match and config.IF_MATCH:
+        if not req.if_match and config.IF_MATCH and concurrency_check:
             # we don't allow editing unless the client provides an etag
             # for the document
             abort(403, description=debug_error_message(
@@ -57,7 +60,7 @@ def get_document(resource, **lookup):
         document[config.LAST_UPDATED] = last_updated(document)
         document[config.DATE_CREATED] = date_created(document)
 
-        if req.if_match:
+        if req.if_match and concurrency_check:
             etag = document.get(config.ETAG, document_etag(document))
             if req.if_match != etag:
                 # client and server etags must match, or we don't allow editing
