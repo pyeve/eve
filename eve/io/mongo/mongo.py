@@ -105,6 +105,7 @@ class Mongo(DataLayer):
         :param sub_resource_lookup: sub-resource lookup from the endpoint url.
 
         .. versionchanged:: 0.5
+           Support for comma delimited sort syntax. Addresses #443.
            Return the error if a blacklisted MongoDB operator is used in query.
            Abort with 400 if unsupported query operator is used. #387.
            Abort with 400 in case of invalid sort syntax. #387.
@@ -164,7 +165,19 @@ class Mongo(DataLayer):
 
         if req.sort:
             try:
+                # assume it's mongo syntax (ie. ?sort=[("name", 1)])
                 client_sort = ast.literal_eval(req.sort)
+            except ValueError:
+                # it's not mongo so let's see if it's a comma delimited string
+                # instead (ie. "?sort=-age, name").
+                sort = []
+                for sort_arg in [s.strip() for s in req.sort.split(",")]:
+                    if sort_arg[0] == "-":
+                        sort.append((sort_arg[1:], -1))
+                    else:
+                        sort.append((sort_arg, 1))
+                if len(sort) > 0:
+                    client_sort = sort
             except Exception as e:
                 abort(400, description=debug_error_message(str(e)))
 
