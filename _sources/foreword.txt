@@ -63,9 +63,8 @@ like to add to Eve, provided that there is enough interest in the project.
 - Granular exception handling
 - Journaling/logging
 - Server side caching
-- Alternative sort syntax (``?sort=name``)
 - More authentication schemes
-- Support for MySQL and/or other SQL/NoSQL databases
+- Support for MySQL and/or other SQL/NoSQL databases (WIP)
 
 BSD License 
 -----------

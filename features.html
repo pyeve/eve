@@ -299,8 +299,8 @@ whole example is fubar, as there could be multiple people sharing the same
 last name, but you get the idea.</p>
 </div>
 </div>
-<div class="section" id="filtering-and-sorting">
-<span id="filters"></span><h2>Filtering and Sorting<a class="headerlink" href="#filtering-and-sorting" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="filtering">
+<span id="filters"></span><h2>Filtering<a class="headerlink" href="#filtering" title="Permalink to this headline">¶</a></h2>
 <p>Resource endpoints allow consumers to retrieve multiple documents. Query
 strings are supported, allowing for filtering and sorting. Two query syntaxes
 are supported. The mongo query syntax:</p>
@@ -320,17 +320,27 @@ maintainer can choose to disable them all and/or whitelist allowed ones (see
 <tt class="docutils literal"><span class="pre">ALLOWED_FILTERS</span></tt> in <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a>). If scraping, or fear of DB DoS attacks
 by querying on non-indexed fields is a concern, then whitelisting allowed
 filters is the way to go.</p>
+</div>
+<div class="section" id="sorting">
+<h2>Sorting<a class="headerlink" href="#sorting" title="Permalink to this headline">¶</a></h2>
 <p>Sorting is supported as well:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people?sort<span class="o">=</span>city,-lastname
+<span class="go">HTTP/1.1 200 OK</span>
+</pre></div>
+</div>
+<p>Would return documents sorted by city and then by lastname (descending). As you
+can see you simply prepend a minus to the field name if you need the sort order
+to be reversed for a field.</p>
+<p>The MongoDB data layer also supports native MongoDB syntax:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people?sort<span class="o">=[(</span><span class="s2">&quot;lastname&quot;</span>, -1<span class="o">)]</span>
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
+<p>Would return documents sorted by lastname in descending order.</p>
 <p>Sorting is enabled by default and can be disabled both globally and/or at
 resource level (see <tt class="docutils literal"><span class="pre">SORTING</span></tt> in <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a> and <tt class="docutils literal"><span class="pre">sorting</span></tt> in
 <a class="reference internal" href="config.html#domain"><em>Domain Configuration</em></a>). It is also possible to set the default sort at every API
-endpoints (see <tt class="docutils literal"><span class="pre">default_sort</span></tt> in <a class="reference internal" href="config.html#domain"><em>Domain Configuration</em></a>). Currently, sort directives
-use a pure MongoDB syntax; support for a more general syntax
-(<tt class="docutils literal"><span class="pre">sort=lastname</span></tt>) is planned.</p>
+endpoints (see <tt class="docutils literal"><span class="pre">default_sort</span></tt> in <a class="reference internal" href="config.html#domain"><em>Domain Configuration</em></a>).</p>
 <div class="admonition-please-note admonition">
 <p class="first admonition-title">Please note</p>
 <p class="last">Always use double quotes to wrap field names and values. Using single
@@ -1522,7 +1532,8 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li class="toctree-l2"><a class="reference internal" href="#full-range-of-crud-operations">Full range of CRUD operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#customizable-resource-endpoints">Customizable resource endpoints</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#customizable-multiple-item-endpoints">Customizable, multiple item endpoints</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#filtering-and-sorting">Filtering and Sorting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#filtering">Filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sorting">Sorting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#pagination">Pagination</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#hateoas">HATEOAS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#json-and-xml-rendering">JSON and XML Rendering</a></li>
