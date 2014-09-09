@@ -33,15 +33,17 @@ def deleteitem(resource, **lookup):
     return deleteitem_internal(resource, concurrency_check=True, **lookup)
 
 
-@ratelimit()
-@requires_auth('item')
-@pre_event
 def deleteitem_internal(resource, concurrency_check=False, **lookup):
-    """ Deletes a resource item. Deletion will occur only if request ETag
-    matches the current representation of the item.
+    """ Intended for internal delete calls, this method is not rate limited,
+    authentication is not checked, pre-request events are not raised, and
+    concurrency checking is optional. Deletes a resource item.
 
     :param resource: name of the resource to which the item(s) belong.
     :param **lookup: item lookup query.
+
+    .. versionchanged:: 0.5
+       Original deleteitem() has been split into deleteitem() and
+       deleteitem_internal().
 
     .. versionchanged:: 0.4
        Fix #284: If you have a media field, and set datasource projection to
