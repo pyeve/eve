@@ -41,15 +41,18 @@ def put(resource, **lookup):
 
 
 def put_internal(resource, concurrency_check=False, **lookup):
-    """ Perform a document replacement. Updates are first validated against
-    the resource schema. If validation passes, the document is repalced and
-    an OK status update is returned. If validation fails a set of validation
-    issues is returned.
+    """ Intended for internal put calls, this method is not rate limited,
+    authentication is not checked, pre-request events are not raised, and
+    concurrency checking is optional. Performs a document replacement.
+    Updates are first validated against the resource schema. If validation
+    passes, the document is repalced and an OK status update is returned.
+    If validation fails a set of validation issues is returned.
 
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.5
+       Original put() has been split into put() and put_internal().
        ETAG is now stored with the document (#369).
        Catching all HTTPExceptions and returning them to the caller, allowing
        for eventual flask.abort() invocations in callback functions to go
