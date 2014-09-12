@@ -144,6 +144,7 @@ class TestBasicAuth(TestBase):
             del(settings['public_methods'])
         self.app.set_defaults()
         del(domain['peopleinvoices'])
+        del(domain['internal_transactions'])
         for resource in domain:
             url = self.app.config['URLS'][resource]
             r = self.test_client.get(url)

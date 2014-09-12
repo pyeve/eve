@@ -8,6 +8,71 @@ Version 0.5
 
 Not released yet.
 
+- [new] Comma delimited sort syntax in queries. The MongoDB data layer now also
+  supports queries like ``?sort=lastname,-age``. Addresses #443.
+- [change] XML item, meta and link nodes are now ordered. Closes #441.
+- [fix] ``utils.weak_date`` always returns a RFC-1123 date (Petr Jašek).
+- [change] If-Modified-Since has been disabled on resource (collections)
+  endpoints. Closes #334.
+- [fix] Can't embed a ressource with a custom _id (non ObjectId). Closes #427.
+- [fix] Do not follow DATE_FORMAT for HTTP headers. Closes #429 (Olivier
+  Poitrey).
+- [fix] Fix app initialization with resource level versioning #409 (Sebastián
+  Magrí).
+- [fix] KeyError when trying to use embedding on a field that is missing from
+  document. It was fixed earlier in #319, but came back again after new
+  embedding mechanism (Daniel Lytkin). 
+- [fix] Support for list of strings as default value for fields (hansotronic).
+- [new] Add extra 4xx response codes for proper handling. Only ``405`` Method
+  not allowed, ``406`` Not acceptable, ``409`` Conflict, and ``410`` Gone have
+  been added to the list (Kurt Doherty).
+- [new] Add serializers for integer and float types (Grisha K.) 
+- [new] ``post_internal()`` can be used for intenral post calls. This method is
+  not rate limited,authentication is not checked and pre-request events are not
+  raised (Magdas Adrian).
+- [new] Internal resource can be used for data manipulation using the data
+  layer (Magdas Adrian).
+- [fix] Media fields are now properly returned even in embedded documents.
+  Closes #305.
+- [fix] auth in domain configuration can be either a callable or a class
+  instance (Gino Zhang).
+- [change] etags are now persisted with the documents. This ensures that etags
+  are consistent across queries, even when projection queries are issued.
+  Please note that etags will only be stored along with new documents created
+  and/or edited via API methods (POST/PUT/PATCH). Documents inserted by other
+  means and those stored with v0.4 and below will keep working as previously:
+  their etags will be computed on-the-fly and you will get still be getting
+  inconsistent etags when projection queries are issued. Closes #369.
+- [fix] Schema definition: a default value of [] for a list causes IndexError.
+  Closes #417.
+- [fix] Close file handles in setup.py (Harro van der Klauw)
+- [fix] Querying a collection should always return pagination information (even
+  when no data is being returned). Closes #415.
+- [change] ``put`` method signature for ``MediaStorage`` base class has been
+  updated. ``filemame`` is now optional. Closes #414.
+- [change] CORS behavior to be compatible with browsers (Chrome). Eve is now
+  echoing back the contents of the Origin header if said content is whitelisted
+  in X_DOMAINS. This also safer as it avoids exposing internal server
+  configuration. Closes #408. This commit was carefully handcrafed on a flight
+  to EuroPython 2014.
+- [fix] Recursively validate the whole query string.
+- [fix] If the data layer supports a list of allowed query operators, take them
+  into consideration when validating a query string. Closes #388.
+- [fix[ Abort with 400 if unsupported query operators are used. Closes #387.
+- [fix] Return the error if a blacklisted MongoDB operator is used in a query
+  (debug mode). 
+- [fix] Invalid sort syntax raises 500 instead of 400. Addresses #378.
+- [change] HATEOAS links are now relative to the API root. Closes #398 #401.
+- [change] simplejson 3.5.3 is now required.
+- [new] dev-requirements.txt added to the repo.
+- [change] Specify a range of dependant package versions. #379 (James Stewart).
+- [new] Support for python wheels (http://wheel.readthedocs.org)
+- [fix] Fix serialization when `type` is missing in schema. #404 (Jaroslav
+  Semančík).
+- [new] Embedding of documents by references located in any subdocuments. For
+  example, query ``embedded={"user.friends":1}`` will return a document with
+  "user" and all his "friends" embedded, but only if ``user`` is a subdocument
+  and ``friends`` is a list of references (Dmitry Anoshin).
 - [new] Allow mongoengine to work properly with cursor counts (Johan Bloemberg) 
 - [fix] When PUTting or PATCHing media fields, they would not be properly
   replaced as needed (Stanislav Heller).

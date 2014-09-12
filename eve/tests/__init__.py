@@ -225,8 +225,7 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue('title' in link)
         self.assertTrue('href' in link)
         self.assertEqual('home', link['title'])
-        self.assertEqual("%s" % self._get_server_name(),
-                         link['href'])
+        self.assertEqual("/", link['href'])
 
     def assertResourceLink(self, links, resource):
         self.assertTrue('self' in links)
@@ -235,9 +234,7 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue('href' in link)
         url = self.domain[resource]['url']
         self.assertEqual(url, link['title'])
-        self.assertEqual("%s/%s" % (self._get_server_name(),
-                                    url),
-                         link['href'])
+        self.assertEqual("/%s" % url, link['href'])
 
     def assertCollectionLink(self, links, resource):
         self.assertTrue('collection' in links)
@@ -246,8 +243,7 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue('href' in link)
         url = self.domain[resource]['url']
         self.assertEqual(url, link['title'])
-        self.assertEqual("%s/%s" % (self._get_server_name(),
-                                    url), link['href'])
+        self.assertEqual("/%s" % url, link['href'])
 
     def assertNextLink(self, links, page):
         self.assertTrue('next' in links)
@@ -493,10 +489,24 @@ class TestBase(TestMinimal):
             )
         return rows
 
+    def random_internal_transactions(self, num):
+        transactions = []
+        for i in range(num):
+            dt = datetime.now()
+            transaction = {
+                'internal_string':  self.random_string(10),
+                'internal_number': i,
+                eve.LAST_UPDATED: dt,
+                eve.DATE_CREATED: dt,
+            }
+            transactions.append(transaction)
+        return transactions
+
     def bulk_insert(self):
         _db = self.connection[MONGO_DBNAME]
         _db.contacts.insert(self.random_contacts(self.known_resource_count))
         _db.contacts.insert(self.random_users(2))
         _db.payments.insert(self.random_payments(10))
         _db.invoices.insert(self.random_invoices(1))
+        _db.internal_transactions.insert(self.random_internal_transactions(4))
         self.connection.close()

@@ -22,12 +22,14 @@ class TestResponse(TestBase):
     def test_response_object(self):
         response = literal_eval(self.r.get_data().decode())
         self.assertTrue(isinstance(response, dict))
-        self.assertEqual(len(response), 2)
+        self.assertEqual(len(response), 3)
 
         resource = response.get('_items')
         self.assertTrue(isinstance(resource, list))
         links = response.get('_links')
         self.assertTrue(isinstance(links, dict))
+        meta = response.get('_meta')
+        self.assertTrue(isinstance(meta, dict))
 
 
 class TestNoHateoas(TestBase):

@@ -164,9 +164,10 @@ class TestNormalVersioning(TestVersioningBase):
             shadow_document[self.document_id_field])
         self.assertTrue(self.app.config['ID_FIELD'] in shadow_document)
         self.assertTrue(self.app.config['LAST_UPDATED'] in shadow_document)
+        self.assertTrue(self.app.config['ETAG'] in shadow_document)
 
         # verify that no unexpected fields exist
-        num_meta_fields = 4  # see previous block
+        num_meta_fields = 5  # see previous block
         if partial is True:
             self.assertEqual(len(shadow_document.keys()), num_meta_fields + 1)
         else:
