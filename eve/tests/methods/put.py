@@ -1,10 +1,12 @@
 from bson import ObjectId
 import simplejson as json
 
-from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES, STATUS, ETAG
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
 from eve.tests.utils import DummyEvent
+
+from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES, STATUS, ETAG
+from eve.methods.put import put_internal
 
 
 class TestPut(TestBase):
@@ -206,6 +208,19 @@ class TestPut(TestBase):
         r = self.perform_put(changes)
         db_value = self.compare_put_with_get(field, r)
         self.assertEqual(db_value, test_value)
+
+    def test_put_internal(self):
+        # test that put_internal is available and working properly.
+        test_field = 'ref'
+        test_value = "9876543210987654321098765"
+        data = {test_field: test_value}
+        with self.app.test_request_context(self.item_id_url):
+            r, _, _, status = put_internal(
+                self.known_resource, data, concurrency_check=False,
+                **{'_id': self.item_id})
+        db_value = self.compare_put_with_get(test_field, r)
+        self.assertEqual(db_value, test_value)
+        self.assert200(status)
 
     def perform_put(self, changes):
         r, status = self.put(self.item_id_url,
