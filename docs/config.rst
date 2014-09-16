@@ -25,9 +25,7 @@ Alternatively, you can choose to provide a settings dictionary:
 .. code-block:: python
     
     my_settings = {
-        'MONGO_HOST': 'localhost',
-        'MONGO_PORT': 27017,
-        'MONGO_DBNAME': 'the_db_name'
+        'SQLALCHEMY_DATABASE_URI': 'sqlite://'
         'DOMAIN': {'contacts': {}} 
     }
 
@@ -61,25 +59,14 @@ from the :ref:`demo`:
 
     # We want to run seamlessly our API both locally and on Heroku, so:
     if os.environ.get('PORT'):
-        # We're hosted on Heroku! Use the MongoHQ sandbox as our backend.
-        MONGO_HOST = 'alex.mongohq.com'
-        MONGO_PORT = 10047
-        MONGO_USERNAME = '<user>'
-        MONGO_PASSWORD = '<pw>'
-        MONGO_DBNAME = '<dbname>'
+        # We're hosted on Heroku! Use the heroku Postgres as our backend.
+        SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
 
         # also, correctly set the API entry point
         SERVER_NAME = 'eve-demo.herokuapp.com'
     else:
-        # Running on local machine. Let's just use the local mongod instance.
-
-        # Please note that MONGO_HOST and MONGO_PORT could very well be left
-        # out as they already default to a bare bones local 'mongod' instance.
-        MONGO_HOST = 'localhost'
-        MONGO_PORT = 27017
-        MONGO_USERNAME = 'user'
-        MONGO_PASSWORD = 'user'
-        MONGO_DBNAME = 'apitest'
+        # Running on local machine. Let's just use the local sqlite3 instance.
+        SQLALCHEMY_DATABASE_URI = 'sqlite://'
 
         # let's not forget the API entry point
         SERVER_NAME = 'localhost:5000'
@@ -288,8 +275,7 @@ uppercase.
 ``ITEM_URL``                        URL rule used to construct default item
                                     endpoint URLs. Can be overridden by
                                     resource settings. Defaults
-                                    ``regex("[a-f0-9]{24}")`` which is MongoDB
-                                    standard ``Object_Id`` format.
+                                    ``regex("[a-f0-9]{24}")``.
 
 ``ITEM_TITLE``                      Title to be used when building item references, 
                                     both in XML and JSON responses. Defaults to
@@ -307,12 +293,6 @@ uppercase.
                                     item. Can be overridden by resource
                                     settings. Defaults to ``None``, which
                                     disables the feature. 
-
-``ALLOW_UNKNOWN``                   When ``True``, this option will allow insertion
-                                    of arbitrary, unknown fields to any API
-                                    endpoint. Use with caution. See
-                                    :ref:`unknown` for more information.
-                                    Defaults to ``False``.
 
 ``PROJECTION``                      When ``True``, this option enables the
                                     :ref:`projections` feature. Can be
@@ -448,45 +428,7 @@ uppercase.
                                     document id will be stored in field
                                     ``_id_document``.
 
-``MONGO_HOST``                      MongoDB server address. Defaults to ``localhost``.
-
-``MONGO_PORT``                      MongoDB port. Defaults to ``27017``.
-
-``MONGO_USERNAME``                  MongoDB user name.
-
-``MONGO_PASSWORD``                  MongoDB password.
-
-``MONGO_DBNAME``                    MongoDB database name.
-
-``MONGO_QUERY_BLACKLIST``           A list of Mongo query operators that are not
-                                    allowed to be used in resource filters
-                                    (``?where=``). Defaults to ``['$where',
-                                    '$regex']``. 
-                                
-                                    Mongo JavaScript operators are disabled by
-                                    default, as they might be used as vectors
-                                    for injection attacks. Javascript queries
-                                    also tend to be slow and generally can be
-                                    easily replaced with the (very rich) Mongo
-                                    query dialect.
-
-``MONGO_WRITE_CONCERN``             A dictionary defining MongoDB write concern
-                                    settings. All standard write concern
-                                    settings (w, wtimeout, j, fsync) are
-                                    supported. Defaults to ``{'w': 1}``, which
-                                    means 'do regular acknowledged writes'
-                                    (this is also the Mongo default).
-
-                                    Please be aware that setting 'w' to a value of
-                                    2 or greater requires replication to be
-                                    active or you will be getting 500 errors
-                                    (the write will still happen; Mongo will
-                                    just be unable to check that it's being
-                                    written to multiple servers).
-
-                                    Can be overridden at endpoint (Mongo
-                                    collection) level. See
-                                    ``mongo_write_concern`` below.
+``SQLALCHEMY_DATABASE_URI``         SQLAlchemy database URI.
 
 ``DOMAIN``                          A dict holding the API domain definition.
                                     See `Domain Configuration`_.
@@ -684,12 +626,6 @@ always lowercase.
                                 the user who created the resource item. Locally
                                 overrides ``AUTH_FIELD``. 
 
-``allow_unknown``               When ``True``, this option will allow insertion
-                                of arbitrary, unknown fields to the endpoint.
-                                Use with caution. Locally overrides
-                                ``ALLOW_UNKNOWN``. See :ref:`unknown` for more
-                                information. Defaults to ``False``.
-
 ``projection``                  When ``True``, this option enables the
                                 :ref:`projections` feature. Locally overrides
                                 ``PROJECTION``. Defaults to ``True``.
@@ -710,20 +646,6 @@ always lowercase.
                                 :ref:`hateoas_feature` for the resource.
                                 Defaults to ``True``. 
 
-``mongo_write_concern``         A dictionary defining MongoDB write concern
-                                settings for the endpoint datasource. All
-                                standard write concern settings (w, wtimeout, j,
-                                fsync) are supported. Defaults to ``{'w': 1}``
-                                which means 'do regular acknowledged writes'
-                                (this is also the Mongo default.)
-
-                                Please be aware that setting 'w' to a value of
-                                2 or greater requires replication to be active
-                                or you will be getting 500 errors (the write
-                                will still happen; Mongo will just be unable
-                                to check that it's being written to multiple
-                                servers.)
-                                
 ``authentication``              A class with the authorization logic for the 
                                 endpoint. If not provided the eventual
                                 general purpose auth class (passed as
@@ -736,14 +658,6 @@ always lowercase.
                                 properly fields in the list must be
                                 ``embeddable``, and ``embedding`` must be
                                 active for the resource.
-
-``query_objectid_as_string``    When enabled the Mongo parser will avoid
-                                automatically casting electable strings to
-                                ObjectIds. This can be useful in those rare
-                                occurrences where you have string fields in the
-                                database whose values can actually be casted to
-                                ObjectId values, but shouldn't. Only effects
-                                queries (``?where=``). Defaults to ``False``.
 
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data

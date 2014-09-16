@@ -179,11 +179,11 @@ a simple resource endpoint the document lookup would happen on a single field:
 Customizable, multiple item endpoints
 -------------------------------------
 Resources can or cannot expose individual item endpoints. API consumers could
-get access to ``/people``, ``/people/<ObjectId>`` and ``/people/Doe``,
+get access to ``/people``, ``/people/<Id>`` and ``/people/Doe``,
 but only to ``/works``.  When you do grant access to item endpoints, you can
 define up to two lookups, both defined with regexes. The first will be the
 primary endpoint and will match your database primary key structure (i.e., an
-``ObjectId`` in a MongoDB database).
+``Id`` column in a SQL database).
 
 .. code-block:: console
 
@@ -246,21 +246,14 @@ Filtering and Sorting
 ---------------------
 Resource endpoints allow consumers to retrieve multiple documents. Query
 strings are supported, allowing for filtering and sorting. Two query syntaxes
-are supported. The mongo query syntax:
+are supported. The SQLAlchemy query syntax:
 
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people?where={"lastname": "Doe"}
     HTTP/1.1 200 OK
 
-and the native Python syntax:
-
-.. code-block:: console
-
-    $ curl -i http://eve-demo.herokuapp.com/people?where=lastname=="Doe"
-    HTTP/1.1 200 OK
-
-Both query formats allow for conditional and logical And/Or operators, however
+Query allows for conditional and logical And/Or operators, however
 nested and combined.
 
 Filters are enabled by default on all document fields. However, the API
@@ -533,7 +526,7 @@ The response will be a list itself, with the state of each document:
         ]
     }
 
-When multiple documents are submitted the API takes advantage of MongoDB *bulk
+When multiple documents are submitted the API takes advantage of SQLAlchemy *bulk
 insert* capabilities which means that not only there's just one single request
 traveling from the client to the remote API, but also that only one loopback is
 performed between the API server and the database.
@@ -583,7 +576,7 @@ extensible, so you can adapt it to your specific use case. Say that your API can
 only accept odd numbers for a certain field value; you can extend the
 validation class to validate that. Or say you want to make sure that a VAT
 field actually matches your own country VAT algorithm; you can do that too. As
-a matter of fact, Eve's MongoDB data-layer itself extends Cerberus
+a matter of fact, Eve's SQLAlchemy data-layer itself extends Cerberus
 validation by implementing the ``unique`` schema field constraint. For more
 information see :ref:`validation`.
 
@@ -714,8 +707,8 @@ available in the 'people' resource. You can also exclude fields:
 
 The above will return all fields but *born*. Please note that key fields such
 as ID_FIELD, DATE_CREATED, DATE_UPDATED etc.  will still be included with the
-payload. Also keep in mind that some database engines, Mongo included, do not
-allow for mixing of inclusive and exclusive selections.
+payload. Also keep in mind that some database engines, SQLAlchemy included, 
+do not allow for mixing of inclusive and exclusive selections.
 
 .. admonition:: See also
 
@@ -820,14 +813,12 @@ Document embedding is enabled by default.
 
 .. admonition:: Please note
 
-    When it comes to MongoDB, what embedded resource serialization deals with
-    is *document references* (linked documents), something different from
-    *embedded documents*, also supported by Eve (see `MongoDB Data Model
-    Design`_). Embedded resource serialization is a nice feature that can
-    really help with normalizing your data model for the client.  However, when
-    deciding whether to enable it or not, especially by default, keep in mind
-    that each embedded resource being looked up will require a database lookup,
-    which can easily lead to performance issues.
+    When it comes to SQLAlchemy, what embedded resource serialization do is 
+    using *relationship*  based lookup. Embedded resource serialization is a 
+    nice feature that can really help with normalizing your data model for the
+    client.  However, when deciding whether to enable it or not, especially by
+    default, keep in mind that each embedded resource being looked up will
+    require a database lookup, which can easily lead to performance issues.
 
 .. _eventhooks:
 
@@ -1233,12 +1224,6 @@ PATCH, DELETE).
    Rate Limiting is disabled by default, and needs a Redis server running when
    enabled. A tutorial on Rate Limiting is forthcoming.
 
-Custom ID Fields
-----------------
-Eve allows to extend its standard data type support. In the :ref:`custom_ids`
-tutorial we see how it is possible to use UUID values instead of MongoDB
-default ObjectIds as unique document identifiers.
-
 File Storage
 ------------
 Media files (images, pdf, etc.) can be uploaded as ``media`` document
@@ -1261,7 +1246,7 @@ With curl we would ``POST`` like this:
 
     $ curl -F "name=john" -F "pic=@profile.jpg" http://example.com/accounts
 
-For optmized performance files are stored in GridFS_ by default. Custom
+For optmized performance files are stored as BLOBs by default. Custom
 ``MediaStorage`` classes can be implemented and passed to the application to
 support alternative storage systems. A ``FileSystemMediaStorage`` class is in
 the works, and will soon be included with the Eve package.
@@ -1286,9 +1271,7 @@ When a document is requested media files will be returned as Base64 strings,
 
 However, if the ``EXTENDED_MEDIA_INFO`` list is populated (it isn't by
 default) the payload format will be different. This flag allows passthrough
-from the driver of additional meta fields. For example, using the MongoDB
-driver, fields like ``content_type``, ``name`` and ``length`` can be added to
-this list and will be passed-through from the underlying driver. 
+from the driver of additional meta fields. 
 
 When ``EXTENDED_MEDIA_INFO`` is used the field will be a dictionary
 whereas the file itself is stored under the ``file`` key and other keys
@@ -1316,8 +1299,6 @@ Then the output will be something like
         ]
         ...
     }
-
-For MongoDB, further fields can be found in the `driver documentation`_. 
 
 If you have other means to retrieve the media files (custom Flask endpoint for
 example) then the media files can be excluded from the paylod by setting to
@@ -1373,11 +1354,10 @@ response payloads by sending requests like this one:
 
     for details on the ``datasource`` setting.
 
-MongoDB Support
----------------
-Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL
-backends can be developed with relative ease (a `PostgreSQL effort`_ is
-ongoing, maybe you can lend a hand?)
+SQLAlchemy Support
+------------------
+Support for SQLAlchemy comes out of the box. Extensions for other NoSQL
+backends exists too (check MongoDB).
 
 Powered by Flask
 ----------------
@@ -1398,7 +1378,4 @@ for unittesting_ and an `extensive documentation`_.
 .. _`extensive documentation`: http://flask.pocoo.org/docs/
 .. _`this`: https://speakerdeck.com/nicola/developing-restful-web-apis-with-python-flask-and-mongodb?slide=113
 .. _Events: https://github.com/nicolaiarocci/events
-.. _`MongoDB Data Model Design`: http://docs.mongodb.org/manual/core/data-model-design
-.. _GridFS: http://docs.mongodb.org/manual/core/gridfs/
 .. _MediaStorage: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/media.py
-.. _`driver documentation`: http://api.mongodb.org/python/2.7rc0/api/gridfs/grid_file.html#gridfs.grid_file.GridOut

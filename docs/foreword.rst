@@ -46,8 +46,8 @@ I feel that at this point the codebase is ready for a public preview.
 This will hopefully allow for some constructive feedback and maybe, for some
 contributors to join the ranks.
 
-REST, Flask and MongoDB
------------------------
+REST, Flask and MongoDB (and SQLAlchemy)
+----------------------------------------
 The slides from my EuroPython talk, *Developing RESTful Web APIs with Flask and
 MongoDB*, are `available online`_. You might want to check them out to understand
 why and how certain design decisions were made, especially with regards to REST

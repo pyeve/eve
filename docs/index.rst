@@ -1,9 +1,9 @@
 .. meta::
-   :description: Python REST API Framework to effortlessly build and deploy full featured, highly customizable RESTful Web Services. Powerd by Flask, MongoDB, Redis and good intentions.  
+   :description: Python REST API Framework to effortlessly build and deploy full featured, highly customizable RESTful Web Services. Powerd by Flask, SQLAlchemy, Redis and good intentions.  
 
 Python REST API Framework
 =========================
-*Powered by Flask, MongoDB, Redis and good intentions Eve allows to
+*Powered by Flask, SQLAlchemy, Redis and good intentions Eve allows to
 effortlessly build and deploy highly customizable, fully featured RESTful Web
 Services*
 

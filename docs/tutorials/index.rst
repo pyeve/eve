@@ -7,5 +7,4 @@ Tutorials
    :maxdepth: 2
 
    account_management
-   custom_idfields
    sqlalchemy_support

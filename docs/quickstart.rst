@@ -8,8 +8,7 @@ assumes that:
 
 - You already have Eve installed. If you do not, head over to the
   :ref:`install` section.
-- MongoDB is installed_. 
-- An instance of MongoDB is running_.
+- SQLite3 is installed_. 
 
 A Minimal Application
 ---------------------
@@ -118,23 +117,9 @@ Let's connect to a database by adding the following lines to `settings.py`:
 
 ::
 
-    # Let's just use the local mongod instance. Edit as needed.
+    # Let's just use the local sqlite3 instance. Edit as needed.
+    SQLALCHEMY_DATABASE_URI = 'sqlite://'
 
-    # Please note that MONGO_HOST and MONGO_PORT could very well be left
-    # out as they already default to a bare bones local 'mongod' instance.
-    MONGO_HOST = 'localhost'
-    MONGO_PORT = 27017
-    MONGO_USERNAME = 'user'
-    MONGO_PASSWORD = 'user'
-    MONGO_DBNAME = 'apitest'
-
-Due to MongoDB *laziness*, we don't really need to create the database
-collections. Actually we don't even need to create the database: GET requests
-on an empty/non-existent DB will be served correctly (200 OK with an empty
-collection); DELETE/PATCH/PUT will receive appropriate responses (404 Not
-Found), and POST requests will create database and collections as needed.
-However, such an auto-managed database will perform very poorly since it lacks
-indexes and any sort of optimization.
 
 A More Complex Application
 --------------------------
@@ -291,5 +276,4 @@ a complete list of features available and more usage examples.
     live instance or locally (you can use the sample client app to populate
     and/or reset the database).
 
-.. _`installed`: http://docs.mongodb.org/manual/installation/
-.. _running: http://docs.mongodb.org/manual/tutorial/manage-mongodb-processes/
+.. _`installed`: http://mislav.uniqpath.com/rails/install-sqlite3/
