@@ -8,6 +8,8 @@ Version 0.5
 
 Not released yet.
 
+- [fix] fix additional lookup regex in  RESTful Account Management tutorial
+  (Ashley Roach).
 - [new] Comma delimited sort syntax in queries. The MongoDB data layer now also
   supports queries like ``?sort=lastname,-age``. Addresses #443.
 - [change] XML item, meta and link nodes are now ordered. Closes #441.
