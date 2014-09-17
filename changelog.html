@@ -57,6 +57,15 @@
 <h2>Version 0.5<a class="headerlink" href="#version-0-5" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[new] <tt class="docutils literal"><span class="pre">put_internal()</span></tt> can be used for intenral PUT calls. This method is
+not rate limited, authentication is not checked and pre-request events are
+not raised (Kevin Funk).</li>
+<li>[new] <tt class="docutils literal"><span class="pre">patch_internal()</span></tt> can be used for intenral PATCH calls. This method
+is not rate limited, authentication is not checked and pre-request events are
+not raised (Kevin Funk).</li>
+<li>[new] <tt class="docutils literal"><span class="pre">delete_internal()</span></tt> can be used for intenral DELETE calls. This
+method is not rate limited, authentication is not checked and pre-request
+events are not raised (Kevin Funk).</li>
 <li>[fix] fix additional lookup regex in  RESTful Account Management tutorial
 (Ashley Roach).</li>
 <li>[new] Comma delimited sort syntax in queries. The MongoDB data layer now also
