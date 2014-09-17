@@ -39,6 +39,7 @@ def deleteitem_internal(resource, concurrency_check=False, **lookup):
     concurrency checking is optional. Deletes a resource item.
 
     :param resource: name of the resource to which the item(s) belong.
+    :param concurrency_check: concurrency check switch (bool)
     :param **lookup: item lookup query.
 
     .. versionchanged:: 0.5
