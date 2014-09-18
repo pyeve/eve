@@ -4,6 +4,8 @@ from eve.tests.test_settings import MONGO_DBNAME
 from eve import ETAG
 from bson import ObjectId
 
+from eve.methods.delete import deleteitem_internal
+
 
 class TestDelete(TestBase):
     def setUp(self):
@@ -166,6 +168,17 @@ class TestDelete(TestBase):
                                        (fake_contact_id, self.invoice_id),
                                        headers=headers)
         self.assert200(status)
+
+    def test_deleteitem_internal(self):
+        # test that deleteitem_internal is available and working properly.
+        with self.app.test_request_context(self.item_id_url):
+            r, _, _, status = deleteitem_internal(
+                self.known_resource, concurrency_check=False,
+                **{'_id': self.item_id})
+        self.assert200(status)
+
+        r = self.test_client.get(self.item_id_url)
+        self.assert404(r.status_code)
 
     def delete(self, url, headers=None):
         r = self.test_client.delete(url, headers=headers)

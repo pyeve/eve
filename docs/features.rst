@@ -68,7 +68,7 @@ The response payload will look something like this:
                 "_created": "Wed, 05 Dec 2012 09:53:07 GMT",
                 "_etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d",
                 "_links": {
-                    "self": {"href": "eve-demo.herokuapp.com:5000/people/50bf198338345b1c604faf31", "title": "person"},
+                    "self": {"href": "/people/50bf198338345b1c604faf31", "title": "person"},
                 },
             },
             ...
@@ -79,8 +79,8 @@ The response payload will look something like this:
             "page": 1
         },
         "_links": {
-            "self": {"href": "eve-demo.herokuapp.com:5000/people", "title": "people"},
-            "parent": {"href": "eve-demo.herokuapp.com:5000", "title": "home"}
+            "self": {"href": "/people", "title": "people"},
+            "parent": {"href": "/", "title": "home"}
         }
     }
 
@@ -159,7 +159,7 @@ or
     invoices?where={"contact_id": 51f63e0838345b6dcd7eabff, "number": 10}
 
 It's mostly a design choice, but keep in mind that when it comes to enabling
-individual documment endpoints you might occur in performance hits. This
+individual documment endpoints you might incur in performance hits. This
 otherwise legit GET request:
 
 ::
@@ -221,9 +221,9 @@ look something like this:
         "_created": "Wed, 21 Nov 2012 16:04:56 GMT",
         "_etag": "28995829ee85d69c4c18d597a0f68ae606a266cc",
         "_links": {
-            "self": {"href": "eve-demo.herokuapp.com/people/50acfba938345b0978fccad7", "title": "person"},
-            "parent": {"href": "eve-demo.herokuapp.com", "title": "home"},
-            "collection": {"href": "http://eve-demo.herokuapp.com/people", "title": "people"}
+            "self": {"href": "/people/50acfba938345b0978fccad7", "title": "person"},
+            "parent": {"href": "/", "title": "home"},
+            "collection": {"href": "/people", "title": "people"}
         }
     }
 
@@ -243,8 +243,8 @@ As you can see, item endpoints provide their own HATEOAS_ directives.
 
 .. _filters:
 
-Filtering and Sorting
----------------------
+Filtering
+---------
 Resource endpoints allow consumers to retrieve multiple documents. Query
 strings are supported, allowing for filtering and sorting. Two query syntaxes
 are supported. The JSON-like query syntax:
@@ -271,19 +271,32 @@ maintainer can choose to disable them all and/or whitelist allowed ones (see
 by querying on non-indexed fields is a concern, then whitelisting allowed
 filters is the way to go.
 
+Sorting
+-------
 Sorting is supported as well:
+
+.. code-block:: console
+
+    $ curl -i http://eve-demo.herokuapp.com/people?sort=city,-lastname
+    HTTP/1.1 200 OK
+
+Would return documents sorted by city and then by lastname (descending). As you
+can see you simply prepend a minus to the field name if you need the sort order
+to be reversed for a field.
+
+The MongoDB data layer also supports native MongoDB syntax:
 
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people?sort=[("lastname", -1)]
     HTTP/1.1 200 OK
 
+Would return documents sorted by lastname in descending order.
+
 Sorting is enabled by default and can be disabled both globally and/or at
 resource level (see ``SORTING`` in :ref:`global` and ``sorting`` in
 :ref:`domain`). It is also possible to set the default sort at every API
-endpoints (see ``default_sort`` in :ref:`domain`). Currently, sort directives
-use a pure MongoDB syntax; support for a more general syntax
-(``sort=lastname``) is planned.
+endpoints (see ``default_sort`` in :ref:`domain`). 
 
 .. admonition:: Please note
 
@@ -329,19 +342,19 @@ UI, or to navigate the API without knowing its structure beforehand. An example:
     {
         "_links": {
             "self": {
-                "href": "localhost:5000/people",
+                "href": "/people",
                 "title": "people"
             },
             "parent": {
-                "href": "localhost:5000",
+                "href": "/",
                 "title": "home"
             },
             "next": {
-                "href": "localhost:5000/people?page=2",
+                "href": "/people?page=2",
                 "title": "next page"
             },
             "last": {
-                "href": "localhost:5000/people?page=10",
+                "href": "/people?page=10",
                 "title": "last page"
             }
         }
@@ -385,8 +398,8 @@ edits) are in JSON format.
 .. code-block:: html
 
     <resource>
-        <link rel="child" href="eve-demo.herokuapp.com/people" title="people" />
-        <link rel="child" href="eve-demo.herokuapp.com/works" title="works" />
+        <link rel="child" href="/people" title="people" />
+        <link rel="child" href="/works" title="works" />
     </resource>
 
 XML support can be disabled by setting ``XML`` to ``False`` in the settings
@@ -499,7 +512,7 @@ metadata:
         "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
         "_id": "50ae43339fa12500024def5b",
         "_etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
-        "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b", "title": "person"}}
+        "_links": {"self": {"href": "/people/50ae43339fa12500024def5b", "title": "person"}}
     }
 
 However, in order to reduce the number of loopbacks, a client might also submit
@@ -523,14 +536,14 @@ The response will be a list itself, with the state of each document:
                 "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
                 "_id": "50ae43339fa12500024def5b",
                 "_etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
-                "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5b", "title": "person"}}
+                "_links": {"self": {"href": "/people/50ae43339fa12500024def5b", "title": "person"}}
             },
             {
                 "_status": "OK",
                 "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
                 "_id": "50ae43339fa12500024def5c",
                 "_etag": "62d356f623c7d9dc864ffa5facc47dced4ba6907"
-                "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae43339fa12500024def5c", "title": "person"}}
+                "_links": {"self": {"href": "/people/50ae43339fa12500024def5c", "title": "person"}}
             }
         ]
     }
@@ -574,9 +587,10 @@ request:
 In the example above, the first document did not validate so the whole request
 has been rejected. For more information see :ref:`validation`.
 
-In all cases, when all documents passed validation and where inserted correctly,
-the response status is ``201 Created``. If any document fail the validation, the
-response status is ``400 Bad Request``.
+In all cases, when all documents passed validation and where inserted
+correctly, the response status is ``201 Created``. If any document fail the
+validation, the response status is ``422 Unprocessable Entity`` by default, or
+any other error code defined by ``VALIDATION_ERROR_STATUS`` configuration.
 
 Extensible Data Validation
 --------------------------
@@ -812,11 +826,14 @@ documents will be embedded by default.
 
 Limitations
 ~~~~~~~~~~~
-Currenly we only support a single layer of embedding, i.e.
-``/emails?embedded={"author": 1}`` but *not*
-``/emails?embedded={"author.friends": 1}``. This feature is about serialization
-on GET requests. There's no support for POST, PUT or PATCH of embedded
-documents.
+Currently we support embedding of documents by references located in any
+subdocuments (nested dicts and lists). For example, a query
+``/invoices?/embedded={"user.friends":1}`` will return a document with ``user``
+and all his ``friends`` embedded, but only if ``user`` is a subdocument and
+``friends`` is a list of reference (it could be a list of dicts, nested
+dict, ect.). We *do not* support multiple layers embeddings. This feature is
+about serialization on GET requests. There's no support for POST, PUT or PATCH
+of embedded documents.
 
 Document embedding is enabled by default.
 
