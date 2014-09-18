@@ -1311,9 +1311,7 @@ When a document is requested media files will be returned as Base64 strings,
 
 However, if the ``EXTENDED_MEDIA_INFO`` list is populated (it isn't by
 default) the payload format will be different. This flag allows passthrough
-from the driver of additional meta fields. For example, using the MongoDB
-driver, fields like ``content_type``, ``name`` and ``length`` can be added to
-this list and will be passed-through from the underlying driver. 
+from the driver of additional meta fields. 
 
 When ``EXTENDED_MEDIA_INFO`` is used the field will be a dictionary
 whereas the file itself is stored under the ``file`` key and other keys
@@ -1341,8 +1339,6 @@ Then the output will be something like
         ]
         ...
     }
-
-For MongoDB, further fields can be found in the `driver documentation`_. 
 
 If you have other means to retrieve the media files (custom Flask endpoint for
 example) then the media files can be excluded from the paylod by setting to
@@ -1483,7 +1479,4 @@ for unittesting_ and an `extensive documentation`_.
 .. _`extensive documentation`: http://flask.pocoo.org/docs/
 .. _`this`: https://speakerdeck.com/nicola/developing-restful-web-apis-with-python-flask-and-mongodb?slide=113
 .. _Events: https://github.com/nicolaiarocci/events
-.. _`MongoDB Data Model Design`: http://docs.mongodb.org/manual/core/data-model-design
-.. _GridFS: http://docs.mongodb.org/manual/core/gridfs/
 .. _MediaStorage: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/media.py
-.. _`driver documentation`: http://api.mongodb.org/python/2.7rc0/api/gridfs/grid_file.html#gridfs.grid_file.GridOut

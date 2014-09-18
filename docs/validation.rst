@@ -62,9 +62,9 @@ that (for SQLAlchemy, just replace ``eve.io.mongo`` with ``eve.io.sql``  and
 
 .. code-block:: python
 
-    from eve.io.mongo import Validator
+    from eve.io.sql import ValidatorSQL
 
-    class MyValidator(Validator):
+    class MyValidator(ValidatorSQL):
         def _validate_isodd(self, isodd, field, value):
             if isodd and not bool(value & 1):
                 self._error(field, "Value must be an odd number")
@@ -107,7 +107,7 @@ code.
         if not re.match('[a-f0-9]{24}', value):
             self._error(field, ERROR_BAD_TYPE % 'ObjectId')
 
-This method enables support for MongoDB ``ObjectId`` type in your schema,
+This method matches the ``ObjectId`` type in your schema,
 allowing something like this:
 
 .. code-block:: python
@@ -175,4 +175,3 @@ a payload like this will be accepted:
 
 .. _Cerberus: http://cerberus.readthedocs.org
 .. _`source code`: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/mongo/validation.py
-
