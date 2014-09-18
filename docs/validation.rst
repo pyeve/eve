@@ -47,16 +47,18 @@ control of data validation.
 Extending Data Validation
 -------------------------
 Data validation is based on the Cerberus_ validation system and it is therefore
-extensible. As a matter of fact, Eve's MongoDB data-layer itself extends
-Cerberus validation, implementing the ``unique`` and ``data_relation``
-constraints and the ``ObjectId`` data type on top of the standard rules.
+extensible. As a matter of fact, Eve's data-layer itself extends Cerberus
+validation, implementing the ``unique`` and ``data_relation`` constraints on
+top of the standard rules (for MongoDB, Eve also adds the ``ObjectId`` data
+type).
 
 Custom Validation Rules
 ------------------------
 Suppose that in your specific and very peculiar use case, a certain value can
 only be expressed as an odd integer. You decide to add support for a new
 ``isodd`` rule to our validation schema. This is how you would implement
-that:
+that (for SQLAlchemy, just replace ``eve.io.mongo`` with ``eve.io.sql``  and
+``Validator`` with ``ValidatorSQL``):
 
 .. code-block:: python
 
@@ -72,7 +74,7 @@ that:
     if __name__ == '__main__':
         app.run()
 
-By subclassing the base Mongo validator class and then adding a custom
+By subclassing the base validator class and then adding a custom
 ``_validate_<rulename>`` method, you extended the available :ref:`schema`
 grammar and now the new custom rule ``isodd`` is available in your schema. You
 can now do something like:
@@ -126,6 +128,11 @@ a complete list rules and data types available.
 
 Allowing the Unknown
 --------------------
+
+.. admonition:: MONGODB ONLY FEATURE
+
+    Please note that this is a MongoDB-only feature.
+
 Normally you don't want clients to inject unknown fields in your documents.
 However, there might be circumstances where this is desirable. During the
 development cycle, for example, or when you are dealing with very heterogeneous

@@ -42,6 +42,9 @@ setup(
     packages=find_packages(),
     test_suite="eve.tests",
     install_requires=install_requires,
+    extras_require={
+        'sqlalchemy': ['sqlalchemy', 'Flask-SQLAlchemy']
+    },
     tests_require=['redis'],
     classifiers=[
         'Development Status :: 4 - Beta',

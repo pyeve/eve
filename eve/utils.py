@@ -21,7 +21,7 @@ from eve import RFC1123_DATE_FORMAT
 
 
 class Config(object):
-    """ Helper class used trorough the code to access configuration settings.
+    """ Helper class used through the code to access configuration settings.
     If the main flaskapp object is not instantiated yet, returns the default
     setting in the eve __init__.py module, otherwise returns the flaskapp
     config value (which value might override the static defaults).
@@ -259,7 +259,7 @@ def document_etag(value):
        consistent between different runs and/or server instances (#16).
     """
     h = hashlib.sha1()
-    h.update(dumps(value, sort_keys=True).encode('utf-8'))
+    h.update(dumps(value, sort_keys=True, cls=app.data.json_encoder_class).encode('utf-8'))
     return h.hexdigest()
 
 

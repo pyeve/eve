@@ -221,7 +221,7 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
-    def remove(self, resource, lookup={}):
+    def remove(self, resource, lookup):
         """ Removes a document/row or an entire set of documents/rows from a
         database collection/table.
 
@@ -430,9 +430,26 @@ class DataLayer(object):
                                 request_auth_value)
                         ))
                     else:
-                        query = self.app.data.combine_queries(
+                        query = self.combine_queries(
                             query, {auth_field: request_auth_value}
                         )
                 else:
                     query = {auth_field: request_auth_value}
         return datasource, query, fields, sort
+
+    def _client_projection(self, req):
+        """ Returns a properly parsed client projection if available.
+
+        :param req: a :class:`ParsedRequest` instance.
+
+        .. versionadded:: 0.4
+        """
+        client_projection = {}
+        if req and req.projection:
+            try:
+                client_projection = json.loads(req.projection)
+            except:
+                abort(400, description=debug_error_message(
+                    'Unable to parse `projection` clause'
+                ))
+        return client_projection

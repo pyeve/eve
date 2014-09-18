@@ -179,11 +179,12 @@ a simple resource endpoint the document lookup would happen on a single field:
 Customizable, multiple item endpoints
 -------------------------------------
 Resources can or cannot expose individual item endpoints. API consumers could
-get access to ``/people``, ``/people/<ObjectId>`` and ``/people/Doe``,
-but only to ``/works``.  When you do grant access to item endpoints, you can
-define up to two lookups, both defined with regexes. The first will be the
-primary endpoint and will match your database primary key structure (i.e., an
-``ObjectId`` in a MongoDB database).
+get access to ``/people``, ``/people/<ObjectId>`` (MongoDB), ``/people/<Id>``
+(SQLALchemy) and ``/people/Doe``, but only to ``/works``.  When you do grant
+access to item endpoints, you can define up to two lookups, both defined with
+regexes. The first will be the primary endpoint and will match your database
+primary key structure (i.e. an ``ObjectId`` in a MongoDB database, or a ``Id``
+column in SQL database).
 
 .. code-block:: console
 
@@ -246,14 +247,15 @@ Filtering
 ---------
 Resource endpoints allow consumers to retrieve multiple documents. Query
 strings are supported, allowing for filtering and sorting. Two query syntaxes
-are supported. The mongo query syntax:
+are supported. The JSON-like query syntax:
 
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people?where={"lastname": "Doe"}
     HTTP/1.1 200 OK
 
-and the native Python syntax:
+and the native Python syntax (which is not supported by the SQLAlchemy data
+layer):
 
 .. code-block:: console
 
@@ -546,10 +548,10 @@ The response will be a list itself, with the state of each document:
         ]
     }
 
-When multiple documents are submitted the API takes advantage of MongoDB *bulk
-insert* capabilities which means that not only there's just one single request
-traveling from the client to the remote API, but also that only one loopback is
-performed between the API server and the database.
+When multiple documents are submitted the API takes advantage of
+MongoDB/SQLAlchemy *bulk insert* capabilities which means that not only there's
+just one single request traveling from the client to the remote API, but also
+that only one loopback is performed between the API server and the database.
 
 Data Validation
 ---------------
@@ -597,9 +599,9 @@ extensible, so you can adapt it to your specific use case. Say that your API can
 only accept odd numbers for a certain field value; you can extend the
 validation class to validate that. Or say you want to make sure that a VAT
 field actually matches your own country VAT algorithm; you can do that too. As
-a matter of fact, Eve's MongoDB data-layer itself extends Cerberus
-validation by implementing the ``unique`` schema field constraint. For more
-information see :ref:`validation`.
+a matter of fact, Eve's data-layer itself extends Cerberus validation by
+implementing the ``unique`` schema field constraint. For more information see
+:ref:`validation`.
 
 .. _cache_control:
 
@@ -728,8 +730,8 @@ available in the 'people' resource. You can also exclude fields:
 
 The above will return all fields but *born*. Please note that key fields such
 as ID_FIELD, DATE_CREATED, DATE_UPDATED etc.  will still be included with the
-payload. Also keep in mind that some database engines, Mongo included, do not
-allow for mixing of inclusive and exclusive selections.
+payload. Also keep in mind that some database engines, Mongo and SQLAlchemy
+included, do not allow for mixing of inclusive and exclusive selections.
 
 .. admonition:: See also
 
@@ -840,7 +842,12 @@ Document embedding is enabled by default.
     When it comes to MongoDB, what embedded resource serialization deals with
     is *document references* (linked documents), something different from
     *embedded documents*, also supported by Eve (see `MongoDB Data Model
-    Design`_). Embedded resource serialization is a nice feature that can
+    Design`_). 
+    
+    When it comes to SQLAlchemy, what embedded resource serialization do is 
+    using *relationship*  based lookup. 
+
+    Embedded resource serialization is a nice feature that can
     really help with normalizing your data model for the client.  However, when
     deciding whether to enable it or not, especially by default, keep in mind
     that each embedded resource being looked up will require a database lookup,
@@ -1252,15 +1259,15 @@ PATCH, DELETE).
 
 Custom ID Fields
 ----------------
-Eve allows to extend its standard data type support. In the :ref:`custom_ids`
-tutorial we see how it is possible to use UUID values instead of MongoDB
-default ObjectIds as unique document identifiers.
+The MongoDB data layers allows to extend its standard data type support. In the
+:ref:`custom_ids` tutorial we see how it is possible to use UUID values instead
+of MongoDB default ObjectIds as unique document identifiers.
 
 File Storage
 ------------
 Media files (images, pdf, etc.) can be uploaded as ``media`` document
-fields. Upload is done via ``POST``, ``PUT`` and
-``PATCH`` as usual, but using the ``multipart/data-form`` content-type.
+fields. Upload is done via ``POST``, ``PUT`` and ``PATCH`` as usual, but using
+the ``multipart/data-form`` content-type.
 
 Let us assume that the ``accounts`` endpoint has a schema like this:
 
@@ -1278,10 +1285,11 @@ With curl we would ``POST`` like this:
 
     $ curl -F "name=john" -F "pic=@profile.jpg" http://example.com/accounts
 
-For optmized performance files are stored in GridFS_ by default. Custom
-``MediaStorage`` classes can be implemented and passed to the application to
-support alternative storage systems. A ``FileSystemMediaStorage`` class is in
-the works, and will soon be included with the Eve package.
+For optmized performance files are stored in GridFS_ (MongoDB) or BLOBs
+(SQLAlchemy) by default. Custom ``MediaStorage`` classes can be implemented and
+passed to the application to support alternative storage systems.
+A ``FileSystemMediaStorage`` class is in the works, and will soon be included
+with the Eve package.
 
 As a proper developer guide is not available yet, you can peek at the
 MediaStorage_ source if you are interested in developing custom storage
@@ -1450,11 +1458,11 @@ Something like this:
 I admit that this example is as rudimentary as it can get, but hopefully it
 will get the point across.
 
-MongoDB Support
----------------
-Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL
-backends can be developed with relative ease (a `PostgreSQL effort`_ is
-ongoing, maybe you can lend a hand?)
+MongoDB and SQLAlchemy
+----------------------
+Support for MongoDB and SQLAlchemy (see :doc:`tutorials/sqlalchemy_support`)
+comes out of the box. Extensions for other SQL/NoSQL backends can be developed
+with relative ease.
 
 Powered by Flask
 ----------------
