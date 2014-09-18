@@ -3,8 +3,8 @@ Eve
 .. image:: https://secure.travis-ci.org/nicolaiarocci/eve.png?branch=master 
         :target: https://secure.travis-ci.org/nicolaiarocci/eve
 
-Eve is an out-of-the-box, highly customizable and fully featured RESTful Web
-API framework that you can use to effortlessly build and deploy your own APIs
+Powered by Flask, MongoDB, Redis and good intentions Eve allows to effortlessly
+build and deploy highly customizable, fully featured RESTful Web Services.
 
 Eve is Simple
 -------------
@@ -26,7 +26,7 @@ All you need to bring your API online is a database, a configuration file
 (defaults to ``settings.py``) and a launch script.  Overall, you will find that
 configuring and fine-tuning your API is a very simple process.
 
-Eve is thoroughly tested under Python 2.6, Python 2.7 and Python 3.3.
+Eve is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4 and PyPy.
 
 `Check out the Eve Website <http://python-eve.org/>`_
 
@@ -46,7 +46,9 @@ Features
 * Data Validation
 * Extensible Data Validation
 * Resource-level Cache Control
-* Versioning
+* API Versioning
+* Document Versioning
+* Authentication
 * CORS Cross-Origin Resource Sharing
 * Read-only by default
 * Default Values
@@ -55,8 +57,8 @@ Features
 * Embedded Resource Serialization
 * Event Hooks
 * Rate Limiting
-* File Storage
 * Custom ID Fields
+* File Storage
 * MongoDB Support
 * Powered by Flask
 

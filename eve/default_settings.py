@@ -11,6 +11,9 @@
     :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.5
+       'INTERNAL_RESOURCE' added and set to False
+
     .. versionchanged:: 0.4
        'META' added and set to '_meta'.
        'ERROR' added and set to '_error'.
@@ -78,6 +81,8 @@ ETAG = '_etag'
 VERSION = '_version'            # field that stores the version number
 META = '_meta'
 
+VALIDATION_ERROR_STATUS = 422
+
 # field returned on GET requests so we know if we have the latest copy even if
 # we access a specific version
 LATEST_VERSION = '_latest_version'
@@ -108,9 +113,10 @@ PROJECTION = True               # projection enabled by default
 PAGINATION = True               # pagination enabled by default.
 PAGINATION_LIMIT = 50
 PAGINATION_DEFAULT = 25
-VERSIONING = False              # turn document versioning on or off
+VERSIONING = False              # turn document versioning on or off.
 VERSIONS = '_versions'          # suffix for parallel collection w/old versions
-VERSION_PARAM = 'version'       # URL param for specific version of a document
+VERSION_PARAM = 'version'       # URL param for specific version of a document.
+INTERNAL_RESOURCE = False       # resources are public by default.
 
 RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']

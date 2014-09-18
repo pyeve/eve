@@ -9,6 +9,9 @@
     :copyright: (c) 2014 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.5
+       'RFC1123_DATE_FORMAT' added.
+
     .. versionchanged:: 0.4
        'META' defaults to '_meta'.
        'ERROR' defaults to '_error'.
@@ -28,10 +31,11 @@
 
 """
 
-__version__ = '0.4-dev'
+__version__ = '0.5-dev'
 
 # RFC 1123 (ex RFC 822)
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
+RFC1123_DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
 
 URL_PREFIX = ''
 API_VERSION = ''
@@ -61,6 +65,8 @@ LINKS = '_links'
 ETAG = '_etag'
 VERSION = '_version'
 META = '_meta'
+
+VALIDATION_ERROR_STATUS = 422
 
 # must be the last line (will raise W402 on pyflakes)
 from eve.flaskapp import Eve  # noqa

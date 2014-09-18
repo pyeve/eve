@@ -1,10 +1,12 @@
+import base64
+from io import BytesIO
 import simplejson as json
 from datetime import datetime
 from bson import ObjectId
 from eve.tests import TestBase
 from eve.tests.utils import DummyEvent
 from eve.tests.test_settings import MONGO_DBNAME
-from eve.utils import date_to_str, str_to_date
+from eve.utils import str_to_date, date_to_rfc1123
 
 
 class TestGet(TestBase):
@@ -77,17 +79,14 @@ class TestGet(TestBase):
         self.assertLastLink(links, None)
         self.assertPagination(response, 5, 101, 25)
 
-    def test_get_paging_disabled(self):
-        self.app.config['DOMAIN'][self.known_resource]['pagination'] = False
-        response, status = self.get(self.known_resource, '?page=2')
+    def test_get_pagination_no_documents(self):
+        """ test that pagination meta is present even when no records are being
+        returned. #415.
+        """
+        response, status = self.get(self.known_resource,
+                                    '?where={"ref": "not_really"}')
         self.assert200(status)
-        resource = response['_items']
-        self.assertFalse(len(resource) ==
-                         self.app.config['PAGINATION_DEFAULT'])
-        self.assertTrue(self.app.config['META'] not in response)
-        links = response['_links']
-        self.assertTrue('next' not in links)
-        self.assertTrue('prev' not in links)
+        self.assertPagination(response, 1, 0, 25)
 
     def test_get_paging_disabled_no_args(self):
         self.app.config['DOMAIN'][self.known_resource]['pagination'] = False
@@ -159,6 +158,24 @@ class TestGet(TestBase):
         resource = response['_items']
         self.assertEqual(len(resource), 1)
 
+    def test_get_projection_consistent_etag(self):
+        """ Test that #369 is fixed and projection queries return consistent
+            etags (as they are now stored along with the document).
+        """
+        etag_field = self.app.config['ETAG']
+        data = {"inv_number": self.random_string(10)}
+
+        # post a new item so etag storage kicks in
+        r, status = self.post(self.empty_resource_url, data=data)
+        etag = r[etag_field]
+
+        # hit the resource endpoint with a projection query
+        projection = '{"prog": 1}'
+        r, status = self.get(self.empty_resource,
+                             '?projection=%s' % projection)
+        # compare original etag with retrieved one
+        self.assertEqual(etag, r['_items'][0][etag_field])
+
     def test_get_projection(self):
         projection = '{"prog": 1}'
         response, status = self.get(self.known_resource, '?projection=%s' %
@@ -196,6 +213,27 @@ class TestGet(TestBase):
             self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
             self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
 
+    def test_get_projection_subdocument(self):
+        projection = '{"location.address": 1}'
+        response, status = self.get(self.known_resource, '?projection=%s' %
+                                    projection)
+        self.assert200(status)
+
+        resource = response['_items']
+
+        for r in resource:
+            self.assertTrue('location' in r)
+            self.assertTrue('address' in r['location'])
+            self.assertFalse('city' in r['location'])
+            self.assertFalse('role' in r)
+            self.assertFalse('prog' in r)
+            self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.app.config['ETAG'] in r)
+            self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+            self.assertTrue(self.app.config['DATE_CREATED'] in r)
+            self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+            self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
+
     def test_get_projection_noschema(self):
         self.app.config['DOMAIN'][self.known_resource]['schema'] = {}
         response, status = self.get(self.known_resource)
@@ -218,6 +256,17 @@ class TestGet(TestBase):
         resource = response['_items']
         self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
 
+    def test_get_sort_comma_delimited_syntax(self):
+        sort = '-prog'
+        response, status = self.get(self.known_resource, '?sort=%s' % sort)
+        self.assert200(status)
+
+        resource = response['_items']
+        self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
+        topvalue = 100
+        for i in range(len(resource)):
+            self.assertEqual(resource[i]['prog'], topvalue - i)
+
     def test_get_sort_mongo_syntax(self):
         sort = '[("prog",-1)]'
         response, status = self.get(self.known_resource,
@@ -233,13 +282,14 @@ class TestGet(TestBase):
     def test_get_sort_disabled(self):
         self.app.config['DOMAIN'][self.known_resource]['sorting'] = False
         sort = '[("prog",-1)]'
-        response, status = self.get(self.known_resource,
-                                    '?sort=%s' % sort)
+        response, status = self.get(self.known_resource, '?sort=%s' % sort)
         self.assert200(status)
         resource = response['_items']
         self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
-        for i in range(len(resource)):
-            self.assertEqual(resource[i]['prog'], i)
+
+        # this might actually fail on very rare occurences as mongodb
+        # 'natural' order is not granted to return documents in insertion order
+        self.assertEqual(resource[0]['prog'], 0)
 
     def test_get_default_sort(self):
         s = self.app.config['DOMAIN'][self.known_resource]['datasource']
@@ -255,9 +305,6 @@ class TestGet(TestBase):
         self.app.set_defaults()
         response, _ = self.get(self.known_resource)
         self.assertEqual(response['_items'][0]['prog'], 0)
-
-    def test_get_if_modified_since(self):
-        self.assertIfModifiedSince(self.known_resource_url)
 
     def test_cache_control(self):
         self.assertCacheControl(self.known_resource_url)
@@ -353,6 +400,65 @@ class TestGet(TestBase):
             self.assertTrue('_created_on' in document)
             self.assertTrue('_the_etag' in document)
 
+    def test_get_embedded_media(self):
+        """ test that embeedded images are properly rendered and #305 is fixed.
+        """
+
+        # add a 'digital_assets' endpoint to the API
+        self.app.register_resource(
+            'digital_assets',
+            {'schema': {'file': {'type': 'media'}}}
+        )
+
+        # add an 'images' endpoint to the API. this will expose the embedded
+        # digital assets
+        images = {
+            'image_file': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'digital_assets',
+                    'field': '_id',
+                    'embeddable': True
+                }
+            }
+        }
+        self.app.register_resource('images', {'schema': images})
+
+        # post an asset
+        asset = b'a_file'
+        data = {'file': (BytesIO(asset), 'test.txt')}
+        response, status = self.parse_response(
+            self.test_client.post("digital_assets",
+                                  data=data,
+                                  headers=[('Content-Type',
+                                            'multipart/form-data')]))
+        self.assert201(status)
+
+        # post a document to the 'images' endpoint. the document is referencing
+        # the newly posted digital asset.
+        data = {'image_file': ObjectId(response['_id'])}
+        response, status = self.parse_response(
+            self.test_client.post("images", data=data))
+        self.assert201(status)
+
+        # retrieve the document from the same endpoint, requesting for the
+        # digital asset to be embedded within the retrieved document
+        image_id = response['_id']
+        response, status = self.parse_response(
+            self.test_client.get(
+                '%s/%s%s' % ('images', image_id,
+                             '?embedded={"image_file": 1}')))
+        self.assert200(status)
+
+        # test that the embedded document contains the same data as orignially
+        # posted on the digital_asset endpoint.
+        returned = response['image_file']['file']
+        # encodedstring will raise a DeprecationWarning under Python3.3, but
+        # the alternative encodebytes is not available in Python 2.
+        encoded = base64.encodestring(asset).decode('utf-8')
+        self.assertEqual(returned, encoded)
+        self.assertEqual(base64.decodestring(returned.encode()), asset)
+
     def test_get_embedded(self):
         # We need to assign a `person` to our test invoice
         _db = self.connection[MONGO_DBNAME]
@@ -422,6 +528,20 @@ class TestGet(TestBase):
         content = json.loads(r.get_data())
         self.assertTrue('location' in content['person'])
 
+        # Add new embeddable field to schema
+        invoices['schema']['missing-field'] = {
+            'type': 'objectid',
+            'data_relation': {'resource': 'contacts', 'embeddable': True}
+        }
+
+        # Test that it ignores embeddable field that is missing from document
+        embedded = '{"missing-field": 1}'
+        r = self.test_client.get('%s/%s' % (invoices['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertFalse('missing-field' in content['_items'][0])
+
     def test_get_default_embedding(self):
         # We need to assign a `person` to our test invoice
         _db = self.connection[MONGO_DBNAME]
@@ -472,6 +592,76 @@ class TestGet(TestBase):
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
         self.assertTrue('location' in content['person'])
+
+    def test_get_reference_embedded_in_subdocuments(self):
+        _db = self.connection[MONGO_DBNAME]
+
+        contacts = self.random_contacts(2)
+        contact_ids = _db.contacts.insert(contacts)
+        company = {'departments': [{'title': 'development',
+                                   'members': contact_ids}]}
+        company_id = _db.companies.insert(company)
+
+        companies = self.domain['companies']
+        contact_ids = list(map(str, contact_ids))
+
+        # Test that doesn't come embedded if asking for a field that
+        # isn't embedded ('embeddable' is False by default)
+        embedded = '{"departments.members": 1}'
+        r = self.test_client.get('%s/%s' % (companies['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertEqual(content['_items'][0]['departments'][0]['members'],
+                         contact_ids)
+
+        # Set field to be embedded
+        department_def = companies['schema']['departments']['schema']
+        member_def = department_def['schema']['members']['schema']
+        member_def['data_relation']['embeddable'] = True
+
+        # Test that global setting applies even if field is set to embedded
+        companies['embedding'] = False
+        r = self.test_client.get('%s/%s' % (companies['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertEqual(content['_items'][0]['departments'][0]['members'],
+                         contact_ids)
+
+        # Test that it works
+        companies['embedding'] = True
+        r = self.test_client.get('%s/%s' % (companies['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('location' in
+                        content['_items'][0]['departments'][0]['members'][0])
+
+        # Test that it ignores a bogus field
+        embedded = '{"departments.members": 1, "not-a-real-field": 1}'
+        r = self.test_client.get('%s/%s' % (companies['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('location' in
+                        content['_items'][0]['departments'][0]['members'][0])
+
+        # Test that it works with item endpoint too
+        embedded = '{"departments.members": 1}'
+        r = self.test_client.get('%s/%s/%s' % (companies['url'], company_id,
+                                               '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('location' in content['departments'][0]['members'][0])
+
+        # Test default fields to be embedded
+        companies['embedded_fields'] = {"departments.members": 1}
+        r = self.test_client.get('%s/' % companies['url'])
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('location' in
+                        content['_items'][0]['departments'][0]['members'][0])
 
     def test_get_nested_resource(self):
         response, status = self.get('users/overseas')
@@ -568,6 +758,34 @@ class TestGet(TestBase):
         self.app.config['X_DOMAINS'] = '*'
         r = self.test_client.get(request, headers=[('Origin', 'test.com')])
         self.assert404(r.status_code)
+
+    def test_get_invalid_where_syntax(self):
+        """ test that 'where' syntax with unknown '$' operator returns 400. """
+        response, status = self.get(self.known_resource,
+                                    '?where={"field": {"$foo": "bar"}}')
+        self.assert400(status)
+
+    def test_get_invalid_sort_syntax(self):
+        """ test that invalid sort syntax returns a 400 """
+        response, status = self.get(self.known_resource, '?sort=[("prog":1)]')
+        self.assert400(status)
+
+    def test_get_allowed_filters_operators(self):
+        """ test that supported operators are not considered invalid filters
+            (#388). Also, test that nested filters are validated.
+        """
+        where = '?where={"$and": [{"field1": "value1"}, {"field2": "value2"}]}'
+        settings = self.app.config['DOMAIN'][self.known_resource]
+
+        # valid
+        settings['allowed_filters'] = ['field1', 'field2']
+        response, status = self.get(self.known_resource, where)
+        self.assert200(status)
+
+        # invalid
+        settings['allowed_filters'] = ['field2']
+        response, status = self.get(self.known_resource, where)
+        self.assert400(status)
 
     def assertGet(self, response, status, resource=None):
         self.assert200(status)
@@ -810,7 +1028,7 @@ class TestGetItem(TestBase):
 
         # IMS needs to see as recent as possible since the test db has just
         # been built
-        header = [("If-Modified-Since", date_to_str(datetime.now()))]
+        header = [("If-Modified-Since", date_to_rfc1123(datetime.now()))]
 
         r = self.test_client.get(self.item_id_url, headers=header)
         self.assert304(r.status_code)

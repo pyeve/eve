@@ -47,16 +47,18 @@ control of data validation.
 Extending Data Validation
 -------------------------
 Data validation is based on the Cerberus_ validation system and it is therefore
-extensible. As a matter of fact, Eve's SQLAlchemy data-layer itself extends
-Cerberus validation, implementing the ``unique`` and ``data_relation``
-constraints.
+extensible. As a matter of fact, Eve's data-layer itself extends Cerberus
+validation, implementing the ``unique`` and ``data_relation`` constraints on
+top of the standard rules (for MongoDB, Eve also adds the ``ObjectId`` data
+type).
 
 Custom Validation Rules
 ------------------------
 Suppose that in your specific and very peculiar use case, a certain value can
 only be expressed as an odd integer. You decide to add support for a new
 ``isodd`` rule to our validation schema. This is how you would implement
-that:
+that (for SQLAlchemy, just replace ``eve.io.mongo`` with ``eve.io.sql``  and
+``Validator`` with ``ValidatorSQL``):
 
 .. code-block:: python
 
@@ -72,7 +74,7 @@ that:
     if __name__ == '__main__':
         app.run()
 
-By subclassing the base SQLAlchemy validator class and then adding a custom
+By subclassing the base validator class and then adding a custom
 ``_validate_<rulename>`` method, you extended the available :ref:`schema`
 grammar and now the new custom rule ``isodd`` is available in your schema. You
 can now do something like:
@@ -122,6 +124,54 @@ find more advanced use cases, such as the implementation of the ``unique`` and
 ``data_relation`` constraints. Please see the Cerberus_ documentation for
 a complete list rules and data types available. 
 
+.. _unknown:
+
+Allowing the Unknown
+--------------------
+
+.. admonition:: MONGODB ONLY FEATURE
+
+    Please note that this is a MongoDB-only feature.
+
+Normally you don't want clients to inject unknown fields in your documents.
+However, there might be circumstances where this is desirable. During the
+development cycle, for example, or when you are dealing with very heterogeneous
+data. After all, not forcing normalized information is one of the selling
+points of MongoDB and many other NoSQL data stores.
+
+In Eve, you achieve this by setting the ``ALLOW_UNKNOWN`` option to ``True``.
+Once this option is enabled, fields matching the schema will be validated
+normally, while unknown fields will be quietly stored without a glitch. You
+can also enable this feature only for certain endpoints by setting the
+``allow_unknown`` local option.
+
+Consider the following domain:
+
+.. code-block:: python
+
+    DOMAIN: {
+        'people': {
+            'allow_unknown': True,
+            'schema': {
+                'firstname': {'type': 'string'},
+                }
+            }
+        }
+
+You normally could only add (POST) or edit (PATCH) `firstnames` to the
+``/people`` endpoint. However, since ``allow_unknown`` has been enabled, even
+a payload like this will be accepted:
+
+.. code-block:: console
+
+    $ curl -d '[{"firstname": "bill", "lastname": "clinton"}, {"firstname": "bill", "age":70}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
+    HTTP/1.1 201 OK
+
+.. admonition:: Please note
+
+    Use this feature with extreme caution. Also be aware that, when this
+    option is enabled, clients will be capable of actually `adding` fields via
+    PATCH (edit).
 
 .. _Cerberus: http://cerberus.readthedocs.org
 .. _`source code`: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/mongo/validation.py
