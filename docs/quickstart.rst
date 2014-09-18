@@ -8,8 +8,16 @@ assumes that:
 
 - You already have Eve installed. If you do not, head over to the
   :ref:`install` section.
+
+For MongoDB:
+
 - MongoDB is installed_. 
 - An instance of MongoDB is running_.
+
+For SQLAlchemy:
+
+- SQLite3_ is installed
+
 
 A Minimal Application
 ---------------------
@@ -116,6 +124,9 @@ Database Interlude
 ------------------
 Let's connect to a database by adding the following lines to `settings.py`:
 
+MongoDB
+~~~~~~~
+
 ::
 
     # Let's just use the local mongod instance. Edit as needed.
@@ -135,6 +146,14 @@ collection); DELETE/PATCH/PUT will receive appropriate responses (404 Not
 Found), and POST requests will create database and collections as needed.
 However, such an auto-managed database will perform very poorly since it lacks
 indexes and any sort of optimization.
+
+SQLAlchemy
+~~~~~~~~~~
+
+::
+
+    # Let's just use the local mongod instance. Edit as needed.
+    SQLALCHEMY_DATABASE_URI = 'sqlite://'
 
 A More Complex Application
 --------------------------
@@ -293,3 +312,4 @@ a complete list of features available and more usage examples.
 
 .. _`installed`: http://docs.mongodb.org/manual/installation/
 .. _running: http://docs.mongodb.org/manual/tutorial/manage-mongodb-processes/
+.. _`SQLite3`: http://mislav.uniqpath.com/rails/install-sqlite3/
