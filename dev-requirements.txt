@@ -11,5 +11,5 @@ redis==2.10.1
 Sphinx==1.2.2
 tox==1.7.1
 wheel==0.24.0
-alabaster==0.6.0
+-e git+https://github.com/nicolaiarocci/alabaster.git@15d190f29f86141aab202843f2bf3edfde71e56c#egg=al
 sphinxcontrib-embedly
