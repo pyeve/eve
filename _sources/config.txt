@@ -277,7 +277,7 @@ uppercase.
                                     the database.  Defaults to ``_id``. 
 
 ``ITEM_LOOKUP``                     ``True`` if item endpoints should be generally 
-                                    available acroos the API, ``False``
+                                    available across the API, ``False``
                                     otherwise. Can be overridden by resource
                                     settings. Defaults to ``True``.
 
