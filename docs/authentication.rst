@@ -189,8 +189,8 @@ performance, but that's precisely the point, as slow encoding means very good
 resistance to brute-force attacks. For a faster (and less safe) alternative, see
 the SHA1/MAC snippet further below. 
 
-This script assumes that user accounts are stored in an `accounts` MongoDB
-collection, and that passwords are stored as bcrypt hashes. All API
+This script assumes that user accounts are stored in an `accounts` SQLAlchemy
+table, and that passwords are stored as bcrypt hashes. All API
 resources/methods will be secured unless they are made explicitly public.
 
 
@@ -235,8 +235,8 @@ resources/methods will be secured unless they are made explicitly public.
 
 Basic Authentication with SHA1/HMAC
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This script assumes that user accounts are stored in an `accounts` MongoDB
-collection, and that passwords are stored as SHA1/HMAC hashes. All API
+This script assumes that user accounts are stored in an `accounts` SQLAlchemy
+table, and that passwords are stored as SHA1/HMAC hashes. All API
 resources/methods will be secured unless they are made explicitly public.
 
 .. code-block:: python
@@ -282,8 +282,8 @@ Token-based authentication can be considered a specialized version of Basic
 Authentication. The Authorization header tag will contain the auth token as the
 username, and no password.
 
-This script assumes that user accounts are stored in an `accounts` MongoDB
-collection. All API resources/methods will be secured unless they are made
+This script assumes that user accounts are stored in an `accounts` SQLAlchemy
+table. All API resources/methods will be secured unless they are made
 explicitly public (by fiddling with some settings you can open one or more
 resources and/or methods to public access -see docs).
 
@@ -414,7 +414,7 @@ Then your subclass would implement the authorization logic by making good use
 of the aforementioned ``allowed_roles`` parameter. 
 
 The snippet below assumes that user accounts are stored in an `accounts`
-MongoDB collection, that passwords are stored as SHA1/HMAC hashes and that user
+SQLAlchemy table, that passwords are stored as SHA1/HMAC hashes and that user
 roles are stored in a 'roles' array. All API resources/methods will be secured
 unless they are made explicitly public.
 

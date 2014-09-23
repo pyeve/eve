@@ -124,6 +124,7 @@ class Eve(Flask, Events):
         self.settings = settings
 
         self.load_config()
+        self.register_schema(data)
         self.validate_domain_struct()
 
         # enable regex routing
@@ -698,6 +699,11 @@ class Eve(Flask, Events):
         # home page (API entry point)
         self.add_url_rule('%s/' % self.api_prefix, 'home',
                           view_func=home_endpoint, methods=['GET', 'OPTIONS'])
+
+    def register_schema(self, data):
+        """Register eve schema from data layer"""
+        if hasattr(data, 'register_schema'):
+            data.register_schema(self)
 
     def register_resource(self, resource, settings):
         """ Registers new resource to the domain.

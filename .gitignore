@@ -59,3 +59,11 @@ _build
 
 # PyCharm
 .idea
+
+# SQLite databases
+*.db
+
+*.db-journal
+
+# Stored python history files
+.pyhist

@@ -27,32 +27,28 @@ A little context
 ----------------
 At `Gestionale Amica <http://gestionaleamica.com>`_ we had been working hard on
 a full featured, Python powered, RESTful Web API. We learned quite a few things
-on REST best patterns, and we had a chance to put Python's renowned web
-capabilities to the test. Then, at EuroPython 2012, I had the opportunity to share
-what we learned.  My talk sparked quite a bit of interest, and even after a few
-months had passed, the slides were still receiving a lot of hits every day.
-I kept receiving emails asking for source code examples and whatnot. After all,
-a REST API lies in the future of every web-oriented developer, and who isn't
-one these days?
+on REST best patterns and we had a chance to put Python's renowned web
+capabilities to test. Then, at EuroPython 2012, I had the opportunity to share
+what we learned.  My talk sparked quite a bit of interest and even after few
+months had passed the slides were still receiving a lot of hits. I also kept
+receiving emails asking for source code examples and whatnot. After all, a REST
+API lies in the future of every developer, and who isn't one these days?
 
-So, I thought, perhaps I could take the proprietary, closed code (codenamed
-'Adam') and refactor it "just a little bit", so that it could fit a much wider
+So I thought that perhaps I could take the proprietary, closed code (codenamed
+*Adam*) and refactor it "just a little bit", so that it could fit a wider
 number of use cases. I could then release it as an open source project. Well
 it turned out to be slightly more complex than that but finally here it is, and
 of course it's called Eve.
 
 It still has a long way to go before it becomes the fully featured open source,
-out-of-the-box API solution I envision (see the Roadmap below), but
-I feel that at this point the codebase is ready for a public preview.
-This will hopefully allow for some constructive feedback and maybe, for some
-contributors to join the ranks.
+out-of-the-box API solution I envision but I feel that at this point the
+codebase is ready for a public preview. This will hopefully allow for some
+constructive feedback and maybe, for some contributors to join the ranks.
 
-REST, Flask and MongoDB
------------------------
-The slides from my EuroPython talk, *Developing RESTful Web APIs with Flask and
-MongoDB*, are `available online`_. You might want to check them out to understand
-why and how certain design decisions were made, especially with regards to REST
-implementation.
+On a side note, the slides from my EuroPython talk *Developing RESTful Web
+APIs with Flask and MongoDB* are `available online`_. You might want to check
+them out to understand why and how certain design decisions were made,
+especially with regards to REST implementation.
 
 Roadmap
 -------
@@ -64,7 +60,6 @@ like to add to Eve, provided that there is enough interest in the project.
 - Journaling/logging
 - Server side caching
 - More authentication schemes
-- Support for MySQL and/or other SQL/NoSQL databases (WIP)
 
 BSD License 
 -----------

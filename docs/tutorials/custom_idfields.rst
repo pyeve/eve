@@ -1,3 +1,7 @@
+.. admonition:: MONGODB ONLY FEATURE
+
+    Please note that custom ID fields are a MongoDB-only feature.
+
 .. _custom_ids:
 
 Handling custom ID fields

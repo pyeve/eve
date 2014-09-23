@@ -1,11 +1,10 @@
 .. meta::
-   :description: Python REST API Framework to effortlessly build and deploy full featured, highly customizable RESTful Web Services. Powerd by Flask, MongoDB, Redis and good intentions.  
+   :description: Eve is an open source REST API framework, written in Python, for human beings.
 
-Python REST API Framework
-=========================
-*Powered by Flask, MongoDB, Redis and good intentions Eve allows to
-effortlessly build and deploy highly customizable, fully featured RESTful Web
-Services*
+Eve: REST API for Humans
+========================
+Eve is an :doc:`open source <license>` REST API framework, written in Python,
+for human beings.
 
 Eve is Simple
 -------------
@@ -16,18 +15,19 @@ Eve is Simple
     app = Eve()
     app.run()
 
-The API is now live, ready to be consumed:
+Your API is now live and ready to be consumed like so:
 
 .. code-block:: console
 
     $ curl -i http://example.com/people
     HTTP/1.1 200 OK
 
-All you need to bring your API online is a database, a configuration file
-(defaults to ``settings.py``) and a launch script.  Overall, you will find that
-configuring and fine-tuning your API is a very simple process.
+All you need to bring your API online is a database, a configuration file and
+a launch script.  Overall, you will find that configuring and fine-tuning your
+API is a very simple process.
 
-Eve is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4 and PyPy.
+Eve is powered by Flask, MongoDB, SQLAlchemy, Redis and good intentions. The
+codebase is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4 and PyPy.
 
 .. _demo:
 
