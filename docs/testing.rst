@@ -65,12 +65,12 @@ the following:
 
 If something goes **wrong** and one test fails, you might need to run that test
 in the specific python version. You can use the created environments to run
-some specific tests. For example, if a test suite fails in Python 2.6:
+some specific tests. For example, if a test suite fails in Python 3.4:
 
 .. code-block:: console
 
     # From the project folder
-    $ .tox/py26/bin/python setup.py test -s eve.tests.methods.get.TestGetItem
+    $ tox -e py34 -- -s eve.tests.methods.get.TestGetItem
 
 Using Pytest
 -------------

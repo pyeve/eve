@@ -242,8 +242,8 @@ As you can see, item endpoints provide their own HATEOAS_ directives.
 
 .. _filters:
 
-Filtering and Sorting
----------------------
+Filtering
+---------
 Resource endpoints allow consumers to retrieve multiple documents. Query
 strings are supported, allowing for filtering and sorting. Two query syntaxes
 are supported. The mongo query syntax:
@@ -269,19 +269,32 @@ maintainer can choose to disable them all and/or whitelist allowed ones (see
 by querying on non-indexed fields is a concern, then whitelisting allowed
 filters is the way to go.
 
+Sorting
+-------
 Sorting is supported as well:
+
+.. code-block:: console
+
+    $ curl -i http://eve-demo.herokuapp.com/people?sort=city,-lastname
+    HTTP/1.1 200 OK
+
+Would return documents sorted by city and then by lastname (descending). As you
+can see you simply prepend a minus to the field name if you need the sort order
+to be reversed for a field.
+
+The MongoDB data layer also supports native MongoDB syntax:
 
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people?sort=[("lastname", -1)]
     HTTP/1.1 200 OK
 
+Would return documents sorted by lastname in descending order.
+
 Sorting is enabled by default and can be disabled both globally and/or at
 resource level (see ``SORTING`` in :ref:`global` and ``sorting`` in
 :ref:`domain`). It is also possible to set the default sort at every API
-endpoints (see ``default_sort`` in :ref:`domain`). Currently, sort directives
-use a pure MongoDB syntax; support for a more general syntax
-(``sort=lastname``) is planned.
+endpoints (see ``default_sort`` in :ref:`domain`). 
 
 .. admonition:: Please note
 

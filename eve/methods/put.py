@@ -28,16 +28,41 @@ from eve.versioning import resolve_document_version, \
 @ratelimit()
 @requires_auth('item')
 @pre_event
-def put(resource, **lookup):
-    """ Perform a document replacement. Updates are first validated against
-    the resource schema. If validation passes, the document is repalced and
-    an OK status update is returned. If validation fails a set of validation
-    issues is returned.
+def put(resource, payload=None, **lookup):
+    """
+    Default function for handling PUT requests, it has decorators for
+    rate limiting, authentication and for raising pre-request events.
+    After the decorators are applied forwards to call to :func:`put_internal`
+
+    .. versionchanged:: 0.5
+       Split into put() and put_internal().
+    """
+    return put_internal(resource, payload, concurrency_check=True, **lookup)
+
+
+def put_internal(resource, payload=None, concurrency_check=False, **lookup):
+    """ Intended for internal put calls, this method is not rate limited,
+    authentication is not checked, pre-request events are not raised, and
+    concurrency checking is optional. Performs a document replacement.
+    Updates are first validated against the resource schema. If validation
+    passes, the document is repalced and an OK status update is returned.
+    If validation fails a set of validation issues is returned.
 
     :param resource: the name of the resource to which the document belongs.
+    :param payload: alternative payload. When calling put() from your own code
+                    you can provide an alternative payload. This can be useful,
+                    for example, when you have a callback function hooked to a
+                    certain endpoint, and want to perform additional put()
+                    callsfrom there.
+
+                    Please be advised that in order to successfully use this
+                    option, a request context must be available.
+    :param concurrency_check: concurrency check switch (bool)
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.5
+       Original put() has been split into put() and put_internal().
+       You can now pass a pre-defined custom payload to the funcion.
        ETAG is now stored with the document (#369).
        Catching all HTTPExceptions and returning them to the caller, allowing
        for eventual flask.abort() invocations in callback functions to go
@@ -74,8 +99,10 @@ def put(resource, **lookup):
     schema = resource_def['schema']
     validator = app.validator(schema, resource)
 
-    payload = payload_()
-    original = get_document(resource, **lookup)
+    if payload is None:
+        payload = payload_()
+
+    original = get_document(resource, concurrency_check, **lookup)
     if not original:
         # not found
         abort(404)

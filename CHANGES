@@ -8,6 +8,21 @@ Version 0.5
 
 Not released yet.
 
+- [new] ``put_internal()`` can be used for intenral PUT calls. This method is
+  not rate limited, authentication is not checked and pre-request events are
+  not raised (Kevin Funk).
+- [new] ``patch_internal()`` can be used for intenral PATCH calls. This method
+  is not rate limited, authentication is not checked and pre-request events are
+  not raised (Kevin Funk).
+- [new] ``delete_internal()`` can be used for intenral DELETE calls. This
+  method is not rate limited, authentication is not checked and pre-request
+  events are not raised (Kevin Funk).
+- [fix] fix additional lookup regex in  RESTful Account Management tutorial
+  (Ashley Roach).
+- [new] Comma delimited sort syntax in queries. The MongoDB data layer now also
+  supports queries like ``?sort=lastname,-age``. Addresses #443.
+- [change] XML item, meta and link nodes are now ordered. Closes #441.
+- [fix] ``utils.weak_date`` always returns a RFC-1123 date (Petr Jašek).
 - [change] If-Modified-Since has been disabled on resource (collections)
   endpoints. Closes #334.
 - [fix] Can't embed a ressource with a custom _id (non ObjectId). Closes #427.

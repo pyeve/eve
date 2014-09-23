@@ -140,8 +140,10 @@ class TestUtils(TestBase):
                              self.etag)
 
     def test_weak_date(self):
-        self.assertEqual(weak_date(self.datestr), self.valid +
-                         timedelta(seconds=1))
+        with self.app.test_request_context():
+            self.app.config['DATE_FORMAT'] = '%Y-%m-%d'
+            self.assertEqual(weak_date(self.datestr), self.valid +
+                             timedelta(seconds=1))
 
     def test_str_to_date(self):
         self.assertEqual(str_to_date(self.datestr), self.valid)

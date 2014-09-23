@@ -1,10 +1,12 @@
 from bson import ObjectId
 import simplejson as json
 
-from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES, STATUS, ETAG
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
 from eve.tests.utils import DummyEvent
+
+from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES, STATUS, ETAG
+from eve.methods.patch import patch_internal
 
 
 # @unittest.skip("don't need no freakin' tests!")
@@ -178,6 +180,19 @@ class TestPatch(TestBase):
         # a POST request with PATCH override turns into a PATCH request
         r = self.perform_patch_with_post_override('prog', 1)
         self.assert200(r.status_code)
+
+    def test_patch_internal(self):
+        # test that patch_internal is available and working properly.
+        test_field = 'ref'
+        test_value = "9876543210987654321098765"
+        data = {test_field: test_value}
+        with self.app.test_request_context(self.item_id_url):
+            r, _, _, status = patch_internal(
+                self.known_resource, data, concurrency_check=False,
+                **{'_id': self.item_id})
+        db_value = self.compare_patch_with_get(test_field, r)
+        self.assertEqual(db_value, test_value)
+        self.assert200(status)
 
     def perform_patch(self, changes):
         r, status = self.patch(self.item_id_url,

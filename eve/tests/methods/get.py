@@ -256,6 +256,17 @@ class TestGet(TestBase):
         resource = response['_items']
         self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
 
+    def test_get_sort_comma_delimited_syntax(self):
+        sort = '-prog'
+        response, status = self.get(self.known_resource, '?sort=%s' % sort)
+        self.assert200(status)
+
+        resource = response['_items']
+        self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
+        topvalue = 100
+        for i in range(len(resource)):
+            self.assertEqual(resource[i]['prog'], topvalue - i)
+
     def test_get_sort_mongo_syntax(self):
         sort = '[("prog",-1)]'
         response, status = self.get(self.known_resource,
