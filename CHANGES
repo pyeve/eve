@@ -8,6 +8,7 @@ Version 0.5
 
 Not released yet.
 
+- [new] GeoJSON support (Juan Madurga).
 - [new] ``put_internal()`` can be used for intenral PUT calls. This method is
   not rate limited, authentication is not checked and pre-request events are
   not raised (Kevin Funk).
