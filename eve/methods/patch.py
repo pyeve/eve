@@ -165,9 +165,10 @@ def patch_internal(resource, payload=None, concurrency_check=False, **lookup):
 
             updated.update(updates)
 
-            resolve_document_etag(updated)
-            # we're now storing the (updated) ETAG with every document (#453)
-            updates[config.ETAG] = updated[config.ETAG]
+            if config.IF_MATCH:
+                resolve_document_etag(updated)
+                # now storing the (updated) ETAG with every document (#453)
+                updates[config.ETAG] = updated[config.ETAG]
 
             app.data.update(resource, object_id, updates)
             insert_versioning_documents(resource, updated)
