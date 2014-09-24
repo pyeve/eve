@@ -1421,6 +1421,51 @@ response payloads by sending requests like this one:</p>
 </div>
 </div>
 </div>
+<div class="section" id="geojson">
+<span id="geojson-feature"></span><h2>GeoJSON<a class="headerlink" href="#geojson" title="Permalink to this headline">¶</a></h2>
+<p>The MongoDB data layer supports geographic data structures
+encoded in <a class="reference external" href="http://geojson.org/">GeoJSON</a> format. All GeoJSON objects supported by <a class="reference external" href="http://docs.mongodb.org/manual/applications/geospatial-indexes/#geojson-objects">MongoDB</a> are available:</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">Point</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">Multipoint</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">LineString</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">MultiLineString</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">Polygon</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">MultiPolygon</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">GeometryCollection</span></tt></li>
+</ul>
+</div></blockquote>
+<p>These are implemented as native Eve data types (see <a class="reference internal" href="config.html#schema"><em>Schema Definition</em></a>) so they are
+are subject to proper validation.</p>
+<p>In the example below we are extending the <cite>people</cite> endpoint by adding
+a <tt class="docutils literal"><span class="pre">location</span></tt> field is of type <a class="reference external" href="http://geojson.org/geojson-spec.html#point">Point</a>.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">people</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">...</span>
+    <span class="s1">&#39;location&#39;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="o">:</span> <span class="s1">&#39;point&#39;</span>
+    <span class="p">},</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Storing a contact along with its location is pretty straightforward:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;[{&quot;firstname&quot;: &quot;barack&quot;, &quot;lastname&quot;: &quot;obama&quot;, &quot;location&quot;: {&quot;type&quot;:&quot;Point&quot;,&quot;coordinates&quot;:[100.0,10.0]}}]&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span>  http://127.0.0.1:5000/people
+<span class="go">HTTP/1.1 201 OK</span>
+</pre></div>
+</div>
+<div class="section" id="querying-geojson-data">
+<h3>Querying GeoJSON Data<a class="headerlink" href="#querying-geojson-data" title="Permalink to this headline">¶</a></h3>
+<p>As a genera rule all MongoDB <a class="reference external" href="http://docs.mongodb.org/manual/reference/operator/query-geospatial/#query-selectors">geospatial query operators</a> and their associated
+geometry specifiers are supported. In this example we are using the <a class="reference external" href="http://docs.mongodb.org/manual/reference/operator/query/near/#op._S_near">$near</a>
+operator to query for all contacts living in a location within 1000 meters from
+a certain point:</p>
+<div class="highlight-python"><div class="highlight"><pre>?where={&quot;location&quot;: {&quot;$near&quot;: {&quot;$geometry&quot;: {&quot;type&quot;:&quot;Point&quot;, &quot;coordinates&quot;: [10.0, 20.0]}, &quot;$maxDistance&quot;: 1000}}}
+</pre></div>
+</div>
+<p>Please refer to MongoDB documentation for details on geo queries.</p>
+</div>
+</div>
 <div class="section" id="internal-resources">
 <span id="id5"></span><h2>Internal Resources<a class="headerlink" href="#internal-resources" title="Permalink to this headline">¶</a></h2>
 <p>By default responses to GET requests to the home endpoint will include all the
@@ -1556,6 +1601,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li class="toctree-l2"><a class="reference internal" href="#rate-limiting">Rate Limiting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#custom-id-fields">Custom ID Fields</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#file-storage">File Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#geojson">GeoJSON</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#internal-resources">Internal Resources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mongodb-support">MongoDB Support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#powered-by-flask">Powered by Flask</a></li>

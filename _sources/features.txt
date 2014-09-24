@@ -1389,7 +1389,58 @@ response payloads by sending requests like this one:
     - :ref:`datasource`
 
     for details on the ``datasource`` setting.
+    
+.. _geojson_feature:
 
+GeoJSON
+-------
+The MongoDB data layer supports geographic data structures
+encoded in GeoJSON_ format. All GeoJSON objects supported by MongoDB_ are available:
+
+    - ``Point``
+    - ``Multipoint``
+    - ``LineString``
+    - ``MultiLineString``
+    - ``Polygon``
+    - ``MultiPolygon``
+    - ``GeometryCollection``
+      
+These are implemented as native Eve data types (see :ref:`schema`) so they are
+are subject to proper validation.
+
+In the example below we are extending the `people` endpoint by adding
+a ``location`` field is of type Point_.
+
+.. code-block:: javascript
+
+    people = {
+    	...
+        'location': {
+            'type': 'point'
+        },
+        ...
+    }
+    
+Storing a contact along with its location is pretty straightforward:
+
+.. code-block:: console
+
+    $ curl -d '[{"firstname": "barack", "lastname": "obama", "location": {"type":"Point","coordinates":[100.0,10.0]}}]' -H 'Content-Type: application/json'  http://127.0.0.1:5000/people
+    HTTP/1.1 201 OK
+
+Querying GeoJSON Data
+~~~~~~~~~~~~~~~~~~~~~
+As a genera rule all MongoDB `geospatial query operators`_ and their associated
+geometry specifiers are supported. In this example we are using the `$near`_
+operator to query for all contacts living in a location within 1000 meters from
+a certain point:
+    
+::
+
+    ?where={"location": {"$near": {"$geometry": {"type":"Point", "coordinates": [10.0, 20.0]}, "$maxDistance": 1000}}}
+
+Please refer to MongoDB documentation for details on geo queries.
+	
 .. _internal_resources:
 
 Internal Resources
@@ -1450,6 +1501,7 @@ Something like this:
 I admit that this example is as rudimentary as it can get, but hopefully it
 will get the point across.
 
+
 MongoDB Support
 ---------------
 Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL
@@ -1479,3 +1531,8 @@ for unittesting_ and an `extensive documentation`_.
 .. _GridFS: http://docs.mongodb.org/manual/core/gridfs/
 .. _MediaStorage: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/media.py
 .. _`driver documentation`: http://api.mongodb.org/python/2.7rc0/api/gridfs/grid_file.html#gridfs.grid_file.GridOut
+.. _GeoJSON: http://geojson.org/
+.. _Point: http://geojson.org/geojson-spec.html#point
+.. _MongoDB: http://docs.mongodb.org/manual/applications/geospatial-indexes/#geojson-objects
+.. _`geospatial query operators`: http://docs.mongodb.org/manual/reference/operator/query-geospatial/#query-selectors
+.. _$near: http://docs.mongodb.org/manual/reference/operator/query/near/#op._S_near

@@ -984,7 +984,7 @@ defining the field validation rules. Allowed validation rules are:</p>
 <tbody valign="top">
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">type</span></tt></td>
 <td><p class="first">Field data type. Can be one of the following:</p>
-<ul class="last simple">
+<ul class="simple">
 <li><tt class="docutils literal"><span class="pre">string</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">boolean</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">integer</span></tt></li>
@@ -996,6 +996,18 @@ defining the field validation rules. Allowed validation rules are:</p>
 <li><tt class="docutils literal"><span class="pre">objectid</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">file</span></tt></li>
 </ul>
+<p>If the MongoDB data layer is used, then
+geographic data structures are also allowed:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">point</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">multipoint</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">linestring</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">multilinestring</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">polygon</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">multipolygon</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">geometrycollection</span></tt></li>
+</ul>
+<p class="last">See <a class="reference internal" href="features.html#geojson-feature"><em>GeoJSON</em></a> for more informations.</p>
 </td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">required</span></tt></td>
