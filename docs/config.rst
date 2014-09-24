@@ -850,6 +850,10 @@ defining the field validation rules. Allowed validation rules are:
                                 - ``list``
                                 - ``objectid``
                                 - ``file``
+
+                                If the MongoDB data layer is used, then
+                                geographic data structures are also allowed:
+
                                 - ``point``
                                 - ``multipoint``
                                 - ``linestring``
@@ -857,6 +861,8 @@ defining the field validation rules. Allowed validation rules are:
                                 - ``polygon``
                                 - ``multipolygon``
                                 - ``geometrycollection``
+
+                                See :ref:`GeoJSON <geojson_feature>` for more informations.
 
 ``required``                    If ``True``, the field is mandatory on
                                 insertion.
