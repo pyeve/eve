@@ -70,7 +70,8 @@ class Mongo(DataLayer):
     operators = set(
         ['$gt', '$gte', '$in', '$lt', '$lt', '$lte', '$ne', '$nin'] +
         ['$or', '$and', '$not', '$nor'] +
-        ['$mod', '$regex', '$options', '$text', '$search', '$language', '$where'] +
+        ['$mod', '$regex', '$text', '$where'] +
+        ['$options', '$search', '$language'] +
         ['$exists', '$type'] +
         ['$geoWithin', '$geoIntersects', '$near', '$nearSphere'] +
         ['$all', '$elemMatch', '$size']
