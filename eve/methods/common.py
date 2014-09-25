@@ -515,7 +515,8 @@ def embedded_document(reference, data_relation, field_name):
         subresource = data_relation['resource']
         embedded_doc = app.data.find_one(subresource, None,
                                          **{config.ID_FIELD: reference})
-        resolve_media_files(embedded_doc, subresource)
+        if embedded_doc:
+            resolve_media_files(embedded_doc, subresource)
 
     return embedded_doc
 
