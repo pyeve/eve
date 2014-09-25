@@ -277,7 +277,7 @@ uppercase.
                                     the database.  Defaults to ``_id``. 
 
 ``ITEM_LOOKUP``                     ``True`` if item endpoints should be generally 
-                                    available acroos the API, ``False``
+                                    available across the API, ``False``
                                     otherwise. Can be overridden by resource
                                     settings. Defaults to ``True``.
 
@@ -850,6 +850,19 @@ defining the field validation rules. Allowed validation rules are:
                                 - ``list``
                                 - ``objectid``
                                 - ``file``
+
+                                If the MongoDB data layer is used, then
+                                geographic data structures are also allowed:
+
+                                - ``point``
+                                - ``multipoint``
+                                - ``linestring``
+                                - ``multilinestring``
+                                - ``polygon``
+                                - ``multipolygon``
+                                - ``geometrycollection``
+
+                                See :ref:`GeoJSON <geojson_feature>` for more informations.
 
 ``required``                    If ``True``, the field is mandatory on
                                 insertion.

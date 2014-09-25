@@ -109,6 +109,137 @@ class TestMongoValidator(TestCase):
         v = Validator(schema)
         self.assertTrue(v.transparent_schema_rules, True)
 
+    def test_geojson_not_compilant(self):
+        schema = {'location': {'type': 'point'}}
+        doc = {'location': [10.0, 123.0]}
+        v = Validator(schema)
+        self.assertFalse(v.validate(doc))
+        self.assertTrue('location' in v.errors)
+        self.assertTrue('Point' in v.errors['location'])
+
+    def test_geometry_not_compilant(self):
+        schema = {'location': {'type': 'point'}}
+        doc = {'location': {"type": "Point", "geometries": [10.0, 123.0]}}
+        v = Validator(schema)
+        self.assertFalse(v.validate(doc))
+        self.assertTrue('location' in v.errors)
+        self.assertTrue('Point' in v.errors['location'])
+
+    def test_geometrycollection_not_compilant(self):
+        schema = {'location': {'type': 'geometrycollection'}}
+        doc = {'location': {"type": "GeometryCollection",
+                            "coordinates": [10.0, 123.0]}}
+        v = Validator(schema)
+        self.assertFalse(v.validate(doc))
+        self.assertTrue('location' in v.errors)
+        self.assertTrue('GeometryCollection' in v.errors['location'])
+
+    def test_point_success(self):
+        schema = {'location': {'type': 'point'}}
+        doc = {'location': {"type": "Point", "coordinates": [100.0, 0.0]}}
+        v = Validator(schema)
+        self.assertTrue(v.validate(doc))
+
+    def test_point_fail(self):
+        schema = {'location': {'type': 'point'}}
+        doc = {'location': {'type': "Point", 'coordinates': ["asdasd", 123.0]}}
+        v = Validator(schema)
+        self.assertFalse(v.validate(doc))
+        self.assertTrue('location' in v.errors)
+        self.assertTrue('Point' in v.errors['location'])
+
+    def test_linestring_success(self):
+        schema = {'location': {'type': 'linestring'}}
+        doc = {'location': {"type": "LineString",
+                            "coordinates": [[100.0, 0.0], [101.0, 1.0]]
+                            }}
+        v = Validator(schema)
+        self.assertTrue(v.validate(doc))
+
+    def test_linestring_fail(self):
+        schema = {'location': {'type': 'linestring'}}
+        doc = {'location': {'type': "LineString",
+                            'coordinates': [[12.0, 123.0], [12, 'eve']]}}
+        v = Validator(schema)
+        self.assertFalse(v.validate(doc))
+        self.assertTrue('location' in v.errors)
+        self.assertTrue('LineString' in v.errors['location'])
+
+    def test_polygon_success(self):
+        schema = {'location': {'type': 'polygon'}}
+        doc = {'location': {"type": "Polygon",
+                            "coordinates": [[[100.0, 0.0], [101.0, 0.0],
+                                             [101.0, 1.0], [100.0, 1.0],
+                                             [100.0, 0.0]]
+                                            ]
+                            }
+               }
+        v = Validator(schema)
+        self.assertTrue(v.validate(doc))
+
+    def test_polygon_fail(self):
+        schema = {'location': {'type': 'polygon'}}
+        doc = {'location': {'type': "Polygon",
+                            'coordinates': [[[12.0, 23.0], [12.3, 12.5]],
+                                            ["eve"]]}}
+        v = Validator(schema)
+        self.assertFalse(v.validate(doc))
+        self.assertTrue('location' in v.errors)
+        self.assertTrue('Polygon' in v.errors['location'])
+
+    def test_multipoint_success(self):
+        schema = {'location': {'type': 'multipoint'}}
+        doc = {'location': {"type": "MultiPoint",
+                            "coordinates": [[100.0, 0.0], [101.0, 1.0]]
+                            }
+               }
+        v = Validator(schema)
+        self.assertTrue(v.validate(doc))
+
+    def test_multilinestring_success(self):
+        schema = {'location': {'type': 'multilinestring'}}
+        doc = {'location': {"type": "MultiLineString",
+                            "coordinates": [[[100.0, 0.0], [101.0, 1.0]],
+                                            [[102.0, 2.0], [103.0, 3.0]]
+                                            ]
+                            }
+               }
+        v = Validator(schema)
+        self.assertTrue(v.validate(doc))
+
+    def test_multipolygon_success(self):
+        schema = {'location': {'type': 'multipolygon'}}
+        doc = {'location': {"type": "MultiPolygon",
+                            "coordinates": [[[[102.0, 2.0], [103.0, 2.0],
+                                              [103.0, 3.0], [102.0, 3.0],
+                                              [102.0, 2.0]]],
+                                            [[[100.0, 0.0], [101.0, 0.0],
+                                              [101.0, 1.0], [100.0, 1.0],
+                                              [100.0, 0.0]],
+                                             [[100.2, 0.2], [100.8, 0.2],
+                                              [100.8, 0.8], [100.2, 0.8],
+                                              [100.2, 0.2]]]
+                                            ]
+                            }
+               }
+        v = Validator(schema)
+        self.assertTrue(v.validate(doc))
+
+    def test_geometrycollection_success(self):
+        schema = {'locations': {'type': 'geometrycollection'}}
+        doc = {'locations': {'type': "GeometryCollection",
+                             "geometries": [{"type": "Point",
+                                             "coordinates": [100.0, 0.0]},
+                                            {"type": "LineString",
+                                             "coordinates": [[101.0, 0.0],
+                                                             [102.0, 1.0]]
+                                             }
+                                            ]
+                             }
+               }
+        v = Validator(schema)
+        self.assertTrue(v.validate(doc))
+
 
 class TestMongoDriver(TestCase):
     def test_combine_queries(self):
