@@ -583,11 +583,12 @@ request:</p>
 </pre></div>
 </div>
 <p>In the example above, the first document did not validate so the whole request
-has been rejected. For more information see <a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a>.</p>
-<p>In all cases, when all documents passed validation and where inserted
-correctly, the response status is <tt class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></tt>. If any document fail the
-validation, the response status is <tt class="docutils literal"><span class="pre">422</span> <span class="pre">Unprocessable</span> <span class="pre">Entity</span></tt> by default, or
-any other error code defined by <tt class="docutils literal"><span class="pre">VALIDATION_ERROR_STATUS</span></tt> configuration.</p>
+has been rejected.</p>
+<p>When all documents pass validation and are inserted correctly the response
+status is <tt class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></tt>. If any document fails validation the response status
+is <tt class="docutils literal"><span class="pre">422</span> <span class="pre">Unprocessable</span> <span class="pre">Entity</span></tt>, or any other error code defined by
+<tt class="docutils literal"><span class="pre">VALIDATION_ERROR_STATUS</span></tt> configuration.</p>
+<p>For more information see <a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a>.</p>
 </div>
 <div class="section" id="extensible-data-validation">
 <h2>Extensible Data Validation<a class="headerlink" href="#extensible-data-validation" title="Permalink to this headline">¶</a></h2>

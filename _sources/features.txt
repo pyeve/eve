@@ -583,12 +583,14 @@ request:
     ]
 
 In the example above, the first document did not validate so the whole request
-has been rejected. For more information see :ref:`validation`.
+has been rejected. 
 
-In all cases, when all documents passed validation and where inserted
-correctly, the response status is ``201 Created``. If any document fail the
-validation, the response status is ``422 Unprocessable Entity`` by default, or
-any other error code defined by ``VALIDATION_ERROR_STATUS`` configuration.
+When all documents pass validation and are inserted correctly the response
+status is ``201 Created``. If any document fails validation the response status
+is ``422 Unprocessable Entity``, or any other error code defined by
+``VALIDATION_ERROR_STATUS`` configuration.
+
+For more information see :ref:`validation`.
 
 Extensible Data Validation
 --------------------------

@@ -57,42 +57,36 @@
   <div class="section" id="data-validation">
 <span id="validation"></span><h1>Data Validation<a class="headerlink" href="#data-validation" title="Permalink to this headline">¶</a></h1>
 <p>Data validation is provided out-of-the-box. Your configuration includes
-a <a class="reference internal" href="config.html#schema"><em>Schema Definition</em></a> for every resource managed by the API. Data sent to the API
-to be inserted or updated will be validated against the schema, and a resource
-will be updated only if validation passes.</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;{&quot;firstname&quot;: &quot;bill&quot;, &quot;lastname&quot;: &quot;clinton&quot;}, {&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}]&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> http://eve-demo.herokuapp.com/people
+a schema definition for every resource managed by the API. Data sent to the API
+to be inserted/updated will be validated against the schema, and a resource
+will only be updated if validation passes.</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;[{&quot;firstname&quot;: &quot;bill&quot;, &quot;lastname&quot;: &quot;clinton&quot;}, {&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}]&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> http://eve-demo.herokuapp.com/people
 <span class="go">HTTP/1.1 201 OK</span>
 </pre></div>
 </div>
 <p>The response will contain a success/error state for each item provided in the
 request:</p>
-<div class="highlight-javascript"><div class="highlight"><pre><span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;_status&quot;</span><span class="o">:</span> <span class="s2">&quot;ERR&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_issues&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;lastname&quot;</span><span class="o">:</span> <span class="s2">&quot;value &#39;clinton&#39; not unique&quot;</span><span class="p">}</span>
-    <span class="p">},</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;_status&quot;</span><span class="o">:</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_updated&quot;</span><span class="o">:</span> <span class="s2">&quot;Thu, 22 Nov 2012 15:29:08 GMT&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50ae44c49fa12500024def5d&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_links&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;self&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;href&quot;</span><span class="o">:</span> <span class="s2">&quot;eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;person&quot;</span><span class="p">}}</span>
-    <span class="p">}</span>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s2">&quot;_status&quot;</span><span class="o">:</span> <span class="s2">&quot;ERR&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_error&quot;</span><span class="o">:</span> <span class="s2">&quot;Some documents contains errors&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_items&quot;</span><span class="o">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;_status&quot;</span><span class="o">:</span> <span class="s2">&quot;ERR&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_issues&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;lastname&quot;</span><span class="o">:</span> <span class="s2">&quot;value &#39;clinton&#39; not unique&quot;</span><span class="p">}</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;_status&quot;</span><span class="o">:</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
 <span class="p">]</span>
 </pre></div>
 </div>
-<p>In the example above, the first document did not validate and was rejected,
-while the second was successfully created. The API maintainer has complete
-control of data validation.</p>
-<div class="admonition-please-note admonition">
-<p class="first admonition-title">Please Note</p>
-<p class="last">Eventual validation errors on one or more document won&#8217;t prevent the
-insertion of valid documents. The response status code will be
-<tt class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></tt> if <em>at least one document</em> passed validation and has
-actually been stored. If no document passed validation the status code will
-be <tt class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></tt>, meaning that the request was accepted and processed. It is
-still client&#8217;s responsability to parse the response payload and make sure
-that all documents passed validation.</p>
-</div>
+<p>In the example above, the first document did not validate so the whole request
+has been rejected.</p>
+<p>When all documents pass validation and are inserted correctly the response
+status is <tt class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></tt>. If any document fails validation the response status
+is <tt class="docutils literal"><span class="pre">422</span> <span class="pre">Unprocessable</span> <span class="pre">Entity</span></tt>, or any other error code defined by
+<tt class="docutils literal"><span class="pre">VALIDATION_ERROR_STATUS</span></tt> configuration.</p>
 <div class="section" id="extending-data-validation">
 <h2>Extending Data Validation<a class="headerlink" href="#extending-data-validation" title="Permalink to this headline">¶</a></h2>
 <p>Data validation is based on the <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> validation system and it is therefore
