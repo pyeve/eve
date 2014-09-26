@@ -8,6 +8,8 @@ Version 0.5
 
 Not released yet.
 
+- [fix] Add missing ``$options`` and ``$list`` MongoDB operators to the allowed
+  list (Jaroslav Semančík).
 - [fix] Get document when it is missing embedded media. In case you try to
   embedd a document which has media fields and that document has been deleted,
   you would get an error (Petr Jašek).
