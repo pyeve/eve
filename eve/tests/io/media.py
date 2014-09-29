@@ -238,7 +238,7 @@ class TestGridFSMediaStorage(TestBase):
 
         response, status = self.get(self.known_resource, item=_id)
         self.assert200(status)
-        self.assertIsNone(response['media'])
+        self.assertEqual(response['media'], None)
 
     def test_gridfs_media_storage_delete(self):
         r, s = self._post()
