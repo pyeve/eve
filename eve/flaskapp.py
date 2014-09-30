@@ -191,6 +191,9 @@ class Eve(Flask, Events):
         Since we are a Flask subclass, any configuration value supported by
         Flask itself is available (besides Eve's proper settings).
 
+        .. versionchanged:: 0.5
+           Allow EVE_SETTINGS envvar to be used exclusively. Closes #461.
+
         .. versionchanged:: 0.2
            Allow use of a dict object as settings.
         """
@@ -207,7 +210,11 @@ class Eve(Flask, Events):
             else:
                 abspath = os.path.abspath(os.path.dirname(sys.argv[0]))
                 pyfile = os.path.join(abspath, self.settings)
-            self.config.from_pyfile(pyfile)
+            try:
+                self.config.from_pyfile(pyfile)
+            except:
+                # assume an envvar is going to be used exclusively
+                pass
 
         # overwrite settings with custom environment variable
         envvar = 'EVE_SETTINGS'

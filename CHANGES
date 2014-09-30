@@ -8,6 +8,8 @@ Version 0.5
 
 Not released yet.
 
+- [fix] Allow ``EVE_SETTINGS`` envvar to be used exclusively. Previously,
+  a settings file in the working directory was always required. Closes #461.
 - [fix] exception when trying to set nullable media field to null (Daniel
   Lytkin)
 - [fix] Add missing ``$options`` and ``$list`` MongoDB operators to the allowed
