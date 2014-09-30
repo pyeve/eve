@@ -27,7 +27,19 @@ from eve.versioning import resolve_document_version, \
 @requires_auth('item')
 @pre_event
 def patch(resource, **lookup):
-    """ Perform a document patch/update. Updates are first validated against
+    """
+    Default function for handling PATCH requests, it has decorators for
+    rate limiting, authentication and for raising pre-request events. After the
+    decorators are applied forwards to call to :func:`post_internal`
+    """
+    return patch_internal(resource, **lookup)
+
+def patch_internal(resource, **lookup):
+    """
+    Intended for internal post calls, this method is not rate limited,
+    authentication is not checked and pre-request events are not raised.
+
+    Perform a document patch/update. Updates are first validated against
     the resource schema. If validation passes, the document is updated and
     an OK status update is returned. If validation fails, a set of validation
     issues is returned.

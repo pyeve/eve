@@ -21,7 +21,19 @@ from eve.versioning import versioned_id_field
 @requires_auth('item')
 @pre_event
 def deleteitem(resource, **lookup):
-    """ Deletes a resource item. Deletion will occur only if request ETag
+  """
+  Default function for handling DELETE requests on items. It has decorators
+  for rate limiting, authentication and for raising pre-request events. After
+  the decorators are applied forwards to call to :func:`post_internal`
+  """
+  return deleteitem_internal(resource, **lookup)
+
+def deleteitem_internal(resource, **lookup):
+    """
+    Intended for internal delete calls, this method is not rate limited,
+    authentication is not checked and pre-request events are not raised.
+
+    Deletes a resource item. Deletion will occur only if request ETag
     matches the current representation of the item.
 
     :param resource: name of the resource to which the item(s) belong.
@@ -94,7 +106,19 @@ def deleteitem(resource, **lookup):
 @requires_auth('resource')
 @pre_event
 def delete(resource, **lookup):
-    """ Deletes all item of a resource (collection in MongoDB terms). Won't
+    """
+    Default function for handling DELETE requests on resource. It has decorators
+    for rate limiting, authentication and for raising pre-request events. After
+    the decorators are applied forwards to call to :func:`post_internal`
+    """
+    return delete_internal(resource, **lookup)
+
+def delete_internal(resource, **lookup):
+    """
+    Intended for internal delete calls, this method is not rate limited,
+    authentication is not checked and pre-request events are not raised.
+
+    Deletes all item of a resource (collection in MongoDB terms). Won't
     drop indexes. Use with caution!
 
     .. versionchanged:: 0.4
