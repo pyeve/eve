@@ -1,7 +1,7 @@
 .. _config:
 
-Configuration Handling
-======================
+Configuration 
+=============
 Generally Eve configuration is best done with configuration files. The
 configuration files themselves are actual Python files. 
 
