@@ -12,7 +12,8 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.5
-       'INTERNAL_RESOURCE' added and set to False
+       'OPLOG' added and set ti None.
+       'INTERNAL_RESOURCE' added and set to False.
 
     .. versionchanged:: 0.4
        'META' added and set to '_meta'.
@@ -117,6 +118,7 @@ VERSIONING = False              # turn document versioning on or off.
 VERSIONS = '_versions'          # suffix for parallel collection w/old versions
 VERSION_PARAM = 'version'       # URL param for specific version of a document.
 INTERNAL_RESOURCE = False       # resources are public by default.
+OPLOG = None                    # oplog is disabled by default.
 
 RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']
