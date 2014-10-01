@@ -145,8 +145,9 @@ class Eve(Flask, Events):
         else:
             self.auth = None
 
-        # set up home url
         self._init_url_rules()
+
+        self._init_oplog()
 
         # validate and set defaults for each resource
 
@@ -758,3 +759,23 @@ class Eve(Flask, Events):
         """
         for code in [400, 401, 403, 404, 405, 406, 409, 410, 422]:
             self.error_handler_spec[None][code] = error_endpoint
+
+    def _init_oplog(self):
+        """ If enabled, configures the OPLOG endpoint.
+
+        .. versionadded:: 0.5
+        """
+        oplog = self.config['OPLOG']
+        if oplog is True:
+            # set default database collection/table name
+            oplog = 'oplog'
+
+        if oplog:
+            settings = self.config['DOMAIN'].setdefault(oplog, {})
+
+            # this endpoint is always read-only
+            settings['resource_methods'] = ['GET']
+            settings['item_methods'] = ['GET']
+
+            settings.setdefault('url', oplog)
+            settings.setdefault('datasource', {'source': oplog})

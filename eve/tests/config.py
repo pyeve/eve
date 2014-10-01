@@ -346,3 +346,57 @@ class TestConfig(TestBase):
         }
         self.assertRaises(ConfigException, self.app.register_resource,
                           resource, settings)
+
+    def test_oplog_config(self):
+
+        del(self.domain['oplog'])
+
+        # OPLOG can be disabled with both False or None
+        self.app.config['OPLOG'] = None
+        self.app._init_oplog()
+        self.assertFalse('oplog' in self.domain)
+        self.app.config['OPLOG'] = False
+        self.app._init_oplog()
+        self.assertFalse('oplog' in self.domain)
+
+        # OPLOG can be enabled with True and will default to 'oplog' endpoint
+        oplog = 'oplog'
+        self.app.config['OPLOG'] = True
+        self.app._init_oplog()
+        self.assertOplog(oplog)
+        del(self.domain['oplog'])
+
+        # OPLOG can be also enabled with a custom name (which will be used
+        # as the collection/table name on the db)
+        oplog = 'custom'
+        self.app.config['OPLOG'] = oplog
+        self.app._init_oplog()
+        self.assertOplog(oplog)
+        del(self.domain[oplog])
+
+        # oplog can be defined as a regular API endpoint, with a couple caveats
+        self.domain['oplog'] = {
+            'resource_methods': ['POST', 'DELETE'],     # not allowed
+            'resource_items': ['PATCH', 'PUT'],         # not allowed
+            'url': 'custom_url',
+            'datasource': {'source': 'customsource'}
+        }
+        self.app.config['OPLOG'] = True
+        settings = self.domain['oplog']
+        self.app._init_oplog()
+
+        # endpoint is always read-only
+        self.assertEqual(settings['resource_methods'], ['GET'])
+        self.assertEqual(settings['item_methods'], ['GET'])
+        # other settings are customizable
+        self.assertEqual(settings['url'], 'custom_url')
+        self.assertEqual(settings['datasource']['source'], 'customsource')
+
+    def assertOplog(self, key):
+        self.assertTrue(key in self.domain)
+
+        settings = self.domain[key]
+        self.assertEqual(settings['resource_methods'], ['GET'])
+        self.assertEqual(settings['item_methods'], ['GET'])
+        self.assertEqual(settings['url'], key)
+        self.assertEqual(settings['datasource']['source'], key)

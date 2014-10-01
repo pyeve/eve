@@ -506,6 +506,16 @@ uppercase.
                                     want clients to be able to POST/PATCH it.
                                     Defaults to ``True``. 
 
+``OPLOG``                           If ``True``, enables the :ref:`oplog`. 
+                                    Alternatively, can be set to a string value
+                                    in which case the value expresses the name
+                                    of the datasource (collection/table) used
+                                    for storing and retrieving oplog data. The
+                                    default datasource is ``oplog``. Set
+                                    ``OPLOG`` to either ``False`` or ``None``
+                                    to disable the OpLog feature. Defaults to
+                                    ``None``. 
+
 =================================== =========================================
 
 .. _domain:

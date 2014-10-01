@@ -1503,6 +1503,11 @@ Something like this:
 I admit that this example is as rudimentary as it can get, but hopefully it
 will get the point across.
 
+.. _oplog:
+
+OpLog
+-----
+WIP
 
 MongoDB Support
 ---------------
