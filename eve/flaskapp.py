@@ -765,10 +765,8 @@ class Eve(Flask, Events):
 
         .. versionadded:: 0.5
         """
-        oplog = self.config['OPLOG']
-        if oplog is True:
-            # set default database collection/table name
-            oplog = 'oplog'
+        oplog = 'oplog' if self.config['OPLOG'] is True \
+            else self.config['OPLOG']
 
         if oplog:
             settings = self.config['DOMAIN'].setdefault(oplog, {})
