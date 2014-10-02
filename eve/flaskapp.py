@@ -771,9 +771,18 @@ class Eve(Flask, Events):
         if oplog:
             settings = self.config['DOMAIN'].setdefault(oplog, {})
 
+            settings.setdefault('url', oplog)
+            settings.setdefault('datasource', {'source': oplog})
+
             # this endpoint is always read-only
             settings['resource_methods'] = ['GET']
             settings['item_methods'] = ['GET']
 
-            settings.setdefault('url', oplog)
-            settings.setdefault('datasource', {'source': oplog})
+            # schema is also fixed. it is needed because otherwise we
+            # would end up exposing the AUTH_FIELD when User-Restricted-
+            # Resource-Access is enabled.
+            settings['schema'] = {
+                'r': {},
+                'o': {},
+                'g': {},
+            }
