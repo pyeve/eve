@@ -1,10 +1,11 @@
 from datetime import datetime
-
+import simplejson as json
 from bson import ObjectId
 from bson.errors import InvalidId
 
 from eve.tests import TestBase
 from eve.methods.common import serialize
+from eve.utils import config
 
 
 class TestSerializer(TestBase):
@@ -60,3 +61,83 @@ class TestSerializer(TestBase):
             self.assertRaises(ValueError, serialize, **dict(
                 document={'average': 'test'}, schema=schema
             ))
+
+
+class TestOpLog(TestBase):
+    def setUp(self):
+        super(TestOpLog, self).setUp()
+        self.test_field, self.test_value = 'ref', "1234567890123456789054321"
+        self.data = {self.test_field: self.test_value}
+        self.test_client = self.app.test_client()
+
+        self.app.config['OPLOG_ENDPOINT'] = True
+        self.app.config['OPLOG_METHODS'] += ['POST', 'PATCH', 'PUT']
+        self.app._init_oplog()
+        self.app.register_resource('oplog', self.domain['oplog'])
+        self.headers = [(('Content-Type', 'application/json'))]
+
+    def test_post_oplog(self):
+        r = self.test_client.post(self.known_resource_url,
+                                  data=json.dumps(self.data),
+                                  headers=self.headers)
+        r, status = self.oplog_get()
+        self.assert200(status)
+        self.assertEqual(len(r['_items']), 1)
+        oplog_entry = r['_items'][0]
+        self.assertOpLogEntry(oplog_entry, 'POST')
+
+    def test_patch_oplog(self):
+        self.headers.append(('If-Match', self.item_etag))
+        r = self.test_client.patch(self.item_id_url,
+                                   data=json.dumps(self.data),
+                                   headers=self.headers)
+        r, status = self.oplog_get()
+        self.assert200(status)
+        self.assertEqual(len(r['_items']), 1)
+        oplog_entry = r['_items'][0]
+        self.assertOpLogEntry(oplog_entry, 'PATCH')
+
+    def test_put_oplog(self):
+        self.headers.append(('If-Match', self.item_etag))
+        r = self.test_client.put(self.item_id_url,
+                                 data=json.dumps(self.data),
+                                 headers=self.headers)
+        r, status = self.oplog_get()
+        self.assert200(status)
+        self.assertEqual(len(r['_items']), 1)
+        oplog_entry = r['_items'][0]
+        self.assertOpLogEntry(oplog_entry, 'PUT')
+
+    def test_delete_oplog(self):
+        self.headers.append(('If-Match', self.item_etag))
+        r = self.test_client.delete(self.item_id_url,
+                                    headers=self.headers)
+        r, status = self.oplog_get()
+        self.assert200(status)
+        self.assertEqual(len(r['_items']), 1)
+        oplog_entry = r['_items'][0]
+        self.assertOpLogEntry(oplog_entry, 'DELETE')
+
+    def assertOpLogEntry(self, entry, op):
+        self.assertTrue('r' in entry)
+        self.assertTrue('i' in entry)
+        self.assertTrue(config.LAST_UPDATED in entry)
+        self.assertTrue(config.DATE_CREATED in entry)
+        self.assertTrue('o' in entry)
+        self.assertEqual(entry['o'], op)
+
+    def oplog_get(self, url='/oplog'):
+        r = self.test_client.get(url)
+        return self.parse_response(r)
+
+    def patch(self, url, data, headers=[], content_type='application/json'):
+        headers.append(('Content-Type', content_type))
+        headers.append(('If-Match', self.item_etag))
+        r = self.test_client.patch(url, data=json.dumps(data), headers=headers)
+        return self.parse_response(r)
+
+    def put(self, url, data, headers=[], content_type='application/json'):
+        headers.append(('Content-Type', content_type))
+        headers.append(('If-Match', self.item_etag))
+        r = self.test_client.put(url, data=json.dumps(data), headers=headers)
+        return self.parse_response(r)

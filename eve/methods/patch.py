@@ -18,7 +18,8 @@ from eve.auth import requires_auth
 from eve.validation import ValidationError
 from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, pre_event, store_media_files, resolve_embedded_fields, \
-    build_response_document, marshal_write_response, resolve_document_etag
+    build_response_document, marshal_write_response, resolve_document_etag, \
+    oplog_push
 from eve.versioning import resolve_document_version, \
     insert_versioning_documents, late_versioning_catch
 
@@ -59,6 +60,7 @@ def patch_internal(resource, payload=None, concurrency_check=False, **lookup):
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.5
+       Push updates to the OpLog.
        Original patch() has been split into patch() and patch_internal().
        You can now pass a pre-defined custom payload to the funcion.
        ETAG is now stored with the document (#369).
@@ -171,6 +173,10 @@ def patch_internal(resource, payload=None, concurrency_check=False, **lookup):
                 updates[config.ETAG] = updated[config.ETAG]
 
             app.data.update(resource, object_id, updates)
+
+            # update oplog if needed
+            oplog_push(resource, updates, 'PATCH', object_id)
+
             insert_versioning_documents(resource, updated)
 
             # nofity callbacks
