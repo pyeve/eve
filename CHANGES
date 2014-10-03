@@ -33,9 +33,7 @@ Not released yet.
   supports queries like ``?sort=lastname,-age``. Addresses #443.
 - [change] XML item, meta and link nodes are now ordered. Closes #441.
 - [fix] ``utils.weak_date`` always returns a RFC-1123 date (Petr Jašek).
-- [change] If-Modified-Since has been disabled on resource (collections)
-  endpoints. Closes #334.
-- [fix] Can't embed a ressource with a custom _id (non ObjectId). Closes #427.
+- [fix] Can't embed a resource with a custom _id (non ObjectId). Closes #427.
 - [fix] Do not follow DATE_FORMAT for HTTP headers. Closes #429 (Olivier
   Poitrey).
 - [fix] Fix app initialization with resource level versioning #409 (Sebastián
