@@ -349,21 +349,14 @@ class TestConfig(TestBase):
 
     def test_oplog_config(self):
 
-        del(self.domain['oplog'])
-
-        # OPLOG can be disabled with both False or None
-        self.app.config['OPLOG'] = None
-        self.app._init_oplog()
-        self.assertFalse('oplog' in self.domain)
-        self.app.config['OPLOG'] = False
-        self.app._init_oplog()
+        # OPLOG_ENDPOINT is disabled by default so we don't have the endpoint
+        # in our domain
         self.assertFalse('oplog' in self.domain)
 
-        # OPLOG can be enabled with True and will default to 'oplog' endpoint
-        oplog = 'oplog'
-        self.app.config['OPLOG'] = True
+        # if OPLOG_ENDPOINT is eanbled the endoint is included with the domain
+        self.app.config['OPLOG_ENDPOINT'] = True
         self.app._init_oplog()
-        self.assertOplog(oplog)
+        self.assertOplog('oplog')
         del(self.domain['oplog'])
 
         # OPLOG can be also enabled with a custom name (which will be used
@@ -381,7 +374,7 @@ class TestConfig(TestBase):
             'url': 'custom_url',
             'datasource': {'source': 'customsource'}
         }
-        self.app.config['OPLOG'] = True
+        self.app.config['OPLOG'] = 'oplog'
         settings = self.domain['oplog']
         self.app._init_oplog()
 

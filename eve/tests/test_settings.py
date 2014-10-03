@@ -15,8 +15,6 @@ ITEM_CACHE_CONTROL = ''
 ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
 
-OPLOG = True
-
 contacts = {
     'url': 'arbitraryurl',
     'cache_control': 'max-age=20,must-revalidate',

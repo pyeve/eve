@@ -506,15 +506,18 @@ uppercase.
                                     want clients to be able to POST/PATCH it.
                                     Defaults to ``True``. 
 
-``OPLOG``                           If ``True``, enables the :ref:`oplog`. 
-                                    Alternatively, can be set to a string value
-                                    in which case the value expresses the name
-                                    of the datasource (collection/table) used
-                                    for storing and retrieving oplog data. The
-                                    default datasource is ``oplog``. Set
-                                    ``OPLOG`` to either ``False`` or ``None``
-                                    to disable the OpLog feature. Defaults to
-                                    ``None``. 
+``OPLOG``                           The name of the :ref:`oplog`. Maps to both 
+                                    the database collection and the oplog
+                                    url (if an oplog endpoint is available -see
+                                    ``OPLOG_ENDPOINT``). Defaults to ``oplog``.
+
+``OPLOG_METHODS``                   List of HTTP methods for which operations 
+                                    should be logged in the oplog. Defaults to
+                                    ``['DELETE']``.
+
+``OPLOG_ENDPOINT``                  ``True`` if an API endpoint should be made
+                                    available for the oplog itself. Defaults to
+                                    ``False``.
 
 =================================== =========================================
 
@@ -524,10 +527,10 @@ Domain Configuration
 --------------------
 In Eve terminology, a `domain` is the definition of the API structure, the area
 where you design your API, fine-tune resources endpoints, and define validation
-rules. 
+rules.
 
 ``DOMAIN`` is a :ref:`global configuration setting <global>`: a Python
-dictionary where keys are API resources and values their definitions. 
+dictionary where keys are API resources and values their definitions.
 
 ::
 

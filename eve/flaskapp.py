@@ -765,10 +765,9 @@ class Eve(Flask, Events):
 
         .. versionadded:: 0.5
         """
-        oplog = 'oplog' if self.config['OPLOG'] is True \
-            else self.config['OPLOG']
+        oplog, endpoint = self.config['OPLOG'], self.config['OPLOG_ENDPOINT']
 
-        if oplog:
+        if endpoint:
             settings = self.config['DOMAIN'].setdefault(oplog, {})
 
             settings.setdefault('url', oplog)
@@ -784,5 +783,5 @@ class Eve(Flask, Events):
             settings['schema'] = {
                 'r': {},
                 'o': {},
-                'g': {},
+                'i': {},
             }
