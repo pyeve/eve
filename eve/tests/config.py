@@ -56,9 +56,6 @@ class TestConfig(TestBase):
         # did not reset other defaults
         self.assertEqual(self.app.config['MONGO_WRITE_CONCERN'], {'w': 1})
 
-    def test_unexisting_pyfile_config(self):
-        self.assertRaises(IOError, Eve, settings='an_unexisting_pyfile.py')
-
     def test_unexisting_env_config(self):
         env = os.environ
         try:
