@@ -256,6 +256,13 @@ uppercase.
                                     a list of headers names. Defaults to
                                     ``None``.
                                 
+``X_EXPOSE_HEADERS``                CORS (Cross-Origin Resource Sharing) support.
+                                    Allows API maintainers to specify which
+                                    headers are exposed within a CORS response.
+                                    Allowed values are: ``None`` or
+                                    a list of headers names. Defaults to
+                                    ``None``.
+
 ``X_MAX_AGE``                       CORS (Cross-Origin Resource Sharing) 
                                     support. Allows to set max age for the
                                     access control allow header. Defaults to
