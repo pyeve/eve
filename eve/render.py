@@ -199,7 +199,8 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         else:
             resp.headers.add('Access-Control-Allow-Origin', '')
         resp.headers.add('Access-Control-Allow-Headers', ', '.join(headers))
-        resp.headers.add('Access-Control-Expose-Headers', ', '.join(expose_headers))
+        resp.headers.add('Access-Control-Expose-Headers',
+                         ', '.join(expose_headers))
         resp.headers.add('Access-Control-Allow-Methods', methods)
         resp.headers.add('Access-Control-Allow-Max-Age', config.X_MAX_AGE)
 
