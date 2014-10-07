@@ -102,6 +102,7 @@ class TestRenders(TestBase):
         self.assertFalse('Access-Control-Allow-Origin' in r.headers)
         self.assertFalse('Access-Control-Allow-Methods' in r.headers)
         self.assertFalse('Access-Control-Allow-Max-Age' in r.headers)
+        self.assertFalse('Access-Control-Expose-Headers' in r.headers)
         self.assert200(r.status_code)
 
         # test that if X_DOMAINS is set to '*', then any Origin value is
@@ -137,6 +138,7 @@ class TestRenders(TestBase):
         self.assertTrue('Access-Control-Allow-Headers' in r.headers)
         self.assertTrue('Access-Control-Allow-Methods' in r.headers)
         self.assertTrue('Access-Control-Allow-Max-Age' in r.headers)
+        self.assertTrue('Access-Control-Expose-Headers' in r.headers)
 
     def test_CORS_MAX_AGE(self):
         self.app.config['X_DOMAINS'] = '*'
@@ -159,6 +161,7 @@ class TestRenders(TestBase):
         self.assertFalse('Access-Control-Allow-Origin' in r.headers)
         self.assertFalse('Access-Control-Allow-Methods' in r.headers)
         self.assertFalse('Access-Control-Allow-Max-Age' in r.headers)
+        self.assertFalse('Access-Control-Expose-Headers' in r.headers)
         self.assert200(r.status_code)
 
         # test that if X_DOMAINS is set to '*', then any Origin value is
@@ -190,6 +193,7 @@ class TestRenders(TestBase):
 
         self.assertTrue('Access-Control-Allow-Origin' in r.headers)
         self.assertTrue('Access-Control-Allow-Max-Age' in r.headers)
+        self.assertTrue('Access-Control-Expose-Headers' in r.headers)
 
         r = self.test_client.get(url, headers=[('Origin',
                                                 'http://not_an_example.com')])
