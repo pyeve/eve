@@ -219,7 +219,7 @@ me all the invoices by &lt;contact_id&gt;</em>:</p>
 </div>
 <p>Please note that when designing your API, most of the time you can get away
 without resorting to sub-resources. In the example above the same result would
-be achieved by simply exposing a <tt class="docutils literal"><span class="pre">invoices</span></tt> endpoint that clients could query
+be achieved by simply exposing an <tt class="docutils literal"><span class="pre">invoices</span></tt> endpoint that clients could query
 this way:</p>
 <div class="highlight-python"><div class="highlight"><pre>invoices?where={&quot;contact_id&quot;: 51f63e0838345b6dcd7eabff}
 </pre></div>
@@ -291,7 +291,7 @@ look something like this:</p>
 <p class="first admonition-title">Please Note</p>
 <p>According to REST principles resource items should only have one unique
 identifier. Eve abides by providing one default endpoint per item. Adding
-a secondary endpoint is a decision that should pondered carefully.</p>
+a secondary endpoint is a decision that should be pondered carefully.</p>
 <p class="last">Consider our example above. Even without the <tt class="docutils literal"><span class="pre">/people/&lt;lastname&gt;</span></tt>
 endpoint, a client could always retrieve a person by querying the resource
 endpoint by last name: <tt class="docutils literal"><span class="pre">/people/?where={&quot;lastname&quot;:</span> <span class="pre">&quot;Doe&quot;}</span></tt>. Actually the

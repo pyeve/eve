@@ -145,7 +145,7 @@ would be queried like:
 
 Please note that when designing your API, most of the time you can get away
 without resorting to sub-resources. In the example above the same result would
-be achieved by simply exposing a ``invoices`` endpoint that clients could query
+be achieved by simply exposing an ``invoices`` endpoint that clients could query
 this way:
 
 ::
@@ -232,7 +232,7 @@ As you can see, item endpoints provide their own HATEOAS_ directives.
 
     According to REST principles resource items should only have one unique
     identifier. Eve abides by providing one default endpoint per item. Adding
-    a secondary endpoint is a decision that should pondered carefully.
+    a secondary endpoint is a decision that should be pondered carefully.
 
     Consider our example above. Even without the ``/people/<lastname>``
     endpoint, a client could always retrieve a person by querying the resource
