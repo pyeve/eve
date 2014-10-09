@@ -160,7 +160,7 @@ class SQL(DataLayer):
                 if '.' in sort_item[0]: # sort by related mapper class
                     rel, sort_attr = sort_item[0].split('.')
                     rel_class = getattr(model, rel).property.mapper.class_
-                    query = query.join(rel_class)
+                    query = query.outerjoin(rel_class)
                     ql.append(getattr(rel_class, sort_attr) if sort_item[1] == 1 else getattr(rel_class, sort_attr).desc())
                 else:
                     ql.append(getattr(model, sort_item[0]) if sort_item[1] == 1 else getattr(model, sort_item[0]).desc())
