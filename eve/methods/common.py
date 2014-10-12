@@ -356,7 +356,7 @@ def build_response_document(
     :param document: the latest version of document.
 
     .. versionchanged:: 0.5
-       Only compute ETAG if necessary (#369).
+       Only compute ETAG if necessary (#369). Add version support (#475).
 
     .. versionadded:: 0.4
     """
@@ -373,9 +373,14 @@ def build_response_document(
 
     # hateoas links
     if config.DOMAIN[resource]['hateoas'] and config.ID_FIELD in document:
+        version = request.args.get(config.VERSION_PARAM)
+        version_id = None
+        if config.DOMAIN[resource]['versioning'] is True and version:
+            version_id = document[config.VERSION]
         document[config.LINKS] = {'self':
                                   document_link(resource,
-                                                document[config.ID_FIELD])}
+                                                document[config.ID_FIELD],
+                                                version_id)}
 
     # add version numbers
     resolve_document_version(document, resource, 'GET', latest_doc)
@@ -778,11 +783,15 @@ def pre_event(f):
     return decorated
 
 
-def document_link(resource, document_id):
+def document_link(resource, document_id, version=None):
     """ Returns a link to a document endpoint.
 
     :param resource: the resource name.
     :param document_id: the document unique identifier.
+    :param version: the document version. Defaults to None.
+
+    .. versionchanged:: 0.5
+       Add version support (#475).
 
     .. versionchanged:: 0.4
        Use the regex-neutral resource_link function.
@@ -793,8 +802,10 @@ def document_link(resource, document_id):
     .. versionchanged:: 0.0.3
        Now returning a JSON link
     """
+    version_part = '?version=%s' % version if version else ''
+
     return {'title': '%s' % config.DOMAIN[resource]['item_title'],
-            'href': '%s/%s' % (resource_link(), document_id)}
+            'href': '%s/%s%s' % (resource_link(), document_id, version_part)}
 
 
 def resource_link():
