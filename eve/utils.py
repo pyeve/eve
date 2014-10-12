@@ -230,23 +230,33 @@ def api_prefix(url_prefix=None, api_version=None):
 
 
 def querydef(max_results=config.PAGINATION_DEFAULT, where=None, sort=None,
-             page=None):
+             version=None, page=None):
     """ Returns a valid query string.
 
     :param max_results: `max_result` part of the query string. Defaults to
                         `PAGINATION_DEFAULT`
     :param where: `where` part of the query string. Defaults to None.
     :param sort: `sort` part of the query string. Defaults to None.
-    :param page: `page` parte of the query string. Defaults to None.
+    :param page: `version` part of the query string. Defaults to None.
+    :param page: `page` part of the query string. Defaults to None.
+
+    .. versionchanged:: 0.5
+       Add version to query string (#475).
     """
     where_part = '&where=%s' % where if where else ''
     sort_part = '&sort=%s' % sort if sort else ''
     page_part = '&page=%s' % page if page and page > 1 else ''
+    version_part = '&version=%s' % version if version else ''
     max_results_part = 'max_results=%s' % max_results \
         if max_results != config.PAGINATION_DEFAULT else ''
 
+    # remove sort set by Eve if version is set
+    if version and sort is not None:
+        sort_part = '&sort=%s' % sort \
+            if sort != '[("%s", 1)]' % config.VERSION else ''
+
     return ('?' + ''.join([max_results_part, where_part, sort_part,
-                           page_part]).lstrip('&')).rstrip('?')
+                           version_part, page_part]).lstrip('&')).rstrip('?')
 
 
 def document_etag(value):
