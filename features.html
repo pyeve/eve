@@ -1136,6 +1136,10 @@ the items as needed before they are returned to the client.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetched_item_contact</span> <span class="o">+=</span> <span class="n">before_returning_contact</span>
 </pre></div>
 </div>
+<p>It is important to note that fetch events will work with <a class="reference internal" href="#id3">Document
+Versioning</a> for specific document versions or accessing all document
+versions with <tt class="docutils literal"><span class="pre">?version=all</span></tt>, but they <em>will not</em> work when acessing diffs
+of all versions with <tt class="docutils literal"><span class="pre">?version=diffs</span></tt>.</p>
 </div>
 <div class="section" id="insert-events">
 <h4>Insert Events<a class="headerlink" href="#insert-events" title="Permalink to this headline">¶</a></h4>
