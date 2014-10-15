@@ -1071,6 +1071,11 @@ the items as needed before they are returned to the client.
     >>> app.on_fetched_item += before_returning_item
     >>> app.on_fetched_item_contact += before_returning_contact
 
+It is important to note that fetch events will work with `Document
+Versioning`_ for specific document versions or accessing all document
+versions with ``?version=all``, but they *will not* work when acessing diffs
+of all versions with ``?version=diffs``.
+
 
 Insert Events
 ^^^^^^^^^^^^^
