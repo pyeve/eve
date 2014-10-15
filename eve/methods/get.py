@@ -142,6 +142,9 @@ def getitem(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
 
+    .. versionchanged:: 0.5
+       Allow ``?version=all`` requests to fire ``on_fetched_*`` events.
+
     .. versionchanged:: 0.4
        HATOEAS link for contains the business unit value even when
        regexes have been configured for the resource endpoint.
@@ -283,15 +286,24 @@ def getitem(resource, **lookup):
             'href': resource_link()}
         response[config.LINKS]['parent'] = home_link()
 
-    if version != 'all' and version != 'diffs':
+    # callbacks not supported on version diffs because of partial documents
+    if version != 'diffs':
         # TODO: callbacks not currently supported with ?version=all
 
         # notify registered callback functions. Please note that, should
-        # the # functions modify the document, last_modified and etag
+        # the functions modify the document, last_modified and etag
         # won't be updated to reflect the changes (they always reflect the
         # documents state on the database).
-        getattr(app, "on_fetched_item")(resource, response)
-        getattr(app, "on_fetched_item_%s" % resource)(response)
+        if resource_def['versioning'] is True and version == 'all':
+            versions = response
+            if config.DOMAIN[resource]['hateoas']:
+                versions = response[config.ITEMS]
+            for version_item in versions:
+                getattr(app, "on_fetched_item")(resource, version_item)
+                getattr(app, "on_fetched_item_%s" % resource)(version_item)
+        else:
+            getattr(app, "on_fetched_item")(resource, response)
+            getattr(app, "on_fetched_item_%s" % resource)(response)
 
     return response, last_modified, etag, 200
 
