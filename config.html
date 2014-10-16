@@ -140,8 +140,8 @@ when configuring individual endpoints. Global configuration settings are always
 uppercase.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="40%" />
-<col width="60%" />
+<col width="34%" />
+<col width="66%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt></td>
@@ -199,16 +199,34 @@ overridden by resource settings. Defaults
 to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">PAGINATION_LIMIT</span></tt></td>
-<td>Maximum value allowed for <tt class="docutils literal"><span class="pre">max_results</span></tt>
-querydef parameter. Values exceeding the
+<td>Maximum value allowed for QUERY_MAX_RESULTS
+query parameter. Values exceeding the
 limit will be silently replaced with this
 value. You want to aim for a reasonable
 compromise between performance and transfer
 size. Defaults to 50.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PAGINATION_DEFAULT</span></tt></td>
-<td>Default value for <tt class="docutils literal"><span class="pre">max_results</span></tt> applied when
-the parameter is omitted.  Defaults to 25.</td>
+<td>Default value for QUERY_MAX_RESULTS.
+Defaults to 25.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">QUERY_WHERE</span></tt></td>
+<td>Key for the filters query parameter. Defaults to <tt class="docutils literal"><span class="pre">where</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">QUERY_SORT</span></tt></td>
+<td>Key for the sort query parameter. Defaults to <tt class="docutils literal"><span class="pre">sort</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">QUERY_PROJECTION</span></tt></td>
+<td>Key for the projections query parameter. Defaults to <tt class="docutils literal"><span class="pre">projection</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">QUERY_PAGE</span></tt></td>
+<td>Key for the pages query parameter. Defaults to <tt class="docutils literal"><span class="pre">page</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">QUERY_MAX_RESULTS</span></tt></td>
+<td>Key for the max results query parameter. Defaults to <tt class="docutils literal"><span class="pre">max_results</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">QUERY_EMBEDDED</span></tt></td>
+<td>Key for the embedding query parameter. Defaults to <tt class="docutils literal"><span class="pre">embedded</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">DATE_FORMAT</span></tt></td>
 <td>A Python date format used to parse and render

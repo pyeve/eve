@@ -57,7 +57,19 @@
 <h2>Version 0.5<a class="headerlink" href="#version-0-5" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
-<li>[new] Fire <cite>on_fetched</cite> events for <cite>version=all</cite> requests (Jen Montes).</li>
+<li>[new] <tt class="docutils literal"><span class="pre">QUERY_WHERE</span></tt> allows to set the query parameter key for filters.
+Defaults to <tt class="docutils literal"><span class="pre">where</span></tt>.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">QUERY_SORT</span></tt> allows to set the query parameter key for sorting.
+Defaults to <tt class="docutils literal"><span class="pre">sort</span></tt>.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">QUERY_PAGE</span></tt> allows to set the query parameter key for pagination.
+Defaults to <tt class="docutils literal"><span class="pre">page</span></tt>.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">QUERY_PROJECTION</span></tt> allows to set the query parameter key for
+projections. Defaults to <tt class="docutils literal"><span class="pre">projection</span></tt>.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">QUERY_MAX_RESULTS</span></tt> allows to set the query parameter key for max
+results. Defaults to <tt class="docutils literal"><span class="pre">max_results</span></tt>.</li>
+<li>[new] <tt class="docutils literal"><span class="pre">QUERY_EMBEDDED</span></tt> allows to set the query parameter key embedded
+documents. Defaults to <tt class="docutils literal"><span class="pre">embedded</span></tt>.</li>
+<li>[new] Fire <tt class="docutils literal"><span class="pre">on_fetched</span></tt> events for <tt class="docutils literal"><span class="pre">version=all</span></tt> requests (Jen Montes).</li>
 <li>[new] Support for CORS <tt class="docutils literal"><span class="pre">Access-Control-Expose-Headers</span></tt> (Christian Henke).</li>
 <li>[fix] Allow <tt class="docutils literal"><span class="pre">EVE_SETTINGS</span></tt> envvar to be used exclusively. Previously,
 a settings file in the working directory was always required. Closes #461.</li>
