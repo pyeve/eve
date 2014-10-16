@@ -1,10 +1,12 @@
 .. meta::
-   :description: Eve is an open source REST API framework, written in Python, for human beings.
+   :description: Eve is an open source Python REST API framework designed for humans.
 
-Eve: REST API for Humans
-========================
-Eve is an :doc:`open source <license>` REST API framework, written in Python,
-for human beings.
+REST API Framework for Humans
+=============================
+Eve is an :doc:`open source <license>` Python REST API framework designed for human beings.
+
+It is powered by Flask, MongoDB, SQLAlchemy, Redis and good intentions. The
+codebase is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4 and PyPy.
 
 Eve is Simple
 -------------
@@ -25,9 +27,6 @@ Your API is now live and ready to be consumed like so:
 All you need to bring your API online is a database, a configuration file and
 a launch script.  Overall, you will find that configuring and fine-tuning your
 API is a very simple process.
-
-Eve is powered by Flask, MongoDB, SQLAlchemy, Redis and good intentions. The
-codebase is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4 and PyPy.
 
 .. _demo:
 
