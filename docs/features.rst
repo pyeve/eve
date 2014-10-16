@@ -1480,3 +1480,4 @@ for unittesting_ and an `extensive documentation`_.
 .. _`this`: https://speakerdeck.com/nicola/developing-restful-web-apis-with-python-flask-and-mongodb?slide=113
 .. _Events: https://github.com/nicolaiarocci/events
 .. _MediaStorage: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/media.py
+.. _`MongoDB Data Model Design`: http://docs.mongodb.org/manual/core/data-model-design/
