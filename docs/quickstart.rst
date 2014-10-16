@@ -8,7 +8,16 @@ assumes that:
 
 - You already have Eve installed. If you do not, head over to the
   :ref:`install` section.
-- SQLite3 is installed_. 
+
+For MongoDB:
+
+- MongoDB is installed_. 
+- An instance of MongoDB is running_.
+
+For SQLAlchemy:
+
+- SQLite3_ is installed
+
 
 A Minimal Application
 ---------------------
@@ -86,7 +95,7 @@ Try requesting `people` now:
                 "title": "people"
             }, 
             "parent": {
-                "href": "", 
+                "href": "/", 
                 "title": "home"
             }
         }
@@ -115,11 +124,22 @@ Database Interlude
 ------------------
 Let's connect to a database by adding the following lines to `settings.py`:
 
+MongoDB
+~~~~~~~
+
 ::
 
     # Let's just use the local sqlite3 instance. Edit as needed.
     SQLALCHEMY_DATABASE_URI = 'sqlite://'
 
+
+SQLAlchemy
+~~~~~~~~~~
+
+::
+
+    # Let's just use the local mongod instance. Edit as needed.
+    SQLALCHEMY_DATABASE_URI = 'sqlite://'
 
 A More Complex Application
 --------------------------
@@ -261,9 +281,9 @@ endpoint:
         "updated": "Wed, 21 Nov 2012 16:04:56 GMT",
         "created": "Wed, 21 Nov 2012 16:04:56 GMT",
         "_links": {
-            "self": {"href": "127.0.0.1/people/50acfba938345b0978fccad7", "title": "person"},
-            "parent": {"href": "127.0.0.1", "title": "home"},
-            "collection": {"href": "127.0.0.1/people", "title": "people"}
+            "self": {"href": "/people/50acfba938345b0978fccad7", "title": "person"},
+            "parent": {"href": "/", "title": "home"},
+            "collection": {"href": "/people", "title": "people"}
         }
     }
 
@@ -276,4 +296,6 @@ a complete list of features available and more usage examples.
     live instance or locally (you can use the sample client app to populate
     and/or reset the database).
 
-.. _`installed`: http://mislav.uniqpath.com/rails/install-sqlite3/
+.. _`installed`: http://docs.mongodb.org/manual/installation/
+.. _running: http://docs.mongodb.org/manual/tutorial/manage-mongodb-processes/
+.. _`SQLite3`: http://mislav.uniqpath.com/rails/install-sqlite3/

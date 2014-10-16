@@ -32,10 +32,16 @@ class SQLAResult(collections.MutableMapping):
             self._fields.append(config.LAST_UPDATED)
         if config.DATE_CREATED not in self._fields:
             self._fields.append(config.DATE_CREATED)
+        if config.ETAG not in self._fields and getattr(config, 'IF_MATCH', True):
+            self._fields.append(config.ETAG)
 
     def __getitem__(self, key):
         # TODO: composite primary key
-        return getattr(self._result, key, None)
+        try:
+            return getattr(self._result, key)
+        except AttributeError:
+            if key not in self.keys():
+                raise KeyError(key)
 
     def __setitem__(self, key, value):
         setattr(self._result, key, value)
@@ -100,5 +106,5 @@ class SQLAResultCollection(object):
         for i in self._query:
             yield SQLAResult(i, self._fields)
 
-    def count(self):
+    def count(self, **kwargs):
         return self._count

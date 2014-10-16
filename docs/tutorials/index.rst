@@ -8,3 +8,4 @@ Tutorials
 
    account_management
    sqlalchemy_support
+   custom_idfields

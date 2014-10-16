@@ -38,6 +38,26 @@ class TestRenders(TestBase):
                                  headers=[('Accept', 'application/xml')])
         self.assertTrue(b'12345 &amp; 6789' in r.get_data())
 
+    def test_xml_ordered_nodes(self):
+        """ Test that xml nodes are ordered and #441 is addressed.
+        """
+        r = self.test_client.get('%s?max_results=1' % self.known_resource_url,
+                                 headers=[('Accept', 'application/xml')])
+        data = r.get_data()
+        idx1 = data.index(b'_created')
+        idx2 = data.index(b'_etag')
+        idx3 = data.index(b'_id')
+        idx4 = data.index(b'_updated')
+        self.assertTrue(idx1 < idx2 < idx3 < idx4)
+        idx1 = data.index(b'max_results')
+        idx2 = data.index(b'page')
+        idx3 = data.index(b'total')
+        self.assertTrue(idx1 < idx2 < idx3)
+        idx1 = data.index(b'last')
+        idx2 = data.index(b'next')
+        idx3 = data.index(b'parent')
+        self.assertTrue(idx1 < idx2 < idx3)
+
     def test_unknown_render(self):
         r = self.test_client.get('/', headers=[('Accept', 'application/html')])
         self.assertEqual(r.content_type, 'application/json')
@@ -77,30 +97,46 @@ class TestRenders(TestBase):
         self.assertEqual(r.content_type, 'application/json')
 
     def test_CORS(self):
+        # no CORS headers if Origin is not provided with the request.
         r = self.test_client.get('/')
         self.assertFalse('Access-Control-Allow-Origin' in r.headers)
         self.assertFalse('Access-Control-Allow-Methods' in r.headers)
         self.assertFalse('Access-Control-Allow-Max-Age' in r.headers)
+        self.assert200(r.status_code)
 
+        # test that if X_DOMAINS is set to '*', then any Origin value is
+        # allowed. Also test that only the Origin header included with the
+        # request will be # returned back to the client.
         self.app.config['X_DOMAINS'] = '*'
         r = self.test_client.get('/', headers=[('Origin',
                                                 'http://example.com')])
-        self.assertEqual(r.headers['Access-Control-Allow-Origin'], '*')
-
-        self.app.config['X_DOMAINS'] = ['http://example.com',
-                                        'http://1on1.com']
-        r = self.test_client.get('/', headers=[('Origin',
-                                                'http://example.com')])
+        self.assert200(r.status_code)
         self.assertEqual(r.headers['Access-Control-Allow-Origin'],
-                         'http://example.com, http://1on1.com')
+                         'http://example.com')
 
-        self.assertTrue('Access-Control-Allow-Origin' in r.headers)
+        # test that if a list is set for X_DOMAINS, then:
+        # 1. only list values are accepted;
+        # 2. only the value included with the request is returned back.
+        self.app.config['X_DOMAINS'] = ['http://1of2.com', 'http://2of2.com']
+        r = self.test_client.get('/', headers=[('Origin', 'http://1of2.com')])
+        self.assert200(r.status_code)
+        self.assertEqual(r.headers['Access-Control-Allow-Origin'],
+                         'http://1of2.com')
+
+        r = self.test_client.get('/', headers=[('Origin', 'http://2of2.com')])
+        self.assert200(r.status_code)
+        self.assertEqual(r.headers['Access-Control-Allow-Origin'],
+                         'http://2of2.com')
+
+        r = self.test_client.get('/', headers=[('Origin',
+                                                'http://notreally.com')])
+        self.assert200(r.status_code)
+        self.assertEqual(r.headers['Access-Control-Allow-Origin'], '')
+
+        # other Access-Control-Allow- headers are included.
+        self.assertTrue('Access-Control-Allow-Headers' in r.headers)
+        self.assertTrue('Access-Control-Allow-Methods' in r.headers)
         self.assertTrue('Access-Control-Allow-Max-Age' in r.headers)
-
-        r = self.test_client.get('/', headers=[('Origin',
-                                                'http://not_an_example.com')])
-        self.assertEqual(r.headers['Access-Control-Allow-Origin'],
-                         'http://example.com, http://1on1.com')
 
     def test_CORS_MAX_AGE(self):
         self.app.config['X_DOMAINS'] = '*'
@@ -125,21 +161,29 @@ class TestRenders(TestBase):
         self.assertFalse('Access-Control-Allow-Max-Age' in r.headers)
         self.assert200(r.status_code)
 
+        # test that if X_DOMAINS is set to '*', then any Origin value is
+        # allowed. Also test that only the Origin header included with the
+        # request will be # returned back to the client.
         self.app.config['X_DOMAINS'] = '*'
         r = self.test_client.open(url, method='OPTIONS',
                                   headers=[('Origin', 'http://example.com')])
         self.assert200(r.status_code)
-        self.assertEqual(r.headers['Access-Control-Allow-Origin'], '*')
+        self.assertEqual(r.headers['Access-Control-Allow-Origin'],
+                         'http://example.com')
         for m in methods:
             self.assertTrue(m in r.headers['Access-Control-Allow-Methods'])
 
-        self.app.config['X_DOMAINS'] = ['http://example.com',
-                                        'http://1on1.com']
+        self.app.config['X_DOMAINS'] = ['http://1of2.com', 'http://2of2.com']
         r = self.test_client.open(url, method='OPTIONS',
-                                  headers=[('Origin', 'http://example.com')])
+                                  headers=[('Origin', 'http://1of2.com')])
         self.assert200(r.status_code)
         self.assertEqual(r.headers['Access-Control-Allow-Origin'],
-                         'http://example.com, http://1on1.com')
+                         'http://1of2.com')
+        r = self.test_client.open(url, method='OPTIONS',
+                                  headers=[('Origin', 'http://2of2.com')])
+        self.assert200(r.status_code)
+        self.assertEqual(r.headers['Access-Control-Allow-Origin'],
+                         'http://2of2.com')
 
         for m in methods:
             self.assertTrue(m in r.headers['Access-Control-Allow-Methods'])
@@ -150,8 +194,7 @@ class TestRenders(TestBase):
         r = self.test_client.get(url, headers=[('Origin',
                                                 'http://not_an_example.com')])
         self.assert200(r.status_code)
-        self.assertEqual(r.headers['Access-Control-Allow-Origin'],
-                         'http://example.com, http://1on1.com')
+        self.assertEqual(r.headers['Access-Control-Allow-Origin'], '')
         for m in methods:
             self.assertTrue(m in r.headers['Access-Control-Allow-Methods'])
 
@@ -160,6 +203,7 @@ class TestRenders(TestBase):
                             self.app.config['API_VERSION'])
 
         del(self.domain['peopleinvoices'])
+        del(self.domain['internal_transactions'])
         for _, settings in self.app.config['DOMAIN'].items():
 
             # resource endpoint

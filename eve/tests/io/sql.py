@@ -136,7 +136,7 @@ class TestSQLStructures(TestCase):
         self.person = People(firstname='douglas', lastname='adams', prog=5,
                 _id=1, _updated=datetime.now(), _created=datetime.now())
 
-        self.fields = ['_id', '_updated', '_created', 'firstname', 'lastname', 'prog']
+        self.fields = ['_id', '_updated', '_created', 'firstname', 'lastname', 'prog', '_etag']
         self.known_resource_count = 101
         self.max_results = 25
 
@@ -149,7 +149,7 @@ class TestSQLStructures(TestCase):
     def test_sql_result_get(self):
         r = SQLAResult(self.person, self.fields)
         self.assertEqual(r['firstname'], 'douglas')
-        self.assertIsNone(r['shouldNotExist'])
+        self.assertRaises(KeyError, lambda r: r['shouldNotExist'], r)
 
     def test_sql_result_set(self):
         r = SQLAResult(self.person, self.fields)

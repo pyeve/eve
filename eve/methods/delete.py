@@ -21,11 +21,30 @@ from eve.versioning import versioned_id_field
 @requires_auth('item')
 @pre_event
 def deleteitem(resource, **lookup):
-    """ Deletes a resource item. Deletion will occur only if request ETag
-    matches the current representation of the item.
+    """
+    Default function for handling DELETE requests, it has decorators for
+    rate limiting, authentication and for raising pre-request events.
+    After the decorators are applied forwards to call to
+    :func:`deleteitem_internal`
+
+    .. versionchanged:: 0.5
+       Split into deleteitem() and deleteitem_internal().
+    """
+    return deleteitem_internal(resource, concurrency_check=True, **lookup)
+
+
+def deleteitem_internal(resource, concurrency_check=False, **lookup):
+    """ Intended for internal delete calls, this method is not rate limited,
+    authentication is not checked, pre-request events are not raised, and
+    concurrency checking is optional. Deletes a resource item.
 
     :param resource: name of the resource to which the item(s) belong.
+    :param concurrency_check: concurrency check switch (bool)
     :param **lookup: item lookup query.
+
+    .. versionchanged:: 0.5
+       Original deleteitem() has been split into deleteitem() and
+       deleteitem_internal().
 
     .. versionchanged:: 0.4
        Fix #284: If you have a media field, and set datasource projection to
@@ -52,7 +71,7 @@ def deleteitem(resource, **lookup):
     .. versionchanged:: 0.0.4
        Added the ``requires_auth`` decorator.
     """
-    original = get_document(resource, **lookup)
+    original = get_document(resource, concurrency_check, **lookup)
     if not original:
         abort(404)
 

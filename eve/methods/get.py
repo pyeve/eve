@@ -87,31 +87,13 @@ def get(resource, **lookup):
     req = parse_request(resource)
     embedded_fields = resolve_embedded_fields(resource, req)
 
-    # facilitate cached responses
-    if req.if_modified_since:
-        # client has made this request before, has it changed?
-        # this request does not account for deleted documents!!! (issue #243)
-        preflight_req = copy.copy(req)
-        preflight_req.max_results = 1
-        preflight_req.page = 1
-
-        cursor = app.data.find(resource, preflight_req, lookup)
-        if cursor.count() == 0:
-            # make sure the datasource is not empty (#243).
-            if not app.data.is_empty(resource):
-                # the if-modified-since conditional request returned no
-                # documents, we send back a 304 Not-Modified, which means that
-                # the client already has the up-to-date representation of the
-                # resultset.
-                status = 304
-                last_modified = None
-                return response, last_modified, etag, status
-
     # continue processing the full request
     last_update = epoch()
-    req.if_modified_since = None
-    cursor = app.data.find(resource, req, lookup)
 
+    # If-Modified-Since disabled on collections (#334)
+    req.if_modified_since = None
+
+    cursor = app.data.find(resource, req, lookup)
     for document in cursor:
         build_response_document(document, resource, embedded_fields)
         documents.append(document)
@@ -124,16 +106,16 @@ def get(resource, **lookup):
     last_modified = last_update if last_update > epoch() else None
 
     response[config.ITEMS] = documents
+    count = cursor.count(with_limit_and_skip=False)
     if config.DOMAIN[resource]['hateoas']:
-        response[config.LINKS] = _pagination_links(resource, req,
-                                                   cursor.count())
+        response[config.LINKS] = _pagination_links(resource, req, count)
 
     # add pagination info
-    if cursor.count() and config.DOMAIN[resource]['pagination']:
+    if config.DOMAIN[resource]['pagination']:
         response[config.META] = {
             'page': req.page,
             'max_results': req.max_results,
-            'total': cursor.count(),
+            'total': count,
         }
 
     # notify registered callback functions. Please note that, should the
@@ -344,7 +326,6 @@ def _pagination_links(resource, req, documents_count):
                        'href': resource_link()}}
 
     if documents_count and config.DOMAIN[resource]['pagination']:
-        _links['count'] = documents_count
         if req.page * req.max_results < documents_count:
             q = querydef(req.max_results, req.where, req.sort, req.page + 1)
             _links['next'] = {'title': 'next page', 'href': '%s%s' %

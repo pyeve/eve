@@ -3,6 +3,10 @@ Running the Tests
 Eve runs under Python 2.6, Python 2.7, Python 3.3 and PyPy. Therefore tests
 will be run in those four platforms in our `continuous integration server`_.
 
+.. note::
+   Running some of the tests (SQLAlchemy features) require to have `sqlite3`_ 
+   installed.
+
 The easiest way to get started is to run the tests in your local environment
 with:
 
@@ -65,12 +69,12 @@ the following:
 
 If something goes **wrong** and one test fails, you might need to run that test
 in the specific python version. You can use the created environments to run
-some specific tests. For example, if a test suite fails in Python 2.6:
+some specific tests. For example, if a test suite fails in Python 3.4:
 
 .. code-block:: console
 
     # From the project folder
-    $ .tox/py26/bin/python setup.py test -s eve.tests.methods.get.TestGetItem
+    $ tox -e py34 -- -s eve.tests.methods.get.TestGetItem
 
 Using Pytest
 -------------
@@ -145,3 +149,4 @@ against the ``develop`` branch, see :ref:`contributing`.
 .. _pytest: http://pytest.org
 .. _pytest.vim: https://github.com/alfredodeza/pytest.vim
 .. _Vim: http://en.wikipedia.org/wiki/Vim_(text_editor)
+.. _sqlite3: http://www.sqlite.org/download.html
