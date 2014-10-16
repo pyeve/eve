@@ -8,7 +8,6 @@ from eve.tests.utils import DummyEvent
 
 from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, DATE_CREATED, ISSUES, \
     STATUS, ETAG
-from eve.methods.post import post
 
 
 class TestPostSQL(TestBaseSQL):
@@ -27,13 +26,8 @@ class TestPostSQL(TestBaseSQL):
 
     def test_validation_error(self):
         r, status = self.post(self.known_resource_url, data={'prog': 'a'})
-        self.assert400(status)
+        self.assertEqual(status, 422)
         self.assertValidationError(r, {'prog': 'must be of integer type'})
-
-        #r, status = self.post(self.known_resource_url,
-        #                      data={"firstname": "bob"})
-        #self.assert400(status)
-        #self.assertValidationError(r, {'ref': 'required'})
 
     def test_post_string(self):
         test_field = 'lastname'
@@ -91,7 +85,7 @@ class TestPostSQL(TestBaseSQL):
             {"firstname": self.item_firstname, "lastname": 'Adams'}
         ]
         r, status = self.post(self.known_resource_url, data=data)
-        self.assert400(status)
+        self.assertEqual(status, 422)
         results = r['_items']
 
         self.assertEqual(results[0]['_status'], 'OK')
@@ -121,24 +115,10 @@ class TestPostSQL(TestBaseSQL):
         self.assertTrue('OK' in r[STATUS])
         self.assertPostResponse(r)
 
-#    def test_post_referential_integrity(self):
-#        data = {"people": int(self.unknown_item_id)}
-#        r, status = self.post('/invoices/', data=data)
-#        self.assert400(status)
-#        expected = ("value '%s' must exist in resource '%s', field '%s'" %
-#                    (self.unknown_item_id, 'people',
-#                     self.app.config['ID_FIELD']))
-#        self.assertValidationError(r, {'people': expected})
-#
-#        data = {"people": self.item_id}
-#        r, status = self.post('/invoices/', data=data)
-#        self.assert201(status)
-#        self.assertPostResponse(r)
-
     def test_post_allow_unknown(self):
         data = {"unknown": "unknown"}
         r, status = self.post(self.known_resource_url, data=data)
-        self.assert400(status)
+        self.assertEqual(status, 422)
         self.assertValidationError(r, {'unknown': 'unknown'})
 
     def test_post_with_content_type_charset(self):
@@ -175,13 +155,13 @@ class TestPostSQL(TestBaseSQL):
     def test_custom_issues(self):
         self.app.config['ISSUES'] = 'errors'
         r, status = self.post(self.known_resource_url, data={"ref": "123"})
-        self.assert400(status)
+        self.assertEqual(status, 422)
         self.assertTrue('errors' in r and ISSUES not in r)
 
     def test_custom_status(self):
         self.app.config['STATUS'] = 'report'
         r, status = self.post(self.known_resource_url, data={"ref": "123"})
-        self.assert400(status)
+        self.assertEqual(status, 422)
         self.assertTrue('report' in r and STATUS not in r)
 
     @skip('Custom etag updated not supported')
@@ -199,24 +179,6 @@ class TestPostSQL(TestBaseSQL):
                               data={"ref": "1234567890123456789054321"})
         self.assert201(status)
         self.assertTrue('_update_date' in r and LAST_UPDATED not in r)
-
-#    def test_subresource(self):
-#        response, status = self.post('users/%s/invoices' %
-#                                     self.item_id, data={})
-#        self.assert201(status)
-#        self.assertPostResponse(response)
-#
-#        invoice_id = response.get(self.app.config['ID_FIELD'])
-#        response, status = self.get('users/%s/invoices/%s' %
-#                                    (self.item_id, invoice_id))
-#        self.assert200(status)
-#        self.assertEqual(response.get('people'), self.item_id)
-
-        invoice_id = response.get(self.app.config['ID_FIELD'])
-        response, status = self.get('users/%s/invoices/%s' %
-                                    (self.item_id, invoice_id))
-        self.assert200(status)
-        self.assertEqual(response.get('people'), self.item_id)
 
     def test_post_ifmatch_disabled(self):
         # if IF_MATCH is disabled, then we get no etag in the payload.
@@ -258,9 +220,6 @@ class TestPostSQL(TestBaseSQL):
         self.assert201(status)
         self.assertPostResponse(r)
         self.assertFalse('number' in r)
-        etag = r[self.app.config['ETAG']]
-        r, status = self.get('invoices', '', r[self.app.config['ID_FIELD']])
-        self.assertEqual(etag, r[self.app.config['ETAG']])
 
         # test return all fields (bandwidth_saver off)
         self.app.config['BANDWIDTH_SAVER'] = False
@@ -268,39 +227,6 @@ class TestPostSQL(TestBaseSQL):
         self.assert201(status)
         self.assertPostResponse(r)
         self.assertTrue('number' in r)
-        etag = r[self.app.config['ETAG']]
-        r, status = self.get('invoices', '', r[self.app.config['ID_FIELD']])
-        self.assertEqual(etag, r[self.app.config['ETAG']])
-
-    #def test_post_alternative_payload(self):
-    #    payl = {"prog": 543211234, "role": ["agent"]}
-    #    with self.app.test_request_context(self.known_resource_url):
-    #        r, _, _, status = post(self.known_resource, payl=payl)
-    #    self.assert201(status)
-    #    self.assertPostResponse(r)
-    #
-    #def test_post_dependency_fields_with_default(self):
-    #    # test that default values are resolved before validation. See #353.
-    #    del(self.domain['prog']['schema']['prog']['required'])
-    #    test_field = 'dependency_field2'
-    #    test_value = 'a value'
-    #    data = {test_field: test_value}
-    #    self.assertPostItem(data, test_field, test_value)
-    #
-    #def test_post_readonly_field_with_default(self):
-    #    # test that a read only field with a 'default' setting is correctly
-    #    # validated now that we resolve field values before validation.
-    #    del(self.domain['people']['schema']['prog']['required'])
-    #    test_field = 'read_only_field'
-    #    # thou shalt not pass.
-    #    test_value = 'a random value'
-    #    data = {test_field: test_value}
-    #    r, status = self.post(self.known_resource_url, data=data)
-    #    self.assert400(status)
-    #    # this will pass as value matches 'default' setting.
-    #    test_value = 'default'
-    #    data = {test_field: test_value}
-    #    self.assertPostItem(data, test_field, test_value)
 
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)

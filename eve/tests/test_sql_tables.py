@@ -1,3 +1,5 @@
+import hashlib
+
 from eve.io.sql.decorators import registerSchema
 from eve.io.sql.sql import db
 from sqlalchemy.ext.declarative import declarative_base
@@ -24,7 +26,13 @@ class CommonColumns(Base):
     __abstract__ = True
     _created = Column(DateTime)
     _updated = Column(DateTime)
+    _etag = Column(String)
     _id = Column(Integer, primary_key=True)  # TODO: make this comply to Eve's custom ID_FIELD setting
+
+    def __init__(self, *args, **kwargs):
+        h = hashlib.sha1()
+        self._etag = h.hexdigest()
+        super(CommonColumns, self).__init__(*args, **kwargs)
 
     def jsonify(self):
         relationships = inspect(self.__class__).relationships.keys()

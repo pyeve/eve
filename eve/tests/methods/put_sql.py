@@ -43,7 +43,7 @@ class TestPutSQL(TestBaseSQL):
     def test_ifmatch_disabled(self):
         self.app.config['IF_MATCH'] = False
         r, status = self.put(self.item_id_url, data={'key1': 'value1'})
-        self.assert200(status)
+        self.assertEqual(status, 422)
         self.assertTrue(ETAG not in r)
 
     def test_ifmatch_bad_etag(self):
@@ -56,7 +56,7 @@ class TestPutSQL(TestBaseSQL):
         r, status = self.put(self.item_id_url,
                              data={"firstname": "%s" % self.item_firstname},
                              headers=[('If-Match', self.item_etag)])
-        self.assert200(status)
+        self.assertEqual(status, 422)
         self.assertValidationError(r, {'firstname': "value '%s' is not unique" %
                                        self.item_firstname})
 
@@ -74,7 +74,7 @@ class TestPutSQL(TestBaseSQL):
         data = {"people_id": int(self.unknown_item_id)}
         headers = [('If-Match', self.invoice_etag)]
         r, status = self.put(self.invoice_id_url, data=data, headers=headers)
-        self.assert200(status)
+        self.assertEqual(status, 422)
         expected = ("value '%s' must exist in resource '%s', field '%s'" %
                     (self.unknown_item_id, 'people', self.app.config['ID_FIELD']))
         self.assertValidationError(r, {'people_id': expected})

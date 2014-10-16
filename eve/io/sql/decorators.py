@@ -55,7 +55,7 @@ class registerSchema(object):
 
             if isinstance(desc, InstrumentedAttribute):
                 prop = desc.property
-                if prop.key in (config.LAST_UPDATED, config.DATE_CREATED):
+                if prop.key in (config.LAST_UPDATED, config.DATE_CREATED, config.ETAG):
                     continue
                 schema = domain[resource]['schema'][prop.key] = {}
                 self.register_column(prop, schema, projection)

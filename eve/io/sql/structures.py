@@ -32,6 +32,8 @@ class SQLAResult(collections.MutableMapping):
             self._fields.append(config.LAST_UPDATED)
         if config.DATE_CREATED not in self._fields:
             self._fields.append(config.DATE_CREATED)
+        if config.ETAG not in self._fields and getattr(config, 'IF_MATCH', True):
+            self._fields.append(config.ETAG)
 
     def __getitem__(self, key):
         # TODO: composite primary key

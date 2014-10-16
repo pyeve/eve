@@ -44,7 +44,7 @@ class TestPatch(TestBaseSQL):
     def test_ifmatch_disabled(self):
         self.app.config['IF_MATCH'] = False
         r, status = self.patch(self.item_id_url, data={'key1': 'value1'})
-        self.assert200(status)
+        self.assertEqual(status, 422)
         self.assertTrue(ETAG not in r)
 
     def test_ifmatch_bad_etag(self):
@@ -57,7 +57,7 @@ class TestPatch(TestBaseSQL):
         r, status = self.patch(self.item_id_url,
                                data={"firstname": "%s" % self.item_firstname},
                                headers=[('If-Match', self.item_etag)])
-        self.assert200(status)
+        self.assertEqual(status, 422)
         self.assertValidationError(r, {'firstname': "value '%s' is not unique" %
                                        self.item_firstname})
 
@@ -96,7 +96,6 @@ class TestPatch(TestBaseSQL):
         field = "ref"
         test_value = "1234567890123456789012345"
         r = self.perform_patch_with_post_override(field, test_value)
-        self.assert200(r.status_code)
         self.assertRaises(KeyError, self.compare_patch_with_get, 'title',
                           json.loads(r.get_data()))
 
@@ -141,7 +140,7 @@ class TestPatch(TestBaseSQL):
     def test_patch_allow_unknown(self):
         changes = {"unknown": "unknown"}
         r, status = self.patch(self.item_id_url, data=changes, headers=[('If-Match', self.item_etag)])
-        self.assert200(status)
+        self.assertEqual(status, 422)
         self.assertValidationError(r, {'unknown': 'unknown field'})
 
     def test_patch_x_www_form_urlencoded(self):
@@ -157,7 +156,7 @@ class TestPatch(TestBaseSQL):
         data = {'people_id': int(self.unknown_item_id)}
         headers = [('If-Match', self.invoice_etag)]
         r, status = self.patch(self.invoice_id_url, data=data, headers=headers)
-        self.assert200(status)
+        self.assertEqual(status, 422)
         expected = ("value '%s' must exist in resource '%s', field '%s'" %
                     (self.unknown_item_id, 'people',
                      self.app.config['ID_FIELD']))
@@ -193,7 +192,7 @@ class TestPatch(TestBaseSQL):
         changes = {field: test_value}
         _, status = self.patch('%s/%s' % (self.known_resource_url, _id),
                                data=changes, headers=[('If-Match', etag)])
-        self.assert200(status)
+        self.assertEqual(status, 422)
 
     def test_patch_subresource(self):
         _db = self.app.data.driver

@@ -326,7 +326,6 @@ def _pagination_links(resource, req, documents_count):
                        'href': resource_link()}}
 
     if documents_count and config.DOMAIN[resource]['pagination']:
-        _links['count'] = documents_count
         if req.page * req.max_results < documents_count:
             q = querydef(req.max_results, req.where, req.sort, req.page + 1)
             _links['next'] = {'title': 'next page', 'href': '%s%s' %
