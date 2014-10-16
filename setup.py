@@ -20,6 +20,8 @@ install_requires = [
     'flask>=0.10.1,<0.11',
     'pymongo>=2.7.1,<3.0',
     'flask-pymongo>=0.3.0,<0.4',
+    'sqlalchemy>=0.8,<1.0',
+    'Flask-SQLAlchemy>=1.0,<2.999'
 ]
 
 try:
@@ -42,9 +44,6 @@ setup(
     packages=find_packages(),
     test_suite="eve.tests",
     install_requires=install_requires,
-    extras_require={
-        'sqlalchemy': ['sqlalchemy', 'Flask-SQLAlchemy']
-    },
     tests_require=['redis'],
     classifiers=[
         'Development Status :: 4 - Beta',
