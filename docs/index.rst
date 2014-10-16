@@ -1,12 +1,15 @@
 .. meta::
-   :description: Eve is an open source Python REST API framework designed for humans.
+   :description: Eve is an open source Python REST API framework designed for human beings.
 
 REST API Framework for Humans
 =============================
 Eve is an :doc:`open source <license>` Python REST API framework designed for human beings.
 
-It is powered by Flask, MongoDB, SQLAlchemy, Redis and good intentions. The
-codebase is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4 and PyPy.
+Eve is powered by Flask_ and supports both MongoDB_ and SQL_ backends. It
+allows to effortlessly build and deploy highly customizable, fully featured
+RESTful Web Services. 
+
+The codebase is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4 and PyPy.
 
 Eve is Simple
 -------------
@@ -95,3 +98,6 @@ Changelog
 .. _`client app`: https://github.com/nicolaiarocci/eve-demo-client
 .. _me: mailto:me@nicolaiaroccicom
 .. _Postman: https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&ved=0CC0QFjAA&url=https%3A%2F%2Fchrome.google.com%2Fwebstore%2Fdetail%2Fpostman-rest-client%2Ffdmmgilgnpjigdojojpjoooidkmcomcm&ei=dPQ7UpqEBISXtAbPpIGwDg&usg=AFQjCNFL71vN61QG0LKlw7VDJvIZDprjHA&bvm=bv.52434380,d.Yms
+.. _Flask: http://flask.pocoo.org/
+.. _SQL: http://www.sqlalchemy.org/
+.. _MongoDB: https://mongodb.org
