@@ -49,6 +49,13 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.config['MONGO_WRITE_CONCERN'], {'w': 1})
         self.assertEqual(self.app.config['ISSUES'], '_issues')
 
+        self.assertEqual(self.app.config['QUERY_WHERE'], 'where')
+        self.assertEqual(self.app.config['QUERY_PROJECTION'], 'projection')
+        self.assertEqual(self.app.config['QUERY_SORT'], 'sort')
+        self.assertEqual(self.app.config['QUERY_PAGE'], 'page')
+        self.assertEqual(self.app.config['QUERY_MAX_RESULTS'], 'max_results')
+        self.assertEqual(self.app.config['QUERY_EMBEDDED'], 'embedded')
+
     def test_settings_as_dict(self):
         my_settings = {'API_VERSION': 'override!', 'DOMAIN': {'contacts': {}}}
         self.app = Eve(settings=my_settings)

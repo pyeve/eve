@@ -10,6 +10,12 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.5
+       'QUERY_WHERE' added.
+       'QUERY_SORT' added.
+       'QUERY_PAGE' added.
+       'QUERY_MAX_RESULTS' added.
+       'QUERY_PROJECTION' added.
+       'QUERY_EMBEDDED' added.
        'RFC1123_DATE_FORMAT' added.
 
     .. versionchanged:: 0.4
@@ -65,6 +71,13 @@ LINKS = '_links'
 ETAG = '_etag'
 VERSION = '_version'
 META = '_meta'
+
+QUERY_WHERE = 'where'
+QUERY_SORT = 'sort'
+QUERY_PAGE = 'page'
+QUERY_MAX_RESULTS = 'max_results'
+QUERY_EMBEDDED = 'embedded'
+QUERY_PROJECTION = 'projection'
 
 VALIDATION_ERROR_STATUS = 422
 

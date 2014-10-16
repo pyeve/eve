@@ -29,6 +29,9 @@ def get(resource, **lookup):
 
     :param resource: the name of the resource.
 
+    .. versionchanged:: 0.5
+       Support for customisable query parameters.
+
     .. versionchanged:: 0.4
        Add pagination info whatever the HATEOAS status.
        'on_fetched' events now return the whole response (HATEOAS metafields
@@ -113,8 +116,8 @@ def get(resource, **lookup):
     # add pagination info
     if config.DOMAIN[resource]['pagination']:
         response[config.META] = {
-            'page': req.page,
-            'max_results': req.max_results,
+            config.QUERY_PAGE: req.page,
+            config.QUERY_MAX_RESULTS: req.max_results,
             'total': count,
         }
 
