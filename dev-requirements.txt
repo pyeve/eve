@@ -3,7 +3,7 @@ flake8==2.2.3
 mccabe==0.2.1
 pep8==1.5.7
 pip-tools==0.3.5
-py==1.4.20
+py==1.4.25
 pyflakes==0.8.1
 Pygments==1.6
 pytest==2.6.3
