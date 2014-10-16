@@ -19,6 +19,8 @@ from cerberus import Validator
 from werkzeug.datastructures import FileStorage
 from eve.versioning import get_data_version_relation_document, \
     missing_version_field
+from eve.io.mongo.geo import Point, MultiPoint, LineString, Polygon, \
+    MultiLineString, MultiPolygon, GeometryCollection
 
 
 class Validator(Validator):
@@ -30,6 +32,7 @@ class Validator(Validator):
     :param resource: the resource name.
 
     .. versionchanged:: 0.5
+       Support for _original_document
        Fix crash bug with Cerberus 0.7.1+ and keyschema rule. See Cerberus #48.
 
     .. versionchanged:: 0.0.6
@@ -43,11 +46,12 @@ class Validator(Validator):
     def __init__(self, schema=None, resource=None):
         self.resource = resource
         self._id = None
+        self._original_document = None
         super(Validator, self).__init__(schema, transparent_schema_rules=True)
         if resource:
             self.allow_unknown = config.DOMAIN[resource]['allow_unknown']
 
-    def validate_update(self, document, _id):
+    def validate_update(self, document, _id, original_document=None):
         """ Validate method to be invoked when performing an update, not an
         insert.
 
@@ -55,6 +59,7 @@ class Validator(Validator):
         :param _id: the unique id of the document.
         """
         self._id = _id
+        self._original_document = original_document
         return super(Validator, self).validate_update(document)
 
     def validate_replace(self, document, _id):
@@ -188,10 +193,15 @@ class Validator(Validator):
         sure that a value for a read-only field is considered legit if it
         matches an eventual 'default' setting for the field.
 
+        .. versionchanged:: 0.5
+           Consider the original value if available (#479).
+
         .. versionadded:: 0.4
         """
         default = config.DOMAIN[self.resource]['schema'][field].get('default')
-        if value != default:
+        original_value = self._original_document.get(field) \
+            if self._original_document else None
+        if value not in (default, original_value):
             super(Validator, self)._validate_readonly(read_only, field, value)
 
     def _validate_type_media(self, field, value):
@@ -204,3 +214,80 @@ class Validator(Validator):
         """
         if not isinstance(value, FileStorage):
             self._error(field, "file was expected, got '%s' instead." % value)
+
+    def _validate_type_point(self, field, value):
+        """ Enables validation for `point` data type.
+
+        :param field: field name.
+        :param value: field value.
+        """
+        try:
+            Point(value)
+        except TypeError as e:
+            self._error(field, "Point not correct %s: %s" % (value, e))
+
+    def _validate_type_linestring(self, field, value):
+        """ Enables validation for `linestring` data type.
+
+        :param field: field name.
+        :param value: field value.
+        """
+        try:
+            LineString(value)
+        except TypeError:
+            self._error(field, "LineString not correct %s " % value)
+
+    def _validate_type_polygon(self, field, value):
+        """ Enables validation for `polygon` data type.
+
+        :param field: field name.
+        :param value: field value.
+        """
+        try:
+            Polygon(value)
+        except TypeError:
+            self._error(field, "LineString not correct %s " % value)
+
+    def _validate_type_multipoint(self, field, value):
+        """ Enables validation for `multipoint` data type.
+
+        :param field: field name.
+        :param value: field value.
+        """
+        try:
+            MultiPoint(value)
+        except TypeError:
+            self._error(field, "MultiPoint not correct" % value)
+
+    def _validate_type_multilinestring(self, field, value):
+        """ Enables validation for `multilinestring`data type.
+
+        :param field: field name.
+        :param value: field value.
+        """
+        try:
+            MultiLineString(value)
+        except TypeError:
+            self._error(field, "MultiLineString not  correct" % value)
+
+    def _validate_type_multipolygon(self, field, value):
+        """ Enables validation for `multipolygon` data type.
+
+        :param field: field name.
+        :param value: field value.
+        """
+        try:
+            MultiPolygon(value)
+        except TypeError:
+            self._error(field, "MultiPolygon not  correct" % value)
+
+    def _validate_type_geometrycollection(self, field, value):
+        """ Enables validation for `geometrycollection`data type
+
+        :param field: field name.
+        :param value: field nvalue
+        """
+        try:
+            GeometryCollection(value)
+        except TypeError:
+            self._error(field, "GeometryCollection not correct" % value)

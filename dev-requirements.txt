@@ -1,14 +1,15 @@
-docutils==0.10
-flake8==2.2.2
+docutils==0.12
+flake8==2.2.3
 mccabe==0.2.1
 pep8==1.5.7
-pip-tools==0.3.4
-py==1.4.20
+pip-tools==0.3.5
+py==1.4.25
 pyflakes==0.8.1
 Pygments==1.6
-pytest==2.5.2
+pytest==2.6.3
 redis==2.10.1
-Sphinx==1.2.2
-tox==1.7.1
+Sphinx==1.2.3
+tox==1.8.0
 wheel==0.24.0
-alabaster==0.6.0
+-e git+https://github.com/nicolaiarocci/alabaster.git@15d190f29f86141aab202843f2bf3edfde71e56c#egg=al
+sphinxcontrib-embedly

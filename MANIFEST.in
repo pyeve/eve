@@ -8,5 +8,6 @@ recursive-exclude tests *.pyc
 recursive-exclude tests *.pyo
 recursive-exclude examples *.pyo
 recursive-exclude examples *.pyc
+recursive-exclude * __pycache__
 prune docs/_build
 prune docs/_themes/.git

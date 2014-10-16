@@ -29,6 +29,9 @@ def get(resource, **lookup):
 
     :param resource: the name of the resource.
 
+    .. versionchanged:: 0.5
+       Support for customisable query parameters.
+
     .. versionchanged:: 0.4
        Add pagination info whatever the HATEOAS status.
        'on_fetched' events now return the whole response (HATEOAS metafields
@@ -113,8 +116,8 @@ def get(resource, **lookup):
     # add pagination info
     if config.DOMAIN[resource]['pagination']:
         response[config.META] = {
-            'page': req.page,
-            'max_results': req.max_results,
+            config.QUERY_PAGE: req.page,
+            config.QUERY_MAX_RESULTS: req.max_results,
             'total': count,
         }
 
@@ -141,6 +144,9 @@ def getitem(resource, **lookup):
     """
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
+
+    .. versionchanged:: 0.5
+       Allow ``?version=all`` requests to fire ``on_fetched_*`` events.
 
     .. versionchanged:: 0.4
        HATOEAS link for contains the business unit value even when
@@ -283,15 +289,24 @@ def getitem(resource, **lookup):
             'href': resource_link()}
         response[config.LINKS]['parent'] = home_link()
 
-    if version != 'all' and version != 'diffs':
+    # callbacks not supported on version diffs because of partial documents
+    if version != 'diffs':
         # TODO: callbacks not currently supported with ?version=all
 
         # notify registered callback functions. Please note that, should
-        # the # functions modify the document, last_modified and etag
+        # the functions modify the document, last_modified and etag
         # won't be updated to reflect the changes (they always reflect the
         # documents state on the database).
-        getattr(app, "on_fetched_item")(resource, response)
-        getattr(app, "on_fetched_item_%s" % resource)(response)
+        if resource_def['versioning'] is True and version == 'all':
+            versions = response
+            if config.DOMAIN[resource]['hateoas']:
+                versions = response[config.ITEMS]
+            for version_item in versions:
+                getattr(app, "on_fetched_item")(resource, version_item)
+                getattr(app, "on_fetched_item_%s" % resource)(version_item)
+        else:
+            getattr(app, "on_fetched_item")(resource, response)
+            getattr(app, "on_fetched_item_%s" % resource)(response)
 
     return response, last_modified, etag, 200
 

@@ -219,6 +219,27 @@ class TestGridFSMediaStorage(TestBase):
         # previous media doesn't exist anymore (it's been deleted)
         self.assertFalse(self.app.media.exists(media_id))
 
+    def test_gridfs_media_storage_patch_null(self):
+        # set 'media' field to 'nullable'
+        self.domain[self.known_resource]['schema']['media']['nullable'] = True
+
+        response, status = self._post()
+        self.assert201(status)
+
+        _id = response[ID_FIELD]
+        etag = response[ETAG]
+
+        # test that nullable media field can be set to None
+        data = {'media': None}
+        headers = [('If-Match', etag)]
+        response, status = self.patch(('%s/%s' % (self.url, _id)), data=data,
+                                      headers=headers)
+        self.assert200(status)
+
+        response, status = self.get(self.known_resource, item=_id)
+        self.assert200(status)
+        self.assertEqual(response['media'], None)
+
     def test_gridfs_media_storage_delete(self):
         r, s = self._post()
         _id = r[ID_FIELD]

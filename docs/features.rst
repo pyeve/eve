@@ -145,7 +145,7 @@ would be queried like:
 
 Please note that when designing your API, most of the time you can get away
 without resorting to sub-resources. In the example above the same result would
-be achieved by simply exposing a ``invoices`` endpoint that clients could query
+be achieved by simply exposing an ``invoices`` endpoint that clients could query
 this way:
 
 ::
@@ -233,7 +233,7 @@ As you can see, item endpoints provide their own HATEOAS_ directives.
 
     According to REST principles resource items should only have one unique
     identifier. Eve abides by providing one default endpoint per item. Adding
-    a secondary endpoint is a decision that should pondered carefully.
+    a secondary endpoint is a decision that should be pondered carefully.
 
     Consider our example above. Even without the ``/people/<lastname>``
     endpoint, a client could always retrieve a person by querying the resource
@@ -585,12 +585,14 @@ request:
     ]
 
 In the example above, the first document did not validate so the whole request
-has been rejected. For more information see :ref:`validation`.
+has been rejected. 
 
-In all cases, when all documents passed validation and where inserted
-correctly, the response status is ``201 Created``. If any document fail the
-validation, the response status is ``422 Unprocessable Entity`` by default, or
-any other error code defined by ``VALIDATION_ERROR_STATUS`` configuration.
+When all documents pass validation and are inserted correctly the response
+status is ``201 Created``. If any document fails validation the response status
+is ``422 Unprocessable Entity``, or any other error code defined by
+``VALIDATION_ERROR_STATUS`` configuration.
+
+For more information see :ref:`validation`.
 
 Extensible Data Validation
 --------------------------
@@ -1076,6 +1078,11 @@ the items as needed before they are returned to the client.
     >>> app.on_fetched_item += before_returning_item
     >>> app.on_fetched_item_contact += before_returning_contact
 
+It is important to note that fetch events will work with `Document
+Versioning`_ for specific document versions or accessing all document
+versions with ``?version=all``, but they *will not* work when acessing diffs
+of all versions with ``?version=diffs``.
+
 
 Insert Events
 ^^^^^^^^^^^^^
@@ -1393,7 +1400,58 @@ response payloads by sending requests like this one:
     - :ref:`datasource`
 
     for details on the ``datasource`` setting.
+    
+.. _geojson_feature:
 
+GeoJSON
+-------
+The MongoDB data layer supports geographic data structures
+encoded in GeoJSON_ format. All GeoJSON objects supported by MongoDB_ are available:
+
+    - ``Point``
+    - ``Multipoint``
+    - ``LineString``
+    - ``MultiLineString``
+    - ``Polygon``
+    - ``MultiPolygon``
+    - ``GeometryCollection``
+      
+These are implemented as native Eve data types (see :ref:`schema`) so they are
+are subject to proper validation.
+
+In the example below we are extending the `people` endpoint by adding
+a ``location`` field is of type Point_.
+
+.. code-block:: javascript
+
+    people = {
+    	...
+        'location': {
+            'type': 'point'
+        },
+        ...
+    }
+    
+Storing a contact along with its location is pretty straightforward:
+
+.. code-block:: console
+
+    $ curl -d '[{"firstname": "barack", "lastname": "obama", "location": {"type":"Point","coordinates":[100.0,10.0]}}]' -H 'Content-Type: application/json'  http://127.0.0.1:5000/people
+    HTTP/1.1 201 OK
+
+Querying GeoJSON Data
+~~~~~~~~~~~~~~~~~~~~~
+As a genera rule all MongoDB `geospatial query operators`_ and their associated
+geometry specifiers are supported. In this example we are using the `$near`_
+operator to query for all contacts living in a location within 1000 meters from
+a certain point:
+    
+::
+
+    ?where={"location": {"$near": {"$geometry": {"type":"Point", "coordinates": [10.0, 20.0]}, "$maxDistance": 1000}}}
+
+Please refer to MongoDB documentation for details on geo queries.
+	
 .. _internal_resources:
 
 Internal Resources
@@ -1454,8 +1512,8 @@ Something like this:
 I admit that this example is as rudimentary as it can get, but hopefully it
 will get the point across.
 
-MongoDB and SQLAlchemy
-----------------------
+MongoDB and SQLAlchemy Support
+------------------------------
 Support for MongoDB and SQLAlchemy (see :doc:`tutorials/sqlalchemy_support`)
 comes out of the box. Extensions for other SQL/NoSQL backends can be developed
 with relative ease.
@@ -1481,3 +1539,9 @@ for unittesting_ and an `extensive documentation`_.
 .. _Events: https://github.com/nicolaiarocci/events
 .. _MediaStorage: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/media.py
 .. _`MongoDB Data Model Design`: http://docs.mongodb.org/manual/core/data-model-design/
+.. _`driver documentation`: http://api.mongodb.org/python/2.7rc0/api/gridfs/grid_file.html#gridfs.grid_file.GridOut
+.. _GeoJSON: http://geojson.org/
+.. _Point: http://geojson.org/geojson-spec.html#point
+.. _MongoDB: http://docs.mongodb.org/manual/applications/geospatial-indexes/#geojson-objects
+.. _`geospatial query operators`: http://docs.mongodb.org/manual/reference/operator/query-geospatial/#query-selectors
+.. _$near: http://docs.mongodb.org/manual/reference/operator/query/near/#op._S_near

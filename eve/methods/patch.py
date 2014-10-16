@@ -140,7 +140,7 @@ def patch_internal(resource, payload=None, concurrency_check=False, **lookup):
 
     try:
         updates = parse(payload, resource)
-        validation = validator.validate_update(updates, object_id)
+        validation = validator.validate_update(updates, object_id, original)
         if validation:
             # sneak in a shadow copy if it wasn't already there
             late_versioning_catch(original, resource)
@@ -165,7 +165,10 @@ def patch_internal(resource, payload=None, concurrency_check=False, **lookup):
 
             updated.update(updates)
 
-            resolve_document_etag(updated)
+            if config.IF_MATCH:
+                resolve_document_etag(updated)
+                # now storing the (updated) ETAG with every document (#453)
+                updates[config.ETAG] = updated[config.ETAG]
 
             app.data.update(resource, object_id, updates)
             insert_versioning_documents(resource, updated)

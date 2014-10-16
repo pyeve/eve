@@ -517,7 +517,8 @@ def embedded_document(reference, data_relation, field_name):
         subresource = data_relation['resource']
         embedded_doc = app.data.find_one(subresource, None,
                                          **{config.ID_FIELD: reference})
-        resolve_media_files(embedded_doc, subresource)
+        if embedded_doc:
+            resolve_media_files(embedded_doc, subresource)
 
     return embedded_doc
 
@@ -671,10 +672,11 @@ def store_media_files(document, resource, original=None):
             # system, we first need to delete the file being replaced.
             app.media.delete(original[field])
 
-        # store file and update document with file's unique id/filename
-        # also pass in mimetype for use when retrieving the file
-        document[field] = app.media.put(document[field],
-                                        content_type=document[field].mimetype)
+        if document[field]:
+            # store file and update document with file's unique id/filename
+            # also pass in mimetype for use when retrieving the file
+            document[field] = app.media.put(
+                document[field], content_type=document[field].mimetype)
 
 
 def resource_media_fields(document, resource):

@@ -12,6 +12,12 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.5
+       'QUERY_WHERE' added and set to 'where'
+       'QUERY_PROJECTION' added and set to 'projection'
+       'QUERY_SORT' added and set to 'sort'
+       'QUERY_PAGE' added and set to 'page'
+       'QUERY_MAX_RESULTS' added and set to 'max_results'
+       'QUERY_EMBEDDED' added and set to 'embedded'
        'INTERNAL_RESOURCE' added and set to False
 
     .. versionchanged:: 0.4
@@ -102,6 +108,7 @@ CACHE_EXPIRES = 0
 ITEM_CACHE_CONTROL = ''
 X_DOMAINS = None                # CORS disabled by default.
 X_HEADERS = None                # CORS disabled by default.
+X_EXPOSE_HEADERS = None         # CORS disabled by default.
 X_MAX_AGE = 21600               # Access-Control-Max-Age when CORS is enabled
 HATEOAS = True                  # HATEOAS enabled by default.
 IF_MATCH = True                 # IF_MATCH (ETag match) enabled by default.
@@ -141,6 +148,14 @@ RETURN_MEDIA_AS_BASE64_STRING = True
 # DATE_CREATED, and ETAG). Only relevant when bandwidth saving mode is on.
 EXTRA_RESPONSE_FIELDS = []
 BANDWIDTH_SAVER = True
+
+# default query parameters
+QUERY_WHERE = 'where'
+QUERY_PROJECTION = 'projection'
+QUERY_SORT = 'sort'
+QUERY_PAGE = 'page'
+QUERY_MAX_RESULTS = 'max_results'
+QUERY_EMBEDDED = 'embedded'
 
 # user-restricted resource access is disabled by default.
 AUTH_FIELD = None

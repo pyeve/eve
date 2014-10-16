@@ -352,6 +352,37 @@ class TestPatch(TestBase):
         db_value = self.compare_patch_with_get(self.app.config['ETAG'], r)
         self.assertEqual(db_value, r[self.app.config['ETAG']])
 
+    def test_patch_readonly_field_with_previous_document(self):
+        schema = self.domain['contacts']['schema']
+        del(schema['ref']['required'])
+
+        # disable read-only on the field so we can store a value which is
+        # also different form its default value.
+        schema['read_only_field']['readonly'] = False
+        changes = {'read_only_field': 'value'}
+        r = self.perform_patch(changes)
+
+        # resume read-only status for the field
+        self.domain['contacts']['schema']['read_only_field']['readonly'] = True
+
+        # test that if the read-only field is included with the payload and its
+        # value is equal to the one stored with the document, validation
+        # succeeds (#479).
+        etag = r['_etag']
+        r, status = self.patch(self.item_id_url, data=changes,
+                               headers=[('If-Match', etag)])
+        self.assert200(status)
+        self.assertPatchResponse(r, self.item_id)
+
+        # test that if the read-only field is included with the payload and its
+        # value is different from the stored document, validation fails.
+        etag = r['_etag']
+        changes = {'read_only_field': 'another value'}
+        r, status = self.patch(self.item_id_url, data=changes,
+                               headers=[('If-Match', etag)])
+        self.assert422(status)
+        self.assertTrue('is read-only' in r['_issues']['read_only_field'])
+
     def assertPatchResponse(self, response, item_id):
         self.assertTrue(STATUS in response)
         self.assertTrue(STATUS_OK in response[STATUS])

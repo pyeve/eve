@@ -3,13 +3,13 @@
 Data Validation
 ===============
 Data validation is provided out-of-the-box. Your configuration includes
-a :ref:`schema` for every resource managed by the API. Data sent to the API
-to be inserted or updated will be validated against the schema, and a resource
-will be updated only if validation passes.
+a schema definition for every resource managed by the API. Data sent to the API
+to be inserted/updated will be validated against the schema, and a resource
+will only be updated if validation passes.
 
 .. code-block:: console
 
-    $ curl -d '{"firstname": "bill", "lastname": "clinton"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
+    $ curl -d '[{"firstname": "bill", "lastname": "clinton"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
     HTTP/1.1 201 OK
 
 The response will contain a success/error state for each item provided in the
@@ -17,32 +17,28 @@ request:
 
 .. code-block:: javascript
 
-    [
-        {
-            "_status": "ERR",
-            "_issues": {"lastname": "value 'clinton' not unique"}
-        },
-        {
-            "_status": "OK",
-            "_updated": "Thu, 22 Nov 2012 15:29:08 GMT",
-            "_id": "50ae44c49fa12500024def5d",
-            "_links": {"self": {"href": "eve-demo.herokuapp.com/people/50ae44c49fa12500024def5d", "title": "person"}}
-        }
+    {
+        "_status": "ERR",
+        "_error": "Some documents contains errors",
+        "_items": [
+            {
+                "_status": "ERR",
+                "_issues": {"lastname": "value 'clinton' not unique"}
+            },
+            {
+                "_status": "OK",
+            }
+        ]
     ]
 
-In the example above, the first document did not validate and was rejected,
-while the second was successfully created. The API maintainer has complete
-control of data validation.
+In the example above, the first document did not validate so the whole request
+has been rejected. 
 
-.. admonition:: Please Note
+When all documents pass validation and are inserted correctly the response
+status is ``201 Created``. If any document fails validation the response status
+is ``422 Unprocessable Entity``, or any other error code defined by
+``VALIDATION_ERROR_STATUS`` configuration.
 
-    Eventual validation errors on one or more document won't prevent the
-    insertion of valid documents. The response status code will be
-    ``201 Created`` if *at least one document* passed validation and has
-    actually been stored. If no document passed validation the status code will
-    be ``200 OK``, meaning that the request was accepted and processed. It is
-    still client's responsability to parse the response payload and make sure
-    that all documents passed validation.
 
 Extending Data Validation
 -------------------------
