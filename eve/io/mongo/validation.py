@@ -32,6 +32,7 @@ class Validator(Validator):
     :param resource: the resource name.
 
     .. versionchanged:: 0.5
+       Support for _original_document
        Fix crash bug with Cerberus 0.7.1+ and keyschema rule. See Cerberus #48.
 
     .. versionchanged:: 0.0.6
@@ -45,11 +46,12 @@ class Validator(Validator):
     def __init__(self, schema=None, resource=None):
         self.resource = resource
         self._id = None
+        self._original_document = None
         super(Validator, self).__init__(schema, transparent_schema_rules=True)
         if resource:
             self.allow_unknown = config.DOMAIN[resource]['allow_unknown']
 
-    def validate_update(self, document, _id):
+    def validate_update(self, document, _id, original_document=None):
         """ Validate method to be invoked when performing an update, not an
         insert.
 
@@ -57,6 +59,7 @@ class Validator(Validator):
         :param _id: the unique id of the document.
         """
         self._id = _id
+        self._original_document = original_document
         return super(Validator, self).validate_update(document)
 
     def validate_replace(self, document, _id):
@@ -190,10 +193,15 @@ class Validator(Validator):
         sure that a value for a read-only field is considered legit if it
         matches an eventual 'default' setting for the field.
 
+        .. versionchanged:: 0.5
+           Consider the original value if available (#479).
+
         .. versionadded:: 0.4
         """
         default = config.DOMAIN[self.resource]['schema'][field].get('default')
-        if value != default:
+        original_value = self._original_document.get(field) \
+            if self._original_document else None
+        if value not in (default, original_value):
             super(Validator, self)._validate_readonly(read_only, field, value)
 
     def _validate_type_media(self, field, value):

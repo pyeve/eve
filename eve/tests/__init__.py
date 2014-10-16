@@ -102,6 +102,9 @@ class TestMinimal(unittest.TestCase):
     def assert304(self, status):
         self.assertEqual(status, 304)
 
+    def assert422(self, status):
+        self.assertEqual(status, 422)
+
     def get(self, resource, query='', item=None):
         if resource in self.domain:
             resource = self.domain[resource]['url']
