@@ -67,3 +67,4 @@ _build
 
 # Stored python history files
 .pyhist
+.cache
