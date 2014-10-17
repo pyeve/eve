@@ -147,6 +147,7 @@ def getitem(resource, **lookup):
 
     .. versionchanged:: 0.5
        Allow ``?version=all`` requests to fire ``on_fetched_*`` events.
+       Create pagination links for document versions. (#475)
 
     .. versionchanged:: 0.4
        HATOEAS link for contains the business unit value even when
@@ -203,6 +204,7 @@ def getitem(resource, **lookup):
     etag = None
     version = request.args.get(config.VERSION_PARAM)
     latest_doc = None
+    cursor = None
 
     # synthesize old document version(s)
     if resource_def['versioning'] is True:
@@ -282,12 +284,19 @@ def getitem(resource, **lookup):
 
     # extra hateoas links
     if config.DOMAIN[resource]['hateoas']:
-        if config.LINKS not in response:
-            response[config.LINKS] = {}
-        response[config.LINKS]['collection'] = {
-            'title': config.DOMAIN[resource]['resource_title'],
-            'href': resource_link()}
-        response[config.LINKS]['parent'] = home_link()
+        # use the id of the latest document for multi-document requests
+        if cursor:
+            count = cursor.count(with_limit_and_skip=False)
+            response[config.LINKS] = \
+                _pagination_links(resource, req, count,
+                                  latest_doc[config.ID_FIELD])
+        else:
+            if config.LINKS not in response:
+                response[config.LINKS] = {}
+            response[config.LINKS]['collection'] = {
+                'title': config.DOMAIN[resource]['resource_title'],
+                'href': resource_link()}
+            response[config.LINKS]['parent'] = home_link()
 
     # callbacks not supported on version diffs because of partial documents
     if version != 'diffs':
@@ -311,13 +320,18 @@ def getitem(resource, **lookup):
     return response, last_modified, etag, 200
 
 
-def _pagination_links(resource, req, documents_count):
+def _pagination_links(resource, req, documents_count, document_id=None):
     """ Returns the appropriate set of resource links depending on the
     current page and the total number of documents returned by the query.
 
     :param resource: the resource name.
     :param req: and instace of :class:`eve.utils.ParsedRequest`.
     :param document_count: the number of documents returned by the query.
+    :param document_id: the document id (used for versions). Defaults to None.
+
+    .. versionchanged:: 0.5
+       Create pagination links given a document ID to allow paginated versions
+       pages (#475).
 
     .. versionchanged:: 0.4
        HATOEAS link for contains the business unit value even when
@@ -336,13 +350,19 @@ def _pagination_links(resource, req, documents_count):
     .. versionchanged:: 0.0.3
        JSON links
     """
+    version = None
+    if config.DOMAIN[resource]['versioning'] is True:
+        version = request.args.get(config.VERSION_PARAM)
+
+    # construct the default links
     _links = {'parent': home_link(),
               'self': {'title': config.DOMAIN[resource]['resource_title'],
                        'href': resource_link()}}
 
     if documents_count and config.DOMAIN[resource]['pagination']:
         if req.page * req.max_results < documents_count:
-            q = querydef(req.max_results, req.where, req.sort, req.page + 1)
+            q = querydef(req.max_results, req.where, req.sort, version,
+                         req.page + 1)
             _links['next'] = {'title': 'next page', 'href': '%s%s' %
                               (resource_link(), q)}
 
@@ -353,12 +373,14 @@ def _pagination_links(resource, req, documents_count):
             # 1 if the modulo is non-zero...
             last_page = int(math.ceil(documents_count
                                       / float(req.max_results)))
-            q = querydef(req.max_results, req.where, req.sort, last_page)
+            q = querydef(req.max_results, req.where, req.sort, version,
+                         last_page)
             _links['last'] = {'title': 'last page', 'href': '%s%s'
                               % (resource_link(), q)}
 
         if req.page > 1:
-            q = querydef(req.max_results, req.where, req.sort, req.page - 1)
+            q = querydef(req.max_results, req.where, req.sort, version,
+                         req.page - 1)
             _links['prev'] = {'title': 'previous page', 'href': '%s%s' %
                               (resource_link(), q)}
 
