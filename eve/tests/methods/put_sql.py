@@ -22,12 +22,14 @@ class TestPutSQL(TestBaseSQL):
 
     def test_unknown_id_different_resource(self):
         # replacing a 'user' with a valid 'contact' id will 404
-        _, status = self.put('%s/%s/' % (self.different_resource, self.unknown_item_id),
+        _, status = self.put('%s/%s/' % (self.different_resource,
+                                         self.unknown_item_id),
                              data={'firstname': 'doug'})
         self.assert404(status)
 
         # of course we can still put a 'user'
-        _, status = self.put('%s/%s/' % (self.different_resource, self.user_id),
+        _, status = self.put('%s/%s/' % (self.different_resource,
+                                         self.user_id),
                              data={'firstname': 'doug'},
                              headers=[('If-Match', self.user_etag)])
         self.assert200(status)
@@ -57,7 +59,8 @@ class TestPutSQL(TestBaseSQL):
                              data={"firstname": "%s" % self.item_firstname},
                              headers=[('If-Match', self.item_etag)])
         self.assertEqual(status, 422)
-        self.assertValidationError(r, {'firstname': "value '%s' is not unique" %
+        self.assertValidationError(r,
+                                   {'firstname': "value '%s' is not unique" %
                                        self.item_firstname})
 
     def test_put_x_www_form_urlencoded(self):
@@ -76,7 +79,8 @@ class TestPutSQL(TestBaseSQL):
         r, status = self.put(self.invoice_id_url, data=data, headers=headers)
         self.assertEqual(status, 422)
         expected = ("value '%s' must exist in resource '%s', field '%s'" %
-                    (self.unknown_item_id, 'people', self.app.config['ID_FIELD']))
+                    (self.unknown_item_id, 'people',
+                     self.app.config['ID_FIELD']))
         self.assertValidationError(r, {'people_id': expected})
 
         data = {"people_id": self.item_id}
@@ -117,7 +121,8 @@ class TestPutSQL(TestBaseSQL):
         _db = self.app.data.driver
 
         # create random person
-        fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        fake_person = self.test_sql_tables.People.\
+            from_tuple(self.random_people(1)[0])
         fake_person._created = datetime.now()
         fake_person._updated = datetime.now()
         _db.session.add(fake_person)
@@ -132,12 +137,14 @@ class TestPutSQL(TestBaseSQL):
         fake_invoice_id = fake_invoice._id
 
         # GET all invoices by new contact
-        response, status = self.get('users/%s/invoices/%s' % (fake_person_id, fake_invoice_id))
+        response, status = self.get('users/%s/invoices/%s' %
+                                    (fake_person_id, fake_invoice_id))
         etag = response[ETAG]
 
         data = {"number": 5}
         headers = [('If-Match', etag)]
-        response, status = self.put('users/%s/invoices/%s' % (fake_person_id, fake_invoice_id),
+        response, status = self.put('users/%s/invoices/%s' %
+                                    (fake_person_id, fake_invoice_id),
                                     data=data, headers=headers)
         self.assert200(status)
         self.assertPutResponse(response, fake_invoice_id)
@@ -171,7 +178,8 @@ class TestPutSQL(TestBaseSQL):
         self.assertEqual(db_value, test_value)
 
     def perform_put(self, changes):
-        r, status = self.put(self.item_id_url, data=changes, headers=[('If-Match', self.item_etag)])
+        r, status = self.put(self.item_id_url, data=changes,
+                             headers=[('If-Match', self.item_etag)])
         self.assert200(status)
         self.assertPutResponse(r, self.item_id)
         return r
@@ -242,14 +250,16 @@ class TestEventsSQL(TestBaseSQL):
         self.app.on_replace += devent
         self.put()
         self.assertEqual(self.known_resource, devent.called[0])
-        self.assertEqual(self.new_person['firstname'], devent.called[1]['firstname'])
+        self.assertEqual(self.new_person['firstname'],
+                         devent.called[1]['firstname'])
         self.assertEqual(3, len(devent.called))
 
     def test_on_replace_people(self):
         devent = DummyEvent(self.before_replace)
         self.app.on_replace_people += devent
         self.put()
-        self.assertEqual(self.new_person['firstname'], devent.called[0]['firstname'])
+        self.assertEqual(self.new_person['firstname'],
+                         devent.called[0]['firstname'])
         self.assertEqual(2, len(devent.called))
 
     def test_on_replaced(self):
@@ -257,14 +267,16 @@ class TestEventsSQL(TestBaseSQL):
         self.app.on_replaced += devent
         self.put()
         self.assertEqual(self.known_resource, devent.called[0])
-        self.assertEqual(self.new_person['firstname'], devent.called[1]['firstname'])
+        self.assertEqual(self.new_person['firstname'],
+                         devent.called[1]['firstname'])
         self.assertEqual(3, len(devent.called))
 
     def test_on_replaced_people(self):
         devent = DummyEvent(self.after_replace)
         self.app.on_replaced_people += devent
         self.put()
-        self.assertEqual(self.new_person['firstname'], devent.called[0]['firstname'])
+        self.assertEqual(self.new_person['firstname'],
+                         devent.called[0]['firstname'])
         self.assertEqual(2, len(devent.called))
 
     def before_replace(self):
@@ -277,7 +289,8 @@ class TestEventsSQL(TestBaseSQL):
         return not self.before_replace()
 
     def put(self):
-        headers = [('Content-Type', 'application/json'), ('If-Match', self.item_etag)]
+        headers = [('Content-Type', 'application/json'),
+                   ('If-Match', self.item_etag)]
         data = json.dumps(self.new_person)
-        return self.test_client.put(self.item_id_url, data=data, headers=headers)
-
+        return self.test_client.put(self.item_id_url, data=data,
+                                    headers=headers)

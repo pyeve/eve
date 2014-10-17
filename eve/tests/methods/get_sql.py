@@ -344,7 +344,8 @@ class TestGetSQL(TestBaseSQL):
         """
         _db = self.app.data.driver
         firstname = 'Douglas'
-        person = self.test_sql_tables.People(firstname=firstname, lastname='Adams', prog=1)
+        person = self.test_sql_tables.People(firstname=firstname,
+                                             lastname='Adams', prog=1)
         _db.session.add(person)
         _db.session.flush()
         where = '{"firstname": "%s"}' % firstname
@@ -360,7 +361,8 @@ class TestGetSQL(TestBaseSQL):
         _db = self.app.data.driver
 
         # create random person
-        fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        fake_person = self.test_sql_tables.People.\
+            from_tuple(self.random_people(1)[0])
         fake_person._created = datetime.now()
         fake_person._updated = datetime.now()
         _db.session.add(fake_person)
@@ -430,7 +432,8 @@ class TestGetSQL(TestBaseSQL):
         _db = self.app.data.driver
 
         # create random person
-        fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        fake_person = self.test_sql_tables.People.\
+            from_tuple(self.random_people(1)[0])
         fake_person._created = datetime.now()
         fake_person._updated = datetime.now()
         _db.session.add(fake_person)
@@ -466,14 +469,16 @@ class TestGetSQL(TestBaseSQL):
 
         # Test that it works
         invoices['embedding'] = True
-        r = self.test_client.get('{0}?embedded={{"people": 1}}'.format(invoices['url']))
+        r = self.test_client.get('{0}?embedded={{"people": 1}}'.
+                                 format(invoices['url']))
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
         self.assertTrue('people' in content['_items'][0].keys())
 
         # Test that it ignores a bogus field
         invoices['embedded_fields'] = ['people', 'not-really']
-        r = self.test_client.get('{0}?embedded={{"people": 1}}'.format(invoices['url']))
+        r = self.test_client.get('{0}?embedded={{"people": 1}}'.
+                                 format(invoices['url']))
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
         self.assertTrue('people' in content['_items'][0].keys())
@@ -501,7 +506,8 @@ class TestGetSQL(TestBaseSQL):
         _db = self.app.data.driver
 
         # create random person
-        fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        fake_person = self.test_sql_tables.People.\
+            from_tuple(self.random_people(1)[0])
         fake_person._created = datetime.now()
         fake_person._updated = datetime.now()
         _db.session.add(fake_person)
@@ -520,7 +526,8 @@ class TestGetSQL(TestBaseSQL):
         self.assertEqual(len(response['_items']), 2)
         self.assertEqual(len(response['_links']), 2)
         # which links to the right contact
-        self.assertEqual(response['_items'][1]['people']['_id'], fake_person._id)
+        self.assertEqual(response['_items'][1]['people']['_id'],
+                         fake_person._id)
 
         _db.session.rollback()
 
@@ -577,7 +584,8 @@ class TestGetItem(TestBaseSQL):
         self.domain[self.known_resource]['additional_lookup'] = {
             'field': 'prog'
         }
-        self.app._add_resource_url_rules(self.known_resource, self.domain[self.known_resource])
+        self.app._add_resource_url_rules(self.known_resource,
+                                         self.domain[self.known_resource])
         response, status = self.get(self.known_resource,
                                     item=1)
         self.assert_item_response(response, status)
@@ -691,7 +699,8 @@ class TestGetItem(TestBaseSQL):
         """
         _db = self.app.data.driver
         firstname = 'Douglas'
-        person = self.test_sql_tables.People(firstname=firstname, lastname='Adams', prog=1)
+        person = self.test_sql_tables.People(firstname=firstname,
+                                             lastname='Adams', prog=1)
         _db.session.add(person)
         _db.session.flush()
         response, status = self.get(self.known_resource, item=firstname)
@@ -703,7 +712,8 @@ class TestGetItem(TestBaseSQL):
         _db = self.app.data.driver
 
         # create random person
-        fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        fake_person = self.test_sql_tables.People.\
+            from_tuple(self.random_people(1)[0])
         _db.session.add(fake_person)
         _db.session.flush()
         fake_person_id = fake_person._id
@@ -716,13 +726,17 @@ class TestGetItem(TestBaseSQL):
 
         # Test that we get 400 if can't parse dict
         embedded = 'not-a-dict'
-        r = self.test_client.get('%s/%s/%s' % (invoices['url'], self.invoice_id, '?embedded=%s' % embedded))
+        r = self.test_client.get('%s/%s/%s' % (invoices['url'],
+                                               self.invoice_id,
+                                               '?embedded=%s' % embedded))
         self.assert400(r.status_code)
 
         # Test that doesn't come embedded if asking for a field that
         # isn't embedded (global setting is True by default)
         embedded = '{"people": 1}'
-        r = self.test_client.get('%s/%s/%s' % (invoices['url'], self.invoice_id, '?embedded=%s' % embedded))
+        r = self.test_client.get('%s/%s/%s' % (invoices['url'],
+                                               self.invoice_id,
+                                               '?embedded=%s' % embedded))
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
         self.assertTrue(content['people_id'], self.item_id)
@@ -780,7 +794,8 @@ class TestGetItem(TestBaseSQL):
         _db = self.app.data.driver
 
         # create random person
-        fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        fake_person = self.test_sql_tables.People.\
+            from_tuple(self.random_people(1)[0])
         fake_person._created = datetime.now()
         fake_person._updated = datetime.now()
         _db.session.add(fake_person)
@@ -793,7 +808,8 @@ class TestGetItem(TestBaseSQL):
         _db.session.flush()
 
         # GET all invoices by new contact
-        response, status = self.get('users/%s/invoices/%s' % (fake_person._id, fake_invoice._id))
+        response, status = self.get('users/%s/invoices/%s' %
+                                    (fake_person._id, fake_invoice._id))
         self.assert200(status)
         self.assertEqual(response['people']['_id'], fake_person._id)
         self.assertEqual(response['_id'], fake_invoice._id)
@@ -917,13 +933,15 @@ class TestEvents(TestBaseSQL):
         self.app.on_fetched_item += self.devent
         self.get_item()
         self.assertEqual('people', self.devent.called[0])
-        self.assertEqual(self.item_id, self.devent.called[1][self.app.config['ID_FIELD']])
+        self.assertEqual(self.item_id,
+                         self.devent.called[1][self.app.config['ID_FIELD']])
         self.assertEqual(2, len(self.devent.called))
 
     def test_on_fetched_item_contacts(self):
         self.app.on_fetched_item_people += self.devent
         self.get_item()
-        self.assertEqual(self.item_id, self.devent.called[0][self.app.config['ID_FIELD']])
+        self.assertEqual(self.item_id,
+                         self.devent.called[0][self.app.config['ID_FIELD']])
         self.assertEqual(1, len(self.devent.called))
 
     def get_item(self, url=None):

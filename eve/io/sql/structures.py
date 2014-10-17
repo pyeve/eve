@@ -4,8 +4,8 @@
     eve.io.sql.structures
     ~~~~~~~~~~~~
 
-    These classes provide a middle layer to transform a SQLAlchemy query into a series of object
-    that Eve understands and can be rendered as JSON.
+    These classes provide a middle layer to transform a SQLAlchemy query into
+    a series of object that Eve understands and can be rendered as JSON.
 
 """
 
@@ -19,20 +19,23 @@ object_mapper = flask_sqlalchemy.sqlalchemy.orm.object_mapper
 
 class SQLAResult(collections.MutableMapping):
     """
-    Represents a particular item to be returned by Eve. Eve expects a dictionary while SQLAlchemy gives us
-    an object. This class provides an interface between the two requirements.
+    Represents a particular item to be returned by Eve. Eve expects a
+    dictionary while SQLAlchemy gives us an object. This class provides an
+    interface between the two requirements.
 
     :param result: the item to be rendered, as a SQLAlchemy object
     :param fields: the fields to be rendered, as a list of strings
     """
     def __init__(self, result, fields):
         self._result = result
-        self._fields = [field for field in fields if getattr(self._result, field, None) is not None]
+        self._fields = [field for field in fields
+                        if getattr(self._result, field, None) is not None]
         if config.LAST_UPDATED not in self._fields:
             self._fields.append(config.LAST_UPDATED)
         if config.DATE_CREATED not in self._fields:
             self._fields.append(config.DATE_CREATED)
-        if config.ETAG not in self._fields and getattr(config, 'IF_MATCH', True):
+        if config.ETAG not in self._fields \
+                and getattr(config, 'IF_MATCH', True):
             self._fields.append(config.ETAG)
 
     def __getitem__(self, key):
@@ -73,7 +76,8 @@ class SQLAResult(collections.MutableMapping):
 
 class SQLAResultCollection(object):
     """
-    Collection of results. The object holds onto a Flask-SQLAlchemy query object and serves a generator off it.
+    Collection of results. The object holds onto a Flask-SQLAlchemy query
+    object and serves a generator off it.
 
     :param query: Base SQLAlchemy query object for the requested resource
     :param fields: fields to be rendered in the response, as a list of strings
@@ -94,13 +98,14 @@ class SQLAResultCollection(object):
         if self._sort:
             self._query = self._query.order_by(*self._sort)
 
-        # save the count of items to an internal variables before applying the limit to the query as
-        # that screws the count returned by it
+        # save the count of items to an internal variables before applying the
+        # limit to the query as that screws the count returned by it
         self._count = self._query.count()
         if self._max_results:
             self._query = self._query.limit(self._max_results)
             if self._page:
-                self._query = self._query.offset((self._page - 1) * self._max_results)
+                self._query = self._query.offset((self._page - 1) *
+                                                 self._max_results)
 
     def __iter__(self):
         for i in self._query:

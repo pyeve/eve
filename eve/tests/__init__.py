@@ -530,13 +530,15 @@ class TestBase(TestMinimal):
 
 
 class TestBaseSQL(TestMinimal):
-    from eve.tests import test_sql_tables; test_sql_tables
+    from eve.tests import test_sql_tables
+    test_sql_tables
 
     def setUp(self, settings_file=None, url_converters=None):
         self.connection = None
         self.known_resource_count = 101
         self.this_directory = os.path.dirname(os.path.realpath(__file__))
-        self.settings_file = os.path.join(self.this_directory, 'test_settings_sql.py')
+        self.settings_file = os.path.join(self.this_directory,
+                                          'test_settings_sql.py')
         self.app = eve.Eve(settings=self.settings_file,
                            url_converters=url_converters,
                            data=SQL,
@@ -547,12 +549,15 @@ class TestBaseSQL(TestMinimal):
         self.setupDB()
 
         self.known_resource = 'people'
-        self.known_resource_url = ('/%s' % self.domain[self.known_resource]['url'])
+        self.known_resource_url = \
+            ('/%s' % self.domain[self.known_resource]['url'])
         self.unknown_resource = 'unknown'
         self.unknown_resource_url = '/%s' % self.unknown_resource
         self.unknown_item_id = '83542635967'
         self.unknown_item_name = 'unknown'
-        self.unknown_item_id_url = ('/%s/%s' % (self.domain[self.known_resource]['url'], self.unknown_item_id))
+        self.unknown_item_id_url = \
+            ('/%s/%s' % (self.domain[self.known_resource]['url'],
+                         self.unknown_item_id))
         response, _ = self.get(self.known_resource, '?max_results=2')
         person = self.response_item(response)
         self.item = person
@@ -567,7 +572,8 @@ class TestBaseSQL(TestMinimal):
         self.empty_resource_url = '/%s' % self.empty_resource
 
         self.different_resource = 'users'
-        self.different_resource_url = ('/%s' % self.domain[self.different_resource]['url'])
+        self.different_resource_url = \
+            ('/%s' % self.domain[self.different_resource]['url'])
 
         response, _ = self.get('users')
         user = self.response_item(response)
@@ -577,13 +583,16 @@ class TestBaseSQL(TestMinimal):
         self.user_id_url = ('/%s/%s' %
                             (self.domain[self.different_resource]['url'],
                              self.user_id))
-        self.user_firstname_url = ('/%s/%s' % (self.domain[self.different_resource]['url'], self.user_firstname))
+        self.user_firstname_url = \
+            ('/%s/%s' % (self.domain[self.different_resource]['url'],
+                         self.user_firstname))
 
         response, _ = self.get('invoices')
         invoice = self.response_item(response)
         self.invoice_id = invoice[self.app.config['ID_FIELD']]
         self.invoice_etag = invoice[ETAG]
-        self.invoice_id_url = ('/%s/%s' % (self.domain['invoices']['url'], self.invoice_id))
+        self.invoice_id_url = ('/%s/%s' % (self.domain['invoices']['url'],
+                                           self.invoice_id))
 
         self.readonly_resource = 'payments'
         self.readonly_resource_url = (
@@ -625,7 +634,8 @@ class TestBaseSQL(TestMinimal):
 
             # load random payments
             for _ in range(10):
-                payment = sql_tables.Payments(number=random.randint(0, 100), string=self.random_string(6))
+                payment = sql_tables.Payments(number=random.randint(0, 100),
+                                              string=self.random_string(6))
                 dt = datetime.now()
                 payment._created = dt
                 payment._updated = dt
@@ -633,7 +643,8 @@ class TestBaseSQL(TestMinimal):
             self.connection.session.commit()
 
     def random_string(self, length=6):
-        return ''.join(random.choice(string.ascii_lowercase) for _ in range(length)).capitalize()
+        return ''.join(random.choice(string.ascii_lowercase)
+                       for _ in range(length)).capitalize()
 
     def random_people(self, num):
         people = []
