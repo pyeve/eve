@@ -14,7 +14,6 @@
 """
 
 from cerberus import Validator
-from bson import ObjectId
 from eve.utils import config
 from flask import current_app as app
 from eve.versioning import get_data_version_relation_document, missing_version_field
@@ -30,8 +29,9 @@ class ValidatorSQL(Validator):
         self._id = None
         super(ValidatorSQL, self).__init__(schema, transparent_schema_rules=True, allow_unknown=False)
 
-    def validate_update(self, document, _id):
+    def validate_update(self, document, _id, original_document=None):
         self._id = _id
+        self._original_document = original_document
         return super(ValidatorSQL, self).validate_update(document)
 
     def validate_replace(self, document, _id):
