@@ -267,7 +267,7 @@ def document_etag(value):
     try:
         h.update(dumps(value, sort_keys=True, cls=app.data.json_encoder_class).encode('utf-8'))
     except RuntimeError: # in some cases we don't have app initialized
-        h.update(dumps(value, sort_keys=True))
+        h.update(dumps(value, sort_keys=True).encode('utf-8'))
     return h.hexdigest()
 
 
