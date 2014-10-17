@@ -1,6 +1,6 @@
 import simplejson as json
 import random
-from unittest import skip
+#from unittest import skip
 from sqlalchemy.schema import ColumnDefault
 
 from eve.tests import TestBaseSQL
@@ -164,21 +164,21 @@ class TestPostSQL(TestBaseSQL):
         self.assertEqual(status, 422)
         self.assertTrue('report' in r and STATUS not in r)
 
-    @skip('Custom etag updated not supported')
-    def test_custom_etag_update_date(self):
-        self.app.config['ETAG'] = '_myetag'
-        r, status = self.post(self.known_resource_url,
-                              data={"ref": "1234567890123456789054321"})
-        self.assert201(status)
-        self.assertTrue('_myetag' in r and ETAG not in r)
+#    @skip('Custom etag updated not supported')
+#    def test_custom_etag_update_date(self):
+#        self.app.config['ETAG'] = '_myetag'
+#        r, status = self.post(self.known_resource_url,
+#                              data={"ref": "1234567890123456789054321"})
+#        self.assert201(status)
+#        self.assertTrue('_myetag' in r and ETAG not in r)
 
-    @skip('Custom date updated not supported')
-    def test_custom_date_updated(self):
-        self.app.config['LAST_UPDATED'] = '_update_date'
-        r, status = self.post(self.known_resource_url,
-                              data={"ref": "1234567890123456789054321"})
-        self.assert201(status)
-        self.assertTrue('_update_date' in r and LAST_UPDATED not in r)
+#    @skip('Custom date updated not supported')
+#    def test_custom_date_updated(self):
+#        self.app.config['LAST_UPDATED'] = '_update_date'
+#        r, status = self.post(self.known_resource_url,
+#                              data={"ref": "1234567890123456789054321"})
+#        self.assert201(status)
+#        self.assertTrue('_update_date' in r and LAST_UPDATED not in r)
 
     def test_post_ifmatch_disabled(self):
         # if IF_MATCH is disabled, then we get no etag in the payload.
@@ -189,27 +189,27 @@ class TestPostSQL(TestBaseSQL):
         r, status = self.post(self.known_resource_url, data=data)
         self.assertTrue(ETAG not in r)
 
-    @skip('Custom ID_FIELD not supported')
-    def test_post_custom_idfield(self):
-        # test that we can post a document with a custom id_field
-        id_field = 'id'
-        test_value = '1234'
-        data = {id_field: test_value}
-
-        self.app.config['ID_FIELD'] = id_field
-
-        # custom id_fields also need to be included in the resource schema
-        self.domain['contacts']['schema'][id_field] = {
-            'type': 'string',
-            'required': True,
-            'unique': True
-        }
-        del(self.domain['contacts']['schema']['ref']['required'])
-
-        r, status = self.post(self.known_resource_url, data=data)
-        self.assert201(status)
-        self.assertTrue(id_field in r)
-        self.assertItemLink(r['_links'], r[id_field])
+#    @skip('Custom ID_FIELD not supported')
+#    def test_post_custom_idfield(self):
+#        # test that we can post a document with a custom id_field
+#        id_field = 'id'
+#        test_value = '1234'
+#        data = {id_field: test_value}
+#
+#        self.app.config['ID_FIELD'] = id_field
+#
+#        # custom id_fields also need to be included in the resource schema
+#        self.domain['contacts']['schema'][id_field] = {
+#            'type': 'string',
+#            'required': True,
+#            'unique': True
+#        }
+#        del(self.domain['contacts']['schema']['ref']['required'])
+#
+#        r, status = self.post(self.known_resource_url, data=data)
+#        self.assert201(status)
+#        self.assertTrue(id_field in r)
+#        self.assertItemLink(r['_links'], r[id_field])
 
     def test_post_bandwidth_saver(self):
         data = {'number': random.randint(1000, 10000)}
