@@ -23,18 +23,21 @@ class TestPatch(TestBaseSQL):
 
     def test_unknown_id_different_resource(self):
         # replacing a 'user' with a valid 'contact' id will 404
-        _, status = self.patch('%s/%s/' % (self.different_resource, self.unknown_item_id),
+        _, status = self.patch('%s/%s/' % (self.different_resource,
+                                           self.unknown_item_id),
                                data={'firstname': 'doug'})
         self.assert404(status)
 
         # of course we can still put a 'user'
-        _, status = self.patch('%s/%s/' % (self.different_resource, self.user_id),
+        _, status = self.patch('%s/%s/' % (self.different_resource,
+                                           self.user_id),
                                data={'firstname': 'doug'},
                                headers=[('If-Match', self.user_etag)])
         self.assert200(status)
 
     def test_by_name(self):
-        _, status = self.patch(self.user_firstname_url, data={'key1': 'value1'})
+        _, status = self.patch(self.user_firstname_url,
+                               data={'key1': 'value1'})
         self.assert405(status)
 
     def test_ifmatch_missing(self):
@@ -58,7 +61,8 @@ class TestPatch(TestBaseSQL):
                                data={"firstname": "%s" % self.item_firstname},
                                headers=[('If-Match', self.item_etag)])
         self.assertEqual(status, 422)
-        self.assertValidationError(r, {'firstname': "value '%s' is not unique" %
+        self.assertValidationError(r,
+                                   {'firstname': "value '%s' is not unique" %
                                        self.item_firstname})
 
     def test_patch_string(self):
@@ -114,7 +118,9 @@ class TestPatch(TestBaseSQL):
         self.assert200(r.status_code)
 
     def perform_patch(self, changes):
-        r, status = self.patch(self.item_id_url, data=changes, headers=[('If-Match', self.item_etag)])
+        r, status = self.patch(self.item_id_url,
+                               data=changes,
+                               headers=[('If-Match', self.item_etag)])
         self.assert200(status)
         self.assertPatchResponse(r, self.item_id)
         return r
@@ -139,7 +145,9 @@ class TestPatch(TestBaseSQL):
 
     def test_patch_allow_unknown(self):
         changes = {"unknown": "unknown"}
-        r, status = self.patch(self.item_id_url, data=changes, headers=[('If-Match', self.item_etag)])
+        r, status = self.patch(self.item_id_url,
+                               data=changes,
+                               headers=[('If-Match', self.item_etag)])
         self.assertEqual(status, 422)
         self.assertValidationError(r, {'unknown': 'unknown field'})
 
@@ -148,7 +156,9 @@ class TestPatch(TestBaseSQL):
         test_value = 'Douglas'
         changes = {field: test_value}
         headers = [('If-Match', self.item_etag)]
-        r, status = self.parse_response(self.test_client.patch(self.item_id_url, data=changes, headers=headers))
+        r, status = self.parse_response(self.test_client.
+                                        patch(self.item_id_url, data=changes,
+                                              headers=headers))
         self.assert200(status)
         self.assertTrue('OK' in r[STATUS])
 
@@ -175,7 +185,9 @@ class TestPatch(TestBaseSQL):
         # values.
         _db = self.app.data.driver
         firstname = 'Douglas'
-        person = self.test_sql_tables.People(firstname=firstname, lastname='Adams', prog=1)
+        person = self.test_sql_tables.People(firstname=firstname,
+                                             lastname='Adams',
+                                             prog=1)
         _db.session.add(person)
         _db.session.commit()
 
@@ -198,7 +210,8 @@ class TestPatch(TestBaseSQL):
         _db = self.app.data.driver
 
         # create random person
-        fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        fake_person = self.test_sql_tables.People.\
+            from_tuple(self.random_people(1)[0])
         fake_person._created = datetime.now()
         fake_person._updated = datetime.now()
         _db.session.add(fake_person)
@@ -213,12 +226,14 @@ class TestPatch(TestBaseSQL):
         fake_invoice_id = fake_invoice._id
 
         # GET all invoices by new contact
-        response, status = self.get('users/%s/invoices/%s' % (fake_person_id, fake_invoice_id))
+        response, status = self.get('users/%s/invoices/%s' %
+                                    (fake_person_id, fake_invoice_id))
         etag = response[ETAG]
 
         data = {"number": 5}
         headers = [('If-Match', etag)]
-        response, status = self.patch('users/%s/invoices/%s' % (fake_person_id, fake_invoice_id),
+        response, status = self.patch('users/%s/invoices/%s' %
+                                      (fake_person_id, fake_invoice_id),
                                       data=data, headers=headers)
         self.assert200(status)
         self.assertPatchResponse(response, fake_invoice_id)
@@ -335,6 +350,8 @@ class TestEvents(TestBaseSQL):
         return not self.before_update()
 
     def patch(self):
-        headers = [('Content-Type', 'application/json'), ('If-Match', self.item_etag)]
+        headers = [('Content-Type', 'application/json'),
+                   ('If-Match', self.item_etag)]
         data = json.dumps(self.new_person)
-        return self.test_client.patch(self.item_id_url, data=data, headers=headers)
+        return self.test_client.patch(self.item_id_url, data=data,
+                                      headers=headers)

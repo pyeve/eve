@@ -257,7 +257,8 @@ def last_updated(document):
 
     .. versionadded:: 0.0.5
     """
-    if config.LAST_UPDATED in document and document[config.LAST_UPDATED] is not None:
+    if config.LAST_UPDATED in document and document[config.LAST_UPDATED] \
+            is not None:
         return document[config.LAST_UPDATED].replace(tzinfo=None)
     else:
         return epoch()
@@ -276,7 +277,8 @@ def date_created(document):
 
     .. versionadded:: 0.0.5
     """
-    if config.DATE_CREATED in document and document[config.DATE_CREATED] is not None:
+    if config.DATE_CREATED in document and document[config.DATE_CREATED] \
+            is not None:
         return document[config.DATE_CREATED]
     else:
         return epoch()

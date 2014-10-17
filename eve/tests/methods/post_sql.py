@@ -1,6 +1,6 @@
 import simplejson as json
 import random
-#from unittest import skip
+# from unittest import skip
 from sqlalchemy.schema import ColumnDefault
 
 from eve.tests import TestBaseSQL
@@ -54,22 +54,28 @@ class TestPostSQL(TestBaseSQL):
         self.assertPostItem(data, test_field, test_value)
 
     def test_post_default_value_empty_string(self):
-        old_default = self.test_sql_tables.People.title.property.columns[0].default
+        old_default = self.test_sql_tables.People.title.\
+            property.columns[0].default
         new_default = ColumnDefault('')
-        new_default.column = self.test_sql_tables.People.title.property.columns[0]
-        self.test_sql_tables.People.title.property.columns[0].default = new_default
+        new_default.column = self.test_sql_tables.People.title.\
+            property.columns[0]
+        self.test_sql_tables.People.title.property.\
+            columns[0].default = new_default
         title = self.domain['people']['schema']['title']
         title['default'] = ''
         self.app.set_defaults()
         data = {'firstname': 'Douglas'}
         self.assertPostItem(data, 'title', '')
         # reset default
-        self.test_sql_tables.People.title.property.columns[0].default = old_default
+        self.test_sql_tables.People.title.property.\
+            columns[0].default = old_default
 
     def test_post_default_value_0(self):
         new_default = ColumnDefault(0)
-        new_default.column = self.test_sql_tables.People.prog.property.columns[0]
-        self.test_sql_tables.People.prog.property.columns[0].default = new_default
+        new_default.column = self.test_sql_tables.People.prog.\
+            property.columns[0]
+        self.test_sql_tables.People.prog.property.\
+            columns[0].default = new_default
         prog = self.domain['people']['schema']['prog']
         prog['default'] = 0
         self.app.set_defaults()
@@ -97,7 +103,8 @@ class TestPostSQL(TestBaseSQL):
         self.assertTrue(ID_FIELD not in results[1])
 
         # items on which validation failed should not be inserted into the db
-        _, status = self.get(self.known_resource_url, 'where=lastname=="Adams"')
+        _, status = self.get(self.known_resource_url,
+                             'where=lastname=="Adams"')
         self.assert404(status)
 
         # valid items part of a request containing invalid document should not
@@ -260,7 +267,8 @@ class TestPostSQL(TestBaseSQL):
             self.assertTrue(ETAG in item)
 
     def compare_post_with_get(self, item_id, fields):
-        raw_r = self.test_client.get("%s/%s" % (self.known_resource_url, item_id))
+        raw_r = self.test_client.get("%s/%s" % (self.known_resource_url,
+                                                item_id))
         item, status = self.parse_response(raw_r)
         self.assert200(status)
         self.assertTrue(ID_FIELD in item)
@@ -311,37 +319,42 @@ class TestEventsSQL(TestBaseSQL):
         self.app.on_insert += devent
         self.post()
         self.assertEqual(self.known_resource, devent.called[0])
-        self.assertEqual(self.new_person['firstname'], devent.called[1][0]['firstname'])
+        self.assertEqual(self.new_person['firstname'],
+                         devent.called[1][0]['firstname'])
 
     def test_on_insert_people(self):
         devent = DummyEvent(self.before_insert, True)
         self.app.on_insert_people += devent
         self.post()
-        self.assertEqual(self.new_person['firstname'], devent.called[0][0]['firstname'])
+        self.assertEqual(self.new_person['firstname'],
+                         devent.called[0][0]['firstname'])
 
     def test_on_inserted(self):
         devent = DummyEvent(self.after_insert, True)
         self.app.on_inserted += devent
         self.post()
         self.assertEqual(self.known_resource, devent.called[0])
-        self.assertEqual(self.new_person['firstname'], devent.called[1][0]['firstname'])
+        self.assertEqual(self.new_person['firstname'],
+                         devent.called[1][0]['firstname'])
 
     def test_on_inserted_people(self):
         devent = DummyEvent(self.after_insert, True)
         self.app.on_inserted_people += devent
         self.post()
-        self.assertEqual(self.new_person['firstname'], devent.called[0][0]['firstname'])
+        self.assertEqual(self.new_person['firstname'],
+                         devent.called[0][0]['firstname'])
 
     def post(self):
         headers = [('Content-Type', 'application/json')]
         data = json.dumps(self.new_person)
-        self.test_client.post(self.known_resource_url, data=data, headers=headers)
+        self.test_client.post(self.known_resource_url, data=data,
+                              headers=headers)
 
     def before_insert(self):
         _db = self.app.data.driver
         query = _db.session.query(self.test_sql_tables.People)
-        return query.filter_by(firstname=self.new_person['firstname']).first() is None
+        return query.filter_by(firstname=self.new_person['firstname']).\
+            first() is None
 
     def after_insert(self):
         return not self.before_insert()
-

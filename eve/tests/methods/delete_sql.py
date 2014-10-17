@@ -98,7 +98,8 @@ class TestDeleteSQL(TestBaseSQL):
         _db = self.app.data.driver
 
         # create random person
-        fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        fake_person = self.test_sql_tables.People.\
+            from_tuple(self.random_people(1)[0])
         fake_person._created = datetime.now()
         fake_person._updated = datetime.now()
         _db.session.add(fake_person)
@@ -141,7 +142,8 @@ class TestDeleteSQL(TestBaseSQL):
         _db = self.app.data.driver
 
         # create random person
-        fake_person = self.test_sql_tables.People.from_tuple(self.random_people(1)[0])
+        fake_person = self.test_sql_tables.People.\
+            from_tuple(self.random_people(1)[0])
         fake_person._created = datetime.now()
         fake_person._updated = datetime.now()
         _db.session.add(fake_person)
@@ -293,8 +295,8 @@ class TestDeleteEvents(TestBaseSQL):
 
     def before_delete(self):
         db = self.connection.session
-        return db.query(self.test_sql_tables.People).get(self.item_id) is not None
+        return db.query(self.test_sql_tables.People).\
+            get(self.item_id) is not None
 
     def after_delete(self):
         return not self.before_delete()
-

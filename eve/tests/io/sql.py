@@ -88,7 +88,8 @@ class TestSQLParser(TestCase):
         self.assertTrue(expected_expression.compare(r[0].clauses[1]))
 
     def test_nested_bool_op(self):
-        r = parse('firstname == "john" or (prog == 5 and lastname == "smith")', self.model)
+        r = parse('firstname == "john" or (prog == 5 and lastname == "smith")',
+                  self.model)
         self.assertEqual(type(r), list)
         self.assertEqual(type(r[0]), BooleanClauseList)
         self.assertEqual(r[0].operator, or_)
@@ -112,7 +113,9 @@ class TestSQLParser(TestCase):
         self.assertRaises(ParseError, parse, 'firstname | "john"', self.model)
 
     def test_parse_string_to_date(self):
-        expected_expression = sqla_op.gt(self.model._updated, str_to_date('Sun, 06 Nov 1994 08:49:37 GMT'))
+        expected_expression = \
+            sqla_op.gt(self.model._updated,
+                       str_to_date('Sun, 06 Nov 1994 08:49:37 GMT'))
         r = parse('_updated > "Sun, 06 Nov 1994 08:49:37 GMT"', self.model)
         self.assertEqual(type(r), list)
         self.assertTrue(len(r) == 1)
@@ -134,9 +137,11 @@ class TestSQLStructures(TestCase):
 
     def setUp(self):
         self.person = People(firstname='douglas', lastname='adams', prog=5,
-                _id=1, _updated=datetime.now(), _created=datetime.now())
+                             _id=1, _updated=datetime.now(),
+                             _created=datetime.now())
 
-        self.fields = ['_id', '_updated', '_created', 'firstname', 'lastname', 'prog', '_etag']
+        self.fields = ['_id', '_updated', '_created', 'firstname', 'lastname',
+                       'prog', '_etag']
         self.known_resource_count = 101
         self.max_results = 25
 
@@ -166,7 +171,8 @@ class TestSQLStructures(TestCase):
 
     def test_sql_collection_pagination(self):
         self.setupDB()
-        c = SQLAResultCollection(self.query, self.fields, max_results=self.max_results)
+        c = SQLAResultCollection(self.query, self.fields,
+                                 max_results=self.max_results)
         self.assertEqual(c.count(), self.known_resource_count)
         results = [p for p in c]
         self.assertEqual(len(results), self.max_results)
@@ -174,7 +180,8 @@ class TestSQLStructures(TestCase):
 
     def setupDB(self):
         self.this_directory = os.path.dirname(os.path.realpath(__file__))
-        self.settings_file = os.path.join(self.this_directory, '../test_settings_sql.py')
+        self.settings_file = os.path.join(self.this_directory,
+                                          '../test_settings_sql.py')
         self.app = eve.Eve(settings=self.settings_file, data=SQL)
         self.connection = SQL.driver
         self.connection.drop_all()
@@ -192,7 +199,8 @@ class TestSQLStructures(TestCase):
             self.connection.session.commit()
 
     def random_string(self, length=6):
-        return ''.join(random.choice(string.ascii_lowercase) for _ in range(length)).capitalize()
+        return ''.join(random.choice(string.ascii_lowercase)
+                       for _ in range(length)).capitalize()
 
     def random_people(self, num):
         people = []
@@ -236,4 +244,3 @@ class TestSQLStructures(TestCase):
 #         schema = {'a_field': {'type': 'string'}}
 #         v = Validator(schema)
 #         self.assertTrue(v.transparent_schema_rules, True)
-

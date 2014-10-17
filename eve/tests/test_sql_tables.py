@@ -18,16 +18,19 @@ db.Model = Base
 
 class CommonColumns(Base):
     """
-    Master SQLAlchemy Model. All the SQL tables defined for the application should inherit from this class.
-    It provides common columns such as _created, _updated and _id.
+    Master SQLAlchemy Model. All the SQL tables defined for the application
+    should inherit from this class. It provides common columns such as
+    _created, _updated and _id.
 
-    WARNING: the _id column name does not respect Eve's setting for custom ID_FIELD.
+    WARNING: the _id column name does not respect Eve's setting for custom
+    ID_FIELD.
     """
     __abstract__ = True
     _created = Column(DateTime)
     _updated = Column(DateTime)
     _etag = Column(String)
-    _id = Column(Integer, primary_key=True)  # TODO: make this comply to Eve's custom ID_FIELD setting
+    # TODO: make this comply to Eve's custom ID_FIELD setting
+    _id = Column(Integer, primary_key=True)
 
     def __init__(self, *args, **kwargs):
         h = hashlib.sha1()
@@ -37,9 +40,9 @@ class CommonColumns(Base):
     def jsonify(self):
         relationships = inspect(self.__class__).relationships.keys()
         mapper = inspect(self)
-        attrs = [a.key for a in mapper.attrs if \
-                a.key not in relationships \
-                and not a.key in mapper.expired_attributes]
+        attrs = [a.key for a in mapper.attrs if
+                 a.key not in relationships
+                 and a.key not in mapper.expired_attributes]
         return dict([(c, getattr(self, c, None)) for c in attrs])
 
 

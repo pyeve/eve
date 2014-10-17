@@ -29,7 +29,8 @@ class ParseError(ValueError):
 
 def parse_dictionary(filter_dict, model, ilike=False):
     """
-    Parse a dictionary into a list of SQLAlchemy BinaryExpressions to be used in query filters.
+    Parse a dictionary into a list of SQLAlchemy BinaryExpressions to be used
+    in query filters.
 
     :param filter_dict: Dictionary to convert
     :param model: SQLAlchemy model class used to create the BinaryExpressions
@@ -44,15 +45,17 @@ def parse_dictionary(filter_dict, model, ilike=False):
         if isinstance(attr, AssociationProxy):
             conditions.append(attr.contains(v))
         else:
-            if hasattr(attr.property, 'remote_side'): # a relation
+            if hasattr(attr.property, 'remote_side'):  # a relation
                 for fk in attr.property.remote_side:
                     conditions.append(sqla_op.eq(fk, v))
             else:
                 column = attr.property.columns[0]
                 if isinstance(v, list):
                     conditions.append(getattr(model, k).in_(v))
-                elif ilike and isinstance(column.type, String) and not column.foreign_keys:
-                    conditions.append(getattr(model, k).ilike('%{0}%'.format(v)))
+                elif ilike and isinstance(column.type, String) \
+                        and not column.foreign_keys:
+                    conditions.append(getattr(model, k)
+                                      .ilike('%{0}%'.format(v)))
                 else:
                     conditions.append(sqla_op.eq(getattr(model, k), v))
 

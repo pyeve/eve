@@ -35,6 +35,7 @@ except NameError:
     # Python 3
     string_type = str
 
+
 class SQLAJSONDecoder(json.JSONDecoder):
     def decode(self, s):
         # Turn RFC-1123 strings into datetime values.
@@ -48,7 +49,7 @@ class SQLAJSONDecoder(json.JSONDecoder):
 
 class SQLAJSONEncoder(BaseJSONEncoder):
     def default(self, obj):
-        if hasattr(obj, 'jsonify'): # probably relationship
+        if hasattr(obj, 'jsonify'):  # probably relationship
             return obj.jsonify()
         return super(SQLAJSONEncoder, self).default(obj)
 
@@ -64,7 +65,9 @@ class SQL(DataLayer):
 
     def init_app(self, app):
         try:
-            self.driver = db  # FIXME: dumb double initialisation of the driver because Eve sets it to None in __init__
+            # FIXME: dumb double initialisation of the
+            # driver because Eve sets it to None in __init__
+            self.driver = db
             self.driver.app = app
             self.driver.init_app(app)
         except Exception as e:
@@ -83,10 +86,12 @@ class SQL(DataLayer):
     def register_schema(cls, app, model_name=None):
         """Register eve schema for SQLAlchemy model(s)
         :param app: Flask application instance.
-        :param model_name: Name of SQLAlchemy model (register all models if not provided)
+        :param model_name: Name of SQLAlchemy model
+            (register all models if not provided)
         """
         if model_name:
-            models = {model_name.capitalize(): cls.driver.Model._decl_class_registry[model_name.capitalize()]}
+            models = {model_name.capitalize(): cls.driver.
+                      Model._decl_class_registry[model_name.capitalize()]}
         else:
             models = cls.driver.Model._decl_class_registry
 
@@ -130,14 +135,22 @@ class SQL(DataLayer):
 
         client_projection = self._client_projection(req)
         client_embedded = self._client_embedded(req)
-        model, args['spec'], fields, args['sort'] = self._datasource_ex(resource, [], client_projection, args['sort'], client_embedded)
+        model, args['spec'], fields, args['sort'] = \
+            self._datasource_ex(resource, [], client_projection,
+                                args['sort'], client_embedded)
         if req.where:
             try:
                 try:
                     spec = json.loads(req.where)
-                    args['spec'] = self.combine_queries(args['spec'], parse_dictionary(spec, model, ilike=True))
+                    args['spec'] = \
+                        self.combine_queries(args['spec'],
+                                             parse_dictionary(spec,
+                                                              model,
+                                                              ilike=True))
                 except (AttributeError, TypeError):
-                    args['spec'] = self.combine_queries(args['spec'], parse(req.where, model))
+                    args['spec'] = self.combine_queries(args['spec'],
+                                                        parse(req.where,
+                                                              model))
             except ParseError:
                 abort(400)
 
@@ -146,10 +159,14 @@ class SQL(DataLayer):
             abort(400, bad_filter)
 
         if sub_resource_lookup:
-            args['spec'] = self.combine_queries(args['spec'], parse_dictionary(sub_resource_lookup, model))
+            args['spec'] = \
+                self.combine_queries(args['spec'],
+                                     parse_dictionary(sub_resource_lookup,
+                                                      model))
 
         if req.if_modified_since:
-            updated_filter = sqla_op.gt(getattr(model, config.LAST_UPDATED), req.if_modified_since)
+            updated_filter = sqla_op.gt(getattr(model, config.LAST_UPDATED),
+                                        req.if_modified_since)
             args['spec'].append(updated_filter)
 
         query = self.driver.session.query(model)
@@ -157,13 +174,17 @@ class SQL(DataLayer):
         if args['sort']:
             ql = []
             for sort_item in args['sort']:
-                if '.' in sort_item[0]: # sort by related mapper class
+                if '.' in sort_item[0]:  # sort by related mapper class
                     rel, sort_attr = sort_item[0].split('.')
                     rel_class = getattr(model, rel).property.mapper.class_
                     query = query.outerjoin(rel_class)
-                    ql.append(getattr(rel_class, sort_attr) if sort_item[1] == 1 else getattr(rel_class, sort_attr).desc())
+                    ql.append(getattr(rel_class, sort_attr)
+                              if sort_item[1] == 1
+                              else getattr(rel_class, sort_attr).desc())
                 else:
-                    ql.append(getattr(model, sort_item[0]) if sort_item[1] == 1 else getattr(model, sort_item[0]).desc())
+                    ql.append(getattr(model, sort_item[0])
+                              if sort_item[1] == 1
+                              else getattr(model, sort_item[0]).desc())
             args['sort'] = ql
 
         if req.max_results:
@@ -176,7 +197,9 @@ class SQL(DataLayer):
     def find_one(self, resource, req, **lookup):
         client_projection = self._client_projection(req)
         client_embedded = self._client_embedded(req)
-        model, filter_, fields, _ = self._datasource_ex(resource, [], client_projection, None, client_embedded)
+        model, filter_, fields, _ = \
+            self._datasource_ex(resource, [], client_projection, None,
+                                client_embedded)
 
         if hasattr(lookup.get(config.ID_FIELD), '_sa_instance_state') \
                 or isinstance(lookup.get(config.ID_FIELD), InstrumentedList):
@@ -184,7 +207,8 @@ class SQL(DataLayer):
             # that commes from embeddable parameter
             return
         else:
-            filter_ = self.combine_queries(filter_, parse_dictionary(lookup, model))
+            filter_ = self.combine_queries(filter_,
+                                           parse_dictionary(lookup, model))
             query = self.driver.session.query(model)
             document = query.filter(*filter_).first()
 
@@ -211,7 +235,9 @@ class SQL(DataLayer):
 
     def replace(self, resource, id_, document):
         model, filter_, fields_, _ = self._datasource_ex(resource, [])
-        filter_ = self.combine_queries(filter_, parse_dictionary({'_id': id_}, model))  # TODO: respect eve ID_FIELD
+        # TODO: respect eve ID_FIELD
+        filter_ = self.combine_queries(filter_,
+                                       parse_dictionary({'_id': id_}, model))
         query = self.driver.session.query(model)
 
         # Find and delete the old object
@@ -229,7 +255,9 @@ class SQL(DataLayer):
 
     def update(self, resource, id_, updates):
         model, filter_, _, _ = self._datasource_ex(resource, [])
-        filter_ = self.combine_queries(filter_, parse_dictionary({'_id': id_}, model))  # TODO: respect eve ID_FIELD
+        # TODO: respect eve ID_FIELD
+        filter_ = self.combine_queries(filter_,
+                                       parse_dictionary({'_id': id_}, model))
         query = self.driver.session.query(model)
         model_instance = query.filter(*filter_).first()
         if model_instance is None:
@@ -240,7 +268,8 @@ class SQL(DataLayer):
 
     def remove(self, resource, lookup):
         model, filter_, _, _ = self._datasource_ex(resource, [])
-        filter_ = self.combine_queries(filter_, parse_dictionary(lookup, model))
+        filter_ = self.combine_queries(filter_,
+                                       parse_dictionary(lookup, model))
         query = self.driver.session.query(model)
         if len(filter_):
             query = query.filter(*filter_)
@@ -259,8 +288,8 @@ class SQL(DataLayer):
     def _datasource(self, resource):
         """
         Overridden from super to return the actual model class of the database
-        table instead of the name of it. We also parse the filter coming from the schema definition into
-        a SQL compatible filter
+        table instead of the name of it. We also parse the filter coming from
+        the schema definition into a SQL compatible filter
         """
         model = self._model(resource)
 
@@ -278,9 +307,11 @@ class SQL(DataLayer):
 
         return model, filter_, projection_, sort_
 
-    def _datasource_ex(self, resource, query=None, client_projection=None, client_sort=None, client_embedded=None):
-        model, filter_, fields_, sort_ = super(SQL, self)._datasource_ex(resource, query,
-                                                                         client_projection, client_sort)
+    def _datasource_ex(self, resource, query=None, client_projection=None,
+                       client_sort=None, client_embedded=None):
+        model, filter_, fields_, sort_ = \
+            super(SQL, self)._datasource_ex(resource, query, client_projection,
+                                            client_sort)
         if client_embedded:
             fields_.update(client_embedded)
         fields = [field for field in fields_.keys() if fields_[field]]
