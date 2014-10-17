@@ -115,11 +115,7 @@ def get(resource, **lookup):
 
     # add pagination info
     if config.DOMAIN[resource]['pagination']:
-        response[config.META] = {
-            config.QUERY_PAGE: req.page,
-            config.QUERY_MAX_RESULTS: req.max_results,
-            'total': count,
-        }
+        response[config.META] = _meta_links(req, count)
 
     # notify registered callback functions. Please note that, should the
     # functions modify the documents, the last_modified and etag won't be
@@ -290,6 +286,8 @@ def getitem(resource, **lookup):
             response[config.LINKS] = \
                 _pagination_links(resource, req, count,
                                   latest_doc[config.ID_FIELD])
+            if config.DOMAIN[resource]['pagination']:
+                response[config.META] = _meta_links(req, count)
         else:
             if config.LINKS not in response:
                 response[config.LINKS] = {}
@@ -385,3 +383,18 @@ def _pagination_links(resource, req, documents_count, document_id=None):
                               (resource_link(), q)}
 
     return _links
+
+
+def _meta_links(req, count):
+    """ Reterns the meta links for a paginated query.
+
+    :param req: parsed request object.
+    :param count: total number of documents in a query.
+
+    .. versionadded:: 0.5
+    """
+    return {
+        config.QUERY_PAGE: req.page,
+        config.QUERY_MAX_RESULTS: req.max_results,
+        'total': count
+    }
