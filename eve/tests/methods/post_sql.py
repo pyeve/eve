@@ -137,8 +137,8 @@ class TestPostSQL(TestBaseSQL):
         data = {test_field: test_value}
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
-        self.assertIn('firstname', r)
-        self.assertNotIn('nah', r)
+        self.assertTrue('firstname' in r)
+        self.assertFalse('nah' in r)
 
     def test_post_with_get_override(self):
         # a GET request with POST override turns into a POST request.

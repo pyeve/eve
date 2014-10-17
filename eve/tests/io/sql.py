@@ -144,7 +144,7 @@ class TestSQLStructures(TestCase):
         r = SQLAResult(self.person, self.fields)
         self.assertEqual(r.keys(), self.fields)
         self.assertEqual(len(r), len(self.fields))
-        self.assertIn('prog', r.keys())
+        self.assertTrue('prog' in r.keys())
 
     def test_sql_result_get(self):
         r = SQLAResult(self.person, self.fields)
@@ -154,7 +154,7 @@ class TestSQLStructures(TestCase):
     def test_sql_result_set(self):
         r = SQLAResult(self.person, self.fields)
         r['dummy'] = 5
-        self.assertIn('dummy', r.keys())
+        self.assertTrue('dummy' in r.keys())
         self.assertEqual(len(r), len(self.fields) + 1)
         self.assertEqual(r['dummy'], 5)
 
