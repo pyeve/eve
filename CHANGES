@@ -8,6 +8,8 @@ Version 0.5
 
 Not released yet.
 
+- [fix] Ignore read-only fields in ``PATCH`` requests when their values aren't
+  changed compared to the stored document. Closes #479.
 - [new] ``QUERY_WHERE`` allows to set the query parameter key for filters.
   Defaults to ``where``.
 - [new] ``QUERY_SORT`` allows to set the query parameter key for sorting.
