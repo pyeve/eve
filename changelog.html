@@ -57,6 +57,8 @@
 <h2>Version 0.5<a class="headerlink" href="#version-0-5" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[fix] Ignore read-only fields in <tt class="docutils literal"><span class="pre">PATCH</span></tt> requests when their values aren&#8217;t
+changed compared to the stored document. Closes #479.</li>
 <li>[new] <tt class="docutils literal"><span class="pre">QUERY_WHERE</span></tt> allows to set the query parameter key for filters.
 Defaults to <tt class="docutils literal"><span class="pre">where</span></tt>.</li>
 <li>[new] <tt class="docutils literal"><span class="pre">QUERY_SORT</span></tt> allows to set the query parameter key for sorting.
