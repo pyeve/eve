@@ -364,6 +364,37 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertEqual(len(items[1].keys()), len(meta_fields))
         self.assertEqual(items[1][self.app.config['ETAG']], etag2)
 
+        # check the `self` links for both versions
+        self_href = items[0]['_links']['self']['href']
+        self.assertEqual(int(self_href.split('?version=')[1]),
+                         items[0][self.version_field])
+        self_href = items[1]['_links']['self']['href']
+        self.assertEqual(int(self_href.split('?version=')[1]),
+                         items[1][self.version_field])
+
+    def test_getitem_version_pagination(self):
+        """ Verify that `?version=all` and `?version=diffs` display pagination
+        links when results exceed `PAGINATION_DEFAULT`.
+        """
+        # create many versions
+        response, status = self.put(
+            self.item_id_url, data=self.item_change,
+            headers=[('If-Match', self.item_etag)])
+        for n in range(100):
+            response, status = self.put(
+                self.item_id_url, data=self.item_change,
+                headers=[('If-Match', response[self.app.config['ETAG']])])
+
+        # get 2nd page of results
+        page = 2
+        response, status = self.get(self.known_resource, item=self.item_id,
+                                    query='?version=all&page=%d' % page)
+        links = response['_links']
+        self.assertNextLink(links, 3)
+        self.assertPrevLink(links, 1)
+        self.assertLastLink(links, 5)
+        self.assertPagination(response, 2, 102, 25)
+
     def test_on_fetched_item(self):
         """ Verify that on_fetched_item events are fired for versioned
         requests.
