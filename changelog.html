@@ -57,6 +57,10 @@
 <h2>Version 0.5<a class="headerlink" href="#version-0-5" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[new] When document versioning is on, add <tt class="docutils literal"><span class="pre">?version=&lt;version_num&gt;</span></tt> to
+HATEOAS self links. Also adds pagination links for <tt class="docutils literal"><span class="pre">?version=all</span></tt> and
+<tt class="docutils literal"><span class="pre">?version=diffs</span></tt> requests when the number exceeds the max results.
+Partially addresses #475 (Jen Montes).</li>
 <li>[fix] Ignore read-only fields in <tt class="docutils literal"><span class="pre">PATCH</span></tt> requests when their values aren&#8217;t
 changed compared to the stored document. Closes #479.</li>
 <li>[new] <tt class="docutils literal"><span class="pre">QUERY_WHERE</span></tt> allows to set the query parameter key for filters.
