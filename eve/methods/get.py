@@ -372,8 +372,8 @@ def _pagination_links(resource, req, documents_count, document_id=None):
         elif version:
             _links['parent'] = document_link(resource, document_id)
             _links['collection'] = {'title': resource_title,
-                                    'href': '%s%s' % (resource_link(),
-                                                      '?version=all')}
+                                    'href': '%s?version=all'
+                                    % _links['parent']['href']}
 
     # modify the self link to add query params or version number
     if documents_count:
