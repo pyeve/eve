@@ -304,7 +304,11 @@ last name, but you get the idea.</p>
 <p>Resource endpoints allow consumers to retrieve multiple documents. Query
 strings are supported, allowing for filtering and sorting. Two query syntaxes
 are supported. The mongo query syntax:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people?where<span class="o">={</span><span class="s2">&quot;lastname&quot;</span>: <span class="s2">&quot;Doe&quot;</span><span class="o">}</span>
+<div class="highlight-python"><div class="highlight"><pre>http://eve-demo.herokuapp.com/people?where={&quot;lastname&quot;: &quot;Doe&quot;}
+</pre></div>
+</div>
+<p>which translates to the following <tt class="docutils literal"><span class="pre">curl</span></tt> request:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i -g http://eve-demo.herokuapp.com/people?where<span class="o">={</span>%22lastname%22:%20%22Doe%22<span class="o">}</span>
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
@@ -332,7 +336,11 @@ filters is the way to go.</p>
 can see you simply prepend a minus to the field name if you need the sort order
 to be reversed for a field.</p>
 <p>The MongoDB data layer also supports native MongoDB syntax:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people?sort<span class="o">=[(</span><span class="s2">&quot;lastname&quot;</span>, -1<span class="o">)]</span>
+<div class="highlight-python"><div class="highlight"><pre>http://eve-demo.herokuapp.com/people?sort=[(&quot;lastname&quot;, -1)]
+</pre></div>
+</div>
+<p>which translates to the following <tt class="docutils literal"><span class="pre">curl</span></tt> request:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people?sort<span class="o">=[(</span>%22lastname%22,%20-1<span class="o">)]</span>
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
@@ -363,7 +371,9 @@ consumers can request specific pages via the query string:</p>
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
-<p>Pagination can be disabled.</p>
+<p>Pagination can be disabled. Please note that, for clarity, the above example is
+not properly escaped. If using <tt class="docutils literal"><span class="pre">curl</span></tt>, refer to the examples provided in
+<a class="reference internal" href="#filters"><em>Filtering</em></a>.</p>
 </div>
 <div class="section" id="hateoas">
 <span id="hateoas-feature"></span><h2>HATEOAS<a class="headerlink" href="#hateoas" title="Permalink to this headline">¶</a></h2>
