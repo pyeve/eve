@@ -57,6 +57,10 @@
 <h2>Version 0.5<a class="headerlink" href="#version-0-5" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[fix] Parent and collection links follow the scheme described in #475 (Jen
+Montes).</li>
+<li>[new] Add the current query string to the self link for responses with
+multiple documents. Closes #464 (Jen Montes).</li>
 <li>[new] When document versioning is on, add <tt class="docutils literal"><span class="pre">?version=&lt;version_num&gt;</span></tt> to
 HATEOAS self links. Also adds pagination links for <tt class="docutils literal"><span class="pre">?version=all</span></tt> and
 <tt class="docutils literal"><span class="pre">?version=diffs</span></tt> requests when the number exceeds the max results.
