@@ -8,6 +8,10 @@ Version 0.5
 
 Not released yet.
 
+- [fix] Parent and collection links follow the scheme described in #475 (Jen
+  Montes).
+- [new] Add the current query string to the self link for responses with
+  multiple documents. Closes #464 (Jen Montes).
 - [new] When document versioning is on, add ``?version=<version_num>`` to
   HATEOAS self links. Also adds pagination links for ``?version=all`` and
   ``?version=diffs`` requests when the number exceeds the max results.
