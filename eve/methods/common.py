@@ -309,6 +309,23 @@ def serialize(document, resource=None, schema=None, fields=None):
         for field in fields:
             if field in schema:
                 field_schema = schema[field]
+            elif '.' in field:
+                # handle nested "dot notation" field names (e.g. "a.b.c")
+                # todo: this code currently requires a schema for each part in
+                #       the dotted name, i.e. b must be in a's schema & c in b's
+                #       schema
+                parts = field.split('.')
+                p_schema = schema
+                try:
+                    for p in parts[:-1]:
+                        p_schema = p_schema[p]['schema']
+                    field_schema = p_schema[parts[-1]]
+                except KeyError:
+                    field_schema = None
+            else:
+                field_schema = None
+
+            if field_schema is not None:
                 field_type = field_schema.get('type')
                 if 'schema' in field_schema:
                     field_schema = field_schema['schema']
