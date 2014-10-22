@@ -10,7 +10,7 @@ with open('LICENSE') as f:
     LICENSE = f.read()
 
 install_requires = [
-    'cerberus>=0.7,<0.8',
+    'cerberus>=0.7,<=0.8',
     'events>=0.2.1,<0.3',
     'simplejson>=3.3.0,<0.4',
     'werkzeug>=0.9.4,<0.10',

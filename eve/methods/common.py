@@ -312,8 +312,8 @@ def serialize(document, resource=None, schema=None, fields=None):
             elif '.' in field:
                 # handle nested "dot notation" field names (e.g. "a.b.c")
                 # todo: this code currently requires a schema for each part in
-                #       the dotted name, i.e. b must be in a's schema & c in b's
-                #       schema
+                #       the dotted name, i.e. b must be in a's schema & c in
+                #       b's schema
                 parts = field.split('.')
                 p_schema = schema
                 try:
