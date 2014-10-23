@@ -174,6 +174,22 @@ class TestNormalVersioning(TestVersioningBase):
         else:
             self.assertEqual(len(shadow_document.keys()), num_meta_fields + 2)
 
+    def assertHateoasLinks(self, links, version_param):
+        """ Makes sure links for `self`, `collection`, and `parent` point to
+        the right place.
+        """
+        self_url = links['self']['href']
+        coll_url = links['collection']['href']
+        prnt_url = links['parent']['href']
+        self.assertTrue('?version=%s' % (str(version_param)) in self_url)
+        if version_param in ('all', 'diffs'):
+            self.assertEqual(self_url.split('?')[0], coll_url)
+            self.assertEqual(coll_url.rsplit('/', 1)[0], prnt_url)
+        else:
+            self.assertEqual('%s?version=all' % self_url.split('?')[0],
+                             coll_url)
+            self.assertEqual(coll_url.split('?')[0], prnt_url)
+
     def do_test_get(self):
         query = '?where={"%s":"%s"}' % \
             (self.app.config['ID_FIELD'], self.item_id)
@@ -205,6 +221,8 @@ class TestNormalVersioning(TestVersioningBase):
         self.assert200(status)
         self.assertDocumentVersionFields(response, 1, 2)
         self.assertEqualFields(version_1, response, self.fields)
+        links = response['_links']
+        self.assertHateoasLinks(links, 1)
 
         # check the get of the second version
         response, status = self.get(self.known_resource, item=self.item_id,
@@ -212,6 +230,8 @@ class TestNormalVersioning(TestVersioningBase):
         self.assert200(status)
         self.assertDocumentVersionFields(response, 2)
         self.assertEqualFields(self.item_change, response, self.fields)
+        links = response['_links']
+        self.assertHateoasLinks(links, 2)
 
         # check the get without version specified and make sure it is version 2
         response, status = self.get(self.known_resource, item=self.item_id)
@@ -394,6 +414,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertPrevLink(links, 1)
         self.assertLastLink(links, 5)
         self.assertPagination(response, 2, 102, 25)
+        self.assertHateoasLinks(links, 'all')
 
     def test_on_fetched_item(self):
         """ Verify that on_fetched_item events are fired for versioned

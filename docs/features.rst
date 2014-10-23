@@ -249,9 +249,15 @@ Resource endpoints allow consumers to retrieve multiple documents. Query
 strings are supported, allowing for filtering and sorting. Two query syntaxes
 are supported. The JSON-like query syntax:
 
+::
+
+    http://eve-demo.herokuapp.com/people?where={"lastname": "Doe"}
+
+which translates to the following ``curl`` request:
+
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people?where={"lastname": "Doe"}
+    $ curl -i -g http://eve-demo.herokuapp.com/people?where={%22lastname%22:%20%22Doe%22}
     HTTP/1.1 200 OK
 
 and the native Python syntax (which is not supported by the SQLAlchemy data
@@ -286,9 +292,15 @@ to be reversed for a field.
 
 The MongoDB data layer also supports native MongoDB syntax:
 
+::
+
+    http://eve-demo.herokuapp.com/people?sort=[("lastname", -1)]
+
+which translates to the following ``curl`` request:
+
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people?sort=[("lastname", -1)]
+    $ curl -i http://eve-demo.herokuapp.com/people?sort=[(%22lastname%22,%20-1)]
     HTTP/1.1 200 OK
 
 Would return documents sorted by lastname in descending order.
@@ -325,7 +337,9 @@ Of course you can mix all the available query parameters:
     $ curl -i http://eve-demo.herokuapp.com/people?where={"lastname": "Doe"}&sort=[("firstname", 1)]&page=5
     HTTP/1.1 200 OK
 
-Pagination can be disabled.
+Pagination can be disabled. Please note that, for clarity, the above example is
+not properly escaped. If using ``curl``, refer to the examples provided in
+:ref:`filters`.
 
 .. _hateoas_feature:
 
