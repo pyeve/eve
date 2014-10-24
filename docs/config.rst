@@ -1,7 +1,7 @@
 .. _config:
 
-Configuration Handling
-======================
+Configuration 
+=============
 Generally Eve configuration is best done with configuration files. The
 configuration files themselves are actual Python files. 
 
@@ -144,15 +144,27 @@ uppercase.
                                     overridden by resource settings. Defaults
                                     to ``True``.
 
-``PAGINATION_LIMIT``                Maximum value allowed for ``max_results``
-                                    querydef parameter. Values exceeding the
+``PAGINATION_LIMIT``                Maximum value allowed for QUERY_MAX_RESULTS
+                                    query parameter. Values exceeding the
                                     limit will be silently replaced with this
                                     value. You want to aim for a reasonable
                                     compromise between performance and transfer
                                     size. Defaults to 50.
 
-``PAGINATION_DEFAULT``              Default value for ``max_results`` applied when 
-                                    the parameter is omitted.  Defaults to 25.
+``PAGINATION_DEFAULT``              Default value for QUERY_MAX_RESULTS.
+                                    Defaults to 25.
+
+``QUERY_WHERE``                     Key for the filters query parameter. Defaults to ``where``.
+
+``QUERY_SORT``                      Key for the sort query parameter. Defaults to ``sort``.
+
+``QUERY_PROJECTION``                Key for the projections query parameter. Defaults to ``projection``.
+
+``QUERY_PAGE``                      Key for the pages query parameter. Defaults to ``page``.
+
+``QUERY_MAX_RESULTS``               Key for the max results query parameter. Defaults to ``max_results``.
+
+``QUERY_EMBEDDED``                  Key for the embedding query parameter. Defaults to ``embedded``.
 
 ``DATE_FORMAT``                     A Python date format used to parse and render 
                                     datetime values. When serving requests,
@@ -256,6 +268,13 @@ uppercase.
                                     a list of headers names. Defaults to
                                     ``None``.
                                 
+``X_EXPOSE_HEADERS``                CORS (Cross-Origin Resource Sharing) support.
+                                    Allows API maintainers to specify which
+                                    headers are exposed within a CORS response.
+                                    Allowed values are: ``None`` or
+                                    a list of headers names. Defaults to
+                                    ``None``.
+
 ``X_MAX_AGE``                       CORS (Cross-Origin Resource Sharing) 
                                     support. Allows to set max age for the
                                     access control allow header. Defaults to

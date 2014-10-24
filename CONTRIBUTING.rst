@@ -17,7 +17,7 @@ Making Changes
 * Fork_ the repository on GitHub.
 * Create a topic branch from where you want to base your work.
 * This is usually the ``develop`` branch. 
-* Please avoid working directly on ``develop`` branch.
+* Please avoid working directly on the ``develop`` branch.
 * Make commits of logical units (if needed rebase your feature branch before
   submitting it).
 * Check for unnecessary whitespace with ``git diff --check`` before committing.

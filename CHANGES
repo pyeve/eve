@@ -8,6 +8,30 @@ Version 0.5
 
 Not released yet.
 
+- [fix] Parent and collection links follow the scheme described in #475 (Jen
+  Montes).
+- [new] Add the current query string to the self link for responses with
+  multiple documents. Closes #464 (Jen Montes).
+- [new] When document versioning is on, add ``?version=<version_num>`` to
+  HATEOAS self links. Also adds pagination links for ``?version=all`` and
+  ``?version=diffs`` requests when the number exceeds the max results.
+  Partially addresses #475 (Jen Montes).
+- [fix] Ignore read-only fields in ``PATCH`` requests when their values aren't
+  changed compared to the stored document. Closes #479.
+- [new] ``QUERY_WHERE`` allows to set the query parameter key for filters.
+  Defaults to ``where``.
+- [new] ``QUERY_SORT`` allows to set the query parameter key for sorting.
+  Defaults to ``sort``.
+- [new] ``QUERY_PAGE`` allows to set the query parameter key for pagination.
+  Defaults to ``page``.
+- [new] ``QUERY_PROJECTION`` allows to set the query parameter key for
+  projections. Defaults to ``projection``.
+- [new] ``QUERY_MAX_RESULTS`` allows to set the query parameter key for max
+  results. Defaults to ``max_results``.
+- [new] ``QUERY_EMBEDDED`` allows to set the query parameter key embedded
+  documents. Defaults to ``embedded``.
+- [new] Fire ``on_fetched`` events for ``version=all`` requests (Jen Montes).
+- [new] Support for CORS ``Access-Control-Expose-Headers`` (Christian Henke).
 - [fix] Allow ``EVE_SETTINGS`` envvar to be used exclusively. Previously,
   a settings file in the working directory was always required. Closes #461.
 - [fix] exception when trying to set nullable media field to null (Daniel

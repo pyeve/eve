@@ -92,6 +92,7 @@ def parse_request(resource):
     :param resource: the resource currently being accessed by the client.
 
     .. versionchanged:: 0.5
+       Support for custom query parameters via configuration settings.
        Minor DRY updates.
 
     .. versionchagend:: 0.1.0
@@ -111,18 +112,18 @@ def parse_request(resource):
 
     settings = config.DOMAIN[resource]
     if settings['allowed_filters']:
-        r.where = args.get('where')
+        r.where = args.get(config.QUERY_WHERE)
     if settings['projection']:
-        r.projection = args.get('projection')
+        r.projection = args.get(config.QUERY_PROJECTION)
     if settings['sorting']:
-        r.sort = args.get('sort')
+        r.sort = args.get(config.QUERY_SORT)
     if settings['embedding']:
-        r.embedded = args.get('embedded')
+        r.embedded = args.get(config.QUERY_EMBEDDED)
 
     max_results_default = config.PAGINATION_DEFAULT if \
         settings['pagination'] else 0
     try:
-        r.max_results = int(float(args['max_results']))
+        r.max_results = int(float(args[config.QUERY_MAX_RESULTS]))
         assert r.max_results > 0
     except (ValueError, werkzeug.exceptions.BadRequestKeyError,
             AssertionError):
@@ -130,9 +131,9 @@ def parse_request(resource):
 
     if settings['pagination']:
         # TODO should probably return a 400 if 'page' is < 1 or non-numeric
-        if 'page' in args:
+        if config.QUERY_PAGE in args:
             try:
-                r.page = abs(int(args.get('page'))) or 1
+                r.page = abs(int(args.get(config.QUERY_PAGE))) or 1
             except ValueError:
                 pass
 
@@ -230,23 +231,36 @@ def api_prefix(url_prefix=None, api_version=None):
 
 
 def querydef(max_results=config.PAGINATION_DEFAULT, where=None, sort=None,
-             page=None):
+             version=None, page=None):
     """ Returns a valid query string.
 
     :param max_results: `max_result` part of the query string. Defaults to
                         `PAGINATION_DEFAULT`
     :param where: `where` part of the query string. Defaults to None.
     :param sort: `sort` part of the query string. Defaults to None.
-    :param page: `page` parte of the query string. Defaults to None.
+    :param page: `version` part of the query string. Defaults to None.
+    :param page: `page` part of the query string. Defaults to None.
+
+    .. versionchanged:: 0.5
+       Support for customizable query parameters.
+       Add version to query string (#475).
     """
-    where_part = '&where=%s' % where if where else ''
-    sort_part = '&sort=%s' % sort if sort else ''
-    page_part = '&page=%s' % page if page and page > 1 else ''
-    max_results_part = 'max_results=%s' % max_results \
+    where_part = '&%s=%s' % (config.QUERY_WHERE, where) if where else ''
+    sort_part = '&%s=%s' % (config.QUERY_SORT, sort) if sort else ''
+    page_part = '&%s=%s' % (config.QUERY_PAGE, page) if page and page > 1 \
+        else ''
+    version_part = '&%s=%s' % (config.VERSION_PARAM, version) if version \
+        else ''
+    max_results_part = '%s=%s' % (config.QUERY_MAX_RESULTS, max_results) \
         if max_results != config.PAGINATION_DEFAULT else ''
 
+    # remove sort set by Eve if version is set
+    if version and sort is not None:
+        sort_part = '&%s=%s' % (config.QUERY_SORT, sort) \
+            if sort != '[("%s", 1)]' % config.VERSION else ''
+
     return ('?' + ''.join([max_results_part, where_part, sort_part,
-                           page_part]).lstrip('&')).rstrip('?')
+                           version_part, page_part]).lstrip('&')).rstrip('?')
 
 
 def document_etag(value):

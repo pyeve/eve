@@ -145,7 +145,7 @@ would be queried like:
 
 Please note that when designing your API, most of the time you can get away
 without resorting to sub-resources. In the example above the same result would
-be achieved by simply exposing a ``invoices`` endpoint that clients could query
+be achieved by simply exposing an ``invoices`` endpoint that clients could query
 this way:
 
 ::
@@ -232,7 +232,7 @@ As you can see, item endpoints provide their own HATEOAS_ directives.
 
     According to REST principles resource items should only have one unique
     identifier. Eve abides by providing one default endpoint per item. Adding
-    a secondary endpoint is a decision that should pondered carefully.
+    a secondary endpoint is a decision that should be pondered carefully.
 
     Consider our example above. Even without the ``/people/<lastname>``
     endpoint, a client could always retrieve a person by querying the resource
@@ -248,9 +248,15 @@ Resource endpoints allow consumers to retrieve multiple documents. Query
 strings are supported, allowing for filtering and sorting. Two query syntaxes
 are supported. The mongo query syntax:
 
+::
+
+    http://eve-demo.herokuapp.com/people?where={"lastname": "Doe"}
+
+which translates to the following ``curl`` request:
+
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people?where={"lastname": "Doe"}
+    $ curl -i -g http://eve-demo.herokuapp.com/people?where={%22lastname%22:%20%22Doe%22}
     HTTP/1.1 200 OK
 
 and the native Python syntax:
@@ -284,9 +290,15 @@ to be reversed for a field.
 
 The MongoDB data layer also supports native MongoDB syntax:
 
+::
+
+    http://eve-demo.herokuapp.com/people?sort=[("lastname", -1)]
+
+which translates to the following ``curl`` request:
+
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people?sort=[("lastname", -1)]
+    $ curl -i http://eve-demo.herokuapp.com/people?sort=[(%22lastname%22,%20-1)]
     HTTP/1.1 200 OK
 
 Would return documents sorted by lastname in descending order.
@@ -323,7 +335,9 @@ Of course you can mix all the available query parameters:
     $ curl -i http://eve-demo.herokuapp.com/people?where={"lastname": "Doe"}&sort=[("firstname", 1)]&page=5
     HTTP/1.1 200 OK
 
-Pagination can be disabled.
+Pagination can be disabled. Please note that, for clarity, the above example is
+not properly escaped. If using ``curl``, refer to the examples provided in
+:ref:`filters`.
 
 .. _hateoas_feature:
 
@@ -1070,6 +1084,11 @@ the items as needed before they are returned to the client.
     >>> app.on_fetched_resource_contacts += before_returning_contacts
     >>> app.on_fetched_item += before_returning_item
     >>> app.on_fetched_item_contact += before_returning_contact
+
+It is important to note that fetch events will work with `Document
+Versioning`_ for specific document versions or accessing all document
+versions with ``?version=all``, but they *will not* work when acessing diffs
+of all versions with ``?version=diffs``.
 
 
 Insert Events

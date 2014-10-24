@@ -102,6 +102,9 @@ class TestMinimal(unittest.TestCase):
     def assert304(self, status):
         self.assertEqual(status, 304)
 
+    def assert422(self, status):
+        self.assertEqual(status, 422)
+
     def get(self, resource, query='', item=None):
         if resource in self.domain:
             resource = self.domain[resource]['url']
@@ -210,13 +213,15 @@ class TestMinimal(unittest.TestCase):
         self.assertItemLink(link, _id)
 
     def assertPagination(self, response, page, total, max_results):
+        p_key, mr_key = self.app.config['QUERY_PAGE'], \
+            self.app.config['QUERY_MAX_RESULTS']
         self.assertTrue(self.app.config['META'] in response)
         meta = response.get(self.app.config['META'])
-        self.assertTrue('page' in meta)
-        self.assertTrue('max_results' in meta)
+        self.assertTrue(p_key in meta)
+        self.assertTrue(mr_key in meta)
         self.assertTrue('total' in meta)
-        self.assertEqual(meta['page'], page)
-        self.assertEqual(meta['max_results'], max_results)
+        self.assertEqual(meta[p_key], page)
+        self.assertEqual(meta[mr_key], max_results)
         self.assertEqual(meta['total'], total)
 
     def assertHomeLink(self, links):
@@ -251,7 +256,8 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue('title' in link)
         self.assertTrue('href' in link)
         self.assertEqual('next page', link['title'])
-        self.assertTrue("page=%d" % page in link['href'])
+        self.assertTrue("%s=%d" % (self.app.config['QUERY_PAGE'], page)
+                        in link['href'])
 
     def assertPrevLink(self, links, page):
         self.assertTrue('prev' in links)
@@ -260,7 +266,8 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue('href' in link)
         self.assertEqual('previous page', link['title'])
         if page > 1:
-            self.assertTrue("page=%d" % page in link['href'])
+            self.assertTrue("%s=%d" % (self.app.config['QUERY_PAGE'], page)
+                            in link['href'])
 
     def assertItemLink(self, links, item_id):
         self.assertTrue('self' in links)
@@ -277,7 +284,8 @@ class TestMinimal(unittest.TestCase):
             self.assertTrue('title' in link)
             self.assertTrue('href' in link)
             self.assertEqual('last page', link['title'])
-            self.assertTrue("page=%d" % page in link['href'])
+            self.assertTrue("%s=%d" % (self.app.config['QUERY_PAGE'], page)
+                            in link['href'])
         else:
             self.assertTrue('last' not in links)
 
