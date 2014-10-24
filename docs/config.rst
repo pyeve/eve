@@ -506,18 +506,28 @@ uppercase.
                                     want clients to be able to POST/PATCH it.
                                     Defaults to ``True``. 
 
-``OPLOG``                           The name of the :ref:`oplog`. Maps to both 
-                                    the database collection and the oplog
-                                    url (if an oplog endpoint is available -see
-                                    ``OPLOG_ENDPOINT``). Defaults to ``oplog``.
+``OPLOG``                           Set it to ``False`` to disable the :ref:`oplog`.
+                                    Defaults to ``True``.
 
-``OPLOG_METHODS``                   List of HTTP methods for which operations 
-                                    should be logged in the oplog. Defaults to
-                                    ``['DELETE']``.
+``OPLOG_NAME``                      This is the name of the database collection 
+                                    where the :ref:`oplog` is stored. Defaults
+                                    to ``oplog``.
 
-``OPLOG_ENDPOINT``                  ``True`` if an API endpoint should be made
-                                    available for the oplog itself. Defaults to
-                                    ``False``.
+``OPLOG_METHODS``                   List of HTTP methods which operations 
+                                    should be logged in the :ref:`oplog`.
+                                    Defaults to ``['DELETE']``.
+
+``OPLOG_ENDPOINT``                  Name of the :ref:`oplog` endpoint. If the 
+                                    endpoint is enabled it can be configured
+                                    like any other API endpoint. Set it to
+                                    ``None`` to disable the endpoint. Defaults
+                                    to ``None``. 
+
+``OPLOG_AUDIT``                     Set it to ``True`` to enable the audit 
+                                    feature. When the audit is enabled client
+                                    IP and changes introduced by ``PUT`` and
+                                    ``PATCH`` operations are also logged to the
+                                    :ref:`oplog`. Defaults to ``True``.
 
 =================================== =========================================
 
