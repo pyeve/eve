@@ -286,7 +286,7 @@ class TestEndPoints(TestBase):
         r = self.test_client.get('/oplog')
         self.assert404(r.status_code)
 
-        self.app.config['OPLOG_ENDPOINT'] = True
+        self.app.config['OPLOG_ENDPOINT'] = 'oplog'
         self.app._init_oplog()
         settings = self.app.config['DOMAIN']['oplog']
         self.app.register_resource('oplog', settings)

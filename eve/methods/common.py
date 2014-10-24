@@ -831,6 +831,8 @@ def oplog_push(resource, updates, op, id=None):
         'r' = resource endpoint,
         'o' = operation performed,
         'i' = unique id of the document involved,
+        'pi' = client IP,
+        'c' = changes
 
     config.LAST_UPDATED, config.LAST_CREATED and AUTH_FIELD are not being
     shortened to allow for standard endpoint behavior (so clients can
@@ -844,7 +846,7 @@ def oplog_push(resource, updates, op, id=None):
 
     .. versionadded:: 0.5
     """
-    if op not in config.OPLOG_METHODS:
+    if not config.OPLOG or op not in config.OPLOG_METHODS:
         return
 
     if updates is None:
@@ -865,10 +867,24 @@ def oplog_push(resource, updates, op, id=None):
         else:
             last_update = datetime.utcnow().replace(microsecond=0)
         entry[config.LAST_UPDATED] = entry[config.DATE_CREATED] = last_update
+        if config.OPLOG_AUDIT:
 
-        resolve_user_restricted_access(entry, config.OPLOG)
+            # TODO this needs further investigation. See:
+            # http://esd.io/blog/flask-apps-heroku-real-ip-spoofing.html;
+            # https://stackoverflow.com/questions/22868900/how-do-i-safely-get-the-users-real-ip-address-in-flask-using-mod-wsgi
+            entry['ip'] = request.remote_addr
+
+            if op != 'DELETE':
+                # these fields are already contained in 'entry'.
+                del(update[config.LAST_UPDATED])
+                del(update[config.ETAG])
+                entry['c'] = update
+            else:
+                entry['c'] = None
+
+        resolve_user_restricted_access(entry, config.OPLOG_NAME)
 
         entries.append(entry)
 
     if entries:
-        app.data.insert(config.OPLOG, entries)
+        app.data.insert(config.OPLOG_NAME, entries)

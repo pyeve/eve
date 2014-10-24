@@ -12,9 +12,11 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.5
-       'OPLOG' added and set to 'oplog'.
+       'OPLOG' added and set to False.
+       'OPLOG_NAME' added and set to 'oplog'.
        'OPLOG_METHODS' added and set to ['DELETE'].
-       'OPLOG_ENDPOINT' added and set to False.
+       'OPLOG_ENDPOINT' added and set to None.
+       'OPLOG_AUDIT' added and set to True.
        'INTERNAL_RESOURCE' added and set to False.
 
     .. versionchanged:: 0.4
@@ -121,9 +123,11 @@ VERSIONS = '_versions'          # suffix for parallel collection w/old versions
 VERSION_PARAM = 'version'       # URL param for specific version of a document.
 INTERNAL_RESOURCE = False       # resources are public by default.
 
-OPLOG = 'oplog'                 # default oplog resource name (and url).
+OPLOG = False                   # oplog is disabled by default.
+OPLOG_NAME = 'oplog'            # default oplog resource name.
 OPLOG_METHODS = ['DELETE']      # oplog only logs DELETE operations by default.
-OPLOG_ENDPOINT = False          # oplog endpoint is disabled by default.
+OPLOG_ENDPOINT = None           # oplog endpoint is disabled by default.
+OPLOG_AUDIT = True              # oplog audit enabled by default.
 
 RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']

@@ -765,13 +765,17 @@ class Eve(Flask, Events):
 
         .. versionadded:: 0.5
         """
-        oplog, endpoint = self.config['OPLOG'], self.config['OPLOG_ENDPOINT']
+        name, endpoint, audit = (
+            self.config['OPLOG_NAME'],
+            self.config['OPLOG_ENDPOINT'],
+            self.config['OPLOG_AUDIT']
+        )
 
         if endpoint:
-            settings = self.config['DOMAIN'].setdefault(oplog, {})
+            settings = self.config['DOMAIN'].setdefault(name, {})
 
-            settings.setdefault('url', oplog)
-            settings.setdefault('datasource', {'source': oplog})
+            settings.setdefault('url', endpoint)
+            settings.setdefault('datasource', {'source': name})
 
             # this endpoint is always read-only
             settings['resource_methods'] = ['GET']
@@ -785,3 +789,10 @@ class Eve(Flask, Events):
                 'o': {},
                 'i': {},
             }
+            if audit:
+                settings['schema'].update(
+                    {
+                        'ip': {},
+                        'c': {}
+                    }
+                )

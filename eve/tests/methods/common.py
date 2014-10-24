@@ -70,7 +70,8 @@ class TestOpLog(TestBase):
         self.data = {self.test_field: self.test_value}
         self.test_client = self.app.test_client()
 
-        self.app.config['OPLOG_ENDPOINT'] = True
+        self.app.config['OPLOG'] = True
+        self.app.config['OPLOG_ENDPOINT'] = 'oplog'
         self.app.config['OPLOG_METHODS'] += ['POST', 'PATCH', 'PUT']
         self.app._init_oplog()
         self.app.register_resource('oplog', self.domain['oplog'])
@@ -125,6 +126,8 @@ class TestOpLog(TestBase):
         self.assertTrue(config.DATE_CREATED in entry)
         self.assertTrue('o' in entry)
         self.assertEqual(entry['o'], op)
+        self.assertTrue('c' in entry)
+        self.assertTrue('ip' in entry)
 
     def oplog_get(self, url='/oplog'):
         r = self.test_client.get(url)

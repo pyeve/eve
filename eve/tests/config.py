@@ -49,6 +49,12 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.config['MONGO_WRITE_CONCERN'], {'w': 1})
         self.assertEqual(self.app.config['ISSUES'], '_issues')
 
+        self.assertEqual(self.app.config['OPLOG'], False)
+        self.assertEqual(self.app.config['OPLOG_NAME'], 'oplog')
+        self.assertEqual(self.app.config['OPLOG_ENDPOINT'], None)
+        self.assertEqual(self.app.config['OPLOG_AUDIT'], True)
+        self.assertEqual(self.app.config['OPLOG_METHODS'], ['DELETE'])
+
     def test_settings_as_dict(self):
         my_settings = {'API_VERSION': 'override!', 'DOMAIN': {'contacts': {}}}
         self.app = Eve(settings=my_settings)
@@ -354,17 +360,17 @@ class TestConfig(TestBase):
         self.assertFalse('oplog' in self.domain)
 
         # if OPLOG_ENDPOINT is eanbled the endoint is included with the domain
-        self.app.config['OPLOG_ENDPOINT'] = True
+        self.app.config['OPLOG_ENDPOINT'] = 'oplog'
         self.app._init_oplog()
-        self.assertOplog('oplog')
+        self.assertOplog('oplog', 'oplog')
         del(self.domain['oplog'])
 
-        # OPLOG can be also enabled with a custom name (which will be used
+        # OPLOG can be also with a custom name (which will be used
         # as the collection/table name on the db)
         oplog = 'custom'
-        self.app.config['OPLOG'] = oplog
+        self.app.config['OPLOG_NAME'] = oplog
         self.app._init_oplog()
-        self.assertOplog(oplog)
+        self.assertOplog(oplog, 'oplog')
         del(self.domain[oplog])
 
         # oplog can be defined as a regular API endpoint, with a couple caveats
@@ -374,7 +380,7 @@ class TestConfig(TestBase):
             'url': 'custom_url',
             'datasource': {'source': 'customsource'}
         }
-        self.app.config['OPLOG'] = 'oplog'
+        self.app.config['OPLOG_NAME'] = 'oplog'
         settings = self.domain['oplog']
         self.app._init_oplog()
 
@@ -385,11 +391,11 @@ class TestConfig(TestBase):
         self.assertEqual(settings['url'], 'custom_url')
         self.assertEqual(settings['datasource']['source'], 'customsource')
 
-    def assertOplog(self, key):
+    def assertOplog(self, key, endpoint):
         self.assertTrue(key in self.domain)
 
         settings = self.domain[key]
         self.assertEqual(settings['resource_methods'], ['GET'])
         self.assertEqual(settings['item_methods'], ['GET'])
-        self.assertEqual(settings['url'], key)
+        self.assertEqual(settings['url'], endpoint)
         self.assertEqual(settings['datasource']['source'], key)
