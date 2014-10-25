@@ -80,7 +80,8 @@ class TestOpLog(TestBase):
     def test_post_oplog(self):
         r = self.test_client.post(self.known_resource_url,
                                   data=json.dumps(self.data),
-                                  headers=self.headers)
+                                  headers=self.headers,
+                                  environ_base={'REMOTE_ADDR': '127.0.0.1'})
         r, status = self.oplog_get()
         self.assert200(status)
         self.assertEqual(len(r['_items']), 1)
@@ -91,7 +92,8 @@ class TestOpLog(TestBase):
         self.headers.append(('If-Match', self.item_etag))
         r = self.test_client.patch(self.item_id_url,
                                    data=json.dumps(self.data),
-                                   headers=self.headers)
+                                   headers=self.headers,
+                                   environ_base={'REMOTE_ADDR': '127.0.0.1'})
         r, status = self.oplog_get()
         self.assert200(status)
         self.assertEqual(len(r['_items']), 1)
@@ -102,7 +104,8 @@ class TestOpLog(TestBase):
         self.headers.append(('If-Match', self.item_etag))
         r = self.test_client.put(self.item_id_url,
                                  data=json.dumps(self.data),
-                                 headers=self.headers)
+                                 headers=self.headers,
+                                 environ_base={'REMOTE_ADDR': '127.0.0.1'})
         r, status = self.oplog_get()
         self.assert200(status)
         self.assertEqual(len(r['_items']), 1)
@@ -112,7 +115,8 @@ class TestOpLog(TestBase):
     def test_delete_oplog(self):
         self.headers.append(('If-Match', self.item_etag))
         r = self.test_client.delete(self.item_id_url,
-                                    headers=self.headers)
+                                    headers=self.headers,
+                                    environ_base={'REMOTE_ADDR': '127.0.0.1'})
         r, status = self.oplog_get()
         self.assert200(status)
         self.assertEqual(len(r['_items']), 1)
@@ -127,7 +131,7 @@ class TestOpLog(TestBase):
         self.assertTrue('o' in entry)
         self.assertEqual(entry['o'], op)
         self.assertTrue('c' in entry)
-        self.assertTrue('ip' in entry)
+        self.assertTrue('127.0.0.1' in entry['ip'])
 
     def oplog_get(self, url='/oplog'):
         r = self.test_client.get(url)
