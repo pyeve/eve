@@ -426,19 +426,18 @@ Conditional Requests
 Each resource representation provides information on the last time it was
 updated (``Last-Modified``), along with an hash value computed on the
 representation itself (``ETag``). These headers allow clients to perform
-conditional requests, only retrieving new or modified data, by using the
-``If-Modified-Since`` header:
+conditional requests by using the ``If-Modified-Since`` header:
 
 .. code-block:: console
 
-    $ curl -H "If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT" -i http://eve-demo.herokuapp.com/people
+    $ curl -H "If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT" -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c 
     HTTP/1.1 200 OK
 
 or the ``If-None-Match`` header:
 
 .. code-block:: console
 
-    $ curl -H "If-None-Match: 1234567890123456789012345678901234567890" -i http://eve-demo.herokuapp.com/people
+    $ curl -H "If-None-Match: 1234567890123456789012345678901234567890" -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c 
     HTTP/1.1 200 OK
 
 
