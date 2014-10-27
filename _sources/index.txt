@@ -41,6 +41,12 @@ show you how easy it is to run an API with Eve. You will also find `usage
 examples`_ for all common use cases (GET, POST, PATCH, DELETE and more). There
 is also a simple `client app`_ available.
 
+Development Version
+--------------------
+If you are on python-eve.org_ then you are looking at the documentation of the
+development version. Looking for last release docs? Follow `this
+link <http://eve.readthedocs.org/en/stable/>`_.
+
 User's Guide
 ------------
 .. toctree::
@@ -89,6 +95,7 @@ Changelog
    sidebar for more information, or to get in touch with the development team
    (that being me_).
 
+.. _python-eve.org: http://python-eve.org
 .. _`Eve Demo instructions`: http://github.com/nicolaiarocci/eve-demo#readme
 .. _`live demo`: http://eve-demo.herokuapp.com
 .. _`source code`: https://github.com/nicolaiarocci/eve-demo
