@@ -8,6 +8,8 @@ Version 0.5
 
 Not released yet.
 
+- [fix] Fix validation of read-only fields inside dicts. Closes #474 (Arnau
+  Orriols).
 - [fix] Parent and collection links follow the scheme described in #475 (Jen
   Montes).
 - [new] Add the current query string to the self link for responses with

@@ -100,6 +100,16 @@ contacts = {
             'default': 'default',
             'readonly': True
         },
+        'dict_with_read_only': {
+            'type': 'dict',
+            'schema': {
+                'read_only_in_dict': {
+                    'type': 'string',
+                    'default': 'default',
+                    'readonly': True
+                }
+            }
+        },
         'key1': {
             'type': 'string',
         },
