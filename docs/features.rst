@@ -1550,6 +1550,7 @@ for unittesting_ and an `extensive documentation`_.
 .. _unittesting: http://flask.pocoo.org/docs/testing/
 .. _`extensive documentation`: http://flask.pocoo.org/docs/
 .. _`this`: https://speakerdeck.com/nicola/developing-restful-web-apis-with-python-flask-and-mongodb?slide=113
+.. _GridFS: http://docs.mongodb.org/manual/core/gridfs/
 .. _Events: https://github.com/nicolaiarocci/events
 .. _MediaStorage: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/media.py
 .. _`MongoDB Data Model Design`: http://docs.mongodb.org/manual/core/data-model-design/
