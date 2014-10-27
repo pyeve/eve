@@ -418,6 +418,15 @@ class TestPost(TestBase):
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 
+    def test_post_readonly_in_dict(self):
+        # Test that a post with a readonly field inside a dict is correctly
+        # validated and doesn't return an exception error
+        del(self.domain['contacts']['schema']['ref']['required'])
+        test_field = 'dict_with_read_only'
+        test_value = {'read_only_in_dict': 'default'}
+        data = {test_field: test_value}
+        self.assertPostItem(data, test_field, test_value)
+
     def test_post_keyschema_dict(self):
         """ make sure Cerberus#48 is fixed """
         del(self.domain['contacts']['schema']['ref']['required'])
