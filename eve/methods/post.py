@@ -20,7 +20,7 @@ from eve.validation import ValidationError
 from eve.methods.common import parse, payload, ratelimit, \
     pre_event, store_media_files, resolve_user_restricted_access, \
     resolve_embedded_fields, build_response_document, marshal_write_response, \
-    resolve_sub_resource_path, resolve_document_etag
+    resolve_sub_resource_path, resolve_document_etag, oplog_push
 from eve.versioning import resolve_document_version, \
     insert_versioning_documents
 
@@ -64,6 +64,7 @@ def post_internal(resource, payl=None):
                  discussion, and a typical use case.
 
     .. versionchanged:: 0.5
+       Push updates to the OpLog.
        Original post() has been split into post() and post_internal().
        ETAGS are now stored with documents (#369).
 
@@ -217,6 +218,9 @@ def post_internal(resource, payl=None):
 
         # bulk insert
         ids = app.data.insert(resource, documents)
+
+        # update oplog if needed
+        oplog_push(resource, documents, 'POST')
 
         # assign document ids
         for document in documents:

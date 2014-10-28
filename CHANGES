@@ -8,6 +8,7 @@ Version 0.5
 
 Not released yet.
 
+- [new] The Operations Log (OpLog).
 - [fix] Fix validation of read-only fields inside dicts. Closes #474 (Arnau
   Orriols).
 - [fix] Parent and collection links follow the scheme described in #475 (Jen

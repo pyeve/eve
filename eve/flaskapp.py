@@ -145,8 +145,9 @@ class Eve(Flask, Events):
         else:
             self.auth = None
 
-        # set up home url
         self._init_url_rules()
+
+        self._init_oplog()
 
         # validate and set defaults for each resource
 
@@ -758,3 +759,40 @@ class Eve(Flask, Events):
         """
         for code in [400, 401, 403, 404, 405, 406, 409, 410, 422]:
             self.error_handler_spec[None][code] = error_endpoint
+
+    def _init_oplog(self):
+        """ If enabled, configures the OPLOG endpoint.
+
+        .. versionadded:: 0.5
+        """
+        name, endpoint, audit = (
+            self.config['OPLOG_NAME'],
+            self.config['OPLOG_ENDPOINT'],
+            self.config['OPLOG_AUDIT']
+        )
+
+        if endpoint:
+            settings = self.config['DOMAIN'].setdefault(name, {})
+
+            settings.setdefault('url', endpoint)
+            settings.setdefault('datasource', {'source': name})
+
+            # this endpoint is always read-only
+            settings['resource_methods'] = ['GET']
+            settings['item_methods'] = ['GET']
+
+            # schema is also fixed. it is needed because otherwise we
+            # would end up exposing the AUTH_FIELD when User-Restricted-
+            # Resource-Access is enabled.
+            settings['schema'] = {
+                'r': {},
+                'o': {},
+                'i': {},
+            }
+            if audit:
+                settings['schema'].update(
+                    {
+                        'ip': {},
+                        'c': {}
+                    }
+                )
