@@ -53,7 +53,10 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.config['OPLOG_NAME'], 'oplog')
         self.assertEqual(self.app.config['OPLOG_ENDPOINT'], None)
         self.assertEqual(self.app.config['OPLOG_AUDIT'], True)
-        self.assertEqual(self.app.config['OPLOG_METHODS'], ['DELETE'])
+        self.assertEqual(self.app.config['OPLOG_METHODS'], ['DELETE',
+                                                            'POST',
+                                                            'PATCH',
+                                                            'PUT'])
 
         self.assertEqual(self.app.config['QUERY_WHERE'], 'where')
         self.assertEqual(self.app.config['QUERY_PROJECTION'], 'projection')

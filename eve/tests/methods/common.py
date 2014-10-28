@@ -72,7 +72,6 @@ class TestOpLog(TestBase):
 
         self.app.config['OPLOG'] = True
         self.app.config['OPLOG_ENDPOINT'] = 'oplog'
-        self.app.config['OPLOG_METHODS'] += ['POST', 'PATCH', 'PUT']
         self.app._init_oplog()
         self.app.register_resource('oplog', self.domain['oplog'])
         self.headers = [(('Content-Type', 'application/json'))]

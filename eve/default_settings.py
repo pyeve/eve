@@ -14,7 +14,7 @@
     .. versionchanged:: 0.5
        'OPLOG' added and set to False.
        'OPLOG_NAME' added and set to 'oplog'.
-       'OPLOG_METHODS' added and set to ['DELETE'].
+       'OPLOG_METHODS' added and set to all edit operations.
        'OPLOG_ENDPOINT' added and set to None.
        'OPLOG_AUDIT' added and set to True.
        'QUERY_WHERE' added and set to 'where'
@@ -132,9 +132,12 @@ INTERNAL_RESOURCE = False       # resources are public by default.
 
 OPLOG = False                   # oplog is disabled by default.
 OPLOG_NAME = 'oplog'            # default oplog resource name.
-OPLOG_METHODS = ['DELETE']      # oplog only logs DELETE operations by default.
 OPLOG_ENDPOINT = None           # oplog endpoint is disabled by default.
 OPLOG_AUDIT = True              # oplog audit enabled by default.
+OPLOG_METHODS = ['DELETE',
+                 'POST',
+                 'PATCH',
+                 'PUT']         # oplog logs all operations by default.
 
 RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']
