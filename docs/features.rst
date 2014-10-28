@@ -1523,9 +1523,99 @@ will get the point across.
 
 .. _oplog:
 
-OpLog
------
-WIP
+Operations Log
+--------------
+The OpLog is an API-wide log of all edit operations. Every ``POST``, ``PATCH``
+``PUT`` and ``DELETE`` operation can be recorded to the oplog. At its core the
+oplog is simply a server log. What makes it a little bit different is that it
+can be exposed as a read-only endpoint, thus allowing clients to query it as
+they would with any other API endpoint.
+
+Every oplog entry contains informations about the document and the operation:
+
+- Operation performed
+- Unique ID of the document
+- Update date
+- Creation date
+- Resource endpoint URL
+- User token, if :ref:`user-restricted` is enabled for the endpoint
+
+Like any other API-maintained document, oplog entries also expose:
+
+- Entry ID
+- ETag
+- HATEOAS fields if that's enabled.
+
+If ``OPLOG_AUDIT`` has been enabled the oplog entry will also expose the
+client IP and, if the operation was a ``PATCH`` or a ``PUT``, the changes
+applied to the document.
+
+A typical oplog entry looks like this:
+
+.. code-block:: python
+
+    {
+        "o": "DELETE", 
+        "r": "people", 
+        "i": "542d118938345b614ea75b3c",
+        "ip": "127.0.0.1",
+        "_updated": "Fri, 03 Oct 2014 08:16:52 GMT", 
+        "_created": "Fri, 03 Oct 2014 08:16:52 GMT",
+        "_etag": "e17218fbca41cb0ee6a5a5933fb9ee4f4ca7e5d6"
+        "_id": "542e5b7438345b6dadf95ba5", 
+        "_links": {...},
+    }
+
+To save a little space (at least on MongoDB) field names have been shortened: 
+
+- ``o`` stands for operation performed
+- ``r`` stands for resource endpoint
+- ``i`` stands for document id
+- ``ip`` is the client IP
+- ``c`` stands for changes occurred 
+  
+``_created`` and ``_updated`` are relative to the target document, which comes
+handy in a variety of scenarios (like when the oplog is available to clients,
+more on this later).
+
+How is the oplog operated?
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Six settings are dedicated to the OpLog:
+
+- ``OPLOG`` switches the oplog feature on and off. Defaults to ``False``.
+- ``OPLOG_NAME`` is the name of the oplog collection on the database. Defaults to ``oplog``.
+- ``OPLOG_METHODS`` is a list of HTTP methods to be logged. Defaults to all of them.
+- ``OPLOG_ENDPOINT`` is the endpoint name. Defaults to ``None``.
+- ``OPLOG_AUDIT`` if enabled, IP addresses and changes are also logged. Defaults to ``True``.
+
+As you can see the oplog feature is turned off by default. Also, since
+``OPLOG_ENDPOINT`` defaults to ``None``, even if you switch the feature on no
+public oplog endpoint will be available. You will have to explictly set the
+endpoint name in order to expose your oplog to the public. 
+
+The Oplog endpoint
+~~~~~~~~~~~~~~~~~~
+Since the oplog endpoint is nothing but a standard API endpoint, you can
+customize it. This allows for setting up custom authentication
+(you might want this resource to be only accessible for administrative
+purposes) or any other useful setting. 
+
+Note that while you can change most of its settings, the endpoint will always
+be read-only so setting either ``resource_methods`` or ``item_methods`` to
+something other than ``['GET']`` will serve no purpose. Also, unless you need to
+customize it, adding an oplog entry to the domain is not really necessary as it
+will be added for you automatically.
+
+Exposing the oplog as an endpoint could be useful in scenarios where you have
+multiple clients (say phone, tablet, web and desktop apps) which need to stay
+in sync with each other and the server. Instead of hitting every single
+endpoint they could just access the oplog to learn all that's happened
+since their last access. That’s a single request versus several. This is not
+always the best approach a client could take. Sometimes it is probably better
+to only query for changes on a certain endpoint. That's also possible, just
+query the oplog for changes occured on that endpoint.
+
+.. note:: Are you on MongoDB? Consider making the oplog a `capped collection`_. 
 
 MongoDB Support
 ---------------
@@ -1561,3 +1651,4 @@ for unittesting_ and an `extensive documentation`_.
 .. _MongoDB: http://docs.mongodb.org/manual/applications/geospatial-indexes/#geojson-objects
 .. _`geospatial query operators`: http://docs.mongodb.org/manual/reference/operator/query-geospatial/#query-selectors
 .. _$near: http://docs.mongodb.org/manual/reference/operator/query/near/#op._S_near
+.. _`capped collection`: http://docs.mongodb.org/manual/core/capped-collections/
