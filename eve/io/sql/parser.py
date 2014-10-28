@@ -17,7 +17,6 @@ import flask.ext.sqlalchemy as flask_sqlalchemy
 import operator as operator
 from eve.utils import str_to_date
 from sqlalchemy import String
-from sqlalchemy.sql.elements import Label
 from sqlalchemy.ext.associationproxy import AssociationProxy
 
 sqla_op = operator
@@ -46,7 +45,7 @@ def parse_dictionary(filter_dict, model, ilike=False):
         if isinstance(attr, AssociationProxy):
             conditions.append(attr.contains(v))
         elif not hasattr(attr, 'property'):
-            conditions.append(attr.ilike('%{0}%'.format(v)))
+            conditions += parse('{0}{1}'.format(k,v),model)
         else:
             if hasattr(attr.property, 'remote_side'):  # a relation
                 for fk in attr.property.remote_side:
