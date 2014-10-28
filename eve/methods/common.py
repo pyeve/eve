@@ -584,7 +584,7 @@ def resolve_embedded_documents(document, resource, embedded_fields):
     """
     for field in embedded_fields:
         data_relation = field_definition(resource, field)['data_relation']
-        getter = lambda ref: embedded_document(ref, data_relation, field)
+        getter = lambda ref: embedded_document(ref, data_relation, field)  # noqa
         fields_chain = field.split('.')
         last_field = fields_chain[-1]
         for subdocument in subdocuments(fields_chain[:-1], document):
@@ -837,3 +837,69 @@ def resource_link():
     if config.API_VERSION:
         path = strip_prefix('/' + config.API_VERSION)
     return path
+
+
+def oplog_push(resource, updates, op, id=None):
+    """ Pushes an edit operation to the oplog if included in OPLOG_METHODS. To
+    save on storage space (at least on MongoDB) field names are shortened:
+
+        'r' = resource endpoint,
+        'o' = operation performed,
+        'i' = unique id of the document involved,
+        'pi' = client IP,
+        'c' = changes
+
+    config.LAST_UPDATED, config.LAST_CREATED and AUTH_FIELD are not being
+    shortened to allow for standard endpoint behavior (so clients can
+    query the endpoint with If-Modified-Since queries, and User-Restricted-
+    Resource-Access will keep working on the oplog endpoint too).
+
+    :param resource: name of the resource involved.
+    :param updates: updates performed with the edit operation.
+    :param op: operation performed. Can be 'POST', 'PUT', 'PATCH', 'DELETE'.
+    :param id: unique id of the document.
+
+    .. versionadded:: 0.5
+    """
+    if not config.OPLOG or op not in config.OPLOG_METHODS:
+        return
+
+    if updates is None:
+        updates = {}
+
+    if not isinstance(updates, list):
+        updates = [updates]
+
+    entries = []
+    for update in updates:
+        entry = {
+            'r': config.URLS[resource],
+            'o': op,
+            'i': update[config.ID_FIELD] if config.ID_FIELD in update else id,
+        }
+        if config.LAST_UPDATED in update:
+            last_update = update[config.LAST_UPDATED]
+        else:
+            last_update = datetime.utcnow().replace(microsecond=0)
+        entry[config.LAST_UPDATED] = entry[config.DATE_CREATED] = last_update
+        if config.OPLOG_AUDIT:
+
+            # TODO this needs further investigation. See:
+            # http://esd.io/blog/flask-apps-heroku-real-ip-spoofing.html;
+            # https://stackoverflow.com/questions/22868900/how-do-i-safely-get-the-users-real-ip-address-in-flask-using-mod-wsgi
+            entry['ip'] = request.remote_addr
+
+            if op in ('PATCH', 'PUT'):
+                # these fields are already contained in 'entry'.
+                del(update[config.LAST_UPDATED])
+                del(update[config.ETAG])
+                entry['c'] = update
+            else:
+                pass
+
+        resolve_user_restricted_access(entry, config.OPLOG_NAME)
+
+        entries.append(entry)
+
+    if entries:
+        app.data.insert(config.OPLOG_NAME, entries)
