@@ -130,8 +130,9 @@ class TestOpLog(TestBase):
         self.assertTrue(config.DATE_CREATED in entry)
         self.assertTrue('o' in entry)
         self.assertEqual(entry['o'], op)
-        self.assertTrue('c' in entry)
         self.assertTrue('127.0.0.1' in entry['ip'])
+        if op in ('PATCH', 'PUT'):
+            self.assertTrue('c' in entry)
 
     def oplog_get(self, url='/oplog'):
         r = self.test_client.get(url)

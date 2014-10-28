@@ -885,13 +885,13 @@ def oplog_push(resource, updates, op, id=None):
             # https://stackoverflow.com/questions/22868900/how-do-i-safely-get-the-users-real-ip-address-in-flask-using-mod-wsgi
             entry['ip'] = request.remote_addr
 
-            if op != 'DELETE':
+            if op in ('PATCH', 'PUT'):
                 # these fields are already contained in 'entry'.
                 del(update[config.LAST_UPDATED])
                 del(update[config.ETAG])
                 entry['c'] = update
             else:
-                entry['c'] = None
+                pass
 
         resolve_user_restricted_access(entry, config.OPLOG_NAME)
 
