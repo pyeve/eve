@@ -525,6 +525,29 @@ uppercase.
                                     want clients to be able to POST/PATCH it.
                                     Defaults to ``True``. 
 
+``OPLOG``                           Set it to ``False`` to disable the :ref:`oplog`.
+                                    Defaults to ``True``.
+
+``OPLOG_NAME``                      This is the name of the database collection 
+                                    where the :ref:`oplog` is stored. Defaults
+                                    to ``oplog``.
+
+``OPLOG_METHODS``                   List of HTTP methods which operations 
+                                    should be logged in the :ref:`oplog`.
+                                    Defaults to ``['DELETE']``.
+
+``OPLOG_ENDPOINT``                  Name of the :ref:`oplog` endpoint. If the 
+                                    endpoint is enabled it can be configured
+                                    like any other API endpoint. Set it to
+                                    ``None`` to disable the endpoint. Defaults
+                                    to ``None``. 
+
+``OPLOG_AUDIT``                     Set it to ``True`` to enable the audit 
+                                    feature. When the audit is enabled client
+                                    IP and changes introduced by ``PUT`` and
+                                    ``PATCH`` operations are also logged to the
+                                    :ref:`oplog`. Defaults to ``True``.
+
 =================================== =========================================
 
 .. _domain:
@@ -533,10 +556,10 @@ Domain Configuration
 --------------------
 In Eve terminology, a `domain` is the definition of the API structure, the area
 where you design your API, fine-tune resources endpoints, and define validation
-rules. 
+rules.
 
 ``DOMAIN`` is a :ref:`global configuration setting <global>`: a Python
-dictionary where keys are API resources and values their definitions. 
+dictionary where keys are API resources and values their definitions.
 
 ::
 

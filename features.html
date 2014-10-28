@@ -450,14 +450,13 @@ explicitly. By default, both are supported.</p>
 <p>Each resource representation provides information on the last time it was
 updated (<tt class="docutils literal"><span class="pre">Last-Modified</span></tt>), along with an hash value computed on the
 representation itself (<tt class="docutils literal"><span class="pre">ETag</span></tt>). These headers allow clients to perform
-conditional requests, only retrieving new or modified data, by using the
-<tt class="docutils literal"><span class="pre">If-Modified-Since</span></tt> header:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT&quot;</span> -i http://eve-demo.herokuapp.com/people
+conditional requests by using the <tt class="docutils literal"><span class="pre">If-Modified-Since</span></tt> header:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT&quot;</span> -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
 <p>or the <tt class="docutils literal"><span class="pre">If-None-Match</span></tt> header:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-None-Match: 1234567890123456789012345678901234567890&quot;</span> -i http://eve-demo.herokuapp.com/people
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-None-Match: 1234567890123456789012345678901234567890&quot;</span> -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
@@ -1531,6 +1530,96 @@ Something like this:</p>
 <p>I admit that this example is as rudimentary as it can get, but hopefully it
 will get the point across.</p>
 </div>
+<div class="section" id="operations-log">
+<span id="oplog"></span><h2>Operations Log<a class="headerlink" href="#operations-log" title="Permalink to this headline">¶</a></h2>
+<p>The OpLog is an API-wide log of all edit operations. Every <tt class="docutils literal"><span class="pre">POST</span></tt>, <tt class="docutils literal"><span class="pre">PATCH</span></tt>
+<tt class="docutils literal"><span class="pre">PUT</span></tt> and <tt class="docutils literal"><span class="pre">DELETE</span></tt> operation can be recorded to the oplog. At its core the
+oplog is simply a server log. What makes it a little bit different is that it
+can be exposed as a read-only endpoint, thus allowing clients to query it as
+they would with any other API endpoint.</p>
+<p>Every oplog entry contains informations about the document and the operation:</p>
+<ul class="simple">
+<li>Operation performed</li>
+<li>Unique ID of the document</li>
+<li>Update date</li>
+<li>Creation date</li>
+<li>Resource endpoint URL</li>
+<li>User token, if <a class="reference internal" href="authentication.html#user-restricted"><em>User-Restricted Resource Access</em></a> is enabled for the endpoint</li>
+</ul>
+<p>Like any other API-maintained document, oplog entries also expose:</p>
+<ul class="simple">
+<li>Entry ID</li>
+<li>ETag</li>
+<li>HATEOAS fields if that&#8217;s enabled.</li>
+</ul>
+<p>If <tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt> has been enabled the oplog entry will also expose the
+client IP and, if the operation was a <tt class="docutils literal"><span class="pre">PATCH</span></tt> or a <tt class="docutils literal"><span class="pre">PUT</span></tt>, the changes
+applied to the document.</p>
+<p>A typical oplog entry looks like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&quot;o&quot;</span><span class="p">:</span> <span class="s">&quot;DELETE&quot;</span><span class="p">,</span>
+    <span class="s">&quot;r&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span><span class="p">,</span>
+    <span class="s">&quot;i&quot;</span><span class="p">:</span> <span class="s">&quot;542d118938345b614ea75b3c&quot;</span><span class="p">,</span>
+    <span class="s">&quot;ip&quot;</span><span class="p">:</span> <span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span>
+    <span class="s">&quot;_updated&quot;</span><span class="p">:</span> <span class="s">&quot;Fri, 03 Oct 2014 08:16:52 GMT&quot;</span><span class="p">,</span>
+    <span class="s">&quot;_created&quot;</span><span class="p">:</span> <span class="s">&quot;Fri, 03 Oct 2014 08:16:52 GMT&quot;</span><span class="p">,</span>
+    <span class="s">&quot;_etag&quot;</span><span class="p">:</span> <span class="s">&quot;e17218fbca41cb0ee6a5a5933fb9ee4f4ca7e5d6&quot;</span>
+    <span class="s">&quot;_id&quot;</span><span class="p">:</span> <span class="s">&quot;542e5b7438345b6dadf95ba5&quot;</span><span class="p">,</span>
+    <span class="s">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>To save a little space (at least on MongoDB) field names have been shortened:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">o</span></tt> stands for operation performed</li>
+<li><tt class="docutils literal"><span class="pre">r</span></tt> stands for resource endpoint</li>
+<li><tt class="docutils literal"><span class="pre">i</span></tt> stands for document id</li>
+<li><tt class="docutils literal"><span class="pre">ip</span></tt> is the client IP</li>
+<li><tt class="docutils literal"><span class="pre">c</span></tt> stands for changes occurred</li>
+</ul>
+<p><tt class="docutils literal"><span class="pre">_created</span></tt> and <tt class="docutils literal"><span class="pre">_updated</span></tt> are relative to the target document, which comes
+handy in a variety of scenarios (like when the oplog is available to clients,
+more on this later).</p>
+<div class="section" id="how-is-the-oplog-operated">
+<h3>How is the oplog operated?<a class="headerlink" href="#how-is-the-oplog-operated" title="Permalink to this headline">¶</a></h3>
+<p>Six settings are dedicated to the OpLog:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">OPLOG</span></tt> switches the oplog feature on and off. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</li>
+<li><tt class="docutils literal"><span class="pre">OPLOG_NAME</span></tt> is the name of the oplog collection on the database. Defaults to <tt class="docutils literal"><span class="pre">oplog</span></tt>.</li>
+<li><tt class="docutils literal"><span class="pre">OPLOG_METHODS</span></tt> is a list of HTTP methods to be logged. Defaults to all of them.</li>
+<li><tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt> is the endpoint name. Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</li>
+<li><tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt> if enabled, IP addresses and changes are also logged. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</li>
+</ul>
+<p>As you can see the oplog feature is turned off by default. Also, since
+<tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt> defaults to <tt class="docutils literal"><span class="pre">None</span></tt>, even if you switch the feature on no
+public oplog endpoint will be available. You will have to explictly set the
+endpoint name in order to expose your oplog to the public.</p>
+</div>
+<div class="section" id="the-oplog-endpoint">
+<h3>The Oplog endpoint<a class="headerlink" href="#the-oplog-endpoint" title="Permalink to this headline">¶</a></h3>
+<p>Since the oplog endpoint is nothing but a standard API endpoint, you can
+customize it. This allows for setting up custom authentication
+(you might want this resource to be only accessible for administrative
+purposes) or any other useful setting.</p>
+<p>Note that while you can change most of its settings, the endpoint will always
+be read-only so setting either <tt class="docutils literal"><span class="pre">resource_methods</span></tt> or <tt class="docutils literal"><span class="pre">item_methods</span></tt> to
+something other than <tt class="docutils literal"><span class="pre">['GET']</span></tt> will serve no purpose. Also, unless you need to
+customize it, adding an oplog entry to the domain is not really necessary as it
+will be added for you automatically.</p>
+<p>Exposing the oplog as an endpoint could be useful in scenarios where you have
+multiple clients (say phone, tablet, web and desktop apps) which need to stay
+in sync with each other and the server. Instead of hitting every single
+endpoint they could just access the oplog to learn all that&#8217;s happened
+since their last access. That’s a single request versus several. This is not
+always the best approach a client could take. Sometimes it is probably better
+to only query for changes on a certain endpoint. That&#8217;s also possible, just
+query the oplog for changes occured on that endpoint.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Are you on MongoDB? Consider making the oplog a <a class="reference external" href="http://docs.mongodb.org/manual/core/capped-collections/">capped collection</a>.</p>
+</div>
+</div>
+</div>
 <div class="section" id="mongodb-support">
 <h2>MongoDB Support<a class="headerlink" href="#mongodb-support" title="Permalink to this headline">¶</a></h2>
 <p>Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL
@@ -1618,6 +1707,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li class="toctree-l2"><a class="reference internal" href="#file-storage">File Storage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#geojson">GeoJSON</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#internal-resources">Internal Resources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#operations-log">Operations Log</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mongodb-support">MongoDB Support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#powered-by-flask">Powered by Flask</a></li>
 </ul>
