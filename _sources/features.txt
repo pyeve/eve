@@ -1615,7 +1615,11 @@ always the best approach a client could take. Sometimes it is probably better
 to only query for changes on a certain endpoint. That's also possible, just
 query the oplog for changes occured on that endpoint.
 
-.. note:: Are you on MongoDB? Consider making the oplog a `capped collection`_. 
+.. note:: 
+
+    Are you on MongoDB? Consider making the oplog a `capped collection`_. Also,
+    in case you are wondering yes, the Eve oplog is blatantly inpsired by the
+    awesome `Replica Set Oplog`_.
 
 MongoDB Support
 ---------------
@@ -1652,3 +1656,4 @@ for unittesting_ and an `extensive documentation`_.
 .. _`geospatial query operators`: http://docs.mongodb.org/manual/reference/operator/query-geospatial/#query-selectors
 .. _$near: http://docs.mongodb.org/manual/reference/operator/query/near/#op._S_near
 .. _`capped collection`: http://docs.mongodb.org/manual/core/capped-collections/
+.. _`Replica Set Oplog`: http://docs.mongodb.org/manual/core/replica-set-oplog/
