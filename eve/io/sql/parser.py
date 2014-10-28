@@ -45,7 +45,7 @@ def parse_dictionary(filter_dict, model, ilike=False):
         attr = getattr(model, k)
         if isinstance(attr, AssociationProxy):
             conditions.append(attr.contains(v))
-        elif isinstance(attr, Label):
+        elif not hasattr(attr, 'property'):
             conditions.append(attr.ilike('%{0}%'.format(v)))
         else:
             if hasattr(attr.property, 'remote_side'):  # a relation

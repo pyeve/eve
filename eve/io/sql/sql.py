@@ -140,19 +140,17 @@ class SQL(DataLayer):
                                 args['sort'], client_embedded)
         if req.where:
             try:
+                args['spec'] = self.combine_queries(args['spec'],
+                                                    parse(req.where, model))
+            except ParseError:
                 try:
                     spec = json.loads(req.where)
                     args['spec'] = \
                         self.combine_queries(args['spec'],
-                                             parse_dictionary(spec,
-                                                              model,
+                                             parse_dictionary(spec, model,
                                                               ilike=True))
                 except (AttributeError, TypeError):
-                    args['spec'] = self.combine_queries(args['spec'],
-                                                        parse(req.where,
-                                                              model))
-            except ParseError:
-                abort(400)
+                    abort(400)
 
         bad_filter = validate_filters(args['spec'], resource)
         if bad_filter:
