@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from io import BytesIO
 
 """
     eve.io.sql.media
@@ -27,12 +28,12 @@ class SQLBlobMediaStorage(object):
         """
         self.app = app
 
-    def get(self, id_or_filename):
+    def get(self, content):
         """ Opens the file given by name or unique id. Note that although the
         returned file is guaranteed to be a File object, it might actually be
         some subclass. Returns None if no file was found.
         """
-        return None
+        return BytesIO(content)
 
     def put(self, content, filename=None, content_type=None):
         """ Saves a new file using the storage system, preferably with the name
