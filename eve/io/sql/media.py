@@ -50,7 +50,8 @@ class SQLBlobMediaStorage(object):
         not supported on the target storage system this will raise
         NotImplementedError instead
         """
-        raise NotImplementedError
+        if not id_or_filename: #  there is nothing to remove
+            return
 
     def exists(self, id_or_filename):
         """ Returns True if a file referenced by the given name or unique id
