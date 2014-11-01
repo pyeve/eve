@@ -543,9 +543,8 @@ uppercase.
                                     to ``None``. 
 
 ``OPLOG_AUDIT``                     Set it to ``True`` to enable the audit 
-                                    feature. When the audit is enabled client
-                                    IP and changes introduced by ``PUT`` and
-                                    ``PATCH`` operations are also logged to the
+                                    feature. When audit is enabled client IP
+                                    and document changes are also logged to the
                                     :ref:`oplog`. Defaults to ``True``.
 
 =================================== =========================================

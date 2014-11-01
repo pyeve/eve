@@ -130,7 +130,7 @@ class TestOpLog(TestBase):
         self.assertTrue('o' in entry)
         self.assertEqual(entry['o'], op)
         self.assertTrue('127.0.0.1' in entry['ip'])
-        if op in ('PATCH', 'PUT'):
+        if op in ('PATCH', 'PUT', 'DELETE'):
             self.assertTrue('c' in entry)
 
     def oplog_get(self, url='/oplog'):
