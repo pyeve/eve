@@ -102,7 +102,7 @@ def deleteitem_internal(resource, concurrency_check=False, **lookup):
     app.data.remove(resource, {config.ID_FIELD: id})
 
     # update oplog if needed
-    oplog_push(resource, None, 'DELETE', id)
+    oplog_push(resource, original, 'DELETE', id)
 
     # TODO: should attempt to delete version collection even if setting is off
     if app.config['DOMAIN'][resource]['versioning'] is True:

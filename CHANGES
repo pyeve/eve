@@ -8,6 +8,8 @@ Version 0.5
 
 Not released yet.
 
+- [change] SERVER_NAME removed as it is not needed anymore.
+- [change] URL_PROTOCOL removed as it is not needed anymore.
 - [new] The Operations Log (OpLog).
 - [fix] Fix validation of read-only fields inside dicts. Closes #474 (Arnau
   Orriols).

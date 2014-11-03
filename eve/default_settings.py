@@ -12,6 +12,8 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.5
+       'SERVER_NAME' removed.
+       'URL_PROTOCOL' removed.
        'OPLOG' added and set to False.
        'OPLOG_NAME' added and set to 'oplog'.
        'OPLOG_METHODS' added and set to all edit operations.
@@ -104,9 +106,6 @@ VERSION_DIFF_INCLUDE = []       # always include these fields when diffing
 
 API_VERSION = ''
 URL_PREFIX = ''
-URL_PROTOCOL = ''               # relative HATEOAS paths by default.
-SERVER_NAME = None
-URL_PROTOCOL = ''
 ID_FIELD = '_id'
 CACHE_CONTROL = ''
 CACHE_EXPIRES = 0
