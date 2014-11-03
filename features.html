@@ -1552,14 +1552,14 @@ they would with any other API endpoint.</p>
 <li>ETag</li>
 <li>HATEOAS fields if that&#8217;s enabled.</li>
 </ul>
-<p>If <tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt> has been enabled the oplog entry will also expose the
-client IP and, if the operation was a <tt class="docutils literal"><span class="pre">PATCH</span></tt> or a <tt class="docutils literal"><span class="pre">PUT</span></tt>, the changes
-applied to the document.</p>
+<p>If <tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt> is enabled entries also expose both client IP and changes
+applied to the document (for <tt class="docutils literal"><span class="pre">DELETE</span></tt> the whole document is included).</p>
 <p>A typical oplog entry looks like this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
     <span class="s">&quot;o&quot;</span><span class="p">:</span> <span class="s">&quot;DELETE&quot;</span><span class="p">,</span>
     <span class="s">&quot;r&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span><span class="p">,</span>
     <span class="s">&quot;i&quot;</span><span class="p">:</span> <span class="s">&quot;542d118938345b614ea75b3c&quot;</span><span class="p">,</span>
+    <span class="s">&quot;c&quot;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">},</span>
     <span class="s">&quot;ip&quot;</span><span class="p">:</span> <span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span>
     <span class="s">&quot;_updated&quot;</span><span class="p">:</span> <span class="s">&quot;Fri, 03 Oct 2014 08:16:52 GMT&quot;</span><span class="p">,</span>
     <span class="s">&quot;_created&quot;</span><span class="p">:</span> <span class="s">&quot;Fri, 03 Oct 2014 08:16:52 GMT&quot;</span><span class="p">,</span>

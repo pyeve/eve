@@ -113,9 +113,6 @@ from the <a class="reference internal" href="index.html#demo"><em>Live demo</em>
     <span class="n">MONGO_USERNAME</span> <span class="o">=</span> <span class="s">&#39;&lt;user&gt;&#39;</span>
     <span class="n">MONGO_PASSWORD</span> <span class="o">=</span> <span class="s">&#39;&lt;pw&gt;&#39;</span>
     <span class="n">MONGO_DBNAME</span> <span class="o">=</span> <span class="s">&#39;&lt;dbname&gt;&#39;</span>
-
-    <span class="c"># also, correctly set the API entry point</span>
-    <span class="n">SERVER_NAME</span> <span class="o">=</span> <span class="s">&#39;eve-demo.herokuapp.com&#39;</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="c"># Running on local machine. Let&#39;s just use the local mongod instance.</span>
 
@@ -126,9 +123,6 @@ from the <a class="reference internal" href="index.html#demo"><em>Live demo</em>
     <span class="n">MONGO_USERNAME</span> <span class="o">=</span> <span class="s">&#39;user&#39;</span>
     <span class="n">MONGO_PASSWORD</span> <span class="o">=</span> <span class="s">&#39;user&#39;</span>
     <span class="n">MONGO_DBNAME</span> <span class="o">=</span> <span class="s">&#39;apitest&#39;</span>
-
-    <span class="c"># let&#39;s not forget the API entry point</span>
-    <span class="n">SERVER_NAME</span> <span class="o">=</span> <span class="s">&#39;localhost:5000&#39;</span>
 </pre></div>
 </div>
 </div>
@@ -144,31 +138,18 @@ uppercase.</p>
 <col width="66%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt></td>
-<td>Domain on which the API is being hosted.
-Supports subdomains. Defaults to
-<tt class="docutils literal"><span class="pre">localhost:5000</span></tt>.</td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">URL_PREFIX</span></tt></td>
+<td>URL prefix for all API endpoints. Will be
+used in conjunction with <tt class="docutils literal"><span class="pre">API_VERSION</span></tt> to
+build API endpoints (e.g., <tt class="docutils literal"><span class="pre">api</span></tt> will be
+rendered to <tt class="docutils literal"><span class="pre">/api/&lt;endpoint&gt;</span></tt>).  Defaults
+to <tt class="docutils literal"><span class="pre">''</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">URL_PREFIX</span></tt></td>
-<td>URL prefix for all API endpoints. Will be used
-in conjunction with <tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt> and
-<tt class="docutils literal"><span class="pre">API_VERSION</span></tt> to construct all API urls
-(e.g., <tt class="docutils literal"><span class="pre">api</span></tt> will be rendered to
-<tt class="docutils literal"><span class="pre">localhost:5000/api/</span></tt>).  Defaults to
-<tt class="docutils literal"><span class="pre">''</span></tt>.</td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">API_VERSION</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">API_VERSION</span></tt></td>
 <td>API version. Will be used in conjunction with
-<tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt> and <tt class="docutils literal"><span class="pre">URL_PREFIX</span></tt> to
-construct API urls (e.g., <tt class="docutils literal"><span class="pre">v1</span></tt> will be
-rendered to <tt class="docutils literal"><span class="pre">localhost:5000/v1/</span></tt>).
-Defaults to <tt class="docutils literal"><span class="pre">''</span></tt>.</td>
-</tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">URL_PROTOCOL</span></tt></td>
-<td>URL protocol. Will be used to form a full URL.
-Setting to <tt class="docutils literal"><span class="pre">http</span></tt> will result in
-<tt class="docutils literal"><span class="pre">http://localhost:5000</span></tt>, e.g. Defaults to
-<tt class="docutils literal"><span class="pre">''</span></tt> for relative paths.</td>
+<tt class="docutils literal"><span class="pre">URL_PREFIX</span></tt> to build API endpoints
+(e.g., <tt class="docutils literal"><span class="pre">v1</span></tt> will be rendered to
+<tt class="docutils literal"><span class="pre">/v1/&lt;endpoint&gt;</span></tt>). Defaults to <tt class="docutils literal"><span class="pre">''</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ALLOWED_FILTERS</span></tt></td>
 <td><p class="first">List of fields on which filtering is allowed.
@@ -673,9 +654,8 @@ to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt></td>
 <td>Set it to <tt class="docutils literal"><span class="pre">True</span></tt> to enable the audit
-feature. When the audit is enabled client
-IP and changes introduced by <tt class="docutils literal"><span class="pre">PUT</span></tt> and
-<tt class="docutils literal"><span class="pre">PATCH</span></tt> operations are also logged to the
+feature. When audit is enabled client IP
+and document changes are also logged to the
 <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
 </tbody>

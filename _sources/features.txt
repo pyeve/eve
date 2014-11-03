@@ -1546,9 +1546,8 @@ Like any other API-maintained document, oplog entries also expose:
 - ETag
 - HATEOAS fields if that's enabled.
 
-If ``OPLOG_AUDIT`` has been enabled the oplog entry will also expose the
-client IP and, if the operation was a ``PATCH`` or a ``PUT``, the changes
-applied to the document.
+If ``OPLOG_AUDIT`` is enabled entries also expose both client IP and changes
+applied to the document (for ``DELETE`` the whole document is included).
 
 A typical oplog entry looks like this:
 
@@ -1558,6 +1557,7 @@ A typical oplog entry looks like this:
         "o": "DELETE", 
         "r": "people", 
         "i": "542d118938345b614ea75b3c",
+        "c": {...},
         "ip": "127.0.0.1",
         "_updated": "Fri, 03 Oct 2014 08:16:52 GMT", 
         "_created": "Fri, 03 Oct 2014 08:16:52 GMT",
