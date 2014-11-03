@@ -321,13 +321,6 @@ class TestMinimal(unittest.TestCase):
     def bulk_insert(self):
         pass
 
-    def _get_server_name(self):
-        server_name = self.app.config.get('SERVER_NAME', '')
-        url_protocol = self.app.config.get('URL_PROTOCOL', '')
-        if url_protocol:
-            server_name = '%s://%s' % (url_protocol, server_name)
-        return server_name
-
     def dropDB(self):
         self.connection = MongoClient(MONGO_HOST, MONGO_PORT)
         self.connection.drop_database(MONGO_DBNAME)
