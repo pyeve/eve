@@ -91,17 +91,15 @@ uppercase.
 
 =================================== =========================================
 ``URL_PREFIX``                      URL prefix for all API endpoints. Will be used 
-                                    in conjunction with ``SERVER_NAME`` and
-                                    ``API_VERSION`` to construct all API urls
-                                    (e.g., ``api`` will be rendered to
-                                    ``localhost:5000/api/``).  Defaults to
-                                    ``''``.
+                                    in conjunction with ``API_VERSION`` to
+                                    build API endpoints (e.g., ``api`` will be
+                                    rendered to ``/api/<endpoint>``).  Defaults
+                                    to ``''``.
 
 ``API_VERSION``                     API version. Will be used in conjunction with 
-                                    ``SERVER_NAME`` and ``URL_PREFIX`` to
-                                    construct API urls (e.g., ``v1`` will be
-                                    rendered to ``localhost:5000/v1/``).
-                                    Defaults to ``''``.
+                                    ``URL_PREFIX`` to build API endpoints
+                                    (e.g., ``v1`` will be rendered to
+                                    ``/v1/<endpoint>``). Defaults to ``''``.
 
 ``ALLOWED_FILTERS``                 List of fields on which filtering is allowed. 
                                     Can be set to ``[]`` (no filters allowed)
