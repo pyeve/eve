@@ -67,9 +67,6 @@ from the :ref:`demo`:
         MONGO_USERNAME = '<user>'
         MONGO_PASSWORD = '<pw>'
         MONGO_DBNAME = '<dbname>'
-
-        # also, correctly set the API entry point
-        SERVER_NAME = 'eve-demo.herokuapp.com'
     else:
         # Running on local machine. Let's just use the local mongod instance.
 
@@ -80,10 +77,6 @@ from the :ref:`demo`:
         MONGO_USERNAME = 'user'
         MONGO_PASSWORD = 'user'
         MONGO_DBNAME = 'apitest'
-
-        # let's not forget the API entry point
-        SERVER_NAME = 'localhost:5000'
-
 
 .. _global:
 
@@ -97,10 +90,6 @@ uppercase.
 .. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
 
 =================================== =========================================
-``SERVER_NAME``                     Domain on which the API is being hosted. 
-                                    Supports subdomains. Defaults to
-                                    ``localhost:5000``. 
-
 ``URL_PREFIX``                      URL prefix for all API endpoints. Will be used 
                                     in conjunction with ``SERVER_NAME`` and
                                     ``API_VERSION`` to construct all API urls
