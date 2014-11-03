@@ -347,8 +347,10 @@ def validate_filters(where, resource):
                 elif isinstance(value, list):
                     r = validate_filter(value)
 
-                if r: break  # noqa
-            if r: break  # noqa
+                if r:
+                    break
+            if r:
+                break
 
         return r
 

@@ -151,11 +151,8 @@ class TestPost(TestBase):
 
         with self.app.test_request_context():
             contacts = self.app.data.driver.db['contacts']
-            # items on which validation failed should not be inserted into the db
             r = contacts.find({"ref": "9234567890123456789054321"}).count()
             self.assertTrue(r == 1)
-            # valid items part of a request containing invalid document should not
-            # be inserted into the db
             r = contacts.find({"ref": "5432112345678901234567890"}).count()
             self.assertTrue(r == 1)
 
@@ -185,11 +182,8 @@ class TestPost(TestBase):
 
         with self.app.test_request_context():
             contacts = self.app.data.driver.db['contacts']
-            # items on which validation failed should not be inserted into the db
             r = contacts.find({"prog": 9999}).count()
             self.assertTrue(r == 0)
-            # valid items part of a request containing invalid document should not
-            # be inserted into the db
             r = contacts.find({"ref": "9234567890123456789054321"}).count()
             self.assertTrue(r == 0)
 
