@@ -90,8 +90,8 @@ uppercase.
 .. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
 
 =================================== =========================================
-``URL_PREFIX``                      URL prefix for all API endpoints. Will be used 
-                                    in conjunction with ``API_VERSION`` to
+``URL_PREFIX``                      URL prefix for all API endpoints. Will be 
+                                    used in conjunction with ``API_VERSION`` to
                                     build API endpoints (e.g., ``api`` will be
                                     rendered to ``/api/<endpoint>``).  Defaults
                                     to ``''``.
