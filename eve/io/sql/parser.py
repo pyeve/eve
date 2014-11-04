@@ -46,7 +46,7 @@ def parse_dictionary(filter_dict, model, ilike=False):
             conditions.append(attr.contains(v))
         elif not hasattr(attr, 'property'):
             try:
-                conditions += parse('{0}{1}'.format(k,v),model)
+                conditions += parse('{0}{1}'.format(k, v), model)
             except (SyntaxError, ParseError):
                 conditions.append(attr.ilike('%{0}%'.format(v)))
         else:

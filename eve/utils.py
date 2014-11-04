@@ -274,8 +274,9 @@ def document_etag(value):
     """
     h = hashlib.sha1()
     try:
-        h.update(dumps(value, sort_keys=True, cls=app.data.json_encoder_class).encode('utf-8'))
-    except RuntimeError: # in some cases we don't have app initialized
+        h.update(dumps(value, sort_keys=True, cls=app.data.json_encoder_class)
+                 .encode('utf-8'))
+    except RuntimeError:  # in some cases we don't have app initialized
         h.update(dumps(value, sort_keys=True).encode('utf-8'))
     return h.hexdigest()
 
@@ -350,8 +351,10 @@ def validate_filters(where, resource):
                 elif isinstance(value, list):
                     r = validate_filter(value)
 
-                if r: break  # noqa
-            if r: break  # noqa
+                if r:
+                    break
+            if r:
+                break
 
         return r
 
