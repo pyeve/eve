@@ -632,8 +632,8 @@ want clients to be able to POST/PATCH it.
 Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG</span></tt></td>
-<td>Set it to <tt class="docutils literal"><span class="pre">False</span></tt> to disable the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>.
-Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
+<td>Set it to <tt class="docutils literal"><span class="pre">True</span></tt> to enable the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>.
+Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_NAME</span></tt></td>
 <td>This is the name of the database collection
@@ -643,7 +643,8 @@ to <tt class="docutils literal"><span class="pre">oplog</span></tt>.</td>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_METHODS</span></tt></td>
 <td>List of HTTP methods which operations
 should be logged in the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>.
-Defaults to <tt class="docutils literal"><span class="pre">['DELETE']</span></tt>.</td>
+Defaults to <tt class="docutils literal"><span class="pre">['DELETE',</span> <span class="pre">'POST,</span> <span class="pre">'PATCH',</span>
+<span class="pre">'PUT']</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt></td>
 <td>Name of the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a> endpoint. If the
