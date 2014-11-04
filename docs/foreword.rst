@@ -57,7 +57,6 @@ like to add to Eve, provided that there is enough interest in the project.
 
 - Documentation (working on it!)
 - Granular exception handling
-- Journaling/logging
 - Server side caching
 - More authentication schemes
 

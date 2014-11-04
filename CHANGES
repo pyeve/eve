@@ -8,6 +8,19 @@ Version 0.5
 
 Not released yet.
 
+- [change] SERVER_NAME removed as it is not needed anymore.
+- [change] URL_PROTOCOL removed as it is not needed anymore.
+- [new] The Operations Log (OpLog).
+- [fix] Fix validation of read-only fields inside dicts. Closes #474 (Arnau
+  Orriols).
+- [fix] Parent and collection links follow the scheme described in #475 (Jen
+  Montes).
+- [new] Add the current query string to the self link for responses with
+  multiple documents. Closes #464 (Jen Montes).
+- [new] When document versioning is on, add ``?version=<version_num>`` to
+  HATEOAS self links. Also adds pagination links for ``?version=all`` and
+  ``?version=diffs`` requests when the number exceeds the max results.
+  Partially addresses #475 (Jen Montes).
 - [fix] Ignore read-only fields in ``PATCH`` requests when their values aren't
   changed compared to the stored document. Closes #479.
 - [new] ``QUERY_WHERE`` allows to set the query parameter key for filters.

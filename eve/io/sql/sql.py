@@ -145,12 +145,14 @@ class SQL(DataLayer):
             except ParseError:
                 try:
                     spec = json.loads(req.where)
-                    args['spec'] = \
-                        self.combine_queries(args['spec'],
-                                             parse_dictionary(spec, model,
-                                                              ilike=True))
+                    # BUG? ilike=True returns partial matches
+                    pd = parse_dictionary(spec, model)
+                    args['spec'] = self.combine_queries(args['spec'], pd)
                 except (AttributeError, TypeError):
-                    abort(400)
+                    pw = parse(req.where, model)
+                    args['spec'] = self.combine_queries(args['spec'], pw)
+            except ParseError:
+                abort(400)
 
         bad_filter = validate_filters(args['spec'], resource)
         if bad_filter:
@@ -283,6 +285,20 @@ class SQL(DataLayer):
     def _model(self, resource):
         return self.lookup_model(self._source(resource))
 
+    def _parse_filter(self, model, filter):
+        """
+        Convert from Mongo/JSON style filters to SQLAlchemy expressions.
+        """
+        if filter is None or len(filter) == 0:
+            filter = []
+        elif isinstance(filter, string_type):
+            filter = parse(filter, model)
+        elif isinstance(filter, dict):
+            filter = parse_dictionary(filter, model)
+        elif not isinstance(filter, list):
+            filter = []
+        return filter
+
     def _datasource(self, resource):
         """
         Overridden from super to return the actual model class of the database
@@ -292,17 +308,9 @@ class SQL(DataLayer):
         model = self._model(resource)
 
         filter_ = config.SOURCES[resource]['filter']
-        if filter_ is None or len(filter_) == 0:
-            filter_ = []
-        elif isinstance(filter_, string_type):
-            filter_ = parse(filter_, model)
-        elif isinstance(filter_, dict):
-            filter_ = parse_dictionary(filter_, model)
-        elif not isinstance(filter_, list):
-            filter_ = []
+        filter_ = self._parse_filter(model, filter_)
         projection_ = copy(config.SOURCES[resource]['projection'])
         sort_ = copy(config.SOURCES[resource]['default_sort'])
-
         return model, filter_, projection_, sort_
 
     def _datasource_ex(self, resource, query=None, client_projection=None,
@@ -310,6 +318,7 @@ class SQL(DataLayer):
         model, filter_, fields_, sort_ = \
             super(SQL, self)._datasource_ex(resource, query, client_projection,
                                             client_sort)
+        filter_ = self._parse_filter(model, filter_)
         if client_embedded:
             fields_.update(client_embedded)
         fields = [field for field in fields_.keys() if fields_[field]]

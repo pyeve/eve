@@ -184,6 +184,33 @@ class TestGet(TestBase):
         resource = response['_items']
         self.assertEqual(len(resource), 1)
 
+    def test_get_query_in_links(self):
+        """ Make sure that query strings appear in all HATEOAS links (#464).
+        """
+        # find a role with enough results
+        for role in ('agent', 'client', 'vendor'):
+            where = 'role == %s' % role
+            response, _ = self.get(self.known_resource, '?where=%s' % where)
+            if response['_meta']['max_results'] \
+                    >= self.app.config['PAGINATION_LIMIT'] + 1:
+                break
+        links = response['_links']
+        total = response['_meta']['total']
+        max_results = response['_meta']['max_results']
+        last_page = total / max_results + (1 if total % max_results else 0)
+        self.assertTrue('?where=%s' % where in links['self']['href'])
+        self.assertTrue('?where=%s' % where in links['next']['href'])
+        self.assertTrue('?where=%s' % where in links['last']['href'])
+        self.assertNextLink(links, 2)
+        self.assertLastLink(links, last_page)
+
+        page = 2
+        response, _ = self.get(self.known_resource,
+                               '?where=%s&page=%d' % (where, page))
+        links = response['_links']
+        self.assertTrue('?where=%s' % where in links['prev']['href'])
+        self.assertPrevLink(links, 1)
+
     def test_get_projection_consistent_etag(self):
         """ Test that #369 is fixed and projection queries return consistent
             etags (as they are now stored along with the document).

@@ -139,7 +139,11 @@ class TestPatch(TestBaseSQL):
         self.assert200(status)
         self.assertEqual(raw_r.headers.get('ETag'), patch_response[ETAG])
         if isinstance(fields, str):
-            return r[fields]
+            result = r[fields]
+            if not result:
+                raise KeyError
+            else:
+                return result
         else:
             return [r[field] for field in fields]
 

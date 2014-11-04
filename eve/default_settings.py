@@ -12,6 +12,13 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.5
+       'SERVER_NAME' removed.
+       'URL_PROTOCOL' removed.
+       'OPLOG' added and set to False.
+       'OPLOG_NAME' added and set to 'oplog'.
+       'OPLOG_METHODS' added and set to all edit operations.
+       'OPLOG_ENDPOINT' added and set to None.
+       'OPLOG_AUDIT' added and set to True.
        'QUERY_WHERE' added and set to 'where'
        'QUERY_PROJECTION' added and set to 'projection'
        'QUERY_SORT' added and set to 'sort'
@@ -99,9 +106,6 @@ VERSION_DIFF_INCLUDE = []       # always include these fields when diffing
 
 API_VERSION = ''
 URL_PREFIX = ''
-URL_PROTOCOL = ''               # relative HATEOAS paths by default.
-SERVER_NAME = None
-URL_PROTOCOL = ''
 ID_FIELD = '_id'
 CACHE_CONTROL = ''
 CACHE_EXPIRES = 0
@@ -124,6 +128,15 @@ VERSIONING = False              # turn document versioning on or off.
 VERSIONS = '_versions'          # suffix for parallel collection w/old versions
 VERSION_PARAM = 'version'       # URL param for specific version of a document.
 INTERNAL_RESOURCE = False       # resources are public by default.
+
+OPLOG = False                   # oplog is disabled by default.
+OPLOG_NAME = 'oplog'            # default oplog resource name.
+OPLOG_ENDPOINT = None           # oplog endpoint is disabled by default.
+OPLOG_AUDIT = True              # oplog audit enabled by default.
+OPLOG_METHODS = ['DELETE',
+                 'POST',
+                 'PATCH',
+                 'PUT']         # oplog logs all operations by default.
 
 RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']

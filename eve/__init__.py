@@ -10,6 +10,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.5
+       'SERVER_NAME' removed.
        'QUERY_WHERE' added.
        'QUERY_SORT' added.
        'QUERY_PAGE' added.
@@ -45,7 +46,6 @@ RFC1123_DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
 
 URL_PREFIX = ''
 API_VERSION = ''
-SERVER_NAME = None
 PAGINATION = True
 PAGINATION_LIMIT = 50
 PAGINATION_DEFAULT = 25

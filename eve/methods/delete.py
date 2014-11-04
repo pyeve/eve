@@ -13,7 +13,7 @@
 from flask import current_app as app, abort
 from eve.utils import config
 from eve.auth import requires_auth
-from eve.methods.common import get_document, ratelimit, pre_event
+from eve.methods.common import get_document, ratelimit, pre_event, oplog_push
 from eve.versioning import versioned_id_field
 
 
@@ -43,6 +43,7 @@ def deleteitem_internal(resource, concurrency_check=False, **lookup):
     :param **lookup: item lookup query.
 
     .. versionchanged:: 0.5
+       Push updates to OpLog.
        Original deleteitem() has been split into deleteitem() and
        deleteitem_internal().
 
@@ -97,7 +98,12 @@ def deleteitem_internal(resource, concurrency_check=False, **lookup):
         if field in original:
             app.media.delete(original[field])
 
-    app.data.remove(resource, {config.ID_FIELD: original[config.ID_FIELD]})
+    id = original[config.ID_FIELD]
+    app.data.remove(resource, {config.ID_FIELD: id})
+
+    # update oplog if needed
+    oplog_push(resource, original, 'DELETE', id)
+
     # TODO: should attempt to delete version collection even if setting is off
     if app.config['DOMAIN'][resource]['versioning'] is True:
         app.data.remove(

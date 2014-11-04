@@ -137,10 +137,32 @@ class TestPost(TestBase):
         data = {"ref": "QQQQQQQQQQQQQQQQQQQQQQQQQ"}
         self.assertPostItem(data, 'title', False)
 
-    def test_multi_post(self):
+    def test_multi_post_valid(self):
         data = [
             {"ref": "9234567890123456789054321"},
-            {"prog": 7},
+            {"ref": "5432112345678901234567890", "role": ["agent"]},
+        ]
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert201(status)
+        results = r['_items']
+
+        self.assertEqual(results[0]['_status'], 'OK')
+        self.assertEqual(results[1]['_status'], 'OK')
+
+        with self.app.test_request_context():
+            contacts = self.app.data.driver.db['contacts']
+            # items on which validation failed should not be inserted into the db
+            r = contacts.find({"ref": "9234567890123456789054321"}).count()
+            self.assertTrue(r == 1)
+            # valid items part of a request containing invalid document should not
+            # be inserted into the db
+            r = contacts.find({"ref": "5432112345678901234567890"}).count()
+            self.assertTrue(r == 1)
+
+    def test_multi_post_invalid(self):
+        data = [
+            {"ref": "9234567890123456789054321"},
+            {"prog": 9999},
             {"ref": "5432112345678901234567890", "role": ["agent"]},
             {"ref": self.item_ref},
             {"ref": "9234567890123456789054321", "tid": "12345678"},
@@ -157,17 +179,19 @@ class TestPost(TestBase):
         self.assertValidationError(results[4], {'tid': 'ObjectId'})
 
         self.assertTrue(ID_FIELD not in results[0])
+        self.assertTrue(ID_FIELD not in results[1])
         self.assertTrue(ID_FIELD not in results[2])
+        self.assertTrue(ID_FIELD not in results[3])
 
-        # items on which validation failed should not be inserted into the db
-        _, status = self.get(self.known_resource_url, 'where=prog==7')
-        self.assert404(status)
-
-        # valid items part of a request containing invalid document should not
-        # be inserted into the db
-        _, status = self.get(self.known_resource_url,
-                             'where=ref==9234567890123456789054321')
-        self.assert404(status)
+        with self.app.test_request_context():
+            contacts = self.app.data.driver.db['contacts']
+            # items on which validation failed should not be inserted into the db
+            r = contacts.find({"prog": 9999}).count()
+            self.assertTrue(r == 0)
+            # valid items part of a request containing invalid document should not
+            # be inserted into the db
+            r = contacts.find({"ref": "9234567890123456789054321"}).count()
+            self.assertTrue(r == 0)
 
     def test_post_x_www_form_urlencoded(self):
         test_field = "ref"
@@ -415,6 +439,15 @@ class TestPost(TestBase):
         self.assertValidationErrorStatus(status)
         # this will pass as value matches 'default' setting.
         test_value = 'default'
+        data = {test_field: test_value}
+        self.assertPostItem(data, test_field, test_value)
+
+    def test_post_readonly_in_dict(self):
+        # Test that a post with a readonly field inside a dict is correctly
+        # validated and doesn't return an exception error
+        del(self.domain['contacts']['schema']['ref']['required'])
+        test_field = 'dict_with_read_only'
+        test_value = {'read_only_in_dict': 'default'}
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 

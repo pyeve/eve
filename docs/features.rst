@@ -249,9 +249,15 @@ Resource endpoints allow consumers to retrieve multiple documents. Query
 strings are supported, allowing for filtering and sorting. Two query syntaxes
 are supported. The JSON-like query syntax:
 
+::
+
+    http://eve-demo.herokuapp.com/people?where={"lastname": "Doe"}
+
+which translates to the following ``curl`` request:
+
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people?where={"lastname": "Doe"}
+    $ curl -i -g http://eve-demo.herokuapp.com/people?where={%22lastname%22:%20%22Doe%22}
     HTTP/1.1 200 OK
 
 and the native Python syntax (which is not supported by the SQLAlchemy data
@@ -286,9 +292,15 @@ to be reversed for a field.
 
 The MongoDB data layer also supports native MongoDB syntax:
 
+::
+
+    http://eve-demo.herokuapp.com/people?sort=[("lastname", -1)]
+
+which translates to the following ``curl`` request:
+
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people?sort=[("lastname", -1)]
+    $ curl -i http://eve-demo.herokuapp.com/people?sort=[(%22lastname%22,%20-1)]
     HTTP/1.1 200 OK
 
 Would return documents sorted by lastname in descending order.
@@ -325,7 +337,9 @@ Of course you can mix all the available query parameters:
     $ curl -i http://eve-demo.herokuapp.com/people?where={"lastname": "Doe"}&sort=[("firstname", 1)]&page=5
     HTTP/1.1 200 OK
 
-Pagination can be disabled.
+Pagination can be disabled. Please note that, for clarity, the above example is
+not properly escaped. If using ``curl``, refer to the examples provided in
+:ref:`filters`.
 
 .. _hateoas_feature:
 
@@ -414,19 +428,18 @@ Conditional Requests
 Each resource representation provides information on the last time it was
 updated (``Last-Modified``), along with an hash value computed on the
 representation itself (``ETag``). These headers allow clients to perform
-conditional requests, only retrieving new or modified data, by using the
-``If-Modified-Since`` header:
+conditional requests by using the ``If-Modified-Since`` header:
 
 .. code-block:: console
 
-    $ curl -H "If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT" -i http://eve-demo.herokuapp.com/people
+    $ curl -H "If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT" -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c 
     HTTP/1.1 200 OK
 
 or the ``If-None-Match`` header:
 
 .. code-block:: console
 
-    $ curl -H "If-None-Match: 1234567890123456789012345678901234567890" -i http://eve-demo.herokuapp.com/people
+    $ curl -H "If-None-Match: 1234567890123456789012345678901234567890" -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c 
     HTTP/1.1 200 OK
 
 
@@ -1512,6 +1525,106 @@ Something like this:
 I admit that this example is as rudimentary as it can get, but hopefully it
 will get the point across.
 
+.. _oplog:
+
+Operations Log
+--------------
+The OpLog is an API-wide log of all edit operations. Every ``POST``, ``PATCH``
+``PUT`` and ``DELETE`` operation can be recorded to the oplog. At its core the
+oplog is simply a server log. What makes it a little bit different is that it
+can be exposed as a read-only endpoint, thus allowing clients to query it as
+they would with any other API endpoint.
+
+Every oplog entry contains informations about the document and the operation:
+
+- Operation performed
+- Unique ID of the document
+- Update date
+- Creation date
+- Resource endpoint URL
+- User token, if :ref:`user-restricted` is enabled for the endpoint
+
+Like any other API-maintained document, oplog entries also expose:
+
+- Entry ID
+- ETag
+- HATEOAS fields if that's enabled.
+
+If ``OPLOG_AUDIT`` is enabled entries also expose both client IP and changes
+applied to the document (for ``DELETE`` the whole document is included).
+
+A typical oplog entry looks like this:
+
+.. code-block:: python
+
+    {
+        "o": "DELETE", 
+        "r": "people", 
+        "i": "542d118938345b614ea75b3c",
+        "c": {...},
+        "ip": "127.0.0.1",
+        "_updated": "Fri, 03 Oct 2014 08:16:52 GMT", 
+        "_created": "Fri, 03 Oct 2014 08:16:52 GMT",
+        "_etag": "e17218fbca41cb0ee6a5a5933fb9ee4f4ca7e5d6"
+        "_id": "542e5b7438345b6dadf95ba5", 
+        "_links": {...},
+    }
+
+To save a little space (at least on MongoDB) field names have been shortened: 
+
+- ``o`` stands for operation performed
+- ``r`` stands for resource endpoint
+- ``i`` stands for document id
+- ``ip`` is the client IP
+- ``c`` stands for changes occurred 
+  
+``_created`` and ``_updated`` are relative to the target document, which comes
+handy in a variety of scenarios (like when the oplog is available to clients,
+more on this later).
+
+How is the oplog operated?
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Six settings are dedicated to the OpLog:
+
+- ``OPLOG`` switches the oplog feature on and off. Defaults to ``False``.
+- ``OPLOG_NAME`` is the name of the oplog collection on the database. Defaults to ``oplog``.
+- ``OPLOG_METHODS`` is a list of HTTP methods to be logged. Defaults to all of them.
+- ``OPLOG_ENDPOINT`` is the endpoint name. Defaults to ``None``.
+- ``OPLOG_AUDIT`` if enabled, IP addresses and changes are also logged. Defaults to ``True``.
+
+As you can see the oplog feature is turned off by default. Also, since
+``OPLOG_ENDPOINT`` defaults to ``None``, even if you switch the feature on no
+public oplog endpoint will be available. You will have to explictly set the
+endpoint name in order to expose your oplog to the public. 
+
+The Oplog endpoint
+~~~~~~~~~~~~~~~~~~
+Since the oplog endpoint is nothing but a standard API endpoint, you can
+customize it. This allows for setting up custom authentication
+(you might want this resource to be only accessible for administrative
+purposes) or any other useful setting. 
+
+Note that while you can change most of its settings, the endpoint will always
+be read-only so setting either ``resource_methods`` or ``item_methods`` to
+something other than ``['GET']`` will serve no purpose. Also, unless you need to
+customize it, adding an oplog entry to the domain is not really necessary as it
+will be added for you automatically.
+
+Exposing the oplog as an endpoint could be useful in scenarios where you have
+multiple clients (say phone, tablet, web and desktop apps) which need to stay
+in sync with each other and the server. Instead of hitting every single
+endpoint they could just access the oplog to learn all that's happened
+since their last access. That’s a single request versus several. This is not
+always the best approach a client could take. Sometimes it is probably better
+to only query for changes on a certain endpoint. That's also possible, just
+query the oplog for changes occured on that endpoint.
+
+.. note:: 
+
+    Are you on MongoDB? Consider making the oplog a `capped collection`_. Also,
+    in case you are wondering yes, the Eve oplog is blatantly inpsired by the
+    awesome `Replica Set Oplog`_.
+
 MongoDB and SQLAlchemy Support
 ------------------------------
 Support for MongoDB and SQLAlchemy (see :doc:`tutorials/sqlalchemy_support`)
@@ -1536,6 +1649,7 @@ for unittesting_ and an `extensive documentation`_.
 .. _unittesting: http://flask.pocoo.org/docs/testing/
 .. _`extensive documentation`: http://flask.pocoo.org/docs/
 .. _`this`: https://speakerdeck.com/nicola/developing-restful-web-apis-with-python-flask-and-mongodb?slide=113
+.. _GridFS: http://docs.mongodb.org/manual/core/gridfs/
 .. _Events: https://github.com/nicolaiarocci/events
 .. _MediaStorage: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/media.py
 .. _`MongoDB Data Model Design`: http://docs.mongodb.org/manual/core/data-model-design/
@@ -1545,3 +1659,5 @@ for unittesting_ and an `extensive documentation`_.
 .. _MongoDB: http://docs.mongodb.org/manual/applications/geospatial-indexes/#geojson-objects
 .. _`geospatial query operators`: http://docs.mongodb.org/manual/reference/operator/query-geospatial/#query-selectors
 .. _$near: http://docs.mongodb.org/manual/reference/operator/query/near/#op._S_near
+.. _`capped collection`: http://docs.mongodb.org/manual/core/capped-collections/
+.. _`Replica Set Oplog`: http://docs.mongodb.org/manual/core/replica-set-oplog/

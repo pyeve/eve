@@ -198,7 +198,7 @@ class Validator(Validator):
 
         .. versionadded:: 0.4
         """
-        default = config.DOMAIN[self.resource]['schema'][field].get('default')
+        default = self.schema[field].get('default')
         original_value = self._original_document.get(field) \
             if self._original_document else None
         if value not in (default, original_value):

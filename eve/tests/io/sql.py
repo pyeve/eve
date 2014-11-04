@@ -160,7 +160,7 @@ class TestSQLStructures(TestCase):
         r = SQLAResult(self.person, self.fields)
         r['dummy'] = 5
         self.assertTrue('dummy' in r.keys())
-        self.assertEqual(len(r), len(self.fields) + 1)
+        self.assertEqual(len(r), len(self.fields))
         self.assertEqual(r['dummy'], 5)
 
     def test_sql_collection(self):

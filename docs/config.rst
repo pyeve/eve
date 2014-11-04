@@ -61,16 +61,9 @@ from the :ref:`demo`:
     if os.environ.get('PORT'):
         # We're hosted on Heroku! Use the heroku Postgres as our backend.
         SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-
-        # also, correctly set the API entry point
-        SERVER_NAME = 'eve-demo.herokuapp.com'
     else:
         # Running on local machine. Let's just use the local sqlite3 instance.
         SQLALCHEMY_DATABASE_URI = 'sqlite://'
-
-        # let's not forget the API entry point
-        SERVER_NAME = 'localhost:5000'
-
 
 .. _global:
 
@@ -84,27 +77,16 @@ uppercase.
 .. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
 
 =================================== =========================================
-``SERVER_NAME``                     Domain on which the API is being hosted. 
-                                    Supports subdomains. Defaults to
-                                    ``localhost:5000``. 
-
-``URL_PREFIX``                      URL prefix for all API endpoints. Will be used 
-                                    in conjunction with ``SERVER_NAME`` and
-                                    ``API_VERSION`` to construct all API urls
-                                    (e.g., ``api`` will be rendered to
-                                    ``localhost:5000/api/``).  Defaults to
-                                    ``''``.
+``URL_PREFIX``                      URL prefix for all API endpoints. Will be 
+                                    used in conjunction with ``API_VERSION`` to
+                                    build API endpoints (e.g., ``api`` will be
+                                    rendered to ``/api/<endpoint>``).  Defaults
+                                    to ``''``.
 
 ``API_VERSION``                     API version. Will be used in conjunction with 
-                                    ``SERVER_NAME`` and ``URL_PREFIX`` to
-                                    construct API urls (e.g., ``v1`` will be
-                                    rendered to ``localhost:5000/v1/``).
-                                    Defaults to ``''``.
-
-``URL_PROTOCOL``                    URL protocol. Will be used to form a full URL.
-                                    Setting to ``http`` will result in
-                                    ``http://localhost:5000``, e.g. Defaults to
-                                    ``''`` for relative paths.
+                                    ``URL_PREFIX`` to build API endpoints
+                                    (e.g., ``v1`` will be rendered to
+                                    ``/v1/<endpoint>``). Defaults to ``''``.
 
 ``ALLOWED_FILTERS``                 List of fields on which filtering is allowed. 
                                     Can be set to ``[]`` (no filters allowed)
@@ -467,6 +449,28 @@ uppercase.
                                     want clients to be able to POST/PATCH it.
                                     Defaults to ``True``. 
 
+``OPLOG``                           Set it to ``False`` to disable the :ref:`oplog`.
+                                    Defaults to ``True``.
+
+``OPLOG_NAME``                      This is the name of the database collection 
+                                    where the :ref:`oplog` is stored. Defaults
+                                    to ``oplog``.
+
+``OPLOG_METHODS``                   List of HTTP methods which operations 
+                                    should be logged in the :ref:`oplog`.
+                                    Defaults to ``['DELETE']``.
+
+``OPLOG_ENDPOINT``                  Name of the :ref:`oplog` endpoint. If the 
+                                    endpoint is enabled it can be configured
+                                    like any other API endpoint. Set it to
+                                    ``None`` to disable the endpoint. Defaults
+                                    to ``None``. 
+
+``OPLOG_AUDIT``                     Set it to ``True`` to enable the audit 
+                                    feature. When audit is enabled client IP
+                                    and document changes are also logged to the
+                                    :ref:`oplog`. Defaults to ``True``.
+
 =================================== =========================================
 
 .. _domain:
@@ -475,10 +479,10 @@ Domain Configuration
 --------------------
 In Eve terminology, a `domain` is the definition of the API structure, the area
 where you design your API, fine-tune resources endpoints, and define validation
-rules. 
+rules.
 
 ``DOMAIN`` is a :ref:`global configuration setting <global>`: a Python
-dictionary where keys are API resources and values their definitions. 
+dictionary where keys are API resources and values their definitions.
 
 ::
 
