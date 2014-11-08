@@ -145,14 +145,12 @@ class SQL(DataLayer):
             except ParseError:
                 try:
                     spec = json.loads(req.where)
-                    # BUG? ilike=True returns partial matches
-                    pd = parse_dictionary(spec, model)
-                    args['spec'] = self.combine_queries(args['spec'], pd)
+                    args['spec'] = \
+                        self.combine_queries(args['spec'],
+                                             parse_dictionary(spec, model))
                 except (AttributeError, TypeError):
-                    pw = parse(req.where, model)
-                    args['spec'] = self.combine_queries(args['spec'], pw)
-            except ParseError:
-                abort(400)
+                    # if parse failed and json loads fails - raise 400
+                    abort(400)
 
         bad_filter = validate_filters(args['spec'], resource)
         if bad_filter:

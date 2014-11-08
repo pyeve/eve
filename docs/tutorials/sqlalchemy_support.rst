@@ -95,5 +95,36 @@ and check that everything is working like expected, by trying requesting `people
         },
     }
 
+SQLAlchemy expressions
+----------------------
+With this version of Eve you can use `SQLAlchemy`_ expressions such as: `like`,
+`in_`, etc. For more examples please check `SQLAlchemy internals`_.
+
+Using those expresssion is straightforward (you can use them only with dictionary
+where filter):
+
+.. code-block:: console
+
+    http://127.0.0.1:5000/people?where={"lastname":"like(\"Smi%\")"}
+
+which produces where closure:
+
+.. code-block:: sql
+
+   people.lastname LIKE "Smi%"
+
+Another examples using `in_`:
+
+.. code-block:: console
+
+    http://127.0.0.1:5000/people?where={"firstname":"in_([\"John\",\"Fred\"])"}
+
+which produces where closure:
+
+.. code-block:: sql
+
+   people.firstname IN ("John", "Fred")
+
 
 .. _SQLAlchemy: http://www.sqlalchemy.org/
+.. _SQLAlchemy internals: http://docs.sqlalchemy.org/en/latest/orm/internals.html

@@ -11,12 +11,12 @@
     :copyright: (c) 2013 by Nicola Iarocci, Tomasz Jezierski (Tefnet).
     :license: BSD, see LICENSE for more details.
 """
-
+import re
 import ast
 import flask.ext.sqlalchemy as flask_sqlalchemy
 import operator as operator
+import json
 from eve.utils import str_to_date
-from sqlalchemy import String
 from sqlalchemy.ext.associationproxy import AssociationProxy
 
 sqla_op = operator
@@ -27,7 +27,7 @@ class ParseError(ValueError):
     pass
 
 
-def parse_dictionary(filter_dict, model, ilike=False):
+def parse_dictionary(filter_dict, model):
     """
     Parse a dictionary into a list of SQLAlchemy BinaryExpressions to be used
     in query filters.
@@ -39,32 +39,44 @@ def parse_dictionary(filter_dict, model, ilike=False):
     if len(filter_dict) == 0:
         return []
     conditions = []
+
+
     for k, v in filter_dict.items():
         # first check if we have FK or PK before using ilike
         attr = getattr(model, k)
+
         if isinstance(attr, AssociationProxy):
             conditions.append(attr.contains(v))
-        elif not hasattr(attr, 'property'):
-            try:
-                conditions += parse('{0}{1}'.format(k, v), model)
-            except (SyntaxError, ParseError):
-                conditions.append(attr.ilike('%{0}%'.format(v)))
+
+        elif hasattr(attr, 'property') and \
+             hasattr(attr.property, 'remote_side'):  # a relation
+            for fk in attr.property.remote_side:
+                conditions.append(sqla_op.eq(fk, v))
+
         else:
-            if hasattr(attr.property, 'remote_side'):  # a relation
-                for fk in attr.property.remote_side:
-                    conditions.append(sqla_op.eq(fk, v))
-            else:
-                column = attr.property.columns[0]
-                if isinstance(v, list):
-                    conditions.append(getattr(model, k).in_(v))
-                elif ilike and isinstance(column.type, String) \
-                        and not column.foreign_keys:
-                    conditions.append(getattr(model, k)
-                                      .ilike('%{0}%'.format(v)))
-                else:
-                    conditions.append(sqla_op.eq(getattr(model, k), v))
+            try:
+                new_o, v = parse_sqla_operators(v)
+                new_filter = getattr(attr, new_o)(v)
+            except (TypeError, ValueError):  # json parse error
+                new_filter = sqla_op.eq(attr, v)
+
+            conditions.append(new_filter)
 
     return conditions
+
+
+def parse_sqla_operators(expression):
+    """
+    Parse expressions like:
+        like('%john%')
+        ilike('john%')
+        in_(['a','b'])
+    """
+    m = re.match(r"(?P<operator>\w+)\((?P<value>.+)\)", expression)
+    if m:
+        o = m.group('operator')
+        v = json.loads(m.group('value'))
+        return o, v
 
 
 def parse(expression, model):
@@ -110,6 +122,7 @@ class SQLAVisitor(ast.NodeVisitor):
         self.sqla_query = []
         self.ops = []
         self.current_value = None
+
 
         # perform the magic.
         self.generic_visit(node)
