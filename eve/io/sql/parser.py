@@ -40,7 +40,6 @@ def parse_dictionary(filter_dict, model):
         return []
     conditions = []
 
-
     for k, v in filter_dict.items():
         # first check if we have FK or PK before using ilike
         attr = getattr(model, k)
@@ -49,7 +48,8 @@ def parse_dictionary(filter_dict, model):
             conditions.append(attr.contains(v))
 
         elif hasattr(attr, 'property') and \
-             hasattr(attr.property, 'remote_side'):  # a relation
+                hasattr(attr.property, 'remote_side'):  # a relation
+
             for fk in attr.property.remote_side:
                 conditions.append(sqla_op.eq(fk, v))
 
@@ -122,7 +122,6 @@ class SQLAVisitor(ast.NodeVisitor):
         self.sqla_query = []
         self.ops = []
         self.current_value = None
-
 
         # perform the magic.
         self.generic_visit(node)
