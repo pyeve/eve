@@ -65,6 +65,8 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.config['QUERY_MAX_RESULTS'], 'max_results')
         self.assertEqual(self.app.config['QUERY_EMBEDDED'], 'embedded')
 
+        self.assertEqual(self.app.config['JSON_SORT_KEYS'], False)
+
     def test_settings_as_dict(self):
         my_settings = {'API_VERSION': 'override!', 'DOMAIN': {'contacts': {}}}
         self.app = Eve(settings=my_settings)
