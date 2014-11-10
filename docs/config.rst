@@ -418,7 +418,7 @@ uppercase.
                                     ``True``.
 
 ``JSON_SORT_KEYS``                  ``True`` to enable JSON key sorting, ``False``
-                                    otherwise.
+                                    otherwise. Defaults to ``False``.
 
 ``VALIDATION_ERROR_STATUS``         The HTTP status code to use for validation errors.
                                     Defaults to ``422``.
