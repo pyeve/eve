@@ -3,6 +3,7 @@
 from eve.tests import TestBase
 from eve.utils import api_prefix
 from eve.tests.test_settings import MONGO_DBNAME
+import simplejson as json
 
 
 class TestRenders(TestBase):
@@ -95,6 +96,13 @@ class TestRenders(TestBase):
         self.assertEqual(r.content_type, 'application/json')
         r = self.test_client.get(self.known_resource_url)
         self.assertEqual(r.content_type, 'application/json')
+
+    def test_json_keys_sorted(self):
+        self.app.config['JSON_SORT_KEYS'] = True
+        r = self.test_client.get(self.known_resource_url,
+                                 headers=[('Accept', 'application/json')])
+        self.assertEqual(json.dumps(json.loads(r.get_data()), sort_keys=True),
+                         r.get_data())
 
     def test_CORS(self):
         # no CORS headers if Origin is not provided with the request.

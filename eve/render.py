@@ -251,7 +251,8 @@ def render_json(data):
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
     """
-    return json.dumps(data, cls=app.data.json_encoder_class)
+    return json.dumps(data, cls=app.data.json_encoder_class,
+                      sort_keys=config.JSON_SORT_KEYS)
 
 
 def render_xml(data):
