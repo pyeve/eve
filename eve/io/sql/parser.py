@@ -57,8 +57,11 @@ def parse_dictionary(filter_dict, model):
             try:
                 new_o, v = parse_sqla_operators(v)
                 new_filter = getattr(attr, new_o)(v)
-            except (TypeError, ValueError):  # json parse error
-                new_filter = sqla_op.eq(attr, v)
+            except (TypeError, ValueError):  # json/sql parse error
+                if isinstance(v, list):  # we have an array
+                    new_filter = attr.in_(v)
+                else:
+                    new_filter = sqla_op.eq(attr, v)
 
             conditions.append(new_filter)
 
