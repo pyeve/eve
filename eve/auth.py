@@ -51,7 +51,7 @@ def requires_auth(endpoint_class):
                         roles += resource['allowed_item_read_roles']
                     else:
                         roles += resource['allowed_item_write_roles']
-                auth = _auth_object(resource_name)
+                auth = resource_auth(resource_name)
             else:
                 # home
                 resource_name = resource = None
@@ -74,6 +74,9 @@ class BasicAuth(object):
     """ Implements Basic AUTH logic. Should be subclassed to implement custom
     authentication checking.
 
+    .. versionchanged:: 0.6
+       Add mongo_prefix getter and setter methods.
+
     .. versionchanged:: 0.4
        ensure all errors returns a parseable body #366.
        auth.request_auth_value replaced with getter and setter methods which
@@ -90,11 +93,17 @@ class BasicAuth(object):
 
     .. versionadded:: 0.0.4
     """
+    def set_mongo_prefix(self, value):
+        g.mongo_prefix = value
+
+    def get_mongo_prefix(self):
+        return g.get('mongo_prefix')
+
     def set_request_auth_value(self, value):
         g.auth_value = value
 
     def get_request_auth_value(self):
-        return g.get("auth_value")
+        return g.get('auth_value')
 
     def check_auth(self, username, password, allowed_roles, resource, method):
         """ This function is called to check if a username / password
@@ -245,7 +254,7 @@ def auth_field_and_value(resource):
         public_method_list_to_check = 'public_item_methods'
 
     resource_dict = app.config['DOMAIN'][resource]
-    auth = _auth_object(resource)
+    auth = resource_auth(resource)
 
     request_auth_value = auth.get_request_auth_value() if auth else None
     auth_field = resource_dict.get('auth_field', None) if request.method not \
@@ -254,9 +263,12 @@ def auth_field_and_value(resource):
     return auth_field, request_auth_value
 
 
-def _auth_object(resource):
+def resource_auth(resource):
     """ Ensure resource auth is an instance and its state is preserved between
     calls.
+
+    .. versionchanged:: 0.6
+       Change name so it can be clearly imported from other modules.
 
     .. versionadded:: 0.5.2
     """

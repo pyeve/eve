@@ -160,8 +160,9 @@ class TestGridFSMediaStorage(TestBase):
         # compare original and returned data
         self.assertMediaField(_id, self.encoded, self.clean)
 
-        # retrieve media_id
-        media_id = self.assertMediaStored(_id)
+        with self.app.test_request_context():
+            # retrieve media_id
+            media_id = self.assertMediaStored(_id)
 
         # PUT replaces the file with new one
         clean = b'my new file contents'
@@ -175,8 +176,9 @@ class TestGridFSMediaStorage(TestBase):
                                  headers=headers))
         self.assertEqual(STATUS_OK, r[STATUS])
 
-        # media has been properly stored
-        self.assertMediaStored(_id)
+        with self.app.test_request_context():
+            # media has been properly stored
+            self.assertMediaStored(_id)
 
         # compare original and returned data
         r, s = self.assertMediaField(_id, encoded, clean)
@@ -184,8 +186,9 @@ class TestGridFSMediaStorage(TestBase):
         # and of course, the ordinary field has been updated too
         self.assertEqual(r[test_field], test_value)
 
-        # previous media doesn't exist anymore (it's been deleted)
-        self.assertFalse(self.app.media.exists(media_id))
+        with self.app.test_request_context():
+            # previous media doesn't exist anymore (it's been deleted)
+            self.assertFalse(self.app.media.exists(media_id))
 
     def test_gridfs_media_storage_patch(self):
         r, s = self._post()
@@ -195,8 +198,9 @@ class TestGridFSMediaStorage(TestBase):
         # compare original and returned data
         self.assertMediaField(_id, self.encoded, self.clean)
 
-        # retrieve media_id
-        media_id = self.assertMediaStored(_id)
+        with self.app.test_request_context():
+            # retrieve media_id
+            media_id = self.assertMediaStored(_id)
 
         # PATCH replaces the file with new one
         clean = b'my new file contents'
@@ -216,8 +220,9 @@ class TestGridFSMediaStorage(TestBase):
         # and of course, the ordinary field has been updated too
         self.assertEqual(r[test_field], test_value)
 
-        # previous media doesn't exist anymore (it's been deleted)
-        self.assertFalse(self.app.media.exists(media_id))
+        with self.app.test_request_context():
+            # previous media doesn't exist anymore (it's been deleted)
+            self.assertFalse(self.app.media.exists(media_id))
 
     def test_gridfs_media_storage_patch_null(self):
         # set 'media' field to 'nullable'
@@ -245,10 +250,11 @@ class TestGridFSMediaStorage(TestBase):
         _id = r[ID_FIELD]
         etag = r[ETAG]
 
-        # retrieve media_id and compare original and returned data
-        self.assertMediaField(_id, self.encoded, self.clean)
+        with self.app.test_request_context():
+            # retrieve media_id and compare original and returned data
+            self.assertMediaField(_id, self.encoded, self.clean)
 
-        media_id = self.assertMediaStored(_id)
+            media_id = self.assertMediaStored(_id)
 
         # DELETE deletes both the document and the media file
         headers = [('If-Match', etag)]
@@ -258,8 +264,9 @@ class TestGridFSMediaStorage(TestBase):
                                     headers=headers))
         self.assert204(s)
 
-        # media doesn't exist anymore (it's been deleted)
-        self.assertFalse(self.app.media.exists(media_id))
+        with self.app.test_request_context():
+            # media doesn't exist anymore (it's been deleted)
+            self.assertFalse(self.app.media.exists(media_id))
 
         # GET returns 404
         r, s = self.parse_response(self.test_client.get('%s/%s' % (self.url,
@@ -274,8 +281,9 @@ class TestGridFSMediaStorage(TestBase):
         r, s = self._post()
         _id = r[ID_FIELD]
 
-        # retrieve media_id and compare original and returned data
-        media_id = self.assertMediaStored(_id)
+        with self.app.test_request_context():
+            # retrieve media_id and compare original and returned data
+            media_id = self.assertMediaStored(_id)
 
         self.app.config['DOMAIN']['contacts']['datasource']['projection'] = \
             {"media": 0}
@@ -292,8 +300,9 @@ class TestGridFSMediaStorage(TestBase):
                                     headers=headers))
         self.assert204(s)
 
-        # media doesn't exist anymore (it's been deleted)
-        self.assertFalse(self.app.media.exists(media_id))
+        with self.app.test_request_context():
+            # media doesn't exist anymore (it's been deleted)
+            self.assertFalse(self.app.media.exists(media_id))
 
         # GET returns 404
         r, s = self.parse_response(self.test_client.get('%s/%s' % (self.url,
@@ -316,7 +325,8 @@ class TestGridFSMediaStorage(TestBase):
         self.assertEqual(len(r['_items']), 1)
         url = r['_items'][0]['media']
 
-        media_id = self.assertMediaStored(_id)
+        with self.app.test_request_context():
+            media_id = self.assertMediaStored(_id)
 
         self.assertEqual('/media/%s' % media_id, url)
         response = self.test_client.get(url)

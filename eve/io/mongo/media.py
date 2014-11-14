@@ -27,11 +27,14 @@ class GridFSMediaStorage(MediaStorage):
         :param app: the flask application (eve itself). This can be used by
         the class to access, amongst other things, the app.config object to
         retrieve class-specific settings.
+
+        .. versionchanged:: 0.6
+           Support for multiple, cached, GridFS instances
         """
         super(GridFSMediaStorage, self).__init__(app)
 
         self.validate()
-        self._fs = None
+        self._fs = {}
 
     def validate(self):
         """ Make sure that the application data layer is a eve.io.mongo.Mongo
@@ -46,14 +49,19 @@ class GridFSMediaStorage(MediaStorage):
     def fs(self):
         """ Provides the instance-level GridFS instance, instantiating it if
         needed.
+
+        .. versionchanged:: 0.6
+           Support for multiple, cached, GridFS instances
         """
-        if self.app.data is None or not isinstance(self.app.data, Mongo):
+        driver = self.app.data
+        if driver is None or not isinstance(driver, Mongo):
             raise TypeError("Application data object must be of eve.io.Mongo "
                             "type.")
 
-        if self._fs is None:
-            self._fs = GridFS(self.app.data.driver.db)
-        return self._fs
+        px = driver.current_mongo_prefix()
+        if px not in self._fs:
+            self._fs[px] = GridFS(driver.pymongo(prefix=px).db)
+        return self._fs[px]
 
     def get(self, _id):
         """ Returns the file given by unique id. Returns None if no file was

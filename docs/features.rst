@@ -1638,10 +1638,10 @@ query the oplog for changes occured on that endpoint.
 
 MongoDB and SQL Support
 ------------------------
-Support for MongoDB comes out of the box. An SQLAlchemy extension provides
-support for SQL backends. Additional data layers can can be developed with
-relative ease. Visit the `extensions page`_ for a list of community developed
-data layers and extensions. 
+Support for single or multiple MongoDB database/servers comes out of the box.
+An SQLAlchemy extension provides support for SQL backends. Additional data
+layers can can be developed with relative ease. Visit the `extensions page`_
+for a list of community developed data layers and extensions. 
 
 Powered by Flask
 ----------------

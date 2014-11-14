@@ -9,18 +9,20 @@
     :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
+import itertools
+from datetime import datetime
 
 import ast
-import itertools
-import simplejson as json
 import pymongo
-from flask import abort
+import simplejson as json
+from bson import ObjectId
+from flask import abort, request
 from flask.ext.pymongo import PyMongo
 from werkzeug.exceptions import HTTPException
-from bson import ObjectId
-from datetime import datetime
-from eve.io.mongo.parser import parse, ParseError
+
+from eve.auth import resource_auth
 from eve.io.base import DataLayer, ConnectionException, BaseJSONEncoder
+from eve.io.mongo.parser import parse, ParseError
 from eve.utils import config, debug_error_message, validate_filters, \
     str_to_date, str_type
 
@@ -80,14 +82,16 @@ class Mongo(DataLayer):
 
     def init_app(self, app):
         """ Initialize PyMongo.
+
+        .. versionchanged:: 0.6
+           Use mongo_prefix for multidb support.
+
         .. versionchanged:: 0.0.9
-           support for Python 3.3.
+           Support for Python 3.3.
         """
         # mongod must be running or this will raise an exception
-        try:
-            self.driver = PyMongo(app)
-        except Exception as e:
-            raise ConnectionException(e)
+        self.driver = PyMongos(self)
+        self.mongo_prefix = None
 
     def find(self, resource, req, sub_resource_lookup):
         """ Retrieves a set of documents matching a given request. Queries can
@@ -105,6 +109,9 @@ class Mongo(DataLayer):
         :param resource: resource name.
         :param req: a :class:`ParsedRequest`instance.
         :param sub_resource_lookup: sub-resource lookup from the endpoint url.
+
+        .. versionchanged:: 0.6
+           Support for multiple databases.
 
         .. versionchanged:: 0.5
            Support for comma delimited sort syntax. Addresses #443.
@@ -228,7 +235,7 @@ class Mongo(DataLayer):
         if projection is not None:
             args['fields'] = projection
 
-        return self.driver.db[datasource].find(**args)
+        return self.pymongo().db[datasource].find(**args)
 
     def find_one(self, resource, req, **lookup):
         """ Retrieves a single document.
@@ -236,6 +243,9 @@ class Mongo(DataLayer):
         :param resource: resource name.
         :param req: a :class:`ParsedRequest` instance.
         :param **lookup: lookup query.
+
+        .. versionchanged:: 0.6
+           Support for multiple databases.
 
         .. versionchanged:: 0.4
            Honor client projection requests.
@@ -263,7 +273,7 @@ class Mongo(DataLayer):
             lookup,
             client_projection)
 
-        document = self.driver.db[datasource].find_one(filter_, projection)
+        document = self.pymongo().db[datasource].find_one(filter_, projection)
         return document
 
     def find_one_raw(self, resource, _id):
@@ -272,13 +282,16 @@ class Mongo(DataLayer):
         :param resource: resource name.
         :param id: unique id.
 
+        .. versionchanged:: 0.6
+           Support for multiple databases.
+
         .. versionadded:: 0.4
         """
         datasource, filter_, _, _ = self._datasource_ex(resource,
                                                         {config.ID_FIELD: _id},
                                                         None)
 
-        document = self.driver.db[datasource].find_one(_id)
+        document = self.pymongo().db[datasource].find_one(_id)
         return document
 
     def find_list_of_ids(self, resource, ids, client_projection=None):
@@ -308,6 +321,9 @@ class Mongo(DataLayer):
         :return: a list of documents matching the ids in `ids` from the
         collection specified in `resource`
 
+        .. versionchanged:: 0.6
+           Support for multiple databases.
+
         .. versionchanged:: 0.1.1
            Using config.ID_FIELD instead of hard coded '_id'.
 
@@ -321,13 +337,16 @@ class Mongo(DataLayer):
             resource, query=query, client_projection=client_projection
         )
 
-        documents = self.driver.db[datasource].find(
+        documents = self.pymongo().db[datasource].find(
             spec=spec, fields=projection
         )
         return documents
 
     def insert(self, resource, doc_or_docs):
         """ Inserts a document into a resource collection.
+
+        .. versionchanged:: 0.6
+           Support for multiple databases.
 
         .. versionchanged:: 0.0.9
            More informative error messages.
@@ -345,8 +364,9 @@ class Mongo(DataLayer):
         """
         datasource, _, _, _ = self._datasource_ex(resource)
         try:
-            return self.driver.db[datasource].insert(doc_or_docs,
-                                                     **self._wc(resource))
+            return self.pymongo().db[datasource].insert(
+                doc_or_docs, **self._wc(resource)
+            )
         except pymongo.errors.DuplicateKeyError as e:
             abort(409, description=debug_error_message(
                 'pymongo.errors.DuplicateKeyError: %s' % e
@@ -371,7 +391,7 @@ class Mongo(DataLayer):
         datasource, filter_, _, _ = self._datasource_ex(
             resource, query)
         try:
-            result = self.driver.db[datasource].update(
+            result = self.pymongo().db[datasource].update(
                 filter_, changes, **self._wc(resource))
 
             if result and result["n"] == 0:
@@ -391,6 +411,9 @@ class Mongo(DataLayer):
         .. versionchanged:: 5.2
            Raise OriginalChangedError if document is changed from the
            specified original.
+
+        .. versionchanged:: 0.6
+           Support for multiple databases.
 
         .. versionchanged:: 0.4
            Return a 400 on pymongo DuplicateKeyError.
@@ -423,6 +446,9 @@ class Mongo(DataLayer):
            Raise OriginalChangedError if document is changed from the
            specified original.
 
+        .. versionchanged:: 0.6
+           Support for multiple databases.
+
         .. versionchanged:: 0.3.0
            Custom ID_FIELD lookups would fail. See #203.
 
@@ -438,6 +464,9 @@ class Mongo(DataLayer):
     def remove(self, resource, lookup):
         """ Removes a document or the entire set of documents from a
         collection.
+
+        .. versionchanged:: 0.6
+           Support for multiple databases.
 
         .. versionchanged:: 0.3
            Support lookup arg, which allows to properly delete sub-resources
@@ -465,7 +494,7 @@ class Mongo(DataLayer):
         lookup = self._mongotize(lookup, resource)
         datasource, filter_, _, _ = self._datasource_ex(resource, lookup)
         try:
-            self.driver.db[datasource].remove(filter_, **self._wc(resource))
+            self.pymongo().db[datasource].remove(filter_, **self._wc(resource))
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
             abort(500, description=debug_error_message(
@@ -558,10 +587,13 @@ class Mongo(DataLayer):
         db.collection.count(). However, if we do have a predefined filter we
         have to fallback on the find() method, which can be much slower.
 
+        .. versionchanged:: 0.6
+           Support for multiple databases.
+
         .. versionadded:: 0.3
         """
         datasource, filter_, _, _ = self._datasource(resource)
-        coll = self.driver.db[datasource]
+        coll = self.pymongo().db[datasource]
         try:
             if not filter_:
                 # faster, but we can only affrd it if there's now predefined
@@ -700,3 +732,80 @@ class Mongo(DataLayer):
                     'Unable to parse `projection` clause'
                 ))
         return client_projection
+
+    def current_mongo_prefix(self):
+        """ Returns the active mongo_prefix that should be used to retrieve
+        a valid PyMongo instance from the cache. If 'self.mongo_prefix' is set
+        it has precedence over both endpoint (resource) and default drivers.
+        This allows Auth classes (for instance) to override default settings to
+        use a user-reserved db instance.
+
+        :param resource: endpoint for which a mongo prefix is needed.
+
+        ..versionadded:: 0.6
+        """
+
+        # the hack below avoids passing the resource around, which would not be
+        # an issue within this module but would force an update to the
+        # eve.io.media.MediaStorage interface, possibly breaking compatibility
+        # for other database implementations.
+
+        try:
+            resource = request.endpoint[:request.endpoint.index('|')]
+            auth = resource_auth(resource)
+        except ValueError:
+            resource = None
+            auth = None
+
+        px = auth.get_mongo_prefix() if auth else None
+        if px is None:
+            if resource:
+                px = config.DOMAIN[resource].get('mongo_prefix', 'MONGO')
+            else:
+                px = 'MONGO'
+        return px
+
+    def pymongo(self, resource=None, prefix=None):
+        """ Returns an active PyMongo instance. If 'prefix' is defined then
+        it has precedence over the endpoint ('resource') and/or
+        'self.mongo_instance'.
+
+        :param resource: endpoint for which a PyMongo instance is requested.
+        :param prefix: PyMongo instance key. This has precedence over both
+                       'resource' and eventual `self.mongo_prefix'.
+
+        .. versionadded:: 0.6
+        """
+        px = prefix if prefix else self.current_mongo_prefix()
+
+        if px not in self.driver:
+            # instantiate and add to cache
+            self.driver[px] = PyMongo(self.app, px)
+
+        # important, we don't want to preserve state between requests
+        self.mongo_prefix = None
+
+        try:
+            return self.driver[px]
+        except Exception as e:
+            raise ConnectionException(e)
+
+
+class PyMongos(dict):
+    """ Cache for PyMongo instances. It is just a normal dict which exposes
+    a 'db' property for backward compatibility.
+
+    .. versionadded:: 0.6
+    """
+    def __init__(self, mongo, *args):
+        self.mongo = mongo
+        dict.__init__(self, args)
+
+    @property
+    def db(self):
+        """ Returns the 'default' PyMongo instance, which is either the
+        'Mongo.mongo_prefix' value or 'MONGO'. This property is useful for
+        backward compatibility as many custom Auth classes use the now obsolete
+        'self.data.driver.db[collection]' pattern.
+        """
+        return self.mongo.pymongo().db

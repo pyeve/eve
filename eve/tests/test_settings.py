@@ -4,9 +4,9 @@ import copy
 
 MONGO_HOST = 'localhost'
 MONGO_PORT = 27017
-MONGO_USERNAME = 'test_user'
-MONGO_PASSWORD = 'test_pw'
-MONGO_DBNAME = 'eve_test'
+MONGO_USERNAME = MONGO1_USERNAME = 'test_user'
+MONGO_PASSWORD = MONGO1_PASSWORD = 'test_pw'
+MONGO_DBNAME, MONGO1_DBNAME = 'eve_test', 'eve_test1'
 ID_FIELD = '_id'
 
 RESOURCE_METHODS = ['GET', 'POST', 'DELETE']
