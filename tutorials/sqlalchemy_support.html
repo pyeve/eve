@@ -141,6 +141,181 @@ with your custom options:</p>
 </pre></div>
 </div>
 </div>
+<div class="section" id="authentication-example">
+<h2>Authentication example<a class="headerlink" href="#authentication-example" title="Permalink to this headline">¶</a></h2>
+<p>This example is based on the Token-Based tutorial from <a class="reference external" href="http://python-eve.org/authentication.html#token-based-authentication">Eve Authentication</a>.
+First we need to create eve-side authentication:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Auth-Token</span>
+<span class="sd">~~~~~~~~~~</span>
+
+<span class="sd">Securing an Eve-powered API with Token based Authentication and</span>
+<span class="sd">SQLAlchemy.</span>
+
+<span class="sd">This snippet by Andrew Mleczko can be used freely for anything</span>
+<span class="sd">you like. Consider it public domain.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
+<span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">TokenAuth</span>
+<span class="kn">from</span> <span class="nn">.models</span> <span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span> <span class="nn">.views</span> <span class="kn">import</span> <span class="n">register_views</span>
+
+
+<span class="k">class</span> <span class="nc">TokenAuth</span><span class="p">(</span><span class="n">TokenAuth</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;First we are verifying if the token is valid. Next</span>
+<span class="sd">        we are checking if user is authorized for given roles.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">login</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">verify_auth_token</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">login</span> <span class="ow">and</span> <span class="n">allowed_roles</span><span class="p">:</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">login</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">user</span><span class="o">.</span><span class="n">isAuthorized</span><span class="p">(</span><span class="n">allowed_roles</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">TokenAuth</span><span class="p">)</span>
+    <span class="n">register_views</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Next step is the <cite>User</cite> SQLAlchemy model:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Auth-Token</span>
+<span class="sd">~~~~~~~~~~</span>
+
+<span class="sd">Securing an Eve-powered API with Token based Authentication and</span>
+<span class="sd">SQLAlchemy.</span>
+
+<span class="sd">This snippet by Andrew Mleczko can be used freely for anything</span>
+<span class="sd">you like. Consider it public domain.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">from</span> <span class="nn">itsdangerous</span> <span class="kn">import</span> <span class="n">TimedJSONWebSignatureSerializer</span> \
+    <span class="k">as</span> <span class="n">Serializer</span>
+<span class="kn">from</span> <span class="nn">itsdangerous</span> <span class="kn">import</span> <span class="n">SignatureExpired</span><span class="p">,</span> <span class="n">BadSignature</span>
+
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">validates</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.declarative</span> <span class="kn">import</span> <span class="n">declarative_base</span>
+
+<span class="n">Base</span> <span class="o">=</span> <span class="n">declarative_base</span><span class="p">()</span>
+<span class="n">SECRET_KEY</span> <span class="o">=</span> <span class="s">&#39;this-is-my-super-secret-key&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s">&#39;users&#39;</span>
+
+    <span class="n">login</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">password</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">)</span>
+    <span class="n">roles</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s">&quot;Role&quot;</span><span class="p">,</span> <span class="n">backref</span><span class="o">=</span><span class="s">&quot;users&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">generate_auth_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expiration</span><span class="o">=</span><span class="mi">24</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generates token for given expiration</span>
+<span class="sd">        and user login.&quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">Serializer</span><span class="p">(</span><span class="n">SECRET_KEY</span><span class="p">,</span> <span class="n">expires_in</span><span class="o">=</span><span class="n">expiration</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s">&#39;login&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">login</span> <span class="p">})</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">verify_auth_token</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Verifies token and eventually returns</span>
+<span class="sd">        user login.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">Serializer</span><span class="p">(</span><span class="n">SECRET_KEY</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">SignatureExpired</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span> <span class="c"># valid token, but expired</span>
+        <span class="k">except</span> <span class="n">BadSignature</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span> <span class="c"># invalid token</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;login&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">isAuthorized</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role_names</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Checks if user is related to given role_names.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">allowed_roles</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">r</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">roles</span><span class="p">])</span>\
+            <span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">role_names</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">allowed_roles</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">generate_salt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">letters</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">encrypt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Encrypt password using hashlib and current salt.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">hashlib</span><span class="o">.</span><span class="n">sha1</span><span class="p">(</span><span class="n">password</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">salt</span><span class="p">))</span>\
+            <span class="o">.</span><span class="n">hexdigest</span><span class="p">())</span>
+
+    <span class="nd">@validates</span><span class="p">(</span><span class="s">&#39;password&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_set_password</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Using SQLAlchemy validation makes sure each</span>
+<span class="sd">        time password is changed it will get encrypted</span>
+<span class="sd">        before flushing to db.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">salt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_salt</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">check_password</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">password</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">password</span>
+</pre></div>
+</div>
+<p>And finally a flask login view:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Auth-Token</span>
+<span class="sd">~~~~~~~~~~</span>
+
+<span class="sd">Securing an Eve-powered API with Token based Authentication and</span>
+<span class="sd">SQLAlchemy.</span>
+
+<span class="sd">This snippet by Andrew Mleczko can be used freely for anything</span>
+<span class="sd">you like. Consider it public domain.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span><span class="p">,</span> <span class="n">jsonify</span>
+<span class="kn">from</span> <span class="nn">werkzeug.exceptions</span> <span class="kn">import</span> <span class="n">Unauthorized</span>
+<span class="kn">from</span> <span class="nn">.models</span> <span class="kn">import</span> <span class="n">User</span>
+
+
+<span class="k">def</span> <span class="nf">register_views</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
+
+    <span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/login&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;POST&#39;</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">login</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Simple login view that expect to have username</span>
+<span class="sd">        and password in the request POST. If the username and</span>
+<span class="sd">        password matches - token is being generated and return.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">login</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;username&#39;</span><span class="p">)</span>
+        <span class="n">password</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;password&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">login</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">password</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">Unauthorized</span><span class="p">(</span><span class="s">&#39;Wrong username and/or password.&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">login</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">user</span> <span class="ow">and</span> <span class="n">user</span><span class="o">.</span><span class="n">check_password</span><span class="p">(</span><span class="n">password</span><span class="p">):</span>
+                <span class="n">token</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">generate_auth_token</span><span class="p">()</span>
+                <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s">&#39;token&#39;</span><span class="p">:</span> <span class="n">token</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;ascii&#39;</span><span class="p">)})</span>
+        <span class="k">raise</span> <span class="n">Unauthorized</span><span class="p">(</span><span class="s">&#39;Wrong username and/or password.&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="start-eve">
 <h2>Start Eve<a class="headerlink" href="#start-eve" title="Permalink to this headline">¶</a></h2>
 <p>That&#8217;s almost everything. Before you can start Eve you need to bind SQLAlchemy
@@ -194,6 +369,28 @@ from the Eve data driver:</p>
         <span class="p">}</span>
     <span class="p">},</span>
 <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="sqlalchemy-expressions">
+<h2>SQLAlchemy expressions<a class="headerlink" href="#sqlalchemy-expressions" title="Permalink to this headline">¶</a></h2>
+<p>With this version of Eve you can use <a class="reference external" href="http://www.sqlalchemy.org/">SQLAlchemy</a> expressions such as: <cite>like</cite>,
+<cite>in_</cite>, etc. For more examples please check <a class="reference external" href="http://docs.sqlalchemy.org/en/latest/orm/internals.html">SQLAlchemy internals</a>.</p>
+<p>Using those expresssion is straightforward (you can use them only with dictionary
+where filter):</p>
+<div class="highlight-console"><div class="highlight"><pre>http://127.0.0.1:5000/people?where={&quot;lastname&quot;:&quot;like(\&quot;Smi%\&quot;)&quot;}
+</pre></div>
+</div>
+<p>which produces where closure:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">people</span><span class="p">.</span><span class="n">lastname</span> <span class="k">LIKE</span> <span class="ss">&quot;Smi%&quot;</span>
+</pre></div>
+</div>
+<p>Another examples using <cite>in_</cite>:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="go">http://127.0.0.1:5000/people?where={&quot;firstname&quot;:&quot;in_([\&quot;John\&quot;,\&quot;Fred\&quot;])&quot;}</span>
+</pre></div>
+</div>
+<p>which produces where closure:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">people</span><span class="p">.</span><span class="n">firstname</span> <span class="k">IN</span> <span class="p">(</span><span class="ss">&quot;John&quot;</span><span class="p">,</span> <span class="ss">&quot;Fred&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

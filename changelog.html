@@ -57,6 +57,9 @@
 <h2>Version 0.5<a class="headerlink" href="#version-0-5" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
+<li>[fix] <tt class="docutils literal"><span class="pre">_mongotize()</span></tt> turns non-ObjectId strings (but not unicode) into
+ObjectIds. Closes #508 (Or Neeman).</li>
+<li>[new] <tt class="docutils literal"><span class="pre">JSON_SORT_KEYS</span></tt> enables JSON key sorting (Matt Creenan).</li>
 <li>[change] SERVER_NAME removed as it is not needed anymore.</li>
 <li>[change] URL_PROTOCOL removed as it is not needed anymore.</li>
 <li>[new] The Operations Log (OpLog).</li>

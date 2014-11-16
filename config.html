@@ -525,16 +525,20 @@ otherwise. See <a class="reference internal" href="features.html#jsonxml"><em>JS
 otherwise. See <a class="reference internal" href="features.html#jsonxml"><em>JSON and XML Rendering</em></a>. Defaults to
 <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VALIDATION_ERROR_STATUS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">JSON_SORT_KEYS</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">True</span></tt> to enable JSON key sorting, <tt class="docutils literal"><span class="pre">False</span></tt>
+otherwise. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VALIDATION_ERROR_STATUS</span></tt></td>
 <td>The HTTP status code to use for validation errors.
 Defaults to <tt class="docutils literal"><span class="pre">422</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VERSIONING</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VERSIONING</span></tt></td>
 <td>Enabled documents version control when
 <tt class="docutils literal"><span class="pre">True</span></tt>. Can be overridden by resource
 settings. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VERSIONS</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VERSIONS</span></tt></td>
 <td>Suffix added to the name of the primary
 collection to create the name of the shadow
 collection to store document versions.
@@ -544,7 +548,7 @@ such as <tt class="docutils literal"><span class="pre">myresource_versions</span
 created for a resource with a datasource of
 <tt class="docutils literal"><span class="pre">myresource</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VERSION_PARAM</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VERSION_PARAM</span></tt></td>
 <td>The URL query parameter used to access the
 specific version of a document. Defaults to
 <tt class="docutils literal"><span class="pre">version</span></tt>. Omit this parameter to get the
@@ -553,38 +557,38 @@ latest version of a document or use
 version of the document. Only valid for
 individual item endpoints.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VERSION</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VERSION</span></tt></td>
 <td>Field used to store the version number of a
 document. Defaults to <tt class="docutils literal"><span class="pre">_version</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">LATEST_VERSION</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">LATEST_VERSION</span></tt></td>
 <td>Field used to store the latest version number
 of a document. Defaults to
 <tt class="docutils literal"><span class="pre">_latest_version</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VERSION_ID_SUFFIX</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VERSION_ID_SUFFIX</span></tt></td>
 <td>Used in the shadow collection to store the
 document id. Defaults to <tt class="docutils literal"><span class="pre">_document</span></tt>. If
 <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> is set to <tt class="docutils literal"><span class="pre">_id</span></tt>, the
 document id will be stored in field
 <tt class="docutils literal"><span class="pre">_id_document</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt></td>
 <td>MongoDB server address. Defaults to <tt class="docutils literal"><span class="pre">localhost</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_PORT</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_PORT</span></tt></td>
 <td>MongoDB port. Defaults to <tt class="docutils literal"><span class="pre">27017</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_USERNAME</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_USERNAME</span></tt></td>
 <td>MongoDB user name.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_PASSWORD</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_PASSWORD</span></tt></td>
 <td>MongoDB password.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt></td>
 <td>MongoDB database name.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_QUERY_BLACKLIST</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_QUERY_BLACKLIST</span></tt></td>
 <td><p class="first">A list of Mongo query operators that are not
 allowed to be used in resource filters
 (<tt class="docutils literal"><span class="pre">?where=</span></tt>). Defaults to <tt class="docutils literal"><span class="pre">['$where',</span>
@@ -597,7 +601,7 @@ easily replaced with the (very rich) Mongo
 query dialect.</p>
 </td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></tt></td>
 <td><p class="first">A dictionary defining MongoDB write concern
 settings. All standard write concern
 settings (w, wtimeout, j, fsync) are
@@ -615,15 +619,15 @@ collection) level. See
 <tt class="docutils literal"><span class="pre">mongo_write_concern</span></tt> below.</p>
 </td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
 <td>A dict holding the API domain definition.
 See <a class="reference internal" href="#domain-configuration">Domain Configuration</a>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt></td>
 <td>A list of properties to forward from the file upload
 driver.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_BASE64_STRING</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_BASE64_STRING</span></tt></td>
 <td>Controls the embedding of the media type in
 the endpoint response. This is useful when
 you have other means of getting the binary
@@ -631,29 +635,29 @@ you have other means of getting the binary
 want clients to be able to POST/PATCH it.
 Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG</span></tt></td>
 <td>Set it to <tt class="docutils literal"><span class="pre">True</span></tt> to enable the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>.
 Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_NAME</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_NAME</span></tt></td>
 <td>This is the name of the database collection
 where the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a> is stored. Defaults
 to <tt class="docutils literal"><span class="pre">oplog</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_METHODS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_METHODS</span></tt></td>
 <td>List of HTTP methods which operations
 should be logged in the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>.
 Defaults to <tt class="docutils literal"><span class="pre">['DELETE',</span> <span class="pre">'POST,</span> <span class="pre">'PATCH',</span>
 <span class="pre">'PUT']</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt></td>
 <td>Name of the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a> endpoint. If the
 endpoint is enabled it can be configured
 like any other API endpoint. Set it to
 <tt class="docutils literal"><span class="pre">None</span></tt> to disable the endpoint. Defaults
 to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt></td>
 <td>Set it to <tt class="docutils literal"><span class="pre">True</span></tt> to enable the audit
 feature. When audit is enabled client IP
 and document changes are also logged to the
