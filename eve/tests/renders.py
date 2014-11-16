@@ -101,8 +101,10 @@ class TestRenders(TestBase):
         self.app.config['JSON_SORT_KEYS'] = True
         r = self.test_client.get(self.known_resource_url,
                                  headers=[('Accept', 'application/json')])
-        self.assertEqual(json.dumps(json.loads(r.get_data()), sort_keys=True),
-                         r.get_data())
+        self.assertEqual(
+            json.dumps(json.loads(r.get_data()), sort_keys=True).encode(),
+            r.get_data()
+        )
 
     def test_CORS(self):
         # no CORS headers if Origin is not provided with the request.
