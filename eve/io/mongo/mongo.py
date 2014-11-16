@@ -617,7 +617,11 @@ class Mongo(DataLayer):
             except:
                 if not skip_objectid:
                     try:
-                        return ObjectId(v)
+                        # Convert to unicode because ObjectId() interprets
+                        # 12-character strings (but not unicode) as binary
+                        # representations of ObjectId's.  See
+                        # https://github.com/nicolaiarocci/eve/issues/508
+                        return ObjectId(unicode(v))
                     except:
                         return v
                 else:

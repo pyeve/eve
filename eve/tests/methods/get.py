@@ -3,6 +3,7 @@ from io import BytesIO
 import simplejson as json
 from datetime import datetime
 from bson import ObjectId
+from werkzeug.datastructures import ImmutableMultiDict
 from eve.tests import TestBase
 from eve.tests.utils import DummyEvent
 from eve.tests.test_settings import MONGO_DBNAME
@@ -1186,6 +1187,24 @@ class TestEvents(TestBase):
         self.app.on_pre_GET += filter_this
         # Would normally return all documents; will only just one.
         r, s = self.parse_response(self.get_resource())
+        self.assertEqual(len(r[self.app.config['ITEMS']]), 1)
+
+    def test_on_pre_GET_resource_dynamic_filter_12_chr_nonunicode_string(self):
+        # Test for bug in _mongotize(). See
+        # https://github.com/nicolaiarocci/eve/issues/508
+        def filter_this(request, lookup):
+            request.args = ImmutableMultiDict(
+                {"where": '{"name":"Alice Brooks"}'}
+            )
+        self.app.register_resource(
+            'names',
+            {'schema': {'name': {'type': 'string'}}}
+        )
+        # We want to test with a non-unicode string for 'where', so we need to
+        # do it with a pre_GET callback
+        self.app.on_pre_GET_names += filter_this
+        self.post('names', data={"name": "Alice Brooks"})
+        r, s = self.get('names')
         self.assertEqual(len(r[self.app.config['ITEMS']]), 1)
 
     def test_on_pre_GET_resource_for_resource(self):
