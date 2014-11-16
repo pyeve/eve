@@ -8,6 +8,8 @@ Version 0.5
 
 Not released yet.
 
+- [fix] ``_mongotize()`` turns non-ObjectId strings (but not unicode) into
+  ObjectIds. Closes #508 (Or Neeman).
 - [new] ``JSON_SORT_KEYS`` enables JSON key sorting (Matt Creenan).
 - [change] SERVER_NAME removed as it is not needed anymore.
 - [change] URL_PROTOCOL removed as it is not needed anymore.
