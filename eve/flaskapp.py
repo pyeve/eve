@@ -618,6 +618,7 @@ class Eve(Flask, Events):
 
         .. versionchanged:: 0.5
            Don't add resource to url rules if it's flagged as internal.
+           Strip regexes out of config.URLS helper. Closes #466.
 
         .. versionadded:: 0.2
         """
@@ -627,7 +628,12 @@ class Eve(Flask, Events):
             return
 
         url = '%s/%s' % (self.api_prefix, settings['url'])
-        self.config['URLS'][resource] = settings['url']
+
+        pretty_url = settings['url']
+        if '<' in pretty_url:
+            pretty_url = pretty_url[:pretty_url.index('<')+1] + \
+                pretty_url[pretty_url.index(':')+1:]
+        self.config['URLS'][resource] = pretty_url
 
         # resource endpoint
         endpoint = resource + "|resource"

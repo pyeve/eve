@@ -8,6 +8,9 @@ Version 0.5
 
 Not released yet.
 
+- [new] Regexes are stripped out of HATEOAS urls when present. You now get
+  ``games/<game_id>/images`` where previously you would get
+  ``games/<regex('[a-f0-9]{24}'):game_id>/images``). Closes 466.
 - [fix] ``_mongotize()`` turns non-ObjectId strings (but not unicode) into
   ObjectIds. Closes #508 (Or Neeman).
 - [new] ``JSON_SORT_KEYS`` enables JSON key sorting (Matt Creenan).
