@@ -8,6 +8,7 @@ Version 0.5
 
 Not released yet.
 
+- [fix] Properly serialize nullable floats and integers. Closes #469.
 - [new] Regexes are stripped out of HATEOAS urls when present. You now get
   ``games/<game_id>/images`` where previously you would get
   ``games/<regex('[a-f0-9]{24}'):game_id>/images``). Closes 466.
