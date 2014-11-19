@@ -8,6 +8,9 @@ Version 0.5
 
 Not released yet.
 
+- [fix] client projections work when ``allow_unknown`` is active. closes #497.
+- [fix] datasource projections are active when ``allow_unknown`` is active.
+  closes #497.
 - [fix] Properly serialize nullable floats and integers. Closes #469.
 - [new] Regexes are stripped out of HATEOAS urls when present. You now get
   ``games/<game_id>/images`` where previously you would get

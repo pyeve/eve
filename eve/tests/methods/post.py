@@ -217,7 +217,14 @@ class TestPost(TestBase):
         r, status = self.post(self.known_resource_url, data=data)
         self.assertValidationErrorStatus(status)
         self.assertValidationError(r, {'unknown': 'unknown'})
-        self.app.config['DOMAIN'][self.known_resource]['allow_unknown'] = True
+
+        # since resource settings are only set at app startup we set
+        # those that influence the 'allow_unknown' property by hand (so we
+        # don't have to re-initialize the whole app.)
+        settings = self.app.config['DOMAIN'][self.known_resource]
+        settings['allow_unknown'] = True
+        settings['datasource']['projection'] = None
+
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
         self.assertPostResponse(r)

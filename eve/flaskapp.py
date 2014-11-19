@@ -469,6 +469,7 @@ class Eve(Flask, Events):
         """ Low-level method which sets default values for one resource.
 
         .. versionchanged:: 0.5
+           Don't set default projection if 'allow_unknown' is active (#497).
            'internal_resource'
 
         .. versionchanged:: 0.3
@@ -545,7 +546,7 @@ class Eve(Flask, Events):
         settings['datasource'].setdefault('filter', None)
         settings['datasource'].setdefault('default_sort', None)
 
-        if len(schema):
+        if len(schema) and settings['allow_unknown'] is False:
             # enable retrieval of actual schema fields only. Eventual db
             # fields not included in the schema won't be returned.
             projection = {}
