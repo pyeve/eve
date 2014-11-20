@@ -8,13 +8,15 @@ Version 0.5
 
 Not released yet.
 
-- [fix] client projections work when ``allow_unknown`` is active. closes #497.
+- [fix] Dependencies always fails on PATCH if dependent field isn't part of the
+  update. #363.
+- [fix] client projections work when ``allow_unknown`` is active. Closes #497.
 - [fix] datasource projections are active when ``allow_unknown`` is active.
   closes #497.
 - [fix] Properly serialize nullable floats and integers. Closes #469.
 - [new] Regexes are stripped out of HATEOAS urls when present. You now get
   ``games/<game_id>/images`` where previously you would get
-  ``games/<regex('[a-f0-9]{24}'):game_id>/images``). Closes 466.
+  ``games/<regex('[a-f0-9]{24}'):game_id>/images``). Closes #466.
 - [fix] ``_mongotize()`` turns non-ObjectId strings (but not unicode) into
   ObjectIds. Closes #508 (Or Neeman).
 - [new] ``JSON_SORT_KEYS`` enables JSON key sorting (Matt Creenan).

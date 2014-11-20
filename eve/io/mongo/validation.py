@@ -12,6 +12,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
+import copy
 from eve.utils import config
 from bson import ObjectId
 from flask import current_app as app
@@ -203,6 +204,25 @@ class Validator(Validator):
             if self._original_document else None
         if value not in (default, original_value):
             super(Validator, self)._validate_readonly(read_only, field, value)
+
+    def _validate_dependencies(self, document, dependencies, field,
+                               break_on_error=False):
+        """ With PATCH method, the validator is only provided with the updated
+        fields. If an updated field depends on another field in order to be
+        edited and the other field was previously set, the validator doesn't
+        see it and rejects the update. In order to avoid that we merge the
+        proposed changes with the original document before validating
+        dependencies.
+
+        .. versionadded:: 0.5
+           Fix for #363 (see docstring).
+        """
+        dcopy = None
+        if self._original_document:
+            dcopy = copy.copy(document)
+            dcopy.update(self._original_document)
+        super(Validator, self)._validate_dependencies(dcopy or document,
+                                                      dependencies, field)
 
     def _validate_type_media(self, field, value):
         """ Enables validation for `media` data type.
