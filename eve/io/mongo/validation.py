@@ -218,6 +218,7 @@ class Validator(Validator):
            Fix for #363 (see docstring).
         """
         dcopy = None
+        import pdb; pdb.set_trace()  # XXX BREAKPOINT
         if self._original_document:
             dcopy = copy.copy(document)
             dcopy.update(self._original_document)
