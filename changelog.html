@@ -57,13 +57,15 @@
 <h2>Version 0.5<a class="headerlink" href="#version-0-5" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
-<li>[fix] client projections work when <tt class="docutils literal"><span class="pre">allow_unknown</span></tt> is active. closes #497.</li>
+<li>[fix] Dependencies always fails on PATCH if dependent field isn&#8217;t part of the
+update. #363.</li>
+<li>[fix] client projections work when <tt class="docutils literal"><span class="pre">allow_unknown</span></tt> is active. Closes #497.</li>
 <li>[fix] datasource projections are active when <tt class="docutils literal"><span class="pre">allow_unknown</span></tt> is active.
 closes #497.</li>
 <li>[fix] Properly serialize nullable floats and integers. Closes #469.</li>
 <li>[new] Regexes are stripped out of HATEOAS urls when present. You now get
 <tt class="docutils literal"><span class="pre">games/&lt;game_id&gt;/images</span></tt> where previously you would get
-<tt class="docutils literal"><span class="pre">games/&lt;regex('[a-f0-9]{24}'):game_id&gt;/images</span></tt>). Closes 466.</li>
+<tt class="docutils literal"><span class="pre">games/&lt;regex('[a-f0-9]{24}'):game_id&gt;/images</span></tt>). Closes #466.</li>
 <li>[fix] <tt class="docutils literal"><span class="pre">_mongotize()</span></tt> turns non-ObjectId strings (but not unicode) into
 ObjectIds. Closes #508 (Or Neeman).</li>
 <li>[new] <tt class="docutils literal"><span class="pre">JSON_SORT_KEYS</span></tt> enables JSON key sorting (Matt Creenan).</li>
