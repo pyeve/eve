@@ -622,7 +622,12 @@ class Mongo(DataLayer):
                         # 12-character strings (but not unicode) as binary
                         # representations of ObjectId's.  See
                         # https://github.com/nicolaiarocci/eve/issues/508
-                        return ObjectId(unicode(v))
+                        try:
+                            r = ObjectId(unicode(v))
+                        except NameError:
+                            # We're on Python 3 so it's all unicode # already.
+                            r = ObjectId(v)
+                        return r
                     except:
                         return v
                 else:
