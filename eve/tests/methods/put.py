@@ -200,7 +200,8 @@ class TestPut(TestBase):
         self.assertEqual(db_value, r[self.app.config['ETAG']])
 
     def test_put_dependency_fields_with_default(self):
-        # test that default values are resolved before validation. See #353.
+        # Test that if a dependency is missing but has a default value then the
+        # field is still accepted. See #353.
         del(self.domain['contacts']['schema']['ref']['required'])
         field = "dependency_field2"
         test_value = "a value"

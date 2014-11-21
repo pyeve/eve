@@ -388,8 +388,9 @@ class TestPatch(TestBase):
         this other field is not provided with the patch but is still present
         on the target document, the patch will be accepted. See #363.
         """
-        # this will fails as dependent field is missing even in the
+        # this will fail as dependent field is missing even in the
         # document we are trying to update.
+        del(self.domain['contacts']['schema']['dependency_field1']['default'])
         changes = {'dependency_field2': 'value'}
         r, status = self.patch(self.item_id_url, data=changes,
                                headers=[('If-Match', self.item_etag)])

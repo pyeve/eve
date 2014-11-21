@@ -13,6 +13,7 @@
 """
 
 import copy
+from collections import Sequence
 from eve.utils import config
 from bson import ObjectId
 from flask import current_app as app
@@ -190,19 +191,17 @@ class Validator(Validator):
                         % value)
 
     def _validate_readonly(self, read_only, field, value):
-        """ Since default values are now resolved before validation we make
-        sure that a value for a read-only field is considered legit if it
-        matches an eventual 'default' setting for the field.
-
+        """
         .. versionchanged:: 0.5
+           Not taking defaul values in consideration anymore since they are now
+           being resolved after validation (#353).
            Consider the original value if available (#479).
 
         .. versionadded:: 0.4
         """
-        default = self.schema[field].get('default')
         original_value = self._original_document.get(field) \
             if self._original_document else None
-        if value not in (default, original_value):
+        if value != original_value:
             super(Validator, self)._validate_readonly(read_only, field, value)
 
     def _validate_dependencies(self, document, dependencies, field,
@@ -215,8 +214,17 @@ class Validator(Validator):
         dependencies.
 
         .. versionadded:: 0.5
+           If a dependency has a default value, skip it as Cerberus does not
+           have the notion of default values and would report a missing
+           dependency (#353).
            Fix for #363 (see docstring).
         """
+        if not isinstance(dependencies, Sequence):
+            dependencies = [dependencies]
+        for field in dependencies:
+            if self.schema[field].get('default'):
+                dependencies.remove(field)
+
         dcopy = None
         if self._original_document:
             dcopy = copy.copy(document)

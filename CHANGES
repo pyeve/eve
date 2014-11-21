@@ -8,6 +8,8 @@ Version 0.5
 
 Not released yet.
 
+- [fix] Dependencies with default values were reported as missing if omitted.
+  Closes #353.
 - [fix] Dependencies always fails on PATCH if dependent field isn't part of the
   update. #363.
 - [fix] client projections work when ``allow_unknown`` is active. Closes #497.

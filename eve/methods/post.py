@@ -64,6 +64,9 @@ def post_internal(resource, payl=None):
                  discussion, and a typical use case.
 
     .. versionchanged:: 0.5
+       Back to resolving default values after validaton as now the validator
+       can properly validate dependency even when some have default values. See
+       #353.
        Push updates to the OpLog.
        Original post() has been split into post() and post_internal().
        ETAGS are now stored with documents (#369).
@@ -167,7 +170,6 @@ def post_internal(resource, payl=None):
         doc_issues = {}
         try:
             document = parse(value, resource)
-            resolve_default_values(document, resource_def['defaults'])
             validation = validator.validate(document)
             if validation:
                 # validation is successful
@@ -175,6 +177,7 @@ def post_internal(resource, payl=None):
                     document[config.DATE_CREATED] = date_utc
 
                 resolve_user_restricted_access(document, resource)
+                resolve_default_values(document, resource_def['defaults'])
                 resolve_sub_resource_path(document, resource)
                 store_media_files(document, resource)
                 resolve_document_version(document, resource, 'POST')

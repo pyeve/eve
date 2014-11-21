@@ -438,19 +438,22 @@ class TestPost(TestBase):
         data = {test_field: test_value}
         r, status = self.post(self.known_resource_url, data=data)
         self.assertValidationErrorStatus(status)
-        # this will pass as value matches 'default' setting.
+        # this will not pass even if value matches 'default' setting.
+        # (hey it's still a read-onlu field so you can't reset it)
         test_value = 'default'
         data = {test_field: test_value}
-        self.assertPostItem(data, test_field, test_value)
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assertValidationErrorStatus(status)
 
     def test_post_readonly_in_dict(self):
-        # Test that a post with a readonly field inside a dict is correctly
-        # validated and doesn't return an exception error
+        # Test that a post with a readonly field inside a dict is properly
+        # validated (even if it has a defult value)
         del(self.domain['contacts']['schema']['ref']['required'])
         test_field = 'dict_with_read_only'
         test_value = {'read_only_in_dict': 'default'}
         data = {test_field: test_value}
-        self.assertPostItem(data, test_field, test_value)
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assertValidationErrorStatus(status)
 
     def test_post_keyschema_dict(self):
         """ make sure Cerberus#48 is fixed """
