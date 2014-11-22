@@ -37,10 +37,10 @@ def post(resource, payl=None):
     .. versionchanged:: 0.5
        Split original post() into post/post_internal combo.
     """
-    return post_internal(resource, payl)
+    return post_internal(resource, payl, skip_validation=False)
 
 
-def post_internal(resource, payl=None):
+def post_internal(resource, payl=None, skip_validation=False):
     """
     Intended for internal post calls, this method is not rate limited,
     authentication is not checked and pre-request events are not raised.
@@ -62,6 +62,7 @@ def post_internal(resource, payl=None):
 
                  See https://github.com/nicolaiarocci/eve/issues/74 for a
                  discussion, and a typical use case.
+    :param skip_validation: skip payload validation before write (bool)
 
     .. versionchanged:: 0.5
        Back to resolving default values after validaton as now the validator
@@ -141,7 +142,8 @@ def post_internal(resource, payl=None):
     date_utc = datetime.utcnow().replace(microsecond=0)
     resource_def = app.config['DOMAIN'][resource]
     schema = resource_def['schema']
-    validator = app.validator(schema, resource)
+    if not skip_validation:
+        validator = app.validator(schema, resource)
     documents = []
     results = []
     failures = 0
@@ -170,7 +172,10 @@ def post_internal(resource, payl=None):
         doc_issues = {}
         try:
             document = parse(value, resource)
-            validation = validator.validate(document)
+            if skip_validation:
+                validation = True
+            else:
+                validation = validator.validate(document)
             if validation:
                 # validation is successful
                 document[config.LAST_UPDATED] = \
