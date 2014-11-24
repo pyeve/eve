@@ -10,6 +10,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
+import sys
 import eve
 import hashlib
 import werkzeug.exceptions
@@ -380,3 +381,6 @@ def auto_fields(resource):
         fields.append(config.ID_FIELD + config.VERSION_ID_SUFFIX)
 
     return fields
+
+# Base string type that is compatible with both Python 2.x and 3.x.
+str_type = str if sys.version_info[0] == 3 else basestring

@@ -13,8 +13,8 @@
 """
 
 import copy
-from collections import Sequence
-from eve.utils import config
+from collections import Mapping
+from eve.utils import config, str_type
 from bson import ObjectId
 from flask import current_app as app
 from cerberus import Validator
@@ -219,11 +219,15 @@ class Validator(Validator):
            dependency (#353).
            Fix for #363 (see docstring).
         """
-        if not isinstance(dependencies, Sequence):
+        # Ensure `dependencies` is a list
+        if isinstance(dependencies, str_type):
             dependencies = [dependencies]
-        for field in dependencies:
-            if self.schema[field].get('default'):
-                dependencies.remove(field)
+        elif isinstance(dependencies, Mapping):
+            dependencies = dependencies.keys()
+
+        # Filter out dependencies with default values
+        dependencies = [d for d in dependencies
+                        if self.schema[d].get('default') is None]
 
         dcopy = None
         if self._original_document:

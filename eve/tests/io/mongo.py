@@ -240,6 +240,28 @@ class TestMongoValidator(TestCase):
         v = Validator(schema)
         self.assertTrue(v.validate(doc))
 
+    def test_dependencies_with_defaults(self):
+        schema = {
+            'test_field': {'dependencies': 'foo'},
+            'foo': {'type': 'string', 'default': 'foo'},
+            'bar': {'type': 'string', 'default': 'bar'}
+        }
+        doc = {'test_field': 'foobar'}
+
+        # With `dependencies` as a str
+        v = Validator(schema)
+        self.assertTrue(v.validate(doc))
+
+        # With `dependencies` as a dict
+        schema['test_field'] = {'foo': 'foo', 'bar': 'bar'}
+        v = Validator(schema)
+        self.assertTrue(v.validate(doc))
+
+        # With `dependencies` as a list
+        schema['test_field'] = {'dependencies': ['foo', 'bar']}
+        v = Validator(schema)
+        self.assertTrue(v.validate(doc))
+
 
 class TestMongoDriver(TestCase):
     def test_combine_queries(self):

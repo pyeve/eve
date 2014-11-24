@@ -8,7 +8,6 @@
     :license: BSD, see LICENSE for more details.
 """
 
-import sys
 import ast
 import itertools
 from bson.errors import InvalidId
@@ -22,7 +21,7 @@ from datetime import datetime
 from eve.io.mongo.parser import parse, ParseError
 from eve.io.base import DataLayer, ConnectionException, BaseJSONEncoder
 from eve.utils import config, debug_error_message, validate_filters, \
-    str_to_date
+    str_to_date, str_type
 
 
 class MongoJSONEncoder(BaseJSONEncoder):
@@ -604,11 +603,6 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.0.4
         """
-        if sys.version_info[0] == 3:
-            _str_type = str
-        else:
-            _str_type = basestring  # noqa
-
         schema = config.DOMAIN[resource]
         skip_objectid = schema.get('query_objectid_as_string', False)
 
@@ -642,7 +636,7 @@ class Mongo(DataLayer):
                         source[k][i] = self._mongotize(v1, resource)
                     else:
                         source[k][i] = try_cast(v1)
-            elif isinstance(v, _str_type):
+            elif isinstance(v, str_type):
                 source[k] = try_cast(v)
 
         return source
