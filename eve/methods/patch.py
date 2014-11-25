@@ -36,10 +36,12 @@ def patch(resource, payload=None, **lookup):
     .. versionchanged:: 0.5
        Split into patch() and patch_internal().
     """
-    return patch_internal(resource, payload, concurrency_check=True, **lookup)
+    return patch_internal(resource, payload, concurrency_check=True,
+                          skip_validation=False, **lookup)
 
 
-def patch_internal(resource, payload=None, concurrency_check=False, **lookup):
+def patch_internal(resource, payload=None, concurrency_check=False,
+                   skip_validation=False, **lookup):
     """ Intended for internal patch calls, this method is not rate limited,
     authentication is not checked, pre-request events are not raised, and
     concurrency checking is optional. Performs a document patch/update.
@@ -57,6 +59,7 @@ def patch_internal(resource, payload=None, concurrency_check=False, **lookup):
                     Please be advised that in order to successfully use this
                     option, a request context must be available.
     :param concurrency_check: concurrency check switch (bool)
+    :param skip_validation: skip payload validation before write (bool)
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.5
@@ -125,7 +128,8 @@ def patch_internal(resource, payload=None, concurrency_check=False, **lookup):
 
     resource_def = app.config['DOMAIN'][resource]
     schema = resource_def['schema']
-    validator = app.validator(schema, resource)
+    if not skip_validation:
+        validator = app.validator(schema, resource)
 
     object_id = original[config.ID_FIELD]
     last_modified = None
@@ -142,7 +146,11 @@ def patch_internal(resource, payload=None, concurrency_check=False, **lookup):
 
     try:
         updates = parse(payload, resource)
-        validation = validator.validate_update(updates, object_id, original)
+        if skip_validation:
+            validation = True
+        else:
+            validation = validator.validate_update(updates, object_id,
+                                                   original)
         if validation:
             # sneak in a shadow copy if it wasn't already there
             late_versioning_catch(original, resource)

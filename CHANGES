@@ -8,6 +8,8 @@ Version 0.5
 
 Not released yet.
 
+- [new] Add an option to `internal_*` methods to skip payload validation
+  (Olivier Poitrey).
 - [fix] Dependencies with default values were reported as missing if omitted.
   Closes #353.
 - [fix] Dependencies always fails on PATCH if dependent field isn't part of the
