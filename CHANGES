@@ -8,6 +8,9 @@ Version 0.5
 
 Not released yet.
 
+- [fix] Custom ID fields tutorial: if custom ID fields are being used, then
+  MongoDB/Eve won't be able to create them automatically as it does with the
+  `ObjectId` default type. Closes #511.
 - [new] Add an option to `internal_*` methods to skip payload validation
   (Olivier Poitrey).
 - [fix] Dependencies with default values were reported as missing if omitted.
