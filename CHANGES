@@ -8,6 +8,8 @@ Version 0.5
 
 Not released yet.
 
+- [fix] Fix a serialization bug with integer and float when value is 0 (Olivier
+  Poitrey).
 - [fix] Custom ID fields tutorial: if custom ID fields are being used, then
   MongoDB/Eve won't be able to create them automatically as it does with the
   `ObjectId` default type. Closes #511.
