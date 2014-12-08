@@ -81,6 +81,20 @@ class TestPost(TestBase):
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 
+    def test_post_integer_zero(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        test_field = "aninteger"
+        test_value = 0
+        data = {test_field: test_value}
+        self.assertPostItem(data, test_field, test_value)
+
+    def test_post_float_zero(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        test_field = "afloat"
+        test_value = 0.0
+        data = {test_field: test_value}
+        self.assertPostItem(data, test_field, test_value)
+
     def test_post_dict(self):
         del(self.domain['contacts']['schema']['ref']['required'])
         test_field = "location"

@@ -59,8 +59,8 @@ class Mongo(DataLayer):
     serializers = {
         'objectid': lambda value: ObjectId(value) if value else None,
         'datetime': str_to_date,
-        'integer': lambda value: int(value) if value else None,
-        'float': lambda value: float(value) if value else None,
+        'integer': lambda value: int(value) if value is not None else None,
+        'float': lambda value: float(value) if value is not None else None,
     }
 
     # JSON serializer is a class attribute. Allows extensions to replace it
