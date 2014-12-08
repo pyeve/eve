@@ -169,9 +169,9 @@ are instancing the application:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">json_encoder</span><span class="o">=</span><span class="n">UUIDEncoder</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">UUIDValidator</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Remember, if you are using custom ID_FIELD values then you should not rely on
-MongoDB (and Eve) to auto-generate the <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> for you. You are supposed
-to pass the value, like so:</p>
+<p>Remember, if you are using custom <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> values then you should not rely
+on MongoDB (and Eve) to auto-generate the <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> for you. You are
+supposed to pass the value, like so:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">POST</span>
 <span class="p">{</span><span class="s">&quot;name&quot;</span><span class="p">:</span><span class="s">&quot;bill&quot;</span><span class="p">,</span> <span class="s">&quot;_id&quot;</span><span class="p">:</span><span class="s">&quot;48c00ee9-4dbe-413f-9fc3-d5f12a91de1c&quot;</span><span class="p">}</span>
 </pre></div>
