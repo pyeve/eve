@@ -114,7 +114,13 @@ contacts = {
         'keyschema_dict': {
             'type': 'dict',
             'keyschema': {'type': 'integer'}
-        }
+        },
+        'aninteger': {
+            'type': 'integer',
+        },
+        'afloat': {
+            'type': 'float',
+        },
     }
 }
 
