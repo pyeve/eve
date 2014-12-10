@@ -141,6 +141,10 @@ invoices = {
         'person': {
             'type': 'objectid',
             'data_relation': {'resource': 'contacts'}
+        },
+        'invoicing_contacts': {
+            'type': 'list',
+            'data_relation': {'resource': 'contacts'}
         }
     }
 }

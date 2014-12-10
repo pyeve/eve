@@ -107,6 +107,21 @@ class TestPut(TestBase):
         self.assert200(status)
         self.assertPutResponse(r, self.invoice_id)
 
+    def test_put_referential_integrity_list(self):
+        data = {"invoicing_contacts": [self.item_id, self.unknown_item_id]}
+        headers = [('If-Match', self.invoice_etag)]
+        r, status = self.put(self.invoice_id_url, data=data, headers=headers)
+        self.assertValidationErrorStatus(status)
+        expected = ("value '%s' must exist in resource '%s', field '%s'" %
+                    (self.unknown_item_id, 'contacts',
+                     self.app.config['ID_FIELD']))
+        self.assertValidationError(r, {'invoicing_contacts': expected})
+
+        data = {"invoicing_contacts": [self.item_id, self.item_id]}
+        r, status = self.put(self.invoice_id_url, data=data, headers=headers)
+        self.assert200(status)
+        self.assertPutResponse(r, self.invoice_id)
+
     def test_put_write_concern_success(self):
         # 0 and 1 are the only valid values for 'w' on our mongod instance (1
         # is the default)
