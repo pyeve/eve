@@ -8,6 +8,8 @@ Version 0.5
 
 Not released yet.
 
+- [fix] Added support for validation on field attribute with type list (Jorge
+  Morales).
 - [fix] Fix a serialization bug with integer and float when value is 0 (Olivier
   Poitrey).
 - [fix] Custom ID fields tutorial: if custom ID fields are being used, then
