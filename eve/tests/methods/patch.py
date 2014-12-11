@@ -9,7 +9,6 @@ from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES, STATUS, ETAG
 from eve.methods.patch import patch_internal
 
 
-# @unittest.skip("don't need no freakin' tests!")
 class TestPatch(TestBase):
 
     def test_patch_to_resource_endpoint(self):
@@ -382,6 +381,80 @@ class TestPatch(TestBase):
                                headers=[('If-Match', etag)])
         self.assert422(status)
         self.assertTrue('is read-only' in r['_issues']['read_only_field'])
+
+    def test_patch_nested_document_not_overwritten(self):
+        """ Test that nested documents are not overwritten on PATCH and #519
+        is fixed.
+        """
+
+        schema = {
+            'sensor': {
+                "type": "dict",
+                "schema": {
+                    "name": {"type": "string"},
+                    "lon": {"type": "float"},
+                    "lat":  {"type": "float"},
+                    "value":  {"type": "float", "default": 10.3},
+                    "dict": {
+                        'type': 'dict',
+                        'schema': {
+                            'string': {'type': 'string'},
+                            'int': {'type': 'integer'},
+                        }
+                    }
+                }
+            },
+            'test': {
+                'type': 'string',
+                'readonly': True,
+                'default': 'default'
+            }
+        }
+
+        self.app.config['BANDWIDTH_SAVER'] = False
+        self.app.register_resource('sensors', {'schema': schema})
+
+        changes = {
+            'sensor': {
+                'name': 'device_name',
+                'lon': 43.4,
+                'lat': 1.31,
+                'dict': {'int': 99}
+            }
+        }
+        r, status = self.post("sensors", data=changes)
+        self.assert201(status)
+
+        id, etag, value, test, int = (
+            r[ID_FIELD],
+            r[ETAG],
+            r['sensor']['value'],
+            r['test'],
+            r['sensor']['dict']['int']
+        )
+
+        changes = {
+            'sensor': {
+                'lon': 10.0,
+                'dict': {'string': 'hi'}
+            }
+        }
+
+        r, status = self.patch(
+            "/%s/%s" % ('sensors', id),
+            data=changes,
+            headers=[('If-Match', etag)]
+        )
+        self.assert200(status)
+
+        etag, value, int = (
+            r[ETAG],
+            r['sensor']['value'],
+            r['sensor']['dict']['int']
+        )
+        self.assertEqual(value, 10.3)
+        self.assertEqual(test, 'default')
+        self.assertEqual(int, 99)
 
     def test_patch_dependent_field_on_origin_document(self):
         """ Test that when patching a field which is dependent on another and

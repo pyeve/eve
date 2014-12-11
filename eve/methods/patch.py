@@ -63,6 +63,8 @@ def patch_internal(resource, payload=None, concurrency_check=False,
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.5
+       Updating nested document fields does not overwrite the nested document
+       itself (#519).
        Push updates to the OpLog.
        Original patch() has been split into patch() and patch_internal().
        You can now pass a pre-defined custom payload to the funcion.
@@ -173,6 +175,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
             getattr(app, "on_update")(resource, updates, original)
             getattr(app, "on_update_%s" % resource)(updates, original)
 
+            updates = resolve_nested_documents(updates, updated)
             updated.update(updates)
 
             if config.IF_MATCH:
@@ -222,3 +225,20 @@ def patch_internal(resource, payload=None, concurrency_check=False,
     response = marshal_write_response(response, resource)
 
     return response, last_modified, etag, status
+
+
+def resolve_nested_documents(updates, original):
+    """ Nested document updates are merged with the original contents
+    we don't overwrite the whole thing. See #519 for details.
+
+    .. versionadded:: 0.5
+    """
+    r = {}
+    for field, value in updates.items():
+        if isinstance(value, dict):
+            original[field].update(resolve_nested_documents(value,
+                                                            original[field]))
+            r[field] = original[field]
+        else:
+            r[field] = value
+    return r
