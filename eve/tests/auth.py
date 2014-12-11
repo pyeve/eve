@@ -19,7 +19,6 @@ class ValidBasicAuth(BasicAuth):
         return username == 'admin' and password == 'secret' and  \
             (allowed_roles == ['admin'] if allowed_roles else True)
 
-
 class BadBasicAuth(BasicAuth):
     pass
 
@@ -52,10 +51,16 @@ class TestBasicAuth(TestBase):
                            self.content_type]
         self.invalid_auth = [('Authorization', 'Basic IDontThinkSo'),
                              self.content_type]
+        self.setUpRoles()
+        self.app.set_defaults()
+
+    def setUpRoles(self):
         for _, schema in self.app.config['DOMAIN'].items():
             schema['allowed_roles'] = ['admin']
+            schema['allowed_read_roles'] = ['reader']
             schema['allowed_item_roles'] = ['admin']
-        self.app.set_defaults()
+            schema['allowed_item_read_roles'] = ['reader']
+            schema['allowed_item_write_roles'] = ['editor']
 
     def test_custom_auth(self):
         self.assertTrue(isinstance(self.app.auth, ValidBasicAuth))
@@ -225,6 +230,7 @@ class TestTokenAuth(TestBasicAuth):
         self.test_client = self.app.test_client()
         self.valid_auth = [('Authorization', 'Basic dGVzdF90b2tlbjo='),
                            self.content_type]
+        self.setUpRoles()
 
     def test_custom_auth(self):
         self.assertTrue(isinstance(self.app.auth, ValidTokenAuth))
@@ -237,6 +243,7 @@ class TestHMACAuth(TestBasicAuth):
         self.test_client = self.app.test_client()
         self.valid_auth = [('Authorization', 'admin:secret'),
                            self.content_type]
+        self.setUpRoles()
 
     def test_custom_auth(self):
         self.assertTrue(isinstance(self.app.auth, ValidHMACAuth))
