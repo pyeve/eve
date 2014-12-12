@@ -17,7 +17,7 @@ class ValidBasicAuth(BasicAuth):
     def check_auth(self, username, password, allowed_roles, resource, method):
         self.set_request_auth_value(self.request_auth_value)
         return username == 'admin' and password == 'secret' and  \
-            (allowed_roles == ['admin'] if allowed_roles else True)
+            ('admin' in allowed_roles if allowed_roles else True)
 
 class BadBasicAuth(BasicAuth):
     pass
@@ -25,7 +25,7 @@ class BadBasicAuth(BasicAuth):
 
 class ValidTokenAuth(TokenAuth):
     def check_auth(self, token, allowed_roles, resource, method):
-        return token == 'test_token' and (allowed_roles == ['admin'] if
+        return token == 'test_token' and ('admin' in allowed_roles if
                                           allowed_roles else True)
 
 
@@ -33,7 +33,7 @@ class ValidHMACAuth(HMACAuth):
     def check_auth(self, userid, hmac_hash, headers, data, allowed_roles,
                    resource, method):
         return userid == 'admin' and hmac_hash == 'secret' and  \
-            (allowed_roles == ['admin'] if allowed_roles else True)
+            ('admin' in allowed_roles if allowed_roles else True)
 
 
 class BadHMACAuth(HMACAuth):
@@ -221,6 +221,22 @@ class TestBasicAuth(TestBase):
         self.assert401(r.status_code)
         self.assertTrue(('WWW-Authenticate', 'Basic realm:"%s"' %
                          eve.__package__) in r.headers.to_wsgi_list())
+
+    def test_allowed_roles_does_not_change(self):
+        r = self.test_client.get(self.known_resource_url)
+        resource = self.app.config['DOMAIN'][self.known_resource]
+        self.assertEqual(resource['allowed_roles'], ['admin'])
+
+    def test_allowed_item_roles_does_not_change(self):
+        r = self.test_client.get(self.item_id_url)
+        resource = self.app.config['DOMAIN'][self.known_resource]
+        self.assertEqual(resource['allowed_item_roles'], ['admin'])
+
+    def test_ALLOWED_ROLES_does_not_change(self):
+        self.app.config['ALLOWED_ROLES'] = ['admin']
+        self.app.config['ALLOWED_READ_ROLES'] = ['reader']
+        r = self.test_client.get('/')
+        self.assertEqual(self.app.config['ALLOWED_ROLES'], ['admin'])
 
 
 class TestTokenAuth(TestBasicAuth):
