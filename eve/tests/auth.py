@@ -19,6 +19,7 @@ class ValidBasicAuth(BasicAuth):
         return username == 'admin' and password == 'secret' and  \
             ('admin' in allowed_roles if allowed_roles else True)
 
+
 class BadBasicAuth(BasicAuth):
     pass
 
@@ -223,19 +224,19 @@ class TestBasicAuth(TestBase):
                          eve.__package__) in r.headers.to_wsgi_list())
 
     def test_allowed_roles_does_not_change(self):
-        r = self.test_client.get(self.known_resource_url)
+        self.test_client.get(self.known_resource_url)
         resource = self.app.config['DOMAIN'][self.known_resource]
         self.assertEqual(resource['allowed_roles'], ['admin'])
 
     def test_allowed_item_roles_does_not_change(self):
-        r = self.test_client.get(self.item_id_url)
+        self.test_client.get(self.item_id_url)
         resource = self.app.config['DOMAIN'][self.known_resource]
         self.assertEqual(resource['allowed_item_roles'], ['admin'])
 
     def test_ALLOWED_ROLES_does_not_change(self):
         self.app.config['ALLOWED_ROLES'] = ['admin']
         self.app.config['ALLOWED_READ_ROLES'] = ['reader']
-        r = self.test_client.get('/')
+        self.test_client.get('/')
         self.assertEqual(self.app.config['ALLOWED_ROLES'], ['admin'])
 
 
