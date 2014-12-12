@@ -457,6 +457,17 @@ class TestUserRestrictedAccess(TestBase):
         self.assertEqual(data['_items'][0]['ref'],
                          json.loads(self.data)['ref'])
 
+    def test_post_bandwidth_saver_off_resource_auth(self):
+        """ Test that when BANDWIDTH_SAVER is turned off the auth_field is
+        not exposed in the response payload
+        """
+        self.app.config['BANDWIDTH_SAVER'] = False
+        r = self.app.test_client().post(self.url, data=self.data,
+                                        headers=self.valid_auth,
+                                        content_type='application/json')
+        r, status = self.parse_response(r)
+        self.assertTrue('username' not in r)
+
     def test_put(self):
         new_ref = "9999999999999999999999999"
         changes = json.dumps({"ref": new_ref})
@@ -519,6 +530,28 @@ class TestUserRestrictedAccess(TestBase):
             self.app.test_client().get(url, headers=self.valid_auth))
         self.assert200(status)
         self.assertEqual(data['ref'], new_ref)
+
+    def test_put_bandwidth_saver_off_resource_auth(self):
+        """ Test that when BANDWIDTH_SAVER is turned off the auth_field is
+        not exposed in the response payload
+        """
+        self.app.config['BANDWIDTH_SAVER'] = False
+
+        new_ref = "9999999999999999999999999"
+        changes = json.dumps({"ref": new_ref})
+
+        # post document
+        data, status = self.post()
+
+        url = '%s/%s' % (self.url, data['_id'])
+
+        # perform put
+        headers = [('If-Match', data['_etag']), self.valid_auth[0]]
+        response, status = self.parse_response(
+            self.test_client.put(url, data=json.dumps(changes),
+                                 headers=headers,
+                                 content_type='application/json'))
+        self.assertTrue('username' not in response)
 
     def test_patch(self):
         new_ref = "9999999999999999999999999"

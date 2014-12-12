@@ -641,15 +641,27 @@ def marshal_write_response(document, resource):
     :param document: the response document.
     :param resource: the resource being consumed by the request.
 
+    .. versionchanged: 0.5
+       Avoid exposing 'auth_field' if it is not intended to be public.
+
     .. versionadded:: 0.4
     """
 
+    resource_def = app.config['DOMAIN'][resource]
     if app.config['BANDWIDTH_SAVER'] is True:
         # only return the automatic fields and special extra fields
-        fields = auto_fields(resource) + \
-            app.config['DOMAIN'][resource]['extra_response_fields']
+        fields = auto_fields(resource) + resource_def['extra_response_fields']
         document = dict((k, v) for (k, v) in document.items() if k in fields)
-
+    else:
+        # avoid exposing the auth_field if it is not included in the
+        # resource schema.
+        auth_field = resource_def.get('auth_field')
+        if auth_field and auth_field not in resource_def['schema']:
+            try:
+                del(document[auth_field])
+            except:
+                # 'auth_field' value has not been set by the auth class.
+                pass
     return document
 
 
