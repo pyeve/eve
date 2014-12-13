@@ -255,9 +255,9 @@ and of course create.
 
 There are only two things that we need to do in order to activate this feature:
 
-    1. configure the name of the field that will be used to store the owner of the
-    document
-    2. set the document owner on each incoming POST request.
+1. Configure the name of the field that will be used to store the owner of the
+   document;
+2. Set the document owner on each incoming POST request.
 
 
 Since we want to enable this feature for all of our API endpoints we'll just
@@ -292,7 +292,7 @@ value:
             account = accounts.find_one(lookup)
             # set 'AUTH_FIELD' value to the account's ObjectId 
             # (instead of _Id, you might want to use ID_FIELD)
-            self.request_auth_value = account['_id']
+            self.set_request_auth_value(account['_id'])
             return account and check_password_hash(account['password'], password)
 
 
@@ -300,9 +300,9 @@ value:
         app = Eve(auth=RolesAuth)
         app.run()
 
-This is all we need to do. Now, when a user hits the, say, ``/invoices``
-endpoint with a GET request, he will only be served with the invoices created
-by his own account. The same will happen with DELETE and PATCH, making it
+This is all we need to do. Now when a client hits say the ``/invoices``
+endpoint with a GET request, it will only be served with invoices created by
+its own account. The same will happen with DELETE and PATCH, making it
 impossible for an authenticated user to accidentally retrieve, edit or delete
 other people's data.
 
