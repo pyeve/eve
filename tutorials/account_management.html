@@ -286,10 +286,11 @@ associated with the account that created it. This allows the API to transparentl
 serve only account-created documents on all kind of requests: read, edit, delete
 and of course create.</p>
 <p>There are only two things that we need to do in order to activate this feature:</p>
-<blockquote>
-<div>1. configure the name of the field that will be used to store the owner of the
-document
-2. set the document owner on each incoming POST request.</div></blockquote>
+<ol class="arabic simple">
+<li>Configure the name of the field that will be used to store the owner of the
+document;</li>
+<li>Set the document owner on each incoming POST request.</li>
+</ol>
 <p>Since we want to enable this feature for all of our API endpoints we&#8217;ll just
 update our <tt class="docutils literal"><span class="pre">settings.py</span></tt> file by setting a proper <tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt> value:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Name of the field used to store the owner of each document</span>
@@ -314,7 +315,7 @@ value:</p>
          <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">(</span><span class="n">lookup</span><span class="p">)</span>
 <span class="hll">         <span class="c"># set &#39;AUTH_FIELD&#39; value to the account&#39;s ObjectId</span>
 </span><span class="hll">         <span class="c"># (instead of _Id, you might want to use ID_FIELD)</span>
-</span><span class="hll">         <span class="bp">self</span><span class="o">.</span><span class="n">request_auth_value</span> <span class="o">=</span> <span class="n">account</span><span class="p">[</span><span class="s">&#39;_id&#39;</span><span class="p">]</span>
+</span><span class="hll">         <span class="bp">self</span><span class="o">.</span><span class="n">set_request_auth_value</span><span class="p">(</span><span class="n">account</span><span class="p">[</span><span class="s">&#39;_id&#39;</span><span class="p">])</span>
 </span>         <span class="k">return</span> <span class="n">account</span> <span class="ow">and</span> <span class="n">check_password_hash</span><span class="p">(</span><span class="n">account</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">],</span> <span class="n">password</span><span class="p">)</span>
 
 
@@ -323,9 +324,9 @@ value:</p>
      <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>This is all we need to do. Now, when a user hits the, say, <tt class="docutils literal"><span class="pre">/invoices</span></tt>
-endpoint with a GET request, he will only be served with the invoices created
-by his own account. The same will happen with DELETE and PATCH, making it
+<p>This is all we need to do. Now when a client hits say the <tt class="docutils literal"><span class="pre">/invoices</span></tt>
+endpoint with a GET request, it will only be served with invoices created by
+its own account. The same will happen with DELETE and PATCH, making it
 impossible for an authenticated user to accidentally retrieve, edit or delete
 other people&#8217;s data.</p>
 </div>
