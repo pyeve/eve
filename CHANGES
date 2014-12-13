@@ -8,6 +8,8 @@ Version 0.5
 
 Not released yet.
 
+- [fix] Bug with expanding lists of roles, compromising authorization (Mikael
+  Berg, #527) 
 - [fix] ``PATCH`` on subdocument fields does not overwrite the whole
   subdocument anymore. Closes #519.
 - [fix] Added support for validation on field attribute with type list (Jorge
