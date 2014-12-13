@@ -28,14 +28,14 @@ def requires_auth(endpoint_class):
                 resource = app.config['DOMAIN'][args[0]]
                 if endpoint_class == 'resource':
                     public = resource['public_methods']
-                    roles = resource['allowed_roles']
+                    roles = list(resource['allowed_roles'])
                     if request.method in ['GET', 'HEAD', 'OPTIONS']:
                         roles += resource['allowed_read_roles']
                     else:
                         roles += resource['allowed_write_roles']
                 elif endpoint_class == 'item':
                     public = resource['public_item_methods']
-                    roles = resource['allowed_item_roles']
+                    roles = list(resource['allowed_item_roles'])
                     if request.method in ['GET', 'HEAD', 'OPTIONS']:
                         roles += resource['allowed_item_read_roles']
                     else:
@@ -48,7 +48,7 @@ def requires_auth(endpoint_class):
                 # home
                 resource_name = resource = None
                 public = app.config['PUBLIC_METHODS'] + ['OPTIONS']
-                roles = app.config['ALLOWED_ROLES']
+                roles = list(app.config['ALLOWED_ROLES'])
                 if request.method in ['GET', 'OPTIONS']:
                     roles += app.config['ALLOWED_READ_ROLES']
                 else:
