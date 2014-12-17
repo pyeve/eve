@@ -100,7 +100,7 @@ class TestBasicAuth(TestBase):
         self.assertValidationErrorStatus(r.status_code)
         r = self.test_client.delete(self.known_resource_url,
                                     headers=self.valid_auth)
-        self.assert200(r.status_code)
+        self.assert204(r.status_code)
 
     def test_authorized_item_access(self):
         r = self.test_client.get(self.item_id_url, headers=self.valid_auth)
@@ -615,7 +615,7 @@ class TestUserRestrictedAccess(TestBase):
         # delete the document we just inserted
         response, status = self.parse_response(
             self.test_client.delete(self.url, headers=self.valid_auth))
-        self.assert200(status)
+        self.assert204(status)
 
         # we now get an empty items list (other documents in collection are
         # filtered by auth).
@@ -648,7 +648,7 @@ class TestUserRestrictedAccess(TestBase):
         # delete the document
         response, status = self.parse_response(
             self.test_client.delete(url, headers=headers))
-        self.assert200(status)
+        self.assert204(status)
 
         # make sure no other document has been deleted.
         cursor = _db.contacts.find()

@@ -20,7 +20,7 @@ class TestDelete(TestBase):
 
     def test_delete_from_resource_endpoint(self):
         r, status = self.delete(self.known_resource_url)
-        self.assert200(status)
+        self.assert204(status)
         r, status = self.parse_response(self.test_client.get(
             self.known_resource_url))
         self.assert200(status)
@@ -34,7 +34,7 @@ class TestDelete(TestBase):
 
     def test_delete_from_resource_endpoint_different_resource(self):
         r, status = self.delete(self.different_resource_url)
-        self.assert200(status)
+        self.assert204(status)
         r, status = self.parse_response(self.test_client.get(
             self.different_resource_url))
         self.assert200(status)
@@ -68,7 +68,7 @@ class TestDelete(TestBase):
     def test_delete_ifmatch_disabled(self):
         self.app.config['IF_MATCH'] = False
         _, status = self.delete(self.item_id_url)
-        self.assert200(status)
+        self.assert204(status)
 
     def test_delete_ifmatch_bad_etag(self):
         _, status = self.delete(self.item_id_url,
@@ -77,7 +77,7 @@ class TestDelete(TestBase):
 
     def test_delete(self):
         r, status = self.delete(self.item_id_url, headers=self.etag_headers)
-        self.assert200(status)
+        self.assert204(status)
 
         r = self.test_client.get(self.item_id_url)
         self.assert404(r.status_code)
@@ -97,7 +97,7 @@ class TestDelete(TestBase):
     def test_delete_different_resource(self):
         r, status = self.delete(self.user_id_url,
                                 headers=[('If-Match', self.user_etag)])
-        self.assert200(status)
+        self.assert204(status)
 
         r = self.test_client.get(self.user_id_url)
         self.assert404(r.status_code)
@@ -107,7 +107,7 @@ class TestDelete(TestBase):
         headers = [('X-HTTP-Method-Override', 'DELETE'),
                    ('If-Match', self.item_etag)]
         r = self.test_client.post(self.item_id_url, data={}, headers=headers)
-        self.assert200(r.status_code)
+        self.assert204(r.status_code)
 
     def test_delete_subresource(self):
         _db = self.connection[MONGO_DBNAME]
@@ -136,7 +136,7 @@ class TestDelete(TestBase):
 
         # delete all documents at the sub-resource endpoint
         response, status = self.delete('users/%s/invoices' % fake_contact_id)
-        self.assert200(status)
+        self.assert204(status)
 
         # verify that the no documents are left at the sub-resource endpoint
         response, status = self.get('users/%s/invoices' % fake_contact_id)
@@ -167,7 +167,7 @@ class TestDelete(TestBase):
         response, status = self.delete('users/%s/invoices/%s' %
                                        (fake_contact_id, self.invoice_id),
                                        headers=headers)
-        self.assert200(status)
+        self.assert204(status)
 
     def test_deleteitem_internal(self):
         # test that deleteitem_internal is available and working properly.
@@ -175,7 +175,7 @@ class TestDelete(TestBase):
             r, _, _, status = deleteitem_internal(
                 self.known_resource, concurrency_check=False,
                 **{'_id': self.item_id})
-        self.assert200(status)
+        self.assert204(status)
 
         r = self.test_client.get(self.item_id_url)
         self.assert404(r.status_code)

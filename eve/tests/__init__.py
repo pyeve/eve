@@ -93,6 +93,9 @@ class TestMinimal(unittest.TestCase):
     def assert201(self, status):
         self.assertEqual(status, 201)
 
+    def assert204(self, status):
+        self.assertEqual(status, 204)
+
     def assert301(self, status):
         self.assertEqual(status, 301)
 

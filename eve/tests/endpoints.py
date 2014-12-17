@@ -124,7 +124,7 @@ class TestCustomConverters(TestMinimal):
         etag = self._get_etag()
         self.headers.append(('If-Match', etag))
         r = self.test_client.delete(self.url, headers=self.headers)
-        self.assert200(r.status_code)
+        self.assert204(r.status_code)
 
     def test_post_uuid(self):
         new_id = '48c00ee9-4dbe-413f-9fc3-d5f12a91de13'

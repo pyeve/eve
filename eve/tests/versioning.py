@@ -657,7 +657,7 @@ class TestCompleteVersioning(TestNormalVersioning):
 
         # delete resource and verify no errors
         response, status = self.delete(self.known_resource_url)
-        self.assert200(status)
+        self.assert204(status)
 
         # verify that there are 0 documents in both collections
         self.assertTrue(self.countDocuments() == 0)
@@ -674,7 +674,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         # delete resource and verify no errors
         response, status = self.delete(
             self.item_id_url, headers=[('If-Match', self.item_etag)])
-        self.assert200(status)
+        self.assert204(status)
 
         # verify that neither primary or shadow documents exist
         self.assertTrue(self.countDocuments(self.item_id) == 0)
@@ -965,7 +965,7 @@ class TestLateVersioning(TestVersioningBase):
 
         # delete resource and verify no errors
         response, status = self.delete(self.known_resource_url)
-        self.assert200(status)
+        self.assert204(status)
 
         # verify that there are 0 documents in both collections
         self.assertTrue(self.countDocuments() == 0)
@@ -982,7 +982,7 @@ class TestLateVersioning(TestVersioningBase):
         # delete resource and verify no errors
         response, status = self.delete(
             self.item_id_url, headers=[('If-Match', self.item_etag)])
-        self.assert200(status)
+        self.assert204(status)
 
         # verify that neither primary or shadow documents exist
         self.assertTrue(self.countDocuments(self.item_id) == 0)

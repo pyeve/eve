@@ -8,6 +8,7 @@ Version 0.5
 
 Not released yet.
 
+- [change] ``DELETE`` returns ``204 NoContent`` on a successful delete.
 - [fix] Bug with expanding lists of roles, compromising authorization (Mikael
   Berg, #527) 
 - [fix] ``PATCH`` on subdocument fields does not overwrite the whole

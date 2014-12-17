@@ -256,7 +256,7 @@ class TestGridFSMediaStorage(TestBase):
         r, s = self.parse_response(
             self.test_client.delete(('%s/%s' % (self.url, _id)),
                                     headers=headers))
-        self.assert200(s)
+        self.assert204(s)
 
         # media doesn't exist anymore (it's been deleted)
         self.assertFalse(self.app.media.exists(media_id))
@@ -290,7 +290,7 @@ class TestGridFSMediaStorage(TestBase):
         r, s = self.parse_response(
             self.test_client.delete(('%s/%s' % (self.url, _id)),
                                     headers=headers))
-        self.assert200(s)
+        self.assert204(s)
 
         # media doesn't exist anymore (it's been deleted)
         self.assertFalse(self.app.media.exists(media_id))

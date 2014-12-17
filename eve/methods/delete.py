@@ -43,6 +43,7 @@ def deleteitem_internal(resource, concurrency_check=False, **lookup):
     :param **lookup: item lookup query.
 
     .. versionchanged:: 0.5
+       Return 204 NoContent instead of 200.
        Push updates to OpLog.
        Original deleteitem() has been split into deleteitem() and
        deleteitem_internal().
@@ -113,7 +114,7 @@ def deleteitem_internal(resource, concurrency_check=False, **lookup):
     getattr(app, "on_deleted_item")(resource, original)
     getattr(app, "on_deleted_item_%s" % resource)(original)
 
-    return {}, None, None, 200
+    return {}, None, None, 204
 
 
 @requires_auth('resource')
@@ -121,6 +122,9 @@ def deleteitem_internal(resource, concurrency_check=False, **lookup):
 def delete(resource, **lookup):
     """ Deletes all item of a resource (collection in MongoDB terms). Won't
     drop indexes. Use with caution!
+
+    .. versionchanged:: 0.5
+       Return 204 NoContent instead of 200.
 
     .. versionchanged:: 0.4
        Support for document versioning.
@@ -151,4 +155,4 @@ def delete(resource, **lookup):
     getattr(app, "on_deleted_resource")(resource)
     getattr(app, "on_deleted_resource_%s" % resource)()
 
-    return {}, None, None, 200
+    return {}, None, None, 204
