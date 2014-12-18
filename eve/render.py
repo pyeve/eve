@@ -195,7 +195,8 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         methods = app.make_default_options_response().headers.get('allow', '')
 
         if '*' in domains:
-            resp.headers.add('Access-Control-Allow-Origin', '*')
+            resp.headers.add('Access-Control-Allow-Origin', origin)
+            resp.headers.add('Vary', 'Origin')
         elif origin in domains:
             resp.headers.add('Access-Control-Allow-Origin', origin)
         else:
