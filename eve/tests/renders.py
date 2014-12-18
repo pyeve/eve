@@ -124,6 +124,7 @@ class TestRenders(TestBase):
         self.assert200(r.status_code)
         self.assertEqual(r.headers['Access-Control-Allow-Origin'],
                          'http://example.com')
+        self.assertEqual(r.headers['Vary'], 'Origin')
 
         # test that if a list is set for X_DOMAINS, then:
         # 1. only list values are accepted;
@@ -183,6 +184,7 @@ class TestRenders(TestBase):
         self.assert200(r.status_code)
         self.assertEqual(r.headers['Access-Control-Allow-Origin'],
                          'http://example.com')
+        self.assertEqual(r.headers['Vary'], 'Origin')
         for m in methods:
             self.assertTrue(m in r.headers['Access-Control-Allow-Methods'])
 
