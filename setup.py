@@ -12,7 +12,7 @@ with open('LICENSE') as f:
 install_requires = [
     'cerberus>=0.7,<0.8',
     'events>=0.2.1,<0.3',
-    'simplejson>=3.3.0,<0.4',
+    'simplejson>=3.3.0,<4.0',
     'werkzeug>=0.9.4,<0.10',
     'markupsafe>=0.23,<1.0',
     'jinja2>=2.7.2,<3.0',
