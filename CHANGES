@@ -8,6 +8,8 @@ Version 0.5
 
 Not released yet.
 
+- [new] Add support for multiple origins when using CORS (Josh Villbrandt,
+  #532.)
 - [fix] Fix impossible version ranges in setup.py (Marcus Cobden, #531.)
 - [change] ``DELETE`` returns ``204 NoContent`` on a successful delete.
 - [fix] Bug with expanding lists of roles, compromising authorization (Mikael
