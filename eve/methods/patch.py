@@ -236,7 +236,7 @@ def resolve_nested_documents(updates, original):
     r = {}
     for field, value in updates.items():
         if isinstance(value, dict):
-            orig_value = original[field]
+            orig_value = original.setdefault(field, {})
             if orig_value is None:
                 r[field] = value
             else:

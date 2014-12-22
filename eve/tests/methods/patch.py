@@ -456,7 +456,7 @@ class TestPatch(TestBase):
         self.assertEqual(test, 'default')
         self.assertEqual(int, 99)
 
-    def test_patch_nested_document_nullable(self):
+    def test_patch_nested_document_nullable_missing(self):
         schema = {
             'sensor': {
                 'type': 'dict',
@@ -464,6 +464,12 @@ class TestPatch(TestBase):
                     'name': {'type': 'string'},
                 },
                 'default': None,
+            },
+            'other': {
+                'type': 'dict',
+                'schema': {
+                    'name': {'type': 'string'},
+                },
             }
         }
         self.app.config['BANDWIDTH_SAVER'] = False
@@ -474,11 +480,12 @@ class TestPatch(TestBase):
         r, status = self.post("sensors", data=changes)
         self.assert201(status)
         id, etag = r[ID_FIELD], r[ETAG]
+        self.assertIn('sensor', r)
+        self.assertNotIn('other', r)
 
         changes = {
-            'sensor': {
-                'name': 'device_name',
-            }
+            'sensor': {'name': 'device_name'},
+            'other': {'name': 'other_name'},
         }
 
         r, status = self.patch(
@@ -488,6 +495,7 @@ class TestPatch(TestBase):
         )
         self.assert200(status)
         self.assertEqual(r['sensor'], {'name': 'device_name'})
+        self.assertEqual(r['other'], {'name': 'other_name'})
 
     def test_patch_dependent_field_on_origin_document(self):
         """ Test that when patching a field which is dependent on another and
