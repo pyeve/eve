@@ -236,9 +236,12 @@ def resolve_nested_documents(updates, original):
     r = {}
     for field, value in updates.items():
         if isinstance(value, dict):
-            original[field].update(resolve_nested_documents(value,
-                                                            original[field]))
-            r[field] = original[field]
+            orig_value = original[field]
+            if orig_value is None:
+                r[field] = value
+            else:
+                orig_value.update(resolve_nested_documents(value, orig_value))
+                r[field] = orig_value
         else:
             r[field] = value
     return r
