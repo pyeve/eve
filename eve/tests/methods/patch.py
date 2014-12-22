@@ -480,8 +480,9 @@ class TestPatch(TestBase):
         r, status = self.post("sensors", data=changes)
         self.assert201(status)
         id, etag = r[ID_FIELD], r[ETAG]
-        self.assertIn('sensor', r)
-        self.assertNotIn('other', r)
+        self.assertTrue('sensor' in r)
+        self.assertEqual(r['sensor'], None)
+        self.assertFalse('other' in r)
 
         changes = {
             'sensor': {'name': 'device_name'},
