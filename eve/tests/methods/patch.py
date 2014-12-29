@@ -456,6 +456,48 @@ class TestPatch(TestBase):
         self.assertEqual(test, 'default')
         self.assertEqual(int, 99)
 
+    def test_patch_nested_document_nullable_missing(self):
+        schema = {
+            'sensor': {
+                'type': 'dict',
+                'schema': {
+                    'name': {'type': 'string'},
+                },
+                'default': None,
+            },
+            'other': {
+                'type': 'dict',
+                'schema': {
+                    'name': {'type': 'string'},
+                },
+            }
+        }
+        self.app.config['BANDWIDTH_SAVER'] = False
+        self.app.register_resource('sensors', {'schema': schema})
+
+        changes = {}
+
+        r, status = self.post("sensors", data=changes)
+        self.assert201(status)
+        id, etag = r[ID_FIELD], r[ETAG]
+        self.assertTrue('sensor' in r)
+        self.assertEqual(r['sensor'], None)
+        self.assertFalse('other' in r)
+
+        changes = {
+            'sensor': {'name': 'device_name'},
+            'other': {'name': 'other_name'},
+        }
+
+        r, status = self.patch(
+            "/%s/%s" % ('sensors', id),
+            data=changes,
+            headers=[('If-Match', etag)]
+        )
+        self.assert200(status)
+        self.assertEqual(r['sensor'], {'name': 'device_name'})
+        self.assertEqual(r['other'], {'name': 'other_name'})
+
     def test_patch_dependent_field_on_origin_document(self):
         """ Test that when patching a field which is dependent on another and
         this other field is not provided with the patch but is still present

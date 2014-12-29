@@ -8,6 +8,8 @@ Version 0.5
 
 Not released yet.
 
+- [fix] ``PATCH`` on fields with original value of ``None`` (Marcus Cobden,
+  #534).
 - [new] Add support for multiple origins when using CORS (Josh Villbrandt,
   #532.)
 - [fix] Fix impossible version ranges in setup.py (Marcus Cobden, #531.)
