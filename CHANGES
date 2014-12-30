@@ -8,6 +8,8 @@ Version 0.5
 
 Not released yet.
 
+- [new] Return a 409 response on pymongo DuplicateKeyError for POST requests,
+  as already happens with PUT requests (Matt Creenan, #537.)
 - [fix] ``PATCH`` on fields with original value of ``None`` (Marcus Cobden,
   #534).
 - [new] Add support for multiple origins when using CORS (Josh Villbrandt,
