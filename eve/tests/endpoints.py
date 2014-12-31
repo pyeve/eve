@@ -171,7 +171,8 @@ class TestEndPoints(TestBase):
     def test_item_self_link(self):
         data, status_code = self.get(self.known_resource, item=self.item_id)
         lookup_field = self.domain[self.known_resource]['item_lookup_field']
-        link = '%s/%s' % (self.known_resource_url, self.item[lookup_field])
+        link = '%s/%s' % (self.known_resource_url.lstrip('/'),
+                          self.item[lookup_field])
         self.assertEqual(data.get('_links').get('self').get('href'), link)
 
     def test_unknown_endpoints(self):
@@ -240,11 +241,11 @@ class TestEndPoints(TestBase):
 
         r = self.test_prefix.get('/prefix/v1/')
         href = json.loads(r.get_data())['_links']['child'][0]['href']
-        self.assertEqual(href, '/contacts')
+        self.assertEqual(href, 'contacts')
 
         r = self.test_prefix.get('/prefix/v1/contacts')
         href = json.loads(r.get_data())['_links']['self']['href']
-        self.assertEqual(href, '/contacts')
+        self.assertEqual(href, 'contacts')
 
     def test_nested_endpoint(self):
         r = self.test_client.get('/users/overseas')

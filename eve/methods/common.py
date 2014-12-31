@@ -832,7 +832,7 @@ def resource_link():
 
     .. versionadded:: 0.4
     """
-    path = request.path.rstrip('/')
+    path = request.path.strip('/')
 
     if '|item' in request.endpoint:
         path = path[:path.rfind('/')]
@@ -841,9 +841,9 @@ def resource_link():
         return path[len(hit):] if path.startswith(hit) else path
 
     if config.URL_PREFIX:
-        path = strip_prefix('/' + config.URL_PREFIX)
+        path = strip_prefix(config.URL_PREFIX + '/')
     if config.API_VERSION:
-        path = strip_prefix('/' + config.API_VERSION)
+        path = strip_prefix(config.API_VERSION + '/')
     return path
 
 
