@@ -68,7 +68,7 @@ The response payload will look something like this:
                 "_created": "Wed, 05 Dec 2012 09:53:07 GMT",
                 "_etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d",
                 "_links": {
-                    "self": {"href": "/people/50bf198338345b1c604faf31", "title": "person"},
+                    "self": {"href": "people/50bf198338345b1c604faf31", "title": "person"},
                 },
             },
             ...
@@ -79,7 +79,7 @@ The response payload will look something like this:
             "page": 1
         },
         "_links": {
-            "self": {"href": "/people", "title": "people"},
+            "self": {"href": "people", "title": "people"},
             "parent": {"href": "/", "title": "home"}
         }
     }
@@ -109,7 +109,7 @@ document being returned. The ``_links`` list provides HATEOAS_ directives.
 Sub Resources
 ~~~~~~~~~~~~~
 Endpoints support sub-resources so you could have something like:
-``/people/<contact_id>/invoices``. When setting the ``url`` rule for such and
+``people/<contact_id>/invoices``. When setting the ``url`` rule for such and
 endpoint you would use a regex and assign a field name to it:
 
 .. code-block:: python
@@ -179,7 +179,7 @@ a simple resource endpoint the document lookup would happen on a single field:
 Customizable, multiple item endpoints
 -------------------------------------
 Resources can or cannot expose individual item endpoints. API consumers could
-get access to ``/people``, ``/people/<ObjectId>`` and ``/people/Doe``,
+get access to ``people``, ``people/<ObjectId>`` and ``people/Doe``,
 but only to ``/works``.  When you do grant access to item endpoints, you can
 define up to two lookups, both defined with regexes. The first will be the
 primary endpoint and will match your database primary key structure (i.e., an
@@ -220,9 +220,9 @@ look something like this:
         "_created": "Wed, 21 Nov 2012 16:04:56 GMT",
         "_etag": "28995829ee85d69c4c18d597a0f68ae606a266cc",
         "_links": {
-            "self": {"href": "/people/50acfba938345b0978fccad7", "title": "person"},
+            "self": {"href": "people/50acfba938345b0978fccad7", "title": "person"},
             "parent": {"href": "/", "title": "home"},
-            "collection": {"href": "/people", "title": "people"}
+            "collection": {"href": "people", "title": "people"}
         }
     }
 
@@ -234,9 +234,9 @@ As you can see, item endpoints provide their own HATEOAS_ directives.
     identifier. Eve abides by providing one default endpoint per item. Adding
     a secondary endpoint is a decision that should be pondered carefully.
 
-    Consider our example above. Even without the ``/people/<lastname>``
+    Consider our example above. Even without the ``people/<lastname>``
     endpoint, a client could always retrieve a person by querying the resource
-    endpoint by last name: ``/people/?where={"lastname": "Doe"}``. Actually the
+    endpoint by last name: ``people/?where={"lastname": "Doe"}``. Actually the
     whole example is fubar, as there could be multiple people sharing the same
     last name, but you get the idea.
 
@@ -354,7 +354,7 @@ UI, or to navigate the API without knowing its structure beforehand. An example:
     {
         "_links": {
             "self": {
-                "href": "/people",
+                "href": "people",
                 "title": "people"
             },
             "parent": {
@@ -362,11 +362,11 @@ UI, or to navigate the API without knowing its structure beforehand. An example:
                 "title": "home"
             },
             "next": {
-                "href": "/people?page=2",
+                "href": "people?page=2",
                 "title": "next page"
             },
             "last": {
-                "href": "/people?page=10",
+                "href": "people?page=10",
                 "title": "last page"
             }
         }
@@ -376,8 +376,12 @@ A GET request to the API home page (the API entry point) will be served with
 a list of links to accessible resources. From there, any client could navigate
 the API just by following the links provided with every response.
 
+HATEOAS links are always relative to the API entry point, so if your API home
+is at ``examples.com/api/v1``, the ``self`` link in the above example would
+mean that the *people* endpoint is located at ``examples.com/api/v1/people``.
+
 Please note that ``next``, ``previous`` and ``last`` items will only be
-included when appropriate.
+included when appropriate. 
 
 Disabling HATEOAS
 ~~~~~~~~~~~~~~~~~
@@ -410,8 +414,8 @@ edits) are in JSON format.
 .. code-block:: html
 
     <resource>
-        <link rel="child" href="/people" title="people" />
-        <link rel="child" href="/works" title="works" />
+        <link rel="child" href="people" title="people" />
+        <link rel="child" href="works" title="works" />
     </resource>
 
 XML support can be disabled by setting ``XML`` to ``False`` in the settings
@@ -523,7 +527,7 @@ metadata:
         "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
         "_id": "50ae43339fa12500024def5b",
         "_etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
-        "_links": {"self": {"href": "/people/50ae43339fa12500024def5b", "title": "person"}}
+        "_links": {"self": {"href": "people/50ae43339fa12500024def5b", "title": "person"}}
     }
 
 However, in order to reduce the number of loopbacks, a client might also submit
@@ -547,14 +551,14 @@ The response will be a list itself, with the state of each document:
                 "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
                 "_id": "50ae43339fa12500024def5b",
                 "_etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
-                "_links": {"self": {"href": "/people/50ae43339fa12500024def5b", "title": "person"}}
+                "_links": {"self": {"href": "people/50ae43339fa12500024def5b", "title": "person"}}
             },
             {
                 "_status": "OK",
                 "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
                 "_id": "50ae43339fa12500024def5c",
                 "_etag": "62d356f623c7d9dc864ffa5facc47dced4ba6907"
-                "_links": {"self": {"href": "/people/50ae43339fa12500024def5c", "title": "person"}}
+                "_links": {"self": {"href": "people/50ae43339fa12500024def5c", "title": "person"}}
             }
         ]
     }
