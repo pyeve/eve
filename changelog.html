@@ -57,174 +57,174 @@
 <h2>Version 0.5<a class="headerlink" href="#version-0-5" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
-<li>[new] Return <tt class="docutils literal"><span class="pre">409</span> <span class="pre">Conflict</span></tt> on pymongo <tt class="docutils literal"><span class="pre">DuplicateKeyError</span></tt> for <tt class="docutils literal"><span class="pre">POST</span></tt>
+<li>New: Return <tt class="docutils literal"><span class="pre">409</span> <span class="pre">Conflict</span></tt> on pymongo <tt class="docutils literal"><span class="pre">DuplicateKeyError</span></tt> for <tt class="docutils literal"><span class="pre">POST</span></tt>
 requests, as already happens with <tt class="docutils literal"><span class="pre">PUT</span></tt> requests (Matt Creenan, #537.)</li>
-<li>[fix] <tt class="docutils literal"><span class="pre">PATCH</span></tt> on fields with original value of <tt class="docutils literal"><span class="pre">None</span></tt> (Marcus Cobden,
+<li>Fixed: <tt class="docutils literal"><span class="pre">PATCH</span></tt> on fields with original value of <tt class="docutils literal"><span class="pre">None</span></tt> (Marcus Cobden,
 #534).</li>
-<li>[new] Add support for multiple origins when using CORS (Josh Villbrandt,
+<li>New: Add support for multiple origins when using CORS (Josh Villbrandt,
 #532.)</li>
-<li>[fix] Fix impossible version ranges in setup.py (Marcus Cobden, #531.)</li>
-<li>[change] <tt class="docutils literal"><span class="pre">DELETE</span></tt> returns <tt class="docutils literal"><span class="pre">204</span> <span class="pre">NoContent</span></tt> on a successful delete.</li>
-<li>[fix] Bug with expanding lists of roles, compromising authorization (Mikael
+<li>Fixed: Fix impossible version ranges in setup.py (Marcus Cobden, #531.)</li>
+<li>Changed: <tt class="docutils literal"><span class="pre">DELETE</span></tt> returns <tt class="docutils literal"><span class="pre">204</span> <span class="pre">NoContent</span></tt> on a successful delete.</li>
+<li>Fixed: Bug with expanding lists of roles, compromising authorization (Mikael
 Berg, #527)</li>
-<li>[fix] <tt class="docutils literal"><span class="pre">PATCH</span></tt> on subdocument fields does not overwrite the whole
+<li>Fixed: <tt class="docutils literal"><span class="pre">PATCH</span></tt> on subdocument fields does not overwrite the whole
 subdocument anymore. Closes #519.</li>
-<li>[fix] Added support for validation on field attribute with type list (Jorge
+<li>Fixed: Added support for validation on field attribute with type list (Jorge
 Morales).</li>
-<li>[fix] Fix a serialization bug with integer and float when value is 0 (Olivier
+<li>Fixed: Fix a serialization bug with integer and float when value is 0 (Olivier
 Poitrey).</li>
-<li>[fix] Custom ID fields tutorial: if custom ID fields are being used, then
+<li>Fixed: Custom ID fields tutorial: if custom ID fields are being used, then
 MongoDB/Eve won&#8217;t be able to create them automatically as it does with the
 <cite>ObjectId</cite> default type. Closes #511.</li>
-<li>[new] Add an option to <cite>internal_*</cite> methods to skip payload validation
+<li>New: Add an option to <cite>internal_*</cite> methods to skip payload validation
 (Olivier Poitrey).</li>
-<li>[fix] Dependencies with default values were reported as missing if omitted.
+<li>Fixed: Dependencies with default values were reported as missing if omitted.
 Closes #353.</li>
-<li>[fix] Dependencies always fails on PATCH if dependent field isn&#8217;t part of the
+<li>Fixed: Dependencies always fails on PATCH if dependent field isn&#8217;t part of the
 update. #363.</li>
-<li>[fix] client projections work when <tt class="docutils literal"><span class="pre">allow_unknown</span></tt> is active. Closes #497.</li>
-<li>[fix] datasource projections are active when <tt class="docutils literal"><span class="pre">allow_unknown</span></tt> is active.
+<li>Fixed: client projections work when <tt class="docutils literal"><span class="pre">allow_unknown</span></tt> is active. Closes #497.</li>
+<li>Fixed: datasource projections are active when <tt class="docutils literal"><span class="pre">allow_unknown</span></tt> is active.
 closes #497.</li>
-<li>[fix] Properly serialize nullable floats and integers. Closes #469.</li>
-<li>[new] Regexes are stripped out of HATEOAS urls when present. You now get
+<li>Fixed: Properly serialize nullable floats and integers. Closes #469.</li>
+<li>New: Regexes are stripped out of HATEOAS urls when present. You now get
 <tt class="docutils literal"><span class="pre">games/&lt;game_id&gt;/images</span></tt> where previously you would get
 <tt class="docutils literal"><span class="pre">games/&lt;regex('[a-f0-9]{24}'):game_id&gt;/images</span></tt>). Closes #466.</li>
-<li>[fix] <tt class="docutils literal"><span class="pre">_mongotize()</span></tt> turns non-ObjectId strings (but not unicode) into
+<li>Fixed: <tt class="docutils literal"><span class="pre">_mongotize()</span></tt> turns non-ObjectId strings (but not unicode) into
 ObjectIds. Closes #508 (Or Neeman).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">JSON_SORT_KEYS</span></tt> enables JSON key sorting (Matt Creenan).</li>
-<li>[change] SERVER_NAME removed as it is not needed anymore.</li>
-<li>[change] URL_PROTOCOL removed as it is not needed anymore.</li>
-<li>[new] The Operations Log (OpLog).</li>
-<li>[fix] Fix validation of read-only fields inside dicts. Closes #474 (Arnau
+<li>New: <tt class="docutils literal"><span class="pre">JSON_SORT_KEYS</span></tt> enables JSON key sorting (Matt Creenan).</li>
+<li>Changed: SERVER_NAME removed as it is not needed anymore.</li>
+<li>Changed: URL_PROTOCOL removed as it is not needed anymore.</li>
+<li>New: The Operations Log (OpLog).</li>
+<li>Fixed: Fix validation of read-only fields inside dicts. Closes #474 (Arnau
 Orriols).</li>
-<li>[fix] Parent and collection links follow the scheme described in #475 (Jen
+<li>Fixed: Parent and collection links follow the scheme described in #475 (Jen
 Montes).</li>
-<li>[new] Add the current query string to the self link for responses with
+<li>New: Add the current query string to the self link for responses with
 multiple documents. Closes #464 (Jen Montes).</li>
-<li>[new] When document versioning is on, add <tt class="docutils literal"><span class="pre">?version=&lt;version_num&gt;</span></tt> to
+<li>New: When document versioning is on, add <tt class="docutils literal"><span class="pre">?version=&lt;version_num&gt;</span></tt> to
 HATEOAS self links. Also adds pagination links for <tt class="docutils literal"><span class="pre">?version=all</span></tt> and
 <tt class="docutils literal"><span class="pre">?version=diffs</span></tt> requests when the number exceeds the max results.
 Partially addresses #475 (Jen Montes).</li>
-<li>[fix] Ignore read-only fields in <tt class="docutils literal"><span class="pre">PATCH</span></tt> requests when their values aren&#8217;t
+<li>Fixed: Ignore read-only fields in <tt class="docutils literal"><span class="pre">PATCH</span></tt> requests when their values aren&#8217;t
 changed compared to the stored document. Closes #479.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">QUERY_WHERE</span></tt> allows to set the query parameter key for filters.
+<li>New: <tt class="docutils literal"><span class="pre">QUERY_WHERE</span></tt> allows to set the query parameter key for filters.
 Defaults to <tt class="docutils literal"><span class="pre">where</span></tt>.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">QUERY_SORT</span></tt> allows to set the query parameter key for sorting.
+<li>New: <tt class="docutils literal"><span class="pre">QUERY_SORT</span></tt> allows to set the query parameter key for sorting.
 Defaults to <tt class="docutils literal"><span class="pre">sort</span></tt>.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">QUERY_PAGE</span></tt> allows to set the query parameter key for pagination.
+<li>New: <tt class="docutils literal"><span class="pre">QUERY_PAGE</span></tt> allows to set the query parameter key for pagination.
 Defaults to <tt class="docutils literal"><span class="pre">page</span></tt>.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">QUERY_PROJECTION</span></tt> allows to set the query parameter key for
+<li>New: <tt class="docutils literal"><span class="pre">QUERY_PROJECTION</span></tt> allows to set the query parameter key for
 projections. Defaults to <tt class="docutils literal"><span class="pre">projection</span></tt>.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">QUERY_MAX_RESULTS</span></tt> allows to set the query parameter key for max
+<li>New: <tt class="docutils literal"><span class="pre">QUERY_MAX_RESULTS</span></tt> allows to set the query parameter key for max
 results. Defaults to <tt class="docutils literal"><span class="pre">max_results</span></tt>.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">QUERY_EMBEDDED</span></tt> allows to set the query parameter key embedded
+<li>New: <tt class="docutils literal"><span class="pre">QUERY_EMBEDDED</span></tt> allows to set the query parameter key embedded
 documents. Defaults to <tt class="docutils literal"><span class="pre">embedded</span></tt>.</li>
-<li>[new] Fire <tt class="docutils literal"><span class="pre">on_fetched</span></tt> events for <tt class="docutils literal"><span class="pre">version=all</span></tt> requests (Jen Montes).</li>
-<li>[new] Support for CORS <tt class="docutils literal"><span class="pre">Access-Control-Expose-Headers</span></tt> (Christian Henke).</li>
-<li>[fix] Allow <tt class="docutils literal"><span class="pre">EVE_SETTINGS</span></tt> envvar to be used exclusively. Previously,
+<li>New: Fire <tt class="docutils literal"><span class="pre">on_fetched</span></tt> events for <tt class="docutils literal"><span class="pre">version=all</span></tt> requests (Jen Montes).</li>
+<li>New: Support for CORS <tt class="docutils literal"><span class="pre">Access-Control-Expose-Headers</span></tt> (Christian Henke).</li>
+<li>Fixed: Allow <tt class="docutils literal"><span class="pre">EVE_SETTINGS</span></tt> envvar to be used exclusively. Previously,
 a settings file in the working directory was always required. Closes #461.</li>
-<li>[fix] exception when trying to set nullable media field to null (Daniel
+<li>Fixed: exception when trying to set nullable media field to null (Daniel
 Lytkin)</li>
-<li>[fix] Add missing <tt class="docutils literal"><span class="pre">$options</span></tt> and <tt class="docutils literal"><span class="pre">$list</span></tt> MongoDB operators to the allowed
+<li>Fixed: Add missing <tt class="docutils literal"><span class="pre">$options</span></tt> and <tt class="docutils literal"><span class="pre">$list</span></tt> MongoDB operators to the allowed
 list (Jaroslav Semančík).</li>
-<li>[fix] Get document when it is missing embedded media. In case you try to
+<li>Fixed: Get document when it is missing embedded media. In case you try to
 embedd a document which has media fields and that document has been deleted,
 you would get an error (Petr Jašek).</li>
-<li>[new] GeoJSON support (Juan Madurga).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">put_internal()</span></tt> can be used for intenral PUT calls. This method is
+<li>New: GeoJSON support (Juan Madurga).</li>
+<li>New: <tt class="docutils literal"><span class="pre">put_internal()</span></tt> can be used for intenral PUT calls. This method is
 not rate limited, authentication is not checked and pre-request events are
 not raised (Kevin Funk).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">patch_internal()</span></tt> can be used for intenral PATCH calls. This method
+<li>New: <tt class="docutils literal"><span class="pre">patch_internal()</span></tt> can be used for intenral PATCH calls. This method
 is not rate limited, authentication is not checked and pre-request events are
 not raised (Kevin Funk).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">delete_internal()</span></tt> can be used for intenral DELETE calls. This
+<li>New: <tt class="docutils literal"><span class="pre">delete_internal()</span></tt> can be used for intenral DELETE calls. This
 method is not rate limited, authentication is not checked and pre-request
 events are not raised (Kevin Funk).</li>
-<li>[fix] fix additional lookup regex in  RESTful Account Management tutorial
+<li>Fixed: fix additional lookup regex in  RESTful Account Management tutorial
 (Ashley Roach).</li>
-<li>[new] Comma delimited sort syntax in queries. The MongoDB data layer now also
+<li>New: Comma delimited sort syntax in queries. The MongoDB data layer now also
 supports queries like <tt class="docutils literal"><span class="pre">?sort=lastname,-age</span></tt>. Addresses #443.</li>
-<li>[change] XML item, meta and link nodes are now ordered. Closes #441.</li>
-<li>[fix] <tt class="docutils literal"><span class="pre">utils.weak_date</span></tt> always returns a RFC-1123 date (Petr Jašek).</li>
-<li>[change] If-Modified-Since has been disabled on resource (collections)
+<li>Changed: XML item, meta and link nodes are now ordered. Closes #441.</li>
+<li>Fixed: <tt class="docutils literal"><span class="pre">utils.weak_date</span></tt> always returns a RFC-1123 date (Petr Jašek).</li>
+<li>Changed: If-Modified-Since has been disabled on resource (collections)
 endpoints. Closes #334.</li>
-<li>[fix] Can&#8217;t embed a ressource with a custom _id (non ObjectId). Closes #427.</li>
-<li>[fix] Do not follow DATE_FORMAT for HTTP headers. Closes #429 (Olivier
+<li>Fixed: Can&#8217;t embed a ressource with a custom _id (non ObjectId). Closes #427.</li>
+<li>Fixed: Do not follow DATE_FORMAT for HTTP headers. Closes #429 (Olivier
 Poitrey).</li>
-<li>[fix] Fix app initialization with resource level versioning #409 (Sebastián
+<li>Fixed: Fix app initialization with resource level versioning #409 (Sebastián
 Magrí).</li>
-<li>[fix] KeyError when trying to use embedding on a field that is missing from
+<li>Fixed: KeyError when trying to use embedding on a field that is missing from
 document. It was fixed earlier in #319, but came back again after new
 embedding mechanism (Daniel Lytkin).</li>
-<li>[fix] Support for list of strings as default value for fields (hansotronic).</li>
-<li>[new] Add extra 4xx response codes for proper handling. Only <tt class="docutils literal"><span class="pre">405</span></tt> Method
+<li>Fixed: Support for list of strings as default value for fields (hansotronic).</li>
+<li>New: Add extra 4xx response codes for proper handling. Only <tt class="docutils literal"><span class="pre">405</span></tt> Method
 not allowed, <tt class="docutils literal"><span class="pre">406</span></tt> Not acceptable, <tt class="docutils literal"><span class="pre">409</span></tt> Conflict, and <tt class="docutils literal"><span class="pre">410</span></tt> Gone have
 been added to the list (Kurt Doherty).</li>
-<li>[new] Add serializers for integer and float types (Grisha K.)</li>
-<li>[new] <tt class="docutils literal"><span class="pre">post_internal()</span></tt> can be used for intenral post calls. This method is
+<li>New: Add serializers for integer and float types (Grisha K.)</li>
+<li>New: <tt class="docutils literal"><span class="pre">post_internal()</span></tt> can be used for intenral post calls. This method is
 not rate limited,authentication is not checked and pre-request events are not
 raised (Magdas Adrian).</li>
-<li>[new] Internal resource can be used for data manipulation using the data
+<li>New: Internal resource can be used for data manipulation using the data
 layer (Magdas Adrian).</li>
-<li>[fix] Media fields are now properly returned even in embedded documents.
+<li>Fixed: Media fields are now properly returned even in embedded documents.
 Closes #305.</li>
-<li>[fix] auth in domain configuration can be either a callable or a class
+<li>Fixed: auth in domain configuration can be either a callable or a class
 instance (Gino Zhang).</li>
-<li>[change] etags are now persisted with the documents. This ensures that etags
+<li>Changed: etags are now persisted with the documents. This ensures that etags
 are consistent across queries, even when projection queries are issued.
 Please note that etags will only be stored along with new documents created
 and/or edited via API methods (POST/PUT/PATCH). Documents inserted by other
 means and those stored with v0.4 and below will keep working as previously:
 their etags will be computed on-the-fly and you will get still be getting
 inconsistent etags when projection queries are issued. Closes #369.</li>
-<li>[fix] Schema definition: a default value of [] for a list causes IndexError.
+<li>Fixed: Schema definition: a default value of [] for a list causes IndexError.
 Closes #417.</li>
-<li>[fix] Close file handles in setup.py (Harro van der Klauw)</li>
-<li>[fix] Querying a collection should always return pagination information (even
+<li>Fixed: Close file handles in setup.py (Harro van der Klauw)</li>
+<li>Fixed: Querying a collection should always return pagination information (even
 when no data is being returned). Closes #415.</li>
-<li>[change] <tt class="docutils literal"><span class="pre">put</span></tt> method signature for <tt class="docutils literal"><span class="pre">MediaStorage</span></tt> base class has been
+<li>Changed: <tt class="docutils literal"><span class="pre">put</span></tt> method signature for <tt class="docutils literal"><span class="pre">MediaStorage</span></tt> base class has been
 updated. <tt class="docutils literal"><span class="pre">filemame</span></tt> is now optional. Closes #414.</li>
-<li>[change] CORS behavior to be compatible with browsers (Chrome). Eve is now
+<li>Changed: CORS behavior to be compatible with browsers (Chrome). Eve is now
 echoing back the contents of the Origin header if said content is whitelisted
 in X_DOMAINS. This also safer as it avoids exposing internal server
 configuration. Closes #408. This commit was carefully handcrafed on a flight
 to EuroPython 2014.</li>
-<li>[fix] Recursively validate the whole query string.</li>
-<li>[fix] If the data layer supports a list of allowed query operators, take them
+<li>Fixed: Recursively validate the whole query string.</li>
+<li>Fixed: If the data layer supports a list of allowed query operators, take them
 into consideration when validating a query string. Closes #388.</li>
-<li>[fix[ Abort with 400 if unsupported query operators are used. Closes #387.</li>
-<li>[fix] Return the error if a blacklisted MongoDB operator is used in a query
+<li>Fixed: Abort with 400 if unsupported query operators are used. Closes #387.</li>
+<li>Fixed: Return the error if a blacklisted MongoDB operator is used in a query
 (debug mode).</li>
-<li>[fix] Invalid sort syntax raises 500 instead of 400. Addresses #378.</li>
-<li>[change] HATEOAS links are now relative to the API root. Closes #398 #401.</li>
-<li>[change] simplejson 3.5.3 is now required.</li>
-<li>[new] dev-requirements.txt added to the repo.</li>
-<li>[change] Specify a range of dependant package versions. #379 (James Stewart).</li>
-<li>[new] Support for python wheels (<a class="reference external" href="http://wheel.readthedocs.org">http://wheel.readthedocs.org</a>)</li>
-<li>[fix] Fix serialization when <cite>type</cite> is missing in schema. #404 (Jaroslav
+<li>Fixed: Invalid sort syntax raises 500 instead of 400. Addresses #378.</li>
+<li>Changed: HATEOAS links are now relative to the API root. Closes #398 #401.</li>
+<li>Changed: simplejson 3.5.3 is now required.</li>
+<li>New: dev-requirements.txt added to the repo.</li>
+<li>Changed: Specify a range of dependant package versions. #379 (James Stewart).</li>
+<li>New: Support for python wheels (<a class="reference external" href="http://wheel.readthedocs.org">http://wheel.readthedocs.org</a>)</li>
+<li>Fixed: Fix serialization when <cite>type</cite> is missing in schema. #404 (Jaroslav
 Semančík).</li>
-<li>[new] Embedding of documents by references located in any subdocuments. For
+<li>New: Embedding of documents by references located in any subdocuments. For
 example, query <tt class="docutils literal"><span class="pre">embedded={&quot;user.friends&quot;:1}</span></tt> will return a document with
 &#8220;user&#8221; and all his &#8220;friends&#8221; embedded, but only if <tt class="docutils literal"><span class="pre">user</span></tt> is a subdocument
 and <tt class="docutils literal"><span class="pre">friends</span></tt> is a list of references (Dmitry Anoshin).</li>
-<li>[new] Allow mongoengine to work properly with cursor counts (Johan Bloemberg)</li>
-<li>[fix] When PUTting or PATCHing media fields, they would not be properly
+<li>New: Allow mongoengine to work properly with cursor counts (Johan Bloemberg)</li>
+<li>Fixed: When PUTting or PATCHing media fields, they would not be properly
 replaced as needed (Stanislav Heller).</li>
-<li>[fix] <tt class="docutils literal"><span class="pre">test_get_sort_disabled</span></tt> occasional failure.</li>
-<li>[fix] A POST with an empty array leads to a server crash. Now returns a 400
+<li>Fixed: <tt class="docutils literal"><span class="pre">test_get_sort_disabled</span></tt> occasional failure.</li>
+<li>Fixed: A POST with an empty array leads to a server crash. Now returns a 400
 error isntead and ensure the server won&#8217;t crash in case of mongo invalid
 operations (Olivier Poitrey).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt> allows unknown fields to be read, not only written as
+<li>New: <tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt> allows unknown fields to be read, not only written as
 before. Closes #397 and #250.</li>
-<li>[fix] PATCH and PUT don&#8217;t respect flask.abort() in a pre-update event. Closes
+<li>Fixed: PATCH and PUT don&#8217;t respect flask.abort() in a pre-update event. Closes
 #395 (Christopher Larsen).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">VALIDATION_ERROR_STATUS</span></tt> allows setting of the HTTP status code to
+<li>New: <tt class="docutils literal"><span class="pre">VALIDATION_ERROR_STATUS</span></tt> allows setting of the HTTP status code to
 use for validation errors. Defaults to <tt class="docutils literal"><span class="pre">422</span></tt> (Olivier Poitrey).</li>
-<li>[fix] Validating keyschema rules would cause a TypeError since 0.4. Closes
+<li>Fixed: Validating keyschema rules would cause a TypeError since 0.4. Closes
 nicolaiarocci/cerberus#48.</li>
-<li>[new] Support for sub-document projections. Fixes #182 (Olivier Poitrey).</li>
-<li>[fix] Crash if client projection is not a dict #390 (Olivier Poitrey).</li>
-<li>[fix] Server crash in case of invalid &#8220;where&#8221; syntax #386 (Olivier Poitrey).</li>
+<li>New: Support for sub-document projections. Fixes #182 (Olivier Poitrey).</li>
+<li>Fixed: Crash if client projection is not a dict #390 (Olivier Poitrey).</li>
+<li>Fixed: Server crash in case of invalid &#8220;where&#8221; syntax #386 (Olivier Poitrey).</li>
 </ul>
 </div>
 <div class="section" id="version-0-4">
