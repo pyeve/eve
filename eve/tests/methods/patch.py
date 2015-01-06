@@ -125,6 +125,14 @@ class TestPatch(TestBase):
         db_value = self.compare_patch_with_get(field, r)
         self.assertEqual(db_value, test_value)
 
+    def test_patch_nested(self):
+        field = "location.city"
+        test_value = 'a nested city'
+        changes = {field: test_value}
+        r = self.perform_patch(changes)
+        db_value = self.compare_patch_with_get("location", r)["city"]
+        self.assertEqual(db_value, test_value)
+
     def test_patch_datetime(self):
         field = "born"
         test_value = "Tue, 06 Nov 2012 10:33:31 GMT"
