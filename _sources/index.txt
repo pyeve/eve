@@ -7,8 +7,8 @@ Eve is an :doc:`open source <license>` Python REST API framework designed for
 human beings. It allows to effortlessly build and deploy highly customizable,
 fully featured RESTful Web Services.
 
-Eve is powered by Flask_, Cerberus_ and Redis_ and offers support for both
-MongoDB_ and SQL backends [*]_.
+Eve is powered by Flask_, Redis_, Cerberus_, Events_ and offers support for
+both MongoDB_ and SQL backends [*]_.
 
 The codebase is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4 and PyPy.
 
@@ -116,4 +116,5 @@ Changelog
 .. _eve-sqlalchemy: https://github.com/RedTurtle/eve-sqlalchemy
 .. _MongoDB: https://mongodb.org
 .. _Redis: http://redis.io
-.. _Cerberus: http://cerberus.readthedocs.org
+.. _Cerberus: https://github.com/nicolaiarocci/cerberus
+.. _events: https://github.com/nicolaiarocci/events
