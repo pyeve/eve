@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta content="Python REST API Framework to effortlessly build and deploy full featured, highly customizable RESTful Web Services. Powerd by Flask, MongoDB, Redis and good intentions." name="description" />
+    <meta content="Python REST API Framework to effortlessly build and deploy full featured, highly customizable RESTful Web Services." name="description" />
 
     <title>Python REST API Framework &mdash; Eve 0.5-dev documentation</title>
     
@@ -53,9 +53,12 @@
             
   <div class="section" id="python-rest-api-framework">
 <h1>Python REST API Framework<a class="headerlink" href="#python-rest-api-framework" title="Permalink to this headline">¶</a></h1>
-<p><em>Powered by Flask, MongoDB, Redis and good intentions Eve allows to
-effortlessly build and deploy highly customizable, fully featured RESTful Web
-Services</em></p>
+<p>Eve is an <a class="reference internal" href="license.html"><em>open source</em></a> Python REST API framework designed for
+human beings. It allows to effortlessly build and deploy highly customizable,
+fully featured RESTful Web Services.</p>
+<p>Eve is powered by <a class="reference external" href="http://flask.pocoo.org/">Flask</a>, <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> and <a class="reference external" href="http://redis.io">Redis</a> and offers support for both
+<a class="reference external" href="https://mongodb.org">MongoDB</a> and SQL backends <a class="footnote-reference" href="#id2" id="id1">[*]</a>.</p>
+<p>The codebase is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4 and PyPy.</p>
 <div class="section" id="eve-is-simple">
 <h2>Eve is Simple<a class="headerlink" href="#eve-is-simple" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
@@ -194,6 +197,7 @@ link</a>.</p>
 <li class="toctree-l2"><a class="reference internal" href="extensions.html#eve-docs">Eve-Docs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extensions.html#eve-mocker">Eve-Mocker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extensions.html#eve-net">Eve.NET</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions.html#eve-sqlalchemy">Eve-SQLAlchemy</a></li>
 </ul>
 </li>
 </ul>
@@ -250,6 +254,12 @@ link</a>.</p>
 sidebar for more information, or to get in touch with the development team
 (that being <a class="reference external" href="mailto:me&#37;&#52;&#48;nicolaiaroccicom">me</a>).</p>
 </div>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[*]</a></td><td>SQLALchemy support is provided by the awesome <a class="reference external" href="https://github.com/RedTurtle/eve-sqlalchemy">eve-sqlalchemy</a> extension.</td></tr>
+</tbody>
+</table>
 </div>
 </div>
 
