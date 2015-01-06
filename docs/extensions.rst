@@ -11,6 +11,7 @@ show me your tool!
 - Eve-Docs_
 - Eve-Mocker_
 - Eve.NET_
+- Eve-SQLAlchemy_
 
 Eve-Elastic
 -----------
@@ -62,6 +63,13 @@ as a portable library (PCL) and runs seamlessly on .NET4, Mono, Xamarin.iOS,
 Xamarin.Android, Windows Phone 8 and Windows 8. We use Eve.NET internally to
 power our iOS, Web and Windows applications.
 
+Eve-SQLAlchemy
+--------------
+*by Andrew Mleczko et al.*
+
+Powered by Eve, SQLAlchemy and good intentions Eve-SQLALchemy_ allows to
+effortlessly build and deploy highly customizable, fully featured RESTful Web
+Services with SQL-based backends.
 
 .. _`Mocking tool for Eve APIs`: http://blog.python-eve.org/eve-mocker
 .. _`Auto generate API docs`: http://blog.python-eve.org/eve-docs
@@ -72,3 +80,4 @@ power our iOS, Web and Windows applications.
 .. _Eve-Mongoengine: https://github.com/hellerstanislav/eve-mongoengine
 .. _Eve-Elastic: https://github.com/petrjasek/eve-elastic
 .. _Eve.NET: https://github.com/nicolaiarocci/Eve.NET
+.. _Eve-SQLAlchemy: https://github.com/RedTurtle/eve-sqlalchemy

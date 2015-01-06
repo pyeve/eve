@@ -1,11 +1,16 @@
 .. meta::
-   :description: Python REST API Framework to effortlessly build and deploy full featured, highly customizable RESTful Web Services. Powerd by Flask, MongoDB, Redis and good intentions.  
+   :description: Python REST API Framework to effortlessly build and deploy full featured, highly customizable RESTful Web Services.
 
 Python REST API Framework
 =========================
-*Powered by Flask, MongoDB, Redis and good intentions Eve allows to
-effortlessly build and deploy highly customizable, fully featured RESTful Web
-Services*
+Eve is an :doc:`open source <license>` Python REST API framework designed for
+human beings. It allows to effortlessly build and deploy highly customizable,
+fully featured RESTful Web Services.
+
+Eve is powered by Flask_, Cerberus_ and Redis_ and offers support for both
+MongoDB_ and SQL backends [*]_.
+
+The codebase is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4 and PyPy.
 
 Eve is Simple
 -------------
@@ -95,6 +100,9 @@ Changelog
    sidebar for more information, or to get in touch with the development team
    (that being me_).
 
+
+.. [*] SQLALchemy support is provided by the awesome eve-sqlalchemy_ extension.
+
 .. _python-eve.org: http://python-eve.org
 .. _`Eve Demo instructions`: http://github.com/nicolaiarocci/eve-demo#readme
 .. _`live demo`: http://eve-demo.herokuapp.com
@@ -103,3 +111,9 @@ Changelog
 .. _`client app`: https://github.com/nicolaiarocci/eve-demo-client
 .. _me: mailto:me@nicolaiaroccicom
 .. _Postman: https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&ved=0CC0QFjAA&url=https%3A%2F%2Fchrome.google.com%2Fwebstore%2Fdetail%2Fpostman-rest-client%2Ffdmmgilgnpjigdojojpjoooidkmcomcm&ei=dPQ7UpqEBISXtAbPpIGwDg&usg=AFQjCNFL71vN61QG0LKlw7VDJvIZDprjHA&bvm=bv.52434380,d.Yms
+
+.. _Flask: http://flask.pocoo.org/
+.. _eve-sqlalchemy: https://github.com/RedTurtle/eve-sqlalchemy
+.. _MongoDB: https://mongodb.org
+.. _Redis: http://redis.io
+.. _Cerberus: http://cerberus.readthedocs.org
