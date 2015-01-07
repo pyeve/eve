@@ -1625,11 +1625,12 @@ query the oplog for changes occured on that endpoint.
     in case you are wondering yes, the Eve oplog is blatantly inpsired by the
     awesome `Replica Set Oplog`_.
 
-MongoDB Support
----------------
-Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL
-backends can be developed with relative ease (a `PostgreSQL effort`_ is
-ongoing, maybe you can lend a hand?)
+MongoDB and SQL Support
+------------------------
+Support for MongoDB comes out of the box. An SQLAlchemy extension provides
+support for SQL backends. Additional data layers can can be developed with
+relative ease. Visit the `extensions page`_ for a list of community developed
+data layers and extensions. 
 
 Powered by Flask
 ----------------
@@ -1659,5 +1660,6 @@ for unittesting_ and an `extensive documentation`_.
 .. _MongoDB: http://docs.mongodb.org/manual/applications/geospatial-indexes/#geojson-objects
 .. _`geospatial query operators`: http://docs.mongodb.org/manual/reference/operator/query-geospatial/#query-selectors
 .. _$near: http://docs.mongodb.org/manual/reference/operator/query/near/#op._S_near
-.. _`capped collection`: http://docs.mongodb.org/manual/core/capped-collections/
+.. _`capped collection`: http://docs.mongodb.org/manual/ore/capped-collections/
 .. _`Replica Set Oplog`: http://docs.mongodb.org/manual/core/replica-set-oplog/
+.. _`extensions page`: http://python-eve.org/extensions
