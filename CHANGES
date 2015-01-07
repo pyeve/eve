@@ -11,6 +11,9 @@ Not released yet.
 - Fix: add ``README.rst`` to ``MANIFEST.in`` (Niall Donegan.)
 - Fix: ``LICENSE`` variable in ``setup.py`` should be "shortstring". Closes
   #540 (Niall Donegan.)
+- Change: update ``dev-requirements.txt`` to most recent tools available.
+- Change: update ``requirements.txt`` to v2.7.2 of pymongo.
+- Change: update ``requirements.txt`` to v3.6.5 of simplejson.
 - New: Return ``409 Conflict`` on pymongo ``DuplicateKeyError`` for ``POST``
   requests, as already happens with ``PUT`` requests (Matt Creenan, #537.)
 - Fixed: ``PATCH`` on fields with original value of ``None`` (Marcus Cobden,
