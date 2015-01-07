@@ -11,59 +11,23 @@ Not released yet.
 - Fix: add ``README.rst`` to ``MANIFEST.in`` (Niall Donegan.)
 - Fix: ``LICENSE`` variable in ``setup.py`` should be "shortstring". Closes
   #540 (Niall Donegan.)
-- Change: update ``dev-requirements.txt`` to most recent tools available.
-- Change: update ``requirements.txt`` to v2.7.2 of pymongo.
-- Change: update ``requirements.txt`` to v3.6.5 of simplejson.
 - New: Return ``409 Conflict`` on pymongo ``DuplicateKeyError`` for ``POST``
   requests, as already happens with ``PUT`` requests (Matt Creenan, #537.)
-- Fixed: ``PATCH`` on fields with original value of ``None`` (Marcus Cobden,
-  #534).
 - New: Add support for multiple origins when using CORS (Josh Villbrandt,
   #532.)
-- Fixed: Fix impossible version ranges in setup.py (Marcus Cobden, #531.)
-- Changed: ``DELETE`` returns ``204 NoContent`` on a successful delete.
-- Fixed: Bug with expanding lists of roles, compromising authorization (Mikael
-  Berg, #527) 
-- Fixed: ``PATCH`` on subdocument fields does not overwrite the whole
-  subdocument anymore. Closes #519.
-- Fixed: Added support for validation on field attribute with type list (Jorge
-  Morales).
-- Fixed: Fix a serialization bug with integer and float when value is
-  0 (Olivier Poitrey).
-- Fixed: Custom ID fields tutorial: if custom ID fields are being used, then
-  MongoDB/Eve won't be able to create them automatically as it does with the
-  `ObjectId` default type. Closes #511.
 - New: Add an option to `internal_*` methods to skip payload validation
   (Olivier Poitrey).
-- Fixed: Dependencies with default values were reported as missing if omitted.
-  Closes #353.
-- Fixed: Dependencies always fails on PATCH if dependent field isn't part of
-  the update. #363.
-- Fixed: client projections work when ``allow_unknown`` is active. Closes #497.
-- Fixed: datasource projections are active when ``allow_unknown`` is active.
-  closes #497.
-- Fixed: Properly serialize nullable floats and integers. Closes #469.
 - New: Regexes are stripped out of HATEOAS urls when present. You now get
   ``games/<game_id>/images`` where previously you would get
   ``games/<regex('[a-f0-9]{24}'):game_id>/images``). Closes #466.
-- Fixed: ``_mongotize()`` turns non-ObjectId strings (but not unicode) into
-  ObjectIds. Closes #508 (Or Neeman).
 - New: ``JSON_SORT_KEYS`` enables JSON key sorting (Matt Creenan).
-- Changed: SERVER_NAME removed as it is not needed anymore.
-- Changed: URL_PROTOCOL removed as it is not needed anymore.
 - New: The Operations Log (OpLog).
-- Fixed: Fix validation of read-only fields inside dicts. Closes #474 (Arnau
-  Orriols).
-- Fixed: Parent and collection links follow the scheme described in #475 (Jen
-  Montes).
 - New: Add the current query string to the self link for responses with
   multiple documents. Closes #464 (Jen Montes).
 - New: When document versioning is on, add ``?version=<version_num>`` to
   HATEOAS self links. Also adds pagination links for ``?version=all`` and
   ``?version=diffs`` requests when the number exceeds the max results.
   Partially addresses #475 (Jen Montes).
-- Fixed: Ignore read-only fields in ``PATCH`` requests when their values aren't
-  changed compared to the stored document. Closes #479.
 - New: ``QUERY_WHERE`` allows to set the query parameter key for filters.
   Defaults to ``where``.
 - New: ``QUERY_SORT`` allows to set the query parameter key for sorting.
@@ -78,6 +42,71 @@ Not released yet.
   documents. Defaults to ``embedded``.
 - New: Fire ``on_fetched`` events for ``version=all`` requests (Jen Montes).
 - New: Support for CORS ``Access-Control-Expose-Headers`` (Christian Henke).
+- New: GeoJSON support (Juan Madurga).
+- New: ``put_internal()`` can be used for intenral PUT calls. This method is
+  not rate limited, authentication is not checked and pre-request events are
+  not raised (Kevin Funk).
+- New: ``patch_internal()`` can be used for intenral PATCH calls. This method
+  is not rate limited, authentication is not checked and pre-request events are
+  not raised (Kevin Funk).
+- New: ``delete_internal()`` can be used for intenral DELETE calls. This
+  method is not rate limited, authentication is not checked and pre-request
+  events are not raised (Kevin Funk).
+- New: Comma delimited sort syntax in queries. The MongoDB data layer now also
+  supports queries like ``?sort=lastname,-age``. Addresses #443.
+- New: Add extra 4xx response codes for proper handling. Only ``405`` Method
+  not allowed, ``406`` Not acceptable, ``409`` Conflict, and ``410`` Gone have
+  been added to the list (Kurt Doherty).
+- New: Add serializers for integer and float types (Grisha K.) 
+- New: ``post_internal()`` can be used for intenral post calls. This method is
+  not rate limited,authentication is not checked and pre-request events are not
+  raised (Magdas Adrian).
+- New: Internal resource can be used for data manipulation using the data
+  layer (Magdas Adrian).
+- New: dev-requirements.txt added to the repo.
+- New: Support for python wheels (http://wheel.readthedocs.org)
+- New: Embedding of documents by references located in any subdocuments. For
+  example, query ``embedded={"user.friends":1}`` will return a document with
+  "user" and all his "friends" embedded, but only if ``user`` is a subdocument
+  and ``friends`` is a list of references (Dmitry Anoshin).
+- New: Allow mongoengine to work properly with cursor counts (Johan Bloemberg) 
+- New: ``ALLOW_UNKNOWN`` allows unknown fields to be read, not only written as
+  before. Closes #397 and #250.
+- New: ``VALIDATION_ERROR_STATUS`` allows setting of the HTTP status code to
+  use for validation errors. Defaults to ``422`` (Olivier Poitrey). 
+- New: Support for sub-document projections. Fixes #182 (Olivier Poitrey).
+
+- Fixed: ``PATCH`` on fields with original value of ``None`` (Marcus Cobden,
+  #534).
+- Fixed: Fix impossible version ranges in setup.py (Marcus Cobden, #531.)
+- Changed: ``DELETE`` returns ``204 NoContent`` on a successful delete.
+- Fixed: Bug with expanding lists of roles, compromising authorization (Mikael
+  Berg, #527) 
+- Fixed: ``PATCH`` on subdocument fields does not overwrite the whole
+  subdocument anymore. Closes #519.
+- Fixed: Added support for validation on field attribute with type list (Jorge
+  Morales).
+- Fixed: Fix a serialization bug with integer and float when value is
+  0 (Olivier Poitrey).
+- Fixed: Custom ID fields tutorial: if custom ID fields are being used, then
+  MongoDB/Eve won't be able to create them automatically as it does with the
+  `ObjectId` default type. Closes #511.
+- Fixed: Dependencies with default values were reported as missing if omitted.
+  Closes #353.
+- Fixed: Dependencies always fails on PATCH if dependent field isn't part of
+  the update. #363.
+- Fixed: client projections work when ``allow_unknown`` is active. Closes #497.
+- Fixed: datasource projections are active when ``allow_unknown`` is active.
+  closes #497.
+- Fixed: Properly serialize nullable floats and integers. Closes #469.
+- Fixed: ``_mongotize()`` turns non-ObjectId strings (but not unicode) into
+  ObjectIds. Closes #508 (Or Neeman).
+- Fixed: Fix validation of read-only fields inside dicts. Closes #474 (Arnau
+  Orriols).
+- Fixed: Parent and collection links follow the scheme described in #475 (Jen
+  Montes).
+- Fixed: Ignore read-only fields in ``PATCH`` requests when their values aren't
+  changed compared to the stored document. Closes #479.
 - Fixed: Allow ``EVE_SETTINGS`` envvar to be used exclusively. Previously,
   a settings file in the working directory was always required. Closes #461.
 - Fixed: exception when trying to set nullable media field to null (Daniel
@@ -87,24 +116,9 @@ Not released yet.
 - Fixed: Get document when it is missing embedded media. In case you try to
   embedd a document which has media fields and that document has been deleted,
   you would get an error (Petr Jašek).
-- New: GeoJSON support (Juan Madurga).
-- New: ``put_internal()`` can be used for intenral PUT calls. This method is
-  not rate limited, authentication is not checked and pre-request events are
-  not raised (Kevin Funk).
-- New: ``patch_internal()`` can be used for intenral PATCH calls. This method
-  is not rate limited, authentication is not checked and pre-request events are
-  not raised (Kevin Funk).
-- New: ``delete_internal()`` can be used for intenral DELETE calls. This method
-  is not rate limited, authentication is not checked and pre-request events are
-  not raised (Kevin Funk).
 - Fixed: fix additional lookup regex in  RESTful Account Management tutorial
   (Ashley Roach).
-- New: Comma delimited sort syntax in queries. The MongoDB data layer now also
-  supports queries like ``?sort=lastname,-age``. Addresses #443.
-- Changed: XML item, meta and link nodes are now ordered. Closes #441.
 - Fixed: ``utils.weak_date`` always returns a RFC-1123 date (Petr Jašek).
-- Changed: If-Modified-Since has been disabled on resource (collections)
-  endpoints. Closes #334.
 - Fixed: Can't embed a ressource with a custom _id (non ObjectId). Closes #427.
 - Fixed: Do not follow DATE_FORMAT for HTTP headers. Closes #429 (Olivier
   Poitrey).
@@ -114,38 +128,15 @@ Not released yet.
   document. It was fixed earlier in #319, but came back again after new
   embedding mechanism (Daniel Lytkin). 
 - Fixed: Support for list of strings as default value for fields (hansotronic).
-- New: Add extra 4xx response codes for proper handling. Only ``405`` Method
-  not allowed, ``406`` Not acceptable, ``409`` Conflict, and ``410`` Gone have
-  been added to the list (Kurt Doherty).
-- New: Add serializers for integer and float types (Grisha K.) 
-- New: ``post_internal()`` can be used for intenral post calls. This method is
-  not rate limited,authentication is not checked and pre-request events are not
-  raised (Magdas Adrian).
-- New: Internal resource can be used for data manipulation using the data layer
-  (Magdas Adrian).
 - Fixed: Media fields are now properly returned even in embedded documents.
   Closes #305.
 - Fixed: auth in domain configuration can be either a callable or a class
   instance (Gino Zhang).
-- Changed: etags are now persisted with the documents. This ensures that etags
-  are consistent across queries, even when projection queries are issued.
-  Please note that etags will only be stored along with new documents created
-  and/or edited via API methods (POST/PUT/PATCH). Documents inserted by other
-  means and those stored with v0.4 and below will keep working as previously:
-  their etags will be computed on-the-fly and you will get still be getting
-  inconsistent etags when projection queries are issued. Closes #369.
 - Fixed: Schema definition: a default value of [] for a list causes IndexError.
   Closes #417.
 - Fixed: Close file handles in setup.py (Harro van der Klauw)
-- Fixed: Querying a collection should always return pagination information
-  (even when no data is being returned). Closes #415.
-- Changed: ``put`` method signature for ``MediaStorage`` base class has been
-  updated. ``filemame`` is now optional. Closes #414.
-- Changed: CORS behavior to be compatible with browsers (Chrome). Eve is now
-  echoing back the contents of the Origin header if said content is whitelisted
-  in X_DOMAINS. This also safer as it avoids exposing internal server
-  configuration. Closes #408. This commit was carefully handcrafed on a flight
-  to EuroPython 2014.
+- Fixed: Querying a collection should always return pagination information (even
+  when no data is being returned). Closes #415.
 - Fixed: Recursively validate the whole query string.
 - Fixed: If the data layer supports a list of allowed query operators, take
   them into consideration when validating a query string. Closes #388.
@@ -153,35 +144,46 @@ Not released yet.
 - Fixed: Return the error if a blacklisted MongoDB operator is used in a query
   (debug mode). 
 - Fixed: Invalid sort syntax raises 500 instead of 400. Addresses #378.
-- Changed: HATEOAS links are now relative to the API root. Closes #398 #401.
-- Changed: simplejson 3.5.3 is now required.
-- New: dev-requirements.txt added to the repo.
-- Changed: Specify a range of dependant package versions. #379 (James Stewart).
-- New: Support for python wheels (http://wheel.readthedocs.org)
 - Fixed: Fix serialization when `type` is missing in schema. #404 (Jaroslav
   Semančík).
-- New: Embedding of documents by references located in any subdocuments. For
-  example, query ``embedded={"user.friends":1}`` will return a document with
-  "user" and all his "friends" embedded, but only if ``user`` is a subdocument
-  and ``friends`` is a list of references (Dmitry Anoshin).
-- New: Allow mongoengine to work properly with cursor counts (Johan Bloemberg) 
 - Fixed: When PUTting or PATCHing media fields, they would not be properly
   replaced as needed (Stanislav Heller).
 - Fixed: ``test_get_sort_disabled`` occasional failure.
 - Fixed: A POST with an empty array leads to a server crash. Now returns a 400
   error isntead and ensure the server won't crash in case of mongo invalid
   operations (Olivier Poitrey). 
-- New: ``ALLOW_UNKNOWN`` allows unknown fields to be read, not only written as
-  before. Closes #397 and #250.
-- Fixed: PATCH and PUT don't respect flask.abort() in a pre-update event.
-  Closes #395 (Christopher Larsen).
-- New: ``VALIDATION_ERROR_STATUS`` allows setting of the HTTP status code to
-  use for validation errors. Defaults to ``422`` (Olivier Poitrey). 
+- Fixed: PATCH and PUT don't respect flask.abort() in a pre-update event. Closes
+  #395 (Christopher Larsen).
 - Fixed: Validating keyschema rules would cause a TypeError since 0.4. Closes
   nicolaiarocci/cerberus#48.
-- New: Support for sub-document projections. Fixes #182 (Olivier Poitrey).
 - Fixed: Crash if client projection is not a dict #390 (Olivier Poitrey).
 - Fixed: Server crash in case of invalid "where" syntax #386 (Olivier Poitrey).
+
+- Change: update ``dev-requirements.txt`` to most recent tools available.
+- Change: update ``requirements.txt`` to v2.7.2 of pymongo.
+- Change: update ``requirements.txt`` to v3.6.5 of simplejson.
+- Changed: SERVER_NAME removed as it is not needed anymore.
+- Changed: URL_PROTOCOL removed as it is not needed anymore.
+- Changed: XML item, meta and link nodes are now ordered. Closes #441.
+- Changed: If-Modified-Since has been disabled on resource (collections)
+  endpoints. Closes #334.
+- Changed: etags are now persisted with the documents. This ensures that etags
+  are consistent across queries, even when projection queries are issued.
+  Please note that etags will only be stored along with new documents created
+  and/or edited via API methods (POST/PUT/PATCH). Documents inserted by other
+  means and those stored with v0.4 and below will keep working as previously:
+  their etags will be computed on-the-fly and you will get still be getting
+  inconsistent etags when projection queries are issued. Closes #369.
+- Changed: ``put`` method signature for ``MediaStorage`` base class has been
+  updated. ``filemame`` is now optional. Closes #414.
+- Changed: CORS behavior to be compatible with browsers (Chrome). Eve is now
+  echoing back the contents of the Origin header if said content is whitelisted
+  in X_DOMAINS. This also safer as it avoids exposing internal server
+  configuration. Closes #408. This commit was carefully handcrafed on a flight
+  to EuroPython 2014.
+- Changed: HATEOAS links are now relative to the API root. Closes #398 #401.
+- Changed: simplejson 3.5.3 is now required.
+- Changed: Specify a range of dependant package versions. #379 (James Stewart).
 
 Version 0.4
 -----------
