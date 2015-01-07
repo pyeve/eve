@@ -159,9 +159,10 @@ Not released yet.
 - Fixed: Crash if client projection is not a dict #390 (Olivier Poitrey).
 - Fixed: Server crash in case of invalid "where" syntax #386 (Olivier Poitrey).
 
-- Change: update ``dev-requirements.txt`` to most recent tools available.
-- Change: update ``requirements.txt`` to v2.7.2 of pymongo.
-- Change: update ``requirements.txt`` to v3.6.5 of simplejson.
+- Changed: Cerberus 0.8 is now required.
+- Changed: pymongo v2.7.2 is now required.
+- Changed: simplejson v3.6.5 is now required.
+- Changed: update ``dev-requirements.txt`` to most recent tools available.
 - Changed: SERVER_NAME removed as it is not needed anymore.
 - Changed: URL_PROTOCOL removed as it is not needed anymore.
 - Changed: XML item, meta and link nodes are now ordered. Closes #441.
@@ -182,7 +183,6 @@ Not released yet.
   configuration. Closes #408. This commit was carefully handcrafed on a flight
   to EuroPython 2014.
 - Changed: HATEOAS links are now relative to the API root. Closes #398 #401.
-- Changed: simplejson 3.5.3 is now required.
 - Changed: Specify a range of dependant package versions. #379 (James Stewart).
 
 Version 0.4
