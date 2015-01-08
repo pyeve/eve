@@ -6,9 +6,6 @@ DESCRIPTION = ("REST API framework powered by Flask, MongoDB and good "
 with open('README.rst') as f:
     LONG_DESCRIPTION = f.read()
 
-with open('LICENSE') as f:
-    LICENSE = f.read()
-
 install_requires = [
     'cerberus>=0.7,<0.8',
     'events>=0.2.1,<0.3',
@@ -37,7 +34,7 @@ setup(
     author='Nicola Iarocci',
     author_email='eve@nicolaiarocci.com',
     url='http://python-eve.org',
-    license=LICENSE,
+    license='BSD',
     platforms=["any"],
     packages=find_packages(),
     test_suite="eve.tests",
