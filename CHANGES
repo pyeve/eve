@@ -8,6 +8,9 @@ Version 0.5
 
 Not released yet.
 
+- Fix: add README.est to MANIFEST.in (Niall Donegan.)
+- Fix: LICENSE variable in setup.py should be "shortstring". Closes #540 (Niall
+  Donegan.)
 - New: Return ``409 Conflict`` on pymongo ``DuplicateKeyError`` for ``POST``
   requests, as already happens with ``PUT`` requests (Matt Creenan, #537.)
 - Fixed: ``PATCH`` on fields with original value of ``None`` (Marcus Cobden,
@@ -22,8 +25,8 @@ Not released yet.
   subdocument anymore. Closes #519.
 - Fixed: Added support for validation on field attribute with type list (Jorge
   Morales).
-- Fixed: Fix a serialization bug with integer and float when value is 0 (Olivier
-  Poitrey).
+- Fixed: Fix a serialization bug with integer and float when value is
+  0 (Olivier Poitrey).
 - Fixed: Custom ID fields tutorial: if custom ID fields are being used, then
   MongoDB/Eve won't be able to create them automatically as it does with the
   `ObjectId` default type. Closes #511.
@@ -31,8 +34,8 @@ Not released yet.
   (Olivier Poitrey).
 - Fixed: Dependencies with default values were reported as missing if omitted.
   Closes #353.
-- Fixed: Dependencies always fails on PATCH if dependent field isn't part of the
-  update. #363.
+- Fixed: Dependencies always fails on PATCH if dependent field isn't part of
+  the update. #363.
 - Fixed: client projections work when ``allow_unknown`` is active. Closes #497.
 - Fixed: datasource projections are active when ``allow_unknown`` is active.
   closes #497.
@@ -76,8 +79,8 @@ Not released yet.
   a settings file in the working directory was always required. Closes #461.
 - Fixed: exception when trying to set nullable media field to null (Daniel
   Lytkin)
-- Fixed: Add missing ``$options`` and ``$list`` MongoDB operators to the allowed
-  list (Jaroslav Semančík).
+- Fixed: Add missing ``$options`` and ``$list`` MongoDB operators to the
+  allowed list (Jaroslav Semančík).
 - Fixed: Get document when it is missing embedded media. In case you try to
   embedd a document which has media fields and that document has been deleted,
   you would get an error (Petr Jašek).
@@ -88,9 +91,9 @@ Not released yet.
 - New: ``patch_internal()`` can be used for intenral PATCH calls. This method
   is not rate limited, authentication is not checked and pre-request events are
   not raised (Kevin Funk).
-- New: ``delete_internal()`` can be used for intenral DELETE calls. This
-  method is not rate limited, authentication is not checked and pre-request
-  events are not raised (Kevin Funk).
+- New: ``delete_internal()`` can be used for intenral DELETE calls. This method
+  is not rate limited, authentication is not checked and pre-request events are
+  not raised (Kevin Funk).
 - Fixed: fix additional lookup regex in  RESTful Account Management tutorial
   (Ashley Roach).
 - New: Comma delimited sort syntax in queries. The MongoDB data layer now also
@@ -115,8 +118,8 @@ Not released yet.
 - New: ``post_internal()`` can be used for intenral post calls. This method is
   not rate limited,authentication is not checked and pre-request events are not
   raised (Magdas Adrian).
-- New: Internal resource can be used for data manipulation using the data
-  layer (Magdas Adrian).
+- New: Internal resource can be used for data manipulation using the data layer
+  (Magdas Adrian).
 - Fixed: Media fields are now properly returned even in embedded documents.
   Closes #305.
 - Fixed: auth in domain configuration can be either a callable or a class
@@ -131,8 +134,8 @@ Not released yet.
 - Fixed: Schema definition: a default value of [] for a list causes IndexError.
   Closes #417.
 - Fixed: Close file handles in setup.py (Harro van der Klauw)
-- Fixed: Querying a collection should always return pagination information (even
-  when no data is being returned). Closes #415.
+- Fixed: Querying a collection should always return pagination information
+  (even when no data is being returned). Closes #415.
 - Changed: ``put`` method signature for ``MediaStorage`` base class has been
   updated. ``filemame`` is now optional. Closes #414.
 - Changed: CORS behavior to be compatible with browsers (Chrome). Eve is now
@@ -141,8 +144,8 @@ Not released yet.
   configuration. Closes #408. This commit was carefully handcrafed on a flight
   to EuroPython 2014.
 - Fixed: Recursively validate the whole query string.
-- Fixed: If the data layer supports a list of allowed query operators, take them
-  into consideration when validating a query string. Closes #388.
+- Fixed: If the data layer supports a list of allowed query operators, take
+  them into consideration when validating a query string. Closes #388.
 - Fixed: Abort with 400 if unsupported query operators are used. Closes #387.
 - Fixed: Return the error if a blacklisted MongoDB operator is used in a query
   (debug mode). 
@@ -167,8 +170,8 @@ Not released yet.
   operations (Olivier Poitrey). 
 - New: ``ALLOW_UNKNOWN`` allows unknown fields to be read, not only written as
   before. Closes #397 and #250.
-- Fixed: PATCH and PUT don't respect flask.abort() in a pre-update event. Closes
-  #395 (Christopher Larsen).
+- Fixed: PATCH and PUT don't respect flask.abort() in a pre-update event.
+  Closes #395 (Christopher Larsen).
 - New: ``VALIDATION_ERROR_STATUS`` allows setting of the HTTP status code to
   use for validation errors. Defaults to ``422`` (Olivier Poitrey). 
 - Fixed: Validating keyschema rules would cause a TypeError since 0.4. Closes
