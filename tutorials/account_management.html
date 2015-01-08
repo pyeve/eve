@@ -33,8 +33,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -54,7 +54,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="restful-account-management">
 <h1>RESTful Account Management<a class="headerlink" href="#restful-account-management" title="Permalink to this headline">¶</a></h1>
@@ -84,7 +84,7 @@ endpoints.</p>
 <p>Our tasks are as follows:</p>
 <ol class="arabic simple">
 <li>Make an endpoint available for all account management activities
-(<tt class="docutils literal"><span class="pre">/accounts</span></tt>).</li>
+(<code class="docutils literal"><span class="pre">/accounts</span></code>).</li>
 <li>Secure the endpoint, so that it is only accessible to clients
 that we control: our own website, mobile apps with account
 management capabilities, etc.</li>
@@ -93,7 +93,7 @@ accounts (created by means of the above mentioned endpoint).</li>
 <li>Allow authenticated users to only access resources created by themselves.</li>
 </ol>
 <div class="section" id="the-accounts-endpoint">
-<h3>1. The <tt class="docutils literal"><span class="pre">/accounts</span></tt> endpoint<a class="headerlink" href="#the-accounts-endpoint" title="Permalink to this headline">¶</a></h3>
+<h3>1. The <code class="docutils literal"><span class="pre">/accounts</span></code> endpoint<a class="headerlink" href="#the-accounts-endpoint" title="Permalink to this headline">¶</a></h3>
 <p>The account management endpoint is no different than any other API endpoint.
 It is just a matter of declaring it in our settings file. Let&#8217;s declare the
 resource schema first.</p>
@@ -130,21 +130,21 @@ resource schema first.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>We defined an additional read-only entry point at <tt class="docutils literal"><span class="pre">/accounts/&lt;username&gt;</span></tt>.
+<p>We defined an additional read-only entry point at <code class="docutils literal"><span class="pre">/accounts/&lt;username&gt;</span></code>.
 This isn&#8217;t really a necessity, but it can come in handy to easily verify if
 a username has been taken already, or to retrieve an account without knowing
-its <tt class="docutils literal"><span class="pre">ObjectId</span></tt> beforehand. Of course, both pieces of information can also be
-found by querying the resource endpoint (<tt class="docutils literal"><span class="pre">/accounts?where={&quot;username&quot;:</span>
-<span class="pre">&quot;johndoe&quot;}</span></tt>), but then we would need to parse the response payload, whereas by
+its <code class="docutils literal"><span class="pre">ObjectId</span></code> beforehand. Of course, both pieces of information can also be
+found by querying the resource endpoint (<code class="docutils literal"><span class="pre">/accounts?where={&quot;username&quot;:</span>
+<span class="pre">&quot;johndoe&quot;}</span></code>), but then we would need to parse the response payload, whereas by
 hitting our new endpoint with a GET request we will obtain the bare account
-data, or a <tt class="docutils literal"><span class="pre">404</span> <span class="pre">Not</span> <span class="pre">Found</span></tt> if the account does not exist.</p>
+data, or a <code class="docutils literal"><span class="pre">404</span> <span class="pre">Not</span> <span class="pre">Found</span></code> if the account does not exist.</p>
 <p>Once the endpoint has been configured, we need to add it to the API domain:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">DOMAIN</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">accounts</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="securing-the-accounts-endpoint">
-<h3>2. Securing the <tt class="docutils literal"><span class="pre">/accounts/</span></tt> endpoint<a class="headerlink" href="#securing-the-accounts-endpoint" title="Permalink to this headline">¶</a></h3>
+<h3>2. Securing the <code class="docutils literal"><span class="pre">/accounts/</span></code> endpoint<a class="headerlink" href="#securing-the-accounts-endpoint" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="a-hard-coding-our-way-in">
 <h4>2a. Hard-coding our way in<a class="headerlink" href="#a-hard-coding-our-way-in" title="Permalink to this headline">¶</a></h4>
 <p>Securing the endpoint can be achieved by allowing only well-known <cite>superusers</cite>
@@ -172,8 +172,8 @@ script, can be hard-coded to handle the case:</p>
     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Thus, only the <tt class="docutils literal"><span class="pre">superuser</span></tt> account will be allowed to consume the
-<tt class="docutils literal"><span class="pre">accounts</span></tt> endpoint, while standard authentication logic will apply to all
+<p>Thus, only the <code class="docutils literal"><span class="pre">superuser</span></code> account will be allowed to consume the
+<code class="docutils literal"><span class="pre">accounts</span></code> endpoint, while standard authentication logic will apply to all
 other endpoints. Our mobile app (say) will add accounts by hitting the endpoint
 with simple POST requests, of course authenticating itself as a <cite>superuser</cite> by
 means of the <cite>Authorization</cite> header. The script assumes that stored passwords
@@ -208,7 +208,7 @@ are going with this: the idea is that only accounts with <cite>superuser</cite> 
 </span>     <span class="p">},</span>
 </pre></div>
 </div>
-<p>We just added a new <tt class="docutils literal"><span class="pre">roles</span></tt> field which is a required list. From now on, one
+<p>We just added a new <code class="docutils literal"><span class="pre">roles</span></code> field which is a required list. From now on, one
 or more roles will have to be assigned on account creation.</p>
 <p>Now we need to restrict endpoint access to <cite>superuser</cite> and <cite>admin</cite> accounts
 only so let&#8217;s update the endpoint definition accordingly.</p>
@@ -270,7 +270,7 @@ authentication class.</p>
 <h3>3. Securing other API endpoints<a class="headerlink" href="#securing-other-api-endpoints" title="Permalink to this headline">¶</a></h3>
 <p>This will be quick, as both the <cite>hard-coding</cite> and the <cite>role-based</cite> access
 control approaches above effectively secure all API endpoints already.  Passing
-an authentication class to the <tt class="docutils literal"><span class="pre">Eve</span></tt> object enables authentication for the
+an authentication class to the <code class="docutils literal"><span class="pre">Eve</span></code> object enables authentication for the
 whole API: every time an endpoint is hit with a request, the class instance is
 invoked.</p>
 <p>Of course, you can still fine-tune security, for example by allowing public
@@ -292,7 +292,7 @@ document;</li>
 <li>Set the document owner on each incoming POST request.</li>
 </ol>
 <p>Since we want to enable this feature for all of our API endpoints we&#8217;ll just
-update our <tt class="docutils literal"><span class="pre">settings.py</span></tt> file by setting a proper <tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt> value:</p>
+update our <code class="docutils literal"><span class="pre">settings.py</span></code> file by setting a proper <code class="docutils literal"><span class="pre">AUTH_FIELD</span></code> value:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Name of the field used to store the owner of each document</span>
 <span class="n">AUTH_FIELD</span> <span class="o">=</span> <span class="s">&#39;user_id&#39;</span>
 </pre></div>
@@ -324,7 +324,7 @@ value:</p>
      <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>This is all we need to do. Now when a client hits say the <tt class="docutils literal"><span class="pre">/invoices</span></tt>
+<p>This is all we need to do. Now when a client hits say the <code class="docutils literal"><span class="pre">/invoices</span></code>
 endpoint with a GET request, it will only be served with invoices created by
 its own account. The same will happen with DELETE and PATCH, making it
 impossible for an authenticated user to accidentally retrieve, edit or delete
@@ -344,7 +344,7 @@ to the client.</p>
 <p>In light of this, let&#8217;s review our updated task list:</p>
 <ol class="arabic simple">
 <li>Make an endpoint available for all account management activities
-(<tt class="docutils literal"><span class="pre">/accounts</span></tt>).</li>
+(<code class="docutils literal"><span class="pre">/accounts</span></code>).</li>
 <li>Secure the endpoint so that it is only accessible to clients (tokens) that
 we control.</li>
 <li>On account creation, generate and store its token.</li>
@@ -354,7 +354,7 @@ tokens.</li>
 <li>Allow authenticated users to only access resources created by themselves</li>
 </ol>
 <div class="section" id="id1">
-<h3>1. The <tt class="docutils literal"><span class="pre">/accounts/</span></tt> endpoint<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<h3>1. The <code class="docutils literal"><span class="pre">/accounts/</span></code> endpoint<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <p>This isn&#8217;t any different than what we did in <a class="reference internal" href="#accounts-basic"><em>Accounts with Basic Authentication</em></a>. We just
 need to add the <cite>token</cite> field to our schema:</p>
 <div class="highlight-python"><div class="highlight"><pre>     <span class="n">schema</span> <span class="o">=</span>  <span class="p">{</span>
@@ -381,7 +381,7 @@ need to add the <cite>token</cite> field to our schema:</p>
 </div>
 </div>
 <div class="section" id="id2">
-<h3>2. Securing the <tt class="docutils literal"><span class="pre">/accounts/</span></tt> endpoint<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<h3>2. Securing the <code class="docutils literal"><span class="pre">/accounts/</span></code> endpoint<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <p>We defined the <cite>roles</cite> field for the <cite>accounts</cite> schema in the previous step.
 We also need to define the endpoint, making sure that we set the allowed
 user roles.</p>
@@ -407,7 +407,7 @@ user roles.</p>
  <span class="p">}</span>
 </pre></div>
 </div>
-<p>And finally, here is our launch script which is, of course, using a <tt class="docutils literal"><span class="pre">TokenAuth</span></tt>
+<p>And finally, here is our launch script which is, of course, using a <code class="docutils literal"><span class="pre">TokenAuth</span></code>
 subclass this time around:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
 <span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">TokenAuth</span>
@@ -471,8 +471,8 @@ to be stored to the database.</p>
 </span>     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>As you can see, we are subscribing to the <tt class="docutils literal"><span class="pre">on_insert</span></tt> event of the <cite>accounts</cite>
-endpoint with our <tt class="docutils literal"><span class="pre">add_token</span></tt> function. This callback will receive
+<p>As you can see, we are subscribing to the <code class="docutils literal"><span class="pre">on_insert</span></code> event of the <cite>accounts</cite>
+endpoint with our <code class="docutils literal"><span class="pre">add_token</span></code> function. This callback will receive
 <cite>documents</cite> as an argument, which is a list of validated documents accepted for
 database insertion. We simply add (or replace in the unlikely case that the
 request contained it already) a token to every document, and we&#8217;re done! For
@@ -486,11 +486,11 @@ information out-of-band, with an email for example. However we&#8217;re assuming
 we are on SSL, and there are cases where sending the auth token just makes
 sense, like when the client is a mobile application and we want the user to use
 the service right away.</p>
-<p>Normally, only automatically handled fields (<tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>, <tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt>,
-<tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt>, <tt class="docutils literal"><span class="pre">ETAG</span></tt>) are included with POST response payloads.
+<p>Normally, only automatically handled fields (<code class="docutils literal"><span class="pre">ID_FIELD</span></code>, <code class="docutils literal"><span class="pre">LAST_UPDATED</span></code>,
+<code class="docutils literal"><span class="pre">DATE_CREATED</span></code>, <code class="docutils literal"><span class="pre">ETAG</span></code>) are included with POST response payloads.
 Fortunately, there&#8217;s a setting which allows us to inject additional fields in
-responses, and that is <tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt>, with its endpoint-level
-equivalent, <tt class="docutils literal"><span class="pre">extra_response_fields</span></tt>. All we need to do is update our endpoint
+responses, and that is <code class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></code>, with its endpoint-level
+equivalent, <code class="docutils literal"><span class="pre">extra_response_fields</span></code>. All we need to do is update our endpoint
 definition accordingly:</p>
 <div class="highlight-python"><div class="highlight"><pre> <span class="n">accounts</span> <span class="o">=</span> <span class="p">{</span>
      <span class="c"># the standard account entry point is defined as</span>
@@ -517,13 +517,13 @@ definition accordingly:</p>
  <span class="p">}</span>
 </pre></div>
 </div>
-<p>From now on responses to POST requests aimed at the <tt class="docutils literal"><span class="pre">/accounts</span></tt> endpoint
+<p>From now on responses to POST requests aimed at the <code class="docutils literal"><span class="pre">/accounts</span></code> endpoint
 will include the newly generated auth token, allowing the client to consume
 other API endpoints right away.</p>
 </div>
 <div class="section" id="id3">
 <h3>5. Securing other API endpoints<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
-<p>As we&#8217;ve seen before, passing an authentication class to the <tt class="docutils literal"><span class="pre">Eve</span></tt> object
+<p>As we&#8217;ve seen before, passing an authentication class to the <code class="docutils literal"><span class="pre">Eve</span></code> object
 enables authentication for all API endpoints. Again, you can still fine-tune
 security by allowing public access to certain endpoints or to certain HTTP
 methods. See <a class="reference internal" href="../authentication.html#auth"><em>Authentication and Authorization</em></a> for more details.</p>
@@ -532,7 +532,7 @@ methods. See <a class="reference internal" href="../authentication.html#auth"><e
 <h3>6. Only allowing access to account resources<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <p>This is achieved with the <a class="reference internal" href="../authentication.html#user-restricted"><em>User-Restricted Resource Access</em></a> feature, as seen in
 <a class="reference internal" href="#accounts-basic"><em>Accounts with Basic Authentication</em></a>. You might want to store the user token as your
-<tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt> value, but if you want user tokens to be easily revocable, then
+<code class="docutils literal"><span class="pre">AUTH_FIELD</span></code> value, but if you want user tokens to be easily revocable, then
 your best option is to use the account unique id for this.</p>
 </div>
 </div>
@@ -550,7 +550,7 @@ a lot of additional security.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../index.html">
@@ -582,7 +582,7 @@ a lot of additional security.</p>
 </a>
 </p>
 <h3>Navigation</h3>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../foreword.html">Foreword</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../rest_api_for_humans.html">REST API for Humans</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
@@ -591,11 +591,7 @@ a lot of additional security.</p>
 <li class="toctree-l1"><a class="reference internal" href="../config.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../validation.html">Data Validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../authentication.html">Authentication and Authorization</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="">RESTful Account Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="custom_idfields.html">Handling custom ID fields</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../extensions.html">Extensions</a></li>
 </ul>
 <ul>
@@ -638,7 +634,7 @@ Consider supporting the authors on <a href="https://www.gittip.com/">Gittip</a>:
    width="48pt" height="20pt"></iframe>
 </p>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />

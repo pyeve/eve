@@ -31,8 +31,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -48,7 +48,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="eve-changelog">
 <span id="changelog"></span><h1>Eve Changelog<a class="headerlink" href="#eve-changelog" title="Permalink to this headline">¶</a></h1>
@@ -57,22 +57,25 @@
 <h2>Version 0.5<a class="headerlink" href="#version-0-5" title="Permalink to this headline">¶</a></h2>
 <p>Not released yet.</p>
 <ul class="simple">
-<li>New: Return <tt class="docutils literal"><span class="pre">409</span> <span class="pre">Conflict</span></tt> on pymongo <tt class="docutils literal"><span class="pre">DuplicateKeyError</span></tt> for <tt class="docutils literal"><span class="pre">POST</span></tt>
-requests, as already happens with <tt class="docutils literal"><span class="pre">PUT</span></tt> requests (Matt Creenan, #537.)</li>
-<li>Fixed: <tt class="docutils literal"><span class="pre">PATCH</span></tt> on fields with original value of <tt class="docutils literal"><span class="pre">None</span></tt> (Marcus Cobden,
+<li>Fix: add <code class="docutils literal"><span class="pre">README.rst</span></code> to <code class="docutils literal"><span class="pre">MANIFEST.in</span></code> (Niall Donegan.)</li>
+<li>Fix: <code class="docutils literal"><span class="pre">LICENSE</span></code> variable in <code class="docutils literal"><span class="pre">setup.py</span></code> should be &#8220;shortstring&#8221;. Closes
+#540 (Niall Donegan.)</li>
+<li>New: Return <code class="docutils literal"><span class="pre">409</span> <span class="pre">Conflict</span></code> on pymongo <code class="docutils literal"><span class="pre">DuplicateKeyError</span></code> for <code class="docutils literal"><span class="pre">POST</span></code>
+requests, as already happens with <code class="docutils literal"><span class="pre">PUT</span></code> requests (Matt Creenan, #537.)</li>
+<li>Fixed: <code class="docutils literal"><span class="pre">PATCH</span></code> on fields with original value of <code class="docutils literal"><span class="pre">None</span></code> (Marcus Cobden,
 #534).</li>
 <li>New: Add support for multiple origins when using CORS (Josh Villbrandt,
 #532.)</li>
 <li>Fixed: Fix impossible version ranges in setup.py (Marcus Cobden, #531.)</li>
-<li>Changed: <tt class="docutils literal"><span class="pre">DELETE</span></tt> returns <tt class="docutils literal"><span class="pre">204</span> <span class="pre">NoContent</span></tt> on a successful delete.</li>
+<li>Changed: <code class="docutils literal"><span class="pre">DELETE</span></code> returns <code class="docutils literal"><span class="pre">204</span> <span class="pre">NoContent</span></code> on a successful delete.</li>
 <li>Fixed: Bug with expanding lists of roles, compromising authorization (Mikael
 Berg, #527)</li>
-<li>Fixed: <tt class="docutils literal"><span class="pre">PATCH</span></tt> on subdocument fields does not overwrite the whole
+<li>Fixed: <code class="docutils literal"><span class="pre">PATCH</span></code> on subdocument fields does not overwrite the whole
 subdocument anymore. Closes #519.</li>
 <li>Fixed: Added support for validation on field attribute with type list (Jorge
 Morales).</li>
-<li>Fixed: Fix a serialization bug with integer and float when value is 0 (Olivier
-Poitrey).</li>
+<li>Fixed: Fix a serialization bug with integer and float when value is
+0 (Olivier Poitrey).</li>
 <li>Fixed: Custom ID fields tutorial: if custom ID fields are being used, then
 MongoDB/Eve won&#8217;t be able to create them automatically as it does with the
 <cite>ObjectId</cite> default type. Closes #511.</li>
@@ -80,18 +83,18 @@ MongoDB/Eve won&#8217;t be able to create them automatically as it does with the
 (Olivier Poitrey).</li>
 <li>Fixed: Dependencies with default values were reported as missing if omitted.
 Closes #353.</li>
-<li>Fixed: Dependencies always fails on PATCH if dependent field isn&#8217;t part of the
-update. #363.</li>
-<li>Fixed: client projections work when <tt class="docutils literal"><span class="pre">allow_unknown</span></tt> is active. Closes #497.</li>
-<li>Fixed: datasource projections are active when <tt class="docutils literal"><span class="pre">allow_unknown</span></tt> is active.
+<li>Fixed: Dependencies always fails on PATCH if dependent field isn&#8217;t part of
+the update. #363.</li>
+<li>Fixed: client projections work when <code class="docutils literal"><span class="pre">allow_unknown</span></code> is active. Closes #497.</li>
+<li>Fixed: datasource projections are active when <code class="docutils literal"><span class="pre">allow_unknown</span></code> is active.
 closes #497.</li>
 <li>Fixed: Properly serialize nullable floats and integers. Closes #469.</li>
 <li>New: Regexes are stripped out of HATEOAS urls when present. You now get
-<tt class="docutils literal"><span class="pre">games/&lt;game_id&gt;/images</span></tt> where previously you would get
-<tt class="docutils literal"><span class="pre">games/&lt;regex('[a-f0-9]{24}'):game_id&gt;/images</span></tt>). Closes #466.</li>
-<li>Fixed: <tt class="docutils literal"><span class="pre">_mongotize()</span></tt> turns non-ObjectId strings (but not unicode) into
+<code class="docutils literal"><span class="pre">games/&lt;game_id&gt;/images</span></code> where previously you would get
+<code class="docutils literal"><span class="pre">games/&lt;regex('[a-f0-9]{24}'):game_id&gt;/images</span></code>). Closes #466.</li>
+<li>Fixed: <code class="docutils literal"><span class="pre">_mongotize()</span></code> turns non-ObjectId strings (but not unicode) into
 ObjectIds. Closes #508 (Or Neeman).</li>
-<li>New: <tt class="docutils literal"><span class="pre">JSON_SORT_KEYS</span></tt> enables JSON key sorting (Matt Creenan).</li>
+<li>New: <code class="docutils literal"><span class="pre">JSON_SORT_KEYS</span></code> enables JSON key sorting (Matt Creenan).</li>
 <li>Changed: SERVER_NAME removed as it is not needed anymore.</li>
 <li>Changed: URL_PROTOCOL removed as it is not needed anymore.</li>
 <li>New: The Operations Log (OpLog).</li>
@@ -101,51 +104,51 @@ Orriols).</li>
 Montes).</li>
 <li>New: Add the current query string to the self link for responses with
 multiple documents. Closes #464 (Jen Montes).</li>
-<li>New: When document versioning is on, add <tt class="docutils literal"><span class="pre">?version=&lt;version_num&gt;</span></tt> to
-HATEOAS self links. Also adds pagination links for <tt class="docutils literal"><span class="pre">?version=all</span></tt> and
-<tt class="docutils literal"><span class="pre">?version=diffs</span></tt> requests when the number exceeds the max results.
+<li>New: When document versioning is on, add <code class="docutils literal"><span class="pre">?version=&lt;version_num&gt;</span></code> to
+HATEOAS self links. Also adds pagination links for <code class="docutils literal"><span class="pre">?version=all</span></code> and
+<code class="docutils literal"><span class="pre">?version=diffs</span></code> requests when the number exceeds the max results.
 Partially addresses #475 (Jen Montes).</li>
-<li>Fixed: Ignore read-only fields in <tt class="docutils literal"><span class="pre">PATCH</span></tt> requests when their values aren&#8217;t
+<li>Fixed: Ignore read-only fields in <code class="docutils literal"><span class="pre">PATCH</span></code> requests when their values aren&#8217;t
 changed compared to the stored document. Closes #479.</li>
-<li>New: <tt class="docutils literal"><span class="pre">QUERY_WHERE</span></tt> allows to set the query parameter key for filters.
-Defaults to <tt class="docutils literal"><span class="pre">where</span></tt>.</li>
-<li>New: <tt class="docutils literal"><span class="pre">QUERY_SORT</span></tt> allows to set the query parameter key for sorting.
-Defaults to <tt class="docutils literal"><span class="pre">sort</span></tt>.</li>
-<li>New: <tt class="docutils literal"><span class="pre">QUERY_PAGE</span></tt> allows to set the query parameter key for pagination.
-Defaults to <tt class="docutils literal"><span class="pre">page</span></tt>.</li>
-<li>New: <tt class="docutils literal"><span class="pre">QUERY_PROJECTION</span></tt> allows to set the query parameter key for
-projections. Defaults to <tt class="docutils literal"><span class="pre">projection</span></tt>.</li>
-<li>New: <tt class="docutils literal"><span class="pre">QUERY_MAX_RESULTS</span></tt> allows to set the query parameter key for max
-results. Defaults to <tt class="docutils literal"><span class="pre">max_results</span></tt>.</li>
-<li>New: <tt class="docutils literal"><span class="pre">QUERY_EMBEDDED</span></tt> allows to set the query parameter key embedded
-documents. Defaults to <tt class="docutils literal"><span class="pre">embedded</span></tt>.</li>
-<li>New: Fire <tt class="docutils literal"><span class="pre">on_fetched</span></tt> events for <tt class="docutils literal"><span class="pre">version=all</span></tt> requests (Jen Montes).</li>
-<li>New: Support for CORS <tt class="docutils literal"><span class="pre">Access-Control-Expose-Headers</span></tt> (Christian Henke).</li>
-<li>Fixed: Allow <tt class="docutils literal"><span class="pre">EVE_SETTINGS</span></tt> envvar to be used exclusively. Previously,
+<li>New: <code class="docutils literal"><span class="pre">QUERY_WHERE</span></code> allows to set the query parameter key for filters.
+Defaults to <code class="docutils literal"><span class="pre">where</span></code>.</li>
+<li>New: <code class="docutils literal"><span class="pre">QUERY_SORT</span></code> allows to set the query parameter key for sorting.
+Defaults to <code class="docutils literal"><span class="pre">sort</span></code>.</li>
+<li>New: <code class="docutils literal"><span class="pre">QUERY_PAGE</span></code> allows to set the query parameter key for pagination.
+Defaults to <code class="docutils literal"><span class="pre">page</span></code>.</li>
+<li>New: <code class="docutils literal"><span class="pre">QUERY_PROJECTION</span></code> allows to set the query parameter key for
+projections. Defaults to <code class="docutils literal"><span class="pre">projection</span></code>.</li>
+<li>New: <code class="docutils literal"><span class="pre">QUERY_MAX_RESULTS</span></code> allows to set the query parameter key for max
+results. Defaults to <code class="docutils literal"><span class="pre">max_results</span></code>.</li>
+<li>New: <code class="docutils literal"><span class="pre">QUERY_EMBEDDED</span></code> allows to set the query parameter key embedded
+documents. Defaults to <code class="docutils literal"><span class="pre">embedded</span></code>.</li>
+<li>New: Fire <code class="docutils literal"><span class="pre">on_fetched</span></code> events for <code class="docutils literal"><span class="pre">version=all</span></code> requests (Jen Montes).</li>
+<li>New: Support for CORS <code class="docutils literal"><span class="pre">Access-Control-Expose-Headers</span></code> (Christian Henke).</li>
+<li>Fixed: Allow <code class="docutils literal"><span class="pre">EVE_SETTINGS</span></code> envvar to be used exclusively. Previously,
 a settings file in the working directory was always required. Closes #461.</li>
 <li>Fixed: exception when trying to set nullable media field to null (Daniel
 Lytkin)</li>
-<li>Fixed: Add missing <tt class="docutils literal"><span class="pre">$options</span></tt> and <tt class="docutils literal"><span class="pre">$list</span></tt> MongoDB operators to the allowed
-list (Jaroslav Semančík).</li>
+<li>Fixed: Add missing <code class="docutils literal"><span class="pre">$options</span></code> and <code class="docutils literal"><span class="pre">$list</span></code> MongoDB operators to the
+allowed list (Jaroslav Semančík).</li>
 <li>Fixed: Get document when it is missing embedded media. In case you try to
 embedd a document which has media fields and that document has been deleted,
 you would get an error (Petr Jašek).</li>
 <li>New: GeoJSON support (Juan Madurga).</li>
-<li>New: <tt class="docutils literal"><span class="pre">put_internal()</span></tt> can be used for intenral PUT calls. This method is
+<li>New: <code class="docutils literal"><span class="pre">put_internal()</span></code> can be used for intenral PUT calls. This method is
 not rate limited, authentication is not checked and pre-request events are
 not raised (Kevin Funk).</li>
-<li>New: <tt class="docutils literal"><span class="pre">patch_internal()</span></tt> can be used for intenral PATCH calls. This method
+<li>New: <code class="docutils literal"><span class="pre">patch_internal()</span></code> can be used for intenral PATCH calls. This method
 is not rate limited, authentication is not checked and pre-request events are
 not raised (Kevin Funk).</li>
-<li>New: <tt class="docutils literal"><span class="pre">delete_internal()</span></tt> can be used for intenral DELETE calls. This
-method is not rate limited, authentication is not checked and pre-request
-events are not raised (Kevin Funk).</li>
+<li>New: <code class="docutils literal"><span class="pre">delete_internal()</span></code> can be used for intenral DELETE calls. This method
+is not rate limited, authentication is not checked and pre-request events are
+not raised (Kevin Funk).</li>
 <li>Fixed: fix additional lookup regex in  RESTful Account Management tutorial
 (Ashley Roach).</li>
 <li>New: Comma delimited sort syntax in queries. The MongoDB data layer now also
-supports queries like <tt class="docutils literal"><span class="pre">?sort=lastname,-age</span></tt>. Addresses #443.</li>
+supports queries like <code class="docutils literal"><span class="pre">?sort=lastname,-age</span></code>. Addresses #443.</li>
 <li>Changed: XML item, meta and link nodes are now ordered. Closes #441.</li>
-<li>Fixed: <tt class="docutils literal"><span class="pre">utils.weak_date</span></tt> always returns a RFC-1123 date (Petr Jašek).</li>
+<li>Fixed: <code class="docutils literal"><span class="pre">utils.weak_date</span></code> always returns a RFC-1123 date (Petr Jašek).</li>
 <li>Changed: If-Modified-Since has been disabled on resource (collections)
 endpoints. Closes #334.</li>
 <li>Fixed: Can&#8217;t embed a ressource with a custom _id (non ObjectId). Closes #427.</li>
@@ -157,15 +160,15 @@ Magrí).</li>
 document. It was fixed earlier in #319, but came back again after new
 embedding mechanism (Daniel Lytkin).</li>
 <li>Fixed: Support for list of strings as default value for fields (hansotronic).</li>
-<li>New: Add extra 4xx response codes for proper handling. Only <tt class="docutils literal"><span class="pre">405</span></tt> Method
-not allowed, <tt class="docutils literal"><span class="pre">406</span></tt> Not acceptable, <tt class="docutils literal"><span class="pre">409</span></tt> Conflict, and <tt class="docutils literal"><span class="pre">410</span></tt> Gone have
+<li>New: Add extra 4xx response codes for proper handling. Only <code class="docutils literal"><span class="pre">405</span></code> Method
+not allowed, <code class="docutils literal"><span class="pre">406</span></code> Not acceptable, <code class="docutils literal"><span class="pre">409</span></code> Conflict, and <code class="docutils literal"><span class="pre">410</span></code> Gone have
 been added to the list (Kurt Doherty).</li>
 <li>New: Add serializers for integer and float types (Grisha K.)</li>
-<li>New: <tt class="docutils literal"><span class="pre">post_internal()</span></tt> can be used for intenral post calls. This method is
+<li>New: <code class="docutils literal"><span class="pre">post_internal()</span></code> can be used for intenral post calls. This method is
 not rate limited,authentication is not checked and pre-request events are not
 raised (Magdas Adrian).</li>
-<li>New: Internal resource can be used for data manipulation using the data
-layer (Magdas Adrian).</li>
+<li>New: Internal resource can be used for data manipulation using the data layer
+(Magdas Adrian).</li>
 <li>Fixed: Media fields are now properly returned even in embedded documents.
 Closes #305.</li>
 <li>Fixed: auth in domain configuration can be either a callable or a class
@@ -180,18 +183,18 @@ inconsistent etags when projection queries are issued. Closes #369.</li>
 <li>Fixed: Schema definition: a default value of [] for a list causes IndexError.
 Closes #417.</li>
 <li>Fixed: Close file handles in setup.py (Harro van der Klauw)</li>
-<li>Fixed: Querying a collection should always return pagination information (even
-when no data is being returned). Closes #415.</li>
-<li>Changed: <tt class="docutils literal"><span class="pre">put</span></tt> method signature for <tt class="docutils literal"><span class="pre">MediaStorage</span></tt> base class has been
-updated. <tt class="docutils literal"><span class="pre">filemame</span></tt> is now optional. Closes #414.</li>
+<li>Fixed: Querying a collection should always return pagination information
+(even when no data is being returned). Closes #415.</li>
+<li>Changed: <code class="docutils literal"><span class="pre">put</span></code> method signature for <code class="docutils literal"><span class="pre">MediaStorage</span></code> base class has been
+updated. <code class="docutils literal"><span class="pre">filemame</span></code> is now optional. Closes #414.</li>
 <li>Changed: CORS behavior to be compatible with browsers (Chrome). Eve is now
 echoing back the contents of the Origin header if said content is whitelisted
 in X_DOMAINS. This also safer as it avoids exposing internal server
 configuration. Closes #408. This commit was carefully handcrafed on a flight
 to EuroPython 2014.</li>
 <li>Fixed: Recursively validate the whole query string.</li>
-<li>Fixed: If the data layer supports a list of allowed query operators, take them
-into consideration when validating a query string. Closes #388.</li>
+<li>Fixed: If the data layer supports a list of allowed query operators, take
+them into consideration when validating a query string. Closes #388.</li>
 <li>Fixed: Abort with 400 if unsupported query operators are used. Closes #387.</li>
 <li>Fixed: Return the error if a blacklisted MongoDB operator is used in a query
 (debug mode).</li>
@@ -204,22 +207,22 @@ into consideration when validating a query string. Closes #388.</li>
 <li>Fixed: Fix serialization when <cite>type</cite> is missing in schema. #404 (Jaroslav
 Semančík).</li>
 <li>New: Embedding of documents by references located in any subdocuments. For
-example, query <tt class="docutils literal"><span class="pre">embedded={&quot;user.friends&quot;:1}</span></tt> will return a document with
-&#8220;user&#8221; and all his &#8220;friends&#8221; embedded, but only if <tt class="docutils literal"><span class="pre">user</span></tt> is a subdocument
-and <tt class="docutils literal"><span class="pre">friends</span></tt> is a list of references (Dmitry Anoshin).</li>
+example, query <code class="docutils literal"><span class="pre">embedded={&quot;user.friends&quot;:1}</span></code> will return a document with
+&#8220;user&#8221; and all his &#8220;friends&#8221; embedded, but only if <code class="docutils literal"><span class="pre">user</span></code> is a subdocument
+and <code class="docutils literal"><span class="pre">friends</span></code> is a list of references (Dmitry Anoshin).</li>
 <li>New: Allow mongoengine to work properly with cursor counts (Johan Bloemberg)</li>
 <li>Fixed: When PUTting or PATCHing media fields, they would not be properly
 replaced as needed (Stanislav Heller).</li>
-<li>Fixed: <tt class="docutils literal"><span class="pre">test_get_sort_disabled</span></tt> occasional failure.</li>
+<li>Fixed: <code class="docutils literal"><span class="pre">test_get_sort_disabled</span></code> occasional failure.</li>
 <li>Fixed: A POST with an empty array leads to a server crash. Now returns a 400
 error isntead and ensure the server won&#8217;t crash in case of mongo invalid
 operations (Olivier Poitrey).</li>
-<li>New: <tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt> allows unknown fields to be read, not only written as
+<li>New: <code class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></code> allows unknown fields to be read, not only written as
 before. Closes #397 and #250.</li>
-<li>Fixed: PATCH and PUT don&#8217;t respect flask.abort() in a pre-update event. Closes
-#395 (Christopher Larsen).</li>
-<li>New: <tt class="docutils literal"><span class="pre">VALIDATION_ERROR_STATUS</span></tt> allows setting of the HTTP status code to
-use for validation errors. Defaults to <tt class="docutils literal"><span class="pre">422</span></tt> (Olivier Poitrey).</li>
+<li>Fixed: PATCH and PUT don&#8217;t respect flask.abort() in a pre-update event.
+Closes #395 (Christopher Larsen).</li>
+<li>New: <code class="docutils literal"><span class="pre">VALIDATION_ERROR_STATUS</span></code> allows setting of the HTTP status code to
+use for validation errors. Defaults to <code class="docutils literal"><span class="pre">422</span></code> (Olivier Poitrey).</li>
 <li>Fixed: Validating keyschema rules would cause a TypeError since 0.4. Closes
 nicolaiarocci/cerberus#48.</li>
 <li>New: Support for sub-document projections. Fixes #182 (Olivier Poitrey).</li>
@@ -232,7 +235,7 @@ nicolaiarocci/cerberus#48.</li>
 <p>Released on 20 June, 2014.</p>
 <ul class="simple">
 <li>[new] You can now start the app without any resource defined and use
-<tt class="docutils literal"><span class="pre">app.register_resource</span></tt> later as needed (Petr Jašek).</li>
+<code class="docutils literal"><span class="pre">app.register_resource</span></code> later as needed (Petr Jašek).</li>
 <li>[new] Data layer is now usable outside request context, for example within
 a Celery task where there&#8217;s no request context (Petr Jašek).</li>
 <li>[new][change] Add pagination info to get results whatever the HATEOAS status.
@@ -240,32 +243,32 @@ Closes #355 (Olivier Poitrey).</li>
 <li>[new] Ensure all errors return a parseable body (JSON or XML). Closes #365
 (Olivier Poitrey).</li>
 <li>[new] Apply sub-request route&#8217;s params to the created document if matching
-the schema, e.g. a POST on <tt class="docutils literal"><span class="pre">/people/1234…/invoices</span></tt> will set the
-<tt class="docutils literal"><span class="pre">contact_id</span></tt> field to 1234… so created invoice is automatically associated
+the schema, e.g. a POST on <code class="docutils literal"><span class="pre">/people/1234…/invoices</span></code> will set the
+<code class="docutils literal"><span class="pre">contact_id</span></code> field to 1234… so created invoice is automatically associated
 with the parent resource (Olivier Poitrey).</li>
 <li>[new] Allow some more HTTP errors (403 and 404) to be thrown from db hooks
 (Olivier Poitrey).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">ALLOWED_READ_ROLES</span></tt>. A list of allowed <cite>roles</cite> for resource
+<li>[new] <code class="docutils literal"><span class="pre">ALLOWED_READ_ROLES</span></code>. A list of allowed <cite>roles</cite> for resource
 endpoints with GET and OPTIONS methods (Olivier Poitrey).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">ALLOWED_WRITE_ROLES</span></tt>. A list of allowed <cite>roles</cite> for resource
+<li>[new] <code class="docutils literal"><span class="pre">ALLOWED_WRITE_ROLES</span></code>. A list of allowed <cite>roles</cite> for resource
 endpoints with POST, PUT and DELETE methods (Olivier Poitrey).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">ALLOWED_ITEM_READ_ROLES</span></tt>. A list of allowed <cite>roles</cite> for item
+<li>[new] <code class="docutils literal"><span class="pre">ALLOWED_ITEM_READ_ROLES</span></code>. A list of allowed <cite>roles</cite> for item
 endpoints with GET and OPTIONS methods (Olivier Poitrey).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">ALLOWED_ITEM_WRITE_ROLES</span></tt>. A list of allowed <cite>roles</cite> for item
+<li>[new] <code class="docutils literal"><span class="pre">ALLOWED_ITEM_WRITE_ROLES</span></code>. A list of allowed <cite>roles</cite> for item
 endpoints with PUT, PATCH and DELETE methods (Olivier Poitrey).</li>
 <li>[new] &#8216;dependencies&#8217; validation rule.</li>
 <li>[new] &#8216;keyschema&#8217; validation rule.</li>
 <li>[new] &#8216;regex&#8217; validation rule.</li>
 <li>[new] &#8216;set&#8217; as a core data type.</li>
 <li>[new] &#8216;min&#8217; and &#8216;max&#8217; now apply to floats and numbers too.</li>
-<li>[new] File Storage. <tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt> allows a list of meta fields
+<li>[new] File Storage. <code class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></code> allows a list of meta fields
 (file properties) to forward from the file upload driver (Ben Demaree).</li>
 <li>[new] Python 3.4 is now supported.</li>
 <li>[new] Support for default values in documents with more than one level of
 data (Javier Gonel).</li>
-<li>[new] Ability to send entire document in write responses. <tt class="docutils literal"><span class="pre">BANDWITH_SAVER</span></tt>
+<li>[new] Ability to send entire document in write responses. <code class="docutils literal"><span class="pre">BANDWITH_SAVER</span></code>
 aka Coherence Mode (Josh Villbrandt).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">on_pre_&lt;METHOD&gt;</span></tt> events expose the <cite>lookup</cite> dictionary which allows
+<li>[new] <code class="docutils literal"><span class="pre">on_pre_&lt;METHOD&gt;</span></code> events expose the <cite>lookup</cite> dictionary which allows
 for setting up dynamic database lookups on both resource and item endpoints.</li>
 <li>[new] Return a 400 response on pymongo DuplicateKeyError, with exception
 message if debug mode is on (boosh).</li>
@@ -275,19 +278,19 @@ message if debug mode is on (boosh).</li>
 <li>[new] Versioned Documents (Josh Villbrandt). Closes #224.</li>
 <li>[new] Python trove classifiers added to setup.py.</li>
 <li>[new] Client projections are also honored at item endpoints.</li>
-<li>[new] validate that ID_FIELD is not set as a resource <tt class="docutils literal"><span class="pre">auth_field</span></tt>.
+<li>[new] validate that ID_FIELD is not set as a resource <code class="docutils literal"><span class="pre">auth_field</span></code>.
 Addresses #266.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">URL_PROTOCOL</span></tt> defines the HTTP protocol used when building HATEOAS
-links. Defaults to <tt class="docutils literal"><span class="pre">''</span></tt> for relative paths (Junior Vidotti).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">on_delete_item</span></tt> and <tt class="docutils literal"><span class="pre">on_deleted_item</span></tt> is raised on DELETE requests
+<li>[new] <code class="docutils literal"><span class="pre">URL_PROTOCOL</span></code> defines the HTTP protocol used when building HATEOAS
+links. Defaults to <code class="docutils literal"><span class="pre">''</span></code> for relative paths (Junior Vidotti).</li>
+<li>[new] <code class="docutils literal"><span class="pre">on_delete_item</span></code> and <code class="docutils literal"><span class="pre">on_deleted_item</span></code> is raised on DELETE requests
 sent to document endpoints. Addresses #232.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">on_delete_resource</span></tt> and <tt class="docutils literal"><span class="pre">on_deleted_resource</span></tt> is raised on DELETE
+<li>[new] <code class="docutils literal"><span class="pre">on_delete_resource</span></code> and <code class="docutils literal"><span class="pre">on_deleted_resource</span></code> is raised on DELETE
 requests sent to resource endpoints. Addresses #232.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">on_update</span></tt> is raised on PATCH requests, when a document is about to
+<li>[new] <code class="docutils literal"><span class="pre">on_update</span></code> is raised on PATCH requests, when a document is about to
 be updated on the database. Addresses #232.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">on_replace</span></tt> is raised on PUT requests, when a document is about to
+<li>[new] <code class="docutils literal"><span class="pre">on_replace</span></code> is raised on PUT requests, when a document is about to
 be replaced on the database. Addresses #232.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">auth</span></tt> constructor argument accepts either a class instance or
+<li>[new] <code class="docutils literal"><span class="pre">auth</span></code> constructor argument accepts either a class instance or
 a callable. Closes #248.</li>
 <li>[change] Cerberus 0.7.2 is now required.</li>
 <li>[change] Jinja2 2.7.3 is now required.</li>
@@ -301,20 +304,20 @@ when everything was ok or 400 when something went wrong. For bulk inserts, if
 at least one document doesn&#8217;t validate, the whole request is rejected, and
 none of the documents are inserted into the database. Additionnaly, this
 commit adopts the same response format as collections: responses are always
-a dict with a <tt class="docutils literal"><span class="pre">_status</span></tt> field at its root and an eventual <tt class="docutils literal"><span class="pre">_error</span></tt> object
-if <tt class="docutils literal"><span class="pre">_status</span></tt> is <tt class="docutils literal"><span class="pre">ERR</span></tt> to comply with #366. Documents status are stored in
-the <tt class="docutils literal"><span class="pre">_items</span></tt> field (Olivier Poitrey).</li>
-<li>[change] Callbacks get whole json response on <tt class="docutils literal"><span class="pre">on_fetched</span></tt>. This allows for
+a dict with a <code class="docutils literal"><span class="pre">_status</span></code> field at its root and an eventual <code class="docutils literal"><span class="pre">_error</span></code> object
+if <code class="docutils literal"><span class="pre">_status</span></code> is <code class="docutils literal"><span class="pre">ERR</span></code> to comply with #366. Documents status are stored in
+the <code class="docutils literal"><span class="pre">_items</span></code> field (Olivier Poitrey).</li>
+<li>[change] Callbacks get whole json response on <code class="docutils literal"><span class="pre">on_fetched</span></code>. This allows for
 callbacks functions to alter the whole payload, even when HATEOAS is enabled
-and <tt class="docutils literal"><span class="pre">_items</span></tt> and <tt class="docutils literal"><span class="pre">_links</span></tt> metafields are present.</li>
-<li>[change] <tt class="docutils literal"><span class="pre">on_insert</span></tt> is not raised anymore on PUT requests (replaced by
-above mentioned <tt class="docutils literal"><span class="pre">on_replace</span></tt>).</li>
-<li>[change] <tt class="docutils literal"><span class="pre">auth.request_auth_value</span></tt> is no more. Yay. See below.</li>
-<li>[change] <tt class="docutils literal"><span class="pre">auth.set_request_auth_value()</span></tt> allows to set the <tt class="docutils literal"><span class="pre">auth_field</span></tt>
+and <code class="docutils literal"><span class="pre">_items</span></code> and <code class="docutils literal"><span class="pre">_links</span></code> metafields are present.</li>
+<li>[change] <code class="docutils literal"><span class="pre">on_insert</span></code> is not raised anymore on PUT requests (replaced by
+above mentioned <code class="docutils literal"><span class="pre">on_replace</span></code>).</li>
+<li>[change] <code class="docutils literal"><span class="pre">auth.request_auth_value</span></code> is no more. Yay. See below.</li>
+<li>[change] <code class="docutils literal"><span class="pre">auth.set_request_auth_value()</span></code> allows to set the <code class="docutils literal"><span class="pre">auth_field</span></code>
 value for the current request.</li>
-<li>[change] <tt class="docutils literal"><span class="pre">auth.get_request_auth_value()</span></tt> allows to retrieve the
-<tt class="docutils literal"><span class="pre">auth_field</span></tt> value for the current request.</li>
-<li>[change] <tt class="docutils literal"><span class="pre">on_update(ed)</span></tt> and <tt class="docutils literal"><span class="pre">on_replace(ed)</span></tt> callbacks now receive both
+<li>[change] <code class="docutils literal"><span class="pre">auth.get_request_auth_value()</span></code> allows to retrieve the
+<code class="docutils literal"><span class="pre">auth_field</span></code> value for the current request.</li>
+<li>[change] <code class="docutils literal"><span class="pre">on_update(ed)</span></code> and <code class="docutils literal"><span class="pre">on_replace(ed)</span></code> callbacks now receive both
 the original document and the updates (Jaroslav Semančík).</li>
 <li>[change] Review event names (Javier Gonel).</li>
 <li>[fix] return 500 instead of 404 if CORS is enabled. Closes #381.</li>
@@ -329,25 +332,25 @@ for the endpoint.</li>
 embeddable was missing in a particular document (Jaroslav Semančík).</li>
 <li>[fix] Tests on HEAD requests would very occasionally fail. See #316.</li>
 <li>[change] PyMongo 2.7.1 is now required.</li>
-<li>[fix] Automatic fields such as <tt class="docutils literal"><span class="pre">DATE_CREATD</span></tt> and <tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt> are
+<li>[fix] Automatic fields such as <code class="docutils literal"><span class="pre">DATE_CREATD</span></code> and <code class="docutils literal"><span class="pre">DATE_CREATED</span></code> are
 correctly handled in client projections (Josh Villbrandt). Closes #282.</li>
 <li>[fix] Make codebase compliant with latest PEP8/flake8 release (Javier Gonel).</li>
 <li>[fix] If you had a media field, and set datasource projection to 0 for that
 field, the media would not be deleted. Closes #284.</li>
 <li>[fix] tests cleanup (Javier Gonel).</li>
-<li>[fix] tests now run on any system without needing to set <tt class="docutils literal"><span class="pre">ulimit</span></tt> to
+<li>[fix] tests now run on any system without needing to set <code class="docutils literal"><span class="pre">ulimit</span></code> to
 a higher value (Javier Gonel).</li>
 <li>[fix] media files: don&#8217;t try to delete a field that does not exist (Taylor
 Brown).</li>
-<li>[fix] Occasional KeyError while building <tt class="docutils literal"><span class="pre">_media</span></tt> helper dict. See #271
+<li>[fix] Occasional KeyError while building <code class="docutils literal"><span class="pre">_media</span></code> helper dict. See #271
 (Alexander Hendorf).</li>
-<li>[fix] <tt class="docutils literal"><span class="pre">If-Modified-Since</span></tt> misbehaviour when a datasource filter is set.
+<li>[fix] <code class="docutils literal"><span class="pre">If-Modified-Since</span></code> misbehaviour when a datasource filter is set.
 Closes #258.</li>
 <li>[fix] Trouble serializing list of dicts. Closes #265 and #244.</li>
-<li>[fix] <tt class="docutils literal"><span class="pre">HATEOAS</span></tt> item links are now coherent actual endpoint URL even when
+<li>[fix] <code class="docutils literal"><span class="pre">HATEOAS</span></code> item links are now coherent actual endpoint URL even when
 natural immutable keys are used in URLs (Junior Vidotti). Closes #256.</li>
-<li>[fix] Replaced <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> by <tt class="docutils literal"><span class="pre">item_lookup_field</span></tt> on self link.
-item_lookup_field will default to <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> if blank.</li>
+<li>[fix] Replaced <code class="docutils literal"><span class="pre">ID_FIELD</span></code> by <code class="docutils literal"><span class="pre">item_lookup_field</span></code> on self link.
+item_lookup_field will default to <code class="docutils literal"><span class="pre">ID_FIELD</span></code> if blank.</li>
 </ul>
 </div>
 <div class="section" id="version-0-3">
@@ -355,83 +358,83 @@ item_lookup_field will default to <tt class="docutils literal"><span class="pre"
 <p>Released on 14 February, 2014.</p>
 <ul class="simple">
 <li>[fix] Serialization of sub-documents (Hannes Tiede). Closes #244.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">X_MAX_AGE</span></tt> allows to configure CORS Access-Control-Max-Age (David
+<li>[new] <code class="docutils literal"><span class="pre">X_MAX_AGE</span></code> allows to configure CORS Access-Control-Max-Age (David
 Buchmann).</li>
-<li>[fix] <tt class="docutils literal"><span class="pre">GET</span></tt> with <tt class="docutils literal"><span class="pre">If-Modified-Since</span></tt> on list endpoint returns incorrect
+<li>[fix] <code class="docutils literal"><span class="pre">GET</span></code> with <code class="docutils literal"><span class="pre">If-Modified-Since</span></code> on list endpoint returns incorrect
 304 if resource is empty. Closes #243.</li>
-<li>[change] <tt class="docutils literal"><span class="pre">POST</span></tt> will return <tt class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></tt> if at least one document was
-accepted for insertion; <tt class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></tt> otherwise (meaning the request was
+<li>[change] <code class="docutils literal"><span class="pre">POST</span></code> will return <code class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></code> if at least one document was
+accepted for insertion; <code class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></code> otherwise (meaning the request was
 accepted and processed). It is still client&#8217;s responsability to parse the
 response payload to check if any document did not pass validation. Addresses
 #201 #202 #215.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">number</span></tt> data type. Allows both integers and floats as field values.</li>
+<li>[new] <code class="docutils literal"><span class="pre">number</span></code> data type. Allows both integers and floats as field values.</li>
 <li>[fix] Using primary keys other than _id. Closes #237.</li>
-<li>[fix] Add tests for <tt class="docutils literal"><span class="pre">PUT</span></tt> when User Restricted Resource Access is active.</li>
+<li>[fix] Add tests for <code class="docutils literal"><span class="pre">PUT</span></code> when User Restricted Resource Access is active.</li>
 <li>[fix] Auth field not set if resource level authentication is set. Fixes #231.</li>
 <li>[fix] RateLimit check was occasionally failing and returning a 429 (John
 Deng).</li>
 <li>[change] Jinja2 2.7.2 is now required.</li>
-<li>[new] media files (images, pdf, etc.) can be uploaded as <tt class="docutils literal"><span class="pre">media</span></tt> document
+<li>[new] media files (images, pdf, etc.) can be uploaded as <code class="docutils literal"><span class="pre">media</span></code> document
 fields. When a document is requested, eventual media files will be returned
-as Base64 strings. Upload is done via <tt class="docutils literal"><span class="pre">POST</span></tt>, <tt class="docutils literal"><span class="pre">PUT</span></tt> and <tt class="docutils literal"><span class="pre">PATCH</span></tt> using
-the <tt class="docutils literal"><span class="pre">multipart/data-form</span></tt> content-type. For optmized performance, by
-default files are stored in GridFS, however custom <tt class="docutils literal"><span class="pre">MediaStorage</span></tt> classes
+as Base64 strings. Upload is done via <code class="docutils literal"><span class="pre">POST</span></code>, <code class="docutils literal"><span class="pre">PUT</span></code> and <code class="docutils literal"><span class="pre">PATCH</span></code> using
+the <code class="docutils literal"><span class="pre">multipart/data-form</span></code> content-type. For optmized performance, by
+default files are stored in GridFS, however custom <code class="docutils literal"><span class="pre">MediaStorage</span></code> classes
 can be provided to support alternative storage systems. Clients and API
 maintainers can exploit the projections feature to include/exclude media
 fields from requests. For example, a request like
-<tt class="docutils literal"><span class="pre">/url/&lt;id&gt;?projection={&quot;image&quot;:</span> <span class="pre">0}</span></tt> will return the document without the
-image field. Also, while setting a resource <tt class="docutils literal"><span class="pre">datasource</span></tt> it is possible to
+<code class="docutils literal"><span class="pre">/url/&lt;id&gt;?projection={&quot;image&quot;:</span> <span class="pre">0}</span></code> will return the document without the
+image field. Also, while setting a resource <code class="docutils literal"><span class="pre">datasource</span></code> it is possible to
 explicitly exclude media fields from standard responses (clients will need to
-explicitly add them to the payload with <tt class="docutils literal"><span class="pre">?projection={&quot;image&quot;:</span> <span class="pre">1}</span></tt>).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">media</span></tt> type for schema fields.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">media</span></tt> application argument. Allows to specify a media storage class
-to be used to store media files. Defaults to <tt class="docutils literal"><span class="pre">GridFSMediaStorage</span></tt>.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">GridFSMediaStorage</span></tt> class. Stores files into GridFS.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">MediaStorage</span></tt> class provides a standardized API for storing files,
+explicitly add them to the payload with <code class="docutils literal"><span class="pre">?projection={&quot;image&quot;:</span> <span class="pre">1}</span></code>).</li>
+<li>[new] <code class="docutils literal"><span class="pre">media</span></code> type for schema fields.</li>
+<li>[new] <code class="docutils literal"><span class="pre">media</span></code> application argument. Allows to specify a media storage class
+to be used to store media files. Defaults to <code class="docutils literal"><span class="pre">GridFSMediaStorage</span></code>.</li>
+<li>[new] <code class="docutils literal"><span class="pre">GridFSMediaStorage</span></code> class. Stores files into GridFS.</li>
+<li>[new] <code class="docutils literal"><span class="pre">MediaStorage</span></code> class provides a standardized API for storing files,
 along with a set of default behaviors that all other storage systems can
 inherit or override as necessary.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">file</span></tt> data type support and validation for resource schema.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">multipart/form-data</span></tt> content-type is now supported for requests.</li>
-<li>[fix] Field exclusion (<tt class="docutils literal"><span class="pre">?projection={&quot;fieldname&quot;:</span> <span class="pre">0}</span></tt>) now supported in
+<li>[new] <code class="docutils literal"><span class="pre">file</span></code> data type support and validation for resource schema.</li>
+<li>[new] <code class="docutils literal"><span class="pre">multipart/form-data</span></code> content-type is now supported for requests.</li>
+<li>[fix] Field exclusion (<code class="docutils literal"><span class="pre">?projection={&quot;fieldname&quot;:</span> <span class="pre">0}</span></code>) now supported in
 client projections. Remember, mixing field inclusion and exclusion is still
 not supported by MongoDB.</li>
-<li>[fix] <tt class="docutils literal"><span class="pre">URL_PREFIX</span></tt> and <tt class="docutils literal"><span class="pre">API_VERSION</span></tt> are correctly reported in HATOEAS
+<li>[fix] <code class="docutils literal"><span class="pre">URL_PREFIX</span></code> and <code class="docutils literal"><span class="pre">API_VERSION</span></code> are correctly reported in HATOEAS
 links.</li>
-<li>[fix] <tt class="docutils literal"><span class="pre">DELETE</span></tt> on sub-resources should only delete documents referenced by
+<li>[fix] <code class="docutils literal"><span class="pre">DELETE</span></code> on sub-resources should only delete documents referenced by
 the parent. Closes #212.</li>
-<li>[fix] <tt class="docutils literal"><span class="pre">DELETE</span></tt> on a resource endpoint honors User-Restricted Resource
+<li>[fix] <code class="docutils literal"><span class="pre">DELETE</span></code> on a resource endpoint honors User-Restricted Resource
 Access. Closes #213.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">JSON</span></tt> allows to enable/disable JSON responses. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>
+<li>[new] <code class="docutils literal"><span class="pre">JSON</span></code> allows to enable/disable JSON responses. Defaults to <code class="docutils literal"><span class="pre">True</span></code>
 (JSON enabled).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">XML</span></tt> allows to enable/disable XML responses. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>
+<li>[new] <code class="docutils literal"><span class="pre">XML</span></code> allows to enable/disable XML responses. Defaults to <code class="docutils literal"><span class="pre">True</span></code>
 (XML enabled).</li>
-<li>[fix] XML properly honors <tt class="docutils literal"><span class="pre">_LINKS</span></tt> and <tt class="docutils literal"><span class="pre">_ITEMS</span></tt> settings.</li>
+<li>[fix] XML properly honors <code class="docutils literal"><span class="pre">_LINKS</span></code> and <code class="docutils literal"><span class="pre">_ITEMS</span></code> settings.</li>
 <li>[fix] return all document fields when resource schema is empty.</li>
 <li>[new] pytest.ini for pytest support.</li>
 <li>[fix] All tests should now run with nose and pytest. Closes #209.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">query_objectid_as_string</span></tt> resource setting. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.
+<li>[new] <code class="docutils literal"><span class="pre">query_objectid_as_string</span></code> resource setting. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.
 Addresses #207.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">ETAG</span></tt> allows to customize the etag field. Defaults to <tt class="docutils literal"><span class="pre">_etag</span></tt>.</li>
-<li>[change] <tt class="docutils literal"><span class="pre">etag</span></tt> is now <tt class="docutils literal"><span class="pre">_etag</span></tt> in all default response payloads (see
+<li>[new] <code class="docutils literal"><span class="pre">ETAG</span></code> allows to customize the etag field. Defaults to <code class="docutils literal"><span class="pre">_etag</span></code>.</li>
+<li>[change] <code class="docutils literal"><span class="pre">etag</span></code> is now <code class="docutils literal"><span class="pre">_etag</span></code> in all default response payloads (see
 above).</li>
-<li>[change] <tt class="docutils literal"><span class="pre">STATUS</span></tt> defaults to &#8216;_status&#8217;.</li>
-<li>[change] <tt class="docutils literal"><span class="pre">ISSUES</span></tt> defaults to &#8216;_issues&#8217;.</li>
-<li>[change] <tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt> defaults to &#8216;_created&#8217;. Upgrade existing
-collections by running <tt class="docutils literal"><span class="pre">db.&lt;collection&gt;.update({},</span> <span class="pre">{</span> <span class="pre">$rename:</span> <span class="pre">{</span> <span class="pre">&quot;created&quot;:</span>
-<span class="pre">&quot;_created&quot;</span> <span class="pre">}</span> <span class="pre">},</span> <span class="pre">{</span> <span class="pre">multi:</span> <span class="pre">true</span> <span class="pre">})</span></tt> in the mongo shell. If an index exists on
+<li>[change] <code class="docutils literal"><span class="pre">STATUS</span></code> defaults to &#8216;_status&#8217;.</li>
+<li>[change] <code class="docutils literal"><span class="pre">ISSUES</span></code> defaults to &#8216;_issues&#8217;.</li>
+<li>[change] <code class="docutils literal"><span class="pre">DATE_CREATED</span></code> defaults to &#8216;_created&#8217;. Upgrade existing
+collections by running <code class="docutils literal"><span class="pre">db.&lt;collection&gt;.update({},</span> <span class="pre">{</span> <span class="pre">$rename:</span> <span class="pre">{</span> <span class="pre">&quot;created&quot;:</span>
+<span class="pre">&quot;_created&quot;</span> <span class="pre">}</span> <span class="pre">},</span> <span class="pre">{</span> <span class="pre">multi:</span> <span class="pre">true</span> <span class="pre">})</span></code> in the mongo shell. If an index exists on
 the field, drop it and create a new one using the new field name.</li>
-<li>[change] <tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt> defaults to &#8216;_updated&#8217;. Upgrade existing
-collections by running <tt class="docutils literal"><span class="pre">db.&lt;collection&gt;.update({},</span> <span class="pre">{</span> <span class="pre">$rename:</span> <span class="pre">{</span> <span class="pre">&quot;updated&quot;:</span>
-<span class="pre">&quot;_updated&quot;</span> <span class="pre">}</span> <span class="pre">},</span> <span class="pre">{</span> <span class="pre">multi:</span> <span class="pre">true</span> <span class="pre">})</span></tt> in the mongo shell. If an index exists on
+<li>[change] <code class="docutils literal"><span class="pre">LAST_UPDATED</span></code> defaults to &#8216;_updated&#8217;. Upgrade existing
+collections by running <code class="docutils literal"><span class="pre">db.&lt;collection&gt;.update({},</span> <span class="pre">{</span> <span class="pre">$rename:</span> <span class="pre">{</span> <span class="pre">&quot;updated&quot;:</span>
+<span class="pre">&quot;_updated&quot;</span> <span class="pre">}</span> <span class="pre">},</span> <span class="pre">{</span> <span class="pre">multi:</span> <span class="pre">true</span> <span class="pre">})</span></code> in the mongo shell. If an index exists on
 the field, drop it and create a new one usung the new field name.</li>
-<li>[change] Exclude <tt class="docutils literal"><span class="pre">etag</span></tt> from both response payload and headers if
-concurrency control is disabled (<tt class="docutils literal"><span class="pre">IF_MATCH</span></tt> = <tt class="docutils literal"><span class="pre">False</span></tt>). Closes #205.</li>
-<li>[fix] Custom <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> would fail on update/insert methods. Fixes #203
+<li>[change] Exclude <code class="docutils literal"><span class="pre">etag</span></code> from both response payload and headers if
+concurrency control is disabled (<code class="docutils literal"><span class="pre">IF_MATCH</span></code> = <code class="docutils literal"><span class="pre">False</span></code>). Closes #205.</li>
+<li>[fix] Custom <code class="docutils literal"><span class="pre">ID_FIELD</span></code> would fail on update/insert methods. Fixes #203
 (Jaroslav Semančík).</li>
 <li>[change] GET: when If-Modified-Since header is present, either no documents
 (304) or all documents (200) are sent per the HTTP spec. Original behavior
 can be achieved with:
-<tt class="docutils literal"><span class="pre">/resource?where={&quot;updated&quot;:{&quot;$gt&quot;:&quot;if-modified-since-date&quot;}}</span></tt> (Josh
+<code class="docutils literal"><span class="pre">/resource?where={&quot;updated&quot;:{&quot;$gt&quot;:&quot;if-modified-since-date&quot;}}</span></code> (Josh
 Villbrandt).</li>
 <li>[change] Validation errors are now reported as a dictionary with offending
 fields as keys and issues descriptions as values.</li>
@@ -443,47 +446,47 @@ fields as keys and issues descriptions as values.</li>
 <p>Released on 30 November, 2013.</p>
 <ul class="simple">
 <li>[new] Sub-Resources. It is now possible to configure endpoints such as:
-<tt class="docutils literal"><span class="pre">/companies/&lt;company_id&gt;/invoices</span></tt>. Also, the corresponding item endpoints,
-such as <tt class="docutils literal"><span class="pre">/companies/&lt;company_id&gt;/invoices/&lt;invoice_id&gt;</span></tt>, are available. All
+<code class="docutils literal"><span class="pre">/companies/&lt;company_id&gt;/invoices</span></code>. Also, the corresponding item endpoints,
+such as <code class="docutils literal"><span class="pre">/companies/&lt;company_id&gt;/invoices/&lt;invoice_id&gt;</span></code>, are available. All
 CRUD operations on these endpoints are allowed. Closes 156.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">resource_title</span></tt> allows to customize the endpoint title (HATEOAS).</li>
-<li>[new][dev] <tt class="docutils literal"><span class="pre">extra</span></tt> cursor property, when present, will be added to <tt class="docutils literal"><span class="pre">GET</span></tt>
+<li>[new] <code class="docutils literal"><span class="pre">resource_title</span></code> allows to customize the endpoint title (HATEOAS).</li>
+<li>[new][dev] <code class="docutils literal"><span class="pre">extra</span></code> cursor property, when present, will be added to <code class="docutils literal"><span class="pre">GET</span></code>
 responses (with same key). This feature can be used by Eve extensions to
 inject proprietary data into the response stream (Petr Jašek).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">IF_MATCH</span></tt> allows to disable checks for ETag matches on edit, replace
+<li>[new] <code class="docutils literal"><span class="pre">IF_MATCH</span></code> allows to disable checks for ETag matches on edit, replace
 and delete requests. If disabled, requests without an If-Match header will be
 honored without returning a 403 error. Defaults to True (enabled by default).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">LINKS</span></tt> allows to customize the links field. Default to &#8216;_links&#8217;.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">ITEMS</span></tt> allows to customize the items field. Default to &#8216;_items&#8217;.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">STATUS</span></tt> allows to customize the status field. Default to &#8216;status&#8217;.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">ISSUES</span></tt> allows to customize the issues field. Default to &#8216;issues&#8217;.</li>
+<li>[new] <code class="docutils literal"><span class="pre">LINKS</span></code> allows to customize the links field. Default to &#8216;_links&#8217;.</li>
+<li>[new] <code class="docutils literal"><span class="pre">ITEMS</span></code> allows to customize the items field. Default to &#8216;_items&#8217;.</li>
+<li>[new] <code class="docutils literal"><span class="pre">STATUS</span></code> allows to customize the status field. Default to &#8216;status&#8217;.</li>
+<li>[new] <code class="docutils literal"><span class="pre">ISSUES</span></code> allows to customize the issues field. Default to &#8216;issues&#8217;.</li>
 <li>[new] Handling custom ID fields tutorial.</li>
-<li>[new] A new <tt class="docutils literal"><span class="pre">json_encoder</span></tt> initialization argument is available. It allows
+<li>[new] A new <code class="docutils literal"><span class="pre">json_encoder</span></code> initialization argument is available. It allows
 to pass custom JSONEncoder or eve.io.BaseJSONEncoder to the Eve instance.</li>
-<li>[new] A new <tt class="docutils literal"><span class="pre">url_converters</span></tt> initialization argument is available. It
+<li>[new] A new <code class="docutils literal"><span class="pre">url_converters</span></code> initialization argument is available. It
 allows to pass custom Flask url converters to the Eve constructor.</li>
 <li>[new] ID_FIELD fields can now be of arbitrary types, not only ObjectIds.
 Thanks to Kelvin Hammond for contributing to this one.  Closes #136.</li>
-<li>[new] <tt class="docutils literal"><span class="pre">pre_&lt;method&gt;</span></tt> and <tt class="docutils literal"><span class="pre">pre_&lt;method&gt;_&lt;resource&gt;</span></tt> event hooks are now
+<li>[new] <code class="docutils literal"><span class="pre">pre_&lt;method&gt;</span></code> and <code class="docutils literal"><span class="pre">pre_&lt;method&gt;_&lt;resource&gt;</span></code> event hooks are now
 available. They are raised when a request is received and before processing
 it. The resource involved and the Flask request object are returned to the
 callback function (dccrazyboy).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">embedded_fields</span></tt> activates default Embedded Resource Serialization
+<li>[new] <code class="docutils literal"><span class="pre">embedded_fields</span></code> activates default Embedded Resource Serialization
 on a list of selected document fields. Eventual embedding requests by clients
 will be processed along with default embedding. In order for default
 embedding to work, the field must be defined as embeddable, and embedding
 must be active for the resource (with help from Christoph Witzany).</li>
-<li>[new] <tt class="docutils literal"><span class="pre">default_sort</span></tt> option added to the <tt class="docutils literal"><span class="pre">datasource</span></tt> resource setting.
+<li>[new] <code class="docutils literal"><span class="pre">default_sort</span></code> option added to the <code class="docutils literal"><span class="pre">datasource</span></code> resource setting.
 It allows to set default sorting for the endpoint. Default sorting will be
-overriden by a client request that happens to include a <tt class="docutils literal"><span class="pre">?sort</span></tt> argument
+overriden by a client request that happens to include a <code class="docutils literal"><span class="pre">?sort</span></code> argument
 within the query string (with help from Christoph Witzany).</li>
 <li>[new] You can now choose to provide custom settings as a Python dictionary.</li>
-<li>[new] New method <tt class="docutils literal"><span class="pre">Eve.register_resource()</span></tt> for registering new resource
+<li>[new] New method <code class="docutils literal"><span class="pre">Eve.register_resource()</span></code> for registering new resource
 after initialization of Eve object. This is needed for simpler initialization
 API of all ORM/ODM extensions (Stanislav Heller).</li>
 <li>[change] Rely on Flask endpoints to map urls to resources.</li>
-<li>[change] For better consistency with new <tt class="docutils literal"><span class="pre">pre_&lt;method&gt;</span></tt> hooks,
-<tt class="docutils literal"><span class="pre">on_&lt;method&gt;</span></tt> event hooks have been renamed to <tt class="docutils literal"><span class="pre">on_post_&lt;method&gt;</span></tt>.</li>
+<li>[change] For better consistency with new <code class="docutils literal"><span class="pre">pre_&lt;method&gt;</span></code> hooks,
+<code class="docutils literal"><span class="pre">on_&lt;method&gt;</span></code> event hooks have been renamed to <code class="docutils literal"><span class="pre">on_post_&lt;method&gt;</span></code>.</li>
 <li>[change] Custom authentication classes can now be set at endpoint level. When
 set, an endpoint-level auth class will override the eventual global level
 auth class.  Authentication docs have been updated (and greatly revised)
@@ -508,14 +511,14 @@ on POST and PUT methods.</li>
 <li>DELETE now uses the original document ID_FIELD when issuing the delete
 command to the underlying data layer (Xavi Cubillas).</li>
 <li>Embedded Resource Serialization also available at item endpoints
-(<tt class="docutils literal"><span class="pre">/invoices/&lt;id&gt;/?embedded={'person':1}</span></tt>),</li>
-<li><tt class="docutils literal"><span class="pre">collection</span></tt> (used when setting up a data relation, see Embedded Resource
-Serialization) has been renamed to <tt class="docutils literal"><span class="pre">resource</span></tt> in order to avoid confusion
+(<code class="docutils literal"><span class="pre">/invoices/&lt;id&gt;/?embedded={'person':1}</span></code>),</li>
+<li><code class="docutils literal"><span class="pre">collection</span></code> (used when setting up a data relation, see Embedded Resource
+Serialization) has been renamed to <code class="docutils literal"><span class="pre">resource</span></code> in order to avoid confusion
 between the Eve schema and underlying MongoDB collections.</li>
-<li>Nested endpoints. Endpoints with deep paths like <tt class="docutils literal"><span class="pre">/contacts/overseas</span></tt> can
-now function in conjuction with top-level endpoints (<tt class="docutils literal"><span class="pre">/contacts</span></tt>).
+<li>Nested endpoints. Endpoints with deep paths like <code class="docutils literal"><span class="pre">/contacts/overseas</span></code> can
+now function in conjuction with top-level endpoints (<code class="docutils literal"><span class="pre">/contacts</span></code>).
 Endpoints are completely independent: each can allow item lookups
-(<tt class="docutils literal"><span class="pre">/contacts/&lt;id&gt;</span></tt> and <tt class="docutils literal"><span class="pre">contacts/overseas/&lt;id&gt;</span></tt>) and different access
+(<code class="docutils literal"><span class="pre">/contacts/&lt;id&gt;</span></code> and <code class="docutils literal"><span class="pre">contacts/overseas/&lt;id&gt;</span></code>) and different access
 methods. Previously, while you could have complex urls, you could not get
 nested endpoints to work properly.</li>
 <li>PyMongo 2.6.3 is now supported.</li>
@@ -525,12 +528,12 @@ by just submitting the relevant document. Bulk insert requests are performed
 by submitting a list of documents. The response to bulk requests is a list
 itself in which every list item contains the state of the corresponding
 request document. Please note that this is a breaking change. Also be aware
-that when the request content-type is <tt class="docutils literal"><span class="pre">x-www-form-urlencoded</span></tt>, single
+that when the request content-type is <code class="docutils literal"><span class="pre">x-www-form-urlencoded</span></code>, single
 document insert is performed. Closes #139.</li>
 <li>ObjectId are properly serialized on POST/PATCH/PUT methods.</li>
 <li>Queries on ObjectId and datetime values in nested documents.</li>
-<li><tt class="docutils literal"><span class="pre">auth.user_id</span></tt> renamed to <tt class="docutils literal"><span class="pre">auth.request_auth_value</span></tt> for better
-consistency with the <tt class="docutils literal"><span class="pre">auth_field</span></tt> setting. Closes #132 (Ryan Shea).</li>
+<li><code class="docutils literal"><span class="pre">auth.user_id</span></code> renamed to <code class="docutils literal"><span class="pre">auth.request_auth_value</span></code> for better
+consistency with the <code class="docutils literal"><span class="pre">auth_field</span></code> setting. Closes #132 (Ryan Shea).</li>
 <li>Same behavior as Flask, SERVER_NAME now defaults to None. It allows much
 easier development on distant machine that may changes IP (Ronan Delacroix).</li>
 </ul>
@@ -538,11 +541,11 @@ easier development on distant machine that may changes IP (Ronan Delacroix).</li
 <div class="section" id="fixes">
 <h3>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>CORS support was not available for <tt class="docutils literal"><span class="pre">additional_lookup</span></tt> urls (Petr Jašek.)</li>
-<li>&#8216;default&#8217; field values that could be assimilated to <tt class="docutils literal"><span class="pre">None</span></tt> (0, None, &#8220;&#8221;)
+<li>CORS support was not available for <code class="docutils literal"><span class="pre">additional_lookup</span></code> urls (Petr Jašek.)</li>
+<li>&#8216;default&#8217; field values that could be assimilated to <code class="docutils literal"><span class="pre">None</span></code> (0, None, &#8220;&#8221;)
 would be ignored.</li>
 <li>POST and PUT would fail with 400 if there was no auth class while
-<tt class="docutils literal"><span class="pre">auth_field</span></tt> was set for a resource.</li>
+<code class="docutils literal"><span class="pre">auth_field</span></code> was set for a resource.</li>
 <li>Fix order of string arguments in exception message in
 flaskapp.validate_schema() (Roy Smith).</li>
 </ul>
@@ -554,7 +557,7 @@ flaskapp.validate_schema() (Roy Smith).</li>
 <div class="section" id="new-features">
 <h3>New Features<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">PUT</span></tt> method for completely replace a document while keeping the same
+<li><code class="docutils literal"><span class="pre">PUT</span></code> method for completely replace a document while keeping the same
 unique identifier. Closes #96.</li>
 <li>Embedded Resource Serialization. If a document field is referencing
 a document in another resource, clients can request the referenced document
@@ -562,13 +565,13 @@ to be embedded within the requested document (Bryan Cattle).  Closes #68.</li>
 <li>&#8220;No trailing slash&#8221; URLs are now supported. Closes #118.</li>
 <li>HATEOAS is now optional and can be disabled both at global and resource
 level.</li>
-<li><tt class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></tt> supported for all HTTP Methods. Closes #95.</li>
+<li><code class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></code> supported for all HTTP Methods. Closes #95.</li>
 </ul>
 </div>
 <div class="section" id="id1">
 <h3>Enhancements<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>HTTP method is now passed into <tt class="docutils literal"><span class="pre">authenticate()</span></tt> and <tt class="docutils literal"><span class="pre">check_auth()</span></tt> (Ken
+<li>HTTP method is now passed into <code class="docutils literal"><span class="pre">authenticate()</span></code> and <code class="docutils literal"><span class="pre">check_auth()</span></code> (Ken
 Carpenter). Closes #90 .</li>
 <li>Cleanup and hardening of User-Restricted Resource Access Edit (Bryan Cattle).</li>
 <li>Account Management tutorial updated to reflect the event hooks naming update
@@ -582,17 +585,17 @@ introduced in v0.0.9.</li>
 <div class="section" id="id2">
 <h3>Fixes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Item <tt class="docutils literal"><span class="pre">GET</span></tt> on documents with non-existent &#8216;created&#8217; field (because
+<li>Item <code class="docutils literal"><span class="pre">GET</span></code> on documents with non-existent &#8216;created&#8217; field (because
 stored outside of API context) were not returning a default value for the
 field.</li>
 <li>Edits on documents with non-existent &#8216;created&#8217; or &#8216;updated&#8217; fields
-(because stored outside of the API context) were returning <tt class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span>
-<span class="pre">Failed</span></tt>. Closes #123.</li>
-<li><tt class="docutils literal"><span class="pre">on_insert</span></tt> is raised when a <tt class="docutils literal"><span class="pre">PUT</span></tt> (replace action) is about to be
+(because stored outside of the API context) were returning <code class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span>
+<span class="pre">Failed</span></code>. Closes #123.</li>
+<li><code class="docutils literal"><span class="pre">on_insert</span></code> is raised when a <code class="docutils literal"><span class="pre">PUT</span></code> (replace action) is about to be
 performed. Closes #120.</li>
 <li>Installation on Windows with Python 3 was returning encoding errors.</li>
 <li>Fixed #99: malformed XML render when href includes forbidden URI/URL chars.</li>
-<li>Fixed a bug introduced with 0.0.9 and Python 3 support. Filters (<tt class="docutils literal"><span class="pre">?where</span></tt>)
+<li>Fixed a bug introduced with 0.0.9 and Python 3 support. Filters (<code class="docutils literal"><span class="pre">?where</span></code>)
 on datetime values were not working when running on Python 2.x.</li>
 <li>Fixed some typos and minor grammatical errors all across the documentation
 (Ken Carpenter, Jean Boussier, Kracekumar, Francisco Corrales Morales).</li>
@@ -604,25 +607,25 @@ on datetime values were not working when running on Python 2.x.</li>
 <p>Released on August 29, 2013</p>
 <ul class="simple">
 <li>PyMongo 2.6 is now supported.</li>
-<li><tt class="docutils literal"><span class="pre">FILTERS</span></tt> boolean replaced by <tt class="docutils literal"><span class="pre">ALLOWED_FILTERS</span></tt> list which allows for
+<li><code class="docutils literal"><span class="pre">FILTERS</span></code> boolean replaced by <code class="docutils literal"><span class="pre">ALLOWED_FILTERS</span></code> list which allows for
 explicit whitelisting of filter-enabled fields (Bryan Cattle). Closes #78.</li>
 <li>Custom user ids for User-Restricted Resource Access, allowing for more
 flexibility and token revocation with token-based authentication. Closes #73.</li>
-<li><tt class="docutils literal"><span class="pre">AUTH_USERNAME_FIELD</span></tt> renamed to <tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt>.</li>
-<li><tt class="docutils literal"><span class="pre">auth_username_field</span></tt> renamed to <tt class="docutils literal"><span class="pre">auth_field</span></tt>.</li>
-<li>BasicAuth and subclasses now support <tt class="docutils literal"><span class="pre">user_id</span></tt> property.</li>
+<li><code class="docutils literal"><span class="pre">AUTH_USERNAME_FIELD</span></code> renamed to <code class="docutils literal"><span class="pre">AUTH_FIELD</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">auth_username_field</span></code> renamed to <code class="docutils literal"><span class="pre">auth_field</span></code>.</li>
+<li>BasicAuth and subclasses now support <code class="docutils literal"><span class="pre">user_id</span></code> property.</li>
 <li>Updated the event hooks naming system to be more robuts and consistent.
 Closes #80.</li>
-<li>To emphasize the fact that they are tied to a method, all <tt class="docutils literal"><span class="pre">on_&lt;method&gt;</span></tt>
-hooks now have <tt class="docutils literal"><span class="pre">&lt;method&gt;</span></tt> in uppercase.</li>
-<li><tt class="docutils literal"><span class="pre">on_getting</span></tt> hook renamed to <tt class="docutils literal"><span class="pre">on_fetch_resource</span></tt>.</li>
-<li><tt class="docutils literal"><span class="pre">on_getting_&lt;resource&gt;</span></tt> hook renamed to <tt class="docutils literal"><span class="pre">on_fetch_resource_&lt;resource&gt;</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">on_getting_item</span></tt> hook renamed to <tt class="docutils literal"><span class="pre">on_fetch_item</span></tt>.</li>
-<li><tt class="docutils literal"><span class="pre">on_getting_item_&lt;item_title&gt;</span></tt> hook renamed to
-<tt class="docutils literal"><span class="pre">on_fetch_item_&lt;item_title&gt;</span></tt>.</li>
-<li><tt class="docutils literal"><span class="pre">on_posting</span></tt> hook renamed to <tt class="docutils literal"><span class="pre">on_insert</span></tt>.</li>
-<li>Datasource  projections always include automatic fields (<tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>,
-<tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt>, <tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt>). Closes #85.</li>
+<li>To emphasize the fact that they are tied to a method, all <code class="docutils literal"><span class="pre">on_&lt;method&gt;</span></code>
+hooks now have <code class="docutils literal"><span class="pre">&lt;method&gt;</span></code> in uppercase.</li>
+<li><code class="docutils literal"><span class="pre">on_getting</span></code> hook renamed to <code class="docutils literal"><span class="pre">on_fetch_resource</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">on_getting_&lt;resource&gt;</span></code> hook renamed to <code class="docutils literal"><span class="pre">on_fetch_resource_&lt;resource&gt;</span></code></li>
+<li><code class="docutils literal"><span class="pre">on_getting_item</span></code> hook renamed to <code class="docutils literal"><span class="pre">on_fetch_item</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">on_getting_item_&lt;item_title&gt;</span></code> hook renamed to
+<code class="docutils literal"><span class="pre">on_fetch_item_&lt;item_title&gt;</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">on_posting</span></code> hook renamed to <code class="docutils literal"><span class="pre">on_insert</span></code>.</li>
+<li>Datasource  projections always include automatic fields (<code class="docutils literal"><span class="pre">ID_FIELD</span></code>,
+<code class="docutils literal"><span class="pre">LAST_UPDATED</span></code>, <code class="docutils literal"><span class="pre">DATE_CREATED</span></code>). Closes #85.</li>
 <li>Public HTTP methods now override <cite>auth_username_field</cite> Edit. Closes #70
 (Bryan Cattle).</li>
 <li>Response date fields are now using GMT instead of UTC. Closes #83.</li>
@@ -632,12 +635,12 @@ correctly parsed.</li>
 <li>More informative HTTP error messages. Some more informative error messages
 have been added for HTTP 400/3/12 and 500 errors. The error messages only
 show if DEBUG==True (Bryan Cattle).</li>
-<li><tt class="docutils literal"><span class="pre">on_getting(resource,</span> <span class="pre">documents)</span></tt> is now <tt class="docutils literal"><span class="pre">on_getting_resource(resource,</span>
-<span class="pre">documents)</span></tt>; <tt class="docutils literal"><span class="pre">on_getting_&lt;resource&gt;(documents)</span> <span class="pre">is</span> <span class="pre">now</span> <span class="pre">known</span> <span class="pre">as</span>
-<span class="pre">``on_getting_resource_&lt;resource&gt;(documents)</span></tt> (Ryan Shea).</li>
-<li>Added a new event hook: <tt class="docutils literal"><span class="pre">on_getting_item_&lt;title&gt;(_id,</span> <span class="pre">document)</span></tt> (Ryan
+<li><code class="docutils literal"><span class="pre">on_getting(resource,</span> <span class="pre">documents)</span></code> is now <code class="docutils literal"><span class="pre">on_getting_resource(resource,</span>
+<span class="pre">documents)</span></code>; <code class="docutils literal"><span class="pre">on_getting_&lt;resource&gt;(documents)</span> <span class="pre">is</span> <span class="pre">now</span> <span class="pre">known</span> <span class="pre">as</span>
+<span class="pre">``on_getting_resource_&lt;resource&gt;(documents)</span></code> (Ryan Shea).</li>
+<li>Added a new event hook: <code class="docutils literal"><span class="pre">on_getting_item_&lt;title&gt;(_id,</span> <span class="pre">document)</span></code> (Ryan
 Shea).</li>
-<li>Allow <tt class="docutils literal"><span class="pre">auth_username_field</span></tt> to be set to <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> (Bryan Cattle).</li>
+<li>Allow <code class="docutils literal"><span class="pre">auth_username_field</span></code> to be set to <code class="docutils literal"><span class="pre">ID_FIELD</span></code> (Bryan Cattle).</li>
 <li>Python 3.3 is now supported.</li>
 <li>Flask 0.10.1 is now supported.</li>
 <li>Werkzeug 0.9.4 is now supported.</li>
@@ -650,31 +653,31 @@ Shea).</li>
 <ul class="simple">
 <li>Only run RateLimiting tests if redis-py is installed and redis-server is
 running.</li>
-<li>CORS <tt class="docutils literal"><span class="pre">Access-Control-Allow-Headers</span></tt> header support (Garrin Kimmell).</li>
-<li>CORS <tt class="docutils literal"><span class="pre">OPTIONS</span></tt> support for resource and items endpoints (Garrin Kimmell).</li>
-<li><tt class="docutils literal"><span class="pre">float</span></tt> is now available as a data-type in the schema definition ruleset.</li>
-<li><tt class="docutils literal"><span class="pre">nullable</span></tt> field schema rule is now available. If <tt class="docutils literal"><span class="pre">True</span></tt> the field value
-can be set to null. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</li>
+<li>CORS <code class="docutils literal"><span class="pre">Access-Control-Allow-Headers</span></code> header support (Garrin Kimmell).</li>
+<li>CORS <code class="docutils literal"><span class="pre">OPTIONS</span></code> support for resource and items endpoints (Garrin Kimmell).</li>
+<li><code class="docutils literal"><span class="pre">float</span></code> is now available as a data-type in the schema definition ruleset.</li>
+<li><code class="docutils literal"><span class="pre">nullable</span></code> field schema rule is now available. If <code class="docutils literal"><span class="pre">True</span></code> the field value
+can be set to null. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 <li>v0.3.0 of Cerberus is now a requirement.</li>
-<li><tt class="docutils literal"><span class="pre">on_getting</span></tt>, <tt class="docutils literal"><span class="pre">on_getting_&lt;resource&gt;</span></tt> and <tt class="docutils literal"><span class="pre">on_getting_item</span></tt> event
+<li><code class="docutils literal"><span class="pre">on_getting</span></code>, <code class="docutils literal"><span class="pre">on_getting_&lt;resource&gt;</span></code> and <code class="docutils literal"><span class="pre">on_getting_item</span></code> event
 hooks. These events are raised when documents have just been read from the
 database and are about to be sent to the client. Registered callback
 functions can eventually manipulate the documents as needed. Please be aware
-that <tt class="docutils literal"><span class="pre">last_modified</span></tt> and <tt class="docutils literal"><span class="pre">etag</span></tt> headers will always be consistent with
+that <code class="docutils literal"><span class="pre">last_modified</span></code> and <code class="docutils literal"><span class="pre">etag</span></code> headers will always be consistent with
 the state of the documents on the database (they  won&#8217;t be updated to reflect
 changes eventually applied by the callback functions). Closes #65.</li>
-<li>Documentation fix: <tt class="docutils literal"><span class="pre">AUTH_USERFIELD_NAME</span></tt> renamed to <tt class="docutils literal"><span class="pre">AUTH_USERNAME_FIELD</span></tt>
+<li>Documentation fix: <code class="docutils literal"><span class="pre">AUTH_USERFIELD_NAME</span></code> renamed to <code class="docutils literal"><span class="pre">AUTH_USERNAME_FIELD</span></code>
 (Julien Barbot).</li>
-<li>Responses to GET requests for resource endpoints now include a <tt class="docutils literal"><span class="pre">last</span></tt> item
+<li>Responses to GET requests for resource endpoints now include a <code class="docutils literal"><span class="pre">last</span></code> item
 in the <cite>_links</cite> dictionary. The value is a link to the last page available.
 The item itself is only provided if pagination is enabled and the page being
 requested isn&#8217;t the last one. Closes #62.</li>
 <li>It is now possible to set the MongoDB write concern level at both global
-(<tt class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></tt>) and endpoint (<tt class="docutils literal"><span class="pre">mongo_write_concern</span></tt>) levels. The
+(<code class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></code>) and endpoint (<code class="docutils literal"><span class="pre">mongo_write_concern</span></code>) levels. The
 value is a dictionary with all valid MongoDB write_concern settings (w,
-wtimeout, j and fsync) as keys. <tt class="docutils literal"><span class="pre">{'w':</span> <span class="pre">1}</span></tt> is the default, which is also
+wtimeout, j and fsync) as keys. <code class="docutils literal"><span class="pre">{'w':</span> <span class="pre">1}</span></code> is the default, which is also
 MongoDB&#8217;s default setting.</li>
-<li><tt class="docutils literal"><span class="pre">TestMininal</span></tt> class added to the test suite. This will allow to start the
+<li><code class="docutils literal"><span class="pre">TestMininal</span></code> class added to the test suite. This will allow to start the
 building of the tests for an application based on Eve, by subclassing the
 TestMinimal class (Daniele Pizzolli).</li>
 </ul>
@@ -689,40 +692,40 @@ which backtracked to Eve).</li>
 <li>Support for Rate Limiting on all HTTP methods. Closes #58. Please note: to
 successfully execute the tests in &#8216;eve.tests.methods.ratelimit.py`, a running
 redis server is needed.</li>
-<li><tt class="docutils literal"><span class="pre">utils.request_method</span></tt> internal helper function added, which allowed  for
+<li><code class="docutils literal"><span class="pre">utils.request_method</span></code> internal helper function added, which allowed  for
 some nice code cleanup (DRY).</li>
 <li>Setting the default &#8216;field&#8217; value would not happen if a &#8216;data_relation&#8217; was
 nested deeper than the first schema level. Fixes #60.</li>
-<li>Support for <tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt>. It is now possible to configure a list
+<li>Support for <code class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></code>. It is now possible to configure a list
 of additonal document fields that should be provided with POST responses.
-Normally only automatically handled fields (<tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>, <tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt>,
-<tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt>, <tt class="docutils literal"><span class="pre">etag</span></tt>) are included in POST payloads.
-<tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt> is a global setting that will apply to all resource
-endpoint . Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>, effectively disabling the feature.
-<tt class="docutils literal"><span class="pre">extra_response_fields</span></tt> is a local resource setting and will override
-<tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt> when present.</li>
-<li><tt class="docutils literal"><span class="pre">on_posting</span></tt> and <tt class="docutils literal"><span class="pre">on_posting_&lt;resource&gt;</span></tt> event hooks. <tt class="docutils literal"><span class="pre">on_posting</span></tt> and
-<tt class="docutils literal"><span class="pre">on_posting_&lt;resource&gt;</span></tt> events are raised when documents are about to be
+Normally only automatically handled fields (<code class="docutils literal"><span class="pre">ID_FIELD</span></code>, <code class="docutils literal"><span class="pre">LAST_UPDATED</span></code>,
+<code class="docutils literal"><span class="pre">DATE_CREATED</span></code>, <code class="docutils literal"><span class="pre">etag</span></code>) are included in POST payloads.
+<code class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></code> is a global setting that will apply to all resource
+endpoint . Defaults to <code class="docutils literal"><span class="pre">[]</span></code>, effectively disabling the feature.
+<code class="docutils literal"><span class="pre">extra_response_fields</span></code> is a local resource setting and will override
+<code class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></code> when present.</li>
+<li><code class="docutils literal"><span class="pre">on_posting</span></code> and <code class="docutils literal"><span class="pre">on_posting_&lt;resource&gt;</span></code> event hooks. <code class="docutils literal"><span class="pre">on_posting</span></code> and
+<code class="docutils literal"><span class="pre">on_posting_&lt;resource&gt;</span></code> events are raised when documents are about to be
 stored. Among other things this allows callback functions to arbitrarily
-update the documents being inserted. <tt class="docutils literal"><span class="pre">on_posting(resource,</span> <span class="pre">documents)</span></tt> is
-raised on every successful POST while <tt class="docutils literal"><span class="pre">on_posting_&lt;resource&gt;(documents)</span></tt> is
+update the documents being inserted. <code class="docutils literal"><span class="pre">on_posting(resource,</span> <span class="pre">documents)</span></code> is
+raised on every successful POST while <code class="docutils literal"><span class="pre">on_posting_&lt;resource&gt;(documents)</span></code> is
 only raised when &lt;resource&gt; is being updated. In both circumstances events
 will be raised only if at least one document passed validation and is going
 to be inserted.</li>
-<li>Flask native <tt class="docutils literal"><span class="pre">request.json</span></tt> is now used when decoding request payloads.</li>
-<li><em>resource</em> argument added to Authorization classes. The <tt class="docutils literal"><span class="pre">check_auth()</span></tt>
-method of all classes in the <tt class="docutils literal"><span class="pre">eve.auth</span></tt> package (<tt class="docutils literal"><span class="pre">BasicAuth</span></tt>,
-<tt class="docutils literal"><span class="pre">HMACAuth</span></tt>, <tt class="docutils literal"><span class="pre">TokenAuth</span></tt>) now supports the <em>resource</em> argument. This
+<li>Flask native <code class="docutils literal"><span class="pre">request.json</span></code> is now used when decoding request payloads.</li>
+<li><em>resource</em> argument added to Authorization classes. The <code class="docutils literal"><span class="pre">check_auth()</span></code>
+method of all classes in the <code class="docutils literal"><span class="pre">eve.auth</span></code> package (<code class="docutils literal"><span class="pre">BasicAuth</span></code>,
+<code class="docutils literal"><span class="pre">HMACAuth</span></code>, <code class="docutils literal"><span class="pre">TokenAuth</span></code>) now supports the <em>resource</em> argument. This
 allows subclasses to eventually build their custom authorization logic around
 the resource being accessed.</li>
-<li><tt class="docutils literal"><span class="pre">MONGO_QUERY_BLACKLIST</span></tt> option added. Allows to blacklist mongo query
-operators that should not be allowed in resource queries (<tt class="docutils literal"><span class="pre">?where=</span></tt>).
+<li><code class="docutils literal"><span class="pre">MONGO_QUERY_BLACKLIST</span></code> option added. Allows to blacklist mongo query
+operators that should not be allowed in resource queries (<code class="docutils literal"><span class="pre">?where=</span></code>).
 Defaults to [&#8216;$where&#8217;, &#8216;$regex&#8217;]. Mongo Javascript operators are disabled by
 default as they might be used as vectors for injection attacks. Javascript
 queries also tend to be slow and generally can be easily replaced with the
 (very rich) Mongo query dialect.</li>
-<li><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt> defaults to &#8216;localhost&#8217;.</li>
-<li><tt class="docutils literal"><span class="pre">MONGO_PORT</span></tt> defaults to 27017.</li>
+<li><code class="docutils literal"><span class="pre">MONGO_HOST</span></code> defaults to &#8216;localhost&#8217;.</li>
+<li><code class="docutils literal"><span class="pre">MONGO_PORT</span></code> defaults to 27017.</li>
 <li>Support alternative hosts/ports for the test suite (Paul Doucet).</li>
 </ul>
 </div>
@@ -734,21 +737,21 @@ queries also tend to be slow and generally can be easily replaced with the
 included (Ondrej Slinták).</li>
 <li>Only fields defined in the resource schema are now returned from the
 database. Closes #52.</li>
-<li>Default <tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt> is now set to <tt class="docutils literal"><span class="pre">127.0.0.1:5000</span></tt>.</li>
-<li><tt class="docutils literal"><span class="pre">auth_username_field</span></tt> is honored even when there is no query in the request
+<li>Default <code class="docutils literal"><span class="pre">SERVER_NAME</span></code> is now set to <code class="docutils literal"><span class="pre">127.0.0.1:5000</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">auth_username_field</span></code> is honored even when there is no query in the request
 (Thomas Sileo).</li>
 <li>Pagination links in XML payloads are now properly escaped. Fixes #49.</li>
 <li>HEAD requests supported. Closes #48.</li>
 <li>Event Hooks. Each time a GET, POST, PATCH, DELETE method has been executed,
-both global <tt class="docutils literal"><span class="pre">on_&lt;method&gt;</span></tt> and resource-level <tt class="docutils literal"><span class="pre">on_&lt;method&gt;_&lt;resource&gt;</span></tt>
+both global <code class="docutils literal"><span class="pre">on_&lt;method&gt;</span></code> and resource-level <code class="docutils literal"><span class="pre">on_&lt;method&gt;_&lt;resource&gt;</span></code>
 events will be raised. You can subscribe to these events with multiple
 callback functions. Callbacks will receive the original flask.request object
 and the response payload as arguments.</li>
-<li>Proper <tt class="docutils literal"><span class="pre">max_results</span></tt> handling in <tt class="docutils literal"><span class="pre">eve.utils.parse_request</span></tt>, refactored
+<li>Proper <code class="docutils literal"><span class="pre">max_results</span></code> handling in <code class="docutils literal"><span class="pre">eve.utils.parse_request</span></code>, refactored
 tests (Tomasz Jezierski).</li>
 <li>Projections. Projections are conditional queries where the client dictates
 which fields should be returned by the API (Nicolas Bazire).</li>
-<li><tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt> option, and the corresponding <tt class="docutils literal"><span class="pre">allow_options</span></tt> local
+<li><code class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></code> option, and the corresponding <code class="docutils literal"><span class="pre">allow_options</span></code> local
 setting, allow for a less strict schema validation. Closes #34.</li>
 <li>ETags are now provided with POST responses. Closes #36.</li>
 <li>PATCH performance improvement: ETag is now computed in memory; performing an
@@ -758,14 +761,14 @@ advantage of MongoDB native support for Bulk Inserts. Please note: validation
 constraints are checked against the database, and not between the payload
 documents themselves. This causes an interesting corner case: in the event of
 a multiple documents payload where two or more documents carry the same value
-for a field where the <tt class="docutils literal"><span class="pre">unique</span></tt> constraint is set, the payload will validate
+for a field where the <code class="docutils literal"><span class="pre">unique</span></code> constraint is set, the payload will validate
 successfully, as there are no duplicates in the database (yet). If this is an
 issue, the client can always send the documents once at a time for insertion,
 or validate locally before submitting the payload to the API.</li>
 <li>Responses to document GET requests now include the ETag in both the header
 and the payload. Closes #29.</li>
-<li><tt class="docutils literal"><span class="pre">methods</span></tt> settings keyword renamed to <tt class="docutils literal"><span class="pre">resource_methods</span></tt> for coherence
-with the global <tt class="docutils literal"><span class="pre">RESOURCE_METHODS</span></tt> (Nicolas Carlier).</li>
+<li><code class="docutils literal"><span class="pre">methods</span></code> settings keyword renamed to <code class="docutils literal"><span class="pre">resource_methods</span></code> for coherence
+with the global <code class="docutils literal"><span class="pre">RESOURCE_METHODS</span></code> (Nicolas Carlier).</li>
 </ul>
 </div>
 <div class="section" id="version-0-0-5">
@@ -774,39 +777,39 @@ with the global <tt class="docutils literal"><span class="pre">RESOURCE_METHODS<
 <ul class="simple">
 <li>Fixed an issue that apparently caused the test suite to only run successfully
 on the dev box. Thanks Chronidev for reporting this.</li>
-<li>Referential integrity validation via the new <tt class="docutils literal"><span class="pre">data_relation</span></tt> schema
+<li>Referential integrity validation via the new <code class="docutils literal"><span class="pre">data_relation</span></code> schema
 keyword.  Closes #25.</li>
-<li>Support for <tt class="docutils literal"><span class="pre">Content-Type:</span> <span class="pre">application/json</span></tt> for POST and PATCH methods.
+<li>Support for <code class="docutils literal"><span class="pre">Content-Type:</span> <span class="pre">application/json</span></code> for POST and PATCH methods.
 Closes #28.</li>
 <li>User-restricted resource access. Works in conjunction with Authentication.
 When enabled, users can only read/update/delete resource items created by
 themselves. Can be switched on and off at global level via the
-<tt class="docutils literal"><span class="pre">AUTH_USERFIELD_NAME</span></tt> keywork, or at single resource endpoints with the
+<code class="docutils literal"><span class="pre">AUTH_USERFIELD_NAME</span></code> keywork, or at single resource endpoints with the
 user_userfield_name keyword (the latter will override the former). The
 keyword contains the actual name of the field used to store the username of
 the user who created the resource item. Defaults to &#8216;&#8217;, which disables the
 feature (Thomas Sileo).</li>
-<li><tt class="docutils literal"><span class="pre">PAGING_LIMIT</span></tt> keyword setting renamed to <tt class="docutils literal"><span class="pre">PAGINATION_LIMIT</span></tt> for better
-coherency with the new <tt class="docutils literal"><span class="pre">PAGINATION</span></tt> keyword. This could break backward
+<li><code class="docutils literal"><span class="pre">PAGING_LIMIT</span></code> keyword setting renamed to <code class="docutils literal"><span class="pre">PAGINATION_LIMIT</span></code> for better
+coherency with the new <code class="docutils literal"><span class="pre">PAGINATION</span></code> keyword. This could break backward
 compatibility in some cases.</li>
-<li><tt class="docutils literal"><span class="pre">PAGING_DEFAULT</span></tt> keyword settings renamed to <tt class="docutils literal"><span class="pre">PAGINATION_DEFAULT</span></tt> for
-better coherence with the new <tt class="docutils literal"><span class="pre">PAGINATION</span></tt> keyword. This could break
+<li><code class="docutils literal"><span class="pre">PAGING_DEFAULT</span></code> keyword settings renamed to <code class="docutils literal"><span class="pre">PAGINATION_DEFAULT</span></code> for
+better coherence with the new <code class="docutils literal"><span class="pre">PAGINATION</span></code> keyword. This could break
 backward compatibility in some cases.</li>
-<li><tt class="docutils literal"><span class="pre">ITEM_CACHE_CONTROL</span></tt> removed as it seems unnecessary at the moment.</li>
+<li><code class="docutils literal"><span class="pre">ITEM_CACHE_CONTROL</span></code> removed as it seems unnecessary at the moment.</li>
 <li>Added an example on how to handle events to perform custom actions. Closes
 #23 and #22.</li>
-<li><tt class="docutils literal"><span class="pre">eve.validation_schema()</span></tt> now collects offending items and returns all of
+<li><code class="docutils literal"><span class="pre">eve.validation_schema()</span></code> now collects offending items and returns all of
 them into the exception message. Closes #24.</li>
-<li>Filters (<tt class="docutils literal"><span class="pre">?where=</span></tt>), sorting (<tt class="docutils literal"><span class="pre">?sort=</span></tt>) and pagination (<tt class="docutils literal"><span class="pre">?page=10</span></tt>) can
+<li>Filters (<code class="docutils literal"><span class="pre">?where=</span></code>), sorting (<code class="docutils literal"><span class="pre">?sort=</span></code>) and pagination (<code class="docutils literal"><span class="pre">?page=10</span></code>) can
 now be be disabled at both global and endpoint level. Closes #7.</li>
-<li>CORS (Cross-Origin Resource Sharing) support. The new <tt class="docutils literal"><span class="pre">X-DOMAINS</span></tt> keywords
+<li>CORS (Cross-Origin Resource Sharing) support. The new <code class="docutils literal"><span class="pre">X-DOMAINS</span></code> keywords
 allows API maintainers to specify which domains are allowed to perform CORS
 requests. Allowed values are: None, a list of domains, or &#8216;*&#8217; for a wide-open
 API. Closes #1.</li>
 <li>HMAC (Hash Message Authentication Code) based Autentication.</li>
 <li>Token Based Authentication, a variation of Basic Authentication. Closes #20.</li>
-<li>Orphan function removed (<tt class="docutils literal"><span class="pre">eve.methods.get.standard_links</span></tt> ).</li>
-<li><tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt> and <tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt> fields now show default values for
+<li>Orphan function removed (<code class="docutils literal"><span class="pre">eve.methods.get.standard_links</span></code> ).</li>
+<li><code class="docutils literal"><span class="pre">DATE_CREATED</span></code> and <code class="docutils literal"><span class="pre">LAST_UPDATED</span></code> fields now show default values for
 documents created outside the API context. Fixes #18.</li>
 </ul>
 </div>
@@ -816,30 +819,30 @@ documents created outside the API context. Fixes #18.</li>
 <ul class="simple">
 <li>Consistent ETag computation between runs/instances. Closes #16.</li>
 <li>Support for Basic Authentication (RFC2617).</li>
-<li>Support for fine-tuning authentication with <tt class="docutils literal"><span class="pre">PUBLIC_METHODS</span></tt> and
-<tt class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></tt>. By default, access is restricted to <em>all</em> endpoints,
+<li>Support for fine-tuning authentication with <code class="docutils literal"><span class="pre">PUBLIC_METHODS</span></code> and
+<code class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></code>. By default, access is restricted to <em>all</em> endpoints,
 for <em>all</em> HTTP verbs (methods), effectively locking down the whole API.</li>
-<li>Supporto for role-based access control with <tt class="docutils literal"><span class="pre">ALLOWED_ROLES</span></tt> and
-<tt class="docutils literal"><span class="pre">allowed_roles</span></tt>.</li>
+<li>Supporto for role-based access control with <code class="docutils literal"><span class="pre">ALLOWED_ROLES</span></code> and
+<code class="docutils literal"><span class="pre">allowed_roles</span></code>.</li>
 <li>Support for all standard Flask initialization parameters.</li>
-<li>Support for default values in resource fields. The new <tt class="docutils literal"><span class="pre">default</span></tt> keyword
+<li>Support for default values in resource fields. The new <code class="docutils literal"><span class="pre">default</span></code> keyword
 can now be used when defining a field rule set.  Please note: currently
 default values are supported only for main document fields. Default values
 for fields in embedded documents will be ignored.</li>
 <li>Multiple API endpoints can now target the same database collection. For
-example now you can set both <tt class="docutils literal"><span class="pre">/admins/</span></tt> and <tt class="docutils literal"><span class="pre">/users/</span></tt> to read and write
-from the same collection on the db, <em>people</em>.  The new <tt class="docutils literal"><span class="pre">datasource</span></tt> setting
+example now you can set both <code class="docutils literal"><span class="pre">/admins/</span></code> and <code class="docutils literal"><span class="pre">/users/</span></code> to read and write
+from the same collection on the db, <em>people</em>.  The new <code class="docutils literal"><span class="pre">datasource</span></code> setting
 allows to explicitly link API resources to database collections. It is
 a dictionary with two allowed keys: <em>source</em> and <em>filter</em>. <em>source</em> dictates
 the database collection consumed by the resource.  <em>filter</em> is the underlying
 query, applied by the API when retrieving and validating data for the
 resource.  Previously, the resource name would dictate the linked datasource
 (and of course you could not have two resources with the same name). This
-remains the default behaviour: if you omit the <tt class="docutils literal"><span class="pre">datasource</span></tt> setting for
+remains the default behaviour: if you omit the <code class="docutils literal"><span class="pre">datasource</span></code> setting for
 a resource, its name will be used to determine the database collection.</li>
 <li>It is now possibile to set predefined db filters for each resource.
-Predefined filters run on top of user queries (GET requests with <tt class="docutils literal"><span class="pre">where</span></tt>
-clauses) and standard conditional requests (<tt class="docutils literal"><span class="pre">If-Modified-Since</span></tt>, etc.)
+Predefined filters run on top of user queries (GET requests with <code class="docutils literal"><span class="pre">where</span></code>
+clauses) and standard conditional requests (<code class="docutils literal"><span class="pre">If-Modified-Since</span></code>, etc.)
 Please note that datasource filters are applied on GET, PATCH and DELETE
 requests. If your resource allows for POST requests (document insertions),
 then you will probably want to set the validation rules accordingly (in our
@@ -856,11 +859,11 @@ Internal Server Error (Fixes #8).</li>
 <p>Released on January 22th 2013.</p>
 <ul class="simple">
 <li>XML rendering love. Lots of love.</li>
-<li>JSON links are always wrapped in a <tt class="docutils literal"><span class="pre">_links</span></tt> dictionary. Key values match
+<li>JSON links are always wrapped in a <code class="docutils literal"><span class="pre">_links</span></code> dictionary. Key values match
 the relation between the item being represented and the linked resource.</li>
-<li>Streamlined JSON responses. Superflous <tt class="docutils literal"><span class="pre">response</span></tt> root key has been removed
+<li>Streamlined JSON responses. Superflous <code class="docutils literal"><span class="pre">response</span></code> root key has been removed
 from JSON payloads. GET requests to resource endpoints: items are now wrapped
-with an <tt class="docutils literal"><span class="pre">_items</span></tt> list. GET requests to item endpoints: item is now at root
+with an <code class="docutils literal"><span class="pre">_items</span></code> list. GET requests to item endpoints: item is now at root
 level, with no wrappers around it.</li>
 <li>Support for API versioning through the new API_VERSION configuration setting.</li>
 <li>Boolean values in request forms are now correctly parsed.</li>
@@ -877,7 +880,7 @@ tags which also caused XML validation issues when processing responses
 <li>Version number in &#8216;Server&#8217; response headers.</li>
 <li>Added support for DELETE at resource endpoints. Expected behavior:
 will delete all items in the collection. Disabled by default.</li>
-<li><tt class="xref py py-class docutils literal"><span class="pre">eve.io.mongo.Validator</span></tt> now supports <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#cerberus.Validator" title="(in Cerberus v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Validator</span></tt></a>
+<li><code class="xref py py-class docutils literal"><span class="pre">eve.io.mongo.Validator</span></code> now supports <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#cerberus.Validator" title="(in Cerberus v0.8)"><code class="xref py py-class docutils literal"><span class="pre">Validator</span></code></a>
 signature, allowing for further subclassing.</li>
 </ul>
 </div>
@@ -894,7 +897,7 @@ signature, allowing for further subclassing.</li>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="index.html">
@@ -949,24 +952,7 @@ signature, allowing for further subclassing.</li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
 </ul>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="">Eve Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-5">Version 0.5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-4">Version 0.4</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-3">Version 0.3</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-2">Version 0.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-1-1">Version 0.1.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-1">Version 0.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-0-9">Version 0.0.9</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-0-8">Version 0.0.8</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-0-7">Version 0.0.7</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-0-6">Version 0.0.6</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-0-5">Version 0.0.5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-0-4">Version 0.0.4</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-0-3">Version 0.0.3</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-0-2">Version 0.0.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-0-1">Version 0.0.1</a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Eve Changelog</a></li>
 </ul>
 
 <p>You are looking at the documentation of the development version.</p>
@@ -995,7 +981,7 @@ Consider supporting the authors on <a href="https://www.gittip.com/">Gittip</a>:
    width="48pt" height="20pt"></iframe>
 </p>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />

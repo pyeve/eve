@@ -32,8 +32,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -52,7 +52,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="quickstart">
 <span id="id1"></span><h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
@@ -132,7 +132,7 @@ there&#8217;s only one child resource available, that being <cite>people</cite>.
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>This time we also got an <tt class="docutils literal"><span class="pre">_items</span></tt> list. The <tt class="docutils literal"><span class="pre">_links</span></tt> are relative to the
+<p>This time we also got an <code class="docutils literal"><span class="pre">_items</span></code> list. The <code class="docutils literal"><span class="pre">_links</span></code> are relative to the
 resource being accessed, so you get a link to the parent resource (the home
 page) and to the resource itself.</p>
 <p>By default Eve APIs are read-only:</p>
@@ -184,9 +184,9 @@ operations:</p>
 <span class="n">ITEM_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;PATCH&#39;</span><span class="p">,</span> <span class="s">&#39;PUT&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p><tt class="docutils literal"><span class="pre">RESOURCE_METHODS</span></tt> lists methods allowed at resource endpoints (<tt class="docutils literal"><span class="pre">/people</span></tt>)
-while <tt class="docutils literal"><span class="pre">ITEM_METHODS</span></tt> lists the methods enabled at item endpoints
-(<tt class="docutils literal"><span class="pre">/people/&lt;ObjectId&gt;</span></tt>). Both settings have a global scope and will apply to
+<p><code class="docutils literal"><span class="pre">RESOURCE_METHODS</span></code> lists methods allowed at resource endpoints (<code class="docutils literal"><span class="pre">/people</span></code>)
+while <code class="docutils literal"><span class="pre">ITEM_METHODS</span></code> lists the methods enabled at item endpoints
+(<code class="docutils literal"><span class="pre">/people/&lt;ObjectId&gt;</span></code>). Both settings have a global scope and will apply to
 all endpoints.  You can then enable or disable HTTP methods at individual
 endpoint level, as we will soon see.</p>
 <p>Since we are enabling editing we also want to enable proper data validation.
@@ -232,9 +232,9 @@ Let&#8217;s define a schema for our <cite>people</cite> resource.</p>
 to:</p>
 <ul class="simple">
 <li>set the item title to <em>person</em></li>
-<li>add an extra <a class="reference internal" href="features.html#custom-item-endpoints"><em>custom item endpoint</em></a> at <tt class="docutils literal"><span class="pre">/people/&lt;lastname&gt;</span></tt></li>
+<li>add an extra <a class="reference internal" href="features.html#custom-item-endpoints"><em>custom item endpoint</em></a> at <code class="docutils literal"><span class="pre">/people/&lt;lastname&gt;</span></code></li>
 <li>override the default <a class="reference internal" href="features.html#cache-control"><em>cache control directives</em></a></li>
-<li>disable DELETE for the <tt class="docutils literal"><span class="pre">/people</span></tt> endpoint (we enabled it globally)</li>
+<li>disable DELETE for the <code class="docutils literal"><span class="pre">/people</span></code> endpoint (we enabled it globally)</li>
 </ul>
 <p>Here is how the complete <cite>people</cite> definition looks in our updated <cite>settings.py</cite>
 file:</p>
@@ -317,7 +317,7 @@ and/or reset the database).</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="index.html">
@@ -353,12 +353,7 @@ and/or reset the database).</p>
 <li class="toctree-l1"><a class="reference internal" href="foreword.html">Foreword</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rest_api_for_humans.html">REST API for Humans</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Quickstart</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#a-minimal-application">A Minimal Application</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#database-interlude">Database Interlude</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#a-more-complex-application">A More Complex Application</a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="config.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="validation.html">Data Validation</a></li>
@@ -406,7 +401,7 @@ Consider supporting the authors on <a href="https://www.gittip.com/">Gittip</a>:
    width="48pt" height="20pt"></iframe>
 </p>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />

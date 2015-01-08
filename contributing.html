@@ -32,8 +32,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -52,7 +52,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="how-to-contribute">
 <span id="contributing"></span><h1>How to Contribute<a class="headerlink" href="#how-to-contribute" title="Permalink to this headline">¶</a></h1>
@@ -73,18 +73,18 @@ new features and patches.</p>
 <ul class="simple">
 <li><a class="reference external" href="https://help.github.com/articles/fork-a-repo">Fork</a> the repository on GitHub.</li>
 <li>Create a topic branch from where you want to base your work.</li>
-<li>This is usually the <tt class="docutils literal"><span class="pre">develop</span></tt> branch.</li>
-<li>Please avoid working directly on the <tt class="docutils literal"><span class="pre">develop</span></tt> branch.</li>
+<li>This is usually the <code class="docutils literal"><span class="pre">develop</span></code> branch.</li>
+<li>Please avoid working directly on the <code class="docutils literal"><span class="pre">develop</span></code> branch.</li>
 <li>Make commits of logical units (if needed rebase your feature branch before
 submitting it).</li>
-<li>Check for unnecessary whitespace with <tt class="docutils literal"><span class="pre">git</span> <span class="pre">diff</span> <span class="pre">--check</span></tt> before committing.</li>
+<li>Check for unnecessary whitespace with <code class="docutils literal"><span class="pre">git</span> <span class="pre">diff</span> <span class="pre">--check</span></code> before committing.</li>
 <li>Make sure your commit messages are in the <a class="reference external" href="http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html">proper format</a>.</li>
 <li>If your commit fixes an open issue, reference it in the commit message (#15).</li>
 <li>Make sure your code conforms to <a class="reference external" href="http://www.python.org/dev/peps/pep-0008/">PEP8</a> (we&#8217;re using <a class="reference external" href="http://flake8.readthedocs.org/en/latest/">flake8</a> for PEP8 and extra checks).</li>
 <li>Make sure you have added the necessary tests for your changes.</li>
 <li>Run all the tests to assure nothing else was accidentally broken.</li>
 <li>Run again the entire suite via <a class="reference external" href="http://tox.readthedocs.org/en/latest/">tox</a> to check your changes against multiple
-python versions. <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">tox;</span> <span class="pre">tox</span></tt></li>
+python versions. <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">tox;</span> <span class="pre">tox</span></code></li>
 <li>Don&#8217;t forget to add yourself to <a class="reference external" href="https://github.com/nicolaiarocci/eve/blob/develop/AUTHORS">AUTHORS</a>.</li>
 </ul>
 <p>These guidelines also apply when helping with documentation (actually,
@@ -115,7 +115,7 @@ It&#8217;s comfy and cozy over there.</p>
 <p>There are usually several TODO comments scattered around the codebase, maybe
 check them out and see if you have ideas, or can help with them. Also, check
 the <a class="reference external" href="https://github.com/nicolaiarocci/eve/issues">open issues</a> in case there&#8217;s something that sparks your interest (there&#8217;s
-also a special <tt class="docutils literal"><span class="pre">contributor</span> <span class="pre">friendly</span></tt> label flagging some interesting feature
+also a special <code class="docutils literal"><span class="pre">contributor</span> <span class="pre">friendly</span></code> label flagging some interesting feature
 requests). And what about documentation?  I suck at English so if you&#8217;re fluent
 with it (or notice any typo and/or mistake), why not help with that? In any
 case, other than GitHub <a class="reference external" href="https://help.github.com/">help</a> pages, you might want to check this excellent
@@ -127,7 +127,7 @@ case, other than GitHub <a class="reference external" href="https://help.github.
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="index.html">
@@ -211,7 +211,7 @@ Consider supporting the authors on <a href="https://www.gittip.com/">Gittip</a>:
    width="48pt" height="20pt"></iframe>
 </p>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />

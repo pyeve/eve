@@ -32,8 +32,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -52,7 +52,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="running-the-tests">
 <h1>Running the Tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h1>
@@ -63,11 +63,11 @@ with:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py <span class="nb">test</span>
 </pre></div>
 </div>
-<p>If you want you can run a single module, say the <tt class="docutils literal"><span class="pre">methods</span></tt> suite:</p>
+<p>If you want you can run a single module, say the <code class="docutils literal"><span class="pre">methods</span></code> suite:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py <span class="nb">test</span> -s eve.tests.methods
 </pre></div>
 </div>
-<p>Or, to run only the <tt class="docutils literal"><span class="pre">get</span></tt> tests:</p>
+<p>Or, to run only the <code class="docutils literal"><span class="pre">get</span></code> tests:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py <span class="nb">test</span> -s eve.tests.methods.get
 </pre></div>
 </div>
@@ -135,7 +135,7 @@ environments before using it.</p>
 <span class="gp">$</span> .tox/py26/bin/py.test
 </pre></div>
 </div>
-<p>Please note that, just for my own convenience, the <tt class="docutils literal"><span class="pre">pytest.ini</span></tt> file is
+<p>Please note that, just for my own convenience, the <code class="docutils literal"><span class="pre">pytest.ini</span></code> file is
 currently set up in such a way that any test run will abort after two failures.
 Also, if you are a <a class="reference external" href="http://en.wikipedia.org/wiki/Vim_(text_editor)">Vim</a> user (you should), you might want to check out the awesome
 <a class="reference external" href="https://github.com/alfredodeza/pytest.vim">pytest.vim</a> plugin.</p>
@@ -154,7 +154,7 @@ yourself with</p>
 </div>
 <div class="section" id="continuous-integration">
 <h2>Continuous Integration<a class="headerlink" href="#continuous-integration" title="Permalink to this headline">¶</a></h2>
-<p>Each time code is pushed to either the <tt class="docutils literal"><span class="pre">develop</span></tt> or the <tt class="docutils literal"><span class="pre">master</span></tt>  branch
+<p>Each time code is pushed to either the <code class="docutils literal"><span class="pre">develop</span></code> or the <code class="docutils literal"><span class="pre">master</span></code>  branch
 the whole test-suite is executed on Travis-CI. This is also the case for
 pull-requests. When a pull request is submitted and the CI run fails two things
 happen: a &#8216;the build is broken&#8217; email is sent to the submitter; the request is
@@ -163,7 +163,7 @@ needed, and push again.</p>
 <p>The CI will also run flake8 so make sure that your code complies to PEP8 before
 submitting a pull request, or be prepared to be mail-spammed by CI.</p>
 <p>Please note that in practice you&#8217;re only supposed to submit pull requests
-against the <tt class="docutils literal"><span class="pre">develop</span></tt> branch, see <a class="reference internal" href="contributing.html#contributing"><em>How to Contribute</em></a>.</p>
+against the <code class="docutils literal"><span class="pre">develop</span></code> branch, see <a class="reference internal" href="contributing.html#contributing"><em>How to Contribute</em></a>.</p>
 </div>
 </div>
 
@@ -171,7 +171,7 @@ against the <tt class="docutils literal"><span class="pre">develop</span></tt> b
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="index.html">
@@ -255,7 +255,7 @@ Consider supporting the authors on <a href="https://www.gittip.com/">Gittip</a>:
    width="48pt" height="20pt"></iframe>
 </p>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />

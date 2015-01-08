@@ -32,8 +32,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -52,7 +52,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="installation">
 <span id="install"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
@@ -98,8 +98,8 @@ Either way, virtualenv is recommended.</p>
 </pre></div>
 </div>
 <p>This will pull in the dependencies and activate the git head as the current
-version inside the virtualenv.  Then all you have to do is run <tt class="docutils literal"><span class="pre">git</span> <span class="pre">pull</span>
-<span class="pre">origin</span></tt> to update to the latest version.</p>
+version inside the virtualenv.  Then all you have to do is run <code class="docutils literal"><span class="pre">git</span> <span class="pre">pull</span>
+<span class="pre">origin</span></code> to update to the latest version.</p>
 <p>To just get the development version without git, do this instead:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> mkdir eve
 <span class="gp">$</span> <span class="nb">cd </span>eve
@@ -120,7 +120,7 @@ version inside the virtualenv.  Then all you have to do is run <tt class="docuti
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="index.html">
@@ -155,11 +155,7 @@ version inside the virtualenv.  Then all you have to do is run <tt class="docuti
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="foreword.html">Foreword</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rest_api_for_humans.html">REST API for Humans</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#distribute-pip">Distribute &amp; Pip</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#development-version">Development Version</a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="config.html">Configuration</a></li>
@@ -208,7 +204,7 @@ Consider supporting the authors on <a href="https://www.gittip.com/">Gittip</a>:
    width="48pt" height="20pt"></iframe>
 </p>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
