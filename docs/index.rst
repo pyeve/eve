@@ -52,9 +52,8 @@ If you are on python-eve.org_ then you are looking at the documentation of the
 development version. Looking for last release docs? Follow `this
 link <http://eve.readthedocs.org/en/stable/>`_.
 
-User's Guide
-------------
 .. toctree::
+    :hidden:
     :maxdepth: 2
 
     foreword
@@ -68,30 +67,13 @@ User's Guide
     tutorials/index
     extensions
 
-Developer's Guide
------------------
-.. toctree::
-    :maxdepth: 1
-
     contributing
     testing
-
-*A proper developer guide will be available when 1.0 is released*
-
-Support, Updates and Licensing
-------------------------------
-.. toctree::
-    :maxdepth: 1
 
     support
     updates
     authors
     license
-
-Changelog
----------
-.. toctree::
-    :maxdepth: 2
 
     changelog
 
