@@ -77,13 +77,13 @@ link <http://eve.readthedocs.org/en/stable/>`_.
 
     changelog
 
+.. [*] SQLALchemy support is provided by the awesome eve-sqlalchemy_ extension.
+
 .. note::
    This documentation is under development. Please refer to the links on the
    sidebar for more information, or to get in touch with the development team
    (that being me_).
 
-
-.. [*] SQLALchemy support is provided by the awesome eve-sqlalchemy_ extension.
 
 .. _python-eve.org: http://python-eve.org
 .. _`Eve Demo instructions`: http://github.com/nicolaiarocci/eve-demo#readme
