@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 from setuptools import setup, find_packages
-DESCRIPTION = ("REST API framework powered by Flask, MongoDB and good "
-               "intentions.")
+DESCRIPTION = ("Python REST API for Humans.")
 with open('README.rst') as f:
     LONG_DESCRIPTION = f.read()
 
