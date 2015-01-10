@@ -54,7 +54,6 @@ link <http://eve.readthedocs.org/en/stable/>`_.
 
 .. toctree::
     :hidden:
-    :maxdepth: 2
 
     foreword
     rest_api_for_humans
@@ -66,15 +65,12 @@ link <http://eve.readthedocs.org/en/stable/>`_.
     authentication
     tutorials/index
     extensions
-
     contributing
     testing
-
     support
     updates
     authors
     license
-
     changelog
 
 .. [*] SQLALchemy support is provided by the awesome eve-sqlalchemy_ extension.
