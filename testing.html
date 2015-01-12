@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Running the Tests &mdash; Eve 0.5-dev documentation</title>
+    <title>Running the Tests &mdash; Eve 0.5 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.5-dev',
+        VERSION:     '0.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.5-dev documentation" href="index.html" />
+    <link rel="top" title="Eve 0.5 documentation" href="index.html" />
     <link rel="next" title="Support" href="support.html" />
     <link rel="prev" title="How to Contribute" href="contributing.html" />
    
@@ -32,8 +32,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +45,14 @@
         <li class="right" >
           <a href="contributing.html" title="How to Contribute"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Eve 0.5-dev documentation</a> &raquo;</li> 
+        <li><a href="index.html">Eve 0.5 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="running-the-tests">
 <h1>Running the Tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h1>
@@ -63,11 +63,11 @@ with:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py <span class="nb">test</span>
 </pre></div>
 </div>
-<p>If you want you can run a single module, say the <code class="docutils literal"><span class="pre">methods</span></code> suite:</p>
+<p>If you want you can run a single module, say the <tt class="docutils literal"><span class="pre">methods</span></tt> suite:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py <span class="nb">test</span> -s eve.tests.methods
 </pre></div>
 </div>
-<p>Or, to run only the <code class="docutils literal"><span class="pre">get</span></code> tests:</p>
+<p>Or, to run only the <tt class="docutils literal"><span class="pre">get</span></tt> tests:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py <span class="nb">test</span> -s eve.tests.methods.get
 </pre></div>
 </div>
@@ -135,7 +135,7 @@ environments before using it.</p>
 <span class="gp">$</span> .tox/py26/bin/py.test
 </pre></div>
 </div>
-<p>Please note that, just for my own convenience, the <code class="docutils literal"><span class="pre">pytest.ini</span></code> file is
+<p>Please note that, just for my own convenience, the <tt class="docutils literal"><span class="pre">pytest.ini</span></tt> file is
 currently set up in such a way that any test run will abort after two failures.
 Also, if you are a <a class="reference external" href="http://en.wikipedia.org/wiki/Vim_(text_editor)">Vim</a> user (you should), you might want to check out the awesome
 <a class="reference external" href="https://github.com/alfredodeza/pytest.vim">pytest.vim</a> plugin.</p>
@@ -154,7 +154,7 @@ yourself with</p>
 </div>
 <div class="section" id="continuous-integration">
 <h2>Continuous Integration<a class="headerlink" href="#continuous-integration" title="Permalink to this headline">¶</a></h2>
-<p>Each time code is pushed to either the <code class="docutils literal"><span class="pre">develop</span></code> or the <code class="docutils literal"><span class="pre">master</span></code>  branch
+<p>Each time code is pushed to either the <tt class="docutils literal"><span class="pre">develop</span></tt> or the <tt class="docutils literal"><span class="pre">master</span></tt>  branch
 the whole test-suite is executed on Travis-CI. This is also the case for
 pull-requests. When a pull request is submitted and the CI run fails two things
 happen: a &#8216;the build is broken&#8217; email is sent to the submitter; the request is
@@ -163,7 +163,7 @@ needed, and push again.</p>
 <p>The CI will also run flake8 so make sure that your code complies to PEP8 before
 submitting a pull request, or be prepared to be mail-spammed by CI.</p>
 <p>Please note that in practice you&#8217;re only supposed to submit pull requests
-against the <code class="docutils literal"><span class="pre">develop</span></code> branch, see <a class="reference internal" href="contributing.html#contributing"><em>How to Contribute</em></a>.</p>
+against the <tt class="docutils literal"><span class="pre">develop</span></tt> branch, see <a class="reference internal" href="contributing.html#contributing"><em>How to Contribute</em></a>.</p>
 </div>
 </div>
 
@@ -171,7 +171,7 @@ against the <code class="docutils literal"><span class="pre">develop</span></cod
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="index.html">
@@ -203,7 +203,7 @@ against the <code class="docutils literal"><span class="pre">develop</span></cod
 </a>
 </p>
 <h3>Navigation</h3>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="foreword.html">Foreword</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rest_api_for_humans.html">REST API for Humans</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
@@ -214,18 +214,18 @@ against the <code class="docutils literal"><span class="pre">develop</span></cod
 <li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication and Authorization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extensions.html">Extensions</a></li>
-</ul>
-<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">How to Contribute</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Running the Tests</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Running the Tests</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#testing-with-other-python-versions">Testing with other python versions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-pytest">Using Pytest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ratelimiting-and-redis">RateLimiting and Redis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#continuous-integration">Continuous Integration</a></li>
 </ul>
-<ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
 <li class="toctree-l1"><a class="reference internal" href="updates.html">Updates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Eve Changelog</a></li>
 </ul>
 
@@ -249,13 +249,13 @@ against the <code class="docutils literal"><span class="pre">develop</span></cod
 
 <h3>Donate</h3>
 <p>
-Consider supporting the authors on <a href="https://www.gittip.com/">Gittip</a>:
-<iframe style="border: 0; margin: 5px 0 -5px 0; padding: 0;"
-   src="https://www.gittip.com/nicolaiarocci/widget.html"
-   width="48pt" height="20pt"></iframe>
+Consider supporting the authors on <a href="https://www.gratipay.com/">Gratipay</a>:
+<script data-gratipay-username="nicolaiarocci"
+        data-gratipay-widget="button"
+        src="//gttp.co/v1.js"></script>
 </p>
 
-<div id="searchbox" style="display: none" role="search">
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />

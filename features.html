@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Features &mdash; Eve 0.5-dev documentation</title>
+    <title>Features &mdash; Eve 0.5 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.5-dev',
+        VERSION:     '0.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.5-dev documentation" href="index.html" />
+    <link rel="top" title="Eve 0.5 documentation" href="index.html" />
     <link rel="next" title="Configuration" href="config.html" />
     <link rel="prev" title="Quickstart" href="quickstart.html" />
    
@@ -32,8 +32,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +45,14 @@
         <li class="right" >
           <a href="quickstart.html" title="Quickstart"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Eve 0.5-dev documentation</a> &raquo;</li> 
+        <li><a href="index.html">Eve 0.5 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="features">
 <h1>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h1>
@@ -110,19 +110,19 @@ implementation of CRUD via REST:</p>
 <div class="section" id="overriding-http-methods">
 <h3>Overriding HTTP Methods<a class="headerlink" href="#overriding-http-methods" title="Permalink to this headline">¶</a></h3>
 <p>As a fallback for the odd client not supporting any of these methods, the API
-will gladly honor <code class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></code> requests. For example a client not
-supporting the <code class="docutils literal"><span class="pre">PATCH</span></code> method could send a <code class="docutils literal"><span class="pre">POST</span></code> request with
-a <code class="docutils literal"><span class="pre">X-HTTP-Method-Override:</span> <span class="pre">PATCH</span></code> header.  The API would then perform
-a <code class="docutils literal"><span class="pre">PATCH</span></code>, overriding the original request method.</p>
+will gladly honor <tt class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></tt> requests. For example a client not
+supporting the <tt class="docutils literal"><span class="pre">PATCH</span></tt> method could send a <tt class="docutils literal"><span class="pre">POST</span></tt> request with
+a <tt class="docutils literal"><span class="pre">X-HTTP-Method-Override:</span> <span class="pre">PATCH</span></tt> header.  The API would then perform
+a <tt class="docutils literal"><span class="pre">PATCH</span></tt>, overriding the original request method.</p>
 </div>
 </div>
 <div class="section" id="customizable-resource-endpoints">
 <span id="resource-endpoints"></span><h2>Customizable resource endpoints<a class="headerlink" href="#customizable-resource-endpoints" title="Permalink to this headline">¶</a></h2>
 <p>By default, Eve will make known database collections available as resource
-endpoints (persistent identifiers in REST idiom). So a database <code class="docutils literal"><span class="pre">people</span></code>
-collection will be avaliable at the <code class="docutils literal"><span class="pre">example.com/people</span></code> API endpoint.  You
+endpoints (persistent identifiers in REST idiom). So a database <tt class="docutils literal"><span class="pre">people</span></tt>
+collection will be avaliable at the <tt class="docutils literal"><span class="pre">example.com/people</span></tt> API endpoint.  You
 can customize the URIs though, so the API endpoint could become, say,
-<code class="docutils literal"><span class="pre">example.com/customers/overseas</span></code>. Consider the following request:</p>
+<tt class="docutils literal"><span class="pre">example.com/customers/overseas</span></tt>. Consider the following request:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
@@ -158,7 +158,7 @@ can customize the URIs though, so the API endpoint could become, say,
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal"><span class="pre">_items</span></code> list contains the requested data. Along with its own fields,
+<p>The <tt class="docutils literal"><span class="pre">_items</span></tt> list contains the requested data. Along with its own fields,
 each item provides some important, additional fields:</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -171,29 +171,29 @@ each item provides some important, additional fields:</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">_created</span></code></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">_created</span></tt></td>
 <td>item creation date.</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">_updated</span></code></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">_updated</span></tt></td>
 <td>item last updated on.</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">_etag</span></code></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">_etag</span></tt></td>
 <td>ETag, to be used for concurrency control and conditional requests.</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">_id</span></code></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">_id</span></tt></td>
 <td>unique item key, also needed to access the individual item endpoint.</td>
 </tr>
 </tbody>
 </table>
 <p>These additional fields are automatically handled by the API (clients don&#8217;t
 need to provide them when adding/editing resources).</p>
-<p>The <code class="docutils literal"><span class="pre">_meta</span></code> field provides pagination data and will only be there if
+<p>The <tt class="docutils literal"><span class="pre">_meta</span></tt> field provides pagination data and will only be there if
 <a class="reference internal" href="#pagination"><em>Pagination</em></a> has been enabled (it is by default) and there is at least one
-document being returned. The <code class="docutils literal"><span class="pre">_links</span></code> list provides <a class="reference external" href="http://en.wikipedia.org/wiki/HATEOAS">HATEOAS</a> directives.</p>
+document being returned. The <tt class="docutils literal"><span class="pre">_links</span></tt> list provides <a class="reference external" href="http://en.wikipedia.org/wiki/HATEOAS">HATEOAS</a> directives.</p>
 <div class="section" id="sub-resources">
 <span id="subresources"></span><h3>Sub Resources<a class="headerlink" href="#sub-resources" title="Permalink to this headline">¶</a></h3>
 <p>Endpoints support sub-resources so you could have something like:
-<code class="docutils literal"><span class="pre">people/&lt;contact_id&gt;/invoices</span></code>. When setting the <code class="docutils literal"><span class="pre">url</span></code> rule for such and
+<tt class="docutils literal"><span class="pre">people/&lt;contact_id&gt;/invoices</span></tt>. When setting the <tt class="docutils literal"><span class="pre">url</span></tt> rule for such and
 endpoint you would use a regex and assign a field name to it:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">invoices</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;people/&lt;regex(&quot;[a-f0-9]{24}&quot;):contact_id&gt;/invoices&#39;</span>
@@ -219,7 +219,7 @@ me all the invoices by &lt;contact_id&gt;</em>:</p>
 </div>
 <p>Please note that when designing your API, most of the time you can get away
 without resorting to sub-resources. In the example above the same result would
-be achieved by simply exposing an <code class="docutils literal"><span class="pre">invoices</span></code> endpoint that clients could query
+be achieved by simply exposing an <tt class="docutils literal"><span class="pre">invoices</span></tt> endpoint that clients could query
 this way:</p>
 <div class="highlight-python"><div class="highlight"><pre>invoices?where={&quot;contact_id&quot;: 51f63e0838345b6dcd7eabff}
 </pre></div>
@@ -235,7 +235,7 @@ otherwise legit GET request:</p>
 </pre></div>
 </div>
 <p>would cause a two fields lookup on the database. This is not ideal and also not
-really needed, as <code class="docutils literal"><span class="pre">&lt;invoice_id&gt;</span></code> is a unique field. By contrast, if you had
+really needed, as <tt class="docutils literal"><span class="pre">&lt;invoice_id&gt;</span></tt> is a unique field. By contrast, if you had
 a simple resource endpoint the document lookup would happen on a single field:</p>
 <div class="highlight-python"><div class="highlight"><pre>invoices/&lt;invoice_id&gt;
 </pre></div>
@@ -245,11 +245,11 @@ a simple resource endpoint the document lookup would happen on a single field:</
 <div class="section" id="customizable-multiple-item-endpoints">
 <span id="custom-item-endpoints"></span><h2>Customizable, multiple item endpoints<a class="headerlink" href="#customizable-multiple-item-endpoints" title="Permalink to this headline">¶</a></h2>
 <p>Resources can or cannot expose individual item endpoints. API consumers could
-get access to <code class="docutils literal"><span class="pre">people</span></code>, <code class="docutils literal"><span class="pre">people/&lt;ObjectId&gt;</span></code> and <code class="docutils literal"><span class="pre">people/Doe</span></code>,
-but only to <code class="docutils literal"><span class="pre">/works</span></code>.  When you do grant access to item endpoints, you can
+get access to <tt class="docutils literal"><span class="pre">people</span></tt>, <tt class="docutils literal"><span class="pre">people/&lt;ObjectId&gt;</span></tt> and <tt class="docutils literal"><span class="pre">people/Doe</span></tt>,
+but only to <tt class="docutils literal"><span class="pre">/works</span></tt>.  When you do grant access to item endpoints, you can
 define up to two lookups, both defined with regexes. The first will be the
 primary endpoint and will match your database primary key structure (i.e., an
-<code class="docutils literal"><span class="pre">ObjectId</span></code> in a MongoDB database).</p>
+<tt class="docutils literal"><span class="pre">ObjectId</span></tt> in a MongoDB database).</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c
 <span class="go">HTTP/1.1 200 OK</span>
 <span class="go">Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc</span>
@@ -292,9 +292,9 @@ look something like this:</p>
 <p>According to REST principles resource items should only have one unique
 identifier. Eve abides by providing one default endpoint per item. Adding
 a secondary endpoint is a decision that should be pondered carefully.</p>
-<p class="last">Consider our example above. Even without the <code class="docutils literal"><span class="pre">people/&lt;lastname&gt;</span></code>
+<p class="last">Consider our example above. Even without the <tt class="docutils literal"><span class="pre">people/&lt;lastname&gt;</span></tt>
 endpoint, a client could always retrieve a person by querying the resource
-endpoint by last name: <code class="docutils literal"><span class="pre">people/?where={&quot;lastname&quot;:</span> <span class="pre">&quot;Doe&quot;}</span></code>. Actually the
+endpoint by last name: <tt class="docutils literal"><span class="pre">people/?where={&quot;lastname&quot;:</span> <span class="pre">&quot;Doe&quot;}</span></tt>. Actually the
 whole example is fubar, as there could be multiple people sharing the same
 last name, but you get the idea.</p>
 </div>
@@ -307,7 +307,7 @@ are supported. The mongo query syntax:</p>
 <div class="highlight-python"><div class="highlight"><pre>http://eve-demo.herokuapp.com/people?where={&quot;lastname&quot;: &quot;Doe&quot;}
 </pre></div>
 </div>
-<p>which translates to the following <code class="docutils literal"><span class="pre">curl</span></code> request:</p>
+<p>which translates to the following <tt class="docutils literal"><span class="pre">curl</span></tt> request:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i -g http://eve-demo.herokuapp.com/people?where<span class="o">={</span>%22lastname%22:%20%22Doe%22<span class="o">}</span>
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
@@ -321,7 +321,7 @@ are supported. The mongo query syntax:</p>
 nested and combined.</p>
 <p>Filters are enabled by default on all document fields. However, the API
 maintainer can choose to disable them all and/or whitelist allowed ones (see
-<code class="docutils literal"><span class="pre">ALLOWED_FILTERS</span></code> in <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a>). If scraping, or fear of DB DoS attacks
+<tt class="docutils literal"><span class="pre">ALLOWED_FILTERS</span></tt> in <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a>). If scraping, or fear of DB DoS attacks
 by querying on non-indexed fields is a concern, then whitelisting allowed
 filters is the way to go.</p>
 </div>
@@ -339,20 +339,20 @@ to be reversed for a field.</p>
 <div class="highlight-python"><div class="highlight"><pre>http://eve-demo.herokuapp.com/people?sort=[(&quot;lastname&quot;, -1)]
 </pre></div>
 </div>
-<p>which translates to the following <code class="docutils literal"><span class="pre">curl</span></code> request:</p>
+<p>which translates to the following <tt class="docutils literal"><span class="pre">curl</span></tt> request:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people?sort<span class="o">=[(</span>%22lastname%22,%20-1<span class="o">)]</span>
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
 <p>Would return documents sorted by lastname in descending order.</p>
 <p>Sorting is enabled by default and can be disabled both globally and/or at
-resource level (see <code class="docutils literal"><span class="pre">SORTING</span></code> in <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a> and <code class="docutils literal"><span class="pre">sorting</span></code> in
+resource level (see <tt class="docutils literal"><span class="pre">SORTING</span></tt> in <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a> and <tt class="docutils literal"><span class="pre">sorting</span></tt> in
 <a class="reference internal" href="config.html#domain"><em>Domain Configuration</em></a>). It is also possible to set the default sort at every API
-endpoints (see <code class="docutils literal"><span class="pre">default_sort</span></code> in <a class="reference internal" href="config.html#domain"><em>Domain Configuration</em></a>).</p>
+endpoints (see <tt class="docutils literal"><span class="pre">default_sort</span></tt> in <a class="reference internal" href="config.html#domain"><em>Domain Configuration</em></a>).</p>
 <div class="admonition-please-note admonition">
 <p class="first admonition-title">Please note</p>
 <p class="last">Always use double quotes to wrap field names and values. Using single
-quotes will result in <code class="docutils literal"><span class="pre">400</span> <span class="pre">Bad</span> <span class="pre">Request</span></code> responses.</p>
+quotes will result in <tt class="docutils literal"><span class="pre">400</span> <span class="pre">Bad</span> <span class="pre">Request</span></tt> responses.</p>
 </div>
 </div>
 <div class="section" id="pagination">
@@ -372,14 +372,14 @@ consumers can request specific pages via the query string:</p>
 </pre></div>
 </div>
 <p>Pagination can be disabled. Please note that, for clarity, the above example is
-not properly escaped. If using <code class="docutils literal"><span class="pre">curl</span></code>, refer to the examples provided in
+not properly escaped. If using <tt class="docutils literal"><span class="pre">curl</span></tt>, refer to the examples provided in
 <a class="reference internal" href="#filters"><em>Filtering</em></a>.</p>
 </div>
 <div class="section" id="hateoas">
 <span id="hateoas-feature"></span><h2>HATEOAS<a class="headerlink" href="#hateoas" title="Permalink to this headline">¶</a></h2>
 <p><em>Hypermedia as the Engine of Application State</em> (<a class="reference external" href="http://en.wikipedia.org/wiki/HATEOAS">HATEOAS</a>) is enabled by
-default. Each GET response includes a <code class="docutils literal"><span class="pre">_links</span></code> section. Links provide details
-on their <code class="docutils literal"><span class="pre">relation</span></code> relative to the resource being accessed, and a <code class="docutils literal"><span class="pre">title</span></code>.
+default. Each GET response includes a <tt class="docutils literal"><span class="pre">_links</span></tt> section. Links provide details
+on their <tt class="docutils literal"><span class="pre">relation</span></tt> relative to the resource being accessed, and a <tt class="docutils literal"><span class="pre">title</span></tt>.
 Relations and titles can then be used by clients to dynamically updated their
 UI, or to navigate the API without knowing its structure beforehand. An example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
@@ -408,9 +408,9 @@ UI, or to navigate the API without knowing its structure beforehand. An example:
 a list of links to accessible resources. From there, any client could navigate
 the API just by following the links provided with every response.</p>
 <p>HATEOAS links are always relative to the API entry point, so if your API home
-is at <code class="docutils literal"><span class="pre">examples.com/api/v1</span></code>, the <code class="docutils literal"><span class="pre">self</span></code> link in the above example would
-mean that the <em>people</em> endpoint is located at <code class="docutils literal"><span class="pre">examples.com/api/v1/people</span></code>.</p>
-<p>Please note that <code class="docutils literal"><span class="pre">next</span></code>, <code class="docutils literal"><span class="pre">previous</span></code> and <code class="docutils literal"><span class="pre">last</span></code> items will only be
+is at <tt class="docutils literal"><span class="pre">examples.com/api/v1</span></tt>, the <tt class="docutils literal"><span class="pre">self</span></tt> link in the above example would
+mean that the <em>people</em> endpoint is located at <tt class="docutils literal"><span class="pre">examples.com/api/v1/people</span></tt>.</p>
+<p>Please note that <tt class="docutils literal"><span class="pre">next</span></tt>, <tt class="docutils literal"><span class="pre">previous</span></tt> and <tt class="docutils literal"><span class="pre">last</span></tt> items will only be
 included when appropriate.</p>
 <div class="section" id="disabling-hateoas">
 <h3>Disabling HATEOAS<a class="headerlink" href="#disabling-hateoas" title="Permalink to this headline">¶</a></h3>
@@ -421,7 +421,7 @@ performance.</p>
 <div class="admonition-please-note admonition">
 <p class="first admonition-title">Please note</p>
 <p class="last">When HATEOAS is disabled, the API entry point (the home page) will return
-a <code class="docutils literal"><span class="pre">404</span></code>, since its only usefulness would be to return a list of available
+a <tt class="docutils literal"><span class="pre">404</span></tt>, since its only usefulness would be to return a list of available
 resources, which is the standard behavior when HATEOAS is enabled.</p>
 </div>
 </div>
@@ -429,7 +429,7 @@ resources, which is the standard behavior when HATEOAS is enabled.</p>
 <div class="section" id="json-and-xml-rendering">
 <span id="jsonxml"></span><h2>JSON and XML Rendering<a class="headerlink" href="#json-and-xml-rendering" title="Permalink to this headline">¶</a></h2>
 <p>Eve responses are automatically rendered as JSON (the default) or XML,
-depending on the request <code class="docutils literal"><span class="pre">Accept</span></code> header. Inbound documents (for inserts and
+depending on the request <tt class="docutils literal"><span class="pre">Accept</span></tt> header. Inbound documents (for inserts and
 edits) are in JSON format.</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;Accept: application/xml&quot;</span> -i http://eve-demo.herokuapp.com
 <span class="go">HTTP/1.1 200 OK</span>
@@ -443,22 +443,22 @@ edits) are in JSON format.</p>
 <span class="nt">&lt;/resource&gt;</span>
 </pre></div>
 </div>
-<p>XML support can be disabled by setting <code class="docutils literal"><span class="pre">XML</span></code> to <code class="docutils literal"><span class="pre">False</span></code> in the settings
-file. JSON support can be disabled by setting <code class="docutils literal"><span class="pre">JSON</span></code> to <code class="docutils literal"><span class="pre">False</span></code>.  Please
+<p>XML support can be disabled by setting <tt class="docutils literal"><span class="pre">XML</span></tt> to <tt class="docutils literal"><span class="pre">False</span></tt> in the settings
+file. JSON support can be disabled by setting <tt class="docutils literal"><span class="pre">JSON</span></tt> to <tt class="docutils literal"><span class="pre">False</span></tt>.  Please
 note that at least one mime type must always be enabled, either implicitly or
 explicitly. By default, both are supported.</p>
 </div>
 <div class="section" id="conditional-requests">
 <span id="id2"></span><h2>Conditional Requests<a class="headerlink" href="#conditional-requests" title="Permalink to this headline">¶</a></h2>
 <p>Each resource representation provides information on the last time it was
-updated (<code class="docutils literal"><span class="pre">Last-Modified</span></code>), along with an hash value computed on the
-representation itself (<code class="docutils literal"><span class="pre">ETag</span></code>). These headers allow clients to perform
-conditional requests by using the <code class="docutils literal"><span class="pre">If-Modified-Since</span></code> header:</p>
+updated (<tt class="docutils literal"><span class="pre">Last-Modified</span></tt>), along with an hash value computed on the
+representation itself (<tt class="docutils literal"><span class="pre">ETag</span></tt>). These headers allow clients to perform
+conditional requests by using the <tt class="docutils literal"><span class="pre">If-Modified-Since</span></tt> header:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT&quot;</span> -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
-<p>or the <code class="docutils literal"><span class="pre">If-None-Match</span></code> header:</p>
+<p>or the <tt class="docutils literal"><span class="pre">If-None-Match</span></tt> header:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-None-Match: 1234567890123456789012345678901234567890&quot;</span> -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
@@ -466,26 +466,26 @@ conditional requests by using the <code class="docutils literal"><span class="pr
 </div>
 <div class="section" id="data-integrity-and-concurrency-control">
 <span id="concurrency"></span><h2>Data Integrity and Concurrency Control<a class="headerlink" href="#data-integrity-and-concurrency-control" title="Permalink to this headline">¶</a></h2>
-<p>API responses include a <code class="docutils literal"><span class="pre">ETag</span></code> header which also allows for proper
-concurrency control. An <code class="docutils literal"><span class="pre">ETag</span></code> is a hash value representing the current state
-of the resource on the server. Consumers are not allowed to edit (<code class="docutils literal"><span class="pre">PATCH</span></code> or
-<code class="docutils literal"><span class="pre">PUT</span></code>) or delete (<code class="docutils literal"><span class="pre">DELETE</span></code>) a resource unless they provide an up-to-date
-<code class="docutils literal"><span class="pre">ETag</span></code> for the resource they are attempting to edit. This prevents
+<p>API responses include a <tt class="docutils literal"><span class="pre">ETag</span></tt> header which also allows for proper
+concurrency control. An <tt class="docutils literal"><span class="pre">ETag</span></tt> is a hash value representing the current state
+of the resource on the server. Consumers are not allowed to edit (<tt class="docutils literal"><span class="pre">PATCH</span></tt> or
+<tt class="docutils literal"><span class="pre">PUT</span></tt>) or delete (<tt class="docutils literal"><span class="pre">DELETE</span></tt>) a resource unless they provide an up-to-date
+<tt class="docutils literal"><span class="pre">ETag</span></tt> for the resource they are attempting to edit. This prevents
 overwriting items with obsolete versions.</p>
 <p>Consider the following workflow:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d <span class="s1">&#39;{&quot;firstname&quot;: &quot;ronald&quot;}&#39;</span>
 <span class="go">HTTP/1.1 403 FORBIDDEN</span>
 </pre></div>
 </div>
-<p>We attempted an edit (<code class="docutils literal"><span class="pre">PATCH</span></code>), but we did not provide an <code class="docutils literal"><span class="pre">ETag</span></code> for the
-item so we got a <code class="docutils literal"><span class="pre">403</span> <span class="pre">FORBIDDEN</span></code> back. Let&#8217;s try again:</p>
+<p>We attempted an edit (<tt class="docutils literal"><span class="pre">PATCH</span></tt>), but we did not provide an <tt class="docutils literal"><span class="pre">ETag</span></tt> for the
+item so we got a <tt class="docutils literal"><span class="pre">403</span> <span class="pre">FORBIDDEN</span></tt> back. Let&#8217;s try again:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-Match: 1234567890123456789012345678901234567890&quot;</span> -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d <span class="s1">&#39;{&quot;firstname&quot;: &quot;ronald&quot;}&#39;</span>
 <span class="go">HTTP/1.1 412 PRECONDITION FAILED</span>
 </pre></div>
 </div>
-<p>What went wrong this time? We provided the mandatory <code class="docutils literal"><span class="pre">If-Match</span></code> header, but
-it&#8217;s value did not match the <code class="docutils literal"><span class="pre">ETag</span></code> computed on the representation of the item
-currently stored on the server, so we got a <code class="docutils literal"><span class="pre">412</span> <span class="pre">PRECONDITION</span> <span class="pre">FAILED</span></code>. Again!</p>
+<p>What went wrong this time? We provided the mandatory <tt class="docutils literal"><span class="pre">If-Match</span></tt> header, but
+it&#8217;s value did not match the <tt class="docutils literal"><span class="pre">ETag</span></tt> computed on the representation of the item
+currently stored on the server, so we got a <tt class="docutils literal"><span class="pre">412</span> <span class="pre">PRECONDITION</span> <span class="pre">FAILED</span></tt>. Again!</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012&quot;</span> -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37 -d <span class="s1">&#39;{&quot;firstname&quot;: &quot;ronald&quot;}&#39;</span>
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
@@ -500,16 +500,16 @@ currently stored on the server, so we got a <code class="docutils literal"><span
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>This time we got our patch in, and the server returned the new <code class="docutils literal"><span class="pre">ETag</span></code>.  We
-also get the new <code class="docutils literal"><span class="pre">_updated</span></code> value, which eventually will allow us to perform
+<p>This time we got our patch in, and the server returned the new <tt class="docutils literal"><span class="pre">ETag</span></tt>.  We
+also get the new <tt class="docutils literal"><span class="pre">_updated</span></tt> value, which eventually will allow us to perform
 subsequent <a class="reference internal" href="#id2">conditional requests</a>.</p>
-<p>Concurrency control applies to all edition methods: <code class="docutils literal"><span class="pre">PATCH</span></code> (edit), <code class="docutils literal"><span class="pre">PUT</span></code>
-(replace), <code class="docutils literal"><span class="pre">DELETE</span></code> (delete).</p>
+<p>Concurrency control applies to all edition methods: <tt class="docutils literal"><span class="pre">PATCH</span></tt> (edit), <tt class="docutils literal"><span class="pre">PUT</span></tt>
+(replace), <tt class="docutils literal"><span class="pre">DELETE</span></tt> (delete).</p>
 <div class="section" id="disabling-concurrency-control">
 <h3>Disabling concurrency control<a class="headerlink" href="#disabling-concurrency-control" title="Permalink to this headline">¶</a></h3>
 <p>If your use case requires, you can opt to completely disable concurrency
-control. ETag match checks can be disabled by setting the <code class="docutils literal"><span class="pre">IF_MATCH</span></code>
-configuration variable to <code class="docutils literal"><span class="pre">False</span></code> (see <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a>). When concurrency
+control. ETag match checks can be disabled by setting the <tt class="docutils literal"><span class="pre">IF_MATCH</span></tt>
+configuration variable to <tt class="docutils literal"><span class="pre">False</span></tt> (see <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a>). When concurrency
 control is disabled no etag is provided with responses. You should be careful
 about disabling this feature, as you would effectively open your API to the
 risk of older versions replacing your documents.</p>
@@ -597,9 +597,9 @@ request:</p>
 <p>In the example above, the first document did not validate so the whole request
 has been rejected.</p>
 <p>When all documents pass validation and are inserted correctly the response
-status is <code class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></code>. If any document fails validation the response status
-is <code class="docutils literal"><span class="pre">422</span> <span class="pre">Unprocessable</span> <span class="pre">Entity</span></code>, or any other error code defined by
-<code class="docutils literal"><span class="pre">VALIDATION_ERROR_STATUS</span></code> configuration.</p>
+status is <tt class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></tt>. If any document fails validation the response status
+is <tt class="docutils literal"><span class="pre">422</span> <span class="pre">Unprocessable</span> <span class="pre">Entity</span></tt>, or any other error code defined by
+<tt class="docutils literal"><span class="pre">VALIDATION_ERROR_STATUS</span></tt> configuration.</p>
 <p>For more information see <a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a>.</p>
 </div>
 <div class="section" id="extensible-data-validation">
@@ -610,7 +610,7 @@ only accept odd numbers for a certain field value; you can extend the
 validation class to validate that. Or say you want to make sure that a VAT
 field actually matches your own country VAT algorithm; you can do that too. As
 a matter of fact, Eve&#8217;s MongoDB data-layer itself extends Cerberus
-validation by implementing the <code class="docutils literal"><span class="pre">unique</span></code> schema field constraint. For more
+validation by implementing the <tt class="docutils literal"><span class="pre">unique</span></tt> schema field constraint. For more
 information see <a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a>.</p>
 </div>
 <div class="section" id="resource-level-cache-control">
@@ -626,7 +626,7 @@ information see <a class="reference internal" href="validation.html#validation">
 <span class="go">Date: Tue, 22 Jan 2013 09:34:14 GMT</span>
 </pre></div>
 </div>
-<p>The response above includes both <code class="docutils literal"><span class="pre">Cache-Control</span></code> and <code class="docutils literal"><span class="pre">Expires</span></code> headers.
+<p>The response above includes both <tt class="docutils literal"><span class="pre">Cache-Control</span></tt> and <tt class="docutils literal"><span class="pre">Expires</span></tt> headers.
 These will minimize load on the server since cache-enabled consumers will
 perform resource-intensive request only when really needed.</p>
 </div>
@@ -644,25 +644,25 @@ between versions: caching, URIs, schemas, validation, and so on. URI versioning
 <p>Eve supports automatic version control of documents. By default, this setting
 is turned off, but it can be turned globally or configured individually for
 each resource. When enabled, Eve begins automatically tracking changes to
-documents and adds the fields <code class="docutils literal"><span class="pre">_version</span></code> and <code class="docutils literal"><span class="pre">_latest_version</span></code> when
+documents and adds the fields <tt class="docutils literal"><span class="pre">_version</span></tt> and <tt class="docutils literal"><span class="pre">_latest_version</span></tt> when
 retrieving documents.</p>
 <p>Behind the scenes, Eve stores document versions in shadow collections that
 parallels the collection of each primary resource that Eve defines. New
 document versions are automatically added to this collection during normal
 POST, PUT, and PATCH operations. A special new query parameter is available
 when GETing an item that provides access to the document versions. Access a
-specific version with <code class="docutils literal"><span class="pre">?version=VERSION</span></code>, access all versions with
-<code class="docutils literal"><span class="pre">?version=all</span></code>, and access diffs of all versions with <code class="docutils literal"><span class="pre">?version=diffs</span></code>.
+specific version with <tt class="docutils literal"><span class="pre">?version=VERSION</span></tt>, access all versions with
+<tt class="docutils literal"><span class="pre">?version=all</span></tt>, and access diffs of all versions with <tt class="docutils literal"><span class="pre">?version=diffs</span></tt>.
 Collection query features like projections, pagination, and sorting work with
-<code class="docutils literal"><span class="pre">all</span></code> and <code class="docutils literal"><span class="pre">diff</span></code> except for sorting which does not work on <code class="docutils literal"><span class="pre">diff</span></code>.</p>
+<tt class="docutils literal"><span class="pre">all</span></tt> and <tt class="docutils literal"><span class="pre">diff</span></tt> except for sorting which does not work on <tt class="docutils literal"><span class="pre">diff</span></tt>.</p>
 <p>It is important to note that there are a few non-standard scenarios which could
 produce unexpected results when versioning is turned on. In particular, document
 history will not be saved when modifying collections outside of the Eve
-generated API. Also, if at anytime the <code class="docutils literal"><span class="pre">VERSION</span></code> field gets removed from the
+generated API. Also, if at anytime the <tt class="docutils literal"><span class="pre">VERSION</span></tt> field gets removed from the
 primary document (which cannot happen through the API when versioning is turned
-on), a subsequent write will re-initialize the <code class="docutils literal"><span class="pre">VERSION</span></code> number with
-<code class="docutils literal"><span class="pre">VERSION</span></code> = 1. At this time there will be multiple versions of the document
-with the same version number. In normal practice, <code class="docutils literal"><span class="pre">VERSIONING</span></code> can be enable
+on), a subsequent write will re-initialize the <tt class="docutils literal"><span class="pre">VERSION</span></tt> number with
+<tt class="docutils literal"><span class="pre">VERSION</span></tt> = 1. At this time there will be multiple versions of the document
+with the same version number. In normal practice, <tt class="docutils literal"><span class="pre">VERSIONING</span></tt> can be enable
 without worry for any new collection or even an existing collection which has
 not previously had versioning enabled.</p>
 <p>For more information see and <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a> and <a class="reference internal" href="config.html#domain"><em>Domain Configuration</em></a>.</p>
@@ -691,15 +691,15 @@ a matter of minutes.</p>
 <h2>Default and Nullable Values<a class="headerlink" href="#default-and-nullable-values" title="Permalink to this headline">¶</a></h2>
 <p>Fields can have default values and nullable types. When serving POST (create)
 requests, missing fields will be assigned the configured default values. See
-<code class="docutils literal"><span class="pre">default</span></code> and <code class="docutils literal"><span class="pre">nullable</span></code> keywords in <a class="reference internal" href="config.html#schema"><em>Schema Definition</em></a> for more informations.</p>
+<tt class="docutils literal"><span class="pre">default</span></tt> and <tt class="docutils literal"><span class="pre">nullable</span></tt> keywords in <a class="reference internal" href="config.html#schema"><em>Schema Definition</em></a> for more informations.</p>
 </div>
 <div class="section" id="predefined-database-filters">
 <h2>Predefined Database Filters<a class="headerlink" href="#predefined-database-filters" title="Permalink to this headline">¶</a></h2>
 <p>Resource endpoints will only expose (and update) documents that match
 a predefined filter. This allows for multiple resource endpoints to seamlessly
 target the same database collection. A typical use-case would be a
-hypothetical <code class="docutils literal"><span class="pre">people</span></code> collection on the database being used by both the
-<code class="docutils literal"><span class="pre">/admins</span></code> and <code class="docutils literal"><span class="pre">/users</span></code> API endpoints.</p>
+hypothetical <tt class="docutils literal"><span class="pre">people</span></tt> collection on the database being used by both the
+<tt class="docutils literal"><span class="pre">/admins</span></tt> and <tt class="docutils literal"><span class="pre">/users</span></tt> API endpoints.</p>
 <div class="admonition-see-also admonition">
 <p class="first admonition-title">See also</p>
 <ul class="last simple">
@@ -741,7 +741,7 @@ allow for mixing of inclusive and exclusive selections.</p>
 <p>If a document field is referencing a document in another resource, clients can
 request the referenced document to be embedded within the requested document.</p>
 <p>Clients have the power to activate document embedding on per-request basis by
-means of a query parameter. Suppose you have a <code class="docutils literal"><span class="pre">emails</span></code> resource configured
+means of a query parameter. Suppose you have a <tt class="docutils literal"><span class="pre">emails</span></tt> resource configured
 like this:</p>
 <div class="highlight-python"><div class="highlight"><pre> <span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
      <span class="s">&#39;emails&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -760,20 +760,20 @@ like this:</p>
      <span class="p">}</span>
 </pre></div>
 </div>
-<p>A GET like this: <code class="docutils literal"><span class="pre">/emails?embedded={&quot;author&quot;:1}</span></code> would return a fully
-embedded users document, whereas the same request without the <code class="docutils literal"><span class="pre">embedded</span></code>
-argument would just return the user <code class="docutils literal"><span class="pre">ObjectId</span></code>. Embedded resource
+<p>A GET like this: <tt class="docutils literal"><span class="pre">/emails?embedded={&quot;author&quot;:1}</span></tt> would return a fully
+embedded users document, whereas the same request without the <tt class="docutils literal"><span class="pre">embedded</span></tt>
+argument would just return the user <tt class="docutils literal"><span class="pre">ObjectId</span></tt>. Embedded resource
 serialization is available at both resource and item
-(<code class="docutils literal"><span class="pre">/emails/&lt;id&gt;/?embedded={&quot;author&quot;:1}</span></code>) endpoints.</p>
+(<tt class="docutils literal"><span class="pre">/emails/&lt;id&gt;/?embedded={&quot;author&quot;:1}</span></tt>) endpoints.</p>
 <p>Embedding can be enabled or disabled both at global level (by setting
-<code class="docutils literal"><span class="pre">EMBEDDING</span></code> to either <code class="docutils literal"><span class="pre">True</span></code> or <code class="docutils literal"><span class="pre">False</span></code>) and at resource level (by
-toggling the <code class="docutils literal"><span class="pre">embedding</span></code> value). Furthermore, only fields with the
-<code class="docutils literal"><span class="pre">embeddable</span></code> value explicitly set to <code class="docutils literal"><span class="pre">True</span></code> will allow the embedding of
+<tt class="docutils literal"><span class="pre">EMBEDDING</span></tt> to either <tt class="docutils literal"><span class="pre">True</span></tt> or <tt class="docutils literal"><span class="pre">False</span></tt>) and at resource level (by
+toggling the <tt class="docutils literal"><span class="pre">embedding</span></tt> value). Furthermore, only fields with the
+<tt class="docutils literal"><span class="pre">embeddable</span></tt> value explicitly set to <tt class="docutils literal"><span class="pre">True</span></tt> will allow the embedding of
 referenced documents.</p>
 <p>Embedding also works with a data_relation to a specific version of a document,
 but the schema looks a little bit different. To enable the data_relation to a
-specific version, add <code class="docutils literal"><span class="pre">'version':</span> <span class="pre">True</span></code> to the data_relation block. You&#8217;ll
-also want to change the <code class="docutils literal"><span class="pre">type</span></code> to <code class="docutils literal"><span class="pre">dict</span></code> and add the <code class="docutils literal"><span class="pre">schema</span></code> definition
+specific version, add <tt class="docutils literal"><span class="pre">'version':</span> <span class="pre">True</span></tt> to the data_relation block. You&#8217;ll
+also want to change the <tt class="docutils literal"><span class="pre">type</span></tt> to <tt class="docutils literal"><span class="pre">dict</span></tt> and add the <tt class="docutils literal"><span class="pre">schema</span></tt> definition
 shown below.</p>
 <div class="highlight-python"><div class="highlight"><pre> <span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
      <span class="s">&#39;emails&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -797,15 +797,15 @@ shown below.</p>
      <span class="p">}</span>
 </pre></div>
 </div>
-<p>As you can see, <code class="docutils literal"><span class="pre">'version':</span> <span class="pre">True</span></code> changes the expected value of a
-data_relation field to a dictionary with fields names <code class="docutils literal"><span class="pre">data_relation['field']</span></code>
-and <code class="docutils literal"><span class="pre">VERSION</span></code>. With <code class="docutils literal"><span class="pre">'field':</span> <span class="pre">'_id'</span></code> in the data_relation definition above
-and <code class="docutils literal"><span class="pre">VERSION</span> <span class="pre">=</span> <span class="pre">'_version'</span></code> in the Eve config, the value of the data_relation
-in this scenario would be a dictionary with fields <code class="docutils literal"><span class="pre">_id</span></code> and <code class="docutils literal"><span class="pre">_version</span></code>.</p>
+<p>As you can see, <tt class="docutils literal"><span class="pre">'version':</span> <span class="pre">True</span></tt> changes the expected value of a
+data_relation field to a dictionary with fields names <tt class="docutils literal"><span class="pre">data_relation['field']</span></tt>
+and <tt class="docutils literal"><span class="pre">VERSION</span></tt>. With <tt class="docutils literal"><span class="pre">'field':</span> <span class="pre">'_id'</span></tt> in the data_relation definition above
+and <tt class="docutils literal"><span class="pre">VERSION</span> <span class="pre">=</span> <span class="pre">'_version'</span></tt> in the Eve config, the value of the data_relation
+in this scenario would be a dictionary with fields <tt class="docutils literal"><span class="pre">_id</span></tt> and <tt class="docutils literal"><span class="pre">_version</span></tt>.</p>
 <div class="section" id="predefined-resource-serialization">
 <h3>Predefined Resource Serialization<a class="headerlink" href="#predefined-resource-serialization" title="Permalink to this headline">¶</a></h3>
 <p>It is also possible to elect some fields for predefined resource
-serialization. The <code class="docutils literal"><span class="pre">embedded_fields</span></code> option accepts a list of fields. If the
+serialization. The <tt class="docutils literal"><span class="pre">embedded_fields</span></tt> option accepts a list of fields. If the
 listed fields are embeddable and they are actually referencing documents in other
 resources (and embedding is enbaled for the resource), then the referenced
 documents will be embedded by default.</p>
@@ -814,9 +814,9 @@ documents will be embedded by default.</p>
 <h3>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline">¶</a></h3>
 <p>Currently we support embedding of documents by references located in any
 subdocuments (nested dicts and lists). For example, a query
-<code class="docutils literal"><span class="pre">/invoices?/embedded={&quot;user.friends&quot;:1}</span></code> will return a document with <code class="docutils literal"><span class="pre">user</span></code>
-and all his <code class="docutils literal"><span class="pre">friends</span></code> embedded, but only if <code class="docutils literal"><span class="pre">user</span></code> is a subdocument and
-<code class="docutils literal"><span class="pre">friends</span></code> is a list of reference (it could be a list of dicts, nested
+<tt class="docutils literal"><span class="pre">/invoices?/embedded={&quot;user.friends&quot;:1}</span></tt> will return a document with <tt class="docutils literal"><span class="pre">user</span></tt>
+and all his <tt class="docutils literal"><span class="pre">friends</span></tt> embedded, but only if <tt class="docutils literal"><span class="pre">user</span></tt> is a subdocument and
+<tt class="docutils literal"><span class="pre">friends</span></tt> is a list of reference (it could be a list of dicts, nested
 dict, ect.). We <em>do not</em> support multiple layers embeddings. This feature is
 about serialization on GET requests. There&#8217;s no support for POST, PUT or PATCH
 of embedded documents.</p>
@@ -839,7 +839,7 @@ which can easily lead to performance issues.</p>
 <div class="section" id="pre-request-event-hooks">
 <h3>Pre-Request Event Hooks<a class="headerlink" href="#pre-request-event-hooks" title="Permalink to this headline">¶</a></h3>
 <p>When a GET, POST, PATCH, PUT, DELETE request is received, both
-a <code class="docutils literal"><span class="pre">on_pre_&lt;method&gt;</span></code> and a <code class="docutils literal"><span class="pre">on_pre_&lt;method&gt;_&lt;resource&gt;</span></code> event is raised.
+a <tt class="docutils literal"><span class="pre">on_pre_&lt;method&gt;</span></tt> and a <tt class="docutils literal"><span class="pre">on_pre_&lt;method&gt;_&lt;resource&gt;</span></tt> event is raised.
 You can subscribe to these events with multiple callback functions.</p>
 <div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">pre_get_callback</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">lookup</span><span class="p">):</span>
 <span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;A GET request on the &quot;</span><span class="si">%s</span><span class="s">&quot; endpoint has just been received!&#39;</span> <span class="o">%</span> <span class="n">resource</span>
@@ -856,12 +856,12 @@ You can subscribe to these events with multiple callback functions.</p>
 </pre></div>
 </div>
 <p>Callbacks will receive the resource being requested, the original
-<code class="docutils literal"><span class="pre">flask.request</span></code> object and the current lookup dictionary as arguments (only
-exception being the <code class="docutils literal"><span class="pre">on_pre_POST</span></code> hook which does not provide a <code class="docutils literal"><span class="pre">lookup</span></code>
+<tt class="docutils literal"><span class="pre">flask.request</span></tt> object and the current lookup dictionary as arguments (only
+exception being the <tt class="docutils literal"><span class="pre">on_pre_POST</span></tt> hook which does not provide a <tt class="docutils literal"><span class="pre">lookup</span></tt>
 argument).</p>
 <div class="section" id="dynamic-lookup-filters">
 <h4>Dynamic Lookup Filters<a class="headerlink" href="#dynamic-lookup-filters" title="Permalink to this headline">¶</a></h4>
-<p>Since the <code class="docutils literal"><span class="pre">lookup</span></code> dictionary will be used by the data layer to retrieve
+<p>Since the <tt class="docutils literal"><span class="pre">lookup</span></tt> dictionary will be used by the data layer to retrieve
 resource documents, developers may choose to alter it in order to add custom
 logic to the lookup query.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">pre_GET</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">lookup</span><span class="p">):</span>
@@ -876,7 +876,7 @@ logic to the lookup query.</p>
 </div>
 <p>Altering the lookup dictionary at runtime would have similar effects to
 applying <a class="reference internal" href="config.html#filter"><em>Predefined Database Filters</em></a> via configuration. However, you can only set static
-filters via configuration whereas by hooking to the <code class="docutils literal"><span class="pre">on_pre_&lt;METHOD&gt;</span></code> events
+filters via configuration whereas by hooking to the <tt class="docutils literal"><span class="pre">on_pre_&lt;METHOD&gt;</span></tt> events
 you are allowed to set dynamic filters instead, which allows for additional
 flexibility.</p>
 </div>
@@ -884,7 +884,7 @@ flexibility.</p>
 <div class="section" id="post-request-event-hooks">
 <h3>Post-Request Event Hooks<a class="headerlink" href="#post-request-event-hooks" title="Permalink to this headline">¶</a></h3>
 <p>When a GET, POST, PATCH, PUT, DELETE method has been executed, both
-a <code class="docutils literal"><span class="pre">on_post_&lt;method&gt;</span></code> and <code class="docutils literal"><span class="pre">on_post_&lt;method&gt;_&lt;resource&gt;</span></code> event is raised. You
+a <tt class="docutils literal"><span class="pre">on_post_&lt;method&gt;</span></tt> and <tt class="docutils literal"><span class="pre">on_post_&lt;method&gt;_&lt;resource&gt;</span></tt> event is raised. You
 can subscribe to these events with multiple callback functions. Callbacks will
 receive the resource accessed, original <cite>flask.request</cite> object and the response
 payload.</p>
@@ -915,7 +915,7 @@ configured:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetched_item</span> <span class="o">+=</span> <span class="n">add_signature</span>
 </pre></div>
 </div>
-<p>You may use flask&#8217;s <code class="docutils literal"><span class="pre">abort()</span></code> to interrupt the database operation:</p>
+<p>You may use flask&#8217;s <tt class="docutils literal"><span class="pre">abort()</span></tt> to interrupt the database operation:</p>
 <div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">abort</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">check_update_access</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">original</span><span class="p">):</span>
@@ -928,8 +928,8 @@ configured:</p>
 <p>The events are fired for resources and items if the action is available for
 both. And for each action two events will be fired:</p>
 <ul class="simple">
-<li>Generic: <code class="docutils literal"><span class="pre">on_&lt;action_name&gt;</span></code></li>
-<li>With the name of the resource: <code class="docutils literal"><span class="pre">on_&lt;action_name&gt;_&lt;resource_name&gt;</span></code></li>
+<li>Generic: <tt class="docutils literal"><span class="pre">on_&lt;action_name&gt;</span></tt></li>
+<li>With the name of the resource: <tt class="docutils literal"><span class="pre">on_&lt;action_name&gt;_&lt;resource_name&gt;</span></tt></li>
 </ul>
 <p>Let&#8217;s see an overview of what events are available:</p>
 <table border="1" class="docutils">
@@ -951,28 +951,28 @@ both. And for each action two events will be fired:</p>
 <td rowspan="2">Resource</td>
 <td rowspan="2">After</td>
 <td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_fetched_resource</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">response)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_fetched_resource</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">response)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_fetched_resource_&lt;resource_name&gt;</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(response)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_fetched_resource_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(response)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-even"><td rowspan="2">Item</td>
 <td rowspan="2">After</td>
 <td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_fetched_item</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">response)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_fetched_item</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">response)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_fetched_item_&lt;resource_name&gt;</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(response)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_fetched_item_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(response)</span></tt></div>
 </div>
 </td>
 </tr>
@@ -980,27 +980,27 @@ both. And for each action two events will be fired:</p>
 <td rowspan="4">Items</td>
 <td rowspan="2">Before</td>
 <td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_insert</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">items)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_insert</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">items)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_insert_&lt;resource_name&gt;</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(items)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_insert_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(items)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-even"><td rowspan="2">After</td>
 <td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_inserted</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">items)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_inserted</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">items)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_inserted_&lt;resource_name&gt;</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(items)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_inserted_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(items)</span></tt></div>
 </div>
 </td>
 </tr>
@@ -1008,27 +1008,27 @@ both. And for each action two events will be fired:</p>
 <td rowspan="4">Item</td>
 <td rowspan="2">Before</td>
 <td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_replace</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item,</span> <span class="pre">original)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_replace</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item,</span> <span class="pre">original)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_replace_&lt;resource_name&gt;</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(item,</span> <span class="pre">original)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_replace_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item,</span> <span class="pre">original)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-even"><td rowspan="2">After</td>
 <td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_replaced</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item,</span> <span class="pre">original)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_replaced</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item,</span> <span class="pre">original)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_replaced_&lt;resource_name&gt;</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(item,</span> <span class="pre">original)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_replaced_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item,</span> <span class="pre">original)</span></tt></div>
 </div>
 </td>
 </tr>
@@ -1036,27 +1036,27 @@ both. And for each action two events will be fired:</p>
 <td rowspan="4">Item</td>
 <td rowspan="2">Before</td>
 <td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_update</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">updates,</span> <span class="pre">original)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_update</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">updates,</span> <span class="pre">original)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_update_&lt;resource_name&gt;</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(updates,</span> <span class="pre">original)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_update_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(updates,</span> <span class="pre">original)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-even"><td rowspan="2">After</td>
 <td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_updated</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">updates,</span> <span class="pre">original)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_updated</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">updates,</span> <span class="pre">original)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_updated_&lt;resource_name&gt;</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(updates,</span> <span class="pre">original)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_updated_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(updates,</span> <span class="pre">original)</span></tt></div>
 </div>
 </td>
 </tr>
@@ -1064,54 +1064,54 @@ both. And for each action two events will be fired:</p>
 <td rowspan="4">Item</td>
 <td rowspan="2">Before</td>
 <td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_delete_item</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_delete_item</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_delete_item_&lt;resource_name&gt;</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_delete_item_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-even"><td rowspan="2">After</td>
 <td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_deleted_item</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_deleted_item</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_deleted_item_&lt;resource_name&gt;</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_deleted_item_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-even"><td rowspan="4">Resource</td>
 <td rowspan="2">Before</td>
 <td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_delete_resource</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_delete_resource</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_delete_resource_&lt;resource_name&gt;</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_delete_resource_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-even"><td rowspan="2">After</td>
 <td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_deleted_resource</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_deleted_resource</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
-<div class="line"><code class="docutils literal"><span class="pre">on_deleted_resource_&lt;resource_name&gt;</span></code></div>
-<div class="line"><code class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></code></div>
+<div class="line"><tt class="docutils literal"><span class="pre">on_deleted_resource_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></tt></div>
 </div>
 </td>
 </tr>
@@ -1121,10 +1121,10 @@ both. And for each action two events will be fired:</p>
 <h4>Fetch Events<a class="headerlink" href="#fetch-events" title="Permalink to this headline">¶</a></h4>
 <p>These are the fetch events with their method signature:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">on_fetched_resource(resource_name,</span> <span class="pre">response)</span></code></li>
-<li><code class="docutils literal"><span class="pre">on_fetched_resource_&lt;resource_name&gt;(response)</span></code></li>
-<li><code class="docutils literal"><span class="pre">on_fetched_item(resource_name,</span> <span class="pre">response)</span></code></li>
-<li><code class="docutils literal"><span class="pre">on_fetched_item_&lt;resource_name&gt;(response)</span></code></li>
+<li><tt class="docutils literal"><span class="pre">on_fetched_resource(resource_name,</span> <span class="pre">response)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_fetched_resource_&lt;resource_name&gt;(response)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_fetched_item(resource_name,</span> <span class="pre">response)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_fetched_item_&lt;resource_name&gt;(response)</span></tt></li>
 </ul>
 <p>They are raised when items have just been read from the database and are
 about to be sent to the client. Registered callback functions can manipulate
@@ -1150,31 +1150,31 @@ the items as needed before they are returned to the client.</p>
 </div>
 <p>It is important to note that fetch events will work with <a class="reference internal" href="#id3">Document
 Versioning</a> for specific document versions or accessing all document
-versions with <code class="docutils literal"><span class="pre">?version=all</span></code>, but they <em>will not</em> work when acessing diffs
-of all versions with <code class="docutils literal"><span class="pre">?version=diffs</span></code>.</p>
+versions with <tt class="docutils literal"><span class="pre">?version=all</span></tt>, but they <em>will not</em> work when acessing diffs
+of all versions with <tt class="docutils literal"><span class="pre">?version=diffs</span></tt>.</p>
 </div>
 <div class="section" id="insert-events">
 <h4>Insert Events<a class="headerlink" href="#insert-events" title="Permalink to this headline">¶</a></h4>
 <p>These are the insert events with their method signature:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">on_insert(resource_name,</span> <span class="pre">items)</span></code></li>
-<li><code class="docutils literal"><span class="pre">on_insert_&lt;resource_name&gt;(items)</span></code></li>
-<li><code class="docutils literal"><span class="pre">on_inserted(resource_name,</span> <span class="pre">items)</span></code></li>
-<li><code class="docutils literal"><span class="pre">on_inserted_&lt;resource_name&gt;(items)</span></code></li>
+<li><tt class="docutils literal"><span class="pre">on_insert(resource_name,</span> <span class="pre">items)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_insert_&lt;resource_name&gt;(items)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_inserted(resource_name,</span> <span class="pre">items)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_inserted_&lt;resource_name&gt;(items)</span></tt></li>
 </ul>
 <p>When a POST requests hits the API and new items are about to be stored in
 the database, these vents are fired:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">on_insert</span></code> for every resource endpoint.</li>
-<li><code class="docutils literal"><span class="pre">on_insert_&lt;resource_name&gt;</span></code> for the specific <cite>&lt;resource_name&gt;</cite> resource
+<li><tt class="docutils literal"><span class="pre">on_insert</span></tt> for every resource endpoint.</li>
+<li><tt class="docutils literal"><span class="pre">on_insert_&lt;resource_name&gt;</span></tt> for the specific <cite>&lt;resource_name&gt;</cite> resource
 endpoint.</li>
 </ul>
 <p>Callback functions could hook into these events to arbitrarily add new fields
 or edit existing ones.</p>
 <p>After the items have been inserted, these two events are fired:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">on_inserted</span></code> for every resource endpoint.</li>
-<li><code class="docutils literal"><span class="pre">on_inserted_&lt;resource_name&gt;</span></code> for the specific <cite>&lt;resource_name&gt;</cite> resource
+<li><tt class="docutils literal"><span class="pre">on_inserted</span></tt> for every resource endpoint.</li>
+<li><tt class="docutils literal"><span class="pre">on_inserted_&lt;resource_name&gt;</span></tt> for the specific <cite>&lt;resource_name&gt;</cite> resource
 endpoint.</li>
 </ul>
 <div class="admonition-validation-errors admonition">
@@ -1199,16 +1199,16 @@ that passed validation are sent.</p>
 <h4>Replace Events<a class="headerlink" href="#replace-events" title="Permalink to this headline">¶</a></h4>
 <p>These are the replace events with their method signature:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">on_replace(resource_name,</span> <span class="pre">item,</span> <span class="pre">original)</span></code></li>
-<li><code class="docutils literal"><span class="pre">on_replace_&lt;resource_name&gt;(item,</span> <span class="pre">original)</span></code></li>
-<li><code class="docutils literal"><span class="pre">on_replaced(resource_name,</span> <span class="pre">item,</span> <span class="pre">original)</span></code></li>
-<li><code class="docutils literal"><span class="pre">on_replaced_&lt;resource_name&gt;(item,</span> <span class="pre">original)</span></code></li>
+<li><tt class="docutils literal"><span class="pre">on_replace(resource_name,</span> <span class="pre">item,</span> <span class="pre">original)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_replace_&lt;resource_name&gt;(item,</span> <span class="pre">original)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_replaced(resource_name,</span> <span class="pre">item,</span> <span class="pre">original)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_replaced_&lt;resource_name&gt;(item,</span> <span class="pre">original)</span></tt></li>
 </ul>
 <p>When a PUT request hits the API and an item is about to be replaced after
 passing validation, these events are fired:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">on_replace</span></code> for any resource item endpoint.</li>
-<li><code class="docutils literal"><span class="pre">on_replace_&lt;resource_name&gt;</span></code> for the specific resource endpoint.</li>
+<li><tt class="docutils literal"><span class="pre">on_replace</span></tt> for any resource item endpoint.</li>
+<li><tt class="docutils literal"><span class="pre">on_replace_&lt;resource_name&gt;</span></tt> for the specific resource endpoint.</li>
 </ul>
 <p><cite>item</cite> is the new item which is about to be stored. <cite>original</cite> is the item in
 the database that is being replaced. Callback functions could hook into these
@@ -1216,24 +1216,24 @@ events to arbitrarily add or update <cite>item</cite> fields, or to perform othe
 accessory action.</p>
 <p>After the item has been replaced, these other two events are fired:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">on_replaced</span></code> for any resource item endpoint.</li>
-<li><code class="docutils literal"><span class="pre">on_replaced_&lt;resource_name&gt;</span></code> for the specific resource endpont.</li>
+<li><tt class="docutils literal"><span class="pre">on_replaced</span></tt> for any resource item endpoint.</li>
+<li><tt class="docutils literal"><span class="pre">on_replaced_&lt;resource_name&gt;</span></tt> for the specific resource endpont.</li>
 </ul>
 </div>
 <div class="section" id="update-events">
 <h4>Update Events<a class="headerlink" href="#update-events" title="Permalink to this headline">¶</a></h4>
 <p>These are the update events with their method signature:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">on_update(resource_name,</span> <span class="pre">updates,</span> <span class="pre">original)</span></code></li>
-<li><code class="docutils literal"><span class="pre">on_update_&lt;resource_name&gt;(updates,</span> <span class="pre">original)</span></code></li>
-<li><code class="docutils literal"><span class="pre">on_updated(resource_name,</span> <span class="pre">updates,</span> <span class="pre">original)</span></code></li>
-<li><code class="docutils literal"><span class="pre">on_updated_&lt;resource_name&gt;(updates,</span> <span class="pre">original)</span></code></li>
+<li><tt class="docutils literal"><span class="pre">on_update(resource_name,</span> <span class="pre">updates,</span> <span class="pre">original)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_update_&lt;resource_name&gt;(updates,</span> <span class="pre">original)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_updated(resource_name,</span> <span class="pre">updates,</span> <span class="pre">original)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_updated_&lt;resource_name&gt;(updates,</span> <span class="pre">original)</span></tt></li>
 </ul>
 <p>When a PATCH request hits the API and an item is about to be updated after
 passing validation, these events are fired <cite>before</cite> the item is updated:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">on_update</span></code> for any resource endpoint.</li>
-<li><code class="docutils literal"><span class="pre">on_update_&lt;resource_name&gt;</span></code> is fired only when the <cite>&lt;resource_name&gt;</cite>
+<li><tt class="docutils literal"><span class="pre">on_update</span></tt> for any resource endpoint.</li>
+<li><tt class="docutils literal"><span class="pre">on_update_&lt;resource_name&gt;</span></tt> is fired only when the <cite>&lt;resource_name&gt;</cite>
 endpoint is hit.</li>
 </ul>
 <p>Here <cite>updates</cite> stands for updates being applied to the item and <cite>original</cite> is
@@ -1242,13 +1242,13 @@ could hook into these events to arbitrarily add or update fields in
 <cite>updates</cite>, or to perform other accessory action.</p>
 <p><cite>After</cite> the item has been updated:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">on_updated</span></code> is fired for any resource endpoint.</li>
-<li><code class="docutils literal"><span class="pre">on_updated_&lt;resource_name&gt;</span></code> is fired only when the <cite>&lt;resource_name&gt;</cite>
+<li><tt class="docutils literal"><span class="pre">on_updated</span></tt> is fired for any resource endpoint.</li>
+<li><tt class="docutils literal"><span class="pre">on_updated_&lt;resource_name&gt;</span></tt> is fired only when the <cite>&lt;resource_name&gt;</cite>
 endpoint is hit.</li>
 </ul>
 <div class="admonition-please-note admonition">
 <p class="first admonition-title">Please note</p>
-<p class="last">Please be aware that <code class="docutils literal"><span class="pre">last_modified</span></code> and <code class="docutils literal"><span class="pre">etag</span></code> headers will always be
+<p class="last">Please be aware that <tt class="docutils literal"><span class="pre">last_modified</span></tt> and <tt class="docutils literal"><span class="pre">etag</span></tt> headers will always be
 consistent with the state of the items on the database (they  won&#8217;t be
 updated to reflect changes eventually applied by the callback functions).</p>
 </div>
@@ -1257,26 +1257,26 @@ updated to reflect changes eventually applied by the callback functions).</p>
 <h4>Delete Events<a class="headerlink" href="#delete-events" title="Permalink to this headline">¶</a></h4>
 <p>These are the delete events with their method signature:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">on_delete_item(resource_name,</span> <span class="pre">item)</span></code></li>
-<li><code class="docutils literal"><span class="pre">on_delete_item_&lt;resource_name&gt;(item)</span></code></li>
-<li><code class="docutils literal"><span class="pre">on_deleted_item(resource_name,</span> <span class="pre">item)</span></code></li>
-<li><code class="docutils literal"><span class="pre">on_deleted_item_&lt;resource_name&gt;(item)</span></code></li>
-<li><code class="docutils literal"><span class="pre">on_delete_resource(resource_name)</span></code></li>
-<li><code class="docutils literal"><span class="pre">on_delete_resource_&lt;resource_name&gt;()</span></code></li>
-<li><code class="docutils literal"><span class="pre">on_deleted_resource(resource_name)</span></code></li>
-<li><code class="docutils literal"><span class="pre">on_deleted_resource_&lt;resource_name&gt;()</span></code></li>
+<li><tt class="docutils literal"><span class="pre">on_delete_item(resource_name,</span> <span class="pre">item)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_delete_item_&lt;resource_name&gt;(item)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_deleted_item(resource_name,</span> <span class="pre">item)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_deleted_item_&lt;resource_name&gt;(item)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_delete_resource(resource_name)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_delete_resource_&lt;resource_name&gt;()</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_deleted_resource(resource_name)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_deleted_resource_&lt;resource_name&gt;()</span></tt></li>
 </ul>
 <div class="section" id="items">
 <h5>Items<a class="headerlink" href="#items" title="Permalink to this headline">¶</a></h5>
 <p>When a DELETE request hits an item endpoint and <cite>before</cite> the item is deleted,
 these events are fired:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">on_delete_item</span></code> for any resource hit by the request.</li>
-<li><code class="docutils literal"><span class="pre">on_delete_item_&lt;resource_name&gt;</span></code> for the specific <cite>&lt;resource_name&gt;</cite> item endpoint
+<li><tt class="docutils literal"><span class="pre">on_delete_item</span></tt> for any resource hit by the request.</li>
+<li><tt class="docutils literal"><span class="pre">on_delete_item_&lt;resource_name&gt;</span></tt> for the specific <cite>&lt;resource_name&gt;</cite> item endpoint
 hit by the DELETE.</li>
 </ul>
-<p><cite>After</cite> the item has been deleted the <code class="docutils literal"><span class="pre">on_deleted_item(resource_name,</span>
-<span class="pre">item)</span></code> and <code class="docutils literal"><span class="pre">on_deleted_item_&lt;resource_name&gt;(item)</span></code> are raised.</p>
+<p><cite>After</cite> the item has been deleted the <tt class="docutils literal"><span class="pre">on_deleted_item(resource_name,</span>
+<span class="pre">item)</span></tt> and <tt class="docutils literal"><span class="pre">on_deleted_item_&lt;resource_name&gt;(item)</span></tt> are raised.</p>
 <p><cite>item</cite> is the item being deleted. Callback functions could hook into
 these events to perform accessory actions. And no you can&#8217;t arbitrarily abort
 the delete operation at this point (you should probably look at
@@ -1287,8 +1287,8 @@ the delete operation at this point (you should probably look at
 <p>If you were brave enough to enable the DELETE command on resource endpoints
 (allowing for wipeout of the entire collection in one go), then you can be
 notified of such a disastrous occurence by hooking a callback function to the
-<code class="docutils literal"><span class="pre">on_delete_resource(resource_name)</span></code> or
-<code class="docutils literal"><span class="pre">on_delete_resource_&lt;resource_name&gt;()</span></code> hooks.</p>
+<tt class="docutils literal"><span class="pre">on_delete_resource(resource_name)</span></tt> or
+<tt class="docutils literal"><span class="pre">on_delete_resource_&lt;resource_name&gt;()</span></tt> hooks.</p>
 <div class="admonition-please-note admonition">
 <p class="first admonition-title">Please note</p>
 <p class="last">To provide seamless event handling features Eve relies on the <a class="reference external" href="https://github.com/nicolaiarocci/events">Events</a> package.</p>
@@ -1301,10 +1301,10 @@ notified of such a disastrous occurence by hooking a callback function to the
 <span id="ratelimiting"></span><h2>Rate Limiting<a class="headerlink" href="#rate-limiting" title="Permalink to this headline">¶</a></h2>
 <p>API rate limiting is supported on a per-user/method basis. You can set the
 number of requests and the time window for each HTTP method. If the requests
-limit is hit within the time window, the API will respond with <code class="docutils literal"><span class="pre">429</span> <span class="pre">Request</span>
-<span class="pre">limit</span> <span class="pre">exceeded</span></code> until the timer resets. Users are identified by the
+limit is hit within the time window, the API will respond with <tt class="docutils literal"><span class="pre">429</span> <span class="pre">Request</span>
+<span class="pre">limit</span> <span class="pre">exceeded</span></tt> until the timer resets. Users are identified by the
 Authentication header or (when missing) by the client IP. When rate limiting
-is enabled, appropriate <code class="docutils literal"><span class="pre">X-RateLimit-</span></code> headers are provided with every API
+is enabled, appropriate <tt class="docutils literal"><span class="pre">X-RateLimit-</span></tt> headers are provided with every API
 response.  Suppose that the rate limit has been set to 300 requests every 15
 minutes, this is what a user would get after hitting a endpoint with a single
 request:</p>
@@ -1329,10 +1329,10 @@ default ObjectIds as unique document identifiers.</p>
 </div>
 <div class="section" id="file-storage">
 <h2>File Storage<a class="headerlink" href="#file-storage" title="Permalink to this headline">¶</a></h2>
-<p>Media files (images, pdf, etc.) can be uploaded as <code class="docutils literal"><span class="pre">media</span></code> document
-fields. Upload is done via <code class="docutils literal"><span class="pre">POST</span></code>, <code class="docutils literal"><span class="pre">PUT</span></code> and
-<code class="docutils literal"><span class="pre">PATCH</span></code> as usual, but using the <code class="docutils literal"><span class="pre">multipart/data-form</span></code> content-type.</p>
-<p>Let us assume that the <code class="docutils literal"><span class="pre">accounts</span></code> endpoint has a schema like this:</p>
+<p>Media files (images, pdf, etc.) can be uploaded as <tt class="docutils literal"><span class="pre">media</span></tt> document
+fields. Upload is done via <tt class="docutils literal"><span class="pre">POST</span></tt>, <tt class="docutils literal"><span class="pre">PUT</span></tt> and
+<tt class="docutils literal"><span class="pre">PATCH</span></tt> as usual, but using the <tt class="docutils literal"><span class="pre">multipart/data-form</span></tt> content-type.</p>
+<p>Let us assume that the <tt class="docutils literal"><span class="pre">accounts</span></tt> endpoint has a schema like this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">accounts</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">},</span>
     <span class="s">&#39;pic&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;media&#39;</span><span class="p">},</span>
@@ -1340,13 +1340,13 @@ fields. Upload is done via <code class="docutils literal"><span class="pre">POST
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>With curl we would <code class="docutils literal"><span class="pre">POST</span></code> like this:</p>
+<p>With curl we would <tt class="docutils literal"><span class="pre">POST</span></tt> like this:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -F <span class="s2">&quot;name=john&quot;</span> -F <span class="s2">&quot;pic=@profile.jpg&quot;</span> http://example.com/accounts
 </pre></div>
 </div>
 <p>For optmized performance files are stored in <a class="reference external" href="http://docs.mongodb.org/manual/core/gridfs/">GridFS</a> by default. Custom
-<code class="docutils literal"><span class="pre">MediaStorage</span></code> classes can be implemented and passed to the application to
-support alternative storage systems. A <code class="docutils literal"><span class="pre">FileSystemMediaStorage</span></code> class is in
+<tt class="docutils literal"><span class="pre">MediaStorage</span></tt> classes can be implemented and passed to the application to
+support alternative storage systems. A <tt class="docutils literal"><span class="pre">FileSystemMediaStorage</span></tt> class is in
 the works, and will soon be included with the Eve package.</p>
 <p>As a proper developer guide is not available yet, you can peek at the
 <a class="reference external" href="https://github.com/nicolaiarocci/eve/blob/develop/eve/io/media.py">MediaStorage</a> source if you are interested in developing custom storage
@@ -1363,13 +1363,13 @@ classes.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>However, if the <code class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></code> list is populated (it isn&#8217;t by
+<p>However, if the <tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt> list is populated (it isn&#8217;t by
 default) the payload format will be different. This flag allows passthrough
 from the driver of additional meta fields. For example, using the MongoDB
-driver, fields like <code class="docutils literal"><span class="pre">content_type</span></code>, <code class="docutils literal"><span class="pre">name</span></code> and <code class="docutils literal"><span class="pre">length</span></code> can be added to
+driver, fields like <tt class="docutils literal"><span class="pre">content_type</span></tt>, <tt class="docutils literal"><span class="pre">name</span></tt> and <tt class="docutils literal"><span class="pre">length</span></tt> can be added to
 this list and will be passed-through from the underlying driver.</p>
-<p>When <code class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></code> is used the field will be a dictionary
-whereas the file itself is stored under the <code class="docutils literal"><span class="pre">file</span></code> key and other keys
+<p>When <tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt> is used the field will be a dictionary
+whereas the file itself is stored under the <tt class="docutils literal"><span class="pre">file</span></tt> key and other keys
 are the meta fields. Suppose that the flag is set like this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">EXTENDED_MEDIA_INFO</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;content_type&#39;</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;length&#39;</span><span class="p">]</span>
 </pre></div>
@@ -1394,14 +1394,14 @@ are the meta fields. Suppose that the flag is set like this:</p>
 <p>For MongoDB, further fields can be found in the <a class="reference external" href="http://api.mongodb.org/python/2.7rc0/api/gridfs/grid_file.html#gridfs.grid_file.GridOut">driver documentation</a>.</p>
 <p>If you have other means to retrieve the media files (custom Flask endpoint for
 example) then the media files can be excluded from the paylod by setting to
-<code class="docutils literal"><span class="pre">False</span></code> the <code class="docutils literal"><span class="pre">RETURN_MEDIA_AS_BASE64_STRING</span></code> flag. This takes into account
-if <code class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></code> is used.</p>
+<tt class="docutils literal"><span class="pre">False</span></tt> the <tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_BASE64_STRING</span></tt> flag. This takes into account
+if <tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt> is used.</p>
 <div class="section" id="leveraging-projections-to-optimize-the-handling-of-media-files">
 <span id="projection-filestorage"></span><h3>Leveraging Projections to optimize the handling of media files<a class="headerlink" href="#leveraging-projections-to-optimize-the-handling-of-media-files" title="Permalink to this headline">¶</a></h3>
 <p>Clients and API maintainers can exploit the <a class="reference internal" href="#projections"><em>Projections</em></a> feature to
 include/exclude media fields from response payloads.</p>
 <p>Suppose that a client stored a document with an image. The image field is
-called <em>image</em> and it is of <code class="docutils literal"><span class="pre">media</span></code> type. At a later time, the client wants
+called <em>image</em> and it is of <tt class="docutils literal"><span class="pre">media</span></tt> type. At a later time, the client wants
 to retrieve the same document but, in order to optimize for speed and since the
 image is cached already, it does not want to download the image along with the
 document. It can do so by requesting the field to be trimmed out of the
@@ -1411,8 +1411,8 @@ response payload:</p>
 </pre></div>
 </div>
 <p>The document will be returned with all its fields except the <em>image</em> field.</p>
-<p>Moreover, when setting the <code class="docutils literal"><span class="pre">datasource</span></code> property for any given resource
-endpoint it is possible to explictly exclude fields (of <code class="docutils literal"><span class="pre">media</span></code> type, but
+<p>Moreover, when setting the <tt class="docutils literal"><span class="pre">datasource</span></tt> property for any given resource
+endpoint it is possible to explictly exclude fields (of <tt class="docutils literal"><span class="pre">media</span></tt> type, but
 also of any other type) from default responses:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -1434,7 +1434,7 @@ response payloads by sending requests like this one:</p>
 <li><a class="reference internal" href="config.html#config"><em>Configuration</em></a></li>
 <li><a class="reference internal" href="config.html#datasource"><em>Advanced Datasource Patterns</em></a></li>
 </ul>
-<p class="last">for details on the <code class="docutils literal"><span class="pre">datasource</span></code> setting.</p>
+<p class="last">for details on the <tt class="docutils literal"><span class="pre">datasource</span></tt> setting.</p>
 </div>
 </div>
 </div>
@@ -1444,19 +1444,19 @@ response payloads by sending requests like this one:</p>
 encoded in <a class="reference external" href="http://geojson.org/">GeoJSON</a> format. All GeoJSON objects supported by <a class="reference external" href="http://docs.mongodb.org/manual/applications/geospatial-indexes/#geojson-objects">MongoDB</a> are available:</p>
 <blockquote>
 <div><ul class="simple">
-<li><code class="docutils literal"><span class="pre">Point</span></code></li>
-<li><code class="docutils literal"><span class="pre">Multipoint</span></code></li>
-<li><code class="docutils literal"><span class="pre">LineString</span></code></li>
-<li><code class="docutils literal"><span class="pre">MultiLineString</span></code></li>
-<li><code class="docutils literal"><span class="pre">Polygon</span></code></li>
-<li><code class="docutils literal"><span class="pre">MultiPolygon</span></code></li>
-<li><code class="docutils literal"><span class="pre">GeometryCollection</span></code></li>
+<li><tt class="docutils literal"><span class="pre">Point</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">Multipoint</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">LineString</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">MultiLineString</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">Polygon</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">MultiPolygon</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">GeometryCollection</span></tt></li>
 </ul>
 </div></blockquote>
 <p>These are implemented as native Eve data types (see <a class="reference internal" href="config.html#schema"><em>Schema Definition</em></a>) so they are
 are subject to proper validation.</p>
 <p>In the example below we are extending the <cite>people</cite> endpoint by adding
-a <code class="docutils literal"><span class="pre">location</span></code> field is of type <a class="reference external" href="http://geojson.org/geojson-spec.html#point">Point</a>.</p>
+a <tt class="docutils literal"><span class="pre">location</span></tt> field is of type <a class="reference external" href="http://geojson.org/geojson-spec.html#point">Point</a>.</p>
 <div class="highlight-javascript"><div class="highlight"><pre><span class="nx">people</span> <span class="o">=</span> <span class="p">{</span>
     <span class="p">...</span>
     <span class="s1">&#39;location&#39;</span><span class="o">:</span> <span class="p">{</span>
@@ -1486,14 +1486,14 @@ a certain point:</p>
 <div class="section" id="internal-resources">
 <span id="id5"></span><h2>Internal Resources<a class="headerlink" href="#internal-resources" title="Permalink to this headline">¶</a></h2>
 <p>By default responses to GET requests to the home endpoint will include all the
-resources. The <code class="docutils literal"><span class="pre">internal_resource</span></code> setting keyword, however, allows you to
+resources. The <tt class="docutils literal"><span class="pre">internal_resource</span></tt> setting keyword, however, allows you to
 make an endpoint internal, available only for internal data manipulation: no
-HTTP calls can be made against it and it will be excluded from the <code class="docutils literal"><span class="pre">HATEOAS</span></code>
+HTTP calls can be made against it and it will be excluded from the <tt class="docutils literal"><span class="pre">HATEOAS</span></tt>
 links.</p>
 <p>An usage example would be a mechanism for logging all inserts happening in
 the system, something that can be used for auditing or a notification system.
-First we define an <code class="docutils literal"><span class="pre">internal_transaction</span></code> endpoint, which is flagged as an
-<code class="docutils literal"><span class="pre">internal_resource</span></code>:</p>
+First we define an <tt class="docutils literal"><span class="pre">internal_transaction</span></tt> endpoint, which is flagged as an
+<tt class="docutils literal"><span class="pre">internal_resource</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre> <span class="n">internal_transactions</span> <span class="o">=</span> <span class="p">{</span>
      <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
          <span class="s">&#39;entities&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -1507,9 +1507,9 @@ First we define an <code class="docutils literal"><span class="pre">internal_tra
 </span> <span class="p">}</span>
 </pre></div>
 </div>
-<p>Now, if we access the home endpoint and <code class="docutils literal"><span class="pre">HATEOAS</span></code> is enabled, we won&#8217;t get
-the <code class="docutils literal"><span class="pre">internal-transactions</span></code> listed (and hitting the endpoint via HTTP wil
-return a <code class="docutils literal"><span class="pre">404</span></code>.) We can use the data layer to access our secret endpoint.
+<p>Now, if we access the home endpoint and <tt class="docutils literal"><span class="pre">HATEOAS</span></tt> is enabled, we won&#8217;t get
+the <tt class="docutils literal"><span class="pre">internal-transactions</span></tt> listed (and hitting the endpoint via HTTP wil
+return a <tt class="docutils literal"><span class="pre">404</span></tt>.) We can use the data layer to access our secret endpoint.
 Something like this:</p>
 <div class="highlight-python"><div class="highlight"><pre> <span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
 
@@ -1535,8 +1535,8 @@ will get the point across.</p>
 </div>
 <div class="section" id="operations-log">
 <span id="oplog"></span><h2>Operations Log<a class="headerlink" href="#operations-log" title="Permalink to this headline">¶</a></h2>
-<p>The OpLog is an API-wide log of all edit operations. Every <code class="docutils literal"><span class="pre">POST</span></code>, <code class="docutils literal"><span class="pre">PATCH</span></code>
-<code class="docutils literal"><span class="pre">PUT</span></code> and <code class="docutils literal"><span class="pre">DELETE</span></code> operation can be recorded to the oplog. At its core the
+<p>The OpLog is an API-wide log of all edit operations. Every <tt class="docutils literal"><span class="pre">POST</span></tt>, <tt class="docutils literal"><span class="pre">PATCH</span></tt>
+<tt class="docutils literal"><span class="pre">PUT</span></tt> and <tt class="docutils literal"><span class="pre">DELETE</span></tt> operation can be recorded to the oplog. At its core the
 oplog is simply a server log. What makes it a little bit different is that it
 can be exposed as a read-only endpoint, thus allowing clients to query it as
 they would with any other API endpoint.</p>
@@ -1555,8 +1555,8 @@ they would with any other API endpoint.</p>
 <li>ETag</li>
 <li>HATEOAS fields if that&#8217;s enabled.</li>
 </ul>
-<p>If <code class="docutils literal"><span class="pre">OPLOG_AUDIT</span></code> is enabled entries also expose both client IP and changes
-applied to the document (for <code class="docutils literal"><span class="pre">DELETE</span></code> the whole document is included).</p>
+<p>If <tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt> is enabled entries also expose both client IP and changes
+applied to the document (for <tt class="docutils literal"><span class="pre">DELETE</span></tt> the whole document is included).</p>
 <p>A typical oplog entry looks like this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
     <span class="s">&quot;o&quot;</span><span class="p">:</span> <span class="s">&quot;DELETE&quot;</span><span class="p">,</span>
@@ -1574,27 +1574,27 @@ applied to the document (for <code class="docutils literal"><span class="pre">DE
 </div>
 <p>To save a little space (at least on MongoDB) field names have been shortened:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">o</span></code> stands for operation performed</li>
-<li><code class="docutils literal"><span class="pre">r</span></code> stands for resource endpoint</li>
-<li><code class="docutils literal"><span class="pre">i</span></code> stands for document id</li>
-<li><code class="docutils literal"><span class="pre">ip</span></code> is the client IP</li>
-<li><code class="docutils literal"><span class="pre">c</span></code> stands for changes occurred</li>
+<li><tt class="docutils literal"><span class="pre">o</span></tt> stands for operation performed</li>
+<li><tt class="docutils literal"><span class="pre">r</span></tt> stands for resource endpoint</li>
+<li><tt class="docutils literal"><span class="pre">i</span></tt> stands for document id</li>
+<li><tt class="docutils literal"><span class="pre">ip</span></tt> is the client IP</li>
+<li><tt class="docutils literal"><span class="pre">c</span></tt> stands for changes occurred</li>
 </ul>
-<p><code class="docutils literal"><span class="pre">_created</span></code> and <code class="docutils literal"><span class="pre">_updated</span></code> are relative to the target document, which comes
+<p><tt class="docutils literal"><span class="pre">_created</span></tt> and <tt class="docutils literal"><span class="pre">_updated</span></tt> are relative to the target document, which comes
 handy in a variety of scenarios (like when the oplog is available to clients,
 more on this later).</p>
 <div class="section" id="how-is-the-oplog-operated">
 <h3>How is the oplog operated?<a class="headerlink" href="#how-is-the-oplog-operated" title="Permalink to this headline">¶</a></h3>
 <p>Six settings are dedicated to the OpLog:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">OPLOG</span></code> switches the oplog feature on and off. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><code class="docutils literal"><span class="pre">OPLOG_NAME</span></code> is the name of the oplog collection on the database. Defaults to <code class="docutils literal"><span class="pre">oplog</span></code>.</li>
-<li><code class="docutils literal"><span class="pre">OPLOG_METHODS</span></code> is a list of HTTP methods to be logged. Defaults to all of them.</li>
-<li><code class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></code> is the endpoint name. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><code class="docutils literal"><span class="pre">OPLOG_AUDIT</span></code> if enabled, IP addresses and changes are also logged. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><tt class="docutils literal"><span class="pre">OPLOG</span></tt> switches the oplog feature on and off. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</li>
+<li><tt class="docutils literal"><span class="pre">OPLOG_NAME</span></tt> is the name of the oplog collection on the database. Defaults to <tt class="docutils literal"><span class="pre">oplog</span></tt>.</li>
+<li><tt class="docutils literal"><span class="pre">OPLOG_METHODS</span></tt> is a list of HTTP methods to be logged. Defaults to all of them.</li>
+<li><tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt> is the endpoint name. Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</li>
+<li><tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt> if enabled, IP addresses and changes are also logged. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</li>
 </ul>
 <p>As you can see the oplog feature is turned off by default. Also, since
-<code class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></code> defaults to <code class="docutils literal"><span class="pre">None</span></code>, even if you switch the feature on no
+<tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt> defaults to <tt class="docutils literal"><span class="pre">None</span></tt>, even if you switch the feature on no
 public oplog endpoint will be available. You will have to explictly set the
 endpoint name in order to expose your oplog to the public.</p>
 </div>
@@ -1605,8 +1605,8 @@ customize it. This allows for setting up custom authentication
 (you might want this resource to be only accessible for administrative
 purposes) or any other useful setting.</p>
 <p>Note that while you can change most of its settings, the endpoint will always
-be read-only so setting either <code class="docutils literal"><span class="pre">resource_methods</span></code> or <code class="docutils literal"><span class="pre">item_methods</span></code> to
-something other than <code class="docutils literal"><span class="pre">['GET']</span></code> will serve no purpose. Also, unless you need to
+be read-only so setting either <tt class="docutils literal"><span class="pre">resource_methods</span></tt> or <tt class="docutils literal"><span class="pre">item_methods</span></tt> to
+something other than <tt class="docutils literal"><span class="pre">['GET']</span></tt> will serve no purpose. Also, unless you need to
 customize it, adding an oplog entry to the domain is not really necessary as it
 will be added for you automatically.</p>
 <p>Exposing the oplog as an endpoint could be useful in scenarios where you have
@@ -1645,7 +1645,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="index.html">
@@ -1682,24 +1682,98 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li class="toctree-l1"><a class="reference internal" href="rest_api_for_humans.html">REST API for Humans</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Features</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#emphasis-on-rest">Emphasis on REST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#full-range-of-crud-operations">Full range of CRUD operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overriding-http-methods">Overriding HTTP Methods</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#customizable-resource-endpoints">Customizable resource endpoints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sub-resources">Sub Resources</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#customizable-multiple-item-endpoints">Customizable, multiple item endpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#filtering">Filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sorting">Sorting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pagination">Pagination</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hateoas">HATEOAS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#disabling-hateoas">Disabling HATEOAS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#json-and-xml-rendering">JSON and XML Rendering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conditional-requests">Conditional Requests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-integrity-and-concurrency-control">Data Integrity and Concurrency Control</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#disabling-concurrency-control">Disabling concurrency control</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#bulk-inserts">Bulk Inserts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-validation">Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#extensible-data-validation">Extensible Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#resource-level-cache-control">Resource-level Cache Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-versioning">API Versioning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#document-versioning">Document Versioning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#authentication">Authentication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cors-cross-origin-resource-sharing">CORS Cross-Origin Resource Sharing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#read-only-by-default">Read-only by default</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#default-and-nullable-values">Default and Nullable Values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#predefined-database-filters">Predefined Database Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#projections">Projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#embedded-resource-serialization">Embedded Resource Serialization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#predefined-resource-serialization">Predefined Resource Serialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#limitations">Limitations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#event-hooks">Event Hooks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pre-request-event-hooks">Pre-Request Event Hooks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#dynamic-lookup-filters">Dynamic Lookup Filters</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#post-request-event-hooks">Post-Request Event Hooks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#database-event-hooks">Database event hooks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#fetch-events">Fetch Events</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#insert-events">Insert Events</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#replace-events">Replace Events</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#update-events">Update Events</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#delete-events">Delete Events</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#items">Items</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#resources">Resources</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#rate-limiting">Rate Limiting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#custom-id-fields">Custom ID Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#file-storage">File Storage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#leveraging-projections-to-optimize-the-handling-of-media-files">Leveraging Projections to optimize the handling of media files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#geojson">GeoJSON</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#querying-geojson-data">Querying GeoJSON Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#internal-resources">Internal Resources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#operations-log">Operations Log</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#how-is-the-oplog-operated">How is the oplog operated?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-oplog-endpoint">The Oplog endpoint</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mongodb-and-sql-support">MongoDB and SQL Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#powered-by-flask">Powered by Flask</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="config.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="validation.html">Data Validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication and Authorization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extensions.html">Extensions</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">How to Contribute</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Running the Tests</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
 <li class="toctree-l1"><a class="reference internal" href="updates.html">Updates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Eve Changelog</a></li>
 </ul>
 
@@ -1723,13 +1797,13 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 
 <h3>Donate</h3>
 <p>
-Consider supporting the authors on <a href="https://www.gittip.com/">Gittip</a>:
-<iframe style="border: 0; margin: 5px 0 -5px 0; padding: 0;"
-   src="https://www.gittip.com/nicolaiarocci/widget.html"
-   width="48pt" height="20pt"></iframe>
+Consider supporting the authors on <a href="https://www.gratipay.com/">Gratipay</a>:
+<script data-gratipay-username="nicolaiarocci"
+        data-gratipay-widget="button"
+        src="//gttp.co/v1.js"></script>
 </p>
 
-<div id="searchbox" style="display: none" role="search">
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Extensions &mdash; Eve 0.5-dev documentation</title>
+    <title>Extensions &mdash; Eve 0.5 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.5-dev',
+        VERSION:     '0.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.5-dev documentation" href="index.html" />
+    <link rel="top" title="Eve 0.5 documentation" href="index.html" />
     <link rel="next" title="How to Contribute" href="contributing.html" />
     <link rel="prev" title="Handling custom ID fields" href="tutorials/custom_idfields.html" />
    
@@ -32,8 +32,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +45,14 @@
         <li class="right" >
           <a href="tutorials/custom_idfields.html" title="Handling custom ID fields"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Eve 0.5-dev documentation</a> &raquo;</li> 
+        <li><a href="index.html">Eve 0.5 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="extensions">
 <h1>Extensions<a class="headerlink" href="#extensions" title="Permalink to this headline">¶</a></h1>
@@ -109,7 +109,7 @@ APIs</a></p>
 <h2>Eve.NET<a class="headerlink" href="#eve-net" title="Permalink to this headline">¶</a></h2>
 <p><em>by Nicola Iarocci</em></p>
 <p><a class="reference external" href="https://github.com/nicolaiarocci/Eve.NET">Eve.NET</a> is a simple HTTP and REST client for Web Services powered by the Eve
-Framework. It leverages both <code class="docutils literal"><span class="pre">System.Net.HttpClient</span></code> and <code class="docutils literal"><span class="pre">Json.NET</span></code> to
+Framework. It leverages both <tt class="docutils literal"><span class="pre">System.Net.HttpClient</span></tt> and <tt class="docutils literal"><span class="pre">Json.NET</span></tt> to
 provide the best possible Eve experience on the .NET platform. Written and
 maintained by the same author of the Eve Framework itself, Eve.NET is delivered
 as a portable library (PCL) and runs seamlessly on .NET4, Mono, Xamarin.iOS,
@@ -129,7 +129,7 @@ Services with SQL-based backends.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="index.html">
@@ -171,19 +171,21 @@ Services with SQL-based backends.</p>
 <li class="toctree-l1"><a class="reference internal" href="validation.html">Data Validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication and Authorization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Extensions</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Extensions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#eve-elastic">Eve-Elastic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#eve-mongoengine">Eve-Mongoengine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#eve-docs">Eve-Docs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#eve-mocker">Eve-Mocker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#eve-net">Eve.NET</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#eve-sqlalchemy">Eve-SQLAlchemy</a></li>
 </ul>
-<ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">How to Contribute</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Running the Tests</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
 <li class="toctree-l1"><a class="reference internal" href="updates.html">Updates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Eve Changelog</a></li>
 </ul>
 
@@ -207,13 +209,13 @@ Services with SQL-based backends.</p>
 
 <h3>Donate</h3>
 <p>
-Consider supporting the authors on <a href="https://www.gittip.com/">Gittip</a>:
-<iframe style="border: 0; margin: 5px 0 -5px 0; padding: 0;"
-   src="https://www.gittip.com/nicolaiarocci/widget.html"
-   width="48pt" height="20pt"></iframe>
+Consider supporting the authors on <a href="https://www.gratipay.com/">Gratipay</a>:
+<script data-gratipay-username="nicolaiarocci"
+        data-gratipay-widget="button"
+        src="//gttp.co/v1.js"></script>
 </p>
 
-<div id="searchbox" style="display: none" role="search">
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />

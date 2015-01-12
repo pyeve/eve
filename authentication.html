@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Authentication and Authorization &mdash; Eve 0.5-dev documentation</title>
+    <title>Authentication and Authorization &mdash; Eve 0.5 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.5-dev',
+        VERSION:     '0.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.5-dev documentation" href="index.html" />
+    <link rel="top" title="Eve 0.5 documentation" href="index.html" />
     <link rel="next" title="Tutorials" href="tutorials/index.html" />
     <link rel="prev" title="Data Validation" href="validation.html" />
    
@@ -32,8 +32,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +45,14 @@
         <li class="right" >
           <a href="validation.html" title="Data Validation"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Eve 0.5-dev documentation</a> &raquo;</li> 
+        <li><a href="index.html">Eve 0.5 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="authentication-and-authorization">
 <span id="auth"></span><h1>Authentication and Authorization<a class="headerlink" href="#authentication-and-authorization" title="Permalink to this headline">¶</a></h1>
@@ -67,19 +67,19 @@ controlled by the system. In Eve, you can restrict access to all API endpoints,
 or only some of them. You can protect some HTTP verbs while leaving others
 open. For example, you can allow public read-only access while leaving item
 creation and edition restricted to authorized users only. You can also allow
-<code class="docutils literal"><span class="pre">GET</span></code> access for certain requests and <code class="docutils literal"><span class="pre">POST</span></code> access for others by checking
+<tt class="docutils literal"><span class="pre">GET</span></tt> access for certain requests and <tt class="docutils literal"><span class="pre">POST</span></tt> access for others by checking
 the method parameter. There is also support for role-based access control.</p>
 <p>Security is one of those areas where customization is very important. This is
 why you are provided with a handful of base authentication classes. They
 implement the basic authentication mechanism and must be subclassed in order
 to implement authorization logic. No matter which authentication scheme you
 pick the only thing that you need to do in your subclass is override the
-<code class="docutils literal"><span class="pre">check_auth()</span></code> method.</p>
+<tt class="docutils literal"><span class="pre">check_auth()</span></tt> method.</p>
 </div>
 <div class="section" id="global-authentication">
 <h2>Global Authentication<a class="headerlink" href="#global-authentication" title="Permalink to this headline">¶</a></h2>
 <p>To enable authentication for your API just pass the custom auth class on
-app instantiation. In our example we&#8217;re going to use the <code class="docutils literal"><span class="pre">BasicAuth</span></code> base
+app instantiation. In our example we&#8217;re going to use the <tt class="docutils literal"><span class="pre">BasicAuth</span></tt> base
 class, which implements the <a class="reference internal" href="#basic"><em>Basic Authentication</em></a> scheme:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">BasicAuth</span>
 
@@ -118,9 +118,9 @@ authentication class, maybe with something like this:</p>
             <span class="k">return</span> <span class="n">username</span> <span class="o">==</span> <span class="s">&#39;admin&#39;</span> <span class="ow">and</span> <span class="n">password</span> <span class="o">==</span> <span class="s">&#39;secret&#39;</span>
 </pre></div>
 </div>
-<p>If needed, this approach also allows to take the request <code class="docutils literal"><span class="pre">method</span></code> into
-consideration, for example to allow <code class="docutils literal"><span class="pre">GET</span></code> requests for everyone while forcing
-validation on edits (<code class="docutils literal"><span class="pre">POST</span></code>, <code class="docutils literal"><span class="pre">PUT</span></code>, <code class="docutils literal"><span class="pre">PATCH</span></code>, <code class="docutils literal"><span class="pre">DELETE</span></code>).</p>
+<p>If needed, this approach also allows to take the request <tt class="docutils literal"><span class="pre">method</span></tt> into
+consideration, for example to allow <tt class="docutils literal"><span class="pre">GET</span></tt> requests for everyone while forcing
+validation on edits (<tt class="docutils literal"><span class="pre">POST</span></tt>, <tt class="docutils literal"><span class="pre">PUT</span></tt>, <tt class="docutils literal"><span class="pre">PATCH</span></tt>, <tt class="docutils literal"><span class="pre">DELETE</span></tt>).</p>
 </div>
 <div class="section" id="endpoint-level-authentication">
 <h2>Endpoint-level Authentication<a class="headerlink" href="#endpoint-level-authentication" title="Permalink to this headline">¶</a></h2>
@@ -138,7 +138,7 @@ With a system like this we could even choose to have some endpoints protected
 with, say, Basic Authentication while others are secured with Token, or HMAC
 Authentication!</p>
 <p>Well, turns out this is actually possible by simply enabling the
-resource-level <code class="docutils literal"><span class="pre">authentication</span></code> setting when we are defining the API
+resource-level <tt class="docutils literal"><span class="pre">authentication</span></tt> setting when we are defining the API
 <a class="reference internal" href="config.html#domain"><em>domain</em></a>.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s">&#39;people&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -149,8 +149,8 @@ resource-level <code class="docutils literal"><span class="pre">authentication</
     <span class="p">}</span>
 </pre></div>
 </div>
-<p>And that&#8217;s it. The <cite>people</cite> endpoint will now be using the <code class="docutils literal"><span class="pre">MySuperCoolAuth</span></code>
-class for authentication, while the <code class="docutils literal"><span class="pre">invoices</span></code> endpoint  will be using the
+<p>And that&#8217;s it. The <cite>people</cite> endpoint will now be using the <tt class="docutils literal"><span class="pre">MySuperCoolAuth</span></tt>
+class for authentication, while the <tt class="docutils literal"><span class="pre">invoices</span></tt> endpoint  will be using the
 general-purpose auth class if provided or else it will just be open to the
 public.</p>
 <p>There are other features and options that you can use to reduce complexity in
@@ -160,17 +160,17 @@ authentication system. Lets review them.</p>
 <div class="section" id="global-endpoint-security">
 <h2>Global Endpoint Security<a class="headerlink" href="#global-endpoint-security" title="Permalink to this headline">¶</a></h2>
 <p>You might want a public read-only API where only authorized users can write,
-edit and delete. You can achieve that by using the <code class="docutils literal"><span class="pre">PUBLIC_METHODS</span></code> and
-<code class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></code> <a class="reference internal" href="config.html#global"><em>global settings</em></a>. Add the following to
+edit and delete. You can achieve that by using the <tt class="docutils literal"><span class="pre">PUBLIC_METHODS</span></tt> and
+<tt class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></tt> <a class="reference internal" href="config.html#global"><em>global settings</em></a>. Add the following to
 your <cite>settings.py</cite>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">PUBLIC_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">]</span>
 <span class="n">PUBLIC_ITEM_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>And run your API. POST, PATCH and DELETE are still restricted, while GET is
-publicly available at all API endpoints. <code class="docutils literal"><span class="pre">PUBLIC_METHODS</span></code> refers to resource
-endpoints, like <code class="docutils literal"><span class="pre">/people</span></code>, while <code class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></code> refers to individual
-items like <code class="docutils literal"><span class="pre">/people/id</span></code>.</p>
+publicly available at all API endpoints. <tt class="docutils literal"><span class="pre">PUBLIC_METHODS</span></tt> refers to resource
+endpoints, like <tt class="docutils literal"><span class="pre">/people</span></tt>, while <tt class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></tt> refers to individual
+items like <tt class="docutils literal"><span class="pre">/people/id</span></tt>.</p>
 </div>
 <div class="section" id="custom-endpoint-security">
 <span id="endpointsec"></span><h2>Custom Endpoint Security<a class="headerlink" href="#custom-endpoint-security" title="Permalink to this headline">¶</a></h2>
@@ -187,7 +187,7 @@ API <a class="reference internal" href="config.html#domain"><em>domain</em></a>:
 </div>
 <p>Be aware that, when present, <a class="reference internal" href="config.html#local"><em>resource settings</em></a> override global
 settings. You can use this to your advantage. Suppose that you want to grant
-read access to all endpoints with the only exception of <code class="docutils literal"><span class="pre">/invoices</span></code>.  You
+read access to all endpoints with the only exception of <tt class="docutils literal"><span class="pre">/invoices</span></tt>.  You
 first open read access for all endpoints:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">PUBLIC_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">]</span>
 <span class="n">PUBLIC_ITEM_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">]</span>
@@ -206,7 +206,7 @@ first open read access for all endpoints:</p>
 </div>
 <div class="section" id="basic-authentication">
 <span id="basic"></span><h2>Basic Authentication<a class="headerlink" href="#basic-authentication" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">eve.auth.BasicAuth</span></code> class allows the implementation of Basic
+<p>The <tt class="docutils literal"><span class="pre">eve.auth.BasicAuth</span></tt> class allows the implementation of Basic
 Authentication (RFC2617). It should be subclassed in order to implement custom
 authentication.</p>
 <div class="section" id="basic-authentication-with-bcrypt">
@@ -342,7 +342,7 @@ resources and/or methods to public access -see docs).</p>
 </div>
 <div class="section" id="hmac-authentication">
 <h2>HMAC Authentication<a class="headerlink" href="#hmac-authentication" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">eve.auth.HMACAuth</span></code> class allows for custom, Amazon S3-like, HMAC (Hash
+<p>The <tt class="docutils literal"><span class="pre">eve.auth.HMACAuth</span></tt> class allows for custom, Amazon S3-like, HMAC (Hash
 Message Authentication Code) authentication, which is basically a very secure
 custom authentication scheme built around the <cite>Authorization</cite> header.</p>
 <div class="section" id="how-hmac-authentication-works">
@@ -371,7 +371,7 @@ with a limited life time so you can give the key to a third party to
 temporarily work on your behalf. This is also the reason why the secret key
 is generally provided through out-of-band channels (often a webpage or, as
 said above, an email or plain old paper).</p>
-<p>The <code class="docutils literal"><span class="pre">eve.auth.HMACAuth</span></code>  class also support access roles.</p>
+<p>The <tt class="docutils literal"><span class="pre">eve.auth.HMACAuth</span></tt>  class also support access roles.</p>
 </div>
 <div class="section" id="hmac-example">
 <h3>HMAC Example<a class="headerlink" href="#hmac-example" title="Permalink to this headline">¶</a></h3>
@@ -408,17 +408,17 @@ Eve <a class="reference external" href="https://github.com/nicolaiarocci/eve">re
 </div>
 <div class="section" id="role-based-access-control">
 <span id="roleaccess"></span><h2>Role Based Access Control<a class="headerlink" href="#role-based-access-control" title="Permalink to this headline">¶</a></h2>
-<p>The code snippets above deliberately ignore the <code class="docutils literal"><span class="pre">allowed_roles</span></code> parameter.
+<p>The code snippets above deliberately ignore the <tt class="docutils literal"><span class="pre">allowed_roles</span></tt> parameter.
 You can use this parameter to restrict access to authenticated users who also
 have been assigned specific roles.</p>
-<p>First, you would use the new <code class="docutils literal"><span class="pre">ALLOWED_ROLES</span></code> and <code class="docutils literal"><span class="pre">ALLOWED_ITEM_ROLES</span></code> <a class="reference internal" href="config.html#global"><em>global
-settings</em></a> (or the corresponding <code class="docutils literal"><span class="pre">allowed_roles</span></code> and <code class="docutils literal"><span class="pre">allowed_item_roles</span></code>
+<p>First, you would use the new <tt class="docutils literal"><span class="pre">ALLOWED_ROLES</span></tt> and <tt class="docutils literal"><span class="pre">ALLOWED_ITEM_ROLES</span></tt> <a class="reference internal" href="config.html#global"><em>global
+settings</em></a> (or the corresponding <tt class="docutils literal"><span class="pre">allowed_roles</span></tt> and <tt class="docutils literal"><span class="pre">allowed_item_roles</span></tt>
 <a class="reference internal" href="config.html#local"><em>resource settings</em></a>).</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">ALLOWED_ROLES</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;admin&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>Then your subclass would implement the authorization logic by making good use
-of the aforementioned <code class="docutils literal"><span class="pre">allowed_roles</span></code> parameter.</p>
+of the aforementioned <tt class="docutils literal"><span class="pre">allowed_roles</span></tt> parameter.</p>
 <p>The snippet below assumes that user accounts are stored in an <cite>accounts</cite>
 MongoDB collection, that passwords are stored as SHA1/HMAC hashes and that user
 roles are stored in a &#8216;roles&#8217; array. All API resources/methods will be secured
@@ -469,15 +469,15 @@ account that created it. This allows the API to transparently serve only
 account-created documents on all kinds of requests: read, edit, delete and of
 course create.  User authentication needs to be enabled for this to work
 properly.</p>
-<p>At the global level this feature is enabled by setting <code class="docutils literal"><span class="pre">AUTH_FIELD</span></code> and locally
-(at the endpoint level) by setting <code class="docutils literal"><span class="pre">auth_field</span></code>. These properties define the name
+<p>At the global level this feature is enabled by setting <tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt> and locally
+(at the endpoint level) by setting <tt class="docutils literal"><span class="pre">auth_field</span></tt>. These properties define the name
 of the field used to store the id of the user who created the document.  So for
-example by setting <code class="docutils literal"><span class="pre">AUTH_FIELD</span></code> to <code class="docutils literal"><span class="pre">user_id</span></code>, you are effectively (and
-transparently to the user) adding a <code class="docutils literal"><span class="pre">user_id</span></code> field to every stored
+example by setting <tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt> to <tt class="docutils literal"><span class="pre">user_id</span></tt>, you are effectively (and
+transparently to the user) adding a <tt class="docutils literal"><span class="pre">user_id</span></tt> field to every stored
 document. This will then be used to retrieve/edit/delete documents stored by
 the user.</p>
-<p>But how do you set the <code class="docutils literal"><span class="pre">auth_field</span></code> value? By invoking the
-<code class="docutils literal"><span class="pre">set_request_auth_value()</span></code> class method. Let us revise our
+<p>But how do you set the <tt class="docutils literal"><span class="pre">auth_field</span></tt> value? By invoking the
+<tt class="docutils literal"><span class="pre">set_request_auth_value()</span></tt> class method. Let us revise our
 BCrypt-authentication example from above:</p>
 <div class="highlight-python"><div class="highlight"><pre> <span class="c"># -*- coding: utf-8 -*-</span>
 
@@ -528,7 +528,7 @@ folder of the Eve <a class="reference external" href="https://github.com/nicolai
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="index.html">
@@ -568,21 +568,35 @@ folder of the Eve <a class="reference external" href="https://github.com/nicolai
 <li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="config.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="validation.html">Data Validation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Authentication and Authorization</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Authentication and Authorization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction-to-security">Introduction to Security</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#global-authentication">Global Authentication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#endpoint-level-authentication">Endpoint-level Authentication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#global-endpoint-security">Global Endpoint Security</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#custom-endpoint-security">Custom Endpoint Security</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#basic-authentication">Basic Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-authentication-with-bcrypt">Basic Authentication with bcrypt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#basic-authentication-with-sha1-hmac">Basic Authentication with SHA1/HMAC</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#token-based-authentication">Token-Based Authentication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hmac-authentication">HMAC Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#how-hmac-authentication-works">How HMAC Authentication Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hmac-example">HMAC Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#role-based-access-control">Role Based Access Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#user-restricted-resource-access">User-Restricted Resource Access</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extensions.html">Extensions</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">How to Contribute</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Running the Tests</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
 <li class="toctree-l1"><a class="reference internal" href="updates.html">Updates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Eve Changelog</a></li>
 </ul>
 
@@ -606,13 +620,13 @@ folder of the Eve <a class="reference external" href="https://github.com/nicolai
 
 <h3>Donate</h3>
 <p>
-Consider supporting the authors on <a href="https://www.gittip.com/">Gittip</a>:
-<iframe style="border: 0; margin: 5px 0 -5px 0; padding: 0;"
-   src="https://www.gittip.com/nicolaiarocci/widget.html"
-   width="48pt" height="20pt"></iframe>
+Consider supporting the authors on <a href="https://www.gratipay.com/">Gratipay</a>:
+<script data-gratipay-username="nicolaiarocci"
+        data-gratipay-widget="button"
+        src="//gttp.co/v1.js"></script>
 </p>
 
-<div id="searchbox" style="display: none" role="search">
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />

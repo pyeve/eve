@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Data Validation &mdash; Eve 0.5-dev documentation</title>
+    <title>Data Validation &mdash; Eve 0.5 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.5-dev',
+        VERSION:     '0.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.5-dev documentation" href="index.html" />
+    <link rel="top" title="Eve 0.5 documentation" href="index.html" />
     <link rel="next" title="Authentication and Authorization" href="authentication.html" />
     <link rel="prev" title="Configuration" href="config.html" />
    
@@ -32,8 +32,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +45,14 @@
         <li class="right" >
           <a href="config.html" title="Configuration"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Eve 0.5-dev documentation</a> &raquo;</li> 
+        <li><a href="index.html">Eve 0.5 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="data-validation">
 <span id="validation"></span><h1>Data Validation<a class="headerlink" href="#data-validation" title="Permalink to this headline">¶</a></h1>
@@ -84,21 +84,21 @@ request:</p>
 <p>In the example above, the first document did not validate so the whole request
 has been rejected.</p>
 <p>When all documents pass validation and are inserted correctly the response
-status is <code class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></code>. If any document fails validation the response status
-is <code class="docutils literal"><span class="pre">422</span> <span class="pre">Unprocessable</span> <span class="pre">Entity</span></code>, or any other error code defined by
-<code class="docutils literal"><span class="pre">VALIDATION_ERROR_STATUS</span></code> configuration.</p>
+status is <tt class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></tt>. If any document fails validation the response status
+is <tt class="docutils literal"><span class="pre">422</span> <span class="pre">Unprocessable</span> <span class="pre">Entity</span></tt>, or any other error code defined by
+<tt class="docutils literal"><span class="pre">VALIDATION_ERROR_STATUS</span></tt> configuration.</p>
 <div class="section" id="extending-data-validation">
 <h2>Extending Data Validation<a class="headerlink" href="#extending-data-validation" title="Permalink to this headline">¶</a></h2>
 <p>Data validation is based on the <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> validation system and it is therefore
 extensible. As a matter of fact, Eve&#8217;s MongoDB data-layer itself extends
-Cerberus validation, implementing the <code class="docutils literal"><span class="pre">unique</span></code> and <code class="docutils literal"><span class="pre">data_relation</span></code>
-constraints and the <code class="docutils literal"><span class="pre">ObjectId</span></code> data type on top of the standard rules.</p>
+Cerberus validation, implementing the <tt class="docutils literal"><span class="pre">unique</span></tt> and <tt class="docutils literal"><span class="pre">data_relation</span></tt>
+constraints and the <tt class="docutils literal"><span class="pre">ObjectId</span></tt> data type on top of the standard rules.</p>
 </div>
 <div class="section" id="custom-validation-rules">
 <h2>Custom Validation Rules<a class="headerlink" href="#custom-validation-rules" title="Permalink to this headline">¶</a></h2>
 <p>Suppose that in your specific and very peculiar use case, a certain value can
 only be expressed as an odd integer. You decide to add support for a new
-<code class="docutils literal"><span class="pre">isodd</span></code> rule to our validation schema. This is how you would implement
+<tt class="docutils literal"><span class="pre">isodd</span></tt> rule to our validation schema. This is how you would implement
 that:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve.io.mongo</span> <span class="kn">import</span> <span class="n">Validator</span>
 
@@ -114,8 +114,8 @@ that:</p>
 </pre></div>
 </div>
 <p>By subclassing the base Mongo validator class and then adding a custom
-<code class="docutils literal"><span class="pre">_validate_&lt;rulename&gt;</span></code> method, you extended the available <a class="reference internal" href="config.html#schema"><em>Schema Definition</em></a>
-grammar and now the new custom rule <code class="docutils literal"><span class="pre">isodd</span></code> is available in your schema. You
+<tt class="docutils literal"><span class="pre">_validate_&lt;rulename&gt;</span></tt> method, you extended the available <a class="reference internal" href="config.html#schema"><em>Schema Definition</em></a>
+grammar and now the new custom rule <tt class="docutils literal"><span class="pre">isodd</span></tt> is available in your schema. You
 can now do something like:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
     <span class="s">&#39;oddity&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -128,7 +128,7 @@ can now do something like:</p>
 </div>
 <div class="section" id="custom-data-types">
 <h2>Custom Data Types<a class="headerlink" href="#custom-data-types" title="Permalink to this headline">¶</a></h2>
-<p>You can also add new data types by simply adding <code class="docutils literal"><span class="pre">_validate_type_&lt;typename&gt;</span></code>
+<p>You can also add new data types by simply adding <tt class="docutils literal"><span class="pre">_validate_type_&lt;typename&gt;</span></tt>
 methods to your subclass. Consider the following snippet from the Eve source
 code.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">_validate_type_objectid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
@@ -143,7 +143,7 @@ code.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">ERROR_BAD_TYPE</span> <span class="o">%</span> <span class="s">&#39;ObjectId&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>This method enables support for MongoDB <code class="docutils literal"><span class="pre">ObjectId</span></code> type in your schema,
+<p>This method enables support for MongoDB <tt class="docutils literal"><span class="pre">ObjectId</span></tt> type in your schema,
 allowing something like this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
     <span class="s">&#39;owner&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -154,8 +154,8 @@ allowing something like this:</p>
 </pre></div>
 </div>
 <p>You can also check the <a class="reference external" href="https://github.com/nicolaiarocci/eve/blob/develop/eve/io/mongo/validation.py">source code</a> for Eve custom validation, where you will
-find more advanced use cases, such as the implementation of the <code class="docutils literal"><span class="pre">unique</span></code> and
-<code class="docutils literal"><span class="pre">data_relation</span></code> constraints. Please see the <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> documentation for
+find more advanced use cases, such as the implementation of the <tt class="docutils literal"><span class="pre">unique</span></tt> and
+<tt class="docutils literal"><span class="pre">data_relation</span></tt> constraints. Please see the <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> documentation for
 a complete list rules and data types available.</p>
 </div>
 <div class="section" id="allowing-the-unknown">
@@ -165,11 +165,11 @@ However, there might be circumstances where this is desirable. During the
 development cycle, for example, or when you are dealing with very heterogeneous
 data. After all, not forcing normalized information is one of the selling
 points of MongoDB and many other NoSQL data stores.</p>
-<p>In Eve, you achieve this by setting the <code class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></code> option to <code class="docutils literal"><span class="pre">True</span></code>.
+<p>In Eve, you achieve this by setting the <tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt> option to <tt class="docutils literal"><span class="pre">True</span></tt>.
 Once this option is enabled, fields matching the schema will be validated
 normally, while unknown fields will be quietly stored without a glitch. You
 can also enable this feature only for certain endpoints by setting the
-<code class="docutils literal"><span class="pre">allow_unknown</span></code> local option.</p>
+<tt class="docutils literal"><span class="pre">allow_unknown</span></tt> local option.</p>
 <p>Consider the following domain:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">DOMAIN</span><span class="p">:</span> <span class="p">{</span>
     <span class="s">&#39;people&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -182,7 +182,7 @@ can also enable this feature only for certain endpoints by setting the
 </pre></div>
 </div>
 <p>You normally could only add (POST) or edit (PATCH) <cite>firstnames</cite> to the
-<code class="docutils literal"><span class="pre">/people</span></code> endpoint. However, since <code class="docutils literal"><span class="pre">allow_unknown</span></code> has been enabled, even
+<tt class="docutils literal"><span class="pre">/people</span></tt> endpoint. However, since <tt class="docutils literal"><span class="pre">allow_unknown</span></tt> has been enabled, even
 a payload like this will be accepted:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;[{&quot;firstname&quot;: &quot;bill&quot;, &quot;lastname&quot;: &quot;clinton&quot;}, {&quot;firstname&quot;: &quot;bill&quot;, &quot;age&quot;:70}]&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> http://eve-demo.herokuapp.com/people
 <span class="go">HTTP/1.1 201 OK</span>
@@ -201,7 +201,7 @@ PATCH (edit).</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="index.html">
@@ -240,22 +240,22 @@ PATCH (edit).</p>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="config.html">Configuration</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Data Validation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Data Validation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#extending-data-validation">Extending Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#custom-validation-rules">Custom Validation Rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#custom-data-types">Custom Data Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#allowing-the-unknown">Allowing the Unknown</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication and Authorization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extensions.html">Extensions</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">How to Contribute</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Running the Tests</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
 <li class="toctree-l1"><a class="reference internal" href="updates.html">Updates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Eve Changelog</a></li>
 </ul>
 
@@ -279,13 +279,13 @@ PATCH (edit).</p>
 
 <h3>Donate</h3>
 <p>
-Consider supporting the authors on <a href="https://www.gittip.com/">Gittip</a>:
-<iframe style="border: 0; margin: 5px 0 -5px 0; padding: 0;"
-   src="https://www.gittip.com/nicolaiarocci/widget.html"
-   width="48pt" height="20pt"></iframe>
+Consider supporting the authors on <a href="https://www.gratipay.com/">Gratipay</a>:
+<script data-gratipay-username="nicolaiarocci"
+        data-gratipay-widget="button"
+        src="//gttp.co/v1.js"></script>
 </p>
 
-<div id="searchbox" style="display: none" role="search">
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />

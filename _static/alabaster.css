@@ -13,6 +13,9 @@
 
 
 
+
+
+
 @import url("basic.css");
 
 /* -- page layout ----------------------------------------------------------- */
@@ -220,6 +223,8 @@ div.body p, div.body dd, div.body li {
 div.admonition {
     margin: 20px 0px;
     padding: 10px 30px;
+    background-color: #FCC;
+    border: 1px solid #FAA;
 }
 
 div.admonition tt.xref, div.admonition a tt {

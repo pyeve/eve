@@ -7,7 +7,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta content="Python REST API Framework to effortlessly build and deploy full featured, highly customizable RESTful Web Services." name="description" />
 
-    <title>Python REST API Framework &mdash; Eve 0.5-dev documentation</title>
+    <title>Python REST API Framework &mdash; Eve 0.5 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.5-dev',
+        VERSION:     '0.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,15 +25,15 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.5-dev documentation" href="#" />
+    <link rel="top" title="Eve 0.5 documentation" href="#" />
     <link rel="next" title="Foreword" href="foreword.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -42,14 +42,14 @@
         <li class="right" >
           <a href="foreword.html" title="Foreword"
              accesskey="N">next</a> |</li>
-        <li><a href="#">Eve 0.5-dev documentation</a> &raquo;</li> 
+        <li><a href="#">Eve 0.5 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="python-rest-api-framework">
 <h1>Python REST API Framework<a class="headerlink" href="#python-rest-api-framework" title="Permalink to this headline">¶</a></h1>
@@ -73,7 +73,7 @@ both <a class="reference external" href="https://mongodb.org">MongoDB</a> and SQ
 </pre></div>
 </div>
 <p>All you need to bring your API online is a database, a configuration file
-(defaults to <code class="docutils literal"><span class="pre">settings.py</span></code>) and a launch script.  Overall, you will find that
+(defaults to <tt class="docutils literal"><span class="pre">settings.py</span></tt>) and a launch script.  Overall, you will find that
 configuring and fine-tuning your API is a very simple process.</p>
 <p>Eve is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4 and PyPy.</p>
 </div>
@@ -81,8 +81,8 @@ configuring and fine-tuning your API is a very simple process.</p>
 <span id="demo"></span><h2>Live demo<a class="headerlink" href="#live-demo" title="Permalink to this headline">¶</a></h2>
 <p>Check out the <a class="reference external" href="http://eve-demo.herokuapp.com">live demo</a>. If using a browser you will get XML back. For JSON
 in the browser, you might want to install <a class="reference external" href="https://www.google.com/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=1&amp;cad=rja&amp;ved=0CC0QFjAA&amp;url=https%3A%2F%2Fchrome.google.com%2Fwebstore%2Fdetail%2Fpostman-rest-client%2Ffdmmgilgnpjigdojojpjoooidkmcomcm&amp;ei=dPQ7UpqEBISXtAbPpIGwDg&amp;usg=AFQjCNFL71vN61QG0LKlw7VDJvIZDprjHA&amp;bvm=bv.52434380,d.Yms">Postman</a> or similar extension and
-then set the <code class="docutils literal"><span class="pre">Accept</span></code> request header to <code class="docutils literal"><span class="pre">application/json</span></code>. If you are
-a CLI user (and you should), <code class="docutils literal"><span class="pre">curl</span></code> is your friend. The <a class="reference external" href="https://github.com/nicolaiarocci/eve-demo">source code</a> will
+then set the <tt class="docutils literal"><span class="pre">Accept</span></tt> request header to <tt class="docutils literal"><span class="pre">application/json</span></tt>. If you are
+a CLI user (and you should), <tt class="docutils literal"><span class="pre">curl</span></tt> is your friend. The <a class="reference external" href="https://github.com/nicolaiarocci/eve-demo">source code</a> will
 show you how easy it is to run an API with Eve. You will also find <a class="reference external" href="https://github.com/nicolaiarocci/eve-demo#readme">usage
 examples</a> for all common use cases (GET, POST, PATCH, DELETE and more). There
 is also a simple <a class="reference external" href="https://github.com/nicolaiarocci/eve-demo-client">client app</a> available.</p>
@@ -92,167 +92,7 @@ is also a simple <a class="reference external" href="https://github.com/nicolaia
 <p>If you are on <a class="reference external" href="http://python-eve.org">python-eve.org</a> then you are looking at the documentation of the
 development version. Looking for last release docs? Follow <a class="reference external" href="http://eve.readthedocs.org/en/stable/">this
 link</a>.</p>
-</div>
-<div class="section" id="user-s-guide">
-<h2>User&#8217;s Guide<a class="headerlink" href="#user-s-guide" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="foreword.html">Foreword</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="foreword.html#philosophy">Philosophy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="foreword.html#a-little-context">A little context</a></li>
-<li class="toctree-l2"><a class="reference internal" href="foreword.html#rest-flask-and-mongodb">REST, Flask and MongoDB</a></li>
-<li class="toctree-l2"><a class="reference internal" href="foreword.html#roadmap">Roadmap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="foreword.html#bsd-license">BSD License</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="rest_api_for_humans.html">REST API for Humans</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="rest_api_for_humans.html#conferences">Conferences</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="install.html#distribute-pip">Distribute &amp; Pip</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#development-version">Development Version</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#a-minimal-application">A Minimal Application</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#database-interlude">Database Interlude</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#a-more-complex-application">A More Complex Application</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="features.html">Features</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="features.html#emphasis-on-rest">Emphasis on REST</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#full-range-of-crud-operations">Full range of CRUD operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#customizable-resource-endpoints">Customizable resource endpoints</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#customizable-multiple-item-endpoints">Customizable, multiple item endpoints</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#filtering">Filtering</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#sorting">Sorting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#pagination">Pagination</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#hateoas">HATEOAS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#json-and-xml-rendering">JSON and XML Rendering</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#conditional-requests">Conditional Requests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#data-integrity-and-concurrency-control">Data Integrity and Concurrency Control</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#bulk-inserts">Bulk Inserts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#data-validation">Data Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#extensible-data-validation">Extensible Data Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#resource-level-cache-control">Resource-level Cache Control</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#api-versioning">API Versioning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#document-versioning">Document Versioning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#authentication">Authentication</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#cors-cross-origin-resource-sharing">CORS Cross-Origin Resource Sharing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#read-only-by-default">Read-only by default</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#default-and-nullable-values">Default and Nullable Values</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#predefined-database-filters">Predefined Database Filters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#projections">Projections</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#embedded-resource-serialization">Embedded Resource Serialization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#event-hooks">Event Hooks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#rate-limiting">Rate Limiting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#custom-id-fields">Custom ID Fields</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#file-storage">File Storage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#geojson">GeoJSON</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#internal-resources">Internal Resources</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#operations-log">Operations Log</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#mongodb-and-sql-support">MongoDB and SQL Support</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#powered-by-flask">Powered by Flask</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="config.html">Configuration</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="config.html#configuration-with-files">Configuration with Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="config.html#configuration-with-a-dictionary">Configuration with a Dictionary</a></li>
-<li class="toctree-l2"><a class="reference internal" href="config.html#development-production">Development / Production</a></li>
-<li class="toctree-l2"><a class="reference internal" href="config.html#global-configuration">Global Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="config.html#domain-configuration">Domain Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="config.html#schema-definition">Schema Definition</a></li>
-<li class="toctree-l2"><a class="reference internal" href="config.html#advanced-datasource-patterns">Advanced Datasource Patterns</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="validation.html">Data Validation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="validation.html#extending-data-validation">Extending Data Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="validation.html#custom-validation-rules">Custom Validation Rules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="validation.html#custom-data-types">Custom Data Types</a></li>
-<li class="toctree-l2"><a class="reference internal" href="validation.html#allowing-the-unknown">Allowing the Unknown</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication and Authorization</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="authentication.html#introduction-to-security">Introduction to Security</a></li>
-<li class="toctree-l2"><a class="reference internal" href="authentication.html#global-authentication">Global Authentication</a></li>
-<li class="toctree-l2"><a class="reference internal" href="authentication.html#endpoint-level-authentication">Endpoint-level Authentication</a></li>
-<li class="toctree-l2"><a class="reference internal" href="authentication.html#global-endpoint-security">Global Endpoint Security</a></li>
-<li class="toctree-l2"><a class="reference internal" href="authentication.html#custom-endpoint-security">Custom Endpoint Security</a></li>
-<li class="toctree-l2"><a class="reference internal" href="authentication.html#basic-authentication">Basic Authentication</a></li>
-<li class="toctree-l2"><a class="reference internal" href="authentication.html#token-based-authentication">Token-Based Authentication</a></li>
-<li class="toctree-l2"><a class="reference internal" href="authentication.html#hmac-authentication">HMAC Authentication</a></li>
-<li class="toctree-l2"><a class="reference internal" href="authentication.html#role-based-access-control">Role Based Access Control</a></li>
-<li class="toctree-l2"><a class="reference internal" href="authentication.html#user-restricted-resource-access">User-Restricted Resource Access</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/account_management.html">RESTful Account Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/custom_idfields.html">Handling custom ID fields</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="extensions.html">Extensions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="extensions.html#eve-elastic">Eve-Elastic</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extensions.html#eve-mongoengine">Eve-Mongoengine</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extensions.html#eve-docs">Eve-Docs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extensions.html#eve-mocker">Eve-Mocker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extensions.html#eve-net">Eve.NET</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extensions.html#eve-sqlalchemy">Eve-SQLAlchemy</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
-<div class="section" id="developer-s-guide">
-<h2>Developer&#8217;s Guide<a class="headerlink" href="#developer-s-guide" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">How to Contribute</a></li>
-<li class="toctree-l1"><a class="reference internal" href="testing.html">Running the Tests</a></li>
-</ul>
-</div>
-<p><em>A proper developer guide will be available when 1.0 is released</em></p>
-</div>
-<div class="section" id="support-updates-and-licensing">
-<h2>Support, Updates and Licensing<a class="headerlink" href="#support-updates-and-licensing" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
-<li class="toctree-l1"><a class="reference internal" href="updates.html">Updates</a></li>
-<li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
-</ul>
-</div>
-</div>
-<div class="section" id="changelog">
-<h2>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Eve Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-5">Version 0.5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-4">Version 0.4</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-3">Version 0.3</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-2">Version 0.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-1-1">Version 0.1.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-1">Version 0.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-0-9">Version 0.0.9</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-0-8">Version 0.0.8</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-0-7">Version 0.0.7</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-0-6">Version 0.0.6</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-0-5">Version 0.0.5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-0-4">Version 0.0.4</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-0-3">Version 0.0.3</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-0-2">Version 0.0.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-0-1">Version 0.0.1</a></li>
-</ul>
-</li>
-</ul>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This documentation is under development. Please refer to the links on the
-sidebar for more information, or to get in touch with the development team
-(that being <a class="reference external" href="mailto:me&#37;&#52;&#48;nicolaiaroccicom">me</a>).</p>
 </div>
 <table class="docutils footnote" frame="void" id="id2" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
@@ -260,6 +100,12 @@ sidebar for more information, or to get in touch with the development team
 <tr><td class="label"><a class="fn-backref" href="#id1">[*]</a></td><td>SQLALchemy support is provided by the awesome <a class="reference external" href="https://github.com/RedTurtle/eve-sqlalchemy">eve-sqlalchemy</a> extension.</td></tr>
 </tbody>
 </table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This documentation is under development. Please refer to the links on the
+sidebar for more information, or to get in touch with the development team
+(that being <a class="reference external" href="mailto:me&#37;&#52;&#48;nicolaiaroccicom">me</a>).</p>
+</div>
 </div>
 </div>
 
@@ -267,7 +113,7 @@ sidebar for more information, or to get in touch with the development team
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="#">
@@ -310,18 +156,12 @@ sidebar for more information, or to get in touch with the development team
 <li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication and Authorization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extensions.html">Extensions</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">How to Contribute</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Running the Tests</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
 <li class="toctree-l1"><a class="reference internal" href="updates.html">Updates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Eve Changelog</a></li>
 </ul>
 
@@ -345,13 +185,13 @@ sidebar for more information, or to get in touch with the development team
 
 <h3>Donate</h3>
 <p>
-Consider supporting the authors on <a href="https://www.gittip.com/">Gittip</a>:
-<iframe style="border: 0; margin: 5px 0 -5px 0; padding: 0;"
-   src="https://www.gittip.com/nicolaiarocci/widget.html"
-   width="48pt" height="20pt"></iframe>
+Consider supporting the authors on <a href="https://www.gratipay.com/">Gratipay</a>:
+<script data-gratipay-username="nicolaiarocci"
+        data-gratipay-widget="button"
+        src="//gttp.co/v1.js"></script>
 </p>
 
-<div id="searchbox" style="display: none" role="search">
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />

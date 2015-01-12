@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>How to Contribute &mdash; Eve 0.5-dev documentation</title>
+    <title>How to Contribute &mdash; Eve 0.5 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.5-dev',
+        VERSION:     '0.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.5-dev documentation" href="index.html" />
+    <link rel="top" title="Eve 0.5 documentation" href="index.html" />
     <link rel="next" title="Running the Tests" href="testing.html" />
     <link rel="prev" title="Extensions" href="extensions.html" />
    
@@ -32,8 +32,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +45,14 @@
         <li class="right" >
           <a href="extensions.html" title="Extensions"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Eve 0.5-dev documentation</a> &raquo;</li> 
+        <li><a href="index.html">Eve 0.5 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="how-to-contribute">
 <span id="contributing"></span><h1>How to Contribute<a class="headerlink" href="#how-to-contribute" title="Permalink to this headline">¶</a></h1>
@@ -73,18 +73,18 @@ new features and patches.</p>
 <ul class="simple">
 <li><a class="reference external" href="https://help.github.com/articles/fork-a-repo">Fork</a> the repository on GitHub.</li>
 <li>Create a topic branch from where you want to base your work.</li>
-<li>This is usually the <code class="docutils literal"><span class="pre">develop</span></code> branch.</li>
-<li>Please avoid working directly on the <code class="docutils literal"><span class="pre">develop</span></code> branch.</li>
+<li>This is usually the <tt class="docutils literal"><span class="pre">develop</span></tt> branch.</li>
+<li>Please avoid working directly on the <tt class="docutils literal"><span class="pre">develop</span></tt> branch.</li>
 <li>Make commits of logical units (if needed rebase your feature branch before
 submitting it).</li>
-<li>Check for unnecessary whitespace with <code class="docutils literal"><span class="pre">git</span> <span class="pre">diff</span> <span class="pre">--check</span></code> before committing.</li>
+<li>Check for unnecessary whitespace with <tt class="docutils literal"><span class="pre">git</span> <span class="pre">diff</span> <span class="pre">--check</span></tt> before committing.</li>
 <li>Make sure your commit messages are in the <a class="reference external" href="http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html">proper format</a>.</li>
 <li>If your commit fixes an open issue, reference it in the commit message (#15).</li>
 <li>Make sure your code conforms to <a class="reference external" href="http://www.python.org/dev/peps/pep-0008/">PEP8</a> (we&#8217;re using <a class="reference external" href="http://flake8.readthedocs.org/en/latest/">flake8</a> for PEP8 and extra checks).</li>
 <li>Make sure you have added the necessary tests for your changes.</li>
 <li>Run all the tests to assure nothing else was accidentally broken.</li>
 <li>Run again the entire suite via <a class="reference external" href="http://tox.readthedocs.org/en/latest/">tox</a> to check your changes against multiple
-python versions. <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">tox;</span> <span class="pre">tox</span></code></li>
+python versions. <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">tox;</span> <span class="pre">tox</span></tt></li>
 <li>Don&#8217;t forget to add yourself to <a class="reference external" href="https://github.com/nicolaiarocci/eve/blob/develop/AUTHORS">AUTHORS</a>.</li>
 </ul>
 <p>These guidelines also apply when helping with documentation (actually,
@@ -115,7 +115,7 @@ It&#8217;s comfy and cozy over there.</p>
 <p>There are usually several TODO comments scattered around the codebase, maybe
 check them out and see if you have ideas, or can help with them. Also, check
 the <a class="reference external" href="https://github.com/nicolaiarocci/eve/issues">open issues</a> in case there&#8217;s something that sparks your interest (there&#8217;s
-also a special <code class="docutils literal"><span class="pre">contributor</span> <span class="pre">friendly</span></code> label flagging some interesting feature
+also a special <tt class="docutils literal"><span class="pre">contributor</span> <span class="pre">friendly</span></tt> label flagging some interesting feature
 requests). And what about documentation?  I suck at English so if you&#8217;re fluent
 with it (or notice any typo and/or mistake), why not help with that? In any
 case, other than GitHub <a class="reference external" href="https://help.github.com/">help</a> pages, you might want to check this excellent
@@ -127,7 +127,7 @@ case, other than GitHub <a class="reference external" href="https://help.github.
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="index.html">
@@ -159,7 +159,7 @@ case, other than GitHub <a class="reference external" href="https://help.github.
 </a>
 </p>
 <h3>Navigation</h3>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="foreword.html">Foreword</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rest_api_for_humans.html">REST API for Humans</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
@@ -170,18 +170,20 @@ case, other than GitHub <a class="reference external" href="https://help.github.
 <li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication and Authorization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extensions.html">Extensions</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">How to Contribute</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#making-changes">Making Changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#submitting-changes">Submitting Changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#join-us-on-irc">Join us on IRC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#first-time-contributor">First time contributor?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#don-t-know-where-to-start">Don&#8217;t know where to start?</a></li>
 </ul>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="">How to Contribute</a></li>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Running the Tests</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
 <li class="toctree-l1"><a class="reference internal" href="updates.html">Updates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Eve Changelog</a></li>
 </ul>
 
@@ -205,13 +207,13 @@ case, other than GitHub <a class="reference external" href="https://help.github.
 
 <h3>Donate</h3>
 <p>
-Consider supporting the authors on <a href="https://www.gittip.com/">Gittip</a>:
-<iframe style="border: 0; margin: 5px 0 -5px 0; padding: 0;"
-   src="https://www.gittip.com/nicolaiarocci/widget.html"
-   width="48pt" height="20pt"></iframe>
+Consider supporting the authors on <a href="https://www.gratipay.com/">Gratipay</a>:
+<script data-gratipay-username="nicolaiarocci"
+        data-gratipay-widget="button"
+        src="//gttp.co/v1.js"></script>
 </p>
 
-<div id="searchbox" style="display: none" role="search">
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
