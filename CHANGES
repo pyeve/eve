@@ -6,7 +6,7 @@ Here you can see the full list of changes between each Eve release.
 Version 0.5
 -----------
 
-Not released yet.
+Released on 12 Jan, 2015.
 
 - New: Operations Log (http://python-eve.org/features#operations-log.)
 - New: GeoJSON (http://python-eve.org/features.html#geojson) (Juan Madurga.)
