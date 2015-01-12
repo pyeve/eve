@@ -8,7 +8,7 @@
     objects incoming via POST/PATCH requests conform to the API domain.
     An extension of Cerberus Validator.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 

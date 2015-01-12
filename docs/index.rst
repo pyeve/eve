@@ -52,10 +52,8 @@ If you are on python-eve.org_ then you are looking at the documentation of the
 development version. Looking for last release docs? Follow `this
 link <http://eve.readthedocs.org/en/stable/>`_.
 
-User's Guide
-------------
 .. toctree::
-    :maxdepth: 2
+    :hidden:
 
     foreword
     rest_api_for_humans
@@ -67,41 +65,21 @@ User's Guide
     authentication
     tutorials/index
     extensions
-
-Developer's Guide
------------------
-.. toctree::
-    :maxdepth: 1
-
     contributing
     testing
-
-*A proper developer guide will be available when 1.0 is released*
-
-Support, Updates and Licensing
-------------------------------
-.. toctree::
-    :maxdepth: 1
-
     support
     updates
     authors
     license
-
-Changelog
----------
-.. toctree::
-    :maxdepth: 2
-
     changelog
+
+.. [*] SQLALchemy support is provided by the awesome eve-sqlalchemy_ extension.
 
 .. note::
    This documentation is under development. Please refer to the links on the
    sidebar for more information, or to get in touch with the development team
    (that being me_).
 
-
-.. [*] SQLALchemy support is provided by the awesome eve-sqlalchemy_ extension.
 
 .. _python-eve.org: http://python-eve.org
 .. _`Eve Demo instructions`: http://github.com/nicolaiarocci/eve-demo#readme

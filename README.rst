@@ -3,8 +3,14 @@ Eve
 .. image:: https://secure.travis-ci.org/nicolaiarocci/eve.png?branch=master 
         :target: https://secure.travis-ci.org/nicolaiarocci/eve
 
-Powered by Flask, MongoDB, Redis and good intentions Eve allows to effortlessly
-build and deploy highly customizable, fully featured RESTful Web Services.
+Eve is an open source Python REST API framework designed for human beings. It
+allows to effortlessly build and deploy highly customizable, fully featured
+RESTful Web Services.
+
+Eve is powered by Flask, Redis, Cerberus, Events and offers support for both
+MongoDB and SQL backends.
+
+The codebase is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4 and PyPy.
 
 Eve is Simple
 -------------
@@ -25,8 +31,6 @@ The API is now live, ready to be consumed:
 All you need to bring your API online is a database, a configuration file
 (defaults to ``settings.py``) and a launch script.  Overall, you will find that
 configuring and fine-tuning your API is a very simple process.
-
-Eve is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4 and PyPy.
 
 `Check out the Eve Website <http://python-eve.org/>`_
 
@@ -59,7 +63,10 @@ Features
 * Rate Limiting
 * Custom ID Fields
 * File Storage
-* MongoDB Support
+* GeoJSON
+* Internal Resources
+* Operations Log
+* MongoDB and SQL Support
 * Powered by Flask
 
 
@@ -71,4 +78,3 @@ distributed under the `BSD license
 
 .. _`Nicola Iarocci`: http://nicolaiarocci.com
 .. _`Gestionali Amica`: http://gestionaleamica.com
-.. _WIP: http://blog.python-eve.org/sqlalchemy-and-eve

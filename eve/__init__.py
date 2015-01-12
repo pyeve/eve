@@ -6,7 +6,7 @@
 
     An out-of-the-box REST Web API that's as dangerous as you want it to be.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.5
@@ -38,7 +38,7 @@
 
 """
 
-__version__ = '0.5-dev'
+__version__ = '0.5'
 
 # RFC 1123 (ex RFC 822)
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
