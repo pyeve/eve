@@ -225,6 +225,9 @@ class Validator(Validator):
            dependency (#353).
            Fix for #363 (see docstring).
         """
+        if dependencies is None:
+            return True
+
         # Ensure `dependencies` is a list
         if isinstance(dependencies, str_type):
             dependencies = [dependencies]
@@ -240,7 +243,8 @@ class Validator(Validator):
             dcopy = copy.copy(document)
             dcopy.update(self._original_document)
         super(Validator, self)._validate_dependencies(dcopy or document,
-                                                      dependencies, field)
+                                                      dependencies, field,
+                                                      break_on_error)
 
     def _validate_type_media(self, field, value):
         """ Enables validation for `media` data type.
