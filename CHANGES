@@ -57,7 +57,6 @@ Not released yet.
   been added to the list (Kurt Doherty).
 - New: Add serializers for integer and float types (Grisha K.) 
 - New: dev-requirements.txt added to the repo.
-- New: Support for python wheels (http://wheel.readthedocs.org)
 - New: Embedding of documents by references located in any subdocuments. For
   example, query ``embedded={"user.friends":1}`` will return a document with
   "user" and all his "friends" embedded, but only if ``user`` is a subdocument
