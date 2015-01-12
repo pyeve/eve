@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import copy
 import hashlib
 from bson.json_util import dumps
 from datetime import datetime, timedelta
@@ -139,8 +140,10 @@ class TestUtils(TestBase):
                              self.etag)
 
     def test_weak_date(self):
-        self.assertEqual(weak_date(self.datestr), self.valid +
-                         timedelta(seconds=1))
+        with self.app.test_request_context():
+            self.app.config['DATE_FORMAT'] = '%Y-%m-%d'
+            self.assertEqual(weak_date(self.datestr), self.valid +
+                             timedelta(seconds=1))
 
     def test_str_to_date(self):
         self.assertEqual(str_to_date(self.datestr), self.valid)
@@ -188,3 +191,48 @@ class TestUtils(TestBase):
             self.app.config['DEBUG'] = True
             self.assertEqual(debug_error_message('An error message'),
                              'An error message')
+
+
+class DummyEvent(object):
+    """
+    Even handler that records the call parameters and asserts a check
+
+    Usage::
+
+        app = Eve()
+        app.on_my_event = DummyEvent(element_not_deleted)
+
+    In the test::
+
+        assert app.on_my_event.called[0] == expected_param_0
+    """
+    def __init__(self, check, deepcopy=False):
+        """
+        :param check: method checking the state of something during the event.
+        :type: check: callable returning bool
+        :param deepcopy: Do we need to store a copy of the argument calls? In
+            some events arguments are changed after the event, so keeping a
+            reference to the original object doesn't allow a test to check what
+            was passed. The default is False.
+        :type deepcopy: bool
+        """
+        self.__called = None
+        self.__check = check
+        self.__deepcopy = deepcopy
+
+    def __call__(self, *args):
+        assert self.__check()
+        # In some method the arguments are changed after the events
+        if self.__deepcopy:
+            args = copy.deepcopy(args)
+        self.__called = args
+
+    @property
+    def called(self):
+        """
+        The results of the call to the event.
+
+        :rtype: It returns None if the event hasn't been called or a tuple with
+            the positional arguments of the last call if called.
+        """
+        return self.__called

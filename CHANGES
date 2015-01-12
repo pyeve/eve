@@ -3,6 +3,462 @@ Eve Changelog
 
 Here you can see the full list of changes between each Eve release.
 
+Version 0.5
+-----------
+
+Not released yet.
+
+- New: Operations Log (http://python-eve.org/features#operations-log.)
+- New: GeoJSON (http://python-eve.org/features.html#geojson) (Juan Madurga.)
+- New: Internal Resources (http://python-eve.org/features#internal-resources) (Magdas Adrian.)
+- New: Support for multiple origins when using CORS (Josh Villbrandt, #532.)
+- New: Regexes are stripped out of HATEOAS urls when present. You now get
+  ``games/<game_id>/images`` where previously you would get
+  ``games/<regex('[a-f0-9]{24}'):game_id>/images``). Closes #466.
+- New: ``JSON_SORT_KEYS`` enables JSON key sorting (Matt Creenan).
+- New: Add the current query string to the self link for responses with
+  multiple documents. Closes #464 (Jen Montes).
+- New: When document versioning is on, add ``?version=<version_num>`` to
+  HATEOAS self links. Also adds pagination links for ``?version=all`` and
+  ``?version=diffs`` requests when the number exceeds the max results.
+  Partially addresses #475 (Jen Montes).
+- New: ``QUERY_WHERE`` allows to set the query parameter key for filters.
+  Defaults to ``where``.
+- New: ``QUERY_SORT`` allows to set the query parameter key for sorting.
+  Defaults to ``sort``.
+- New: ``QUERY_PAGE`` allows to set the query parameter key for pagination.
+  Defaults to ``page``.
+- New: ``QUERY_PROJECTION`` allows to set the query parameter key for
+  projections. Defaults to ``projection``.
+- New: ``QUERY_MAX_RESULTS`` allows to set the query parameter key for max
+  results. Defaults to ``max_results``.
+- New: ``QUERY_EMBEDDED`` allows to set the query parameter key embedded
+  documents. Defaults to ``embedded``.
+- New: Fire ``on_fetched`` events for ``version=all`` requests (Jen Montes).
+- New: Support for CORS ``Access-Control-Expose-Headers`` (Christian Henke).
+- New: ``post_internal()`` can be used for intenral post calls. This method is
+  not rate limited, authentication is not checked and pre-request events are
+  not raised (Magdas Adrian).
+- New: ``put_internal()`` can be used for intenral PUT calls. This method is
+  not rate limited, authentication is not checked and pre-request events are
+  not raised (Kevin Funk).
+- New: ``patch_internal()`` can be used for intenral PATCH calls. This method
+  is not rate limited, authentication is not checked and pre-request events are
+  not raised (Kevin Funk).
+- New: ``delete_internal()`` can be used for intenral DELETE calls. This method
+  is not rate limited, authentication is not checked and pre-request events are
+  not raised (Kevin Funk).
+- New: Add an option to ``_internal`` methods to skip payload validation
+  (Olivier Poitrey).
+- New: Comma delimited sort syntax in queries. The MongoDB data layer now also
+  supports queries like ``?sort=lastname,-age``. Addresses #443.
+- New: Add extra 4xx response codes for proper handling. Only ``405`` Method
+  not allowed, ``406`` Not acceptable, ``409`` Conflict, and ``410`` Gone have
+  been added to the list (Kurt Doherty).
+- New: Add serializers for integer and float types (Grisha K.) 
+- New: dev-requirements.txt added to the repo.
+- New: Embedding of documents by references located in any subdocuments. For
+  example, query ``embedded={"user.friends":1}`` will return a document with
+  "user" and all his "friends" embedded, but only if ``user`` is a subdocument
+  and ``friends`` is a list of references (Dmitry Anoshin).
+- New: Allow mongoengine to work properly with cursor counts (Johan Bloemberg) 
+- New: ``ALLOW_UNKNOWN`` allows unknown fields to be read, not only written as
+  before. Closes #397 and #250.
+- New: ``VALIDATION_ERROR_STATUS`` allows setting of the HTTP status code to
+  use for validation errors. Defaults to ``422`` (Olivier Poitrey). 
+- New: Support for sub-document projections. Fixes #182 (Olivier Poitrey).
+- New: Return ``409 Conflict`` on pymongo ``DuplicateKeyError`` for ``POST``
+  requests, as already happens with ``PUT`` requests (Matt Creenan, #537.)
+
+- Change: ``DELETE`` returns ``204 NoContent`` on a successful delete.
+- Change: SERVER_NAME removed as it is not needed anymore.
+- Change: URL_PROTOCOL removed as it is not needed anymore.
+- Change: HATEOAS links are now relative to the API root. Closes #398 #401.
+- Change: If-Modified-Since has been disabled on resource (collections)
+  endpoints. Same functionality is available with a ``?where={"_udpated":
+  {"$gt": "<RFC1123 date>"}}`` request. The OpLog also allows retrieving detailed
+  changes happened at any endpoint, deleted documents included. Closes #334.
+- Change: etags are now persisted with the documents. This ensures that etags
+  are consistent across queries, even when projection queries are issued.
+  Please note that etags will only be stored along with new documents created
+  and/or edited via API methods (POST/PUT/PATCH). Documents inserted by other
+  means and those stored with v0.4 and below will keep working as previously:
+  their etags will be computed on-the-fly and you will get still be getting
+  inconsistent etags when projection queries are issued. Closes #369.
+- Change: XML item, meta and link nodes are now ordered. Closes #441.
+- Change: ``put`` method signature for ``MediaStorage`` base class has been
+  updated. ``filemame`` is now optional. Closes #414.
+- Change: CORS behavior to be compatible with browsers (Chrome). Eve is now
+  echoing back the contents of the Origin header if said content is whitelisted
+  in X_DOMAINS. This also safer as it avoids exposing internal server
+  configuration. Closes #408. This commit was carefully handcrafed on a flight
+  to EuroPython 2014.
+- Change: Specify a range of dependant package versions. #379 (James Stewart).
+- Change: Cerberus 0.8 is now required.
+- Change: pymongo v2.7.2 is now required.
+- Change: simplejson v3.6.5 is now required.
+- Change: update ``dev-requirements.txt`` to most recent tools available.
+
+- Fix: add ``README.rst`` to ``MANIFEST.in`` (Niall Donegan.)
+- Fix: ``LICENSE`` variable in ``setup.py`` should be "shortstring". Closes
+  #540 (Niall Donegan.)
+- Fix: ``PATCH`` on fields with original value of ``None`` (Marcus Cobden,
+  #534).
+- Fix: Fix impossible version ranges in setup.py (Marcus Cobden, #531.)
+- Fix: Bug with expanding lists of roles, compromising authorization (Mikael
+  Berg, #527) 
+- Fix: ``PATCH`` on subdocument fields does not overwrite the whole
+  subdocument anymore. Closes #519.
+- Fix: Added support for validation on field attribute with type list (Jorge
+  Morales).
+- Fix: Fix a serialization bug with integer and float when value is
+  0 (Olivier Poitrey).
+- Fix: Custom ID fields tutorial: if custom ID fields are being used, then
+  MongoDB/Eve won't be able to create them automatically as it does with the
+  `ObjectId` default type. Closes #511.
+- Fix: Dependencies with default values were reported as missing if omitted.
+  Closes #353.
+- Fix: Dependencies always fails on PATCH if dependent field isn't part of
+  the update. #363.
+- Fix: client projections work when ``allow_unknown`` is active. Closes #497.
+- Fix: datasource projections are active when ``allow_unknown`` is active.
+  closes #497.
+- Fix: Properly serialize nullable floats and integers. Closes #469.
+- Fix: ``_mongotize()`` turns non-ObjectId strings (but not unicode) into
+  ObjectIds. Closes #508 (Or Neeman).
+- Fix: Fix validation of read-only fields inside dicts. Closes #474 (Arnau
+  Orriols).
+- Fix: Parent and collection links follow the scheme described in #475 (Jen
+  Montes).
+- Fix: Ignore read-only fields in ``PATCH`` requests when their values aren't
+  changed compared to the stored document. Closes #479.
+- Fix: Allow ``EVE_SETTINGS`` envvar to be used exclusively. Previously,
+  a settings file in the working directory was always required. Closes #461.
+- Fix: exception when trying to set nullable media field to null (Daniel
+  Lytkin)
+- Fix: Add missing ``$options`` and ``$list`` MongoDB operators to the
+  allowed list (Jaroslav Semančík).
+- Fix: Get document when it is missing embedded media. In case you try to
+  embedd a document which has media fields and that document has been deleted,
+  you would get an error (Petr Jašek).
+- Fix: fix additional lookup regex in  RESTful Account Management tutorial
+  (Ashley Roach).
+- Fix: ``utils.weak_date`` always returns a RFC-1123 date (Petr Jašek).
+- Fix: Can't embed a ressource with a custom _id (non ObjectId). Closes #427.
+- Fix: Do not follow DATE_FORMAT for HTTP headers. Closes #429 (Olivier
+  Poitrey).
+- Fix: Fix app initialization with resource level versioning #409 (Sebastián
+  Magrí).
+- Fix: KeyError when trying to use embedding on a field that is missing from
+  document. It was fixed earlier in #319, but came back again after new
+  embedding mechanism (Daniel Lytkin). 
+- Fix: Support for list of strings as default value for fields (hansotronic).
+- Fix: Media fields are now properly returned even in embedded documents.
+  Closes #305.
+- Fix: auth in domain configuration can be either a callable or a class
+  instance (Gino Zhang).
+- Fix: Schema definition: a default value of [] for a list causes IndexError.
+  Closes #417.
+- Fix: Close file handles in setup.py (Harro van der Klauw)
+- Fix: Querying a collection should always return pagination information (even
+  when no data is being returned). Closes #415.
+- Fix: Recursively validate the whole query string.
+- Fix: If the data layer supports a list of allowed query operators, take
+  them into consideration when validating a query string. Closes #388.
+- Fix: Abort with 400 if unsupported query operators are used. Closes #387.
+- Fix: Return the error if a blacklisted MongoDB operator is used in a query
+  (debug mode). 
+- Fix: Invalid sort syntax raises 500 instead of 400. Addresses #378.
+- Fix: Fix serialization when `type` is missing in schema. #404 (Jaroslav
+  Semančík).
+- Fix: When PUTting or PATCHing media fields, they would not be properly
+  replaced as needed (Stanislav Heller).
+- Fix: ``test_get_sort_disabled`` occasional failure.
+- Fix: A POST with an empty array leads to a server crash. Now returns a 400
+  error isntead and ensure the server won't crash in case of mongo invalid
+  operations (Olivier Poitrey). 
+- Fix: PATCH and PUT don't respect flask.abort() in a pre-update event. Closes
+  #395 (Christopher Larsen).
+- Fix: Validating keyschema rules would cause a TypeError since 0.4. Closes
+  nicolaiarocci/cerberus#48.
+- Fix: Crash if client projection is not a dict #390 (Olivier Poitrey).
+- Fix: Server crash in case of invalid "where" syntax #386 (Olivier Poitrey).
+
+
+Version 0.4
+-----------
+
+Released on 20 June, 2014.
+
+- [new] You can now start the app without any resource defined and use
+  ``app.register_resource`` later as needed (Petr Jašek).
+- [new] Data layer is now usable outside request context, for example within
+  a Celery task where there's no request context (Petr Jašek).
+- [new][change] Add pagination info to get results whatever the HATEOAS status.
+  Closes #355 (Olivier Poitrey).
+- [new] Ensure all errors return a parseable body (JSON or XML). Closes #365
+  (Olivier Poitrey).
+- [new] Apply sub-request route's params to the created document if matching
+  the schema, e.g. a POST on ``/people/1234…/invoices`` will set the
+  ``contact_id`` field to 1234… so created invoice is automatically associated
+  with the parent resource (Olivier Poitrey).
+- [new] Allow some more HTTP errors (403 and 404) to be thrown from db hooks
+  (Olivier Poitrey).
+- [new] ``ALLOWED_READ_ROLES``. A list of allowed `roles` for resource
+  endpoints with GET and OPTIONS methods (Olivier Poitrey).
+- [new] ``ALLOWED_WRITE_ROLES``. A list of allowed `roles` for resource
+  endpoints with POST, PUT and DELETE methods (Olivier Poitrey).
+- [new] ``ALLOWED_ITEM_READ_ROLES``. A list of allowed `roles` for item
+  endpoints with GET and OPTIONS methods (Olivier Poitrey). 
+- [new] ``ALLOWED_ITEM_WRITE_ROLES``. A list of allowed `roles` for item
+  endpoints with PUT, PATCH and DELETE methods (Olivier Poitrey). 
+- [new] 'dependencies' validation rule.
+- [new] 'keyschema' validation rule.
+- [new] 'regex' validation rule.
+- [new] 'set' as a core data type. 
+- [new] 'min' and 'max' now apply to floats and numbers too.
+- [new] File Storage. ``EXTENDED_MEDIA_INFO`` allows a list of meta fields
+  (file properties) to forward from the file upload driver (Ben Demaree).
+- [new] Python 3.4 is now supported.
+- [new] Support for default values in documents with more than one level of
+  data (Javier Gonel).
+- [new] Ability to send entire document in write responses. ``BANDWITH_SAVER``
+  aka Coherence Mode (Josh Villbrandt). 
+- [new] ``on_pre_<METHOD>`` events expose the `lookup` dictionary which allows
+  for setting up dynamic database lookups on both resource and item endpoints.
+- [new] Return a 400 response on pymongo DuplicateKeyError, with exception
+  message if debug mode is on (boosh).
+- [new] PyPy officially supported and tested (Javier Gonel).
+- [new] tox support (Javier Gonel).
+- [new] Post database events (Javier Gonel). Addresses #272.
+- [new] Versioned Documents (Josh Villbrandt). Closes #224.
+- [new] Python trove classifiers added to setup.py.
+- [new] Client projections are also honored at item endpoints.
+- [new] validate that ID_FIELD is not set as a resource ``auth_field``.
+  Addresses #266.
+- [new] ``URL_PROTOCOL`` defines the HTTP protocol used when building HATEOAS
+  links. Defaults to ``''`` for relative paths (Junior Vidotti).
+- [new] ``on_delete_item`` and ``on_deleted_item`` is raised on DELETE requests
+  sent to document endpoints. Addresses #232.
+- [new] ``on_delete_resource`` and ``on_deleted_resource`` is raised on DELETE
+  requests sent to resource endpoints. Addresses #232.
+- [new] ``on_update`` is raised on PATCH requests, when a document is about to
+  be updated on the database. Addresses #232.
+- [new] ``on_replace`` is raised on PUT requests, when a document is about to
+  be replaced on the database. Addresses #232.
+- [new] ``auth`` constructor argument accepts either a class instance or
+  a callable. Closes #248.
+
+- [change] Cerberus 0.7.2 is now required.
+- [change] Jinja2 2.7.3 is now required.
+- [change] Werkzeug 0.9.6 is now required.
+- [change] simplejson 3.5.2 is now required.
+- [change] itsdangerous 0.24 is now required. Addresses #378.
+- [change] Events 0.2.1 is now required.
+- [change] MarkupSafe 0.23 is now required.
+- [change] For bulk and non-bulk inserts, response status now always either 201
+  when everything was ok or 400 when something went wrong. For bulk inserts, if
+  at least one document doesn't validate, the whole request is rejected, and
+  none of the documents are inserted into the database. Additionnaly, this
+  commit adopts the same response format as collections: responses are always
+  a dict with a ``_status`` field at its root and an eventual ``_error`` object
+  if ``_status`` is ``ERR`` to comply with #366. Documents status are stored in
+  the ``_items`` field (Olivier Poitrey).
+- [change] Callbacks get whole json response on ``on_fetched``. This allows for
+  callbacks functions to alter the whole payload, even when HATEOAS is enabled
+  and ``_items`` and ``_links`` metafields are present.
+- [change] ``on_insert`` is not raised anymore on PUT requests (replaced by
+  above mentioned ``on_replace``).
+- [change] ``auth.request_auth_value`` is no more. Yay. See below.
+- [change] ``auth.set_request_auth_value()`` allows to set the ``auth_field``
+  value for the current request.
+- [change] ``auth.get_request_auth_value()`` allows to retrieve the
+  ``auth_field`` value for the current request.
+- [change] ``on_update(ed)`` and ``on_replace(ed)`` callbacks now receive both
+  the original document and the updates (Jaroslav Semančík).
+- [change] Review event names (Javier Gonel). 
+
+- [fix] return 500 instead of 404 if CORS is enabled. Closes #381.
+- [fix] Crash on GET requests on resource endpoints when ID_FIELD is missing on
+  one or more documents. Closes #351.
+- [fix] Cannot change a nullable objectid type field to contain null. Closes
+  #341.
+- [fix] HATEOAS links as business unit values even when regexes are configured
+  for the endpoint.
+- [fix] Documentation improvements (Jen Montes).
+- [fix] KeyError exception was raised when field specified in schema as
+  embeddable was missing in a particular document (Jaroslav Semančík).
+- [fix] Tests on HEAD requests would very occasionally fail. See #316.
+- [change] PyMongo 2.7.1 is now required.
+- [fix] Automatic fields such as ``DATE_CREATD`` and ``DATE_CREATED`` are
+  correctly handled in client projections (Josh Villbrandt). Closes #282.
+- [fix] Make codebase compliant with latest PEP8/flake8 release (Javier Gonel).
+- [fix] If you had a media field, and set datasource projection to 0 for that
+  field, the media would not be deleted. Closes #284.
+- [fix] tests cleanup (Javier Gonel).
+- [fix] tests now run on any system without needing to set ``ulimit`` to
+  a higher value (Javier Gonel).
+- [fix] media files: don't try to delete a field that does not exist (Taylor
+  Brown).
+- [fix] Occasional KeyError while building ``_media`` helper dict. See #271
+  (Alexander Hendorf).
+- [fix] ``If-Modified-Since`` misbehaviour when a datasource filter is set.
+  Closes #258.
+- [fix] Trouble serializing list of dicts. Closes #265 and #244. 
+- [fix] ``HATEOAS`` item links are now coherent actual endpoint URL even when
+  natural immutable keys are used in URLs (Junior Vidotti). Closes #256.
+- [fix] Replaced ``ID_FIELD`` by ``item_lookup_field`` on self link.
+  item_lookup_field will default to ``ID_FIELD`` if blank. 
+
+Version 0.3
+-----------
+
+Released on 14 February, 2014.
+
+- [fix] Serialization of sub-documents (Hannes Tiede). Closes #244.
+- [new] ``X_MAX_AGE`` allows to configure CORS Access-Control-Max-Age (David
+  Buchmann).
+- [fix] ``GET`` with ``If-Modified-Since`` on list endpoint returns incorrect
+  304 if resource is empty. Closes #243.
+- [change] ``POST`` will return ``201 Created`` if at least one document was
+  accepted for insertion; ``200 OK`` otherwise (meaning the request was
+  accepted and processed). It is still client's responsability to parse the
+  response payload to check if any document did not pass validation. Addresses
+  #201 #202 #215.
+- [new] ``number`` data type. Allows both integers and floats as field values.
+- [fix] Using primary keys other than _id. Closes #237.
+- [fix] Add tests for ``PUT`` when User Restricted Resource Access is active.
+- [fix] Auth field not set if resource level authentication is set. Fixes #231.
+- [fix] RateLimit check was occasionally failing and returning a 429 (John
+  Deng).
+- [change] Jinja2 2.7.2 is now required.
+- [new] media files (images, pdf, etc.) can be uploaded as ``media`` document
+  fields. When a document is requested, eventual media files will be returned
+  as Base64 strings. Upload is done via ``POST``, ``PUT`` and ``PATCH`` using
+  the ``multipart/data-form`` content-type. For optmized performance, by
+  default files are stored in GridFS, however custom ``MediaStorage`` classes
+  can be provided to support alternative storage systems. Clients and API
+  maintainers can exploit the projections feature to include/exclude media
+  fields from requests. For example, a request like
+  ``/url/<id>?projection={"image": 0}`` will return the document without the
+  image field. Also, while setting a resource ``datasource`` it is possible to
+  explicitly exclude media fields from standard responses (clients will need to
+  explicitly add them to the payload with ``?projection={"image": 1}``).
+- [new] ``media`` type for schema fields.
+- [new] ``media`` application argument. Allows to specify a media storage class
+  to be used to store media files. Defaults to ``GridFSMediaStorage``.
+- [new] ``GridFSMediaStorage`` class. Stores files into GridFS.
+- [new] ``MediaStorage`` class provides a standardized API for storing files,
+  along with a set of default behaviors that all other storage systems can
+  inherit or override as necessary.
+- [new] ``file`` data type support and validation for resource schema.
+- [new] ``multipart/form-data`` content-type is now supported for requests.
+- [fix] Field exclusion (``?projection={"fieldname": 0}``) now supported in
+  client projections. Remember, mixing field inclusion and exclusion is still
+  not supported by MongoDB.
+- [fix] ``URL_PREFIX`` and ``API_VERSION`` are correctly reported in HATOEAS
+  links.
+- [fix] ``DELETE`` on sub-resources should only delete documents referenced by
+  the parent. Closes #212.
+- [fix] ``DELETE`` on a resource endpoint honors User-Restricted Resource
+  Access. Closes #213.
+- [new] ``JSON`` allows to enable/disable JSON responses. Defaults to ``True``
+  (JSON enabled).
+- [new] ``XML`` allows to enable/disable XML responses. Defaults to ``True``
+  (XML enabled).
+- [fix] XML properly honors ``_LINKS`` and ``_ITEMS`` settings.
+- [fix] return all document fields when resource schema is empty.
+- [new] pytest.ini for pytest support.
+- [fix] All tests should now run with nose and pytest. Closes #209.
+- [new] ``query_objectid_as_string`` resource setting. Defaults to ``False``.
+  Addresses #207.
+- [new] ``ETAG`` allows to customize the etag field. Defaults to ``_etag``.
+- [change] ``etag`` is now ``_etag`` in all default response payloads (see
+  above).
+- [change] ``STATUS`` defaults to '_status'.
+- [change] ``ISSUES`` defaults to '_issues'.
+- [change] ``DATE_CREATED`` defaults to '_created'. Upgrade existing
+  collections by running ``db.<collection>.update({}, { $rename: { "created":
+  "_created" } }, { multi: true })`` in the mongo shell. If an index exists on
+  the field, drop it and create a new one using the new field name.
+- [change] ``LAST_UPDATED`` defaults to '_updated'. Upgrade existing
+  collections by running ``db.<collection>.update({}, { $rename: { "updated":
+  "_updated" } }, { multi: true })`` in the mongo shell. If an index exists on
+  the field, drop it and create a new one usung the new field name.
+- [change] Exclude ``etag`` from both response payload and headers if
+  concurrency control is disabled (``IF_MATCH`` = ``False``). Closes #205.
+- [fix] Custom ``ID_FIELD`` would fail on update/insert methods. Fixes #203
+  (Jaroslav Semančík).
+- [change] GET: when If-Modified-Since header is present, either no documents
+  (304) or all documents (200) are sent per the HTTP spec. Original behavior
+  can be achieved with:
+  ``/resource?where={"updated":{"$gt":"if-modified-since-date"}}`` (Josh
+  Villbrandt).
+- [change] Validation errors are now reported as a dictionary with offending
+  fields as keys and issues descriptions as values.
+- [change] Cerberus v0.6 is now required.
+
+Version 0.2
+-----------
+
+Released on 30 November, 2013.
+
+- [new] Sub-Resources. It is now possible to configure endpoints such as:
+  ``/companies/<company_id>/invoices``. Also, the corresponding item endpoints,
+  such as ``/companies/<company_id>/invoices/<invoice_id>``, are available. All
+  CRUD operations on these endpoints are allowed. Closes 156.
+- [new] ``resource_title`` allows to customize the endpoint title (HATEOAS).
+- [new][dev] ``extra`` cursor property, when present, will be added to ``GET``
+  responses (with same key). This feature can be used by Eve extensions to
+  inject proprietary data into the response stream (Petr Jašek).
+- [new] ``IF_MATCH`` allows to disable checks for ETag matches on edit, replace
+  and delete requests. If disabled, requests without an If-Match header will be
+  honored without returning a 403 error. Defaults to True (enabled by default). 
+- [new] ``LINKS`` allows to customize the links field. Default to '_links'.
+- [new] ``ITEMS`` allows to customize the items field. Default to '_items'.
+- [new] ``STATUS`` allows to customize the status field. Default to 'status'.
+- [new] ``ISSUES`` allows to customize the issues field. Default to 'issues'.
+- [new] Handling custom ID fields tutorial.
+- [new] A new ``json_encoder`` initialization argument is available. It allows
+  to pass custom JSONEncoder or eve.io.BaseJSONEncoder to the Eve instance.
+- [new] A new ``url_converters`` initialization argument is available. It
+  allows to pass custom Flask url converters to the Eve constructor. 
+- [new] ID_FIELD fields can now be of arbitrary types, not only ObjectIds.
+  Thanks to Kelvin Hammond for contributing to this one.  Closes #136.
+- [new] ``pre_<method>`` and ``pre_<method>_<resource>`` event hooks are now
+  available. They are raised when a request is received and before processing
+  it. The resource involved and the Flask request object are returned to the
+  callback function (dccrazyboy).
+- [new] ``embedded_fields`` activates default Embedded Resource Serialization
+  on a list of selected document fields. Eventual embedding requests by clients
+  will be processed along with default embedding. In order for default
+  embedding to work, the field must be defined as embeddable, and embedding
+  must be active for the resource (with help from Christoph Witzany).
+- [new] ``default_sort`` option added to the ``datasource`` resource setting.
+  It allows to set default sorting for the endpoint. Default sorting will be
+  overriden by a client request that happens to include a ``?sort`` argument
+  within the query string (with help from Christoph Witzany).
+- [new] You can now choose to provide custom settings as a Python dictionary.
+- [new] New method ``Eve.register_resource()`` for registering new resource
+  after initialization of Eve object. This is needed for simpler initialization
+  API of all ORM/ODM extensions (Stanislav Heller).
+- [change] Rely on Flask endpoints to map urls to resources.
+- [change] For better consistency with new ``pre_<method>`` hooks,
+  ``on_<method>`` event hooks have been renamed to ``on_post_<method>``.
+- [change] Custom authentication classes can now be set at endpoint level. When
+  set, an endpoint-level auth class will override the eventual global level
+  auth class.  Authentication docs have been updated (and greatly revised)
+  accordingly.  Closes #89.
+- [change] JSON encoding is now handled at the DataLayer level allowing for
+  specialized, granular, data-aware encoding. Also, since the JSON encoder is
+  now a class attribute, extensions can replace the pre-defined data layer
+  encoder with their own implementation. Closes #102. 
+- [fix] HMAC example and docs updated to align with new hmac in Python 2.7.3,
+  which is only accepting bytes string. Closes #199.
+- [fix] Properly escape leaf values in XML responses (Florian Rathgeber).
+- [fix] A read-only field with a default value would trigger a validation error
+  on POST and PUT methods.
+
 Version 0.1.1
 -------------
 
@@ -16,7 +472,7 @@ Enhancements
   (``/invoices/<id>/?embedded={'person':1}``),
 - ``collection`` (used when setting up a data relation, see Embedded Resource
   Serialization) has been renamed to ``resource`` in order to avoid confusion
-  between the Eve schema and underlying MongoDB collections. 
+  between the Eve schema and underlying MongoDB collections.
 - Nested endpoints. Endpoints with deep paths like ``/contacts/overseas`` can
   now function in conjuction with top-level endpoints (``/contacts``).
   Endpoints are completely independent: each can allow item lookups
@@ -32,7 +488,7 @@ Enhancements
   request document. Please note that this is a breaking change. Also be aware
   that when the request content-type is ``x-www-form-urlencoded``, single
   document insert is performed. Closes #139.
-- ObjectId are properly serialized on POST/PATCH/PUT methods. 
+- ObjectId are properly serialized on POST/PATCH/PUT methods.
 - Queries on ObjectId and datetime values in nested documents.
 - ``auth.user_id`` renamed to ``auth.request_auth_value`` for better
   consistency with the ``auth_field`` setting. Closes #132 (Ryan Shea).
@@ -54,7 +510,7 @@ Version 0.1
 
 Released on September 30th, 2013.
 
-New Features 
+New Features
 ~~~~~~~~~~~~
 - ``PUT`` method for completely replace a document while keeping the same
   unique identifier. Closes #96.

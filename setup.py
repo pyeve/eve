@@ -1,35 +1,43 @@
 #!/usr/bin/env python
 
 from setuptools import setup, find_packages
-DESCRIPTION = ("REST API framework powered by Flask, MongoDB and good "
-               "intentions.")
-LONG_DESCRIPTION = open('README.rst').read()
-#VERSION = __import__('eve').__version__
+DESCRIPTION = ("Python REST API for Humans.")
+with open('README.rst') as f:
+    LONG_DESCRIPTION = f.read()
+
+install_requires = [
+    'cerberus>=0.8,<0.9',
+    'events>=0.2.1,<0.3',
+    'simplejson>=3.3.0,<4.0',
+    'werkzeug>=0.9.4,<0.10',
+    'markupsafe>=0.23,<1.0',
+    'jinja2>=2.7.2,<3.0',
+    'itsdangerous>=0.22,<1.0',
+    'flask>=0.10.1,<0.11',
+    'pymongo>=2.7.1,<3.0',
+    'flask-pymongo>=0.3.0,<0.4',
+]
+
+try:
+    from collections import OrderedDict  # noqa
+except ImportError:
+    # Python 2.6 needs this back-port
+    install_requires.append('ordereddict')
+
 
 setup(
     name='Eve',
-    version='0.1.1',
+    version='0.5',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',
     author_email='eve@nicolaiarocci.com',
     url='http://python-eve.org',
-    license=open('LICENSE').read(),
+    license='BSD',
     platforms=["any"],
     packages=find_packages(),
     test_suite="eve.tests",
-    install_requires=[
-        'cerberus==0.4.0',
-        'events==0.2.0',
-        'simplejson==3.3.0',
-        'werkzeug==0.9.4',
-        'markupsafe==0.18',
-        'jinja2==2.7',
-        'itsdangerous==0.22',
-        'flask==0.10.1',
-        'pymongo==2.6.3',
-        'flask-pymongo==0.3.0',
-    ],
+    install_requires=install_requires,
     tests_require=['redis'],
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -38,6 +46,12 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
 )

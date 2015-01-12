@@ -6,8 +6,29 @@
 
     An out-of-the-box REST Web API that's as dangerous as you want it to be.
 
-    :copyright: (c) 2013 by Nicola Iarocci.
+    :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
+
+    .. versionchanged:: 0.5
+       'SERVER_NAME' removed.
+       'QUERY_WHERE' added.
+       'QUERY_SORT' added.
+       'QUERY_PAGE' added.
+       'QUERY_MAX_RESULTS' added.
+       'QUERY_PROJECTION' added.
+       'QUERY_EMBEDDED' added.
+       'RFC1123_DATE_FORMAT' added.
+
+    .. versionchanged:: 0.4
+       'META' defaults to '_meta'.
+       'ERROR' defaults to '_error'.
+       Remove unnecessary commented code.
+
+    .. versionchanged:: 0.2
+       'LINKS' defaults to '_links'.
+       'ITEMS' defaults to '_items'.
+       'STATUS' defaults to 'status'.
+       'ISSUES' defaults to 'issues'.
 
     .. versionchanged:: 0.1.1
        'SERVER_NAME' defaults to None.
@@ -17,21 +38,17 @@
 
 """
 
-__version__ = '0.1.1'
-
-#DEBUG = True
+__version__ = '0.5'
 
 # RFC 1123 (ex RFC 822)
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
+RFC1123_DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
 
 URL_PREFIX = ''
 API_VERSION = ''
-SERVER_NAME = None
 PAGINATION = True
 PAGINATION_LIMIT = 50
 PAGINATION_DEFAULT = 25
-LAST_UPDATED = 'updated'
-DATE_CREATED = 'created'
 ID_FIELD = '_id'
 CACHE_CONTROL = 'max-age=10,must-revalidate'        # TODO confirm this value
 CACHE_EXPIRES = 10
@@ -44,6 +61,25 @@ ITEM_URL = '[a-f0-9]{24}'
 
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"
+LAST_UPDATED = '_updated'
+DATE_CREATED = '_created'
+ISSUES = '_issues'
+STATUS = '_status'
+ERROR = '_error'
+ITEMS = '_items'
+LINKS = '_links'
+ETAG = '_etag'
+VERSION = '_version'
+META = '_meta'
+
+QUERY_WHERE = 'where'
+QUERY_SORT = 'sort'
+QUERY_PAGE = 'page'
+QUERY_MAX_RESULTS = 'max_results'
+QUERY_EMBEDDED = 'embedded'
+QUERY_PROJECTION = 'projection'
+
+VALIDATION_ERROR_STATUS = 422
 
 # must be the last line (will raise W402 on pyflakes)
 from eve.flaskapp import Eve  # noqa

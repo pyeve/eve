@@ -3,10 +3,7 @@
 Licensing
 =========
 
-Authors
--------
-
-.. include:: ../AUTHORS
+Also see :ref:`authors`.
 
 BSD License
 -----------

@@ -22,12 +22,14 @@ class TestResponse(TestBase):
     def test_response_object(self):
         response = literal_eval(self.r.get_data().decode())
         self.assertTrue(isinstance(response, dict))
-        self.assertEqual(len(response), 2)
+        self.assertEqual(len(response), 3)
 
         resource = response.get('_items')
         self.assertTrue(isinstance(resource, list))
         links = response.get('_links')
         self.assertTrue(isinstance(links, dict))
+        meta = response.get('_meta')
+        self.assertTrue(isinstance(meta, dict))
 
 
 class TestNoHateoas(TestBase):
@@ -40,11 +42,11 @@ class TestNoHateoas(TestBase):
     def test_get_no_hateoas_resource(self):
         r = self.test_client.get(self.known_resource_url)
         response = json.loads(r.get_data().decode())
-        self.assertTrue(isinstance(response, list))
-        self.assertEqual(len(response), 25)
-        item = response[0]
+        self.assertTrue(isinstance(response, dict))
+        self.assertEqual(len(response['_items']), 25)
+        item = response['_items'][0]
         self.assertTrue(isinstance(item, dict))
-        self.assertTrue('_links' not in item)
+        self.assertTrue('_links' not in response)
 
     def test_get_no_hateoas_item(self):
         r = self.test_client.get(self.item_id_url)

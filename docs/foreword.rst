@@ -13,9 +13,10 @@ You have data stored somewhere and you want to expose it to your users
 through a RESTful Web API. Eve is the tool that allows you to do so. 
 
 Eve provides a robust, feature rich, REST-centered API implementation,
-and you just need to configure your API settings and behaviour, plug in your
+and you just need to configure your API settings and behavior, plug in your
 datasource, and you're good to go. See :doc:`features` for a list
-of features available to Eve-powered APIs.
+of features available to Eve-powered APIs. You might want to check the
+:doc:`rest_api_for_humans` slide deck too.
 
 API settings are stored in a standard Python module (defaults to
 ``settings.py``), which makes customization quite a trivial task. It is also
@@ -60,11 +61,9 @@ like to add to Eve, provided that there is enough interest in the project.
 
 - Documentation (working on it!)
 - Granular exception handling
-- Journaling/logging
 - Server side caching
-- Alternative sort syntax (``?sort=name``)
 - More authentication schemes
-- Support for MySQL and/or other SQL/NoSQL databases
+- Support for MySQL and/or other SQL/NoSQL databases (WIP)
 
 BSD License 
 -----------

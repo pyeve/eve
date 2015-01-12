@@ -27,10 +27,7 @@ content:
 
 ::
 
-    SERVER_NAME = '127.0.0.1:5000'
-    DOMAIN = {
-        'people': {},
-    }
+    DOMAIN = {'people': {}}
 
 Save it as `settings.py` in the same directory where `run.py` is stored. This
 is the Eve configuration file, a standard Python module, and it is telling Eve
@@ -61,7 +58,12 @@ payload:
 
     {
         "_links": {
-            "child": [{"href": "127.0.0.1:5000/people", "title": "people"}]
+            "child": [
+                {
+                    "href": "people", 
+                    "title": "people"
+                }
+            ]
         }
     }
 
@@ -80,10 +82,16 @@ Try requesting `people` now:
     {
         "_items": [], 
         "_links": {
-            "self": {"href": "127.0.0.1:5000/people", "title": "people"}, 
-            "parent": {"href": "127.0.0.1:5000", "title": "home"}
+            "self": {
+                "href": "people", 
+                "title": "people"
+            }, 
+            "parent": {
+                "href": "/", 
+                "title": "home"
             }
         }
+    }
 
 This time we also got an ``_items`` list. The ``_links`` are relative to the
 resource being accessed, so you get a link to the parent resource (the home
@@ -215,7 +223,7 @@ file:
         # additional read-only entry point. This way consumers can also perform 
         # GET requests at '/people/<lastname>'.
         'additional_lookup': {
-            'url': '[\w]+',
+            'url': 'regex("[\w]+")',
             'field': 'lastname'
         },
 
@@ -243,7 +251,7 @@ Save `settings.py` and launch `run.py`. We can now insert documents at the
 .. code-block:: console
 
     $ curl -d '[{"firstname": "barack", "lastname": "obama"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json'  http://127.0.0.1:5000/people
-    HTTP/1.0 200 OK
+    HTTP/1.0 201 OK
 
 We can also update and delete items (but not the whole resource since we
 disabled that). We can also perform GET requests against the new `lastname`
@@ -268,9 +276,9 @@ endpoint:
         "updated": "Wed, 21 Nov 2012 16:04:56 GMT",
         "created": "Wed, 21 Nov 2012 16:04:56 GMT",
         "_links": {
-            "self": {"href": "127.0.0.1/people/50acfba938345b0978fccad7", "title": "person"},
-            "parent": {"href": "127.0.0.1", "title": "home"},
-            "collection": {"href": "127.0.0.1/people", "title": "people"}
+            "self": {"href": "people/50acfba938345b0978fccad7", "title": "person"},
+            "parent": {"href": "/", "title": "home"},
+            "collection": {"href": "people", "title": "people"}
         }
     }
 

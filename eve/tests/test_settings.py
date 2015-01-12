@@ -7,14 +7,11 @@ MONGO_PASSWORD = 'test_pw'
 MONGO_DBNAME = 'eve_test'
 ID_FIELD = '_id'
 
-SERVER_NAME = 'localhost:5000'
-
 RESOURCE_METHODS = ['GET', 'POST', 'DELETE']
 ITEM_METHODS = ['GET', 'PATCH', 'DELETE', 'PUT']
 ITEM_CACHE_CONTROL = ''
 ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
-ITEM_URL = '[a-f0-9]{24}'
 
 contacts = {
     'url': 'arbitraryurl',
@@ -22,7 +19,7 @@ contacts = {
     'cache_expires': 20,
     'item_title': 'contact',
     'additional_lookup': {
-        'url': '[\w]+',   # to be unique field
+        'url': 'regex("[\w]+")',   # to be unique field
         'field': 'ref'
     },
     'datasource': {'filter': {'username': {'$exists': False}}},
@@ -33,6 +30,9 @@ contacts = {
             'maxlength': 25,
             'required': True,
             'unique': True,
+        },
+        'media': {
+            'type': 'media'
         },
         'prog': {
             'type': 'integer'
@@ -67,6 +67,7 @@ contacts = {
         },
         'tid': {
             'type': 'objectid',
+            'nullable': True
         },
         'title': {
             'type': 'string',
@@ -83,7 +84,43 @@ contacts = {
         'id_list_fixed_len': {
             'type': 'list',
             'items': [{'type': 'objectid'}]
-        }
+        },
+        'dependency_field1': {
+            'type': 'string',
+            'default': 'default'
+        },
+        'dependency_field2': {
+            'type': 'string',
+            'dependencies': ['dependency_field1']
+        },
+        'read_only_field': {
+            'type': 'string',
+            'default': 'default',
+            'readonly': True
+        },
+        'dict_with_read_only': {
+            'type': 'dict',
+            'schema': {
+                'read_only_in_dict': {
+                    'type': 'string',
+                    'default': 'default',
+                    'readonly': True
+                }
+            }
+        },
+        'key1': {
+            'type': 'string',
+        },
+        'keyschema_dict': {
+            'type': 'dict',
+            'keyschema': {'type': 'integer'}
+        },
+        'aninteger': {
+            'type': 'integer',
+        },
+        'afloat': {
+            'type': 'float',
+        },
     }
 }
 
@@ -99,13 +136,42 @@ users['item_title'] = 'user'
 users['additional_lookup']['field'] = 'username'
 
 invoices = {
-    #'item_lookup': False,
-    #'item_methods': ['GET'],
     'schema': {
         'inv_number': {'type': 'string'},
         'person': {
             'type': 'objectid',
             'data_relation': {'resource': 'contacts'}
+        },
+        'invoicing_contacts': {
+            'type': 'list',
+            'data_relation': {'resource': 'contacts'}
+        }
+    }
+}
+
+# This resource is used to test app initialization when using resource
+# level versioning
+versioned_invoices = copy.deepcopy(invoices)
+versioned_invoices['versioning'] = True
+
+companies = {
+    'item_title': 'company',
+    'schema': {
+        'departments': {
+            'type': 'list',
+            'schema': {
+                'type': 'dict',
+                'schema': {
+                    'title': {'type': 'string'},
+                    'members': {
+                        'type': 'list',
+                        'schema': {
+                            'type': 'objectid',
+                            'data_relation': {'resource': 'contacts'}
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -121,11 +187,30 @@ payments = {
 
 empty = copy.deepcopy(invoices)
 
+user_restricted_access = copy.deepcopy(contacts)
+user_restricted_access['url'] = 'restricted'
+user_restricted_access['datasource'] = {'source': 'contacts'}
+
+users_invoices = copy.deepcopy(invoices)
+users_invoices['url'] = 'users/<regex("[a-f0-9]{24}"):person>/invoices'
+users_invoices['datasource'] = {'source': 'invoices'}
+
+internal_transactions = {
+    'resource_methods': ['GET'],
+    'item_methods': ['GET'],
+    'internal_resource': True
+}
+
 DOMAIN = {
     'contacts': contacts,
     'users': users,
     'users_overseas': users_overseas,
     'invoices': invoices,
+    'versioned_invoices': versioned_invoices,
     'payments': payments,
     'empty': empty,
+    'restricted': user_restricted_access,
+    'peopleinvoices': users_invoices,
+    'companies': companies,
+    'internal_transactions': internal_transactions,
 }

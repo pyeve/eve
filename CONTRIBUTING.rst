@@ -17,19 +17,23 @@ Making Changes
 * Fork_ the repository on GitHub.
 * Create a topic branch from where you want to base your work.
 * This is usually the ``develop`` branch. 
-* Please avoid working directly on ``develop`` branch.
+* Please avoid working directly on the ``develop`` branch.
 * Make commits of logical units (if needed rebase your feature branch before
   submitting it).
 * Check for unnecessary whitespace with ``git diff --check`` before committing.
 * Make sure your commit messages are in the `proper format`_.
 * If your commit fixes an open issue, reference it in the commit message (#15).
-* Make sure your code conforms to PEP8_.
+* Make sure your code conforms to PEP8_ (we're using flake8_ for PEP8 and extra checks).
 * Make sure you have added the necessary tests for your changes.
 * Run all the tests to assure nothing else was accidentally broken.
+* Run again the entire suite via tox_ to check your changes against multiple
+  python versions. ``pip install tox; tox``
 * Don't forget to add yourself to AUTHORS_.
 
-These guidelines also apply when helping with documentation (actually, for
-typos and minor additions you might choose to `fork and edit`_).
+These guidelines also apply when helping with documentation (actually,
+for typos and minor additions you might choose to `fork and
+edit`_). See also the `running the tests`_ section in the official
+documentation.
 
 Submitting Changes
 ------------------
@@ -66,9 +70,12 @@ case, other than GitHub help_ pages, you might want to check this excellent
 .. _Fork: https://help.github.com/articles/fork-a-repo
 .. _`proper format`: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 .. _PEP8: http://www.python.org/dev/peps/pep-0008/
+.. _flake8: http://flake8.readthedocs.org/en/latest/
+.. _tox: http://tox.readthedocs.org/en/latest/
 .. _help: https://help.github.com/
 .. _`Effective Guide to Pull Requests`: http://codeinthehole.com/writing/pull-requests-and-other-good-practices-for-teams-using-github/
 .. _`fork and edit`: https://github.com/blog/844-forking-with-the-edit-button
 .. _`Pull Request`: https://help.github.com/articles/creating-a-pull-request
+.. _`running the tests`: http://python-eve.org/testing#running-the-tests
 
 

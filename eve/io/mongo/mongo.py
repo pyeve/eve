@@ -4,11 +4,10 @@
 
     The actual implementation of the MongoDB data layer.
 
-    :copyright: (c) 2013 by Nicola Iarocci.
+    :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
-import sys
 import ast
 import itertools
 from bson.errors import InvalidId
@@ -16,29 +15,70 @@ import simplejson as json
 import pymongo
 from flask import abort
 from flask.ext.pymongo import PyMongo
+from werkzeug.exceptions import HTTPException
 from bson import ObjectId
 from datetime import datetime
-from eve import ID_FIELD
 from eve.io.mongo.parser import parse, ParseError
-from eve.io.base import DataLayer, ConnectionException
+from eve.io.base import DataLayer, ConnectionException, BaseJSONEncoder
 from eve.utils import config, debug_error_message, validate_filters, \
-    str_to_date
+    str_to_date, str_type
+
+
+class MongoJSONEncoder(BaseJSONEncoder):
+    """ Proprietary JSONEconder subclass used by the json render function.
+    This is needed to address the encoding of special values.
+
+    .. versionadded:: 0.2
+    """
+    def default(self, obj):
+        if isinstance(obj, ObjectId):
+            # BSON/Mongo ObjectId is rendered as a string
+            return str(obj)
+        else:
+            # delegate rendering to base class method
+            return super(MongoJSONEncoder, self).default(obj)
 
 
 class Mongo(DataLayer):
     """ MongoDB data access layer for Eve REST API.
+
+    .. versionchanged:: 0.5
+       Properly serialize nullable float and integers. #469.
+       Return 400 if unsupported query operators are used. #387.
+
+    .. versionchanged:: 0.4
+       Don't serialize to objectid if value is null. #341.
+
+    .. versionchanged:: 0.2
+       Provide the specialized json serializer class as ``json_encoder_class``.
 
     .. versionchanged:: 0.1.1
        'serializers' added.
     """
 
     serializers = {
-        'objectid': ObjectId,
-        'datetime': str_to_date
+        'objectid': lambda value: ObjectId(value) if value else None,
+        'datetime': str_to_date,
+        'integer': lambda value: int(value) if value is not None else None,
+        'float': lambda value: float(value) if value is not None else None,
     }
 
+    # JSON serializer is a class attribute. Allows extensions to replace it
+    # with their own implementation.
+    json_encoder_class = MongoJSONEncoder
+
+    operators = set(
+        ['$gt', '$gte', '$in', '$lt', '$lt', '$lte', '$ne', '$nin'] +
+        ['$or', '$and', '$not', '$nor'] +
+        ['$mod', '$regex', '$text', '$where'] +
+        ['$options', '$search', '$language'] +
+        ['$exists', '$type'] +
+        ['$geoWithin', '$geoIntersects', '$near', '$nearSphere'] +
+        ['$all', '$elemMatch', '$size']
+    )
+
     def init_app(self, app):
-        """
+        """ Initialize PyMongo.
         .. versionchanged:: 0.0.9
            support for Python 3.3.
         """
@@ -48,8 +88,8 @@ class Mongo(DataLayer):
         except Exception as e:
             raise ConnectionException(e)
 
-    def find(self, resource, req):
-        """Retrieves a set of documents matching a given request. Queries can
+    def find(self, resource, req, sub_resource_lookup):
+        """ Retrieves a set of documents matching a given request. Queries can
         be expressed in two different formats: the mongo query syntax, and the
         python syntax. The first kind of query would look like: ::
 
@@ -63,6 +103,26 @@ class Mongo(DataLayer):
 
         :param resource: resource name.
         :param req: a :class:`ParsedRequest`instance.
+        :param sub_resource_lookup: sub-resource lookup from the endpoint url.
+
+        .. versionchanged:: 0.5
+           Support for comma delimited sort syntax. Addresses #443.
+           Return the error if a blacklisted MongoDB operator is used in query.
+           Abort with 400 if unsupported query operator is used. #387.
+           Abort with 400 in case of invalid sort syntax. #387.
+
+        .. versionchanged:: 0.4
+           'allowed_filters' is now checked before adding 'sub_resource_lookup'
+           to the query, as it is considered safe.
+           Refactored to use self._client_projection since projection is now
+           honored by getitem() as well.
+
+        .. versionchanged:: 0.3
+           Support for new _mongotize() signature.
+
+        .. versionchagend:: 0.2
+           Support for sub-resources.
+           Support for 'default_sort'.
 
         .. versionchanged:: 0.1.1
            Better query handling. We're now properly casting objectid-like
@@ -100,38 +160,59 @@ class Mongo(DataLayer):
 
         # TODO should validate on unknown sort fields (mongo driver doesn't
         # return an error)
-        if req.sort:
-            args['sort'] = ast.literal_eval(req.sort)
 
-        client_projection = {}
+        client_sort = {}
         spec = {}
+
+        if req.sort:
+            try:
+                # assume it's mongo syntax (ie. ?sort=[("name", 1)])
+                client_sort = ast.literal_eval(req.sort)
+            except ValueError:
+                # it's not mongo so let's see if it's a comma delimited string
+                # instead (ie. "?sort=-age, name").
+                sort = []
+                for sort_arg in [s.strip() for s in req.sort.split(",")]:
+                    if sort_arg[0] == "-":
+                        sort.append((sort_arg[1:], -1))
+                    else:
+                        sort.append((sort_arg, 1))
+                if len(sort) > 0:
+                    client_sort = sort
+            except Exception as e:
+                abort(400, description=debug_error_message(str(e)))
 
         if req.where:
             try:
                 spec = self._sanitize(json.loads(req.where))
+            except HTTPException as e:
+                # _sanitize() is raising an HTTP exception; let it fire.
+                raise
             except:
+                # couldn't parse as mongo query; give the python parser a shot.
                 try:
                     spec = parse(req.where)
                 except ParseError:
                     abort(400, description=debug_error_message(
                         'Unable to parse `where` clause'
                     ))
-            spec = self._mongotize(spec)
 
         bad_filter = validate_filters(spec, resource)
         if bad_filter:
             abort(400, bad_filter)
 
-        if req.projection:
-            try:
-                client_projection = json.loads(req.projection)
-            except:
-                abort(400, description=debug_error_message(
-                    'Unable to parse `projection` clause'
-                ))
+        if sub_resource_lookup:
+            spec = self.combine_queries(spec, sub_resource_lookup)
 
-        datasource, spec, projection = self._datasource_ex(resource, spec,
-                                                           client_projection)
+        spec = self._mongotize(spec, resource)
+
+        client_projection = self._client_projection(req)
+
+        datasource, spec, projection, sort = self._datasource_ex(
+            resource,
+            spec,
+            client_projection,
+            client_sort)
 
         if req.if_modified_since:
             spec[config.LAST_UPDATED] = \
@@ -140,16 +221,27 @@ class Mongo(DataLayer):
         if len(spec) > 0:
             args['spec'] = spec
 
+        if sort is not None:
+            args['sort'] = sort
+
         if projection is not None:
             args['fields'] = projection
 
         return self.driver.db[datasource].find(**args)
 
-    def find_one(self, resource, **lookup):
-        """Retrieves a single document.
+    def find_one(self, resource, req, **lookup):
+        """ Retrieves a single document.
 
         :param resource: resource name.
+        :param req: a :class:`ParsedRequest` instance.
         :param **lookup: lookup query.
+
+        .. versionchanged:: 0.4
+           Honor client projection requests.
+
+        .. versionchanged:: 0.3.0
+           Support for new _mongotize() signature.
+           Custom ID_FIELD lookups would raise an exception. See #203.
 
         .. versionchanged:: 0.1.0
            ID_FIELD to ObjectID conversion is done before `_datasource_ex` is
@@ -163,18 +255,40 @@ class Mongo(DataLayer):
         """
         if config.ID_FIELD in lookup:
             try:
-                lookup[ID_FIELD] = ObjectId(lookup[ID_FIELD])
+                lookup[config.ID_FIELD] = ObjectId(lookup[config.ID_FIELD])
             except (InvalidId, TypeError):
                 # Returns a type error when {'_id': {...}}
                 pass
 
-        datasource, filter_, projection = self._datasource_ex(resource, lookup)
+        self._mongotize(lookup, resource)
+
+        client_projection = self._client_projection(req)
+
+        datasource, filter_, projection, _ = self._datasource_ex(
+            resource,
+            lookup,
+            client_projection)
 
         document = self.driver.db[datasource].find_one(filter_, projection)
         return document
 
+    def find_one_raw(self, resource, _id):
+        """ Retrieves a single raw document.
+
+        :param resource: resource name.
+        :param id: unique id.
+
+        .. versionadded:: 0.4
+        """
+        datasource, filter_, _, _ = self._datasource_ex(resource,
+                                                        {config.ID_FIELD: _id},
+                                                        None)
+
+        document = self.driver.db[datasource].find_one(_id)
+        return document
+
     def find_list_of_ids(self, resource, ids, client_projection=None):
-        """Retrieves a list of documents from the collection given
+        """ Retrieves a list of documents from the collection given
         by `resource`, matching the given list of ids.
 
         This query is generated to *preserve the order* of the elements
@@ -209,7 +323,7 @@ class Mongo(DataLayer):
             {config.ID_FIELD: id_} for id_ in ids
         ]}
 
-        datasource, spec, projection = self._datasource_ex(
+        datasource, spec, projection, _ = self._datasource_ex(
             resource, query=query, client_projection=client_projection
         )
 
@@ -219,7 +333,7 @@ class Mongo(DataLayer):
         return documents
 
     def insert(self, resource, doc_or_docs):
-        """Inserts a document into a resource collection.
+        """ Inserts a document into a resource collection.
 
         .. versionchanged:: 0.0.9
            More informative error messages.
@@ -235,10 +349,18 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
-        datasource, filter_, _ = self._datasource_ex(resource)
+        datasource, _, _, _ = self._datasource_ex(resource)
         try:
             return self.driver.db[datasource].insert(doc_or_docs,
                                                      **self._wc(resource))
+        except pymongo.errors.DuplicateKeyError as e:
+            abort(409, description=debug_error_message(
+                'pymongo.errors.DuplicateKeyError: %s' % e
+            ))
+        except pymongo.errors.InvalidOperation as e:
+            abort(500, description=debug_error_message(
+                'pymongo.errors.InvalidOperation: %s' % e
+            ))
         except pymongo.errors.OperationFailure as e:
             # most likely a 'w' (write_concern) setting which needs an
             # existing ReplicaSet which doesn't exist. Please note that the
@@ -248,7 +370,17 @@ class Mongo(DataLayer):
             ))
 
     def update(self, resource, id_, updates):
-        """Updates a collection document.
+        """ Updates a collection document.
+
+        .. versionchanged:: 0.4
+           Return a 400 on pymongo DuplicateKeyError.
+
+        .. versionchanged:: 0.3.0
+           Custom ID_FIELD lookups would fail. See #203.
+
+        .. versionchanged:: 0.2
+           Don't explicitly convert ID_FIELD to ObjectId anymore, so we can
+           also process different types (UUIDs etc).
 
         .. versionchanged:: 0.0.9
            More informative error messages.
@@ -262,8 +394,8 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
-        datasource, filter_, _ = self._datasource_ex(resource,
-                                                     {ID_FIELD: ObjectId(id_)})
+        datasource, filter_, _, _ = self._datasource_ex(resource,
+                                                        {config.ID_FIELD: id_})
 
         # TODO consider using find_and_modify() instead. The document might
         # have changed since the ETag was computed. This would require getting
@@ -271,6 +403,10 @@ class Mongo(DataLayer):
         try:
             self.driver.db[datasource].update(filter_, {"$set": updates},
                                               **self._wc(resource))
+        except pymongo.errors.DuplicateKeyError as e:
+            abort(400, description=debug_error_message(
+                'pymongo.errors.DuplicateKeyError: %s' % e
+            ))
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
             abort(500, description=debug_error_message(
@@ -278,12 +414,19 @@ class Mongo(DataLayer):
             ))
 
     def replace(self, resource, id_, document):
-        """Replaces an existing document.
+        """ Replaces an existing document.
+
+        .. versionchanged:: 0.3.0
+           Custom ID_FIELD lookups would fail. See #203.
+
+        .. versionchanged:: 0.2
+           Don't explicitly converto ID_FIELD to ObjectId anymore, so we can
+           also process different types (UUIDs etc).
 
         .. versionadded:: 0.1.0
         """
-        datasource, filter_, _ = self._datasource_ex(resource,
-                                                     {ID_FIELD: ObjectId(id_)})
+        datasource, filter_, _, _ = self._datasource_ex(resource,
+                                                        {config.ID_FIELD: id_})
 
         # TODO consider using find_and_modify() instead. The document might
         # have changed since the ETag was computed. This would require getting
@@ -297,8 +440,17 @@ class Mongo(DataLayer):
                 'pymongo.errors.OperationFailure: %s' % e
             ))
 
-    def remove(self, resource, id_=None):
-        """Removes a document or the entire set of documents from a collection.
+    def remove(self, resource, lookup):
+        """ Removes a document or the entire set of documents from a
+        collection.
+
+        .. versionchanged:: 0.3
+           Support lookup arg, which allows to properly delete sub-resources
+           (only delete documents that meet a certain constraint).
+
+        .. versionchanged:: 0.2
+           Don't explicitly converto ID_FIELD to ObjectId anymore, so we can
+           also process different types (UUIDs etc).
 
         .. versionchanged:: 0.0.9
            More informative error messages.
@@ -315,8 +467,8 @@ class Mongo(DataLayer):
         .. versionadded:: 0.0.2
             Support for deletion of entire documents collection.
         """
-        query = {ID_FIELD: ObjectId(id_)} if id_ else None
-        datasource, filter_, _ = self._datasource_ex(resource, query)
+        lookup = self._mongotize(lookup, resource)
+        datasource, filter_, _, _ = self._datasource_ex(resource, lookup)
         try:
             self.driver.db[datasource].remove(filter_, **self._wc(resource))
         except pymongo.errors.OperationFailure as e:
@@ -329,9 +481,8 @@ class Mongo(DataLayer):
     # of a separate MonqoQuery class
 
     def combine_queries(self, query_a, query_b):
-        """
-        Takes two db queries and applies db-specific syntax to produce
-        the intersection
+        """ Takes two db queries and applies db-specific syntax to produce
+        the intersection.
 
         This is used because we can't just dump one set of query operators
         into another.
@@ -395,7 +546,7 @@ class Mongo(DataLayer):
 
     def query_contains_field(self, query, field_name):
         """ For the specified field name, does the query contain it?
-        Used know whether we need to parse a compound query
+        Used know whether we need to parse a compound query.
 
         .. versionadded: 0.1.0
            Support for parsing values embedded in compound db queries
@@ -406,9 +557,43 @@ class Mongo(DataLayer):
             return False
         return True
 
-    def _mongotize(self, source):
+    def is_empty(self, resource):
+        """ Returns True if resource is empty; False otherwise. If there is no
+        predefined filter on the resource we're relying on the
+        db.collection.count(). However, if we do have a predefined filter we
+        have to fallback on the find() method, which can be much slower.
+
+        .. versionadded:: 0.3
+        """
+        datasource, filter_, _, _ = self._datasource(resource)
+        coll = self.driver.db[datasource]
+        try:
+            if not filter_:
+                # faster, but we can only affrd it if there's now predefined
+                # filter on the datasource.
+                return coll.count() == 0
+            else:
+                # fallback on find() since we have a filter to apply.
+                try:
+                    # need to check if the whole resultset is missing, no
+                    # matter the IMS header.
+                    del filter_[config.LAST_UPDATED]
+                except:
+                    pass
+                return coll.find(filter_).count() == 0
+        except pymongo.errors.OperationFailure as e:
+            # see comment in :func:`insert()`.
+            abort(500, description=debug_error_message(
+                'pymongo.errors.OperationFailure: %s' % e
+            ))
+
+    def _mongotize(self, source, resource):
         """ Recursively iterates a JSON dictionary, turning RFC-1123 strings
         into datetime values and ObjectId-link strings into ObjectIds.
+
+        .. versionchanged:: 0.3
+           'query_objectid_as_string' allows to bypass casting string types
+           to objectids.
 
         .. versionchanged:: 0.1.1
            Renamed from _jsondatetime to _mongotize, as it now handles
@@ -422,32 +607,40 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.0.4
         """
-        if sys.version_info[0] == 3:
-            _str_type = str
-        else:
-            _str_type = basestring  # noqa
+        schema = config.DOMAIN[resource]
+        skip_objectid = schema.get('query_objectid_as_string', False)
 
         def try_cast(v):
             try:
                 return datetime.strptime(v, config.DATE_FORMAT)
             except:
-                try:
-                    return ObjectId(v)
-                except:
+                if not skip_objectid:
+                    try:
+                        # Convert to unicode because ObjectId() interprets
+                        # 12-character strings (but not unicode) as binary
+                        # representations of ObjectId's.  See
+                        # https://github.com/nicolaiarocci/eve/issues/508
+                        try:
+                            r = ObjectId(unicode(v))
+                        except NameError:
+                            # We're on Python 3 so it's all unicode # already.
+                            r = ObjectId(v)
+                        return r
+                    except:
+                        return v
+                else:
                     return v
 
         for k, v in source.items():
             if isinstance(v, dict):
-                self._mongotize(v)
+                self._mongotize(v, resource)
             elif isinstance(v, list):
-                i = 0
-                for v1 in v:
+                for i, v1 in enumerate(v):
                     if isinstance(v1, dict):
-                        source[k][i] = self._mongotize(v1)
+                        source[k][i] = self._mongotize(v1, resource)
                     else:
                         source[k][i] = try_cast(v1)
-                    i += 1
-            elif isinstance(v, _str_type):
+            elif isinstance(v, str_type):
                 source[k] = try_cast(v)
 
         return source
@@ -456,23 +649,34 @@ class Mongo(DataLayer):
         """ Makes sure that only allowed operators are included in the query,
         aborts with a 400 otherwise.
 
+        .. versionchanged:: 0.5
+           Abort with 400 if unsupported query operators are used. #387.
+           DRY.
+
         .. versionchanged:: 0.0.9
            More informative error messages.
            Allow ``auth_username_field`` to be set to ``ID_FIELD``.
 
         .. versionadded:: 0.0.7
         """
-        if set(spec.keys()) & set(config.MONGO_QUERY_BLACKLIST):
-            abort(400, description=debug_error_message(
-                'Query contains operators banned in MONGO_QUERY_BLACKLIST'
-            ))
+        def sanitize_keys(spec):
+            ops = set([op for op in spec.keys() if op[0] == '$'])
+            unknown = ops - Mongo.operators
+            if unknown:
+                abort(400, description=debug_error_message(
+                    'Query contains unknown or unsupported operators: %s' %
+                    ', '.join(unknown)
+                ))
+
+            if set(spec.keys()) & set(config.MONGO_QUERY_BLACKLIST):
+                abort(400, description=debug_error_message(
+                    'Query contains operators banned in MONGO_QUERY_BLACKLIST'
+                ))
+
+        sanitize_keys(spec)
         for value in spec.values():
             if isinstance(value, dict):
-                if set(value.keys()) & set(config.MONGO_QUERY_BLACKLIST):
-                    abort(400, description=debug_error_message(
-                        'Query contains operators banned '
-                        'in MONGO_QUERY_BLACKLIST'
-                    ))
+                sanitize_keys(value)
         return spec
 
     def _wc(self, resource):
@@ -481,3 +685,23 @@ class Mongo(DataLayer):
         .. versionadded:: 0.0.8
         """
         return config.DOMAIN[resource]['mongo_write_concern']
+
+    def _client_projection(self, req):
+        """ Returns a properly parsed client projection if available.
+
+        :param req: a :class:`ParsedRequest` instance.
+
+        .. versionadded:: 0.4
+        """
+        client_projection = {}
+        if req and req.projection:
+            try:
+                client_projection = json.loads(req.projection)
+                if not isinstance(client_projection, dict):
+                    raise Exception('The projection parameter has to be a '
+                                    'dict')
+            except:
+                abort(400, description=debug_error_message(
+                    'Unable to parse `projection` clause'
+                ))
+        return client_projection

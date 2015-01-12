@@ -69,7 +69,7 @@ Then, let's define the endpoint.
         # '/accounts/<ObjectId>'. We define  an additional read-only entry 
         # point accessible at '/accounts/<username>'. 
         'additional_lookup': {
-            'url': '[\w]+',
+            'url': 'regex("[\w]+")',
             'field': 'username',
         },
 
@@ -255,9 +255,9 @@ and of course create.
 
 There are only two things that we need to do in order to activate this feature:
 
-    1. configure the name of the field that will be used to store the owner of the
-    document
-    2. set the document owner on each incoming POST request.
+1. Configure the name of the field that will be used to store the owner of the
+   document;
+2. Set the document owner on each incoming POST request.
 
 
 Since we want to enable this feature for all of our API endpoints we'll just
@@ -292,7 +292,7 @@ value:
             account = accounts.find_one(lookup)
             # set 'AUTH_FIELD' value to the account's ObjectId 
             # (instead of _Id, you might want to use ID_FIELD)
-            self.request_auth_value = account['_id']
+            self.set_request_auth_value(account['_id'])
             return account and check_password_hash(account['password'], password)
 
 
@@ -300,9 +300,9 @@ value:
         app = Eve(auth=RolesAuth)
         app.run()
 
-This is all we need to do. Now, when a user hits the, say, ``/invoices``
-endpoint with a GET request, he will only be served with the invoices created
-by his own account. The same will happen with DELETE and PATCH, making it
+This is all we need to do. Now when a client hits say the ``/invoices``
+endpoint with a GET request, it will only be served with invoices created by
+its own account. The same will happen with DELETE and PATCH, making it
 impossible for an authenticated user to accidentally retrieve, edit or delete
 other people's data.
 
@@ -454,14 +454,15 @@ to be stored to the database.
 
     if __name__ == '__main__':
         app = Eve(auth=RolesAuth)
-        app.on_POST_accounts += add_token
+        app.on_insert_accounts += add_token
         app.run()
 
-As you can see, we are subscribing to the ``on_POST`` event of the `accounts`
+As you can see, we are subscribing to the ``on_insert`` event of the `accounts`
 endpoint with our ``add_token`` function. This callback will receive
 `documents` as an argument, which is a list of validated documents accepted for
 database insertion. We simply add (or replace in the unlikely case that the
-request contained it already) a token to every document, and we're done!
+request contained it already) a token to every document, and we're done! For
+more information on callbacks, see `Event Hooks`_.
 
 4. Returning the token with the response
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -473,7 +474,7 @@ sense, like when the client is a mobile application and we want the user to use
 the service right away.
 
 Normally, only automatically handled fields (``ID_FIELD``, ``LAST_UPDATED``,
-``DATE_CREATED``, ``etag``) are included with POST response payloads.
+``DATE_CREATED``, ``ETAG``) are included with POST response payloads.
 Fortunately, there's a setting which allows us to inject additional fields in
 responses, and that is ``EXTRA_RESPONSE_FIELDS``, with its endpoint-level
 equivalent, ``extra_response_fields``. All we need to do is update our endpoint
@@ -533,3 +534,4 @@ you're sending your tokens out-of-band, and you're on SSL/TLS, that's quite
 a lot of additional security. 
 
 .. _SSL/TLS: http://en.wikipedia.org/wiki/Transport_Layer_Security
+.. _`Event Hooks`: http://python-eve.org/features.html#event-hooks

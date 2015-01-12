@@ -6,7 +6,7 @@
 
     Implements proper, automated rendering for Eve responses.
 
-    :copyright: (c) 2013 by Nicola Iarocci.
+    :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -15,22 +15,32 @@ import datetime
 import simplejson as json
 from werkzeug import utils
 from functools import wraps
-from bson.objectid import ObjectId
 from eve.methods.common import get_rate_limit
-from eve.utils import date_to_str, config, request_method
-from flask import make_response, request, Response, current_app as app
+from eve.utils import date_to_str, date_to_rfc1123, config, request_method, \
+    debug_error_message
+from flask import make_response, request, Response, current_app as app, abort
+
+try:
+    from collections import OrderedDict  # noqa
+except ImportError:
+    # Python 2.6 needs this back-port
+    from ordereddict import OrderedDict
 
 # mapping between supported mime types and render functions.
-_MIME_TYPES = [{'mime': ('application/json',), 'renderer': 'render_json'},
-               {'mime': ('application/xml', 'text/xml', 'application/x-xml',),
-                'renderer': 'render_xml'}]
-_DEFAULT_MIME = 'application/json'
+_MIME_TYPES = [
+    {'mime': ('application/json',), 'renderer': 'render_json', 'tag': 'JSON'},
+    {'mime': ('application/xml', 'text/xml', 'application/x-xml',),
+     'renderer': 'render_xml', 'tag': 'XML'}]
 
 
 def raise_event(f):
     """ Raises both general and resource-level events after the decorated
     function has been executed. Returns both the flask.request object and the
     response payload to the callback.
+
+    .. versionchanged:: 0.2
+       Renamed 'on_<method>' hooks to 'on_post_<method>' for coherence
+       with new 'on_pre_<method>' hooks.
 
     .. versionchanged:: 0.1.0
        Support for PUT.
@@ -46,7 +56,7 @@ def raise_event(f):
         r = f(*args, **kwargs)
         method = request_method()
         if method in ('GET', 'POST', 'PATCH', 'DELETE', 'PUT'):
-            event_name = 'on_' + method
+            event_name = 'on_post_' + method
             resource = args[0] if args else None
             # general hook
             getattr(app, event_name)(resource, request, r)
@@ -86,7 +96,7 @@ def send_response(resource, response):
 
 
 def _prepare_response(resource, dct, last_modified=None, etag=None,
-                      status=200):
+                      status=200, headers=None):
     """ Prepares the response object according to the client request and
     available renderers, making sure that all accessory directives (caching,
     etag, last-modified) are present.
@@ -96,6 +106,13 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     :param last_modified: Last-Modified header value.
     :param etag: ETag header value.
     :param status: response status.
+
+    .. versionchanged:: 0.4
+       Support for optional extra headers.
+       Fix #381. 500 instead of 404 if CORS is enabled.
+
+    .. versionchanged:: 0.3
+       Support for X_MAX_AGE.
 
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
@@ -128,6 +145,12 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         resp = make_response(rendered, status)
         resp.mimetype = mime
 
+    # extra headers
+    if headers:
+        for header, value in headers:
+            if header != 'Content-Type':
+                resp.headers.add(header, value)
+
     # cache directives
     if request.method in ('GET', 'HEAD'):
         if resource:
@@ -145,10 +168,11 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     if etag:
         resp.headers.add('ETag', etag)
     if last_modified:
-        resp.headers.add('Last-Modified', date_to_str(last_modified))
+        resp.headers.add('Last-Modified', date_to_rfc1123(last_modified))
 
     # CORS
-    if 'Origin' in request.headers and config.X_DOMAINS is not None:
+    origin = request.headers.get('Origin')
+    if origin and config.X_DOMAINS:
         if isinstance(config.X_DOMAINS, str):
             domains = [config.X_DOMAINS]
         else:
@@ -161,11 +185,27 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         else:
             headers = config.X_HEADERS
 
-        methods = app.make_default_options_response().headers['allow']
-        resp.headers.add('Access-Control-Allow-Origin', ', '.join(domains))
+        if config.X_EXPOSE_HEADERS is None:
+            expose_headers = []
+        elif isinstance(config.X_EXPOSE_HEADERS, str):
+            expose_headers = [config.X_EXPOSE_HEADERS]
+        else:
+            expose_headers = config.X_EXPOSE_HEADERS
+
+        methods = app.make_default_options_response().headers.get('allow', '')
+
+        if '*' in domains:
+            resp.headers.add('Access-Control-Allow-Origin', origin)
+            resp.headers.add('Vary', 'Origin')
+        elif origin in domains:
+            resp.headers.add('Access-Control-Allow-Origin', origin)
+        else:
+            resp.headers.add('Access-Control-Allow-Origin', '')
         resp.headers.add('Access-Control-Allow-Headers', ', '.join(headers))
+        resp.headers.add('Access-Control-Expose-Headers',
+                         ', '.join(expose_headers))
         resp.headers.add('Access-Control-Allow-Methods', methods)
-        resp.headers.add('Access-Control-Allow-Max-Age', 21600)
+        resp.headers.add('Access-Control-Allow-Max-Age', config.X_MAX_AGE)
 
     # Rate-Limiting
     limit = get_rate_limit()
@@ -181,49 +221,53 @@ def _best_mime():
     """ Returns the best match between the requested mime type and the
     ones supported by Eve. Along with the mime, also the corresponding
     render function is returns.
+
+    .. versionchanged:: 0.3
+       Support for optional renderers via XML and JSON configuration keywords.
     """
     supported = []
     renders = {}
     for mime in _MIME_TYPES:
-        for mime_type in mime['mime']:
-            supported.append(mime_type)
-            renders[mime_type] = mime['renderer']
+        # only mime types that have not been disabled via configuration
+        if app.config.get(mime['tag'], True):
+            for mime_type in mime['mime']:
+                supported.append(mime_type)
+                renders[mime_type] = mime['renderer']
+
+    if len(supported) == 0:
+        abort(500, description=debug_error_message(
+            'Configuration error: no supported mime types')
+        )
+
     best_match = request.accept_mimetypes.best_match(supported) or \
-        _DEFAULT_MIME
+        supported[0]
     return best_match, renders[best_match]
-
-
-class APIEncoder(json.JSONEncoder):
-    """ Propretary JSONEconder subclass used by the json render function.
-    This is needed to address the encoding of special values.
-    """
-    def default(self, obj):
-        if isinstance(obj, datetime.datetime):
-            # convert any datetime to RFC 1123 format
-            return date_to_str(obj)
-        elif isinstance(obj, (datetime.time, datetime.date)):
-            # should not happen since the only supported date-like format
-            # supported at dmain schema level is 'datetime' .
-            return obj.isoformat()
-        elif isinstance(obj, ObjectId):
-            # BSON/Mongo ObjectId is rendered as a string
-            return str(obj)
-        return json.JSONEncoder.default(self, obj)
 
 
 def render_json(data):
     """ JSON render function
 
+    .. versionchanged:: 0.2
+       Json encoder class is now inferred by the active data layer, allowing
+       for customized, data-aware JSON encoding.
+
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
     """
-    return json.dumps(data, cls=APIEncoder)
+    return json.dumps(data, cls=app.data.json_encoder_class,
+                      sort_keys=config.JSON_SORT_KEYS)
 
 
 def render_xml(data):
     """ XML render function.
 
     :param data: the data stream to be rendered as xml.
+
+    .. versionchanged:: 0.4
+       Support for pagination info (_meta).
+
+    .. versionchanged:: 0.2
+       Use the new ITEMS configuration setting.
 
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
@@ -232,12 +276,13 @@ def render_xml(data):
        Support for HAL-like hyperlinks and resource descriptors.
     """
     if isinstance(data, list):
-        data = {'_items': data}
+        data = {config.ITEMS: data}
 
     xml = ''
     if data:
         xml += xml_root_open(data)
         xml += xml_add_links(data)
+        xml += xml_add_meta(data)
         xml += xml_add_items(data)
         xml += xml_root_close()
     return xml
@@ -259,7 +304,7 @@ def xml_root_open(data):
 
     .. versionadded:: 0.0.3
     """
-    links = data.get('_links')
+    links = data.get(config.LINKS)
     href = title = ''
     if links and 'self' in links:
         self_ = links.pop('self')
@@ -269,11 +314,35 @@ def xml_root_open(data):
     return '<resource%s%s>' % (href, title)
 
 
+def xml_add_meta(data):
+    """ Returns a meta node with page, total, max_results fields.
+
+    :param data: the data stream to be rendered as xml.
+
+    .. versionchanged:: 0.5
+       Always return ordered items (#441).
+
+    .. versionadded:: 0.4
+    """
+    xml = ''
+    meta = []
+    if data.get(config.META):
+        ordered_meta = OrderedDict(sorted(data[config.META].items()))
+        for name, value in ordered_meta.items():
+            meta.append('<%s>%d</%s>' % (name, value, name))
+    if meta:
+        xml = '<%s>%s</%s>' % (config.META, ''.join(meta), config.META)
+    return xml
+
+
 def xml_add_links(data):
     """ Returns as many <link> nodes as there are in the datastream. The links
     are then removed from the datastream to allow for further processing.
 
     :param data: the data stream to be rendered as xml.
+
+    .. versionchanged:: 0.5
+       Always return ordered items (#441).
 
     .. versionchanged:: 0.0.6
        Links are now properly escaped.
@@ -282,8 +351,9 @@ def xml_add_links(data):
     """
     xml = ''
     chunk = '<link rel="%s" href="%s" title="%s" />'
-    links = data.pop('_links', {})
-    for rel, link in links.items():
+    links = data.pop(config.LINKS, {})
+    ordered_links = OrderedDict(sorted(links.items()))
+    for rel, link in ordered_links.items():
         if isinstance(link, list):
             xml += ''.join([chunk % (rel, utils.escape(d['href']), d['title'])
                             for d in link])
@@ -303,7 +373,7 @@ def xml_add_items(data):
     .. versionadded:: 0.0.3
     """
     try:
-        xml = ''.join([xml_item(item) for item in data['_items']])
+        xml = ''.join([xml_item(item) for item in data[config.ITEMS]])
     except:
         xml = xml_dict(data)
     return xml
@@ -336,10 +406,17 @@ def xml_dict(data):
 
     :param data: the data stream to be rendered as xml.
 
+    .. versionchanged:: 0.5
+       Always return ordered items (#441).
+
+    .. versionchanged:: 0.2
+       Leaf values are now properly escaped.
+
     .. versionadded:: 0.0.3
     """
     xml = ''
-    for k, v in data.items():
+    ordered_items = OrderedDict(sorted(data.items()))
+    for k, v in ordered_items.items():
         if isinstance(v, datetime.datetime):
             v = date_to_str(v)
         elif isinstance(v, (datetime.time, datetime.date)):
@@ -354,5 +431,5 @@ def xml_dict(data):
                 xml += links
                 xml += "</%s>" % k
             else:
-                xml += "<%s>%s</%s>" % (k, value, k)
+                xml += "<%s>%s</%s>" % (k, utils.escape(value), k)
     return xml

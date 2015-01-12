@@ -1,3 +1,8 @@
+/.project
+/.pydevproject
+/.settings
+.ropeproject
+
 # Eve
 run.py
 settings.py
@@ -36,6 +41,9 @@ pip-log.txt
 
 # SublimeText project files
 *.sublime-*
+
+# vim temp files
+*.swp
 
 #virtualenv
 Include

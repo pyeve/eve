@@ -1,7 +1,10 @@
 Running the Tests 
 =================
-The test suite runs under Python 2.6, Python 2.7 and Python 3.3. To execute it
-locally just run:
+Eve runs under Python 2.6, Python 2.7, Python 3.3 and PyPy. Therefore tests
+will be run in those four platforms in our `continuous integration server`_.
+
+The easiest way to get started is to run the tests in your local environment
+with:
 
 .. code-block:: console
 
@@ -29,7 +32,81 @@ Or even a single class function:
 
 .. code-block:: console
 
-   $ python setup.py test -s eve.tests.methods.get.TestGetItem.test_get_max_results
+   $ python setup.py test -s eve.tests.methods.get.TestGetItem.test_expires
+
+
+Testing with other python versions
+----------------------------------
+Before you submit a pull request, make sure your tests and changes run in
+all supported python versions: 2.6, 2.7, 3.3, 3.4 and PyPy. Instead of creating all
+those environments by hand, Eve uses tox_.
+
+Make sure you have all required python versions installed and run:
+
+.. code-block:: console
+
+   $ pip install tox  # First time only
+   $ tox
+
+This might take some time the first run as the different virtual environments
+are created and dependencies are installed. If everything is ok, you will see
+the following:
+
+.. code-block:: console
+
+    _________ summary _________
+    py26: commands succeeded
+    py27: commands succeeded
+    py33: commands succeeded
+    py34: commands succeeded
+    pypy: commands succeeded
+    flake8: commands succeeded
+    congratulations :)
+
+If something goes **wrong** and one test fails, you might need to run that test
+in the specific python version. You can use the created environments to run
+some specific tests. For example, if a test suite fails in Python 3.4:
+
+.. code-block:: console
+
+    # From the project folder
+    $ tox -e py34 -- -s eve.tests.methods.get.TestGetItem
+
+Using Pytest
+-------------
+You also choose to run the whole test suite using pytest_:
+
+.. code-block:: console
+    
+    # Run the whole test suite
+    $ py.test                
+
+    # Run all tests in the 'methods' folder
+    $ py.test eve/tests/methods       
+
+    # Run all the tests named 'TestEvents'
+    $ py.test -k TestEvents   
+
+    # Run the specific test class
+    $ py.test eve/tests/methods/get.py::TestEvents 
+
+    # Run the specific test
+    $ py.test eve/tests/auth.py::TestBasicAuth::test_custom_auth
+
+
+You can use pytest_ from tox_, but you will need to install it in the tox
+environments before using it.
+
+.. code-block:: console
+
+    $ .tox/py26/bin/pip install pytest
+    $ .tox/py26/bin/py.test
+
+Please note that, just for my own convenience, the ``pytest.ini`` file is
+currently set up in such a way that any test run will abort after two failures.
+Also, if you are a Vim_ user (you should), you might want to check out the awesome
+pytest.vim_ plugin.
+
 
 RateLimiting and Redis
 ----------------------
@@ -45,8 +122,8 @@ yourself with
 
     $ pip install redis
     
-Continous Integration
----------------------
+Continuous Integration
+----------------------
 Each time code is pushed to either the ``develop`` or the ``master``  branch
 the whole test-suite is executed on Travis-CI. This is also the case for
 pull-requests. When a pull request is submitted and the CI run fails two things
@@ -60,6 +137,11 @@ submitting a pull request, or be prepared to be mail-spammed by CI.
 Please note that in practice you're only supposed to submit pull requests
 against the ``develop`` branch, see :ref:`contributing`.
 
+.. _`continuous integration server`: https://travis-ci.org/nicolaiarocci/eve/
+.. _tox: http://tox.readthedocs.org/en/latest/
 .. _Redis:  http://redis.io/
 .. _redispy: https://github.com/andymccurdy/redis-py
 .. _simple: http://redis.io/topics/quickstart
+.. _pytest: http://pytest.org
+.. _pytest.vim: https://github.com/alfredodeza/pytest.vim
+.. _Vim: http://en.wikipedia.org/wiki/Vim_(text_editor)

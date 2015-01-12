@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from eve.tests import TestBase
-import simplejson as json
 from eve.utils import api_prefix
+from eve.tests.test_settings import MONGO_DBNAME
+import simplejson as json
 
 
 class TestRenders(TestBase):
@@ -24,70 +25,192 @@ class TestRenders(TestBase):
                                  headers=[('Accept', 'application/xml')])
         self.assertTrue(b'&amp;' in r.get_data())
 
+    def test_xml_leaf_escaping(self):
+        # test that even xml leaves content is being properly escaped
+
+        # We need to assign a `person` to our test invoice
+        _db = self.connection[MONGO_DBNAME]
+        fake_contact = self.random_contacts(1)
+        fake_contact[0]['ref'] = "12345 & 67890"
+        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+
+        r = self.test_client.get('%s/%s' %
+                                 (self.known_resource_url, fake_contact_id),
+                                 headers=[('Accept', 'application/xml')])
+        self.assertTrue(b'12345 &amp; 6789' in r.get_data())
+
+    def test_xml_ordered_nodes(self):
+        """ Test that xml nodes are ordered and #441 is addressed.
+        """
+        r = self.test_client.get('%s?max_results=1' % self.known_resource_url,
+                                 headers=[('Accept', 'application/xml')])
+        data = r.get_data()
+        idx1 = data.index(b'_created')
+        idx2 = data.index(b'_etag')
+        idx3 = data.index(b'_id')
+        idx4 = data.index(b'_updated')
+        self.assertTrue(idx1 < idx2 < idx3 < idx4)
+        idx1 = data.index(b'max_results')
+        idx2 = data.index(b'page')
+        idx3 = data.index(b'total')
+        self.assertTrue(idx1 < idx2 < idx3)
+        idx1 = data.index(b'last')
+        idx2 = data.index(b'next')
+        idx3 = data.index(b'parent')
+        self.assertTrue(idx1 < idx2 < idx3)
+
     def test_unknown_render(self):
         r = self.test_client.get('/', headers=[('Accept', 'application/html')])
         self.assertEqual(r.content_type, 'application/json')
 
+    def test_json_xml_disabled(self):
+        self.app.config['JSON'] = False
+        self.app.config['XML'] = False
+        r = self.test_client.get(self.known_resource_url,
+                                 headers=[('Accept', 'application/json')])
+        self.assert500(r.status_code)
+        r = self.test_client.get(self.known_resource_url,
+                                 headers=[('Accept', 'application/xml')])
+        self.assert500(r.status_code)
+        r = self.test_client.get(self.known_resource_url)
+        self.assert500(r.status_code)
+
+    def test_json_disabled(self):
+        self.app.config['JSON'] = False
+        r = self.test_client.get(self.known_resource_url,
+                                 headers=[('Accept', 'application/json')])
+        self.assertTrue('application/xml' in r.content_type)
+        r = self.test_client.get(self.known_resource_url,
+                                 headers=[('Accept', 'application/xml')])
+        self.assertTrue('application/xml' in r.content_type)
+        r = self.test_client.get(self.known_resource_url)
+        self.assertTrue('application/xml' in r.content_type)
+
+    def test_xml_disabled(self):
+        self.app.config['XML'] = False
+        r = self.test_client.get(self.known_resource_url,
+                                 headers=[('Accept', 'application/xml')])
+        self.assertEqual(r.content_type, 'application/json')
+        r = self.test_client.get(self.known_resource_url,
+                                 headers=[('Accept', 'application/json')])
+        self.assertEqual(r.content_type, 'application/json')
+        r = self.test_client.get(self.known_resource_url)
+        self.assertEqual(r.content_type, 'application/json')
+
+    def test_json_keys_sorted(self):
+        self.app.config['JSON_SORT_KEYS'] = True
+        r = self.test_client.get(self.known_resource_url,
+                                 headers=[('Accept', 'application/json')])
+        self.assertEqual(
+            json.dumps(json.loads(r.get_data()), sort_keys=True).encode(),
+            r.get_data()
+        )
+
     def test_CORS(self):
+        # no CORS headers if Origin is not provided with the request.
         r = self.test_client.get('/')
         self.assertFalse('Access-Control-Allow-Origin' in r.headers)
         self.assertFalse('Access-Control-Allow-Methods' in r.headers)
         self.assertFalse('Access-Control-Allow-Max-Age' in r.headers)
+        self.assertFalse('Access-Control-Expose-Headers' in r.headers)
+        self.assert200(r.status_code)
 
+        # test that if X_DOMAINS is set to '*', then any Origin value is
+        # allowed. Also test that only the Origin header included with the
+        # request will be # returned back to the client.
         self.app.config['X_DOMAINS'] = '*'
         r = self.test_client.get('/', headers=[('Origin',
                                                 'http://example.com')])
-        self.assertEqual(r.headers['Access-Control-Allow-Origin'], '*')
+        self.assert200(r.status_code)
+        self.assertEqual(r.headers['Access-Control-Allow-Origin'],
+                         'http://example.com')
+        self.assertEqual(r.headers['Vary'], 'Origin')
 
-        self.app.config['X_DOMAINS'] = ['http://example.com',
-                                        'http://1on1.com']
+        # test that if a list is set for X_DOMAINS, then:
+        # 1. only list values are accepted;
+        # 2. only the value included with the request is returned back.
+        self.app.config['X_DOMAINS'] = ['http://1of2.com', 'http://2of2.com']
+        r = self.test_client.get('/', headers=[('Origin', 'http://1of2.com')])
+        self.assert200(r.status_code)
+        self.assertEqual(r.headers['Access-Control-Allow-Origin'],
+                         'http://1of2.com')
+
+        r = self.test_client.get('/', headers=[('Origin', 'http://2of2.com')])
+        self.assert200(r.status_code)
+        self.assertEqual(r.headers['Access-Control-Allow-Origin'],
+                         'http://2of2.com')
+
+        r = self.test_client.get('/', headers=[('Origin',
+                                                'http://notreally.com')])
+        self.assert200(r.status_code)
+        self.assertEqual(r.headers['Access-Control-Allow-Origin'], '')
+
+        # other Access-Control-Allow- headers are included.
+        self.assertTrue('Access-Control-Allow-Headers' in r.headers)
+        self.assertTrue('Access-Control-Allow-Methods' in r.headers)
+        self.assertTrue('Access-Control-Allow-Max-Age' in r.headers)
+        self.assertTrue('Access-Control-Expose-Headers' in r.headers)
+
+    def test_CORS_MAX_AGE(self):
+        self.app.config['X_DOMAINS'] = '*'
         r = self.test_client.get('/', headers=[('Origin',
                                                 'http://example.com')])
-        self.assertEqual(r.headers['Access-Control-Allow-Origin'],
-                         'http://example.com, http://1on1.com')
+        self.assertEqual(r.headers['Access-Control-Allow-Max-Age'],
+                         '21600')
 
-        self.assertTrue('Access-Control-Allow-Origin' in r.headers)
-        self.assertTrue('Access-Control-Allow-Max-Age' in r.headers)
-
+        self.app.config['X_MAX_AGE'] = 2000
         r = self.test_client.get('/', headers=[('Origin',
-                                                'http://not_an_example.com')])
-        self.assertEqual(r.headers['Access-Control-Allow-Origin'],
-                         'http://example.com, http://1on1.com')
+                                                'http://example.com')])
+        self.assertEqual(r.headers['Access-Control-Allow-Max-Age'],
+                         '2000')
 
-    def test_CORS_OPTIONS(self, url='/', methods=[]):
+    def test_CORS_OPTIONS(self, url='/', methods=None):
+        if methods is None:
+            methods = []
+
         r = self.test_client.open(url, method='OPTIONS')
         self.assertFalse('Access-Control-Allow-Origin' in r.headers)
         self.assertFalse('Access-Control-Allow-Methods' in r.headers)
         self.assertFalse('Access-Control-Allow-Max-Age' in r.headers)
+        self.assertFalse('Access-Control-Expose-Headers' in r.headers)
         self.assert200(r.status_code)
 
+        # test that if X_DOMAINS is set to '*', then any Origin value is
+        # allowed. Also test that only the Origin header included with the
+        # request will be # returned back to the client.
         self.app.config['X_DOMAINS'] = '*'
         r = self.test_client.open(url, method='OPTIONS',
                                   headers=[('Origin', 'http://example.com')])
         self.assert200(r.status_code)
-        self.assertEqual(r.headers['Access-Control-Allow-Origin'], '*')
+        self.assertEqual(r.headers['Access-Control-Allow-Origin'],
+                         'http://example.com')
+        self.assertEqual(r.headers['Vary'], 'Origin')
         for m in methods:
             self.assertTrue(m in r.headers['Access-Control-Allow-Methods'])
 
-        self.app.config['X_DOMAINS'] = ['http://example.com',
-                                        'http://1on1.com']
+        self.app.config['X_DOMAINS'] = ['http://1of2.com', 'http://2of2.com']
         r = self.test_client.open(url, method='OPTIONS',
-                                  headers=[('Origin', 'http://example.com')])
+                                  headers=[('Origin', 'http://1of2.com')])
         self.assert200(r.status_code)
         self.assertEqual(r.headers['Access-Control-Allow-Origin'],
-                         'http://example.com, http://1on1.com')
+                         'http://1of2.com')
+        r = self.test_client.open(url, method='OPTIONS',
+                                  headers=[('Origin', 'http://2of2.com')])
+        self.assert200(r.status_code)
+        self.assertEqual(r.headers['Access-Control-Allow-Origin'],
+                         'http://2of2.com')
 
         for m in methods:
             self.assertTrue(m in r.headers['Access-Control-Allow-Methods'])
 
         self.assertTrue('Access-Control-Allow-Origin' in r.headers)
         self.assertTrue('Access-Control-Allow-Max-Age' in r.headers)
+        self.assertTrue('Access-Control-Expose-Headers' in r.headers)
 
         r = self.test_client.get(url, headers=[('Origin',
                                                 'http://not_an_example.com')])
         self.assert200(r.status_code)
-        self.assertEqual(r.headers['Access-Control-Allow-Origin'],
-                         'http://example.com, http://1on1.com')
+        self.assertEqual(r.headers['Access-Control-Allow-Origin'], '')
         for m in methods:
             self.assertTrue(m in r.headers['Access-Control-Allow-Methods'])
 
@@ -95,7 +218,9 @@ class TestRenders(TestBase):
         prefix = api_prefix(self.app.config['URL_PREFIX'],
                             self.app.config['API_VERSION'])
 
-        for resource, settings in self.app.config['DOMAIN'].items():
+        del(self.domain['peopleinvoices'])
+        del(self.domain['internal_transactions'])
+        for _, settings in self.app.config['DOMAIN'].items():
 
             # resource endpoint
             url = '%s/%s/' % (prefix, settings['url'])
@@ -113,178 +238,3 @@ class TestRenders(TestBase):
         url = '%s%s/%s' % (prefix, self.known_resource_url, self.item_ref)
         methods = ['GET', 'OPTIONS']
         self.test_CORS_OPTIONS(url, methods)
-
-
-class TestEventHooks(TestBase):
-    #TODO not sure this is the right place for this class really.
-
-    def setUp(self):
-        super(TestEventHooks, self).setUp()
-        self.passed = False
-        self.callback_value = None
-        self.documents = None
-
-    def test_on_GET(self):
-        def general_hook(resource, request, payload):
-            self.callback_value = resource
-        self.app.on_GET += general_hook
-        # homepage
-        self.test_client.get('/')
-        self.assertEqual(self.callback_value, None)
-        # resource endpoint
-        self.test_client.get(self.known_resource_url)
-        self.assertEqual(self.callback_value, self.known_resource)
-        # document endpoint
-        self.test_client.get(self.item_id_url)
-        self.assertEqual(self.callback_value, self.known_resource)
-
-    def test_GET_resource(self):
-        def resource_hook(request, payload):
-            self.passed = True
-        self.app.on_GET_contacts += resource_hook
-        # resource endpoint
-        self.test_client.get(self.known_resource_url)
-        self.assertTrue(self.passed)
-        # document endpoint
-        self.passed = False
-        self.test_client.get(self.item_id_url)
-        self.assertTrue(self.passed)
-
-    def test_on_POST(self):
-        def general_hook(resource, request, payload):
-            self.callback_value = resource
-        self.app.on_POST += general_hook
-        self.post()
-        self.assertEqual(self.callback_value, self.known_resource)
-
-    def test_on_POST_resource(self):
-        def resource_hook(request, payload):
-            self.passed = True
-        self.app.on_POST_contacts += resource_hook
-        self.post()
-        self.assertTrue(self.passed)
-
-    def test_on_PATCH(self):
-        def general_hook(resource, request, payload):
-            self.callback_value = resource
-        self.app.on_PATCH += general_hook
-        self.patch()
-        self.assertEqual(self.callback_value, self.known_resource)
-
-    def test_on_PATCH_resource(self):
-        def resource_hook(request, payload):
-            self.passed = True
-        self.app.on_PATCH_contacts += resource_hook
-        self.patch()
-        self.assertTrue(self.passed)
-
-    def test_on_PUT(self):
-        def general_hook(resource, request, payload):
-            self.callback_value = resource
-        self.app.on_PUT += general_hook
-        self.put()
-        self.assertEqual(self.callback_value, self.known_resource)
-
-    def test_on_PUT_resource(self):
-        def resource_hook(request, payload):
-            self.passed = True
-        self.app.on_PUT_contacts += resource_hook
-        self.put()
-        self.assertTrue(self.passed)
-
-    def test_on_DELETE(self):
-        def general_hook(resource, request, payload):
-            self.callback_value = resource
-        self.app.on_DELETE += general_hook
-        self.delete()
-        self.assertEqual(self.callback_value, self.known_resource)
-
-    def test_on_DELETE_resource(self):
-        def resource_hook(request, payload):
-            self.passed = True
-        self.app.on_DELETE_contacts += resource_hook
-        self.delete()
-        self.assertTrue(self.passed)
-
-    def test_on_insert_POST(self):
-        def general_hook(resource, documents):
-            self.assertEqual(resource, self.known_resource)
-            self.assertEqual(len(documents), 1)
-            self.passed = True
-        self.app.on_insert += general_hook
-        self.post()
-        self.assertTrue(self.passed)
-
-    def test_on_insert_PUT(self):
-        def general_hook(resource, documents):
-            self.assertEqual(resource, self.known_resource)
-            self.assertEqual(len(documents), 1)
-            self.passed = True
-        self.app.on_insert += general_hook
-        self.put()
-        self.assertTrue(self.passed)
-
-    def test_on_insert_resource_POST(self):
-        def resource_hook(documents):
-            self.assertEqual(len(documents), 1)
-            self.passed = True
-        self.app.on_insert_contacts += resource_hook
-        self.post()
-        self.assertTrue(self.passed)
-
-    def test_on_insert_resource_PUT(self):
-        def resource_hook(documents):
-            self.assertEqual(len(documents), 1)
-            self.passed = True
-        self.app.on_insert_contacts += resource_hook
-        self.put()
-        self.assertTrue(self.passed)
-
-    def test_on_fetch(self):
-        def general_hook(resource, documents):
-            self.assertEqual(resource, self.known_resource)
-            self.assertEqual(len(documents), 25)
-            self.passed = True
-        self.app.on_fetch_resource += general_hook
-        self.test_client.get(self.known_resource_url)
-        self.assertTrue(self.passed)
-
-    def test_on_fetch_resource(self):
-        def resource_hook(documents):
-            self.assertEqual(len(documents), 25)
-            self.passed = True
-        self.app.on_fetch_resource_contacts += resource_hook
-        self.test_client.get(self.known_resource_url)
-        self.assertTrue(self.passed)
-
-    def test_on_fetch_item(self):
-        def item_hook(resource, _id, document):
-            self.assertEqual(str(_id), self.item_id)
-            self.passed = True
-        self.app.on_fetch_item += item_hook
-        self.test_client.get(self.item_id_url)
-        self.assertTrue(self.passed)
-
-    def post(self, extra=None):
-        headers = [('Content-Type', 'application/json')]
-        data = json.dumps({"ref": "0123456789012345678901234"})
-        if extra:
-            headers.extend(extra)
-        self.test_client.post(self.known_resource_url, data=data,
-                              headers=headers)
-
-    def patch(self):
-        headers = [('Content-Type', 'application/json'),
-                   ('If-Match', self.item_etag)]
-        data = json.dumps({"ref": "i'm unique"})
-        self.test_client.patch(self.item_id_url, data=data, headers=headers)
-
-    def delete(self):
-        self.test_client.delete(self.item_id_url, headers=[('If-Match',
-                                                            self.item_etag)])
-
-    def put(self):
-        headers = [('Content-Type', 'application/json'),
-                   ('If-Match', self.item_etag)]
-        data = json.dumps({"ref": "0123456789012345678901234"})
-        self.test_client.put(self.item_id_url, data=data, headers=headers)

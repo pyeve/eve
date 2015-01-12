@@ -7,23 +7,29 @@
     This module implements a Python-to-Mongo syntax parser. Allows the MongoDB
     data-layer to seamlessy respond to a Python-like query.
 
-    :copyright: (c) 2013 by Nicola Iarocci.
+    :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
 import ast
+import sys
 from datetime import datetime   # noqa
 from bson import ObjectId       # noqa
 
 
 def parse(expression):
-    """Given a python-like conditional statement, returns the equivalent
+    """ Given a python-like conditional statement, returns the equivalent
     mongo-like query expression. Conditional and boolean operators (==, <=, >=,
     !=, >, <) along with a couple function calls (ObjectId(), datetime()) are
     supported.
     """
     v = MongoVisitor()
-    v.visit(ast.parse(expression))
+    try:
+        v.visit(ast.parse(expression))
+    except SyntaxError as e:
+        e = ParseError(e)
+        e.__traceback__ = sys.exc_info()[2]
+        raise e
     return v.mongo_query
 
 
@@ -32,7 +38,7 @@ class ParseError(ValueError):
 
 
 class MongoVisitor(ast.NodeVisitor):
-    """Implements the python-to-mongo parser. Only Python conditional
+    """ Implements the python-to-mongo parser. Only Python conditional
     statements are supported, however nested, combined with most common compare
     and boolean operators (And and Or).
 
@@ -78,7 +84,6 @@ class MongoVisitor(ast.NodeVisitor):
     def visit_Compare(self, node):
         """ Compare operator handler.
         """
-
         self.visit(node.left)
         left = self.current_value
 
@@ -114,7 +119,7 @@ class MongoVisitor(ast.NodeVisitor):
 
     def visit_Call(self, node):
         """ A couple function calls are supported: bson's ObjectId() and
-        datetime()
+        datetime().
         """
         if isinstance(node.func, ast.Name):
             expr = None
@@ -129,19 +134,22 @@ class MongoVisitor(ast.NodeVisitor):
                 self.current_value = eval(node.func.id + expr)
 
     def visit_Attribute(self, node):
-        """ Attribute handler ('Contact.Id')
+        """ Attribute handler ('Contact.Id').
         """
         self.visit(node.value)
         self.current_value += "." + node.attr
 
     def visit_Name(self, node):
-        """ Names """
+        """ Names handler.
+        """
         self.current_value = node.id
 
     def visit_Num(self, node):
-        """ Numbers """
+        """ Numbers handler.
+        """
         self.current_value = node.n
 
     def visit_Str(self, node):
-        """ Strings """
+        """ Strings handler.
+        """
         self.current_value = node.s
