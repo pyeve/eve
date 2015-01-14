@@ -8,7 +8,7 @@ Version 0.6
 
 Not released yet.
 
-- Here be dragons.
+- Fix: pretty url for regex with a colon in the expression (Magdas Adrian.)
 
 Version 0.5
 -----------
