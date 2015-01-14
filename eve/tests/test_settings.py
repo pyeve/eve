@@ -195,6 +195,10 @@ users_invoices = copy.deepcopy(invoices)
 users_invoices['url'] = 'users/<regex("[a-f0-9]{24}"):person>/invoices'
 users_invoices['datasource'] = {'source': 'invoices'}
 
+users_searches = copy.deepcopy(invoices)
+users_searches['url'] = 'users/<regex("[a-zA-Z0-9:\\-\\.]+"):person>/saved_searches'
+users_searches['datasource'] = {'source': 'invoices'}
+
 internal_transactions = {
     'resource_methods': ['GET'],
     'item_methods': ['GET'],
@@ -211,6 +215,7 @@ DOMAIN = {
     'empty': empty,
     'restricted': user_restricted_access,
     'peopleinvoices': users_invoices,
+    'peoplesearches': users_searches,
     'companies': companies,
     'internal_transactions': internal_transactions,
 }
