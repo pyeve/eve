@@ -196,8 +196,9 @@ users_invoices['url'] = 'users/<regex("[a-f0-9]{24}"):person>/invoices'
 users_invoices['datasource'] = {'source': 'invoices'}
 
 users_searches = copy.deepcopy(invoices)
-users_searches['url'] = 'users/<regex("[a-zA-Z0-9:\\-\\.]+"):person>/saved_searches'
 users_searches['datasource'] = {'source': 'invoices'}
+users_searches['url'] = \
+    'users/<regex("[a-zA-Z0-9:\\-\\.]+"):person>/saved_searches'
 
 internal_transactions = {
     'resource_methods': ['GET'],
