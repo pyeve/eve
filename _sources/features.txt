@@ -159,7 +159,7 @@ or
     invoices?where={"contact_id": 51f63e0838345b6dcd7eabff, "number": 10}
 
 It's mostly a design choice, but keep in mind that when it comes to enabling
-individual documment endpoints you might incur in performance hits. This
+individual document endpoints you might incur performance hits. This
 otherwise legit GET request:
 
 ::
