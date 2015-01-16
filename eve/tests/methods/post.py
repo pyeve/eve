@@ -456,6 +456,42 @@ class TestPost(TestBase):
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 
+    def test_post_dependency_fields_with_values(self):
+        # test that dependencies values are validated correctly. See #547.
+        del(self.domain['contacts']['schema']['ref']['required'])
+
+        schema = {
+            'field1': {
+                'required': False
+            },
+            'field2': {
+                'required': True,
+                'dependencies': {'field1': ['one', 'two']}
+            }
+        }
+        settings = {
+            'RESOURCE_METHODS': ['GET', 'POST', 'DELETE'],
+            'ITEM_METHODS': ['GET', 'PATCH', 'PUT', 'DELETE'],
+            'schema': schema
+        }
+        self.app.register_resource('posts', settings)
+
+        data = {"field1": "three", "field2": 7}
+        r, s = self.post('posts', data=data)
+        self.assert422(s)
+
+        data = {"field2": 7}
+        r, s = self.post('posts', data=data)
+        self.assert422(s)
+
+        data = {"field1": "one", "field2": 7}
+        r, s = self.post('posts', data=data)
+        self.assert201(s)
+
+        data = {"field1": "two", "field2": 7}
+        r, s = self.post('posts', data=data)
+        self.assert201(s)
+
     def test_post_readonly_field_with_default(self):
         # test that a read only field with a 'default' setting is correctly
         # validated now that we resolve field values before validation.
