@@ -3,6 +3,22 @@ Eve Changelog
 
 Here you can see the full list of changes between each Eve release.
 
+Version 0.6
+-----------
+
+Not released yet.
+
+- Here be dragons.
+
+Version 0.5.1
+-------------
+
+Released on 16 Jan, 2015.
+
+- Fix: dependencies with value checking seem broken (#547.)
+- Fix: documentation typo (Marc Abramowitz.)
+- Fix: pretty url for regex with a colon in the expression (Magdas Adrian.)
+
 Version 0.5
 -----------
 

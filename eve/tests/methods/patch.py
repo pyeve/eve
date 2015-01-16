@@ -506,6 +506,7 @@ class TestPatch(TestBase):
         # this will fail as dependent field is missing even in the
         # document we are trying to update.
         del(self.domain['contacts']['schema']['dependency_field1']['default'])
+        del(self.domain['contacts']['defaults']['dependency_field1'])
         changes = {'dependency_field2': 'value'}
         r, status = self.patch(self.item_id_url, data=changes,
                                headers=[('If-Match', self.item_etag)])

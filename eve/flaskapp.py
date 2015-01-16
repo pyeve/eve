@@ -633,7 +633,7 @@ class Eve(Flask, Events):
         pretty_url = settings['url']
         if '<' in pretty_url:
             pretty_url = pretty_url[:pretty_url.index('<')+1] + \
-                pretty_url[pretty_url.index(':')+1:]
+                pretty_url[pretty_url.rindex(':')+1:]
         self.config['URLS'][resource] = pretty_url
 
         # resource endpoint

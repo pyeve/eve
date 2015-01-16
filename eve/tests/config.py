@@ -324,11 +324,15 @@ class TestConfig(TestBase):
         resource_url = self.app.config['URLS']['peopleinvoices']
         pretty_url = 'users/<person>/invoices'
         self.assertEqual(resource_url, pretty_url)
+        resource_url = self.app.config['URLS']['peoplesearches']
+        pretty_url = 'users/<person>/saved_searches'
+        self.assertEqual(resource_url, pretty_url)
 
     def test_url_rules(self):
         map_adapter = self.app.url_map.bind('')
 
         del(self.domain['peopleinvoices'])
+        del(self.domain['peoplesearches'])
         del(self.domain['internal_transactions'])
         for _, settings in self.domain.items():
             for method in settings['resource_methods']:
