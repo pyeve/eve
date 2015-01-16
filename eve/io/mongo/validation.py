@@ -219,6 +219,9 @@ class Validator(Validator):
         proposed changes with the original document before validating
         dependencies.
 
+        .. versionchanged:: 0.5.1
+           Fix: dependencies with value checking seems broken #547.
+
         .. versionadded:: 0.5
            If a dependency has a default value, skip it as Cerberus does not
            have the notion of default values and would report a missing
@@ -228,15 +231,20 @@ class Validator(Validator):
         if dependencies is None:
             return True
 
-        # Ensure `dependencies` is a list
         if isinstance(dependencies, str_type):
             dependencies = [dependencies]
-        elif isinstance(dependencies, Mapping):
-            dependencies = dependencies.keys()
 
-        # Filter out dependencies with default values
-        dependencies = [d for d in dependencies
-                        if self.schema[d].get('default') is None]
+        # TODO should probably use to config.DOMAIN[self.resource]['defaults']
+        # as it would allow to recurse dict values with their own defaults.
+        default_fields = [d for d in dependencies if
+                          self.schema[d].get('default') is not None]
+        if len(default_fields):
+            if isinstance(dependencies, Mapping):
+                for field in default_fields:
+                    del(dependencies[field])
+            else:
+                dependencies = [d for d in dependencies if d not in
+                                default_fields]
 
         dcopy = None
         if self._original_document:

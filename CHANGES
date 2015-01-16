@@ -8,6 +8,7 @@ Version 0.6
 
 Not released yet.
 
+- Fix: dependencies with value checking seem broken (#547.)
 - Fix: documentation typos (Marc Abramowitz.)
 - Fix: pretty url for regex with a colon in the expression (Magdas Adrian.)
 
