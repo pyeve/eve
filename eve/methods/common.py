@@ -538,7 +538,7 @@ def subdocuments(fields_chain, document):
     """
     if len(fields_chain) == 0:
         yield document
-    else:
+    elif fields_chain[0] in document:
         subdocument = document[fields_chain[0]]
         docs = subdocument if isinstance(subdocument, list) else [subdocument]
         for doc in docs:

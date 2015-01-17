@@ -653,6 +653,9 @@ class TestGet(TestBase):
         company = {'departments': [{'title': 'development',
                                    'members': contact_ids}]}
         company_id = _db.companies.insert(company)
+        # Add a documents with no reference that should be ignored
+        _db.companies.insert({})
+        _db.companies.insert({'departments': []})
 
         companies = self.domain['companies']
         contact_ids = list(map(str, contact_ids))
