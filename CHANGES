@@ -6,8 +6,8 @@ Here you can see the full list of changes between each Eve release.
 Next release
 ------------
 
-- Fix: 500 when embedded is used on subdocument with a missing field (Emmanuel
-  Leblond.)
+- Fix: Crash when ``embedded`` is used on subdocument with a missing field
+  (Emmanuel Leblond.)
 
 Version 0.5.1
 -------------
