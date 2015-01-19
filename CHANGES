@@ -3,12 +3,11 @@ Eve Changelog
 
 Here you can see the full list of changes between each Eve release.
 
-Version 0.6
------------
+Next release
+------------
 
-Not released yet.
-
-- Here be dragons.
+- Fix: 500 when embedded is used on subdocument with a missing field (Emmanuel
+  Leblond.)
 
 Version 0.5.1
 -------------
