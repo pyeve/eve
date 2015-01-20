@@ -6,6 +6,7 @@ Here you can see the full list of changes between each Eve release.
 Next release
 ------------
 
+- Fix: User Restricted Resource Access does not work with HMAC Auth classes.
 - Fix: Crash when ``embedded`` is used on subdocument with a missing field
   (Emmanuel Leblond.)
 

@@ -728,6 +728,9 @@ def resolve_user_restricted_access(document, resource):
     :param document: the document being posted or replaced
     :param resource: the resource to which the document belongs
 
+    .. versionchanged:: 0.5.2
+       Make User Restricted Resource Access work with HMAC Auth too.
+
     .. versionchanged:: 0.4
        Use new auth.request_auth_value() method.
 
@@ -740,7 +743,7 @@ def resolve_user_restricted_access(document, resource):
     auth_field = resource_def['auth_field']
     if auth and auth_field:
         request_auth_value = auth.get_request_auth_value()
-        if request_auth_value and request.authorization:
+        if request_auth_value:
             document[auth_field] = request_auth_value
 
 
