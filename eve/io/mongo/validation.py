@@ -95,10 +95,7 @@ class Validator(Validator):
         if unique:
             query = {field: value}
             if self._id:
-                try:
-                    query[config.ID_FIELD] = {'$ne': ObjectId(self._id)}
-                except:
-                    query[config.ID_FIELD] = {'$ne': self._id}
+                query[config.ID_FIELD] = {'$ne': self._id}
 
             if app.data.find_one(self.resource, None, **query):
                 self._error(field, "value '%s' is not unique" % value)
