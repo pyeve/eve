@@ -18,8 +18,7 @@ Eve REST API for Humans™ has been presented at the following events so far:
 - PyCon Sweden 2014, Stockholm 
 - FOSDEM 2014, Brussels 
 
-Are you a conference organizer? In case you are wondering yes, I'm probably
-willing to give this talk or another (how about `Developing RESTful Web APIs
-with Flask
+Are you a conference organizer? I'm willing to give this or another talk (how
+about `Developing RESTful Web APIs with Flask
 <https://speakerdeck.com/nicola/developing-restful-web-apis-with-python-flask-and-mongodb>`_?)
-at your event. Let's talk!
+at your event. Get in touch!

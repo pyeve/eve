@@ -4,11 +4,10 @@
 
     The actual implementation of the MongoDB data layer.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
-import sys
 import ast
 import itertools
 from bson.errors import InvalidId
@@ -22,7 +21,7 @@ from datetime import datetime
 from eve.io.mongo.parser import parse, ParseError
 from eve.io.base import DataLayer, ConnectionException, BaseJSONEncoder
 from eve.utils import config, debug_error_message, validate_filters, \
-    str_to_date
+    str_to_date, str_type
 
 
 class MongoJSONEncoder(BaseJSONEncoder):
@@ -43,7 +42,8 @@ class MongoJSONEncoder(BaseJSONEncoder):
 class Mongo(DataLayer):
     """ MongoDB data access layer for Eve REST API.
 
-    .. versionchanged:
+    .. versionchanged:: 0.5
+       Properly serialize nullable float and integers. #469.
        Return 400 if unsupported query operators are used. #387.
 
     .. versionchanged:: 0.4
@@ -59,8 +59,8 @@ class Mongo(DataLayer):
     serializers = {
         'objectid': lambda value: ObjectId(value) if value else None,
         'datetime': str_to_date,
-        'integer': int,
-        'float': float,
+        'integer': lambda value: int(value) if value is not None else None,
+        'float': lambda value: float(value) if value is not None else None,
     }
 
     # JSON serializer is a class attribute. Allows extensions to replace it
@@ -353,6 +353,10 @@ class Mongo(DataLayer):
         try:
             return self.driver.db[datasource].insert(doc_or_docs,
                                                      **self._wc(resource))
+        except pymongo.errors.DuplicateKeyError as e:
+            abort(409, description=debug_error_message(
+                'pymongo.errors.DuplicateKeyError: %s' % e
+            ))
         except pymongo.errors.InvalidOperation as e:
             abort(500, description=debug_error_message(
                 'pymongo.errors.InvalidOperation: %s' % e
@@ -603,11 +607,6 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.0.4
         """
-        if sys.version_info[0] == 3:
-            _str_type = str
-        else:
-            _str_type = basestring  # noqa
-
         schema = config.DOMAIN[resource]
         skip_objectid = schema.get('query_objectid_as_string', False)
 
@@ -617,7 +616,16 @@ class Mongo(DataLayer):
             except:
                 if not skip_objectid:
                     try:
-                        return ObjectId(v)
+                        # Convert to unicode because ObjectId() interprets
+                        # 12-character strings (but not unicode) as binary
+                        # representations of ObjectId's.  See
+                        # https://github.com/nicolaiarocci/eve/issues/508
+                        try:
+                            r = ObjectId(unicode(v))
+                        except NameError:
+                            # We're on Python 3 so it's all unicode # already.
+                            r = ObjectId(v)
+                        return r
                     except:
                         return v
                 else:
@@ -632,7 +640,7 @@ class Mongo(DataLayer):
                         source[k][i] = self._mongotize(v1, resource)
                     else:
                         source[k][i] = try_cast(v1)
-            elif isinstance(v, _str_type):
+            elif isinstance(v, str_type):
                 source[k] = try_cast(v)
 
         return source

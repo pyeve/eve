@@ -7,7 +7,7 @@
     This module implements the central WSGI application object as a Flask
     subclass.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -145,8 +145,9 @@ class Eve(Flask, Events):
         else:
             self.auth = None
 
-        # set up home url
         self._init_url_rules()
+
+        self._init_oplog()
 
         # validate and set defaults for each resource
 
@@ -191,6 +192,9 @@ class Eve(Flask, Events):
         Since we are a Flask subclass, any configuration value supported by
         Flask itself is available (besides Eve's proper settings).
 
+        .. versionchanged:: 0.5
+           Allow EVE_SETTINGS envvar to be used exclusively. Closes #461.
+
         .. versionchanged:: 0.2
            Allow use of a dict object as settings.
         """
@@ -207,7 +211,11 @@ class Eve(Flask, Events):
             else:
                 abspath = os.path.abspath(os.path.dirname(sys.argv[0]))
                 pyfile = os.path.join(abspath, self.settings)
-            self.config.from_pyfile(pyfile)
+            try:
+                self.config.from_pyfile(pyfile)
+            except:
+                # assume an envvar is going to be used exclusively
+                pass
 
         # overwrite settings with custom environment variable
         envvar = 'EVE_SETTINGS'
@@ -461,6 +469,7 @@ class Eve(Flask, Events):
         """ Low-level method which sets default values for one resource.
 
         .. versionchanged:: 0.5
+           Don't set default projection if 'allow_unknown' is active (#497).
            'internal_resource'
 
         .. versionchanged:: 0.3
@@ -537,7 +546,7 @@ class Eve(Flask, Events):
         settings['datasource'].setdefault('filter', None)
         settings['datasource'].setdefault('default_sort', None)
 
-        if len(schema):
+        if len(schema) and settings['allow_unknown'] is False:
             # enable retrieval of actual schema fields only. Eventual db
             # fields not included in the schema won't be returned.
             projection = {}
@@ -610,6 +619,7 @@ class Eve(Flask, Events):
 
         .. versionchanged:: 0.5
            Don't add resource to url rules if it's flagged as internal.
+           Strip regexes out of config.URLS helper. Closes #466.
 
         .. versionadded:: 0.2
         """
@@ -619,7 +629,12 @@ class Eve(Flask, Events):
             return
 
         url = '%s/%s' % (self.api_prefix, settings['url'])
-        self.config['URLS'][resource] = settings['url']
+
+        pretty_url = settings['url']
+        if '<' in pretty_url:
+            pretty_url = pretty_url[:pretty_url.index('<')+1] + \
+                pretty_url[pretty_url.rindex(':')+1:]
+        self.config['URLS'][resource] = pretty_url
 
         # resource endpoint
         endpoint = resource + "|resource"
@@ -751,3 +766,40 @@ class Eve(Flask, Events):
         """
         for code in [400, 401, 403, 404, 405, 406, 409, 410, 422]:
             self.error_handler_spec[None][code] = error_endpoint
+
+    def _init_oplog(self):
+        """ If enabled, configures the OPLOG endpoint.
+
+        .. versionadded:: 0.5
+        """
+        name, endpoint, audit = (
+            self.config['OPLOG_NAME'],
+            self.config['OPLOG_ENDPOINT'],
+            self.config['OPLOG_AUDIT']
+        )
+
+        if endpoint:
+            settings = self.config['DOMAIN'].setdefault(name, {})
+
+            settings.setdefault('url', endpoint)
+            settings.setdefault('datasource', {'source': name})
+
+            # this endpoint is always read-only
+            settings['resource_methods'] = ['GET']
+            settings['item_methods'] = ['GET']
+
+            # schema is also fixed. it is needed because otherwise we
+            # would end up exposing the AUTH_FIELD when User-Restricted-
+            # Resource-Access is enabled.
+            settings['schema'] = {
+                'r': {},
+                'o': {},
+                'i': {},
+            }
+            if audit:
+                settings['schema'].update(
+                    {
+                        'ip': {},
+                        'c': {}
+                    }
+                )

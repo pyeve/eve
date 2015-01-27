@@ -3,111 +3,203 @@ Eve Changelog
 
 Here you can see the full list of changes between each Eve release.
 
+Next release
+------------
+
+- Fix: User Restricted Resource Access does not work with HMAC Auth classes.
+- Fix: Crash when ``embedded`` is used on subdocument with a missing field
+  (Emmanuel Leblond.)
+
+Version 0.5.1
+-------------
+
+Released on 16 Jan, 2015.
+
+- Fix: dependencies with value checking seem broken (#547.)
+- Fix: documentation typo (Marc Abramowitz.)
+- Fix: pretty url for regex with a colon in the expression (Magdas Adrian.)
+
 Version 0.5
 -----------
 
-Not released yet.
+Released on 12 Jan, 2015.
 
-- [fix] Add missing ``$options`` and ``$list`` MongoDB operators to the allowed
-  list (Jaroslav Semančík).
-- [fix] Get document when it is missing embedded media. In case you try to
-  embedd a document which has media fields and that document has been deleted,
-  you would get an error (Petr Jašek).
-- [new] GeoJSON support (Juan Madurga).
-- [new] ``put_internal()`` can be used for intenral PUT calls. This method is
+- New: Operations Log (http://python-eve.org/features#operations-log.)
+- New: GeoJSON (http://python-eve.org/features.html#geojson) (Juan Madurga.)
+- New: Internal Resources (http://python-eve.org/features#internal-resources) (Magdas Adrian.)
+- New: Support for multiple origins when using CORS (Josh Villbrandt, #532.)
+- New: Regexes are stripped out of HATEOAS urls when present. You now get
+  ``games/<game_id>/images`` where previously you would get
+  ``games/<regex('[a-f0-9]{24}'):game_id>/images``). Closes #466.
+- New: ``JSON_SORT_KEYS`` enables JSON key sorting (Matt Creenan).
+- New: Add the current query string to the self link for responses with
+  multiple documents. Closes #464 (Jen Montes).
+- New: When document versioning is on, add ``?version=<version_num>`` to
+  HATEOAS self links. Also adds pagination links for ``?version=all`` and
+  ``?version=diffs`` requests when the number exceeds the max results.
+  Partially addresses #475 (Jen Montes).
+- New: ``QUERY_WHERE`` allows to set the query parameter key for filters.
+  Defaults to ``where``.
+- New: ``QUERY_SORT`` allows to set the query parameter key for sorting.
+  Defaults to ``sort``.
+- New: ``QUERY_PAGE`` allows to set the query parameter key for pagination.
+  Defaults to ``page``.
+- New: ``QUERY_PROJECTION`` allows to set the query parameter key for
+  projections. Defaults to ``projection``.
+- New: ``QUERY_MAX_RESULTS`` allows to set the query parameter key for max
+  results. Defaults to ``max_results``.
+- New: ``QUERY_EMBEDDED`` allows to set the query parameter key embedded
+  documents. Defaults to ``embedded``.
+- New: Fire ``on_fetched`` events for ``version=all`` requests (Jen Montes).
+- New: Support for CORS ``Access-Control-Expose-Headers`` (Christian Henke).
+- New: ``post_internal()`` can be used for intenral post calls. This method is
+  not rate limited, authentication is not checked and pre-request events are
+  not raised (Magdas Adrian).
+- New: ``put_internal()`` can be used for intenral PUT calls. This method is
   not rate limited, authentication is not checked and pre-request events are
   not raised (Kevin Funk).
-- [new] ``patch_internal()`` can be used for intenral PATCH calls. This method
+- New: ``patch_internal()`` can be used for intenral PATCH calls. This method
   is not rate limited, authentication is not checked and pre-request events are
   not raised (Kevin Funk).
-- [new] ``delete_internal()`` can be used for intenral DELETE calls. This
-  method is not rate limited, authentication is not checked and pre-request
-  events are not raised (Kevin Funk).
-- [fix] fix additional lookup regex in  RESTful Account Management tutorial
-  (Ashley Roach).
-- [new] Comma delimited sort syntax in queries. The MongoDB data layer now also
+- New: ``delete_internal()`` can be used for intenral DELETE calls. This method
+  is not rate limited, authentication is not checked and pre-request events are
+  not raised (Kevin Funk).
+- New: Add an option to ``_internal`` methods to skip payload validation
+  (Olivier Poitrey).
+- New: Comma delimited sort syntax in queries. The MongoDB data layer now also
   supports queries like ``?sort=lastname,-age``. Addresses #443.
-- [change] XML item, meta and link nodes are now ordered. Closes #441.
-- [fix] ``utils.weak_date`` always returns a RFC-1123 date (Petr Jašek).
-- [change] If-Modified-Since has been disabled on resource (collections)
-  endpoints. Closes #334.
-- [fix] Can't embed a ressource with a custom _id (non ObjectId). Closes #427.
-- [fix] Do not follow DATE_FORMAT for HTTP headers. Closes #429 (Olivier
-  Poitrey).
-- [fix] Fix app initialization with resource level versioning #409 (Sebastián
-  Magrí).
-- [fix] KeyError when trying to use embedding on a field that is missing from
-  document. It was fixed earlier in #319, but came back again after new
-  embedding mechanism (Daniel Lytkin). 
-- [fix] Support for list of strings as default value for fields (hansotronic).
-- [new] Add extra 4xx response codes for proper handling. Only ``405`` Method
+- New: Add extra 4xx response codes for proper handling. Only ``405`` Method
   not allowed, ``406`` Not acceptable, ``409`` Conflict, and ``410`` Gone have
   been added to the list (Kurt Doherty).
-- [new] Add serializers for integer and float types (Grisha K.) 
-- [new] ``post_internal()`` can be used for intenral post calls. This method is
-  not rate limited,authentication is not checked and pre-request events are not
-  raised (Magdas Adrian).
-- [new] Internal resource can be used for data manipulation using the data
-  layer (Magdas Adrian).
-- [fix] Media fields are now properly returned even in embedded documents.
-  Closes #305.
-- [fix] auth in domain configuration can be either a callable or a class
-  instance (Gino Zhang).
-- [change] etags are now persisted with the documents. This ensures that etags
+- New: Add serializers for integer and float types (Grisha K.) 
+- New: dev-requirements.txt added to the repo.
+- New: Embedding of documents by references located in any subdocuments. For
+  example, query ``embedded={"user.friends":1}`` will return a document with
+  "user" and all his "friends" embedded, but only if ``user`` is a subdocument
+  and ``friends`` is a list of references (Dmitry Anoshin).
+- New: Allow mongoengine to work properly with cursor counts (Johan Bloemberg) 
+- New: ``ALLOW_UNKNOWN`` allows unknown fields to be read, not only written as
+  before. Closes #397 and #250.
+- New: ``VALIDATION_ERROR_STATUS`` allows setting of the HTTP status code to
+  use for validation errors. Defaults to ``422`` (Olivier Poitrey). 
+- New: Support for sub-document projections. Fixes #182 (Olivier Poitrey).
+- New: Return ``409 Conflict`` on pymongo ``DuplicateKeyError`` for ``POST``
+  requests, as already happens with ``PUT`` requests (Matt Creenan, #537.)
+
+- Change: ``DELETE`` returns ``204 NoContent`` on a successful delete.
+- Change: SERVER_NAME removed as it is not needed anymore.
+- Change: URL_PROTOCOL removed as it is not needed anymore.
+- Change: HATEOAS links are now relative to the API root. Closes #398 #401.
+- Change: If-Modified-Since has been disabled on resource (collections)
+  endpoints. Same functionality is available with a ``?where={"_udpated":
+  {"$gt": "<RFC1123 date>"}}`` request. The OpLog also allows retrieving detailed
+  changes happened at any endpoint, deleted documents included. Closes #334.
+- Change: etags are now persisted with the documents. This ensures that etags
   are consistent across queries, even when projection queries are issued.
   Please note that etags will only be stored along with new documents created
   and/or edited via API methods (POST/PUT/PATCH). Documents inserted by other
   means and those stored with v0.4 and below will keep working as previously:
   their etags will be computed on-the-fly and you will get still be getting
   inconsistent etags when projection queries are issued. Closes #369.
-- [fix] Schema definition: a default value of [] for a list causes IndexError.
-  Closes #417.
-- [fix] Close file handles in setup.py (Harro van der Klauw)
-- [fix] Querying a collection should always return pagination information (even
-  when no data is being returned). Closes #415.
-- [change] ``put`` method signature for ``MediaStorage`` base class has been
+- Change: XML item, meta and link nodes are now ordered. Closes #441.
+- Change: ``put`` method signature for ``MediaStorage`` base class has been
   updated. ``filemame`` is now optional. Closes #414.
-- [change] CORS behavior to be compatible with browsers (Chrome). Eve is now
+- Change: CORS behavior to be compatible with browsers (Chrome). Eve is now
   echoing back the contents of the Origin header if said content is whitelisted
   in X_DOMAINS. This also safer as it avoids exposing internal server
   configuration. Closes #408. This commit was carefully handcrafed on a flight
   to EuroPython 2014.
-- [fix] Recursively validate the whole query string.
-- [fix] If the data layer supports a list of allowed query operators, take them
-  into consideration when validating a query string. Closes #388.
-- [fix[ Abort with 400 if unsupported query operators are used. Closes #387.
-- [fix] Return the error if a blacklisted MongoDB operator is used in a query
+- Change: Specify a range of dependant package versions. #379 (James Stewart).
+- Change: Cerberus 0.8 is now required.
+- Change: pymongo v2.7.2 is now required.
+- Change: simplejson v3.6.5 is now required.
+- Change: update ``dev-requirements.txt`` to most recent tools available.
+
+- Fix: add ``README.rst`` to ``MANIFEST.in`` (Niall Donegan.)
+- Fix: ``LICENSE`` variable in ``setup.py`` should be "shortstring". Closes
+  #540 (Niall Donegan.)
+- Fix: ``PATCH`` on fields with original value of ``None`` (Marcus Cobden,
+  #534).
+- Fix: Fix impossible version ranges in setup.py (Marcus Cobden, #531.)
+- Fix: Bug with expanding lists of roles, compromising authorization (Mikael
+  Berg, #527) 
+- Fix: ``PATCH`` on subdocument fields does not overwrite the whole
+  subdocument anymore. Closes #519.
+- Fix: Added support for validation on field attribute with type list (Jorge
+  Morales).
+- Fix: Fix a serialization bug with integer and float when value is
+  0 (Olivier Poitrey).
+- Fix: Custom ID fields tutorial: if custom ID fields are being used, then
+  MongoDB/Eve won't be able to create them automatically as it does with the
+  `ObjectId` default type. Closes #511.
+- Fix: Dependencies with default values were reported as missing if omitted.
+  Closes #353.
+- Fix: Dependencies always fails on PATCH if dependent field isn't part of
+  the update. #363.
+- Fix: client projections work when ``allow_unknown`` is active. Closes #497.
+- Fix: datasource projections are active when ``allow_unknown`` is active.
+  closes #497.
+- Fix: Properly serialize nullable floats and integers. Closes #469.
+- Fix: ``_mongotize()`` turns non-ObjectId strings (but not unicode) into
+  ObjectIds. Closes #508 (Or Neeman).
+- Fix: Fix validation of read-only fields inside dicts. Closes #474 (Arnau
+  Orriols).
+- Fix: Parent and collection links follow the scheme described in #475 (Jen
+  Montes).
+- Fix: Ignore read-only fields in ``PATCH`` requests when their values aren't
+  changed compared to the stored document. Closes #479.
+- Fix: Allow ``EVE_SETTINGS`` envvar to be used exclusively. Previously,
+  a settings file in the working directory was always required. Closes #461.
+- Fix: exception when trying to set nullable media field to null (Daniel
+  Lytkin)
+- Fix: Add missing ``$options`` and ``$list`` MongoDB operators to the
+  allowed list (Jaroslav Semančík).
+- Fix: Get document when it is missing embedded media. In case you try to
+  embedd a document which has media fields and that document has been deleted,
+  you would get an error (Petr Jašek).
+- Fix: fix additional lookup regex in  RESTful Account Management tutorial
+  (Ashley Roach).
+- Fix: ``utils.weak_date`` always returns a RFC-1123 date (Petr Jašek).
+- Fix: Can't embed a ressource with a custom _id (non ObjectId). Closes #427.
+- Fix: Do not follow DATE_FORMAT for HTTP headers. Closes #429 (Olivier
+  Poitrey).
+- Fix: Fix app initialization with resource level versioning #409 (Sebastián
+  Magrí).
+- Fix: KeyError when trying to use embedding on a field that is missing from
+  document. It was fixed earlier in #319, but came back again after new
+  embedding mechanism (Daniel Lytkin). 
+- Fix: Support for list of strings as default value for fields (hansotronic).
+- Fix: Media fields are now properly returned even in embedded documents.
+  Closes #305.
+- Fix: auth in domain configuration can be either a callable or a class
+  instance (Gino Zhang).
+- Fix: Schema definition: a default value of [] for a list causes IndexError.
+  Closes #417.
+- Fix: Close file handles in setup.py (Harro van der Klauw)
+- Fix: Querying a collection should always return pagination information (even
+  when no data is being returned). Closes #415.
+- Fix: Recursively validate the whole query string.
+- Fix: If the data layer supports a list of allowed query operators, take
+  them into consideration when validating a query string. Closes #388.
+- Fix: Abort with 400 if unsupported query operators are used. Closes #387.
+- Fix: Return the error if a blacklisted MongoDB operator is used in a query
   (debug mode). 
-- [fix] Invalid sort syntax raises 500 instead of 400. Addresses #378.
-- [change] HATEOAS links are now relative to the API root. Closes #398 #401.
-- [change] simplejson 3.5.3 is now required.
-- [new] dev-requirements.txt added to the repo.
-- [change] Specify a range of dependant package versions. #379 (James Stewart).
-- [new] Support for python wheels (http://wheel.readthedocs.org)
-- [fix] Fix serialization when `type` is missing in schema. #404 (Jaroslav
+- Fix: Invalid sort syntax raises 500 instead of 400. Addresses #378.
+- Fix: Fix serialization when `type` is missing in schema. #404 (Jaroslav
   Semančík).
-- [new] Embedding of documents by references located in any subdocuments. For
-  example, query ``embedded={"user.friends":1}`` will return a document with
-  "user" and all his "friends" embedded, but only if ``user`` is a subdocument
-  and ``friends`` is a list of references (Dmitry Anoshin).
-- [new] Allow mongoengine to work properly with cursor counts (Johan Bloemberg) 
-- [fix] When PUTting or PATCHing media fields, they would not be properly
+- Fix: When PUTting or PATCHing media fields, they would not be properly
   replaced as needed (Stanislav Heller).
-- [fix] ``test_get_sort_disabled`` occasional failure.
-- [fix] A POST with an empty array leads to a server crash. Now returns a 400
+- Fix: ``test_get_sort_disabled`` occasional failure.
+- Fix: A POST with an empty array leads to a server crash. Now returns a 400
   error isntead and ensure the server won't crash in case of mongo invalid
   operations (Olivier Poitrey). 
-- [new] ``ALLOW_UNKNOWN`` allows unknown fields to be read, not only written as
-  before. Closes #397 and #250.
-- [fix] PATCH and PUT don't respect flask.abort() in a pre-update event. Closes
+- Fix: PATCH and PUT don't respect flask.abort() in a pre-update event. Closes
   #395 (Christopher Larsen).
-- [new] ``VALIDATION_ERROR_STATUS`` allows setting of the HTTP status code to
-  use for validation errors. Defaults to ``422`` (Olivier Poitrey). 
-- [fix] Validating keyschema rules would cause a TypeError since 0.4. Closes
+- Fix: Validating keyschema rules would cause a TypeError since 0.4. Closes
   nicolaiarocci/cerberus#48.
-- [new] Support for sub-document projections. Fixes #182 (Olivier Poitrey).
-- [fix] Crash if client projection is not a dict #390 (Olivier Poitrey).
-- [fix] Server crash in case of invalid "where" syntax #386 (Olivier Poitrey).
+- Fix: Crash if client projection is not a dict #390 (Olivier Poitrey).
+- Fix: Server crash in case of invalid "where" syntax #386 (Olivier Poitrey).
+
 
 Version 0.4
 -----------

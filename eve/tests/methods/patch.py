@@ -9,7 +9,6 @@ from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES, STATUS, ETAG
 from eve.methods.patch import patch_internal
 
 
-# @unittest.skip("don't need no freakin' tests!")
 class TestPatch(TestBase):
 
     def test_patch_to_resource_endpoint(self):
@@ -351,6 +350,181 @@ class TestPatch(TestBase):
         self.assertTrue('ref' in r)
         db_value = self.compare_patch_with_get(self.app.config['ETAG'], r)
         self.assertEqual(db_value, r[self.app.config['ETAG']])
+
+    def test_patch_readonly_field_with_previous_document(self):
+        schema = self.domain['contacts']['schema']
+        del(schema['ref']['required'])
+
+        # disable read-only on the field so we can store a value which is
+        # also different form its default value.
+        schema['read_only_field']['readonly'] = False
+        changes = {'read_only_field': 'value'}
+        r = self.perform_patch(changes)
+
+        # resume read-only status for the field
+        self.domain['contacts']['schema']['read_only_field']['readonly'] = True
+
+        # test that if the read-only field is included with the payload and its
+        # value is equal to the one stored with the document, validation
+        # succeeds (#479).
+        etag = r['_etag']
+        r, status = self.patch(self.item_id_url, data=changes,
+                               headers=[('If-Match', etag)])
+        self.assert200(status)
+        self.assertPatchResponse(r, self.item_id)
+
+        # test that if the read-only field is included with the payload and its
+        # value is different from the stored document, validation fails.
+        etag = r['_etag']
+        changes = {'read_only_field': 'another value'}
+        r, status = self.patch(self.item_id_url, data=changes,
+                               headers=[('If-Match', etag)])
+        self.assert422(status)
+        self.assertTrue('is read-only' in r['_issues']['read_only_field'])
+
+    def test_patch_nested_document_not_overwritten(self):
+        """ Test that nested documents are not overwritten on PATCH and #519
+        is fixed.
+        """
+
+        schema = {
+            'sensor': {
+                "type": "dict",
+                "schema": {
+                    "name": {"type": "string"},
+                    "lon": {"type": "float"},
+                    "lat":  {"type": "float"},
+                    "value":  {"type": "float", "default": 10.3},
+                    "dict": {
+                        'type': 'dict',
+                        'schema': {
+                            'string': {'type': 'string'},
+                            'int': {'type': 'integer'},
+                        }
+                    }
+                }
+            },
+            'test': {
+                'type': 'string',
+                'readonly': True,
+                'default': 'default'
+            }
+        }
+
+        self.app.config['BANDWIDTH_SAVER'] = False
+        self.app.register_resource('sensors', {'schema': schema})
+
+        changes = {
+            'sensor': {
+                'name': 'device_name',
+                'lon': 43.4,
+                'lat': 1.31,
+                'dict': {'int': 99}
+            }
+        }
+        r, status = self.post("sensors", data=changes)
+        self.assert201(status)
+
+        id, etag, value, test, int = (
+            r[ID_FIELD],
+            r[ETAG],
+            r['sensor']['value'],
+            r['test'],
+            r['sensor']['dict']['int']
+        )
+
+        changes = {
+            'sensor': {
+                'lon': 10.0,
+                'dict': {'string': 'hi'}
+            }
+        }
+
+        r, status = self.patch(
+            "/%s/%s" % ('sensors', id),
+            data=changes,
+            headers=[('If-Match', etag)]
+        )
+        self.assert200(status)
+
+        etag, value, int = (
+            r[ETAG],
+            r['sensor']['value'],
+            r['sensor']['dict']['int']
+        )
+        self.assertEqual(value, 10.3)
+        self.assertEqual(test, 'default')
+        self.assertEqual(int, 99)
+
+    def test_patch_nested_document_nullable_missing(self):
+        schema = {
+            'sensor': {
+                'type': 'dict',
+                'schema': {
+                    'name': {'type': 'string'},
+                },
+                'default': None,
+            },
+            'other': {
+                'type': 'dict',
+                'schema': {
+                    'name': {'type': 'string'},
+                },
+            }
+        }
+        self.app.config['BANDWIDTH_SAVER'] = False
+        self.app.register_resource('sensors', {'schema': schema})
+
+        changes = {}
+
+        r, status = self.post("sensors", data=changes)
+        self.assert201(status)
+        id, etag = r[ID_FIELD], r[ETAG]
+        self.assertTrue('sensor' in r)
+        self.assertEqual(r['sensor'], None)
+        self.assertFalse('other' in r)
+
+        changes = {
+            'sensor': {'name': 'device_name'},
+            'other': {'name': 'other_name'},
+        }
+
+        r, status = self.patch(
+            "/%s/%s" % ('sensors', id),
+            data=changes,
+            headers=[('If-Match', etag)]
+        )
+        self.assert200(status)
+        self.assertEqual(r['sensor'], {'name': 'device_name'})
+        self.assertEqual(r['other'], {'name': 'other_name'})
+
+    def test_patch_dependent_field_on_origin_document(self):
+        """ Test that when patching a field which is dependent on another and
+        this other field is not provided with the patch but is still present
+        on the target document, the patch will be accepted. See #363.
+        """
+        # this will fail as dependent field is missing even in the
+        # document we are trying to update.
+        del(self.domain['contacts']['schema']['dependency_field1']['default'])
+        del(self.domain['contacts']['defaults']['dependency_field1'])
+        changes = {'dependency_field2': 'value'}
+        r, status = self.patch(self.item_id_url, data=changes,
+                               headers=[('If-Match', self.item_etag)])
+        self.assert422(status)
+
+        # update the stored document by adding dependency field.
+        changes = {'dependency_field1': 'value'}
+        r, status = self.patch(self.item_id_url, data=changes,
+                               headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+
+        # now the field2 update will be accepted as the dependency field is
+        # present in the stored document already.
+        etag = r['_etag']
+        changes = {'dependency_field2': 'value'}
+        r, status = self.patch(self.item_id_url, data=changes,
+                               headers=[('If-Match', etag)])
+        self.assert200(status)
 
     def assertPatchResponse(self, response, item_id):
         self.assertTrue(STATUS in response)

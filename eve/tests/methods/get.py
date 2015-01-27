@@ -3,6 +3,7 @@ from io import BytesIO
 import simplejson as json
 from datetime import datetime
 from bson import ObjectId
+from werkzeug.datastructures import ImmutableMultiDict
 from eve.tests import TestBase
 from eve.tests.utils import DummyEvent
 from eve.tests.test_settings import MONGO_DBNAME
@@ -39,6 +40,14 @@ class TestGet(TestBase):
         resource = response['_items']
         self.assertEqual(len(resource), self.app.config['PAGINATION_LIMIT'])
 
+    def test_get_custom_max_results(self):
+        self.app.config['QUERY_MAX_RESULTS'] = 'size'
+        maxr = 10
+        response, status = self.get(self.known_resource, '?size=%d' % maxr)
+        self.assert200(status)
+        resource = response['_items']
+        self.assertEqual(len(resource), maxr)
+
     def test_get_page(self):
         response, status = self.get(self.known_resource)
         self.assert200(status)
@@ -49,8 +58,7 @@ class TestGet(TestBase):
         self.assertPagination(response, 1, 101, 25)
 
         page = 1
-        response, status = self.get(self.known_resource,
-                                    '?page=%d' % page)
+        response, status = self.get(self.known_resource, '?page=%d' % page)
         self.assert200(status)
 
         links = response['_links']
@@ -59,8 +67,7 @@ class TestGet(TestBase):
         self.assertPagination(response, 1, 101, 25)
 
         page = 2
-        response, status = self.get(self.known_resource,
-                                    '?page=%d' % page)
+        response, status = self.get(self.known_resource, '?page=%d' % page)
         self.assert200(status)
 
         links = response['_links']
@@ -70,14 +77,26 @@ class TestGet(TestBase):
         self.assertPagination(response, 2, 101, 25)
 
         page = 5
-        response, status = self.get(self.known_resource,
-                                    '?page=%d' % page)
+        response, status = self.get(self.known_resource, '?page=%d' % page)
         self.assert200(status)
 
         links = response['_links']
         self.assertPrevLink(links, 4)
         self.assertLastLink(links, None)
         self.assertPagination(response, 5, 101, 25)
+
+    def test_get_custom_page(self):
+        self.app.config['QUERY_PAGE'] = 'custom'
+
+        page = 2
+        response, status = self.get(self.known_resource, '?custom=%d' % page)
+        self.assert200(status)
+
+        links = response['_links']
+        self.assertNextLink(links, 3)
+        self.assertPrevLink(links, 1)
+        self.assertLastLink(links, 5)
+        self.assertPagination(response, 2, 101, 25)
 
     def test_get_pagination_no_documents(self):
         """ test that pagination meta is present even when no records are being
@@ -101,8 +120,7 @@ class TestGet(TestBase):
 
     def test_get_where_mongo_syntax(self):
         where = '{"ref": "%s"}' % self.item_name
-        response, status = self.get(self.known_resource,
-                                    '?where=%s' % where)
+        response, status = self.get(self.known_resource, '?where=%s' % where)
         self.assert200(status)
 
         resource = response['_items']
@@ -113,6 +131,15 @@ class TestGet(TestBase):
                 {"$gte": "Tue, 01 Oct 2013 00:59:22 GMT"}}]}' % self.item_name
         response, status = self.get(self.known_resource,
                                     '?where=%s' % where)
+        self.assert200(status)
+
+        resource = response['_items']
+        self.assertEqual(len(resource), 1)
+
+    def test_get_custom_where(self):
+        self.app.config['QUERY_WHERE'] = 'whereas'
+        where = '{"ref": "%s"}' % self.item_name
+        response, status = self.get(self.known_resource, '?whereas=%s' % where)
         self.assert200(status)
 
         resource = response['_items']
@@ -157,6 +184,33 @@ class TestGet(TestBase):
 
         resource = response['_items']
         self.assertEqual(len(resource), 1)
+
+    def test_get_query_in_links(self):
+        """ Make sure that query strings appear in all HATEOAS links (#464).
+        """
+        # find a role with enough results
+        for role in ('agent', 'client', 'vendor'):
+            where = 'role == %s' % role
+            response, _ = self.get(self.known_resource, '?where=%s' % where)
+            if response['_meta']['max_results'] \
+                    >= self.app.config['PAGINATION_LIMIT'] + 1:
+                break
+        links = response['_links']
+        total = response['_meta']['total']
+        max_results = response['_meta']['max_results']
+        last_page = total / max_results + (1 if total % max_results else 0)
+        self.assertTrue('?where=%s' % where in links['self']['href'])
+        self.assertTrue('?where=%s' % where in links['next']['href'])
+        self.assertTrue('?where=%s' % where in links['last']['href'])
+        self.assertNextLink(links, 2)
+        self.assertLastLink(links, last_page)
+
+        page = 2
+        response, _ = self.get(self.known_resource,
+                               '?where=%s&page=%d' % (where, page))
+        links = response['_links']
+        self.assertTrue('?where=%s' % where in links['prev']['href'])
+        self.assertPrevLink(links, 1)
 
     def test_get_projection_consistent_etag(self):
         """ Test that #369 is fixed and projection queries return consistent
@@ -212,6 +266,20 @@ class TestGet(TestBase):
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
             self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
             self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
+
+    def test_get_custom_projection(self):
+        self.app.config['QUERY_PROJECTION'] = 'view'
+        projection = '{"prog": 1}'
+        response, status = self.get(self.known_resource, '?view=%s' %
+                                    projection)
+        self.assert200(status)
+
+        resource = response['_items']
+
+        for r in resource:
+            self.assertFalse('location' in r)
+            self.assertFalse('role' in r)
+            self.assertTrue('prog' in r)
 
     def test_get_projection_subdocument(self):
         projection = '{"location.address": 1}'
@@ -271,6 +339,18 @@ class TestGet(TestBase):
         sort = '[("prog",-1)]'
         response, status = self.get(self.known_resource,
                                     '?sort=%s' % sort)
+        self.assert200(status)
+
+        resource = response['_items']
+        self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
+        topvalue = 100
+        for i in range(len(resource)):
+            self.assertEqual(resource[i]['prog'], topvalue - i)
+
+    def test_get_custom_sort(self):
+        self.app.config['QUERY_SORT'] = 'orderby'
+        sort = '[("prog",-1)]'
+        response, status = self.get(self.known_resource, '?orderby=%s' % sort)
         self.assert200(status)
 
         resource = response['_items']
@@ -542,7 +622,8 @@ class TestGet(TestBase):
         content = json.loads(r.get_data())
         self.assertFalse('missing-field' in content['_items'][0])
 
-    def test_get_default_embedding(self):
+    def test_get_custom_embedded(self):
+        self.app.config['QUERY_EMBEDDED'] = 'included'
         # We need to assign a `person` to our test invoice
         _db = self.connection[MONGO_DBNAME]
 
@@ -552,46 +633,17 @@ class TestGet(TestBase):
                             {'$set': {'person': fake_contact_id}})
 
         invoices = self.domain['invoices']
-
-        # Turn default field embedding on
-        invoices['embedded_fields'] = ['person']
+        invoices['schema']['person']['data_relation']['embeddable'] = True
 
         # Test that doesn't come embedded if asking for a field that
         # isn't embedded (global setting is False by default)
-        r = self.test_client.get(invoices['url'])
-        self.assert200(r.status_code)
-        content = json.loads(r.get_data())
-        self.assertTrue(content['_items'][0]['person'], self.item_id)
-
-        # Set field to be embedded
-        invoices['schema']['person']['data_relation']['embeddable'] = True
-
-        # Test that global setting applies even if field is set to embedded
-        invoices['embedding'] = False
-        r = self.test_client.get(invoices['url'])
-        self.assert200(r.status_code)
-        content = json.loads(r.get_data())
-        self.assertTrue(content['_items'][0]['person'], self.item_id)
-
-        # Test that it works
+        embedded = '{"person": 1}'
         invoices['embedding'] = True
-        r = self.test_client.get(invoices['url'])
+        r = self.test_client.get('%s/%s' % (invoices['url'],
+                                            '?included=%s' % embedded))
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
         self.assertTrue('location' in content['_items'][0]['person'])
-
-        # Test that it ignores a bogus field
-        invoices['embedded_fields'] = ['person', 'not-really']
-        r = self.test_client.get(invoices['url'])
-        self.assert200(r.status_code)
-        content = json.loads(r.get_data())
-        self.assertTrue('location' in content['_items'][0]['person'])
-
-        # Test that it works with item endpoint too
-        r = self.test_client.get('%s/%s' % (invoices['url'], self.invoice_id))
-        self.assert200(r.status_code)
-        content = json.loads(r.get_data())
-        self.assertTrue('location' in content['person'])
 
     def test_get_reference_embedded_in_subdocuments(self):
         _db = self.connection[MONGO_DBNAME]
@@ -601,6 +653,9 @@ class TestGet(TestBase):
         company = {'departments': [{'title': 'development',
                                    'members': contact_ids}]}
         company_id = _db.companies.insert(company)
+        # Add a documents with no reference that should be ignored
+        _db.companies.insert({})
+        _db.companies.insert({'departments': []})
 
         companies = self.domain['companies']
         contact_ids = list(map(str, contact_ids))
@@ -1135,6 +1190,24 @@ class TestEvents(TestBase):
         self.app.on_pre_GET += filter_this
         # Would normally return all documents; will only just one.
         r, s = self.parse_response(self.get_resource())
+        self.assertEqual(len(r[self.app.config['ITEMS']]), 1)
+
+    def test_on_pre_GET_resource_dynamic_filter_12_chr_nonunicode_string(self):
+        # Test for bug in _mongotize(). See
+        # https://github.com/nicolaiarocci/eve/issues/508
+        def filter_this(request, lookup):
+            request.args = ImmutableMultiDict(
+                {"where": '{"name":"Alice Brooks"}'}
+            )
+        self.app.register_resource(
+            'names',
+            {'schema': {'name': {'type': 'string'}}}
+        )
+        # We want to test with a non-unicode string for 'where', so we need to
+        # do it with a pre_GET callback
+        self.app.on_pre_GET_names += filter_this
+        self.post('names', data={"name": "Alice Brooks"})
+        r, s = self.get('names')
         self.assertEqual(len(r[self.app.config['ITEMS']]), 1)
 
     def test_on_pre_GET_resource_for_resource(self):

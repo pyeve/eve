@@ -6,7 +6,7 @@
 
     Utility functions for API methods implementations.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -357,6 +357,7 @@ def build_response_document(
 
     .. versionchanged:: 0.5
        Only compute ETAG if necessary (#369).
+       Add version support (#475).
 
     .. versionadded:: 0.4
     """
@@ -373,9 +374,14 @@ def build_response_document(
 
     # hateoas links
     if config.DOMAIN[resource]['hateoas'] and config.ID_FIELD in document:
+        version = None
+        if config.DOMAIN[resource]['versioning'] is True \
+                and request.args.get(config.VERSION_PARAM):
+            version = document[config.VERSION]
         document[config.LINKS] = {'self':
                                   document_link(resource,
-                                                document[config.ID_FIELD])}
+                                                document[config.ID_FIELD],
+                                                version)}
 
     # add version numbers
     resolve_document_version(document, resource, 'GET', latest_doc)
@@ -532,7 +538,7 @@ def subdocuments(fields_chain, document):
     """
     if len(fields_chain) == 0:
         yield document
-    else:
+    elif fields_chain[0] in document:
         subdocument = document[fields_chain[0]]
         docs = subdocument if isinstance(subdocument, list) else [subdocument]
         for doc in docs:
@@ -574,7 +580,7 @@ def resolve_embedded_documents(document, resource, embedded_fields):
     """
     for field in embedded_fields:
         data_relation = field_definition(resource, field)['data_relation']
-        getter = lambda ref: embedded_document(ref, data_relation, field)
+        getter = lambda ref: embedded_document(ref, data_relation, field)  # noqa
         fields_chain = field.split('.')
         last_field = fields_chain[-1]
         for subdocument in subdocuments(fields_chain[:-1], document):
@@ -635,15 +641,27 @@ def marshal_write_response(document, resource):
     :param document: the response document.
     :param resource: the resource being consumed by the request.
 
+    .. versionchanged: 0.5
+       Avoid exposing 'auth_field' if it is not intended to be public.
+
     .. versionadded:: 0.4
     """
 
+    resource_def = app.config['DOMAIN'][resource]
     if app.config['BANDWIDTH_SAVER'] is True:
         # only return the automatic fields and special extra fields
-        fields = auto_fields(resource) + \
-            app.config['DOMAIN'][resource]['extra_response_fields']
+        fields = auto_fields(resource) + resource_def['extra_response_fields']
         document = dict((k, v) for (k, v) in document.items() if k in fields)
-
+    else:
+        # avoid exposing the auth_field if it is not included in the
+        # resource schema.
+        auth_field = resource_def.get('auth_field')
+        if auth_field and auth_field not in resource_def['schema']:
+            try:
+                del(document[auth_field])
+            except:
+                # 'auth_field' value has not been set by the auth class.
+                pass
     return document
 
 
@@ -670,10 +688,11 @@ def store_media_files(document, resource, original=None):
             # system, we first need to delete the file being replaced.
             app.media.delete(original[field])
 
-        # store file and update document with file's unique id/filename
-        # also pass in mimetype for use when retrieving the file
-        document[field] = app.media.put(document[field],
-                                        content_type=document[field].mimetype)
+        if document[field]:
+            # store file and update document with file's unique id/filename
+            # also pass in mimetype for use when retrieving the file
+            document[field] = app.media.put(
+                document[field], content_type=document[field].mimetype)
 
 
 def resource_media_fields(document, resource):
@@ -709,6 +728,9 @@ def resolve_user_restricted_access(document, resource):
     :param document: the document being posted or replaced
     :param resource: the resource to which the document belongs
 
+    .. versionchanged:: 0.5.2
+       Make User Restricted Resource Access work with HMAC Auth too.
+
     .. versionchanged:: 0.4
        Use new auth.request_auth_value() method.
 
@@ -721,7 +743,7 @@ def resolve_user_restricted_access(document, resource):
     auth_field = resource_def['auth_field']
     if auth and auth_field:
         request_auth_value = auth.get_request_auth_value()
-        if request_auth_value and request.authorization:
+        if request_auth_value:
             document[auth_field] = request_auth_value
 
 
@@ -777,11 +799,15 @@ def pre_event(f):
     return decorated
 
 
-def document_link(resource, document_id):
+def document_link(resource, document_id, version=None):
     """ Returns a link to a document endpoint.
 
     :param resource: the resource name.
     :param document_id: the document unique identifier.
+    :param version: the document version. Defaults to None.
+
+    .. versionchanged:: 0.5
+       Add version support (#475).
 
     .. versionchanged:: 0.4
        Use the regex-neutral resource_link function.
@@ -792,8 +818,9 @@ def document_link(resource, document_id):
     .. versionchanged:: 0.0.3
        Now returning a JSON link
     """
+    version_part = '?version=%s' % version if version else ''
     return {'title': '%s' % config.DOMAIN[resource]['item_title'],
-            'href': '%s/%s' % (resource_link(), document_id)}
+            'href': '%s/%s%s' % (resource_link(), document_id, version_part)}
 
 
 def resource_link():
@@ -808,7 +835,7 @@ def resource_link():
 
     .. versionadded:: 0.4
     """
-    path = request.path.rstrip('/')
+    path = request.path.strip('/')
 
     if '|item' in request.endpoint:
         path = path[:path.rfind('/')]
@@ -817,7 +844,76 @@ def resource_link():
         return path[len(hit):] if path.startswith(hit) else path
 
     if config.URL_PREFIX:
-        path = strip_prefix('/' + config.URL_PREFIX)
+        path = strip_prefix(config.URL_PREFIX + '/')
     if config.API_VERSION:
-        path = strip_prefix('/' + config.API_VERSION)
+        path = strip_prefix(config.API_VERSION + '/')
     return path
+
+
+def oplog_push(resource, updates, op, id=None):
+    """ Pushes an edit operation to the oplog if included in OPLOG_METHODS. To
+    save on storage space (at least on MongoDB) field names are shortened:
+
+        'r' = resource endpoint,
+        'o' = operation performed,
+        'i' = unique id of the document involved,
+        'pi' = client IP,
+        'c' = changes
+
+    config.LAST_UPDATED, config.LAST_CREATED and AUTH_FIELD are not being
+    shortened to allow for standard endpoint behavior (so clients can
+    query the endpoint with If-Modified-Since queries, and User-Restricted-
+    Resource-Access will keep working on the oplog endpoint too).
+
+    :param resource: name of the resource involved.
+    :param updates: updates performed with the edit operation.
+    :param op: operation performed. Can be 'POST', 'PUT', 'PATCH', 'DELETE'.
+    :param id: unique id of the document.
+
+    .. versionadded:: 0.5
+    """
+    if not config.OPLOG or op not in config.OPLOG_METHODS:
+        return
+
+    if updates is None:
+        updates = {}
+
+    if not isinstance(updates, list):
+        updates = [updates]
+
+    entries = []
+    for update in updates:
+        entry = {
+            'r': config.URLS[resource],
+            'o': op,
+            'i': update[config.ID_FIELD] if config.ID_FIELD in update else id,
+        }
+        if config.LAST_UPDATED in update:
+            last_update = update[config.LAST_UPDATED]
+        else:
+            last_update = datetime.utcnow().replace(microsecond=0)
+        entry[config.LAST_UPDATED] = entry[config.DATE_CREATED] = last_update
+        if config.OPLOG_AUDIT:
+
+            # TODO this needs further investigation. See:
+            # http://esd.io/blog/flask-apps-heroku-real-ip-spoofing.html;
+            # https://stackoverflow.com/questions/22868900/how-do-i-safely-get-the-users-real-ip-address-in-flask-using-mod-wsgi
+            entry['ip'] = request.remote_addr
+
+            if op in ('PATCH', 'PUT', 'DELETE'):
+                # these fields are already contained in 'entry'.
+                del(update[config.LAST_UPDATED])
+                # legacy documents (v0.4 or less) could be missing the etag
+                # field
+                if config.ETAG in update:
+                    del(update[config.ETAG])
+                entry['c'] = update
+            else:
+                pass
+
+        resolve_user_restricted_access(entry, config.OPLOG_NAME)
+
+        entries.append(entry)
+
+    if entries:
+        app.data.insert(config.OPLOG_NAME, entries)

@@ -6,7 +6,7 @@
 
     GridFS media storage for Eve-powered APIs.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 from flask import Flask

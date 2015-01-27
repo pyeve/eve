@@ -6,7 +6,7 @@
 
     Implements proper, automated rendering for Eve responses.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -185,13 +185,25 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         else:
             headers = config.X_HEADERS
 
+        if config.X_EXPOSE_HEADERS is None:
+            expose_headers = []
+        elif isinstance(config.X_EXPOSE_HEADERS, str):
+            expose_headers = [config.X_EXPOSE_HEADERS]
+        else:
+            expose_headers = config.X_EXPOSE_HEADERS
+
         methods = app.make_default_options_response().headers.get('allow', '')
 
-        if '*' in domains or origin in domains:
+        if '*' in domains:
+            resp.headers.add('Access-Control-Allow-Origin', origin)
+            resp.headers.add('Vary', 'Origin')
+        elif origin in domains:
             resp.headers.add('Access-Control-Allow-Origin', origin)
         else:
             resp.headers.add('Access-Control-Allow-Origin', '')
         resp.headers.add('Access-Control-Allow-Headers', ', '.join(headers))
+        resp.headers.add('Access-Control-Expose-Headers',
+                         ', '.join(expose_headers))
         resp.headers.add('Access-Control-Allow-Methods', methods)
         resp.headers.add('Access-Control-Allow-Max-Age', config.X_MAX_AGE)
 
@@ -242,7 +254,8 @@ def render_json(data):
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
     """
-    return json.dumps(data, cls=app.data.json_encoder_class)
+    return json.dumps(data, cls=app.data.json_encoder_class,
+                      sort_keys=config.JSON_SORT_KEYS)
 
 
 def render_xml(data):

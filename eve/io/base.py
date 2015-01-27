@@ -6,7 +6,7 @@
 
     Standard interface implemented by Eve data layers.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 import datetime
@@ -307,12 +307,7 @@ class DataLayer(object):
         source = copy(dsource['source'])
         filter_ = copy(dsource['filter'])
         sort = copy(dsource['default_sort'])
-
-        # if allow_unknown is enabled for the resource, then don't return
-        # the default or client projection so all document fields can be
-        # returned to the client (regardless of the resource schema).
-        allow_unknown = config.DOMAIN[resource]['allow_unknown']
-        projection = copy(dsource['projection']) if not allow_unknown else None
+        projection = copy(dsource['projection'])
 
         return source, filter_, projection, sort,
 
@@ -320,6 +315,12 @@ class DataLayer(object):
                        client_sort=None):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to.
+
+        .. versionchanged:: 0.5.2
+           Make User Restricted Resource Access work with HMAC Auth too.
+
+        .. versionchanged:: 0.5
+           Let client projection work when 'allow_unknown' is active (#497).
 
         .. versionchanged:: 0.4
            Always return required/auto fields (issue 282.)
@@ -387,19 +388,26 @@ class DataLayer(object):
 
         fields = projection_
         if client_projection:
-            # only allow fields which are included with the standard projection
-            # for the resource (avoid sniffing of private fields)
-            keep_fields = auto_fields(resource)
-            if 0 not in client_projection.values():
-                # inclusive projection - all values are 0 unless spec. or auto
-                fields = dict([(field, field in keep_fields) for field in
-                               fields.keys()])
-            for field, value in client_projection.items():
-                field_base = field.split('.')[0]
-                if field_base not in keep_fields and field_base in fields:
-                    fields[field] = value
-            fields = dict([(field, 1) for field, value in fields.items() if
-                           value])
+            if projection_:
+                # only allow fields which are included with the standard
+                # projection for the resource (avoid sniffing of private
+                # fields)
+                keep_fields = auto_fields(resource)
+                if 0 not in client_projection.values():
+                    # inclusive projection - all values are 0 unless spec. or
+                    # auto
+                    fields = dict([(field, field in keep_fields) for field in
+                                   fields.keys()])
+                for field, value in client_projection.items():
+                    field_base = field.split('.')[0]
+                    if field_base not in keep_fields and field_base in fields:
+                        fields[field] = value
+                fields = dict([(field, 1) for field, value in fields.items() if
+                               value])
+            else:
+                # there's no standard projection so we assume we are in a
+                # allow_unknown = True
+                fields = client_projection
 
         # If the current HTTP method is in `public_methods` or
         # `public_item_methods`, skip the `auth_field` check
@@ -408,7 +416,7 @@ class DataLayer(object):
         # documents.
         if request and request.method not in ('POST', 'PUT'):
             auth_field, request_auth_value = auth_field_and_value(resource)
-            if auth_field and request.authorization and request_auth_value:
+            if auth_field and request_auth_value:
                 if query:
                     # If the auth_field *replaces* a field in the query,
                     # and the values are /different/, deny the request

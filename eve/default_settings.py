@@ -8,10 +8,23 @@
     appropriately, by using a custom settings module (see the optional
     'settings' argument or the EVE_SETTING environment variable).
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.5
+       'SERVER_NAME' removed.
+       'URL_PROTOCOL' removed.
+       'OPLOG' added and set to False.
+       'OPLOG_NAME' added and set to 'oplog'.
+       'OPLOG_METHODS' added and set to all edit operations.
+       'OPLOG_ENDPOINT' added and set to None.
+       'OPLOG_AUDIT' added and set to True.
+       'QUERY_WHERE' added and set to 'where'
+       'QUERY_PROJECTION' added and set to 'projection'
+       'QUERY_SORT' added and set to 'sort'
+       'QUERY_PAGE' added and set to 'page'
+       'QUERY_MAX_RESULTS' added and set to 'max_results'
+       'QUERY_EMBEDDED' added and set to 'embedded'
        'INTERNAL_RESOURCE' added and set to False
 
     .. versionchanged:: 0.4
@@ -93,21 +106,20 @@ VERSION_DIFF_INCLUDE = []       # always include these fields when diffing
 
 API_VERSION = ''
 URL_PREFIX = ''
-URL_PROTOCOL = ''               # relative HATEOAS paths by default.
-SERVER_NAME = None
-URL_PROTOCOL = ''
 ID_FIELD = '_id'
 CACHE_CONTROL = ''
 CACHE_EXPIRES = 0
 ITEM_CACHE_CONTROL = ''
 X_DOMAINS = None                # CORS disabled by default.
 X_HEADERS = None                # CORS disabled by default.
+X_EXPOSE_HEADERS = None         # CORS disabled by default.
 X_MAX_AGE = 21600               # Access-Control-Max-Age when CORS is enabled
 HATEOAS = True                  # HATEOAS enabled by default.
 IF_MATCH = True                 # IF_MATCH (ETag match) enabled by default.
 
 ALLOWED_FILTERS = ['*']         # filtering enabled by default
 SORTING = True                  # sorting enabled by default.
+JSON_SORT_KEYS = False          # json key sorting
 EMBEDDING = True                # embedding enabled by default
 PROJECTION = True               # projection enabled by default
 PAGINATION = True               # pagination enabled by default.
@@ -117,6 +129,15 @@ VERSIONING = False              # turn document versioning on or off.
 VERSIONS = '_versions'          # suffix for parallel collection w/old versions
 VERSION_PARAM = 'version'       # URL param for specific version of a document.
 INTERNAL_RESOURCE = False       # resources are public by default.
+
+OPLOG = False                   # oplog is disabled by default.
+OPLOG_NAME = 'oplog'            # default oplog resource name.
+OPLOG_ENDPOINT = None           # oplog endpoint is disabled by default.
+OPLOG_AUDIT = True              # oplog audit enabled by default.
+OPLOG_METHODS = ['DELETE',
+                 'POST',
+                 'PATCH',
+                 'PUT']         # oplog logs all operations by default.
 
 RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']
@@ -141,6 +162,14 @@ RETURN_MEDIA_AS_BASE64_STRING = True
 # DATE_CREATED, and ETAG). Only relevant when bandwidth saving mode is on.
 EXTRA_RESPONSE_FIELDS = []
 BANDWIDTH_SAVER = True
+
+# default query parameters
+QUERY_WHERE = 'where'
+QUERY_PROJECTION = 'projection'
+QUERY_SORT = 'sort'
+QUERY_PAGE = 'page'
+QUERY_MAX_RESULTS = 'max_results'
+QUERY_EMBEDDED = 'embedded'
 
 # user-restricted resource access is disabled by default.
 AUTH_FIELD = None

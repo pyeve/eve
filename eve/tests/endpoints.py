@@ -124,7 +124,7 @@ class TestCustomConverters(TestMinimal):
         etag = self._get_etag()
         self.headers.append(('If-Match', etag))
         r = self.test_client.delete(self.url, headers=self.headers)
-        self.assert200(r.status_code)
+        self.assert204(r.status_code)
 
     def test_post_uuid(self):
         new_id = '48c00ee9-4dbe-413f-9fc3-d5f12a91de13'
@@ -143,6 +143,7 @@ class TestEndPoints(TestBase):
 
     def test_resource_endpoint(self):
         del(self.domain['peopleinvoices'])
+        del(self.domain['peoplesearches'])
         del(self.domain['internal_transactions'])
         for settings in self.domain.values():
             r = self.test_client.get('/%s/' % settings['url'])
@@ -171,7 +172,8 @@ class TestEndPoints(TestBase):
     def test_item_self_link(self):
         data, status_code = self.get(self.known_resource, item=self.item_id)
         lookup_field = self.domain[self.known_resource]['item_lookup_field']
-        link = '%s/%s' % (self.known_resource_url, self.item[lookup_field])
+        link = '%s/%s' % (self.known_resource_url.lstrip('/'),
+                          self.item[lookup_field])
         self.assertEqual(data.get('_links').get('self').get('href'), link)
 
     def test_unknown_endpoints(self):
@@ -240,11 +242,11 @@ class TestEndPoints(TestBase):
 
         r = self.test_prefix.get('/prefix/v1/')
         href = json.loads(r.get_data())['_links']['child'][0]['href']
-        self.assertEqual(href, '/contacts')
+        self.assertEqual(href, 'contacts')
 
         r = self.test_prefix.get('/prefix/v1/contacts')
         href = json.loads(r.get_data())['_links']['self']['href']
-        self.assertEqual(href, '/contacts')
+        self.assertEqual(href, 'contacts')
 
     def test_nested_endpoint(self):
         r = self.test_client.get('/users/overseas')
@@ -281,3 +283,21 @@ class TestEndPoints(TestBase):
         data = {test_field: test_value}
         resp_data, code = self.post(self.known_resource_url, data)
         self.assert201(code)
+
+    def test_oplog_endpoint(self):
+        r = self.test_client.get('/oplog')
+        self.assert404(r.status_code)
+
+        self.app.config['OPLOG_ENDPOINT'] = 'oplog'
+        self.app._init_oplog()
+        settings = self.app.config['DOMAIN']['oplog']
+        self.app.register_resource('oplog', settings)
+        r = self.test_client.get('/oplog')
+        self.assert200(r.status_code)
+
+        # OPLOG endpoint is read-only
+        data = {'field': 'value'}
+        _, status_code = self.post('/oplog', data)
+        self.assert405(status_code)
+        _, status_code = self.delete('/oplog')
+        self.assert405(status_code)

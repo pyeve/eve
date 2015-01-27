@@ -1,7 +1,7 @@
 .. _config:
 
-Configuration Handling
-======================
+Configuration 
+=============
 Generally Eve configuration is best done with configuration files. The
 configuration files themselves are actual Python files. 
 
@@ -67,9 +67,6 @@ from the :ref:`demo`:
         MONGO_USERNAME = '<user>'
         MONGO_PASSWORD = '<pw>'
         MONGO_DBNAME = '<dbname>'
-
-        # also, correctly set the API entry point
-        SERVER_NAME = 'eve-demo.herokuapp.com'
     else:
         # Running on local machine. Let's just use the local mongod instance.
 
@@ -80,10 +77,6 @@ from the :ref:`demo`:
         MONGO_USERNAME = 'user'
         MONGO_PASSWORD = 'user'
         MONGO_DBNAME = 'apitest'
-
-        # let's not forget the API entry point
-        SERVER_NAME = 'localhost:5000'
-
 
 .. _global:
 
@@ -97,27 +90,16 @@ uppercase.
 .. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
 
 =================================== =========================================
-``SERVER_NAME``                     Domain on which the API is being hosted. 
-                                    Supports subdomains. Defaults to
-                                    ``localhost:5000``. 
-
-``URL_PREFIX``                      URL prefix for all API endpoints. Will be used 
-                                    in conjunction with ``SERVER_NAME`` and
-                                    ``API_VERSION`` to construct all API urls
-                                    (e.g., ``api`` will be rendered to
-                                    ``localhost:5000/api/``).  Defaults to
-                                    ``''``.
+``URL_PREFIX``                      URL prefix for all API endpoints. Will be 
+                                    used in conjunction with ``API_VERSION`` to
+                                    build API endpoints (e.g., ``api`` will be
+                                    rendered to ``/api/<endpoint>``).  Defaults
+                                    to ``''``.
 
 ``API_VERSION``                     API version. Will be used in conjunction with 
-                                    ``SERVER_NAME`` and ``URL_PREFIX`` to
-                                    construct API urls (e.g., ``v1`` will be
-                                    rendered to ``localhost:5000/v1/``).
-                                    Defaults to ``''``.
-
-``URL_PROTOCOL``                    URL protocol. Will be used to form a full URL.
-                                    Setting to ``http`` will result in
-                                    ``http://localhost:5000``, e.g. Defaults to
-                                    ``''`` for relative paths.
+                                    ``URL_PREFIX`` to build API endpoints
+                                    (e.g., ``v1`` will be rendered to
+                                    ``/v1/<endpoint>``). Defaults to ``''``.
 
 ``ALLOWED_FILTERS``                 List of fields on which filtering is allowed. 
                                     Can be set to ``[]`` (no filters allowed)
@@ -144,15 +126,27 @@ uppercase.
                                     overridden by resource settings. Defaults
                                     to ``True``.
 
-``PAGINATION_LIMIT``                Maximum value allowed for ``max_results``
-                                    querydef parameter. Values exceeding the
+``PAGINATION_LIMIT``                Maximum value allowed for QUERY_MAX_RESULTS
+                                    query parameter. Values exceeding the
                                     limit will be silently replaced with this
                                     value. You want to aim for a reasonable
                                     compromise between performance and transfer
                                     size. Defaults to 50.
 
-``PAGINATION_DEFAULT``              Default value for ``max_results`` applied when 
-                                    the parameter is omitted.  Defaults to 25.
+``PAGINATION_DEFAULT``              Default value for QUERY_MAX_RESULTS.
+                                    Defaults to 25.
+
+``QUERY_WHERE``                     Key for the filters query parameter. Defaults to ``where``.
+
+``QUERY_SORT``                      Key for the sort query parameter. Defaults to ``sort``.
+
+``QUERY_PROJECTION``                Key for the projections query parameter. Defaults to ``projection``.
+
+``QUERY_PAGE``                      Key for the pages query parameter. Defaults to ``page``.
+
+``QUERY_MAX_RESULTS``               Key for the max results query parameter. Defaults to ``max_results``.
+
+``QUERY_EMBEDDED``                  Key for the embedding query parameter. Defaults to ``embedded``.
 
 ``DATE_FORMAT``                     A Python date format used to parse and render 
                                     datetime values. When serving requests,
@@ -256,6 +250,13 @@ uppercase.
                                     a list of headers names. Defaults to
                                     ``None``.
                                 
+``X_EXPOSE_HEADERS``                CORS (Cross-Origin Resource Sharing) support.
+                                    Allows API maintainers to specify which
+                                    headers are exposed within a CORS response.
+                                    Allowed values are: ``None`` or
+                                    a list of headers names. Defaults to
+                                    ``None``.
+
 ``X_MAX_AGE``                       CORS (Cross-Origin Resource Sharing) 
                                     support. Allows to set max age for the
                                     access control allow header. Defaults to
@@ -416,6 +417,9 @@ uppercase.
                                     otherwise. See :ref:`jsonxml`. Defaults to
                                     ``True``.
 
+``JSON_SORT_KEYS``                  ``True`` to enable JSON key sorting, ``False``
+                                    otherwise. Defaults to ``False``.
+
 ``VALIDATION_ERROR_STATUS``         The HTTP status code to use for validation errors.
                                     Defaults to ``422``.
 
@@ -506,6 +510,29 @@ uppercase.
                                     want clients to be able to POST/PATCH it.
                                     Defaults to ``True``. 
 
+``OPLOG``                           Set it to ``True`` to enable the :ref:`oplog`.
+                                    Defaults to ``False``.
+
+``OPLOG_NAME``                      This is the name of the database collection 
+                                    where the :ref:`oplog` is stored. Defaults
+                                    to ``oplog``.
+
+``OPLOG_METHODS``                   List of HTTP methods which operations 
+                                    should be logged in the :ref:`oplog`.
+                                    Defaults to ``['DELETE', 'POST, 'PATCH',
+                                    'PUT']``.
+
+``OPLOG_ENDPOINT``                  Name of the :ref:`oplog` endpoint. If the 
+                                    endpoint is enabled it can be configured
+                                    like any other API endpoint. Set it to
+                                    ``None`` to disable the endpoint. Defaults
+                                    to ``None``. 
+
+``OPLOG_AUDIT``                     Set it to ``True`` to enable the audit 
+                                    feature. When audit is enabled client IP
+                                    and document changes are also logged to the
+                                    :ref:`oplog`. Defaults to ``True``.
+
 =================================== =========================================
 
 .. _domain:
@@ -514,10 +541,10 @@ Domain Configuration
 --------------------
 In Eve terminology, a `domain` is the definition of the API structure, the area
 where you design your API, fine-tune resources endpoints, and define validation
-rules. 
+rules.
 
 ``DOMAIN`` is a :ref:`global configuration setting <global>`: a Python
-dictionary where keys are API resources and values their definitions. 
+dictionary where keys are API resources and values their definitions.
 
 ::
 

@@ -8,7 +8,7 @@
     home) invokes the appropriate method handler, returning its response
     to the client, properly rendered.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -126,7 +126,7 @@ def home_endpoint():
             internal = config.DOMAIN[resource]['internal_resource']
             if not resource.endswith(config.VERSIONS):
                 if not bool(internal):
-                    links.append({'href': '/%s' % config.URLS[resource],
+                    links.append({'href': '%s' % config.URLS[resource],
                                   'title': '%s' %
                                   config.DOMAIN[resource]['resource_title']})
 

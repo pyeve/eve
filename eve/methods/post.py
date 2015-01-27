@@ -7,7 +7,7 @@
     This module imlements the POST method, supported by the resources
     endopints.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -20,7 +20,7 @@ from eve.validation import ValidationError
 from eve.methods.common import parse, payload, ratelimit, \
     pre_event, store_media_files, resolve_user_restricted_access, \
     resolve_embedded_fields, build_response_document, marshal_write_response, \
-    resolve_sub_resource_path, resolve_document_etag
+    resolve_sub_resource_path, resolve_document_etag, oplog_push
 from eve.versioning import resolve_document_version, \
     insert_versioning_documents
 
@@ -37,10 +37,10 @@ def post(resource, payl=None):
     .. versionchanged:: 0.5
        Split original post() into post/post_internal combo.
     """
-    return post_internal(resource, payl)
+    return post_internal(resource, payl, skip_validation=False)
 
 
-def post_internal(resource, payl=None):
+def post_internal(resource, payl=None, skip_validation=False):
     """
     Intended for internal post calls, this method is not rate limited,
     authentication is not checked and pre-request events are not raised.
@@ -62,8 +62,13 @@ def post_internal(resource, payl=None):
 
                  See https://github.com/nicolaiarocci/eve/issues/74 for a
                  discussion, and a typical use case.
+    :param skip_validation: skip payload validation before write (bool)
 
     .. versionchanged:: 0.5
+       Back to resolving default values after validaton as now the validator
+       can properly validate dependency even when some have default values. See
+       #353.
+       Push updates to the OpLog.
        Original post() has been split into post() and post_internal().
        ETAGS are now stored with documents (#369).
 
@@ -137,7 +142,8 @@ def post_internal(resource, payl=None):
     date_utc = datetime.utcnow().replace(microsecond=0)
     resource_def = app.config['DOMAIN'][resource]
     schema = resource_def['schema']
-    validator = app.validator(schema, resource)
+    if not skip_validation:
+        validator = app.validator(schema, resource)
     documents = []
     results = []
     failures = 0
@@ -166,14 +172,17 @@ def post_internal(resource, payl=None):
         doc_issues = {}
         try:
             document = parse(value, resource)
-            resolve_default_values(document, resource_def['defaults'])
-            validation = validator.validate(document)
+            if skip_validation:
+                validation = True
+            else:
+                validation = validator.validate(document)
             if validation:
                 # validation is successful
                 document[config.LAST_UPDATED] = \
                     document[config.DATE_CREATED] = date_utc
 
                 resolve_user_restricted_access(document, resource)
+                resolve_default_values(document, resource_def['defaults'])
                 resolve_sub_resource_path(document, resource)
                 store_media_files(document, resource)
                 resolve_document_version(document, resource, 'POST')
@@ -217,6 +226,9 @@ def post_internal(resource, payl=None):
 
         # bulk insert
         ids = app.data.insert(resource, documents)
+
+        # update oplog if needed
+        oplog_push(resource, documents, 'POST')
 
         # assign document ids
         for document in documents:

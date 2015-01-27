@@ -6,10 +6,17 @@
 
     An out-of-the-box REST Web API that's as dangerous as you want it to be.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.5
+       'SERVER_NAME' removed.
+       'QUERY_WHERE' added.
+       'QUERY_SORT' added.
+       'QUERY_PAGE' added.
+       'QUERY_MAX_RESULTS' added.
+       'QUERY_PROJECTION' added.
+       'QUERY_EMBEDDED' added.
        'RFC1123_DATE_FORMAT' added.
 
     .. versionchanged:: 0.4
@@ -31,7 +38,7 @@
 
 """
 
-__version__ = '0.5-dev'
+__version__ = '0.5.2-dev'
 
 # RFC 1123 (ex RFC 822)
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
@@ -39,7 +46,6 @@ RFC1123_DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
 
 URL_PREFIX = ''
 API_VERSION = ''
-SERVER_NAME = None
 PAGINATION = True
 PAGINATION_LIMIT = 50
 PAGINATION_DEFAULT = 25
@@ -65,6 +71,13 @@ LINKS = '_links'
 ETAG = '_etag'
 VERSION = '_version'
 META = '_meta'
+
+QUERY_WHERE = 'where'
+QUERY_SORT = 'sort'
+QUERY_PAGE = 'page'
+QUERY_MAX_RESULTS = 'max_results'
+QUERY_EMBEDDED = 'embedded'
+QUERY_PROJECTION = 'projection'
 
 VALIDATION_ERROR_STATUS = 422
 

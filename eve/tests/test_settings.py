@@ -7,8 +7,6 @@ MONGO_PASSWORD = 'test_pw'
 MONGO_DBNAME = 'eve_test'
 ID_FIELD = '_id'
 
-SERVER_NAME = 'localhost:5000'
-
 RESOURCE_METHODS = ['GET', 'POST', 'DELETE']
 ITEM_METHODS = ['GET', 'PATCH', 'DELETE', 'PUT']
 ITEM_CACHE_CONTROL = ''
@@ -100,13 +98,29 @@ contacts = {
             'default': 'default',
             'readonly': True
         },
+        'dict_with_read_only': {
+            'type': 'dict',
+            'schema': {
+                'read_only_in_dict': {
+                    'type': 'string',
+                    'default': 'default',
+                    'readonly': True
+                }
+            }
+        },
         'key1': {
             'type': 'string',
         },
         'keyschema_dict': {
             'type': 'dict',
             'keyschema': {'type': 'integer'}
-        }
+        },
+        'aninteger': {
+            'type': 'integer',
+        },
+        'afloat': {
+            'type': 'float',
+        },
     }
 }
 
@@ -126,6 +140,10 @@ invoices = {
         'inv_number': {'type': 'string'},
         'person': {
             'type': 'objectid',
+            'data_relation': {'resource': 'contacts'}
+        },
+        'invoicing_contacts': {
+            'type': 'list',
             'data_relation': {'resource': 'contacts'}
         }
     }
@@ -177,6 +195,11 @@ users_invoices = copy.deepcopy(invoices)
 users_invoices['url'] = 'users/<regex("[a-f0-9]{24}"):person>/invoices'
 users_invoices['datasource'] = {'source': 'invoices'}
 
+users_searches = copy.deepcopy(invoices)
+users_searches['datasource'] = {'source': 'invoices'}
+users_searches['url'] = \
+    'users/<regex("[a-zA-Z0-9:\\-\\.]+"):person>/saved_searches'
+
 internal_transactions = {
     'resource_methods': ['GET'],
     'item_methods': ['GET'],
@@ -193,6 +216,7 @@ DOMAIN = {
     'empty': empty,
     'restricted': user_restricted_access,
     'peopleinvoices': users_invoices,
+    'peoplesearches': users_searches,
     'companies': companies,
     'internal_transactions': internal_transactions,
 }

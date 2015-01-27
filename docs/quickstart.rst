@@ -60,7 +60,7 @@ payload:
         "_links": {
             "child": [
                 {
-                    "href": "/people", 
+                    "href": "people", 
                     "title": "people"
                 }
             ]
@@ -83,7 +83,7 @@ Try requesting `people` now:
         "_items": [], 
         "_links": {
             "self": {
-                "href": "/people", 
+                "href": "people", 
                 "title": "people"
             }, 
             "parent": {
@@ -276,9 +276,9 @@ endpoint:
         "updated": "Wed, 21 Nov 2012 16:04:56 GMT",
         "created": "Wed, 21 Nov 2012 16:04:56 GMT",
         "_links": {
-            "self": {"href": "/people/50acfba938345b0978fccad7", "title": "person"},
+            "self": {"href": "people/50acfba938345b0978fccad7", "title": "person"},
             "parent": {"href": "/", "title": "home"},
-            "collection": {"href": "/people", "title": "people"}
+            "collection": {"href": "people", "title": "people"}
         }
     }
 

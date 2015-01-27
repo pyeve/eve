@@ -68,7 +68,7 @@ The response payload will look something like this:
                 "_created": "Wed, 05 Dec 2012 09:53:07 GMT",
                 "_etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d",
                 "_links": {
-                    "self": {"href": "/people/50bf198338345b1c604faf31", "title": "person"},
+                    "self": {"href": "people/50bf198338345b1c604faf31", "title": "person"},
                 },
             },
             ...
@@ -79,7 +79,7 @@ The response payload will look something like this:
             "page": 1
         },
         "_links": {
-            "self": {"href": "/people", "title": "people"},
+            "self": {"href": "people", "title": "people"},
             "parent": {"href": "/", "title": "home"}
         }
     }
@@ -109,7 +109,7 @@ document being returned. The ``_links`` list provides HATEOAS_ directives.
 Sub Resources
 ~~~~~~~~~~~~~
 Endpoints support sub-resources so you could have something like:
-``/people/<contact_id>/invoices``. When setting the ``url`` rule for such and
+``people/<contact_id>/invoices``. When setting the ``url`` rule for such and
 endpoint you would use a regex and assign a field name to it:
 
 .. code-block:: python
@@ -145,7 +145,7 @@ would be queried like:
 
 Please note that when designing your API, most of the time you can get away
 without resorting to sub-resources. In the example above the same result would
-be achieved by simply exposing a ``invoices`` endpoint that clients could query
+be achieved by simply exposing an ``invoices`` endpoint that clients could query
 this way:
 
 ::
@@ -159,7 +159,7 @@ or
     invoices?where={"contact_id": 51f63e0838345b6dcd7eabff, "number": 10}
 
 It's mostly a design choice, but keep in mind that when it comes to enabling
-individual documment endpoints you might incur in performance hits. This
+individual document endpoints you might incur performance hits. This
 otherwise legit GET request:
 
 ::
@@ -179,7 +179,7 @@ a simple resource endpoint the document lookup would happen on a single field:
 Customizable, multiple item endpoints
 -------------------------------------
 Resources can or cannot expose individual item endpoints. API consumers could
-get access to ``/people``, ``/people/<ObjectId>`` and ``/people/Doe``,
+get access to ``people``, ``people/<ObjectId>`` and ``people/Doe``,
 but only to ``/works``.  When you do grant access to item endpoints, you can
 define up to two lookups, both defined with regexes. The first will be the
 primary endpoint and will match your database primary key structure (i.e., an
@@ -220,9 +220,9 @@ look something like this:
         "_created": "Wed, 21 Nov 2012 16:04:56 GMT",
         "_etag": "28995829ee85d69c4c18d597a0f68ae606a266cc",
         "_links": {
-            "self": {"href": "/people/50acfba938345b0978fccad7", "title": "person"},
+            "self": {"href": "people/50acfba938345b0978fccad7", "title": "person"},
             "parent": {"href": "/", "title": "home"},
-            "collection": {"href": "/people", "title": "people"}
+            "collection": {"href": "people", "title": "people"}
         }
     }
 
@@ -232,11 +232,11 @@ As you can see, item endpoints provide their own HATEOAS_ directives.
 
     According to REST principles resource items should only have one unique
     identifier. Eve abides by providing one default endpoint per item. Adding
-    a secondary endpoint is a decision that should pondered carefully.
+    a secondary endpoint is a decision that should be pondered carefully.
 
-    Consider our example above. Even without the ``/people/<lastname>``
+    Consider our example above. Even without the ``people/<lastname>``
     endpoint, a client could always retrieve a person by querying the resource
-    endpoint by last name: ``/people/?where={"lastname": "Doe"}``. Actually the
+    endpoint by last name: ``people/?where={"lastname": "Doe"}``. Actually the
     whole example is fubar, as there could be multiple people sharing the same
     last name, but you get the idea.
 
@@ -248,9 +248,15 @@ Resource endpoints allow consumers to retrieve multiple documents. Query
 strings are supported, allowing for filtering and sorting. Two query syntaxes
 are supported. The mongo query syntax:
 
+::
+
+    http://eve-demo.herokuapp.com/people?where={"lastname": "Doe"}
+
+which translates to the following ``curl`` request:
+
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people?where={"lastname": "Doe"}
+    $ curl -i -g http://eve-demo.herokuapp.com/people?where={%22lastname%22:%20%22Doe%22}
     HTTP/1.1 200 OK
 
 and the native Python syntax:
@@ -284,9 +290,15 @@ to be reversed for a field.
 
 The MongoDB data layer also supports native MongoDB syntax:
 
+::
+
+    http://eve-demo.herokuapp.com/people?sort=[("lastname", -1)]
+
+which translates to the following ``curl`` request:
+
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people?sort=[("lastname", -1)]
+    $ curl -i http://eve-demo.herokuapp.com/people?sort=[(%22lastname%22,%20-1)]
     HTTP/1.1 200 OK
 
 Would return documents sorted by lastname in descending order.
@@ -323,7 +335,9 @@ Of course you can mix all the available query parameters:
     $ curl -i http://eve-demo.herokuapp.com/people?where={"lastname": "Doe"}&sort=[("firstname", 1)]&page=5
     HTTP/1.1 200 OK
 
-Pagination can be disabled.
+Pagination can be disabled. Please note that, for clarity, the above example is
+not properly escaped. If using ``curl``, refer to the examples provided in
+:ref:`filters`.
 
 .. _hateoas_feature:
 
@@ -340,7 +354,7 @@ UI, or to navigate the API without knowing its structure beforehand. An example:
     {
         "_links": {
             "self": {
-                "href": "/people",
+                "href": "people",
                 "title": "people"
             },
             "parent": {
@@ -348,11 +362,11 @@ UI, or to navigate the API without knowing its structure beforehand. An example:
                 "title": "home"
             },
             "next": {
-                "href": "/people?page=2",
+                "href": "people?page=2",
                 "title": "next page"
             },
             "last": {
-                "href": "/people?page=10",
+                "href": "people?page=10",
                 "title": "last page"
             }
         }
@@ -362,8 +376,12 @@ A GET request to the API home page (the API entry point) will be served with
 a list of links to accessible resources. From there, any client could navigate
 the API just by following the links provided with every response.
 
+HATEOAS links are always relative to the API entry point, so if your API home
+is at ``examples.com/api/v1``, the ``self`` link in the above example would
+mean that the *people* endpoint is located at ``examples.com/api/v1/people``.
+
 Please note that ``next``, ``previous`` and ``last`` items will only be
-included when appropriate.
+included when appropriate. 
 
 Disabling HATEOAS
 ~~~~~~~~~~~~~~~~~
@@ -396,8 +414,8 @@ edits) are in JSON format.
 .. code-block:: html
 
     <resource>
-        <link rel="child" href="/people" title="people" />
-        <link rel="child" href="/works" title="works" />
+        <link rel="child" href="people" title="people" />
+        <link rel="child" href="works" title="works" />
     </resource>
 
 XML support can be disabled by setting ``XML`` to ``False`` in the settings
@@ -412,19 +430,18 @@ Conditional Requests
 Each resource representation provides information on the last time it was
 updated (``Last-Modified``), along with an hash value computed on the
 representation itself (``ETag``). These headers allow clients to perform
-conditional requests, only retrieving new or modified data, by using the
-``If-Modified-Since`` header:
+conditional requests by using the ``If-Modified-Since`` header:
 
 .. code-block:: console
 
-    $ curl -H "If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT" -i http://eve-demo.herokuapp.com/people
+    $ curl -H "If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT" -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c 
     HTTP/1.1 200 OK
 
 or the ``If-None-Match`` header:
 
 .. code-block:: console
 
-    $ curl -H "If-None-Match: 1234567890123456789012345678901234567890" -i http://eve-demo.herokuapp.com/people
+    $ curl -H "If-None-Match: 1234567890123456789012345678901234567890" -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c 
     HTTP/1.1 200 OK
 
 
@@ -510,7 +527,7 @@ metadata:
         "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
         "_id": "50ae43339fa12500024def5b",
         "_etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
-        "_links": {"self": {"href": "/people/50ae43339fa12500024def5b", "title": "person"}}
+        "_links": {"self": {"href": "people/50ae43339fa12500024def5b", "title": "person"}}
     }
 
 However, in order to reduce the number of loopbacks, a client might also submit
@@ -534,14 +551,14 @@ The response will be a list itself, with the state of each document:
                 "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
                 "_id": "50ae43339fa12500024def5b",
                 "_etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
-                "_links": {"self": {"href": "/people/50ae43339fa12500024def5b", "title": "person"}}
+                "_links": {"self": {"href": "people/50ae43339fa12500024def5b", "title": "person"}}
             },
             {
                 "_status": "OK",
                 "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
                 "_id": "50ae43339fa12500024def5c",
                 "_etag": "62d356f623c7d9dc864ffa5facc47dced4ba6907"
-                "_links": {"self": {"href": "/people/50ae43339fa12500024def5c", "title": "person"}}
+                "_links": {"self": {"href": "people/50ae43339fa12500024def5c", "title": "person"}}
             }
         ]
     }
@@ -1071,6 +1088,11 @@ the items as needed before they are returned to the client.
     >>> app.on_fetched_item += before_returning_item
     >>> app.on_fetched_item_contact += before_returning_contact
 
+It is important to note that fetch events will work with `Document
+Versioning`_ for specific document versions or accessing all document
+versions with ``?version=all``, but they *will not* work when acessing diffs
+of all versions with ``?version=diffs``.
+
 
 Insert Events
 ^^^^^^^^^^^^^
@@ -1503,12 +1525,112 @@ Something like this:
 I admit that this example is as rudimentary as it can get, but hopefully it
 will get the point across.
 
+.. _oplog:
 
-MongoDB Support
----------------
-Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL
-backends can be developed with relative ease (a `PostgreSQL effort`_ is
-ongoing, maybe you can lend a hand?)
+Operations Log
+--------------
+The OpLog is an API-wide log of all edit operations. Every ``POST``, ``PATCH``
+``PUT`` and ``DELETE`` operation can be recorded to the oplog. At its core the
+oplog is simply a server log. What makes it a little bit different is that it
+can be exposed as a read-only endpoint, thus allowing clients to query it as
+they would with any other API endpoint.
+
+Every oplog entry contains informations about the document and the operation:
+
+- Operation performed
+- Unique ID of the document
+- Update date
+- Creation date
+- Resource endpoint URL
+- User token, if :ref:`user-restricted` is enabled for the endpoint
+
+Like any other API-maintained document, oplog entries also expose:
+
+- Entry ID
+- ETag
+- HATEOAS fields if that's enabled.
+
+If ``OPLOG_AUDIT`` is enabled entries also expose both client IP and changes
+applied to the document (for ``DELETE`` the whole document is included).
+
+A typical oplog entry looks like this:
+
+.. code-block:: python
+
+    {
+        "o": "DELETE", 
+        "r": "people", 
+        "i": "542d118938345b614ea75b3c",
+        "c": {...},
+        "ip": "127.0.0.1",
+        "_updated": "Fri, 03 Oct 2014 08:16:52 GMT", 
+        "_created": "Fri, 03 Oct 2014 08:16:52 GMT",
+        "_etag": "e17218fbca41cb0ee6a5a5933fb9ee4f4ca7e5d6"
+        "_id": "542e5b7438345b6dadf95ba5", 
+        "_links": {...},
+    }
+
+To save a little space (at least on MongoDB) field names have been shortened: 
+
+- ``o`` stands for operation performed
+- ``r`` stands for resource endpoint
+- ``i`` stands for document id
+- ``ip`` is the client IP
+- ``c`` stands for changes occurred 
+  
+``_created`` and ``_updated`` are relative to the target document, which comes
+handy in a variety of scenarios (like when the oplog is available to clients,
+more on this later).
+
+How is the oplog operated?
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Six settings are dedicated to the OpLog:
+
+- ``OPLOG`` switches the oplog feature on and off. Defaults to ``False``.
+- ``OPLOG_NAME`` is the name of the oplog collection on the database. Defaults to ``oplog``.
+- ``OPLOG_METHODS`` is a list of HTTP methods to be logged. Defaults to all of them.
+- ``OPLOG_ENDPOINT`` is the endpoint name. Defaults to ``None``.
+- ``OPLOG_AUDIT`` if enabled, IP addresses and changes are also logged. Defaults to ``True``.
+
+As you can see the oplog feature is turned off by default. Also, since
+``OPLOG_ENDPOINT`` defaults to ``None``, even if you switch the feature on no
+public oplog endpoint will be available. You will have to explictly set the
+endpoint name in order to expose your oplog to the public. 
+
+The Oplog endpoint
+~~~~~~~~~~~~~~~~~~
+Since the oplog endpoint is nothing but a standard API endpoint, you can
+customize it. This allows for setting up custom authentication
+(you might want this resource to be only accessible for administrative
+purposes) or any other useful setting. 
+
+Note that while you can change most of its settings, the endpoint will always
+be read-only so setting either ``resource_methods`` or ``item_methods`` to
+something other than ``['GET']`` will serve no purpose. Also, unless you need to
+customize it, adding an oplog entry to the domain is not really necessary as it
+will be added for you automatically.
+
+Exposing the oplog as an endpoint could be useful in scenarios where you have
+multiple clients (say phone, tablet, web and desktop apps) which need to stay
+in sync with each other and the server. Instead of hitting every single
+endpoint they could just access the oplog to learn all that's happened
+since their last access. That’s a single request versus several. This is not
+always the best approach a client could take. Sometimes it is probably better
+to only query for changes on a certain endpoint. That's also possible, just
+query the oplog for changes occured on that endpoint.
+
+.. note:: 
+
+    Are you on MongoDB? Consider making the oplog a `capped collection`_. Also,
+    in case you are wondering yes, the Eve oplog is blatantly inpsired by the
+    awesome `Replica Set Oplog`_.
+
+MongoDB and SQL Support
+------------------------
+Support for MongoDB comes out of the box. An SQLAlchemy extension provides
+support for SQL backends. Additional data layers can can be developed with
+relative ease. Visit the `extensions page`_ for a list of community developed
+data layers and extensions. 
 
 Powered by Flask
 ----------------
@@ -1538,3 +1660,6 @@ for unittesting_ and an `extensive documentation`_.
 .. _MongoDB: http://docs.mongodb.org/manual/applications/geospatial-indexes/#geojson-objects
 .. _`geospatial query operators`: http://docs.mongodb.org/manual/reference/operator/query-geospatial/#query-selectors
 .. _$near: http://docs.mongodb.org/manual/reference/operator/query/near/#op._S_near
+.. _`capped collection`: http://docs.mongodb.org/manual/ore/capped-collections/
+.. _`Replica Set Oplog`: http://docs.mongodb.org/manual/core/replica-set-oplog/
+.. _`extensions page`: http://python-eve.org/extensions

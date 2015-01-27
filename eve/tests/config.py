@@ -49,15 +49,30 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.config['MONGO_WRITE_CONCERN'], {'w': 1})
         self.assertEqual(self.app.config['ISSUES'], '_issues')
 
+        self.assertEqual(self.app.config['OPLOG'], False)
+        self.assertEqual(self.app.config['OPLOG_NAME'], 'oplog')
+        self.assertEqual(self.app.config['OPLOG_ENDPOINT'], None)
+        self.assertEqual(self.app.config['OPLOG_AUDIT'], True)
+        self.assertEqual(self.app.config['OPLOG_METHODS'], ['DELETE',
+                                                            'POST',
+                                                            'PATCH',
+                                                            'PUT'])
+
+        self.assertEqual(self.app.config['QUERY_WHERE'], 'where')
+        self.assertEqual(self.app.config['QUERY_PROJECTION'], 'projection')
+        self.assertEqual(self.app.config['QUERY_SORT'], 'sort')
+        self.assertEqual(self.app.config['QUERY_PAGE'], 'page')
+        self.assertEqual(self.app.config['QUERY_MAX_RESULTS'], 'max_results')
+        self.assertEqual(self.app.config['QUERY_EMBEDDED'], 'embedded')
+
+        self.assertEqual(self.app.config['JSON_SORT_KEYS'], False)
+
     def test_settings_as_dict(self):
         my_settings = {'API_VERSION': 'override!', 'DOMAIN': {'contacts': {}}}
         self.app = Eve(settings=my_settings)
         self.assertEqual(self.app.config['API_VERSION'], 'override!')
         # did not reset other defaults
         self.assertEqual(self.app.config['MONGO_WRITE_CONCERN'], {'w': 1})
-
-    def test_unexisting_pyfile_config(self):
-        self.assertRaises(IOError, Eve, settings='an_unexisting_pyfile.py')
 
     def test_unexisting_env_config(self):
         env = os.environ
@@ -301,16 +316,23 @@ class TestConfig(TestBase):
 
         del(self.domain['internal_transactions'])
         for resource, settings in self.domain.items():
-            self.assertEqual(settings['url'],
-                             self.app.config['URLS'][resource])
             self.assertEqual(settings['datasource'],
                              self.app.config['SOURCES'][resource])
 
+    def test_pretty_resource_urls(self):
+        """ test that regexes are stripped out of urls and #466 is fixed. """
+        resource_url = self.app.config['URLS']['peopleinvoices']
+        pretty_url = 'users/<person>/invoices'
+        self.assertEqual(resource_url, pretty_url)
+        resource_url = self.app.config['URLS']['peoplesearches']
+        pretty_url = 'users/<person>/saved_searches'
+        self.assertEqual(resource_url, pretty_url)
+
     def test_url_rules(self):
-        map_adapter = self.app.url_map.bind(self.app.config.get(
-            'SERVER_NAME', ''))
+        map_adapter = self.app.url_map.bind('')
 
         del(self.domain['peopleinvoices'])
+        del(self.domain['peoplesearches'])
         del(self.domain['internal_transactions'])
         for _, settings in self.domain.items():
             for method in settings['resource_methods']:
@@ -346,3 +368,50 @@ class TestConfig(TestBase):
         }
         self.assertRaises(ConfigException, self.app.register_resource,
                           resource, settings)
+
+    def test_oplog_config(self):
+
+        # OPLOG_ENDPOINT is disabled by default so we don't have the endpoint
+        # in our domain
+        self.assertFalse('oplog' in self.domain)
+
+        # if OPLOG_ENDPOINT is eanbled the endoint is included with the domain
+        self.app.config['OPLOG_ENDPOINT'] = 'oplog'
+        self.app._init_oplog()
+        self.assertOplog('oplog', 'oplog')
+        del(self.domain['oplog'])
+
+        # OPLOG can be also with a custom name (which will be used
+        # as the collection/table name on the db)
+        oplog = 'custom'
+        self.app.config['OPLOG_NAME'] = oplog
+        self.app._init_oplog()
+        self.assertOplog(oplog, 'oplog')
+        del(self.domain[oplog])
+
+        # oplog can be defined as a regular API endpoint, with a couple caveats
+        self.domain['oplog'] = {
+            'resource_methods': ['POST', 'DELETE'],     # not allowed
+            'resource_items': ['PATCH', 'PUT'],         # not allowed
+            'url': 'custom_url',
+            'datasource': {'source': 'customsource'}
+        }
+        self.app.config['OPLOG_NAME'] = 'oplog'
+        settings = self.domain['oplog']
+        self.app._init_oplog()
+
+        # endpoint is always read-only
+        self.assertEqual(settings['resource_methods'], ['GET'])
+        self.assertEqual(settings['item_methods'], ['GET'])
+        # other settings are customizable
+        self.assertEqual(settings['url'], 'custom_url')
+        self.assertEqual(settings['datasource']['source'], 'customsource')
+
+    def assertOplog(self, key, endpoint):
+        self.assertTrue(key in self.domain)
+
+        settings = self.domain[key]
+        self.assertEqual(settings['resource_methods'], ['GET'])
+        self.assertEqual(settings['item_methods'], ['GET'])
+        self.assertEqual(settings['url'], endpoint)
+        self.assertEqual(settings['datasource']['source'], key)

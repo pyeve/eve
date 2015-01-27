@@ -1,18 +1,14 @@
 #!/usr/bin/env python
 
 from setuptools import setup, find_packages
-DESCRIPTION = ("REST API framework powered by Flask, MongoDB and good "
-               "intentions.")
+DESCRIPTION = ("Python REST API for Humans.")
 with open('README.rst') as f:
     LONG_DESCRIPTION = f.read()
 
-with open('LICENSE') as f:
-    LICENSE = f.read()
-
 install_requires = [
-    'cerberus>=0.7,<0.8',
+    'cerberus>=0.8,<0.9',
     'events>=0.2.1,<0.3',
-    'simplejson>=3.3.0,<0.4',
+    'simplejson>=3.3.0,<4.0',
     'werkzeug>=0.9.4,<0.10',
     'markupsafe>=0.23,<1.0',
     'jinja2>=2.7.2,<3.0',
@@ -31,13 +27,13 @@ except ImportError:
 
 setup(
     name='Eve',
-    version='0.5-dev',
+    version='0.5.2-dev',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',
     author_email='eve@nicolaiarocci.com',
     url='http://python-eve.org',
-    license=LICENSE,
+    license='BSD',
     platforms=["any"],
     packages=find_packages(),
     test_suite="eve.tests",
