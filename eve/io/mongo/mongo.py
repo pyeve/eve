@@ -10,7 +10,6 @@
 
 import ast
 import itertools
-from bson.errors import InvalidId
 import simplejson as json
 import pymongo
 from flask import abort
