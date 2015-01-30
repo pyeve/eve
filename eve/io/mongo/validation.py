@@ -49,7 +49,7 @@ class Validator(Validator):
         self.resource = resource
         self._id = None
         self._original_document = None
-        super(Validator, self).__init__(schema, transparent_schema_rules=True)
+        super(Validator, self).__init__(schema)
         if resource:
             self.allow_unknown = config.DOMAIN[resource]['allow_unknown']
 
@@ -76,6 +76,16 @@ class Validator(Validator):
         """
         self._id = _id
         return super(Validator, self).validate(document)
+
+    def _validate_default(self, unique, field, value):
+        """ Fake validate function to let cerberus accept "default"
+            as keyword in the schema"""
+        pass
+
+    def _validate_versioned(self, unique, field, value):
+        """ Fake validate function to let cerberus accept "versioned"
+            as keyword in the schema"""
+        pass
 
     def _validate_unique(self, unique, field, value):
         """ Enables validation for `unique` schema attribute.
