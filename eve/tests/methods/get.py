@@ -842,6 +842,21 @@ class TestGet(TestBase):
         response, status = self.get(self.known_resource, where)
         self.assert400(status)
 
+    def test_get_lookup_field_as_string(self):
+        # Test that a resource where 'item_lookup_field' is set to a field
+        # of string type and which value is castable to a ObjectId is still
+        # treated as a string when 'query_objectid_as_string' is set to True.
+        # See PR #552.
+        data = {'id': '507c7f79bcf86cd7994f6c0e', 'name': 'john'}
+        response, status = self.post('ids', data=data)
+        self.assert201(status)
+
+        where = '?where={"id": "507c7f79bcf86cd7994f6c0e"}'
+        response, status = self.get('ids', where)
+        self.assert200(status)
+        items = response['_items']
+        self.assertEqual(1, len(items))
+
     def assertGet(self, response, status, resource=None):
         self.assert200(status)
 
@@ -1125,6 +1140,17 @@ class TestGetItem(TestBase):
         self.assertTrue(self.app.config['DATE_CREATED'] in r)
         self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
         self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
+
+    def test_getitem_lookup_field_as_string(self):
+        # Test that a resource where 'item_lookup_field' is set to a field
+        # of string type and which value is castable to a ObjectId is still
+        # treated as a string when 'query_objectid_as_string' is set to True.
+        # See PR #552.
+        data = {'id': '507c7f79bcf86cd7994f6c0e', 'name': 'john'}
+        response, status = self.post('ids', data=data)
+        self.assert201(status)
+        response, status = self.get('ids', item='507c7f79bcf86cd7994f6c0e')
+        self.assert200(status)
 
 
 class TestHead(TestBase):
