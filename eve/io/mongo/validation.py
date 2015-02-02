@@ -33,6 +33,10 @@ class Validator(Validator):
                    documentation.
     :param resource: the resource name.
 
+    .. versionchanged:: 0.6.2
+       Remove support for 'transparent_schema_rules' in favor of explicit
+       validators for rules unsupported by cerberus.
+
     .. versionchanged:: 0.5
        Support for _original_document
        Fix crash bug with Cerberus 0.7.1+ and keyschema rule. See Cerberus #48.
@@ -49,7 +53,7 @@ class Validator(Validator):
         self.resource = resource
         self._id = None
         self._original_document = None
-        super(Validator, self).__init__(schema, transparent_schema_rules=True)
+        super(Validator, self).__init__(schema)
         if resource:
             self.allow_unknown = config.DOMAIN[resource]['allow_unknown']
 
@@ -76,6 +80,22 @@ class Validator(Validator):
         """
         self._id = _id
         return super(Validator, self).validate(document)
+
+    def _validate_default(self, unique, field, value):
+        """ Fake validate function to let cerberus accept "default"
+            as keyword in the schema
+
+        .. versionadded:: 0.6.2
+        """
+        pass
+
+    def _validate_versioned(self, unique, field, value):
+        """ Fake validate function to let cerberus accept "versioned"
+            as keyword in the schema
+
+        .. versionadded:: 0.6.2
+        """
+        pass
 
     def _validate_unique(self, unique, field, value):
         """ Enables validation for `unique` schema attribute.
