@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+
+"""
+    eve.auth
+    ~~~~~~~~
+
+    Allow API endpoints to be secured via BasicAuth and derivates.
+
+    :copyright: (c) 2015 by Nicola Iarocci.
+    :license: BSD, see LICENSE for more details.
+"""
 from flask import request, Response, current_app as app, g, abort
 from functools import wraps
 

@@ -3,6 +3,7 @@
 """
     eve.io.mongo.geo
     ~~~~~~~~~~~~~~~~~~~
+
     Geospatial functions and classes for mongo IO layer
 
     :copyright: (c) 2015 by Nicola Iarocci.
