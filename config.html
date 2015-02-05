@@ -588,7 +588,11 @@ document id will be stored in field
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt></td>
 <td>MongoDB database name.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_QUERY_BLACKLIST</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_URI</span></tt></td>
+<td>A <a class="reference external" href="http://docs.mongodb.org/manual/reference/connection-string/#Connections-StandardConnectionStringFormat">MongoDB URI</a> which is used in preference
+of the other configuration variables.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_QUERY_BLACKLIST</span></tt></td>
 <td><p class="first">A list of Mongo query operators that are not
 allowed to be used in resource filters
 (<tt class="docutils literal"><span class="pre">?where=</span></tt>). Defaults to <tt class="docutils literal"><span class="pre">['$where',</span>
@@ -601,7 +605,7 @@ easily replaced with the (very rich) Mongo
 query dialect.</p>
 </td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></tt></td>
 <td><p class="first">A dictionary defining MongoDB write concern
 settings. All standard write concern
 settings (w, wtimeout, j, fsync) are
@@ -619,15 +623,15 @@ collection) level. See
 <tt class="docutils literal"><span class="pre">mongo_write_concern</span></tt> below.</p>
 </td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
 <td>A dict holding the API domain definition.
 See <a class="reference internal" href="#domain-configuration">Domain Configuration</a>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt></td>
 <td>A list of properties to forward from the file upload
 driver.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_BASE64_STRING</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_BASE64_STRING</span></tt></td>
 <td>Controls the embedding of the media type in
 the endpoint response. This is useful when
 you have other means of getting the binary
@@ -635,29 +639,29 @@ you have other means of getting the binary
 want clients to be able to POST/PATCH it.
 Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG</span></tt></td>
 <td>Set it to <tt class="docutils literal"><span class="pre">True</span></tt> to enable the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>.
 Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_NAME</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_NAME</span></tt></td>
 <td>This is the name of the database collection
 where the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a> is stored. Defaults
 to <tt class="docutils literal"><span class="pre">oplog</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_METHODS</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_METHODS</span></tt></td>
 <td>List of HTTP methods which operations
 should be logged in the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>.
 Defaults to <tt class="docutils literal"><span class="pre">['DELETE',</span> <span class="pre">'POST,</span> <span class="pre">'PATCH',</span>
 <span class="pre">'PUT']</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt></td>
 <td>Name of the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a> endpoint. If the
 endpoint is enabled it can be configured
 like any other API endpoint. Set it to
 <tt class="docutils literal"><span class="pre">None</span></tt> to disable the endpoint. Defaults
 to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt></td>
 <td>Set it to <tt class="docutils literal"><span class="pre">True</span></tt> to enable the audit
 feature. When audit is enabled client IP
 and document changes are also logged to the
