@@ -179,7 +179,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
             updated.update(updates)
 
             if config.IF_MATCH:
-                resolve_document_etag(updated)
+                resolve_document_etag(updated, resource)
                 # now storing the (updated) ETAG with every document (#453)
                 updates[config.ETAG] = updated[config.ETAG]
 

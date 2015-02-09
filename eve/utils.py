@@ -14,6 +14,7 @@ import sys
 import eve
 import hashlib
 import werkzeug.exceptions
+from copy import copy
 from flask import request
 from flask import current_app as app
 from datetime import datetime, timedelta
@@ -264,17 +265,39 @@ def querydef(max_results=config.PAGINATION_DEFAULT, where=None, sort=None,
                            version_part, page_part]).lstrip('&')).rstrip('?')
 
 
-def document_etag(value):
+def document_etag(value, ignore_fields=None):
     """ Computes and returns a valid ETag for the input value.
 
     :param value: the value to compute the ETag with.
+    :param ignore_fields: `ignore_fields` list of fields to skip to
+                          compute the ETag value.
 
     .. versionchanged:: 0.0.4
        Using bson.json_util.dumps over str(value) to make etag computation
        consistent between different runs and/or server instances (#16).
     """
+    if ignore_fields:
+        def filter_ignore_fields(d, fields):
+            # recursive function to remove the fields that they are in d,
+            # field is a list of fields to skip or a dictionary to
+            # to get nested keys  ["foo", {"dict": ["bar", "joe"], ...}]
+            for field in fields:
+                if isinstance(field, dict):
+                    for key in field.keys():
+                        filter_ignore_fields(d[key], field[key])
+                elif field in d:
+                    d.pop(field)
+                else:
+                    # not required fields can be not present
+                    pass
+
+        value_ = copy(value)
+        filter_ignore_fields(value_, ignore_fields)
+    else:
+        value_ = value
+
     h = hashlib.sha1()
-    h.update(dumps(value, sort_keys=True).encode('utf-8'))
+    h.update(dumps(value_, sort_keys=True).encode('utf-8'))
     return h.hexdigest()
 
 

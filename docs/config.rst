@@ -787,6 +787,13 @@ always lowercase.
                                 :ref:`internal_resources` for more
                                 informations. Defaults to ``False``.
 
+``etag_ignore_fields``          List of fields belonging to the schema that
+                                they won't be used to compute the ETag value.
+                                It looks like 
+                                ``['field', {'dict': ['field_nested'...``
+                                By default all fields are used to compute the
+                                ETag value.
+
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data
                                 validation. See `Schema Definition`_.
