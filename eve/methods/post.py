@@ -222,7 +222,7 @@ def post_internal(resource, payl=None, skip_validation=False):
         getattr(app, "on_insert_%s" % resource)(documents)
 
         # compute etags here as documents might have been updated by callbacks.
-        resolve_document_etag(documents)
+        resolve_document_etag(documents, resource)
 
         # bulk insert
         ids = app.data.insert(resource, documents)

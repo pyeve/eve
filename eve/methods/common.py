@@ -61,7 +61,9 @@ def get_document(resource, concurrency_check, **lookup):
         document[config.DATE_CREATED] = date_created(document)
 
         if req.if_match and concurrency_check:
-            etag = document.get(config.ETAG, document_etag(document))
+            ignore_fields = config.DOMAIN[resource]['etag_ignore_fields']
+            etag = document.get(config.ETAG, document_etag(document,
+                                ignore_fields=ignore_fields))
             if req.if_match != etag:
                 # client and server etags must match, or we don't allow editing
                 # (ensures that client's version of the document is up to date)
@@ -381,7 +383,9 @@ def build_response_document(
 
     # Up to v0.4 etags were not stored with the documents.
     if config.IF_MATCH and config.ETAG not in document:
-        document[config.ETAG] = document_etag(document)
+        ignore_fields = config.DOMAIN[resource]['etag_ignore_fields'] 
+        document[config.ETAG] = document_etag(document,
+                                              ignore_fields=ignore_fields)
 
     # hateoas links
     if config.DOMAIN[resource]['hateoas'] and config.ID_FIELD in document:
@@ -758,17 +762,20 @@ def resolve_user_restricted_access(document, resource):
             document[auth_field] = request_auth_value
 
 
-def resolve_document_etag(documents):
+def resolve_document_etag(documents, resource):
     """ Adds etags to documents.
 
     .. versionadded:: 0.5
     """
     if config.IF_MATCH:
+        ignore_fields = config.DOMAIN[resource]['etag_ignore_fields']
+
         if not isinstance(documents, list):
             documents = [documents]
 
         for document in documents:
-            document[config.ETAG] = document_etag(document)
+            document[config.ETAG] =\
+                document_etag(document, ignore_fields=ignore_fields)
 
 
 def pre_event(f):
