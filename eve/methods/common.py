@@ -372,7 +372,7 @@ def build_response_document(
 
     # Up to v0.4 etags were not stored with the documents.
     if config.IF_MATCH and config.ETAG not in document:
-        ignore_fields = config.DOMAIN[resource]['etag_ignore_fields'] 
+        ignore_fields = config.DOMAIN[resource]['etag_ignore_fields']
         document[config.ETAG] = document_etag(document,
                                               ignore_fields=ignore_fields)
 
