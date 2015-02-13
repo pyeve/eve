@@ -613,35 +613,40 @@ def resolve_media_files(document, resource):
     .. versionadded:: 0.4
     """
     for field in resource_media_fields(document, resource):
-        _file = app.media.get(document[field])
-        # check if we should send a basic file response
-        if config.EXTENDED_MEDIA_INFO == []:
-            if _file and config.RETURN_MEDIA_AS_BASE64_STRING:
-                document[field] = base64.encodestring(_file.read())
-            else:
-                document[field] = None
-        elif _file:
+        file_id = document[field]
+        _file = app.media.get(file_id)
+
+        if _file:
             # otherwise we have a valid file and should send extended response
             # start with the basic file object
-            ret_file = None
             if config.RETURN_MEDIA_AS_BASE64_STRING:
                 ret_file = base64.encodestring(_file.read())
-            document[field] = {
-                'file': ret_file,
-            }
+            elif config.RETURN_MEDIA_AS_URL:
+                ret_file = '%s/%s/%s' % (app.api_prefix,
+                                         config.MEDIA_ENDPOINT,
+                                         file_id)
+            else:
+                ret_file = None
 
-            # check if we should return any special fields
-            for attribute in config.EXTENDED_MEDIA_INFO:
-                if hasattr(_file, attribute):
-                    # add extended field if found in the file object
-                    document[field].update({
-                        attribute: getattr(_file, attribute)
-                    })
-                else:
-                    # tried to select an invalid attribute
-                    abort(500, description=debug_error_message(
-                        'Invalid extended media attribute requested'
-                    ))
+            if config.EXTENDED_MEDIA_INFO:
+                document[field] = {
+                    'file': ret_file,
+                }
+
+                # check if we should return any special fields
+                for attribute in config.EXTENDED_MEDIA_INFO:
+                    if hasattr(_file, attribute):
+                        # add extended field if found in the file object
+                        document[field].update({
+                            attribute: getattr(_file, attribute)
+                        })
+                    else:
+                        # tried to select an invalid attribute
+                        abort(500, description=debug_error_message(
+                            'Invalid extended media attribute requested'
+                        ))
+            else:
+                document[field] = ret_file
         else:
             document[field] = None
 

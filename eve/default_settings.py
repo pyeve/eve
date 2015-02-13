@@ -156,6 +156,9 @@ ITEM_URL = 'regex("[a-f0-9]{24}")'
 # use a simple file response format by default
 EXTENDED_MEDIA_INFO = []
 RETURN_MEDIA_AS_BASE64_STRING = True
+RETURN_MEDIA_AS_URL = False
+MEDIA_ENDPOINT = None
+MEDIA_URL = 'regex("[a-f0-9]{24}")'
 
 # list of extra fields to be included with every POST response. This list
 # should not include the 'standard' fields (ID_FIELD, LAST_UPDATED,
