@@ -123,109 +123,113 @@ def patch_internal(resource, payload=None, concurrency_check=False,
     if payload is None:
         payload = payload_()
 
-    original = get_document(resource, concurrency_check, **lookup)
-    if not original:
-        # not found
-        abort(404)
+    while True:
+        original = get_document(resource, concurrency_check, **lookup)
+        if not original:
+            # not found
+            abort(404)
 
-    resource_def = app.config['DOMAIN'][resource]
-    schema = resource_def['schema']
-    if not skip_validation:
-        validator = app.validator(schema, resource)
+        resource_def = app.config['DOMAIN'][resource]
+        schema = resource_def['schema']
+        if not skip_validation:
+            validator = app.validator(schema, resource)
 
-    object_id = original[config.ID_FIELD]
-    last_modified = None
-    etag = None
+        object_id = original[config.ID_FIELD]
+        last_modified = None
+        etag = None
 
-    issues = {}
-    response = {}
+        issues = {}
+        response = {}
 
-    if config.BANDWIDTH_SAVER is True:
-        embedded_fields = []
-    else:
-        req = parse_request(resource)
-        embedded_fields = resolve_embedded_fields(resource, req)
-
-    try:
-        updates = parse(payload, resource)
-        if skip_validation:
-            validation = True
+        if config.BANDWIDTH_SAVER is True:
+            embedded_fields = []
         else:
-            validation = validator.validate_update(updates, object_id,
-                                                   original)
-        if validation:
-            # sneak in a shadow copy if it wasn't already there
-            late_versioning_catch(original, resource)
+            req = parse_request(resource)
+            embedded_fields = resolve_embedded_fields(resource, req)
 
-            store_media_files(updates, resource, original)
-            resolve_document_version(updates, resource, 'PATCH', original)
+        try:
+            updates = parse(payload, resource)
+            if skip_validation:
+                validation = True
+            else:
+                validation = validator.validate_update(updates, object_id,
+                                                       original)
+            if validation:
+                # sneak in a shadow copy if it wasn't already there
+                late_versioning_catch(original, resource)
 
-            # some datetime precision magic
-            updates[config.LAST_UPDATED] = \
-                datetime.utcnow().replace(microsecond=0)
+                store_media_files(updates, resource, original)
+                resolve_document_version(updates, resource, 'PATCH', original)
 
-            # the mongo driver has a different precision than the python
-            # datetime. since we don't want to reload the document once it has
-            # been updated, and we still have to provide an updated etag,
-            # we're going to update the local version of the 'original'
-            # document, and we will use it for the etag computation.
-            updated = original.copy()
+                # some datetime precision magic
+                updates[config.LAST_UPDATED] = \
+                    datetime.utcnow().replace(microsecond=0)
 
-            # notify callbacks
-            getattr(app, "on_update")(resource, updates, original)
-            getattr(app, "on_update_%s" % resource)(updates, original)
+                # the mongo driver has a different precision than the python
+                # datetime. since we don't want to reload the document once it has
+                # been updated, and we still have to provide an updated etag,
+                # we're going to update the local version of the 'original'
+                # document, and we will use it for the etag computation.
+                updated = original.copy()
 
-            updates = resolve_nested_documents(updates, updated)
-            updated.update(updates)
+                # notify callbacks
+                getattr(app, "on_update")(resource, updates, original)
+                getattr(app, "on_update_%s" % resource)(updates, original)
 
-            if config.IF_MATCH:
-                resolve_document_etag(updated, resource)
-                # now storing the (updated) ETAG with every document (#453)
-                updates[config.ETAG] = updated[config.ETAG]
+                updates = resolve_nested_documents(updates, updated)
+                updated.update(updates)
 
-            app.data.update(resource, object_id, updates)
+                if config.IF_MATCH:
+                    resolve_document_etag(updated, resource)
+                    # now storing the (updated) ETAG with every document (#453)
+                    updates[config.ETAG] = updated[config.ETAG]
 
-            # update oplog if needed
-            oplog_push(resource, updates, 'PATCH', object_id)
+                try:
+                    app.data.update(resource, object_id, updates, original)
+                except app.data.OriginalChangedError:
+                    continue
 
-            insert_versioning_documents(resource, updated)
+                # update oplog if needed
+                oplog_push(resource, updates, 'PATCH', object_id)
 
-            # nofity callbacks
-            getattr(app, "on_updated")(resource, updates, original)
-            getattr(app, "on_updated_%s" % resource)(updates, original)
+                insert_versioning_documents(resource, updated)
 
-            # build the full response document
-            build_response_document(
-                updated, resource, embedded_fields, updated)
-            response = updated
-            if config.IF_MATCH:
-                etag = response[config.ETAG]
+                # nofity callbacks
+                getattr(app, "on_updated")(resource, updates, original)
+                getattr(app, "on_updated_%s" % resource)(updates, original)
+
+                # build the full response document
+                build_response_document(
+                    updated, resource, embedded_fields, updated)
+                response = updated
+                if config.IF_MATCH:
+                    etag = response[config.ETAG]
+            else:
+                issues = validator.errors
+        except ValidationError as e:
+            # TODO should probably log the error and abort 400 instead (when we
+            # got logging)
+            issues['validator exception'] = str(e)
+        except exceptions.HTTPException as e:
+            raise e
+        except Exception as e:
+            # consider all other exceptions as Bad Requests
+            abort(400, description=debug_error_message(
+                'An exception occurred: %s' % e
+            ))
+
+        if len(issues):
+            response[config.ISSUES] = issues
+            response[config.STATUS] = config.STATUS_ERR
+            status = config.VALIDATION_ERROR_STATUS
         else:
-            issues = validator.errors
-    except ValidationError as e:
-        # TODO should probably log the error and abort 400 instead (when we
-        # got logging)
-        issues['validator exception'] = str(e)
-    except exceptions.HTTPException as e:
-        raise e
-    except Exception as e:
-        # consider all other exceptions as Bad Requests
-        abort(400, description=debug_error_message(
-            'An exception occurred: %s' % e
-        ))
+            response[config.STATUS] = config.STATUS_OK
+            status = 200
 
-    if len(issues):
-        response[config.ISSUES] = issues
-        response[config.STATUS] = config.STATUS_ERR
-        status = config.VALIDATION_ERROR_STATUS
-    else:
-        response[config.STATUS] = config.STATUS_OK
-        status = 200
+        # limit what actually gets sent to minimize bandwidth usage
+        response = marshal_write_response(response, resource)
 
-    # limit what actually gets sent to minimize bandwidth usage
-    response = marshal_write_response(response, resource)
-
-    return response, last_modified, etag, status
+        return response, last_modified, etag, status
 
 
 def resolve_nested_documents(updates, original):
