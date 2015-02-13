@@ -296,6 +296,9 @@ def serialize(document, resource=None, schema=None, fields=None):
     """ Recursively handles field values that require data-aware serialization.
     Relies on the app.data.serializers dictionary.
 
+    .. versionchanged:: 0.5.2
+       Fix serialization of keyschemas with objectids. See #525.
+
     .. versionchanged:: 0.3
        Fix serialization of sub-documents. See #244.
 
@@ -338,6 +341,14 @@ def serialize(document, resource=None, schema=None, fields=None):
                             document[field][i] = \
                                 app.data.serializers[field_type](
                                     document[field][i])
+                elif 'keyschema' in field_schema:
+                    # a keyschema
+                    field_type = field_schema['keyschema']['type']
+                    if field_type == 'objectid':
+                        target = document[field]
+                        for field in target:
+                            target[field] = \
+                                app.data.serializers[field_type](target[field])
                 elif field_type in app.data.serializers:
                     # a simple field
                     document[field] = \

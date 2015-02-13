@@ -31,6 +31,9 @@ class TestSerializer(TestBase):
             'date': {'type': 'datetime'},
             'count': {'type': 'integer'},
             'average': {'type': 'float'},
+            'dict_keyschema': {
+                'keyschema': {'type': 'objectid'}
+            }
         }
         with self.app.app_context():
             # Success
@@ -38,8 +41,12 @@ class TestSerializer(TestBase):
                 {
                     'id': '50656e4538345b39dd0414f0',
                     'date': 'Tue, 06 Nov 2012 10:33:31 GMT',
-                    'count': '42',
-                    'average': '42.42',
+                    'count': 42,
+                    'average': 42.42,
+                    'dict_keyschema': {
+                        'foo1': '50656e4538345b39dd0414f0',
+                        'foo2': '50656e4538345b39dd0414f0',
+                    }
                 },
                 schema=schema
             )
@@ -47,6 +54,10 @@ class TestSerializer(TestBase):
             self.assertTrue(isinstance(res['date'], datetime))
             self.assertTrue(isinstance(res['count'], int))
             self.assertTrue(isinstance(res['average'], float))
+
+            ks = res['dict_keyschema']
+            self.assertTrue(isinstance(ks['foo1'], ObjectId))
+            self.assertTrue(isinstance(ks['foo2'], ObjectId))
 
             # Fails
             self.assertRaises(InvalidId, serialize, **dict(
