@@ -279,12 +279,12 @@ def document_etag(value, ignore_fields=None):
     if ignore_fields:
         def filter_ignore_fields(d, fields):
             # recursive function to remove the fields that they are in d,
-            # field is a list of fields to skip or a dictionary to
-            # to get nested keys  ["foo", {"dict": ["bar", "joe"], ...}]
+            # field is a list of fields to skip or dotted fields to look up
+            # to nested keys such as  ["foo", "dict.bar", "dict.joe"]
             for field in fields:
-                if isinstance(field, dict):
-                    for key in field.keys():
-                        filter_ignore_fields(d[key], field[key])
+                key, _, value = field.partition(".")
+                if value:
+                    filter_ignore_fields(d[key], [value])
                 elif field in d:
                     d.pop(field)
                 else:

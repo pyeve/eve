@@ -187,9 +187,9 @@ class TestUtils(TestBase):
         self.assertEqual(hashlib.sha1(challenge).hexdigest(),
                          document_etag(test, ignore_fields))
 
-        # ignore fiels nested as a values of a dictionary
+        # ignore fiels nested using doting notation
         test = {'key1': 'value1', 'dict': {'key2': 'value2', 'key3': 'value3'}}
-        ignore_fields = [{'dict': ['key2']}]
+        ignore_fields = ['dict.key2']
         test_without_ignore = {'key1': 'value1', 'dict': {'key3': 'value3'}}
         challenge = dumps(test_without_ignore, sort_keys=True).encode('utf-8')
         self.assertEqual(hashlib.sha1(challenge).hexdigest(),
