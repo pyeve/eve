@@ -520,6 +520,7 @@ class Eve(Flask, Events):
         settings.setdefault('versioning', self.config['VERSIONING'])
         settings.setdefault('internal_resource',
                             self.config['INTERNAL_RESOURCE'])
+        settings.setdefault('etag_ignore_fields', None)
         # TODO make sure that this we really need the test below
         if settings['item_lookup']:
             item_methods = self.config['ITEM_METHODS']
