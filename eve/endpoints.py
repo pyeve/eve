@@ -11,13 +11,16 @@
     :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
+from bson import tz_util, ObjectId
+from gridfs import NoFile
 
 from eve.methods import get, getitem, post, patch, delete, deleteitem, put
 from eve.methods.common import ratelimit
 from eve.render import send_response
 from eve.auth import requires_auth
-from eve.utils import config, request_method, debug_error_message
-from flask import abort, request
+from eve.utils import config, request_method, debug_error_message, weak_date, \
+    date_to_rfc1123
+from flask import abort, request, current_app as app, Response
 
 
 def collections_endpoint(**lookup):
@@ -154,3 +157,39 @@ def error_endpoint(error):
 
 def _resource():
     return request.endpoint.split('|')[0]
+
+
+def media_endpoint(_id):
+    # Convert to unicode because ObjectId() interprets
+    # 12-character strings (but not unicode) as binary
+    # representations of ObjectId's.  See
+    # https://github.com/nicolaiarocci/eve/issues/508
+    try:
+        _id = ObjectId(unicode(_id))
+    except NameError:
+        # We're on Python 3 so it's all unicode # already.
+        _id = ObjectId(_id)
+
+    try:
+        file_ = app.media.get(ObjectId(_id))
+    except NoFile:
+        return abort(404)
+
+    if_modified_since = weak_date(request.headers.get('If-Modified-Since'))
+    if if_modified_since is not None:
+        if if_modified_since.tzinfo is None:
+            if_modified_since = if_modified_since.replace(
+                tzinfo=tz_util.utc)
+
+        if if_modified_since > file_.upload_date:
+            return Response(status=304)
+
+    headers = {
+        'Last-Modified': date_to_rfc1123(file_.upload_date),
+        'Content-Length': file_.length,
+    }
+
+    response = Response(file_, headers=headers, mimetype=file_.content_type,
+                        direct_passthrough=True)
+
+    return response
