@@ -53,11 +53,14 @@
   <div class="section" id="eve-changelog">
 <span id="changelog"></span><h1>Eve Changelog<a class="headerlink" href="#eve-changelog" title="Permalink to this headline">¶</a></h1>
 <p>Here you can see the full list of changes between each Eve release.</p>
-<div class="section" id="next-release">
-<h2>Next release<a class="headerlink" href="#next-release" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="in-development">
+<h2>In development<a class="headerlink" href="#in-development" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Fix: serialization of <tt class="docutils literal"><span class="pre">keyschema</span></tt> fields with <tt class="docutils literal"><span class="pre">objetid</span></tt> values.
-Closes #525.</li>
+<li>New: <tt class="docutils literal"><span class="pre">etag_ignore_fields</span></tt>. Resource setting with a list of fields belonging
+to the schema that won&#8217;t be used to compute the ETag value. Defaults to
+<tt class="docutils literal"><span class="pre">None</span></tt>.</li>
+<li>Fix: serialization of <tt class="docutils literal"><span class="pre">keyschema</span></tt> fields with <tt class="docutils literal"><span class="pre">objetid</span></tt> values. Closes
+#525.</li>
 <li>Fix: typos in schema rules might lead to arbitrary payloads being validated
 (Emmanuel Leblond.)</li>
 <li>Fix: ObjectId value in ID field of type string (Jaroslav Semančík.)</li>
@@ -973,7 +976,7 @@ signature, allowing for further subclassing.</li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Eve Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#next-release">Next release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#in-development">In development</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-5-1">Version 0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-5">Version 0.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-4">Version 0.4</a></li>

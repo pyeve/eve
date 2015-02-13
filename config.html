@@ -692,8 +692,8 @@ dictionary where keys are API resources and values their definitions.</p>
 always lowercase.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="39%" />
-<col width="61%" />
+<col width="38%" />
+<col width="62%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">url</span></tt></td>
@@ -945,7 +945,15 @@ the Eve data layer. See
 <a class="reference internal" href="features.html#internal-resources"><em>Internal Resources</em></a> for more
 informations. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">etag_ignore_fields</span></tt></td>
+<td>List of fields that
+should not be used to compute the ETag value.
+Defaults to <tt class="docutils literal"><span class="pre">None</span></tt> which means that by
+default all fields are included in the computation.
+It looks like <tt class="docutils literal"><span class="pre">['field1',</span> <span class="pre">'field2',</span>
+<span class="pre">'field3.nested_field',</span> <span class="pre">...]</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
 <td>A dict defining the actual data structure being
 handled by the resource. Enables data
 validation. See <a class="reference internal" href="#schema-definition">Schema Definition</a>.</td>
