@@ -109,97 +109,101 @@ def put_internal(resource, payload=None, concurrency_check=False,
     if payload is None:
         payload = payload_()
 
-    original = get_document(resource, concurrency_check, **lookup)
-    if not original:
-        # not found
-        abort(404)
+    while True:
+        original = get_document(resource, concurrency_check, **lookup)
+        if not original:
+            # not found
+            abort(404)
 
-    last_modified = None
-    etag = None
-    issues = {}
-    object_id = original[config.ID_FIELD]
+        last_modified = None
+        etag = None
+        issues = {}
+        object_id = original[config.ID_FIELD]
 
-    response = {}
+        response = {}
 
-    if config.BANDWIDTH_SAVER is True:
-        embedded_fields = []
-    else:
-        req = parse_request(resource)
-        embedded_fields = resolve_embedded_fields(resource, req)
-
-    try:
-        document = parse(payload, resource)
-        if skip_validation:
-            validation = True
+        if config.BANDWIDTH_SAVER is True:
+            embedded_fields = []
         else:
-            validation = validator.validate_replace(document, object_id)
-        if validation:
-            # sneak in a shadow copy if it wasn't already there
-            late_versioning_catch(original, resource)
+            req = parse_request(resource)
+            embedded_fields = resolve_embedded_fields(resource, req)
 
-            # update meta
-            last_modified = datetime.utcnow().replace(microsecond=0)
-            document[config.LAST_UPDATED] = last_modified
-            document[config.DATE_CREATED] = original[config.DATE_CREATED]
+        try:
+            document = parse(payload, resource)
+            if skip_validation:
+                validation = True
+            else:
+                validation = validator.validate_replace(document, object_id)
+            if validation:
+                # sneak in a shadow copy if it wasn't already there
+                late_versioning_catch(original, resource)
 
-            # ID_FIELD not in document means it is not being automatically
-            # handled (it has been set to a field which exists in the resource
-            # schema.
-            if config.ID_FIELD not in document:
-                document[config.ID_FIELD] = object_id
+                # update meta
+                last_modified = datetime.utcnow().replace(microsecond=0)
+                document[config.LAST_UPDATED] = last_modified
+                document[config.DATE_CREATED] = original[config.DATE_CREATED]
 
-            resolve_user_restricted_access(document, resource)
-            resolve_default_values(document, resource_def['defaults'])
-            store_media_files(document, resource, original)
-            resolve_document_version(document, resource, 'PUT', original)
+                # ID_FIELD not in document means it is not being automatically
+                # handled (it has been set to a field which exists in the resource
+                # schema.
+                if config.ID_FIELD not in document:
+                    document[config.ID_FIELD] = object_id
 
-            # notify callbacks
-            getattr(app, "on_replace")(resource, document, original)
-            getattr(app, "on_replace_%s" % resource)(document, original)
+                resolve_user_restricted_access(document, resource)
+                resolve_default_values(document, resource_def['defaults'])
+                store_media_files(document, resource, original)
+                resolve_document_version(document, resource, 'PUT', original)
 
-            resolve_document_etag(document, resource)
+                # notify callbacks
+                getattr(app, "on_replace")(resource, document, original)
+                getattr(app, "on_replace_%s" % resource)(document, original)
 
-            # write to db
-            app.data.replace(resource, object_id, document)
+                resolve_document_etag(document, resource)
 
-            # update oplog if needed
-            oplog_push(resource, document, 'PUT')
+                # write to db
+                try:
+                    app.data.replace(resource, object_id, document, original)
+                except app.data.OriginalChangedError:
+                    continue
 
-            insert_versioning_documents(resource, document)
+                # update oplog if needed
+                oplog_push(resource, document, 'PUT')
 
-            # notify callbacks
-            getattr(app, "on_replaced")(resource, document, original)
-            getattr(app, "on_replaced_%s" % resource)(document, original)
+                insert_versioning_documents(resource, document)
 
-            # build the full response document
-            build_response_document(
-                document, resource, embedded_fields, document)
-            response = document
-            if config.IF_MATCH:
-                etag = response[config.ETAG]
+                # notify callbacks
+                getattr(app, "on_replaced")(resource, document, original)
+                getattr(app, "on_replaced_%s" % resource)(document, original)
+
+                # build the full response document
+                build_response_document(
+                    document, resource, embedded_fields, document)
+                response = document
+                if config.IF_MATCH:
+                    etag = response[config.ETAG]
+            else:
+                issues = validator.errors
+        except ValidationError as e:
+            # TODO should probably log the error and abort 400 instead (when we
+            # got logging)
+            issues['validator exception'] = str(e)
+        except exceptions.HTTPException as e:
+            raise e
+        except Exception as e:
+            # consider all other exceptions as Bad Requests
+            abort(400, description=debug_error_message(
+                'An exception occurred: %s' % e
+            ))
+
+        if len(issues):
+            response[config.ISSUES] = issues
+            response[config.STATUS] = config.STATUS_ERR
+            status = config.VALIDATION_ERROR_STATUS
         else:
-            issues = validator.errors
-    except ValidationError as e:
-        # TODO should probably log the error and abort 400 instead (when we
-        # got logging)
-        issues['validator exception'] = str(e)
-    except exceptions.HTTPException as e:
-        raise e
-    except Exception as e:
-        # consider all other exceptions as Bad Requests
-        abort(400, description=debug_error_message(
-            'An exception occurred: %s' % e
-        ))
+            response[config.STATUS] = config.STATUS_OK
+            status = 200
 
-    if len(issues):
-        response[config.ISSUES] = issues
-        response[config.STATUS] = config.STATUS_ERR
-        status = config.VALIDATION_ERROR_STATUS
-    else:
-        response[config.STATUS] = config.STATUS_OK
-        status = 200
+        # limit what actually gets sent to minimize bandwidth usage
+        response = marshal_write_response(response, resource)
 
-    # limit what actually gets sent to minimize bandwidth usage
-    response = marshal_write_response(response, resource)
-
-    return response, last_modified, etag, status
+        return response, last_modified, etag, status
