@@ -591,7 +591,7 @@ def resolve_embedded_documents(document, resource, embedded_fields):
     """
     for field in embedded_fields:
         data_relation = field_definition(resource, field)['data_relation']
-        getter = lambda ref: embedded_document(ref, data_relation, field)  # noqa
+        getter = lambda ref: embedded_document(ref, data_relation, field)
         fields_chain = field.split('.')
         last_field = fields_chain[-1]
         for subdocument in subdocuments(fields_chain[:-1], document):

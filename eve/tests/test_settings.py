@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import copy
+
 
 MONGO_HOST = 'localhost'
 MONGO_PORT = 27017
@@ -124,7 +126,6 @@ contacts = {
     }
 }
 
-import copy
 users = copy.deepcopy(contacts)
 users['url'] = 'users'
 users['datasource'] = {'source': 'contacts',

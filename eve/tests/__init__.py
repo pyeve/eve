@@ -419,7 +419,7 @@ class TestBase(TestMinimal):
         for i in range(num):
             dt = datetime.now()
             contact = {
-                'ref':  self.random_string(schema['ref']['maxlength']),
+                'ref': self.random_string(schema['ref']['maxlength']),
                 'prog': i,
                 'role': random.choice(schema['role']['allowed']),
                 'rows': self.random_rows(random.randint(0, 5)),
@@ -451,7 +451,7 @@ class TestBase(TestMinimal):
         for i in range(num):
             dt = datetime.now()
             payment = {
-                'a_string':  self.random_string(10),
+                'a_string': self.random_string(10),
                 'a_number': i,
                 eve.LAST_UPDATED: dt,
                 eve.DATE_CREATED: dt,
@@ -464,7 +464,7 @@ class TestBase(TestMinimal):
         for _ in range(num):
             dt = datetime.now()
             invoice = {
-                'inv_number':  self.random_string(10),
+                'inv_number': self.random_string(10),
                 eve.LAST_UPDATED: dt,
                 eve.DATE_CREATED: dt,
             }
@@ -498,7 +498,7 @@ class TestBase(TestMinimal):
         for i in range(num):
             dt = datetime.now()
             transaction = {
-                'internal_string':  self.random_string(10),
+                'internal_string': self.random_string(10),
                 'internal_number': i,
                 eve.LAST_UPDATED: dt,
                 eve.DATE_CREATED: dt,

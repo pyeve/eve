@@ -88,7 +88,7 @@ class TestBasicAuth(TestBase):
         self.assert401(r.status_code)
 
     def test_authorized_home_access(self):
-        r = self.test_client.get('/',  headers=self.valid_auth)
+        r = self.test_client.get('/', headers=self.valid_auth)
         self.assert200(r.status_code)
 
     def test_authorized_resource_access(self):
@@ -114,7 +114,7 @@ class TestBasicAuth(TestBase):
         self.assert403(r.status_code)
 
     def test_unauthorized_home_access(self):
-        r = self.test_client.get('/',  headers=self.invalid_auth)
+        r = self.test_client.get('/', headers=self.invalid_auth)
         self.assert401(r.status_code)
 
     def test_unauthorized_resource_access(self):

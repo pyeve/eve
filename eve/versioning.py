@@ -9,7 +9,7 @@ def versioned_id_field():
 
     .. versionadded: 0.4
     """
-    return app.config['ID_FIELD']+app.config['VERSION_ID_SUFFIX']
+    return app.config['ID_FIELD'] + app.config['VERSION_ID_SUFFIX']
 
 
 def resolve_document_version(document, resource, method, latest_doc=None):
@@ -138,7 +138,7 @@ def insert_versioning_documents(resource, documents):
             versioned_documents.append(ver_doc)
 
         # bulk insert
-        app.data.insert(resource+app.config['VERSIONS'], versioned_documents)
+        app.data.insert(resource + app.config['VERSIONS'], versioned_documents)
 
 
 def versioned_fields(resource_def):
@@ -259,7 +259,7 @@ def get_old_document(resource, req, lookup, document, version):
         lookup[config.VERSION] = version
 
         # synthesize old document from latest and delta
-        delta = app.data.find_one(resource+config.VERSIONS, req, **lookup)
+        delta = app.data.find_one(resource + config.VERSIONS, req, **lookup)
         if not delta:
             abort(404)
         document = synthesize_versioned_document(
