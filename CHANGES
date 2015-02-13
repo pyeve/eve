@@ -3,8 +3,8 @@ Eve Changelog
 
 Here you can see the full list of changes between each Eve release.
 
-Next release
-------------
+Version 0.5.2
+-------------
 
 - Fix: serialization of ``keyschema`` fields with ``objetid`` values.
   Closes #525.
