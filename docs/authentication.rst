@@ -102,7 +102,7 @@ resource-level ``authentication`` setting when we are defining the API
 
     DOMAIN = {
         'people': {
-            'authentication': MySuperCoolAuth,
+            'authentication': MySuperCoolAuth(),
             ...
             },
         'invoices': ... 
