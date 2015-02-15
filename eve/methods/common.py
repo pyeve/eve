@@ -796,6 +796,9 @@ def pre_event(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         method = request_method()
+        if method == 'HEAD':
+            method = 'GET'
+
         event_name = 'on_pre_' + method
         resource = args[0] if args else None
         gh_params = ()
@@ -803,7 +806,7 @@ def pre_event(f):
         if method in ('GET', 'PATCH', 'DELETE', 'PUT'):
             gh_params = (resource, request, kwargs)
             rh_params = (request, kwargs)
-        elif method in ('POST'):
+        elif method in ('POST', ):
             # POST hook does not support the kwargs argument
             gh_params = (resource, request)
             rh_params = (request,)
