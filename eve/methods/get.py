@@ -106,10 +106,13 @@ def get(resource, **lookup):
             last_update = document[config.LAST_UPDATED]
 
     status = 200
+    headers = []
     last_modified = last_update if last_update > epoch() else None
 
     response[config.ITEMS] = documents
     count = cursor.count(with_limit_and_skip=False)
+    headers.append((config.HEADER_TOTAL_COUNT, count))
+
     if config.DOMAIN[resource]['hateoas']:
         response[config.LINKS] = _pagination_links(resource, req, count)
 
@@ -130,7 +133,7 @@ def get(resource, **lookup):
     if hasattr(cursor, 'extra'):
         getattr(cursor, 'extra')(response)
 
-    return response, last_modified, etag, status
+    return response, last_modified, etag, status, headers
 
 
 @ratelimit()
