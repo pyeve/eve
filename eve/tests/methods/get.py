@@ -118,6 +118,16 @@ class TestGet(TestBase):
         self.assertTrue('next' not in links)
         self.assertTrue('prev' not in links)
 
+    def test_get_total_count_header(self):
+        url = self.domain[self.known_resource]['url']
+        r = self.test_client.head(url)
+        response, status = self.parse_response(r)
+        self.assert200(status)
+        self.assertIsNone(response)
+
+        total_count = r.headers[self.app.config['HEADER_TOTAL_COUNT']]
+        self.assertEqual(int(total_count), self.known_resource_count)
+
     def test_get_where_mongo_syntax(self):
         where = '{"ref": "%s"}' % self.item_name
         response, status = self.get(self.known_resource, '?where=%s' % where)

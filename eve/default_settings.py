@@ -171,6 +171,8 @@ QUERY_PAGE = 'page'
 QUERY_MAX_RESULTS = 'max_results'
 QUERY_EMBEDDED = 'embedded'
 
+HEADER_TOTAL_COUNT = 'X-Total-Count'
+
 # user-restricted resource access is disabled by default.
 AUTH_FIELD = None
 
