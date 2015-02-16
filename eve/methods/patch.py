@@ -166,10 +166,11 @@ def patch_internal(resource, payload=None, concurrency_check=False,
                     datetime.utcnow().replace(microsecond=0)
 
                 # the mongo driver has a different precision than the python
-                # datetime. since we don't want to reload the document once it has
-                # been updated, and we still have to provide an updated etag,
-                # we're going to update the local version of the 'original'
-                # document, and we will use it for the etag computation.
+                # datetime. since we don't want to reload the document once it
+                # has been updated, and we still have to provide an updated
+                # etag, we're going to update the local version of the
+                # 'original' document, and we will use it for the etag
+                # computation.
                 updated = original.copy()
 
                 # notify callbacks
