@@ -144,8 +144,8 @@ def put_internal(resource, payload=None, concurrency_check=False,
                 document[config.DATE_CREATED] = original[config.DATE_CREATED]
 
                 # ID_FIELD not in document means it is not being automatically
-                # handled (it has been set to a field which exists in the resource
-                # schema.
+                # handled (it has been set to a field which exists in the
+                # resource schema.
                 if config.ID_FIELD not in document:
                     document[config.ID_FIELD] = object_id
 
