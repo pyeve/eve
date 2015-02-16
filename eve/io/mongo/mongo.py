@@ -374,7 +374,7 @@ class Mongo(DataLayer):
             result = self.driver.db[datasource].update(
                 filter_, changes, **self._wc(resource))
 
-            if result["n"] == 0:
+            if result and result["n"] == 0:
                 raise self.OriginalChangedError
         except pymongo.errors.DuplicateKeyError as e:
             abort(400, description=debug_error_message(
