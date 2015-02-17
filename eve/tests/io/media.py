@@ -301,7 +301,6 @@ class TestGridFSMediaStorage(TestBase):
         self.assert404(s)
 
     def test_gridfs_media_storage_return_url(self):
-        self.app.config['MEDIA_ENDPOINT'] = 'media'
         self.app._init_media_endpoint()
         self.app.config['RETURN_MEDIA_AS_BASE64_STRING'] = False
         self.app.config['RETURN_MEDIA_AS_URL'] = True
