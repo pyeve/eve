@@ -11,16 +11,15 @@
     :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-from bson import tz_util, ObjectId
-from gridfs import NoFile
+from bson import tz_util
+from flask import abort, request, current_app as app, Response
 
+from eve.auth import requires_auth
 from eve.methods import get, getitem, post, patch, delete, deleteitem, put
 from eve.methods.common import ratelimit
 from eve.render import send_response
-from eve.auth import requires_auth
 from eve.utils import config, request_method, debug_error_message, weak_date, \
     date_to_rfc1123
-from flask import abort, request, current_app as app, Response
 
 
 def collections_endpoint(**lookup):
@@ -160,19 +159,13 @@ def _resource():
 
 
 def media_endpoint(_id):
-    # Convert to unicode because ObjectId() interprets
-    # 12-character strings (but not unicode) as binary
-    # representations of ObjectId's.  See
-    # https://github.com/nicolaiarocci/eve/issues/508
-    try:
-        _id = ObjectId(unicode(_id))
-    except NameError:
-        # We're on Python 3 so it's all unicode # already.
-        _id = ObjectId(_id)
+    """ This endpoint is active when RETURN_MEDIA_AS_URL is True. It retrieves
+    a media file and streams it to the client.
 
-    try:
-        file_ = app.media.get(ObjectId(_id))
-    except NoFile:
+    .. versionadded:: 0.6
+    """
+    file_ = app.media.get(_id)
+    if file_ is None:
         return abort(404)
 
     if_modified_since = weak_date(request.headers.get('If-Modified-Since'))
