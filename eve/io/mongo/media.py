@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
     eve.io.mongo.media
     ~~~~~~~~~~~~~~~~~~
@@ -9,11 +7,13 @@
     :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
+from bson import ObjectId
 from flask import Flask
+from gridfs import GridFS
+
 from eve.io.media import MediaStorage
 from eve.io.mongo import Mongo
-
-from gridfs import GridFS
+from eve.utils import str_type
 
 
 class GridFSMediaStorage(MediaStorage):
@@ -58,7 +58,18 @@ class GridFSMediaStorage(MediaStorage):
     def get(self, _id):
         """ Returns the file given by unique id. Returns None if no file was
         found.
+
+        .. vesionchanged: 0.6
+           Support for _id as string.
         """
+        if isinstance(_id, str_type):
+            # Convert to unicode because ObjectId() interprets 12-character
+            # strings (but not unicode) as binary representations of ObjectId.
+            try:
+                _id = ObjectId(unicode(_id))
+            except NameError:
+                _id = ObjectId(_id)
+
         _file = None
         try:
             _file = self.fs().get(_id)

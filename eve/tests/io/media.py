@@ -300,6 +300,28 @@ class TestGridFSMediaStorage(TestBase):
                                                                    _id)))
         self.assert404(s)
 
+    def test_gridfs_media_storage_return_url(self):
+        self.app._init_media_endpoint()
+        self.app.config['RETURN_MEDIA_AS_BASE64_STRING'] = False
+        self.app.config['RETURN_MEDIA_AS_URL'] = True
+
+        r, s = self._post()
+        self.assertEqual(STATUS_OK, r[STATUS])
+        _id = r[ID_FIELD]
+
+        # GET the file at the resource endpoint
+        where = 'where={"%s": "%s"}' % (ID_FIELD, _id)
+        r, s = self.parse_response(
+            self.test_client.get('%s?%s' % (self.url, where)))
+        self.assertEqual(len(r['_items']), 1)
+        url = r['_items'][0]['media']
+
+        media_id = self.assertMediaStored(_id)
+
+        self.assertEqual('/media/%s' % media_id, url)
+        response = self.test_client.get(url)
+        self.assertEqual(self.clean, response.get_data())
+
     def assertMediaField(self, _id, encoded, clean):
         # GET the file at the item endpoint
         r, s = self.parse_response(self.test_client.get('%s/%s' % (self.url,
