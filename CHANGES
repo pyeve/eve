@@ -13,6 +13,8 @@ In development
   to the schema that won't be used to compute the ETag value. Defaults to
   ``None``.
 
+- Fix: endpoint-level authentication crash when a callable is passed. Closes
+  #558.
 - Fix: serialization of ``keyschema`` fields with ``objetid`` values. Closes
   #525.
 - Fix: typos in schema rules might lead to arbitrary payloads being validated

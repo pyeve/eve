@@ -483,7 +483,7 @@ class TestUserRestrictedAccess(TestBase):
 
         # set auth at resource level instead.
         resource_def = self.app.config['DOMAIN'][self.url]
-        resource_def['authentication'] = ValidBasicAuth()
+        resource_def['authentication'] = ValidBasicAuth
         resource_def['auth_field'] = 'username'
 
         # post with valid auth - must store the document with the correct
@@ -544,7 +544,7 @@ class TestUserRestrictedAccess(TestBase):
 
         # set auth at resource level instead.
         resource_def = self.app.config['DOMAIN'][self.url]
-        resource_def['authentication'] = ValidBasicAuth()
+        resource_def['authentication'] = ValidBasicAuth
         resource_def['auth_field'] = 'username'
 
         # post
