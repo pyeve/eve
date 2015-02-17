@@ -1351,6 +1351,8 @@ the works, and will soon be included with the Eve package.</p>
 <p>As a proper developer guide is not available yet, you can peek at the
 <a class="reference external" href="https://github.com/nicolaiarocci/eve/blob/develop/eve/io/media.py">MediaStorage</a> source if you are interested in developing custom storage
 classes.</p>
+<div class="section" id="serving-media-files-as-base64-strings">
+<h3>Serving media files as Base64 strings<a class="headerlink" href="#serving-media-files-as-base64-strings" title="Permalink to this headline">¶</a></h3>
 <p>When a document is requested media files will be returned as Base64 strings,</p>
 <div class="highlight-python"><div class="highlight"><pre> <span class="p">{</span>
      <span class="s">&#39;_items&#39;</span><span class="p">:</span> <span class="p">[</span>
@@ -1396,6 +1398,16 @@ are the meta fields. Suppose that the flag is set like this:</p>
 example) then the media files can be excluded from the paylod by setting to
 <tt class="docutils literal"><span class="pre">False</span></tt> the <tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_BASE64_STRING</span></tt> flag. This takes into account
 if <tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt> is used.</p>
+</div>
+<div class="section" id="serving-media-files-at-a-dedicated-endpoint">
+<h3>Serving media files at a dedicated endpoint<a class="headerlink" href="#serving-media-files-at-a-dedicated-endpoint" title="Permalink to this headline">¶</a></h3>
+<p>While returning files embedded as Base64 fields is the default behaviour, you
+can opt for serving them at a dedicated media endpoint. You achieve that by
+setting <tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt> to <tt class="docutils literal"><span class="pre">True</span></tt>. When this feature is enabled
+document fields contain urls to the correspondent files, which are served at the
+media endpoint. You can change the default media endpoint (<tt class="docutils literal"><span class="pre">media</span></tt>) by
+updating the <tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt> setting.</p>
+</div>
 <div class="section" id="leveraging-projections-to-optimize-the-handling-of-media-files">
 <span id="projection-filestorage"></span><h3>Leveraging Projections to optimize the handling of media files<a class="headerlink" href="#leveraging-projections-to-optimize-the-handling-of-media-files" title="Permalink to this headline">¶</a></h3>
 <p>Clients and API maintainers can exploit the <a class="reference internal" href="#projections"><em>Projections</em></a> feature to
@@ -1746,6 +1758,8 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li class="toctree-l2"><a class="reference internal" href="#rate-limiting">Rate Limiting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#custom-id-fields">Custom ID Fields</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#file-storage">File Storage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#serving-media-files-as-base64-strings">Serving media files as Base64 strings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#serving-media-files-at-a-dedicated-endpoint">Serving media files at a dedicated endpoint</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#leveraging-projections-to-optimize-the-handling-of-media-files">Leveraging Projections to optimize the handling of media files</a></li>
 </ul>
 </li>

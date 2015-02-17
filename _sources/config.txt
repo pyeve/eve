@@ -513,6 +513,18 @@ uppercase.
                                     want clients to be able to POST/PATCH it.
                                     Defaults to ``True``. 
 
+``RETURN_MEDIA_AS_URL``             Set it to ``True`` to enable serving media 
+                                    files at a dedicated media endpoint.
+                                    Defaults to ``False``.
+
+``MEDIA_ENDPOINT``                  The media endpoint to be used when 
+                                    ``RETURN_MEDIA_AS_URL`` is enabled. 
+                                    Defaults to ``media``.
+
+``MEDIA_URL``                       Format of a file url served at the 
+                                    dedicated media endpoints. Defaults to
+                                    ``regex("[a-f0-9]{24}")``.
+
 ``OPLOG``                           Set it to ``True`` to enable the :ref:`oplog`.
                                     Defaults to ``False``.
 
