@@ -124,7 +124,8 @@ def patch_internal(resource, payload=None, concurrency_check=False,
         payload = payload_()
 
     while True:
-        original = get_document(resource, concurrency_check, **lookup)
+        original, unaltered_original = get_document(
+            resource, concurrency_check, **lookup)
         if not original:
             # not found
             abort(404)
@@ -186,7 +187,8 @@ def patch_internal(resource, payload=None, concurrency_check=False,
                     updates[config.ETAG] = updated[config.ETAG]
 
                 try:
-                    app.data.update(resource, object_id, updates, original)
+                    app.data.update(
+                        resource, object_id, updates, unaltered_original)
                 except app.data.OriginalChangedError:
                     continue
 
