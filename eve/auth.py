@@ -51,10 +51,7 @@ def requires_auth(endpoint_class):
                         roles += resource['allowed_item_read_roles']
                     else:
                         roles += resource['allowed_item_write_roles']
-                if callable(resource['authentication']):
-                    auth = resource['authentication']()
-                else:
-                    auth = resource['authentication']
+                auth = _auth_object(resource_name)
             else:
                 # home
                 resource_name = resource = None
@@ -248,10 +245,22 @@ def auth_field_and_value(resource):
         public_method_list_to_check = 'public_item_methods'
 
     resource_dict = app.config['DOMAIN'][resource]
-    auth = resource_dict['authentication']
+    auth = _auth_object(resource)
 
     request_auth_value = auth.get_request_auth_value() if auth else None
     auth_field = resource_dict.get('auth_field', None) if request.method not \
         in resource_dict[public_method_list_to_check] else None
 
     return auth_field, request_auth_value
+
+
+def _auth_object(resource):
+    """ Ensure resource auth is an instance and its state is preserved between
+    calls.
+
+    .. versionadded:: 0.5.2
+    """
+    resource_def = app.config['DOMAIN'][resource]
+    if callable(resource_def['authentication']):
+        resource_def['authentication'] = resource_def['authentication']()
+    return resource_def['authentication']

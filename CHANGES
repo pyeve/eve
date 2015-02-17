@@ -6,8 +6,10 @@ Here you can see the full list of changes between each Eve release.
 Version 0.5.2
 -------------
 
-- Fix: serialization of ``keyschema`` fields with ``objetid`` values.
-  Closes #525.
+- Fix: endpoint-level authentication crash when a callable is passed. Closes
+  #558.
+- Fix: serialization of ``keyschema`` fields with ``objetid`` values. Closes
+  #525.
 - Fix: typos in schema rules might lead to arbitrary payloads being validated
   (Emmanuel Leblond.)
 - Fix: ObjectId value in ID field of type string (Jaroslav Semančík.)
