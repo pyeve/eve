@@ -73,7 +73,8 @@ def deleteitem_internal(resource, concurrency_check=False, **lookup):
     .. versionchanged:: 0.0.4
        Added the ``requires_auth`` decorator.
     """
-    original = get_document(resource, concurrency_check, **lookup)
+    original, unaltered_original = get_document(
+        resource, concurrency_check, **lookup)
     if not original:
         abort(404)
 

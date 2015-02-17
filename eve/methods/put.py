@@ -110,7 +110,8 @@ def put_internal(resource, payload=None, concurrency_check=False,
         payload = payload_()
 
     while True:
-        original = get_document(resource, concurrency_check, **lookup)
+        original, unaltered_original = get_document(
+            resource, concurrency_check, **lookup)
         if not original:
             # not found
             abort(404)
@@ -162,7 +163,8 @@ def put_internal(resource, payload=None, concurrency_check=False,
 
                 # write to db
                 try:
-                    app.data.replace(resource, object_id, document, original)
+                    app.data.replace(
+                        resource, object_id, document, unaltered_original)
                 except app.data.OriginalChangedError:
                     continue
 
