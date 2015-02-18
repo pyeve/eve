@@ -1311,6 +1311,8 @@ As a proper developer guide is not available yet, you can peek at the
 MediaStorage_ source if you are interested in developing custom storage
 classes.
 
+Serving media files as Base64 strings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 When a document is requested media files will be returned as Base64 strings,
 
 .. code-block:: python
@@ -1364,6 +1366,15 @@ If you have other means to retrieve the media files (custom Flask endpoint for
 example) then the media files can be excluded from the paylod by setting to
 ``False`` the ``RETURN_MEDIA_AS_BASE64_STRING`` flag. This takes into account
 if ``EXTENDED_MEDIA_INFO`` is used.
+
+Serving media files at a dedicated endpoint
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+While returning files embedded as Base64 fields is the default behaviour, you
+can opt for serving them at a dedicated media endpoint. You achieve that by
+setting ``RETURN_MEDIA_AS_URL`` to ``True``. When this feature is enabled
+document fields contain urls to the correspondent files, which are served at the
+media endpoint. You can change the default media endpoint (``media``) by
+updating the ``MEDIA_ENDPOINT`` setting.
 
 .. _projection_filestorage:
 

@@ -3,12 +3,29 @@ Eve Changelog
 
 Here you can see the full list of changes between each Eve release.
 
-Version 0.6
------------
+In development
+--------------
 
-Not released yet.
+- New: ``RETURN_MEDIA_AS_URL``, ``MEDIA_ENDPOINT`` and
+  ``MEDIA_URL`` allow for serving files at a dedicated media endpoint while
+  urls are returned in document media fields (Daniel Lytkin.)
+- New: ``etag_ignore_fields``. Resource setting with a list of fields belonging
+  to the schema that won't be used to compute the ETag value. Defaults to
+  ``None``.
 
-- Here be dragons.
+- Fix: endpoint-level authentication crash when a callable is passed. Closes
+  #558.
+- Fix: serialization of ``keyschema`` fields with ``objetid`` values. Closes
+  #525.
+- Fix: typos in schema rules might lead to arbitrary payloads being validated
+  (Emmanuel Leblond.)
+- Fix: ObjectId value in ID field of type string (Jaroslav Semančík.)
+- Fix: User Restricted Resource Access does not work with HMAC Auth classes.
+- Fix: Crash when ``embedded`` is used on subdocument with a missing field
+  (Emmanuel Leblond.)
+
+- Docs: add ``MONGO_URI`` as an alternative to other MongoDB connection
+  options. Closes #551.
 
 Version 0.5.1
 -------------

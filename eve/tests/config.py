@@ -223,6 +223,7 @@ class TestConfig(TestBase):
 
         self.assertNotEqual(settings['schema'], None)
         self.assertEqual(type(settings['schema']), dict)
+        self.assertEqual(settings['etag_ignore_fields'], None)
 
     def test_datasource(self):
         self._test_datasource_for_resource('invoices')

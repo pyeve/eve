@@ -316,6 +316,9 @@ class DataLayer(object):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to.
 
+        .. versionchanged:: 0.5.2
+           Make User Restricted Resource Access work with HMAC Auth too.
+
         .. versionchanged:: 0.5
            Let client projection work when 'allow_unknown' is active (#497).
 
@@ -413,7 +416,7 @@ class DataLayer(object):
         # documents.
         if request and request.method not in ('POST', 'PUT'):
             auth_field, request_auth_value = auth_field_and_value(resource)
-            if auth_field and request.authorization and request_auth_value:
+            if auth_field and request_auth_value:
                 if query:
                     # If the auth_field *replaces* a field in the query,
                     # and the values are /different/, deny the request

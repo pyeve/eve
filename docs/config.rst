@@ -467,6 +467,9 @@ uppercase.
 
 ``MONGO_DBNAME``                    MongoDB database name.
 
+``MONGO_URI``                       A `MongoDB URI`_ which is used in preference 
+                                    of the other configuration variables.
+
 ``MONGO_QUERY_BLACKLIST``           A list of Mongo query operators that are not
                                     allowed to be used in resource filters
                                     (``?where=``). Defaults to ``['$where',
@@ -509,6 +512,18 @@ uppercase.
                                     (like custom Flask endpoints) but still
                                     want clients to be able to POST/PATCH it.
                                     Defaults to ``True``. 
+
+``RETURN_MEDIA_AS_URL``             Set it to ``True`` to enable serving media 
+                                    files at a dedicated media endpoint.
+                                    Defaults to ``False``.
+
+``MEDIA_ENDPOINT``                  The media endpoint to be used when 
+                                    ``RETURN_MEDIA_AS_URL`` is enabled. 
+                                    Defaults to ``media``.
+
+``MEDIA_URL``                       Format of a file url served at the 
+                                    dedicated media endpoints. Defaults to
+                                    ``regex("[a-f0-9]{24}")``.
 
 ``OPLOG``                           Set it to ``True`` to enable the :ref:`oplog`.
                                     Defaults to ``False``.
@@ -783,6 +798,13 @@ always lowercase.
                                 the Eve data layer. See
                                 :ref:`internal_resources` for more
                                 informations. Defaults to ``False``.
+
+``etag_ignore_fields``          List of fields that
+                                should not be used to compute the ETag value.
+                                Defaults to ``None`` which means that by
+                                default all fields are included in the computation.
+                                It looks like ``['field1', 'field2',
+                                'field3.nested_field', ...]``.  
 
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data
@@ -1166,3 +1188,4 @@ read access open to the public.
     - :ref:`projection_filestorage`
 
 .. _Cerberus: http://cerberus.readthedocs.org
+.. _`MongoDB URI`: http://docs.mongodb.org/manual/reference/connection-string/#Connections-StandardConnectionStringFormat

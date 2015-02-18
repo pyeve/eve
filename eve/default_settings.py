@@ -11,6 +11,11 @@
     :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.6
+       'RETURN_MEDIA_AS_URL' added and set to None.
+       'MEDIA_ENDPOINT' added and set to 'media'.
+       'MEDIA_URL' added and set to regex("[a-f0-9]{24}").
+
     .. versionchanged:: 0.5
        'SERVER_NAME' removed.
        'URL_PROTOCOL' removed.
@@ -156,6 +161,9 @@ ITEM_URL = 'regex("[a-f0-9]{24}")'
 # use a simple file response format by default
 EXTENDED_MEDIA_INFO = []
 RETURN_MEDIA_AS_BASE64_STRING = True
+RETURN_MEDIA_AS_URL = False
+MEDIA_ENDPOINT = 'media'
+MEDIA_URL = 'regex("[a-f0-9]{24}")'
 
 # list of extra fields to be included with every POST response. This list
 # should not include the 'standard' fields (ID_FIELD, LAST_UPDATED,

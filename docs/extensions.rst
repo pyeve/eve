@@ -12,6 +12,7 @@ show me your tool!
 - Eve-Mocker_
 - Eve.NET_
 - Eve-SQLAlchemy_
+- Eve-OAuth2_ and Flask-Sentinel_
 
 Eve-Elastic
 -----------
@@ -71,6 +72,13 @@ Powered by Eve, SQLAlchemy and good intentions Eve-SQLALchemy_ allows to
 effortlessly build and deploy highly customizable, fully featured RESTful Web
 Services with SQL-based backends.
 
+Eve-OAuth2
+----------
+*by Nicola Iarocci*
+
+Eve-OAuth2_ is not an extension per-se, but rather an example of how you can
+leverage Flask-Sentinel_  to protect your API endpoints with OAuth2. 
+
 .. _`Mocking tool for Eve APIs`: http://blog.python-eve.org/eve-mocker
 .. _`Auto generate API docs`: http://blog.python-eve.org/eve-docs
 .. _charlesflynn/eve-docs: https://github.com/charlesflynn/eve-docs
@@ -81,3 +89,5 @@ Services with SQL-based backends.
 .. _Eve-Elastic: https://github.com/petrjasek/eve-elastic
 .. _Eve.NET: https://github.com/nicolaiarocci/Eve.NET
 .. _Eve-SQLAlchemy: https://github.com/RedTurtle/eve-sqlalchemy
+.. _Eve-OAuth2: https://github.com/nicolaiarocci/eve-oauth2
+.. _Flask-Sentinel: https://github.com/nicolaiarocci/flask-sentinel

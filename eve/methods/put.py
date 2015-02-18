@@ -157,7 +157,7 @@ def put_internal(resource, payload=None, concurrency_check=False,
             getattr(app, "on_replace")(resource, document, original)
             getattr(app, "on_replace_%s" % resource)(document, original)
 
-            resolve_document_etag(document)
+            resolve_document_etag(document, resource)
 
             # write to db
             app.data.replace(resource, object_id, document)

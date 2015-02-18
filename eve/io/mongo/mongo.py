@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
     eve.io.mongo.mongo (eve.io.mongo)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -10,7 +12,6 @@
 
 import ast
 import itertools
-from bson.errors import InvalidId
 import simplejson as json
 import pymongo
 from flask import abort
@@ -253,13 +254,6 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
-        if config.ID_FIELD in lookup:
-            try:
-                lookup[config.ID_FIELD] = ObjectId(lookup[config.ID_FIELD])
-            except (InvalidId, TypeError):
-                # Returns a type error when {'_id': {...}}
-                pass
-
         self._mongotize(lookup, resource)
 
         client_projection = self._client_projection(req)

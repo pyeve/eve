@@ -21,7 +21,7 @@ from werkzeug.serving import WSGIRequestHandler
 from eve.io.mongo import Mongo, Validator, GridFSMediaStorage
 from eve.exceptions import ConfigException, SchemaException
 from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint, \
-    error_endpoint
+    error_endpoint, media_endpoint
 from eve.defaults import build_defaults
 from eve.utils import api_prefix, extract_key_values
 from events import Events
@@ -146,6 +146,7 @@ class Eve(Flask, Events):
             self.auth = None
 
         self._init_url_rules()
+        self._init_media_endpoint()
 
         self._init_oplog()
 
@@ -520,6 +521,7 @@ class Eve(Flask, Events):
         settings.setdefault('versioning', self.config['VERSIONING'])
         settings.setdefault('internal_resource',
                             self.config['INTERNAL_RESOURCE'])
+        settings.setdefault('etag_ignore_fields', None)
         # TODO make sure that this we really need the test below
         if settings['item_lookup']:
             item_methods = self.config['ITEM_METHODS']
@@ -632,8 +634,8 @@ class Eve(Flask, Events):
 
         pretty_url = settings['url']
         if '<' in pretty_url:
-            pretty_url = pretty_url[:pretty_url.index('<')+1] + \
-                pretty_url[pretty_url.rindex(':')+1:]
+            pretty_url = pretty_url[:pretty_url.index('<') + 1] + \
+                pretty_url[pretty_url.rindex(':') + 1:]
         self.config['URLS'][resource] = pretty_url
 
         # resource endpoint
@@ -803,3 +805,13 @@ class Eve(Flask, Events):
                         'c': {}
                     }
                 )
+
+    def _init_media_endpoint(self):
+        endpoint = self.config['MEDIA_ENDPOINT']
+
+        if endpoint:
+            media_url = '%s/%s/<%s:_id>' % (self.api_prefix,
+                                            endpoint,
+                                            self.config['MEDIA_URL'])
+            self.add_url_rule(media_url, 'media',
+                              view_func=media_endpoint, methods=['GET'])

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import copy
+
 
 MONGO_HOST = 'localhost'
 MONGO_PORT = 27017
@@ -124,7 +126,6 @@ contacts = {
     }
 }
 
-import copy
 users = copy.deepcopy(contacts)
 users['url'] = 'users'
 users['datasource'] = {'source': 'contacts',
@@ -206,6 +207,16 @@ internal_transactions = {
     'internal_resource': True
 }
 
+ids = {
+    'query_objectid_as_string': True,
+    'item_lookup_field': 'id',
+    'resource_methods': ['POST', 'GET'],
+    'schema': {
+        'id': {'type': 'string'},
+        'name': {'type': 'string'}
+    }
+}
+
 DOMAIN = {
     'contacts': contacts,
     'users': users,
@@ -219,4 +230,5 @@ DOMAIN = {
     'peoplesearches': users_searches,
     'companies': companies,
     'internal_transactions': internal_transactions,
+    'ids': ids
 }

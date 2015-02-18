@@ -61,7 +61,9 @@ def get_document(resource, concurrency_check, **lookup):
         document[config.DATE_CREATED] = date_created(document)
 
         if req.if_match and concurrency_check:
-            etag = document.get(config.ETAG, document_etag(document))
+            ignore_fields = config.DOMAIN[resource]['etag_ignore_fields']
+            etag = document.get(config.ETAG, document_etag(document,
+                                ignore_fields=ignore_fields))
             if req.if_match != etag:
                 # client and server etags must match, or we don't allow editing
                 # (ensures that client's version of the document is up to date)
@@ -296,6 +298,9 @@ def serialize(document, resource=None, schema=None, fields=None):
     """ Recursively handles field values that require data-aware serialization.
     Relies on the app.data.serializers dictionary.
 
+    .. versionchanged:: 0.5.2
+       Fix serialization of keyschemas with objectids. See #525.
+
     .. versionchanged:: 0.3
        Fix serialization of sub-documents. See #244.
 
@@ -338,6 +343,14 @@ def serialize(document, resource=None, schema=None, fields=None):
                             document[field][i] = \
                                 app.data.serializers[field_type](
                                     document[field][i])
+                elif 'keyschema' in field_schema:
+                    # a keyschema
+                    field_type = field_schema['keyschema']['type']
+                    if field_type == 'objectid':
+                        target = document[field]
+                        for field in target:
+                            target[field] = \
+                                app.data.serializers[field_type](target[field])
                 elif field_type in app.data.serializers:
                     # a simple field
                     document[field] = \
@@ -370,7 +383,9 @@ def build_response_document(
 
     # Up to v0.4 etags were not stored with the documents.
     if config.IF_MATCH and config.ETAG not in document:
-        document[config.ETAG] = document_etag(document)
+        ignore_fields = config.DOMAIN[resource]['etag_ignore_fields']
+        document[config.ETAG] = document_etag(document,
+                                              ignore_fields=ignore_fields)
 
     # hateoas links
     if config.DOMAIN[resource]['hateoas'] and config.ID_FIELD in document:
@@ -538,7 +553,7 @@ def subdocuments(fields_chain, document):
     """
     if len(fields_chain) == 0:
         yield document
-    else:
+    elif fields_chain[0] in document:
         subdocument = document[fields_chain[0]]
         docs = subdocument if isinstance(subdocument, list) else [subdocument]
         for doc in docs:
@@ -580,7 +595,7 @@ def resolve_embedded_documents(document, resource, embedded_fields):
     """
     for field in embedded_fields:
         data_relation = field_definition(resource, field)['data_relation']
-        getter = lambda ref: embedded_document(ref, data_relation, field)  # noqa
+        getter = lambda ref: embedded_document(ref, data_relation, field)
         fields_chain = field.split('.')
         last_field = fields_chain[-1]
         for subdocument in subdocuments(fields_chain[:-1], document):
@@ -602,35 +617,40 @@ def resolve_media_files(document, resource):
     .. versionadded:: 0.4
     """
     for field in resource_media_fields(document, resource):
-        _file = app.media.get(document[field])
-        # check if we should send a basic file response
-        if config.EXTENDED_MEDIA_INFO == []:
-            if _file and config.RETURN_MEDIA_AS_BASE64_STRING:
-                document[field] = base64.encodestring(_file.read())
-            else:
-                document[field] = None
-        elif _file:
+        file_id = document[field]
+        _file = app.media.get(file_id)
+
+        if _file:
             # otherwise we have a valid file and should send extended response
             # start with the basic file object
-            ret_file = None
             if config.RETURN_MEDIA_AS_BASE64_STRING:
                 ret_file = base64.encodestring(_file.read())
-            document[field] = {
-                'file': ret_file,
-            }
+            elif config.RETURN_MEDIA_AS_URL:
+                ret_file = '%s/%s/%s' % (app.api_prefix,
+                                         config.MEDIA_ENDPOINT,
+                                         file_id)
+            else:
+                ret_file = None
 
-            # check if we should return any special fields
-            for attribute in config.EXTENDED_MEDIA_INFO:
-                if hasattr(_file, attribute):
-                    # add extended field if found in the file object
-                    document[field].update({
-                        attribute: getattr(_file, attribute)
-                    })
-                else:
-                    # tried to select an invalid attribute
-                    abort(500, description=debug_error_message(
-                        'Invalid extended media attribute requested'
-                    ))
+            if config.EXTENDED_MEDIA_INFO:
+                document[field] = {
+                    'file': ret_file,
+                }
+
+                # check if we should return any special fields
+                for attribute in config.EXTENDED_MEDIA_INFO:
+                    if hasattr(_file, attribute):
+                        # add extended field if found in the file object
+                        document[field].update({
+                            attribute: getattr(_file, attribute)
+                        })
+                    else:
+                        # tried to select an invalid attribute
+                        abort(500, description=debug_error_message(
+                            'Invalid extended media attribute requested'
+                        ))
+            else:
+                document[field] = ret_file
         else:
             document[field] = None
 
@@ -728,6 +748,9 @@ def resolve_user_restricted_access(document, resource):
     :param document: the document being posted or replaced
     :param resource: the resource to which the document belongs
 
+    .. versionchanged:: 0.5.2
+       Make User Restricted Resource Access work with HMAC Auth too.
+
     .. versionchanged:: 0.4
        Use new auth.request_auth_value() method.
 
@@ -740,21 +763,24 @@ def resolve_user_restricted_access(document, resource):
     auth_field = resource_def['auth_field']
     if auth and auth_field:
         request_auth_value = auth.get_request_auth_value()
-        if request_auth_value and request.authorization:
+        if request_auth_value:
             document[auth_field] = request_auth_value
 
 
-def resolve_document_etag(documents):
+def resolve_document_etag(documents, resource):
     """ Adds etags to documents.
 
     .. versionadded:: 0.5
     """
     if config.IF_MATCH:
+        ignore_fields = config.DOMAIN[resource]['etag_ignore_fields']
+
         if not isinstance(documents, list):
             documents = [documents]
 
         for document in documents:
-            document[config.ETAG] = document_etag(document)
+            document[config.ETAG] =\
+                document_etag(document, ignore_fields=ignore_fields)
 
 
 def pre_event(f):

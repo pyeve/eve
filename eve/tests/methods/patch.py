@@ -393,8 +393,8 @@ class TestPatch(TestBase):
                 "schema": {
                     "name": {"type": "string"},
                     "lon": {"type": "float"},
-                    "lat":  {"type": "float"},
-                    "value":  {"type": "float", "default": 10.3},
+                    "lat": {"type": "float"},
+                    "value": {"type": "float", "default": 10.3},
                     "dict": {
                         'type': 'dict',
                         'schema': {
