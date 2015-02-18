@@ -364,8 +364,12 @@ class Mongo(DataLayer):
             ))
 
     def _change_request(self, resource, id_, changes, original):
+        query = {config.ID_FIELD: id_}
+        if config.ETAG in original:
+            query[config.ETAG] = original[config.ETAG]
+
         datasource, filter_, _, _ = self._datasource_ex(
-            resource, original)
+            resource, query)
         try:
             result = self.driver.db[datasource].update(
                 filter_, changes, **self._wc(resource))
