@@ -838,7 +838,7 @@ which can easily lead to performance issues.</p>
 <span id="eventhooks"></span><h2>Event Hooks<a class="headerlink" href="#event-hooks" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="pre-request-event-hooks">
 <h3>Pre-Request Event Hooks<a class="headerlink" href="#pre-request-event-hooks" title="Permalink to this headline">¶</a></h3>
-<p>When a GET, POST, PATCH, PUT, DELETE request is received, both
+<p>When a GET/HEAD, POST, PATCH, PUT, DELETE request is received, both
 a <tt class="docutils literal"><span class="pre">on_pre_&lt;method&gt;</span></tt> and a <tt class="docutils literal"><span class="pre">on_pre_&lt;method&gt;_&lt;resource&gt;</span></tt> event is raised.
 You can subscribe to these events with multiple callback functions.</p>
 <div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">pre_get_callback</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">lookup</span><span class="p">):</span>

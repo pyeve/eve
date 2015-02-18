@@ -682,6 +682,17 @@ feature. When audit is enabled client IP
 and document changes are also logged to the
 <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">HEADER_TOTAL_COUNT</span></tt></td>
+<td>Custom header containing total count of
+items in response payloads for collection
+<tt class="docutils literal"><span class="pre">GET</span></tt> requests. This is handy for <tt class="docutils literal"><span class="pre">HEAD</span></tt>
+requests when client wants to know items
+count without retrieving response body.
+An example use case is to get the count
+of unread posts using <tt class="docutils literal"><span class="pre">where</span></tt> query without
+loading posts themselves. Defaults to
+<tt class="docutils literal"><span class="pre">X-Total-Count</span></tt>.</td>
+</tr>
 </tbody>
 </table>
 </div>

@@ -56,9 +56,12 @@
 <div class="section" id="in-development">
 <h2>In development<a class="headerlink" href="#in-development" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>New: <tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt>, <tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt> and
-<tt class="docutils literal"><span class="pre">MEDIA_URL</span></tt> allow for serving files at a dedicated media endpoint while
-urls are returned in document media fields (Daniel Lytkin.)</li>
+<li>New: Enable <tt class="docutils literal"><span class="pre">on_pre_GET</span></tt> hook for HEAD requests (Daniel Lytkin.).</li>
+<li>New: Add <tt class="docutils literal"><span class="pre">X-Total-Count</span></tt> header for collection GET/HEAD requests (Daniel
+Lytkin.).</li>
+<li>New: <tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt>, <tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt> and <tt class="docutils literal"><span class="pre">MEDIA_URL</span></tt> allow for
+serving files at a dedicated media endpoint while urls are returned in
+document media fields (Daniel Lytkin.)</li>
 <li>New: <tt class="docutils literal"><span class="pre">etag_ignore_fields</span></tt>. Resource setting with a list of fields belonging
 to the schema that won&#8217;t be used to compute the ETag value. Defaults to
 <tt class="docutils literal"><span class="pre">None</span></tt>.</li>
