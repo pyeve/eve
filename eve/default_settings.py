@@ -12,6 +12,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.6
+       'HEADER_TOTAL_COUNT' added and set to 'X-Total-Count'.
        'RETURN_MEDIA_AS_URL' added and set to None.
        'MEDIA_ENDPOINT' added and set to 'media'.
        'MEDIA_URL' added and set to regex("[a-f0-9]{24}").
@@ -178,6 +179,8 @@ QUERY_SORT = 'sort'
 QUERY_PAGE = 'page'
 QUERY_MAX_RESULTS = 'max_results'
 QUERY_EMBEDDED = 'embedded'
+
+HEADER_TOTAL_COUNT = 'X-Total-Count'
 
 # user-restricted resource access is disabled by default.
 AUTH_FIELD = None

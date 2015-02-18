@@ -871,7 +871,7 @@ Event Hooks
 -----------
 Pre-Request Event Hooks
 ~~~~~~~~~~~~~~~~~~~~~~~
-When a GET, POST, PATCH, PUT, DELETE request is received, both
+When a GET/HEAD, POST, PATCH, PUT, DELETE request is received, both
 a ``on_pre_<method>`` and a ``on_pre_<method>_<resource>`` event is raised.
 You can subscribe to these events with multiple callback functions. 
 

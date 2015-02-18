@@ -548,6 +548,16 @@ uppercase.
                                     and document changes are also logged to the
                                     :ref:`oplog`. Defaults to ``True``.
 
+``HEADER_TOTAL_COUNT``              Custom header containing total count of 
+                                    items in response payloads for collection
+                                    ``GET`` requests. This is handy for ``HEAD``
+                                    requests when client wants to know items
+                                    count without retrieving response body.
+                                    An example use case is to get the count
+                                    of unread posts using ``where`` query without
+                                    loading posts themselves. Defaults to
+                                    ``X-Total-Count``.
+
 =================================== =========================================
 
 .. _domain:
