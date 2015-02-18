@@ -109,103 +109,104 @@ def put_internal(resource, payload=None, concurrency_check=False,
     if payload is None:
         payload = payload_()
 
-    while True:
-        original, unaltered_original = get_document(
-            resource, concurrency_check, **lookup)
-        if not original:
-            # not found
-            abort(404)
+    original = get_document(resource, concurrency_check, **lookup)
+    if not original:
+        # not found
+        abort(404)
 
-        last_modified = None
-        etag = None
-        issues = {}
-        object_id = original[config.ID_FIELD]
+    last_modified = None
+    etag = None
+    issues = {}
+    object_id = original[config.ID_FIELD]
 
-        response = {}
+    response = {}
 
-        if config.BANDWIDTH_SAVER is True:
-            embedded_fields = []
+    if config.BANDWIDTH_SAVER is True:
+        embedded_fields = []
+    else:
+        req = parse_request(resource)
+        embedded_fields = resolve_embedded_fields(resource, req)
+
+    try:
+        document = parse(payload, resource)
+        if skip_validation:
+            validation = True
         else:
-            req = parse_request(resource)
-            embedded_fields = resolve_embedded_fields(resource, req)
+            validation = validator.validate_replace(document, object_id)
+        if validation:
+            # sneak in a shadow copy if it wasn't already there
+            late_versioning_catch(original, resource)
 
-        try:
-            document = parse(payload, resource)
-            if skip_validation:
-                validation = True
-            else:
-                validation = validator.validate_replace(document, object_id)
-            if validation:
-                # sneak in a shadow copy if it wasn't already there
-                late_versioning_catch(original, resource)
+            # update meta
+            last_modified = datetime.utcnow().replace(microsecond=0)
+            document[config.LAST_UPDATED] = last_modified
+            document[config.DATE_CREATED] = original[config.DATE_CREATED]
 
-                # update meta
-                last_modified = datetime.utcnow().replace(microsecond=0)
-                document[config.LAST_UPDATED] = last_modified
-                document[config.DATE_CREATED] = original[config.DATE_CREATED]
+            # ID_FIELD not in document means it is not being automatically
+            # handled (it has been set to a field which exists in the
+            # resource schema.
+            if config.ID_FIELD not in document:
+                document[config.ID_FIELD] = object_id
 
-                # ID_FIELD not in document means it is not being automatically
-                # handled (it has been set to a field which exists in the
-                # resource schema.
-                if config.ID_FIELD not in document:
-                    document[config.ID_FIELD] = object_id
+            resolve_user_restricted_access(document, resource)
+            resolve_default_values(document, resource_def['defaults'])
+            store_media_files(document, resource, original)
+            resolve_document_version(document, resource, 'PUT', original)
 
-                resolve_user_restricted_access(document, resource)
-                resolve_default_values(document, resource_def['defaults'])
-                store_media_files(document, resource, original)
-                resolve_document_version(document, resource, 'PUT', original)
+            # notify callbacks
+            getattr(app, "on_replace")(resource, document, original)
+            getattr(app, "on_replace_%s" % resource)(document, original)
 
-                # notify callbacks
-                getattr(app, "on_replace")(resource, document, original)
-                getattr(app, "on_replace_%s" % resource)(document, original)
+            resolve_document_etag(document, resource)
 
-                resolve_document_etag(document, resource)
+            # write to db
+            try:
+                app.data.replace(
+                    resource, object_id, document, original)
+            except app.data.OriginalChangedError:
+                if concurrency_check:
+                    abort(412, description=debug_error_message(
+                        'Client and server etags don\'t match'
+                    ))
 
-                # write to db
-                try:
-                    app.data.replace(
-                        resource, object_id, document, unaltered_original)
-                except app.data.OriginalChangedError:
-                    continue
+            # update oplog if needed
+            oplog_push(resource, document, 'PUT')
 
-                # update oplog if needed
-                oplog_push(resource, document, 'PUT')
+            insert_versioning_documents(resource, document)
 
-                insert_versioning_documents(resource, document)
+            # notify callbacks
+            getattr(app, "on_replaced")(resource, document, original)
+            getattr(app, "on_replaced_%s" % resource)(document, original)
 
-                # notify callbacks
-                getattr(app, "on_replaced")(resource, document, original)
-                getattr(app, "on_replaced_%s" % resource)(document, original)
-
-                # build the full response document
-                build_response_document(
-                    document, resource, embedded_fields, document)
-                response = document
-                if config.IF_MATCH:
-                    etag = response[config.ETAG]
-            else:
-                issues = validator.errors
-        except ValidationError as e:
-            # TODO should probably log the error and abort 400 instead (when we
-            # got logging)
-            issues['validator exception'] = str(e)
-        except exceptions.HTTPException as e:
-            raise e
-        except Exception as e:
-            # consider all other exceptions as Bad Requests
-            abort(400, description=debug_error_message(
-                'An exception occurred: %s' % e
-            ))
-
-        if len(issues):
-            response[config.ISSUES] = issues
-            response[config.STATUS] = config.STATUS_ERR
-            status = config.VALIDATION_ERROR_STATUS
+            # build the full response document
+            build_response_document(
+                document, resource, embedded_fields, document)
+            response = document
+            if config.IF_MATCH:
+                etag = response[config.ETAG]
         else:
-            response[config.STATUS] = config.STATUS_OK
-            status = 200
+            issues = validator.errors
+    except ValidationError as e:
+        # TODO should probably log the error and abort 400 instead (when we
+        # got logging)
+        issues['validator exception'] = str(e)
+    except exceptions.HTTPException as e:
+        raise e
+    except Exception as e:
+        # consider all other exceptions as Bad Requests
+        abort(400, description=debug_error_message(
+            'An exception occurred: %s' % e
+        ))
 
-        # limit what actually gets sent to minimize bandwidth usage
-        response = marshal_write_response(response, resource)
+    if len(issues):
+        response[config.ISSUES] = issues
+        response[config.STATUS] = config.STATUS_ERR
+        status = config.VALIDATION_ERROR_STATUS
+    else:
+        response[config.STATUS] = config.STATUS_OK
+        status = 200
 
-        return response, last_modified, etag, status
+    # limit what actually gets sent to minimize bandwidth usage
+    response = marshal_write_response(response, resource)
+
+    return response, last_modified, etag, status

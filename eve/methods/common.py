@@ -9,7 +9,7 @@
     :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-from copy import deepcopy
+
 import time
 import base64
 from datetime import datetime
@@ -46,7 +46,6 @@ def get_document(resource, concurrency_check, **lookup):
     """
     req = parse_request(resource)
     document = app.data.find_one(resource, None, **lookup)
-    unaltered = deepcopy(document)
     if document:
 
         if not req.if_match and config.IF_MATCH and concurrency_check:
@@ -72,7 +71,7 @@ def get_document(resource, concurrency_check, **lookup):
                     'Client and server etags don\'t match'
                 ))
 
-    return document, unaltered
+    return document
 
 
 def parse(value, resource):
