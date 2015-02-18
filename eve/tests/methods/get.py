@@ -123,7 +123,7 @@ class TestGet(TestBase):
         r = self.test_client.head(url)
         response, status = self.parse_response(r)
         self.assert200(status)
-        self.assertIsNone(response)
+        self.assertEqual(response, None)
 
         total_count = r.headers[self.app.config['HEADER_TOTAL_COUNT']]
         self.assertEqual(int(total_count), self.known_resource_count)
