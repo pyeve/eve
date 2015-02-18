@@ -786,6 +786,9 @@ def resolve_document_etag(documents, resource):
 def pre_event(f):
     """ Enable a Hook pre http request.
 
+    .. versionchanged:: 0.6
+       Enable callback hooks for HEAD requests.
+
     .. versionchanged:: 0.4
        Merge 'sub_resource_lookup' (args[1]) with kwargs, so http methods can
        all enjoy the same signature, and data layer find methods can seemingly

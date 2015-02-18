@@ -29,6 +29,9 @@ def get(resource, **lookup):
 
     :param resource: the name of the resource.
 
+    .. versionchanged:: 0.6
+       Support for HEADER_TOTAL_COUNT returned with response header.
+
     .. versionchanged:: 0.5
        Support for customisable query parameters.
 

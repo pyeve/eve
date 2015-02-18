@@ -12,6 +12,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.6
+       'HEADER_TOTAL_COUNT' added and set to 'X-Total-Count'.
        'RETURN_MEDIA_AS_URL' added and set to None.
        'MEDIA_ENDPOINT' added and set to 'media'.
        'MEDIA_URL' added and set to regex("[a-f0-9]{24}").
