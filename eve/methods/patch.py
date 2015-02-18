@@ -198,7 +198,8 @@ def patch_internal(resource, payload=None, concurrency_check=False,
             build_response_document(
                 updated, resource, embedded_fields, updated)
             response = updated
-
+            if config.IF_MATCH:
+                etag = response[config.ETAG]
         else:
             issues = validator.errors
     except ValidationError as e:

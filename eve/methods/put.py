@@ -175,6 +175,8 @@ def put_internal(resource, payload=None, concurrency_check=False,
             build_response_document(
                 document, resource, embedded_fields, document)
             response = document
+            if config.IF_MATCH:
+                etag = response[config.ETAG]
         else:
             issues = validator.errors
     except ValidationError as e:
