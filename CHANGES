@@ -6,6 +6,7 @@ Here you can see the full list of changes between each Eve release.
 Version 0.5.2
 -------------
 
+- Fix: ``PATCH`` and ``PUT`` do not include Etag header (Marcus Cobden.)
 - Fix: endpoint-level authentication crash when a callable is passed. Closes
   #558.
 - Fix: serialization of ``keyschema`` fields with ``objetid`` values. Closes
