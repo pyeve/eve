@@ -16,6 +16,7 @@ In development
   to the schema that won't be used to compute the ETag value. Defaults to
   ``None``.
 
+- Fix: ``PATCH`` and ``PUT`` do not include Etag header (Marcus Cobden.)
 - Fix: endpoint-level authentication crash when a callable is passed. Closes
   #558.
 - Fix: serialization of ``keyschema`` fields with ``objetid`` values. Closes

@@ -193,6 +193,16 @@ class TestPatch(TestBase):
         self.assertEqual(db_value, test_value)
         self.assert200(status)
 
+    def test_patch_etag_header(self):
+        # test that Etag is always includer with response header. See #562.
+        changes = {"ref": "1234567890123456789012345"}
+        headers = [('Content-Type', 'application/json'),
+                   ('If-Match', self.item_etag)]
+        r = self.test_client.patch(self.item_id_url,
+                                   data=json.dumps(changes),
+                                   headers=headers)
+        self.assertTrue('Etag' in r.headers)
+
     def perform_patch(self, changes):
         r, status = self.patch(self.item_id_url,
                                data=changes,

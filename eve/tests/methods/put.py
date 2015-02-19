@@ -238,6 +238,16 @@ class TestPut(TestBase):
         self.assertEqual(db_value, test_value)
         self.assert200(status)
 
+    def test_put_etag_header(self):
+        # test that Etag is always includer with response header. See #562.
+        changes = {"ref": "1234567890123456789012345"}
+        headers = [('Content-Type', 'application/json'),
+                   ('If-Match', self.item_etag)]
+        r = self.test_client.put(self.item_id_url,
+                                 data=json.dumps(changes),
+                                 headers=headers)
+        self.assertTrue('Etag' in r.headers)
+
     def perform_put(self, changes):
         r, status = self.put(self.item_id_url,
                              data=changes,
