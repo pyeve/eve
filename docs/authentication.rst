@@ -518,6 +518,14 @@ BCrypt-authentication example from above:
         app = Eve(auth=BCryptAuth)
         app.run()
 
+OAuth2 Integration
+------------------
+Since you have total control over the Authorization process, integrating
+OAuth2 with Eve is easy. Make yourself comfortable with the topics illustrated
+in this page, then head over to `Eve-OAuth2`_, an example project which
+leverages `Flask-Sentinel`_ to demonstrate how you can protect your API with
+OAuth2.
+
 .. admonition:: Please note
 
     The snippets in this page can also be found in the `examples/security`
@@ -525,3 +533,5 @@ BCrypt-authentication example from above:
 
 .. _`repository`: https://github.com/nicolaiarocci/eve
 .. _bcrypt: http://en.wikipedia.org/wiki/Bcrypt
+.. _`Eve-OAuth2`: https://github.com/nicolaiarocci/eve-oauth2
+.. _`Flask-Sentinel`: https://github.com/nicolaiarocci/flask-sentinel

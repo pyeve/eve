@@ -687,11 +687,11 @@ For more information see and :ref:`global` and :ref:`domain`.
 Authentication
 --------------
 Customizable Basic Authentication (RFC-2617), Token-based authentication and
-HMAC-based Authentication are supported. You can lockdown the whole API, or
-just some endpoints. You can also restrict CRUD commands, like allowing open
-read-only access while restricting edits, inserts and deletes to authorized
-users. Role-based access control is supported as well. For more information
-see :ref:`auth`.
+HMAC-based Authentication are supported. OAuth2 can be easily integrated. You
+can lockdown the whole API, or just some endpoints. You can also restrict CRUD
+commands, like allowing open read-only access while restricting edits, inserts
+and deletes to authorized users. Role-based access control is supported as
+well. For more information see :ref:`auth`.
 
 CORS Cross-Origin Resource Sharing
 ----------------------------------
