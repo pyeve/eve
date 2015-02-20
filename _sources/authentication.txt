@@ -6,7 +6,8 @@ Introduction to Security
 ------------------------
 Authentication is the mechanism whereby systems may securely identify their
 users. Eve supports several authentication schemes: Basic Authentication, Token
-Authentication, HMAC Authentication.
+Authentication, HMAC Authentication. `OAuth2 integration`_ is easily
+accomplished.
 
 Authorization is the mechanism by which a system determines what level of
 access a particular (authenticated) user should have access to resources
