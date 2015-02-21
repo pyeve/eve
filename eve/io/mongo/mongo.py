@@ -363,8 +363,34 @@ class Mongo(DataLayer):
                 'pymongo.errors.OperationFailure: %s' % e
             ))
 
-    def update(self, resource, id_, updates):
+    def _change_request(self, resource, id_, changes, original):
+        query = {config.ID_FIELD: id_}
+        if config.ETAG in original:
+            query[config.ETAG] = original[config.ETAG]
+
+        datasource, filter_, _, _ = self._datasource_ex(
+            resource, query)
+        try:
+            result = self.driver.db[datasource].update(
+                filter_, changes, **self._wc(resource))
+
+            if result and result["n"] == 0:
+                raise self.OriginalChangedError()
+        except pymongo.errors.DuplicateKeyError as e:
+            abort(400, description=debug_error_message(
+                'pymongo.errors.DuplicateKeyError: %s' % e
+            ))
+        except pymongo.errors.OperationFailure as e:
+            # see comment in :func:`insert()`.
+            abort(500, description=debug_error_message(
+                'pymongo.errors.OperationFailure: %s' % e
+            ))
+
+    def update(self, resource, id_, updates, original):
         """ Updates a collection document.
+        .. versionchanged:: 5.2
+           Raise OriginalChangedError if document is changed from the
+           specified original.
 
         .. versionchanged:: 0.4
            Return a 400 on pymongo DuplicateKeyError.
@@ -388,27 +414,14 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
-        datasource, filter_, _, _ = self._datasource_ex(resource,
-                                                        {config.ID_FIELD: id_})
 
-        # TODO consider using find_and_modify() instead. The document might
-        # have changed since the ETag was computed. This would require getting
-        # the original document as an argument though.
-        try:
-            self.driver.db[datasource].update(filter_, {"$set": updates},
-                                              **self._wc(resource))
-        except pymongo.errors.DuplicateKeyError as e:
-            abort(400, description=debug_error_message(
-                'pymongo.errors.DuplicateKeyError: %s' % e
-            ))
-        except pymongo.errors.OperationFailure as e:
-            # see comment in :func:`insert()`.
-            abort(500, description=debug_error_message(
-                'pymongo.errors.OperationFailure: %s' % e
-            ))
+        return self._change_request(resource, id_, {"$set": updates}, original)
 
-    def replace(self, resource, id_, document):
+    def replace(self, resource, id_, document, original):
         """ Replaces an existing document.
+        .. versionchanged:: 5.2
+           Raise OriginalChangedError if document is changed from the
+           specified original.
 
         .. versionchanged:: 0.3.0
            Custom ID_FIELD lookups would fail. See #203.
@@ -419,20 +432,8 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.1.0
         """
-        datasource, filter_, _, _ = self._datasource_ex(resource,
-                                                        {config.ID_FIELD: id_})
 
-        # TODO consider using find_and_modify() instead. The document might
-        # have changed since the ETag was computed. This would require getting
-        # the original document as an argument though.
-        try:
-            self.driver.db[datasource].update(filter_, document,
-                                              **self._wc(resource))
-        except pymongo.errors.OperationFailure as e:
-            # see comment in :func:`insert()`.
-            abort(500, description=debug_error_message(
-                'pymongo.errors.OperationFailure: %s' % e
-            ))
+        return self._change_request(resource, id_, document, original)
 
     def remove(self, resource, lookup):
         """ Removes a document or the entire set of documents from a

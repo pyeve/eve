@@ -78,6 +78,9 @@ class DataLayer(object):
        the _datasource helper function has been added.
     """
 
+    class OriginalChangedError(Exception):
+        pass
+
     # if custom serialize functions are needed, add them to the 'serializers'
     # dictionary, eg:
     # serializers = {'objectid': ObjectId, 'datetime': serialize_date}
@@ -198,7 +201,7 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
-    def update(self, resource, id_, updates):
+    def update(self, resource, id_, updates, original):
         """ Updates a collection/table document/row.
         :param resource: resource being accessed. You should then use
                          the ``_datasource`` helper function to retrieve
@@ -206,17 +209,24 @@ class DataLayer(object):
         :param id_: the unique id of the document.
         :param updates: json updates to be performed on the database document
                         (or row).
+        :param original: definition of the json document that should be
+        updated.
+        :raise OriginalChangedError: raised if the database layer notices a
+        change from the supplied `original` parameter.
         """
         raise NotImplementedError
 
-    def replace(self, resource, id_, document):
+    def replace(self, resource, id_, document, original):
         """ Replaces a collection/table document/row.
         :param resource: resource being accessed. You should then use
                          the ``_datasource`` helper function to retrieve
                          the actual datasource name.
         :param id_: the unique id of the document.
         :param document: the new json document
-
+        :param original: definition of the json document that should be
+        updated.
+        :raise OriginalChangedError: raised if the database layer notices a
+        change from the supplied `original` parameter.
         .. versionadded:: 0.1.0
         """
         raise NotImplementedError
