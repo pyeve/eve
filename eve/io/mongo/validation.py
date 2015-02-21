@@ -68,7 +68,7 @@ class Validator(Validator):
         self._original_document = original_document
         return super(Validator, self).validate_update(document)
 
-    def validate_replace(self, document, _id):
+    def validate_replace(self, document, _id, original_document=None):
         """ Validation method to be invoked when performing a document
         replacement. This differs from :func:`validation_update` since in this
         case we want to perform a full :func:`validate` (the new document is to
@@ -79,6 +79,7 @@ class Validator(Validator):
         .. versionadded:: 0.1.0
         """
         self._id = _id
+        self._original_document = original_document
         return super(Validator, self).validate(document)
 
     def _validate_default(self, unique, field, value):
