@@ -160,10 +160,9 @@ class TestPatch(TestBase):
     def test_patch_defaults_with_post_override(self):
         field = "ref"
         test_value = "1234567890123456789012345"
-        r = self.perform_patch_with_post_override(field, test_value)
-        self.assert200(r.status_code)
-        self.assertRaises(KeyError, self.compare_patch_with_get, 'title',
-                          json.loads(r.get_data()))
+        r, status_code = self.perform_patch_with_post_override(field, test_value)
+        self.assert200(status_code)
+        self.assertRaises(KeyError, self.compare_patch_with_get, 'title', r)
 
     def test_patch_multiple_fields(self):
         fields = ['ref', 'prog', 'role']
@@ -177,8 +176,8 @@ class TestPatch(TestBase):
 
     def test_patch_with_post_override(self):
         # a POST request with PATCH override turns into a PATCH request
-        r = self.perform_patch_with_post_override('prog', 1)
-        self.assert200(r.status_code)
+        r, status_code = self.perform_patch_with_post_override('prog', 1)
+        self.assert200(status_code)
 
     def test_patch_internal(self):
         # test that patch_internal is available and working properly.
@@ -215,9 +214,10 @@ class TestPatch(TestBase):
         headers = [('X-HTTP-Method-Override', 'PATCH'),
                    ('If-Match', self.item_etag),
                    ('Content-Type', 'application/json')]
-        return self.test_client.post(self.item_id_url,
+        r = self.test_client.post(self.item_id_url,
                                      data=json.dumps({field: value}),
                                      headers=headers)
+        return self.parse_response(r)
 
     def compare_patch_with_get(self, fields, patch_response):
         raw_r = self.test_client.get(self.item_id_url)
