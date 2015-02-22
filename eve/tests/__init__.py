@@ -433,6 +433,9 @@ class TestBase(TestMinimal):
 
                 'tid': ObjectId(),
             }
+            for child in schema:
+                if 'default' in schema[child]:
+                    contact[child] = schema[child]['default']
             if standard_date_fields:
                 contact[eve.LAST_UPDATED] = dt
                 contact[eve.DATE_CREATED] = dt
