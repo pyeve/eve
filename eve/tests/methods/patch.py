@@ -151,18 +151,24 @@ class TestPatch(TestBase):
         self.assertEqual(db_value, test_value)
 
     def test_patch_defaults(self):
+        schema = self.domain['contacts']['schema']
+
         field = "ref"
         test_value = "1234567890123456789012345"
         changes = {field: test_value}
         r = self.perform_patch(changes)
-        self.assertRaises(KeyError, self.compare_patch_with_get, 'title', r)
+        db_value = self.compare_patch_with_get('title', r)
+        self.assertEqual(db_value, schema['title']['default'])
 
     def test_patch_defaults_with_post_override(self):
+        schema = self.domain['contacts']['schema']
+
         field = "ref"
         test_value = "1234567890123456789012345"
         r, status_code = self.perform_patch_with_post_override(field, test_value)
         self.assert200(status_code)
-        self.assertRaises(KeyError, self.compare_patch_with_get, 'title', r)
+        db_value = self.compare_patch_with_get('title', r)
+        self.assertEqual(db_value, schema['title']['default'])
 
     def test_patch_multiple_fields(self):
         fields = ['ref', 'prog', 'role']
