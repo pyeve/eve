@@ -151,19 +151,24 @@ class TestPatch(TestBase):
         self.assertEqual(db_value, test_value)
 
     def test_patch_defaults(self):
+        schema = self.domain['contacts']['schema']
+
         field = "ref"
         test_value = "1234567890123456789012345"
         changes = {field: test_value}
         r = self.perform_patch(changes)
-        self.assertRaises(KeyError, self.compare_patch_with_get, 'title', r)
+        db_value = self.compare_patch_with_get('title', r)
+        self.assertEqual(db_value, schema['title']['default'])
 
     def test_patch_defaults_with_post_override(self):
+        schema = self.domain['contacts']['schema']
+
         field = "ref"
         test_value = "1234567890123456789012345"
-        r = self.perform_patch_with_post_override(field, test_value)
-        self.assert200(r.status_code)
-        self.assertRaises(KeyError, self.compare_patch_with_get, 'title',
-                          json.loads(r.get_data()))
+        r, status_code = self.perform_patch_with_post_override(field, test_value)
+        self.assert200(status_code)
+        db_value = self.compare_patch_with_get('title', r)
+        self.assertEqual(db_value, schema['title']['default'])
 
     def test_patch_multiple_fields(self):
         fields = ['ref', 'prog', 'role']
@@ -177,8 +182,8 @@ class TestPatch(TestBase):
 
     def test_patch_with_post_override(self):
         # a POST request with PATCH override turns into a PATCH request
-        r = self.perform_patch_with_post_override('prog', 1)
-        self.assert200(r.status_code)
+        r, status_code = self.perform_patch_with_post_override('prog', 1)
+        self.assert200(status_code)
 
     def test_patch_internal(self):
         # test that patch_internal is available and working properly.
@@ -215,9 +220,10 @@ class TestPatch(TestBase):
         headers = [('X-HTTP-Method-Override', 'PATCH'),
                    ('If-Match', self.item_etag),
                    ('Content-Type', 'application/json')]
-        return self.test_client.post(self.item_id_url,
+        r = self.test_client.post(self.item_id_url,
                                      data=json.dumps({field: value}),
                                      headers=headers)
+        return self.parse_response(r)
 
     def compare_patch_with_get(self, fields, patch_response):
         raw_r = self.test_client.get(self.item_id_url)
@@ -515,8 +521,6 @@ class TestPatch(TestBase):
         """
         # this will fail as dependent field is missing even in the
         # document we are trying to update.
-        del(self.domain['contacts']['schema']['dependency_field1']['default'])
-        del(self.domain['contacts']['defaults']['dependency_field1'])
         changes = {'dependency_field2': 'value'}
         r, status = self.patch(self.item_id_url, data=changes,
                                headers=[('If-Match', self.item_etag)])

@@ -89,7 +89,6 @@ contacts = {
         },
         'dependency_field1': {
             'type': 'string',
-            'default': 'default'
         },
         'dependency_field2': {
             'type': 'string',
