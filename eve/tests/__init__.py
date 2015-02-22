@@ -432,6 +432,7 @@ class TestBase(TestMinimal):
                     days=random.randint(-10, 10)),
 
                 'tid': ObjectId(),
+                'read_only_field': schema['read_only_field']['default']
             }
             if standard_date_fields:
                 contact[eve.LAST_UPDATED] = dt

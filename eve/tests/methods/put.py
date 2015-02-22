@@ -172,6 +172,23 @@ class TestPut(TestBase):
         db_value = self.compare_put_with_get(test_field, r)
         self.assertEqual(test_value, db_value)
 
+    def test_put_readonly_value_same(self):
+        data = {'ref': self.item['ref'],
+                'read_only_field': self.item['read_only_field']}
+        r, status = self.put(self.item_id_url,
+                             data=data,
+                             headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+
+    def test_put_readonly_value_different(self):
+        field = 'read_only_field'
+        data = {'ref': self.item['ref'], field: 'somethingelse'}
+        r, status = self.put(self.item_id_url,
+                             data=data,
+                             headers=[('If-Match', self.item_etag)])
+        self.assert422(status)
+        self.assertValidationError(r, {field: "field is read-only"})
+
     def test_put_subresource(self):
         _db = self.connection[MONGO_DBNAME]
 
