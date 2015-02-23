@@ -467,6 +467,9 @@ uppercase.
 
 ``MONGO_DBNAME``                    MongoDB database name.
 
+``MONGO_URI``                       A `MongoDB URI`_ which is used in preference 
+                                    of the other configuration variables.
+
 ``MONGO_QUERY_BLACKLIST``           A list of Mongo query operators that are not
                                     allowed to be used in resource filters
                                     (``?where=``). Defaults to ``['$where',
@@ -1166,3 +1169,4 @@ read access open to the public.
     - :ref:`projection_filestorage`
 
 .. _Cerberus: http://cerberus.readthedocs.org
+.. _`MongoDB URI`: http://docs.mongodb.org/manual/reference/connection-string/#Connections-StandardConnectionStringFormat

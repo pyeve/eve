@@ -396,8 +396,8 @@ def _pagination_links(resource, req, documents_count, document_id=None):
             # a correct result. Wonder if 2 casts + ceil() call are actually
             # faster than documents_count // req.max_results and then adding
             # 1 if the modulo is non-zero...
-            last_page = int(math.ceil(documents_count
-                                      / float(req.max_results)))
+            last_page = int(math.ceil(documents_count /
+                                      float(req.max_results)))
             q = querydef(req.max_results, req.where, req.sort, version,
                          last_page)
             _links['last'] = {'title': 'last page', 'href': '%s%s'

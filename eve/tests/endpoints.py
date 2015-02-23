@@ -264,7 +264,7 @@ class TestEndPoints(TestBase):
         if resource != 'internal_transactions':
             dt = datetime.now()
             transaction = {
-                'entities':  [doc['_id'] for doc in docs],
+                'entities': [doc['_id'] for doc in docs],
                 'original_resource': resource,
                 config.LAST_UPDATED: dt,
                 config.DATE_CREATED: dt,

@@ -107,7 +107,7 @@ class TestMongoValidator(TestCase):
     def test_transparent_rules(self):
         schema = {'a_field': {'type': 'string'}}
         v = Validator(schema)
-        self.assertTrue(v.transparent_schema_rules, True)
+        self.assertFalse(v.transparent_schema_rules)
 
     def test_geojson_not_compilant(self):
         schema = {'location': {'type': 'point'}}
@@ -253,7 +253,7 @@ class TestMongoValidator(TestCase):
         self.assertTrue(v.validate(doc))
 
         # With `dependencies` as a dict
-        schema['test_field'] = {'foo': 'foo', 'bar': 'bar'}
+        schema['test_field'] = {'dependencies': {'foo': 'foo', 'bar': 'bar'}}
         v = Validator(schema)
         self.assertTrue(v.validate(doc))
 

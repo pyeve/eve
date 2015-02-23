@@ -165,10 +165,11 @@ def patch_internal(resource, payload=None, concurrency_check=False,
                 datetime.utcnow().replace(microsecond=0)
 
             # the mongo driver has a different precision than the python
-            # datetime. since we don't want to reload the document once it has
-            # been updated, and we still have to provide an updated etag,
-            # we're going to update the local version of the 'original'
-            # document, and we will use it for the etag computation.
+            # datetime. since we don't want to reload the document once it
+            # has been updated, and we still have to provide an updated
+            # etag, we're going to update the local version of the
+            # 'original' document, and we will use it for the etag
+            # computation.
             updated = original.copy()
 
             # notify callbacks
@@ -183,7 +184,14 @@ def patch_internal(resource, payload=None, concurrency_check=False,
                 # now storing the (updated) ETAG with every document (#453)
                 updates[config.ETAG] = updated[config.ETAG]
 
-            app.data.update(resource, object_id, updates)
+            try:
+                app.data.update(
+                    resource, object_id, updates, original)
+            except app.data.OriginalChangedError:
+                if concurrency_check:
+                    abort(412, description=debug_error_message(
+                        'Client and server etags don\'t match'
+                    ))
 
             # update oplog if needed
             oplog_push(resource, updates, 'PATCH', object_id)
@@ -198,7 +206,8 @@ def patch_internal(resource, payload=None, concurrency_check=False,
             build_response_document(
                 updated, resource, embedded_fields, updated)
             response = updated
-
+            if config.IF_MATCH:
+                etag = response[config.ETAG]
         else:
             issues = validator.errors
     except ValidationError as e:

@@ -33,6 +33,7 @@ class ValidTokenAuth(TokenAuth):
 class ValidHMACAuth(HMACAuth):
     def check_auth(self, userid, hmac_hash, headers, data, allowed_roles,
                    resource, method):
+        self.set_request_auth_value(userid)
         return userid == 'admin' and hmac_hash == 'secret' and  \
             ('admin' in allowed_roles if allowed_roles else True)
 
@@ -87,7 +88,7 @@ class TestBasicAuth(TestBase):
         self.assert401(r.status_code)
 
     def test_authorized_home_access(self):
-        r = self.test_client.get('/',  headers=self.valid_auth)
+        r = self.test_client.get('/', headers=self.valid_auth)
         self.assert200(r.status_code)
 
     def test_authorized_resource_access(self):
@@ -113,7 +114,7 @@ class TestBasicAuth(TestBase):
         self.assert403(r.status_code)
 
     def test_unauthorized_home_access(self):
-        r = self.test_client.get('/',  headers=self.invalid_auth)
+        r = self.test_client.get('/', headers=self.invalid_auth)
         self.assert401(r.status_code)
 
     def test_unauthorized_resource_access(self):
@@ -276,6 +277,24 @@ class TestHMACAuth(TestBasicAuth):
     def test_rfc2617_response(self):
         r = self.test_client.get('/')
         self.assert401(r.status_code)
+
+    def test_post_resource_hmac_auth(self):
+        # Test that user restricted access works with HMAC auth.
+        resource_def = self.app.config['DOMAIN']['restricted']
+        resource_def['auth_field'] = 'username'
+        url = resource_def['url']
+        data = {"ref": "0123456789123456789012345"}
+
+        r = self.app.test_client().post(url, data=json.dumps(data),
+                                        headers=self.valid_auth,
+                                        content_type='application/json')
+
+        # Verify that we can retrieve the same document
+        r, status = self.parse_response(
+            self.app.test_client().get(url, headers=self.valid_auth))
+        self.assert200(status)
+        self.assertEqual(len(r['_items']), 1)
+        self.assertEqual(r['_items'][0]['ref'], data['ref'])
 
 
 class TestResourceAuth(TestBase):
@@ -464,7 +483,7 @@ class TestUserRestrictedAccess(TestBase):
 
         # set auth at resource level instead.
         resource_def = self.app.config['DOMAIN'][self.url]
-        resource_def['authentication'] = ValidBasicAuth()
+        resource_def['authentication'] = ValidBasicAuth
         resource_def['auth_field'] = 'username'
 
         # post with valid auth - must store the document with the correct
@@ -525,7 +544,7 @@ class TestUserRestrictedAccess(TestBase):
 
         # set auth at resource level instead.
         resource_def = self.app.config['DOMAIN'][self.url]
-        resource_def['authentication'] = ValidBasicAuth()
+        resource_def['authentication'] = ValidBasicAuth
         resource_def['auth_field'] = 'username'
 
         # post

@@ -143,8 +143,8 @@ def put_internal(resource, payload=None, concurrency_check=False,
             document[config.DATE_CREATED] = original[config.DATE_CREATED]
 
             # ID_FIELD not in document means it is not being automatically
-            # handled (it has been set to a field which exists in the resource
-            # schema.
+            # handled (it has been set to a field which exists in the
+            # resource schema.
             if config.ID_FIELD not in document:
                 document[config.ID_FIELD] = object_id
 
@@ -160,7 +160,14 @@ def put_internal(resource, payload=None, concurrency_check=False,
             resolve_document_etag(document)
 
             # write to db
-            app.data.replace(resource, object_id, document)
+            try:
+                app.data.replace(
+                    resource, object_id, document, original)
+            except app.data.OriginalChangedError:
+                if concurrency_check:
+                    abort(412, description=debug_error_message(
+                        'Client and server etags don\'t match'
+                    ))
 
             # update oplog if needed
             oplog_push(resource, document, 'PUT')
@@ -175,6 +182,8 @@ def put_internal(resource, payload=None, concurrency_check=False,
             build_response_document(
                 document, resource, embedded_fields, document)
             response = document
+            if config.IF_MATCH:
+                etag = response[config.ETAG]
         else:
             issues = validator.errors
     except ValidationError as e:

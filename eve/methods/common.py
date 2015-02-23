@@ -296,6 +296,9 @@ def serialize(document, resource=None, schema=None, fields=None):
     """ Recursively handles field values that require data-aware serialization.
     Relies on the app.data.serializers dictionary.
 
+    .. versionchanged:: 0.5.2
+       Fix serialization of keyschemas with objectids. See #525.
+
     .. versionchanged:: 0.3
        Fix serialization of sub-documents. See #244.
 
@@ -338,6 +341,14 @@ def serialize(document, resource=None, schema=None, fields=None):
                             document[field][i] = \
                                 app.data.serializers[field_type](
                                     document[field][i])
+                elif 'keyschema' in field_schema:
+                    # a keyschema
+                    field_type = field_schema['keyschema']['type']
+                    if field_type == 'objectid':
+                        target = document[field]
+                        for field in target:
+                            target[field] = \
+                                app.data.serializers[field_type](target[field])
                 elif field_type in app.data.serializers:
                     # a simple field
                     document[field] = \
@@ -538,7 +549,7 @@ def subdocuments(fields_chain, document):
     """
     if len(fields_chain) == 0:
         yield document
-    else:
+    elif fields_chain[0] in document:
         subdocument = document[fields_chain[0]]
         docs = subdocument if isinstance(subdocument, list) else [subdocument]
         for doc in docs:
@@ -580,7 +591,7 @@ def resolve_embedded_documents(document, resource, embedded_fields):
     """
     for field in embedded_fields:
         data_relation = field_definition(resource, field)['data_relation']
-        getter = lambda ref: embedded_document(ref, data_relation, field)  # noqa
+        getter = lambda ref: embedded_document(ref, data_relation, field)
         fields_chain = field.split('.')
         last_field = fields_chain[-1]
         for subdocument in subdocuments(fields_chain[:-1], document):
@@ -728,6 +739,9 @@ def resolve_user_restricted_access(document, resource):
     :param document: the document being posted or replaced
     :param resource: the resource to which the document belongs
 
+    .. versionchanged:: 0.5.2
+       Make User Restricted Resource Access work with HMAC Auth too.
+
     .. versionchanged:: 0.4
        Use new auth.request_auth_value() method.
 
@@ -740,7 +754,7 @@ def resolve_user_restricted_access(document, resource):
     auth_field = resource_def['auth_field']
     if auth and auth_field:
         request_auth_value = auth.get_request_auth_value()
-        if request_auth_value and request.authorization:
+        if request_auth_value:
             document[auth_field] = request_auth_value
 
 

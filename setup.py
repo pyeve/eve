@@ -9,7 +9,7 @@ install_requires = [
     'cerberus>=0.8,<0.9',
     'events>=0.2.1,<0.3',
     'simplejson>=3.3.0,<4.0',
-    'werkzeug>=0.9.4,<0.10',
+    'werkzeug>=0.9.4,<0.11',
     'markupsafe>=0.23,<1.0',
     'jinja2>=2.7.2,<3.0',
     'itsdangerous>=0.22,<1.0',
@@ -27,7 +27,7 @@ except ImportError:
 
 setup(
     name='Eve',
-    version='0.5.1',
+    version='0.5.2',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',
