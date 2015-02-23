@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Eve Changelog &mdash; Eve 0.5.2-dev documentation</title>
+    <title>Eve Changelog &mdash; Eve 0.5.3-dev documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.5.2-dev',
+        VERSION:     '0.5.3-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.5.2-dev documentation" href="index.html" />
+    <link rel="top" title="Eve 0.5.3-dev documentation" href="index.html" />
     <link rel="prev" title="Licensing" href="license.html" />
    
   
@@ -41,7 +41,7 @@
         <li class="right" >
           <a href="license.html" title="Licensing"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Eve 0.5.2-dev documentation</a> &raquo;</li> 
+        <li><a href="index.html">Eve 0.5.3-dev documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -65,6 +65,14 @@ document media fields (Daniel Lytkin.)</li>
 <li>New: <tt class="docutils literal"><span class="pre">etag_ignore_fields</span></tt>. Resource setting with a list of fields belonging
 to the schema that won&#8217;t be used to compute the ETag value. Defaults to
 <tt class="docutils literal"><span class="pre">None</span></tt>.</li>
+</ul>
+</div>
+<div class="section" id="version-0-5-2">
+<h2>Version 0.5.2<a class="headerlink" href="#version-0-5-2" title="Permalink to this headline">¶</a></h2>
+<p>Released on 23 Feb, 2015.
+Codename: &#8216;Giulia&#8217;.</p>
+<ul class="simple">
+<li>Fix: hardening of database concurrency checks. See #561 (Olivier Carrère.)</li>
 <li>Fix: <tt class="docutils literal"><span class="pre">PATCH</span></tt> and <tt class="docutils literal"><span class="pre">PUT</span></tt> do not include Etag header (Marcus Cobden.)</li>
 <li>Fix: endpoint-level authentication crash when a callable is passed. Closes
 #558.</li>
@@ -78,6 +86,7 @@ to the schema that won&#8217;t be used to compute the ETag value. Defaults to
 (Emmanuel Leblond.)</li>
 <li>Docs: add <tt class="docutils literal"><span class="pre">MONGO_URI</span></tt> as an alternative to other MongoDB connection
 options. Closes #551.</li>
+<li>Change: Werkzeug 0.10.1 is now required.</li>
 </ul>
 </div>
 <div class="section" id="version-0-5-1">
@@ -986,6 +995,7 @@ signature, allowing for further subclassing.</li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Eve Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#in-development">In development</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-5-2">Version 0.5.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-5-1">Version 0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-5">Version 0.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-4">Version 0.4</a></li>
