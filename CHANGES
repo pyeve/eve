@@ -22,6 +22,8 @@ Version 0.5.2
 - Docs: add ``MONGO_URI`` as an alternative to other MongoDB connection
   options. Closes #551.
 
+- Change: Werkzeug 0.10.1 is now required.
+
 Version 0.5.1
 -------------
 
