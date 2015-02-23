@@ -6,6 +6,9 @@ Here you can see the full list of changes between each Eve release.
 Version 0.5.2
 -------------
 
+Released on 23 Feb, 2015. 
+Codename: 'Giulia'.
+
 - Fix: hardening of database concurrency checks. See #561 (Olivier Carrère.)
 - Fix: ``PATCH`` and ``PUT`` do not include Etag header (Marcus Cobden.)
 - Fix: endpoint-level authentication crash when a callable is passed. Closes
