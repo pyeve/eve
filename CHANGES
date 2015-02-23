@@ -16,6 +16,8 @@ In development
   to the schema that won't be used to compute the ETag value. Defaults to
   ``None``.
 
+Version 0.5.2
+-------------
 Released on 23 Feb, 2015. 
 Codename: 'Giulia'.
 
