@@ -16,6 +16,9 @@ In development
   to the schema that won't be used to compute the ETag value. Defaults to
   ``None``.
 
+- Fix: Ignore read-only fields in ``PUT`` requests when their values aren't
+  changed compared to the stored document (Bjorn Andersson.)
+
 Version 0.5.2
 -------------
 Released on 23 Feb, 2015. 
