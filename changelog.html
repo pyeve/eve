@@ -65,6 +65,8 @@ document media fields (Daniel Lytkin.)</li>
 <li>New: <tt class="docutils literal"><span class="pre">etag_ignore_fields</span></tt>. Resource setting with a list of fields belonging
 to the schema that won&#8217;t be used to compute the ETag value. Defaults to
 <tt class="docutils literal"><span class="pre">None</span></tt>.</li>
+<li>Fix: Ignore read-only fields in <tt class="docutils literal"><span class="pre">PUT</span></tt> requests when their values aren&#8217;t
+changed compared to the stored document (Bjorn Andersson.)</li>
 </ul>
 </div>
 <div class="section" id="version-0-5-2">
