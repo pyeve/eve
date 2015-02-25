@@ -3,7 +3,7 @@ Eve Changelog
 
 Here you can see the full list of changes between each Eve release.
 
-Version 0.5.2
+Version 0.5.3
 -------------
 
 - Fix: Ignore read-only fields in ``PUT`` requests when their values aren't
