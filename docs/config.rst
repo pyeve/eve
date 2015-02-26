@@ -908,7 +908,7 @@ defining the field validation rules. Allowed validation rules are:
                                 - ``dict``
                                 - ``list``
                                 - ``objectid``
-                                - ``file``
+                                - ``media``
 
                                 If the MongoDB data layer is used, then
                                 geographic data structures are also allowed:
