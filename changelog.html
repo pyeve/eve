@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Eve Changelog &mdash; Eve 0.5.3-dev documentation</title>
+    <title>Changelog &mdash; Eve 0.5.3-dev documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -50,11 +50,13 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="eve-changelog">
-<span id="changelog"></span><h1>Eve Changelog<a class="headerlink" href="#eve-changelog" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="changelog">
+<span id="id1"></span><h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <p>Here you can see the full list of changes between each Eve release.</p>
-<div class="section" id="in-development">
-<h2>In development<a class="headerlink" href="#in-development" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="development">
+<h2>Development<a class="headerlink" href="#development" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="version-0-6">
+<h3>Version 0.6<a class="headerlink" href="#version-0-6" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>New: Enable <tt class="docutils literal"><span class="pre">on_pre_GET</span></tt> hook for HEAD requests (Daniel Lytkin.).</li>
 <li>New: Add <tt class="docutils literal"><span class="pre">X-Total-Count</span></tt> header for collection GET/HEAD requests (Daniel
@@ -65,12 +67,21 @@ document media fields (Daniel Lytkin.)</li>
 <li>New: <tt class="docutils literal"><span class="pre">etag_ignore_fields</span></tt>. Resource setting with a list of fields belonging
 to the schema that won&#8217;t be used to compute the ETag value. Defaults to
 <tt class="docutils literal"><span class="pre">None</span></tt>.</li>
-<li>Fix: Ignore read-only fields in <tt class="docutils literal"><span class="pre">PUT</span></tt> requests when their values aren&#8217;t
-changed compared to the stored document (Bjorn Andersson.)</li>
 </ul>
 </div>
+<div class="section" id="version-0-5-3">
+<h3>Version 0.5.3<a class="headerlink" href="#version-0-5-3" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Fix: Ignore read-only fields in <tt class="docutils literal"><span class="pre">PUT</span></tt> requests when their values aren&#8217;t
+changed compared to the stored document (Bjorn Andersson.)</li>
+<li>Docs: replace <tt class="docutils literal"><span class="pre">file</span></tt> with <tt class="docutils literal"><span class="pre">media</span></tt> type. Closes #566.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="stable">
+<h2>Stable<a class="headerlink" href="#stable" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="version-0-5-2">
-<h2>Version 0.5.2<a class="headerlink" href="#version-0-5-2" title="Permalink to this headline">¶</a></h2>
+<h3>Version 0.5.2<a class="headerlink" href="#version-0-5-2" title="Permalink to this headline">¶</a></h3>
 <p>Released on 23 Feb, 2015.
 Codename: &#8216;Giulia&#8217;.</p>
 <ul class="simple">
@@ -92,7 +103,7 @@ options. Closes #551.</li>
 </ul>
 </div>
 <div class="section" id="version-0-5-1">
-<h2>Version 0.5.1<a class="headerlink" href="#version-0-5-1" title="Permalink to this headline">¶</a></h2>
+<h3>Version 0.5.1<a class="headerlink" href="#version-0-5-1" title="Permalink to this headline">¶</a></h3>
 <p>Released on 16 Jan, 2015.</p>
 <ul class="simple">
 <li>Fix: dependencies with value checking seem broken (#547.)</li>
@@ -101,7 +112,7 @@ options. Closes #551.</li>
 </ul>
 </div>
 <div class="section" id="version-0-5">
-<h2>Version 0.5<a class="headerlink" href="#version-0-5" title="Permalink to this headline">¶</a></h2>
+<h3>Version 0.5<a class="headerlink" href="#version-0-5" title="Permalink to this headline">¶</a></h3>
 <p>Released on 12 Jan, 2015.</p>
 <ul class="simple">
 <li>New: Operations Log (<a class="reference external" href="http://python-eve.org/features#operations-log">http://python-eve.org/features#operations-log</a>.)</li>
@@ -280,7 +291,7 @@ nicolaiarocci/cerberus#48.</li>
 </ul>
 </div>
 <div class="section" id="version-0-4">
-<h2>Version 0.4<a class="headerlink" href="#version-0-4" title="Permalink to this headline">¶</a></h2>
+<h3>Version 0.4<a class="headerlink" href="#version-0-4" title="Permalink to this headline">¶</a></h3>
 <p>Released on 20 June, 2014.</p>
 <ul class="simple">
 <li>[new] You can now start the app without any resource defined and use
@@ -403,7 +414,7 @@ item_lookup_field will default to <tt class="docutils literal"><span class="pre"
 </ul>
 </div>
 <div class="section" id="version-0-3">
-<h2>Version 0.3<a class="headerlink" href="#version-0-3" title="Permalink to this headline">¶</a></h2>
+<h3>Version 0.3<a class="headerlink" href="#version-0-3" title="Permalink to this headline">¶</a></h3>
 <p>Released on 14 February, 2014.</p>
 <ul class="simple">
 <li>[fix] Serialization of sub-documents (Hannes Tiede). Closes #244.</li>
@@ -491,7 +502,7 @@ fields as keys and issues descriptions as values.</li>
 </ul>
 </div>
 <div class="section" id="version-0-2">
-<h2>Version 0.2<a class="headerlink" href="#version-0-2" title="Permalink to this headline">¶</a></h2>
+<h3>Version 0.2<a class="headerlink" href="#version-0-2" title="Permalink to this headline">¶</a></h3>
 <p>Released on 30 November, 2013.</p>
 <ul class="simple">
 <li>[new] Sub-Resources. It is now possible to configure endpoints such as:
@@ -552,10 +563,8 @@ on POST and PUT methods.</li>
 </ul>
 </div>
 <div class="section" id="version-0-1-1">
-<h2>Version 0.1.1<a class="headerlink" href="#version-0-1-1" title="Permalink to this headline">¶</a></h2>
+<h3>Version 0.1.1<a class="headerlink" href="#version-0-1-1" title="Permalink to this headline">¶</a></h3>
 <p>Released on October 31th, 2013.</p>
-<div class="section" id="enhancements">
-<h3>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>DELETE now uses the original document ID_FIELD when issuing the delete
 command to the underlying data layer (Xavi Cubillas).</li>
@@ -585,11 +594,6 @@ document insert is performed. Closes #139.</li>
 consistency with the <tt class="docutils literal"><span class="pre">auth_field</span></tt> setting. Closes #132 (Ryan Shea).</li>
 <li>Same behavior as Flask, SERVER_NAME now defaults to None. It allows much
 easier development on distant machine that may changes IP (Ronan Delacroix).</li>
-</ul>
-</div>
-<div class="section" id="fixes">
-<h3>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
 <li>CORS support was not available for <tt class="docutils literal"><span class="pre">additional_lookup</span></tt> urls (Petr Jašek.)</li>
 <li>&#8216;default&#8217; field values that could be assimilated to <tt class="docutils literal"><span class="pre">None</span></tt> (0, None, &#8220;&#8221;)
 would be ignored.</li>
@@ -599,12 +603,9 @@ would be ignored.</li>
 flaskapp.validate_schema() (Roy Smith).</li>
 </ul>
 </div>
-</div>
 <div class="section" id="version-0-1">
-<h2>Version 0.1<a class="headerlink" href="#version-0-1" title="Permalink to this headline">¶</a></h2>
+<h3>Version 0.1<a class="headerlink" href="#version-0-1" title="Permalink to this headline">¶</a></h3>
 <p>Released on September 30th, 2013.</p>
-<div class="section" id="new-features">
-<h3>New Features<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">PUT</span></tt> method for completely replace a document while keeping the same
 unique identifier. Closes #96.</li>
@@ -616,12 +617,13 @@ to be embedded within the requested document (Bryan Cattle).  Closes #68.</li>
 level.</li>
 <li><tt class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></tt> supported for all HTTP Methods. Closes #95.</li>
 </ul>
-</div>
-<div class="section" id="id1">
-<h3>Enhancements<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><dl class="docutils">
+<dt>HTTP method is now passed into <tt class="docutils literal"><span class="pre">authenticate()</span></tt> and <tt class="docutils literal"><span class="pre">check_auth()</span></tt> (Ken</dt>
+<dd>Carpenter). Closes #90 .</dd>
+</dl>
+</div></blockquote>
 <ul class="simple">
-<li>HTTP method is now passed into <tt class="docutils literal"><span class="pre">authenticate()</span></tt> and <tt class="docutils literal"><span class="pre">check_auth()</span></tt> (Ken
-Carpenter). Closes #90 .</li>
 <li>Cleanup and hardening of User-Restricted Resource Access Edit (Bryan Cattle).</li>
 <li>Account Management tutorial updated to reflect the event hooks naming update
 introduced in v0.0.9.</li>
@@ -629,11 +631,6 @@ introduced in v0.0.9.</li>
 <li>Events 0.2.0 is now supported.</li>
 <li>PyMongo 2.6.2 is now supported.</li>
 <li>Cerberus 0.4.0 is now supported.</li>
-</ul>
-</div>
-<div class="section" id="id2">
-<h3>Fixes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
 <li>Item <tt class="docutils literal"><span class="pre">GET</span></tt> on documents with non-existent &#8216;created&#8217; field (because
 stored outside of API context) were not returning a default value for the
 field.</li>
@@ -650,9 +647,8 @@ on datetime values were not working when running on Python 2.x.</li>
 (Ken Carpenter, Jean Boussier, Kracekumar, Francisco Corrales Morales).</li>
 </ul>
 </div>
-</div>
 <div class="section" id="version-0-0-9">
-<h2>Version 0.0.9<a class="headerlink" href="#version-0-0-9" title="Permalink to this headline">¶</a></h2>
+<h3>Version 0.0.9<a class="headerlink" href="#version-0-0-9" title="Permalink to this headline">¶</a></h3>
 <p>Released on August 29, 2013</p>
 <ul class="simple">
 <li>PyMongo 2.6 is now supported.</li>
@@ -697,7 +693,7 @@ Shea).</li>
 </ul>
 </div>
 <div class="section" id="version-0-0-8">
-<h2>Version 0.0.8<a class="headerlink" href="#version-0-0-8" title="Permalink to this headline">¶</a></h2>
+<h3>Version 0.0.8<a class="headerlink" href="#version-0-0-8" title="Permalink to this headline">¶</a></h3>
 <p>Released on July 25th 2013.</p>
 <ul class="simple">
 <li>Only run RateLimiting tests if redis-py is installed and redis-server is
@@ -732,7 +728,7 @@ TestMinimal class (Daniele Pizzolli).</li>
 </ul>
 </div>
 <div class="section" id="version-0-0-7">
-<h2>Version 0.0.7<a class="headerlink" href="#version-0-0-7" title="Permalink to this headline">¶</a></h2>
+<h3>Version 0.0.7<a class="headerlink" href="#version-0-0-7" title="Permalink to this headline">¶</a></h3>
 <p>Released on June 18th 2013.</p>
 <ul class="simple">
 <li>Pinned Werkzeug requirement to v0.8.3 to avoid issues with the latest release
@@ -779,7 +775,7 @@ queries also tend to be slow and generally can be easily replaced with the
 </ul>
 </div>
 <div class="section" id="version-0-0-6">
-<h2>Version 0.0.6<a class="headerlink" href="#version-0-0-6" title="Permalink to this headline">¶</a></h2>
+<h3>Version 0.0.6<a class="headerlink" href="#version-0-0-6" title="Permalink to this headline">¶</a></h3>
 <p>Released on May 13th 2013.</p>
 <ul class="simple">
 <li>Content-Type header now properly parsed when additional arguments are
@@ -821,7 +817,7 @@ with the global <tt class="docutils literal"><span class="pre">RESOURCE_METHODS<
 </ul>
 </div>
 <div class="section" id="version-0-0-5">
-<h2>Version 0.0.5<a class="headerlink" href="#version-0-0-5" title="Permalink to this headline">¶</a></h2>
+<h3>Version 0.0.5<a class="headerlink" href="#version-0-0-5" title="Permalink to this headline">¶</a></h3>
 <p>Released on April 11th 2013.</p>
 <ul class="simple">
 <li>Fixed an issue that apparently caused the test suite to only run successfully
@@ -863,7 +859,7 @@ documents created outside the API context. Fixes #18.</li>
 </ul>
 </div>
 <div class="section" id="version-0-0-4">
-<h2>Version 0.0.4<a class="headerlink" href="#version-0-0-4" title="Permalink to this headline">¶</a></h2>
+<h3>Version 0.0.4<a class="headerlink" href="#version-0-0-4" title="Permalink to this headline">¶</a></h3>
 <p>Released on February 25th 2013.</p>
 <ul class="simple">
 <li>Consistent ETag computation between runs/instances. Closes #16.</li>
@@ -904,7 +900,7 @@ Internal Server Error (Fixes #8).</li>
 </ul>
 </div>
 <div class="section" id="version-0-0-3">
-<h2>Version 0.0.3<a class="headerlink" href="#version-0-0-3" title="Permalink to this headline">¶</a></h2>
+<h3>Version 0.0.3<a class="headerlink" href="#version-0-0-3" title="Permalink to this headline">¶</a></h3>
 <p>Released on January 22th 2013.</p>
 <ul class="simple">
 <li>XML rendering love. Lots of love.</li>
@@ -920,7 +916,7 @@ level, with no wrappers around it.</li>
 </ul>
 </div>
 <div class="section" id="version-0-0-2">
-<h2>Version 0.0.2<a class="headerlink" href="#version-0-0-2" title="Permalink to this headline">¶</a></h2>
+<h3>Version 0.0.2<a class="headerlink" href="#version-0-0-2" title="Permalink to this headline">¶</a></h3>
 <p>Released on November 27th 2012.</p>
 <ul class="simple">
 <li>Homepage/api entry point resource links fixed. They had bad &#8216;href&#8217;
@@ -934,11 +930,12 @@ signature, allowing for further subclassing.</li>
 </ul>
 </div>
 <div class="section" id="version-0-0-1">
-<h2>Version 0.0.1<a class="headerlink" href="#version-0-0-1" title="Permalink to this headline">¶</a></h2>
+<h3>Version 0.0.1<a class="headerlink" href="#version-0-0-1" title="Permalink to this headline">¶</a></h3>
 <p>Released on November 20th 2012.</p>
 <ul class="simple">
 <li>First public preview release.</li>
 </ul>
+</div>
 </div>
 </div>
 
@@ -995,34 +992,32 @@ signature, allowing for further subclassing.</li>
 <li class="toctree-l1"><a class="reference internal" href="updates.html">Updates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Eve Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#in-development">In development</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-5-2">Version 0.5.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-5-1">Version 0.5.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-5">Version 0.5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-4">Version 0.4</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-3">Version 0.3</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-2">Version 0.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-1-1">Version 0.1.1</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#enhancements">Enhancements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fixes">Fixes</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#development">Development</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-6">Version 0.6</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-5-3">Version 0.5.3</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-1">Version 0.1</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#new-features">New Features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id1">Enhancements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id2">Fixes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stable">Stable</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-5-2">Version 0.5.2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-5-1">Version 0.5.1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-5">Version 0.5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-4">Version 0.4</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-3">Version 0.3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-2">Version 0.2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-1-1">Version 0.1.1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-1">Version 0.1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-0-9">Version 0.0.9</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-0-8">Version 0.0.8</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-0-7">Version 0.0.7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-0-6">Version 0.0.6</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-0-5">Version 0.0.5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-0-4">Version 0.0.4</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-0-3">Version 0.0.3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-0-2">Version 0.0.2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-0-1">Version 0.0.1</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-0-9">Version 0.0.9</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-0-8">Version 0.0.8</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-0-7">Version 0.0.7</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-0-6">Version 0.0.6</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-0-5">Version 0.0.5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-0-4">Version 0.0.4</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-0-3">Version 0.0.3</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-0-2">Version 0.0.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-0-1">Version 0.0.1</a></li>
 </ul>
 </li>
 </ul>
