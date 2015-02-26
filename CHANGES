@@ -9,6 +9,8 @@ Version 0.5.3
 - Fix: Ignore read-only fields in ``PUT`` requests when their values aren't
   changed compared to the stored document (Bjorn Andersson.)
 
+- Docs: replace ``file`` with ``media`` type. Closes #566.
+
 Version 0.5.2
 -------------
 Released on 23 Feb, 2015. 
