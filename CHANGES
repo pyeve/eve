@@ -17,7 +17,7 @@ Version 0.6
   document media fields (Daniel Lytkin.)
 - New: ``etag_ignore_fields``. Resource setting with a list of fields belonging
   to the schema that won't be used to compute the ETag value. Defaults to
-  ``None``.
+  ``None`` (Olivier Carrère.)
 
 Version 0.5.3
 ~~~~~~~~~~~~~
