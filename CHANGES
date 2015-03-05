@@ -9,6 +9,21 @@ Development
 Version 0.6
 ~~~~~~~~~~~
 
+- New: Support for multiple MongoDB databases and/or servers. 
+
+  - ``mongo_prefix`` resource setting allows overriding of the default
+    ``MONGO`` prefix used when retrieving MongoDB settings from configuration.
+    For example, set a resource ``mongo_prefix`` to ``MONGO2`` to read/write
+    from the database configured with that prefix in your settings file
+    (``MONGO2_HOST``, ``MONGO2_DBNAME``, etc.)
+  - ``set_mongo_prefix()`` and ``get_mongo_prefix()`` have been added to
+    ``BasicAuth`` class and derivates. These can be used to arbitrarily set
+    the target database depending on the token/client performing the request.
+
+  Database connections are cached in order to not to loose performance. Also,
+  this change only affects the MongoDB engine, so extensions currently
+  targetting other databases should not need updates (they will not inherit
+  this feature however.)
 - New: Enable ``on_pre_GET`` hook for HEAD requests (Daniel Lytkin.).
 - New: Add ``X-Total-Count`` header for collection GET/HEAD requests (Daniel
   Lytkin.).
@@ -575,8 +590,7 @@ Released on September 30th, 2013.
 - HATEOAS is now optional and can be disabled both at global and resource
   level.
 - ``X-HTTP-Method-Override`` supported for all HTTP Methods. Closes #95.
-
- HTTP method is now passed into ``authenticate()`` and ``check_auth()`` (Ken
+- HTTP method is now passed into ``authenticate()`` and ``check_auth()`` (Ken
   Carpenter). Closes #90 .
 - Cleanup and hardening of User-Restricted Resource Access Edit (Bryan Cattle).
 - Account Management tutorial updated to reflect the event hooks naming update

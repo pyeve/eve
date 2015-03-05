@@ -781,6 +781,20 @@ always lowercase.
                                 to check that it's being written to multiple
                                 servers.)
                                 
+``mongo_prefix``                Allows overriding of the default ``MONGO``
+                                prefix, which is used when retrieving MongoDB
+                                settings from configuration.
+                                
+                                For example if ``mongo_prefix`` is set to
+                                ``MONGO2`` then, when serving requests for the
+                                endpoint, ``MONGO2`` prefixed settings will
+                                be used to access the database.
+
+                                This allows for eventually serving data from 
+                                a different database/server at every endpoint.
+
+                                See also: :ref:`authdrivendb`.
+
 ``authentication``              A class with the authorization logic for the 
                                 endpoint. If not provided the eventual
                                 general purpose auth class (passed as
