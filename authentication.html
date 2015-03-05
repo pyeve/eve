@@ -518,6 +518,44 @@ BCrypt-authentication example from above:</p>
 </pre></div>
 </div>
 </div>
+<div class="section" id="auth-driven-database-access">
+<span id="authdrivendb"></span><h2>Auth-driven Database Access<a class="headerlink" href="#auth-driven-database-access" title="Permalink to this headline">¶</a></h2>
+<p>Custom authentication classes can also set the database that should be used
+when serving the active request.</p>
+<p>Normally you either use a single database for the whole API or you configure
+which database each endpoint consumes by setting <tt class="docutils literal"><span class="pre">mongo_prefix</span></tt> to the
+desired value (see <a class="reference internal" href="config.html#local"><em>Resource / Item Endpoints</em></a>).</p>
+<p>However, you might opt to select the target database based on the active token,
+user or client. This is handy if your use-case includes user-dedicated database
+instances. All you have to do is set invoke the <tt class="docutils literal"><span class="pre">set_mongo_prefix()</span></tt> method
+when authenticating the request.</p>
+<p>A trivial example would be:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">BasicAuth</span>
+
+<span class="k">class</span> <span class="nc">MyBasicAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">username</span> <span class="o">==</span> <span class="s">&#39;user1&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_mongo_prefix</span><span class="p">(</span><span class="s">&#39;MONGO1&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">username</span> <span class="o">==</span> <span class="s">&#39;user2&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_mongo_prefix</span><span class="p">(</span><span class="s">&#39;MONGO2&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># serve all other users from the default db.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_mongo_prefix</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">username</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">password</span> <span class="o">==</span> <span class="s">&#39;secret&#39;</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">MyBasicAuth</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The above class will serve <tt class="docutils literal"><span class="pre">user1</span></tt> with data coming from the database which
+configuration settings are prefixed by <tt class="docutils literal"><span class="pre">MONGO1</span></tt> in <tt class="docutils literal"><span class="pre">settings.py</span></tt>. Same
+happens with <tt class="docutils literal"><span class="pre">user2</span></tt> and <tt class="docutils literal"><span class="pre">MONGO2</span></tt> while all other users are served with
+the default database.</p>
+<p>Since values set by <tt class="docutils literal"><span class="pre">set_mongo_prefix()</span></tt> have precedence over both default
+and endpoint-level <tt class="docutils literal"><span class="pre">mongo_prefix</span></tt> settings, what happens here is that the two
+users will always be served from their reserved databases, no matter the
+eventual database configuration for the endpoint.</p>
+</div>
 <div class="section" id="oauth2-integration">
 <h2>OAuth2 Integration<a class="headerlink" href="#oauth2-integration" title="Permalink to this headline">¶</a></h2>
 <p>Since you have total control over the Authorization process, integrating
@@ -596,6 +634,7 @@ folder of the Eve <a class="reference external" href="https://github.com/nicolai
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#role-based-access-control">Role Based Access Control</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#user-restricted-resource-access">User-Restricted Resource Access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#auth-driven-database-access">Auth-driven Database Access</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#oauth2-integration">OAuth2 Integration</a></li>
 </ul>
 </li>
@@ -607,7 +646,7 @@ folder of the Eve <a class="reference external" href="https://github.com/nicolai
 <li class="toctree-l1"><a class="reference internal" href="updates.html">Updates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Eve Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
 
 <p>You are looking at the documentation of the development version.</p>

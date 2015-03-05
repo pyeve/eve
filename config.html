@@ -939,7 +939,20 @@ to check that it&#8217;s being written to multiple
 servers.)</p>
 </td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">authentication</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">mongo_prefix</span></tt></td>
+<td><p class="first">Allows overriding of the default <tt class="docutils literal"><span class="pre">MONGO</span></tt>
+prefix, which is used when retrieving MongoDB
+settings from configuration.</p>
+<p>For example if <tt class="docutils literal"><span class="pre">mongo_prefix</span></tt> is set to
+<tt class="docutils literal"><span class="pre">MONGO2</span></tt> then, when serving requests for the
+endpoint, <tt class="docutils literal"><span class="pre">MONGO2</span></tt> prefixed settings will
+be used to access the database.</p>
+<p>This allows for eventually serving data from
+a different database/server at every endpoint.</p>
+<p class="last">See also: <a class="reference internal" href="authentication.html#authdrivendb"><em>Auth-driven Database Access</em></a>.</p>
+</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">authentication</span></tt></td>
 <td>A class with the authorization logic for the
 endpoint. If not provided the eventual
 general purpose auth class (passed as
@@ -947,14 +960,14 @@ application constructor argument) will be used.
 For details on authentication and authorization
 see <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a>.  Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>,</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">embedded_fields</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">embedded_fields</span></tt></td>
 <td>A list of fields for which <a class="reference internal" href="features.html#embedded-docs"><em>Embedded Resource Serialization</em></a>
 is enabled by default. For this feature to work
 properly fields in the list must be
 <tt class="docutils literal"><span class="pre">embeddable</span></tt>, and <tt class="docutils literal"><span class="pre">embedding</span></tt> must be
 active for the resource.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">query_objectid_as_string</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">query_objectid_as_string</span></tt></td>
 <td>When enabled the Mongo parser will avoid
 automatically casting electable strings to
 ObjectIds. This can be useful in those rare
@@ -963,7 +976,7 @@ database whose values can actually be casted to
 ObjectId values, but shouldn&#8217;t. Only effects
 queries (<tt class="docutils literal"><span class="pre">?where=</span></tt>). Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">internal_resource</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">internal_resource</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">True</span></tt>, this option makes the resource
 internal. No HTTP action can be performed on
 the endpoint, which is still accessible from
@@ -971,7 +984,7 @@ the Eve data layer. See
 <a class="reference internal" href="features.html#internal-resources"><em>Internal Resources</em></a> for more
 informations. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">etag_ignore_fields</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">etag_ignore_fields</span></tt></td>
 <td>List of fields that
 should not be used to compute the ETag value.
 Defaults to <tt class="docutils literal"><span class="pre">None</span></tt> which means that by
@@ -979,7 +992,7 @@ default all fields are included in the computation.
 It looks like <tt class="docutils literal"><span class="pre">['field1',</span> <span class="pre">'field2',</span>
 <span class="pre">'field3.nested_field',</span> <span class="pre">...]</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
 <td>A dict defining the actual data structure being
 handled by the resource. Enables data
 validation. See <a class="reference internal" href="#schema-definition">Schema Definition</a>.</td>

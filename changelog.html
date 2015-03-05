@@ -57,16 +57,36 @@
 <h2>Development<a class="headerlink" href="#development" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="version-0-6">
 <h3>Version 0.6<a class="headerlink" href="#version-0-6" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p class="first">New: Support for multiple MongoDB databases and/or servers.</p>
 <ul class="simple">
-<li>New: Enable <tt class="docutils literal"><span class="pre">on_pre_GET</span></tt> hook for HEAD requests (Daniel Lytkin.).</li>
-<li>New: Add <tt class="docutils literal"><span class="pre">X-Total-Count</span></tt> header for collection GET/HEAD requests (Daniel
-Lytkin.).</li>
-<li>New: <tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt>, <tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt> and <tt class="docutils literal"><span class="pre">MEDIA_URL</span></tt> allow for
+<li><tt class="docutils literal"><span class="pre">mongo_prefix</span></tt> resource setting allows overriding of the default
+<tt class="docutils literal"><span class="pre">MONGO</span></tt> prefix used when retrieving MongoDB settings from configuration.
+For example, set a resource <tt class="docutils literal"><span class="pre">mongo_prefix</span></tt> to <tt class="docutils literal"><span class="pre">MONGO2</span></tt> to read/write
+from the database configured with that prefix in your settings file
+(<tt class="docutils literal"><span class="pre">MONGO2_HOST</span></tt>, <tt class="docutils literal"><span class="pre">MONGO2_DBNAME</span></tt>, etc.)</li>
+<li><tt class="docutils literal"><span class="pre">set_mongo_prefix()</span></tt> and <tt class="docutils literal"><span class="pre">get_mongo_prefix()</span></tt> have been added to
+<tt class="docutils literal"><span class="pre">BasicAuth</span></tt> class and derivates. These can be used to arbitrarily set
+the target database depending on the token/client performing the request.</li>
+</ul>
+<p>Database connections are cached in order to not to loose performance. Also,
+this change only affects the MongoDB engine, so extensions currently
+targetting other databases should not need updates (they will not inherit
+this feature however.)</p>
+</li>
+<li><p class="first">New: Enable <tt class="docutils literal"><span class="pre">on_pre_GET</span></tt> hook for HEAD requests (Daniel Lytkin.).</p>
+</li>
+<li><p class="first">New: Add <tt class="docutils literal"><span class="pre">X-Total-Count</span></tt> header for collection GET/HEAD requests (Daniel
+Lytkin.).</p>
+</li>
+<li><p class="first">New: <tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt>, <tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt> and <tt class="docutils literal"><span class="pre">MEDIA_URL</span></tt> allow for
 serving files at a dedicated media endpoint while urls are returned in
-document media fields (Daniel Lytkin.)</li>
-<li>New: <tt class="docutils literal"><span class="pre">etag_ignore_fields</span></tt>. Resource setting with a list of fields belonging
+document media fields (Daniel Lytkin.)</p>
+</li>
+<li><p class="first">New: <tt class="docutils literal"><span class="pre">etag_ignore_fields</span></tt>. Resource setting with a list of fields belonging
 to the schema that won&#8217;t be used to compute the ETag value. Defaults to
-<tt class="docutils literal"><span class="pre">None</span></tt> (Olivier Carrère.)</li>
+<tt class="docutils literal"><span class="pre">None</span></tt> (Olivier Carrère.)</p>
+</li>
 </ul>
 </div>
 <div class="section" id="version-0-5-3">
@@ -617,14 +637,8 @@ to be embedded within the requested document (Bryan Cattle).  Closes #68.</li>
 <li>HATEOAS is now optional and can be disabled both at global and resource
 level.</li>
 <li><tt class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></tt> supported for all HTTP Methods. Closes #95.</li>
-</ul>
-<blockquote>
-<div><dl class="docutils">
-<dt>HTTP method is now passed into <tt class="docutils literal"><span class="pre">authenticate()</span></tt> and <tt class="docutils literal"><span class="pre">check_auth()</span></tt> (Ken</dt>
-<dd>Carpenter). Closes #90 .</dd>
-</dl>
-</div></blockquote>
-<ul class="simple">
+<li>HTTP method is now passed into <tt class="docutils literal"><span class="pre">authenticate()</span></tt> and <tt class="docutils literal"><span class="pre">check_auth()</span></tt> (Ken
+Carpenter). Closes #90 .</li>
 <li>Cleanup and hardening of User-Restricted Resource Access Edit (Bryan Cattle).</li>
 <li>Account Management tutorial updated to reflect the event hooks naming update
 introduced in v0.0.9.</li>
