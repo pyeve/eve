@@ -560,10 +560,14 @@ uppercase.
 
 ``JSONP_ARGUMENT``                  This option will cause the response to be
                                     wrapped in a JavaScript function call if
-                                    the argument is set in the request.
-                                    Defaults to ``None``.
+                                    the argument is set in the request. For
+                                    example if you set ``JSON_ARGUMENT
+                                    = 'callback'``, then all responses to
+                                    ``?callback=funcname`` requests will be
+                                    wrapped in a ``funcname`` call. Defaults to
+                                    ``None``.
 
-=============================== =========================================
+=================================== =========================================
 
 .. _domain:
 
