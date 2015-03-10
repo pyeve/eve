@@ -682,6 +682,26 @@ well. For more information see <a class="reference internal" href="authenticatio
 that is usually restricted by most broswers &#8216;same domain&#8217; security policy.
 Eve-powered APIs can be accessed by the JavaScript contained in web pages.</p>
 </div>
+<div class="section" id="jsonp-support">
+<h2>JSONP Support<a class="headerlink" href="#jsonp-support" title="Permalink to this headline">¶</a></h2>
+<p>In general you don&#8217;t really want to add JSONP when you can enable CORS instead:</p>
+<blockquote>
+<div>There have been some criticisms raised about JSONP. Cross-origin resource
+sharing (CORS) is a more recent method of getting data from a server in
+a different domain, which addresses some of those criticisms. All modern
+browsers now support CORS making it a viable cross-browser alternative (<a class="reference external" href="http://en.wikipedia.org/wiki/JSONP">source</a>.)</div></blockquote>
+<p>There are circumstances however when you do need JSONP, like when you have to
+support legacy software (IE6 anyone?)</p>
+<p>To enable JSONP in Eve you just set
+<tt class="docutils literal"><span class="pre">JSONP_ARGUMENT</span></tt>. Then, any valid request with <tt class="docutils literal"><span class="pre">JSONP_ARGUMENT</span></tt> will get
+back a response wrapped with said argument value. For example if you set
+<tt class="docutils literal"><span class="pre">JSON_ARGUMENT</span> <span class="pre">=</span> <span class="pre">'callback'</span></tt>:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://localhost:5000/?callback<span class="o">=</span>hello
+<span class="go">hello(&lt;JSON here&gt;)</span>
+</pre></div>
+</div>
+<p>Requests with no <tt class="docutils literal"><span class="pre">callback</span></tt> argument will be served with no JSONP.</p>
+</div>
 <div class="section" id="read-only-by-default">
 <h2>Read-only by default<a class="headerlink" href="#read-only-by-default" title="Permalink to this headline">¶</a></h2>
 <p>If all you need is a read-only API, then you can have it up and running in
@@ -1726,6 +1746,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li class="toctree-l2"><a class="reference internal" href="#document-versioning">Document Versioning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#authentication">Authentication</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cors-cross-origin-resource-sharing">CORS Cross-Origin Resource Sharing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#jsonp-support">JSONP Support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#read-only-by-default">Read-only by default</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#default-and-nullable-values">Default and Nullable Values</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#predefined-database-filters">Predefined Database Filters</a></li>

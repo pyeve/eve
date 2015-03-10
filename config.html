@@ -693,6 +693,16 @@ of unread posts using <tt class="docutils literal"><span class="pre">where</span
 loading posts themselves. Defaults to
 <tt class="docutils literal"><span class="pre">X-Total-Count</span></tt>.</td>
 </tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">JSONP_ARGUMENT</span></tt></td>
+<td>This option will cause the response to be
+wrapped in a JavaScript function call if
+the argument is set in the request. For
+example if you set <tt class="docutils literal"><span class="pre">JSON_ARGUMENT</span>
+<span class="pre">=</span> <span class="pre">'callback'</span></tt>, then all responses to
+<tt class="docutils literal"><span class="pre">?callback=funcname</span></tt> requests will be
+wrapped in a <tt class="docutils literal"><span class="pre">funcname</span></tt> call. Defaults to
+<tt class="docutils literal"><span class="pre">None</span></tt>.</td>
+</tr>
 </tbody>
 </table>
 </div>
