@@ -12,6 +12,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.6
+       'JSONP_ARGUMENT' added and set to None.
        'HEADER_TOTAL_COUNT' added and set to 'X-Total-Count'.
        'RETURN_MEDIA_AS_URL' added and set to None.
        'MEDIA_ENDPOINT' added and set to 'media'.
@@ -135,6 +136,7 @@ VERSIONING = False              # turn document versioning on or off.
 VERSIONS = '_versions'          # suffix for parallel collection w/old versions
 VERSION_PARAM = 'version'       # URL param for specific version of a document.
 INTERNAL_RESOURCE = False       # resources are public by default.
+JSONP_ARGUMENT = None           # JSONP disabled by default.
 
 OPLOG = False                   # oplog is disabled by default.
 OPLOG_NAME = 'oplog'            # default oplog resource name.

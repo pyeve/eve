@@ -9,6 +9,7 @@ Development
 Version 0.6
 ~~~~~~~~~~~
 
+- New: JSONP Support (Tim Jacobi.)
 - New: Support for multiple MongoDB databases and/or servers. 
 
   - ``mongo_prefix`` resource setting allows overriding of the default

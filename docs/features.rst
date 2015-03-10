@@ -699,6 +699,31 @@ Disabled by default, CORS_ allows web pages to work with REST APIs, something
 that is usually restricted by most broswers 'same domain' security policy.
 Eve-powered APIs can be accessed by the JavaScript contained in web pages.
 
+JSONP Support
+-------------
+In general you don't really want to add JSONP when you can enable CORS instead:
+
+    There have been some criticisms raised about JSONP. Cross-origin resource
+    sharing (CORS) is a more recent method of getting data from a server in
+    a different domain, which addresses some of those criticisms. All modern
+    browsers now support CORS making it a viable cross-browser alternative (source_.)
+
+There are circumstances however when you do need JSONP, like when you have to
+support legacy software (IE6 anyone?) 
+
+To enable JSONP in Eve you just set
+``JSONP_ARGUMENT``. Then, any valid request with ``JSONP_ARGUMENT`` will get
+back a response wrapped with said argument value. For example if you set
+``JSON_ARGUMENT = 'callback'``:
+
+.. code-block:: console
+
+    $ curl -i http://localhost:5000/?callback=hello
+    hello(<JSON here>)
+
+Requests with no ``callback`` argument will be served with no JSONP.
+ 
+
 Read-only by default
 --------------------
 If all you need is a read-only API, then you can have it up and running in
@@ -1674,3 +1699,4 @@ for unittesting_ and an `extensive documentation`_.
 .. _`capped collection`: http://docs.mongodb.org/manual/ore/capped-collections/
 .. _`Replica Set Oplog`: http://docs.mongodb.org/manual/core/replica-set-oplog/
 .. _`extensions page`: http://python-eve.org/extensions
+.. _source: http://en.wikipedia.org/wiki/JSONP
