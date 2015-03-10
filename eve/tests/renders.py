@@ -111,7 +111,7 @@ class TestRenders(TestBase):
         self.app.config['JSONP_ARGUMENT'] = arg
         val = "JSON_CALLBACK"
         r = self.test_client.get('/?%s=%s' % (arg, val))
-        self.assertTrue(r.get_data().startswith(val))
+        self.assertTrue(r.get_data().decode('utf-8').startswith(val))
 
     def test_CORS(self):
         # no CORS headers if Origin is not provided with the request.
