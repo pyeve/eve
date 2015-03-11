@@ -300,6 +300,9 @@ def serialize(document, resource=None, schema=None, fields=None):
     """ Recursively handles field values that require data-aware serialization.
     Relies on the app.data.serializers dictionary.
 
+    .. versionchanged:: 0.6
+       Add support for normalizing dotted fields.
+
     .. versionchanged:: 0.5.3
        Don't block on custom serialization errors so the whole document can
        be processed. See #568.
@@ -312,6 +315,9 @@ def serialize(document, resource=None, schema=None, fields=None):
 
     .. versionadded:: 0.1.1
     """
+
+    normalize_dotted_fields(document)
+
     if app.data.serializers:
         if resource:
             schema = config.DOMAIN[resource]['schema']
@@ -368,6 +374,41 @@ def serialize(document, resource=None, schema=None, fields=None):
                         # back the issue.
                         pass
     return document
+
+
+def normalize_dotted_fields(document):
+    """ Normalizes eventual dotted fields so validation can be performed
+    seamlessly. For example this document:
+
+        {"location.city": "a nested cisty"}
+
+    would be normalized to:
+
+        {"location": {"city": "a nested city"}}
+
+    Being recursive, normalizing of sub-documents is also supported. For
+    example:
+
+        {"location": {"city": "a city", "sub.address": "a subaddress"}}
+
+    would be normalized to:
+
+        {"location": {"city": "a city", "sub": {"address": "a subaddress}}}
+
+    .. versionadded:: 0.6
+    """
+    for field in document.keys():
+        if '.' in field:
+            parts = field.split('.')
+            prev = document
+            for part in parts[:-1]:
+                if part not in prev:
+                    prev[part] = {}
+                prev = prev[part]
+            prev[parts[-1]] = document[field]
+            document.pop(field)
+        elif isinstance(document[field], dict):
+            normalize_dotted_fields(document[field])
 
 
 def build_response_document(

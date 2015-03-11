@@ -265,6 +265,17 @@ class TestPut(TestBase):
                                  headers=headers)
         self.assertTrue('Etag' in r.headers)
 
+    def test_put_nested(self):
+        changes = {
+            'ref': '1234567890123456789012345',
+            'location.city': 'a nested city',
+            'location.address': 'a nested address'
+        }
+        r = self.perform_put(changes)
+        values = self.compare_put_with_get('location', r)
+        self.assertEqual(values['city'], 'a nested city')
+        self.assertEqual(values['address'], 'a nested address')
+
     def perform_put(self, changes):
         r, status = self.put(self.item_id_url,
                              data=changes,

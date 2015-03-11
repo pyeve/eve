@@ -203,6 +203,14 @@ class TestPatch(TestBase):
                                    headers=headers)
         self.assertTrue('Etag' in r.headers)
 
+    def test_patch_nested(self):
+        changes = {'location.city': 'a nested city',
+                   'location.address': 'a nested address'}
+        r = self.perform_patch(changes)
+        values = self.compare_patch_with_get('location', r)
+        self.assertEqual(values['city'], 'a nested city')
+        self.assertEqual(values['address'], 'a nested address')
+
     def perform_patch(self, changes):
         r, status = self.patch(self.item_id_url,
                                data=changes,
