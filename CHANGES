@@ -9,6 +9,24 @@ Development
 Version 0.6
 ~~~~~~~~~~~
 
+- New: Support for dotted notation in POST, PATCH and PUT methods. Be aware
+  that, for PATCH and PUT, if dot notation is used even on just one field,
+  the whole sub-document will be replaced. So if this document is stored:
+  
+  ``{"name": "john", "location": {"city": "New York", "address": "address"}}``
+  
+  A PATCH like this:
+
+    ``{"location.city": "Boston"}``
+
+  (which is exactly equivalent to:)
+
+    ``{"location": {"city": "a nested city"}}``
+
+  Will update the document to:
+  
+  ``{"name": "john", "location": {"city": "Boston"}}``
+
 - New: JSONP Support (Tim Jacobi.)
 - New: Support for multiple MongoDB databases and/or servers. 
 

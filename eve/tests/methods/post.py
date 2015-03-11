@@ -543,6 +543,16 @@ class TestPost(TestBase):
             r, _, _, status = post_internal(self.known_resource, payl=payload)
         self.assert201(status)
 
+    def test_post_nested(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        data = {'location.city': 'a nested city',
+                'location.address': 'a nested address'}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert201(status)
+        values = self.compare_post_with_get(r[ID_FIELD], ['location']).pop()
+        self.assertEqual(values['city'], 'a nested city')
+        self.assertEqual(values['address'], 'a nested address')
+
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
