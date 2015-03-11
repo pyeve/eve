@@ -58,6 +58,21 @@
 <div class="section" id="version-0-6">
 <h3>Version 0.6<a class="headerlink" href="#version-0-6" title="Permalink to this headline">¶</a></h3>
 <ul>
+<li><p class="first">New: Support for dotted notation in POST, PATCH and PUT methods. Be aware
+that, for PATCH and PUT, if dot notation is used even on just one field,
+the whole sub-document will be replaced. So if this document is stored:</p>
+<p><tt class="docutils literal"><span class="pre">{&quot;name&quot;:</span> <span class="pre">&quot;john&quot;,</span> <span class="pre">&quot;location&quot;:</span> <span class="pre">{&quot;city&quot;:</span> <span class="pre">&quot;New</span> <span class="pre">York&quot;,</span> <span class="pre">&quot;address&quot;:</span> <span class="pre">&quot;address&quot;}}</span></tt></p>
+<p>A PATCH like this:</p>
+<blockquote>
+<div><p><tt class="docutils literal"><span class="pre">{&quot;location.city&quot;:</span> <span class="pre">&quot;Boston&quot;}</span></tt></p>
+</div></blockquote>
+<p>(which is exactly equivalent to:)</p>
+<blockquote>
+<div><p><tt class="docutils literal"><span class="pre">{&quot;location&quot;:</span> <span class="pre">{&quot;city&quot;:</span> <span class="pre">&quot;a</span> <span class="pre">nested</span> <span class="pre">city&quot;}}</span></tt></p>
+</div></blockquote>
+<p>Will update the document to:</p>
+<p><tt class="docutils literal"><span class="pre">{&quot;name&quot;:</span> <span class="pre">&quot;john&quot;,</span> <span class="pre">&quot;location&quot;:</span> <span class="pre">{&quot;city&quot;:</span> <span class="pre">&quot;Boston&quot;}}</span></tt></p>
+</li>
 <li><p class="first">New: JSONP Support (Tim Jacobi.)</p>
 </li>
 <li><p class="first">New: Support for multiple MongoDB databases and/or servers.</p>
