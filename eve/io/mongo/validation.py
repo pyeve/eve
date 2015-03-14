@@ -34,6 +34,7 @@ class Validator(Validator):
     :param resource: the resource name.
 
     .. versionchanged:: 0.6.2
+       __init__ signature update for cerberus v0.8.1 compatibility.
        Remove support for 'transparent_schema_rules' in favor of explicit
        validators for rules unsupported by cerberus.
 
@@ -49,7 +50,7 @@ class Validator(Validator):
        Support for 'transparent_schema_rules' introduced with Cerberus 0.0.3,
        which allows for insertion of 'default' values in POST requests.
     """
-    def __init__(self, schema=None, resource=None):
+    def __init__(self, schema=None, resource=None, allow_unknown=False):
         self.resource = resource
         self._id = None
         self._original_document = None
