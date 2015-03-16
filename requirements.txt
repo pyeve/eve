@@ -1,4 +1,4 @@
-Cerberus==0.8
+Cerberus==0.8.1
 Events==0.2.1
 Flask-PyMongo==0.3.0
 Flask==0.10.1
