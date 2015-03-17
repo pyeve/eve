@@ -53,8 +53,13 @@ Version 0.6
   to the schema that won't be used to compute the ETag value. Defaults to
   ``None`` (Olivier Carrère.)
 
+Stable
+------
+
 Version 0.5.3
 ~~~~~~~~~~~~~
+
+Released on 17 March, 2015.
 
 - Fix: Support for Cerberus 0.8.1.
 - Fix: Don't block on first field serialization exception. Closes #568.
@@ -63,11 +68,9 @@ Version 0.5.3
 
 - Docs: replace ``file`` with ``media`` type. Closes #566.
 
-Stable
-------
-
 Version 0.5.2
 ~~~~~~~~~~~~~
+
 Released on 23 Feb, 2015. 
 Codename: 'Giulia'.
 
