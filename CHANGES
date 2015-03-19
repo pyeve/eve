@@ -91,6 +91,8 @@ Codename: 'Giulia'.
   options. Closes #551.
 
 - Change: Werkzeug 0.10.1 is now required.
+- Change: ``DataLayer`` API methods ``update()`` and ``replace()`` have a new
+  ``original`` argument.
 
 Version 0.5.1
 ~~~~~~~~~~~~~
