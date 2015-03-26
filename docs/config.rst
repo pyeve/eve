@@ -534,7 +534,7 @@ uppercase.
 
 ``OPLOG_METHODS``                   List of HTTP methods which operations 
                                     should be logged in the :ref:`oplog`.
-                                    Defaults to ``['DELETE', 'POST, 'PATCH',
+                                    Defaults to ``['DELETE', 'POST', 'PATCH',
                                     'PUT']``.
 
 ``OPLOG_ENDPOINT``                  Name of the :ref:`oplog` endpoint. If the 
