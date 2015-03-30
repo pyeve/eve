@@ -257,6 +257,13 @@ uppercase.
                                     a list of headers names. Defaults to
                                     ``None``.
 
+``X_ALLOW_CREDENTIALS``             CORS (Cross-Origin Resource Sharing) support.
+                                    Allows API maintainers to specify if cookies can
+                                    be sent by clients.
+                                    The only allowed value is: ``True``, any other
+                                    will be ignored. Defaults to
+                                    ``None``.
+
 ``X_MAX_AGE``                       CORS (Cross-Origin Resource Sharing) 
                                     support. Allows to set max age for the
                                     access control allow header. Defaults to
