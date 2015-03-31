@@ -120,6 +120,7 @@ ITEM_CACHE_CONTROL = ''
 X_DOMAINS = None                # CORS disabled by default.
 X_HEADERS = None                # CORS disabled by default.
 X_EXPOSE_HEADERS = None         # CORS disabled by default.
+X_ALLOW_CREDENTIALS = None      # CORS disabled by default.
 X_MAX_AGE = 21600               # Access-Control-Max-Age when CORS is enabled
 HATEOAS = True                  # HATEOAS enabled by default.
 IF_MATCH = True                 # IF_MATCH (ETag match) enabled by default.

@@ -202,6 +202,10 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         else:
             expose_headers = config.X_EXPOSE_HEADERS
 
+        # The only accepted value for Access-Control-Allow-Credentials header
+        # is "true"
+        allow_credentials = config.X_ALLOW_CREDENTIALS is True
+
         methods = app.make_default_options_response().headers.get('allow', '')
 
         if '*' in domains:
@@ -216,6 +220,8 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
                          ', '.join(expose_headers))
         resp.headers.add('Access-Control-Allow-Methods', methods)
         resp.headers.add('Access-Control-Allow-Max-Age', config.X_MAX_AGE)
+        if allow_credentials:
+            resp.headers.add('Access-Control-Allow-Credentials', "true")
 
     # Rate-Limiting
     limit = get_rate_limit()

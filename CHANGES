@@ -9,7 +9,8 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
-- New: Support for dotted notation in POST, PATCH and PUT methods. Be aware
+- New: CORS: Support for ``X-ALLOW-CREDENTIALS`` (Cyprien Pannier.)
+- New: Support for dot notation in POST, PATCH and PUT methods. Be aware
   that, for PATCH and PUT, if dot notation is used even on just one field,
   the whole sub-document will be replaced. So if this document is stored:
   
