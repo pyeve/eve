@@ -211,6 +211,13 @@ class TestPatch(TestBase):
         self.assertEqual(values['city'], 'a nested city')
         self.assertEqual(values['address'], 'a nested address')
 
+    def test_patch_nested_replaces_subdoc(self):
+        changes = {'location.city': 'a nested city'}
+        r = self.perform_patch(changes)
+        values = self.compare_patch_with_get('location', r)
+        self.assertEqual(values['city'], 'a nested city')
+        self.assertTrue(values.get('address', None) is None)
+
     def perform_patch(self, changes):
         r, status = self.patch(self.item_id_url,
                                data=changes,
