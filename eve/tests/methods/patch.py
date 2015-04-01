@@ -204,7 +204,8 @@ class TestPatch(TestBase):
         self.assertTrue('Etag' in r.headers)
 
     def test_patch_nested(self):
-        changes = {'location': {'city': 'a nested city', 'address': 'a nested address'}}
+        changes = {'location': {'city': 'a nested city',
+                                'address': 'a nested address'}}
         r = self.perform_patch(changes)
         values = self.compare_patch_with_get('location', r)
         self.assertEqual(values['city'], 'a nested city')
@@ -456,7 +457,10 @@ class TestPatch(TestBase):
             r['test'],
             r['sensor']['dict']['int']
         )
+        self.assertEqual(test, 'default')
 
+        dict_schema = self.domain['sensors']['schema']['sensor']['schema']
+        dict_schema['dict']['schema']['int']['readonly'] = True
         changes = {
             'sensor': {
                 'lon': 10.0,
@@ -471,13 +475,11 @@ class TestPatch(TestBase):
         )
         self.assert200(status)
 
-        etag, value, int = (
+        etag, int = (
             r[ETAG],
-            r['sensor']['value'],
             r['sensor']['dict']['int']
         )
         self.assertEqual(value, 10.3)
-        self.assertEqual(test, 'default')
         self.assertEqual(int, 99)
 
     def test_patch_nested_document_nullable_missing(self):
