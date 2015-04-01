@@ -54,17 +54,6 @@ MongoDB*, are `available online`_. You might want to check them out to understan
 why and how certain design decisions were made, especially with regards to REST
 implementation.
 
-Roadmap
--------
-In no particular order, here's a partial list of the features that I plan/would
-like to add to Eve, provided that there is enough interest in the project.
-
-- Documentation (working on it!)
-- Granular exception handling
-- Server side caching
-- More authentication schemes
-- Support for MySQL and/or other SQL/NoSQL databases (WIP)
-
 BSD License 
 -----------
 A large number of open source projects you find today are GPL Licensed. While

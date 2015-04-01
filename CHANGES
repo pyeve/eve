@@ -1,10 +1,40 @@
-Eve Changelog
-=============
+Changelog
+=========
 
 Here you can see the full list of changes between each Eve release.
 
+Development
+-----------
+
+Version 0.6
+~~~~~~~~~~~
+
+- New: Enable ``on_pre_GET`` hook for HEAD requests (Daniel Lytkin.).
+- New: Add ``X-Total-Count`` header for collection GET/HEAD requests (Daniel
+  Lytkin.).
+- New: ``RETURN_MEDIA_AS_URL``, ``MEDIA_ENDPOINT`` and ``MEDIA_URL`` allow for
+  serving files at a dedicated media endpoint while urls are returned in
+  document media fields (Daniel Lytkin.)
+- New: ``etag_ignore_fields``. Resource setting with a list of fields belonging
+  to the schema that won't be used to compute the ETag value. Defaults to
+  ``None`` (Olivier Carrère.)
+
+Stable
+------
+
+Version 0.5.3
+~~~~~~~~~~~~~
+
+Released on 17 March, 2015.
+
+- Fix: Support for Cerberus 0.8.1.
+- Fix: Don't block on first field serialization exception. Closes #568.
+- Fix: Ignore read-only fields in ``PUT`` requests when their values aren't
+  changed compared to the stored document (Bjorn Andersson.)
+- Docs: replace ``file`` with ``media`` type. Closes #566.
+
 Version 0.5.2
--------------
+~~~~~~~~~~~~~
 
 Released on 23 Feb, 2015. 
 Codename: 'Giulia'.
@@ -28,7 +58,7 @@ Codename: 'Giulia'.
 - Change: Werkzeug 0.10.1 is now required.
 
 Version 0.5.1
--------------
+~~~~~~~~~~~~~
 
 Released on 16 Jan, 2015.
 
@@ -37,7 +67,7 @@ Released on 16 Jan, 2015.
 - Fix: pretty url for regex with a colon in the expression (Magdas Adrian.)
 
 Version 0.5
------------
+~~~~~~~~~~~
 
 Released on 12 Jan, 2015.
 
@@ -219,7 +249,7 @@ Released on 12 Jan, 2015.
 
 
 Version 0.4
------------
+~~~~~~~~~~~
 
 Released on 20 June, 2014.
 
@@ -344,7 +374,7 @@ Released on 20 June, 2014.
   item_lookup_field will default to ``ID_FIELD`` if blank. 
 
 Version 0.3
------------
+~~~~~~~~~~~
 
 Released on 14 February, 2014.
 
@@ -432,7 +462,7 @@ Released on 14 February, 2014.
 - [change] Cerberus v0.6 is now required.
 
 Version 0.2
------------
+~~~~~~~~~~~
 
 Released on 30 November, 2013.
 
@@ -493,12 +523,10 @@ Released on 30 November, 2013.
   on POST and PUT methods.
 
 Version 0.1.1
--------------
+~~~~~~~~~~~~~
 
 Released on October 31th, 2013.
 
-Enhancements
-~~~~~~~~~~~~
 - DELETE now uses the original document ID_FIELD when issuing the delete
   command to the underlying data layer (Xavi Cubillas).
 - Embedded Resource Serialization also available at item endpoints
@@ -528,8 +556,6 @@ Enhancements
 - Same behavior as Flask, SERVER_NAME now defaults to None. It allows much
   easier development on distant machine that may changes IP (Ronan Delacroix).
 
-Fixes
-~~~~~
 - CORS support was not available for ``additional_lookup`` urls (Petr Jašek.)
 - 'default' field values that could be assimilated to ``None`` (0, None, "")
   would be ignored.
@@ -539,12 +565,10 @@ Fixes
   flaskapp.validate_schema() (Roy Smith).
 
 Version 0.1
------------
+~~~~~~~~~~~
 
 Released on September 30th, 2013.
 
-New Features
-~~~~~~~~~~~~
 - ``PUT`` method for completely replace a document while keeping the same
   unique identifier. Closes #96.
 - Embedded Resource Serialization. If a document field is referencing
@@ -555,9 +579,7 @@ New Features
   level.
 - ``X-HTTP-Method-Override`` supported for all HTTP Methods. Closes #95.
 
-Enhancements
-~~~~~~~~~~~~
-- HTTP method is now passed into ``authenticate()`` and ``check_auth()`` (Ken
+ HTTP method is now passed into ``authenticate()`` and ``check_auth()`` (Ken
   Carpenter). Closes #90 .
 - Cleanup and hardening of User-Restricted Resource Access Edit (Bryan Cattle).
 - Account Management tutorial updated to reflect the event hooks naming update
@@ -567,8 +589,6 @@ Enhancements
 - PyMongo 2.6.2 is now supported.
 - Cerberus 0.4.0 is now supported.
 
-Fixes
-~~~~~
 - Item ``GET`` on documents with non-existent 'created' field (because
   stored outside of API context) were not returning a default value for the
   field.
@@ -585,7 +605,7 @@ Fixes
   (Ken Carpenter, Jean Boussier, Kracekumar, Francisco Corrales Morales).
 
 Version 0.0.9
--------------
+~~~~~~~~~~~~~
 
 Released on August 29, 2013
 
@@ -630,7 +650,7 @@ Released on August 29, 2013
 - Copyright finally updated to 2013.
 
 Version 0.0.8
--------------
+~~~~~~~~~~~~~
 
 Released on July 25th 2013.
 
@@ -665,7 +685,7 @@ Released on July 25th 2013.
   TestMinimal class (Daniele Pizzolli).
 
 Version 0.0.7
--------------
+~~~~~~~~~~~~~
 
 Released on June 18th 2013.
 
@@ -712,7 +732,7 @@ Released on June 18th 2013.
 - Support alternative hosts/ports for the test suite (Paul Doucet).
 
 Version 0.0.6
--------------
+~~~~~~~~~~~~~
 
 Released on May 13th 2013.
 
@@ -754,7 +774,7 @@ Released on May 13th 2013.
   with the global ``RESOURCE_METHODS`` (Nicolas Carlier).
 
 Version 0.0.5
--------------
+~~~~~~~~~~~~~
 
 Released on April 11th 2013.
 
@@ -796,7 +816,7 @@ Released on April 11th 2013.
   documents created outside the API context. Fixes #18.
 
 Version 0.0.4
--------------
+~~~~~~~~~~~~~
 
 Released on February 25th 2013.
 
@@ -837,7 +857,7 @@ Released on February 25th 2013.
   Internal Server Error (Fixes #8).
 
 Version 0.0.3
--------------
+~~~~~~~~~~~~~
 
 Released on January 22th 2013.
 
@@ -854,7 +874,7 @@ Released on January 22th 2013.
 
 
 Version 0.0.2
--------------
+~~~~~~~~~~~~~
 
 Released on November 27th 2012.
 
@@ -868,7 +888,7 @@ Released on November 27th 2012.
   signature, allowing for further subclassing.
 
 Version 0.0.1
--------------
+~~~~~~~~~~~~~
 
 Released on November 20th 2012.
 

@@ -34,6 +34,7 @@ class Validator(Validator):
     :param resource: the resource name.
 
     .. versionchanged:: 0.6.2
+       __init__ signature update for cerberus v0.8.1 compatibility.
        Remove support for 'transparent_schema_rules' in favor of explicit
        validators for rules unsupported by cerberus.
 
@@ -49,7 +50,7 @@ class Validator(Validator):
        Support for 'transparent_schema_rules' introduced with Cerberus 0.0.3,
        which allows for insertion of 'default' values in POST requests.
     """
-    def __init__(self, schema=None, resource=None):
+    def __init__(self, schema=None, resource=None, allow_unknown=False):
         self.resource = resource
         self._id = None
         self._original_document = None
@@ -68,7 +69,7 @@ class Validator(Validator):
         self._original_document = original_document
         return super(Validator, self).validate_update(document)
 
-    def validate_replace(self, document, _id):
+    def validate_replace(self, document, _id, original_document=None):
         """ Validation method to be invoked when performing a document
         replacement. This differs from :func:`validation_update` since in this
         case we want to perform a full :func:`validate` (the new document is to
@@ -79,6 +80,7 @@ class Validator(Validator):
         .. versionadded:: 0.1.0
         """
         self._id = _id
+        self._original_document = original_document
         return super(Validator, self).validate(document)
 
     def _validate_default(self, unique, field, value):

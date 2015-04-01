@@ -9,13 +9,15 @@
     :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-
 import time
-import base64
 from datetime import datetime
-from flask import current_app as app, request, abort, g, Response
+
+import base64
 import simplejson as json
+from bson.errors import InvalidId
+from flask import current_app as app, request, abort, g, Response
 from functools import wraps
+
 from eve.utils import parse_request, document_etag, config, request_method, \
     debug_error_message, auto_fields
 from eve.versioning import resolve_document_version, \
@@ -296,6 +298,10 @@ def serialize(document, resource=None, schema=None, fields=None):
     """ Recursively handles field values that require data-aware serialization.
     Relies on the app.data.serializers dictionary.
 
+    .. versionchanged:: 0.5.3
+       Don't block on custom serialization errors so the whole document can
+       be processed. See #568.
+
     .. versionchanged:: 0.5.2
        Fix serialization of keyschemas with objectids. See #525.
 
@@ -351,8 +357,14 @@ def serialize(document, resource=None, schema=None, fields=None):
                                 app.data.serializers[field_type](target[field])
                 elif field_type in app.data.serializers:
                     # a simple field
-                    document[field] = \
-                        app.data.serializers[field_type](document[field])
+                    try:
+                        document[field] = \
+                            app.data.serializers[field_type](document[field])
+                    except (ValueError, InvalidId):
+                        # value can't be casted, we continue processing the
+                        # rest of the document. Validation will later report
+                        # back the issue.
+                        pass
     return document
 
 

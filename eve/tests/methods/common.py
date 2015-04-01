@@ -1,10 +1,10 @@
 from datetime import datetime
+
 import simplejson as json
 from bson import ObjectId
-from bson.errors import InvalidId
 
-from eve.tests import TestBase
 from eve.methods.common import serialize
+from eve.tests import TestBase
 from eve.utils import config
 
 
@@ -59,19 +59,28 @@ class TestSerializer(TestBase):
             self.assertTrue(isinstance(ks['foo1'], ObjectId))
             self.assertTrue(isinstance(ks['foo2'], ObjectId))
 
-            # Fails
-            self.assertRaises(InvalidId, serialize, **dict(
-                document={'id': 'test'}, schema=schema
-            ))
-            self.assertRaises(ValueError, serialize, **dict(
-                document={'date': 'test'}, schema=schema
-            ))
-            self.assertRaises(ValueError, serialize, **dict(
-                document={'count': '10.0'}, schema=schema
-            ))
-            self.assertRaises(ValueError, serialize, **dict(
-                document={'average': 'test'}, schema=schema
-            ))
+    def test_non_blocking_on_simple_field_serialization_exception(self):
+        schema = {
+            'extract_time': {'type': 'datetime'},
+            'date': {'type': 'datetime'},
+            'total': {'type': 'integer'}
+        }
+
+        with self.app.app_context():
+            # Success
+            res = serialize(
+                {
+                    'extract_time': 'Tue, 06 Nov 2012 10:33:31 GMT',
+                    'date': 'Tue, 06 Nov 2012 10:33:31 GMT',
+                    'total': 'r123'
+                },
+                schema=schema
+            )
+            # this has been left untouched as it could not be serialized.
+            self.assertEqual(res['total'], 'r123')
+            # these have been both serialized.
+            self.assertTrue(isinstance(res['extract_time'], datetime))
+            self.assertTrue(isinstance(res['date'], datetime))
 
 
 class TestOpLog(TestBase):
