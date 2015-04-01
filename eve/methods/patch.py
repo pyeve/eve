@@ -176,7 +176,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
             getattr(app, "on_update")(resource, updates, original)
             getattr(app, "on_update_%s" % resource)(updates, original)
 
-            updates = resolve_nested_documents(updates, updated)
+            updates = resolve_nested_documents(updates, updated, schema)
             updated.update(updates)
 
             if config.IF_MATCH:
@@ -236,7 +236,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
     return response, last_modified, etag, status
 
 
-def resolve_nested_documents(updates, original):
+def resolve_nested_documents(updates, original, schema):
     """ Nested document updates are merged with the original contents
     we don't overwrite the whole thing. See #519 for details.
 
@@ -249,7 +249,16 @@ def resolve_nested_documents(updates, original):
             if orig_value is None:
                 r[field] = value
             else:
-                orig_value.update(resolve_nested_documents(value, orig_value))
+                schema = schema.get(field, {}).get('schema', {})
+
+                to_delete = [o_field for o_field, o_value in orig_value.items()
+                             if o_field not in value]
+                for key in [x for x in to_delete if not
+                            schema.get(x, {}).get('readonly', False)]:
+                    orig_value.pop(key, None)
+
+                nested = resolve_nested_documents(value, orig_value, schema)
+                orig_value.update(nested)
                 r[field] = orig_value
         else:
             r[field] = value

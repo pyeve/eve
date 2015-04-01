@@ -457,7 +457,10 @@ class TestPatch(TestBase):
             r['test'],
             r['sensor']['dict']['int']
         )
+        self.assertEqual(test, 'default')
 
+        dict_schema = self.domain['sensors']['schema']['sensor']['schema']
+        dict_schema['dict']['schema']['int']['readonly'] = True
         changes = {
             'sensor': {
                 'lon': 10.0,
@@ -472,13 +475,11 @@ class TestPatch(TestBase):
         )
         self.assert200(status)
 
-        etag, value, int = (
+        etag, int = (
             r[ETAG],
-            r['sensor']['value'],
             r['sensor']['dict']['int']
         )
         self.assertEqual(value, 10.3)
-        self.assertEqual(test, 'default')
         self.assertEqual(int, 99)
 
     def test_patch_nested_document_nullable_missing(self):
