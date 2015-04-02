@@ -15,6 +15,7 @@ from datetime import datetime
 import base64
 import simplejson as json
 from bson.errors import InvalidId
+from copy import copy
 from flask import current_app as app, request, abort, g, Response
 from functools import wraps
 
@@ -932,7 +933,7 @@ def resource_link():
     return path
 
 
-def oplog_push(resource, updates, op, id=None):
+def oplog_push(resource, document, op, id=None):
     """ Pushes an edit operation to the oplog if included in OPLOG_METHODS. To
     save on storage space (at least on MongoDB) field names are shortened:
 
@@ -948,17 +949,23 @@ def oplog_push(resource, updates, op, id=None):
     Resource-Access will keep working on the oplog endpoint too).
 
     :param resource: name of the resource involved.
-    :param updates: updates performed with the edit operation.
+    :param document: updates performed with the edit operation.
     :param op: operation performed. Can be 'POST', 'PUT', 'PATCH', 'DELETE'.
     :param id: unique id of the document.
+
+    .. versionchanged:: 0.5.4
+       Use a copy of original document in order to avoid altering its state.
+       See #590.
 
     .. versionadded:: 0.5
     """
     if not config.OPLOG or op not in config.OPLOG_METHODS:
         return
 
-    if updates is None:
+    if document is None:
         updates = {}
+    else:
+        updates = copy(document)
 
     if not isinstance(updates, list):
         updates = [updates]
