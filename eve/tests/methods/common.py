@@ -131,6 +131,20 @@ class TestOpLog(TestBase):
         oplog_entry = r['_items'][0]
         self.assertOpLogEntry(oplog_entry, 'PUT')
 
+    def test_put_oplog_does_not_alter_document(self):
+        """ Make sure we don't alter document ETag when performing an
+        oplog_push. See #590. """
+        self.headers.append(('If-Match', self.item_etag))
+        r = self.test_client.put(self.item_id_url,
+                                 data=json.dumps(self.data),
+                                 headers=self.headers,
+                                 environ_base={'REMOTE_ADDR': '127.0.0.1'})
+
+        etag1 = json.loads(r.get_data())['_etag']
+        etag2 = json.loads(
+            self.test_client.get(self.item_id_url).get_data())['_etag']
+        self.assertEqual(etag1, etag2)
+
     def test_delete_oplog(self):
         self.headers.append(('If-Match', self.item_etag))
         r = self.test_client.delete(self.item_id_url,

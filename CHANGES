@@ -19,6 +19,11 @@ Version 0.6
   to the schema that won't be used to compute the ETag value. Defaults to
   ``None`` (Olivier Carrère.)
 
+Version 0.5.4
+~~~~~~~~~~~~~
+
+- Fix: OpLog enabled makes PUT return wrong Etag. Closes #590.
+
 Stable
 ------
 
