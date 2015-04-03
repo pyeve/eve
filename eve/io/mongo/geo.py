@@ -25,8 +25,9 @@ class GeoJSON(dict):
             raise TypeError("Not compilant to GeoJSON")
 
     def _correct_position(self, position):
-        return isinstance(position, list) and isinstance(position[0], float) \
-            and isinstance(position[1], float)
+        return isinstance(position, list) and \
+            all(isinstance(pos, int) or isinstance(pos, float)
+                for pos in position)
 
 
 class Geometry(GeoJSON):
