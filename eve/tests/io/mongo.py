@@ -148,6 +148,12 @@ class TestMongoValidator(TestCase):
         self.assertTrue('location' in v.errors)
         self.assertTrue('Point' in v.errors['location'])
 
+    def test_point_integer_success(self):
+        schema = {'location': {'type': 'point'}}
+        doc = {'location': {'type': "Point", 'coordinates': [10, 123.0]}}
+        v = Validator(schema)
+        self.assertTrue(v.validate(doc))
+
     def test_linestring_success(self):
         schema = {'location': {'type': 'linestring'}}
         doc = {'location': {"type": "LineString",
