@@ -57,6 +57,9 @@ Version 0.6
 Version 0.5.4
 ~~~~~~~~~~~~~
 
+- Fix: Reinforce geometry validation (Joakim Uddholm.)
+- Fix: Geopoint coordinates do not accept integers. Closes #591 (Joakim
+  Uddholm.)
 - Fix: OpLog enabled makes PUT return wrong Etag. Closes #590.
 
 Stable

@@ -148,6 +148,12 @@ class TestMongoValidator(TestCase):
         self.assertTrue('location' in v.errors)
         self.assertTrue('Point' in v.errors['location'])
 
+    def test_point_integer_success(self):
+        schema = {'location': {'type': 'point'}}
+        doc = {'location': {'type': "Point", 'coordinates': [10, 123.0]}}
+        v = Validator(schema)
+        self.assertTrue(v.validate(doc))
+
     def test_linestring_success(self):
         schema = {'location': {'type': 'linestring'}}
         doc = {'location': {"type": "LineString",
@@ -239,6 +245,18 @@ class TestMongoValidator(TestCase):
                }
         v = Validator(schema)
         self.assertTrue(v.validate(doc))
+
+    def test_geometrycollection_fail(self):
+        schema = {'locations': {'type': 'geometrycollection'}}
+        doc = {'locations': {'type': "GeometryCollection",
+                             "geometries": [{"type": "GeoJSON",
+                                             "badinput": "lolololololol"}]
+                             }
+               }
+        v = Validator(schema)
+        self.assertFalse(v.validate(doc))
+        self.assertTrue('locations' in v.errors)
+        self.assertTrue('GeometryCollection' in v.errors['locations'])
 
     def test_dependencies_with_defaults(self):
         schema = {
