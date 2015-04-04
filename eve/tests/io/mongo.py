@@ -246,6 +246,18 @@ class TestMongoValidator(TestCase):
         v = Validator(schema)
         self.assertTrue(v.validate(doc))
 
+    def test_geometrycollection_fail(self):
+        schema = {'locations': {'type': 'geometrycollection'}}
+        doc = {'locations': {'type': "GeometryCollection",
+                             "geometries": [{"type": "GeoJSON",
+                                             "badinput": "lolololololol"}]
+                             }
+               }
+        v = Validator(schema)
+        self.assertFalse(v.validate(doc))
+        self.assertTrue('locations' in v.errors)
+        self.assertTrue('GeometryCollection' in v.errors['locations'])
+
     def test_dependencies_with_defaults(self):
         schema = {
             'test_field': {'dependencies': 'foo'},

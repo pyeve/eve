@@ -10,11 +10,8 @@
     :license: BSD, see LICENSE for more details.
 """
 
-import sys
-
 
 class GeoJSON(dict):
-
     def __init__(self, json):
         try:
             self['type'] = json['type']
@@ -31,7 +28,6 @@ class GeoJSON(dict):
 
 
 class Geometry(GeoJSON):
-
     def __init__(self, json):
         super(Geometry, self).__init__(json)
         try:
@@ -43,21 +39,19 @@ class Geometry(GeoJSON):
 
 
 class GeometryCollection(GeoJSON):
-
     def __init__(self, json):
         super(GeometryCollection, self).__init__(json)
         try:
             if not isinstance(self['geometries'], list):
                 raise TypeError
             for geometry in self['geometries']:
-                factory = getattr(sys.modules[__name__], geometry["type"])
+                factory = factories[geometry["type"]]
                 factory(geometry)
         except (KeyError, TypeError, AttributeError):
             raise TypeError("Geometry not compilant to GeoJSON")
 
 
 class Point(Geometry):
-
     def __init__(self, json):
         super(Point, self).__init__(json)
         if not self._correct_position(self['coordinates']):
@@ -73,7 +67,6 @@ class MultiPoint(GeoJSON):
 
 
 class LineString(GeoJSON):
-
     def __init__(self, json):
         super(LineString, self).__init__(json)
         for position in self["coordinates"]:
@@ -82,7 +75,6 @@ class LineString(GeoJSON):
 
 
 class MultiLineString(GeoJSON):
-
     def __init__(self, json):
         super(MultiLineString, self).__init__(json)
         for linestring in self["coordinates"]:
@@ -92,7 +84,6 @@ class MultiLineString(GeoJSON):
 
 
 class Polygon(GeoJSON):
-
     def __init__(self, json):
         super(Polygon, self).__init__(json)
         for linestring in self["coordinates"]:
@@ -102,7 +93,6 @@ class Polygon(GeoJSON):
 
 
 class MultiPolygon(GeoJSON):
-
     def __init__(self, json):
         super(MultiPolygon, self).__init__(json)
         for polygon in self["coordinates"]:
@@ -110,3 +100,9 @@ class MultiPolygon(GeoJSON):
                 for position in linestring:
                     if not self._correct_position(position):
                         raise TypeError
+
+
+factories = dict([(_type.__name__, _type)
+                  for _type in
+                  [GeometryCollection, Point, MultiPoint, LineString,
+                  MultiLineString, Polygon, MultiPolygon]])
