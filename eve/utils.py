@@ -23,7 +23,7 @@ from eve import RFC1123_DATE_FORMAT
 
 
 class Config(object):
-    """ Helper class used trorough the code to access configuration settings.
+    """ Helper class used through the code to access configuration settings.
     If the main flaskapp object is not instantiated yet, returns the default
     setting in the eve __init__.py module, otherwise returns the flaskapp
     config value (which value might override the static defaults).
