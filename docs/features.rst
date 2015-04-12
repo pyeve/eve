@@ -1454,7 +1454,7 @@ Storing a contact along with its location is pretty straightforward:
 
 Querying GeoJSON Data
 ~~~~~~~~~~~~~~~~~~~~~
-As a genera rule all MongoDB `geospatial query operators`_ and their associated
+As a general rule all MongoDB `geospatial query operators`_ and their associated
 geometry specifiers are supported. In this example we are using the `$near`_
 operator to query for all contacts living in a location within 1000 meters from
 a certain point:
