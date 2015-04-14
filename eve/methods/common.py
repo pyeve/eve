@@ -497,6 +497,7 @@ def resolve_embedded_fields(resource, req):
     .. versionadded:: 0.4
     """
     embedded_fields = []
+    non_embedded_fields = []
     if req.embedded:
         # Parse the embedded clause, we are expecting
         # something like:   '{"user":1}'
