@@ -640,7 +640,6 @@ class TestGet(TestBase):
         self.assertTrue('location' in content['_items'][0]['person'])
 
         # Test that default fields are overwritten by ?embedded=...0
-        invoices['embedded_fields'] = ['person']
         embedded = '{"person": 0}'
         r = self.test_client.get("%s/%s" % (invoices['url'],
                                             '?embedded=%s' % embedded))
@@ -737,7 +736,7 @@ class TestGet(TestBase):
         self.assertTrue('location' in content['departments'][0]['members'][0])
 
         # Test default fields to be embedded
-        companies['embedded_fields'] = {"departments.members": 1}
+        companies['embedded_fields'] = ["departments.members"]
         r = self.test_client.get('%s/' % companies['url'])
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
@@ -745,7 +744,6 @@ class TestGet(TestBase):
                         content['_items'][0]['departments'][0]['members'][0])
 
         # Test that default fields are overwritten by ?embedded=...0
-        companies['embedded_fields'] = ["departments.members"]
         embedded = '{"departments.members": 0}'
         r = self.test_client.get('%s/%s' % (companies['url'],
                                             '?embedded=%s' % embedded))
