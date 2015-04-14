@@ -497,6 +497,7 @@ def resolve_embedded_fields(resource, req):
     .. versionadded:: 0.4
     """
     embedded_fields = []
+    non_embedded_fields = []
     if req.embedded:
         # Parse the embedded clause, we are expecting
         # something like:   '{"user":1}'
@@ -511,6 +512,8 @@ def resolve_embedded_fields(resource, req):
         try:
             embedded_fields = [k for k, v in client_embedding.items()
                                if v == 1]
+            non_embedded_fields = [k for k, v in client_embedding.items()
+                                   if v == 0]
         except AttributeError:
             # We got something other than a dict
             abort(400, description=debug_error_message(
@@ -518,8 +521,8 @@ def resolve_embedded_fields(resource, req):
             ))
 
     embedded_fields = list(
-        set(config.DOMAIN[resource]['embedded_fields']) |
-        set(embedded_fields))
+        (set(config.DOMAIN[resource]['embedded_fields']) |
+         set(embedded_fields)) - set(non_embedded_fields))
 
     # For each field, is the field allowed to be embedded?
     # Pick out fields that have a `data_relation` where `embeddable=True`
