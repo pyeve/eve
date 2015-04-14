@@ -632,6 +632,22 @@ class TestGet(TestBase):
         content = json.loads(r.get_data())
         self.assertFalse('missing-field' in content['_items'][0])
 
+        # Test default fields to be embedded
+        invoices['embedded_fields'] = ['person']
+        r = self.test_client.get("%s/" % invoices['url'])
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('location' in content['_items'][0]['person'])
+
+        # Test that default fields are overwritten by ?embedded=...0
+        invoices['embedded_fields'] = ['person']
+        embedded = '{"person": 0}'
+        r = self.test_client.get("%s/%s" % (invoices['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertFalse('location' in content['_items'][0]['person'])
+
     def test_get_custom_embedded(self):
         self.app.config['QUERY_EMBEDDED'] = 'included'
         # We need to assign a `person` to our test invoice
@@ -727,6 +743,16 @@ class TestGet(TestBase):
         content = json.loads(r.get_data())
         self.assertTrue('location' in
                         content['_items'][0]['departments'][0]['members'][0])
+
+        # Test that default fields are overwritten by ?embedded=...0
+        companies['embedded_fields'] = ["departments.members"]
+        embedded = '{"departments.members": 0}'
+        r = self.test_client.get('%s/%s' % (companies['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertFalse('location' in
+                         content['_items'][0]['departments'][0]['members'][0])
 
     def test_get_nested_resource(self):
         response, status = self.get('users/overseas')
