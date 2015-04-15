@@ -829,8 +829,9 @@ always lowercase.
                                 ObjectIds. This can be useful in those rare
                                 occurrences where you have string fields in the
                                 database whose values can actually be casted to
-                                ObjectId values, but shouldn't. Only effects
-                                queries (``?where=``). Defaults to ``False``.
+                                ObjectId values, but shouldn't. It effects
+                                queries (``?where=``) and parsing of payloads.
+                                Defaults to ``False``.
 
 ``internal_resource``           When ``True``, this option makes the resource 
                                 internal. No HTTP action can be performed on
