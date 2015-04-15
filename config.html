@@ -991,8 +991,9 @@ automatically casting electable strings to
 ObjectIds. This can be useful in those rare
 occurrences where you have string fields in the
 database whose values can actually be casted to
-ObjectId values, but shouldn&#8217;t. Only effects
-queries (<tt class="docutils literal"><span class="pre">?where=</span></tt>). Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
+ObjectId values, but shouldn&#8217;t. It effects
+queries (<tt class="docutils literal"><span class="pre">?where=</span></tt>) and parsing of payloads.
+Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">internal_resource</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">True</span></tt>, this option makes the resource
