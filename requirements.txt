@@ -8,3 +8,4 @@ MarkupSafe==0.23
 pymongo==2.7.2
 simplejson==3.6.5
 Werkzeug==0.10.1
+pytz==2015.2

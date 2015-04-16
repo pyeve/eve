@@ -41,8 +41,9 @@
 __version__ = '0.6-dev0'
 
 # RFC 1123 (ex RFC 822)
-DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
+DATE_FORMAT = '%a, %d %b %Y %H:%M:%S %Z'
 RFC1123_DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
+DATE_TIMEZONE = None
 
 URL_PREFIX = ''
 API_VERSION = ''
