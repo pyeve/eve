@@ -181,6 +181,8 @@ def str_to_date(string):
     dt_loc = loc.localize(dt)
     dt_gmt = dt_loc.astimezone(gmt)
 
+    dt_gmt = dt_gmt.replace(tzinfo=None)
+
     return dt_gmt if string else None
 
 

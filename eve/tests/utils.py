@@ -20,7 +20,9 @@ class TestUtils(TestBase):
         super(TestUtils, self).setUp()
         self.dt_fmt = config.DATE_FORMAT
         self.datestr = 'Tue, 18 Sep 2012 10:12:30 GMT'
+        self.datestr_tz = 'Tue, 18 Sep 2012 18:12:30 CST'
         self.valid = datetime.strptime(self.datestr, self.dt_fmt)
+
         self.etag = '56eaadbbd9fa287e7270cf13a41083c94f52ab9b'
 
     def test_parse_request_where(self):
@@ -147,9 +149,12 @@ class TestUtils(TestBase):
 
     def test_str_to_date(self):
         self.assertEqual(str_to_date(self.datestr), self.valid)
+
+        config.DATE_TIMEZONE = 'Asia/Taipei'
+        self.assertEqual(str_to_date(self.datestr_tz), self.valid)
+        config.DATE_TIMEZONE = 'GMT'
+
         self.assertRaises(ValueError, str_to_date, 'not-a-date')
-        self.assertRaises(ValueError, str_to_date,
-                          self.datestr.replace('GMT', 'UTC'))
 
     def test_date_to_str(self):
         self.assertEqual(date_to_str(self.valid), self.datestr)
