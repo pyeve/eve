@@ -20,7 +20,7 @@ from flask import current_app as app
 from datetime import datetime, timedelta
 from bson.json_util import dumps
 from eve import RFC1123_DATE_FORMAT
-
+import pytz
 
 class Config(object):
     """ Helper class used through the code to access configuration settings.
@@ -173,7 +173,17 @@ def str_to_date(string):
 
     :param string: the RFC-1123 string to convert to datetime value.
     """
-    return datetime.strptime(string, config.DATE_FORMAT) if string else None
+    dt = datetime.strptime(string, config.DATE_FORMAT)
+
+    loc = pytz.timezone(config.DATE_TIMEZONE)
+    gmt = pytz.timezone('GMT')
+    
+    dt_loc = loc.localize(dt)
+    dt_gmt = dt_loc.astimezone(gmt)
+
+    dt_gmt = dt_gmt.replace(tzinfo=None)
+
+    return dt_gmt if string else None
 
 
 def date_to_str(date):
@@ -181,7 +191,17 @@ def date_to_str(date):
 
     :param date: the datetime value to convert.
     """
-    return datetime.strftime(date, config.DATE_FORMAT) if date else None
+    loc = pytz.timezone(config.DATE_TIMEZONE)
+    gmt = pytz.timezone('GMT')
+
+    try:
+        dt_gmt = gmt.localize(date)
+    except:
+        dt_gmt = date.astimezone(gmt)
+
+    dt_loc = dt_gmt.astimezone(loc)
+
+    return datetime.strftime(dt_loc, config.DATE_FORMAT) if date else None
 
 
 def date_to_rfc1123(date):
