@@ -154,9 +154,15 @@ uppercase.
                                     stored as ``datetime`` values. In
                                     responses, ``datetime`` values will be
                                     rendered as JSON strings using this format.
-                                    Defaults to the RFC1123 (ex RFC 822)
-                                    standard ``a, %d %b %Y %H:%M:%S GMT``
-                                    ("Tue, 02 Apr 2013 10:29:13 GMT"). 
+                                    Defaults to ``a, %d %b %Y %H:%M:%S %Z``,
+                                    which is the RFC1123 (ex RFC 822)
+                                    standard ("Tue, 02 Apr 2013 10:29:13 GMT")
+                                    if ``DATE_TIMEZONE`` is not set. 
+
+``DATE_TIMEZONE``                   A string that representing the timezone used 
+                                    to parse and render datetime values. Allowed
+                                    values: see `List of tz database time zones <http://en.wikipedia.org/wiki/List_of_tz_database_time_zones>`_.
+                                    For example, ``Asia/Taipei``. Defaults to ``None``.
 
 ``RESOURCE_METHODS``                A list of HTTP methods supported at resource 
                                     endpoints. Allowed values: ``GET``,
