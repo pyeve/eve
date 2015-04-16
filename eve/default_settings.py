@@ -87,7 +87,7 @@
 
 # RFC 1123 (ex RFC 822)
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S %Z'
-DATE_TIMEZONE = None
+DATE_TIMEZONE = 'GMT'
 
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"

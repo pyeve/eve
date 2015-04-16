@@ -175,9 +175,6 @@ def str_to_date(string):
     """
     dt = datetime.strptime(string, config.DATE_FORMAT)
 
-    if not config.DATE_TIMEZONE:
-        return dt if string else None
-
     loc = pytz.timezone(config.DATE_TIMEZONE)
     gmt = pytz.timezone('GMT')
     
@@ -192,9 +189,6 @@ def date_to_str(date):
 
     :param date: the datetime value to convert.
     """
-    if not config.DATE_TIMEZONE:
-        return datetime.strftime(date, config.DATE_FORMAT) if date else None
-
     loc = pytz.timezone(config.DATE_TIMEZONE)
     gmt = pytz.timezone('GMT')
 

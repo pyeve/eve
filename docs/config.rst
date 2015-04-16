@@ -162,7 +162,7 @@ uppercase.
 ``DATE_TIMEZONE``                   A string that representing the timezone used 
                                     to parse and render datetime values. Allowed
                                     values: see `List of tz database time zones <http://en.wikipedia.org/wiki/List_of_tz_database_time_zones>`_.
-                                    For example, ``Asia/Taipei``. Defaults to ``None``.
+                                    For example, ``Asia/Taipei``. Defaults to ``GMT``.
 
 ``RESOURCE_METHODS``                A list of HTTP methods supported at resource 
                                     endpoints. Allowed values: ``GET``,
