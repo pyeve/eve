@@ -828,7 +828,12 @@ in this scenario would be a dictionary with fields <tt class="docutils literal">
 serialization. The <tt class="docutils literal"><span class="pre">embedded_fields</span></tt> option accepts a list of fields. If the
 listed fields are embeddable and they are actually referencing documents in other
 resources (and embedding is enbaled for the resource), then the referenced
-documents will be embedded by default.</p>
+documents will be embedded by default. Clients can still opt out from field
+that are embedded by default:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://example.com/people/?embedded<span class="o">{</span><span class="s2">&quot;author&quot;</span>: 0<span class="o">}</span>
+<span class="go">HTTP/1.1 200 OK</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="limitations">
 <h3>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline">¶</a></h3>
