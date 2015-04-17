@@ -9,10 +9,13 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- New: clients can opt out of default embedded fields: `?embedded={"author":0}`
+  would cause the embedded author not to be included with response payload.
+  (Tobias Betz.)
 - New: CORS: Support for ``X-ALLOW-CREDENTIALS`` (Cyprien Pannier.)
-- New: Support for dot notation in POST, PATCH and PUT methods. Be aware
-  that, for PATCH and PUT, if dot notation is used even on just one field,
-  the whole sub-document will be replaced. So if this document is stored:
+- New: Support for dot notation in POST, PATCH and PUT methods. Be aware that,
+  for PATCH and PUT, if dot notation is used even on just one field, the whole
+  sub-document will be replaced. So if this document is stored:
   
   ``{"name": "john", "location": {"city": "New York", "address": "address"}}``
   
