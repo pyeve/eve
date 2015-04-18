@@ -716,7 +716,7 @@ def store_media_files(document, resource, original=None):
             # store file and update document with file's unique id/filename
             # also pass in mimetype for use when retrieving the file
             document[field] = app.media.put(
-                document[field], filename=document[field].filename, 
+                document[field], filename=document[field].filename,
                 content_type=document[field].mimetype)
 
 
