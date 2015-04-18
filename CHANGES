@@ -22,6 +22,7 @@ Version 0.6
 Version 0.5.4
 ~~~~~~~~~~~~~
 
+- Fix: `GridFSMediaStorage` does not save filename. Closes #605 (Sam Luu).
 - Fix: Reinforce GeoJSON validation (Joakim Uddholm.)
 - Fix: Geopoint coordinates do not accept integers. Closes #591 (Joakim
   Uddholm.)
