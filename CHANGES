@@ -9,9 +9,9 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
-- New: clients can opt out of default embedded fields: `?embedded={"author":0}`
-  would cause the embedded author not to be included with response payload.
-  (Tobias Betz.)
+- New: clients can opt out of default embedded fields:
+  ``?embedded={"author":0}`` would cause the embedded author not to be included
+  with response payload. (Tobias Betz.)
 - New: CORS: Support for ``X-ALLOW-CREDENTIALS`` (Cyprien Pannier.)
 - New: Support for dot notation in POST, PATCH and PUT methods. Be aware that,
   for PATCH and PUT, if dot notation is used even on just one field, the whole
@@ -60,7 +60,7 @@ Version 0.6
 Version 0.5.4
 ~~~~~~~~~~~~~
 
-- Fix: `GridFSMediaStorage` does not save filename. Closes #605 (Sam Luu).
+- Fix: ``GridFSMediaStorage`` does not save filename. Closes #605 (Sam Luu).
 - Fix: Reinforce GeoJSON validation (Joakim Uddholm.)
 - Fix: Geopoint coordinates do not accept integers. Closes #591 (Joakim
   Uddholm.)
