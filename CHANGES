@@ -9,6 +9,44 @@ Development
 Version 0.6
 ~~~~~~~~~~~
 
+- New: clients can opt out of default embedded fields:
+  ``?embedded={"author":0}`` would cause the embedded author not to be included
+  with response payload. (Tobias Betz.)
+- New: CORS: Support for ``X-ALLOW-CREDENTIALS`` (Cyprien Pannier.)
+- New: Support for dot notation in POST, PATCH and PUT methods. Be aware that,
+  for PATCH and PUT, if dot notation is used even on just one field, the whole
+  sub-document will be replaced. So if this document is stored:
+  
+  ``{"name": "john", "location": {"city": "New York", "address": "address"}}``
+  
+  A PATCH like this:
+
+    ``{"location.city": "Boston"}``
+
+  (which is exactly equivalent to:)
+
+    ``{"location": {"city": "a nested city"}}``
+
+  Will update the document to:
+  
+  ``{"name": "john", "location": {"city": "Boston"}}``
+
+- New: JSONP Support (Tim Jacobi.)
+- New: Support for multiple MongoDB databases and/or servers. 
+
+  - ``mongo_prefix`` resource setting allows overriding of the default
+    ``MONGO`` prefix used when retrieving MongoDB settings from configuration.
+    For example, set a resource ``mongo_prefix`` to ``MONGO2`` to read/write
+    from the database configured with that prefix in your settings file
+    (``MONGO2_HOST``, ``MONGO2_DBNAME``, etc.)
+  - ``set_mongo_prefix()`` and ``get_mongo_prefix()`` have been added to
+    ``BasicAuth`` class and derivates. These can be used to arbitrarily set
+    the target database depending on the token/client performing the request.
+
+  Database connections are cached in order to not to loose performance. Also,
+  this change only affects the MongoDB engine, so extensions currently
+  targetting other databases should not need updates (they will not inherit
+  this feature however.)
 - New: Enable ``on_pre_GET`` hook for HEAD requests (Daniel Lytkin.).
 - New: Add ``X-Total-Count`` header for collection GET/HEAD requests (Daniel
   Lytkin.).
@@ -22,7 +60,7 @@ Version 0.6
 Version 0.5.4
 ~~~~~~~~~~~~~
 
-- Fix: `GridFSMediaStorage` does not save filename. Closes #605 (Sam Luu).
+- Fix: ``GridFSMediaStorage`` does not save filename. Closes #605 (Sam Luu).
 - Fix: Reinforce GeoJSON validation (Joakim Uddholm.)
 - Fix: Geopoint coordinates do not accept integers. Closes #591 (Joakim
   Uddholm.)
