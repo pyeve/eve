@@ -62,6 +62,7 @@ link <http://eve.readthedocs.org/en/stable/>`_.
     validation
     authentication
     tutorials/index
+    snippets/index
     extensions
     contributing
     testing
