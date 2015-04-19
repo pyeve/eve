@@ -22,4 +22,4 @@ request`_.
 
 .. _`pull request`: https://github.com/nicolaiarocci/eve/pulls
 .. _`snippets folder`: https://github.com/nicolaiarocci/eve/tree/develop/docs/snippets
-.. _source: https://github.com/nicolaiarocci/eve/blob/develop/docs/snippets/index.rst
+.. _source: https://raw.githubusercontent.com/nicolaiarocci/eve/develop/docs/snippets/index.rst
