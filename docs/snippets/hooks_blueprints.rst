@@ -1,5 +1,5 @@
-Using the Eve hooks from your blueprints
-========================================
+Using Eve Event Hooks from your Blueprint
+=========================================
 by Pau Freixes
 
 The use of Flask Blueprints_ helps us to extend our Eve applications with new
