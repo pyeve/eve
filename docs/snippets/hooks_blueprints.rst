@@ -2,15 +2,18 @@ Using the Eve hooks from your blueprints
 ========================================
 by Pau Freixes
 
-The use of blueprints_ helps us to extend our Eve applications with new endpoints,
-that do not fit as a typical Eve resource. Pulling these endpoints out of the Eve
-scope allows us to write specific code in order to handle specific situations.
+The use of Flask Blueprints_ helps us to extend our Eve applications with new
+endpoints that do not fit as a typical Eve resource. Pulling these endpoints
+out of the Eve scope allows us to write specific code in order to handle
+specific situations.
 
-In this scenario we could think that almost all of the Eve features can not be used.
-However, we can continue using a bunch of these features, such as the Eve `events hooks`_.
+In the context of a Blueprint we could expect Eve features not be available,
+but often that is not the case. We can continue to use a bunch of features,
+such as :ref:`eventhooks`.
 
-Next snippet displays how the `users` blueprint uses the `users_deleted` signal to notify
-and run the specific code subscribed by the consumers.
+Next snippet displays how the ``users`` module has a blueprint which performs
+some custom actions and then uses the ``users_deleted`` signal to notify and
+invoke all callback functions which are registered to the Eve application.
 
 .. code-block:: python
 
@@ -21,12 +24,15 @@ and run the specific code subscribed by the consumers.
     @blueprint.route('/users/<username>', methods=['DELETE'])
     def del_user(username):
         # some specific code goes here
-        # call all Eve-hooks consumers for this  event
+        # ...
+
+        # call Eve-hooks consumers for this  event
         getattr(app, "users_deleted")(username)
 
-Next snippet displays how the blueprint is binded over our main Eve application and
-how the specific `set_username_as_none` function is registered to be called each time that 
-an user is deleted using the Eve events to update the properly Mongodb collection.
+Next snippet displays how the blueprint is binded over our main Eve application
+and how the specific ``set_username_as_none`` function is registered to be
+called each time an user is deleted using the Eve events, to update the
+properly MongoDB collection.
 
 .. code-block:: python
 
@@ -43,9 +49,11 @@ an user is deleted using the Eve events to update the properly Mongodb collectio
         )
         
     app = Eve()
+    # register the blueprint to the main Eve application
     app.register_blueprint(blueprint)
+    # bind the callback function so it is invoked at each user deletion
     app.users_deleted += set_username_as_none
     app.run()
 
-.. _`blueprints`: http://flask.pocoo.org/docs/blueprints/
+.. _Blueprints: http://flask.pocoo.org/docs/blueprints/
 .. _`eve event-hooks`: http://python-eve.org/features.html#event-hooks
