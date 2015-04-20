@@ -386,6 +386,18 @@ class TestPost(TestBase):
         self.assert200(status)
         self.assertEqual(response.get('person'), self.item_id)
 
+    def test_subresource_required_ref(self):
+        response, status = self.post('users/%s/required_invoices' %
+                                     self.item_id, data={})
+        self.assert201(status)
+        self.assertPostResponse(response)
+
+        invoice_id = response.get(self.app.config['ID_FIELD'])
+        response, status = self.get('users/%s/required_invoices/%s' %
+                                    (self.item_id, invoice_id))
+        self.assert200(status)
+        self.assertEqual(response.get('person'), self.item_id)
+
     def test_post_ifmatch_disabled(self):
         # if IF_MATCH is disabled, then we get no etag in the payload.
         self.app.config['IF_MATCH'] = False
