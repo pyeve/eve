@@ -143,6 +143,7 @@ class TestEndPoints(TestBase):
 
     def test_resource_endpoint(self):
         del(self.domain['peopleinvoices'])
+        del(self.domain['peoplerequiredinvoices'])
         del(self.domain['peoplesearches'])
         del(self.domain['internal_transactions'])
         for settings in self.domain.values():
