@@ -13,6 +13,8 @@ Available Snippets
    :maxdepth: 2
 
    template
+   hooks_blueprints
+   
 
 Add your snippet
 ----------------
