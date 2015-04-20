@@ -260,6 +260,7 @@ class TestRenders(TestBase):
                             self.app.config['API_VERSION'])
 
         del(self.domain['peopleinvoices'])
+        del(self.domain['peoplerequiredinvoices'])
         del(self.domain['peoplesearches'])
         del(self.domain['internal_transactions'])
         for _, settings in self.app.config['DOMAIN'].items():

@@ -333,6 +333,7 @@ class TestConfig(TestBase):
         map_adapter = self.app.url_map.bind('')
 
         del(self.domain['peopleinvoices'])
+        del(self.domain['peoplerequiredinvoices'])
         del(self.domain['peoplesearches'])
         del(self.domain['internal_transactions'])
         for _, settings in self.domain.items():
