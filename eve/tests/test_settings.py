@@ -155,6 +155,11 @@ invoices = {
 versioned_invoices = copy.deepcopy(invoices)
 versioned_invoices['versioning'] = True
 
+# This resource is used to test subresources that have a reference/objectid
+# field that is set to be required.
+required_invoices = copy.deepcopy(invoices)
+required_invoices['schema']['person']['required'] = True
+
 companies = {
     'item_title': 'company',
     'schema': {
@@ -196,6 +201,11 @@ users_invoices = copy.deepcopy(invoices)
 users_invoices['url'] = 'users/<regex("[a-f0-9]{24}"):person>/invoices'
 users_invoices['datasource'] = {'source': 'invoices'}
 
+users_required_invoices = copy.deepcopy(required_invoices)
+users_required_invoices['url'] =\
+    'users/<regex("[a-f0-9]{24}"):person>/required_invoices'
+users_required_invoices['datasource'] = {'source': 'required_invoices'}
+
 users_searches = copy.deepcopy(invoices)
 users_searches['datasource'] = {'source': 'invoices'}
 users_searches['url'] = \
@@ -223,10 +233,12 @@ DOMAIN = {
     'users_overseas': users_overseas,
     'invoices': invoices,
     'versioned_invoices': versioned_invoices,
+    'required_invoices': required_invoices,
     'payments': payments,
     'empty': empty,
     'restricted': user_restricted_access,
     'peopleinvoices': users_invoices,
+    'peoplerequiredinvoices': users_required_invoices,
     'peoplesearches': users_searches,
     'companies': companies,
     'internal_transactions': internal_transactions,

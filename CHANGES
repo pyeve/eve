@@ -60,6 +60,9 @@ Version 0.6
 Version 0.5.4
 ~~~~~~~~~~~~~
 
+- Fix: Route parameters are applied to new documents before they are validated.
+  This ensures that documents with required fields will be populated before
+  they are validated. Addresses #354. (Matthew Ellison.)
 - Fix: ``GridFSMediaStorage`` does not save filename. Closes #605 (Sam Luu).
 - Fix: Reinforce GeoJSON validation (Joakim Uddholm.)
 - Fix: Geopoint coordinates do not accept integers. Closes #591 (Joakim

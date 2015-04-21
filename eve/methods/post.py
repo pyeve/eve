@@ -172,6 +172,7 @@ def post_internal(resource, payl=None, skip_validation=False):
         doc_issues = {}
         try:
             document = parse(value, resource)
+            resolve_sub_resource_path(document, resource)
             if skip_validation:
                 validation = True
             else:
@@ -183,7 +184,6 @@ def post_internal(resource, payl=None, skip_validation=False):
 
                 resolve_user_restricted_access(document, resource)
                 resolve_default_values(document, resource_def['defaults'])
-                resolve_sub_resource_path(document, resource)
                 store_media_files(document, resource)
                 resolve_document_version(document, resource, 'POST')
             else:
