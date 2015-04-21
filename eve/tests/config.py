@@ -417,3 +417,52 @@ class TestConfig(TestBase):
         self.assertEqual(settings['item_methods'], ['GET'])
         self.assertEqual(settings['url'], endpoint)
         self.assertEqual(settings['datasource']['source'], key)
+
+    def test_create_indexes(self):
+        # prepare a specific schema with mongo indexes declared
+        # along with the schema.
+        settings = {
+            'schema': {
+                'name': {'type': 'string'},
+                'other_field': {'type': 'string'},
+                'lat_long': {'type': 'list'}
+            },
+            'mongo_indexes': {
+                'name': [('name', 1)],
+                'composed': [('name', 1), ('other_field', 1)],
+                'arguments': ([('lat_long', "2d")], {"sparce": True})
+            }
+        }
+        self.app.register_resource('mongodb_features', settings)
+
+        # check that the indexes are there as a part of the resource
+        # settings
+        self.assertEqual(
+            self.app.config['DOMAIN']['mongodb_features']['mongo_indexes'],
+            settings['mongo_indexes']
+        )
+
+        # check that the indexes were created
+        from pymongo import MongoClient
+        db_name = self.app.config['MONGO_DBNAME']
+        coll = MongoClient()[db_name]['mongodb_features']
+        indexes = coll.index_information()
+
+        # at least there is an index for the _id field plus the indexes
+        # created by the resource of this test
+        self.assertTrue(len(indexes) > len(settings['mongo_indexes']))
+
+        # check each one, fields involved and arguments given
+        for key, value in settings['mongo_indexes'].items():
+            if isinstance(value, tuple):
+                fields, args = value
+            else:
+                fields = value
+                args = None
+
+            self.assertTrue(key in indexes)
+            self.assertEqual(indexes[key]['key'], fields)
+
+            for arg in args or ():
+                self.assertTrue(arg in indexes[key])
+                self.assertEqual(args[arg], indexes[key][arg])
