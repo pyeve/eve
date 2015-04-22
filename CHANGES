@@ -60,6 +60,8 @@ Version 0.6
 Version 0.5.4
 ~~~~~~~~~~~~~
 
+- Fix: Make sure ``original`` is not modified during ``PATCH``. Closes #611
+  (Petr Jašek.)
 - Fix: Route parameters are applied to new documents before they are validated.
   This ensures that documents with required fields will be populated before
   they are validated. Addresses #354. (Matthew Ellison.)
