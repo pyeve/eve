@@ -14,7 +14,7 @@ import copy
 import math
 from flask import current_app as app, abort, request
 from .common import ratelimit, epoch, pre_event, resolve_embedded_fields, \
-    build_response_document, resource_link, document_link
+    build_response_document, resource_link, document_link, last_updated
 from eve.auth import requires_auth
 from eve.utils import parse_request, home_link, querydef, config
 from eve.versioning import synthesize_versioned_document, versioned_id_field, \
@@ -203,6 +203,12 @@ def getitem(resource, **lookup):
     latest_doc = None
     cursor = None
 
+    # calculate last_modified and retrieve latest etag before get_old_document
+    # rolls back the document, allowing us to invalidate the cache when
+    # _latest_version changes
+    last_modified = last_updated(document)
+    latest_etag = document.get(config.ETAG)
+
     # synthesize old document version(s)
     if resource_def['versioning'] is True:
         latest_doc = copy.deepcopy(document)
@@ -212,14 +218,13 @@ def getitem(resource, **lookup):
     # meld into response document
     build_response_document(document, resource, embedded_fields, latest_doc)
 
-    # last_modified for the response
-    last_modified = document[config.LAST_UPDATED]
-
     # facilitate client caching by returning a 304 when appropriate
     if config.IF_MATCH:
         etag = document[config.ETAG]
+        if latest_etag is None and etag is not None:
+            latest_etag = etag
 
-        if req.if_none_match and etag == req.if_none_match:
+        if req.if_none_match and latest_etag == req.if_none_match:
             # request etag matches the current server representation of the
             # document, return a 304 Not-Modified.
             return {}, last_modified, document[config.ETAG], 304
