@@ -10,6 +10,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
+from copy import deepcopy
 from flask import current_app as app, abort
 from werkzeug import exceptions
 from datetime import datetime
@@ -170,7 +171,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
             # etag, we're going to update the local version of the
             # 'original' document, and we will use it for the etag
             # computation.
-            updated = original.copy()
+            updated = deepcopy(original)
 
             # notify callbacks
             getattr(app, "on_update")(resource, updates, original)
