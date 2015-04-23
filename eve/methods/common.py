@@ -303,7 +303,9 @@ def serialize(document, resource=None, schema=None, fields=None):
 
     .. versionchanged:: 0.6
        Add support for normalizing dotted fields.
-       Fix serialization of lists of lists
+
+    .. versionchanged:: 0.5.4
+       Fix serialization of lists of lists. See # 614.
 
     .. versionchanged:: 0.5.3
        Don't block on custom serialization errors so the whole document can
