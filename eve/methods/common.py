@@ -299,6 +299,10 @@ def serialize(document, resource=None, schema=None, fields=None):
     """ Recursively handles field values that require data-aware serialization.
     Relies on the app.data.serializers dictionary.
 
+    .. versionchanged:: 0.6
+       Add support for normalizing dotted fields.
+       Fix serialization of lists of lists
+
     .. versionchanged:: 0.5.3
        Don't block on custom serialization errors so the whole document can
        be processed. See #568.
@@ -332,6 +336,18 @@ def serialize(document, resource=None, schema=None, fields=None):
                                           schema=field_schema['schema'])
                             else:
                                 serialize(subdocument, schema=field_schema)
+                    elif field_schema.get('type') == 'list':
+                        # a list of lists
+                        sublist_schema = field_schema.get('schema')
+                        item_type = sublist_schema.get('type')
+                        for sublist in document[field]:
+                            for i, v in enumerate(sublist):
+                                if item_type == 'dict':
+                                    serialize(sublist[i],
+                                              schema=sublist_schema['schema'])
+                                elif item_type in app.data.serializers:
+                                        sublist[i] = \
+                                            app.data.serializers[item_type](v)
                     else:
                         # a list of one type, arbitrary length
                         field_type = field_schema.get('type')
