@@ -82,6 +82,67 @@ class TestSerializer(TestBase):
             self.assertTrue(isinstance(res['extract_time'], datetime))
             self.assertTrue(isinstance(res['date'], datetime))
 
+    def test_serialize_lists_of_lists(self):
+        # serialize should handle list of lists of basic types
+        schema = {
+            'l_of_l': {
+                'type': 'list',
+                'schema': {
+                    'type': 'list',
+                    'schema': {
+                        'type': 'objectid'
+                    }
+                }
+            }
+        }
+        doc = {
+            'l_of_l': [
+                ['50656e4538345b39dd0414f0', '50656e4538345b39dd0414f0'],
+                ['50656e4538345b39dd0414f0', '50656e4538345b39dd0414f0']
+            ]
+        }
+
+        with self.app.app_context():
+            serialized = serialize(doc, schema=schema)
+        for sublist in serialized['l_of_l']:
+            for item in sublist:
+                self.assertTrue(isinstance(item, ObjectId))
+
+        # serialize should handle list of lists of dicts
+        schema = {
+            'l_of_l': {
+                'type': 'list',
+                'schema': {
+                    'type': 'list',
+                    'schema': {
+                        'type': 'dict',
+                        'schema': {
+                            '_id': {
+                                'type': 'objectid'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        doc = {
+            'l_of_l': [
+                [
+                    {'_id': '50656e4538345b39dd0414f0'},
+                    {'_id': '50656e4538345b39dd0414f0'}
+                ],
+                [
+                    {'_id': '50656e4538345b39dd0414f0'},
+                    {'_id': '50656e4538345b39dd0414f0'}
+                ],
+            ]
+        }
+        with self.app.app_context():
+            serialized = serialize(doc, schema=schema)
+        for sublist in serialized['l_of_l']:
+            for item in sublist:
+                self.assertTrue(isinstance(item['_id'], ObjectId))
+
 
 class TestOpLog(TestBase):
     def setUp(self):
