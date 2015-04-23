@@ -202,8 +202,8 @@ class TestGet(TestBase):
         for role in ('agent', 'client', 'vendor'):
             where = 'role == %s' % role
             response, _ = self.get(self.known_resource, '?where=%s' % where)
-            if response['_meta']['max_results'] \
-                    >= self.app.config['PAGINATION_LIMIT'] + 1:
+            if response['_meta']['total'] \
+                    >= self.app.config['PAGINATION_DEFAULT'] + 1:
                 break
         links = response['_links']
         total = response['_meta']['total']
