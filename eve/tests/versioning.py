@@ -602,16 +602,16 @@ class TestCompleteVersioning(TestNormalVersioning):
             self.assertTrue(self.version_field in item)
             self.assertTrue(self.latest_version_field in item)
 
-    def test_getitem_version_last_modified(self):
-        """Verify that versioned document's Last-Modified headers update on
-        _latest_version change (#597)
+    def test_getitem_version_new_latest_version_invalidates_cache(self):
+        """Verify that a cached document version is invalidate when the
+        _latest_version field has changed due to creation of a new version
         """
         # get first version and record Last-Modified
         r = self.test_client.get(self.item_id_url + "?version=1")
         document, status = self.parse_response(r)
         self.assert200(status)
         self.assertEqual(document[self.latest_version_field], 1)
-        original_last_modified = r.headers.get('Last-Modified')
+        last_modified = r.headers.get('Last-Modified')
 
         # put a second version (after enough time has passed to expect a new
         # Last-Modified header)
@@ -623,35 +623,9 @@ class TestCompleteVersioning(TestNormalVersioning):
 
         # get first version again and confirm Last-Modified and latest version
         # have been updated
-        r = self.test_client.get(self.item_id_url + "?version=1")
-        document, status = self.parse_response(r)
-        self.assert200(status)
-        self.assertEqual(document[self.latest_version_field], 2)
-        self.assertNotEqual(
-            r.headers.get('Last-Modified'),
-            original_last_modified
-        )
-
-    def test_getitem_compares_head_etag(self):
-        """Verify that gets of versioned documents use the latest version's etag
-        to determine if a 304 Not Modified should be returned. (#597)
-        """
-        # Latest version matching etag should respond with 304
-        r = self.test_client.get(self.item_id_url + "?version=1",
-                                 headers=[('If-None-Match', self.item_etag)])
-        document, status = self.parse_response(r)
-        self.assert304(status)
-
-        # put a second version
-        response, status = self.put(
-            self.item_id_url, data=self.item_change,
-            headers=[('If-Match', self.item_etag)])
-        self.assertGoodPutPatch(response, status)
-
-        # Old version matching etag should fetch and 200.
-        # _latest_version has changed.
-        r = self.test_client.get(self.item_id_url + "?version=1",
-                                 headers=[('If-None-Match', self.item_etag)])
+        r = self.test_client.get(self.item_id_url + "?version=1", headers=[
+            ('If-None-Match', self.item_etag),
+            ('If-Modified-Since', last_modified)])
         document, status = self.parse_response(r)
         self.assert200(status)
         self.assertEqual(document[self.latest_version_field], 2)
