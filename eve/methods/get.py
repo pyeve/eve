@@ -218,6 +218,16 @@ def getitem(resource, **lookup):
     if config.IF_MATCH:
         etag = document[config.ETAG]
 
+    # check embedded fields resolved in build_response_document() for more
+    # recent last updated timestamps. We don't want to respond 304 if embedded
+    # fields have changed
+    for field in embedded_fields:
+        embedded_document = document.get(field)
+        if isinstance(embedded_document, dict):
+            embedded_last_updated = last_updated(embedded_document)
+            if embedded_last_updated > last_modified:
+                last_modified = embedded_last_updated
+
     # facilitate client caching by returning a 304 when appropriate
     cache_validators = {True: 0, False: 0}
     if req.if_modified_since:

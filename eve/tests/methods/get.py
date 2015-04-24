@@ -1067,6 +1067,25 @@ class TestGetItem(TestBase):
         content = json.loads(r.get_data())
         self.assertTrue('location' in content['person'])
 
+        # Test that changes to embedded document invalidate parent cache
+        invoice_last_modified = r.headers.get('Last-Modified')
+        contact_url = '%s/%s' % (self.domain['contacts']['url'],
+                                 fake_contact_id)
+        r = self.test_client.get(contact_url)
+        contact_etag = r.headers.get('Etag')
+
+        changes = {'location': {'city': 'new city'}}
+        response, status = self.patch(contact_url, data=changes,
+                                      headers=[('If-Match', contact_etag)])
+        self.assert200(status)
+
+        invoice_url = '%s/%s/%s' % (invoices['url'], self.invoice_id,
+                                    '?embedded=%s' % embedded)
+        r = self.test_client.get(invoice_url,
+                                 headers=[('If-Modified-Since',
+                                           invoice_last_modified)])
+        self.assert200(r.status_code)
+
     def test_subresource_getitem(self):
         _db = self.connection[MONGO_DBNAME]
 
