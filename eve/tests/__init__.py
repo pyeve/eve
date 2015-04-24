@@ -417,7 +417,7 @@ class TestBase(TestMinimal):
         schema = DOMAIN['contacts']['schema']
         contacts = []
         for i in range(num):
-            dt = datetime.now()
+            dt = datetime.utcnow().replace(microsecond=0)
             contact = {
                 'ref': self.random_string(schema['ref']['maxlength']),
                 'prog': i,
@@ -450,7 +450,7 @@ class TestBase(TestMinimal):
     def random_payments(self, num):
         payments = []
         for i in range(num):
-            dt = datetime.now()
+            dt = datetime.utcnow().replace(microsecond=0)
             payment = {
                 'a_string': self.random_string(10),
                 'a_number': i,
@@ -463,7 +463,7 @@ class TestBase(TestMinimal):
     def random_invoices(self, num):
         invoices = []
         for _ in range(num):
-            dt = datetime.now()
+            dt = datetime.utcnow().replace(microsecond=0)
             invoice = {
                 'inv_number': self.random_string(10),
                 eve.LAST_UPDATED: dt,
@@ -497,7 +497,7 @@ class TestBase(TestMinimal):
     def random_internal_transactions(self, num):
         transactions = []
         for i in range(num):
-            dt = datetime.now()
+            dt = datetime.utcnow().replace(microsecond=0)
             transaction = {
                 'internal_string': self.random_string(10),
                 'internal_number': i,

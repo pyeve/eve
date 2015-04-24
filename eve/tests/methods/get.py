@@ -1,4 +1,5 @@
 import base64
+import time
 from io import BytesIO
 import simplejson as json
 from datetime import datetime
@@ -1074,6 +1075,8 @@ class TestGetItem(TestBase):
         r = self.test_client.get(contact_url)
         contact_etag = r.headers.get('Etag')
 
+        # wait for contact and invoice updated at diff to pass 1s resolution
+        time.sleep(2)
         changes = {'location': {'city': 'new city'}}
         response, status = self.patch(contact_url, data=changes,
                                       headers=[('If-Match', contact_etag)])
@@ -1117,7 +1120,7 @@ class TestGetItem(TestBase):
 
         # IMS needs to see as recent as possible since the test db has just
         # been built
-        header = [("If-Modified-Since", date_to_rfc1123(datetime.now()))]
+        header = [("If-Modified-Since", date_to_rfc1123(datetime.utcnow()))]
 
         r = self.test_client.get(self.item_id_url, headers=header)
         self.assert304(r.status_code)
