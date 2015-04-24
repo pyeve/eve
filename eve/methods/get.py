@@ -203,11 +203,9 @@ def getitem(resource, **lookup):
     latest_doc = None
     cursor = None
 
-    # calculate last_modified and retrieve latest etag before get_old_document
-    # rolls back the document, allowing us to invalidate the cache when
-    # _latest_version changes
+    # calculate last_modified before get_old_document rolls back the document,
+    # allowing us to invalidate the cache when _latest_version changes
     last_modified = last_updated(document)
-    latest_etag = document.get(config.ETAG)
 
     # synthesize old document version(s)
     if resource_def['versioning'] is True:
@@ -217,23 +215,22 @@ def getitem(resource, **lookup):
 
     # meld into response document
     build_response_document(document, resource, embedded_fields, latest_doc)
-
-    # facilitate client caching by returning a 304 when appropriate
     if config.IF_MATCH:
         etag = document[config.ETAG]
-        if latest_etag is None and etag is not None:
-            latest_etag = etag
 
-        if req.if_none_match and latest_etag == req.if_none_match:
-            # request etag matches the current server representation of the
-            # document, return a 304 Not-Modified.
-            return {}, last_modified, document[config.ETAG], 304
-
-    if req.if_modified_since and last_modified <= req.if_modified_since:
-        # request If-Modified-Since conditional request match. We test
-        # this after the etag since Last-Modified dates have lower
-        # resolution (1 second).
-        return {}, last_modified, document.get(config.ETAG), 304
+    # facilitate client caching by returning a 304 when appropriate
+    cache_validators = {True: 0, False: 0}
+    if req.if_modified_since:
+        cache_valid = (last_modified <= req.if_modified_since)
+        cache_validators[cache_valid] += 1
+    if req.if_none_match:
+        # If-None-Match etag check important since Last-Modified dates have
+        # less than 1 second resolution
+        cache_valid = (etag == req.if_none_match)
+        cache_validators[cache_valid] += 1
+    # If all cache validators are true, return 304
+    if (cache_validators[True] > 0) and (cache_validators[False] == 0):
+        return {}, last_modified, etag, 304
 
     if version == 'all' or version == 'diffs':
         # find all versions
