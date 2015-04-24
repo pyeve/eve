@@ -464,6 +464,9 @@ uppercase.
                                     document id will be stored in field
                                     ``_id_document``.
 
+``MONGO_URI``                       A `MongoDB URI`_ which is used in preference 
+                                    of the other configuration variables.
+
 ``MONGO_HOST``                      MongoDB server address. Defaults to ``localhost``.
 
 ``MONGO_PORT``                      MongoDB port. Defaults to ``27017``.
@@ -474,8 +477,28 @@ uppercase.
 
 ``MONGO_DBNAME``                    MongoDB database name.
 
-``MONGO_URI``                       A `MongoDB URI`_ which is used in preference 
-                                    of the other configuration variables.
+``MONGO_MAX_POOL_SIZE``             The maximum number of idle connections 
+                                    maintained in the PyMongo connection pool.
+                                    Default: PyMongo default.
+
+``MONGO_SOCKET_TIMEOUT_MS``         How long (in milliseconds) a send or 
+                                    receive on a socket can take before timing
+                                    out. Default: PyMongo default.
+
+``MONGO_CONNECT_TIMEOUT_MS``        How long (in milliseconds) a connection can 
+                                    take to be opened before timing out.
+                                    Default: PyMongo default.
+
+``MONGO_REPLICA_SET``               The name of a replica set to connect to; 
+                                    this must match the internal name of the
+                                    replica set (as deteremined by the
+                                    `isMaster <http://www.mongodb.org/display/DOCS/Replica+Set+Commands#ReplicaSetCommands-isMaster>`_
+                                    command). Default: ``None``.
+
+``MONGO_READ_PREFERENCE``           Determines how read queries are routed to 
+                                    the replica set members. Must be one of the
+                                    constants defined on PyMongo's ReadPreference_,
+                                    or the string names thereof.
 
 ``MONGO_QUERY_BLACKLIST``           A list of Mongo query operators that are not
                                     allowed to be used in resource filters
@@ -1230,3 +1253,4 @@ read access open to the public.
 
 .. _Cerberus: http://cerberus.readthedocs.org
 .. _`MongoDB URI`: http://docs.mongodb.org/manual/reference/connection-string/#Connections-StandardConnectionStringFormat
+.. _ReadPreference: http://api.mongodb.org/python/current/api/pymongo/read_preferences.html#pymongo.read_preferences.ReadPreference
