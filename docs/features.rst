@@ -690,15 +690,16 @@ update to the primary document) and uses that value to populate the
 validator of specific document version queries. Note that this will be
 different from the timestamp in the version's last updated field. The etag for
 a document version does not change when ```_latest_version``` changes, however.
-This results in two corner cases. First, a query using only ``If-None-Match``
-for cache validation will receive ``Not Modified``responses even when the
-cached ``_latest_version`` should be updated. Second, a version fetched and
-cached in the same second that multiple new versions are created can receive
-incorrect ``Not Modified`` responses on ensuing ``GET`` queries due to
-``Last-Modified`` values having a resolution of one second and the static etag
-values not providing indication of the changes. These are both highly unlikely
-scenarios, but an application expecting multiple edits per second should
-account for the possibility of holing stale ``_latest_version`` data.
+This results in two corner cases. First, because Eve cannot determine if the
+client's ```_latest_version``` is up to date from an ETag alone, a query using
+only ``If-None-Match`` for cache validation of old document versions will always
+have its cache invalidated. Second, a version fetched and cached in the same
+second that multiple new versions are created can receive incorrect
+``Not Modified`` responses on ensuing ``GET`` queries due to ``Last-Modified``
+values having a resolution of one second and the static etag values not
+providing indication of the changes. These are both highly unlikely scenarios,
+but an application expecting multiple edits per second should account for the
+possibility of holing stale ``_latest_version`` data.
 
 For more information see and :ref:`global` and :ref:`domain`.
 
