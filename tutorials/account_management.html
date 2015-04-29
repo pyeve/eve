@@ -157,8 +157,8 @@ script, can be hard-coded to handle the case:</p>
 
 <span class="k">class</span> <span class="nc">BCryptAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">resource</span> <span class="o">=</span> <span class="s">&#39;accounts&#39;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">username</span> <span class="o">==</span> <span class="s">&#39;superuser&#39;</span> <span class="ow">and</span> <span class="n">password</span> <span class="o">=</span> <span class="s">&#39;password&#39;</span>
+        <span class="k">if</span> <span class="n">resource</span> <span class="o">==</span> <span class="s">&#39;accounts&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">username</span> <span class="o">==</span> <span class="s">&#39;superuser&#39;</span> <span class="ow">and</span> <span class="n">password</span> <span class="o">==</span> <span class="s">&#39;password&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
             <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
