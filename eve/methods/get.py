@@ -240,10 +240,10 @@ def getitem(resource, **lookup):
         cache_valid = (last_modified <= req.if_modified_since)
         cache_validators[cache_valid] += 1
     if req.if_none_match:
-        # If-None-Match etag check important since Last-Modified dates have
-        # less than 1 second resolution
-        cache_valid = (etag == req.if_none_match)
-        cache_validators[cache_valid] += 1
+        if (resource_def['versioning'] is False) or \
+           (document['_version'] == document['_latest_version']):
+            cache_valid = (etag == req.if_none_match)
+            cache_validators[cache_valid] += 1
     # If all cache validators are true, return 304
     if (cache_validators[True] > 0) and (cache_validators[False] == 0):
         return {}, last_modified, etag, 304

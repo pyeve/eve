@@ -630,6 +630,20 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assert200(status)
         self.assertEqual(document[self.latest_version_field], 2)
 
+    def test_getitem_version_ignores_if_none_match(self):
+        """Verify that cached old version documents cannot be validated by
+        etag alone. It is impossible to catch _latest_version changes to old
+        versioned docs with only etags.
+        """
+        response, status = self.put(
+            self.item_id_url, data=self.item_change,
+            headers=[('If-Match', self.item_etag)])
+        self.assertGoodPutPatch(response, status)
+
+        r = self.test_client.get(self.item_id_url + "?version=1", headers=[
+            ('If-None-Match', self.item_etag)])
+        self.assert200(r.status_code)
+
     def test_automatic_fields(self):
         """ Make sure that Eve throws an error if we try to set a versioning
         field manually.
