@@ -60,6 +60,12 @@ Version 0.6
 Version 0.5.4
 ~~~~~~~~~~~~~
 
+- Fix: Versioning: invalidate cache when ``_latest_version`` changes in
+  versioned doc (Nick Park.)
+- Fix: snippet in account management tutorial (xgddsg.)
+- Fix: ``MONGO_REPLICA_SET`` and other significant Flask-PyMongo settings have
+  been added to the documentation. Closes #615.
+- Fix: Serialization of lists of lists (Nick Park.)
 - Fix: Make sure ``original`` is not modified during ``PATCH``. Closes #611
   (Petr Jašek.)
 - Fix: Route parameters are applied to new documents before they are validated.
