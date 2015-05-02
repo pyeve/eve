@@ -69,7 +69,7 @@ class Mongo(DataLayer):
     json_encoder_class = MongoJSONEncoder
 
     operators = set(
-        ['$gt', '$gte', '$in', '$lt', '$lt', '$lte', '$ne', '$nin'] +
+        ['$gt', '$gte', '$in', '$lt', '$lte', '$ne', '$nin'] +
         ['$or', '$and', '$not', '$nor'] +
         ['$mod', '$regex', '$text', '$where'] +
         ['$options', '$search', '$language'] +

@@ -60,6 +60,7 @@ Version 0.6
 Version 0.5.4
 ~~~~~~~~~~~~~
 
+- Fix: Remove duplicate item in Mongo operators list. Closes #619.
 - Fix: Versioning: invalidate cache when ``_latest_version`` changes in
   versioned doc (Nick Park.)
 - Fix: snippet in account management tutorial (xgddsg.)
