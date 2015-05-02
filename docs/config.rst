@@ -834,6 +834,29 @@ always lowercase.
 
                                 See also: :ref:`authdrivendb`.
 
+``mongo_indexes``               Allows specify a set of indexes that have to
+                                created before the app is launched for this
+                                resource.
+
+                                Indexes are a dict where each value either
+                                takes a list of keys or the list of keys 
+                                plust the index options as one tuple, such
+                                as  ``{'index name': [('field', 1)],
+                                'index with args': ([('field', 1)],
+                                {"sparse": true})}``. 
+
+                                The list of keys take a (key, direction) pairs. 
+                                Multiple pairs are used to create compound
+                                indexes. The direction takes kind of values
+                                supported by `pymongo` such as ASCENDING = 1,
+                                DESCENDING = -1.
+
+                                Index arguments are index options supported 
+                                by `pymongo` such as sparce, min, max.
+
+                                Index already created before that have
+                                changed are removed and created again.
+
 ``authentication``              A class with the authorization logic for the 
                                 endpoint. If not provided the eventual
                                 general purpose auth class (passed as
