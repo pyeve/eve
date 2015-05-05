@@ -998,7 +998,36 @@ a different database/server at every endpoint.</p>
 <p class="last">See also: <a class="reference internal" href="authentication.html#authdrivendb"><em>Auth-driven Database Access</em></a>.</p>
 </td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">authentication</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">mongo_indexes</span></tt></td>
+<td><p class="first">Allows to specify a set of indexes to be
+created for this resource before the app is
+launched.</p>
+<p>Indexes are expressed as a dict where keys are
+index names and values are either a list of
+tuples of (field, direction) pairs, or
+a tuple with a list of field/direction pairs
+<em>and</em> index options expressed as a dict, such
+as <tt class="docutils literal"><span class="pre">{'index</span> <span class="pre">name':</span> <span class="pre">[('field',</span> <span class="pre">1)],</span> <span class="pre">'index</span> <span class="pre">with</span>
+<span class="pre">args':</span> <span class="pre">([('field',</span> <span class="pre">1)],</span> <span class="pre">{&quot;sparse&quot;:</span> <span class="pre">True})}</span></tt>.</p>
+<p>Multiple pairs are used to create compound
+indexes. Direction takes all kind of values
+supported by PyMongo, such as <tt class="docutils literal"><span class="pre">ASCENDING</span></tt>
+= 1 and <tt class="docutils literal"><span class="pre">DESCENDING</span></tt> = -1. All index options
+such as <tt class="docutils literal"><span class="pre">sparse</span></tt>, <tt class="docutils literal"><span class="pre">min</span></tt>, <tt class="docutils literal"><span class="pre">max</span></tt>,
+etc. are supported (see <a class="reference external" href="http://api.mongodb.org/python/current/api/pymongo/collection.html#pymongo.collection.Collection.create_index">PyMongo</a> documentation.)</p>
+<p class="last"><em>Please note:</em> keep in mind that index design,
+creation and maintenance is a very important
+task and should be planned and executed with
+great care. Usually it is also a very resource
+intensive operation. You might therefore want
+to handle this task manually, out of the
+context of API instantiation. Also remember
+that, by default, any already exsistent index
+for which the definition has been changed, will
+be dropped and re-created.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">authentication</span></tt></td>
 <td>A class with the authorization logic for the
 endpoint. If not provided the eventual
 general purpose auth class (passed as
@@ -1006,14 +1035,14 @@ application constructor argument) will be used.
 For details on authentication and authorization
 see <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a>.  Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>,</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">embedded_fields</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">embedded_fields</span></tt></td>
 <td>A list of fields for which <a class="reference internal" href="features.html#embedded-docs"><em>Embedded Resource Serialization</em></a>
 is enabled by default. For this feature to work
 properly fields in the list must be
 <tt class="docutils literal"><span class="pre">embeddable</span></tt>, and <tt class="docutils literal"><span class="pre">embedding</span></tt> must be
 active for the resource.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">query_objectid_as_string</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">query_objectid_as_string</span></tt></td>
 <td>When enabled the Mongo parser will avoid
 automatically casting electable strings to
 ObjectIds. This can be useful in those rare
@@ -1023,7 +1052,7 @@ ObjectId values, but shouldn&#8217;t. It effects
 queries (<tt class="docutils literal"><span class="pre">?where=</span></tt>) and parsing of payloads.
 Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">internal_resource</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">internal_resource</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">True</span></tt>, this option makes the resource
 internal. No HTTP action can be performed on
 the endpoint, which is still accessible from
@@ -1031,7 +1060,7 @@ the Eve data layer. See
 <a class="reference internal" href="features.html#internal-resources"><em>Internal Resources</em></a> for more
 informations. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">etag_ignore_fields</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">etag_ignore_fields</span></tt></td>
 <td>List of fields that
 should not be used to compute the ETag value.
 Defaults to <tt class="docutils literal"><span class="pre">None</span></tt> which means that by
@@ -1039,7 +1068,7 @@ default all fields are included in the computation.
 It looks like <tt class="docutils literal"><span class="pre">['field1',</span> <span class="pre">'field2',</span>
 <span class="pre">'field3.nested_field',</span> <span class="pre">...]</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
 <td>A dict defining the actual data structure being
 handled by the resource. Enables data
 validation. See <a class="reference internal" href="#schema-definition">Schema Definition</a>.</td>
