@@ -18,7 +18,7 @@ import copy
 from flask import Flask
 from werkzeug.routing import BaseConverter
 from werkzeug.serving import WSGIRequestHandler
-from eve.io.mongo import Mongo, Validator, GridFSMediaStorage
+from eve.io.mongo import Mongo, Validator, GridFSMediaStorage, create_index
 from eve.exceptions import ConfigException, SchemaException
 from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint, \
     error_endpoint, media_endpoint
@@ -159,6 +159,7 @@ class Eve(Flask, Events):
         domain_copy = copy.deepcopy(self.config['DOMAIN'])
         for resource, settings in domain_copy.items():
             self.register_resource(resource, settings)
+
         # it seems like both domain_copy and config['DOMAIN']
         # suffered changes at this point, so merge them
         # self.config['DOMAIN'].update(domain_copy)
@@ -469,6 +470,9 @@ class Eve(Flask, Events):
     def _set_resource_defaults(self, resource, settings):
         """ Low-level method which sets default values for one resource.
 
+        .. versionchanged:: 0.6
+           Support for 'mongo_indexes'.
+
         .. versionchanged:: 0.5
            Don't set default projection if 'allow_unknown' is active (#497).
            'internal_resource'
@@ -535,6 +539,7 @@ class Eve(Flask, Events):
                             self.config['EXTRA_RESPONSE_FIELDS'])
         settings.setdefault('mongo_write_concern',
                             self.config['MONGO_WRITE_CONCERN'])
+        settings.setdefault('mongo_indexes', {})
         settings.setdefault('hateoas',
                             self.config['HATEOAS'])
         settings.setdefault('authentication', self.auth if self.auth else None)
@@ -727,6 +732,9 @@ class Eve(Flask, Events):
         :param resource: resource name.
         :param settings: settings for given resource.
 
+        .. versionchanged:: 0.6
+           Support for 'mongo_indexes'.
+
         .. versionchanged:: 0.4
            Support for document versioning.
 
@@ -759,6 +767,18 @@ class Eve(Flask, Events):
                 versioned_resource,
                 self.config['DOMAIN'][versioned_resource]
             )
+
+        # create the mongo db indexes
+        mongo_indexes = self.config['DOMAIN'][resource]['mongo_indexes']
+        if mongo_indexes:
+            for name, value in mongo_indexes.items():
+                if isinstance(value, tuple):
+                    list_of_keys, index_options = value
+                else:
+                    list_of_keys = value
+                    index_options = {}
+
+                create_index(self, resource, name, list_of_keys, index_options)
 
     def register_error_handlers(self):
         """ Register custom error handlers so we make sure that all errors

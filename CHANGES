@@ -9,6 +9,8 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- New: ``mongo_indexes`` allows for creation of MongoDB indexes at application
+  launch (Pau Freixes.)
 - New: clients can opt out of default embedded fields:
   ``?embedded={"author":0}`` would cause the embedded author not to be included
   with response payload. (Tobias Betz.)
