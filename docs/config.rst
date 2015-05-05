@@ -834,28 +834,35 @@ always lowercase.
 
                                 See also: :ref:`authdrivendb`.
 
-``mongo_indexes``               Allows specify a set of indexes that have to
-                                created before the app is launched for this
-                                resource.
+``mongo_indexes``               Allows to specify a set of indexes to be 
+                                created for this resource before the app is
+                                launched.
 
-                                Indexes are a dict where each value either
-                                takes a list of keys or the list of keys 
-                                plust the index options as one tuple, such
-                                as  ``{'index name': [('field', 1)],
-                                'index with args': ([('field', 1)],
-                                {"sparse": true})}``. 
+                                Indexes are expressed as a dict where keys are
+                                index names and values are either a list of
+                                tuples of (field, direction) pairs, or
+                                a tuple with a list of field/direction pairs
+                                *and* index options expressed as a dict, such
+                                as ``{'index name': [('field', 1)], 'index with
+                                args': ([('field', 1)], {"sparse": True})}``. 
 
-                                The list of keys take a (key, direction) pairs. 
                                 Multiple pairs are used to create compound
-                                indexes. The direction takes kind of values
-                                supported by `pymongo` such as ASCENDING = 1,
-                                DESCENDING = -1.
+                                indexes. Direction takes all kind of values
+                                supported by PyMongo, such as ``ASCENDING``
+                                = 1 and ``DESCENDING`` = -1. All index options
+                                such as ``sparse``, ``min``, ``max``,
+                                etc. are supported (see PyMongo_ documentation.)
 
-                                Index arguments are index options supported 
-                                by `pymongo` such as sparce, min, max.
-
-                                Index already created before that have
-                                changed are removed and created again.
+                                *Please note:* keep in mind that index design,
+                                creation and maintenance is a very important
+                                task and should be planned and executed with
+                                great care. Usually it is also a very resource
+                                intensive operation. You might therefore want
+                                to handle this task manually, out of the
+                                context of API instantiation. Also remember
+                                that, by default, any already exsistent index
+                                for which the definition has been changed, will
+                                be dropped and re-created.
 
 ``authentication``              A class with the authorization logic for the 
                                 endpoint. If not provided the eventual
@@ -1277,3 +1284,4 @@ read access open to the public.
 .. _Cerberus: http://cerberus.readthedocs.org
 .. _`MongoDB URI`: http://docs.mongodb.org/manual/reference/connection-string/#Connections-StandardConnectionStringFormat
 .. _ReadPreference: http://api.mongodb.org/python/current/api/pymongo/read_preferences.html#pymongo.read_preferences.ReadPreference
+.. _PyMongo: http://api.mongodb.org/python/current/api/pymongo/collection.html#pymongo.collection.Collection.create_index
