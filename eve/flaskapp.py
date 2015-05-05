@@ -470,6 +470,9 @@ class Eve(Flask, Events):
     def _set_resource_defaults(self, resource, settings):
         """ Low-level method which sets default values for one resource.
 
+        .. versionchanged:: 0.6
+           Support for 'mongo_indexes'.
+
         .. versionchanged:: 0.5
            Don't set default projection if 'allow_unknown' is active (#497).
            'internal_resource'
@@ -729,6 +732,9 @@ class Eve(Flask, Events):
         :param resource: resource name.
         :param settings: settings for given resource.
 
+        .. versionchanged:: 0.6
+           Support for 'mongo_indexes'.
+
         .. versionchanged:: 0.4
            Support for document versioning.
 
@@ -763,10 +769,9 @@ class Eve(Flask, Events):
             )
 
         # create the mongo db indexes
-        if self.config['DOMAIN'][resource]['mongo_indexes']:
-            for name, value in\
-                    self.config['DOMAIN'][resource]['mongo_indexes'].items():
-
+        mongo_indexes = self.config['DOMAIN'][resource]['mongo_indexes']
+        if mongo_indexes:
+            for name, value in mongo_indexes.items():
                 if isinstance(value, tuple):
                     list_of_keys, index_options = value
                 else:

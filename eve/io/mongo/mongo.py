@@ -849,9 +849,9 @@ def create_index(app, resource, name, list_of_keys, index_options):
     # just reproduced the same behaviour for username
     # and password, the other fields come set by Eve by
     # default.
-    username = app.config[key('USERNAME')]\
+    username = app.config[key('USERNAME')] \
         if key('USERNAME') in app.config else None
-    password = app.config[key('PASSWORD')]\
+    password = app.config[key('PASSWORD')] \
         if key('PASSWORD') in app.config else None
     host = app.config[key('HOST')]
     port = app.config[key('PORT')]
