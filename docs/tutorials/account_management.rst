@@ -501,7 +501,7 @@ definition accordingly:
         'allowed_roles': ['superuser', 'admin'],
 
         # Allow 'token' to be returned with POST responses
-        extra_response_fields: ['token'],
+        'extra_response_fields': ['token'],
         
         # Finally, let's add the schema definition for this endpoint.
         'schema': schema,
