@@ -45,7 +45,8 @@ class TestVersioningBase(TestBase):
             settings['datasource'].pop('projection', None)
             self.app.register_resource(resource, settings)
 
-    def enableDataVersionRelation(self, embeddable=True):
+    def enableDataVersionRelation(self, embeddable=True, custom_field=None,
+                                  custom_field_type='string'):
         field = {
             'type': 'dict',
             'schema': {
@@ -56,12 +57,15 @@ class TestVersioningBase(TestBase):
                 'resource': 'contacts'
             }
         }
-        if embeddable is True:
+        if custom_field is None:
             field['schema'][self.app.config['ID_FIELD']] = {'type': 'objectid'}
-            field['data_relation']['embeddable'] = True
         else:
-            field['schema']['ref'] = {'type': 'string'}
-            field['data_relation']['field'] = 'ref'
+            field['schema'][custom_field] = {'type': custom_field_type}
+            field['data_relation']['field'] = custom_field
+
+        if embeddable is True:
+            field['data_relation']['embeddable'] = True
+
         self.domain['invoices']['schema']['person'] = field
 
     def assertEqualFields(self, obj1, obj2, fields):
@@ -287,11 +291,7 @@ class TestNormalVersioning(TestVersioningBase):
 class TestCompleteVersioning(TestNormalVersioning):
     def setUp(self):
         super(TestCompleteVersioning, self).setUp()
-
-        # turn on version after data has been inserted into the db
         self.enableVersioning()
-
-        # insert versioned test data
         self.insertTestData()
 
     def test_get(self):
@@ -724,17 +724,14 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertTrue(self.countShadowDocuments(self.item_id) == 0)
 
 
-class TestDataRelationVersionNotVersioned(TestNormalVersioning):
+class TestVersionedDataRelation(TestNormalVersioning):
     def setUp(self):
-        super(TestDataRelationVersionNotVersioned, self).setUp()
+        super(TestVersionedDataRelation, self).setUp()
 
         # enable versioning in the invoice data_relation definition
-        self.enableDataVersionRelation(embeddable=True)
+        self.enableDataVersionRelation()
 
-        # turn on version after data has been inserted into the db
         self.enableVersioning()
-
-        # insert versioned test data
         self.insertTestData()
 
     def test_referential_integrity(self):
@@ -803,11 +800,25 @@ class TestDataRelationVersionNotVersioned(TestNormalVersioning):
         data = {"person": {value_field: self.item_id, version_field: 1}}
         r, status = self.post('/invoices/', data=data)
         self.assert201(status)
+        # and response should include embedded v1
+        response, status = self.get(
+            self.domain['invoices']['url'],
+            item=r[self.app.config['ID_FIELD']],
+            query='?embedded={"person": 1}')
+        self.assert200(status)
+        self.assertEqual(response['person'].get('_version'), 1)
 
         # reference second version... this should work
         data = {"person": {value_field: self.item_id, version_field: 2}}
         r, status = self.post('/invoices/', data=data)
         self.assert201(status)
+        # and response should include embedded v2
+        response, status = self.get(
+            self.domain['invoices']['url'],
+            item=r[self.app.config['ID_FIELD']],
+            query='?embedded={"person": 1}')
+        self.assert200(status)
+        self.assertEqual(response['person'].get('_version'), 2)
 
     def test_embedded(self):
         """ Perform a quick check to make sure that Eve can embedded with a
@@ -831,17 +842,15 @@ class TestDataRelationVersionNotVersioned(TestNormalVersioning):
         self.assertTrue('ref' in response['person'])
 
 
-class TestDataRelationVersionVersioned(TestNormalVersioning):
+class TestVersionedDataRelationCustomField(TestNormalVersioning):
     def setUp(self):
-        super(TestDataRelationVersionVersioned, self).setUp()
+        super(TestVersionedDataRelationCustomField, self).setUp()
 
-        # enable versioning in the invoice data_relation definition
-        self.enableDataVersionRelation(embeddable=False)
+        # enable versioning in the invoice data_relation definition with custom
+        # relation field
+        self.enableDataVersionRelation(custom_field=self.versioned_field)
 
-        # turn on version after data has been inserted into the db
         self.enableVersioning()
-
-        # insert versioned test data
         self.insertTestData()
 
     def test_referential_integrity(self):
@@ -866,16 +875,58 @@ class TestDataRelationVersionVersioned(TestNormalVersioning):
         data = {"person": {'ref': self.item['ref'], self.version_field: 1}}
         r, status = self.post('/invoices/', data=data)
         self.assert201(status)
+        # and response should include embedded v1
+        response, status = self.get(
+            self.domain['invoices']['url'],
+            item=r[self.app.config['ID_FIELD']],
+            query='?embedded={"person": 1}')
+        self.assert200(status)
+        self.assertEqual(response['person'].get('_version'), 1)
+
+
+class TestVersionedDataRelationUnversionedField(TestNormalVersioning):
+    def setUp(self):
+        super(TestVersionedDataRelationUnversionedField, self).setUp()
+
+        # enable versioning in the invoice data_relation definition with custom
+        # unversioned relation field
+        self.enableDataVersionRelation(
+            custom_field=self.unversioned_field, custom_field_type='integer')
+
+        self.enableVersioning(partial=True)
+        self.insertTestData()
+
+    def test_referential_integrity(self):
+        """ Make sure that Eve correctly distinguishes between versions when
+        referencing unversioned fields
+        """
+        # put a second version
+        response, status = self.put(self.item_id_url, data=self.item_change,
+                                    headers=[('If-Match', self.item_etag)])
+        self.assertGoodPutPatch(response, status)
+
+        # reference first version
+        relation_field = self.unversioned_field
+        data = {"person": {
+            relation_field: self.item_change[relation_field],
+            self.version_field: 1
+        }}
+        r, status = self.post('/invoices/', data=data)
+        self.assert201(status)
+        # and response should include embedded v1
+        response, status = self.get(
+            self.domain['invoices']['url'],
+            item=r[self.app.config['ID_FIELD']],
+            query='?embedded={"person": 1}')
+        self.assert200(status)
+        self.assertEqual(response['person'].get('_version'), 1)
 
 
 class TestPartialVersioning(TestNormalVersioning):
     def setUp(self):
         super(TestPartialVersioning, self).setUp()
 
-        # turn on version after data has been inserted into the db
         self.enableVersioning(partial=True)
-
-        # insert versioned test data
         self.insertTestData()
 
     def test_get(self):

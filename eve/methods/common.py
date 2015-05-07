@@ -22,7 +22,7 @@ from functools import wraps
 from eve.utils import parse_request, document_etag, config, request_method, \
     debug_error_message, auto_fields
 from eve.versioning import resolve_document_version, \
-    get_data_version_relation_document, missing_version_field
+    get_data_version_relation_document
 
 
 def get_document(resource, concurrency_check, **lookup):
@@ -448,7 +448,6 @@ def build_response_document(
     # 'get' method
     document[config.DATE_CREATED] = date_created(document)
     document[config.LAST_UPDATED] = last_updated(document)
-    # TODO: last_update could include consideration for embedded documents
 
     # Up to v0.4 etags were not stored with the documents.
     if config.IF_MATCH and config.ETAG not in document:
@@ -568,30 +567,13 @@ def embedded_document(reference, data_relation, field_name):
     """
     # Retrieve and serialize the requested document
     if 'version' in data_relation and data_relation['version'] is True:
-        # support late versioning
-        if reference[config.VERSION] == 1:
-            # there is a chance this document hasn't been saved
-            # since versioning was turned on
-            embedded_doc = missing_version_field(data_relation, reference)
+        # grab the specific version
+        embedded_doc = get_data_version_relation_document(
+            data_relation, reference)
 
-            if embedded_doc is None:
-                # this document has been saved since the data_relation was
-                # made - we basically do not have the copy of the document
-                # that existed when the data relation was made, but we'll
-                # try the next best thing - the first version
-                reference[config.VERSION] = 1
-                embedded_doc = get_data_version_relation_document(
-                    data_relation, reference)
-
-            latest_embedded_doc = embedded_doc
-        else:
-            # grab the specific version
-            embedded_doc = get_data_version_relation_document(
-                data_relation, reference)
-
-            # grab the latest version
-            latest_embedded_doc = get_data_version_relation_document(
-                data_relation, reference, latest=True)
+        # grab the latest version
+        latest_embedded_doc = get_data_version_relation_document(
+            data_relation, reference, latest=True)
 
         # make sure we got the documents
         if embedded_doc is None or latest_embedded_doc is None:
@@ -601,7 +583,6 @@ def embedded_document(reference, data_relation, field_name):
                 field_name
             ))
 
-        # build the response document
         build_response_document(embedded_doc, data_relation['resource'],
                                 [], latest_embedded_doc)
     else:
