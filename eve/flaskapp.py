@@ -557,7 +557,14 @@ class Eve(Flask, Events):
             # enable retrieval of actual schema fields only. Eventual db
             # fields not included in the schema won't be returned.
             projection = {}
+            projection.update(dict((field, 1) for (field) in schema))
+        else:
+            # all fields are returned.
+            projection = None
+        settings['datasource'].setdefault('projection', projection)
+        if settings['datasource']['projection']:
             # despite projection, automatic fields are always included.
+            projection = settings['datasource']['projection']
             projection[self.config['ID_FIELD']] = 1
             projection[self.config['LAST_UPDATED']] = 1
             projection[self.config['DATE_CREATED']] = 1
@@ -567,11 +574,6 @@ class Eve(Flask, Events):
                 projection[
                     self.config['ID_FIELD'] +
                     self.config['VERSION_ID_SUFFIX']] = 1
-            projection.update(dict((field, 1) for (field) in schema))
-        else:
-            # all fields are returned.
-            projection = None
-        settings['datasource'].setdefault('projection', projection)
 
         # 'defaults' helper set contains the names of fields with default
         # values in their schema definition.
