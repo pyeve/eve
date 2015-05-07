@@ -5,6 +5,6 @@ Flask==0.10.1
 itsdangerous==0.24
 Jinja2==2.7.3
 MarkupSafe==0.23
-pymongo==2.7.2
+pymongo==2.8
 simplejson==3.6.5
 Werkzeug==0.10.1
