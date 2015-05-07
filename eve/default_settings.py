@@ -17,6 +17,8 @@
        'RETURN_MEDIA_AS_URL' added and set to None.
        'MEDIA_ENDPOINT' added and set to 'media'.
        'MEDIA_URL' added and set to regex("[a-f0-9]{24}").
+       'SOFT_DELETE' added and set to False.
+       'DELETED' added and set to '_deleted'.
 
     .. versionchanged:: 0.5
        'SERVER_NAME' removed.
@@ -99,6 +101,7 @@ ITEMS = '_items'
 LINKS = '_links'
 ETAG = '_etag'
 VERSION = '_version'            # field that stores the version number
+DELETED = '_deleted'            # field to store soft delete status
 META = '_meta'
 
 VALIDATION_ERROR_STATUS = 422
@@ -138,6 +141,7 @@ VERSIONS = '_versions'          # suffix for parallel collection w/old versions
 VERSION_PARAM = 'version'       # URL param for specific version of a document.
 INTERNAL_RESOURCE = False       # resources are public by default.
 JSONP_ARGUMENT = None           # JSONP disabled by default.
+SOFT_DELETE = False             # soft delete disabled by default.
 
 OPLOG = False                   # oplog is disabled by default.
 OPLOG_NAME = 'oplog'            # default oplog resource name.

@@ -374,6 +374,9 @@ class Eve(Flask, Events):
             self.config['VERSION'],
             self.config['LATEST_VERSION'],
             self.config['ID_FIELD'] + self.config['VERSION_ID_SUFFIX']]
+        if self.config['SOFT_DELETE'] is True:
+            fields += [self.config['DELETED']]
+
         offenders = []
         for field in fields:
             if field in schema:
@@ -574,6 +577,8 @@ class Eve(Flask, Events):
                 projection[
                     self.config['ID_FIELD'] +
                     self.config['VERSION_ID_SUFFIX']] = 1
+            if self.config['SOFT_DELETE'] is True:
+                projection[self.config['DELETED']] = 1
 
         # 'defaults' helper set contains the names of fields with default
         # values in their schema definition.

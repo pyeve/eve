@@ -57,7 +57,8 @@ def resolve_document_version(document, resource, method, latest_doc=None):
             # this one is easy! it is a new document
             document[version] = 1
 
-        if method == 'PUT' or method == 'PATCH':
+        if method == 'PUT' or method == 'PATCH' or \
+                (method == 'DELETE' and app.config['SOFT_DELETE'] is True):
             if not latest_doc:
                 abort(500, description=debug_error_message(
                     'I need the latest document here!'
@@ -146,6 +147,9 @@ def versioned_fields(resource_def):
 
     :param resource_def: a resource definition.
 
+    .. versionchanged:: 0.6
+       Added DELETED as versioned field for soft delete (#335)
+
     .. versionchanged:: 0.5
        ETAG is now a versioned field (#369).
 
@@ -156,6 +160,7 @@ def versioned_fields(resource_def):
     if resource_def['versioning'] is True:
         fields.append(app.config['LAST_UPDATED'])
         fields.append(app.config['ETAG'])
+        fields.append(app.config['DELETED'])
         for field in schema:
             if field not in schema or \
                     schema[field].get('versioned', True) is True:
@@ -297,6 +302,8 @@ def get_data_version_relation_document(data_relation, reference, latest=False):
         # The relation value field is unversioned, and will not be present in
         # the versioned collection. Need to find id field for version query
         req = ParsedRequest()
+        if config.SOFT_DELETE:
+            req.show_deleted = True
         latest_version = app.data.find_one(
             collection, req, **{value_field: reference[value_field]})
         if not latest_version:
@@ -321,6 +328,10 @@ def get_data_version_relation_document(data_relation, reference, latest=False):
     # Fetch the latest version of this document to use in version synthesis
     query = {id_field: referenced_version[versioned_id_field()]}
     req = ParsedRequest()
+    if config.SOFT_DELETE:
+        # Still return latest after soft delete. It is needed to synthesize
+        # full document version.
+        req.show_deleted = True
     latest_version = app.data.find_one(collection, req, **query)
     if latest is True:
         return latest_version

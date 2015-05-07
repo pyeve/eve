@@ -66,6 +66,7 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.config['QUERY_EMBEDDED'], 'embedded')
 
         self.assertEqual(self.app.config['JSON_SORT_KEYS'], False)
+        self.assertEqual(self.app.config['SOFT_DELETE'], False)
 
     def test_settings_as_dict(self):
         my_settings = {'API_VERSION': 'override!', 'DOMAIN': {'contacts': {}}}

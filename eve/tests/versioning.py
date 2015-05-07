@@ -68,6 +68,15 @@ class TestVersioningBase(TestBase):
 
         self.domain['invoices']['schema']['person'] = field
 
+    def enableSoftDelete(self):
+        self.app.config['SOFT_DELETE'] = True
+        domain = copy.copy(self.domain)
+        for resource, settings in domain.items():
+            # rebuild resource settings for soft delete
+            self.app.register_resource(resource, settings)
+
+        self.deleted_field = self.app.config['DELETED']
+
     def assertEqualFields(self, obj1, obj2, fields):
         for field in fields:
             self.assertEqual(obj1[field], obj2[field])
@@ -723,6 +732,72 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertTrue(self.countDocuments(self.item_id) == 0)
         self.assertTrue(self.countShadowDocuments(self.item_id) == 0)
 
+    def test_softdelete(self):
+        """ Deleting a versioned item with soft delete enabled should create a
+        new version marked as deleted, which is returned with `410 Gone` in
+        response to GET requests. GETs of previous versions should continue to
+        respond with `200 OK` responses. Requests for `?version=all/diff`
+        should include the soft deleted version as if it were a normal version
+        of the document.
+        """
+        self.enableSoftDelete()
+        response, status = self.delete(
+            self.item_id_url, headers=[('If-Match', self.item_etag)])
+        self.assert204(status)
+
+        # verify that the primary document and two (v1 and deleted v2) shadow
+        # documents exist
+        self.assertTrue(self.countDocuments(self.item_id) == 1)
+        self.assertTrue(self.countShadowDocuments(self.item_id) == 2)
+
+        # GET primary should return `410 Gone` w/ doc + _deleted == True
+        r = self.test_client.get(self.item_id_url)
+        document, status = self.parse_response(r)
+        self.assert410(status)
+        self.assertEqual(document[self.latest_version_field], 2)
+        self.assertEqual(document.get(self.deleted_field), True)
+
+        # GET v2 should return `410 Gone` w/ doc + _deleted == True
+        r = self.test_client.get(self.item_id_url + "?version=2")
+        document, status = self.parse_response(r)
+        self.assert410(status)
+        self.assertEqual(document[self.latest_version_field], 2)
+        self.assertEqual(document.get(self.deleted_field), True)
+
+        # GET v1 should return `200 OK` w/ doc + _deleted == False
+        r = self.test_client.get(self.item_id_url + "?version=1")
+        document, status = self.parse_response(r)
+        self.assert200(status)
+        self.assertEqual(document[self.latest_version_field], 2)
+        self.assertEqual(document.get(self.deleted_field), False)
+
+        # GET ?version=all and ?version=diff should include the deleted version
+        # as if it were any other version, but with the _deleted flag == True
+        r = self.test_client.get(self.item_id_url + "?version=all")
+        document, status = self.parse_response(r)
+        self.assert200(status)
+        items = document[self.app.config['ITEMS']]
+        self.assertEqual(len(items), 2)
+        self.assertEqual(items[1].get('_deleted'), True)
+
+        r = self.test_client.get(self.item_id_url + "?version=diffs")
+        document, status = self.parse_response(r)
+        self.assert200(status)
+        items = document[self.app.config['ITEMS']]
+        self.assertEqual(len(items), 2)
+        # Deleted item shoud diff by the version, etag, deleted, and
+        # last_updated field only (the speed of test executon means
+        # last_updated will only change in test intermittently)
+        self.assertVersion(items[1], 2)
+        changed_fields = [
+            self.version_field,
+            self.deleted_field,
+            self.app.config['ETAG']]
+        self.assertTrue(
+            len(items[1].keys()) == len(changed_fields) or
+            len(items[1].keys()) == len(changed_fields) - 1)
+        self.assertTrue(field in items[1] for field in changed_fields)
+
 
 class TestVersionedDataRelation(TestNormalVersioning):
     def setUp(self):
@@ -840,6 +915,71 @@ class TestVersionedDataRelation(TestNormalVersioning):
             item=invoice_id, query='?embedded={"person": 1}')
         self.assert200(status)
         self.assertTrue('ref' in response['person'])
+
+    def test_softdelete_embedded(self):
+        """ If a versioned embedded document is soft deleted, a previous
+        version should still resolve correctly.
+        """
+        self.enableSoftDelete()
+
+        data_relation = \
+            self.domain['invoices']['schema']['person']['data_relation']
+        value_field = data_relation['field']
+        version_field = self.app.config['VERSION']
+
+        # add embeddable data relation
+        data = {"person": {value_field: self.item_id, version_field: 1}}
+        response, status = self.post('/invoices/', data=data)
+        self.assert201(status)
+        invoice_id = response[value_field]
+
+        # soft delete embedded doc
+        response, status = self.delete(
+            self.item_id_url, headers=[('If-Match', self.item_etag)])
+        self.assert204(status)
+
+        # v1 should still return
+        response, status = self.get(
+            self.domain['invoices']['url'],
+            item=invoice_id, query='?embedded={"person": 1}')
+        self.assert200(status)
+
+        self.assertEqual(response['person'].get('_id'), self.item_id)
+        self.assertEqual(response['person'].get('_etag'), self.item_etag)
+        self.assertEqual(response['person'].get('_version'), 1)
+        self.assertEqual(response['person'].get('_deleted'), False)
+
+    def test_softdelete_data_relation_validation(self):
+        """Eve validation should not allow a data relation to a soft deleted
+        document version. A data relation to an un-deleted version should be
+        allowed.
+        """
+        self.enableSoftDelete()
+
+        # soft delete embeddable document
+        self.enableSoftDelete()
+        response, status = self.delete(
+            self.item_id_url, headers=[('If-Match', self.item_etag)])
+        self.assert204(status)
+
+        # creating data relation to still valid v1 should work
+        data_relation = \
+            self.domain['invoices']['schema']['person']['data_relation']
+        value_field = data_relation['field']
+        version_field = self.app.config['VERSION']
+
+        data = {"person": {value_field: self.item_id, version_field: 1}}
+        response, status = self.post('/invoices/', data=data)
+        self.assert201(status)
+
+        # saving relation to deleted version 2 should fail
+        data = {"person": {value_field: self.item_id, version_field: 2}}
+        r, status = self.post('/invoices/', data=data)
+        self.assertValidationErrorStatus(status)
+        self.assertValidationError(
+            r, {'person': "value '%s' must exist in "
+                "resource '%s', field '%s' at version '%s'." %
+                (self.item_id, 'contacts', value_field, 2)})
 
 
 class TestVersionedDataRelationCustomField(TestNormalVersioning):
@@ -1081,6 +1221,27 @@ class TestLateVersioning(TestVersioningBase):
         # verify that neither primary or shadow documents exist
         self.assertTrue(self.countDocuments(self.item_id) == 0)
         self.assertTrue(self.countShadowDocuments(self.item_id) == 0)
+
+    def test_softdelete(self):
+        """ Make sure that Eve jumps to version = 2 and saves two shadow copies
+        (version 1 and version 2) for documents that where already in the
+        database before version control was turned on.
+        """
+        self.enableSoftDelete()
+
+        # verify the primary document exists but no shadow documents do
+        self.assertTrue(self.countDocuments(self.item_id) > 0)
+        self.assertTrue(self.countShadowDocuments(self.item_id) == 0)
+
+        # soft delete resource and verify no errors
+        response, status = self.delete(
+            self.item_id_url, headers=[('If-Match', self.item_etag)])
+        self.assert204(status)
+
+        # verify that the primary document and two (late caught v1 and deleted
+        # v2) shadow documents exist
+        self.assertTrue(self.countDocuments(self.item_id) == 1)
+        self.assertTrue(self.countShadowDocuments(self.item_id) == 2)
 
     def test_referential_integrity(self):
         """ Make sure that Eve doesn't mind doing a data relation even when the

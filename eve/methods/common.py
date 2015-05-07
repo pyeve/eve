@@ -27,7 +27,7 @@ from eve.versioning import resolve_document_version, \
 
 def get_document(resource, concurrency_check, **lookup):
     """ Retrieves and return a single document. Since this function is used by
-    the editing methods (POST, PATCH, DELETE), we make sure that the client
+    the editing methods (PUT, PATCH, DELETE), we make sure that the client
     request references the current representation of the document before
     returning it. However, this concurrency control may be turned off by
     internal functions.
@@ -48,8 +48,16 @@ def get_document(resource, concurrency_check, **lookup):
       processing of new configuration settings: `filters`, `sorting`, `paging`.
     """
     req = parse_request(resource)
-    document = app.data.find_one(resource, None, **lookup)
+    if config.SOFT_DELETE:
+        # get_document should always fetch soft deleted documents from the db
+        # They are handled with 410 responses below.
+        req.show_deleted = True
+
+    document = app.data.find_one(resource, req, **lookup)
     if document:
+        if config.SOFT_DELETE and document.get(config.DELETED) is True:
+            # PUT, PATCH, and DELETE should not affect a soft deleted document
+            abort(410)
 
         if not req.if_match and config.IF_MATCH and concurrency_check:
             # we don't allow editing unless the client provides an etag
@@ -469,8 +477,19 @@ def build_response_document(
     # add version numbers
     resolve_document_version(document, resource, 'GET', latest_doc)
 
-    # media and embedded documents
+    # resolve media
     resolve_media_files(document, resource)
+
+    # resolve soft delete
+    if config.SOFT_DELETE is True:
+        if document.get(config.DELETED) is None:
+            document[config.DELETED] = False
+        elif document[config.DELETED] is True:
+            # Soft deleted documents are sent without expansion of embedded
+            # documents. Return before resolving them.
+            return
+
+    # resolve embedded documents
     resolve_embedded_documents(document, resource, embedded_fields)
 
 
