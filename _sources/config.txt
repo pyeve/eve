@@ -1026,7 +1026,7 @@ defining the field validation rules. Allowed validation rules are:
                                 Defaults to ``True``.
 
 ``items``                       Defines a list of values allowed in a ``list`` 
-                                of fixed length.
+                                of fixed length, see `docs <https://cerberus.readthedocs.org/en/latest/#items-list>`_.
 
 ``schema``                      Validation schema for ``dict`` types and 
                                 arbitrary length ``list`` types. For details 
