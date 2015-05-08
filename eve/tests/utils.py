@@ -168,8 +168,9 @@ class TestUtils(TestBase):
     def test_document_etag(self):
         test = {'key1': 'value1', 'another': 'value2'}
         challenge = dumps(test, sort_keys=True).encode('utf-8')
-        self.assertEqual(hashlib.sha1(challenge).hexdigest(),
-                         document_etag(test))
+        with self.app.test_request_context():
+            self.assertEqual(hashlib.sha1(challenge).hexdigest(),
+                             document_etag(test))
 
     def test_extract_key_values(self):
         test = {
