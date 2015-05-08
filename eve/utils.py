@@ -274,7 +274,11 @@ def document_etag(value):
        consistent between different runs and/or server instances (#16).
     """
     h = hashlib.sha1()
-    h.update(dumps(value, sort_keys=True).encode('utf-8'))
+    with app.app_context():
+        json_encoder = app.data.json_encoder_class()
+        h.update(
+            dumps(value, sort_keys=True,
+                  default=json_encoder.default).encode('utf-8'))
     return h.hexdigest()
 
 
