@@ -179,7 +179,7 @@ class TestUtils(TestBase):
         challenge = dumps(test_without_ignore, sort_keys=True).encode('utf-8')
         with self.app.test_request_context():
             self.assertEqual(hashlib.sha1(challenge).hexdigest(),
-                         document_etag(test, ignore_fields))
+                             document_etag(test, ignore_fields))
 
         # not required fields can not be present
         test = {'key1': 'value1', 'key2': 'value2'}
@@ -188,7 +188,7 @@ class TestUtils(TestBase):
         challenge = dumps(test_without_ignore, sort_keys=True).encode('utf-8')
         with self.app.test_request_context():
             self.assertEqual(hashlib.sha1(challenge).hexdigest(),
-                         document_etag(test, ignore_fields))
+                             document_etag(test, ignore_fields))
 
         # ignore fiels nested using doting notation
         test = {'key1': 'value1', 'dict': {'key2': 'value2', 'key3': 'value3'}}
@@ -197,7 +197,7 @@ class TestUtils(TestBase):
         challenge = dumps(test_without_ignore, sort_keys=True).encode('utf-8')
         with self.app.test_request_context():
             self.assertEqual(hashlib.sha1(challenge).hexdigest(),
-                         document_etag(test, ignore_fields))
+                             document_etag(test, ignore_fields))
 
     def test_extract_key_values(self):
         test = {
