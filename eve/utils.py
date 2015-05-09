@@ -297,7 +297,11 @@ def document_etag(value, ignore_fields=None):
         value_ = value
 
     h = hashlib.sha1()
-    h.update(dumps(value_, sort_keys=True).encode('utf-8'))
+    with app.app_context():
+        json_encoder = app.data.json_encoder_class()
+        h.update(
+            dumps(value_, sort_keys=True,
+                  default=json_encoder.default).encode('utf-8'))
     return h.hexdigest()
 
 
