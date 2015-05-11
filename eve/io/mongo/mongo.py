@@ -113,6 +113,7 @@ class Mongo(DataLayer):
 
         .. versionchanged:: 0.6
            Support for multiple databases.
+           Filter soft deleted documents by default
 
         .. versionchanged:: 0.5
            Support for comma delimited sort syntax. Addresses #443.
@@ -216,8 +217,7 @@ class Mongo(DataLayer):
         if config.SOFT_DELETE and not req.show_deleted:
             # Resolved after filter validation as querying against the DELETED
             # must always be allowed when SOFT_DELETE is enabled
-            if (sub_resource_lookup is None) or \
-                    (config.DELETED not in sub_resource_lookup):
+            if not self.query_contains_field(spec, config.DELETED):
                 spec = self.combine_queries(
                     spec, {config.DELETED: {"$ne": True}})
 
@@ -255,6 +255,7 @@ class Mongo(DataLayer):
 
         .. versionchanged:: 0.6
            Support for multiple databases.
+           Filter soft deleted documents by default
 
         .. versionchanged:: 0.4
            Honor client projection requests.
@@ -283,7 +284,7 @@ class Mongo(DataLayer):
             client_projection)
 
         if config.SOFT_DELETE and (not req or not req.show_deleted):
-            if config.DELETED not in lookup:
+            if not self.query_contains_field(lookup, config.DELETED):
                 filter_ = self.combine_queries(
                     filter_, {config.DELETED: {"$ne": True}})
 

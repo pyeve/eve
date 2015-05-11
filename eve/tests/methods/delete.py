@@ -4,6 +4,7 @@ from eve.tests.test_settings import MONGO_DBNAME
 from eve import ETAG
 from bson import ObjectId
 from eve.utils import ParsedRequest
+import simplejson as json
 import copy
 
 from eve.methods.delete import deleteitem_internal
@@ -260,27 +261,57 @@ class TestSoftDelete(TestDelete):
 
     # TetsSoftDelete specific tests
 
-    def test_operations_after_softdelete(self):
-        """After an item has been soft deleted, PUTs, PATCHes, and DELETEs should
+    def test_restore_softdeleted(self):
+        """Sending a PUT or PATCH to a soft deleted document should restore the
+        document.
+        """
+        def soft_delete_item(etag):
+            r, status = self.delete(
+                self.item_id_url, headers=[('If-Match', etag)])
+            self.assert204(status)
+            # GET soft deleted etag
+            return self.test_client.get(self.item_id_url)
+
+        # Restore via PATCH
+        deleted_etag = soft_delete_item(self.item_etag).headers['ETag']
+        r = self.test_client.patch(
+            self.item_id_url,
+            data=json.dumps({}),
+            headers=[('Content-Type', 'application/json'),
+                     ('If-Match', deleted_etag)])
+        self.assert200(r.status_code)
+
+        r = self.test_client.get(self.item_id_url)
+        self.assert200(r.status_code)
+        new_etag = r.headers['ETag']
+
+        # Restore via PUT
+        r = soft_delete_item(new_etag)
+        deleted_etag = r.headers['ETag']
+        restored_doc = {"ref": "1234567890123456789012345"}
+        r = self.test_client.put(
+            self.item_id_url,
+            data=json.dumps(restored_doc),
+            headers=[('Content-Type', 'application/json'),
+                     ('If-Match', deleted_etag)])
+        self.assert200(r.status_code)
+
+        r = self.test_client.get(self.item_id_url)
+        self.assert200(r.status_code)
+
+    def test_multiple_softdelete(self):
+        """After an item has been soft deleted, subsequent DELETEs should
         return a 410 Gone response.
         """
         r, status = self.delete(self.item_id_url, headers=self.etag_headers)
         self.assert204(status)
-
-        # PUT should return 410 Gone
-        r = self.test_client.put(self.item_id_url,
-                                 data={'ref': '1234567890123456789012345'},
-                                 headers=self.etag_headers)
-        self.assert410(r.status_code)
-
-        # PATCH should return 410 Gone
-        r = self.test_client.patch(self.item_id_url,
-                                   data={'ref': '1234567890123456789012345'},
-                                   headers=self.etag_headers)
-        self.assert410(r.status_code)
+        # GET soft deleted etag
+        r = self.test_client.get(self.item_id_url)
+        new_etag = r.headers['ETag']
 
         # Second soft DELETE should return 410 Gone
-        r, status = self.delete(self.item_id_url, headers=self.etag_headers)
+        r, status = self.delete(
+            self.item_id_url, headers=[('If-Match', new_etag)])
         self.assert410(status)
 
     def test_softdelete_deleted_field(self):
@@ -294,7 +325,8 @@ class TestSoftDelete(TestDelete):
 
     def test_softdelete_show_deleted(self):
         """GETs on resource endpoints should include soft deleted items when
-        the 'show_deleted' param is included in the query
+        the 'show_deleted' param is included in the query, or when the DELETED
+        field is explicitly included in the lookup.
         """
         r, status = self.delete(self.item_id_url, headers=self.etag_headers)
         self.assert204(status)
@@ -316,6 +348,12 @@ class TestSoftDelete(TestDelete):
             self.known_resource, query=role_query + "&show_deleted")
         show_deleted_role_count = data[self.app.config['META']]['total']
         self.assertEqual(show_deleted_role_count, role_count + 1)
+
+        # Test explicit _deleted query
+        data, status = self.get(
+            self.known_resource, query='?where={"_deleted": true}')
+        deleted_query_count = data[self.app.config['META']]['total']
+        self.assertEqual(deleted_query_count, 1)
 
     def test_softdeleted_embedded_doc(self):
         """Soft deleted documents embedded in other documents should not be

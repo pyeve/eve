@@ -55,10 +55,6 @@ def get_document(resource, concurrency_check, **lookup):
 
     document = app.data.find_one(resource, req, **lookup)
     if document:
-        if config.SOFT_DELETE and document.get(config.DELETED) is True:
-            # PUT, PATCH, and DELETE should not affect a soft deleted document
-            abort(410)
-
         if not req.if_match and config.IF_MATCH and concurrency_check:
             # we don't allow editing unless the client provides an etag
             # for the document

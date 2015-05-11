@@ -143,6 +143,10 @@ def put_internal(resource, payload=None, concurrency_check=False,
             document[config.LAST_UPDATED] = last_modified
             document[config.DATE_CREATED] = original[config.DATE_CREATED]
 
+            # updates to a soft deleted document restore it
+            if config.SOFT_DELETE and document.get(config.DELETED) is True:
+                document[config.DELETED] = False
+
             # ID_FIELD not in document means it is not being automatically
             # handled (it has been set to a field which exists in the
             # resource schema.

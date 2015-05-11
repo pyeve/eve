@@ -83,6 +83,8 @@ def deleteitem_internal(
     # aborts with a 410 response
     if not original:
         abort(404)
+    elif config.SOFT_DELETE and original.get(config.DELETED) is True:
+        abort(410)
 
     # notify callbacks
     if suppress_callbacks is not True:
