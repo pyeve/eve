@@ -168,32 +168,36 @@ class TestUtils(TestBase):
     def test_document_etag(self):
         test = {'key1': 'value1', 'another': 'value2'}
         challenge = dumps(test, sort_keys=True).encode('utf-8')
-        self.assertEqual(hashlib.sha1(challenge).hexdigest(),
-                         document_etag(test))
+        with self.app.test_request_context():
+            self.assertEqual(hashlib.sha1(challenge).hexdigest(),
+                             document_etag(test))
 
     def test_document_etag_ignore_fields(self):
         test = {'key1': 'value1', 'key2': 'value2'}
         ignore_fields = ["key2"]
         test_without_ignore = {'key1': 'value1'}
         challenge = dumps(test_without_ignore, sort_keys=True).encode('utf-8')
-        self.assertEqual(hashlib.sha1(challenge).hexdigest(),
-                         document_etag(test, ignore_fields))
+        with self.app.test_request_context():
+            self.assertEqual(hashlib.sha1(challenge).hexdigest(),
+                             document_etag(test, ignore_fields))
 
         # not required fields can not be present
         test = {'key1': 'value1', 'key2': 'value2'}
         ignore_fields = ["key3"]
         test_without_ignore = {'key1': 'value1', 'key2': 'value2'}
         challenge = dumps(test_without_ignore, sort_keys=True).encode('utf-8')
-        self.assertEqual(hashlib.sha1(challenge).hexdigest(),
-                         document_etag(test, ignore_fields))
+        with self.app.test_request_context():
+            self.assertEqual(hashlib.sha1(challenge).hexdigest(),
+                             document_etag(test, ignore_fields))
 
         # ignore fiels nested using doting notation
         test = {'key1': 'value1', 'dict': {'key2': 'value2', 'key3': 'value3'}}
         ignore_fields = ['dict.key2']
         test_without_ignore = {'key1': 'value1', 'dict': {'key3': 'value3'}}
         challenge = dumps(test_without_ignore, sort_keys=True).encode('utf-8')
-        self.assertEqual(hashlib.sha1(challenge).hexdigest(),
-                         document_etag(test, ignore_fields))
+        with self.app.test_request_context():
+            self.assertEqual(hashlib.sha1(challenge).hexdigest(),
+                             document_etag(test, ignore_fields))
 
     def test_extract_key_values(self):
         test = {

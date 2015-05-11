@@ -62,6 +62,8 @@ Version 0.6
 Version 0.5.4
 ~~~~~~~~~~~~~
 
+- Fix: ETag computation crash when non-standard json serializers are used
+  (Kevin Roy.)
 - Update: PyMongo 2.8 is now required (which in turn supports MongoDB 3.0)
 - Fix: Remove duplicate item in Mongo operators list. Closes #619.
 - Fix: Versioning: invalidate cache when ``_latest_version`` changes in
