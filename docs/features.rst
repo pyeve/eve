@@ -689,9 +689,9 @@ update to the primary document) and uses that value to populate the
 ``Last-Modified`` header and check the ``If-Modified-Since`` conditional cache
 validator of specific document version queries. Note that this will be
 different from the timestamp in the version's last updated field. The etag for
-a document version does not change when ```_latest_version``` changes, however.
+a document version does not change when ``_latest_version`` changes, however.
 This results in two corner cases. First, because Eve cannot determine if the
-client's ```_latest_version``` is up to date from an ETag alone, a query using
+client's ``_latest_version`` is up to date from an ETag alone, a query using
 only ``If-None-Match`` for cache validation of old document versions will always
 have its cache invalidated. Second, a version fetched and cached in the same
 second that multiple new versions are created can receive incorrect
@@ -915,6 +915,91 @@ Document embedding is enabled by default.
     deciding whether to enable it or not, especially by default, keep in mind
     that each embedded resource being looked up will require a database lookup,
     which can easily lead to performance issues.
+
+.. _soft_delete:
+
+Soft Delete
+-----------
+Eve provides an optional "soft delete" mode in which deleted documents continue
+to be stored in the database and are able to be restored, but still act as
+removed items in response to API requests. Use of soft delete is controlled by
+the ``SOFT_DELETE`` configuration setting, and is disabled by default. See
+:ref:'global' for more information on enabling and configuring soft delete.
+
+Behavior
+~~~~~~~~
+With soft delete enabled, DELETE requests to individual items and resources
+respond just as they do for a traditional "hard" delete. Behind the scenes,
+however, Eve does not remove deleted items from the database, but instead
+patches the document with a ``_deleted`` field set to ``true``. (The name of
+the ``_deleted`` field is configurable. See :ref:'global'.) All requests made
+when soft delete is enabled filter against or otherwise account for the
+``_deleted`` field. Documents which have not been deleted will not define
+``_deleted`` in the database, but the field will still appear in response data
+for these items, automatically added and set to ``false`` by Eve.
+
+Responses to GET requests for soft deleted documents vary slightly from
+responses to missing or "hard" deleted documents. Instead of recieving a
+``404 Not Found`` response, GET requests for soft deleted documents will
+recieve a ``410 Gone`` response, indicating the document has been removed. The
+response body will contain the soft deleted document with ``_deleted: true``.
+Documents embedded in the deleted document will not be expanded in the
+response, regardless of any default settings or the contents of the request's
+``embedded`` query param. This is to ensure that soft deleted documents
+included in ``410 Gone`` responses reflect the state of a document when it was
+deleted, and do not to change if embedded documents are updated.
+
+By default, resource level GET requests will not include soft deleted items in
+their response. This behavior matches that of requests after a "hard" delete.
+If including deleted items in the response is desired, the ``show_deleted``
+query param can be added to the request. Eve will respond with all documents,
+deleted or not, and it is up to the client to parse returned documents'
+``_deleted`` field. The ``_deleted`` field can also be explicitly filtered
+against in a request, allowing only deleted documents to be returned using a
+``?where={"_deleted": true}`` query.
+
+Soft delete is enforced in the data layer, meaning queries made by application
+code using the ``app.data.find_one`` and ``app.data.find`` methods will
+automatically filter out soft deleted items. Passing a request object with
+``req.show_deleted == True`` or a lookup dictionary that explicitly filters on
+the ``_deleted`` field will override the default filtering.
+
+Restoring Soft Deleted Items
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Authorized PUT or PATCH requests made to a soft deleted document will restore
+it, setting ``_deleted`` to ``false`` in the database. The request must be made
+with proper authoriation for write permission to the soft deleted document or
+it will be refused.
+
+Versioning
+~~~~~~~~~~
+Soft deleting a versioned document creates a new version of that document with
+``_deleted`` set to ``true``. A GET request to the deleted version will recieve
+a ``410 Gone`` response as described above, while previous versions will
+continue to respond with ``200 OK``. Responses to ``?version=diff`` or
+``?version=all`` will include the deleted version as if it were any other.
+
+Data Relations
+~~~~~~~~~~~~~~
+The Eve ``data_relation`` validator will not allow references to documents that
+have been soft deleted. Attempting to create or update a document with a
+reference to a soft deleted document will fail just as if that document had
+been hard deleted. If the data relation is versioned, references to versions
+prior to of after restoration of the deleted version are allowed and will
+behave as expected. If a request requires expansion of an embedded document
+that has since been soft deleted, that document will resolve to a null value.
+
+Considerations
+~~~~~~~~~~~~~~
+Disabling soft delete after use in an application requires database maintenance
+to ensure your API remains consistent. With soft delete disabled, requests will
+no longer filter against or handle the ``_deleted`` field, and documents that
+were soft deleted will now be live again on your API. It is therefore necessary
+when disabling soft delete to perform a data migration to remove all documents
+with ``_deleted == True``, and recommended to remove the ``_deleted`` field
+from restored documents where ``_deleted == False`` is stored in the database.
+Enabling soft delete in an existing application is safe, and will maintain
+documents deleted from that point forward.
 
 .. _eventhooks:
 

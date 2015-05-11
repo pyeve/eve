@@ -597,6 +597,14 @@ uppercase.
                                     wrapped in a ``funcname`` call. Defaults to
                                     ``None``.
 
+``SOFT_DELETE``                     Enables soft delete when set to ``True``.
+                                    See :ref:`soft_delete` for more
+                                    information. Defaults to ``False``.
+
+``DELETED``                         Field name used to indicate if a document
+                                    has been deleted when ``SOFT_DELETE``
+                                    is enabled. Defaults to ``_deleted``.
+
 =================================== =========================================
 
 .. _domain:
