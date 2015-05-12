@@ -528,14 +528,14 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertEqualFields(self.item_change, items[1], self.fields)
         changed_fields = self.fields + [
             self.version_field,
-            self.app.config['LAST_UPDATED'],
             self.app.config['ETAG']]
-        self.assertTrue(field in items[1] for field in changed_fields)
-        # since the test routine happens so fast, `LAST_UPDATED` is probably
-        # not in the diff (the date output only has a one second resolution)
+        for field in changed_fields:
+            self.assertTrue(field in items[1], "%s not in diffs" % field)
+        # since the test routine happens so fast, `LAST_UPDATED` may or may not
+        # be in the diff (the date output only has a one second resolution)
         self.assertTrue(
             len(items[1].keys()) == len(changed_fields) or
-            len(items[1].keys()) == len(changed_fields) - 1)
+            len(items[1].keys()) == len(changed_fields) + 1)
         self.assertEqual(items[1][self.app.config['ETAG']], etag2)
 
         # TODO: could also verify that a 3rd iteration is a diff of the 2nd
@@ -795,8 +795,9 @@ class TestCompleteVersioning(TestNormalVersioning):
             self.app.config['ETAG']]
         self.assertTrue(
             len(items[1].keys()) == len(changed_fields) or
-            len(items[1].keys()) == len(changed_fields) - 1)
-        self.assertTrue(field in items[1] for field in changed_fields)
+            len(items[1].keys()) == len(changed_fields) + 1)
+        for field in changed_fields:
+            self.assertTrue(field in items[1], "%s not in diffs" % field)
 
 
 class TestVersionedDataRelation(TestNormalVersioning):

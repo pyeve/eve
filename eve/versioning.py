@@ -187,6 +187,8 @@ def diff_document(resource_def, old_doc, new_doc):
         app.config['DATE_CREATED'],
         app.config['ETAG'],
         app.config['LINKS']]
+    if app.config['SOFT_DELETE'] is True:
+        fields.append(app.config['DELETED'])
 
     for field in fields:
         if field in new_doc and \
