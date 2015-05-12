@@ -509,6 +509,50 @@ class TestSoftDelete(TestDelete):
                 self.known_resource, [ObjectId(self.item_id)])
             self.assertEqual(docs.count(), 1)
 
+    def test_softdelete_db_fields(self):
+        """Documents created when soft delete is enabled should include and
+        maintain the DELETED field in the db.
+        """
+        r = self.test_client.post(self.known_resource_url, data={
+            'ref': "1234567890123456789054321"
+        })
+        data, status = self.parse_response(r)
+        self.assert201(status)
+        new_item_id = data[self.app.config['ID_FIELD']]
+        new_item_etag = data[self.app.config['ETAG']]
+
+        with self.app.test_request_context():
+            db_stored_doc = self.app.data.find_one_raw(
+                self.known_resource, _id=ObjectId(new_item_id))
+            self.assertTrue(self.DELETED in db_stored_doc)
+
+        # PUT updates to the document should maintain the DELETED field
+        r = self.test_client.put(
+            self.known_resource_url + "/" + new_item_id,
+            data={'ref': '5432109876543210987654321'},
+            headers=[('If-Match', new_item_etag)]
+        )
+        data, status = self.parse_response(r)
+        self.assert200(status)
+        new_item_etag = data[self.app.config['ETAG']]
+
+        with self.app.test_request_context():
+            db_stored_doc = self.app.data.find_one_raw(
+                self.known_resource, _id=ObjectId(new_item_id))
+            self.assertTrue(self.DELETED in db_stored_doc)
+
+        # PATCH updates to the document should maintain the DELETED field
+        r = self.test_client.patch(
+            self.known_resource_url + "/" + new_item_id,
+            data={'ref': '5555544444333332222211111'},
+            headers=[('If-Match', new_item_etag)]
+        )
+        self.assert200(r.status_code)
+        with self.app.test_request_context():
+            db_stored_doc = self.app.data.find_one_raw(
+                self.known_resource, _id=ObjectId(new_item_id))
+            self.assertTrue(self.DELETED in db_stored_doc)
+
 
 class TestDeleteEvents(TestBase):
     def test_on_pre_DELETE_for_item(self):

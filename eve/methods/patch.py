@@ -165,8 +165,10 @@ def patch_internal(resource, payload=None, concurrency_check=False,
             updates[config.LAST_UPDATED] = \
                 datetime.utcnow().replace(microsecond=0)
 
-            # Updates to a soft deleted document restore it
-            if config.SOFT_DELETE and original.get(config.DELETED) is True:
+            if config.SOFT_DELETE:
+                # PATCH with soft delete enabled should always set the DELETED
+                # field to False. We are either carrying through un-deleted
+                # status, or restoring a soft deleted document
                 updates[config.DELETED] = False
 
             # the mongo driver has a different precision than the python

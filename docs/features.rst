@@ -934,9 +934,15 @@ however, Eve does not remove deleted items from the database, but instead
 patches the document with a ``_deleted`` field set to ``true``. (The name of
 the ``_deleted`` field is configurable. See :ref:'global'.) All requests made
 when soft delete is enabled filter against or otherwise account for the
-``_deleted`` field. Documents which have not been deleted will not define
-``_deleted`` in the database, but the field will still appear in response data
-for these items, automatically added and set to ``false`` by Eve.
+``_deleted`` field.
+
+The ``_deleted`` field is automatically added and initialized to ``false`` for
+all documents created while soft delete is enabled. Documents created prior to
+soft delete being enabled and which therefore do not define the ``_deleted``
+field in the database will still include ``_deleted: false`` in API response
+data, added by Eve during response construction. PUTs or PATCHes to these
+documents will add the ``_deleted`` field to the stored documents, set to
+``false``.
 
 Responses to GET requests for soft deleted documents vary slightly from
 responses to missing or "hard" deleted documents. Instead of recieving a
@@ -968,7 +974,7 @@ Restoring Soft Deleted Items
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Authorized PUT or PATCH requests made to a soft deleted document will restore
 it, setting ``_deleted`` to ``false`` in the database. The request must be made
-with proper authoriation for write permission to the soft deleted document or
+with proper authorization for write permission to the soft deleted document or
 it will be refused.
 
 Versioning
@@ -984,10 +990,14 @@ Data Relations
 The Eve ``data_relation`` validator will not allow references to documents that
 have been soft deleted. Attempting to create or update a document with a
 reference to a soft deleted document will fail just as if that document had
-been hard deleted. If the data relation is versioned, references to versions
-prior to of after restoration of the deleted version are allowed and will
-behave as expected. If a request requires expansion of an embedded document
-that has since been soft deleted, that document will resolve to a null value.
+been hard deleted. Existing data relations to documents that are soft deleted
+remain in the database, but requests requiring embedded document serialization
+of those relations will resolve to a null value. Again, this matches the
+behavior of relations to hard deleted documents.
+
+Versioned data relations to a deleted document version will also fail to
+validate, but relations to versions prior to deletion or after restoration of
+the document are allowed and will continue to resolve successfully.
 
 Considerations
 ~~~~~~~~~~~~~~
@@ -997,9 +1007,8 @@ no longer filter against or handle the ``_deleted`` field, and documents that
 were soft deleted will now be live again on your API. It is therefore necessary
 when disabling soft delete to perform a data migration to remove all documents
 with ``_deleted == True``, and recommended to remove the ``_deleted`` field
-from restored documents where ``_deleted == False`` is stored in the database.
-Enabling soft delete in an existing application is safe, and will maintain
-documents deleted from that point forward.
+from documents where ``_deleted == False``. Enabling soft delete in an existing
+application is safe, and will maintain documents deleted from that point on.
 
 .. _eventhooks:
 

@@ -778,7 +778,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assert200(status)
         items = document[self.app.config['ITEMS']]
         self.assertEqual(len(items), 2)
-        self.assertEqual(items[1].get('_deleted'), True)
+        self.assertEqual(items[1].get(self.deleted_field), True)
 
         r = self.test_client.get(self.item_id_url + "?version=diffs")
         document, status = self.parse_response(r)
@@ -798,6 +798,44 @@ class TestCompleteVersioning(TestNormalVersioning):
             len(items[1].keys()) == len(changed_fields) + 1)
         for field in changed_fields:
             self.assertTrue(field in items[1], "%s not in diffs" % field)
+
+    def test_softdelete_version_db_fields(self):
+        """ Document versions created with soft delete enabled should include
+        the DELETED field.
+        """
+        self.enableSoftDelete()
+
+        # v1 created before soft delete was enabled, it will not have DELETED
+        v1_doc = self._db[self.known_resource_shadow].find_one({
+            self.document_id_field: ObjectId(self.item_id),
+            self.version_field: 1
+        })
+        self.assertEqual(v1_doc.get(self.deleted_field), None)
+
+        # Create second version
+        r = self.test_client.patch(
+            self.item_id_url,
+            data={'ref': '1234567890123456789012345'},
+            headers=[('If-Match', self.item_etag)]
+        )
+        # Create deleted third version
+        response, status = self.delete(
+            self.item_id_url, headers=[('If-Match', r.headers['ETag'])])
+        self.assert204(status)
+
+        # v2 doc should have DELETED = False added
+        v2_doc = self._db[self.known_resource_shadow].find_one({
+            self.document_id_field: ObjectId(self.item_id),
+            self.version_field: 2
+        })
+        self.assertEqual(v2_doc.get(self.deleted_field), False)
+
+        # v3 should have DELETED = True
+        v3_doc = self._db[self.known_resource_shadow].find_one({
+            self.document_id_field: ObjectId(self.item_id),
+            self.version_field: 3
+        })
+        self.assertEqual(v3_doc.get(self.deleted_field), True)
 
 
 class TestVersionedDataRelation(TestNormalVersioning):
@@ -945,10 +983,12 @@ class TestVersionedDataRelation(TestNormalVersioning):
             item=invoice_id, query='?embedded={"person": 1}')
         self.assert200(status)
 
-        self.assertEqual(response['person'].get('_id'), self.item_id)
-        self.assertEqual(response['person'].get('_etag'), self.item_etag)
-        self.assertEqual(response['person'].get('_version'), 1)
-        self.assertEqual(response['person'].get('_deleted'), False)
+        self.assertEqual(response['person'].get(
+            self.app.config['ID_FIELD']), self.item_id)
+        self.assertEqual(response['person'].get(
+            self.app.config['ETAG']), self.item_etag)
+        self.assertEqual(response['person'].get(self.version_field), 1)
+        self.assertEqual(response['person'].get(self.deleted_field), False)
 
     def test_softdelete_data_relation_validation(self):
         """Eve validation should not allow a data relation to a soft deleted

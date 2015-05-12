@@ -177,10 +177,13 @@ def post_internal(resource, payl=None, skip_validation=False):
                 validation = True
             else:
                 validation = validator.validate(document)
-            if validation:
-                # validation is successful
+            if validation:  # validation is successful
+                # Populate meta and default fields
                 document[config.LAST_UPDATED] = \
                     document[config.DATE_CREATED] = date_utc
+
+                if config.SOFT_DELETE is True:
+                    document[config.DELETED] = False
 
                 resolve_user_restricted_access(document, resource)
                 resolve_default_values(document, resource_def['defaults'])
