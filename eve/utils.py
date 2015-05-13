@@ -83,7 +83,7 @@ class ParsedRequest(object):
     # `embedded` value of the query string (?embedded). Defaults to None.
     embedded = None
 
-    # `show_deleted` True when ?show_deleted is included in query.
+    # `show_deleted` True when the SHOW_DELETED_PARAM is included in query.
     # Only relevant when soft delete is enabled. Defaults to False.
     show_deleted = False
 
@@ -126,7 +126,7 @@ def parse_request(resource):
     if settings['embedding']:
         r.embedded = args.get(config.QUERY_EMBEDDED)
 
-    r.show_deleted = 'show_deleted' in args
+    r.show_deleted = config.SHOW_DELETED_PARAM in args
 
     max_results_default = config.PAGINATION_DEFAULT if \
         settings['pagination'] else 0

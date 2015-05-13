@@ -960,10 +960,11 @@ deleted, and do not to change if embedded documents are updated.
 By default, resource level GET requests will not include soft deleted items in
 their response. This behavior matches that of requests after a "hard" delete.
 If including deleted items in the response is desired, the ``show_deleted``
-query param can be added to the request. Eve will respond with all documents,
-deleted or not, and it is up to the client to parse returned documents'
-``_deleted`` field. The ``_deleted`` field can also be explicitly filtered
-against in a request, allowing only deleted documents to be returned using a
+query param can be added to the request. (the ``show_deleted`` param name is
+configurable. See :ref:'global') Eve will respond with all documents, deleted
+or not, and it is up to the client to parse returned documents' ``_deleted``
+field. The ``_deleted`` field can also be explicitly filtered against in a
+request, allowing only deleted documents to be returned using a
 ``?where={"_deleted": true}`` query.
 
 Soft delete is enforced in the data layer, meaning queries made by application

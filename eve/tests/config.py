@@ -67,6 +67,8 @@ class TestConfig(TestBase):
 
         self.assertEqual(self.app.config['JSON_SORT_KEYS'], False)
         self.assertEqual(self.app.config['SOFT_DELETE'], False)
+        self.assertEqual(self.app.config['DELETED'], '_deleted')
+        self.assertEqual(self.app.config['SHOW_DELETED_PARAM'], 'show_deleted')
 
     def test_settings_as_dict(self):
         my_settings = {'API_VERSION': 'override!', 'DOMAIN': {'contacts': {}}}

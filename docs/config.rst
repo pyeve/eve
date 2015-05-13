@@ -605,6 +605,10 @@ uppercase.
                                     has been deleted when ``SOFT_DELETE``
                                     is enabled. Defaults to ``_deleted``.
 
+``SHOW_DELETED_PARAM``              The URL query parameter used to include
+                                    soft deleted items in resource level GET
+                                    responses. Defaults to 'show_deleted'.
+
 =================================== =========================================
 
 .. _domain:
