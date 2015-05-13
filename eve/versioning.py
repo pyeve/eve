@@ -58,7 +58,7 @@ def resolve_document_version(document, resource, method, latest_doc=None):
             document[version] = 1
 
         if method == 'PUT' or method == 'PATCH' or \
-                (method == 'DELETE' and app.config['SOFT_DELETE'] is True):
+                (method == 'DELETE' and resource_def['soft_delete'] is True):
             if not latest_doc:
                 abort(500, description=debug_error_message(
                     'I need the latest document here!'
@@ -187,7 +187,7 @@ def diff_document(resource_def, old_doc, new_doc):
         app.config['DATE_CREATED'],
         app.config['ETAG'],
         app.config['LINKS']]
-    if app.config['SOFT_DELETE'] is True:
+    if resource_def['soft_delete'] is True:
         fields.append(app.config['DELETED'])
 
     for field in fields:
@@ -304,7 +304,7 @@ def get_data_version_relation_document(data_relation, reference, latest=False):
         # The relation value field is unversioned, and will not be present in
         # the versioned collection. Need to find id field for version query
         req = ParsedRequest()
-        if config.SOFT_DELETE:
+        if resource_def['soft_delete']:
             req.show_deleted = True
         latest_version = app.data.find_one(
             collection, req, **{value_field: reference[value_field]})
@@ -330,7 +330,7 @@ def get_data_version_relation_document(data_relation, reference, latest=False):
     # Fetch the latest version of this document to use in version synthesis
     query = {id_field: referenced_version[versioned_id_field()]}
     req = ParsedRequest()
-    if config.SOFT_DELETE:
+    if resource_def['soft_delete']:
         # Still return latest after soft delete. It is needed to synthesize
         # full document version.
         req.show_deleted = True

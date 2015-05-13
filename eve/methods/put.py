@@ -142,7 +142,7 @@ def put_internal(resource, payload=None, concurrency_check=False,
             last_modified = datetime.utcnow().replace(microsecond=0)
             document[config.LAST_UPDATED] = last_modified
             document[config.DATE_CREATED] = original[config.DATE_CREATED]
-            if config.SOFT_DELETE:
+            if resource_def['soft_delete'] is True:
                 # PUT with soft delete enabled should always set the DELETED
                 # field to False. We are either carrying through un-deleted
                 # status, or restoring a soft deleted document

@@ -48,7 +48,7 @@ def get_document(resource, concurrency_check, **lookup):
       processing of new configuration settings: `filters`, `sorting`, `paging`.
     """
     req = parse_request(resource)
-    if config.SOFT_DELETE:
+    if config.DOMAIN[resource]['soft_delete']:
         # get_document should always fetch soft deleted documents from the db
         # They are handled with 410 responses below.
         req.show_deleted = True
@@ -477,7 +477,7 @@ def build_response_document(
     resolve_media_files(document, resource)
 
     # resolve soft delete
-    if config.SOFT_DELETE is True:
+    if config.DOMAIN[resource]['soft_delete'] is True:
         if document.get(config.DELETED) is None:
             document[config.DELETED] = False
         elif document[config.DELETED] is True:

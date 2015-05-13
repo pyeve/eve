@@ -912,6 +912,10 @@ always lowercase.
                                 handled by the resource. Enables data
                                 validation. See `Schema Definition`_.
 
+``soft_delete``                 When ``True`` this option enables the
+                                :ref:`soft_delete` feature for this resource.
+                                Locally overrides ``SOFT_DELETE``.
+
 =============================== ===============================================
 
 Here's an example of resource customization, mostly done by overriding global

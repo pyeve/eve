@@ -182,7 +182,7 @@ def post_internal(resource, payl=None, skip_validation=False):
                 document[config.LAST_UPDATED] = \
                     document[config.DATE_CREATED] = date_utc
 
-                if config.SOFT_DELETE is True:
+                if config.DOMAIN[resource]['soft_delete'] is True:
                     document[config.DELETED] = False
 
                 resolve_user_restricted_access(document, resource)

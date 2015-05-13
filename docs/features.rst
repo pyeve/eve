@@ -922,9 +922,11 @@ Soft Delete
 -----------
 Eve provides an optional "soft delete" mode in which deleted documents continue
 to be stored in the database and are able to be restored, but still act as
-removed items in response to API requests. Use of soft delete is controlled by
-the ``SOFT_DELETE`` configuration setting, and is disabled by default. See
-:ref:'global' for more information on enabling and configuring soft delete.
+removed items in response to API requests. Soft delete is disabled by default,
+but can be enabled globally using the ``SOFT_DELETE`` configuration setting, or
+individually configured at the resource level using the domain configuration
+``soft_delete`` setting. See :ref:'global' and :ref:'domain' for more
+information on enabling and configuring soft delete.
 
 Behavior
 ~~~~~~~~

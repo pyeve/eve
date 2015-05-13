@@ -214,9 +214,10 @@ class Mongo(DataLayer):
         if sub_resource_lookup:
             spec = self.combine_queries(spec, sub_resource_lookup)
 
-        if config.SOFT_DELETE and not req.show_deleted:
-            # Resolved after filter validation as querying against the DELETED
-            # must always be allowed when SOFT_DELETE is enabled
+        if config.DOMAIN[resource]['soft_delete'] and not req.show_deleted:
+            # Soft delete filtering applied after validate_filters call as
+            # querying against the DELETED field must always be allowed when
+            # soft_delete is enabled
             if not self.query_contains_field(spec, config.DELETED):
                 spec = self.combine_queries(
                     spec, {config.DELETED: {"$ne": True}})
@@ -283,10 +284,11 @@ class Mongo(DataLayer):
             lookup,
             client_projection)
 
-        if config.SOFT_DELETE and (not req or not req.show_deleted):
-            if not self.query_contains_field(lookup, config.DELETED):
-                filter_ = self.combine_queries(
-                    filter_, {config.DELETED: {"$ne": True}})
+        if (config.DOMAIN[resource]['soft_delete']) and \
+                (not req or not req.show_deleted) and \
+                (not self.query_contains_field(lookup, config.DELETED)):
+            filter_ = self.combine_queries(
+                filter_, {config.DELETED: {"$ne": True}})
 
         document = self.pymongo().db[datasource].find_one(filter_, projection)
         return document

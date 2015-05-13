@@ -73,6 +73,7 @@ class TestVersioningBase(TestBase):
         domain = copy.copy(self.domain)
         for resource, settings in domain.items():
             # rebuild resource settings for soft delete
+            del settings['soft_delete']
             self.app.register_resource(resource, settings)
 
         self.deleted_field = self.app.config['DELETED']

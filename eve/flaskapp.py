@@ -367,14 +367,17 @@ class Eve(Flask, Events):
            Now collecting offending items in a list and inserting results into
            the exception message.
         """
+        resource_settings = self.config['DOMAIN'][resource]
+
         # ensure automatically handled fields aren't defined
         fields = [eve.DATE_CREATED, eve.LAST_UPDATED, eve.ETAG]
-        # TODO: only add the following checks if settings['versioning'] == True
-        fields += [
-            self.config['VERSION'],
-            self.config['LATEST_VERSION'],
-            self.config['ID_FIELD'] + self.config['VERSION_ID_SUFFIX']]
-        if self.config['SOFT_DELETE'] is True:
+
+        if resource_settings['versioning'] is True:
+            fields += [
+                self.config['VERSION'],
+                self.config['LATEST_VERSION'],
+                self.config['ID_FIELD'] + self.config['VERSION_ID_SUFFIX']]
+        if resource_settings['soft_delete'] is True:
             fields += [self.config['DELETED']]
 
         offenders = []
@@ -526,6 +529,7 @@ class Eve(Flask, Events):
         settings.setdefault('pagination', self.config['PAGINATION'])
         settings.setdefault('projection', self.config['PROJECTION'])
         settings.setdefault('versioning', self.config['VERSIONING'])
+        settings.setdefault('soft_delete', self.config['SOFT_DELETE'])
         settings.setdefault('internal_resource',
                             self.config['INTERNAL_RESOURCE'])
         settings.setdefault('etag_ignore_fields', None)
@@ -577,7 +581,7 @@ class Eve(Flask, Events):
                 projection[
                     self.config['ID_FIELD'] +
                     self.config['VERSION_ID_SUFFIX']] = 1
-            if self.config['SOFT_DELETE'] is True:
+            if settings['soft_delete'] is True:
                 projection[self.config['DELETED']] = 1
 
         # 'defaults' helper set contains the names of fields with default

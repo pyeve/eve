@@ -78,12 +78,13 @@ def deleteitem_internal(
     .. versionchanged:: 0.0.4
        Added the ``requires_auth`` decorator.
     """
+    soft_delete_enabled = config.DOMAIN[resource]['soft_delete']
     original = get_document(resource, concurrency_check, **lookup)
     # If soft delete is enabled and document was already deleted, get_document
     # aborts with a 410 response
     if not original:
         abort(404)
-    elif config.SOFT_DELETE and original.get(config.DELETED) is True:
+    elif soft_delete_enabled and original.get(config.DELETED) is True:
         abort(410)
 
     # notify callbacks
@@ -91,7 +92,7 @@ def deleteitem_internal(
         getattr(app, "on_delete_item")(resource, original)
         getattr(app, "on_delete_item_%s" % resource)(original)
 
-    if config.SOFT_DELETE:
+    if soft_delete_enabled:
         # Instead of removing the document from the db, just mark it as deleted
         marked_document = copy.deepcopy(original)
 
@@ -187,7 +188,7 @@ def delete(resource, **lookup):
     getattr(app, "on_delete_resource")(resource)
     getattr(app, "on_delete_resource_%s" % resource)()
 
-    if config.SOFT_DELETE:
+    if config.DOMAIN[resource]['soft_delete']:
         # Soft delete all items not already marked deleted
         # (by default, data.find doesn't return soft deleted items)
         default_request = ParsedRequest()

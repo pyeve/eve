@@ -165,7 +165,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
             updates[config.LAST_UPDATED] = \
                 datetime.utcnow().replace(microsecond=0)
 
-            if config.SOFT_DELETE:
+            if resource_def['soft_delete'] is True:
                 # PATCH with soft delete enabled should always set the DELETED
                 # field to False. We are either carrying through un-deleted
                 # status, or restoring a soft deleted document

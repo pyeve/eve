@@ -100,7 +100,7 @@ def get(resource, **lookup):
     req.if_modified_since = None
 
     cursor = app.data.find(resource, req, lookup)
-    # If SOFT_DELETE is enabled, data.find will not include items marked
+    # If soft delete is enabled, data.find will not include items marked
     # deleted unless req.show_deleted is True
     for document in cursor:
         build_response_document(document, resource, embedded_fields)
@@ -201,7 +201,8 @@ def getitem(resource, **lookup):
     resource_def = config.DOMAIN[resource]
     embedded_fields = resolve_embedded_fields(resource, req)
 
-    if config.SOFT_DELETE:
+    soft_delete_enabled = config.DOMAIN[resource]['soft_delete']
+    if soft_delete_enabled:
         # GET requests should always fetch soft deleted documents from the db
         # They are handled and included in 410 responses below.
         req.show_deleted = True
@@ -301,7 +302,7 @@ def getitem(resource, **lookup):
             response[config.ITEMS] = documents
         else:
             response = documents
-    elif config.SOFT_DELETE and document.get(config.DELETED) is True:
+    elif soft_delete_enabled and document.get(config.DELETED) is True:
         # This document was soft deleted. Respond with `410 Gone` and the
         # deleted version of the document.
         return document, last_modified, etag, 410

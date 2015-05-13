@@ -197,10 +197,11 @@ class TestSoftDelete(TestDelete):
         domain = copy.copy(self.domain)
         for resource, settings in domain.items():
             # rebuild resource settings for soft delete
+            del settings['soft_delete']
             self.app.register_resource(resource, settings)
 
         # alias for the configured DELETED field name
-        self.DELETED = self.app.config['DELETED']
+        self.deleted_field = self.app.config['DELETED']
 
     # TestDelete overrides
 
@@ -217,7 +218,7 @@ class TestSoftDelete(TestDelete):
         data, status = self.parse_response(r)
         self.assert410(status)
 
-        self.assertEqual(data.get(self.DELETED), True)
+        self.assertEqual(data.get(self.deleted_field), True)
         self.assertNotEqual(data.get('_etag'), self.item_etag)
 
     def test_deleteitem_internal(self):
@@ -233,7 +234,7 @@ class TestSoftDelete(TestDelete):
         r = self.test_client.get(self.item_id_url)
         data, status = self.parse_response(r)
         self.assert410(status)
-        self.assertEqual(data.get(self.DELETED), True)
+        self.assertEqual(data.get(self.deleted_field), True)
 
     def test_delete_different_resource(self):
         r, status = self.delete(self.user_id_url,
@@ -243,7 +244,7 @@ class TestSoftDelete(TestDelete):
         r = self.test_client.get(self.user_id_url)
         data, status = self.parse_response(r)
         self.assert410(status)
-        self.assertEqual(data.get(self.DELETED), True)
+        self.assertEqual(data.get(self.deleted_field), True)
 
     def test_delete_from_resource_endpoint(self):
         """Soft deleting an entire resource should mark each individual item
@@ -257,7 +258,7 @@ class TestSoftDelete(TestDelete):
         r = self.test_client.get(self.item_id_url)
         data, status = self.parse_response(r)
         self.assert410(status)
-        self.assertEqual(data.get(self.DELETED), True)
+        self.assertEqual(data.get(self.deleted_field), True)
 
     # TetsSoftDelete specific tests
 
@@ -321,7 +322,7 @@ class TestSoftDelete(TestDelete):
         r = self.test_client.get(self.item_id_url)
         data, status = self.parse_response(r)
         self.assert200(status)
-        self.assertEqual(data.get(self.DELETED), False)
+        self.assertEqual(data.get(self.deleted_field), False)
 
     def test_softdelete_show_deleted(self):
         """GETs on resource endpoints should include soft deleted items when
@@ -472,19 +473,19 @@ class TestSoftDelete(TestDelete):
             doc = self.app.data.find_one(
                 self.known_resource, req, _id=self.item_id)
             self.assertNotEqual(doc, None)
-            self.assertEqual(doc.get(self.DELETED), True)
+            self.assertEqual(doc.get(self.deleted_field), True)
 
             req.show_deleted = False
             doc = self.app.data.find_one(
                 self.known_resource, req, _id=self.item_id, _deleted=True)
             self.assertNotEqual(doc, None)
-            self.assertEqual(doc.get(self.DELETED), True)
+            self.assertEqual(doc.get(self.deleted_field), True)
 
             # find_one_raw should always return a document, soft deleted or not
             doc = self.app.data.find_one_raw(
                 self.known_resource, _id=ObjectId(self.item_id))
             self.assertNotEqual(doc, None)
-            self.assertEqual(doc.get(self.DELETED), True)
+            self.assertEqual(doc.get(self.deleted_field), True)
 
             # find should only return deleted items if a request with
             # show_deleted == True is passed or if the deleted field is part of
@@ -500,7 +501,7 @@ class TestSoftDelete(TestDelete):
 
             req.show_deleted = False
             docs = self.app.data.find(
-                self.known_resource, req, {self.DELETED: True})
+                self.known_resource, req, {self.deleted_field: True})
             deleted_count = docs.count()
             self.assertEqual(deleted_count, 1)
 
@@ -524,7 +525,7 @@ class TestSoftDelete(TestDelete):
         with self.app.test_request_context():
             db_stored_doc = self.app.data.find_one_raw(
                 self.known_resource, _id=ObjectId(new_item_id))
-            self.assertTrue(self.DELETED in db_stored_doc)
+            self.assertTrue(self.deleted_field in db_stored_doc)
 
         # PUT updates to the document should maintain the DELETED field
         r = self.test_client.put(
@@ -539,7 +540,7 @@ class TestSoftDelete(TestDelete):
         with self.app.test_request_context():
             db_stored_doc = self.app.data.find_one_raw(
                 self.known_resource, _id=ObjectId(new_item_id))
-            self.assertTrue(self.DELETED in db_stored_doc)
+            self.assertTrue(self.deleted_field in db_stored_doc)
 
         # PATCH updates to the document should maintain the DELETED field
         r = self.test_client.patch(
@@ -551,7 +552,46 @@ class TestSoftDelete(TestDelete):
         with self.app.test_request_context():
             db_stored_doc = self.app.data.find_one_raw(
                 self.known_resource, _id=ObjectId(new_item_id))
-            self.assertTrue(self.DELETED in db_stored_doc)
+            self.assertTrue(self.deleted_field in db_stored_doc)
+
+
+class TestResourceSpecificSoftDelete(TestBase):
+    def setUp(self):
+        super(TestResourceSpecificSoftDelete, self).setUp()
+
+        # Enable soft delete for one resource
+        domain = copy.copy(self.domain)
+        resource_settings = domain[self.known_resource]
+        resource_settings['soft_delete'] = True
+        self.app.register_resource(self.known_resource, resource_settings)
+
+        self.deleted_field = self.app.config['DELETED']
+
+        # Etag used to delete an item (a contact)
+        self.etag_headers = [('If-Match', self.item_etag)]
+
+    def test_resource_specific_softdelete(self):
+        """ Resource level soft delete configuration should override
+        application configuration.
+        """
+        # Confirm soft delete is enabled for known resource.
+        data, status = self.delete(self.item_id_url, headers=self.etag_headers)
+        self.assert204(status)
+
+        r = self.test_client.get(self.item_id_url)
+        data, status = self.parse_response(r)
+        self.assert410(status)
+        self.assertEqual(data.get(self.deleted_field), True)
+
+        # DELETE on other resources should be hard deletes
+        data, status = self.delete(
+            self.invoice_id_url, headers=[('If-Match', self.invoice_etag)])
+        self.assert204(status)
+
+        r = self.test_client.get(self.invoice_id_url)
+        data, status = self.parse_response(r)
+        self.assert404(status)
+        self.assertTrue(self.deleted_field not in data)
 
 
 class TestDeleteEvents(TestBase):

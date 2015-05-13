@@ -84,7 +84,7 @@ class ParsedRequest(object):
     embedded = None
 
     # `show_deleted` True when ?show_deleted is included in query.
-    # Only relevant when SOFT_DELETE is enabled. Defaults to False.
+    # Only relevant when soft delete is enabled. Defaults to False.
     show_deleted = False
 
     # `args` value of the original request. Defaults to None.
@@ -414,7 +414,7 @@ def auto_fields(resource):
         fields.append(config.LATEST_VERSION)  # on-the-fly meta data
         fields.append(config.ID_FIELD + config.VERSION_ID_SUFFIX)
 
-    if config.SOFT_DELETE is True:
+    if config.DOMAIN[resource]['soft_delete'] is True:
         fields.append(config.DELETED)
 
     return fields
