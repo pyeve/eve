@@ -149,6 +149,9 @@ def getitem(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
 
+    .. versionchanged:: 0.6
+       Handle soft deleted documents
+
     .. versionchanged:: 0.5
        Allow ``?version=all`` requests to fire ``on_fetched_*`` events.
        Create pagination links for document versions. (#475)
@@ -204,7 +207,7 @@ def getitem(resource, **lookup):
     soft_delete_enabled = config.DOMAIN[resource]['soft_delete']
     if soft_delete_enabled:
         # GET requests should always fetch soft deleted documents from the db
-        # They are handled and included in 410 responses below.
+        # They are handled and included in 404 responses below.
         req.show_deleted = True
 
     document = app.data.find_one(resource, req, **lookup)
@@ -303,9 +306,14 @@ def getitem(resource, **lookup):
         else:
             response = documents
     elif soft_delete_enabled and document.get(config.DELETED) is True:
-        # This document was soft deleted. Respond with `410 Gone` and the
-        # deleted version of the document.
-        return document, last_modified, etag, 410
+        # This document was soft deleted. Respond with 404 and the deleted
+        # version of the document.
+        document[config.STATUS] = config.STATUS_ERR,
+        document[config.ERROR] = {
+            'code': 404,
+            'message': 'The requested URL was not found on this server.'
+        }
+        return document, last_modified, etag, 404
     else:
         response = document
 

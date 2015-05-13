@@ -63,6 +63,9 @@ def patch_internal(resource, payload=None, concurrency_check=False,
     :param skip_validation: skip payload validation before write (bool)
     :param **lookup: document lookup query.
 
+    .. versionchanged:: 0.6
+       Allow restoring soft deleted documents via PATCH
+
     .. versionchanged:: 0.5
        Updating nested document fields does not overwrite the nested document
        itself (#519).

@@ -64,6 +64,9 @@ def post_internal(resource, payl=None, skip_validation=False):
                  discussion, and a typical use case.
     :param skip_validation: skip payload validation before write (bool)
 
+    .. versionchanged:: 0.6
+       Initialize DELETED field when soft_delete is enabled.
+
     .. versionchanged:: 0.5
        Back to resolving default values after validaton as now the validator
        can properly validate dependency even when some have default values. See

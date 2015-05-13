@@ -47,6 +47,9 @@ def deleteitem_internal(
     :param concurrency_check: concurrency check switch (bool)
     :param **lookup: item lookup query.
 
+    .. versionchanged:: 0.6
+       Support for soft delete.
+
     .. versionchanged:: 0.5
        Return 204 NoContent instead of 200.
        Push updates to OpLog.
@@ -80,12 +83,9 @@ def deleteitem_internal(
     """
     soft_delete_enabled = config.DOMAIN[resource]['soft_delete']
     original = get_document(resource, concurrency_check, **lookup)
-    # If soft delete is enabled and document was already deleted, get_document
-    # aborts with a 410 response
-    if not original:
+    if not original or (soft_delete_enabled and
+                        original.get(config.DELETED) is True):
         abort(404)
-    elif soft_delete_enabled and original.get(config.DELETED) is True:
-        abort(410)
 
     # notify callbacks
     if suppress_callbacks is not True:

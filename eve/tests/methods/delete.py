@@ -207,7 +207,7 @@ class TestSoftDelete(TestDelete):
 
     def test_delete(self):
         """Soft delete should mark an item as deleted and cause subsequent
-        requests to return 410 Gone responses. 410s sent in response to GET
+        requests to return 404 Not Found responses. 404s in response to GET
         requests should include the document in their body with the _deleted
         flag set to True.
         """
@@ -216,10 +216,12 @@ class TestSoftDelete(TestDelete):
 
         r = self.test_client.get(self.item_id_url)
         data, status = self.parse_response(r)
-        self.assert410(status)
+        self.assert404(status)
 
         self.assertEqual(data.get(self.deleted_field), True)
         self.assertNotEqual(data.get('_etag'), self.item_etag)
+        # 404 should still include a status and an error field
+        self.assertTrue(self.app.config['ERROR'] in data)
 
     def test_deleteitem_internal(self):
         """Deleteitem internal should honor soft delete settings.
@@ -233,7 +235,7 @@ class TestSoftDelete(TestDelete):
 
         r = self.test_client.get(self.item_id_url)
         data, status = self.parse_response(r)
-        self.assert410(status)
+        self.assert404(status)
         self.assertEqual(data.get(self.deleted_field), True)
 
     def test_delete_different_resource(self):
@@ -243,13 +245,13 @@ class TestSoftDelete(TestDelete):
 
         r = self.test_client.get(self.user_id_url)
         data, status = self.parse_response(r)
-        self.assert410(status)
+        self.assert404(status)
         self.assertEqual(data.get(self.deleted_field), True)
 
     def test_delete_from_resource_endpoint(self):
         """Soft deleting an entire resource should mark each individual item
         as deleted, queries to that resource should return no items, and GETs
-        on any individual items should return 410 responses.
+        on any individual items should return 404 responses.
         """
         # TestDelete deletes resource at known_resource_url, and confirms
         # subsequent queries to the resource return zero items
@@ -257,7 +259,7 @@ class TestSoftDelete(TestDelete):
 
         r = self.test_client.get(self.item_id_url)
         data, status = self.parse_response(r)
-        self.assert410(status)
+        self.assert404(status)
         self.assertEqual(data.get(self.deleted_field), True)
 
     # TetsSoftDelete specific tests
@@ -302,7 +304,7 @@ class TestSoftDelete(TestDelete):
 
     def test_multiple_softdelete(self):
         """After an item has been soft deleted, subsequent DELETEs should
-        return a 410 Gone response.
+        return a 404 Not Found response.
         """
         r, status = self.delete(self.item_id_url, headers=self.etag_headers)
         self.assert204(status)
@@ -310,10 +312,10 @@ class TestSoftDelete(TestDelete):
         r = self.test_client.get(self.item_id_url)
         new_etag = r.headers['ETag']
 
-        # Second soft DELETE should return 410 Gone
+        # Second soft DELETE should return 404 Not Found
         r, status = self.delete(
             self.item_id_url, headers=[('If-Match', new_etag)])
-        self.assert410(status)
+        self.assert404(status)
 
     def test_softdelete_deleted_field(self):
         """The configured 'deleted' field should be added to all documents to indicate
@@ -398,7 +400,7 @@ class TestSoftDelete(TestDelete):
 
     def test_softdeleted_get_response_skips_embedded_expansion(self):
         """Soft deleted documents should not expand their embedded documents when
-        returned in a 410 Gone response. The deleted document data should
+        returned in a 404 Not Found response. The deleted document data should
         reflect the state of the document when it was deleted, not change if
         still active embedded documents are updated
         """
@@ -426,15 +428,15 @@ class TestSoftDelete(TestDelete):
             self.invoice_id_url, headers=[('If-Match', invoice_etag)])
         self.assert204(status)
 
-        # Document in 410 should not expand person
+        # Document in 404 should not expand person
         r = self.test_client.get(
             self.invoice_id_url + '?embedded=%s' % embedded)
         data, status = self.parse_response(r)
-        self.assert410(status)
+        self.assert404(status)
         self.assertEqual(data['person'], str(fake_contact_id))
 
     def test_softdelete_caching(self):
-        """410 Gone responses after soft delete should be cacheable
+        """404 Not Found responses after soft delete should be cacheable
         """
         # Soft delete item
         r, status = self.delete(self.item_id_url, headers=self.etag_headers)
@@ -443,11 +445,11 @@ class TestSoftDelete(TestDelete):
         # delete should have invalidated any previously cached 200 responses
         r = self.test_client.get(
             self.item_id_url, headers=[('If-None-Match', self.item_etag)])
-        self.assert410(r.status_code)
+        self.assert404(r.status_code)
 
         post_delete_etag = r.headers['ETag']
 
-        # validate cached 410 response data
+        # validate cached 404 response data
         r = status = self.test_client.get(
             self.item_id_url, headers=[('If-None-Match', post_delete_etag)])
         self.assert304(r.status_code)
@@ -580,7 +582,7 @@ class TestResourceSpecificSoftDelete(TestBase):
 
         r = self.test_client.get(self.item_id_url)
         data, status = self.parse_response(r)
-        self.assert410(status)
+        self.assert404(status)
         self.assertEqual(data.get(self.deleted_field), True)
 
         # DELETE on other resources should be hard deletes

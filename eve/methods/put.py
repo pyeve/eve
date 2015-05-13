@@ -63,6 +63,9 @@ def put_internal(resource, payload=None, concurrency_check=False,
     :param skip_validation: skip payload validation before write (bool)
     :param **lookup: document lookup query.
 
+    .. versionchanged:: 0.6
+       Allow restoring soft deleted documents via PUT
+
     .. versionchanged:: 0.5
        Back to resolving default values after validaton as now the validator
        can properly validate dependency even when some have default values. See

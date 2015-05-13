@@ -735,7 +735,7 @@ class TestCompleteVersioning(TestNormalVersioning):
 
     def test_softdelete(self):
         """ Deleting a versioned item with soft delete enabled should create a
-        new version marked as deleted, which is returned with `410 Gone` in
+        new version marked as deleted, which is returned with 404 Not Found in
         response to GET requests. GETs of previous versions should continue to
         respond with `200 OK` responses. Requests for `?version=all/diff`
         should include the soft deleted version as if it were a normal version
@@ -751,17 +751,17 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertTrue(self.countDocuments(self.item_id) == 1)
         self.assertTrue(self.countShadowDocuments(self.item_id) == 2)
 
-        # GET primary should return `410 Gone` w/ doc + _deleted == True
+        # GET primary should return `404 Not Found` w/ doc + _deleted == True
         r = self.test_client.get(self.item_id_url)
         document, status = self.parse_response(r)
-        self.assert410(status)
+        self.assert404(status)
         self.assertEqual(document[self.latest_version_field], 2)
         self.assertEqual(document.get(self.deleted_field), True)
 
-        # GET v2 should return `410 Gone` w/ doc + _deleted == True
+        # GET v2 should return `404 Not Found` w/ doc + _deleted == True
         r = self.test_client.get(self.item_id_url + "?version=2")
         document, status = self.parse_response(r)
-        self.assert410(status)
+        self.assert404(status)
         self.assertEqual(document[self.latest_version_field], 2)
         self.assertEqual(document.get(self.deleted_field), True)
 

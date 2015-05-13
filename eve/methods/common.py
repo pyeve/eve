@@ -30,11 +30,15 @@ def get_document(resource, concurrency_check, **lookup):
     the editing methods (PUT, PATCH, DELETE), we make sure that the client
     request references the current representation of the document before
     returning it. However, this concurrency control may be turned off by
-    internal functions.
+    internal functions. If resource enables soft delete, soft deleted documents
+    will be returned, and must be handled by callers.
 
     :param resource: the name of the resource to which the document belongs to.
     :param concurrency_check: boolean check for concurrency control
     :param **lookup: document lookup query
+
+    .. versionchanged:: 0.6
+        Return soft deleted documents.
 
     .. versionchanged:: 0.5
        Concurrency control optional for internal functions.
@@ -50,7 +54,7 @@ def get_document(resource, concurrency_check, **lookup):
     req = parse_request(resource)
     if config.DOMAIN[resource]['soft_delete']:
         # get_document should always fetch soft deleted documents from the db
-        # They are handled with 410 responses below.
+        # callers must handle soft deleted documents
         req.show_deleted = True
 
     document = app.data.find_one(resource, req, **lookup)

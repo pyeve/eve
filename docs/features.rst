@@ -947,14 +947,13 @@ documents will add the ``_deleted`` field to the stored documents, set to
 ``false``.
 
 Responses to GET requests for soft deleted documents vary slightly from
-responses to missing or "hard" deleted documents. Instead of recieving a
-``404 Not Found`` response, GET requests for soft deleted documents will
-recieve a ``410 Gone`` response, indicating the document has been removed. The
+responses to missing or "hard" deleted documents. GET requests for soft deleted
+documents will still respond with ``404 Not Found`` status codes, but the
 response body will contain the soft deleted document with ``_deleted: true``.
 Documents embedded in the deleted document will not be expanded in the
 response, regardless of any default settings or the contents of the request's
 ``embedded`` query param. This is to ensure that soft deleted documents
-included in ``410 Gone`` responses reflect the state of a document when it was
+included in ``404`` responses reflect the state of a document when it was
 deleted, and do not to change if embedded documents are updated.
 
 By default, resource level GET requests will not include soft deleted items in
@@ -984,7 +983,7 @@ Versioning
 ~~~~~~~~~~
 Soft deleting a versioned document creates a new version of that document with
 ``_deleted`` set to ``true``. A GET request to the deleted version will recieve
-a ``410 Gone`` response as described above, while previous versions will
+a ``404 Not Found`` response as described above, while previous versions will
 continue to respond with ``200 OK``. Responses to ``?version=diff`` or
 ``?version=all`` will include the deleted version as if it were any other.
 
