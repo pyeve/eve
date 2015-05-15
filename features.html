@@ -885,7 +885,7 @@ to be stored in the database and are able to be restored, but still act as
 removed items in response to API requests. Soft delete is disabled by default,
 but can be enabled globally using the <tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt> configuration setting, or
 individually configured at the resource level using the domain configuration
-<tt class="docutils literal"><span class="pre">soft_delete</span></tt> setting. See :ref:&#8217;global&#8217; and :ref:&#8217;domain&#8217; for more
+<tt class="docutils literal"><span class="pre">soft_delete</span></tt> setting. See <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a> and <a class="reference internal" href="config.html#domain"><em>Domain Configuration</em></a> for more
 information on enabling and configuring soft delete.</p>
 <div class="section" id="behavior">
 <h3>Behavior<a class="headerlink" href="#behavior" title="Permalink to this headline">¶</a></h3>
@@ -893,7 +893,7 @@ information on enabling and configuring soft delete.</p>
 respond just as they do for a traditional &#8220;hard&#8221; delete. Behind the scenes,
 however, Eve does not remove deleted items from the database, but instead
 patches the document with a <tt class="docutils literal"><span class="pre">_deleted</span></tt> field set to <tt class="docutils literal"><span class="pre">true</span></tt>. (The name of
-the <tt class="docutils literal"><span class="pre">_deleted</span></tt> field is configurable. See :ref:&#8217;global&#8217;.) All requests made
+the <tt class="docutils literal"><span class="pre">_deleted</span></tt> field is configurable. See <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a>.) All requests made
 when soft delete is enabled filter against or otherwise account for the
 <tt class="docutils literal"><span class="pre">_deleted</span></tt> field.</p>
 <p>The <tt class="docutils literal"><span class="pre">_deleted</span></tt> field is automatically added and initialized to <tt class="docutils literal"><span class="pre">false</span></tt> for
@@ -916,7 +916,7 @@ deleted, and do not to change if embedded documents are updated.</p>
 their response. This behavior matches that of requests after a &#8220;hard&#8221; delete.
 If including deleted items in the response is desired, the <tt class="docutils literal"><span class="pre">show_deleted</span></tt>
 query param can be added to the request. (the <tt class="docutils literal"><span class="pre">show_deleted</span></tt> param name is
-configurable. See :ref:&#8217;global&#8217;) Eve will respond with all documents, deleted
+configurable. See <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a>) Eve will respond with all documents, deleted
 or not, and it is up to the client to parse returned documents&#8217; <tt class="docutils literal"><span class="pre">_deleted</span></tt>
 field. The <tt class="docutils literal"><span class="pre">_deleted</span></tt> field can also be explicitly filtered against in a
 request, allowing only deleted documents to be returned using a
