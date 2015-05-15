@@ -925,7 +925,7 @@ to be stored in the database and are able to be restored, but still act as
 removed items in response to API requests. Soft delete is disabled by default,
 but can be enabled globally using the ``SOFT_DELETE`` configuration setting, or
 individually configured at the resource level using the domain configuration
-``soft_delete`` setting. See :ref:'global' and :ref:'domain' for more
+``soft_delete`` setting. See :ref:`global` and :ref:`domain` for more
 information on enabling and configuring soft delete.
 
 Behavior
@@ -934,7 +934,7 @@ With soft delete enabled, DELETE requests to individual items and resources
 respond just as they do for a traditional "hard" delete. Behind the scenes,
 however, Eve does not remove deleted items from the database, but instead
 patches the document with a ``_deleted`` field set to ``true``. (The name of
-the ``_deleted`` field is configurable. See :ref:'global'.) All requests made
+the ``_deleted`` field is configurable. See :ref:`global`.) All requests made
 when soft delete is enabled filter against or otherwise account for the
 ``_deleted`` field.
 
@@ -960,7 +960,7 @@ By default, resource level GET requests will not include soft deleted items in
 their response. This behavior matches that of requests after a "hard" delete.
 If including deleted items in the response is desired, the ``show_deleted``
 query param can be added to the request. (the ``show_deleted`` param name is
-configurable. See :ref:'global') Eve will respond with all documents, deleted
+configurable. See :ref:`global`) Eve will respond with all documents, deleted
 or not, and it is up to the client to parse returned documents' ``_deleted``
 field. The ``_deleted`` field can also be explicitly filtered against in a
 request, allowing only deleted documents to be returned using a
