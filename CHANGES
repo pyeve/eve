@@ -9,6 +9,7 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- New: ``SOFT_DELETE` enables soft deletes when set to True (Nick Park.)
 - New: ``mongo_indexes`` allows for creation of MongoDB indexes at application
   launch (Pau Freixes.)
 - New: clients can opt out of default embedded fields:
