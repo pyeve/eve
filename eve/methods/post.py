@@ -64,6 +64,9 @@ def post_internal(resource, payl=None, skip_validation=False):
                  discussion, and a typical use case.
     :param skip_validation: skip payload validation before write (bool)
 
+    .. versionchanged:: 0.6
+       Initialize DELETED field when soft_delete is enabled.
+
     .. versionchanged:: 0.5
        Back to resolving default values after validaton as now the validator
        can properly validate dependency even when some have default values. See
@@ -177,10 +180,13 @@ def post_internal(resource, payl=None, skip_validation=False):
                 validation = True
             else:
                 validation = validator.validate(document)
-            if validation:
-                # validation is successful
+            if validation:  # validation is successful
+                # Populate meta and default fields
                 document[config.LAST_UPDATED] = \
                     document[config.DATE_CREATED] = date_utc
+
+                if config.DOMAIN[resource]['soft_delete'] is True:
+                    document[config.DELETED] = False
 
                 resolve_user_restricted_access(document, resource)
                 resolve_default_values(document, resource_def['defaults'])

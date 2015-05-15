@@ -19,8 +19,7 @@ from bson import ObjectId
 from flask import current_app as app
 from cerberus import Validator
 from werkzeug.datastructures import FileStorage
-from eve.versioning import get_data_version_relation_document, \
-    missing_version_field
+from eve.versioning import get_data_version_relation_document
 from eve.io.mongo.geo import Point, MultiPoint, LineString, Polygon, \
     MultiLineString, MultiPolygon, GeometryCollection
 
@@ -161,17 +160,8 @@ class Validator(Validator):
                         " data_relation if '%s' isn't versioned" %
                         data_relation['resource'])
                 else:
-                    search = None
-
-                    # support late versioning
-                    if value[version_field] == 1:
-                        # there is a chance this document hasn't been saved
-                        # since versioning was turned on
-                        search = missing_version_field(data_relation, value)
-
-                    if not search:
-                        search = get_data_version_relation_document(
-                            data_relation, value)
+                    search = get_data_version_relation_document(
+                        data_relation, value)
 
                     if not search:
                         self._error(

@@ -113,6 +113,7 @@ class Mongo(DataLayer):
 
         .. versionchanged:: 0.6
            Support for multiple databases.
+           Filter soft deleted documents by default
 
         .. versionchanged:: 0.5
            Support for comma delimited sort syntax. Addresses #443.
@@ -213,6 +214,14 @@ class Mongo(DataLayer):
         if sub_resource_lookup:
             spec = self.combine_queries(spec, sub_resource_lookup)
 
+        if config.DOMAIN[resource]['soft_delete'] and not req.show_deleted:
+            # Soft delete filtering applied after validate_filters call as
+            # querying against the DELETED field must always be allowed when
+            # soft_delete is enabled
+            if not self.query_contains_field(spec, config.DELETED):
+                spec = self.combine_queries(
+                    spec, {config.DELETED: {"$ne": True}})
+
         spec = self._mongotize(spec, resource)
 
         client_projection = self._client_projection(req)
@@ -247,6 +256,7 @@ class Mongo(DataLayer):
 
         .. versionchanged:: 0.6
            Support for multiple databases.
+           Filter soft deleted documents by default
 
         .. versionchanged:: 0.4
            Honor client projection requests.
@@ -273,6 +283,12 @@ class Mongo(DataLayer):
             resource,
             lookup,
             client_projection)
+
+        if (config.DOMAIN[resource]['soft_delete']) and \
+                (not req or not req.show_deleted) and \
+                (not self.query_contains_field(lookup, config.DELETED)):
+            filter_ = self.combine_queries(
+                filter_, {config.DELETED: {"$ne": True}})
 
         document = self.pymongo().db[datasource].find_one(filter_, projection)
         return document

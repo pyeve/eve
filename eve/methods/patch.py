@@ -63,6 +63,9 @@ def patch_internal(resource, payload=None, concurrency_check=False,
     :param skip_validation: skip payload validation before write (bool)
     :param **lookup: document lookup query.
 
+    .. versionchanged:: 0.6
+       Allow restoring soft deleted documents via PATCH
+
     .. versionchanged:: 0.5
        Updating nested document fields does not overwrite the nested document
        itself (#519).
@@ -164,6 +167,12 @@ def patch_internal(resource, payload=None, concurrency_check=False,
             # some datetime precision magic
             updates[config.LAST_UPDATED] = \
                 datetime.utcnow().replace(microsecond=0)
+
+            if resource_def['soft_delete'] is True:
+                # PATCH with soft delete enabled should always set the DELETED
+                # field to False. We are either carrying through un-deleted
+                # status, or restoring a soft deleted document
+                updates[config.DELETED] = False
 
             # the mongo driver has a different precision than the python
             # datetime. since we don't want to reload the document once it

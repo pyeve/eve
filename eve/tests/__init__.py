@@ -99,11 +99,11 @@ class TestMinimal(unittest.TestCase):
     def assert301(self, status):
         self.assertEqual(status, 301)
 
-    def assert404(self, status):
-        self.assertEqual(status, 404)
-
     def assert304(self, status):
         self.assertEqual(status, 304)
+
+    def assert404(self, status):
+        self.assertEqual(status, 404)
 
     def assert422(self, status):
         self.assertEqual(status, 422)

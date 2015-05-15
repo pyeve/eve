@@ -22,19 +22,23 @@ from functools import wraps
 from eve.utils import parse_request, document_etag, config, request_method, \
     debug_error_message, auto_fields
 from eve.versioning import resolve_document_version, \
-    get_data_version_relation_document, missing_version_field
+    get_data_version_relation_document
 
 
 def get_document(resource, concurrency_check, **lookup):
     """ Retrieves and return a single document. Since this function is used by
-    the editing methods (POST, PATCH, DELETE), we make sure that the client
+    the editing methods (PUT, PATCH, DELETE), we make sure that the client
     request references the current representation of the document before
     returning it. However, this concurrency control may be turned off by
-    internal functions.
+    internal functions. If resource enables soft delete, soft deleted documents
+    will be returned, and must be handled by callers.
 
     :param resource: the name of the resource to which the document belongs to.
     :param concurrency_check: boolean check for concurrency control
     :param **lookup: document lookup query
+
+    .. versionchanged:: 0.6
+        Return soft deleted documents.
 
     .. versionchanged:: 0.5
        Concurrency control optional for internal functions.
@@ -48,9 +52,13 @@ def get_document(resource, concurrency_check, **lookup):
       processing of new configuration settings: `filters`, `sorting`, `paging`.
     """
     req = parse_request(resource)
-    document = app.data.find_one(resource, None, **lookup)
-    if document:
+    if config.DOMAIN[resource]['soft_delete']:
+        # get_document should always fetch soft deleted documents from the db
+        # callers must handle soft deleted documents
+        req.show_deleted = True
 
+    document = app.data.find_one(resource, req, **lookup)
+    if document:
         if not req.if_match and config.IF_MATCH and concurrency_check:
             # we don't allow editing unless the client provides an etag
             # for the document
@@ -448,7 +456,6 @@ def build_response_document(
     # 'get' method
     document[config.DATE_CREATED] = date_created(document)
     document[config.LAST_UPDATED] = last_updated(document)
-    # TODO: last_update could include consideration for embedded documents
 
     # Up to v0.4 etags were not stored with the documents.
     if config.IF_MATCH and config.ETAG not in document:
@@ -470,8 +477,19 @@ def build_response_document(
     # add version numbers
     resolve_document_version(document, resource, 'GET', latest_doc)
 
-    # media and embedded documents
+    # resolve media
     resolve_media_files(document, resource)
+
+    # resolve soft delete
+    if config.DOMAIN[resource]['soft_delete'] is True:
+        if document.get(config.DELETED) is None:
+            document[config.DELETED] = False
+        elif document[config.DELETED] is True:
+            # Soft deleted documents are sent without expansion of embedded
+            # documents. Return before resolving them.
+            return
+
+    # resolve embedded documents
     resolve_embedded_documents(document, resource, embedded_fields)
 
 
@@ -568,30 +586,13 @@ def embedded_document(reference, data_relation, field_name):
     """
     # Retrieve and serialize the requested document
     if 'version' in data_relation and data_relation['version'] is True:
-        # support late versioning
-        if reference[config.VERSION] == 1:
-            # there is a chance this document hasn't been saved
-            # since versioning was turned on
-            embedded_doc = missing_version_field(data_relation, reference)
+        # grab the specific version
+        embedded_doc = get_data_version_relation_document(
+            data_relation, reference)
 
-            if embedded_doc is None:
-                # this document has been saved since the data_relation was
-                # made - we basically do not have the copy of the document
-                # that existed when the data relation was made, but we'll
-                # try the next best thing - the first version
-                reference[config.VERSION] = 1
-                embedded_doc = get_data_version_relation_document(
-                    data_relation, reference)
-
-            latest_embedded_doc = embedded_doc
-        else:
-            # grab the specific version
-            embedded_doc = get_data_version_relation_document(
-                data_relation, reference)
-
-            # grab the latest version
-            latest_embedded_doc = get_data_version_relation_document(
-                data_relation, reference, latest=True)
+        # grab the latest version
+        latest_embedded_doc = get_data_version_relation_document(
+            data_relation, reference, latest=True)
 
         # make sure we got the documents
         if embedded_doc is None or latest_embedded_doc is None:
@@ -601,7 +602,6 @@ def embedded_document(reference, data_relation, field_name):
                 field_name
             ))
 
-        # build the response document
         build_response_document(embedded_doc, data_relation['resource'],
                                 [], latest_embedded_doc)
     else:

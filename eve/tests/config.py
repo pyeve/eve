@@ -66,6 +66,9 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.config['QUERY_EMBEDDED'], 'embedded')
 
         self.assertEqual(self.app.config['JSON_SORT_KEYS'], False)
+        self.assertEqual(self.app.config['SOFT_DELETE'], False)
+        self.assertEqual(self.app.config['DELETED'], '_deleted')
+        self.assertEqual(self.app.config['SHOW_DELETED_PARAM'], 'show_deleted')
 
     def test_settings_as_dict(self):
         my_settings = {'API_VERSION': 'override!', 'DOMAIN': {'contacts': {}}}
@@ -208,6 +211,8 @@ class TestConfig(TestBase):
                          self.app.config['ALLOWED_FILTERS'])
         self.assertEqual(settings['projection'], self.app.config['PROJECTION'])
         self.assertEqual(settings['versioning'], self.app.config['VERSIONING'])
+        self.assertEqual(settings['soft_delete'],
+                         self.app.config['SOFT_DELETE'])
         self.assertEqual(settings['sorting'], self.app.config['SORTING'])
         self.assertEqual(settings['embedding'], self.app.config['EMBEDDING'])
         self.assertEqual(settings['pagination'], self.app.config['PAGINATION'])

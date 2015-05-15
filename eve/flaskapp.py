@@ -367,13 +367,19 @@ class Eve(Flask, Events):
            Now collecting offending items in a list and inserting results into
            the exception message.
         """
+        resource_settings = self.config['DOMAIN'][resource]
+
         # ensure automatically handled fields aren't defined
         fields = [eve.DATE_CREATED, eve.LAST_UPDATED, eve.ETAG]
-        # TODO: only add the following checks if settings['versioning'] == True
-        fields += [
-            self.config['VERSION'],
-            self.config['LATEST_VERSION'],
-            self.config['ID_FIELD'] + self.config['VERSION_ID_SUFFIX']]
+
+        if resource_settings['versioning'] is True:
+            fields += [
+                self.config['VERSION'],
+                self.config['LATEST_VERSION'],
+                self.config['ID_FIELD'] + self.config['VERSION_ID_SUFFIX']]
+        if resource_settings['soft_delete'] is True:
+            fields += [self.config['DELETED']]
+
         offenders = []
         for field in fields:
             if field in schema:
@@ -523,6 +529,7 @@ class Eve(Flask, Events):
         settings.setdefault('pagination', self.config['PAGINATION'])
         settings.setdefault('projection', self.config['PROJECTION'])
         settings.setdefault('versioning', self.config['VERSIONING'])
+        settings.setdefault('soft_delete', self.config['SOFT_DELETE'])
         settings.setdefault('internal_resource',
                             self.config['INTERNAL_RESOURCE'])
         settings.setdefault('etag_ignore_fields', None)
@@ -557,7 +564,14 @@ class Eve(Flask, Events):
             # enable retrieval of actual schema fields only. Eventual db
             # fields not included in the schema won't be returned.
             projection = {}
+            projection.update(dict((field, 1) for (field) in schema))
+        else:
+            # all fields are returned.
+            projection = None
+        settings['datasource'].setdefault('projection', projection)
+        if settings['datasource']['projection']:
             # despite projection, automatic fields are always included.
+            projection = settings['datasource']['projection']
             projection[self.config['ID_FIELD']] = 1
             projection[self.config['LAST_UPDATED']] = 1
             projection[self.config['DATE_CREATED']] = 1
@@ -567,11 +581,8 @@ class Eve(Flask, Events):
                 projection[
                     self.config['ID_FIELD'] +
                     self.config['VERSION_ID_SUFFIX']] = 1
-            projection.update(dict((field, 1) for (field) in schema))
-        else:
-            # all fields are returned.
-            projection = None
-        settings['datasource'].setdefault('projection', projection)
+            if settings['soft_delete'] is True:
+                projection[self.config['DELETED']] = 1
 
         # 'defaults' helper set contains the names of fields with default
         # values in their schema definition.

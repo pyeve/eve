@@ -574,7 +574,7 @@ class TestGet(TestBase):
                                             '?embedded=%s' % embedded))
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
-        self.assertTrue(content['_items'][0]['person'], self.item_id)
+        self.assertEqual(content['_items'][0]['person'], str(fake_contact_id))
 
         # Set field to be embedded
         invoices['schema']['person']['data_relation']['embeddable'] = True
@@ -585,7 +585,7 @@ class TestGet(TestBase):
                                             '?embedded=%s' % embedded))
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
-        self.assertTrue(content['_items'][0]['person'], self.item_id)
+        self.assertEqual(content['_items'][0]['person'], str(fake_contact_id))
 
         # Test that it works
         invoices['embedding'] = True

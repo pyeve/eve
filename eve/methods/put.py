@@ -63,6 +63,9 @@ def put_internal(resource, payload=None, concurrency_check=False,
     :param skip_validation: skip payload validation before write (bool)
     :param **lookup: document lookup query.
 
+    .. versionchanged:: 0.6
+       Allow restoring soft deleted documents via PUT
+
     .. versionchanged:: 0.5
        Back to resolving default values after validaton as now the validator
        can properly validate dependency even when some have default values. See
@@ -142,6 +145,11 @@ def put_internal(resource, payload=None, concurrency_check=False,
             last_modified = datetime.utcnow().replace(microsecond=0)
             document[config.LAST_UPDATED] = last_modified
             document[config.DATE_CREATED] = original[config.DATE_CREATED]
+            if resource_def['soft_delete'] is True:
+                # PUT with soft delete enabled should always set the DELETED
+                # field to False. We are either carrying through un-deleted
+                # status, or restoring a soft deleted document
+                document[config.DELETED] = False
 
             # ID_FIELD not in document means it is not being automatically
             # handled (it has been set to a field which exists in the
