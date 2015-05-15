@@ -19,6 +19,7 @@
        'MEDIA_URL' added and set to regex("[a-f0-9]{24}").
        'SOFT_DELETE' added and set to False.
        'DELETED' added and set to '_deleted'.
+       'SHOW_DELETED_PARAM' added and set to 'show_deleted'.
 
     .. versionchanged:: 0.5
        'SERVER_NAME' removed.
