@@ -739,6 +739,21 @@ example if you set <tt class="docutils literal"><span class="pre">JSON_ARGUMENT<
 wrapped in a <tt class="docutils literal"><span class="pre">funcname</span></tt> call. Defaults to
 <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt></td>
+<td>Enables soft delete when set to <tt class="docutils literal"><span class="pre">True</span></tt>.
+See <a class="reference internal" href="features.html#soft-delete"><em>Soft Delete</em></a> for more
+information. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DELETED</span></tt></td>
+<td>Field name used to indicate if a document
+has been deleted when <tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt>
+is enabled. Defaults to <tt class="docutils literal"><span class="pre">_deleted</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SHOW_DELETED_PARAM</span></tt></td>
+<td>The URL query parameter used to include
+soft deleted items in resource level GET
+responses. Defaults to &#8216;show_deleted&#8217;.</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -1072,6 +1087,11 @@ It looks like <tt class="docutils literal"><span class="pre">['field1',</span> <
 <td>A dict defining the actual data structure being
 handled by the resource. Enables data
 validation. See <a class="reference internal" href="#schema-definition">Schema Definition</a>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">soft_delete</span></tt></td>
+<td>When <tt class="docutils literal"><span class="pre">True</span></tt> this option enables the
+<a class="reference internal" href="features.html#soft-delete"><em>Soft Delete</em></a> feature for this resource.
+Locally overrides <tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt>.</td>
 </tr>
 </tbody>
 </table>

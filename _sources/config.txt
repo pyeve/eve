@@ -597,6 +597,18 @@ uppercase.
                                     wrapped in a ``funcname`` call. Defaults to
                                     ``None``.
 
+``SOFT_DELETE``                     Enables soft delete when set to ``True``.
+                                    See :ref:`soft_delete` for more
+                                    information. Defaults to ``False``.
+
+``DELETED``                         Field name used to indicate if a document
+                                    has been deleted when ``SOFT_DELETE``
+                                    is enabled. Defaults to ``_deleted``.
+
+``SHOW_DELETED_PARAM``              The URL query parameter used to include
+                                    soft deleted items in resource level GET
+                                    responses. Defaults to 'show_deleted'.
+
 =================================== =========================================
 
 .. _domain:
@@ -903,6 +915,10 @@ always lowercase.
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data
                                 validation. See `Schema Definition`_.
+
+``soft_delete``                 When ``True`` this option enables the
+                                :ref:`soft_delete` feature for this resource.
+                                Locally overrides ``SOFT_DELETE``.
 
 =============================== ===============================================
 

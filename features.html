@@ -673,9 +673,9 @@ update to the primary document) and uses that value to populate the
 <tt class="docutils literal"><span class="pre">Last-Modified</span></tt> header and check the <tt class="docutils literal"><span class="pre">If-Modified-Since</span></tt> conditional cache
 validator of specific document version queries. Note that this will be
 different from the timestamp in the version&#8217;s last updated field. The etag for
-a document version does not change when <tt class="docutils literal"><span class="pre">`_latest_version`</span></tt> changes, however.
+a document version does not change when <tt class="docutils literal"><span class="pre">_latest_version</span></tt> changes, however.
 This results in two corner cases. First, because Eve cannot determine if the
-client&#8217;s <tt class="docutils literal"><span class="pre">`_latest_version`</span></tt> is up to date from an ETag alone, a query using
+client&#8217;s <tt class="docutils literal"><span class="pre">_latest_version</span></tt> is up to date from an ETag alone, a query using
 only <tt class="docutils literal"><span class="pre">If-None-Match</span></tt> for cache validation of old document versions will always
 have its cache invalidated. Second, a version fetched and cached in the same
 second that multiple new versions are created can receive incorrect
@@ -876,6 +876,95 @@ deciding whether to enable it or not, especially by default, keep in mind
 that each embedded resource being looked up will require a database lookup,
 which can easily lead to performance issues.</p>
 </div>
+</div>
+</div>
+<div class="section" id="soft-delete">
+<span id="id5"></span><h2>Soft Delete<a class="headerlink" href="#soft-delete" title="Permalink to this headline">¶</a></h2>
+<p>Eve provides an optional &#8220;soft delete&#8221; mode in which deleted documents continue
+to be stored in the database and are able to be restored, but still act as
+removed items in response to API requests. Soft delete is disabled by default,
+but can be enabled globally using the <tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt> configuration setting, or
+individually configured at the resource level using the domain configuration
+<tt class="docutils literal"><span class="pre">soft_delete</span></tt> setting. See :ref:&#8217;global&#8217; and :ref:&#8217;domain&#8217; for more
+information on enabling and configuring soft delete.</p>
+<div class="section" id="behavior">
+<h3>Behavior<a class="headerlink" href="#behavior" title="Permalink to this headline">¶</a></h3>
+<p>With soft delete enabled, DELETE requests to individual items and resources
+respond just as they do for a traditional &#8220;hard&#8221; delete. Behind the scenes,
+however, Eve does not remove deleted items from the database, but instead
+patches the document with a <tt class="docutils literal"><span class="pre">_deleted</span></tt> field set to <tt class="docutils literal"><span class="pre">true</span></tt>. (The name of
+the <tt class="docutils literal"><span class="pre">_deleted</span></tt> field is configurable. See :ref:&#8217;global&#8217;.) All requests made
+when soft delete is enabled filter against or otherwise account for the
+<tt class="docutils literal"><span class="pre">_deleted</span></tt> field.</p>
+<p>The <tt class="docutils literal"><span class="pre">_deleted</span></tt> field is automatically added and initialized to <tt class="docutils literal"><span class="pre">false</span></tt> for
+all documents created while soft delete is enabled. Documents created prior to
+soft delete being enabled and which therefore do not define the <tt class="docutils literal"><span class="pre">_deleted</span></tt>
+field in the database will still include <tt class="docutils literal"><span class="pre">_deleted:</span> <span class="pre">false</span></tt> in API response
+data, added by Eve during response construction. PUTs or PATCHes to these
+documents will add the <tt class="docutils literal"><span class="pre">_deleted</span></tt> field to the stored documents, set to
+<tt class="docutils literal"><span class="pre">false</span></tt>.</p>
+<p>Responses to GET requests for soft deleted documents vary slightly from
+responses to missing or &#8220;hard&#8221; deleted documents. GET requests for soft deleted
+documents will still respond with <tt class="docutils literal"><span class="pre">404</span> <span class="pre">Not</span> <span class="pre">Found</span></tt> status codes, but the
+response body will contain the soft deleted document with <tt class="docutils literal"><span class="pre">_deleted:</span> <span class="pre">true</span></tt>.
+Documents embedded in the deleted document will not be expanded in the
+response, regardless of any default settings or the contents of the request&#8217;s
+<tt class="docutils literal"><span class="pre">embedded</span></tt> query param. This is to ensure that soft deleted documents
+included in <tt class="docutils literal"><span class="pre">404</span></tt> responses reflect the state of a document when it was
+deleted, and do not to change if embedded documents are updated.</p>
+<p>By default, resource level GET requests will not include soft deleted items in
+their response. This behavior matches that of requests after a &#8220;hard&#8221; delete.
+If including deleted items in the response is desired, the <tt class="docutils literal"><span class="pre">show_deleted</span></tt>
+query param can be added to the request. (the <tt class="docutils literal"><span class="pre">show_deleted</span></tt> param name is
+configurable. See :ref:&#8217;global&#8217;) Eve will respond with all documents, deleted
+or not, and it is up to the client to parse returned documents&#8217; <tt class="docutils literal"><span class="pre">_deleted</span></tt>
+field. The <tt class="docutils literal"><span class="pre">_deleted</span></tt> field can also be explicitly filtered against in a
+request, allowing only deleted documents to be returned using a
+<tt class="docutils literal"><span class="pre">?where={&quot;_deleted&quot;:</span> <span class="pre">true}</span></tt> query.</p>
+<p>Soft delete is enforced in the data layer, meaning queries made by application
+code using the <tt class="docutils literal"><span class="pre">app.data.find_one</span></tt> and <tt class="docutils literal"><span class="pre">app.data.find</span></tt> methods will
+automatically filter out soft deleted items. Passing a request object with
+<tt class="docutils literal"><span class="pre">req.show_deleted</span> <span class="pre">==</span> <span class="pre">True</span></tt> or a lookup dictionary that explicitly filters on
+the <tt class="docutils literal"><span class="pre">_deleted</span></tt> field will override the default filtering.</p>
+</div>
+<div class="section" id="restoring-soft-deleted-items">
+<h3>Restoring Soft Deleted Items<a class="headerlink" href="#restoring-soft-deleted-items" title="Permalink to this headline">¶</a></h3>
+<p>Authorized PUT or PATCH requests made to a soft deleted document will restore
+it, setting <tt class="docutils literal"><span class="pre">_deleted</span></tt> to <tt class="docutils literal"><span class="pre">false</span></tt> in the database. The request must be made
+with proper authorization for write permission to the soft deleted document or
+it will be refused.</p>
+</div>
+<div class="section" id="versioning">
+<h3>Versioning<a class="headerlink" href="#versioning" title="Permalink to this headline">¶</a></h3>
+<p>Soft deleting a versioned document creates a new version of that document with
+<tt class="docutils literal"><span class="pre">_deleted</span></tt> set to <tt class="docutils literal"><span class="pre">true</span></tt>. A GET request to the deleted version will recieve
+a <tt class="docutils literal"><span class="pre">404</span> <span class="pre">Not</span> <span class="pre">Found</span></tt> response as described above, while previous versions will
+continue to respond with <tt class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></tt>. Responses to <tt class="docutils literal"><span class="pre">?version=diff</span></tt> or
+<tt class="docutils literal"><span class="pre">?version=all</span></tt> will include the deleted version as if it were any other.</p>
+</div>
+<div class="section" id="data-relations">
+<h3>Data Relations<a class="headerlink" href="#data-relations" title="Permalink to this headline">¶</a></h3>
+<p>The Eve <tt class="docutils literal"><span class="pre">data_relation</span></tt> validator will not allow references to documents that
+have been soft deleted. Attempting to create or update a document with a
+reference to a soft deleted document will fail just as if that document had
+been hard deleted. Existing data relations to documents that are soft deleted
+remain in the database, but requests requiring embedded document serialization
+of those relations will resolve to a null value. Again, this matches the
+behavior of relations to hard deleted documents.</p>
+<p>Versioned data relations to a deleted document version will also fail to
+validate, but relations to versions prior to deletion or after restoration of
+the document are allowed and will continue to resolve successfully.</p>
+</div>
+<div class="section" id="considerations">
+<h3>Considerations<a class="headerlink" href="#considerations" title="Permalink to this headline">¶</a></h3>
+<p>Disabling soft delete after use in an application requires database maintenance
+to ensure your API remains consistent. With soft delete disabled, requests will
+no longer filter against or handle the <tt class="docutils literal"><span class="pre">_deleted</span></tt> field, and documents that
+were soft deleted will now be live again on your API. It is therefore necessary
+when disabling soft delete to perform a data migration to remove all documents
+with <tt class="docutils literal"><span class="pre">_deleted</span> <span class="pre">==</span> <span class="pre">True</span></tt>, and recommended to remove the <tt class="docutils literal"><span class="pre">_deleted</span></tt> field
+from documents where <tt class="docutils literal"><span class="pre">_deleted</span> <span class="pre">==</span> <span class="pre">False</span></tt>. Enabling soft delete in an existing
+application is safe, and will maintain documents deleted from that point on.</p>
 </div>
 </div>
 <div class="section" id="event-hooks">
@@ -1540,7 +1629,7 @@ a certain point:</p>
 </div>
 </div>
 <div class="section" id="internal-resources">
-<span id="id5"></span><h2>Internal Resources<a class="headerlink" href="#internal-resources" title="Permalink to this headline">¶</a></h2>
+<span id="id6"></span><h2>Internal Resources<a class="headerlink" href="#internal-resources" title="Permalink to this headline">¶</a></h2>
 <p>By default responses to GET requests to the home endpoint will include all the
 resources. The <tt class="docutils literal"><span class="pre">internal_resource</span></tt> setting keyword, however, allows you to
 make an endpoint internal, available only for internal data manipulation: no
@@ -1778,6 +1867,14 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li class="toctree-l2"><a class="reference internal" href="#embedded-resource-serialization">Embedded Resource Serialization</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#predefined-resource-serialization">Predefined Resource Serialization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#limitations">Limitations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#soft-delete">Soft Delete</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#behavior">Behavior</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#restoring-soft-deleted-items">Restoring Soft Deleted Items</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#versioning">Versioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-relations">Data Relations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#considerations">Considerations</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#event-hooks">Event Hooks</a><ul>
