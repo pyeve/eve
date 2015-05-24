@@ -13,6 +13,7 @@ show me your tool!
 - Eve.NET_
 - Eve-SQLAlchemy_
 - Eve-OAuth2_ and Flask-Sentinel_
+- Eve-Auth-JWT_
 
 Eve-Elastic
 -----------
@@ -79,6 +80,13 @@ Eve-OAuth2
 Eve-OAuth2_ is not an extension per-se, but rather an example of how you can
 leverage Flask-Sentinel_  to protect your API endpoints with OAuth2. 
 
+Eve-Auth-JWT
+------------
+
+| *by Olivier Poitrey*
+
+Eve-Auth-JWT_ is An OAuth 2 JWT token validation module for Eve.
+
 .. _`Mocking tool for Eve APIs`: http://blog.python-eve.org/eve-mocker
 .. _`Auto generate API docs`: http://blog.python-eve.org/eve-docs
 .. _charlesflynn/eve-docs: https://github.com/charlesflynn/eve-docs
@@ -91,3 +99,4 @@ leverage Flask-Sentinel_  to protect your API endpoints with OAuth2.
 .. _Eve-SQLAlchemy: https://github.com/RedTurtle/eve-sqlalchemy
 .. _Eve-OAuth2: https://github.com/nicolaiarocci/eve-oauth2
 .. _Flask-Sentinel: https://github.com/nicolaiarocci/flask-sentinel
+.. _Eve-Auth-JWT: https://github.com/rs/eve-auth-jwt
