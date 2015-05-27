@@ -140,7 +140,7 @@ def deleteitem_internal(
 
         for field in media_fields:
             if field in original:
-                app.media.delete(original[field])
+                app.media.delete(original[field], resource)
 
         id = original[config.ID_FIELD]
         app.data.remove(resource, {config.ID_FIELD: id})

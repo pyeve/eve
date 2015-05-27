@@ -245,7 +245,7 @@ class Mongo(DataLayer):
         if projection is not None:
             args['fields'] = projection
 
-        return self.pymongo().db[datasource].find(**args)
+        return self.pymongo(resource).db[datasource].find(**args)
 
     def find_one(self, resource, req, **lookup):
         """ Retrieves a single document.
@@ -290,7 +290,7 @@ class Mongo(DataLayer):
             filter_ = self.combine_queries(
                 filter_, {config.DELETED: {"$ne": True}})
 
-        document = self.pymongo().db[datasource].find_one(filter_, projection)
+        document = self.pymongo(resource).db[datasource].find_one(filter_, projection)
         return document
 
     def find_one_raw(self, resource, _id):
@@ -308,7 +308,7 @@ class Mongo(DataLayer):
                                                         {config.ID_FIELD: _id},
                                                         None)
 
-        document = self.pymongo().db[datasource].find_one(_id)
+        document = self.pymongo(resource).db[datasource].find_one(_id)
         return document
 
     def find_list_of_ids(self, resource, ids, client_projection=None):
@@ -354,7 +354,7 @@ class Mongo(DataLayer):
             resource, query=query, client_projection=client_projection
         )
 
-        documents = self.pymongo().db[datasource].find(
+        documents = self.pymongo(resource).db[datasource].find(
             spec=spec, fields=projection
         )
         return documents
@@ -381,7 +381,7 @@ class Mongo(DataLayer):
         """
         datasource, _, _, _ = self._datasource_ex(resource)
         try:
-            return self.pymongo().db[datasource].insert(
+            return self.pymongo(resource).db[datasource].insert(
                 doc_or_docs, **self._wc(resource)
             )
         except pymongo.errors.DuplicateKeyError as e:
@@ -408,7 +408,7 @@ class Mongo(DataLayer):
         datasource, filter_, _, _ = self._datasource_ex(
             resource, query)
         try:
-            result = self.pymongo().db[datasource].update(
+            result = self.pymongo(resource).db[datasource].update(
                 filter_, changes, **self._wc(resource))
 
             if result and result["n"] == 0:
@@ -511,7 +511,7 @@ class Mongo(DataLayer):
         lookup = self._mongotize(lookup, resource)
         datasource, filter_, _, _ = self._datasource_ex(resource, lookup)
         try:
-            self.pymongo().db[datasource].remove(filter_, **self._wc(resource))
+            self.pymongo(resource).db[datasource].remove(filter_, **self._wc(resource))
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
             abort(500, description=debug_error_message(
@@ -610,7 +610,7 @@ class Mongo(DataLayer):
         .. versionadded:: 0.3
         """
         datasource, filter_, _, _ = self._datasource(resource)
-        coll = self.pymongo().db[datasource]
+        coll = self.pymongo(resource).db[datasource]
         try:
             if not filter_:
                 # faster, but we can only affrd it if there's now predefined
@@ -750,7 +750,7 @@ class Mongo(DataLayer):
                 ))
         return client_projection
 
-    def current_mongo_prefix(self):
+    def current_mongo_prefix(self, resource=None):
         """ Returns the active mongo_prefix that should be used to retrieve
         a valid PyMongo instance from the cache. If 'self.mongo_prefix' is set
         it has precedence over both endpoint (resource) and default drivers.
@@ -768,7 +768,8 @@ class Mongo(DataLayer):
         # for other database implementations.
 
         try:
-            resource = request.endpoint[:request.endpoint.index('|')]
+            if resource is None:
+                resource = request.endpoint[:request.endpoint.index('|')]
             auth = resource_auth(resource)
         except ValueError:
             resource = None
@@ -793,7 +794,7 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.6
         """
-        px = prefix if prefix else self.current_mongo_prefix()
+        px = prefix if prefix else self.current_mongo_prefix(resource=resource)
 
         if px not in self.driver:
             # instantiate and add to cache

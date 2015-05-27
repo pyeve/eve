@@ -26,6 +26,7 @@ class TestGridFSMediaStorage(TestBase):
     def setUp(self):
         super(TestGridFSMediaStorage, self).setUp()
         self.url = self.known_resource_url
+        self.resource = self.known_resource
         self.headers = [('Content-Type', 'multipart/form-data')]
         self.test_field, self.test_value = 'ref', "1234567890123456789054321"
         # we want an explicit binary as Py3 encodestring() expects binaries.
@@ -188,7 +189,7 @@ class TestGridFSMediaStorage(TestBase):
 
         with self.app.test_request_context():
             # previous media doesn't exist anymore (it's been deleted)
-            self.assertFalse(self.app.media.exists(media_id))
+            self.assertFalse(self.app.media.exists(media_id, self.resource))
 
     def test_gridfs_media_storage_patch(self):
         r, s = self._post()
@@ -222,7 +223,7 @@ class TestGridFSMediaStorage(TestBase):
 
         with self.app.test_request_context():
             # previous media doesn't exist anymore (it's been deleted)
-            self.assertFalse(self.app.media.exists(media_id))
+            self.assertFalse(self.app.media.exists(media_id, self.resource))
 
     def test_gridfs_media_storage_patch_null(self):
         # set 'media' field to 'nullable'
@@ -266,7 +267,7 @@ class TestGridFSMediaStorage(TestBase):
 
         with self.app.test_request_context():
             # media doesn't exist anymore (it's been deleted)
-            self.assertFalse(self.app.media.exists(media_id))
+            self.assertFalse(self.app.media.exists(media_id, self.resource))
 
         # GET returns 404
         r, s = self.parse_response(self.test_client.get('%s/%s' % (self.url,
@@ -302,7 +303,7 @@ class TestGridFSMediaStorage(TestBase):
 
         with self.app.test_request_context():
             # media doesn't exist anymore (it's been deleted)
-            self.assertFalse(self.app.media.exists(media_id))
+            self.assertFalse(self.app.media.exists(media_id, self.resource))
 
         # GET returns 404
         r, s = self.parse_response(self.test_client.get('%s/%s' % (self.url,
@@ -361,7 +362,7 @@ class TestGridFSMediaStorage(TestBase):
         media_id = _db.contacts.find_one({ID_FIELD: ObjectId(_id)})['media']
 
         # verify it's actually stored in the media storage system
-        self.assertTrue(self.app.media.exists(media_id))
+        self.assertTrue(self.app.media.exists(media_id, self.resource))
         return media_id
 
     def _post(self):
