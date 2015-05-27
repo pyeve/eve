@@ -290,7 +290,8 @@ class Mongo(DataLayer):
             filter_ = self.combine_queries(
                 filter_, {config.DELETED: {"$ne": True}})
 
-        document = self.pymongo(resource).db[datasource].find_one(filter_, projection)
+        document = self.pymongo(resource).db[datasource] \
+                                         .find_one(filter_, projection)
         return document
 
     def find_one_raw(self, resource, _id):
@@ -511,7 +512,8 @@ class Mongo(DataLayer):
         lookup = self._mongotize(lookup, resource)
         datasource, filter_, _, _ = self._datasource_ex(resource, lookup)
         try:
-            self.pymongo(resource).db[datasource].remove(filter_, **self._wc(resource))
+            self.pymongo(resource).db[datasource] \
+                                  .remove(filter_, **self._wc(resource))
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
             abort(500, description=debug_error_message(
