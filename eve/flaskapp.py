@@ -571,7 +571,6 @@ class Eve(Flask, Events):
         settings['datasource'].setdefault('projection', projection)
         if settings['datasource']['projection']:
             # despite projection, automatic fields are always included.
-            projection = settings['datasource']['projection']
             projection[self.config['ID_FIELD']] = 1
             projection[self.config['LAST_UPDATED']] = 1
             projection[self.config['DATE_CREATED']] = 1
