@@ -571,18 +571,17 @@ class Eve(Flask, Events):
         settings['datasource'].setdefault('projection', projection)
         if settings['datasource']['projection']:
             # despite projection, automatic fields are always included.
-            if projection is not None:
-                projection[self.config['ID_FIELD']] = 1
-                projection[self.config['LAST_UPDATED']] = 1
-                projection[self.config['DATE_CREATED']] = 1
-                projection[self.config['ETAG']] = 1
-                if settings['versioning'] is True:
-                    projection[self.config['VERSION']] = 1
-                    projection[
-                        self.config['ID_FIELD'] +
-                        self.config['VERSION_ID_SUFFIX']] = 1
-                if settings['soft_delete'] is True:
-                    projection[self.config['DELETED']] = 1
+            projection[self.config['ID_FIELD']] = 1
+            projection[self.config['LAST_UPDATED']] = 1
+            projection[self.config['DATE_CREATED']] = 1
+            projection[self.config['ETAG']] = 1
+            if settings['versioning'] is True:
+                projection[self.config['VERSION']] = 1
+                projection[
+                    self.config['ID_FIELD'] +
+                    self.config['VERSION_ID_SUFFIX']] = 1
+            if settings['soft_delete'] is True:
+                projection[self.config['DELETED']] = 1
 
         # 'defaults' helper set contains the names of fields with default
         # values in their schema definition.
