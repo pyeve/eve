@@ -352,7 +352,8 @@ class TestGridFSMediaStorage(TestBase):
 
         with self.app.test_request_context():
             media_id = self.assertMediaStored(_id)
-        self.assertEqual('%s%s' % (self.app.config['MEDIA_CUSTOM_URL'], media_id), url)
+        self.assertEqual('%s%s' % (self.app.config['MEDIA_CUSTOM_URL'],
+                         media_id), url)
 
     def assertMediaField(self, _id, encoded, clean):
         # GET the file at the item endpoint

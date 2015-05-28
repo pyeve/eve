@@ -699,11 +699,12 @@ def resolve_media_files(document, resource):
                 ret_file = base64.encodestring(_file.read())
             elif config.RETURN_MEDIA_AS_URL:
                 if config.MEDIA_CUSTOM_URL is not None:
-                    ret_file = '%s%s' % (config.MEDIA_CUSTOM_URL, file_id)
+                    ret_file = '%s%s' % (config.MEDIA_CUSTOM_URL,
+                                         file_id)
                 else:
                     ret_file = '%s/%s/%s' % (app.api_prefix,
-                                         config.MEDIA_ENDPOINT,
-                                         file_id)
+                                             config.MEDIA_ENDPOINT,
+                                             file_id)
             else:
                 ret_file = None
 
