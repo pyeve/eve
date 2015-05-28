@@ -690,7 +690,7 @@ def resolve_media_files(document, resource):
     """
     for field in resource_media_fields(document, resource):
         file_id = document[field]
-        _file = app.media.get(file_id)
+        _file = app.media.get(file_id, resource)
 
         if _file:
             # otherwise we have a valid file and should send extended response
@@ -778,14 +778,14 @@ def store_media_files(document, resource, original=None):
         if original and field in original:
             # since file replacement is not supported by the media storage
             # system, we first need to delete the file being replaced.
-            app.media.delete(original[field])
+            app.media.delete(original[field], resource)
 
         if document[field]:
             # store file and update document with file's unique id/filename
             # also pass in mimetype for use when retrieving the file
             document[field] = app.media.put(
                 document[field], filename=document[field].filename,
-                content_type=document[field].mimetype)
+                content_type=document[field].mimetype, resource=resource)
 
 
 def resource_media_fields(document, resource):
