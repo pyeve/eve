@@ -58,6 +58,16 @@
 <div class="section" id="version-0-6">
 <h3>Version 0.6<a class="headerlink" href="#version-0-6" title="Permalink to this headline">¶</a></h3>
 <ul>
+<li><p class="first">The <tt class="docutils literal"><span class="pre">MediaStorage</span></tt> base class now accepts the active resource as an
+argument for its methods. This allows data-layers to avoid resorting to the
+Flask request object to determine the active resource. To preserve backward
+compatibility the new <tt class="docutils literal"><span class="pre">resource</span></tt> argument defaults to <tt class="docutils literal"><span class="pre">None</span></tt> (Magdas
+Adrian).</p>
+</li>
+<li><p class="first">The Mongo data-layer is not dependant on the Flask request object anymore. It
+will still fallback to it if the <tt class="docutils literal"><span class="pre">resource</span></tt> argument is <tt class="docutils literal"><span class="pre">None</span></tt>. Closes
+#632. (Magdas Adrian).</p>
+</li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt> enables soft deletes when set to <tt class="docutils literal"><span class="pre">True</span></tt> (Nick Park.)</p>
 </li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">mongo_indexes</span></tt> allows for creation of MongoDB indexes at application
