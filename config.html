@@ -680,45 +680,53 @@ Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td
 files at a dedicated media endpoint.
 Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MEDIA_BASE_URL</span></tt></td>
+<td>Base URL to be used when
+<tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt> is active. Combined
+with <tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt> and <tt class="docutils literal"><span class="pre">MEDIA_URL</span></tt>
+dictates the URL returned for media files.
+If <tt class="docutils literal"><span class="pre">None</span></tt>, which is the default value,
+the API base address will be used instead.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt></td>
 <td>The media endpoint to be used when
 <tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt> is enabled.
 Defaults to <tt class="docutils literal"><span class="pre">media</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MEDIA_URL</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MEDIA_URL</span></tt></td>
 <td>Format of a file url served at the
 dedicated media endpoints. Defaults to
 <tt class="docutils literal"><span class="pre">regex(&quot;[a-f0-9]{24}&quot;)</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG</span></tt></td>
 <td>Set it to <tt class="docutils literal"><span class="pre">True</span></tt> to enable the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>.
 Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_NAME</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_NAME</span></tt></td>
 <td>This is the name of the database collection
 where the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a> is stored. Defaults
 to <tt class="docutils literal"><span class="pre">oplog</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_METHODS</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_METHODS</span></tt></td>
 <td>List of HTTP methods which operations
 should be logged in the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>.
 Defaults to <tt class="docutils literal"><span class="pre">['DELETE',</span> <span class="pre">'POST',</span> <span class="pre">'PATCH',</span>
 <span class="pre">'PUT']</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt></td>
 <td>Name of the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a> endpoint. If the
 endpoint is enabled it can be configured
 like any other API endpoint. Set it to
 <tt class="docutils literal"><span class="pre">None</span></tt> to disable the endpoint. Defaults
 to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt></td>
 <td>Set it to <tt class="docutils literal"><span class="pre">True</span></tt> to enable the audit
 feature. When audit is enabled client IP
 and document changes are also logged to the
 <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">HEADER_TOTAL_COUNT</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">HEADER_TOTAL_COUNT</span></tt></td>
 <td>Custom header containing total count of
 items in response payloads for collection
 <tt class="docutils literal"><span class="pre">GET</span></tt> requests. This is handy for <tt class="docutils literal"><span class="pre">HEAD</span></tt>
@@ -729,7 +737,7 @@ of unread posts using <tt class="docutils literal"><span class="pre">where</span
 loading posts themselves. Defaults to
 <tt class="docutils literal"><span class="pre">X-Total-Count</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">JSONP_ARGUMENT</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">JSONP_ARGUMENT</span></tt></td>
 <td>This option will cause the response to be
 wrapped in a JavaScript function call if
 the argument is set in the request. For
@@ -739,17 +747,17 @@ example if you set <tt class="docutils literal"><span class="pre">JSON_ARGUMENT<
 wrapped in a <tt class="docutils literal"><span class="pre">funcname</span></tt> call. Defaults to
 <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt></td>
 <td>Enables soft delete when set to <tt class="docutils literal"><span class="pre">True</span></tt>.
 See <a class="reference internal" href="features.html#soft-delete"><em>Soft Delete</em></a> for more
 information. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DELETED</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DELETED</span></tt></td>
 <td>Field name used to indicate if a document
 has been deleted when <tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt>
 is enabled. Defaults to <tt class="docutils literal"><span class="pre">_deleted</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SHOW_DELETED_PARAM</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">SHOW_DELETED_PARAM</span></tt></td>
 <td>The URL query parameter used to include
 soft deleted items in resource level GET
 responses. Defaults to &#8216;show_deleted&#8217;.</td>
@@ -1227,7 +1235,7 @@ of fixed length, see <a class="reference external" href="https://cerberus.readth
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
 <td>Validation schema for <tt class="docutils literal"><span class="pre">dict</span></tt> types and
 arbitrary length <tt class="docutils literal"><span class="pre">list</span></tt> types. For details
-and usage examples, see <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#schema" title="(in Cerberus v0.8.2)"><em class="xref std std-ref">Cerberus documentation</em></a></td>
+and usage examples, see <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/index.html#schema" title="(in Cerberus v0.9)"><em class="xref std std-ref">Cerberus documentation</em></a></td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">unique</span></tt></td>
 <td><p class="first">The value of the field must be unique within
