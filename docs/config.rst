@@ -547,6 +547,13 @@ uppercase.
                                     files at a dedicated media endpoint.
                                     Defaults to ``False``.
 
+``MEDIA_BASE_URL``                  Base URL to be used when 
+                                    ``RETURN_MEDIA_AS_URL`` is active. Combined 
+                                    with ``MEDIA_ENDPOINT`` and ``MEDIA_URL``
+                                    dictates the URL returned for media files.
+                                    If ``None``, which is the default value,
+                                    the API base address will be used instead. 
+
 ``MEDIA_ENDPOINT``                  The media endpoint to be used when 
                                     ``RETURN_MEDIA_AS_URL`` is enabled. 
                                     Defaults to ``media``.

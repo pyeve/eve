@@ -333,6 +333,29 @@ class TestGridFSMediaStorage(TestBase):
         response = self.test_client.get(url)
         self.assertEqual(self.clean, response.get_data())
 
+    def test_gridfs_media_storage_base_url(self):
+        self.app._init_media_endpoint()
+        self.app.config['RETURN_MEDIA_AS_BASE64_STRING'] = False
+        self.app.config['RETURN_MEDIA_AS_URL'] = True
+        self.app.config['MEDIA_BASE_URL'] = 'http://s3-us-west-2.amazonaws.com'
+        self.app.config['MEDIA_ENDPOINT'] = 'foo'
+
+        r, s = self._post()
+        self.assertEqual(STATUS_OK, r[STATUS])
+        _id = r[ID_FIELD]
+
+        # GET the file at the resource endpoint
+        where = 'where={"%s": "%s"}' % (ID_FIELD, _id)
+        r, s = self.parse_response(
+            self.test_client.get('%s?%s' % (self.url, where)))
+        self.assertEqual(len(r['_items']), 1)
+        url = r['_items'][0]['media']
+
+        with self.app.test_request_context():
+            media_id = self.assertMediaStored(_id)
+        self.assertEqual('%s/%s/%s' % (self.app.config['MEDIA_BASE_URL'],
+                         self.app.config['MEDIA_ENDPOINT'], media_id), url)
+
     def assertMediaField(self, _id, encoded, clean):
         # GET the file at the item endpoint
         r, s = self.parse_response(self.test_client.get('%s/%s' % (self.url,

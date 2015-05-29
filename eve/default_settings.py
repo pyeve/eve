@@ -174,6 +174,7 @@ RETURN_MEDIA_AS_BASE64_STRING = True
 RETURN_MEDIA_AS_URL = False
 MEDIA_ENDPOINT = 'media'
 MEDIA_URL = 'regex("[a-f0-9]{24}")'
+MEDIA_BASE_URL = None
 
 # list of extra fields to be included with every POST response. This list
 # should not include the 'standard' fields (ID_FIELD, LAST_UPDATED,
