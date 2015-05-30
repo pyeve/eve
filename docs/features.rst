@@ -1520,8 +1520,27 @@ While returning files embedded as Base64 fields is the default behaviour, you
 can opt for serving them at a dedicated media endpoint. You achieve that by
 setting ``RETURN_MEDIA_AS_URL`` to ``True``. When this feature is enabled
 document fields contain urls to the correspondent files, which are served at the
-media endpoint. You can change the default media endpoint (``media``) by
-updating the ``MEDIA_ENDPOINT`` setting.
+media endpoint. 
+
+You can change the default media endpoint (``media``) by updating the
+``MEDIA_BASE_URL`` and ``MEDIA_ENDPOINT`` setting. Suppose you are storing your
+images on Amazon S3 via a custom ``MediaStorage`` subclass. You would probably
+set your media endpoint like so:
+
+.. code-block:: python
+
+    # disable default behaviour
+    RETURN_MEDIA_AS_BASE64_STRING = False
+
+    # return media as URL instead
+    RETURN_MEDIA_AS_URL = True
+
+    # set up the desired media endpoint
+    MEDIA_BASE_URL = 'https://s3-us-west-2.amazonaws.com'
+    MEDIA_ENDPOINT = 'media'
+
+Setting ``MEDIA_BASE_URL`` is optional. If no value is set, then
+the API base address will be used when building the URL for ``MEDIA_ENDPOINT``.
 
 .. _projection_filestorage:
 
