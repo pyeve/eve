@@ -1538,8 +1538,24 @@ if <tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt
 can opt for serving them at a dedicated media endpoint. You achieve that by
 setting <tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt> to <tt class="docutils literal"><span class="pre">True</span></tt>. When this feature is enabled
 document fields contain urls to the correspondent files, which are served at the
-media endpoint. You can change the default media endpoint (<tt class="docutils literal"><span class="pre">media</span></tt>) by
-updating the <tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt> setting.</p>
+media endpoint.</p>
+<p>You can change the default media endpoint (<tt class="docutils literal"><span class="pre">media</span></tt>) by updating the
+<tt class="docutils literal"><span class="pre">MEDIA_BASE_URL</span></tt> and <tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt> setting. Suppose you are storing your
+images on Amazon S3 via a custom <tt class="docutils literal"><span class="pre">MediaStorage</span></tt> subclass. You would probably
+set your media endpoint like so:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># disable default behaviour</span>
+<span class="n">RETURN_MEDIA_AS_BASE64_STRING</span> <span class="o">=</span> <span class="bp">False</span>
+
+<span class="c"># return media as URL instead</span>
+<span class="n">RETURN_MEDIA_AS_URL</span> <span class="o">=</span> <span class="bp">True</span>
+
+<span class="c"># set up the desired media endpoint</span>
+<span class="n">MEDIA_BASE_URL</span> <span class="o">=</span> <span class="s">&#39;https://s3-us-west-2.amazonaws.com&#39;</span>
+<span class="n">MEDIA_ENDPOINT</span> <span class="o">=</span> <span class="s">&#39;media&#39;</span>
+</pre></div>
+</div>
+<p>Setting <tt class="docutils literal"><span class="pre">MEDIA_BASE_URL</span></tt> is optional. If no value is set then
+the API base address will be used in building the URL for <tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt>.</p>
 </div>
 <div class="section" id="leveraging-projections-to-optimize-the-handling-of-media-files">
 <span id="projection-filestorage"></span><h3>Leveraging Projections to optimize the handling of media files<a class="headerlink" href="#leveraging-projections-to-optimize-the-handling-of-media-files" title="Permalink to this headline">¶</a></h3>
