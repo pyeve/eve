@@ -1539,8 +1539,8 @@ set your media endpoint like so:
     MEDIA_BASE_URL = 'https://s3-us-west-2.amazonaws.com'
     MEDIA_ENDPOINT = 'media'
 
-Setting ``MEDIA_BASE_URL`` is optional. If no value is set then
-the API base address will be used in building the URL for ``MEDIA_ENDPOINT``.
+Setting ``MEDIA_BASE_URL`` is optional. If no value is set, then
+the API base address will be used when building the URL for ``MEDIA_ENDPOINT``.
 
 .. _projection_filestorage:
 

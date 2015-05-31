@@ -58,7 +58,10 @@
 <div class="section" id="version-0-6">
 <h3>Version 0.6<a class="headerlink" href="#version-0-6" title="Permalink to this headline">¶</a></h3>
 <ul>
-<li><p class="first"><tt class="docutils literal"><span class="pre">MEDIA_BASE_URL</span></tt> allows to set a custom base URL to be used when
+<li><p class="first">Fix: Do not overwrite <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> as it is not a sub resource. See #641 for
+details (Olivier Poitrey).</p>
+</li>
+<li><p class="first">New: <tt class="docutils literal"><span class="pre">MEDIA_BASE_URL</span></tt> allows to set a custom base URL to be used when
 <tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt> is active (Henrique Barroso).</p>
 </li>
 <li><p class="first">The <tt class="docutils literal"><span class="pre">MediaStorage</span></tt> base class now accepts the active resource as an
