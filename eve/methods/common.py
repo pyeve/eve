@@ -808,7 +808,7 @@ def resolve_sub_resource_path(document, resource):
     schema = app.config['DOMAIN'][resource]['schema']
     fields = []
     for field, value in request.view_args.items():
-        if field in schema:
+        if field in schema and field != config.ID_FIELD:
             fields.append(field)
             document[field] = value
 

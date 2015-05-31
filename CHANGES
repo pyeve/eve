@@ -9,7 +9,9 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
-- ``MEDIA_BASE_URL`` allows to set a custom base URL to be used when
+- Fix: Do not overwrite ``ID_FIELD`` as it is not a sub resource. See #641 for
+  details (Olivier Poitrey).
+- New: ``MEDIA_BASE_URL`` allows to set a custom base URL to be used when
   ``RETURN_MEDIA_AS_URL`` is active (Henrique Barroso).  
 - The ``MediaStorage`` base class now accepts the active resource as an
   argument for its methods. This allows data-layers to avoid resorting to the
