@@ -477,6 +477,8 @@ uppercase.
 
 ``MONGO_DBNAME``                    MongoDB database name.
 
+``MONGO_AUTHDBNAME``                MongoDB authorization database name. Defaults to ``None``.
+
 ``MONGO_MAX_POOL_SIZE``             The maximum number of idle connections 
                                     maintained in the PyMongo connection pool.
                                     Default: PyMongo default.
