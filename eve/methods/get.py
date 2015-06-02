@@ -10,7 +10,6 @@
     :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-import copy
 import math
 from flask import current_app as app, abort, request
 from .common import ratelimit, epoch, pre_event, resolve_embedded_fields, \
@@ -226,7 +225,7 @@ def getitem(resource, **lookup):
 
     # synthesize old document version(s)
     if resource_def['versioning'] is True:
-        latest_doc = copy.deepcopy(document)
+        latest_doc = document
         document = get_old_document(
             resource, req, lookup, document, version)
 

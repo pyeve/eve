@@ -239,8 +239,8 @@ def synthesize_versioned_document(document, delta, resource_def):
 
 
 def get_old_document(resource, req, lookup, document, version):
-    """ Returns an old document if appropriate, otherwise passes the given
-    document through.
+    """ Returns an old document if appropriate, otherwise returns a copy of the
+    given document.
 
     :param resource: the name of the resource.
     :param req: the parsed request object.
@@ -269,12 +269,14 @@ def get_old_document(resource, req, lookup, document, version):
         delta = app.data.find_one(resource + config.VERSIONS, req, **lookup)
         if not delta:
             abort(404)
-        document = synthesize_versioned_document(
+        old_document = synthesize_versioned_document(
             document,
             delta,
             config.DOMAIN[resource])
+    else:
+        old_document = copy.deepcopy(document)
 
-    return document
+    return old_document
 
 
 def get_data_version_relation_document(data_relation, reference, latest=False):

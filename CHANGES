@@ -9,6 +9,7 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- Improve GET perfomance on large versioned documents (Nick Park.)
 - Fix: Do not overwrite ``ID_FIELD`` as it is not a sub resource. See #641 for
   details (Olivier Poitrey).
 - New: ``MEDIA_BASE_URL`` allows to set a custom base URL to be used when
