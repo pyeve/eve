@@ -122,7 +122,7 @@ contacts = {
         },
         'afloat': {
             'type': 'float',
-        },
+        }
     }
 }
 
@@ -227,6 +227,27 @@ ids = {
     }
 }
 
+login = {
+    'item_title': 'login',
+    'url': 'login',
+    'datasource': {
+        'projection': {
+            'password': 0
+        }
+    },
+    'schema': {
+        'email': {
+            'type': 'string',
+            'required': True,
+            'unique': True
+        },
+        'password': {
+            'type': 'string',
+            'required': True
+        }
+    }
+}
+
 DOMAIN = {
     'contacts': contacts,
     'users': users,
@@ -242,5 +263,6 @@ DOMAIN = {
     'peoplesearches': users_searches,
     'companies': companies,
     'internal_transactions': internal_transactions,
-    'ids': ids
+    'ids': ids,
+    'login': login
 }

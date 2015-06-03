@@ -283,6 +283,15 @@ class TestPost(TestBase):
         self.assert201(status)
         self.assertTrue('ref' in r and 'notreally' not in r)
 
+    def test_post_with_excluded_response_fields(self):
+        data = {
+            'email': 'test@email.com',
+            'password': 'password'
+        }
+        r, status = self.post('login', data=data)
+        self.assert201(status)
+        self.assertTrue('password' not in r)
+
     def test_post_write_concern(self):
         # should get a 500 since there's no replicaset on mongod test instance
         self.domain['contacts']['mongo_write_concern'] = {'w': 2}
