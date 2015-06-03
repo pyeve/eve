@@ -560,18 +560,15 @@ class Eve(Flask, Events):
         settings['datasource'].setdefault('filter', None)
         settings['datasource'].setdefault('default_sort', None)
 
-        if len(schema) and settings['allow_unknown'] is False:
+        projection = settings['datasource'].get('projection')
+        projection = projection or {}
+        exclusion = any((v for k, v in projection.items() if v == 0))
+
+        if not exclusion and len(schema) and \
+           settings['allow_unknown'] is False:
             # enable retrieval of actual schema fields only. Eventual db
             # fields not included in the schema won't be returned.
-            projection = {}
-            projection.update(dict((field, 1) for (field) in schema))
-        else:
-            # all fields are returned.
-            projection = None
-        settings['datasource'].setdefault('projection', projection)
-        if settings['datasource']['projection']:
             # despite projection, automatic fields are always included.
-            projection = settings['datasource']['projection']
             projection[self.config['ID_FIELD']] = 1
             projection[self.config['LAST_UPDATED']] = 1
             projection[self.config['DATE_CREATED']] = 1
@@ -581,8 +578,13 @@ class Eve(Flask, Events):
                 projection[
                     self.config['ID_FIELD'] +
                     self.config['VERSION_ID_SUFFIX']] = 1
+            projection.update(dict((field, 1) for (field) in schema))
             if settings['soft_delete'] is True:
                 projection[self.config['DELETED']] = 1
+        else:
+            # all fields are returned.
+            projection = None
+        settings['datasource'].setdefault('projection', projection)
 
         # 'defaults' helper set contains the names of fields with default
         # values in their schema definition.

@@ -122,9 +122,6 @@ contacts = {
         },
         'afloat': {
             'type': 'float',
-        },
-        'excluded': {
-            'type': 'string',
         }
     }
 }

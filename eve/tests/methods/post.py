@@ -289,9 +289,7 @@ class TestPost(TestBase):
             'password': 'password'
         }
         r, status = self.post('login', data=data)
-        print(r, status)
         self.assert201(status)
-        self.assertTrue('email' in r)
         self.assertTrue('password' not in r)
 
     def test_post_write_concern(self):
