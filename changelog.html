@@ -58,6 +58,9 @@
 <div class="section" id="version-0-6">
 <h3>Version 0.6<a class="headerlink" href="#version-0-6" title="Permalink to this headline">¶</a></h3>
 <ul>
+<li><p class="first">Fix: OpLog domain entry is not created if <tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt> is <tt class="docutils literal"><span class="pre">None</span></tt>.
+Closes #628.</p>
+</li>
 <li><p class="first">Improve GET perfomance on large versioned documents (Nick Park.)</p>
 </li>
 <li><p class="first">Fix: Do not overwrite <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> as it is not a sub resource. See #641 for
