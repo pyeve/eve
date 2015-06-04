@@ -290,7 +290,12 @@ class TestPost(TestBase):
         }
         r, status = self.post('login', data=data)
         self.assert201(status)
-        self.assertTrue('password' not in r)
+
+        login_id = r[self.app.config['ID_FIELD']]
+        r = self.test_client.get('%s/%s' % ('login', login_id))
+        r_data = json.loads(r.get_data())
+        self.assertTrue('password' not in r_data)
+        self.assertTrue('email' in r_data)
 
     def test_post_write_concern(self):
         # should get a 500 since there's no replicaset on mongod test instance
