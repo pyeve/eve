@@ -259,12 +259,12 @@ class TestRenders(TestBase):
         prefix = api_prefix(self.app.config['URL_PREFIX'],
                             self.app.config['API_VERSION'])
 
+        del(self.domain['oplog'])
         del(self.domain['peopleinvoices'])
         del(self.domain['peoplerequiredinvoices'])
         del(self.domain['peoplesearches'])
         del(self.domain['internal_transactions'])
         for _, settings in self.app.config['DOMAIN'].items():
-
             # resource endpoint
             url = '%s/%s/' % (prefix, settings['url'])
             methods = settings['resource_methods'] + ['OPTIONS']

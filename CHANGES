@@ -9,6 +9,8 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- Fix: OpLog domain entry is not created if ``OPLOG_ENDPOINT`` is ``None``.
+  Closes #628.
 - Improve GET perfomance on large versioned documents (Nick Park.)
 - Fix: Do not overwrite ``ID_FIELD`` as it is not a sub resource. See #641 for
   details (Olivier Poitrey).

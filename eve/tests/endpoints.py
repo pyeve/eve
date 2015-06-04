@@ -142,6 +142,7 @@ class TestEndPoints(TestBase):
         self.assertEqual(r.status_code, 200)
 
     def test_resource_endpoint(self):
+        del(self.domain['oplog'])
         del(self.domain['peopleinvoices'])
         del(self.domain['peoplerequiredinvoices'])
         del(self.domain['peoplesearches'])

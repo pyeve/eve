@@ -5,6 +5,7 @@ from bson import ObjectId
 
 from eve.methods.common import serialize
 from eve.tests import TestBase
+from eve.tests.test_settings import MONGO_DBNAME
 from eve.utils import config
 
 
@@ -144,18 +145,65 @@ class TestSerializer(TestBase):
                 self.assertTrue(isinstance(item['_id'], ObjectId))
 
 
-class TestOpLog(TestBase):
+class TestOpLogBase(TestBase):
     def setUp(self):
-        super(TestOpLog, self).setUp()
+        super(TestOpLogBase, self).setUp()
         self.test_field, self.test_value = 'ref', "1234567890123456789054321"
         self.data = {self.test_field: self.test_value}
         self.test_client = self.app.test_client()
+        self.headers = [(('Content-Type', 'application/json'))]
+
+    def oplog_reset(self):
+        self.app._init_oplog()
+        self.app.register_resource('oplog', self.domain['oplog'])
+
+    def oplog_get(self, url='/oplog'):
+        r = self.test_client.get(url)
+        return self.parse_response(r)
+
+    def assertOpLogEntry(self, entry, op):
+        self.assertTrue('r' in entry)
+        self.assertTrue('i' in entry)
+        self.assertTrue(config.LAST_UPDATED in entry)
+        self.assertTrue(config.DATE_CREATED in entry)
+        self.assertTrue('o' in entry)
+        self.assertEqual(entry['o'], op)
+        self.assertTrue('127.0.0.1' in entry['ip'])
+        if op in ('PATCH', 'PUT', 'DELETE'):
+            self.assertTrue('c' in entry)
+
+
+class TestOpLogEndpointDisabled(TestOpLogBase):
+    def setUp(self):
+        super(TestOpLogEndpointDisabled, self).setUp()
+
+        self.app.config['OPLOG'] = True
+        self.oplog_reset()
+
+    def test_post_oplog(self):
+        r = self.test_client.post(self.known_resource_url,
+                                  data=json.dumps(self.data),
+                                  headers=self.headers,
+                                  environ_base={'REMOTE_ADDR': '127.0.0.1'})
+
+        # oplog endpoint is not available.
+        r, status = self.oplog_get()
+        self.assert404(status)
+
+        # however the oplog collection has been updated.
+        db = self.connection[MONGO_DBNAME]
+        cursor = db.oplog.find()
+        self.assertEqual(cursor.count(), 1)
+        self.assertOpLogEntry(cursor[0], 'POST')
+
+
+class TestOpLogEndpointEnabled(TestOpLogBase):
+    def setUp(self):
+        super(TestOpLogEndpointEnabled, self).setUp()
 
         self.app.config['OPLOG'] = True
         self.app.config['OPLOG_ENDPOINT'] = 'oplog'
-        self.app._init_oplog()
-        self.app.register_resource('oplog', self.domain['oplog'])
-        self.headers = [(('Content-Type', 'application/json'))]
+        self.oplog_reset()
 
     def test_post_oplog(self):
         r = self.test_client.post(self.known_resource_url,
@@ -216,21 +264,6 @@ class TestOpLog(TestBase):
         self.assertEqual(len(r['_items']), 1)
         oplog_entry = r['_items'][0]
         self.assertOpLogEntry(oplog_entry, 'DELETE')
-
-    def assertOpLogEntry(self, entry, op):
-        self.assertTrue('r' in entry)
-        self.assertTrue('i' in entry)
-        self.assertTrue(config.LAST_UPDATED in entry)
-        self.assertTrue(config.DATE_CREATED in entry)
-        self.assertTrue('o' in entry)
-        self.assertEqual(entry['o'], op)
-        self.assertTrue('127.0.0.1' in entry['ip'])
-        if op in ('PATCH', 'PUT', 'DELETE'):
-            self.assertTrue('c' in entry)
-
-    def oplog_get(self, url='/oplog'):
-        r = self.test_client.get(url)
-        return self.parse_response(r)
 
     def patch(self, url, data, headers=[], content_type='application/json'):
         headers.append(('Content-Type', content_type))

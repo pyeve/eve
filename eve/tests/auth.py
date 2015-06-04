@@ -150,6 +150,7 @@ class TestBasicAuth(TestBase):
         for resource, settings in domain.items():
             del(settings['public_methods'])
         self.app.set_defaults()
+        del(domain['oplog'])
         del(domain['peopleinvoices'])
         del(domain['peoplerequiredinvoices'])
         del(domain['peoplesearches'])

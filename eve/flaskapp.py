@@ -813,31 +813,38 @@ class Eve(Flask, Events):
             self.config['OPLOG_AUDIT']
         )
 
+        settings = self.config['DOMAIN'].setdefault(name, {})
+
+        settings.setdefault('datasource', {'source': name})
+
+        # this endpoint is always read-only
+        settings['resource_methods'] = ['GET']
+        settings['item_methods'] = ['GET']
+
         if endpoint:
-            settings = self.config['DOMAIN'].setdefault(name, {})
-
             settings.setdefault('url', endpoint)
-            settings.setdefault('datasource', {'source': name})
+            settings['internal_resource'] = False
+        else:
+            # make it an internal resource
+            settings['url'] = name
+            settings['internal_resource'] = True
 
-            # this endpoint is always read-only
-            settings['resource_methods'] = ['GET']
-            settings['item_methods'] = ['GET']
 
-            # schema is also fixed. it is needed because otherwise we
-            # would end up exposing the AUTH_FIELD when User-Restricted-
-            # Resource-Access is enabled.
-            settings['schema'] = {
-                'r': {},
-                'o': {},
-                'i': {},
-            }
-            if audit:
-                settings['schema'].update(
-                    {
-                        'ip': {},
-                        'c': {}
-                    }
-                )
+        # schema is also fixed. it is needed because otherwise we
+        # would end up exposing the AUTH_FIELD when User-Restricted-
+        # Resource-Access is enabled.
+        settings['schema'] = {
+            'r': {},
+            'o': {},
+            'i': {},
+        }
+        if audit:
+            settings['schema'].update(
+                {
+                    'ip': {},
+                    'c': {}
+                }
+            )
 
     def _init_media_endpoint(self):
         endpoint = self.config['MEDIA_ENDPOINT']

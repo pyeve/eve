@@ -337,6 +337,7 @@ class TestConfig(TestBase):
     def test_url_rules(self):
         map_adapter = self.app.url_map.bind('')
 
+        del(self.domain['oplog'])
         del(self.domain['peopleinvoices'])
         del(self.domain['peoplerequiredinvoices'])
         del(self.domain['peoplesearches'])
@@ -377,10 +378,6 @@ class TestConfig(TestBase):
                           resource, settings)
 
     def test_oplog_config(self):
-
-        # OPLOG_ENDPOINT is disabled by default so we don't have the endpoint
-        # in our domain
-        self.assertFalse('oplog' in self.domain)
 
         # if OPLOG_ENDPOINT is eanbled the endoint is included with the domain
         self.app.config['OPLOG_ENDPOINT'] = 'oplog'
