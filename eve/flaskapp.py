@@ -829,7 +829,6 @@ class Eve(Flask, Events):
             settings['url'] = name
             settings['internal_resource'] = True
 
-
         # schema is also fixed. it is needed because otherwise we
         # would end up exposing the AUTH_FIELD when User-Restricted-
         # Resource-Access is enabled.
