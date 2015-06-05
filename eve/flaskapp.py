@@ -560,10 +560,15 @@ class Eve(Flask, Events):
         settings['datasource'].setdefault('filter', None)
         settings['datasource'].setdefault('default_sort', None)
 
-        projection = settings['datasource'].get('projection')
+        projection = settings['datasource'].get('projection', {})
         projection = projection or {}
-        exclusion = any((v for k, v in projection.items() if v == 0))
 
+        # check if any exclusion projection is defined
+        exclusion = any(((k, v) for k, v in projection.items() if v == 0))
+
+        # If no exclusion projection is defined, enhance the projection
+        # with automatic fields. Using both inclusion and exclusion will
+        # be rejected by Mongo
         if not exclusion and len(schema) and \
            settings['allow_unknown'] is False:
             # enable retrieval of actual schema fields only. Eventual db
