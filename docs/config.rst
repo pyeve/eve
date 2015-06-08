@@ -1082,7 +1082,7 @@ defining the field validation rules. Allowed validation rules are:
                                 a single user cannot store duplicate values.
 
                                 If URRA is not active on the endpoint, this
-                                rule behaves like `unique`.
+                                rule behaves like ``unique``
 
 ``data_relation``               Allows to specify a referential integrity rule
                                 that the value must satisfy in order to
