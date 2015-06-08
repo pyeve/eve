@@ -144,6 +144,30 @@ class TestSerializer(TestBase):
             for item in sublist:
                 self.assertTrue(isinstance(item['_id'], ObjectId))
 
+    def test_serialize_null_dictionary(self):
+        # Serialization should continue after encountering a null value dict
+        # field. Field may be nullable, or error will be caught in validation.
+        schema = {
+            'nullable_dict': {
+                'type': 'dict',
+                'nullable': True,
+                'schema': {
+                    'simple_field': {
+                        'type': 'number'
+                    }
+                }
+            }
+        }
+        doc = {
+            'nullable_dict': None
+        }
+        with self.app.app_context():
+            try:
+                serialize(doc, schema=schema)
+            except Exception:
+                self.assertTrue(False, "Serializing null dictionaries should "
+                                       "not raise an exception.")
+
 
 class TestOpLogBase(TestBase):
     def setUp(self):
