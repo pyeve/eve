@@ -786,14 +786,15 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assert200(status)
         items = document[self.app.config['ITEMS']]
         self.assertEqual(len(items), 2)
-        # Deleted item shoud diff by the version, etag, deleted, and
+        # Deleted item shoud diff by the version, etag, deleted, links, and
         # last_updated field only (the speed of test executon means
         # last_updated will only change in test intermittently)
         self.assertVersion(items[1], 2)
         changed_fields = [
             self.version_field,
             self.deleted_field,
-            self.app.config['ETAG']]
+            self.app.config['ETAG'],
+            self.app.config['LINKS']]
         self.assertTrue(
             len(items[1].keys()) == len(changed_fields) or
             len(items[1].keys()) == len(changed_fields) + 1)
