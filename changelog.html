@@ -58,6 +58,16 @@
 <div class="section" id="version-0-6">
 <h3>Version 0.6<a class="headerlink" href="#version-0-6" title="Permalink to this headline">¶</a></h3>
 <ul>
+<li><p class="first">New: <cite>unique_to_user</cite> validation rule allows to validate that a field value
+is unique to the user. Different users can share the same value for the
+field. This is useful when User Restricted Resource Access is enabled on an
+endpoint. If URRA is not active on the endpoint, this rule behaves like
+<cite>unique</cite>. Closes #646.</p>
+</li>
+<li><p class="first">Fix: make sure <cite>unique</cite> validation rule is consistent between HTTP methods.
+A field value must be unique within the datasource, regardless of the user
+who created it. Closes #646.</p>
+</li>
 <li><p class="first">Fix: OpLog domain entry is not created if <tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt> is <tt class="docutils literal"><span class="pre">None</span></tt>.
 Closes #628.</p>
 </li>

@@ -1249,19 +1249,25 @@ documents carry the same value for a field
 where the &#8216;unique&#8217; constraint is set, the
 payload will validate successfully, as there
 are no duplicates in the database (yet).</p>
-<p>If this is an issue, the client can always send
+<p class="last">If this is an issue, the client can always send
 the documents one at a time for insertion, or
 validate locally before submitting the payload
 to the API.</p>
-<p class="last">Also be aware that when <a class="reference internal" href="authentication.html#user-restricted"><em>User-Restricted Resource Access</em></a>
-is enabled the rule will be validated against
-<em>user data only</em>. So in this scenario
-duplicates are allowed as long as they are
-stored by different users. Conversely, a single
-user cannot store duplicate values.</p>
 </td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">data_relation</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">unique_to_user</span></tt></td>
+<td><p class="first">The field value is unique to the user. This is
+useful when <a class="reference internal" href="authentication.html#user-restricted"><em>User-Restricted Resource Access</em></a> is
+enabled on an endpoint. The rule will be
+validated against <em>user data only</em>. So in this
+scenario duplicates are allowed as long as they
+are stored by different users. Conversely,
+a single user cannot store duplicate values.</p>
+<p class="last">If URRA is not active on the endpoint, this
+rule behaves like <cite>unique</cite>.</p>
+</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">data_relation</span></tt></td>
 <td><p class="first">Allows to specify a referential integrity rule
 that the value must satisfy in order to
 validate. It is a dict with three keys:</p>
@@ -1277,11 +1283,11 @@ Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</l
 </ul>
 </td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">nullable</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">nullable</span></tt></td>
 <td>If <tt class="docutils literal"><span class="pre">True</span></tt>, the field value can be set to
 <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">default</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">default</span></tt></td>
 <td><p class="first">The default value for the field. When serving
 POST and PUT requests, missing fields will be
 assigned the configured default values.</p>
@@ -1324,23 +1330,23 @@ of elements and each element being a <tt class="docutils literal"><span class="p
 </div>
 </td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">versioned</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">versioned</span></tt></td>
 <td>If <tt class="docutils literal"><span class="pre">True</span></tt>, this field will be included in the
 versioned history of each document when
 <tt class="docutils literal"><span class="pre">versioning</span></tt> is enabled. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">keyschema</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">keyschema</span></tt></td>
 <td>Validation schema for all values of a <tt class="docutils literal"><span class="pre">dict</span></tt>.
 The dict can have arbitrary keys, the values
 for all of which must validate with given
 schema. See <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/#keyschema">keyschema example</a>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">regex</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">regex</span></tt></td>
 <td>Validation will fail if field value does not
 match the provided regex rule. Only applies to
 string fields. See <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/#regex">email validation example</a></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">dependencies</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">dependencies</span></tt></td>
 <td>This rule allows a list of fields that must be
 present in order for the target field to be
 allowed. See <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/#dependencies">dependencies example</a></td>
