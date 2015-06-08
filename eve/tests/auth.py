@@ -16,7 +16,7 @@ class ValidBasicAuth(BasicAuth):
 
     def check_auth(self, username, password, allowed_roles, resource, method):
         self.set_request_auth_value(self.request_auth_value)
-        return username == 'admin' and password == 'secret' and  \
+        return username in ('admin', 'alt') and password == 'secret' and  \
             ('admin' in allowed_roles if allowed_roles else True)
 
 
@@ -473,7 +473,38 @@ class TestUserRestrictedAccess(TestBase):
                                  headers=self.valid_auth))
         self.assert200(status)
         # len of 1 as there are is only 1 doc saved by user
-        self.assertEqual(len(data['_items']), 1)
+
+    def test_unique_to_user_on_post(self):
+        # make the field unique to user, not globally.
+        self.resource['schema']['ref']['unique'] = False
+        self.resource['schema']['ref']['unique_to_user'] = True
+
+        # first post as 'admin' is a success.
+        _, status = self.post()
+        self.assert201(status)
+
+        # second post as 'admin' fails since value is not unique to user.
+        _, status = self.post()
+        self.assert422(status)
+
+        self.resource['authentication'].request_auth_value = 'alt'
+        # first post as 'alt' succeeds as value is unique to this user.
+        alt_auth = [('Authorization', 'Basic YWx0OnNlY3JldA==')]
+        r = self.test_client.post(self.url,
+                                  data=self.data,
+                                  headers=alt_auth,
+                                  content_type='application/json')
+
+        self.assert201(r.status_code)
+
+        # second post as 'alt' fails since value is not unique to user anymore.
+        r = self.test_client.post(self.url,
+                                  data=self.data,
+                                  headers=alt_auth,
+                                  content_type='application/json')
+
+        # post succeeds since value is unique to 'alt' user
+        self.assert422(r.status_code)
 
     def test_post_resource_auth(self):
         # Ticket #231.
