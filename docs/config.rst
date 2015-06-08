@@ -1073,12 +1073,16 @@ defining the field validation rules. Allowed validation rules are:
                                 validate locally before submitting the payload
                                 to the API.
 
-                                Also be aware that when :ref:`user-restricted`
-                                is enabled the rule will be validated against
-                                *user data only*. So in this scenario
-                                duplicates are allowed as long as they are
-                                stored by different users. Conversely, a single
-                                user cannot store duplicate values.
+``unique_to_user``              The field value is unique to the user. This is 
+                                useful when :ref:`user-restricted` is
+                                enabled on an endpoint. The rule will be
+                                validated against *user data only*. So in this
+                                scenario duplicates are allowed as long as they
+                                are stored by different users. Conversely,
+                                a single user cannot store duplicate values.
+
+                                If URRA is not active on the endpoint, this
+                                rule behaves like `unique`.
 
 ``data_relation``               Allows to specify a referential integrity rule
                                 that the value must satisfy in order to

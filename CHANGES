@@ -9,6 +9,14 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- New: `unique_to_user` validation rule allows to validate that a field value
+  is unique to the user. Different users can share the same value for the
+  field. This is useful when User Restricted Resource Access is enabled on an
+  endpoint. If URRA is not active on the endpoint, this rule behaves like
+  `unique`. Closes #646.
+- Fix: make sure `unique` validation rule is consistent between HTTP methods.
+  A field value must be unique within the datasource, regardless of the user
+  who created it. Closes #646.
 - Fix: OpLog domain entry is not created if ``OPLOG_ENDPOINT`` is ``None``.
   Closes #628.
 - Improve GET perfomance on large versioned documents (Nick Park.)

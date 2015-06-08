@@ -11,17 +11,18 @@
     :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-
 import copy
-from collections import Mapping
-from eve.utils import config, str_type
 from bson import ObjectId
+from collections import Mapping
 from flask import current_app as app
-from cerberus import Validator
 from werkzeug.datastructures import FileStorage
-from eve.versioning import get_data_version_relation_document
+from cerberus import Validator
+
+from eve.auth import auth_field_and_value
 from eve.io.mongo.geo import Point, MultiPoint, LineString, Polygon, \
     MultiLineString, MultiPolygon, GeometryCollection
+from eve.utils import config, str_type
+from eve.versioning import get_data_version_relation_document
 
 
 class Validator(Validator):
@@ -98,6 +99,21 @@ class Validator(Validator):
         """
         pass
 
+    def _validate_unique_to_user(self, unique, field, value):
+        """ Validates that a value is unique to the active user. Active user is
+        the user authenticated for current request. See #646.
+
+        .. versionadded: 0.6
+        """
+
+        auth_field, auth_value = auth_field_and_value(self.resource)
+
+        # if an auth value has been set for this request, then make sure it is
+        # taken into account when checking for value uniqueness.
+        query = {auth_field: auth_value} if auth_field else {}
+
+        self._is_value_unique(unique, field, value, query)
+
     def _validate_unique(self, unique, field, value):
         """ Enables validation for `unique` schema attribute.
 
@@ -106,6 +122,10 @@ class Validator(Validator):
         :param field: field name.
         :param value: field value.
 
+        .. versionchanged:: 0.6
+           Validates field value uniqueness against the whole datasource,
+           indipendently of the request method. See #646.
+
         .. versionchanged:: 0.3
            Support for new 'self._error' signature introduced with Cerberus
            v0.5.
@@ -113,12 +133,27 @@ class Validator(Validator):
         .. versionchanged:: 0.2
            Handle the case in which ID_FIELD is not of ObjectId type.
         """
+        self._is_value_unique(unique, field, value, {})
+
+    def _is_value_unique(self, unique, field, value, query):
+        """ Validates that a field value is unique.
+
+        .. versionadded:: 0.6
+        """
         if unique:
-            query = {field: value}
+            query[field] = value
+
+            # exclude current document
             if self._id:
                 query[config.ID_FIELD] = {'$ne': self._id}
 
-            if app.data.find_one(self.resource, None, **query):
+            # we perform the check on the native mongo driver (and not on
+            # app.data.find_one()) because in this case we don't want the usual
+            # (for eve) query injection to interfere with this validation. We
+            # are still operating within eve's mongo namespace anyway.
+
+            datasource, _, _, _ = app.data.datasource(self.resource)
+            if app.data.driver.db[datasource].find_one(query):
                 self._error(field, "value '%s' is not unique" % value)
 
     def _validate_data_relation(self, data_relation, field, value):

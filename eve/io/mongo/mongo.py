@@ -611,7 +611,7 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.3
         """
-        datasource, filter_, _, _ = self._datasource(resource)
+        datasource, filter_, _, _ = self.datasource(resource)
         coll = self.pymongo(resource).db[datasource]
         try:
             if not filter_:
