@@ -933,9 +933,9 @@ Behavior
 With soft delete enabled, DELETE requests to individual items and resources
 respond just as they do for a traditional "hard" delete. Behind the scenes,
 however, Eve does not remove deleted items from the database, but instead
-patches the document with a ``_deleted`` field set to ``true``. (The name of
-the ``_deleted`` field is configurable. See :ref:`global`.) All requests made
-when soft delete is enabled filter against or otherwise account for the
+patches the document with a ``_deleted`` meta field set to ``true``. (The name
+of the ``_deleted`` field is configurable. See :ref:`global`.) All requests
+made when soft delete is enabled filter against or otherwise account for the
 ``_deleted`` field.
 
 The ``_deleted`` field is automatically added and initialized to ``false`` for
@@ -974,10 +974,13 @@ the ``_deleted`` field will override the default filtering.
 
 Restoring Soft Deleted Items
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Authorized PUT or PATCH requests made to a soft deleted document will restore
-it, setting ``_deleted`` to ``false`` in the database. The request must be made
-with proper authorization for write permission to the soft deleted document or
-it will be refused.
+PUT or PATCH requests made to a soft deleted document will restore it,
+automatically setting ``_deleted`` to ``false`` in the database. Modifying the
+``_deleted`` field directly is not necessary (or allowed). For example, using
+PATCH requests, only the fields to be changed in the restored version would be
+specified, or an empty request would be made to restore the document as is. The
+request must be made with proper authorization for write permission to the soft
+deleted document or it will be refused.
 
 Versioning
 ~~~~~~~~~~
