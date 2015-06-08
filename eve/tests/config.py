@@ -337,7 +337,6 @@ class TestConfig(TestBase):
     def test_url_rules(self):
         map_adapter = self.app.url_map.bind('')
 
-        del(self.domain['oplog'])
         del(self.domain['peopleinvoices'])
         del(self.domain['peoplerequiredinvoices'])
         del(self.domain['peoplesearches'])

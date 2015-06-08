@@ -259,7 +259,6 @@ class TestRenders(TestBase):
         prefix = api_prefix(self.app.config['URL_PREFIX'],
                             self.app.config['API_VERSION'])
 
-        del(self.domain['oplog'])
         del(self.domain['peopleinvoices'])
         del(self.domain['peoplerequiredinvoices'])
         del(self.domain['peoplesearches'])
