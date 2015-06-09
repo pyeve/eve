@@ -872,6 +872,8 @@ def create_index(app, resource, name, list_of_keys, index_options):
         if key('USERNAME') in app.config else None
     password = app.config[key('PASSWORD')] \
         if key('PASSWORD') in app.config else None
+    auth_db_name = app.config[key('AUTHDBNAME')] \
+        if key('AUTHDBNAME') in app.config else None
     host = app.config[key('HOST')]
     port = app.config[key('PORT')]
     auth = (username, password)
@@ -880,7 +882,7 @@ def create_index(app, resource, name, list_of_keys, index_options):
     db = conn[db_name]
 
     if any(auth):
-        db.authenticate(username, password)
+        db.authenticate(username, password, source=auth_db_name)
 
     coll = db[collection]
 
