@@ -148,7 +148,8 @@ class Eve(Flask, Events):
         self._init_url_rules()
         self._init_media_endpoint()
 
-        self._init_oplog()
+        if self.config['OPLOG'] is True:
+            self._init_oplog()
 
         # validate and set defaults for each resource
 
