@@ -9,6 +9,8 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- Fix: Update ``serialize`` to gracefully handle non-dictionary values in dict
+  type fields (Nick Park).
 - New: ``unique_to_user`` validation rule allows to validate that a field value
   is unique to the user. Different users can share the same value for the
   field. This is useful when User Restricted Resource Access is enabled on an

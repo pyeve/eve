@@ -346,7 +346,12 @@ def serialize(document, resource=None, schema=None, fields=None):
                         embedded = [document[field]] if field_type == 'dict' \
                             else document[field]
                         for subdocument in embedded:
-                            if 'schema' in field_schema:
+                            if type(subdocument) is not dict:
+                                # value is not a dict - continue serialization
+                                # error will be reported by validation if
+                                # appropriate (could be allowed nullable dict)
+                                continue
+                            elif 'schema' in field_schema:
                                 serialize(subdocument,
                                           schema=field_schema['schema'])
                             else:
