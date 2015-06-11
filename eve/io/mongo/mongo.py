@@ -508,12 +508,15 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.0.2
             Support for deletion of entire documents collection.
+        :returns
+            A document (dict) describing the effect of the remove
+            or None if write acknowledgement is disabled.
         """
         lookup = self._mongotize(lookup, resource)
         datasource, filter_, _, _ = self._datasource_ex(resource, lookup)
         try:
-            self.pymongo(resource).db[datasource] \
-                                  .remove(filter_, **self._wc(resource))
+            return self.pymongo(resource).db[datasource]\
+                .remove(filter_, **self._wc(resource))
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
             abort(500, description=debug_error_message(

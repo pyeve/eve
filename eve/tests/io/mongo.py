@@ -5,7 +5,9 @@ from bson import ObjectId
 from datetime import datetime
 from eve.io.mongo.parser import parse, ParseError
 from eve.io.mongo import Validator, Mongo, MongoJSONEncoder
+from eve.tests import TestBase
 from eve.utils import config
+from eve.tests.test_settings import MONGO_DBNAME
 import simplejson as json
 
 
@@ -281,7 +283,8 @@ class TestMongoValidator(TestCase):
         self.assertTrue(v.validate(doc))
 
 
-class TestMongoDriver(TestCase):
+class TestMongoDriver(TestBase):
+
     def test_combine_queries(self):
         mongo = Mongo(None)
         query_a = {'username': {'$exists': True}}
@@ -326,3 +329,12 @@ class TestMongoDriver(TestCase):
                                                    config.ID_FIELD))
         self.assertFalse(mongo.query_contains_field(compound_query,
                                                     'fake-field'))
+
+    def test_delete_returns_status(self):
+        db = self.connection[MONGO_DBNAME]
+        count = db.contacts.count()
+        result = db.contacts.remove()
+        self.assertTrue(isinstance(result, dict))
+        self.assertEqual(result.get('n'), count)
+        self.assertEqual(result.get('ok'), 1)
+        self.connection.close()
