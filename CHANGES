@@ -9,6 +9,8 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- New: ``remove`` method in Mongo data layer now returns the deletion status or
+  ``None`` if write acknowledgement is disabled (Mayur Dhamanwala).
 - Fix: Update ``serialize`` to gracefully handle non-dictionary values in dict
   type fields (Nick Park).
 - New: ``unique_to_user`` validation rule allows to validate that a field value
