@@ -58,6 +58,12 @@
 <div class="section" id="version-0-6">
 <h3>Version 0.6<a class="headerlink" href="#version-0-6" title="Permalink to this headline">¶</a></h3>
 <ul>
+<li><p class="first">New: <tt class="docutils literal"><span class="pre">remove</span></tt> method in Mongo data layer now returns the deletion status or
+<tt class="docutils literal"><span class="pre">None</span></tt> if write acknowledgement is disabled (Mayur Dhamanwala).</p>
+</li>
+<li><p class="first">Fix: Update <tt class="docutils literal"><span class="pre">serialize</span></tt> to gracefully handle non-dictionary values in dict
+type fields (Nick Park).</p>
+</li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">unique_to_user</span></tt> validation rule allows to validate that a field value
 is unique to the user. Different users can share the same value for the
 field. This is useful when User Restricted Resource Access is enabled on an
