@@ -251,7 +251,8 @@ def getitem(resource, **lookup):
         cache_validators[cache_valid] += 1
     if req.if_none_match:
         if (resource_def['versioning'] is False) or \
-           (document['_version'] == document['_latest_version']):
+           (document[app.config['VERSION']] ==
+                document[app.config['LATEST_VERSION']]):
             cache_valid = (etag == req.if_none_match)
             cache_validators[cache_valid] += 1
     # If all cache validators are true, return 304

@@ -922,7 +922,7 @@ class TestVersionedDataRelation(TestNormalVersioning):
             item=r[self.app.config['ID_FIELD']],
             query='?embedded={"person": 1}')
         self.assert200(status)
-        self.assertEqual(response['person'].get('_version'), 1)
+        self.assertEqual(response['person'].get(version_field), 1)
 
         # reference second version... this should work
         data = {"person": {value_field: self.item_id, version_field: 2}}
@@ -934,7 +934,7 @@ class TestVersionedDataRelation(TestNormalVersioning):
             item=r[self.app.config['ID_FIELD']],
             query='?embedded={"person": 1}')
         self.assert200(status)
-        self.assertEqual(response['person'].get('_version'), 2)
+        self.assertEqual(response['person'].get(version_field), 2)
 
     def test_embedded(self):
         """ Perform a quick check to make sure that Eve can embedded with a
@@ -1064,7 +1064,7 @@ class TestVersionedDataRelationCustomField(TestNormalVersioning):
             item=r[self.app.config['ID_FIELD']],
             query='?embedded={"person": 1}')
         self.assert200(status)
-        self.assertEqual(response['person'].get('_version'), 1)
+        self.assertEqual(response['person'].get(self.version_field), 1)
 
 
 class TestVersionedDataRelationUnversionedField(TestNormalVersioning):
@@ -1102,7 +1102,7 @@ class TestVersionedDataRelationUnversionedField(TestNormalVersioning):
             item=r[self.app.config['ID_FIELD']],
             query='?embedded={"person": 1}')
         self.assert200(status)
-        self.assertEqual(response['person'].get('_version'), 1)
+        self.assertEqual(response['person'].get(self.version_field), 1)
 
 
 class TestPartialVersioning(TestNormalVersioning):
