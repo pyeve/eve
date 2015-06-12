@@ -601,7 +601,8 @@ def resolve_embedded_documents(document, resource, embedded_fields):
 
     .. versionadded:: 0.1.0
     """
-    for field in embedded_fields:
+    # NOTE(Gonéri): We resolve the embedded documents at the end.
+    for field in sorted(embedded_fields, key=lambda a: a.count('.')):
         data_relation = field_definition(resource, field)['data_relation']
         getter = lambda ref: embedded_document(ref, data_relation, field)
         fields_chain = field.split('.')
