@@ -9,6 +9,8 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- New: ``MONGO_AUTHDBNAME`` allows to specify a MongoDB authorization database.
+  Defaults to ``None`` (David Wood).
 - New: ``remove`` method in Mongo data layer now returns the deletion status or
   ``None`` if write acknowledgement is disabled (Mayur Dhamanwala).
 - Fix: Update ``serialize`` to gracefully handle non-dictionary values in dict
