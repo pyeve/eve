@@ -223,7 +223,7 @@ class TestBasicAuth(TestBase):
     def test_rfc2617_response(self):
         r = self.test_client.get('/')
         self.assert401(r.status_code)
-        self.assertTrue(('WWW-Authenticate', 'Basic realm:"%s"' %
+        self.assertTrue(('WWW-Authenticate', 'Basic realm="%s"' %
                          eve.__package__) in r.headers.to_wsgi_list())
 
     def test_allowed_roles_does_not_change(self):

@@ -121,7 +121,7 @@ class BasicAuth(object):
         """ Returns a standard a 401 response that enables basic auth.
         Override if you want to change the response and/or the realm.
         """
-        resp = Response(None, 401, {'WWW-Authenticate': 'Basic realm:"%s"' %
+        resp = Response(None, 401, {'WWW-Authenticate': 'Basic realm="%s"' %
                                     __package__})
         abort(401, description='Please provide proper credentials',
               response=resp)
@@ -218,7 +218,7 @@ class TokenAuth(BasicAuth):
         """ Returns a standard a 401 response that enables basic auth.
         Override if you want to change the response and/or the realm.
         """
-        resp = Response(None, 401, {'WWW-Authenticate': 'Basic realm:"%s"' %
+        resp = Response(None, 401, {'WWW-Authenticate': 'Basic realm="%s"' %
                                     __package__})
         abort(401, description='Please provide proper credentials',
               response=resp)
