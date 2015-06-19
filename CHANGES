@@ -9,6 +9,10 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- Fix: According to RFC2617 the separator should be (=) instead of (:). This
+  caused at least Chrome not to prompt user for the credentials, and not to
+  send the Authorization header even when credentials were in the url (Samuli
+  Tuomola).
 - New: ``MONGO_AUTHDBNAME`` allows to specify a MongoDB authorization database.
   Defaults to ``None`` (David Wood).
 - New: ``remove`` method in Mongo data layer now returns the deletion status or
