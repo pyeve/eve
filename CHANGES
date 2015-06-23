@@ -9,6 +9,8 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- Fix: ``dependencies`` rule would mistakenly validate documents when target
+  fields happened to also have a ``default`` value. 
 - Fix: According to RFC2617 the separator should be (=) instead of (:). This
   caused at least Chrome not to prompt user for the credentials, and not to
   send the Authorization header even when credentials were in the url (Samuli

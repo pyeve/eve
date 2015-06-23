@@ -263,6 +263,10 @@ class Validator(Validator):
         proposed changes with the original document before validating
         dependencies.
 
+        .. versionchanged:: 0.6
+           Fix: Only evaluate dependencies that don't have valid default
+           values.
+
         .. versionchanged:: 0.5.1
            Fix: dependencies with value checking seems broken #547.
 
@@ -278,17 +282,21 @@ class Validator(Validator):
         if isinstance(dependencies, str_type):
             dependencies = [dependencies]
 
-        # TODO should probably use to config.DOMAIN[self.resource]['defaults']
-        # as it would allow to recurse dict values with their own defaults.
-        default_fields = [d for d in dependencies if
-                          self.schema[d].get('default') is not None]
-        if len(default_fields):
-            if isinstance(dependencies, Mapping):
-                for field in default_fields:
-                    del(dependencies[field])
-            else:
-                dependencies = [d for d in dependencies if d not in
-                                default_fields]
+        defaults = {}
+        for d in dependencies:
+            default = self.schema[d].get('default')
+            if default and d not in document:
+                defaults[d] = default
+
+        if isinstance(dependencies, Mapping):
+            # Only evaluate dependencies that don't have *valid* defaults
+            for k, v in defaults.items():
+                if v in dependencies[k]:
+                    del(dependencies[k])
+        else:
+            # Only evaluate dependencies that don't have defaults values
+            dependencies = [d for d in dependencies if d not in
+                            defaults.keys()]
 
         dcopy = None
         if self._original_document:

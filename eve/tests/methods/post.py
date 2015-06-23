@@ -488,7 +488,8 @@ class TestPost(TestBase):
 
         schema = {
             'field1': {
-                'required': False
+                'required': False,
+                'default': 'one'
             },
             'field2': {
                 'required': True,
@@ -508,7 +509,7 @@ class TestPost(TestBase):
 
         data = {"field2": 7}
         r, s = self.post('posts', data=data)
-        self.assert422(s)
+        self.assert201(s)
 
         data = {"field1": "one", "field2": 7}
         r, s = self.post('posts', data=data)
