@@ -242,6 +242,20 @@ class TestPut(TestBase):
         db_value = self.compare_put_with_get(field, r)
         self.assertEqual(db_value, test_value)
 
+    def test_put_dependency_fields_with_wrong_value(self):
+        # Test that if a dependency is not met, the put is refused
+        del(self.domain['contacts']['schema']['ref']['required'])
+        r, status = self.put(self.item_id_url,
+                             data={'dependency_field3': 'value'},
+                             headers=[('If-Match', self.item_etag)])
+        self.assert422(status)
+        r, status = self.put(self.item_id_url,
+                             data={'dependency_field1': 'value',
+                                   'dependency_field3': 'value'},
+                             headers=[('If-Match', self.item_etag)])
+        print r
+        self.assert200(status)
+
     def test_put_internal(self):
         # test that put_internal is available and working properly.
         test_field = 'ref'
