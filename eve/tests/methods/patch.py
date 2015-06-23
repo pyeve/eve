@@ -574,7 +574,7 @@ class TestPatch(TestBase):
         # now the field2 update will be accepted as the dependency field is
         # present in the stored document already.
         etag = r['_etag']
-        changes = {'dependency_field2': 'value'}
+        changes = {'dependency_field3': 'value'}
         r, status = self.patch(self.item_id_url, data=changes,
                                headers=[('If-Match', etag)])
         self.assert200(status)

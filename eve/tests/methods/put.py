@@ -253,7 +253,6 @@ class TestPut(TestBase):
                              data={'dependency_field1': 'value',
                                    'dependency_field3': 'value'},
                              headers=[('If-Match', self.item_etag)])
-        print r
         self.assert200(status)
 
     def test_put_internal(self):
