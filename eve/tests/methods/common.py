@@ -34,6 +34,9 @@ class TestSerializer(TestBase):
             'average': {'type': 'float'},
             'dict_keyschema': {
                 'keyschema': {'type': 'objectid'}
+            },
+            'dict_valueschema': {
+                'valueschema': {'type': 'objectid'}
             }
         }
         with self.app.app_context():
@@ -47,6 +50,10 @@ class TestSerializer(TestBase):
                     'dict_keyschema': {
                         'foo1': '50656e4538345b39dd0414f0',
                         'foo2': '50656e4538345b39dd0414f0',
+                    },
+                    'dict_valueschema': {
+                        'foo1': '50656e4538345b39dd0414f0',
+                        'foo2': '50656e4538345b39dd0414f0',
                     }
                 },
                 schema=schema
@@ -57,6 +64,10 @@ class TestSerializer(TestBase):
             self.assertTrue(isinstance(res['average'], float))
 
             ks = res['dict_keyschema']
+            self.assertTrue(isinstance(ks['foo1'], ObjectId))
+            self.assertTrue(isinstance(ks['foo2'], ObjectId))
+
+            ks = res['dict_valueschema']
             self.assertTrue(isinstance(ks['foo1'], ObjectId))
             self.assertTrue(isinstance(ks['foo2'], ObjectId))
 

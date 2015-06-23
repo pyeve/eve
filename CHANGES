@@ -9,6 +9,21 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- Update: Cerberus 0.9 is now required.
+- New: ``anyof`` validation rule allows you to list multiple sets of rules to
+  validate against.
+- New: ``alloff`` validation rule, same as ``anyof`` except that all rule
+  collections in the list must validate.
+- New: ``noneof`` validation rule. Same as ``anyof`` except that it requires no
+  rule collections in the list to validate.
+- New: ``oneof`` validation rule. Same as ``anyof`` except that only one rule
+  collections in the list can validate.
+- New: ``valueschema`` validation rules replaces the now deprecated
+  ``keyschema`` rule.
+- New: ``propertyschema`` is the counterpart to ``valueschema`` that validates
+  the keys of a dict.
+- New: ``coerce`` validation rule. Type coercion allows you to apply a callable
+  to a value before any other validators run.
 - Fix: add handling of sub-resource resolving for PUT method (Olivier Poitrey).
 - Fix: ``dependencies`` rule would mistakenly validate documents when target
   fields happened to also have a ``default`` value. 

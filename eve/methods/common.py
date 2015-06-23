@@ -384,9 +384,17 @@ def serialize(document, resource=None, schema=None, fields=None):
                             document[field][i] = \
                                 app.data.serializers[field_type](
                                     document[field][i])
-                elif 'keyschema' in field_schema:
-                    # a keyschema
-                    field_type = field_schema['keyschema']['type']
+                elif 'keyschema' in field_schema or 'valueschema' in \
+                        field_schema:
+                    # a valueschema
+
+                    # TODO use only valueschema once keyschema is removed
+                    # from cerberus (currently deprecated).
+                    try:
+                        field_type = field_schema['keyschema']['type']
+                    except KeyError:
+                        field_type = field_schema['valueschema']['type']
+
                     if field_type == 'objectid':
                         target = document[field]
                         for field in target:
@@ -672,7 +680,7 @@ def resolve_embedded_documents(document, resource, embedded_fields):
     """
     for field in embedded_fields:
         data_relation = field_definition(resource, field)['data_relation']
-        getter = lambda ref: embedded_document(ref, data_relation, field)
+        getter = lambda ref: embedded_document(ref, data_relation, field)  # noqa
         fields_chain = field.split('.')
         last_field = fields_chain[-1]
         for subdocument in subdocuments(fields_chain[:-1], document):

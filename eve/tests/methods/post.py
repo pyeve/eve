@@ -548,6 +548,9 @@ class TestPost(TestBase):
 
     def test_post_keyschema_dict(self):
         """ make sure Cerberus#48 is fixed """
+
+        # TODO remove this test once Cereberus removes the now deprecated
+        # keyschema rule (which is now replaced by valueschema).
         del(self.domain['contacts']['schema']['ref']['required'])
         r, status = self.post(self.known_resource_url,
                               data={"keyschema_dict": {"k1": "1"}})
@@ -558,7 +561,22 @@ class TestPost(TestBase):
                          {'k1': 'must be of integer type'})
 
         r, status = self.post(self.known_resource_url,
-                              data={"keyschema_dict": {"k1": 1}})
+                              data={"valueschema_dict": {"k1": 1}})
+        self.assert201(status)
+
+    def test_post_valueschema_dict(self):
+        """ make sure Cerberus#48 is fixed """
+        del(self.domain['contacts']['schema']['ref']['required'])
+        r, status = self.post(self.known_resource_url,
+                              data={"valueschema_dict": {"k1": "1"}})
+        self.assertValidationErrorStatus(status)
+        issues = r[ISSUES]
+        self.assertTrue('valueschema_dict' in issues)
+        self.assertEqual(issues['valueschema_dict'],
+                         {'k1': 'must be of integer type'})
+
+        r, status = self.post(self.known_resource_url,
+                              data={"valueschema_dict": {"k1": 1}})
         self.assert201(status)
 
     def test_post_internal(self):
