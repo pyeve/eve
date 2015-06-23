@@ -552,6 +552,33 @@ class TestPatch(TestBase):
                                headers=[('If-Match', etag)])
         self.assert200(status)
 
+    def test_patch_dependent_field_value_on_origin_document(self):
+        """ Test that when patching a field which is dependent on another and
+        this other field is not provided with the patch but is still present
+        on the target document, the patch will be accepted. See #363.
+        """
+        # this will fail as dependent field is missing even in the
+        # document we are trying to update.
+        changes = {'dependency_field3': 'value'}
+        r, status = self.patch(self.item_id_url, data=changes,
+                               headers=[('If-Match', self.item_etag)])
+        self.assert422(status)
+
+        # update the stored document by setting the dependency field to
+        # the required value.
+        changes = {'dependency_field1': 'value'}
+        r, status = self.patch(self.item_id_url, data=changes,
+                               headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+
+        # now the field2 update will be accepted as the dependency field is
+        # present in the stored document already.
+        etag = r['_etag']
+        changes = {'dependency_field3': 'value'}
+        r, status = self.patch(self.item_id_url, data=changes,
+                               headers=[('If-Match', etag)])
+        self.assert200(status)
+
     def assertPatchResponse(self, response, item_id):
         self.assertTrue(STATUS in response)
         self.assertTrue(STATUS_OK in response[STATUS])
