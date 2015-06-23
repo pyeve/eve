@@ -191,6 +191,7 @@ class TestPut(TestBase):
 
     def test_put_subresource(self):
         _db = self.connection[MONGO_DBNAME]
+        self.app.config['BANDWIDTH_SAVER'] = False
 
         # create random contact
         fake_contact = self.random_contacts(1)
@@ -212,6 +213,7 @@ class TestPut(TestBase):
                                     data=data, headers=headers)
         self.assert200(status)
         self.assertPutResponse(response, self.invoice_id)
+        self.assertEqual(response.get('person'), str(fake_contact_id))
 
     def test_put_bandwidth_saver(self):
         changes = {'ref': '1234567890123456789012345'}

@@ -20,7 +20,7 @@ from eve.utils import config, debug_error_message, parse_request
 from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, pre_event, store_media_files, resolve_user_restricted_access, \
     resolve_embedded_fields, build_response_document, marshal_write_response, \
-    resolve_document_etag, oplog_push
+    resolve_sub_resource_path, resolve_document_etag, oplog_push
 from eve.versioning import resolve_document_version, \
     insert_versioning_documents, late_versioning_catch
 
@@ -132,6 +132,7 @@ def put_internal(resource, payload=None, concurrency_check=False,
 
     try:
         document = parse(payload, resource)
+        resolve_sub_resource_path(document, resource)
         if skip_validation:
             validation = True
         else:
