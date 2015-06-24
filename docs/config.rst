@@ -1149,10 +1149,17 @@ defining the field validation rules. Allowed validation rules are:
                                 versioned history of each document when
                                 ``versioning`` is enabled. Defaults to ``True``.
 
-``keyschema``                   Validation schema for all values of a ``dict``.
+``valueschema``                 Validation schema for all values of a ``dict``.
                                 The dict can have arbitrary keys, the values
                                 for all of which must validate with given
-                                schema. See `keyschema example <http://cerberus.readthedocs.org/en/latest/#keyschema>`_.
+                                schema. See `valueschema example <http://cerberus.readthedocs.org/en/latest/#valueschema>`_.
+
+``propertyschema``              This is the counterpart to ``valueschema`` that 
+                                validates the keys of a dict.   Validation
+                                schema for all values of a ``dict``. See
+                                `propertyschema example
+                                <http://cerberus.readthedocs.org/en/latest/#propertyschema>`_.
+
 
 ``regex``                       Validation will fail if field value does not 
                                 match the provided regex rule. Only applies to 
@@ -1162,6 +1169,27 @@ defining the field validation rules. Allowed validation rules are:
 ``dependencies``                This rule allows a list of fields that must be 
                                 present in order for the target field to be 
                                 allowed. See `dependencies example <http://cerberus.readthedocs.org/en/latest/#dependencies>`_
+
+``anyof``                       This rule allows you to list multiple sets of 
+                                rules to validate against. The field will be
+                                considered valid if it validates against one
+                                set in the list. See `anyof example <http://cerberus.readthedocs.org/en/latest/#anyof>`_
+
+``allof``                       Same as ``anyof``, except that all rule 
+                                collections in the list must validate.
+
+``noneof``                      Same as ``anyof``, except that it requires no 
+                                rule collections in the list to validate. 
+
+``oneof``                       Same as ``anyof``, except that only one rule 
+                                collections in the list can validate.
+
+``coerce``                      Type coercion allows you to apply a callable to 
+                                a value before any other validators run. The
+                                return value of the callable replaces the new
+                                value in the document. This can be used to
+                                convert values or sanitize data before it is
+                                validated. See `type coercion example <https://cerberus.readthedocs.org/en/latest/#type-coercion>`_
 
 =============================== ==============================================
 
