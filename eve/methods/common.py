@@ -385,15 +385,16 @@ def serialize(document, resource=None, schema=None, fields=None):
                             target[field] = \
                                 app.data.serializers[field_type](target[field])
                 elif field_type in app.data.serializers:
-                    # a simple field
-                    try:
-                        document[field] = \
-                            app.data.serializers[field_type](document[field])
-                    except (ValueError, InvalidId):
-                        # value can't be casted, we continue processing the
-                        # rest of the document. Validation will later report
-                        # back the issue.
-                        pass
+                    if not (field_type == "objectid" and field_schema.get('nullable') and document[field] is None):
+                            # a simple field
+                        try:
+                            document[field] = \
+                                app.data.serializers[field_type](document[field])
+                        except (ValueError, InvalidId):
+                            # value can't be casted, we continue processing the
+                            # rest of the document. Validation will later report
+                            # back the issue.
+                            pass
     return document
 
 
@@ -468,10 +469,12 @@ def build_response_document(
         if resource_def['versioning'] is True \
                 and request.args.get(config.VERSION_PARAM):
             version = document[config.VERSION]
-        document[config.LINKS] = {
-            'self': document_link(resource,
-                                  document[resource_def['id_field']], version)
-        }
+
+        self_dict = {'self': document_link(resource, document[resource_def['id_field']], version)}
+        if config.LINKS not in document:
+            document[config.LINKS] = self_dict
+        elif 'self' not in document[config.LINKS]:
+            document[config.LINKS].update(self_dict)
 
     # add version numbers
     resolve_document_version(document, resource, 'GET', latest_doc)
