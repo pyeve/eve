@@ -9,6 +9,7 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- Fix: add handling of sub-resource resolving for PUT method (Olivier Poitrey).
 - Fix: ``dependencies`` rule would mistakenly validate documents when target
   fields happened to also have a ``default`` value. 
 - Fix: According to RFC2617 the separator should be (=) instead of (:). This
