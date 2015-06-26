@@ -478,6 +478,20 @@ currently stored on the server, so we got a ``412 PRECONDITION FAILED``. Again!
 .. code-block:: console
 
     $ curl -H "If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012" -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37 -d '{"firstname": "ronald"}'
+    HTTP/1.0 422 UNPROCESSABLE ENTITY
+    ..
+    ..
+    {"_status": "ERR", "_issues": {"[{\"firstname\":\"ronald\"}": "unknown field"}}
+
+What went wrong this time? We provided the mandatory ``If-Match`` header, and 
+matching ``ETag`` value, but we did not provide the ``Content-Type`` header.
+So we got ``422 UNPROCESSABLE ENTITY``
+
+Lets try again :
+
+.. code-block:: console
+
+    $ curl -H "If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012" -H "Content-Type: application/json" -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37 -d '{"firstname": "ronald"}'
     HTTP/1.1 200 OK
 
 Finally! And the response payload looks something like this:
