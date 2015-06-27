@@ -600,35 +600,38 @@ of the other configuration variables.</td>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt></td>
 <td>MongoDB database name.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_MAX_POOL_SIZE</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_AUTHDBNAME</span></tt></td>
+<td>MongoDB authorization database name. Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_MAX_POOL_SIZE</span></tt></td>
 <td>The maximum number of idle connections
 maintained in the PyMongo connection pool.
 Default: PyMongo default.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_SOCKET_TIMEOUT_MS</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_SOCKET_TIMEOUT_MS</span></tt></td>
 <td>How long (in milliseconds) a send or
 receive on a socket can take before timing
 out. Default: PyMongo default.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_CONNECT_TIMEOUT_MS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_CONNECT_TIMEOUT_MS</span></tt></td>
 <td>How long (in milliseconds) a connection can
 take to be opened before timing out.
 Default: PyMongo default.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_REPLICA_SET</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_REPLICA_SET</span></tt></td>
 <td>The name of a replica set to connect to;
 this must match the internal name of the
 replica set (as deteremined by the
 <a class="reference external" href="http://www.mongodb.org/display/DOCS/Replica+Set+Commands#ReplicaSetCommands-isMaster">isMaster</a>
 command). Default: <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_READ_PREFERENCE</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_READ_PREFERENCE</span></tt></td>
 <td>Determines how read queries are routed to
 the replica set members. Must be one of the
 constants defined on PyMongo&#8217;s <a class="reference external" href="http://api.mongodb.org/python/current/api/pymongo/read_preferences.html#pymongo.read_preferences.ReadPreference">ReadPreference</a>,
 or the string names thereof.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_QUERY_BLACKLIST</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_QUERY_BLACKLIST</span></tt></td>
 <td><p class="first">A list of Mongo query operators that are not
 allowed to be used in resource filters
 (<tt class="docutils literal"><span class="pre">?where=</span></tt>). Defaults to <tt class="docutils literal"><span class="pre">['$where',</span>
@@ -641,7 +644,7 @@ easily replaced with the (very rich) Mongo
 query dialect.</p>
 </td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></tt></td>
 <td><p class="first">A dictionary defining MongoDB write concern
 settings. All standard write concern
 settings (w, wtimeout, j, fsync) are
@@ -659,15 +662,15 @@ collection) level. See
 <tt class="docutils literal"><span class="pre">mongo_write_concern</span></tt> below.</p>
 </td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
 <td>A dict holding the API domain definition.
 See <a class="reference internal" href="#domain-configuration">Domain Configuration</a>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt></td>
 <td>A list of properties to forward from the file upload
 driver.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_BASE64_STRING</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_BASE64_STRING</span></tt></td>
 <td>Controls the embedding of the media type in
 the endpoint response. This is useful when
 you have other means of getting the binary
@@ -675,12 +678,12 @@ you have other means of getting the binary
 want clients to be able to POST/PATCH it.
 Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt></td>
 <td>Set it to <tt class="docutils literal"><span class="pre">True</span></tt> to enable serving media
 files at a dedicated media endpoint.
 Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MEDIA_BASE_URL</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MEDIA_BASE_URL</span></tt></td>
 <td>Base URL to be used when
 <tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt> is active. Combined
 with <tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt> and <tt class="docutils literal"><span class="pre">MEDIA_URL</span></tt>
@@ -688,45 +691,45 @@ dictates the URL returned for media files.
 If <tt class="docutils literal"><span class="pre">None</span></tt>, which is the default value,
 the API base address will be used instead.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt></td>
 <td>The media endpoint to be used when
 <tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt> is enabled.
 Defaults to <tt class="docutils literal"><span class="pre">media</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MEDIA_URL</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MEDIA_URL</span></tt></td>
 <td>Format of a file url served at the
 dedicated media endpoints. Defaults to
 <tt class="docutils literal"><span class="pre">regex(&quot;[a-f0-9]{24}&quot;)</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG</span></tt></td>
 <td>Set it to <tt class="docutils literal"><span class="pre">True</span></tt> to enable the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>.
 Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_NAME</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_NAME</span></tt></td>
 <td>This is the name of the database collection
 where the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a> is stored. Defaults
 to <tt class="docutils literal"><span class="pre">oplog</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_METHODS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_METHODS</span></tt></td>
 <td>List of HTTP methods which operations
 should be logged in the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>.
 Defaults to <tt class="docutils literal"><span class="pre">['DELETE',</span> <span class="pre">'POST',</span> <span class="pre">'PATCH',</span>
 <span class="pre">'PUT']</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt></td>
 <td>Name of the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a> endpoint. If the
 endpoint is enabled it can be configured
 like any other API endpoint. Set it to
 <tt class="docutils literal"><span class="pre">None</span></tt> to disable the endpoint. Defaults
 to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt></td>
 <td>Set it to <tt class="docutils literal"><span class="pre">True</span></tt> to enable the audit
 feature. When audit is enabled client IP
 and document changes are also logged to the
 <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">HEADER_TOTAL_COUNT</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">HEADER_TOTAL_COUNT</span></tt></td>
 <td>Custom header containing total count of
 items in response payloads for collection
 <tt class="docutils literal"><span class="pre">GET</span></tt> requests. This is handy for <tt class="docutils literal"><span class="pre">HEAD</span></tt>
@@ -737,7 +740,7 @@ of unread posts using <tt class="docutils literal"><span class="pre">where</span
 loading posts themselves. Defaults to
 <tt class="docutils literal"><span class="pre">X-Total-Count</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">JSONP_ARGUMENT</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">JSONP_ARGUMENT</span></tt></td>
 <td>This option will cause the response to be
 wrapped in a JavaScript function call if
 the argument is set in the request. For
@@ -747,17 +750,17 @@ example if you set <tt class="docutils literal"><span class="pre">JSON_ARGUMENT<
 wrapped in a <tt class="docutils literal"><span class="pre">funcname</span></tt> call. Defaults to
 <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt></td>
 <td>Enables soft delete when set to <tt class="docutils literal"><span class="pre">True</span></tt>.
 See <a class="reference internal" href="features.html#soft-delete"><em>Soft Delete</em></a> for more
 information. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DELETED</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DELETED</span></tt></td>
 <td>Field name used to indicate if a document
 has been deleted when <tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt>
 is enabled. Defaults to <tt class="docutils literal"><span class="pre">_deleted</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">SHOW_DELETED_PARAM</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SHOW_DELETED_PARAM</span></tt></td>
 <td>The URL query parameter used to include
 soft deleted items in resource level GET
 responses. Defaults to &#8216;show_deleted&#8217;.</td>
@@ -1335,21 +1338,53 @@ of elements and each element being a <tt class="docutils literal"><span class="p
 versioned history of each document when
 <tt class="docutils literal"><span class="pre">versioning</span></tt> is enabled. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">keyschema</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">valueschema</span></tt></td>
 <td>Validation schema for all values of a <tt class="docutils literal"><span class="pre">dict</span></tt>.
 The dict can have arbitrary keys, the values
 for all of which must validate with given
-schema. See <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/#keyschema">keyschema example</a>.</td>
+schema. See <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/#valueschema">valueschema example</a>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">regex</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">propertyschema</span></tt></td>
+<td>This is the counterpart to <tt class="docutils literal"><span class="pre">valueschema</span></tt> that
+validates the keys of a dict.   Validation
+schema for all values of a <tt class="docutils literal"><span class="pre">dict</span></tt>. See
+<a class="reference external" href="http://cerberus.readthedocs.org/en/latest/#propertyschema">propertyschema example</a>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">regex</span></tt></td>
 <td>Validation will fail if field value does not
 match the provided regex rule. Only applies to
 string fields. See <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/#regex">email validation example</a></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">dependencies</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">dependencies</span></tt></td>
 <td>This rule allows a list of fields that must be
 present in order for the target field to be
 allowed. See <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/#dependencies">dependencies example</a></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">anyof</span></tt></td>
+<td>This rule allows you to list multiple sets of
+rules to validate against. The field will be
+considered valid if it validates against one
+set in the list. See <a class="reference external" href="http://cerberus.readthedocs.org/en/latest/#anyof">anyof example</a></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">allof</span></tt></td>
+<td>Same as <tt class="docutils literal"><span class="pre">anyof</span></tt>, except that all rule
+collections in the list must validate.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">noneof</span></tt></td>
+<td>Same as <tt class="docutils literal"><span class="pre">anyof</span></tt>, except that it requires no
+rule collections in the list to validate.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">oneof</span></tt></td>
+<td>Same as <tt class="docutils literal"><span class="pre">anyof</span></tt>, except that only one rule
+collections in the list can validate.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">coerce</span></tt></td>
+<td>Type coercion allows you to apply a callable to
+a value before any other validators run. The
+return value of the callable replaces the new
+value in the document. This can be used to
+convert values or sanitize data before it is
+validated. See <a class="reference external" href="https://cerberus.readthedocs.org/en/latest/#type-coercion">type coercion example</a></td>
 </tr>
 </tbody>
 </table>

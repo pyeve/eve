@@ -58,6 +58,45 @@
 <div class="section" id="version-0-6">
 <h3>Version 0.6<a class="headerlink" href="#version-0-6" title="Permalink to this headline">¶</a></h3>
 <ul>
+<li><p class="first"><tt class="docutils literal"><span class="pre">embedded_fields</span></tt> may point on a field that come from another embedded
+document. For example, <tt class="docutils literal"><span class="pre">['a.b.c',</span> <span class="pre">'a.b',</span> <span class="pre">'a']</span></tt> (Gonéri Le Bouder).</p>
+</li>
+<li><p class="first">Update: Cerberus 0.9 is now required.</p>
+</li>
+<li><p class="first">New: <tt class="docutils literal"><span class="pre">anyof</span></tt> validation rule allows you to list multiple sets of rules to
+validate against.</p>
+</li>
+<li><p class="first">New: <tt class="docutils literal"><span class="pre">alloff</span></tt> validation rule, same as <tt class="docutils literal"><span class="pre">anyof</span></tt> except that all rule
+collections in the list must validate.</p>
+</li>
+<li><p class="first">New: <tt class="docutils literal"><span class="pre">noneof</span></tt> validation rule. Same as <tt class="docutils literal"><span class="pre">anyof</span></tt> except that it requires no
+rule collections in the list to validate.</p>
+</li>
+<li><p class="first">New: <tt class="docutils literal"><span class="pre">oneof</span></tt> validation rule. Same as <tt class="docutils literal"><span class="pre">anyof</span></tt> except that only one rule
+collections in the list can validate.</p>
+</li>
+<li><p class="first">New: <tt class="docutils literal"><span class="pre">valueschema</span></tt> validation rules replaces the now deprecated
+<tt class="docutils literal"><span class="pre">keyschema</span></tt> rule.</p>
+</li>
+<li><p class="first">New: <tt class="docutils literal"><span class="pre">propertyschema</span></tt> is the counterpart to <tt class="docutils literal"><span class="pre">valueschema</span></tt> that validates
+the keys of a dict.</p>
+</li>
+<li><p class="first">New: <tt class="docutils literal"><span class="pre">coerce</span></tt> validation rule. Type coercion allows you to apply a callable
+to a value before any other validators run.</p>
+</li>
+<li><p class="first">Fix: add handling of sub-resource resolving for PUT method (Olivier Poitrey).</p>
+</li>
+<li><p class="first">Fix: <tt class="docutils literal"><span class="pre">dependencies</span></tt> rule would mistakenly validate documents when target
+fields happened to also have a <a href="#id2"><span class="problematic" id="id3">``</span></a>default``&nbsp;value.</p>
+</li>
+<li><p class="first">Fix: According to RFC2617 the separator should be (=) instead of (:). This
+caused at least Chrome not to prompt user for the credentials, and not to
+send the Authorization header even when credentials were in the url (Samuli
+Tuomola).</p>
+</li>
+<li><p class="first">New: <tt class="docutils literal"><span class="pre">MONGO_AUTHDBNAME</span></tt> allows to specify a MongoDB authorization database.
+Defaults to <tt class="docutils literal"><span class="pre">None</span></tt> (David Wood).</p>
+</li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">remove</span></tt> method in Mongo data layer now returns the deletion status or
 <tt class="docutils literal"><span class="pre">None</span></tt> if write acknowledgement is disabled (Mayur Dhamanwala).</p>
 </li>
@@ -152,31 +191,39 @@ document media fields (Daniel Lytkin.)</p>
 to the schema that won&#8217;t be used to compute the ETag value. Defaults to
 <tt class="docutils literal"><span class="pre">None</span></tt> (Olivier Carrère.)</p>
 </li>
-</ul>
-</div>
-<div class="section" id="version-0-5-4">
-<h3>Version 0.5.4<a class="headerlink" href="#version-0-5-4" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
-<li>Fix: ETag computation crash when non-standard json serializers are used
-(Kevin Roy.)</li>
-<li>Update: PyMongo 2.8 is now required (which in turn supports MongoDB 3.0)</li>
-<li>Fix: Remove duplicate item in Mongo operators list. Closes #619.</li>
-<li>Fix: Versioning: invalidate cache when <tt class="docutils literal"><span class="pre">_latest_version</span></tt> changes in
-versioned doc (Nick Park.)</li>
-<li>Fix: snippet in account management tutorial (xgddsg.)</li>
-<li>Fix: <tt class="docutils literal"><span class="pre">MONGO_REPLICA_SET</span></tt> and other significant Flask-PyMongo settings have
-been added to the documentation. Closes #615.</li>
-<li>Fix: Serialization of lists of lists (Nick Park.)</li>
-<li>Fix: Make sure <tt class="docutils literal"><span class="pre">original</span></tt> is not modified during <tt class="docutils literal"><span class="pre">PATCH</span></tt>. Closes #611
-(Petr Jašek.)</li>
-<li>Fix: Route parameters are applied to new documents before they are validated.
+<li><p class="first">Fix: ETag computation crash when non-standard json serializers are used
+(Kevin Roy.)</p>
+</li>
+<li><p class="first">Update: PyMongo 2.8 is now required (which in turn supports MongoDB 3.0)</p>
+</li>
+<li><p class="first">Fix: Remove duplicate item in Mongo operators list. Closes #619.</p>
+</li>
+<li><p class="first">Fix: Versioning: invalidate cache when <tt class="docutils literal"><span class="pre">_latest_version</span></tt> changes in
+versioned doc (Nick Park.)</p>
+</li>
+<li><p class="first">Fix: snippet in account management tutorial (xgddsg.)</p>
+</li>
+<li><p class="first">Fix: <tt class="docutils literal"><span class="pre">MONGO_REPLICA_SET</span></tt> and other significant Flask-PyMongo settings have
+been added to the documentation. Closes #615.</p>
+</li>
+<li><p class="first">Fix: Serialization of lists of lists (Nick Park.)</p>
+</li>
+<li><p class="first">Fix: Make sure <tt class="docutils literal"><span class="pre">original</span></tt> is not modified during <tt class="docutils literal"><span class="pre">PATCH</span></tt>. Closes #611
+(Petr Jašek.)</p>
+</li>
+<li><p class="first">Fix: Route parameters are applied to new documents before they are validated.
 This ensures that documents with required fields will be populated before
-they are validated. Addresses #354. (Matthew Ellison.)</li>
-<li>Fix: <tt class="docutils literal"><span class="pre">GridFSMediaStorage</span></tt> does not save filename. Closes #605 (Sam Luu).</li>
-<li>Fix: Reinforce GeoJSON validation (Joakim Uddholm.)</li>
-<li>Fix: Geopoint coordinates do not accept integers. Closes #591 (Joakim
-Uddholm.)</li>
-<li>Fix: OpLog enabled makes PUT return wrong Etag. Closes #590.</li>
+they are validated. Addresses #354. (Matthew Ellison.)</p>
+</li>
+<li><p class="first">Fix: <tt class="docutils literal"><span class="pre">GridFSMediaStorage</span></tt> does not save filename. Closes #605 (Sam Luu).</p>
+</li>
+<li><p class="first">Fix: Reinforce GeoJSON validation (Joakim Uddholm.)</p>
+</li>
+<li><p class="first">Fix: Geopoint coordinates do not accept integers. Closes #591 (Joakim
+Uddholm.)</p>
+</li>
+<li><p class="first">Fix: OpLog enabled makes PUT return wrong Etag. Closes #590.</p>
+</li>
 </ul>
 </div>
 </div>
@@ -1105,7 +1152,6 @@ signature, allowing for further subclassing.</li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#in-development">In Development</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#version-0-6">Version 0.6</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#version-0-5-4">Version 0.5.4</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#stable">Stable</a><ul>

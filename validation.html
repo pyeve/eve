@@ -87,6 +87,8 @@ has been rejected.</p>
 status is <tt class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></tt>. If any document fails validation the response status
 is <tt class="docutils literal"><span class="pre">422</span> <span class="pre">Unprocessable</span> <span class="pre">Entity</span></tt>, or any other error code defined by
 <tt class="docutils literal"><span class="pre">VALIDATION_ERROR_STATUS</span></tt> configuration.</p>
+<p>For information on how to define documents schema and standard validation
+rules, see <a class="reference internal" href="config.html#schema"><em>Schema Definition</em></a>.</p>
 <div class="section" id="extending-data-validation">
 <h2>Extending Data Validation<a class="headerlink" href="#extending-data-validation" title="Permalink to this headline">¶</a></h2>
 <p>Data validation is based on the <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> validation system and it is therefore
@@ -125,6 +127,8 @@ can now do something like:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
+<p>Cerberus and Eve also offer <a class="reference external" href="https://cerberus.readthedocs.org/en/latest/#function-based-custom-validation">function-based validation</a> and <a class="reference external" href="https://cerberus.readthedocs.org/en/latest/#type-coercion">type coercion</a>,
+lightweight alternatives to class-based custom validation.</p>
 </div>
 <div class="section" id="custom-data-types">
 <h2>Custom Data Types<a class="headerlink" href="#custom-data-types" title="Permalink to this headline">¶</a></h2>
@@ -155,8 +159,14 @@ allowing something like this:</p>
 </div>
 <p>You can also check the <a class="reference external" href="https://github.com/nicolaiarocci/eve/blob/develop/eve/io/mongo/validation.py">source code</a> for Eve custom validation, where you will
 find more advanced use cases, such as the implementation of the <tt class="docutils literal"><span class="pre">unique</span></tt> and
-<tt class="docutils literal"><span class="pre">data_relation</span></tt> constraints. Please see the <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> documentation for
-a complete list rules and data types available.</p>
+<tt class="docutils literal"><span class="pre">data_relation</span></tt> constraints.</p>
+<p>For more information on</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">We have only scratched the surface of data validation. Please make sure
+to check the <a class="reference external" href="http://cerberus.readthedocs.org">Cerberus</a> documentation for a complete list of available
+validation rules and data types.</p>
+</div>
 </div>
 <div class="section" id="allowing-the-unknown">
 <span id="unknown"></span><h2>Allowing the Unknown<a class="headerlink" href="#allowing-the-unknown" title="Permalink to this headline">¶</a></h2>
