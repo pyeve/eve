@@ -460,7 +460,7 @@ Consider the following workflow:
 
 .. code-block:: console
 
-    $ curl -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
+    $ curl -H "Content-Type: application/json" -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
     HTTP/1.1 403 FORBIDDEN
 
 We attempted an edit (``PATCH``), but we did not provide an ``ETag`` for the
@@ -468,26 +468,12 @@ item so we got a ``403 FORBIDDEN`` back. Let's try again:
 
 .. code-block:: console
 
-    $ curl -H "If-Match: 1234567890123456789012345678901234567890" -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
+    $ curl -H "If-Match: 1234567890123456789012345678901234567890" -H "Content-Type: application/json" -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
     HTTP/1.1 412 PRECONDITION FAILED
 
 What went wrong this time? We provided the mandatory ``If-Match`` header, but
 it's value did not match the ``ETag`` computed on the representation of the item
 currently stored on the server, so we got a ``412 PRECONDITION FAILED``. Again!
-
-.. code-block:: console
-
-    $ curl -H "If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012" -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37 -d '{"firstname": "ronald"}'
-    HTTP/1.0 422 UNPROCESSABLE ENTITY
-    ..
-    ..
-    {"_status": "ERR", "_issues": {"[{\"firstname\":\"ronald\"}": "unknown field"}}
-
-What went wrong this time? We provided the mandatory ``If-Match`` header, and 
-matching ``ETag`` value, but we did not provide the ``Content-Type`` header.
-So we got ``422 UNPROCESSABLE ENTITY``
-
-Lets try again :
 
 .. code-block:: console
 
