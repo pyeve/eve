@@ -69,6 +69,8 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.config['SOFT_DELETE'], False)
         self.assertEqual(self.app.config['DELETED'], '_deleted')
         self.assertEqual(self.app.config['SHOW_DELETED_PARAM'], 'show_deleted')
+        self.assertEqual(self.app.config['STANDARD_ERRORS'],
+                         [400, 401, 403, 404, 405, 406, 409, 410, 412, 422])
 
     def test_settings_as_dict(self):
         my_settings = {'API_VERSION': 'override!', 'DOMAIN': {'contacts': {}}}
@@ -469,11 +471,10 @@ class TestConfig(TestBase):
                 self.assertEqual(args[arg], indexes[key][arg])
 
     def test_custom_error_handlers(self):
-        """ Test that custom error handler is registered for error codes
-        handled by the application.
-
+        """ Test that the standard, custom error handler is registered for
+        supported error codes.
         """
-        codes = [400, 401, 403, 404, 405, 406, 409, 410, 412, 422]
+        codes = self.app.config['STANDARD_ERRORS']
 
         # http://flask.pocoo.org/docs/0.10/api/#flask.Flask.error_handler_spec
         handlers = self.app.error_handler_spec[None]

@@ -12,6 +12,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.6
+       'STANDARD_ERRORS' added.
        'JSONP_ARGUMENT' added and set to None.
        'HEADER_TOTAL_COUNT' added and set to 'X-Total-Count'.
        'RETURN_MEDIA_AS_URL' added and set to None.
@@ -104,8 +105,11 @@ ETAG = '_etag'
 VERSION = '_version'            # field that stores the version number
 DELETED = '_deleted'            # field to store soft delete status
 META = '_meta'
-
 VALIDATION_ERROR_STATUS = 422
+
+# codes for which we want to return a standard response which includes
+# a JSON body with the status, code, and description.
+STANDARD_ERRORS = [400, 401, 403, 404, 405, 406, 409, 410, 412, 422]
 
 # field returned on GET requests so we know if we have the latest copy even if
 # we access a specific version

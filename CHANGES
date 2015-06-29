@@ -9,8 +9,10 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
-- Fix: ``412 Percondition Failed`` now returns a standard Eve JSON error body.
-  Closes #661.
+- New: ``STANDARD_ERRORS`` is a list of HTTP codes that will be served with the
+  canonical API response format, which includes a JSON body providing both
+  error code and description. Addresses #586.
+- Fix: ``412 Precondition Failed`` does not return a JSON body. Closes #661.
 - Fix: ``embedded_fields`` may point on a field that come from another embedded
   document. For example, ``['a.b.c', 'a.b', 'a']`` (Gonéri Le Bouder).
 - Update: Cerberus 0.9 is now required.
