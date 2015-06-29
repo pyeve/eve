@@ -618,6 +618,15 @@ uppercase.
                                     soft deleted items in resource level GET
                                     responses. Defaults to 'show_deleted'.
 
+``STANDARD_ERRORS``                 This is a list of HTTP error codes for
+                                    which a standard API response will be
+                                    provided. Canonical error response includes
+                                    a JSON body with actual error code and
+                                    description. Set this to an empty list if
+                                    you want to disable canonical responses
+                                    altogether. Defaults to ``[400, 401, 403,
+                                    404, 405, 406, 409, 410, 412, 422]``
+
 =================================== =========================================
 
 .. _domain:
