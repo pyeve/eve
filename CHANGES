@@ -9,7 +9,9 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
-- ``embedded_fields`` may point on a field that come from another embedded
+- Fix: ``412 Percondition Failed`` now returns a standard Eve JSON error body.
+  Closes #661.
+- Fix: ``embedded_fields`` may point on a field that come from another embedded
   document. For example, ``['a.b.c', 'a.b', 'a']`` (Gonéri Le Bouder).
 - Update: Cerberus 0.9 is now required.
 - New: ``anyof`` validation rule allows you to list multiple sets of rules to

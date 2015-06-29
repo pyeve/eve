@@ -467,3 +467,16 @@ class TestConfig(TestBase):
             for arg in args or ():
                 self.assertTrue(arg in indexes[key])
                 self.assertEqual(args[arg], indexes[key][arg])
+
+    def test_custom_error_handlers(self):
+        """ Test that custom error handler is registered for error codes
+        handled by the application.
+
+        """
+        codes = [400, 401, 403, 404, 405, 406, 409, 410, 412, 422]
+
+        # http://flask.pocoo.org/docs/0.10/api/#flask.Flask.error_handler_spec
+        handlers = self.app.error_handler_spec[None]
+
+        challenge = lambda code: self.assertTrue(code in handlers)  # noqa
+        map(challenge, codes)
