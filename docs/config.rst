@@ -627,6 +627,15 @@ uppercase.
                                     altogether. Defaults to ``[400, 401, 403,
                                     404, 405, 406, 409, 410, 412, 422]``
 
+``VALIDATION_ERROR_AS_STRING``      If ``True`` even single field errors will
+                                    be returned in a list. By default single
+                                    field errors are returned as strings while
+                                    multiple field errors are bundled in a 
+                                    list. If you want to standardize the field
+                                    errors output, set this setting to ``True``
+                                    and you will always get a list of field
+                                    issues. Defaults to ``False``.
+
 =================================== =========================================
 
 .. _domain:

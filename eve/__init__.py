@@ -80,6 +80,7 @@ QUERY_EMBEDDED = 'embedded'
 QUERY_PROJECTION = 'projection'
 
 VALIDATION_ERROR_STATUS = 422
+VALIDATION_ERROR_AS_LIST = False
 
 # must be the last line (will raise W402 on pyflakes)
 from eve.flaskapp import Eve  # noqa

@@ -393,3 +393,18 @@ class Validator(Validator):
             GeometryCollection(value)
         except TypeError:
             self._error(field, "GeometryCollection not correct" % value)
+
+    def _error(self, field, _error):
+        """ Change the default behaviour so that, if VALIDATION_ERROR_AS_LIST
+        is enabled, single validation errors are returned as a list. See #536.
+
+        :param field: field name
+        :param _error: field error(s)
+
+        .. versionadded:: 0.6
+        """
+        super(Validator, self)._error(field, _error)
+        if config.VALIDATION_ERROR_AS_LIST:
+            err = self._errors[field]
+            if not isinstance(err, list):
+                self._errors[field] = [err]

@@ -107,6 +107,10 @@ DELETED = '_deleted'            # field to store soft delete status
 META = '_meta'
 VALIDATION_ERROR_STATUS = 422
 
+# return a single field validation error as a list (by default a single error
+# is retuned as string, while multiple errors are returned as a list).
+VALIDATION_ERROR_AS_LIST = False
+
 # codes for which we want to return a standard response which includes
 # a JSON body with the status, code, and description.
 STANDARD_ERRORS = [400, 401, 403, 404, 405, 406, 409, 410, 412, 422]

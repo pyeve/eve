@@ -598,6 +598,15 @@ class TestPost(TestBase):
         self.assertEqual(values['city'], 'a nested city')
         self.assertEqual(values['address'], 'a nested address')
 
+    def test_post_error_as_list(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        self.app.config['VALIDATION_ERROR_AS_LIST'] = True
+        data = {'unknown_field': 'a value'}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert422(status)
+        error = r[ISSUES]['unknown_field']
+        self.assertTrue(isinstance(error, list))
+
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
