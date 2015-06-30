@@ -58,6 +58,12 @@
 <div class="section" id="version-0-6">
 <h3>Version 0.6<a class="headerlink" href="#version-0-6" title="Permalink to this headline">¶</a></h3>
 <ul>
+<li><p class="first">New: <tt class="docutils literal"><span class="pre">VALIDATION_ERROR_AS_LIST</span></tt>. If <tt class="docutils literal"><span class="pre">True</span></tt> even single field errors will
+be returned in a list. By default single field errors are returned as strings
+while multiple field errors are bundled in a list. If you want to standardize
+the field errors output, set this setting to <tt class="docutils literal"><span class="pre">True</span></tt> and you will always get
+a list of field issues. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>. Closes #536.</p>
+</li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">STANDARD_ERRORS</span></tt> is a list of HTTP codes that will be served with the
 canonical API response format, which includes a JSON body providing both
 error code and description. Addresses #586.</p>

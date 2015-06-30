@@ -775,6 +775,16 @@ you want to disable canonical responses
 altogether. Defaults to <tt class="docutils literal"><span class="pre">[400,</span> <span class="pre">401,</span> <span class="pre">403,</span>
 <span class="pre">404,</span> <span class="pre">405,</span> <span class="pre">406,</span> <span class="pre">409,</span> <span class="pre">410,</span> <span class="pre">412,</span> <span class="pre">422]</span></tt></td>
 </tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VALIDATION_ERROR_AS_STRING</span></tt></td>
+<td>If <tt class="docutils literal"><span class="pre">True</span></tt> even single field errors will
+be returned in a list. By default single
+field errors are returned as strings while
+multiple field errors are bundled in a
+list. If you want to standardize the field
+errors output, set this setting to <tt class="docutils literal"><span class="pre">True</span></tt>
+and you will always get a list of field
+issues. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
+</tr>
 </tbody>
 </table>
 </div>
