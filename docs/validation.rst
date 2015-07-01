@@ -174,7 +174,7 @@ a payload like this will be accepted:
     option is enabled, clients will be capable of actually `adding` fields via
     PATCH (edit).
 
-.. _Cerberus: http://cerberus.readthedocs.org
+.. _Cerberus: http://python-cerberus.org
 .. _`source code`: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/mongo/validation.py
-.. _`function-based validation`: https://cerberus.readthedocs.org/en/latest/#function-based-custom-validation
-.. _`type coercion`: https://cerberus.readthedocs.org/en/latest/#type-coercion 
+.. _`function-based validation`: http://docs.python-cerberus.org/en/latest/customize.html#function-validator
+.. _`type coercion`: http://docs.python-cerberus.org/en/latest/usage.html#type-coercion
