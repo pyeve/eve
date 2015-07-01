@@ -93,5 +93,5 @@ link <http://eve.readthedocs.org/en/stable/>`_.
 .. _eve-sqlalchemy: https://github.com/RedTurtle/eve-sqlalchemy
 .. _MongoDB: https://mongodb.org
 .. _Redis: http://redis.io
-.. _Cerberus: https://github.com/nicolaiarocci/cerberus
+.. _Cerberus: http://python-cerberus.org
 .. _events: https://github.com/nicolaiarocci/events
