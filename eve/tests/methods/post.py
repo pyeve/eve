@@ -482,6 +482,13 @@ class TestPost(TestBase):
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 
+    def test_post_dependency_required_fields(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        self.domain['contacts']['schema']['dependency_field3']['required'] = True
+        r, status = self.post(self.known_resource_url, data={})
+        self.assertValidationErrorStatus(status)
+        self.assertValidationError(r, {'dependency_field3': 'required'})
+
     def test_post_dependency_fields_with_values(self):
         # test that dependencies values are validated correctly. See #547.
         del(self.domain['contacts']['schema']['ref']['required'])
