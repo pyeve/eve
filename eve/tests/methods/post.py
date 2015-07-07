@@ -484,10 +484,25 @@ class TestPost(TestBase):
 
     def test_post_dependency_required_fields(self):
         del(self.domain['contacts']['schema']['ref']['required'])
-        self.domain['contacts']['schema']['dependency_field3']['required'] = True
+        schema = self.domain['contacts']['schema']
+        schema['dependency_field3']['required'] = True
+
         r, status = self.post(self.known_resource_url, data={})
         self.assertValidationErrorStatus(status)
         self.assertValidationError(r, {'dependency_field3': 'required'})
+
+        # required field dependnecy value matches the dependent field's default
+        # value. validation still fails since required field is still missing.
+        # See #665.
+        schema['dependency_field3']['dependencies'] = {'dependency_field1':
+                                                       'default'}
+        r, status = self.post(self.known_resource_url, data={})
+        self.assertValidationErrorStatus(status)
+        self.assertValidationError(r, {'dependency_field3': 'required'})
+
+        r, status = self.post(self.known_resource_url,
+                              data={'dependency_field3': 'hello'})
+        self.assert201(status)
 
     def test_post_dependency_fields_with_values(self):
         # test that dependencies values are validated correctly. See #547.

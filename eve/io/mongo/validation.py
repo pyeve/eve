@@ -302,9 +302,10 @@ class Validator(Validator):
         if self._original_document:
             dcopy = copy.copy(document)
             dcopy.update(self._original_document)
-        super(Validator, self)._validate_dependencies(dcopy or document,
-                                                      dependencies, field,
-                                                      break_on_error)
+        return super(Validator, self)._validate_dependencies(dcopy or document,
+                                                             dependencies,
+                                                             field,
+                                                             break_on_error)
 
     def _validate_type_media(self, field, value):
         """ Enables validation for `media` data type.
