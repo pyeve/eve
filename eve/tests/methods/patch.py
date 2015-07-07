@@ -571,13 +571,29 @@ class TestPatch(TestBase):
                                headers=[('If-Match', self.item_etag)])
         self.assert200(status)
 
-        # now the field2 update will be accepted as the dependency field is
-        # present in the stored document already.
+        # now the field update will be accepted as the dependency field is
+        # present in the stored document.
         etag = r['_etag']
         changes = {'dependency_field3': 'value'}
         r, status = self.patch(self.item_id_url, data=changes,
                                headers=[('If-Match', etag)])
         self.assert200(status)
+
+        # update the stored document by setting the dependency field to
+        # the a different value.
+        etag = r['_etag']
+        changes = {'dependency_field1': 'other'}
+        r, status = self.patch(self.item_id_url, data=changes,
+                               headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+
+        # now the field update will be refused again as the dependency field is
+        # present in the stored document but doesn't match the required value.
+        etag = r['_etag']
+        changes = {'dependency_field3': 'value'}
+        r, status = self.patch(self.item_id_url, data=changes,
+                               headers=[('If-Match', etag)])
+        self.assert422(status)
 
     def assertPatchResponse(self, response, item_id):
         self.assertTrue(STATUS in response)
