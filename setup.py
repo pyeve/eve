@@ -6,7 +6,7 @@ with open('README.rst') as f:
     LONG_DESCRIPTION = f.read()
 
 install_requires = [
-    'cerberus>=0.9,<0.10',
+    'cerberus>=0.9.1,<0.10',
     'events>=0.2.1,<0.3',
     'simplejson>=3.3.0,<4.0',
     'werkzeug>=0.9.4,<0.11',

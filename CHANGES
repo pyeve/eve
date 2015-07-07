@@ -9,6 +9,7 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- Fix: ``_validate_dependencies`` always returns ``None``.
 - New: ``VALIDATION_ERROR_AS_LIST``. If ``True`` even single field errors will
   be returned in a list. By default single field errors are returned as strings
   while multiple field errors are bundled in a list. If you want to standardize
@@ -20,7 +21,7 @@ Version 0.6
 - Fix: ``412 Precondition Failed`` does not return a JSON body. Closes #661.
 - Fix: ``embedded_fields`` may point on a field that come from another embedded
   document. For example, ``['a.b.c', 'a.b', 'a']`` (Gonéri Le Bouder).
-- Update: Cerberus 0.9 is now required.
+- Update: Cerberus 0.9.1 is now required.
 - New: ``anyof`` validation rule allows you to list multiple sets of rules to
   validate against.
 - New: ``alloff`` validation rule, same as ``anyof`` except that all rule
