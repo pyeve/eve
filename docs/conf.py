@@ -153,7 +153,7 @@ html_sidebars = {
        'alabaster/dev.html',
        'alabaster/links.html',
        #'powered.html',
-       'donate.html',
+       #'donate.html',
        'searchbox.html',
        'alabaster/artwork.html'
    ]
