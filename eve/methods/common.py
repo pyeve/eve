@@ -146,7 +146,7 @@ def payload():
 
     .. versionadded: 0.0.5
     """
-    content_type = request.headers['Content-Type'].split(';')[0]
+    content_type = request.headers.get('Content-Type', '').split(';')[0]
 
     if content_type == 'application/json':
         return request.get_json()
