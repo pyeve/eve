@@ -200,6 +200,7 @@ def post_internal(resource, payl=None, skip_validation=False):
         except Exception as e:
             # most likely a problem with the incoming payload, report back to
             # the client as if it was a validation issue
+            app.logger.exception('Internal POST: %s' % e)
             doc_issues['exception'] = str(e)
 
         if len(doc_issues):
