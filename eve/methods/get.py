@@ -261,8 +261,13 @@ def getitem(resource, **lookup):
 
     if version == 'all' or version == 'diffs':
         # find all versions
-        lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
-        del lookup[app.config['ID_FIELD']]
+        item_lookup_field = \
+            app.config['DOMAIN'][resource].get('item_lookup_field')
+
+        if item_lookup_field == app.config['ID_FIELD']:
+            lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
+            del lookup[app.config['ID_FIELD']]
+
         if version == 'diffs' or req.sort is None:
             # default sort for 'all', required sort for 'diffs'
             req.sort = '[("%s", 1)]' % config.VERSION

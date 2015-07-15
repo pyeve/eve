@@ -259,8 +259,12 @@ def get_old_document(resource, req, lookup, document, version):
                 'Document version number should be an int greater than 0'
             ))
 
+        item_lookup_field = \
+            app.config["DOMAIN"][resource].get("item_lookup_field")
+
         # parameters to find specific document version
-        if versioned_id_field() not in lookup:
+        if (versioned_id_field() not in lookup and
+                item_lookup_field == app.config['ID_FIELD']):
             lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
             del lookup[app.config['ID_FIELD']]
         lookup[config.VERSION] = version
