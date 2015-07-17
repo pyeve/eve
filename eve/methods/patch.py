@@ -228,7 +228,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
         raise e
     except Exception as e:
         # consider all other exceptions as Bad Requests
-        app.logger.exception('Internal PATCH: %s' % e)
+        app.logger.exception(e)
         abort(400, description=debug_error_message(
             'An exception occurred: %s' % e
         ))
