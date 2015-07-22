@@ -10,21 +10,23 @@
     :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-
-import eve
-import sys
 import os
+import sys
+
 import copy
+from events import Events
 from flask import Flask
 from werkzeug.routing import BaseConverter
 from werkzeug.serving import WSGIRequestHandler
-from eve.io.mongo import Mongo, Validator, GridFSMediaStorage, create_index
-from eve.exceptions import ConfigException, SchemaException
+
+import eve
+from eve.defaults import build_defaults
 from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint, \
     error_endpoint, media_endpoint
-from eve.defaults import build_defaults
+from eve.exceptions import ConfigException, SchemaException
+from eve.io.mongo import Mongo, Validator, GridFSMediaStorage, create_index
+from eve.logging import RequestFilter
 from eve.utils import api_prefix, extract_key_values
-from events import Events
 
 
 class EveWSGIRequestHandler(WSGIRequestHandler):
@@ -71,6 +73,9 @@ class Eve(Flask, Events):
     :param media: the media storage class. Must be a
                   :class:`~eve.io.media.MediaStorage` subclass.
     :param kwargs: optional, standard, Flask parameters.
+
+    .. versionchanged:: 0.6
+       Add request metadata to default log record.
 
     .. versionchanged:: 0.4
        Ensure all errors returns a parseable body. Closes #365.
@@ -119,6 +124,9 @@ class Eve(Flask, Events):
         """
 
         super(Eve, self).__init__(import_name, **kwargs)
+
+        # add support for request metadata to the log record
+        self.logger.addFilter(RequestFilter())
 
         self.validator = validator
         self.settings = settings
