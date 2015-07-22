@@ -9,6 +9,8 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- New: Log MongoDB and HTTP methods exceptions (Sebastien Estienne).
+- New: Enhanced Logging.
 - Fix: ``_validate_dependencies`` always returns ``None``.
 - New: ``VALIDATION_ERROR_AS_LIST``. If ``True`` even single field errors will
   be returned in a list. By default single field errors are returned as strings

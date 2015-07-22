@@ -190,6 +190,7 @@ class Mongo(DataLayer):
                 if len(sort) > 0:
                     client_sort = sort
             except Exception as e:
+                self.app.logger.exception(e)
                 abort(400, description=debug_error_message(str(e)))
 
         if req.where:
@@ -390,6 +391,7 @@ class Mongo(DataLayer):
                 'pymongo.errors.DuplicateKeyError: %s' % e
             ))
         except pymongo.errors.InvalidOperation as e:
+            self.app.logger.exception(e)
             abort(500, description=debug_error_message(
                 'pymongo.errors.InvalidOperation: %s' % e
             ))
@@ -397,6 +399,7 @@ class Mongo(DataLayer):
             # most likely a 'w' (write_concern) setting which needs an
             # existing ReplicaSet which doesn't exist. Please note that the
             # update will actually succeed (a new ETag will be needed).
+            self.app.logger.exception(e)
             abort(500, description=debug_error_message(
                 'pymongo.errors.OperationFailure: %s' % e
             ))
@@ -420,6 +423,7 @@ class Mongo(DataLayer):
             ))
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
+            self.app.logger.exception(e)
             abort(500, description=debug_error_message(
                 'pymongo.errors.OperationFailure: %s' % e
             ))
@@ -519,6 +523,7 @@ class Mongo(DataLayer):
                 .remove(filter_, **self._wc(resource))
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
+            self.app.logger.exception(e)
             abort(500, description=debug_error_message(
                 'pymongo.errors.OperationFailure: %s' % e
             ))
@@ -632,6 +637,7 @@ class Mongo(DataLayer):
                 return coll.find(filter_).count() == 0
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
+            self.app.logger.exception(e)
             abort(500, description=debug_error_message(
                 'pymongo.errors.OperationFailure: %s' % e
             ))

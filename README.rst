@@ -66,6 +66,7 @@ Features
 * File Storage
 * GeoJSON
 * Internal Resources
+* Enhanced Logging
 * Operations Log
 * MongoDB and SQL Support
 * Powered by Flask
