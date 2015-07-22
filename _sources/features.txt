@@ -1705,6 +1705,75 @@ Something like this:
 I admit that this example is as rudimentary as it can get, but hopefully it
 will get the point across.
 
+.. _logging:
+
+Enhanced Logging
+----------------
+A number of events are available for logging via the default application
+logger. The standard `LogRecord attributes`_ are extended with a few request
+attributes:
+
+.. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
+
+=================================== =========================================
+``clientip``                        IP address of the client performing the
+                                    request.
+
+``url``                             Full request URL, eventual query parameters 
+                                    included.
+
+``method``                          Request method (``POST``, ``GET``, etc.)
+
+=================================== =========================================
+
+
+You can use these fields when logging to a file or any other destination.
+
+Callback functions can also take advantage of the builtin logger. The following
+example logs application events to a file, and also logs custom messages every
+time a custom function is invoked.
+
+.. code-block:: python
+
+    import logging
+
+    from eve import Eve
+
+    def log_every_get(resoure, request, payload):
+        # custom INFO-level message is sent to the log file
+        app.logger.info('We just answered to a GET request!')
+
+    app = Eve()
+    app.on_post_GET += log_every_get
+
+    if __name__ == '__main__':
+
+        # enable logging to 'app.log' file
+        handler = logging.FileHandler('app.log')
+
+        # set a custom log format, and add request 
+        # metadata to each log line
+        handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s '
+            '[in %(filename)s:%(lineno)d] -- ip: %(clientip)s, '
+            'url: %(url)s, method:%(method)s'))
+
+        # the default log level is set to WARNING, so
+        # we have to explictly set the logging level 
+        # to INFO to get our custom message logged.
+        app.logger.setLevel(logging.INFO)
+
+        # append the handler to the default application logger
+        app.logger.addHandler(handler)
+
+        # let's go
+        app.run()
+
+
+Currently only exceptions raised by the MongoDB layer and ``POST``, ``PATCH``
+and ``PUT`` methods are logged. The idea is to also add some ``INFO`` and
+possibly ``DEBUG`` level events in the future. 
+
 .. _oplog:
 
 Operations Log
@@ -1844,3 +1913,4 @@ for unittesting_ and an `extensive documentation`_.
 .. _`Replica Set Oplog`: http://docs.mongodb.org/manual/core/replica-set-oplog/
 .. _`extensions page`: http://python-eve.org/extensions
 .. _source: http://en.wikipedia.org/wiki/JSONP
+.. _`LogRecord attributes`: https://docs.python.org/2/library/logging.html#logrecord-attributes 

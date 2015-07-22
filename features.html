@@ -1697,6 +1697,73 @@ Something like this:</p>
 <p>I admit that this example is as rudimentary as it can get, but hopefully it
 will get the point across.</p>
 </div>
+<div class="section" id="enhanced-logging">
+<span id="logging"></span><h2>Enhanced Logging<a class="headerlink" href="#enhanced-logging" title="Permalink to this headline">¶</a></h2>
+<p>A number of events are available for logging via the default application
+logger. The standard <a class="reference external" href="https://docs.python.org/2/library/logging.html#logrecord-attributes">LogRecord attributes</a> are extended with a few request
+attributes:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="45%" />
+<col width="55%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">clientip</span></tt></td>
+<td>IP address of the client performing the
+request.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">url</span></tt></td>
+<td>Full request URL, eventual query parameters
+included.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">method</span></tt></td>
+<td>Request method (<tt class="docutils literal"><span class="pre">POST</span></tt>, <tt class="docutils literal"><span class="pre">GET</span></tt>, etc.)</td>
+</tr>
+</tbody>
+</table>
+<p>You can use these fields when logging to a file or any other destination.</p>
+<p>Callback functions can also take advantage of the builtin logger. The following
+example logs application events to a file, and also logs custom messages every
+time a custom function is invoked.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
+
+<span class="k">def</span> <span class="nf">log_every_get</span><span class="p">(</span><span class="n">resoure</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+    <span class="c"># custom INFO-level message is sent to the log file</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;We just answered to a GET request!&#39;</span><span class="p">)</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
+<span class="n">app</span><span class="o">.</span><span class="n">on_post_GET</span> <span class="o">+=</span> <span class="n">log_every_get</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="c"># enable logging to &#39;app.log&#39; file</span>
+    <span class="n">handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="s">&#39;app.log&#39;</span><span class="p">)</span>
+
+    <span class="c"># set a custom log format, and add request</span>
+    <span class="c"># metadata to each log line</span>
+    <span class="n">handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span>
+        <span class="s">&#39;</span><span class="si">%(asctime)s</span><span class="s"> </span><span class="si">%(levelname)s</span><span class="s">: </span><span class="si">%(message)s</span><span class="s"> &#39;</span>
+        <span class="s">&#39;[in </span><span class="si">%(filename)s</span><span class="s">:</span><span class="si">%(lineno)d</span><span class="s">] -- ip: </span><span class="si">%(clientip)s</span><span class="s">, &#39;</span>
+        <span class="s">&#39;url: </span><span class="si">%(url)s</span><span class="s">, method:</span><span class="si">%(method)s</span><span class="s">&#39;</span><span class="p">))</span>
+
+    <span class="c"># the default log level is set to WARNING, so</span>
+    <span class="c"># we have to explictly set the logging level</span>
+    <span class="c"># to INFO to get our custom message logged.</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+    <span class="c"># append the handler to the default application logger</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+
+    <span class="c"># let&#39;s go</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Currently only exceptions raised by the MongoDB layer and <tt class="docutils literal"><span class="pre">POST</span></tt>, <tt class="docutils literal"><span class="pre">PATCH</span></tt>
+and <tt class="docutils literal"><span class="pre">PUT</span></tt> methods are logged. The idea is to also add some <tt class="docutils literal"><span class="pre">INFO</span></tt> and
+possibly <tt class="docutils literal"><span class="pre">DEBUG</span></tt> level events in the future.</p>
+</div>
 <div class="section" id="operations-log">
 <span id="oplog"></span><h2>Operations Log<a class="headerlink" href="#operations-log" title="Permalink to this headline">¶</a></h2>
 <p>The OpLog is an API-wide log of all edit operations. Every <tt class="docutils literal"><span class="pre">POST</span></tt>, <tt class="docutils literal"><span class="pre">PATCH</span></tt>
@@ -1929,6 +1996,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#internal-resources">Internal Resources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#enhanced-logging">Enhanced Logging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#operations-log">Operations Log</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#how-is-the-oplog-operated">How is the oplog operated?</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#the-oplog-endpoint">The Oplog endpoint</a></li>
