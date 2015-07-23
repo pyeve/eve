@@ -16,6 +16,6 @@ class TestUtils(TestBase):
         )
 
         log_record = l.records[0]
-        self.assertIsNone(log_record.clientip, None)
-        self.assertIsNone(log_record.method, None)
-        self.assertIsNone(log_record.url, None)
+        self.assertEqual(log_record.clientip, None)
+        self.assertEqual(log_record.method, None)
+        self.assertEqual(log_record.url, None)
