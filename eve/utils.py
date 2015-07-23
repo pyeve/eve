@@ -379,7 +379,7 @@ def validate_filters(where, resource):
                     return "filter on '%s' not allowed" % key
                 if isinstance(value, dict):
                     r = validate_filter([value])
-                elif isinstance(value, list):
+                elif isinstance(value, list) and key in ('$or', '$and', '$nor'):
                     r = validate_filter(value)
 
                 if r:
