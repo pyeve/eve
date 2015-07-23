@@ -1321,3 +1321,18 @@ class TestLateVersioning(TestVersioningBase):
             item=invoice_id, query='?embedded={"person": 1}')
         self.assert200(status)
         self.assertTrue('ref' in response['person'])
+
+
+class TestVersioningWithCustomIdField(TestNormalVersioning):
+    def setUp(self):
+        super(TestVersioningWithCustomIdField, self).setUp()
+        self.domain['contacts']['schema'][self.app.config['ID_FIELD']] = {
+            'type': 'string',
+        }
+        self.enableVersioning()
+        self.insertTestData()
+
+    def test_getitem(self):
+        """ Make sure we can insert at least two versioning documents.
+        """
+        self.do_test_getitem(partial=False)
