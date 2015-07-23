@@ -377,7 +377,12 @@ def validate_filters(where, resource):
                 return "filter on '%s' not allowed" % key
 
             if key in ('$or', '$and', '$nor'):
+                if not isinstance(value, list):
+                    return "operator '%s' expects a list of sub-queries" % key
                 for v in value:
+                    if not isinstance(v, dict):
+                        return "operator '%s' expects a list of sub-queries" \
+                            % key
                     r = validate_filter(v)
                     if r:
                         return r

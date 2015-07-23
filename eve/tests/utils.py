@@ -235,6 +235,15 @@ class TestUtils(TestBase):
             self.assertTrue('key' in validate_filters(
                 {'$or': [{'key': 'val1'}, {'key': 'val2'}]},
                 self.known_resource))
+            self.assertTrue('$or' in validate_filters(
+                {'$or': 'val'},
+                self.known_resource))
+            self.assertTrue('$or' in validate_filters(
+                {'$or': {'key': 'val1'}},
+                self.known_resource))
+            self.assertTrue('$or' in validate_filters(
+                {'$or': ['val']},
+                self.known_resource))
 
         self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
             ['key']
