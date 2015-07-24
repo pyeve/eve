@@ -9,6 +9,9 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- Fix: Filter validation fails to validate query selectors that contain a value
+  of the list data-type, which is not a list of sub-queries. See #674 (Mattieu
+  Prat).
 - New: Log MongoDB and HTTP methods exceptions (Sebastien Estienne).
 - New: Enhanced Logging.
 - Fix: ``_validate_dependencies`` always returns ``None``.
