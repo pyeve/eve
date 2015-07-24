@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from eve.tests import TestBase
 from eve.utils import parse_request, str_to_date, config, weak_date, \
     date_to_str, querydef, document_etag, extract_key_values, \
-    debug_error_message
+    debug_error_message, validate_filters
 
 
 class TestUtils(TestBase):
@@ -219,6 +219,47 @@ class TestUtils(TestBase):
             self.app.config['DEBUG'] = True
             self.assertEqual(debug_error_message('An error message'),
                              'An error message')
+
+    def test_validate_filters(self):
+        self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = []
+        with self.app.test_request_context():
+            self.assertTrue('key' in validate_filters(
+                {'key': 'val'},
+                self.known_resource))
+            self.assertTrue('key' in validate_filters(
+                {'key': ['val1', 'val2']},
+                self.known_resource))
+            self.assertTrue('key' in validate_filters(
+                {'key': {'$in': ['val1', 'val2']}},
+                self.known_resource))
+            self.assertTrue('key' in validate_filters(
+                {'$or': [{'key': 'val1'}, {'key': 'val2'}]},
+                self.known_resource))
+            self.assertTrue('$or' in validate_filters(
+                {'$or': 'val'},
+                self.known_resource))
+            self.assertTrue('$or' in validate_filters(
+                {'$or': {'key': 'val1'}},
+                self.known_resource))
+            self.assertTrue('$or' in validate_filters(
+                {'$or': ['val']},
+                self.known_resource))
+
+        self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
+            ['key']
+        with self.app.test_request_context():
+            self.assertTrue(validate_filters(
+                {'key': 'val'},
+                self.known_resource) is None)
+            self.assertTrue(validate_filters(
+                {'key': ['val1', 'val2']},
+                self.known_resource) is None)
+            self.assertTrue(validate_filters(
+                {'key': {'$in': ['val1', 'val2']}},
+                self.known_resource) is None)
+            self.assertTrue(validate_filters(
+                {'$or': [{'key': 'val1'}, {'key': 'val2'}]},
+                self.known_resource) is None)
 
 
 class DummyEvent(object):

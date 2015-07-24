@@ -371,25 +371,27 @@ def validate_filters(where, resource):
     operators = getattr(app.data, 'operators', set())
     allowed = config.DOMAIN[resource]['allowed_filters'] + list(operators)
 
-    def validate_filter(filters):
-        r = None
-        for d in filters:
-            for key, value in d.items():
-                if key not in allowed:
-                    return "filter on '%s' not allowed" % key
-                if isinstance(value, dict):
-                    r = validate_filter([value])
-                elif isinstance(value, list):
-                    r = validate_filter(value)
+    def validate_filter(filter):
+        for key, value in filter.items():
+            if key not in allowed:
+                return "filter on '%s' not allowed" % key
 
+            if key in ('$or', '$and', '$nor'):
+                if not isinstance(value, list):
+                    return "operator '%s' expects a list of sub-queries" % key
+                for v in value:
+                    if not isinstance(v, dict):
+                        return "operator '%s' expects a list of sub-queries" \
+                            % key
+                    r = validate_filter(v)
+                    if r:
+                        return r
+            elif isinstance(value, dict):
+                r = validate_filter(value)
                 if r:
-                    break
-            if r:
-                break
+                    return r
 
-        return r
-
-    return validate_filter([where]) if '*' not in allowed else None
+    return validate_filter(where) if '*' not in allowed else None
 
 
 def auto_fields(resource):
