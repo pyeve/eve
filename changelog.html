@@ -58,6 +58,15 @@
 <div class="section" id="version-0-6">
 <h3>Version 0.6<a class="headerlink" href="#version-0-6" title="Permalink to this headline">¶</a></h3>
 <ul>
+<li><p class="first">Fix: When versioning is enabled on a resource with a custom ID_FIELD,
+versioning documents will inherit their ID from the versioned document,
+making any update of the document result in a DuplicateKeyError (Matthieu
+Prat).</p>
+</li>
+<li><p class="first">Fix: Filter validation fails to validate query selectors that contain a value
+of the list data-type, which is not a list of sub-queries. See #674 (Matthieu
+Prat).</p>
+</li>
 <li><p class="first">New: Log MongoDB and HTTP methods exceptions (Sebastien Estienne).</p>
 </li>
 <li><p class="first">New: Enhanced Logging.</p>
