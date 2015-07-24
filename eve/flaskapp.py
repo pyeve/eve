@@ -203,6 +203,8 @@ class Eve(Flask, Events):
         Since we are a Flask subclass, any configuration value supported by
         Flask itself is available (besides Eve's proper settings).
 
+        .. versionchanged:: 0.6
+           SchemaErrors raised during configuration
         .. versionchanged:: 0.5
            Allow EVE_SETTINGS envvar to be used exclusively. Closes #461.
 
@@ -224,9 +226,11 @@ class Eve(Flask, Events):
                 pyfile = os.path.join(abspath, self.settings)
             try:
                 self.config.from_pyfile(pyfile)
-            except:
-                # assume an envvar is going to be used exclusively
+            except IOError:
+                # assume envvar is going to be used exclusively
                 pass
+            except:
+                raise
 
         # overwrite settings with custom environment variable
         envvar = 'EVE_SETTINGS'
