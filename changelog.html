@@ -58,6 +58,32 @@
 <div class="section" id="version-0-6">
 <h3>Version 0.6<a class="headerlink" href="#version-0-6" title="Permalink to this headline">¶</a></h3>
 <ul>
+<li><p class="first">New: PUT attempts to create a document if it does not exist yet. The URL
+endpoint will be used as <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> value (if <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> is included with
+the payload, it will be ignored). Normal validation rules apply. The response
+will be a <tt class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></tt> on successful creation. Response payload will be
+identical the one you would get by performing a single document POST to the
+resource endpoint. Closes #634.</p>
+</li>
+<li><p class="first">Change: PUT does not return <tt class="docutils literal"><span class="pre">404</span></tt> if a document URL does not exist. It will
+attempt to create the document instead.</p>
+</li>
+<li><p class="first">New: POST accepts documents which include <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> (<tt class="docutils literal"><span class="pre">_id</span></tt>) values. This
+is in addition to the old behaviour of auto-generating <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> values
+when the submitted document does not contain it. Please note that, while you
+can add <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> to the schema (previously not allowed), you don&#8217;t really
+have to, unless its type is different from the <tt class="docutils literal"><span class="pre">ObjectId</span></tt> default. This
+means that in most cases you can start storing <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>-included
+documents right away, without making any changes.</p>
+</li>
+<li><p class="first">Change: A PATCH including an <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> field which value is different than
+the original will get a <tt class="docutils literal"><span class="pre">400</span> <span class="pre">Bad</span> <span class="pre">Request</span></tt>, along with an explanation in the
+message body that the field is immutable. Previously, it would get an
+<tt class="docutils literal"><span class="pre">unknown</span> <span class="pre">field</span></tt> validation error.</p>
+</li>
+<li><p class="first">Fix: some schema errors were not being reported as SchemaError exceptions.
+A more generic &#8216;DOMAIN missing or wrong&#8217; message was returned instead.</p>
+</li>
 <li><p class="first">Fix: When versioning is enabled on a resource with a custom ID_FIELD,
 versioning documents will inherit their ID from the versioned document,
 making any update of the document result in a DuplicateKeyError (Matthieu
