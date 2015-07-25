@@ -9,6 +9,13 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- New: POST accepts documents which include ``ID_FIELD`` (``_id``) values. This
+  is in addition to the old behaviour of auto-generating ``ID_FIELD`` values
+  when the submitted document does not contain it. Please note that, while you
+  can add ``ID_FIELD`` to the schema (previously not allowed), you don't really
+  have to, unless its type is different from the ``ObjectId`` default. This
+  means that in most cases you can start storing ``ID_FIELD``-included
+  documents right away, without making any changes.
 - Fix: some schema errors were not being reported as SchemaError exceptions.
   A more generic 'DOMAIN missing or wrong' message was returned instead.
 - Fix: When versioning is enabled on a resource with a custom ID_FIELD,

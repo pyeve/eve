@@ -140,9 +140,6 @@ class TestConfig(TestBase):
     def test_validate_lastupdated_in_schema(self):
         self.assertUnallowedField(eve.LAST_UPDATED)
 
-    def test_validate_idfield_in_schema(self):
-        self.assertUnallowedField(eve.ID_FIELD, 'objectid')
-
     def assertUnallowedField(self, field, field_type='datetime'):
         self.domain.clear()
         schema = {field: {'type': field_type}}
@@ -162,6 +159,9 @@ class TestConfig(TestBase):
         data_relation = schema['person']['data_relation']
         self.assertTrue('field' in data_relation)
         self.assertEqual(data_relation['field'], self.app.config['ID_FIELD'])
+        id_field = self.app.config['ID_FIELD']
+        self.assertTrue(id_field in schema)
+        self.assertEqual(schema[id_field], {'type': 'objectid'})
 
     def test_set_defaults(self):
         self.domain.clear()
@@ -170,7 +170,7 @@ class TestConfig(TestBase):
         self.app.set_defaults()
         self._test_defaults_for_resource(resource)
         settings = self.domain[resource]
-        self.assertEqual(len(settings['schema']), 0)
+        self.assertEqual(len(settings['schema']), 1)
 
     def _test_defaults_for_resource(self, resource):
         settings = self.domain[resource]
