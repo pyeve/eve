@@ -274,7 +274,7 @@ class TestPut(TestBase):
         id = str(ObjectId())
         url = '%s/%s' % (self.known_resource_url, id)
         id_field = self.app.config['ID_FIELD']
-        changes = {"ref":  "1234567890123456789012345"}
+        changes = {"ref": "1234567890123456789012345"}
         r, status = self.put(url, data=changes)
         # 201 is a creation (POST) response
         self.assert201(status)
@@ -285,7 +285,7 @@ class TestPut(TestBase):
         id = str(ObjectId())
         url = '%s/%s' % (self.known_resource_url, id)
         id_field = self.app.config['ID_FIELD']
-        changes = {"ref":  "1234567890123456789012345",
+        changes = {"ref": "1234567890123456789012345",
                    id_field: str(ObjectId())}
         r, status = self.put(url, data=changes)
         # 201 is a creation (POST) response
@@ -297,7 +297,7 @@ class TestPut(TestBase):
     def test_put_creates_unexisting_document_fails_on_mismatching_id(self):
         id = str(ObjectId())
         id_field = self.app.config['ID_FIELD']
-        changes = {"ref":  "1234567890123456789012345", id_field: id}
+        changes = {"ref": "1234567890123456789012345", id_field: id}
         r, status = self.put(self.item_id_url,
                              data=changes,
                              headers=[('If-Match', self.item_etag)])

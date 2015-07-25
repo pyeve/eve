@@ -648,10 +648,6 @@ class Eve(Flask, Events):
         for data_relation in list(extract_key_values('data_relation', schema)):
             data_relation.setdefault('field', self.config['ID_FIELD'])
 
-
-        # TODO: find a way to autofill "self.app.config['VERSION']: \
-        # {'type': 'integer'}" for data_relations
-
     @property
     def api_prefix(self):
         """ Prefix to API endpoints.
