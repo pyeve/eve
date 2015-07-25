@@ -579,6 +579,16 @@ class TestPatch(TestBase):
                                headers=[('If-Match', etag)])
         self.assert200(status)
 
+    def test_id_field_in_document_fails(self):
+        # since v0.6 we also allow ID_FIELD to be included with the POSTed
+        # document, but not with PATCH since it is immutable
+        self.app.config['IF_MATCH'] = False
+        id_field = self.app.config['ID_FIELD']
+        data = {id_field: '55b2340538345bd048100ffe'}
+        r, status = self.patch(self.item_id_url, data=data)
+        self.assert400(status)
+        self.assertTrue('immutable' in r['_error']['message'])
+
     def assertPatchResponse(self, response, item_id):
         self.assertTrue(STATUS in response)
         self.assertTrue(STATUS_OK in response[STATUS])

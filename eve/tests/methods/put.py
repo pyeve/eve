@@ -19,27 +19,6 @@ class TestPut(TestBase):
         _, status = self.put(self.readonly_id_url, data={})
         self.assert405(status)
 
-    def test_unknown_id(self):
-        _, status = self.put(self.unknown_item_id_url,
-                             data={'key1': 'value1'})
-        self.assert404(status)
-
-    def test_unknown_id_different_resource(self):
-        # replacing a 'user' with a valid 'contact' id will 404
-        _, status = self.put('%s/%s/' % (self.different_resource,
-                                         self.item_id),
-                             data={'ref': '1234567890123456789012345',
-                                   'username': 'username1'})
-        self.assert404(status)
-
-        # of course we can still put a 'user'
-        _, status = self.put('%s/%s/' % (self.different_resource,
-                                         self.user_id),
-                             data={'ref': '1234567890123456789012345',
-                                   'username': 'username1'},
-                             headers=[('If-Match', self.user_etag)])
-        self.assert200(status)
-
     def test_by_name(self):
         _, status = self.put(self.item_name_url, data={'key1': 'value1'})
         self.assert405(status)
@@ -291,6 +270,40 @@ class TestPut(TestBase):
         self.assertEqual(values['city'], 'a nested city')
         self.assertEqual(values['address'], 'a nested address')
 
+    def test_put_creates_unexisting_document(self):
+        id = str(ObjectId())
+        url = '%s/%s' % (self.known_resource_url, id)
+        id_field = self.app.config['ID_FIELD']
+        changes = {"ref":  "1234567890123456789012345"}
+        r, status = self.put(url, data=changes)
+        # 201 is a creation (POST) response
+        self.assert201(status)
+        # new document has ID_FIELD matching the PUT endpoint
+        self.assertEqual(r[id_field], str(id))
+
+    def test_put_creates_unexisting_document_with_url_as_id(self):
+        id = str(ObjectId())
+        url = '%s/%s' % (self.known_resource_url, id)
+        id_field = self.app.config['ID_FIELD']
+        changes = {"ref":  "1234567890123456789012345",
+                   id_field: str(ObjectId())}
+        r, status = self.put(url, data=changes)
+        # 201 is a creation (POST) response
+        self.assert201(status)
+        # new document has ID_FIELD matching the PUT endpoint
+        # (eventual mismatching ID_FIELD in the payload is ignored/replaced)
+        self.assertEqual(r[id_field], str(id))
+
+    def test_put_creates_unexisting_document_fails_on_mismatching_id(self):
+        id = str(ObjectId())
+        id_field = self.app.config['ID_FIELD']
+        changes = {"ref":  "1234567890123456789012345", id_field: id}
+        r, status = self.put(self.item_id_url,
+                             data=changes,
+                             headers=[('If-Match', self.item_etag)])
+        self.assert400(status)
+        self.assertTrue('immutable' in r['_error']['message'])
+
     def perform_put(self, changes):
         r, status = self.put(self.item_id_url,
                              data=changes,
@@ -344,7 +357,7 @@ class TestEvents(TestBase):
         self.app.on_pre_PUT += filter_this
         # Would normally delete the known document; will return 404 instead.
         r, s = self.parse_response(self.put())
-        self.assert404(s)
+        self.assert201(s)
 
     def test_on_post_PUT(self):
         devent = DummyEvent(self.after_replace)

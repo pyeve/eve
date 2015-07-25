@@ -203,6 +203,8 @@ class Eve(Flask, Events):
         Since we are a Flask subclass, any configuration value supported by
         Flask itself is available (besides Eve's proper settings).
 
+        .. versionchanged:: 0.6
+           SchemaErrors raised during configuration
         .. versionchanged:: 0.5
            Allow EVE_SETTINGS envvar to be used exclusively. Closes #461.
 
@@ -224,9 +226,11 @@ class Eve(Flask, Events):
                 pyfile = os.path.join(abspath, self.settings)
             try:
                 self.config.from_pyfile(pyfile)
-            except:
-                # assume an envvar is going to be used exclusively
+            except IOError:
+                # assume envvar is going to be used exclusively
                 pass
+            except:
+                raise
 
         # overwrite settings with custom environment variable
         envvar = 'EVE_SETTINGS'
@@ -354,6 +358,9 @@ class Eve(Flask, Events):
         :param resource: resource name.
         :param schema: schema definition for the resource.
 
+        .. versionchanged:: 0.6
+           ID_FIELD in the schema is not an offender anymore.
+
         .. versionchanged:: 0.5
            Add ETAG to automatic fields check.
 
@@ -393,9 +400,6 @@ class Eve(Flask, Events):
         for field in fields:
             if field in schema:
                 offenders.append(field)
-        if eve.ID_FIELD in schema and \
-                schema[eve.ID_FIELD]['type'] == 'objectid':
-            offenders.append(eve.ID_FIELD)
         if offenders:
             raise SchemaException('field(s) "%s" not allowed in "%s" schema '
                                   '(they will be handled automatically).'
@@ -622,18 +626,28 @@ class Eve(Flask, Events):
         :param schema: the resource schema to be initialized with default
                        values
 
+        .. versionchanged: 0.6
+           Add default ID_FIELD to the schema, so documents with an existing
+           ID_FIELD can also be stored.
+
         .. versionchanged: 0.0.7
            Setting the default 'field' value would not happen if the
            'data_relation' was nested deeper than the first schema level (#60).
 
         .. versionadded: 0.0.5
         """
-        # TODO fill schema{} defaults, like field type, etc.
+
+        # Don't set ID_FIELD 'unique' since we already handle
+        # DuplicateKeyConflict in the mongo layer. This also
+        # avoids a performance hit (with 'unique' rule set, we would
+        # end up with an extra db loopback on every insert).
+        schema.setdefault(self.config['ID_FIELD'], {'type': 'objectid'})
 
         # set default 'field' value for all 'data_relation' rulesets, however
         # nested
         for data_relation in list(extract_key_values('data_relation', schema)):
             data_relation.setdefault('field', self.config['ID_FIELD'])
+
 
         # TODO: find a way to autofill "self.app.config['VERSION']: \
         # {'type': 'integer'}" for data_relations

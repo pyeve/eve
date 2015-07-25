@@ -629,6 +629,17 @@ class TestPost(TestBase):
         error = r[ISSUES]['unknown_field']
         self.assertTrue(isinstance(error, list))
 
+    def test_id_field_included_with_document(self):
+        # since v0.6 we also allow ID_FIELD to be included with the POSTed
+        # document
+        id_field = self.app.config['ID_FIELD']
+        id = '55b2340538345bd048100ffe'
+        data = {"ref": "1234567890123456789054321", id_field: id}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert201(status)
+        self.assertPostResponse(r)
+        self.assertEqual(r['_id'], id)
+
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)

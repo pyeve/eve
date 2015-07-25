@@ -9,18 +9,20 @@
     :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-
-from werkzeug import exceptions
 from datetime import datetime
+
+from flask import current_app as app, abort
+from werkzeug import exceptions
+
 from eve.auth import requires_auth
 from eve.defaults import resolve_default_values
-from eve.validation import ValidationError
-from flask import current_app as app, abort
-from eve.utils import config, debug_error_message, parse_request
 from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, pre_event, store_media_files, resolve_user_restricted_access, \
     resolve_embedded_fields, build_response_document, marshal_write_response, \
     resolve_sub_resource_path, resolve_document_etag, oplog_push
+from eve.methods.post import post_internal
+from eve.utils import config, debug_error_message, parse_request
+from eve.validation import ValidationError
 from eve.versioning import resolve_document_version, \
     insert_versioning_documents, late_versioning_catch
 
@@ -64,6 +66,7 @@ def put_internal(resource, payload=None, concurrency_check=False,
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.6
+       Create document if it does not exist. Closes #634.
        Allow restoring soft deleted documents via PUT
 
     .. versionchanged:: 0.5
@@ -114,8 +117,13 @@ def put_internal(resource, payload=None, concurrency_check=False,
 
     original = get_document(resource, concurrency_check, **lookup)
     if not original:
-        # not found
-        abort(404)
+        id = lookup[config.ID_FIELD]
+        # this guard avoids a bson dependency, which would be needed if we
+        # wanted to use 'isinstance'. Should also be slightly faster.
+        if schema[config.ID_FIELD].get('type', '') == 'objectid':
+            id = str(id)
+        payload[config.ID_FIELD] = id
+        return post_internal(resource, payl=payload)
 
     last_modified = None
     etag = None

@@ -405,6 +405,12 @@ class Mongo(DataLayer):
             ))
 
     def _change_request(self, resource, id_, changes, original):
+        """ Performs a change, be it a replace or update.
+
+        .. versionchanged:: 0.6
+           Return 400 if an attempt is made to update/replace an immutable
+           field.
+        """
         query = {config.ID_FIELD: id_}
         if config.ETAG in original:
             query[config.ETAG] = original[config.ETAG]
@@ -422,11 +428,23 @@ class Mongo(DataLayer):
                 'pymongo.errors.DuplicateKeyError: %s' % e
             ))
         except pymongo.errors.OperationFailure as e:
-            # see comment in :func:`insert()`.
-            self.app.logger.exception(e)
-            abort(500, description=debug_error_message(
-                'pymongo.errors.OperationFailure: %s' % e
-            ))
+            if e.code in (66, 16837):
+                # attempt to update an immutable field. this usually
+                # happens when a PATCH or PUT includes a mismatching ID_FIELD.
+                self.app.logger.warn(e)
+                description = debug_error_message(
+                    'pymongo.errors.OperationFailure: %s' % e) or \
+                    "Attempt to update an immutable field. Usually happens " \
+                    "when a PATCH includes a '%s' field, which is immutable." \
+                    % config.ID_FIELD
+
+                abort(400, description=description)
+            else:
+                # see comment in :func:`insert()`.
+                self.app.logger.exception(e)
+                abort(500, description=debug_error_message(
+                    'pymongo.errors.OperationFailure: %s' % e
+                ))
 
     def update(self, resource, id_, updates, original):
         """ Updates a collection document.
