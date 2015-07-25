@@ -9,6 +9,14 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- New: PUT attempts to create a document if it does not exist yet. The URL
+  endpoint will be used as ``ID_FIELD`` value (if ``ID_FIELD`` is included with
+  the payload, it will be ignored). Normal validation rules apply. The response
+  will be a ``201 Created`` on successful creation. Response payload will be
+  identical the one you would get by performing a single document POST to the
+  resource endpoint. Closes #634.
+- Change: PUT does not return ``404`` if a document URL does not exist. It will
+  attempt to create the document instead.
 - New: POST accepts documents which include ``ID_FIELD`` (``_id``) values. This
   is in addition to the old behaviour of auto-generating ``ID_FIELD`` values
   when the submitted document does not contain it. Please note that, while you

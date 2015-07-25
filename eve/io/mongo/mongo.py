@@ -408,8 +408,8 @@ class Mongo(DataLayer):
         """ Performs a change, be it a replace or update.
 
         .. versionchanged:: 0.6
-           Return 400 if OperationFailure with code 66 (field is immutable)
-           is returned by pymongo.
+           Return 400 if an attempt is made to update/replace an immutable
+           field.
         """
         query = {config.ID_FIELD: id_}
         if config.ETAG in original:
@@ -428,9 +428,9 @@ class Mongo(DataLayer):
                 'pymongo.errors.DuplicateKeyError: %s' % e
             ))
         except pymongo.errors.OperationFailure as e:
-            if e.code == 66:
+            if e.code in (66, 16837):
                 # attempt to update an immutable field. this usually
-                # happens when a PATCH includes a ID_FIELD.
+                # happens when a PATCH or PUT includes a mismatching ID_FIELD.
                 self.app.logger.warn(e)
                 description = debug_error_message(
                     'pymongo.errors.OperationFailure: %s' % e) or \
