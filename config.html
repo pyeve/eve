@@ -785,6 +785,20 @@ errors output, set this setting to <tt class="docutils literal"><span class="pre
 and you will always get a list of field
 issues. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">UPSERT_ON_PUT</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">PUT</span></tt> attempts to create a document if it
+does not exist. The URL endpoint will be
+used as <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> value (if <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>
+is included with the payload, it will be
+ignored). Normal validation rules apply.
+The response will be a <tt class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></tt> on
+successful creation. Response payload will
+be identical the one you would get by
+performing a single document POST to the
+resource endpoint. Set to <tt class="docutils literal"><span class="pre">False</span></tt> to
+disable this feature, and a <tt class="docutils literal"><span class="pre">404</span></tt> will be
+returned instead. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
+</tr>
 </tbody>
 </table>
 </div>

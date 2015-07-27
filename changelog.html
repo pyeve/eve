@@ -58,15 +58,20 @@
 <div class="section" id="version-0-6">
 <h3>Version 0.6<a class="headerlink" href="#version-0-6" title="Permalink to this headline">¶</a></h3>
 <ul>
-<li><p class="first">New: PUT attempts to create a document if it does not exist yet. The URL
+<li><p class="first">New: <tt class="docutils literal"><span class="pre">UPSERT_ON_PUT</span></tt> allows document creation on PUT if the document does
+not exist. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>. See below for details.</p>
+</li>
+<li><p class="first">New: PUT attempts to create a document if it does not exist. The URL
 endpoint will be used as <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> value (if <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> is included with
 the payload, it will be ignored). Normal validation rules apply. The response
 will be a <tt class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></tt> on successful creation. Response payload will be
 identical the one you would get by performing a single document POST to the
-resource endpoint. Closes #634.</p>
+resource endpoint. Set <tt class="docutils literal"><span class="pre">UPSET_ON_PUT</span></tt> to <tt class="docutils literal"><span class="pre">False</span></tt> to disable this
+behaviour, and get a <tt class="docutils literal"><span class="pre">404</span></tt> instead.  Closes #634.</p>
 </li>
 <li><p class="first">Change: PUT does not return <tt class="docutils literal"><span class="pre">404</span></tt> if a document URL does not exist. It will
-attempt to create the document instead.</p>
+attempt to create the document instead. Set <tt class="docutils literal"><span class="pre">UPSET_ON_PUT</span></tt> to <tt class="docutils literal"><span class="pre">False</span></tt> to
+disable this behaviour and get a <tt class="docutils literal"><span class="pre">404</span></tt> instead.</p>
 </li>
 <li><p class="first">New: POST accepts documents which include <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> (<tt class="docutils literal"><span class="pre">_id</span></tt>) values. This
 is in addition to the old behaviour of auto-generating <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> values
