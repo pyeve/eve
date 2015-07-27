@@ -117,13 +117,16 @@ def put_internal(resource, payload=None, concurrency_check=False,
 
     original = get_document(resource, concurrency_check, **lookup)
     if not original:
-        id = lookup[config.ID_FIELD]
-        # this guard avoids a bson dependency, which would be needed if we
-        # wanted to use 'isinstance'. Should also be slightly faster.
-        if schema[config.ID_FIELD].get('type', '') == 'objectid':
-            id = str(id)
-        payload[config.ID_FIELD] = id
-        return post_internal(resource, payl=payload)
+        if config.UPSERT_ON_PUT:
+            id = lookup[config.ID_FIELD]
+            # this guard avoids a bson dependency, which would be needed if we
+            # wanted to use 'isinstance'. Should also be slightly faster.
+            if schema[config.ID_FIELD].get('type', '') == 'objectid':
+                id = str(id)
+            payload[config.ID_FIELD] = id
+            return post_internal(resource, payl=payload)
+        else:
+            abort(404)
 
     last_modified = None
     etag = None

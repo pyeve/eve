@@ -281,6 +281,15 @@ class TestPut(TestBase):
         # new document has ID_FIELD matching the PUT endpoint
         self.assertEqual(r[id_field], str(id))
 
+    def test_put_returns_404_on_unexisting_document(self):
+        self.app.config['UPSERT_ON_PUT'] = False
+        id = str(ObjectId())
+        url = '%s/%s' % (self.known_resource_url, id)
+        id_field = self.app.config['ID_FIELD']
+        changes = {"ref": "1234567890123456789012345"}
+        r, status = self.put(url, data=changes)
+        self.assert404(status)
+
     def test_put_creates_unexisting_document_with_url_as_id(self):
         id = str(ObjectId())
         url = '%s/%s' % (self.known_resource_url, id)

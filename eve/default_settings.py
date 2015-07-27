@@ -12,6 +12,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.6
+       'UPSERT_ON_PUT? added and set to True.
        'STANDARD_ERRORS' added.
        'JSONP_ARGUMENT' added and set to None.
        'HEADER_TOTAL_COUNT' added and set to 'X-Total-Count'.
@@ -175,6 +176,7 @@ ALLOWED_ITEM_WRITE_ROLES = []
 ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
 ITEM_URL = 'regex("[a-f0-9]{24}")'
+UPSERT_ON_PUT = True            # insert unexisting documents on PUT.
 
 # use a simple file response format by default
 EXTENDED_MEDIA_INFO = []

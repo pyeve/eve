@@ -636,6 +636,19 @@ uppercase.
                                     and you will always get a list of field
                                     issues. Defaults to ``False``.
 
+``UPSERT_ON_PUT``                   ``PUT`` attempts to create a document if it 
+                                    does not exist. The URL endpoint will be
+                                    used as ``ID_FIELD`` value (if ``ID_FIELD``
+                                    is included with the payload, it will be
+                                    ignored). Normal validation rules apply.
+                                    The response will be a ``201 Created`` on
+                                    successful creation. Response payload will
+                                    be identical the one you would get by
+                                    performing a single document POST to the
+                                    resource endpoint. Set to ``False`` to
+                                    disable this feature, and a ``404`` will be
+                                    returned instead. Defaults to ``True``.
+
 =================================== =========================================
 
 .. _domain:
