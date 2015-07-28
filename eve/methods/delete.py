@@ -11,7 +11,7 @@
 """
 
 from flask import current_app as app, abort
-from eve.utils import config, debug_error_message, ParsedRequest
+from eve.utils import config, ParsedRequest
 from eve.auth import requires_auth
 from eve.methods.common import get_document, ratelimit, pre_event, \
     oplog_push, resolve_document_etag
@@ -112,9 +112,7 @@ def deleteitem_internal(
             app.data.replace(resource, id, marked_document, original)
         except app.data.OriginalChangedError:
             if concurrency_check:
-                abort(412, description=debug_error_message(
-                    'Client and server etags don\'t match'
-                ))
+                abort(412, description='Client and server etags don\'t match')
 
         # create previous version if it wasn't already there
         late_versioning_catch(original, resource)
