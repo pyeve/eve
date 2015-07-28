@@ -428,15 +428,22 @@ class Mongo(DataLayer):
                 'pymongo.errors.DuplicateKeyError: %s' % e
             ))
         except pymongo.errors.OperationFailure as e:
-            if e.code in (66, 16837):
+            # server error codes and messages changed between 2.4 and 2.6/3.0.
+            server_version = \
+                self.driver.db.connection.server_info()['version'][:3]
+            if (
+                (server_version == '2.4' and e.code in (13596, 10148)) or
+                (server_version in ('2.6', '3.0') and e.code in (66, 16837))
+            ):
                 # attempt to update an immutable field. this usually
                 # happens when a PATCH or PUT includes a mismatching ID_FIELD.
                 self.app.logger.warn(e)
                 description = debug_error_message(
                     'pymongo.errors.OperationFailure: %s' % e) or \
                     "Attempt to update an immutable field. Usually happens " \
-                    "when a PATCH includes a '%s' field, which is immutable." \
-                    % config.ID_FIELD
+                    "when PATCH or PUT include a '%s' field, " \
+                    "which is immutable (PUT can include it as long as " \
+                    "it is unchanged)." % config.ID_FIELD
 
                 abort(400, description=description)
             else:
