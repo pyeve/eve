@@ -15,7 +15,7 @@ from copy import copy
 from flask import request, abort
 from eve.utils import date_to_str
 from eve.auth import auth_field_and_value
-from eve.utils import config, debug_error_message, auto_fields
+from eve.utils import config, auto_fields
 
 
 class BaseJSONEncoder(json.JSONEncoder):
@@ -440,16 +440,16 @@ class DataLayer(object):
                     if auth_field_in_query and \
                             self.app.data.get_value_from_query(
                                 query, auth_field) != request_auth_value:
-                        abort(401, description=debug_error_message(
-                            'Incompatible User-Restricted Resource request. '
-                            'Request was for "%s"="%s" but `auth_field` '
-                            'requires "%s"="%s".' % (
-                                auth_field,
-                                self.app.data.get_value_from_query(
-                                    query, auth_field),
-                                auth_field,
-                                request_auth_value)
-                        ))
+                        abort(401, description=
+                              'Incompatible User-Restricted Resource request. '
+                              'Request was for "%s"="%s" but `auth_field` '
+                              'requires "%s"="%s".' % (
+                                  auth_field,
+                                  self.app.data.get_value_from_query(
+                                      query, auth_field),
+                                  auth_field,
+                                  request_auth_value)
+                              )
                     else:
                         query = self.app.data.combine_queries(
                             query, {auth_field: request_auth_value}
