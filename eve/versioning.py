@@ -161,8 +161,8 @@ def versioned_fields(resource_def):
     schema = resource_def['schema']
 
     fields = [f for f in schema
-              if schema[f].get('versioned', True) is True
-              and f != app.config['ID_FIELD']]
+              if schema[f].get('versioned', True) is True and
+              f != app.config['ID_FIELD']]
 
     fields.extend((app.config['LAST_UPDATED'],
                    app.config['ETAG'],

@@ -440,8 +440,8 @@ class DataLayer(object):
                     if auth_field_in_query and \
                             self.app.data.get_value_from_query(
                                 query, auth_field) != request_auth_value:
-                        abort(401, description=
-                              'Incompatible User-Restricted Resource request. '
+                        abort(401, description='Incompatible User-Restricted '
+                              'Resource request. '
                               'Request was for "%s"="%s" but `auth_field` '
                               'requires "%s"="%s".' % (
                                   auth_field,

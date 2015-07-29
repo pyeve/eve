@@ -62,7 +62,8 @@ def get_document(resource, concurrency_check, **lookup):
         if not req.if_match and config.IF_MATCH and concurrency_check:
             # we don't allow editing unless the client provides an etag
             # for the document
-            abort(403, description='An etag must be provided to edit a document')
+            abort(403, description='An etag must be provided to edit a '
+                  'document')
 
         # ensure the retrieved document has LAST_UPDATED and DATE_CREATED,
         # eventually with same default values as in GET.
