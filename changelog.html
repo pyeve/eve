@@ -58,12 +58,19 @@
 <div class="section" id="version-0-6">
 <h3>Version 0.6<a class="headerlink" href="#version-0-6" title="Permalink to this headline">¶</a></h3>
 <ul>
+<li><p class="first">Fix: some error message are not filtered out of debug mode anymore, as they
+are useful for users and do not leak informations. Closes #671 (Sebastien
+Estienne).</p>
+</li>
+<li><p class="first">Fix: reinforce Content-Type Header handling to avoid possible crash when it
+is missing (Sebastien Estienne).</p>
+</li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">UPSERT_ON_PUT</span></tt> allows document creation on PUT if the document does
 not exist. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>. See below for details.</p>
 </li>
-<li><p class="first">New: PUT attempts to create a document if it does not exist. The URL
-endpoint will be used as <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> value (if <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> is included with
-the payload, it will be ignored). Normal validation rules apply. The response
+<li><p class="first">New: PUT attempts to create a document if it does not exist. The URL endpoint
+will be used as <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> value (if <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> is included with the
+payload, it will be ignored). Normal validation rules apply. The response
 will be a <tt class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></tt> on successful creation. Response payload will be
 identical the one you would get by performing a single document POST to the
 resource endpoint. Set <tt class="docutils literal"><span class="pre">UPSET_ON_PUT</span></tt> to <tt class="docutils literal"><span class="pre">False</span></tt> to disable this
