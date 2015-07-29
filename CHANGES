@@ -9,11 +9,13 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- Fix: reinforce Content-Type Header handling to avoid possible crash when it
+  is missing (Sebastien Estienne).
 - New: ``UPSERT_ON_PUT`` allows document creation on PUT if the document does
   not exist. Defaults to ``True``. See below for details.
-- New: PUT attempts to create a document if it does not exist. The URL
-  endpoint will be used as ``ID_FIELD`` value (if ``ID_FIELD`` is included with
-  the payload, it will be ignored). Normal validation rules apply. The response
+- New: PUT attempts to create a document if it does not exist. The URL endpoint
+  will be used as ``ID_FIELD`` value (if ``ID_FIELD`` is included with the
+  payload, it will be ignored). Normal validation rules apply. The response
   will be a ``201 Created`` on successful creation. Response payload will be
   identical the one you would get by performing a single document POST to the
   resource endpoint. Set ``UPSET_ON_PUT`` to ``False`` to disable this
