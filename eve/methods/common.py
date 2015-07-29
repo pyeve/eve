@@ -62,9 +62,8 @@ def get_document(resource, concurrency_check, **lookup):
         if not req.if_match and config.IF_MATCH and concurrency_check:
             # we don't allow editing unless the client provides an etag
             # for the document
-            abort(403, description=debug_error_message(
-                'An etag must be provided to edit a document'
-            ))
+            abort(403, description='An etag must be provided to edit a '
+                  'document')
 
         # ensure the retrieved document has LAST_UPDATED and DATE_CREATED,
         # eventually with same default values as in GET.
@@ -78,9 +77,7 @@ def get_document(resource, concurrency_check, **lookup):
             if req.if_match != etag:
                 # client and server etags must match, or we don't allow editing
                 # (ensures that client's version of the document is up to date)
-                abort(412, description=debug_error_message(
-                    'Client and server etags don\'t match'
-                ))
+                abort(412, description='Client and server etags don\'t match')
 
     return document
 
@@ -152,9 +149,7 @@ def payload():
         return request.get_json()
     elif content_type == 'application/x-www-form-urlencoded':
         return request.form.to_dict() if len(request.form) else \
-            abort(400, description=debug_error_message(
-                'No form-urlencoded data supplied'
-            ))
+            abort(400, description='No form-urlencoded data supplied')
     elif content_type == 'multipart/form-data':
         # as multipart is also used for file uploads, we let an empty
         # request.form go through as long as there are also files in the
@@ -168,12 +163,9 @@ def payload():
             return dict(list(request.form.to_dict().items()) +
                         list(request.files.to_dict().items()))
         else:
-            abort(400, description=debug_error_message(
-                'No multipart/form-data supplied'
-            ))
+            abort(400, description='No multipart/form-data supplied')
     else:
-        abort(400, description=debug_error_message(
-            'Unknown or no Content-Type header supplied'))
+        abort(400, description='Unknown or no Content-Type header supplied')
 
 
 class RateLimit(object):
@@ -550,9 +542,7 @@ def resolve_embedded_fields(resource, req):
         try:
             client_embedding = json.loads(req.embedded)
         except ValueError:
-            abort(400, description=debug_error_message(
-                'Unable to parse `embedded` clause'
-            ))
+            abort(400, description='Unable to parse `embedded` clause')
 
         # Build the list of fields where embedding is being requested
         try:
@@ -562,9 +552,7 @@ def resolve_embedded_fields(resource, req):
                                    if v == 0]
         except AttributeError:
             # We got something other than a dict
-            abort(400, description=debug_error_message(
-                'Unable to parse `embedded` clause'
-            ))
+            abort(400, description='Unable to parse `embedded` clause')
 
     embedded_fields = list(
         (set(config.DOMAIN[resource]['embedded_fields']) |
@@ -610,6 +598,7 @@ def embedded_document(reference, data_relation, field_name):
         # make sure we got the documents
         if embedded_doc is None or latest_embedded_doc is None:
             # your database is not consistent!!! that is bad
+            # TODO: we should notify the developers with a log.
             abort(404, description=debug_error_message(
                 "Unable to locate embedded documents for '%s'" %
                 field_name
