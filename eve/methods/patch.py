@@ -199,9 +199,8 @@ def patch_internal(resource, payload=None, concurrency_check=False,
                     resource, object_id, updates, original)
             except app.data.OriginalChangedError:
                 if concurrency_check:
-                    abort(412, description=debug_error_message(
-                        'Client and server etags don\'t match'
-                    ))
+                    abort(412,
+                          description='Client and server etags don\'t match')
 
             # update oplog if needed
             oplog_push(resource, updates, 'PATCH', object_id)
