@@ -311,3 +311,10 @@ class TestOpLogEndpointEnabled(TestOpLogBase):
         headers.append(('If-Match', self.item_etag))
         r = self.test_client.put(url, data=json.dumps(data), headers=headers)
         return self.parse_response(r)
+
+
+class TestTickets(TestBase):
+    def test_ticket_681(self):
+        # See https://github.com/nicolaiarocci/eve/issues/681
+        with self.app.test_request_context('not_an_existing_endpoint'):
+            self.app.data.driver.db['again']
