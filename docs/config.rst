@@ -173,12 +173,13 @@ uppercase.
 
 ``ITEM_METHODS``                    A list of HTTP methods supported at item 
                                     endpoints. Allowed values: ``GET``,
-                                    ``PATCH`` and ``DELETE``. ``PATCH`` or, for
-                                    clients not supporting PATCH, ``POST`` with
-                                    the ``X-HTTP-Method-Override`` header tag,
-                                    is used for item updates; ``DELETE`` for
-                                    item deletion. Can be overridden by
-                                    resource settings. Defaults to ``['GET']``.  
+                                    ``PATCH``, ``PUT`` and ``DELETE``. ``PATCH``
+                                    or, for clients not supporting PATCH,
+                                    ``POST`` with the ``X-HTTP-Method-Override``
+                                    header tag, is used for item updates;
+                                    ``DELETE`` for item deletion. Can be
+                                    overridden by resource settings. Defaults to
+                                    ``['GET']``.  
 
 ``PUBLIC_ITEM_METHODS``             A list of HTTP methods supported at item
                                     endpoints, left open to public access when
@@ -732,10 +733,10 @@ always lowercase.
                                 ``PUBLIC_METHODS``.
 
 ``item_methods``                A list of HTTP methods supported at item 
-                                endpoint. Allowed values: ``GET``, ``PATCH``
-                                and ``DELETE``. ``PATCH`` or, for clients not
-                                supporting PATCH, ``POST`` with the
-                                ``X-HTTP-Method-Override`` header tag.
+                                endpoint. Allowed values: ``GET``, ``PATCH``,
+                                ``PUT`` and ``DELETE``. ``PATCH`` or, for
+                                clients not supporting PATCH, ``POST`` with
+                                the ``X-HTTP-Method-Override`` header tag.
                                 Locally overrides ``ITEM_METHODS``.
 
 ``public_item_methods``         A list of HTTP methods supported at item
