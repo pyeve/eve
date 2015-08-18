@@ -407,6 +407,14 @@ uppercase.
 
 ``META``                            Allows to customize the meta field. Defaults
                                     to ``_meta``
+                                    to ``_meta``.
+
+``INFO``                            String value to include an info section, with the
+                                    given INFO name, at the Eve homepage (suggested
+                                    value ``_info``). The info section will include
+                                    Eve server version and API version (API_VERSION,
+                                    if set).  ``None`` otherwise, if you do not want
+                                    to expose any server info. Defaults to ``None``.
 
 ``LINKS``                           Allows to customize the links field. Defaults
                                     to ``_links``.

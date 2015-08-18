@@ -391,12 +391,6 @@ want to turn HATEOAS off? Well, if you know that your client application is not
 going to use the feature, then you might want to save on both bandwidth and
 performance. 
 
-.. admonition:: Please note
-
-    When HATEOAS is disabled, the API entry point (the home page) will return
-    a ``404``, since its only usefulness would be to return a list of available
-    resources, which is the standard behavior when HATEOAS is enabled.
-
 .. _jsonxml:
 
 JSON and XML Rendering
