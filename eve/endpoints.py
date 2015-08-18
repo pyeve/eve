@@ -18,8 +18,8 @@ from eve.auth import requires_auth
 from eve.methods import get, getitem, post, patch, delete, deleteitem, put
 from eve.methods.common import ratelimit
 from eve.render import send_response
-from eve.utils import config, request_method, debug_error_message, weak_date, \
-    date_to_rfc1123
+from eve.utils import config, request_method, weak_date, date_to_rfc1123
+import eve
 
 
 def collections_endpoint(**lookup):
@@ -121,8 +121,15 @@ def home_endpoint():
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
     """
+    response = {}
+    if config.INFO:
+        info = {}
+        info['server'] = 'Eve'
+        info['version'] = eve.__version__
+        info['api_version'] = config.API_VERSION
+        response[config.INFO] = info
+
     if config.HATEOAS:
-        response = {}
         links = []
         for resource in config.DOMAIN.keys():
             internal = config.DOMAIN[resource]['internal_resource']
@@ -135,8 +142,7 @@ def home_endpoint():
         response[config.LINKS] = {'child': links}
         return send_response(None, (response,))
     else:
-        abort(404, debug_error_message("HATEOAS is disabled so we have no data"
-                                       " to display at the API homepage."))
+        return send_response(None, (response,))
 
 
 def error_endpoint(error):

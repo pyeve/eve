@@ -2,7 +2,9 @@
 
 from ast import literal_eval
 from eve.tests import TestBase
+from eve.utils import config
 import simplejson as json
+import eve
 
 
 class TestResponse(TestBase):
@@ -56,7 +58,18 @@ class TestNoHateoas(TestBase):
 
     def test_get_no_hateoas_homepage(self):
         r = self.test_client.get('/')
-        self.assert404(r.status_code)
+        self.assert200(r.status_code)
+
+    def test_get_no_hateoas_homepage_reply(self):
+        r = self.test_client.get('/')
+        resp = json.loads(r.get_data().decode())
+        if config.INFO:
+            self.assertEqual(resp[config.INFO]['server'], 'Eve')
+            self.assertEqual(resp[config.INFO]['version'], eve.__version__)
+            self.assertEqual(resp[config.INFO]['api_version'],
+                             config.API_VERSION)
+        else:
+            self.assertEqual(resp, {})
 
     def test_post_no_hateoas(self):
         data = {'item1': json.dumps({"ref": "1234567890123456789054321"})}
