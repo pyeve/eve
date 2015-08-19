@@ -456,6 +456,8 @@ def build_response_document(
 
     .. versionadded:: 0.4
     """
+    resource_def = config.DOMAIN[resource]
+
     # need to update the document field since the etag must be computed on the
     # same document representation that might have been used in the collection
     # 'get' method
@@ -464,20 +466,20 @@ def build_response_document(
 
     # Up to v0.4 etags were not stored with the documents.
     if config.IF_MATCH and config.ETAG not in document:
-        ignore_fields = config.DOMAIN[resource]['etag_ignore_fields']
+        ignore_fields = resource_def['etag_ignore_fields']
         document[config.ETAG] = document_etag(document,
                                               ignore_fields=ignore_fields)
 
     # hateoas links
-    if config.DOMAIN[resource]['hateoas'] and config.ID_FIELD in document:
+    if resource_def['hateoas'] and resource_def['id_field'] in document:
         version = None
-        if config.DOMAIN[resource]['versioning'] is True \
+        if resource_def['versioning'] is True \
                 and request.args.get(config.VERSION_PARAM):
             version = document[config.VERSION]
-        document[config.LINKS] = {'self':
-                                  document_link(resource,
-                                                document[config.ID_FIELD],
-                                                version)}
+        document[config.LINKS] = {
+            'self': document_link(resource,
+                                  document[resource_def['id_field']], version)
+        }
 
     # add version numbers
     resolve_document_version(document, resource, 'GET', latest_doc)
@@ -486,7 +488,7 @@ def build_response_document(
     resolve_media_files(document, resource)
 
     # resolve soft delete
-    if config.DOMAIN[resource]['soft_delete'] is True:
+    if resource_def['soft_delete'] is True:
         if document.get(config.DELETED) is None:
             document[config.DELETED] = False
         elif document[config.DELETED] is True:
@@ -608,8 +610,9 @@ def embedded_document(reference, data_relation, field_name):
                                 [], latest_embedded_doc)
     else:
         subresource = data_relation['resource']
+        id_field = config.DOMAIN[subresource]['id_field']
         embedded_doc = app.data.find_one(subresource, None,
-                                         **{config.ID_FIELD: reference})
+                                         **{id_field: reference})
         if embedded_doc:
             resolve_media_files(embedded_doc, subresource)
 
@@ -808,10 +811,11 @@ def resolve_sub_resource_path(document, resource):
     if not request.view_args:
         return
 
-    schema = app.config['DOMAIN'][resource]['schema']
+    resource_def = config.DOMAIN[resource]
+    schema = resource_def['schema']
     fields = []
     for field, value in request.view_args.items():
-        if field in schema and field != config.ID_FIELD:
+        if field in schema and field != resource_def['id_field']:
             fields.append(field)
             document[field] = value
 
@@ -985,6 +989,8 @@ def oplog_push(resource, document, op, id=None):
     if not config.OPLOG or op not in config.OPLOG_METHODS:
         return
 
+    resource_def = config.DOMAIN[resource]
+
     if document is None:
         updates = {}
     else:
@@ -998,7 +1004,8 @@ def oplog_push(resource, document, op, id=None):
         entry = {
             'r': config.URLS[resource],
             'o': op,
-            'i': update[config.ID_FIELD] if config.ID_FIELD in update else id,
+            'i': (update[resource_def['id_field']]
+                  if resource_def['id_field'] in update else id),
         }
         if config.LAST_UPDATED in update:
             last_update = update[config.LAST_UPDATED]

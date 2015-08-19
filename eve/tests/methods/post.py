@@ -428,6 +428,7 @@ class TestPost(TestBase):
         data = {id_field: test_value}
 
         self.app.config['ID_FIELD'] = id_field
+        self.domain['contacts']['id_field'] = id_field
 
         # custom id_fields also need to be included in the resource schema
         self.domain['contacts']['schema'][id_field] = {

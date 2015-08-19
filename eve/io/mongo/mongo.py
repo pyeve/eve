@@ -306,8 +306,9 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.4
         """
+        id_field = config.DOMAIN[resource]['id_field']
         datasource, filter_, _, _ = self._datasource_ex(resource,
-                                                        {config.ID_FIELD: _id},
+                                                        {id_field: _id},
                                                         None)
 
         document = self.pymongo(resource).db[datasource].find_one(_id)
@@ -348,8 +349,9 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.1.0
         """
+        id_field = config.DOMAIN[resource]['id_field']
         query = {'$or': [
-            {config.ID_FIELD: id_} for id_ in ids
+            {id_field: id_} for id_ in ids
         ]}
 
         datasource, spec, projection, _ = self._datasource_ex(
@@ -411,7 +413,8 @@ class Mongo(DataLayer):
            Return 400 if an attempt is made to update/replace an immutable
            field.
         """
-        query = {config.ID_FIELD: id_}
+        id_field = config.DOMAIN[resource]['id_field']
+        query = {id_field: id_}
         if config.ETAG in original:
             query[config.ETAG] = original[config.ETAG]
 
@@ -443,7 +446,7 @@ class Mongo(DataLayer):
                     "Attempt to update an immutable field. Usually happens " \
                     "when PATCH or PUT include a '%s' field, " \
                     "which is immutable (PUT can include it as long as " \
-                    "it is unchanged)." % config.ID_FIELD
+                    "it is unchanged)." % id_field
 
                 abort(400, description=description)
             else:

@@ -241,8 +241,8 @@ def post_internal(resource, payl=None, skip_validation=False):
         for document in documents:
             # either return the custom ID_FIELD or the id returned by
             # data.insert().
-            document[config.ID_FIELD] = \
-                document.get(config.ID_FIELD, ids.pop(0))
+            document[resource_def['id_field']] = \
+                document.get(resource_def['id_field'], ids.pop(0))
 
             # build the full response document
             result = document

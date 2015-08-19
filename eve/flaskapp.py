@@ -313,9 +313,9 @@ class Eve(Flask, Events):
         self.validate_roles('allowed_item_read_roles', settings, resource)
         self.validate_roles('allowed_item_write_roles', settings, resource)
 
-        if settings['auth_field'] == self.config['ID_FIELD']:
-            raise ConfigException('"%s": auth_field cannot be set to ID_FIELD '
-                                  '(%s)' % (resource, self.config['ID_FIELD']))
+        if settings['auth_field'] == settings['id_field']:
+            raise ConfigException('"%s": auth_field cannot be set to id_field '
+                                  '(%s)' % (resource, settings['id_field']))
 
         self.validate_schema(resource, settings['schema'])
 
@@ -392,7 +392,8 @@ class Eve(Flask, Events):
             fields += [
                 self.config['VERSION'],
                 self.config['LATEST_VERSION'],
-                self.config['ID_FIELD'] + self.config['VERSION_ID_SUFFIX']]
+                resource_settings['id_field'] +
+                self.config['VERSION_ID_SUFFIX']]
         if resource_settings['soft_delete'] is True:
             fields += [self.config['DELETED']]
 
@@ -519,6 +520,7 @@ class Eve(Flask, Events):
         settings.setdefault('cache_control', self.config['CACHE_CONTROL'])
         settings.setdefault('cache_expires', self.config['CACHE_EXPIRES'])
 
+        settings.setdefault('id_field', self.config['ID_FIELD'])
         settings.setdefault('item_lookup_field',
                             self.config['ITEM_LOOKUP_FIELD'])
         settings.setdefault('item_url', self.config['ITEM_URL'])
@@ -565,7 +567,7 @@ class Eve(Flask, Events):
         settings.setdefault('authentication', self.auth if self.auth else None)
         # empty schemas are allowed for read-only access to resources
         schema = settings.setdefault('schema', {})
-        self.set_schema_defaults(schema)
+        self.set_schema_defaults(schema, settings['id_field'])
 
         datasource = {}
         settings.setdefault('datasource', datasource)
@@ -587,14 +589,14 @@ class Eve(Flask, Events):
             # enable retrieval of actual schema fields only. Eventual db
             # fields not included in the schema won't be returned.
             # despite projection, automatic fields are always included.
-            projection[self.config['ID_FIELD']] = 1
+            projection[settings['id_field']] = 1
             projection[self.config['LAST_UPDATED']] = 1
             projection[self.config['DATE_CREATED']] = 1
             projection[self.config['ETAG']] = 1
             if settings['versioning'] is True:
                 projection[self.config['VERSION']] = 1
                 projection[
-                    self.config['ID_FIELD'] +
+                    settings['id_field'] +
                     self.config['VERSION_ID_SUFFIX']] = 1
             projection.update(dict((field, 1) for (field) in schema))
             if settings['soft_delete'] is True:
@@ -619,7 +621,7 @@ class Eve(Flask, Events):
                                   ' eve.io.media.MediaStorage but be defined '
                                   'for "media" fields to be properly stored.')
 
-    def set_schema_defaults(self, schema):
+    def set_schema_defaults(self, schema, id_field):
         """ When not provided, fills individual schema settings with default
         or global configuration settings.
 
@@ -637,16 +639,16 @@ class Eve(Flask, Events):
         .. versionadded: 0.0.5
         """
 
-        # Don't set ID_FIELD 'unique' since we already handle
+        # Don't set id_field 'unique' since we already handle
         # DuplicateKeyConflict in the mongo layer. This also
         # avoids a performance hit (with 'unique' rule set, we would
         # end up with an extra db loopback on every insert).
-        schema.setdefault(self.config['ID_FIELD'], {'type': 'objectid'})
+        schema.setdefault(id_field, {'type': 'objectid'})
 
         # set default 'field' value for all 'data_relation' rulesets, however
         # nested
         for data_relation in list(extract_key_values('data_relation', schema)):
-            data_relation.setdefault('field', self.config['ID_FIELD'])
+            data_relation.setdefault('field', id_field)
 
     @property
     def api_prefix(self):

@@ -404,19 +404,21 @@ def auto_fields(resource):
 
     .. versionadded:: 0.4
     """
+    resource_def = config.DOMAIN[resource]
+
     # preserved meta data
-    fields = [config.ID_FIELD, config.LAST_UPDATED, config.DATE_CREATED,
-              config.ETAG]
+    fields = [resource_def['id_field'], config.LAST_UPDATED,
+              config.DATE_CREATED, config.ETAG]
 
     # on-the-fly meta data (not in data store)
     fields += [config.ISSUES, config.STATUS, config.LINKS]
 
-    if config.DOMAIN[resource]['versioning'] is True:
+    if resource_def['versioning'] is True:
         fields.append(config.VERSION)
         fields.append(config.LATEST_VERSION)  # on-the-fly meta data
-        fields.append(config.ID_FIELD + config.VERSION_ID_SUFFIX)
+        fields.append(resource_def['id_field'] + config.VERSION_ID_SUFFIX)
 
-    if config.DOMAIN[resource]['soft_delete'] is True:
+    if resource_def['soft_delete'] is True:
         fields.append(config.DELETED)
 
     return fields
