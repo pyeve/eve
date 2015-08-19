@@ -81,7 +81,8 @@ def deleteitem_internal(
     .. versionchanged:: 0.0.4
        Added the ``requires_auth`` decorator.
     """
-    soft_delete_enabled = config.DOMAIN[resource]['soft_delete']
+    resource_def = config.DOMAIN[resource]
+    soft_delete_enabled = resource_def['soft_delete']
     original = get_document(resource, concurrency_check, **lookup)
     if not original or (soft_delete_enabled and
                         original.get(config.DELETED) is True):
@@ -107,7 +108,7 @@ def deleteitem_internal(
         resolve_document_version(marked_document, resource, 'DELETE', original)
 
         # Update document in database (including version collection if needed)
-        id = original[config.ID_FIELD]
+        id = original[resource_def['id_field']]
         try:
             app.data.replace(resource, id, marked_document, original)
         except app.data.OriginalChangedError:
@@ -134,21 +135,22 @@ def deleteitem_internal(
             # is still needed. Also, this lookup should never fail.
             # TODO not happy with this hack. Not at all. Is there a better way?
             original = app.data.find_one_raw(
-                resource, original[config.ID_FIELD])
+                resource, original[resource_def['id_field']])
 
         for field in media_fields:
             if field in original:
                 app.media.delete(original[field], resource)
 
-        id = original[config.ID_FIELD]
-        app.data.remove(resource, {config.ID_FIELD: id})
+        id = original[resource_def['id_field']]
+        app.data.remove(resource, {resource_def['id_field']: id})
 
         # TODO: should attempt to delete version collection even if setting is
         # off
         if app.config['DOMAIN'][resource]['versioning'] is True:
             app.data.remove(
                 resource + config.VERSIONS,
-                {versioned_id_field(): original[config.ID_FIELD]})
+                {versioned_id_field(resource_def):
+                 original[resource_def['id_field']]})
 
     # update oplog if needed
     oplog_push(resource, original, 'DELETE', id)
@@ -186,13 +188,15 @@ def delete(resource, **lookup):
     getattr(app, "on_delete_resource")(resource)
     getattr(app, "on_delete_resource_%s" % resource)()
 
-    if config.DOMAIN[resource]['soft_delete']:
+    resource_def = config.DOMAIN[resource]
+
+    if resource_def['soft_delete']:
         # Soft delete all items not already marked deleted
         # (by default, data.find doesn't return soft deleted items)
         default_request = ParsedRequest()
         cursor = app.data.find(resource, default_request, lookup)
         for document in list(cursor):
-            document_id = document[app.config['ID_FIELD']]
+            document_id = document[resource_def['id_field']]
             deleteitem_internal(resource, concurrency_check=False,
                                 suppress_callbacks=True, _id=document_id)
     else:
@@ -204,7 +208,7 @@ def delete(resource, **lookup):
 
         # TODO: should attempt to delete version collection even if setting is
         # off
-        if app.config['DOMAIN'][resource]['versioning'] is True:
+        if resource_def['versioning'] is True:
             app.data.remove(resource + config.VERSIONS, lookup)
 
     getattr(app, "on_deleted_resource")(resource)

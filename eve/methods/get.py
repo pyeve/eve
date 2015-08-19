@@ -261,8 +261,9 @@ def getitem(resource, **lookup):
 
     if version == 'all' or version == 'diffs':
         # find all versions
-        lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
-        del lookup[app.config['ID_FIELD']]
+        lookup[versioned_id_field(resource_def)] \
+            = lookup[resource_def['id_field']]
+        del lookup[resource_def['id_field']]
         if version == 'diffs' or req.sort is None:
             # default sort for 'all', required sort for 'diffs'
             req.sort = '[("%s", 1)]' % config.VERSION
@@ -324,13 +325,13 @@ def getitem(resource, **lookup):
             count = cursor.count(with_limit_and_skip=False)
             response[config.LINKS] = \
                 _pagination_links(resource, req, count,
-                                  latest_doc[config.ID_FIELD])
+                                  latest_doc[resource_def['id_field']])
             if config.DOMAIN[resource]['pagination']:
                 response[config.META] = _meta_links(req, count)
         else:
             response[config.LINKS] = \
                 _pagination_links(resource, req, None,
-                                  response[config.ID_FIELD])
+                                  response[resource_def['id_field']])
 
     # callbacks not supported on version diffs because of partial documents
     if version != 'diffs':

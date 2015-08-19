@@ -145,7 +145,8 @@ class Validator(Validator):
 
             # exclude current document
             if self._id:
-                query[config.ID_FIELD] = {'$ne': self._id}
+                id_field = config.DOMAIN[self.resource]['id_field']
+                query[id_field] = {'$ne': self._id}
 
             # we perform the check on the native mongo driver (and not on
             # app.data.find_one()) because in this case we don't want the usual

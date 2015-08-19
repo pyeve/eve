@@ -118,12 +118,12 @@ def put_internal(resource, payload=None, concurrency_check=False,
     original = get_document(resource, concurrency_check, **lookup)
     if not original:
         if config.UPSERT_ON_PUT:
-            id = lookup[config.ID_FIELD]
+            id = lookup[resource_def['id_field']]
             # this guard avoids a bson dependency, which would be needed if we
             # wanted to use 'isinstance'. Should also be slightly faster.
-            if schema[config.ID_FIELD].get('type', '') == 'objectid':
+            if schema[resource_def['id_field']].get('type', '') == 'objectid':
                 id = str(id)
-            payload[config.ID_FIELD] = id
+            payload[resource_def['id_field']] = id
             return post_internal(resource, payl=payload)
         else:
             abort(404)
@@ -131,7 +131,7 @@ def put_internal(resource, payload=None, concurrency_check=False,
     last_modified = None
     etag = None
     issues = {}
-    object_id = original[config.ID_FIELD]
+    object_id = original[resource_def['id_field']]
 
     response = {}
 
@@ -163,11 +163,11 @@ def put_internal(resource, payload=None, concurrency_check=False,
                 # status, or restoring a soft deleted document
                 document[config.DELETED] = False
 
-            # ID_FIELD not in document means it is not being automatically
+            # id_field not in document means it is not being automatically
             # handled (it has been set to a field which exists in the
             # resource schema.
-            if config.ID_FIELD not in document:
-                document[config.ID_FIELD] = object_id
+            if resource_def['id_field'] not in document:
+                document[resource_def['id_field']] = object_id
 
             resolve_user_restricted_access(document, resource)
             resolve_default_values(document, resource_def['defaults'])
