@@ -253,7 +253,7 @@ class TestGet(TestBase):
             self.assertFalse('location' in r)
             self.assertFalse('role' in r)
             self.assertTrue('prog' in r)
-            self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.domain[self.known_resource]['id_field'] in r)
             self.assertTrue(self.app.config['ETAG'] in r)
             self.assertTrue(self.app.config['LAST_UPDATED'] in r)
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
@@ -271,7 +271,7 @@ class TestGet(TestBase):
             self.assertFalse('prog' in r)
             self.assertTrue('location' in r)
             self.assertTrue('role' in r)
-            self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.domain[self.known_resource]['id_field'] in r)
             self.assertTrue(self.app.config['ETAG'] in r)
             self.assertTrue(self.app.config['LAST_UPDATED'] in r)
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
@@ -306,7 +306,7 @@ class TestGet(TestBase):
             self.assertFalse('city' in r['location'])
             self.assertFalse('role' in r)
             self.assertFalse('prog' in r)
-            self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.domain[self.known_resource]['id_field'] in r)
             self.assertTrue(self.app.config['ETAG'] in r)
             self.assertTrue(self.app.config['LAST_UPDATED'] in r)
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
@@ -323,7 +323,7 @@ class TestGet(TestBase):
         # fields are returned anyway since no schema = return all fields
         for r in resource:
             self.assertTrue('location' in r)
-            self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.domain[self.known_resource]['id_field'] in r)
             self.assertTrue(self.app.config['LAST_UPDATED'] in r)
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
 
@@ -836,9 +836,9 @@ class TestGet(TestBase):
         self.assertEqual(json.loads(r.get_data())['_items'], [])
 
     def test_get_idfield_doesnt_exist(self):
-        # test that a non-existing ID_FIELD will be silently handled when
+        # test that a non-existing id field will be silently handled when
         # building HATEOAS document link (#351).
-        self.app.config['ID_FIELD'] = 'id'
+        self.domain[self.known_resource]['id_field'] = 'id'
         response, status = self.get(self.known_resource)
         self.assert200(status)
 
@@ -1204,7 +1204,7 @@ class TestGetItem(TestBase):
         self.assertFalse('location' in r)
         self.assertFalse('role' in r)
         self.assertTrue('prog' in r)
-        self.assertTrue(self.app.config['ID_FIELD'] in r)
+        self.assertTrue(self.domain[self.known_resource]['id_field'] in r)
         self.assertTrue(self.app.config['ETAG'] in r)
         self.assertTrue(self.app.config['LAST_UPDATED'] in r)
         self.assertTrue(self.app.config['DATE_CREATED'] in r)
@@ -1218,7 +1218,7 @@ class TestGetItem(TestBase):
         self.assertFalse('prog' in r)
         self.assertTrue('location' in r)
         self.assertTrue('role' in r)
-        self.assertTrue(self.app.config['ID_FIELD'] in r)
+        self.assertTrue(self.domain[self.known_resource]['id_field'] in r)
         self.assertTrue(self.app.config['ETAG'] in r)
         self.assertTrue(self.app.config['LAST_UPDATED'] in r)
         self.assertTrue(self.app.config['DATE_CREATED'] in r)
@@ -1288,7 +1288,8 @@ class TestEvents(TestBase):
         # Would normally return a 404; will return one instead.
         r, s = self.parse_response(self.get_item())
         self.assert200(s)
-        self.assertEqual(r[self.app.config['ID_FIELD']], self.item_id)
+        self.assertEqual(r[self.domain[self.known_resource]['id_field']],
+                         self.item_id)
 
     def test_on_pre_GET_resource_for_item(self):
         self.app.on_pre_GET_contacts += self.devent
@@ -1376,17 +1377,15 @@ class TestEvents(TestBase):
         self.app.on_fetched_item += self.devent
         self.get_item()
         self.assertEqual('contacts', self.devent.called[0])
-        self.assertEqual(
-            self.item_id,
-            str(self.devent.called[1][self.app.config['ID_FIELD']]))
+        id_field = self.domain[self.known_resource]['id_field']
+        self.assertEqual(self.item_id, str(self.devent.called[1][id_field]))
         self.assertEqual(2, len(self.devent.called))
 
     def test_on_fetched_item_contacts(self):
         self.app.on_fetched_item_contacts += self.devent
         self.get_item()
-        self.assertEqual(
-            self.item_id,
-            str(self.devent.called[0][self.app.config['ID_FIELD']]))
+        id_field = self.domain[self.known_resource]['id_field']
+        self.assertEqual(self.item_id, str(self.devent.called[0][id_field]))
         self.assertEqual(1, len(self.devent.called))
 
     def get_resource(self):

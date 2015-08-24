@@ -17,10 +17,11 @@ class TestVersioningBase(TestBase):
 
         super(TestVersioningBase, self).setUp()
 
+        self.id_field = self.domain[self.known_resource]['id_field']
         self.version_field = self.app.config['VERSION']
         self.latest_version_field = self.app.config['LATEST_VERSION']
-        self.document_id_field = self.app.config['ID_FIELD'] + \
-            self.app.config['VERSION_ID_SUFFIX']
+        self.document_id_field = (self.id_field +
+                                  self.app.config['VERSION_ID_SUFFIX'])
         self.known_resource_shadow = self.known_resource + \
             self.app.config['VERSIONS']
 
@@ -58,7 +59,7 @@ class TestVersioningBase(TestBase):
             }
         }
         if custom_field is None:
-            field['schema'][self.app.config['ID_FIELD']] = {'type': 'objectid'}
+            field['schema'][self.id_field] = {'type': 'objectid'}
         else:
             field['schema'][custom_field] = {'type': custom_field_type}
             field['data_relation']['field'] = custom_field
@@ -109,7 +110,7 @@ class TestVersioningBase(TestBase):
     def countDocuments(self, _id=None):
         query = {}
         if _id is not None:
-            query[self.app.config['ID_FIELD']] = ObjectId(_id)
+            query[self.id_field] = ObjectId(_id)
 
         documents = self._db[self.known_resource].find(query)
         return documents.count()
@@ -145,7 +146,7 @@ class TestNormalVersioning(TestVersioningBase):
     def insertTestData(self):
         contact, status = self.post(self.known_resource_url, data=self.item)
         self.assert201(status)
-        self.item_id = contact[self.app.config['ID_FIELD']]
+        self.item_id = contact[self.id_field]
         self.item_etag = contact[ETAG]
         self.item_id_url = ('/%s/%s' %
                             (self.domain[self.known_resource]['url'],
@@ -178,9 +179,9 @@ class TestNormalVersioning(TestVersioningBase):
         self.assertTrue(shadow_document[self.version_field] == version)
         self.assertTrue(self.document_id_field in shadow_document)
         self.assertEqual(
-            document[self.app.config['ID_FIELD']],
+            document[self.id_field],
             shadow_document[self.document_id_field])
-        self.assertTrue(self.app.config['ID_FIELD'] in shadow_document)
+        self.assertTrue(self.id_field in shadow_document)
         self.assertTrue(self.app.config['LAST_UPDATED'] in shadow_document)
         self.assertTrue(self.app.config['ETAG'] in shadow_document)
 
@@ -209,7 +210,7 @@ class TestNormalVersioning(TestVersioningBase):
 
     def do_test_get(self):
         query = '?where={"%s":"%s"}' % \
-            (self.app.config['ID_FIELD'], self.item_id)
+            (self.id_field, self.item_id)
         response, status = self.get(self.known_resource, query=query)
         response = response[self.app.config['ITEMS']][0]
 
@@ -260,7 +261,7 @@ class TestNormalVersioning(TestVersioningBase):
         response, status = self.post(
             self.known_resource_url, data=self.item_change)
         self.assert201(status)
-        _id = response[self.app.config['ID_FIELD']]
+        _id = response[self.id_field]
         self.assertPrimaryAndShadowDocuments(_id, 1, partial=partial)
 
         document = self.directGetDocument(_id)
@@ -364,7 +365,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         as it would if it were accessed explicitly.
         """
         meta_fields = self.fields + [
-            self.app.config['ID_FIELD'],
+            self.id_field,
             self.app.config['LAST_UPDATED'], self.app.config['ETAG'],
             self.app.config['DATE_CREATED'], self.app.config['LINKS'],
             self.version_field, self.latest_version_field]
@@ -440,7 +441,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertEqual(self.known_resource, devent.called[0])
         self.assertEqual(
             self.item_id,
-            str(devent.called[1][self.app.config['ID_FIELD']]))
+            str(devent.called[1][self.id_field]))
         self.assertEqual(2, len(devent.called))
 
         # check for ?version=all requests
@@ -451,7 +452,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertEqual(self.known_resource, devent.called[0])
         self.assertEqual(
             self.item_id,
-            str(devent.called[1][self.app.config['ID_FIELD']]))
+            str(devent.called[1][self.id_field]))
         self.assertEqual(2, len(devent.called))
 
         # check for ?version=diffs requests
@@ -471,7 +472,7 @@ class TestCompleteVersioning(TestNormalVersioning):
                                     query='?version=1')
         self.assertEqual(
             self.item_id,
-            str(devent.called[0][self.app.config['ID_FIELD']]))
+            str(devent.called[0][self.id_field]))
         self.assertEqual(1, len(devent.called))
 
         # check for ?version=all requests
@@ -481,7 +482,7 @@ class TestCompleteVersioning(TestNormalVersioning):
                                     query='?version=all')
         self.assertEqual(
             self.item_id,
-            str(devent.called[0][self.app.config['ID_FIELD']]))
+            str(devent.called[0][self.id_field]))
         self.assertEqual(1, len(devent.called))
 
         # check for ?version=diffs requests
@@ -498,7 +499,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         subsequent documents are simply diff to the previous version.
         """
         meta_fields = self.fields + [
-            self.app.config['ID_FIELD'],
+            self.id_field,
             self.app.config['LAST_UPDATED'], self.app.config['ETAG'],
             self.app.config['DATE_CREATED'], self.app.config['LINKS'],
             self.version_field, self.latest_version_field]
@@ -690,7 +691,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertValidationErrorStatus(status)
         expected = ("value '%s' must exist in resource '%s', field '%s'" %
                     (self.unknown_item_id, 'contacts',
-                     self.app.config['ID_FIELD']))
+                     self.id_field))
         self.assertValidationError(r, {'person': expected})
 
         data = {"person": self.item_id}
@@ -919,7 +920,7 @@ class TestVersionedDataRelation(TestNormalVersioning):
         # and response should include embedded v1
         response, status = self.get(
             self.domain['invoices']['url'],
-            item=r[self.app.config['ID_FIELD']],
+            item=r[self.id_field],
             query='?embedded={"person": 1}')
         self.assert200(status)
         self.assertEqual(response['person'].get(version_field), 1)
@@ -931,7 +932,7 @@ class TestVersionedDataRelation(TestNormalVersioning):
         # and response should include embedded v2
         response, status = self.get(
             self.domain['invoices']['url'],
-            item=r[self.app.config['ID_FIELD']],
+            item=r[self.id_field],
             query='?embedded={"person": 1}')
         self.assert200(status)
         self.assertEqual(response['person'].get(version_field), 2)
@@ -985,8 +986,7 @@ class TestVersionedDataRelation(TestNormalVersioning):
             item=invoice_id, query='?embedded={"person": 1}')
         self.assert200(status)
 
-        self.assertEqual(response['person'].get(
-            self.app.config['ID_FIELD']), self.item_id)
+        self.assertEqual(response['person'].get(self.id_field), self.item_id)
         self.assertEqual(response['person'].get(
             self.app.config['ETAG']), self.item_etag)
         self.assertEqual(response['person'].get(self.version_field), 1)
@@ -1061,7 +1061,7 @@ class TestVersionedDataRelationCustomField(TestNormalVersioning):
         # and response should include embedded v1
         response, status = self.get(
             self.domain['invoices']['url'],
-            item=r[self.app.config['ID_FIELD']],
+            item=r[self.id_field],
             query='?embedded={"person": 1}')
         self.assert200(status)
         self.assertEqual(response['person'].get(self.version_field), 1)
@@ -1099,7 +1099,7 @@ class TestVersionedDataRelationUnversionedField(TestNormalVersioning):
         # and response should include embedded v1
         response, status = self.get(
             self.domain['invoices']['url'],
-            item=r[self.app.config['ID_FIELD']],
+            item=r[self.id_field],
             query='?embedded={"person": 1}')
         self.assert200(status)
         self.assertEqual(response['person'].get(self.version_field), 1)
@@ -1326,7 +1326,7 @@ class TestLateVersioning(TestVersioningBase):
 class TestVersioningWithCustomIdField(TestNormalVersioning):
     def setUp(self):
         super(TestVersioningWithCustomIdField, self).setUp()
-        self.domain['contacts']['schema'][self.app.config['ID_FIELD']] = {
+        self.domain[self.known_resource]['schema'][self.id_field] = {
             'type': 'string',
         }
         self.enableVersioning()
