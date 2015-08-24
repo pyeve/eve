@@ -172,6 +172,14 @@ class TestDelete(TestBase):
                                        headers=headers)
         self.assert204(status)
 
+    def test_delete_custom_idfield(self):
+        response, status = self.get('products?max_results=1')
+        product = response['_items'][0]
+        headers = [('If-Match', product[ETAG])]
+        response, status = self.delete('products/%s' % product['sku'],
+                                       headers=headers)
+        self.assert204(status)
+
     def test_deleteitem_internal(self):
         # test that deleteitem_internal is available and working properly.
         with self.app.test_request_context(self.item_id_url):

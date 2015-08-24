@@ -422,26 +422,31 @@ class TestPost(TestBase):
         self.assertTrue(ETAG not in r)
 
     def test_post_custom_idfield(self):
-        # test that we can post a document with a custom id_field
-        id_field = 'id'
-        test_value = '1234'
-        data = {id_field: test_value}
-
-        self.app.config['ID_FIELD'] = id_field
-        self.domain['contacts']['id_field'] = id_field
-
-        # custom id_fields also need to be included in the resource schema
-        self.domain['contacts']['schema'][id_field] = {
-            'type': 'string',
-            'required': True,
-            'unique': True
-        }
-        del(self.domain['contacts']['schema']['ref']['required'])
-
-        r, status = self.post(self.known_resource_url, data=data)
+        # Test that we can post a document with a custom id_field.
+        id_field = 'sku'
+        product = {id_field: 'FOO', 'title': 'Foobar'}
+        r, status = self.post('products', data=product)
         self.assert201(status)
         self.assertTrue(id_field in r)
         self.assertItemLink(r['_links'], r[id_field])
+
+    def test_post_with_relation_to_custom_idfield(self):
+        # Test that we can post a document that relates to a resource with a
+        # custom id_field.
+        id_field = 'sku'
+        db = self.connection[MONGO_DBNAME]
+        existing_product = db.products.find_one()
+        product = {
+            id_field: 'BAR',
+            'title': 'Foobar',
+            'parent_product': existing_product[id_field]
+        }
+        r, status = self.post('products', data=product)
+        self.assert201(status)
+        self.assertTrue(id_field in r)
+        self.assertItemLink(r['_links'], r[id_field])
+        r, status = self.get('products', item='BAR')
+        self.assertEqual(r['parent_product'], existing_product[id_field])
 
     def test_post_bandwidth_saver(self):
         data = {'inv_number': self.random_string(10)}
