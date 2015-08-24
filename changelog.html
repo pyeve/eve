@@ -58,6 +58,9 @@
 <div class="section" id="version-0-6">
 <h3>Version 0.6<a class="headerlink" href="#version-0-6" title="Permalink to this headline">¶</a></h3>
 <ul>
+<li><p class="first">Changed: <tt class="docutils literal"><span class="pre">on_updated</span></tt> returns the whole updated document. Previously, it
+was only returning the updates sent with the request. Closes #682.</p>
+</li>
 <li><p class="first">Fix: some error message are not filtered out of debug mode anymore, as they
 are useful for users and do not leak informations. Closes #671 (Sebastien
 Estienne).</p>

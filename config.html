@@ -238,12 +238,13 @@ by resource settings. Defaults to <tt class="docutils literal"><span class="pre"
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ITEM_METHODS</span></tt></td>
 <td>A list of HTTP methods supported at item
 endpoints. Allowed values: <tt class="docutils literal"><span class="pre">GET</span></tt>,
-<tt class="docutils literal"><span class="pre">PATCH</span></tt> and <tt class="docutils literal"><span class="pre">DELETE</span></tt>. <tt class="docutils literal"><span class="pre">PATCH</span></tt> or, for
-clients not supporting PATCH, <tt class="docutils literal"><span class="pre">POST</span></tt> with
-the <tt class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></tt> header tag,
-is used for item updates; <tt class="docutils literal"><span class="pre">DELETE</span></tt> for
-item deletion. Can be overridden by
-resource settings. Defaults to <tt class="docutils literal"><span class="pre">['GET']</span></tt>.</td>
+<tt class="docutils literal"><span class="pre">PATCH</span></tt>, <tt class="docutils literal"><span class="pre">PUT</span></tt> and <tt class="docutils literal"><span class="pre">DELETE</span></tt>. <tt class="docutils literal"><span class="pre">PATCH</span></tt>
+or, for clients not supporting PATCH,
+<tt class="docutils literal"><span class="pre">POST</span></tt> with the <tt class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></tt>
+header tag, is used for item updates;
+<tt class="docutils literal"><span class="pre">DELETE</span></tt> for item deletion. Can be
+overridden by resource settings. Defaults to
+<tt class="docutils literal"><span class="pre">['GET']</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></tt></td>
 <td>A list of HTTP methods supported at item
@@ -883,10 +884,10 @@ endpoint, open to public access even when
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">item_methods</span></tt></td>
 <td>A list of HTTP methods supported at item
-endpoint. Allowed values: <tt class="docutils literal"><span class="pre">GET</span></tt>, <tt class="docutils literal"><span class="pre">PATCH</span></tt>
-and <tt class="docutils literal"><span class="pre">DELETE</span></tt>. <tt class="docutils literal"><span class="pre">PATCH</span></tt> or, for clients not
-supporting PATCH, <tt class="docutils literal"><span class="pre">POST</span></tt> with the
-<tt class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></tt> header tag.
+endpoint. Allowed values: <tt class="docutils literal"><span class="pre">GET</span></tt>, <tt class="docutils literal"><span class="pre">PATCH</span></tt>,
+<tt class="docutils literal"><span class="pre">PUT</span></tt> and <tt class="docutils literal"><span class="pre">DELETE</span></tt>. <tt class="docutils literal"><span class="pre">PATCH</span></tt> or, for
+clients not supporting PATCH, <tt class="docutils literal"><span class="pre">POST</span></tt> with
+the <tt class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></tt> header tag.
 Locally overrides <tt class="docutils literal"><span class="pre">ITEM_METHODS</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">public_item_methods</span></tt></td>
