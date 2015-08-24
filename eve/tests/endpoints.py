@@ -64,7 +64,7 @@ class TestCustomConverters(TestMinimal):
             'item_methods': ['GET', 'PATCH', 'PUT', 'DELETE'],
             'item_url': 'uuid',
             'schema': {
-                '_id': {'type': 'uuid'},
+                '_id': {'type': 'uuid', 'unique': True},
                 'name': {'type': 'string'}
             }
         }

@@ -54,9 +54,20 @@ class Validator(Validator):
         self.resource = resource
         self._id = None
         self._original_document = None
+        schema = self._remove_unique_rules_on_fields_with_unique_index(schema)
         super(Validator, self).__init__(schema)
         if resource:
             self.allow_unknown = config.DOMAIN[resource]['allow_unknown']
+
+    def _remove_unique_rules_on_fields_with_unique_index(self, schema):
+        # TODO: Actually do what the function name suggests. This version just
+        # removes the unique constraint on _id. We could use the information
+        # available by app.data.driver.db[datasource].index_information() to
+        # remove all unnecessary unique constraints.
+        result = copy.deepcopy(schema)
+        if '_id' in result and 'unique' in result['_id']:
+            del(result['_id']['unique'])
+        return result
 
     def validate_update(self, document, _id, original_document=None):
         """ Validate method to be invoked when performing an update, not an
