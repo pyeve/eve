@@ -64,6 +64,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.6
+       on_updated returns the updated document (#682).
        Allow restoring soft deleted documents via PATCH
 
     .. versionchanged:: 0.5
@@ -208,8 +209,8 @@ def patch_internal(resource, payload=None, concurrency_check=False,
             insert_versioning_documents(resource, updated)
 
             # nofity callbacks
-            getattr(app, "on_updated")(resource, updates, original)
-            getattr(app, "on_updated_%s" % resource)(updates, original)
+            getattr(app, "on_updated")(resource, updated, original)
+            getattr(app, "on_updated_%s" % resource)(updated, original)
 
             # build the full response document
             build_response_document(
