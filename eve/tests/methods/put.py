@@ -5,7 +5,7 @@ from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
 from eve.tests.utils import DummyEvent
 
-from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES, STATUS, ETAG
+from eve import STATUS_OK, LAST_UPDATED, ISSUES, STATUS, ETAG
 from eve.methods.put import put_internal
 
 
@@ -78,13 +78,13 @@ class TestPut(TestBase):
         self.assertValidationErrorStatus(status)
         expected = ("value '%s' must exist in resource '%s', field '%s'" %
                     (self.unknown_item_id, 'contacts',
-                     self.app.config['ID_FIELD']))
+                     self.domain['contacts']['id_field']))
         self.assertValidationError(r, {'person': expected})
 
         data = {"person": self.item_id}
         r, status = self.put(self.invoice_id_url, data=data, headers=headers)
         self.assert200(status)
-        self.assertPutResponse(r, self.invoice_id)
+        self.assertPutResponse(r, self.invoice_id, 'invoices')
 
     def test_put_referential_integrity_list(self):
         data = {"invoicing_contacts": [self.item_id, self.unknown_item_id]}
@@ -93,13 +93,13 @@ class TestPut(TestBase):
         self.assertValidationErrorStatus(status)
         expected = ("value '%s' must exist in resource '%s', field '%s'" %
                     (self.unknown_item_id, 'contacts',
-                     self.app.config['ID_FIELD']))
+                     self.domain['contacts']['id_field']))
         self.assertValidationError(r, {'invoicing_contacts': expected})
 
         data = {"invoicing_contacts": [self.item_id, self.item_id]}
         r, status = self.put(self.invoice_id_url, data=data, headers=headers)
         self.assert200(status)
-        self.assertPutResponse(r, self.invoice_id)
+        self.assertPutResponse(r, self.invoice_id, 'invoices')
 
     def test_put_write_concern_success(self):
         # 0 and 1 are the only valid values for 'w' on our mongod instance (1
@@ -191,7 +191,7 @@ class TestPut(TestBase):
                                     (fake_contact_id, self.invoice_id),
                                     data=data, headers=headers)
         self.assert200(status)
-        self.assertPutResponse(response, self.invoice_id)
+        self.assertPutResponse(response, self.invoice_id, 'peopleinvoices')
         self.assertEqual(response.get('person'), str(fake_contact_id))
 
     def test_put_bandwidth_saver(self):
@@ -278,12 +278,12 @@ class TestPut(TestBase):
     def test_put_creates_unexisting_document(self):
         id = str(ObjectId())
         url = '%s/%s' % (self.known_resource_url, id)
-        id_field = self.app.config['ID_FIELD']
+        id_field = self.domain[self.known_resource]['id_field']
         changes = {"ref": "1234567890123456789012345"}
         r, status = self.put(url, data=changes)
         # 201 is a creation (POST) response
         self.assert201(status)
-        # new document has ID_FIELD matching the PUT endpoint
+        # new document has id_field matching the PUT endpoint
         self.assertEqual(r[id_field], str(id))
 
     def test_put_returns_404_on_unexisting_document(self):
@@ -297,19 +297,19 @@ class TestPut(TestBase):
     def test_put_creates_unexisting_document_with_url_as_id(self):
         id = str(ObjectId())
         url = '%s/%s' % (self.known_resource_url, id)
-        id_field = self.app.config['ID_FIELD']
+        id_field = self.domain[self.known_resource]['id_field']
         changes = {"ref": "1234567890123456789012345",
                    id_field: str(ObjectId())}
         r, status = self.put(url, data=changes)
         # 201 is a creation (POST) response
         self.assert201(status)
-        # new document has ID_FIELD matching the PUT endpoint
-        # (eventual mismatching ID_FIELD in the payload is ignored/replaced)
+        # new document has id_field matching the PUT endpoint
+        # (eventual mismatching id_field in the payload is ignored/replaced)
         self.assertEqual(r[id_field], str(id))
 
     def test_put_creates_unexisting_document_fails_on_mismatching_id(self):
         id = str(ObjectId())
-        id_field = self.app.config['ID_FIELD']
+        id_field = self.domain[self.known_resource]['id_field']
         changes = {"ref": "1234567890123456789012345", id_field: id}
         r, status = self.put(self.item_id_url,
                              data=changes,
@@ -325,12 +325,13 @@ class TestPut(TestBase):
         self.assertPutResponse(r, self.item_id)
         return r
 
-    def assertPutResponse(self, response, item_id):
+    def assertPutResponse(self, response, item_id, resource=None):
+        id_field = self.domain[resource or self.known_resource]['id_field']
         self.assertTrue(STATUS in response)
         self.assertTrue(STATUS_OK in response[STATUS])
         self.assertFalse(ISSUES in response)
-        self.assertTrue(ID_FIELD in response)
-        self.assertEqual(response[ID_FIELD], item_id)
+        self.assertTrue(id_field in response)
+        self.assertEqual(response[id_field], item_id)
         self.assertTrue(LAST_UPDATED in response)
         self.assertTrue(ETAG in response)
         self.assertTrue('_links' in response)

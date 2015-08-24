@@ -397,8 +397,8 @@ class TestUserRestrictedAccess(TestBase):
         """ To test handling of ObjectIds
         """
         # set auth_field to `_id`
-        self.app.config['DOMAIN']['users'][self.field_name] = \
-            self.app.config['ID_FIELD']
+        self.domain['users'][self.field_name] = \
+            self.domain['users']['id_field']
 
         _, status = self.parse_response(
             self.test_client.get(self.user_id_url,

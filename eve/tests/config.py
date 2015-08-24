@@ -159,8 +159,9 @@ class TestConfig(TestBase):
         schema = self.domain['invoices']['schema']
         data_relation = schema['person']['data_relation']
         self.assertTrue('field' in data_relation)
-        self.assertEqual(data_relation['field'], self.app.config['ID_FIELD'])
-        id_field = self.app.config['ID_FIELD']
+        self.assertEqual(data_relation['field'],
+                         self.domain['contacts']['id_field'])
+        id_field = self.domain['invoices']['id_field']
         self.assertTrue(id_field in schema)
         self.assertEqual(schema[id_field], {'type': 'objectid'})
 
@@ -240,7 +241,7 @@ class TestConfig(TestBase):
         datasource = self.domain[resource]['datasource']
         schema = self.domain[resource]['schema']
         compare = [key for key in datasource['projection'] if key in schema]
-        compare.extend([self.app.config['ID_FIELD'],
+        compare.extend([self.domain[resource]['id_field'],
                         self.app.config['LAST_UPDATED'],
                         self.app.config['DATE_CREATED'],
                         self.app.config['ETAG']])

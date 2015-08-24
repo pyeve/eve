@@ -4,8 +4,7 @@ from eve.tests import TestBase
 from eve.tests.utils import DummyEvent
 from eve.tests.test_settings import MONGO_DBNAME
 
-from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, DATE_CREATED, ISSUES, \
-    STATUS, ETAG
+from eve import STATUS_OK, LAST_UPDATED, DATE_CREATED, ISSUES, STATUS, ETAG
 from eve.methods.post import post
 from eve.methods.post import post_internal
 
@@ -189,10 +188,11 @@ class TestPost(TestBase):
         self.assertValidationError(results[3], {'ref': 'unique'})
         self.assertValidationError(results[4], {'tid': 'ObjectId'})
 
-        self.assertTrue(ID_FIELD not in results[0])
-        self.assertTrue(ID_FIELD not in results[1])
-        self.assertTrue(ID_FIELD not in results[2])
-        self.assertTrue(ID_FIELD not in results[3])
+        id_field = self.domain[self.known_resource]['id_field']
+        self.assertTrue(id_field not in results[0])
+        self.assertTrue(id_field not in results[1])
+        self.assertTrue(id_field not in results[2])
+        self.assertTrue(id_field not in results[3])
 
         with self.app.test_request_context():
             contacts = self.app.data.driver.db['contacts']
@@ -217,7 +217,7 @@ class TestPost(TestBase):
         self.assertValidationErrorStatus(status)
         expected = ("value '%s' must exist in resource '%s', field '%s'" %
                     (self.unknown_item_id, 'contacts',
-                     self.app.config['ID_FIELD']))
+                     self.domain['contacts']['id_field']))
         self.assertValidationError(r, {'person': expected})
 
         data = {"person": self.item_id}
@@ -231,7 +231,7 @@ class TestPost(TestBase):
         self.assertValidationErrorStatus(status)
         expected = ("value '%s' must exist in resource '%s', field '%s'" %
                     (self.unknown_item_id, 'contacts',
-                     self.app.config['ID_FIELD']))
+                     self.domain['contacts']['id_field']))
         self.assertValidationError(r, {'invoicing_contacts': expected})
 
         data = {"invoicing_contacts": [self.item_id, self.item_id]}
@@ -259,7 +259,7 @@ class TestPost(TestBase):
 
         # test that the unknown field is also returned with subsequent get
         # requests
-        id = r[self.app.config['ID_FIELD']]
+        id = r[self.domain[self.known_resource]['id_field']]
         r = self.test_client.get('%s/%s' % (self.known_resource_url, id))
         r_data = json.loads(r.get_data())
         self.assertTrue('unknown' in r_data)
@@ -291,7 +291,7 @@ class TestPost(TestBase):
         r, status = self.post('login', data=data)
         self.assert201(status)
 
-        login_id = r[self.app.config['ID_FIELD']]
+        login_id = r[self.domain['login']['id_field']]
         r = self.test_client.get('%s/%s' % ('login', login_id))
         r_data = json.loads(r.get_data())
         self.assertTrue('password' not in r_data)
@@ -394,7 +394,7 @@ class TestPost(TestBase):
         self.assert201(status)
         self.assertPostResponse(response)
 
-        invoice_id = response.get(self.app.config['ID_FIELD'])
+        invoice_id = response.get(self.domain['peopleinvoices']['id_field'])
         response, status = self.get('users/%s/invoices/%s' %
                                     (self.item_id, invoice_id))
         self.assert200(status)
@@ -406,7 +406,7 @@ class TestPost(TestBase):
         self.assert201(status)
         self.assertPostResponse(response)
 
-        invoice_id = response.get(self.app.config['ID_FIELD'])
+        invoice_id = response.get(self.domain['required_invoices']['id_field'])
         response, status = self.get('users/%s/required_invoices/%s' %
                                     (self.item_id, invoice_id))
         self.assert200(status)
@@ -459,7 +459,8 @@ class TestPost(TestBase):
         self.assertFalse('inv_number' in r)
         etag = r[self.app.config['ETAG']]
         r, status = self.get(
-            self.empty_resource, '', r[self.app.config['ID_FIELD']])
+            self.empty_resource, '',
+            r[self.domain[self.empty_resource]['id_field']])
         self.assertEqual(etag, r[self.app.config['ETAG']])
 
         # test return all fields (bandwidth_saver off)
@@ -470,7 +471,8 @@ class TestPost(TestBase):
         self.assertTrue('inv_number' in r)
         etag = r[self.app.config['ETAG']]
         r, status = self.get(
-            self.empty_resource, '', r[self.app.config['ID_FIELD']])
+            self.empty_resource, '',
+            r[self.domain[self.empty_resource]['id_field']])
         self.assertEqual(etag, r[self.app.config['ETAG']])
 
     def test_post_alternative_payload(self):
@@ -622,7 +624,8 @@ class TestPost(TestBase):
                 'location.address': 'a nested address'}
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
-        values = self.compare_post_with_get(r[ID_FIELD], ['location']).pop()
+        values = self.compare_post_with_get(
+            r[self.domain[self.known_resource]['id_field']], ['location']).pop()
         self.assertEqual(values['city'], 'a nested city')
         self.assertEqual(values['address'], 'a nested address')
 
@@ -636,9 +639,9 @@ class TestPost(TestBase):
         self.assertTrue(isinstance(error, list))
 
     def test_id_field_included_with_document(self):
-        # since v0.6 we also allow ID_FIELD to be included with the POSTed
+        # since v0.6 we also allow the id field to be included with the POSTed
         # document
-        id_field = self.app.config['ID_FIELD']
+        id_field = self.domain[self.known_resource]['id_field']
         id = '55b2340538345bd048100ffe'
         data = {"ref": "1234567890123456789054321", id_field: id}
         r, status = self.post(self.known_resource_url, data=data)
@@ -654,36 +657,39 @@ class TestPost(TestBase):
 
     def assertPostItem(self, data, test_field, test_value):
         r = self.perform_post(data)
-        item_id = r[ID_FIELD]
+        item_id = r[self.domain[self.known_resource]['id_field']]
         item_etag = r[ETAG]
         db_value = self.compare_post_with_get(item_id, [test_field, ETAG])
         self.assertTrue(db_value[0] == test_value)
         self.assertTrue(db_value[1] == item_etag)
 
-    def assertPostResponse(self, response, valid_items=[0], id_field=ID_FIELD):
+    def assertPostResponse(self, response, valid_items=[0], resource=None):
         if '_items' in response:
             results = response['_items']
         else:
             results = [response]
+
+        id_field = self.domain[resource or self.known_resource]['id_field']
 
         for i in valid_items:
             item = results[i]
             self.assertTrue(STATUS in item)
             self.assertTrue(STATUS_OK in item[STATUS])
             self.assertFalse(ISSUES in item)
-            self.assertTrue(ID_FIELD in item)
+            self.assertTrue(id_field in item)
             self.assertTrue(LAST_UPDATED in item)
             self.assertTrue('_links' in item)
-            self.assertItemLink(item['_links'], item[ID_FIELD])
+            self.assertItemLink(item['_links'], item[id_field])
             self.assertTrue(ETAG in item)
 
     def compare_post_with_get(self, item_id, fields):
         raw_r = self.test_client.get("%s/%s" % (self.known_resource_url,
                                                 item_id))
         item, status = self.parse_response(raw_r)
+        id_field = self.domain[self.known_resource]['id_field']
         self.assert200(status)
-        self.assertTrue(ID_FIELD in item)
-        self.assertTrue(item[ID_FIELD] == item_id)
+        self.assertTrue(id_field in item)
+        self.assertTrue(item[id_field] == item_id)
         self.assertTrue(DATE_CREATED in item)
         self.assertTrue(LAST_UPDATED in item)
         self.assertEqual(item[DATE_CREATED], item[LAST_UPDATED])
