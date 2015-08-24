@@ -236,6 +236,11 @@ class TestPut(TestBase):
                              headers=[('If-Match', self.item_etag)])
         self.assert200(status)
 
+    def test_put_custom_idfield(self):
+        product = {'title': 'Awesome Hypercube'}
+        r, status = self.put('products/FOOBAR', data=product)
+        self.assert201(status)
+
     def test_put_internal(self):
         # test that put_internal is available and working properly.
         test_field = 'ref'

@@ -589,6 +589,15 @@ class TestPatch(TestBase):
         self.assert400(status)
         self.assertTrue('immutable' in r['_error']['message'])
 
+    def test_patch_custom_idfield(self):
+        response, status = self.get('products?max_results=1')
+        product = response['_items'][0]
+        headers = [('If-Match', product[ETAG])]
+        data = {'title': 'Awesome product'}
+        r, status = self.patch('products/%s' % product['sku'], data=data,
+                               headers=headers)
+        self.assert200(status)
+
     def assertPatchResponse(self, response, item_id):
         self.assertTrue(STATUS in response)
         self.assertTrue(STATUS_OK in response[STATUS])

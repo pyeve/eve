@@ -344,6 +344,7 @@ class TestConfig(TestBase):
         del(self.domain['peoplerequiredinvoices'])
         del(self.domain['peoplesearches'])
         del(self.domain['internal_transactions'])
+        del(self.domain['child_products'])
         for _, settings in self.domain.items():
             for method in settings['resource_methods']:
                 self.assertTrue(map_adapter.test('/%s/' % settings['url'],
@@ -375,6 +376,18 @@ class TestConfig(TestBase):
         resource = 'resource'
         settings = {
             'auth_field': self.app.config['ID_FIELD'],
+        }
+        self.assertRaises(ConfigException, self.app.register_resource,
+                          resource, settings)
+
+    def test_auth_field_as_custom_idfield(self):
+        resource = 'resource'
+        settings = {
+            'schema': {
+                'id': {'type': 'string'}
+            },
+            'id_field': 'id',
+            'auth_field': 'id'
         }
         self.assertRaises(ConfigException, self.app.register_resource,
                           resource, settings)

@@ -427,7 +427,7 @@ class TestGet(TestBase):
 
         for item in resource:
             # 'user' title instead of original 'contact'
-            self.assertItem(item)
+            self.assertItem(item, self.different_resource)
 
         etag = item.get(self.app.config['ETAG'])
         self.assertTrue(etag is not None)
@@ -447,7 +447,7 @@ class TestGet(TestBase):
         self.assert200(status)
         resource = response['_items']
         self.assertEqual(len(resource), 1)
-        self.assertItem(resource[0])
+        self.assertItem(resource[0], self.known_resource)
 
     def test_get_where_allowed_filters(self):
         self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
@@ -892,6 +892,35 @@ class TestGet(TestBase):
         items = response['_items']
         self.assertEqual(1, len(items))
 
+    def test_get_custom_idfield(self):
+        response, status = self.get('products')
+        self.assert200(status)
+        links = response['_links']
+        self.assertEqual(2, len(links))
+        self.assertHomeLink(links)
+        self.assertResourceLink(links, 'products')
+        items = response['_items']
+        self.assertEqual(2, len(items))
+        for item in items:
+            self.assertItem(item, 'products')
+
+    def test_get_subresource_with_custom_idfield(self):
+        db = self.connection[MONGO_DBNAME]
+        parent_product_sku = db.products.find_one()['sku']
+        product = {
+            'sku': 'BAZ',
+            'title': 'Child product',
+            'parent_product': parent_product_sku
+        }
+        db.products.insert(product)
+        response, status = self.get('products/%s/children' %
+                                    parent_product_sku)
+        self.assert200(status)
+        self.assertEqual(len(response['_items']), 1)
+        self.assertEqual(len(response['_links']), 2)
+        self.assertEqual(response['_items'][0]['parent_product'],
+                         parent_product_sku)
+
     def assertGet(self, response, status, resource=None):
         self.assert200(status)
 
@@ -907,7 +936,7 @@ class TestGet(TestBase):
         self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
 
         for item in resource:
-            self.assertItem(item)
+            self.assertItem(item, self.known_resource)
 
         etag = item.get(self.app.config['ETAG'])
         self.assertTrue(etag is not None)
@@ -915,15 +944,14 @@ class TestGet(TestBase):
 
 class TestGetItem(TestBase):
 
-    def assertItemResponse(self, response, status,
-                           resource=None):
+    def assertItemResponse(self, response, status, resource=None):
         self.assert200(status)
         self.assertTrue(self.app.config['ETAG'] in response)
         links = response['_links']
         self.assertEqual(len(links), 3)
         self.assertHomeLink(links)
         self.assertCollectionLink(links, resource or self.known_resource)
-        self.assertItem(response)
+        self.assertItem(response, resource or self.known_resource)
 
     def test_disallowed_getitem(self):
         _, status = self.get(self.empty_resource, item=self.item_id)
@@ -1207,6 +1235,12 @@ class TestGetItem(TestBase):
         self.assert201(status)
         response, status = self.get('ids', item='507c7f79bcf86cd7994f6c0e')
         self.assert200(status)
+
+    def test_getitem_with_custom_idfield(self):
+        _db = self.connection[MONGO_DBNAME]
+        sku = _db.products.find()[0]['sku']
+        response, status = self.get('products', item=sku)
+        self.assertItemResponse(response, status, 'products')
 
 
 class TestHead(TestBase):
