@@ -283,7 +283,8 @@ uppercase.
 ``ID_FIELD``                        Name of the field used to uniquely identify
                                     resource items within the database. You
                                     want this field to be properly indexed on
-                                    the database.  Defaults to ``_id``. 
+                                    the database. Can be overridden by resource
+                                    settings. Defaults to ``_id``.
 
 ``ITEM_LOOKUP``                     ``True`` if item endpoints should be generally 
                                     available across the API, ``False``
@@ -788,6 +789,10 @@ always lowercase.
                                 always be included, regardless of the setting
                                 of ``CACHE_CONTROL``. Locally overrides
                                 ``CACHE_EXPIRES``.
+
+``id_field``                    Field used to uniquely identify resource items
+                                within the database. Locally overrides
+                                ``ID_FIELD``.
 
 ``item_lookup``                 ``True`` if item endpoint should be available, 
                                 ``False`` otherwise. Locally overrides
