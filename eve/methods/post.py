@@ -181,6 +181,9 @@ def post_internal(resource, payl=None, skip_validation=False):
             else:
                 validation = validator.validate(document)
             if validation:  # validation is successful
+                # Apply coerced values
+                document = validator.document
+
                 # Populate meta and default fields
                 document[config.LAST_UPDATED] = \
                     document[config.DATE_CREATED] = date_utc

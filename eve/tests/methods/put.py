@@ -317,6 +317,16 @@ class TestPut(TestBase):
         self.assert400(status)
         self.assertTrue('immutable' in r['_error']['message'])
 
+    def test_put_type_coercion(self):
+        schema = self.domain[self.known_resource]['schema']
+        schema['aninteger']['coerce'] = lambda string: int(float(string))
+        changes = {'ref': '1234567890123456789054321', 'aninteger': '42.3'}
+        r, status = self.put(self.item_id_url, data=changes,
+                             headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+        r, status = self.get(r['_links']['self']['href'])
+        self.assertEqual(r['aninteger'], 42)
+
     def perform_put(self, changes):
         r, status = self.put(self.item_id_url,
                              data=changes,
