@@ -804,12 +804,13 @@ class Mongo(DataLayer):
         # for other database implementations.
 
         auth = None
-        if resource is None and request and request.endpoint:
-            try:
+        try:
+            if resource is None and request and request.endpoint:
                 resource = request.endpoint[:request.endpoint.index('|')]
+            if request and request.endpoint:
                 auth = resource_auth(resource)
-            except ValueError:
-                pass
+        except ValueError:
+            pass
 
         px = auth.get_mongo_prefix() if auth else None
         if px is None:
