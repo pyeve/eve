@@ -117,9 +117,9 @@ contacts = {
         'key1': {
             'type': 'string',
         },
-        'keyschema_dict': {
+        'propertyschema_dict': {
             'type': 'dict',
-            'keyschema': {'type': 'integer'}
+            'propertyschema': {'type': 'string', 'regex': '[a-z]+'}
         },
         'valueschema_dict': {
             'type': 'dict',

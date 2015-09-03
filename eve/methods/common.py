@@ -376,17 +376,9 @@ def serialize(document, resource=None, schema=None, fields=None):
                             document[field][i] = \
                                 app.data.serializers[field_type](
                                     document[field][i])
-                elif 'keyschema' in field_schema or 'valueschema' in \
-                        field_schema:
+                elif 'valueschema' in field_schema:
                     # a valueschema
-
-                    # TODO use only valueschema once keyschema is removed
-                    # from cerberus (currently deprecated).
-                    try:
-                        field_type = field_schema['keyschema']['type']
-                    except KeyError:
-                        field_type = field_schema['valueschema']['type']
-
+                    field_type = field_schema['valueschema']['type']
                     if field_type == 'objectid':
                         target = document[field]
                         for field in target:

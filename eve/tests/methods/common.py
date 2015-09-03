@@ -32,9 +32,6 @@ class TestSerializer(TestBase):
             'date': {'type': 'datetime'},
             'count': {'type': 'integer'},
             'average': {'type': 'float'},
-            'dict_keyschema': {
-                'keyschema': {'type': 'objectid'}
-            },
             'dict_valueschema': {
                 'valueschema': {'type': 'objectid'}
             }
@@ -47,10 +44,6 @@ class TestSerializer(TestBase):
                     'date': 'Tue, 06 Nov 2012 10:33:31 GMT',
                     'count': 42,
                     'average': 42.42,
-                    'dict_keyschema': {
-                        'foo1': '50656e4538345b39dd0414f0',
-                        'foo2': '50656e4538345b39dd0414f0',
-                    },
                     'dict_valueschema': {
                         'foo1': '50656e4538345b39dd0414f0',
                         'foo2': '50656e4538345b39dd0414f0',
@@ -62,10 +55,6 @@ class TestSerializer(TestBase):
             self.assertTrue(isinstance(res['date'], datetime))
             self.assertTrue(isinstance(res['count'], int))
             self.assertTrue(isinstance(res['average'], float))
-
-            ks = res['dict_keyschema']
-            self.assertTrue(isinstance(ks['foo1'], ObjectId))
-            self.assertTrue(isinstance(ks['foo2'], ObjectId))
 
             ks = res['dict_valueschema']
             self.assertTrue(isinstance(ks['foo1'], ObjectId))
