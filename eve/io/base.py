@@ -30,6 +30,9 @@ class BaseJSONEncoder(json.JSONEncoder):
             # should not happen since the only supported date-like format
             # supported at dmain schema level is 'datetime' .
             return obj.isoformat()
+        elif isinstance(obj, set):
+            # convert set objects to encodable lists
+            return list(obj)
         return json.JSONEncoder.default(self, obj)
 
 

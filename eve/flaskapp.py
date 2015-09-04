@@ -22,7 +22,8 @@ from werkzeug.serving import WSGIRequestHandler
 import eve
 from eve.defaults import build_defaults
 from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint, \
-    error_endpoint, media_endpoint
+    error_endpoint, media_endpoint, schema_collection_endpoint, \
+    schema_item_endpoint
 from eve.exceptions import ConfigException, SchemaException
 from eve.io.mongo import Mongo, Validator, GridFSMediaStorage, create_index
 from eve.logging import RequestFilter
@@ -155,6 +156,7 @@ class Eve(Flask, Events):
 
         self._init_url_rules()
         self._init_media_endpoint()
+        self._init_schema_endpoint()
 
         if self.config['OPLOG'] is True:
             self._init_oplog()
@@ -889,3 +891,19 @@ class Eve(Flask, Events):
                                             self.config['MEDIA_URL'])
             self.add_url_rule(media_url, 'media',
                               view_func=media_endpoint, methods=['GET'])
+
+    def _init_schema_endpoint(self):
+        """Configures the schema endpoint if set in configuration.
+        """
+        endpoint = self.config['SCHEMA_ENDPOINT']
+
+        if endpoint:
+            schema_url = '%s/%s' % (self.api_prefix, endpoint)
+            # add schema collections url
+            self.add_url_rule(schema_url, 'schema_collection',
+                              view_func=schema_collection_endpoint,
+                              methods=['GET'])
+            # add schema item url
+            self.add_url_rule(schema_url + '/<resource>', 'schema_item',
+                              view_func=schema_item_endpoint,
+                              methods=['GET'])

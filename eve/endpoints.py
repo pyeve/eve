@@ -14,7 +14,7 @@
 from bson import tz_util
 from flask import abort, request, current_app as app, Response
 
-from eve.auth import requires_auth
+from eve.auth import requires_auth, resource_auth
 from eve.methods import get, getitem, post, patch, delete, deleteitem, put
 from eve.methods.common import ratelimit
 from eve.render import send_response
@@ -139,6 +139,9 @@ def home_endpoint():
                     links.append({'href': '%s' % config.URLS[resource],
                                   'title': '%s' %
                                   config.DOMAIN[resource]['resource_title']})
+        if config.SCHEMA_ENDPOINT is not None:
+            links.append({'href': '%s' % config.SCHEMA_ENDPOINT,
+                          'title': '%s' % config.SCHEMA_ENDPOINT})
 
         response[config.LINKS] = {'child': links}
         return send_response(None, (response,))
@@ -193,3 +196,43 @@ def media_endpoint(_id):
                         direct_passthrough=True)
 
     return response
+
+
+@requires_auth('resource')
+def schema_item_endpoint(resource):
+    """ This endpoint is active when SCHEMA_ENDPOINT != None. It returns the
+    requested resource's schema definition in JSON format.
+    """
+    resource_config = app.config['DOMAIN'].get(resource)
+    if not resource_config or resource_config.get('internal_resource') is True:
+        return abort(404)
+
+    return send_response(None, (resource_config['schema'],))
+
+
+@requires_auth('home')
+def schema_collection_endpoint():
+    """ This endpoint is active when SCHEMA_ENDPOINT != None. It returns the
+    schema definition for all public or request authenticated resources in
+    JSON format.
+    """
+    schemas = {}
+    for resource_name, resource_config in app.config['DOMAIN'].items():
+        # skip versioned shadow collections
+        if resource_name.endswith(config.VERSIONS):
+            continue
+        # skip internal resources
+        internal = resource_config.get('internal_resource', False)
+        if internal:
+            continue
+        # skip resources for which request does not have read authorization
+        auth = resource_auth(resource_name)
+        if auth and request.method not in resource_config['public_methods']:
+            roles = list(resource_config['allowed_roles'])
+            roles += resource_config['allowed_read_roles']
+            if not auth.authorized(roles, resource_name, request.method):
+                continue
+        # otherwise include this resource in domain wide schema response
+        schemas[resource_name] = resource_config['schema']
+
+    return send_response(None, (schemas,))

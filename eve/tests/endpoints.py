@@ -303,3 +303,36 @@ class TestEndPoints(TestBase):
         self.assert405(status_code)
         _, status_code = self.delete('/oplog')
         self.assert405(status_code)
+
+    def test_schema_endpoint(self):
+        known_schema_path = '/schema/%s' % self.known_resource
+
+        r = self.test_client.get(known_schema_path)
+        self.assert404(r.status_code)
+
+        self.app.config['SCHEMA_ENDPOINT'] = 'schema'
+        self.app._init_schema_endpoint()
+        r = self.test_client.get(known_schema_path)
+        self.assert200(r.status_code)
+        self.assertEqual(r.mimetype, 'application/json')
+        self.assertEqual(
+            json.loads(r.data),
+            self.app.config['DOMAIN'][self.known_resource]['schema'])
+
+        r = self.test_client.get('/schema/%s' % self.unknown_resource)
+        self.assert404(r.status_code)
+
+        # schema endpoint doesn't reveal internal resources
+        r = self.test_client.get('/schema/internal_transactions')
+        self.assert404(r.status_code)
+
+        # schema endpoint is read-only
+        data = {'field': 'value'}
+        _, status_code = self.patch(known_schema_path, data)
+        self.assert405(status_code)
+        _, status_code = self.put(known_schema_path, data)
+        self.assert405(status_code)
+        _, status_code = self.post(known_schema_path, data)
+        self.assert405(status_code)
+        _, status_code = self.delete(known_schema_path)
+        self.assert405(status_code)
