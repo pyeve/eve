@@ -22,6 +22,7 @@
        'SOFT_DELETE' added and set to False.
        'DELETED' added and set to '_deleted'.
        'SHOW_DELETED_PARAM' added and set to 'show_deleted'.
+       'SCHEMA_ENDPOINT' added and set to None
 
     .. versionchanged:: 0.5
        'SERVER_NAME' removed.
@@ -185,6 +186,8 @@ RETURN_MEDIA_AS_URL = False
 MEDIA_ENDPOINT = 'media'
 MEDIA_URL = 'regex("[a-f0-9]{24}")'
 MEDIA_BASE_URL = None
+
+SCHEMA_ENDPOINT = None
 
 # list of extra fields to be included with every POST response. This list
 # should not include the 'standard' fields (ID_FIELD, LAST_UPDATED,

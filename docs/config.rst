@@ -588,6 +588,9 @@ uppercase.
                                     and document changes are also logged to the
                                     :ref:`oplog`. Defaults to ``True``.
 
+``SCHEMA_ENDPOINT``                 Name of the :ref:`schema_endpoint`. Defaults
+                                    to ``None``.
+
 ``HEADER_TOTAL_COUNT``              Custom header containing total count of 
                                     items in response payloads for collection
                                     ``GET`` requests. This is handy for ``HEAD``

@@ -113,6 +113,14 @@ class TestBasicAuth(TestBase):
         r = self.test_client.delete(self.item_id_url, headers=self.valid_auth)
         self.assert403(r.status_code)
 
+    def test_authorized_schema_access(self):
+        self.app.config['SCHEMA_ENDPOINT'] = 'schema'
+        self.app._init_schema_endpoint()
+
+        r = self.test_client.get('/schema/%s' % self.known_resource,
+                                 headers=self.valid_auth)
+        self.assert200(r.status_code)
+
     def test_unauthorized_home_access(self):
         r = self.test_client.get('/', headers=self.invalid_auth)
         self.assert401(r.status_code)
@@ -135,6 +143,14 @@ class TestBasicAuth(TestBase):
         self.assert401(r.status_code)
         r = self.test_client.delete(self.item_id_url,
                                     headers=self.invalid_auth)
+        self.assert401(r.status_code)
+
+    def test_unauthorized_schema_access(self):
+        self.app.config['SCHEMA_ENDPOINT'] = 'schema'
+        self.app._init_schema_endpoint()
+
+        r = self.test_client.get('/schema/%s' % self.known_resource,
+                                 headers=self.invalid_auth)
         self.assert401(r.status_code)
 
     def test_home_public_methods(self):
