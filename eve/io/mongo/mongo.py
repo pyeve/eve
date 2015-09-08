@@ -803,14 +803,14 @@ class Mongo(DataLayer):
         # eve.io.media.MediaStorage interface, possibly breaking compatibility
         # for other database implementations.
 
-        resource, auth = None, None
-        if request.endpoint:
-            try:
-                if resource is None:
-                    resource = request.endpoint[:request.endpoint.index('|')]
+        auth = None
+        try:
+            if resource is None and request and request.endpoint:
+                resource = request.endpoint[:request.endpoint.index('|')]
+            if request and request.endpoint:
                 auth = resource_auth(resource)
-            except ValueError:
-                pass
+        except ValueError:
+            pass
 
         px = auth.get_mongo_prefix() if auth else None
         if px is None:
