@@ -9,6 +9,8 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- New: ``id_field`` sets a field used to uniquely identify resource items
+  within the database. Locally overrides ``ID_FIELD`` (Dominik Kellner).
 - Changed: ``on_updated`` returns the whole updated document. Previously, it
   was only returning the updates sent with the request. Closes #682.
 - Fix: some error message are not filtered out of debug mode anymore, as they
