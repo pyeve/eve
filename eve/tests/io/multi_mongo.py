@@ -9,7 +9,7 @@ import eve
 from eve.auth import BasicAuth
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO1_PASSWORD, MONGO1_USERNAME, \
-    MONGO1_DBNAME, ID_FIELD, MONGO_DBNAME
+    MONGO1_DBNAME, MONGO_DBNAME
 
 
 class TestMultiMongo(TestBase):
@@ -69,20 +69,23 @@ class TestMultiMongo(TestBase):
 class TestMethodsAcrossMultiMongo(TestMultiMongo):
     def test_get_multidb(self):
         # test that a GET on 'works' reads from MONGO1
-        r, s = self.get('works/%s' % self.work[ID_FIELD])
+        id_field = self.domain['works']['id_field']
+        r, s = self.get('works/%s' % self.work[id_field])
         self.assert200(s)
         self.assertEqual(r['author'], self.work['author'])
 
         # while 'contacts' endpoint reads from MONGO
+        id_field = self.domain['contacts']['id_field']
         r, s = self.get(self.known_resource, item=self.item_id)
         self.assert200(s)
-        self.assertEqual(r[ID_FIELD], self.item_id)
+        self.assertEqual(r[id_field], self.item_id)
 
     def test_post_multidb(self):
         # test that a POST on 'works' stores data to MONGO1
         work = self._save_work()
         db = self.connection[MONGO1_DBNAME]
-        new = db.works.find_one({ID_FIELD: ObjectId(work[ID_FIELD])})
+        id_field = self.domain['works']['id_field']
+        new = db.works.find_one({id_field: ObjectId(work[id_field])})
         self.assertTrue(new is not None)
         self.connection.close()
 
@@ -91,14 +94,16 @@ class TestMethodsAcrossMultiMongo(TestMultiMongo):
         r, s = self.post(self.known_resource_url, data=contact)
         self.assert201(s)
         db = self.connection[MONGO_DBNAME]
-        new = db.contacts.find_one({ID_FIELD: ObjectId(r[ID_FIELD])})
+        id_field = self.domain['contacts']['id_field']
+        new = db.contacts.find_one({id_field: ObjectId(r[id_field])})
         self.assertTrue(new is not None)
         self.connection.close()
 
     def test_patch_multidb(self):
         # test that a PATCH on 'works' udpates data on MONGO1
         work = self._save_work()
-        id, etag = work[ID_FIELD], work[eve.ETAG]
+        id_field = self.domain['works']['id_field']
+        id, etag = work[id_field], work[eve.ETAG]
         changes = {'author': 'mike'}
 
         headers = [('Content-Type', 'application/json'), ('If-Match', etag)]
@@ -107,7 +112,7 @@ class TestMethodsAcrossMultiMongo(TestMultiMongo):
         self.assert200(r.status_code)
 
         db = self.connection[MONGO1_DBNAME]
-        updated = db.works.find_one({ID_FIELD: ObjectId(id)})
+        updated = db.works.find_one({id_field: ObjectId(id)})
         self.assertEqual(updated['author'], 'mike')
         self.connection.close()
 
@@ -116,19 +121,21 @@ class TestMethodsAcrossMultiMongo(TestMultiMongo):
         changes = {field: value}
         headers = [('Content-Type', 'application/json'), ('If-Match',
                                                           self.item_etag)]
+        id_field = self.domain['contacts']['id_field']
         r = self.test_client.patch(self.item_id_url, data=json.dumps(changes),
                                    headers=headers)
         self.assert200(r.status_code)
 
         db = self.connection[MONGO_DBNAME]
-        updated = db.contacts.find_one({ID_FIELD: ObjectId(self.item_id)})
+        updated = db.contacts.find_one({id_field: ObjectId(self.item_id)})
         self.assertEqual(updated[field], value)
         self.connection.close()
 
     def test_put_multidb(self):
         # test that a PUT on 'works' udpates data on MONGO1
         work = self._save_work()
-        id, etag = work[ID_FIELD], work[eve.ETAG]
+        id_field = self.domain['works']['id_field']
+        id, etag = work[id_field], work[eve.ETAG]
         changes = {'author': 'mike', 'title': 'Eve for dummies'}
 
         headers = [('Content-Type', 'application/json'), ('If-Match', etag)]
@@ -137,7 +144,7 @@ class TestMethodsAcrossMultiMongo(TestMultiMongo):
         self.assert200(r.status_code)
 
         db = self.connection[MONGO1_DBNAME]
-        updated = db.works.find_one({ID_FIELD: ObjectId(id)})
+        updated = db.works.find_one({id_field: ObjectId(id)})
         self.assertEqual(updated['author'], 'mike')
         self.connection.close()
 
@@ -146,24 +153,26 @@ class TestMethodsAcrossMultiMongo(TestMultiMongo):
         changes = {field: value}
         headers = [('Content-Type', 'application/json'), ('If-Match',
                                                           self.item_etag)]
+        id_field = self.domain['contacts']['id_field']
         r = self.test_client.put(self.item_id_url, data=json.dumps(changes),
                                  headers=headers)
         self.assert200(r.status_code)
 
         db = self.connection[MONGO_DBNAME]
-        updated = db.contacts.find_one({ID_FIELD: ObjectId(self.item_id)})
+        updated = db.contacts.find_one({id_field: ObjectId(self.item_id)})
         self.assertEqual(updated[field], value)
         self.connection.close()
 
     def test_delete_multidb(self):
         # test that DELETE on 'works' deletes data on MONGO1
         work = self._save_work()
-        id, etag = work[ID_FIELD], work[eve.ETAG]
+        id_field = self.domain['works']['id_field']
+        id, etag = work[id_field], work[eve.ETAG]
         r = self.test_client.delete('works/%s' % id, headers=[('If-Match',
                                                                etag)])
         self.assert204(r.status_code)
         db = self.connection[MONGO1_DBNAME]
-        lost = db.works.find_one({ID_FIELD: ObjectId(id)})
+        lost = db.works.find_one({id_field: ObjectId(id)})
         self.assertEqual(lost, None)
         self.connection.close()
 
@@ -172,7 +181,8 @@ class TestMethodsAcrossMultiMongo(TestMultiMongo):
                                     headers=[('If-Match', self.item_etag)])
         self.assert204(r.status_code)
         db = self.connection[MONGO_DBNAME]
-        lost = db.contacts.find_one({ID_FIELD: ObjectId(self.item_id)})
+        id_field = self.domain['contacts']['id_field']
+        lost = db.contacts.find_one({id_field: ObjectId(self.item_id)})
         self.assertEqual(lost, None)
         self.connection.close()
 
@@ -197,7 +207,8 @@ class TestMultiMongoAuth(TestMultiMongo):
         headers = [('Authorization', 'Basic YWRtaW46c2VjcmV0')]
 
         # this will 404 since there's no 'works' collection on MONGO,
-        r = self.test_client.get('works/%s' % self.work[ID_FIELD],
+        id_field = self.domain['works']['id_field']
+        r = self.test_client.get('works/%s' % self.work[id_field],
                                  headers=headers)
         self.assert404(r.status_code)
 
@@ -206,7 +217,7 @@ class TestMultiMongoAuth(TestMultiMongo):
 
         # this will 200 just fine as the custom auth class has precedence over
         # endpoint configuration.
-        r = self.test_client.get('works/%s' % self.work[ID_FIELD],
+        r = self.test_client.get('works/%s' % self.work[id_field],
                                  headers=headers)
         self.assert200(r.status_code)
         # test that we are indeed reading from the correct database instance.

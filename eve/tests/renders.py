@@ -263,6 +263,7 @@ class TestRenders(TestBase):
         del(self.domain['peoplerequiredinvoices'])
         del(self.domain['peoplesearches'])
         del(self.domain['internal_transactions'])
+        del(self.domain['child_products'])
         for _, settings in self.app.config['DOMAIN'].items():
             # resource endpoint
             url = '%s/%s/' % (prefix, settings['url'])

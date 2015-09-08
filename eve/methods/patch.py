@@ -138,7 +138,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
     if not skip_validation:
         validator = app.validator(schema, resource)
 
-    object_id = original[config.ID_FIELD]
+    object_id = original[resource_def['id_field']]
     last_modified = None
     etag = None
 

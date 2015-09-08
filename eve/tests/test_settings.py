@@ -256,6 +256,32 @@ login = {
     }
 }
 
+# This resource is used to test resource-specific id fields.
+products = {
+    'id_field': 'sku',
+    'item_lookup_field': 'sku',
+    'item_url': 'regex("[A-Z]+")',
+    'schema': {
+        'sku': {
+            'type': 'string',
+            'maxlength': 16,
+            'unique': True
+        },
+        'title': {
+            'type': 'string',
+            'minlength': 4,
+            'maxlength': 32
+        },
+        'parent_product': {
+            'type': 'string',
+            'data_relation': {'resource': 'products'}
+        }
+    }
+}
+child_products = copy.deepcopy(products)
+child_products['url'] = 'products/<regex("[A-Z]+"):parent_product>/children'
+child_products['datasource'] = {'source': 'products'}
+
 DOMAIN = {
     'contacts': contacts,
     'users': users,
@@ -272,5 +298,7 @@ DOMAIN = {
     'companies': companies,
     'internal_transactions': internal_transactions,
     'ids': ids,
-    'login': login
+    'login': login,
+    'products': products,
+    'child_products': child_products
 }

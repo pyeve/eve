@@ -154,6 +154,7 @@ class TestBasicAuth(TestBase):
         del(domain['peoplerequiredinvoices'])
         del(domain['peoplesearches'])
         del(domain['internal_transactions'])
+        del(domain['child_products'])
         for resource in domain:
             url = self.app.config['URLS'][resource]
             r = self.test_client.get(url)
@@ -396,8 +397,8 @@ class TestUserRestrictedAccess(TestBase):
         """ To test handling of ObjectIds
         """
         # set auth_field to `_id`
-        self.app.config['DOMAIN']['users'][self.field_name] = \
-            self.app.config['ID_FIELD']
+        self.domain['users'][self.field_name] = \
+            self.domain['users']['id_field']
 
         _, status = self.parse_response(
             self.test_client.get(self.user_id_url,

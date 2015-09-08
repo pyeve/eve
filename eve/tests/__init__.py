@@ -192,7 +192,7 @@ class TestMinimal(unittest.TestCase):
         self.assert304(r.status_code)
         self.assertTrue(not r.get_data())
 
-    def assertItem(self, item):
+    def assertItem(self, item, resource):
         self.assertEqual(type(item), dict)
 
         updated_on = item.get(self.app.config['LAST_UPDATED'])
@@ -212,7 +212,7 @@ class TestMinimal(unittest.TestCase):
                       (self.app.config['DATE_CREATED'], e))
 
         link = item.get('_links')
-        _id = item.get(self.app.config['ID_FIELD'])
+        _id = item.get(self.domain[resource]['id_field'])
         self.assertItemLink(link, _id)
 
     def assertPagination(self, response, page, total, max_results):
@@ -365,7 +365,7 @@ class TestBase(TestMinimal):
         response, _ = self.get('contacts', '?max_results=2')
         contact = self.response_item(response)
         self.item = contact
-        self.item_id = contact[self.app.config['ID_FIELD']]
+        self.item_id = contact[self.domain['contacts']['id_field']]
         self.item_name = contact['ref']
         self.item_tid = contact['tid']
         self.item_etag = contact[ETAG]
@@ -385,7 +385,7 @@ class TestBase(TestMinimal):
 
         response, _ = self.get('users')
         user = self.response_item(response)
-        self.user_id = user[self.app.config['ID_FIELD']]
+        self.user_id = user[self.domain['users']['id_field']]
         self.user_username = user['username']
         self.user_name = user['ref']
         self.user_etag = user[ETAG]
@@ -399,7 +399,7 @@ class TestBase(TestMinimal):
 
         response, _ = self.get('invoices')
         invoice = self.response_item(response)
-        self.invoice_id = invoice[self.app.config['ID_FIELD']]
+        self.invoice_id = invoice[self.domain['invoices']['id_field']]
         self.invoice_etag = invoice[ETAG]
         self.invoice_id_url = ('/%s/%s' %
                                (self.domain['invoices']['url'],
@@ -472,6 +472,19 @@ class TestBase(TestMinimal):
             invoices.append(invoice)
         return invoices
 
+    def random_products(self, num):
+        schema = DOMAIN['products']['schema']
+        products = []
+        for _ in range(num):
+            products.append(
+                {
+                    'sku': self.random_string(schema['sku']['maxlength']),
+                    'title': ("Hypercube " + self.random_string(2) +
+                              str(random.randint(100, 1000)))
+                }
+            )
+        return products
+
     def random_string(self, num):
         return (''.join(random.choice(string.ascii_uppercase)
                         for x in range(num)))
@@ -514,4 +527,5 @@ class TestBase(TestMinimal):
         _db.payments.insert(self.random_payments(10))
         _db.invoices.insert(self.random_invoices(1))
         _db.internal_transactions.insert(self.random_internal_transactions(4))
+        _db.products.insert(self.random_products(2))
         self.connection.close()

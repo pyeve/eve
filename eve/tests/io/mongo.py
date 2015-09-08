@@ -6,7 +6,6 @@ from datetime import datetime
 from eve.io.mongo.parser import parse, ParseError
 from eve.io.mongo import Validator, Mongo, MongoJSONEncoder
 from eve.tests import TestBase
-from eve.utils import config
 from eve.tests.test_settings import MONGO_DBNAME
 import simplejson as json
 
@@ -282,6 +281,30 @@ class TestMongoValidator(TestCase):
         v = Validator(schema)
         self.assertTrue(v.validate(doc))
 
+    def test_removal_of_unnecessary_unique_constraints(self):
+        schema = {
+            '_id': {
+                'type': 'objectid',
+                'unique': True
+            },
+            'foo': {
+                'type': 'string',
+                'minlength': 2
+            }
+        }
+        expected_schema = {
+            '_id': {
+                'type': 'objectid'
+            },
+            'foo': {
+                'type': 'string',
+                'minlength': 2
+            }
+        }
+        v = Validator(schema)
+        schema = v._remove_unique_rules_on_fields_with_unique_index(schema)
+        self.assertEqual(expected_schema, schema)
+
 
 class TestMongoDriver(TestBase):
 
@@ -302,31 +325,27 @@ class TestMongoDriver(TestBase):
 
     def test_get_value_from_query(self):
         mongo = Mongo(None)
-        simple_query = {config.ID_FIELD: 'abcdef012345678901234567'}
+        simple_query = {'_id': 'abcdef012345678901234567'}
         compound_query = {'$and': [
             {'username': {'$exists': False}},
-            {config.ID_FIELD: 'abcdef012345678901234567'}
+            {'_id': 'abcdef012345678901234567'}
         ]}
-        self.assertEqual(mongo.get_value_from_query(simple_query,
-                                                    config.ID_FIELD),
+        self.assertEqual(mongo.get_value_from_query(simple_query, '_id'),
                          'abcdef012345678901234567')
-        self.assertEqual(mongo.get_value_from_query(compound_query,
-                                                    config.ID_FIELD),
+        self.assertEqual(mongo.get_value_from_query(compound_query, '_id'),
                          'abcdef012345678901234567')
 
     def test_query_contains_field(self):
         mongo = Mongo(None)
-        simple_query = {config.ID_FIELD: 'abcdef012345678901234567'}
+        simple_query = {'_id': 'abcdef012345678901234567'}
         compound_query = {'$and': [
             {'username': {'$exists': False}},
-            {config.ID_FIELD: 'abcdef012345678901234567'}
+            {'_id': 'abcdef012345678901234567'}
         ]}
-        self.assertTrue(mongo.query_contains_field(simple_query,
-                                                   config.ID_FIELD))
+        self.assertTrue(mongo.query_contains_field(simple_query, '_id'))
         self.assertFalse(mongo.query_contains_field(simple_query,
                                                     'fake-field'))
-        self.assertTrue(mongo.query_contains_field(compound_query,
-                                                   config.ID_FIELD))
+        self.assertTrue(mongo.query_contains_field(compound_query, '_id'))
         self.assertFalse(mongo.query_contains_field(compound_query,
                                                     'fake-field'))
 

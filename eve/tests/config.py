@@ -159,10 +159,12 @@ class TestConfig(TestBase):
         schema = self.domain['invoices']['schema']
         data_relation = schema['person']['data_relation']
         self.assertTrue('field' in data_relation)
-        self.assertEqual(data_relation['field'], self.app.config['ID_FIELD'])
-        id_field = self.app.config['ID_FIELD']
+        self.assertEqual(data_relation['field'],
+                         self.domain['contacts']['id_field'])
+        id_field = self.domain['invoices']['id_field']
         self.assertTrue(id_field in schema)
-        self.assertEqual(schema[id_field], {'type': 'objectid'})
+        self.assertEqual(schema[id_field],
+                         {'type': 'objectid', 'unique': True})
 
     def test_set_defaults(self):
         self.domain.clear()
@@ -240,7 +242,7 @@ class TestConfig(TestBase):
         datasource = self.domain[resource]['datasource']
         schema = self.domain[resource]['schema']
         compare = [key for key in datasource['projection'] if key in schema]
-        compare.extend([self.app.config['ID_FIELD'],
+        compare.extend([self.domain[resource]['id_field'],
                         self.app.config['LAST_UPDATED'],
                         self.app.config['DATE_CREATED'],
                         self.app.config['ETAG']])
@@ -344,6 +346,7 @@ class TestConfig(TestBase):
         del(self.domain['peoplerequiredinvoices'])
         del(self.domain['peoplesearches'])
         del(self.domain['internal_transactions'])
+        del(self.domain['child_products'])
         for _, settings in self.domain.items():
             for method in settings['resource_methods']:
                 self.assertTrue(map_adapter.test('/%s/' % settings['url'],
@@ -375,6 +378,18 @@ class TestConfig(TestBase):
         resource = 'resource'
         settings = {
             'auth_field': self.app.config['ID_FIELD'],
+        }
+        self.assertRaises(ConfigException, self.app.register_resource,
+                          resource, settings)
+
+    def test_auth_field_as_custom_idfield(self):
+        resource = 'resource'
+        settings = {
+            'schema': {
+                'id': {'type': 'string'}
+            },
+            'id_field': 'id',
+            'auth_field': 'id'
         }
         self.assertRaises(ConfigException, self.app.register_resource,
                           resource, settings)

@@ -172,6 +172,14 @@ class TestDelete(TestBase):
                                        headers=headers)
         self.assert204(status)
 
+    def test_delete_custom_idfield(self):
+        response, status = self.get('products?max_results=1')
+        product = response['_items'][0]
+        headers = [('If-Match', product[ETAG])]
+        response, status = self.delete('products/%s' % product['sku'],
+                                       headers=headers)
+        self.assert204(status)
+
     def test_deleteitem_internal(self):
         # test that deleteitem_internal is available and working properly.
         with self.app.test_request_context(self.item_id_url):
@@ -521,7 +529,7 @@ class TestSoftDelete(TestDelete):
         })
         data, status = self.parse_response(r)
         self.assert201(status)
-        new_item_id = data[self.app.config['ID_FIELD']]
+        new_item_id = data[self.domain[self.known_resource]['id_field']]
         new_item_etag = data[self.app.config['ETAG']]
 
         with self.app.test_request_context():
@@ -683,30 +691,30 @@ class TestDeleteEvents(TestBase):
         self.app.on_delete_item += devent
         self.delete_item()
         self.assertEqual('contacts', devent.called[0])
-        self.assertEqual(
-            self.item_id, str(devent.called[1][self.app.config['ID_FIELD']]))
+        id_field = self.domain['contacts']['id_field']
+        self.assertEqual(self.item_id, str(devent.called[1][id_field]))
 
     def test_on_delete_item_contacts(self):
         devent = DummyEvent(self.before_delete)
         self.app.on_delete_item_contacts += devent
         self.delete_item()
-        self.assertEqual(
-            self.item_id, str(devent.called[0][self.app.config['ID_FIELD']]))
+        id_field = self.domain['contacts']['id_field']
+        self.assertEqual(self.item_id, str(devent.called[0][id_field]))
 
     def test_on_deleted_item(self):
         devent = DummyEvent(self.after_delete)
         self.app.on_deleted_item += devent
         self.delete_item()
         self.assertEqual('contacts', devent.called[0])
-        self.assertEqual(
-            self.item_id, str(devent.called[1][self.app.config['ID_FIELD']]))
+        id_field = self.domain['contacts']['id_field']
+        self.assertEqual(self.item_id, str(devent.called[1][id_field]))
 
     def test_on_deleted_item_contacts(self):
         devent = DummyEvent(self.after_delete)
         self.app.on_deleted_item_contacts += devent
         self.delete_item()
-        self.assertEqual(
-            self.item_id, str(devent.called[0][self.app.config['ID_FIELD']]))
+        id_field = self.domain['contacts']['id_field']
+        self.assertEqual(self.item_id, str(devent.called[0][id_field]))
 
     def delete_resource(self):
         self.test_client.delete(self.known_resource_url)
