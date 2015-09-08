@@ -364,7 +364,8 @@ handled by Eve. Defaults to <tt class="docutils literal"><span class="pre">_crea
 <td>Name of the field used to uniquely identify
 resource items within the database. You
 want this field to be properly indexed on
-the database.  Defaults to <tt class="docutils literal"><span class="pre">_id</span></tt>.</td>
+the database. Can be overridden by resource
+settings. Defaults to <tt class="docutils literal"><span class="pre">_id</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ITEM_LOOKUP</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> if item endpoints should be generally
@@ -948,29 +949,34 @@ always be included, regardless of the setting
 of <tt class="docutils literal"><span class="pre">CACHE_CONTROL</span></tt>. Locally overrides
 <tt class="docutils literal"><span class="pre">CACHE_EXPIRES</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">item_lookup</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">id_field</span></tt></td>
+<td>Field used to uniquely identify resource items
+within the database. Locally overrides
+<tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">item_lookup</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> if item endpoint should be available,
 <tt class="docutils literal"><span class="pre">False</span></tt> otherwise. Locally overrides
 <tt class="docutils literal"><span class="pre">ITEM_LOOKUP</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">item_lookup_field</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">item_lookup_field</span></tt></td>
 <td>Field used when looking up a resource
 item. Locally overrides <tt class="docutils literal"><span class="pre">ITEM_LOOKUP_FIELD</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">item_url</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">item_url</span></tt></td>
 <td>Rule used to construct item endpoint URL.
 Locally overrides <tt class="docutils literal"><span class="pre">ITEM_URL</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">resource_title</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">resource_title</span></tt></td>
 <td>Title used when building resource links
 (HATEOAS). Defaults to resource&#8217;s <tt class="docutils literal"><span class="pre">url</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">item_title</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">item_title</span></tt></td>
 <td>Title to be used when building item references,
 both in XML and JSON responses. Overrides
 <tt class="docutils literal"><span class="pre">ITEM_TITLE</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">additional_lookup</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">additional_lookup</span></tt></td>
 <td>Besides the standard item endpoint which
 defaults to <tt class="docutils literal"><span class="pre">/&lt;resource&gt;/&lt;ID_FIELD_value&gt;</span></tt>,
 you can optionally define a secondary,
@@ -986,12 +992,12 @@ it is automatically handled.  See the code
 snippet below for an usage example of this
 feature.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">datasource</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">datasource</span></tt></td>
 <td>Explicitly links API resources to database
 collections. See <a class="reference internal" href="#advanced-datasource-patterns">Advanced Datasource
 Patterns</a>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">auth_field</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">auth_field</span></tt></td>
 <td>Enables <a class="reference internal" href="authentication.html#user-restricted"><em>User-Restricted Resource Access</em></a>. When the
 feature is enabled, users can only
 read/update/delete resource items created by
@@ -1000,24 +1006,24 @@ name of the field used to store the id of
 the user who created the resource item. Locally
 overrides <tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">allow_unknown</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">allow_unknown</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">True</span></tt>, this option will allow insertion
 of arbitrary, unknown fields to the endpoint.
 Use with caution. Locally overrides
 <tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt>. See <a class="reference internal" href="validation.html#unknown"><em>Allowing the Unknown</em></a> for more
 information. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">projection</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">projection</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">True</span></tt>, this option enables the
 <a class="reference internal" href="features.html#projections"><em>Projections</em></a> feature. Locally overrides
 <tt class="docutils literal"><span class="pre">PROJECTION</span></tt>. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">embedding</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">embedding</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">True</span></tt> this option enables the
 <a class="reference internal" href="features.html#embedded-docs"><em>Embedded Resource Serialization</em></a> feature. Defaults to
 <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">extra_response_fields</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">extra_response_fields</span></tt></td>
 <td>Allows to configure a list of additional
 document fields that should be provided with
 every POST response. Normally only
@@ -1026,12 +1032,12 @@ automatically handled fields (<tt class="docutils literal"><span class="pre">ID_
 are included in response payloads. Overrides
 <tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">hateoas</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">hateoas</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">False</span></tt>, this option disables
 <a class="reference internal" href="features.html#hateoas-feature"><em>HATEOAS</em></a> for the resource.
 Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">mongo_write_concern</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">mongo_write_concern</span></tt></td>
 <td><p class="first">A dictionary defining MongoDB write concern
 settings for the endpoint datasource. All
 standard write concern settings (w, wtimeout, j,
@@ -1046,7 +1052,7 @@ to check that it&#8217;s being written to multiple
 servers.)</p>
 </td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">mongo_prefix</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">mongo_prefix</span></tt></td>
 <td><p class="first">Allows overriding of the default <tt class="docutils literal"><span class="pre">MONGO</span></tt>
 prefix, which is used when retrieving MongoDB
 settings from configuration.</p>
@@ -1059,7 +1065,7 @@ a different database/server at every endpoint.</p>
 <p class="last">See also: <a class="reference internal" href="authentication.html#authdrivendb"><em>Auth-driven Database Access</em></a>.</p>
 </td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">mongo_indexes</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">mongo_indexes</span></tt></td>
 <td><p class="first">Allows to specify a set of indexes to be
 created for this resource before the app is
 launched.</p>
@@ -1088,7 +1094,7 @@ for which the definition has been changed, will
 be dropped and re-created.</p>
 </td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">authentication</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">authentication</span></tt></td>
 <td>A class with the authorization logic for the
 endpoint. If not provided the eventual
 general purpose auth class (passed as
@@ -1096,14 +1102,14 @@ application constructor argument) will be used.
 For details on authentication and authorization
 see <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a>.  Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>,</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">embedded_fields</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">embedded_fields</span></tt></td>
 <td>A list of fields for which <a class="reference internal" href="features.html#embedded-docs"><em>Embedded Resource Serialization</em></a>
 is enabled by default. For this feature to work
 properly fields in the list must be
 <tt class="docutils literal"><span class="pre">embeddable</span></tt>, and <tt class="docutils literal"><span class="pre">embedding</span></tt> must be
 active for the resource.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">query_objectid_as_string</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">query_objectid_as_string</span></tt></td>
 <td>When enabled the Mongo parser will avoid
 automatically casting electable strings to
 ObjectIds. This can be useful in those rare
@@ -1113,7 +1119,7 @@ ObjectId values, but shouldn&#8217;t. It effects
 queries (<tt class="docutils literal"><span class="pre">?where=</span></tt>) and parsing of payloads.
 Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">internal_resource</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">internal_resource</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">True</span></tt>, this option makes the resource
 internal. No HTTP action can be performed on
 the endpoint, which is still accessible from
@@ -1121,7 +1127,7 @@ the Eve data layer. See
 <a class="reference internal" href="features.html#internal-resources"><em>Internal Resources</em></a> for more
 informations. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">etag_ignore_fields</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">etag_ignore_fields</span></tt></td>
 <td>List of fields that
 should not be used to compute the ETag value.
 Defaults to <tt class="docutils literal"><span class="pre">None</span></tt> which means that by
@@ -1129,12 +1135,12 @@ default all fields are included in the computation.
 It looks like <tt class="docutils literal"><span class="pre">['field1',</span> <span class="pre">'field2',</span>
 <span class="pre">'field3.nested_field',</span> <span class="pre">...]</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">schema</span></tt></td>
 <td>A dict defining the actual data structure being
 handled by the resource. Enables data
 validation. See <a class="reference internal" href="#schema-definition">Schema Definition</a>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">soft_delete</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">soft_delete</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">True</span></tt> this option enables the
 <a class="reference internal" href="features.html#soft-delete"><em>Soft Delete</em></a> feature for this resource.
 Locally overrides <tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt>.</td>
