@@ -15,6 +15,7 @@ show me your tool!
 - Eve-OAuth2_ and Flask-Sentinel_
 - Eve-Auth-JWT_
 - `REST Layer for Golang`_
+- EveGenie_
 
 Eve-Elastic
 -----------
@@ -98,6 +99,12 @@ Olivier Poitrey, a long time Eve contributor and sustainer, REST Layer is:
     secure REST API on top of any backend storage with no boiler plate code.
     You can focus on your business logic now.
 
+EveGenie
+--------
+*by Erin Corson and Matt Tucker*
+
+EveGenie_ is a tool for generating Eve schemas. It accepts a json document of
+one or more resources and provides you with a starting schema definition.
 
 .. _`Mocking tool for Eve APIs`: http://blog.python-eve.org/eve-mocker
 .. _`Auto generate API docs`: http://blog.python-eve.org/eve-docs
@@ -113,3 +120,4 @@ Olivier Poitrey, a long time Eve contributor and sustainer, REST Layer is:
 .. _Flask-Sentinel: https://github.com/nicolaiarocci/flask-sentinel
 .. _Eve-Auth-JWT: https://github.com/rs/eve-auth-jwt
 .. _`REST Layer`: https://github.com/rs/rest-layer
+.. _EveGenie: https://github.com/newmediadenver/evegenie
