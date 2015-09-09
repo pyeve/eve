@@ -9,6 +9,13 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- New: ``_INFO``: string value to include an info section, with the given INFO
+  name, at the Eve homepage (suggested value ``_info``). The info section will
+  include Eve server version and API version (API_VERSION, if set).  ``None``
+  otherwise, if you do not want to expose any server info. Defaults to
+  ``None`` (Stratos Gerakakis). 
+- Change: when HATEOAS is off the home endpoint will respond with ``200 OK``
+  instead of ``404 Not Found`` (Stratos Gerakakis). 
 - New: ``id_field`` sets a field used to uniquely identify resource items
   within the database. Locally overrides ``ID_FIELD`` (Dominik Kellner).
 - Changed: ``on_updated`` returns the whole updated document. Previously, it

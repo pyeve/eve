@@ -106,6 +106,7 @@ ETAG = '_etag'
 VERSION = '_version'            # field that stores the version number
 DELETED = '_deleted'            # field to store soft delete status
 META = '_meta'
+INFO = None
 VALIDATION_ERROR_STATUS = 422
 
 # return a single field validation error as a list (by default a single error

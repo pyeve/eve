@@ -71,6 +71,7 @@ LINKS = '_links'
 ETAG = '_etag'
 VERSION = '_version'
 META = '_meta'
+INFO = None
 
 QUERY_WHERE = 'where'
 QUERY_SORT = 'sort'
