@@ -99,6 +99,11 @@ that your API is comprised of just one accessible resource, <cite>people</cite>.
 <p>Congratulations, your GET request got a nice response back. Let&#8217;s look at the
 payload:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&quot;_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&quot;server&quot;</span><span class="p">:</span> <span class="s">&quot;Eve&quot;</span><span class="p">,</span>
+        <span class="s">&quot;version&quot;</span><span class="p">:</span> <span class="s">&quot;a.b.c&quot;</span><span class="p">,</span>
+        <span class="s">&quot;api_version&quot;</span><span class="p">:</span> <span class="s">&quot;x.y.z&quot;</span>
+    <span class="p">},</span>
     <span class="s">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s">&quot;child&quot;</span><span class="p">:</span> <span class="p">[</span>
             <span class="p">{</span>
@@ -110,6 +115,10 @@ payload:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
+<p>The <cite>_info</cite> section displays the current version of Eve (a.b.c) and the current
+version of the API as defined in your <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a> configuration section. This
+is an optional feature that you can turn on by setting a value in the <cite>INFO</cite> value
+in your settings (defaults to off).</p>
 <p>API entry points adhere to the <a class="reference internal" href="features.html#hateoas-feature"><em>HATEOAS</em></a> principle and provide
 information about the resources accessible through the API. In our case
 there&#8217;s only one child resource available, that being <cite>people</cite>.</p>

@@ -58,6 +58,15 @@
 <div class="section" id="version-0-6">
 <h3>Version 0.6<a class="headerlink" href="#version-0-6" title="Permalink to this headline">¶</a></h3>
 <ul>
+<li><p class="first">New: <tt class="docutils literal"><span class="pre">_INFO</span></tt>: string value to include an info section, with the given INFO
+name, at the Eve homepage (suggested value <tt class="docutils literal"><span class="pre">_info</span></tt>). The info section will
+include Eve server version and API version (API_VERSION, if set).  <tt class="docutils literal"><span class="pre">None</span></tt>
+otherwise, if you do not want to expose any server info. Defaults to
+<tt class="docutils literal"><span class="pre">None</span></tt> (Stratos Gerakakis).</p>
+</li>
+<li><p class="first">Change: when HATEOAS is off the home endpoint will respond with <tt class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></tt>
+instead of <tt class="docutils literal"><span class="pre">404</span> <span class="pre">Not</span> <span class="pre">Found</span></tt> (Stratos Gerakakis).</p>
+</li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">id_field</span></tt> sets a field used to uniquely identify resource items
 within the database. Locally overrides <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> (Dominik Kellner).</p>
 </li>
