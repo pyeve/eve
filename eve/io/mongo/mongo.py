@@ -896,31 +896,37 @@ def create_index(app, resource, name, list_of_keys, index_options):
     # life cicle, it is just called when the app start and it uses
     # pymongo directly.
     collection = app.config['SOURCES'][resource]['source']
-    config_prefix = app.config['DOMAIN'][resource].get('mongo_prefix', 'MONGO')
 
-    def key(suffix):
-        return '%s_%s' % (config_prefix, suffix)
+    if 'MONGO_URI' in app.config and app.config['MONGO_URI']:
+        conn = pymongo.MongoClient(app.config['MONGO_URI'])
+        db = conn.get_default_database()
+    else:
+        config_prefix = app.config['DOMAIN'][resource].get('mongo_prefix',
+                                                           'MONGO')
 
-    db_name = app.config[key('DBNAME')]
+        def key(suffix):
+            return '%s_%s' % (config_prefix, suffix)
 
-    # just reproduced the same behaviour for username
-    # and password, the other fields come set by Eve by
-    # default.
-    username = app.config[key('USERNAME')] \
-        if key('USERNAME') in app.config else None
-    password = app.config[key('PASSWORD')] \
-        if key('PASSWORD') in app.config else None
-    auth_db_name = app.config[key('AUTHDBNAME')] \
-        if key('AUTHDBNAME') in app.config else None
-    host = app.config[key('HOST')]
-    port = app.config[key('PORT')]
-    auth = (username, password)
-    host_and_port = '%s:%s' % (host, port)
-    conn = pymongo.MongoClient(host_and_port)
-    db = conn[db_name]
+        db_name = app.config[key('DBNAME')]
 
-    if any(auth):
-        db.authenticate(username, password, source=auth_db_name)
+        # just reproduced the same behaviour for username
+        # and password, the other fields come set by Eve by
+        # default.
+        username = app.config[key('USERNAME')] \
+            if key('USERNAME') in app.config else None
+        password = app.config[key('PASSWORD')] \
+            if key('PASSWORD') in app.config else None
+        auth_db_name = app.config[key('AUTHDBNAME')] \
+            if key('AUTHDBNAME') in app.config else None
+        host = app.config[key('HOST')]
+        port = app.config[key('PORT')]
+        auth = (username, password)
+        host_and_port = '%s:%s' % (host, port)
+        conn = pymongo.MongoClient(host_and_port)
+        db = conn[db_name]
+
+        if any(auth):
+            db.authenticate(username, password, source=auth_db_name)
 
     coll = db[collection]
 
