@@ -446,6 +446,7 @@ class TestConfig(TestBase):
                 'other_field': {'type': 'string'},
                 'lat_long': {'type': 'list'}
             },
+            'versioning': True,
             'mongo_indexes': {
                 'name': [('name', 1)],
                 'composed': [('name', 1), ('other_field', 1)],
@@ -464,27 +465,29 @@ class TestConfig(TestBase):
         # check that the indexes were created
         from pymongo import MongoClient
         db_name = self.app.config['MONGO_DBNAME']
-        coll = MongoClient()[db_name]['mongodb_features']
-        indexes = coll.index_information()
 
-        # at least there is an index for the _id field plus the indexes
-        # created by the resource of this test
-        self.assertTrue(len(indexes) > len(settings['mongo_indexes']))
+        db = MongoClient()[db_name]
+        for coll in [db['mongodb_features'], db['mongodb_features_versions']]:
+            indexes = coll.index_information()
 
-        # check each one, fields involved and arguments given
-        for key, value in settings['mongo_indexes'].items():
-            if isinstance(value, tuple):
-                fields, args = value
-            else:
-                fields = value
-                args = None
+            # at least there is an index for the _id field plus the indexes
+            # created by the resource of this test
+            self.assertTrue(len(indexes) > len(settings['mongo_indexes']))
 
-            self.assertTrue(key in indexes)
-            self.assertEqual(indexes[key]['key'], fields)
+            # check each one, fields involved and arguments given
+            for key, value in settings['mongo_indexes'].items():
+                if isinstance(value, tuple):
+                    fields, args = value
+                else:
+                    fields = value
+                    args = None
 
-            for arg in args or ():
-                self.assertTrue(arg in indexes[key])
-                self.assertEqual(args[arg], indexes[key][arg])
+                self.assertTrue(key in indexes)
+                self.assertEqual(indexes[key]['key'], fields)
+
+                for arg in args or ():
+                    self.assertTrue(arg in indexes[key])
+                    self.assertEqual(args[arg], indexes[key][arg])
 
     def test_custom_error_handlers(self):
         """ Test that the standard, custom error handler is registered for
