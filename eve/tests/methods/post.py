@@ -576,24 +576,6 @@ class TestPost(TestBase):
         r, status = self.post(self.known_resource_url, data=data)
         self.assertValidationErrorStatus(status)
 
-    def test_post_keyschema_dict(self):
-        """ make sure Cerberus#48 is fixed """
-
-        # TODO remove this test once Cereberus removes the now deprecated
-        # keyschema rule (which is now replaced by valueschema).
-        del(self.domain['contacts']['schema']['ref']['required'])
-        r, status = self.post(self.known_resource_url,
-                              data={"keyschema_dict": {"k1": "1"}})
-        self.assertValidationErrorStatus(status)
-        issues = r[ISSUES]
-        self.assertTrue('keyschema_dict' in issues)
-        self.assertEqual(issues['keyschema_dict'],
-                         {'k1': 'must be of integer type'})
-
-        r, status = self.post(self.known_resource_url,
-                              data={"valueschema_dict": {"k1": 1}})
-        self.assert201(status)
-
     def test_post_valueschema_dict(self):
         """ make sure Cerberus#48 is fixed """
         del(self.domain['contacts']['schema']['ref']['required'])
@@ -608,6 +590,22 @@ class TestPost(TestBase):
         r, status = self.post(self.known_resource_url,
                               data={"valueschema_dict": {"k1": 1}})
         self.assert201(status)
+
+    def test_post_propertyschema_dict(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+
+        r, status = self.post(self.known_resource_url,
+                              data={"propertyschema_dict": {"aaa": 1}})
+        self.assert201(status)
+
+        r, status = self.post(self.known_resource_url,
+                              data={"propertyschema_dict": {"AAA": "1"}})
+        self.assertValidationErrorStatus(status)
+
+        issues = r[ISSUES]
+        self.assertTrue('propertyschema_dict' in issues)
+        self.assertEqual(issues['propertyschema_dict'],
+                         'propertyschema_dict')
 
     def test_post_internal(self):
         # test that post_internal is available and working properly.
