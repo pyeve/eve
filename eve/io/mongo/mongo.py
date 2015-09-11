@@ -928,22 +928,25 @@ def create_index(app, resource, name, list_of_keys, index_options):
         if any(auth):
             db.authenticate(username, password, source=auth_db_name)
 
-    coll = db[collection]
-
     kw = copy(index_options)
     kw['name'] = name
 
-    try:
-        return coll.create_index(list_of_keys, **kw)
-    except pymongo.errors.OperationFailure as e:
-        if e.code == 85:
-            # This error is raised when the definition of the index has
-            # been changed, we didn't found any spec out there but we
-            # think tat this error is not going to change and we can trust.
+    colls = [db[collection]]
+    if app.config['DOMAIN'][resource]['versioning']:
+        colls.append(db['%s_versions' % collection])
 
-            # by default, drop the old index with old configuration and
-            # create the index againt with the new configuration
-            coll.drop_index(name)
-            return coll.create_index(list_of_keys, **kw)
-        else:
-            raise
+    for coll in colls:
+        try:
+            coll.create_index(list_of_keys, **kw)
+        except pymongo.errors.OperationFailure as e:
+            if e.code == 85:
+                # This error is raised when the definition of the index has
+                # been changed, we didn't found any spec out there but we think
+                # that this error is not going to change and we can trust.
+
+                # by default, drop the old index with old configuration and
+                # create the index again with the new configuration.
+                coll.drop_index(name)
+                coll.create_index(list_of_keys, **kw)
+            else:
+                raise
