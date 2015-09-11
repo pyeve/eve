@@ -9,6 +9,12 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- Fix: changes to the ``updates`` argument, applied by callbacks hooked to the
+  ``on_updated`` event, were not persisted to the database (Magdas Adrian).
+  Closes #682.
+- Fix: Changes applied to the ``updates`` argument``on_updated`` returns the
+  whole updated document. Previously, it was only returning the updates sent
+  with the request. Closes #682.
 - Fix: Replace the Cerberus rule ``keyschema``, now deprecated, with the new
   ``propertyschema`` (Julian Hille).
 - New: ``_INFO``: string value to include an info section, with the given INFO
@@ -20,8 +26,6 @@ Version 0.6
   instead of ``404 Not Found`` (Stratos Gerakakis). 
 - New: ``id_field`` sets a field used to uniquely identify resource items
   within the database. Locally overrides ``ID_FIELD`` (Dominik Kellner).
-- Changed: ``on_updated`` returns the whole updated document. Previously, it
-  was only returning the updates sent with the request. Closes #682.
 - Fix: some error message are not filtered out of debug mode anymore, as they
   are useful for users and do not leak informations. Closes #671 (Sebastien
   Estienne).
