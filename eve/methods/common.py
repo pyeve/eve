@@ -468,10 +468,13 @@ def build_response_document(
         if resource_def['versioning'] is True \
                 and request.args.get(config.VERSION_PARAM):
             version = document[config.VERSION]
-        document[config.LINKS] = {
-            'self': document_link(resource,
-                                  document[resource_def['id_field']], version)
-        }
+
+        self_dict = {'self': document_link(resource,
+                                           document[resource_def['id_field']], version)}
+        if config.LINKS not in document:
+            document[config.LINKS] = self_dict
+        elif 'self' not in document[config.LINKS]:
+            document[config.LINKS].update(self_dict)
 
     # add version numbers
     resolve_document_version(document, resource, 'GET', latest_doc)
