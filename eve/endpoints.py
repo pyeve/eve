@@ -126,7 +126,8 @@ def home_endpoint():
         info = {}
         info['server'] = 'Eve'
         info['version'] = eve.__version__
-        info['api_version'] = config.API_VERSION
+        if config.API_VERSION:
+            info['api_version'] = config.API_VERSION
         response[config.INFO] = info
 
     if config.HATEOAS:

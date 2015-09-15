@@ -5,6 +5,7 @@ from eve.tests import TestBase
 from eve.utils import config
 import simplejson as json
 import eve
+import os
 
 
 class TestResponse(TestBase):
@@ -63,13 +64,25 @@ class TestNoHateoas(TestBase):
     def test_get_no_hateoas_homepage_reply(self):
         r = self.test_client.get('/')
         resp = json.loads(r.get_data().decode())
-        if config.INFO:
-            self.assertEqual(resp[config.INFO]['server'], 'Eve')
-            self.assertEqual(resp[config.INFO]['version'], eve.__version__)
-            self.assertEqual(resp[config.INFO]['api_version'],
-                             config.API_VERSION)
-        else:
-            self.assertEqual(resp, {})
+        self.assertEqual(resp, {})
+
+        self.app.config['INFO'] = '_info'
+
+        r = self.test_client.get('/')
+        resp = json.loads(r.get_data().decode())
+        self.assertEqual(resp['_info']['server'], 'Eve')
+        self.assertEqual(resp['_info']['version'], eve.__version__)
+
+        settings_file = os.path.join(self.this_directory, 'test_version.py')
+        self.app = eve.Eve(settings=settings_file)
+        self.app.config['INFO'] = '_info'
+
+        r = self.app.test_client().get('/v1')
+        resp = json.loads(r.get_data().decode())
+        self.assertEqual(resp['_info']['api_version'],
+                         self.app.config['API_VERSION'])
+        self.assertEqual(resp['_info']['server'], 'Eve')
+        self.assertEqual(resp['_info']['version'], eve.__version__)
 
     def test_post_no_hateoas(self):
         data = {'item1': json.dumps({"ref": "1234567890123456789054321"})}
