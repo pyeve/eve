@@ -2,7 +2,6 @@
 
 from ast import literal_eval
 from eve.tests import TestBase
-from eve.utils import config
 import simplejson as json
 import eve
 import os
