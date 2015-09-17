@@ -470,7 +470,8 @@ def build_response_document(
             version = document[config.VERSION]
 
         self_dict = {'self': document_link(resource,
-                                           document[resource_def['id_field']], version)}
+                                           document[resource_def['id_field']],
+                                           version)}
         if config.LINKS not in document:
             document[config.LINKS] = self_dict
         elif 'self' not in document[config.LINKS]:
