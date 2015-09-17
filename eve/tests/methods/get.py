@@ -483,7 +483,8 @@ class TestGet(TestBase):
 
     def test_get_custom_hateoas_links(self):
         def change_links(response):
-            response['_links'] = {'self': {'title': 'Custom', 'href': '/custom/1'}}
+            response['_links'] = {'self': {'title': 'Custom',
+                                           'href': '/custom/1'}}
         self.app.on_fetched_resource_contacts += change_links
 
         response, _ = self.get(self.known_resource)
