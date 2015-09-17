@@ -1229,6 +1229,33 @@ class TestLateVersioning(TestVersioningBase):
         self.assertDocumentVersionFields(response2, 2)
         self.assertEqual(response[ETAG], response2[ETAG])
 
+    def test_datasource(self):
+        """ Make sure that Eve uses the same mongo collection for storing versions
+        when datasource is used."""
+        # make sure there are no shadow documents
+        self.assertTrue(self.countShadowDocuments() == 0)
+
+        # patch a change
+        changes = {"ref": "this is a different value"}
+        response, status = self.patch(
+            self.item_id_url, data=changes,
+            headers=[('If-Match', self.item_etag)])
+        self.assertGoodPutPatch(response, status)
+        self.assertDocumentVersionFields(response, 2)
+
+        # make sure that this saved to the db (if it didn't, version == 1)
+        self.assertTrue(self.countShadowDocuments() == 2)
+
+        data = {
+            self.versioned_field: 'ref value 3..............',
+            self.unversioned_field: 444
+        }
+        contact, status = self.post(self.known_resource_url, data=data)
+        self.assert201(status)
+
+        # make sure that this is saved to the db in the same collection
+        self.assertEqual(self.countShadowDocuments(), 3)
+
     def test_delete(self):
         """ Verify that we don't throw an error if we delete a resource that is
         supposed to be versioned but whose shadow collection does not exist.
