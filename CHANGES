@@ -9,6 +9,8 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- New: HATEOAS links can be customized from within callback functions (Magdas
+  Adrian).
 - Fix: changes to the ``updates`` argument, applied by callbacks hooked to the
   ``on_updated`` event, were not persisted to the database (Magdas Adrian).
   Closes #682.
