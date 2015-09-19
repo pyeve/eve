@@ -481,6 +481,16 @@ class TestGet(TestBase):
         response, _ = self.get(self.known_resource)
         self.assertTrue('_navigation' in response and '_links' not in response)
 
+    def test_get_custom_hateoas_links(self):
+        def change_links(response):
+            response['_links'] = {'self': {'title': 'Custom',
+                                           'href': '/custom/1'}}
+        self.app.on_fetched_resource_contacts += change_links
+
+        response, _ = self.get(self.known_resource)
+        self.assertTrue('Custom' in response['_links']['self']['title'])
+        self.assertTrue('/custom/1' in response['_links']['self']['href'])
+
     def test_get_custom_auto_document_fields(self):
         self.app.config['LAST_UPDATED'] = '_updated_on'
         self.app.config['DATE_CREATED'] = '_created_on'
