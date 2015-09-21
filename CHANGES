@@ -9,6 +9,8 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- Fix: store versions in the same mongo collection when ``datasource`` is used
+  (Magdas Adrian).
 - New: HATEOAS links can be customized from within callback functions (Magdas
   Adrian).
 - Fix: changes to the ``updates`` argument, applied by callbacks hooked to the
