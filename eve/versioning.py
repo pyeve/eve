@@ -139,7 +139,9 @@ def insert_versioning_documents(resource, documents):
             versioned_documents.append(ver_doc)
 
         # bulk insert
-        app.data.insert(resource + app.config['VERSIONS'], versioned_documents)
+        source = resource_def['datasource']['source']
+        versionable_resource_name = source + app.config['VERSIONS']
+        app.data.insert(versionable_resource_name, versioned_documents)
 
 
 def versioned_fields(resource_def):
