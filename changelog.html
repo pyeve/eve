@@ -58,20 +58,34 @@
 <div class="section" id="version-0-6">
 <h3>Version 0.6<a class="headerlink" href="#version-0-6" title="Permalink to this headline">¶</a></h3>
 <ul>
+<li><p class="first">Fix: store versions in the same mongo collection when <tt class="docutils literal"><span class="pre">datasource</span></tt> is used
+(Magdas Adrian).</p>
+</li>
+<li><p class="first">New: HATEOAS links can be customized from within callback functions (Magdas
+Adrian).</p>
+</li>
+<li><p class="first">Fix: changes to the <tt class="docutils literal"><span class="pre">updates</span></tt> argument, applied by callbacks hooked to the
+<tt class="docutils literal"><span class="pre">on_updated</span></tt> event, were not persisted to the database (Magdas Adrian).
+Closes #682.</p>
+</li>
+<li><p class="first">Fix: Changes applied to the <tt class="docutils literal"><span class="pre">updates</span></tt> argument``on_updated`` returns the
+whole updated document. Previously, it was only returning the updates sent
+with the request. Closes #682.</p>
+</li>
+<li><p class="first">Fix: Replace the Cerberus rule <tt class="docutils literal"><span class="pre">keyschema</span></tt>, now deprecated, with the new
+<tt class="docutils literal"><span class="pre">propertyschema</span></tt> (Julian Hille).</p>
+</li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">_INFO</span></tt>: string value to include an info section, with the given INFO
 name, at the Eve homepage (suggested value <tt class="docutils literal"><span class="pre">_info</span></tt>). The info section will
 include Eve server version and API version (API_VERSION, if set).  <tt class="docutils literal"><span class="pre">None</span></tt>
-otherwise, if you do not want to expose any server info. Defaults to
-<tt class="docutils literal"><span class="pre">None</span></tt> (Stratos Gerakakis).</p>
+otherwise, if you do not want to expose any server info. Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>
+(Stratos Gerakakis).</p>
 </li>
 <li><p class="first">Change: when HATEOAS is off the home endpoint will respond with <tt class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></tt>
 instead of <tt class="docutils literal"><span class="pre">404</span> <span class="pre">Not</span> <span class="pre">Found</span></tt> (Stratos Gerakakis).</p>
 </li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">id_field</span></tt> sets a field used to uniquely identify resource items
 within the database. Locally overrides <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> (Dominik Kellner).</p>
-</li>
-<li><p class="first">Changed: <tt class="docutils literal"><span class="pre">on_updated</span></tt> returns the whole updated document. Previously, it
-was only returning the updates sent with the request. Closes #682.</p>
 </li>
 <li><p class="first">Fix: some error message are not filtered out of debug mode anymore, as they
 are useful for users and do not leak informations. Closes #671 (Sebastien
