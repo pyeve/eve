@@ -33,10 +33,21 @@ def requires_auth(endpoint_class):
     def fdec(f):
         @wraps(f)
         def decorated(*args, **kwargs):
-            if args:
-                # resource or item endpoint
-                resource_name = args[0]
-                resource = app.config['DOMAIN'][args[0]]
+            if endpoint_class == 'resource' or endpoint_class == 'item':
+                # find resource name in f's args
+                if args:
+                    resource_name = args[0]
+                elif kwargs.get('resource'):
+                    resource_name = kwargs.get('resource')
+                else:
+                    raise ValueError("'requires_auth(%s)' decorated functions "
+                                     "must include resource in args or kwargs"
+                                     % endpoint_class)
+
+                # fetch resource or item auth configuration
+                resource = app.config['DOMAIN'].get(resource_name)
+                if resource is None:
+                    abort(404)
                 if endpoint_class == 'resource':
                     public = resource['public_methods']
                     roles = list(resource['allowed_roles'])
