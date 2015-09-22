@@ -9,6 +9,8 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- New: ``SCHEMA_ENDPOINT`` allows resource schema to be returned from an API
+  endpoint (Nick Park).
 - Fix: store versions in the same mongo collection when ``datasource`` is used
   (Magdas Adrian).
 - New: HATEOAS links can be customized from within callback functions (Magdas
@@ -202,8 +204,6 @@ Version 0.6
 - Fix: Geopoint coordinates do not accept integers. Closes #591 (Joakim
   Uddholm.)
 - Fix: OpLog enabled makes PUT return wrong Etag. Closes #590.
-- New: ``SCHEMA_ENDPOINT`` allows resource schema to be returned from an API
-  endpoint
 
 Stable
 ------
