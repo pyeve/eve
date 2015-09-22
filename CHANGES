@@ -204,6 +204,8 @@ Version 0.6
 - Fix: Geopoint coordinates do not accept integers. Closes #591 (Joakim
   Uddholm.)
 - Fix: OpLog enabled makes PUT return wrong Etag. Closes #590.
+- New: ``SCHEMA_ENDPOINT`` allows resource schema to be returned from an API
+  endpoint
 
 Stable
 ------
