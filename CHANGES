@@ -9,6 +9,7 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- Update: Cerberus 0.9.2 is now required.
 - New: ``SCHEMA_ENDPOINT`` allows resource schema to be returned from an API
   endpoint (Nick Park).
 - Fix: store versions in the same mongo collection when ``datasource`` is used
@@ -83,7 +84,6 @@ Version 0.6
 - Fix: ``412 Precondition Failed`` does not return a JSON body. Closes #661.
 - Fix: ``embedded_fields`` may point on a field that come from another embedded
   document. For example, ``['a.b.c', 'a.b', 'a']`` (Gonéri Le Bouder).
-- Update: Cerberus 0.9.1 is now required.
 - New: ``anyof`` validation rule allows you to list multiple sets of rules to
   validate against.
 - New: ``alloff`` validation rule, same as ``anyof`` except that all rule
