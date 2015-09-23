@@ -1869,6 +1869,19 @@ query the oplog for changes occured on that endpoint.
     in case you are wondering yes, the Eve oplog is blatantly inpsired by the
     awesome `Replica Set Oplog`_.
 
+.. _schema_endpoint:
+
+The Schema Endpoint
+-------------------
+Resource schema can be exposed to API clients by enabling Eve's schema
+endpoint. To do so, set the ``SCHEMA_ENDPOINT`` configuration option to the API
+endpoint name from which you want to serve schema data. Once enabled, Eve will
+treat the endpoint as a read only resource containing JSON encoded Cerberus
+schema definitons, indexed by resource name. Resource visibility and
+authorization settings are honored, so internal resources or resources for
+which a request does not have read authentication will not be accessible at the
+schema endpoint. By default, ``SCHEMA_ENDPOINT`` is set to ``None``.
+
 MongoDB and SQL Support
 ------------------------
 Support for single or multiple MongoDB database/servers comes out of the box.

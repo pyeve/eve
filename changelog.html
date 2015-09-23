@@ -58,6 +58,11 @@
 <div class="section" id="version-0-6">
 <h3>Version 0.6<a class="headerlink" href="#version-0-6" title="Permalink to this headline">¶</a></h3>
 <ul>
+<li><p class="first">Update: Cerberus 0.9.2 is now required.</p>
+</li>
+<li><p class="first">New: <tt class="docutils literal"><span class="pre">SCHEMA_ENDPOINT</span></tt> allows resource schema to be returned from an API
+endpoint (Nick Park).</p>
+</li>
 <li><p class="first">Fix: store versions in the same mongo collection when <tt class="docutils literal"><span class="pre">datasource</span></tt> is used
 (Magdas Adrian).</p>
 </li>
@@ -154,8 +159,6 @@ error code and description. Addresses #586.</p>
 </li>
 <li><p class="first">Fix: <tt class="docutils literal"><span class="pre">embedded_fields</span></tt> may point on a field that come from another embedded
 document. For example, <tt class="docutils literal"><span class="pre">['a.b.c',</span> <span class="pre">'a.b',</span> <span class="pre">'a']</span></tt> (Gonéri Le Bouder).</p>
-</li>
-<li><p class="first">Update: Cerberus 0.9.1 is now required.</p>
 </li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">anyof</span></tt> validation rule allows you to list multiple sets of rules to
 validate against.</p>

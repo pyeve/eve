@@ -1854,6 +1854,17 @@ awesome <a class="reference external" href="http://docs.mongodb.org/manual/core/
 </div>
 </div>
 </div>
+<div class="section" id="the-schema-endpoint">
+<span id="schema-endpoint"></span><h2>The Schema Endpoint<a class="headerlink" href="#the-schema-endpoint" title="Permalink to this headline">¶</a></h2>
+<p>Resource schema can be exposed to API clients by enabling Eve&#8217;s schema
+endpoint. To do so, set the <tt class="docutils literal"><span class="pre">SCHEMA_ENDPOINT</span></tt> configuration option to the API
+endpoint name from which you want to serve schema data. Once enabled, Eve will
+treat the endpoint as a read only resource containing JSON encoded Cerberus
+schema definitons, indexed by resource name. Resource visibility and
+authorization settings are honored, so internal resources or resources for
+which a request does not have read authentication will not be accessible at the
+schema endpoint. By default, <tt class="docutils literal"><span class="pre">SCHEMA_ENDPOINT</span></tt> is set to <tt class="docutils literal"><span class="pre">None</span></tt>.</p>
+</div>
 <div class="section" id="mongodb-and-sql-support">
 <h2>MongoDB and SQL Support<a class="headerlink" href="#mongodb-and-sql-support" title="Permalink to this headline">¶</a></h2>
 <p>Support for single or multiple MongoDB database/servers comes out of the box.
@@ -2000,6 +2011,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li class="toctree-l3"><a class="reference internal" href="#the-oplog-endpoint">The Oplog endpoint</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#the-schema-endpoint">The Schema Endpoint</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mongodb-and-sql-support">MongoDB and SQL Support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#powered-by-flask">Powered by Flask</a></li>
 </ul>
