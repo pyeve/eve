@@ -598,6 +598,16 @@ class TestPatch(TestBase):
                                headers=headers)
         self.assert200(status)
 
+    def test_patch_type_coercion(self):
+        schema = self.domain[self.known_resource]['schema']
+        schema['aninteger']['coerce'] = lambda string: int(float(string))
+        changes = {'ref': '1234567890123456789054321', 'aninteger': '42.3'}
+        r, status = self.patch(self.item_id_url, data=changes,
+                               headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+        r, status = self.get(r['_links']['self']['href'])
+        self.assertEqual(r['aninteger'], 42)
+
     def assertPatchResponse(self, response, item_id, resource=None):
         id_field = self.domain[resource or self.known_resource]['id_field']
         self.assertTrue(STATUS in response)

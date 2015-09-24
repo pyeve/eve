@@ -648,6 +648,12 @@ class TestPost(TestBase):
         self.assertPostResponse(r)
         self.assertEqual(r['_id'], id)
 
+    def test_post_type_coercion(self):
+        schema = self.domain[self.known_resource]['schema']
+        schema['aninteger']['coerce'] = lambda string: int(float(string))
+        data = {'ref': '1234567890123456789054321', 'aninteger': '42.3'}
+        self.assertPostItem(data, 'aninteger', 42)
+
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
