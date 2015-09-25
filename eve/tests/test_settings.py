@@ -181,11 +181,15 @@ companies = {
                         'type': 'list',
                         'schema': {
                             'type': 'objectid',
-                            'data_relation': {'resource': 'contacts'}
+                            'data_relation': {'resource': 'contacts'},
                         }
                     }
                 }
             }
+        },
+        'holding': {
+            'type': 'objectid',
+            'data_relation': {'resource': 'companies'},
         }
     }
 }

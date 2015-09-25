@@ -510,13 +510,19 @@ def field_definition(resource, chained_fields):
     subfields = chained_fields.split('.')
 
     for field in subfields:
-        try:
-            definition = definition['schema'][field]
-            if definition['type'] == 'list':
-                definition = definition['schema']
-        except KeyError:
-            return None
+        if field not in definition.get('schema', {}):
+            if 'data_relation' in definition:
+                sub_resource = definition['data_relation']['resource']
+                definition = config.DOMAIN[sub_resource]
 
+        if field not in definition['schema']:
+            return
+        definition = definition['schema'][field]
+        field_type = definition.get('type')
+        if field_type == 'list':
+            definition = definition['schema']
+        elif field_type == 'objectid':
+            pass
     return definition
 
 
@@ -559,11 +565,11 @@ def resolve_embedded_fields(resource, req):
     # For each field, is the field allowed to be embedded?
     # Pick out fields that have a `data_relation` where `embeddable=True`
     enabled_embedded_fields = []
-    for field in embedded_fields:
+    for field in sorted(embedded_fields, key=lambda a: a.count('.')):
         # Reject bogus field names
         field_def = field_definition(resource, field)
         if field_def:
-            if field_def['type'] == 'list':
+            if field_def.get('type') == 'list':
                 field_def = field_def['schema']
             if 'data_relation' in field_def and \
                     field_def['data_relation'].get('embeddable'):
@@ -615,23 +621,32 @@ def embedded_document(reference, data_relation, field_name):
     return embedded_doc
 
 
-def subdocuments(fields_chain, document):
+def subdocuments(fields_chain, resource, document):
     """ Traverses the given document and yields subdocuments which
     correspond to the given fields_chain
 
     :param fields_chain: list of nested field names.
+    :param resource: the resource name.
     :param document: document to be traversed
 
     .. versionadded:: 0.5
     """
     if len(fields_chain) == 0:
         yield document
-    elif fields_chain[0] in document:
+    elif isinstance(document, dict) and fields_chain[0] in document:
         subdocument = document[fields_chain[0]]
         docs = subdocument if isinstance(subdocument, list) else [subdocument]
+        try:
+            resource = field_definition(
+                resource, fields_chain[0])['data_relation']['resource']
+        except KeyError:
+            resource = resource
+
         for doc in docs:
-            for result in subdocuments(fields_chain[1:], doc):
+            for result in subdocuments(fields_chain[1:], resource, doc):
                 yield result
+    else:
+        yield document
 
 
 def resolve_embedded_documents(document, resource, embedded_fields):
@@ -642,8 +657,8 @@ def resolve_embedded_documents(document, resource, embedded_fields):
     Currently we support embedding of documents by references located
     in any subdocuments. For example, query embedded={"user.friends":1}
     will return a document with "user" and all his "friends" embedded,
-    but only if "user" is a subdocument and "friends" is a list of
-    references.
+    but only if "user" is a subdocument.
+
     We do not support multiple layers embeddings.
 
     :param document: the document to embed other documents into.
@@ -672,7 +687,7 @@ def resolve_embedded_documents(document, resource, embedded_fields):
         getter = lambda ref: embedded_document(ref, data_relation, field)  # noqa
         fields_chain = field.split('.')
         last_field = fields_chain[-1]
-        for subdocument in subdocuments(fields_chain[:-1], document):
+        for subdocument in subdocuments(fields_chain[:-1], resource, document):
             if last_field not in subdocument:
                 continue
             if isinstance(subdocument[last_field], list):

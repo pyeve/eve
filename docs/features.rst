@@ -876,10 +876,9 @@ in this scenario would be a dictionary with fields ``_id`` and ``_version``.
 Predefined Resource Serialization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 It is also possible to elect some fields for predefined resource
-serialization. The ``embedded_fields`` option accepts a list of fields. If the
-listed fields are embeddable and they are actually referencing documents in other
-resources (and embedding is enbaled for the resource), then the referenced
-documents will be embedded by default. Clients can still opt out from field
+serialization. If the listed fields are embeddable and they are actually referencing
+documents in other resources (and embedding is enbaled for the resource), then the
+referenced documents will be embedded by default. Clients can still opt out from field
 that are embedded by default:
 
 .. code-block:: console
@@ -894,9 +893,8 @@ subdocuments (nested dicts and lists). For example, a query
 ``/invoices?/embedded={"user.friends":1}`` will return a document with ``user``
 and all his ``friends`` embedded, but only if ``user`` is a subdocument and
 ``friends`` is a list of reference (it could be a list of dicts, nested
-dict, ect.). We *do not* support multiple layers embeddings. This feature is
-about serialization on GET requests. There's no support for POST, PUT or PATCH
-of embedded documents.
+dict, ect.). This feature is about serialization on GET requests. There's no
+support for POST, PUT or PATCH of embedded documents.
 
 Document embedding is enabled by default.
 
