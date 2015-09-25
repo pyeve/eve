@@ -9,6 +9,9 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+- New: support for embedding simple ObjectId fields: you can now use the
+  ``data_relation`` rule on them (Gonéri Le Bouder).
+- New: support for multiple layers of embedding (Gonéri Le Bouder).
 - Update: Cerberus 0.9.2 is now required.
 - New: ``SCHEMA_ENDPOINT`` allows resource schema to be returned from an API
   endpoint (Nick Park).
