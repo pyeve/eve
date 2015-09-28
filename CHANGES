@@ -6,6 +6,11 @@ Here you can see the full list of changes between each Eve release.
 In Development
 --------------
 
+- Move along nothing to see here.
+
+Stable
+------
+
 Version 0.6
 ~~~~~~~~~~~
 
@@ -213,9 +218,6 @@ Released on 28 September, 2015
 
 - Update: Cerberus 0.9.2 is now required.
 - Update: PyMongo 2.8 is now required (which in turn supports MongoDB 3.0)
-
-Stable
-------
 
 Version 0.5.3
 ~~~~~~~~~~~~~
