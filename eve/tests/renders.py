@@ -106,6 +106,13 @@ class TestRenders(TestBase):
             r.get_data()
         )
 
+    def test_jsonp_enabled(self):
+        arg = "callback"
+        self.app.config['JSONP_ARGUMENT'] = arg
+        val = "JSON_CALLBACK"
+        r = self.test_client.get('/?%s=%s' % (arg, val))
+        self.assertTrue(r.get_data().decode('utf-8').startswith(val))
+
     def test_CORS(self):
         # no CORS headers if Origin is not provided with the request.
         r = self.test_client.get('/')
@@ -113,6 +120,7 @@ class TestRenders(TestBase):
         self.assertFalse('Access-Control-Allow-Methods' in r.headers)
         self.assertFalse('Access-Control-Allow-Max-Age' in r.headers)
         self.assertFalse('Access-Control-Expose-Headers' in r.headers)
+        self.assertFalse('Access-Control-Allow-Credentials' in r.headers)
         self.assert200(r.status_code)
 
         # test that if X_DOMAINS is set to '*', then any Origin value is
@@ -125,6 +133,22 @@ class TestRenders(TestBase):
         self.assertEqual(r.headers['Access-Control-Allow-Origin'],
                          'http://example.com')
         self.assertEqual(r.headers['Vary'], 'Origin')
+
+        # Given that CORS is activated with X_DOMAINS = '*'
+        # test that if X_ALLOW_CREDENTIALS is set to True
+        # then the relevant header is included in the response
+        self.app.config['X_ALLOW_CREDENTIALS'] = True
+        r = self.test_client.get('/', headers=[('Origin',
+                                                'http://example.com')])
+        self.assert200(r.status_code)
+        self.assertEqual(r.headers['Access-Control-Allow-Credentials'], 'true')
+
+        # with any other non-True value, it is missing
+        self.app.config['X_ALLOW_CREDENTIALS'] = False
+        r = self.test_client.get('/', headers=[('Origin',
+                                                'http://example.com')])
+        self.assert200(r.status_code)
+        self.assertFalse('Access-Control-Allow-Credentials' in r.headers)
 
         # test that if a list is set for X_DOMAINS, then:
         # 1. only list values are accepted;
@@ -173,6 +197,7 @@ class TestRenders(TestBase):
         self.assertFalse('Access-Control-Allow-Methods' in r.headers)
         self.assertFalse('Access-Control-Allow-Max-Age' in r.headers)
         self.assertFalse('Access-Control-Expose-Headers' in r.headers)
+        self.assertFalse('Access-Control-Allow-Credentials' in r.headers)
         self.assert200(r.status_code)
 
         # test that if X_DOMAINS is set to '*', then any Origin value is
@@ -187,6 +212,22 @@ class TestRenders(TestBase):
         self.assertEqual(r.headers['Vary'], 'Origin')
         for m in methods:
             self.assertTrue(m in r.headers['Access-Control-Allow-Methods'])
+
+        # Given that CORS is activated with X_DOMAINS = '*'
+        # test that if X_ALLOW_CREDENTIALS is set to True
+        # then the relevant header is included in the response
+        self.app.config['X_ALLOW_CREDENTIALS'] = True
+        r = self.test_client.open(url, method='OPTIONS',
+                                  headers=[('Origin', 'http://example.com')])
+        self.assert200(r.status_code)
+        self.assertEqual(r.headers['Access-Control-Allow-Credentials'], 'true')
+
+        # with any other non-True value, it is missing
+        self.app.config['X_ALLOW_CREDENTIALS'] = False
+        r = self.test_client.open(url, method='OPTIONS',
+                                  headers=[('Origin', 'http://example.com')])
+        self.assert200(r.status_code)
+        self.assertFalse('Access-Control-Allow-Credentials' in r.headers)
 
         self.app.config['X_DOMAINS'] = ['http://1of2.com', 'http://2of2.com']
         r = self.test_client.open(url, method='OPTIONS',
@@ -219,10 +260,11 @@ class TestRenders(TestBase):
                             self.app.config['API_VERSION'])
 
         del(self.domain['peopleinvoices'])
+        del(self.domain['peoplerequiredinvoices'])
         del(self.domain['peoplesearches'])
         del(self.domain['internal_transactions'])
+        del(self.domain['child_products'])
         for _, settings in self.app.config['DOMAIN'].items():
-
             # resource endpoint
             url = '%s/%s/' % (prefix, settings['url'])
             methods = settings['resource_methods'] + ['OPTIONS']

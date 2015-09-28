@@ -16,7 +16,7 @@ class ValidBasicAuth(BasicAuth):
 
     def check_auth(self, username, password, allowed_roles, resource, method):
         self.set_request_auth_value(self.request_auth_value)
-        return username == 'admin' and password == 'secret' and  \
+        return username in ('admin', 'alt') and password == 'secret' and  \
             ('admin' in allowed_roles if allowed_roles else True)
 
 
@@ -113,6 +113,14 @@ class TestBasicAuth(TestBase):
         r = self.test_client.delete(self.item_id_url, headers=self.valid_auth)
         self.assert403(r.status_code)
 
+    def test_authorized_schema_access(self):
+        self.app.config['SCHEMA_ENDPOINT'] = 'schema'
+        self.app._init_schema_endpoint()
+
+        r = self.test_client.get('/schema/%s' % self.known_resource,
+                                 headers=self.valid_auth)
+        self.assert200(r.status_code)
+
     def test_unauthorized_home_access(self):
         r = self.test_client.get('/', headers=self.invalid_auth)
         self.assert401(r.status_code)
@@ -137,6 +145,14 @@ class TestBasicAuth(TestBase):
                                     headers=self.invalid_auth)
         self.assert401(r.status_code)
 
+    def test_unauthorized_schema_access(self):
+        self.app.config['SCHEMA_ENDPOINT'] = 'schema'
+        self.app._init_schema_endpoint()
+
+        r = self.test_client.get('/schema/%s' % self.known_resource,
+                                 headers=self.invalid_auth)
+        self.assert401(r.status_code)
+
     def test_home_public_methods(self):
         self.app.config['PUBLIC_METHODS'] = ['GET']
         r = self.test_client.get('/')
@@ -151,8 +167,10 @@ class TestBasicAuth(TestBase):
             del(settings['public_methods'])
         self.app.set_defaults()
         del(domain['peopleinvoices'])
+        del(domain['peoplerequiredinvoices'])
         del(domain['peoplesearches'])
         del(domain['internal_transactions'])
+        del(domain['child_products'])
         for resource in domain:
             url = self.app.config['URLS'][resource]
             r = self.test_client.get(url)
@@ -222,7 +240,7 @@ class TestBasicAuth(TestBase):
     def test_rfc2617_response(self):
         r = self.test_client.get('/')
         self.assert401(r.status_code)
-        self.assertTrue(('WWW-Authenticate', 'Basic realm:"%s"' %
+        self.assertTrue(('WWW-Authenticate', 'Basic realm="%s"' %
                          eve.__package__) in r.headers.to_wsgi_list())
 
     def test_allowed_roles_does_not_change(self):
@@ -395,8 +413,8 @@ class TestUserRestrictedAccess(TestBase):
         """ To test handling of ObjectIds
         """
         # set auth_field to `_id`
-        self.app.config['DOMAIN']['users'][self.field_name] = \
-            self.app.config['ID_FIELD']
+        self.domain['users'][self.field_name] = \
+            self.domain['users']['id_field']
 
         _, status = self.parse_response(
             self.test_client.get(self.user_id_url,
@@ -471,7 +489,38 @@ class TestUserRestrictedAccess(TestBase):
                                  headers=self.valid_auth))
         self.assert200(status)
         # len of 1 as there are is only 1 doc saved by user
-        self.assertEqual(len(data['_items']), 1)
+
+    def test_unique_to_user_on_post(self):
+        # make the field unique to user, not globally.
+        self.resource['schema']['ref']['unique'] = False
+        self.resource['schema']['ref']['unique_to_user'] = True
+
+        # first post as 'admin' is a success.
+        _, status = self.post()
+        self.assert201(status)
+
+        # second post as 'admin' fails since value is not unique to user.
+        _, status = self.post()
+        self.assert422(status)
+
+        self.resource['authentication'].request_auth_value = 'alt'
+        # first post as 'alt' succeeds as value is unique to this user.
+        alt_auth = [('Authorization', 'Basic YWx0OnNlY3JldA==')]
+        r = self.test_client.post(self.url,
+                                  data=self.data,
+                                  headers=alt_auth,
+                                  content_type='application/json')
+
+        self.assert201(r.status_code)
+
+        # second post as 'alt' fails since value is not unique to user anymore.
+        r = self.test_client.post(self.url,
+                                  data=self.data,
+                                  headers=alt_auth,
+                                  content_type='application/json')
+
+        # post succeeds since value is unique to 'alt' user
+        self.assert422(r.status_code)
 
     def test_post_resource_auth(self):
         # Ticket #231.

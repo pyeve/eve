@@ -9,18 +9,21 @@
     :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
+import itertools
+from datetime import datetime
+from copy import copy
 
 import ast
-import itertools
-import simplejson as json
 import pymongo
-from flask import abort
+import simplejson as json
+from bson import ObjectId
+from flask import abort, request
 from flask.ext.pymongo import PyMongo
 from werkzeug.exceptions import HTTPException
-from bson import ObjectId
-from datetime import datetime
-from eve.io.mongo.parser import parse, ParseError
+
+from eve.auth import resource_auth
 from eve.io.base import DataLayer, ConnectionException, BaseJSONEncoder
+from eve.io.mongo.parser import parse, ParseError
 from eve.utils import config, debug_error_message, validate_filters, \
     str_to_date, str_type
 
@@ -69,7 +72,7 @@ class Mongo(DataLayer):
     json_encoder_class = MongoJSONEncoder
 
     operators = set(
-        ['$gt', '$gte', '$in', '$lt', '$lt', '$lte', '$ne', '$nin'] +
+        ['$gt', '$gte', '$in', '$lt', '$lte', '$ne', '$nin'] +
         ['$or', '$and', '$not', '$nor'] +
         ['$mod', '$regex', '$text', '$where'] +
         ['$options', '$search', '$language'] +
@@ -80,21 +83,23 @@ class Mongo(DataLayer):
 
     def init_app(self, app):
         """ Initialize PyMongo.
+
+        .. versionchanged:: 0.6
+           Use mongo_prefix for multidb support.
+
         .. versionchanged:: 0.0.9
-           support for Python 3.3.
+           Support for Python 3.3.
         """
         # mongod must be running or this will raise an exception
-        try:
-            self.driver = PyMongo(app)
-        except Exception as e:
-            raise ConnectionException(e)
+        self.driver = PyMongos(self)
+        self.mongo_prefix = None
 
     def find(self, resource, req, sub_resource_lookup):
         """ Retrieves a set of documents matching a given request. Queries can
         be expressed in two different formats: the mongo query syntax, and the
         python syntax. The first kind of query would look like: ::
 
-            ?where={"name": "john doe}
+            ?where={"name": "john doe"}
 
         while the second would look like: ::
 
@@ -105,6 +110,10 @@ class Mongo(DataLayer):
         :param resource: resource name.
         :param req: a :class:`ParsedRequest`instance.
         :param sub_resource_lookup: sub-resource lookup from the endpoint url.
+
+        .. versionchanged:: 0.6
+           Support for multiple databases.
+           Filter soft deleted documents by default
 
         .. versionchanged:: 0.5
            Support for comma delimited sort syntax. Addresses #443.
@@ -181,6 +190,7 @@ class Mongo(DataLayer):
                 if len(sort) > 0:
                     client_sort = sort
             except Exception as e:
+                self.app.logger.exception(e)
                 abort(400, description=debug_error_message(str(e)))
 
         if req.where:
@@ -205,6 +215,14 @@ class Mongo(DataLayer):
         if sub_resource_lookup:
             spec = self.combine_queries(spec, sub_resource_lookup)
 
+        if config.DOMAIN[resource]['soft_delete'] and not req.show_deleted:
+            # Soft delete filtering applied after validate_filters call as
+            # querying against the DELETED field must always be allowed when
+            # soft_delete is enabled
+            if not self.query_contains_field(spec, config.DELETED):
+                spec = self.combine_queries(
+                    spec, {config.DELETED: {"$ne": True}})
+
         spec = self._mongotize(spec, resource)
 
         client_projection = self._client_projection(req)
@@ -228,7 +246,7 @@ class Mongo(DataLayer):
         if projection is not None:
             args['fields'] = projection
 
-        return self.driver.db[datasource].find(**args)
+        return self.pymongo(resource).db[datasource].find(**args)
 
     def find_one(self, resource, req, **lookup):
         """ Retrieves a single document.
@@ -236,6 +254,10 @@ class Mongo(DataLayer):
         :param resource: resource name.
         :param req: a :class:`ParsedRequest` instance.
         :param **lookup: lookup query.
+
+        .. versionchanged:: 0.6
+           Support for multiple databases.
+           Filter soft deleted documents by default
 
         .. versionchanged:: 0.4
            Honor client projection requests.
@@ -263,7 +285,14 @@ class Mongo(DataLayer):
             lookup,
             client_projection)
 
-        document = self.driver.db[datasource].find_one(filter_, projection)
+        if (config.DOMAIN[resource]['soft_delete']) and \
+                (not req or not req.show_deleted) and \
+                (not self.query_contains_field(lookup, config.DELETED)):
+            filter_ = self.combine_queries(
+                filter_, {config.DELETED: {"$ne": True}})
+
+        document = self.pymongo(resource).db[datasource] \
+                                         .find_one(filter_, projection)
         return document
 
     def find_one_raw(self, resource, _id):
@@ -272,13 +301,17 @@ class Mongo(DataLayer):
         :param resource: resource name.
         :param id: unique id.
 
+        .. versionchanged:: 0.6
+           Support for multiple databases.
+
         .. versionadded:: 0.4
         """
+        id_field = config.DOMAIN[resource]['id_field']
         datasource, filter_, _, _ = self._datasource_ex(resource,
-                                                        {config.ID_FIELD: _id},
+                                                        {id_field: _id},
                                                         None)
 
-        document = self.driver.db[datasource].find_one(_id)
+        document = self.pymongo(resource).db[datasource].find_one(_id)
         return document
 
     def find_list_of_ids(self, resource, ids, client_projection=None):
@@ -308,26 +341,33 @@ class Mongo(DataLayer):
         :return: a list of documents matching the ids in `ids` from the
         collection specified in `resource`
 
+        .. versionchanged:: 0.6
+           Support for multiple databases.
+
         .. versionchanged:: 0.1.1
            Using config.ID_FIELD instead of hard coded '_id'.
 
         .. versionadded:: 0.1.0
         """
+        id_field = config.DOMAIN[resource]['id_field']
         query = {'$or': [
-            {config.ID_FIELD: id_} for id_ in ids
+            {id_field: id_} for id_ in ids
         ]}
 
         datasource, spec, projection, _ = self._datasource_ex(
             resource, query=query, client_projection=client_projection
         )
 
-        documents = self.driver.db[datasource].find(
+        documents = self.pymongo(resource).db[datasource].find(
             spec=spec, fields=projection
         )
         return documents
 
     def insert(self, resource, doc_or_docs):
         """ Inserts a document into a resource collection.
+
+        .. versionchanged:: 0.6
+           Support for multiple databases.
 
         .. versionchanged:: 0.0.9
            More informative error messages.
@@ -345,13 +385,15 @@ class Mongo(DataLayer):
         """
         datasource, _, _, _ = self._datasource_ex(resource)
         try:
-            return self.driver.db[datasource].insert(doc_or_docs,
-                                                     **self._wc(resource))
+            return self.pymongo(resource).db[datasource].insert(
+                doc_or_docs, **self._wc(resource)
+            )
         except pymongo.errors.DuplicateKeyError as e:
             abort(409, description=debug_error_message(
                 'pymongo.errors.DuplicateKeyError: %s' % e
             ))
         except pymongo.errors.InvalidOperation as e:
+            self.app.logger.exception(e)
             abort(500, description=debug_error_message(
                 'pymongo.errors.InvalidOperation: %s' % e
             ))
@@ -359,19 +401,27 @@ class Mongo(DataLayer):
             # most likely a 'w' (write_concern) setting which needs an
             # existing ReplicaSet which doesn't exist. Please note that the
             # update will actually succeed (a new ETag will be needed).
+            self.app.logger.exception(e)
             abort(500, description=debug_error_message(
                 'pymongo.errors.OperationFailure: %s' % e
             ))
 
     def _change_request(self, resource, id_, changes, original):
-        query = {config.ID_FIELD: id_}
+        """ Performs a change, be it a replace or update.
+
+        .. versionchanged:: 0.6
+           Return 400 if an attempt is made to update/replace an immutable
+           field.
+        """
+        id_field = config.DOMAIN[resource]['id_field']
+        query = {id_field: id_}
         if config.ETAG in original:
             query[config.ETAG] = original[config.ETAG]
 
         datasource, filter_, _, _ = self._datasource_ex(
             resource, query)
         try:
-            result = self.driver.db[datasource].update(
+            result = self.pymongo(resource).db[datasource].update(
                 filter_, changes, **self._wc(resource))
 
             if result and result["n"] == 0:
@@ -381,13 +431,36 @@ class Mongo(DataLayer):
                 'pymongo.errors.DuplicateKeyError: %s' % e
             ))
         except pymongo.errors.OperationFailure as e:
-            # see comment in :func:`insert()`.
-            abort(500, description=debug_error_message(
-                'pymongo.errors.OperationFailure: %s' % e
-            ))
+            # server error codes and messages changed between 2.4 and 2.6/3.0.
+            server_version = \
+                self.driver.db.connection.server_info()['version'][:3]
+            if (
+                (server_version == '2.4' and e.code in (13596, 10148)) or
+                (server_version in ('2.6', '3.0') and e.code in (66, 16837))
+            ):
+                # attempt to update an immutable field. this usually
+                # happens when a PATCH or PUT includes a mismatching ID_FIELD.
+                self.app.logger.warn(e)
+                description = debug_error_message(
+                    'pymongo.errors.OperationFailure: %s' % e) or \
+                    "Attempt to update an immutable field. Usually happens " \
+                    "when PATCH or PUT include a '%s' field, " \
+                    "which is immutable (PUT can include it as long as " \
+                    "it is unchanged)." % id_field
+
+                abort(400, description=description)
+            else:
+                # see comment in :func:`insert()`.
+                self.app.logger.exception(e)
+                abort(500, description=debug_error_message(
+                    'pymongo.errors.OperationFailure: %s' % e
+                ))
 
     def update(self, resource, id_, updates, original):
         """ Updates a collection document.
+        .. versionchanged:: 0.6
+           Support for multiple databases.
+
         .. versionchanged:: 5.2
            Raise OriginalChangedError if document is changed from the
            specified original.
@@ -419,6 +492,9 @@ class Mongo(DataLayer):
 
     def replace(self, resource, id_, document, original):
         """ Replaces an existing document.
+        .. versionchanged:: 0.6
+           Support for multiple databases.
+
         .. versionchanged:: 5.2
            Raise OriginalChangedError if document is changed from the
            specified original.
@@ -438,6 +514,9 @@ class Mongo(DataLayer):
     def remove(self, resource, lookup):
         """ Removes a document or the entire set of documents from a
         collection.
+
+        .. versionchanged:: 0.6
+           Support for multiple databases.
 
         .. versionchanged:: 0.3
            Support lookup arg, which allows to properly delete sub-resources
@@ -461,13 +540,18 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.0.2
             Support for deletion of entire documents collection.
+        :returns
+            A document (dict) describing the effect of the remove
+            or None if write acknowledgement is disabled.
         """
         lookup = self._mongotize(lookup, resource)
         datasource, filter_, _, _ = self._datasource_ex(resource, lookup)
         try:
-            self.driver.db[datasource].remove(filter_, **self._wc(resource))
+            return self.pymongo(resource).db[datasource]\
+                .remove(filter_, **self._wc(resource))
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
+            self.app.logger.exception(e)
             abort(500, description=debug_error_message(
                 'pymongo.errors.OperationFailure: %s' % e
             ))
@@ -558,10 +642,13 @@ class Mongo(DataLayer):
         db.collection.count(). However, if we do have a predefined filter we
         have to fallback on the find() method, which can be much slower.
 
+        .. versionchanged:: 0.6
+           Support for multiple databases.
+
         .. versionadded:: 0.3
         """
-        datasource, filter_, _, _ = self._datasource(resource)
-        coll = self.driver.db[datasource]
+        datasource, filter_, _, _ = self.datasource(resource)
+        coll = self.pymongo(resource).db[datasource]
         try:
             if not filter_:
                 # faster, but we can only affrd it if there's now predefined
@@ -578,6 +665,7 @@ class Mongo(DataLayer):
                 return coll.find(filter_).count() == 0
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
+            self.app.logger.exception(e)
             abort(500, description=debug_error_message(
                 'pymongo.errors.OperationFailure: %s' % e
             ))
@@ -700,3 +788,165 @@ class Mongo(DataLayer):
                     'Unable to parse `projection` clause'
                 ))
         return client_projection
+
+    def current_mongo_prefix(self, resource=None):
+        """ Returns the active mongo_prefix that should be used to retrieve
+        a valid PyMongo instance from the cache. If 'self.mongo_prefix' is set
+        it has precedence over both endpoint (resource) and default drivers.
+        This allows Auth classes (for instance) to override default settings to
+        use a user-reserved db instance.
+
+        :param resource: endpoint for which a mongo prefix is needed.
+
+        ..versionadded:: 0.6
+        """
+
+        # the hack below avoids passing the resource around, which would not be
+        # an issue within this module but would force an update to the
+        # eve.io.media.MediaStorage interface, possibly breaking compatibility
+        # for other database implementations.
+
+        auth = None
+        try:
+            if resource is None and request and request.endpoint:
+                resource = request.endpoint[:request.endpoint.index('|')]
+            if request and request.endpoint:
+                auth = resource_auth(resource)
+        except ValueError:
+            pass
+
+        px = auth.get_mongo_prefix() if auth else None
+        if px is None:
+            if resource:
+                px = config.DOMAIN[resource].get('mongo_prefix', 'MONGO')
+            else:
+                px = 'MONGO'
+        return px
+
+    def pymongo(self, resource=None, prefix=None):
+        """ Returns an active PyMongo instance. If 'prefix' is defined then
+        it has precedence over the endpoint ('resource') and/or
+        'self.mongo_instance'.
+
+        :param resource: endpoint for which a PyMongo instance is requested.
+        :param prefix: PyMongo instance key. This has precedence over both
+                       'resource' and eventual `self.mongo_prefix'.
+
+        .. versionadded:: 0.6
+        """
+        px = prefix if prefix else self.current_mongo_prefix(resource=resource)
+
+        if px not in self.driver:
+            # instantiate and add to cache
+            self.driver[px] = PyMongo(self.app, px)
+
+        # important, we don't want to preserve state between requests
+        self.mongo_prefix = None
+
+        try:
+            return self.driver[px]
+        except Exception as e:
+            raise ConnectionException(e)
+
+
+class PyMongos(dict):
+    """ Cache for PyMongo instances. It is just a normal dict which exposes
+    a 'db' property for backward compatibility.
+
+    .. versionadded:: 0.6
+    """
+    def __init__(self, mongo, *args):
+        self.mongo = mongo
+        dict.__init__(self, args)
+
+    @property
+    def db(self):
+        """ Returns the 'default' PyMongo instance, which is either the
+        'Mongo.mongo_prefix' value or 'MONGO'. This property is useful for
+        backward compatibility as many custom Auth classes use the now obsolete
+        'self.data.driver.db[collection]' pattern.
+        """
+        return self.mongo.pymongo().db
+
+
+def create_index(app, resource, name, list_of_keys, index_options):
+    """ Create a specific index composed of the `list_of_keys` for the
+    mongo collection behind the `resource` using the `app.config`
+    to retrieve all data needed to find out the mongodb configuration.
+    The index is also configured by the `index_options`.
+
+    Index are a list of tuples setting for each one the name of the
+    fields and the kind of order used, 1 for ascending and -1 for
+    descending.
+
+    For example:
+        [('field_name', 1), ('other_field', -1)]
+
+    Other indexes such as "hash", "2d", "text" can be used.
+
+    Index options are a dictionary to set specific behaviour of the
+    index.
+
+    For example:
+        {"sparse": True}
+
+    .. versionadded:: 0.6
+    """
+    # it doesn't work as a typical mongodb method run in the request
+    # life cicle, it is just called when the app start and it uses
+    # pymongo directly.
+    collection = app.config['SOURCES'][resource]['source']
+
+    if 'MONGO_URI' in app.config and app.config['MONGO_URI']:
+        conn = pymongo.MongoClient(app.config['MONGO_URI'])
+        db = conn.get_default_database()
+    else:
+        config_prefix = app.config['DOMAIN'][resource].get('mongo_prefix',
+                                                           'MONGO')
+
+        def key(suffix):
+            return '%s_%s' % (config_prefix, suffix)
+
+        db_name = app.config[key('DBNAME')]
+
+        # just reproduced the same behaviour for username
+        # and password, the other fields come set by Eve by
+        # default.
+        username = app.config[key('USERNAME')] \
+            if key('USERNAME') in app.config else None
+        password = app.config[key('PASSWORD')] \
+            if key('PASSWORD') in app.config else None
+        auth_db_name = app.config[key('AUTHDBNAME')] \
+            if key('AUTHDBNAME') in app.config else None
+        host = app.config[key('HOST')]
+        port = app.config[key('PORT')]
+        auth = (username, password)
+        host_and_port = '%s:%s' % (host, port)
+        conn = pymongo.MongoClient(host_and_port)
+        db = conn[db_name]
+
+        if any(auth):
+            db.authenticate(username, password, source=auth_db_name)
+
+    kw = copy(index_options)
+    kw['name'] = name
+
+    colls = [db[collection]]
+    if app.config['DOMAIN'][resource]['versioning']:
+        colls.append(db['%s_versions' % collection])
+
+    for coll in colls:
+        try:
+            coll.create_index(list_of_keys, **kw)
+        except pymongo.errors.OperationFailure as e:
+            if e.code == 85:
+                # This error is raised when the definition of the index has
+                # been changed, we didn't found any spec out there but we think
+                # that this error is not going to change and we can trust.
+
+                # by default, drop the old index with old configuration and
+                # create the index again with the new configuration.
+                coll.drop_index(name)
+                coll.create_index(list_of_keys, **kw)
+            else:
+                raise

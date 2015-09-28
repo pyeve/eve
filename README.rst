@@ -54,6 +54,7 @@ Features
 * Document Versioning
 * Authentication
 * CORS Cross-Origin Resource Sharing
+* JSONP
 * Read-only by default
 * Default Values
 * Predefined Database Filters
@@ -65,6 +66,7 @@ Features
 * File Storage
 * GeoJSON
 * Internal Resources
+* Enhanced Logging
 * Operations Log
 * MongoDB and SQL Support
 * Powered by Flask

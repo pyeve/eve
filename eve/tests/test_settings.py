@@ -4,9 +4,9 @@ import copy
 
 MONGO_HOST = 'localhost'
 MONGO_PORT = 27017
-MONGO_USERNAME = 'test_user'
-MONGO_PASSWORD = 'test_pw'
-MONGO_DBNAME = 'eve_test'
+MONGO_USERNAME = MONGO1_USERNAME = 'test_user'
+MONGO_PASSWORD = MONGO1_PASSWORD = 'test_pw'
+MONGO_DBNAME, MONGO1_DBNAME = 'eve_test', 'eve_test1'
 ID_FIELD = '_id'
 
 RESOURCE_METHODS = ['GET', 'POST', 'DELETE']
@@ -95,6 +95,10 @@ contacts = {
             'type': 'string',
             'dependencies': ['dependency_field1']
         },
+        'dependency_field3': {
+            'type': 'string',
+            'dependencies': {'dependency_field1': 'value'}
+        },
         'read_only_field': {
             'type': 'string',
             'default': 'default',
@@ -113,16 +117,20 @@ contacts = {
         'key1': {
             'type': 'string',
         },
-        'keyschema_dict': {
+        'propertyschema_dict': {
             'type': 'dict',
-            'keyschema': {'type': 'integer'}
+            'propertyschema': {'type': 'string', 'regex': '[a-z]+'}
+        },
+        'valueschema_dict': {
+            'type': 'dict',
+            'valueschema': {'type': 'integer'}
         },
         'aninteger': {
             'type': 'integer',
         },
         'afloat': {
             'type': 'float',
-        },
+        }
     }
 }
 
@@ -155,6 +163,11 @@ invoices = {
 versioned_invoices = copy.deepcopy(invoices)
 versioned_invoices['versioning'] = True
 
+# This resource is used to test subresources that have a reference/objectid
+# field that is set to be required.
+required_invoices = copy.deepcopy(invoices)
+required_invoices['schema']['person']['required'] = True
+
 companies = {
     'item_title': 'company',
     'schema': {
@@ -168,11 +181,15 @@ companies = {
                         'type': 'list',
                         'schema': {
                             'type': 'objectid',
-                            'data_relation': {'resource': 'contacts'}
+                            'data_relation': {'resource': 'contacts'},
                         }
                     }
                 }
             }
+        },
+        'holding': {
+            'type': 'objectid',
+            'data_relation': {'resource': 'companies'},
         }
     }
 }
@@ -196,6 +213,11 @@ users_invoices = copy.deepcopy(invoices)
 users_invoices['url'] = 'users/<regex("[a-f0-9]{24}"):person>/invoices'
 users_invoices['datasource'] = {'source': 'invoices'}
 
+users_required_invoices = copy.deepcopy(required_invoices)
+users_required_invoices['url'] =\
+    'users/<regex("[a-f0-9]{24}"):person>/required_invoices'
+users_required_invoices['datasource'] = {'source': 'required_invoices'}
+
 users_searches = copy.deepcopy(invoices)
 users_searches['datasource'] = {'source': 'invoices'}
 users_searches['url'] = \
@@ -217,18 +239,70 @@ ids = {
     }
 }
 
+login = {
+    'item_title': 'login',
+    'url': 'login',
+    'datasource': {
+        'projection': {
+            'password': 0
+        }
+    },
+    'schema': {
+        'email': {
+            'type': 'string',
+            'required': True,
+            'unique': True
+        },
+        'password': {
+            'type': 'string',
+            'required': True
+        }
+    }
+}
+
+# This resource is used to test resource-specific id fields.
+products = {
+    'id_field': 'sku',
+    'item_lookup_field': 'sku',
+    'item_url': 'regex("[A-Z]+")',
+    'schema': {
+        'sku': {
+            'type': 'string',
+            'maxlength': 16,
+            'unique': True
+        },
+        'title': {
+            'type': 'string',
+            'minlength': 4,
+            'maxlength': 32
+        },
+        'parent_product': {
+            'type': 'string',
+            'data_relation': {'resource': 'products'}
+        }
+    }
+}
+child_products = copy.deepcopy(products)
+child_products['url'] = 'products/<regex("[A-Z]+"):parent_product>/children'
+child_products['datasource'] = {'source': 'products'}
+
 DOMAIN = {
     'contacts': contacts,
     'users': users,
     'users_overseas': users_overseas,
     'invoices': invoices,
     'versioned_invoices': versioned_invoices,
+    'required_invoices': required_invoices,
     'payments': payments,
     'empty': empty,
     'restricted': user_restricted_access,
     'peopleinvoices': users_invoices,
+    'peoplerequiredinvoices': users_required_invoices,
     'peoplesearches': users_searches,
     'companies': companies,
     'internal_transactions': internal_transactions,
-    'ids': ids
+    'ids': ids,
+    'login': login,
+    'products': products,
+    'child_products': child_products
 }

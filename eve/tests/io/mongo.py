@@ -5,7 +5,8 @@ from bson import ObjectId
 from datetime import datetime
 from eve.io.mongo.parser import parse, ParseError
 from eve.io.mongo import Validator, Mongo, MongoJSONEncoder
-from eve.utils import config
+from eve.tests import TestBase
+from eve.tests.test_settings import MONGO_DBNAME
 import simplejson as json
 
 
@@ -148,6 +149,12 @@ class TestMongoValidator(TestCase):
         self.assertTrue('location' in v.errors)
         self.assertTrue('Point' in v.errors['location'])
 
+    def test_point_integer_success(self):
+        schema = {'location': {'type': 'point'}}
+        doc = {'location': {'type': "Point", 'coordinates': [10, 123.0]}}
+        v = Validator(schema)
+        self.assertTrue(v.validate(doc))
+
     def test_linestring_success(self):
         schema = {'location': {'type': 'linestring'}}
         doc = {'location': {"type": "LineString",
@@ -240,6 +247,18 @@ class TestMongoValidator(TestCase):
         v = Validator(schema)
         self.assertTrue(v.validate(doc))
 
+    def test_geometrycollection_fail(self):
+        schema = {'locations': {'type': 'geometrycollection'}}
+        doc = {'locations': {'type': "GeometryCollection",
+                             "geometries": [{"type": "GeoJSON",
+                                             "badinput": "lolololololol"}]
+                             }
+               }
+        v = Validator(schema)
+        self.assertFalse(v.validate(doc))
+        self.assertTrue('locations' in v.errors)
+        self.assertTrue('GeometryCollection' in v.errors['locations'])
+
     def test_dependencies_with_defaults(self):
         schema = {
             'test_field': {'dependencies': 'foo'},
@@ -262,8 +281,33 @@ class TestMongoValidator(TestCase):
         v = Validator(schema)
         self.assertTrue(v.validate(doc))
 
+    def test_removal_of_unnecessary_unique_constraints(self):
+        schema = {
+            '_id': {
+                'type': 'objectid',
+                'unique': True
+            },
+            'foo': {
+                'type': 'string',
+                'minlength': 2
+            }
+        }
+        expected_schema = {
+            '_id': {
+                'type': 'objectid'
+            },
+            'foo': {
+                'type': 'string',
+                'minlength': 2
+            }
+        }
+        v = Validator(schema)
+        schema = v._remove_unique_rules_on_fields_with_unique_index(schema)
+        self.assertEqual(expected_schema, schema)
 
-class TestMongoDriver(TestCase):
+
+class TestMongoDriver(TestBase):
+
     def test_combine_queries(self):
         mongo = Mongo(None)
         query_a = {'username': {'$exists': True}}
@@ -281,30 +325,35 @@ class TestMongoDriver(TestCase):
 
     def test_get_value_from_query(self):
         mongo = Mongo(None)
-        simple_query = {config.ID_FIELD: 'abcdef012345678901234567'}
+        simple_query = {'_id': 'abcdef012345678901234567'}
         compound_query = {'$and': [
             {'username': {'$exists': False}},
-            {config.ID_FIELD: 'abcdef012345678901234567'}
+            {'_id': 'abcdef012345678901234567'}
         ]}
-        self.assertEqual(mongo.get_value_from_query(simple_query,
-                                                    config.ID_FIELD),
+        self.assertEqual(mongo.get_value_from_query(simple_query, '_id'),
                          'abcdef012345678901234567')
-        self.assertEqual(mongo.get_value_from_query(compound_query,
-                                                    config.ID_FIELD),
+        self.assertEqual(mongo.get_value_from_query(compound_query, '_id'),
                          'abcdef012345678901234567')
 
     def test_query_contains_field(self):
         mongo = Mongo(None)
-        simple_query = {config.ID_FIELD: 'abcdef012345678901234567'}
+        simple_query = {'_id': 'abcdef012345678901234567'}
         compound_query = {'$and': [
             {'username': {'$exists': False}},
-            {config.ID_FIELD: 'abcdef012345678901234567'}
+            {'_id': 'abcdef012345678901234567'}
         ]}
-        self.assertTrue(mongo.query_contains_field(simple_query,
-                                                   config.ID_FIELD))
+        self.assertTrue(mongo.query_contains_field(simple_query, '_id'))
         self.assertFalse(mongo.query_contains_field(simple_query,
                                                     'fake-field'))
-        self.assertTrue(mongo.query_contains_field(compound_query,
-                                                   config.ID_FIELD))
+        self.assertTrue(mongo.query_contains_field(compound_query, '_id'))
         self.assertFalse(mongo.query_contains_field(compound_query,
                                                     'fake-field'))
+
+    def test_delete_returns_status(self):
+        db = self.connection[MONGO_DBNAME]
+        count = db.contacts.count()
+        result = db.contacts.remove()
+        self.assertTrue(isinstance(result, dict))
+        self.assertEqual(result.get('n'), count)
+        self.assertEqual(result.get('ok'), 1)
+        self.connection.close()

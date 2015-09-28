@@ -13,6 +13,10 @@ show me your tool!
 - Eve.NET_
 - Eve-SQLAlchemy_
 - Eve-OAuth2_ and Flask-Sentinel_
+- Eve-Auth-JWT_
+- EveGenie_
+
+- `REST Layer for Golang`_
 
 Eve-Elastic
 -----------
@@ -79,6 +83,31 @@ Eve-OAuth2
 Eve-OAuth2_ is not an extension per-se, but rather an example of how you can
 leverage Flask-Sentinel_  to protect your API endpoints with OAuth2. 
 
+Eve-Auth-JWT
+------------
+
+| *by Olivier Poitrey*
+
+Eve-Auth-JWT_ is An OAuth 2 JWT token validation module for Eve.
+
+EveGenie
+--------
+*by Erin Corson and Matt Tucker*
+
+EveGenie_ is a tool for generating Eve schemas. It accepts a json document of
+one or more resources and provides you with a starting schema definition.
+
+REST Layer for Golang
+---------------------
+If you are into Golang, you should also check `REST Layer`_. Developed by
+Olivier Poitrey, a long time Eve contributor and sustainer. REST Layer is
+
+    a REST API framework heavily inspired by the excellent Python
+    Eve. It lets you automatically generate a comprehensive, customizable, and
+    secure REST API on top of any backend storage with no boiler plate code.
+    You can focus on your business logic now.
+
+
 .. _`Mocking tool for Eve APIs`: http://blog.python-eve.org/eve-mocker
 .. _`Auto generate API docs`: http://blog.python-eve.org/eve-docs
 .. _charlesflynn/eve-docs: https://github.com/charlesflynn/eve-docs
@@ -91,3 +120,6 @@ leverage Flask-Sentinel_  to protect your API endpoints with OAuth2.
 .. _Eve-SQLAlchemy: https://github.com/RedTurtle/eve-sqlalchemy
 .. _Eve-OAuth2: https://github.com/nicolaiarocci/eve-oauth2
 .. _Flask-Sentinel: https://github.com/nicolaiarocci/flask-sentinel
+.. _Eve-Auth-JWT: https://github.com/rs/eve-auth-jwt
+.. _`REST Layer`: https://github.com/rs/rest-layer
+.. _EveGenie: https://github.com/newmediadenver/evegenie

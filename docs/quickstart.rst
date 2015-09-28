@@ -57,6 +57,11 @@ payload:
 ::
 
     {
+        "_info": {
+            "server": "Eve",
+            "version": "a.b.c",
+            "api_version": "x.y.z"
+        },
         "_links": {
             "child": [
                 {
@@ -66,6 +71,11 @@ payload:
             ]
         }
     }
+
+The `_info` section displays the current version of Eve (a.b.c) and the current
+version of the API as defined in your :ref:`global` configuration section. This
+is an optional feature that you can turn on by setting a value in the `INFO` value
+in your settings (defaults to off).
 
 API entry points adhere to the :ref:`hateoas_feature` principle and provide
 information about the resources accessible through the API. In our case

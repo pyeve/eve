@@ -64,6 +64,9 @@ def post_internal(resource, payl=None, skip_validation=False):
                  discussion, and a typical use case.
     :param skip_validation: skip payload validation before write (bool)
 
+    .. versionchanged:: 0.6
+       Initialize DELETED field when soft_delete is enabled.
+
     .. versionchanged:: 0.5
        Back to resolving default values after validaton as now the validator
        can properly validate dependency even when some have default values. See
@@ -172,18 +175,24 @@ def post_internal(resource, payl=None, skip_validation=False):
         doc_issues = {}
         try:
             document = parse(value, resource)
+            resolve_sub_resource_path(document, resource)
             if skip_validation:
                 validation = True
             else:
                 validation = validator.validate(document)
-            if validation:
-                # validation is successful
+            if validation:  # validation is successful
+                # Apply coerced values
+                document = validator.document
+
+                # Populate meta and default fields
                 document[config.LAST_UPDATED] = \
                     document[config.DATE_CREATED] = date_utc
 
+                if config.DOMAIN[resource]['soft_delete'] is True:
+                    document[config.DELETED] = False
+
                 resolve_user_restricted_access(document, resource)
                 resolve_default_values(document, resource_def['defaults'])
-                resolve_sub_resource_path(document, resource)
                 store_media_files(document, resource)
                 resolve_document_version(document, resource, 'POST')
             else:
@@ -194,6 +203,7 @@ def post_internal(resource, payl=None, skip_validation=False):
         except Exception as e:
             # most likely a problem with the incoming payload, report back to
             # the client as if it was a validation issue
+            app.logger.exception(e)
             doc_issues['exception'] = str(e)
 
         if len(doc_issues):
@@ -222,7 +232,7 @@ def post_internal(resource, payl=None, skip_validation=False):
         getattr(app, "on_insert_%s" % resource)(documents)
 
         # compute etags here as documents might have been updated by callbacks.
-        resolve_document_etag(documents)
+        resolve_document_etag(documents, resource)
 
         # bulk insert
         ids = app.data.insert(resource, documents)
@@ -234,8 +244,8 @@ def post_internal(resource, payl=None, skip_validation=False):
         for document in documents:
             # either return the custom ID_FIELD or the id returned by
             # data.insert().
-            document[config.ID_FIELD] = \
-                document.get(config.ID_FIELD, ids.pop(0))
+            document[resource_def['id_field']] = \
+                document.get(resource_def['id_field'], ids.pop(0))
 
             # build the full response document
             result = document

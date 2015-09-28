@@ -1,4 +1,5 @@
 import base64
+import time
 from io import BytesIO
 import simplejson as json
 from datetime import datetime
@@ -118,6 +119,16 @@ class TestGet(TestBase):
         self.assertTrue('next' not in links)
         self.assertTrue('prev' not in links)
 
+    def test_get_total_count_header(self):
+        url = self.domain[self.known_resource]['url']
+        r = self.test_client.head(url)
+        response, status = self.parse_response(r)
+        self.assert200(status)
+        self.assertEqual(response, None)
+
+        total_count = r.headers[self.app.config['HEADER_TOTAL_COUNT']]
+        self.assertEqual(int(total_count), self.known_resource_count)
+
     def test_get_where_mongo_syntax(self):
         where = '{"ref": "%s"}' % self.item_name
         response, status = self.get(self.known_resource, '?where=%s' % where)
@@ -192,8 +203,8 @@ class TestGet(TestBase):
         for role in ('agent', 'client', 'vendor'):
             where = 'role == %s' % role
             response, _ = self.get(self.known_resource, '?where=%s' % where)
-            if response['_meta']['max_results'] \
-                    >= self.app.config['PAGINATION_LIMIT'] + 1:
+            if response['_meta']['total'] \
+                    >= self.app.config['PAGINATION_DEFAULT'] + 1:
                 break
         links = response['_links']
         total = response['_meta']['total']
@@ -242,7 +253,7 @@ class TestGet(TestBase):
             self.assertFalse('location' in r)
             self.assertFalse('role' in r)
             self.assertTrue('prog' in r)
-            self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.domain[self.known_resource]['id_field'] in r)
             self.assertTrue(self.app.config['ETAG'] in r)
             self.assertTrue(self.app.config['LAST_UPDATED'] in r)
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
@@ -260,7 +271,7 @@ class TestGet(TestBase):
             self.assertFalse('prog' in r)
             self.assertTrue('location' in r)
             self.assertTrue('role' in r)
-            self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.domain[self.known_resource]['id_field'] in r)
             self.assertTrue(self.app.config['ETAG'] in r)
             self.assertTrue(self.app.config['LAST_UPDATED'] in r)
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
@@ -295,7 +306,7 @@ class TestGet(TestBase):
             self.assertFalse('city' in r['location'])
             self.assertFalse('role' in r)
             self.assertFalse('prog' in r)
-            self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.domain[self.known_resource]['id_field'] in r)
             self.assertTrue(self.app.config['ETAG'] in r)
             self.assertTrue(self.app.config['LAST_UPDATED'] in r)
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
@@ -312,7 +323,7 @@ class TestGet(TestBase):
         # fields are returned anyway since no schema = return all fields
         for r in resource:
             self.assertTrue('location' in r)
-            self.assertTrue(self.app.config['ID_FIELD'] in r)
+            self.assertTrue(self.domain[self.known_resource]['id_field'] in r)
             self.assertTrue(self.app.config['LAST_UPDATED'] in r)
             self.assertTrue(self.app.config['DATE_CREATED'] in r)
 
@@ -416,7 +427,7 @@ class TestGet(TestBase):
 
         for item in resource:
             # 'user' title instead of original 'contact'
-            self.assertItem(item)
+            self.assertItem(item, self.different_resource)
 
         etag = item.get(self.app.config['ETAG'])
         self.assertTrue(etag is not None)
@@ -436,7 +447,7 @@ class TestGet(TestBase):
         self.assert200(status)
         resource = response['_items']
         self.assertEqual(len(resource), 1)
-        self.assertItem(resource[0])
+        self.assertItem(resource[0], self.known_resource)
 
     def test_get_where_allowed_filters(self):
         self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
@@ -469,6 +480,16 @@ class TestGet(TestBase):
         self.app.config['LINKS'] = '_navigation'
         response, _ = self.get(self.known_resource)
         self.assertTrue('_navigation' in response and '_links' not in response)
+
+    def test_get_custom_hateoas_links(self):
+        def change_links(response):
+            response['_links'] = {'self': {'title': 'Custom',
+                                           'href': '/custom/1'}}
+        self.app.on_fetched_resource_contacts += change_links
+
+        response, _ = self.get(self.known_resource)
+        self.assertTrue('Custom' in response['_links']['self']['title'])
+        self.assertTrue('/custom/1' in response['_links']['self']['href'])
 
     def test_get_custom_auto_document_fields(self):
         self.app.config['LAST_UPDATED'] = '_updated_on'
@@ -563,7 +584,7 @@ class TestGet(TestBase):
                                             '?embedded=%s' % embedded))
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
-        self.assertTrue(content['_items'][0]['person'], self.item_id)
+        self.assertEqual(content['_items'][0]['person'], str(fake_contact_id))
 
         # Set field to be embedded
         invoices['schema']['person']['data_relation']['embeddable'] = True
@@ -574,7 +595,7 @@ class TestGet(TestBase):
                                             '?embedded=%s' % embedded))
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
-        self.assertTrue(content['_items'][0]['person'], self.item_id)
+        self.assertEqual(content['_items'][0]['person'], str(fake_contact_id))
 
         # Test that it works
         invoices['embedding'] = True
@@ -622,6 +643,21 @@ class TestGet(TestBase):
         content = json.loads(r.get_data())
         self.assertFalse('missing-field' in content['_items'][0])
 
+        # Test default fields to be embedded
+        invoices['embedded_fields'] = ['person']
+        r = self.test_client.get("%s/" % invoices['url'])
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertTrue('location' in content['_items'][0]['person'])
+
+        # Test that default fields are overwritten by ?embedded=...0
+        embedded = '{"person": 0}'
+        r = self.test_client.get("%s/%s" % (invoices['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertFalse('location' in content['_items'][0]['person'])
+
     def test_get_custom_embedded(self):
         self.app.config['QUERY_EMBEDDED'] = 'included'
         # We need to assign a `person` to our test invoice
@@ -648,10 +684,16 @@ class TestGet(TestBase):
     def test_get_reference_embedded_in_subdocuments(self):
         _db = self.connection[MONGO_DBNAME]
 
+        holding_contacts = self.random_contacts(2)
+        holding_contact_ids = _db.contacts.insert(holding_contacts)
         contacts = self.random_contacts(2)
         contact_ids = _db.contacts.insert(contacts)
-        company = {'departments': [{'title': 'development',
-                                   'members': contact_ids}]}
+        holding = {'departments': [{'title': 'managment',
+                                    'members': holding_contact_ids}]}
+        holding_id = _db.companies.insert(holding)
+        company = {'holding': holding_id,
+                   'departments': [{'title': 'development',
+                                    'members': contact_ids}]}
         company_id = _db.companies.insert(company)
         # Add a documents with no reference that should be ignored
         _db.companies.insert({})
@@ -662,18 +704,20 @@ class TestGet(TestBase):
 
         # Test that doesn't come embedded if asking for a field that
         # isn't embedded ('embeddable' is False by default)
-        embedded = '{"departments.members": 1}'
+        embedded = (
+            '{"departments.members": 1,' +
+            ' "holding": 1, "holding.departments.members": 1}')
         r = self.test_client.get('%s/%s' % (companies['url'],
                                             '?embedded=%s' % embedded))
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
-        self.assertEqual(content['_items'][0]['departments'][0]['members'],
+        self.assertEqual(content['_items'][1]['departments'][0]['members'],
                          contact_ids)
-
         # Set field to be embedded
         department_def = companies['schema']['departments']['schema']
         member_def = department_def['schema']['members']['schema']
         member_def['data_relation']['embeddable'] = True
+        companies['schema']['holding']['data_relation']['embeddable'] = True
 
         # Test that global setting applies even if field is set to embedded
         companies['embedding'] = False
@@ -681,7 +725,7 @@ class TestGet(TestBase):
                                             '?embedded=%s' % embedded))
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
-        self.assertEqual(content['_items'][0]['departments'][0]['members'],
+        self.assertEqual(content['_items'][1]['departments'][0]['members'],
                          contact_ids)
 
         # Test that it works
@@ -692,6 +736,10 @@ class TestGet(TestBase):
         content = json.loads(r.get_data())
         self.assertTrue('location' in
                         content['_items'][0]['departments'][0]['members'][0])
+        # Test that the second company is associated with the holding
+        self.assertTrue('location' in
+                        content['_items'][1]['holding']
+                        ['departments'][0]['members'][0])
 
         # Test that it ignores a bogus field
         embedded = '{"departments.members": 1, "not-a-real-field": 1}'
@@ -711,12 +759,21 @@ class TestGet(TestBase):
         self.assertTrue('location' in content['departments'][0]['members'][0])
 
         # Test default fields to be embedded
-        companies['embedded_fields'] = {"departments.members": 1}
+        companies['embedded_fields'] = ["departments.members"]
         r = self.test_client.get('%s/' % companies['url'])
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
         self.assertTrue('location' in
                         content['_items'][0]['departments'][0]['members'][0])
+
+        # Test that default fields are overwritten by ?embedded=...0
+        embedded = '{"departments.members": 0}'
+        r = self.test_client.get('%s/%s' % (companies['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        content = json.loads(r.get_data())
+        self.assertFalse('location' in
+                         content['_items'][0]['departments'][0]['members'][0])
 
     def test_get_nested_resource(self):
         response, status = self.get('users/overseas')
@@ -801,9 +858,9 @@ class TestGet(TestBase):
         self.assertEqual(json.loads(r.get_data())['_items'], [])
 
     def test_get_idfield_doesnt_exist(self):
-        # test that a non-existing ID_FIELD will be silently handled when
+        # test that a non-existing id field will be silently handled when
         # building HATEOAS document link (#351).
-        self.app.config['ID_FIELD'] = 'id'
+        self.domain[self.known_resource]['id_field'] = 'id'
         response, status = self.get(self.known_resource)
         self.assert200(status)
 
@@ -857,6 +914,35 @@ class TestGet(TestBase):
         items = response['_items']
         self.assertEqual(1, len(items))
 
+    def test_get_custom_idfield(self):
+        response, status = self.get('products')
+        self.assert200(status)
+        links = response['_links']
+        self.assertEqual(2, len(links))
+        self.assertHomeLink(links)
+        self.assertResourceLink(links, 'products')
+        items = response['_items']
+        self.assertEqual(2, len(items))
+        for item in items:
+            self.assertItem(item, 'products')
+
+    def test_get_subresource_with_custom_idfield(self):
+        db = self.connection[MONGO_DBNAME]
+        parent_product_sku = db.products.find_one()['sku']
+        product = {
+            'sku': 'BAZ',
+            'title': 'Child product',
+            'parent_product': parent_product_sku
+        }
+        db.products.insert(product)
+        response, status = self.get('products/%s/children' %
+                                    parent_product_sku)
+        self.assert200(status)
+        self.assertEqual(len(response['_items']), 1)
+        self.assertEqual(len(response['_links']), 2)
+        self.assertEqual(response['_items'][0]['parent_product'],
+                         parent_product_sku)
+
     def assertGet(self, response, status, resource=None):
         self.assert200(status)
 
@@ -872,7 +958,7 @@ class TestGet(TestBase):
         self.assertEqual(len(resource), self.app.config['PAGINATION_DEFAULT'])
 
         for item in resource:
-            self.assertItem(item)
+            self.assertItem(item, self.known_resource)
 
         etag = item.get(self.app.config['ETAG'])
         self.assertTrue(etag is not None)
@@ -880,15 +966,14 @@ class TestGet(TestBase):
 
 class TestGetItem(TestBase):
 
-    def assertItemResponse(self, response, status,
-                           resource=None):
+    def assertItemResponse(self, response, status, resource=None):
         self.assert200(status)
         self.assertTrue(self.app.config['ETAG'] in response)
         links = response['_links']
         self.assertEqual(len(links), 3)
         self.assertHomeLink(links)
         self.assertCollectionLink(links, resource or self.known_resource)
-        self.assertItem(response)
+        self.assertItem(response, resource or self.known_resource)
 
     def test_disallowed_getitem(self):
         _, status = self.get(self.empty_resource, item=self.item_id)
@@ -1067,6 +1152,27 @@ class TestGetItem(TestBase):
         content = json.loads(r.get_data())
         self.assertTrue('location' in content['person'])
 
+        # Test that changes to embedded document invalidate parent cache
+        invoice_last_modified = r.headers.get('Last-Modified')
+        contact_url = '%s/%s' % (self.domain['contacts']['url'],
+                                 fake_contact_id)
+        r = self.test_client.get(contact_url)
+        contact_etag = r.headers.get('Etag')
+
+        # wait for contact and invoice updated at diff to pass 1s resolution
+        time.sleep(2)
+        changes = {'location': {'city': 'new city'}}
+        response, status = self.patch(contact_url, data=changes,
+                                      headers=[('If-Match', contact_etag)])
+        self.assert200(status)
+
+        invoice_url = '%s/%s/%s' % (invoices['url'], self.invoice_id,
+                                    '?embedded=%s' % embedded)
+        r = self.test_client.get(invoice_url,
+                                 headers=[('If-Modified-Since',
+                                           invoice_last_modified)])
+        self.assert200(r.status_code)
+
     def test_subresource_getitem(self):
         _db = self.connection[MONGO_DBNAME]
 
@@ -1098,7 +1204,7 @@ class TestGetItem(TestBase):
 
         # IMS needs to see as recent as possible since the test db has just
         # been built
-        header = [("If-Modified-Since", date_to_rfc1123(datetime.now()))]
+        header = [("If-Modified-Since", date_to_rfc1123(datetime.utcnow()))]
 
         r = self.test_client.get(self.item_id_url, headers=header)
         self.assert304(r.status_code)
@@ -1120,7 +1226,7 @@ class TestGetItem(TestBase):
         self.assertFalse('location' in r)
         self.assertFalse('role' in r)
         self.assertTrue('prog' in r)
-        self.assertTrue(self.app.config['ID_FIELD'] in r)
+        self.assertTrue(self.domain[self.known_resource]['id_field'] in r)
         self.assertTrue(self.app.config['ETAG'] in r)
         self.assertTrue(self.app.config['LAST_UPDATED'] in r)
         self.assertTrue(self.app.config['DATE_CREATED'] in r)
@@ -1134,7 +1240,7 @@ class TestGetItem(TestBase):
         self.assertFalse('prog' in r)
         self.assertTrue('location' in r)
         self.assertTrue('role' in r)
-        self.assertTrue(self.app.config['ID_FIELD'] in r)
+        self.assertTrue(self.domain[self.known_resource]['id_field'] in r)
         self.assertTrue(self.app.config['ETAG'] in r)
         self.assertTrue(self.app.config['LAST_UPDATED'] in r)
         self.assertTrue(self.app.config['DATE_CREATED'] in r)
@@ -1151,6 +1257,12 @@ class TestGetItem(TestBase):
         self.assert201(status)
         response, status = self.get('ids', item='507c7f79bcf86cd7994f6c0e')
         self.assert200(status)
+
+    def test_getitem_with_custom_idfield(self):
+        _db = self.connection[MONGO_DBNAME]
+        sku = _db.products.find()[0]['sku']
+        response, status = self.get('products', item=sku)
+        self.assertItemResponse(response, status, 'products')
 
 
 class TestHead(TestBase):
@@ -1198,7 +1310,8 @@ class TestEvents(TestBase):
         # Would normally return a 404; will return one instead.
         r, s = self.parse_response(self.get_item())
         self.assert200(s)
-        self.assertEqual(r[self.app.config['ID_FIELD']], self.item_id)
+        self.assertEqual(r[self.domain[self.known_resource]['id_field']],
+                         self.item_id)
 
     def test_on_pre_GET_resource_for_item(self):
         self.app.on_pre_GET_contacts += self.devent
@@ -1286,17 +1399,15 @@ class TestEvents(TestBase):
         self.app.on_fetched_item += self.devent
         self.get_item()
         self.assertEqual('contacts', self.devent.called[0])
-        self.assertEqual(
-            self.item_id,
-            str(self.devent.called[1][self.app.config['ID_FIELD']]))
+        id_field = self.domain[self.known_resource]['id_field']
+        self.assertEqual(self.item_id, str(self.devent.called[1][id_field]))
         self.assertEqual(2, len(self.devent.called))
 
     def test_on_fetched_item_contacts(self):
         self.app.on_fetched_item_contacts += self.devent
         self.get_item()
-        self.assertEqual(
-            self.item_id,
-            str(self.devent.called[0][self.app.config['ID_FIELD']]))
+        id_field = self.domain[self.known_resource]['id_field']
+        self.assertEqual(self.item_id, str(self.devent.called[0][id_field]))
         self.assertEqual(1, len(self.devent.called))
 
     def get_resource(self):

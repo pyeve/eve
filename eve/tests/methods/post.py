@@ -4,8 +4,7 @@ from eve.tests import TestBase
 from eve.tests.utils import DummyEvent
 from eve.tests.test_settings import MONGO_DBNAME
 
-from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, DATE_CREATED, ISSUES, \
-    STATUS, ETAG
+from eve import STATUS_OK, LAST_UPDATED, DATE_CREATED, ISSUES, STATUS, ETAG
 from eve.methods.post import post
 from eve.methods.post import post_internal
 
@@ -189,10 +188,11 @@ class TestPost(TestBase):
         self.assertValidationError(results[3], {'ref': 'unique'})
         self.assertValidationError(results[4], {'tid': 'ObjectId'})
 
-        self.assertTrue(ID_FIELD not in results[0])
-        self.assertTrue(ID_FIELD not in results[1])
-        self.assertTrue(ID_FIELD not in results[2])
-        self.assertTrue(ID_FIELD not in results[3])
+        id_field = self.domain[self.known_resource]['id_field']
+        self.assertTrue(id_field not in results[0])
+        self.assertTrue(id_field not in results[1])
+        self.assertTrue(id_field not in results[2])
+        self.assertTrue(id_field not in results[3])
 
         with self.app.test_request_context():
             contacts = self.app.data.driver.db['contacts']
@@ -217,7 +217,7 @@ class TestPost(TestBase):
         self.assertValidationErrorStatus(status)
         expected = ("value '%s' must exist in resource '%s', field '%s'" %
                     (self.unknown_item_id, 'contacts',
-                     self.app.config['ID_FIELD']))
+                     self.domain['contacts']['id_field']))
         self.assertValidationError(r, {'person': expected})
 
         data = {"person": self.item_id}
@@ -231,7 +231,7 @@ class TestPost(TestBase):
         self.assertValidationErrorStatus(status)
         expected = ("value '%s' must exist in resource '%s', field '%s'" %
                     (self.unknown_item_id, 'contacts',
-                     self.app.config['ID_FIELD']))
+                     self.domain['contacts']['id_field']))
         self.assertValidationError(r, {'invoicing_contacts': expected})
 
         data = {"invoicing_contacts": [self.item_id, self.item_id]}
@@ -259,7 +259,7 @@ class TestPost(TestBase):
 
         # test that the unknown field is also returned with subsequent get
         # requests
-        id = r[self.app.config['ID_FIELD']]
+        id = r[self.domain[self.known_resource]['id_field']]
         r = self.test_client.get('%s/%s' % (self.known_resource_url, id))
         r_data = json.loads(r.get_data())
         self.assertTrue('unknown' in r_data)
@@ -282,6 +282,20 @@ class TestPost(TestBase):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
         self.assertTrue('ref' in r and 'notreally' not in r)
+
+    def test_post_with_excluded_response_fields(self):
+        data = {
+            'email': 'test@email.com',
+            'password': 'password'
+        }
+        r, status = self.post('login', data=data)
+        self.assert201(status)
+
+        login_id = r[self.domain['login']['id_field']]
+        r = self.test_client.get('%s/%s' % ('login', login_id))
+        r_data = json.loads(r.get_data())
+        self.assertTrue('password' not in r_data)
+        self.assertTrue('email' in r_data)
 
     def test_post_write_concern(self):
         # should get a 500 since there's no replicaset on mongod test instance
@@ -380,8 +394,20 @@ class TestPost(TestBase):
         self.assert201(status)
         self.assertPostResponse(response)
 
-        invoice_id = response.get(self.app.config['ID_FIELD'])
+        invoice_id = response.get(self.domain['peopleinvoices']['id_field'])
         response, status = self.get('users/%s/invoices/%s' %
+                                    (self.item_id, invoice_id))
+        self.assert200(status)
+        self.assertEqual(response.get('person'), self.item_id)
+
+    def test_subresource_required_ref(self):
+        response, status = self.post('users/%s/required_invoices' %
+                                     self.item_id, data={})
+        self.assert201(status)
+        self.assertPostResponse(response)
+
+        invoice_id = response.get(self.domain['required_invoices']['id_field'])
+        response, status = self.get('users/%s/required_invoices/%s' %
                                     (self.item_id, invoice_id))
         self.assert200(status)
         self.assertEqual(response.get('person'), self.item_id)
@@ -396,25 +422,31 @@ class TestPost(TestBase):
         self.assertTrue(ETAG not in r)
 
     def test_post_custom_idfield(self):
-        # test that we can post a document with a custom id_field
-        id_field = 'id'
-        test_value = '1234'
-        data = {id_field: test_value}
-
-        self.app.config['ID_FIELD'] = id_field
-
-        # custom id_fields also need to be included in the resource schema
-        self.domain['contacts']['schema'][id_field] = {
-            'type': 'string',
-            'required': True,
-            'unique': True
-        }
-        del(self.domain['contacts']['schema']['ref']['required'])
-
-        r, status = self.post(self.known_resource_url, data=data)
+        # Test that we can post a document with a custom id_field.
+        id_field = 'sku'
+        product = {id_field: 'FOO', 'title': 'Foobar'}
+        r, status = self.post('products', data=product)
         self.assert201(status)
         self.assertTrue(id_field in r)
         self.assertItemLink(r['_links'], r[id_field])
+
+    def test_post_with_relation_to_custom_idfield(self):
+        # Test that we can post a document that relates to a resource with a
+        # custom id_field.
+        id_field = 'sku'
+        db = self.connection[MONGO_DBNAME]
+        existing_product = db.products.find_one()
+        product = {
+            id_field: 'BAR',
+            'title': 'Foobar',
+            'parent_product': existing_product[id_field]
+        }
+        r, status = self.post('products', data=product)
+        self.assert201(status)
+        self.assertTrue(id_field in r)
+        self.assertItemLink(r['_links'], r[id_field])
+        r, status = self.get('products', item='BAR')
+        self.assertEqual(r['parent_product'], existing_product[id_field])
 
     def test_post_bandwidth_saver(self):
         data = {'inv_number': self.random_string(10)}
@@ -427,7 +459,8 @@ class TestPost(TestBase):
         self.assertFalse('inv_number' in r)
         etag = r[self.app.config['ETAG']]
         r, status = self.get(
-            self.empty_resource, '', r[self.app.config['ID_FIELD']])
+            self.empty_resource, '',
+            r[self.domain[self.empty_resource]['id_field']])
         self.assertEqual(etag, r[self.app.config['ETAG']])
 
         # test return all fields (bandwidth_saver off)
@@ -438,7 +471,8 @@ class TestPost(TestBase):
         self.assertTrue('inv_number' in r)
         etag = r[self.app.config['ETAG']]
         r, status = self.get(
-            self.empty_resource, '', r[self.app.config['ID_FIELD']])
+            self.empty_resource, '',
+            r[self.domain[self.empty_resource]['id_field']])
         self.assertEqual(etag, r[self.app.config['ETAG']])
 
     def test_post_alternative_payload(self):
@@ -456,13 +490,36 @@ class TestPost(TestBase):
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 
+    def test_post_dependency_required_fields(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        schema = self.domain['contacts']['schema']
+        schema['dependency_field3']['required'] = True
+
+        r, status = self.post(self.known_resource_url, data={})
+        self.assertValidationErrorStatus(status)
+        self.assertValidationError(r, {'dependency_field3': 'required'})
+
+        # required field dependnecy value matches the dependent field's default
+        # value. validation still fails since required field is still missing.
+        # See #665.
+        schema['dependency_field3']['dependencies'] = {'dependency_field1':
+                                                       'default'}
+        r, status = self.post(self.known_resource_url, data={})
+        self.assertValidationErrorStatus(status)
+        self.assertValidationError(r, {'dependency_field3': 'required'})
+
+        r, status = self.post(self.known_resource_url,
+                              data={'dependency_field3': 'hello'})
+        self.assert201(status)
+
     def test_post_dependency_fields_with_values(self):
         # test that dependencies values are validated correctly. See #547.
         del(self.domain['contacts']['schema']['ref']['required'])
 
         schema = {
             'field1': {
-                'required': False
+                'required': False,
+                'default': 'one'
             },
             'field2': {
                 'required': True,
@@ -482,7 +539,7 @@ class TestPost(TestBase):
 
         data = {"field2": 7}
         r, s = self.post('posts', data=data)
-        self.assert422(s)
+        self.assert201(s)
 
         data = {"field1": "one", "field2": 7}
         r, s = self.post('posts', data=data)
@@ -519,20 +576,36 @@ class TestPost(TestBase):
         r, status = self.post(self.known_resource_url, data=data)
         self.assertValidationErrorStatus(status)
 
-    def test_post_keyschema_dict(self):
+    def test_post_valueschema_dict(self):
         """ make sure Cerberus#48 is fixed """
         del(self.domain['contacts']['schema']['ref']['required'])
         r, status = self.post(self.known_resource_url,
-                              data={"keyschema_dict": {"k1": "1"}})
+                              data={"valueschema_dict": {"k1": "1"}})
         self.assertValidationErrorStatus(status)
         issues = r[ISSUES]
-        self.assertTrue('keyschema_dict' in issues)
-        self.assertEqual(issues['keyschema_dict'],
+        self.assertTrue('valueschema_dict' in issues)
+        self.assertEqual(issues['valueschema_dict'],
                          {'k1': 'must be of integer type'})
 
         r, status = self.post(self.known_resource_url,
-                              data={"keyschema_dict": {"k1": 1}})
+                              data={"valueschema_dict": {"k1": 1}})
         self.assert201(status)
+
+    def test_post_propertyschema_dict(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+
+        r, status = self.post(self.known_resource_url,
+                              data={"propertyschema_dict": {"aaa": 1}})
+        self.assert201(status)
+
+        r, status = self.post(self.known_resource_url,
+                              data={"propertyschema_dict": {"AAA": "1"}})
+        self.assertValidationErrorStatus(status)
+
+        issues = r[ISSUES]
+        self.assertTrue('propertyschema_dict' in issues)
+        self.assertEqual(issues['propertyschema_dict'],
+                         'propertyschema_dict')
 
     def test_post_internal(self):
         # test that post_internal is available and working properly.
@@ -543,6 +616,44 @@ class TestPost(TestBase):
             r, _, _, status = post_internal(self.known_resource, payl=payload)
         self.assert201(status)
 
+    def test_post_nested(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        data = {'location.city': 'a nested city',
+                'location.address': 'a nested address'}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert201(status)
+        values = self.compare_post_with_get(
+            r[self.domain[self.known_resource]['id_field']],
+            ['location']).pop()
+        self.assertEqual(values['city'], 'a nested city')
+        self.assertEqual(values['address'], 'a nested address')
+
+    def test_post_error_as_list(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        self.app.config['VALIDATION_ERROR_AS_LIST'] = True
+        data = {'unknown_field': 'a value'}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert422(status)
+        error = r[ISSUES]['unknown_field']
+        self.assertTrue(isinstance(error, list))
+
+    def test_id_field_included_with_document(self):
+        # since v0.6 we also allow the id field to be included with the POSTed
+        # document
+        id_field = self.domain[self.known_resource]['id_field']
+        id = '55b2340538345bd048100ffe'
+        data = {"ref": "1234567890123456789054321", id_field: id}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert201(status)
+        self.assertPostResponse(r)
+        self.assertEqual(r['_id'], id)
+
+    def test_post_type_coercion(self):
+        schema = self.domain[self.known_resource]['schema']
+        schema['aninteger']['coerce'] = lambda string: int(float(string))
+        data = {'ref': '1234567890123456789054321', 'aninteger': '42.3'}
+        self.assertPostItem(data, 'aninteger', 42)
+
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
@@ -551,36 +662,39 @@ class TestPost(TestBase):
 
     def assertPostItem(self, data, test_field, test_value):
         r = self.perform_post(data)
-        item_id = r[ID_FIELD]
+        item_id = r[self.domain[self.known_resource]['id_field']]
         item_etag = r[ETAG]
         db_value = self.compare_post_with_get(item_id, [test_field, ETAG])
         self.assertTrue(db_value[0] == test_value)
         self.assertTrue(db_value[1] == item_etag)
 
-    def assertPostResponse(self, response, valid_items=[0], id_field=ID_FIELD):
+    def assertPostResponse(self, response, valid_items=[0], resource=None):
         if '_items' in response:
             results = response['_items']
         else:
             results = [response]
+
+        id_field = self.domain[resource or self.known_resource]['id_field']
 
         for i in valid_items:
             item = results[i]
             self.assertTrue(STATUS in item)
             self.assertTrue(STATUS_OK in item[STATUS])
             self.assertFalse(ISSUES in item)
-            self.assertTrue(ID_FIELD in item)
+            self.assertTrue(id_field in item)
             self.assertTrue(LAST_UPDATED in item)
             self.assertTrue('_links' in item)
-            self.assertItemLink(item['_links'], item[ID_FIELD])
+            self.assertItemLink(item['_links'], item[id_field])
             self.assertTrue(ETAG in item)
 
     def compare_post_with_get(self, item_id, fields):
         raw_r = self.test_client.get("%s/%s" % (self.known_resource_url,
                                                 item_id))
         item, status = self.parse_response(raw_r)
+        id_field = self.domain[self.known_resource]['id_field']
         self.assert200(status)
-        self.assertTrue(ID_FIELD in item)
-        self.assertTrue(item[ID_FIELD] == item_id)
+        self.assertTrue(id_field in item)
+        self.assertTrue(item[id_field] == item_id)
         self.assertTrue(DATE_CREATED in item)
         self.assertTrue(LAST_UPDATED in item)
         self.assertEqual(item[DATE_CREATED], item[LAST_UPDATED])

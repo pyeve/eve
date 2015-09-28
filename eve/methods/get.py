@@ -10,11 +10,10 @@
     :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-import copy
 import math
 from flask import current_app as app, abort, request
 from .common import ratelimit, epoch, pre_event, resolve_embedded_fields, \
-    build_response_document, resource_link, document_link
+    build_response_document, resource_link, document_link, last_updated
 from eve.auth import requires_auth
 from eve.utils import parse_request, home_link, querydef, config
 from eve.versioning import synthesize_versioned_document, versioned_id_field, \
@@ -28,6 +27,9 @@ def get(resource, **lookup):
     """ Retrieves the resource documents that match the current request.
 
     :param resource: the name of the resource.
+
+    .. versionchanged:: 0.6
+       Support for HEADER_TOTAL_COUNT returned with response header.
 
     .. versionchanged:: 0.5
        Support for customisable query parameters.
@@ -97,6 +99,8 @@ def get(resource, **lookup):
     req.if_modified_since = None
 
     cursor = app.data.find(resource, req, lookup)
+    # If soft delete is enabled, data.find will not include items marked
+    # deleted unless req.show_deleted is True
     for document in cursor:
         build_response_document(document, resource, embedded_fields)
         documents.append(document)
@@ -106,10 +110,13 @@ def get(resource, **lookup):
             last_update = document[config.LAST_UPDATED]
 
     status = 200
+    headers = []
     last_modified = last_update if last_update > epoch() else None
 
     response[config.ITEMS] = documents
     count = cursor.count(with_limit_and_skip=False)
+    headers.append((config.HEADER_TOTAL_COUNT, count))
+
     if config.DOMAIN[resource]['hateoas']:
         response[config.LINKS] = _pagination_links(resource, req, count)
 
@@ -130,7 +137,7 @@ def get(resource, **lookup):
     if hasattr(cursor, 'extra'):
         getattr(cursor, 'extra')(response)
 
-    return response, last_modified, etag, status
+    return response, last_modified, etag, status, headers
 
 
 @ratelimit()
@@ -140,6 +147,9 @@ def getitem(resource, **lookup):
     """
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
+
+    .. versionchanged:: 0.6
+       Handle soft deleted documents
 
     .. versionchanged:: 0.5
        Allow ``?version=all`` requests to fire ``on_fetched_*`` events.
@@ -193,6 +203,12 @@ def getitem(resource, **lookup):
     resource_def = config.DOMAIN[resource]
     embedded_fields = resolve_embedded_fields(resource, req)
 
+    soft_delete_enabled = config.DOMAIN[resource]['soft_delete']
+    if soft_delete_enabled:
+        # GET requests should always fetch soft deleted documents from the db
+        # They are handled and included in 404 responses below.
+        req.show_deleted = True
+
     document = app.data.find_one(resource, req, **lookup)
     if not document:
         abort(404)
@@ -203,37 +219,51 @@ def getitem(resource, **lookup):
     latest_doc = None
     cursor = None
 
+    # calculate last_modified before get_old_document rolls back the document,
+    # allowing us to invalidate the cache when _latest_version changes
+    last_modified = last_updated(document)
+
     # synthesize old document version(s)
     if resource_def['versioning'] is True:
-        latest_doc = copy.deepcopy(document)
+        latest_doc = document
         document = get_old_document(
             resource, req, lookup, document, version)
 
     # meld into response document
     build_response_document(document, resource, embedded_fields, latest_doc)
-
-    # last_modified for the response
-    last_modified = document[config.LAST_UPDATED]
-
-    # facilitate client caching by returning a 304 when appropriate
     if config.IF_MATCH:
         etag = document[config.ETAG]
 
-        if req.if_none_match and etag == req.if_none_match:
-            # request etag matches the current server representation of the
-            # document, return a 304 Not-Modified.
-            return {}, last_modified, document[config.ETAG], 304
+    # check embedded fields resolved in build_response_document() for more
+    # recent last updated timestamps. We don't want to respond 304 if embedded
+    # fields have changed
+    for field in embedded_fields:
+        embedded_document = document.get(field)
+        if isinstance(embedded_document, dict):
+            embedded_last_updated = last_updated(embedded_document)
+            if embedded_last_updated > last_modified:
+                last_modified = embedded_last_updated
 
-    if req.if_modified_since and last_modified <= req.if_modified_since:
-        # request If-Modified-Since conditional request match. We test
-        # this after the etag since Last-Modified dates have lower
-        # resolution (1 second).
-        return {}, last_modified, document.get(config.ETAG), 304
+    # facilitate client caching by returning a 304 when appropriate
+    cache_validators = {True: 0, False: 0}
+    if req.if_modified_since:
+        cache_valid = (last_modified <= req.if_modified_since)
+        cache_validators[cache_valid] += 1
+    if req.if_none_match:
+        if (resource_def['versioning'] is False) or \
+           (document[app.config['VERSION']] ==
+                document[app.config['LATEST_VERSION']]):
+            cache_valid = (etag == req.if_none_match)
+            cache_validators[cache_valid] += 1
+    # If all cache validators are true, return 304
+    if (cache_validators[True] > 0) and (cache_validators[False] == 0):
+        return {}, last_modified, etag, 304
 
     if version == 'all' or version == 'diffs':
         # find all versions
-        lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
-        del lookup[app.config['ID_FIELD']]
+        lookup[versioned_id_field(resource_def)] \
+            = lookup[resource_def['id_field']]
+        del lookup[resource_def['id_field']]
         if version == 'diffs' or req.sort is None:
             # default sort for 'all', required sort for 'diffs'
             req.sort = '[("%s", 1)]' % config.VERSION
@@ -276,6 +306,15 @@ def getitem(resource, **lookup):
             response[config.ITEMS] = documents
         else:
             response = documents
+    elif soft_delete_enabled and document.get(config.DELETED) is True:
+        # This document was soft deleted. Respond with 404 and the deleted
+        # version of the document.
+        document[config.STATUS] = config.STATUS_ERR,
+        document[config.ERROR] = {
+            'code': 404,
+            'message': 'The requested URL was not found on this server.'
+        }
+        return document, last_modified, etag, 404
     else:
         response = document
 
@@ -286,13 +325,13 @@ def getitem(resource, **lookup):
             count = cursor.count(with_limit_and_skip=False)
             response[config.LINKS] = \
                 _pagination_links(resource, req, count,
-                                  latest_doc[config.ID_FIELD])
+                                  latest_doc[resource_def['id_field']])
             if config.DOMAIN[resource]['pagination']:
                 response[config.META] = _meta_links(req, count)
         else:
             response[config.LINKS] = \
                 _pagination_links(resource, req, None,
-                                  response[config.ID_FIELD])
+                                  response[resource_def['id_field']])
 
     # callbacks not supported on version diffs because of partial documents
     if version != 'diffs':

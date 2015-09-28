@@ -14,6 +14,7 @@ import sys
 import eve
 import hashlib
 import werkzeug.exceptions
+from copy import copy
 from flask import request
 from flask import current_app as app
 from datetime import datetime, timedelta
@@ -22,7 +23,7 @@ from eve import RFC1123_DATE_FORMAT
 
 
 class Config(object):
-    """ Helper class used trorough the code to access configuration settings.
+    """ Helper class used through the code to access configuration settings.
     If the main flaskapp object is not instantiated yet, returns the default
     setting in the eve __init__.py module, otherwise returns the flaskapp
     config value (which value might override the static defaults).
@@ -82,6 +83,10 @@ class ParsedRequest(object):
     # `embedded` value of the query string (?embedded). Defaults to None.
     embedded = None
 
+    # `show_deleted` True when the SHOW_DELETED_PARAM is included in query.
+    # Only relevant when soft delete is enabled. Defaults to False.
+    show_deleted = False
+
     # `args` value of the original request. Defaults to None.
     args = None
 
@@ -120,6 +125,8 @@ def parse_request(resource):
         r.sort = args.get(config.QUERY_SORT)
     if settings['embedding']:
         r.embedded = args.get(config.QUERY_EMBEDDED)
+
+    r.show_deleted = config.SHOW_DELETED_PARAM in args
 
     max_results_default = config.PAGINATION_DEFAULT if \
         settings['pagination'] else 0
@@ -264,17 +271,44 @@ def querydef(max_results=config.PAGINATION_DEFAULT, where=None, sort=None,
                            version_part, page_part]).lstrip('&')).rstrip('?')
 
 
-def document_etag(value):
+def document_etag(value, ignore_fields=None):
     """ Computes and returns a valid ETag for the input value.
 
     :param value: the value to compute the ETag with.
+    :param ignore_fields: `ignore_fields` list of fields to skip to
+                          compute the ETag value.
+
+    .. versionchanged:: 0.5.4
+       Use json_encoder_class. See #624.
 
     .. versionchanged:: 0.0.4
        Using bson.json_util.dumps over str(value) to make etag computation
        consistent between different runs and/or server instances (#16).
     """
+    if ignore_fields:
+        def filter_ignore_fields(d, fields):
+            # recursive function to remove the fields that they are in d,
+            # field is a list of fields to skip or dotted fields to look up
+            # to nested keys such as  ["foo", "dict.bar", "dict.joe"]
+            for field in fields:
+                key, _, value = field.partition(".")
+                if value:
+                    filter_ignore_fields(d[key], [value])
+                elif field in d:
+                    d.pop(field)
+                else:
+                    # not required fields can be not present
+                    pass
+
+        value_ = copy(value)
+        filter_ignore_fields(value_, ignore_fields)
+    else:
+        value_ = value
+
     h = hashlib.sha1()
-    h.update(dumps(value, sort_keys=True).encode('utf-8'))
+    json_encoder = app.data.json_encoder_class()
+    h.update(dumps(value_, sort_keys=True,
+                   default=json_encoder.default).encode('utf-8'))
     return h.hexdigest()
 
 
@@ -337,25 +371,27 @@ def validate_filters(where, resource):
     operators = getattr(app.data, 'operators', set())
     allowed = config.DOMAIN[resource]['allowed_filters'] + list(operators)
 
-    def validate_filter(filters):
-        r = None
-        for d in filters:
-            for key, value in d.items():
-                if key not in allowed:
-                    return "filter on '%s' not allowed" % key
-                if isinstance(value, dict):
-                    r = validate_filter([value])
-                elif isinstance(value, list):
-                    r = validate_filter(value)
+    def validate_filter(filter):
+        for key, value in filter.items():
+            if key not in allowed:
+                return "filter on '%s' not allowed" % key
 
+            if key in ('$or', '$and', '$nor'):
+                if not isinstance(value, list):
+                    return "operator '%s' expects a list of sub-queries" % key
+                for v in value:
+                    if not isinstance(v, dict):
+                        return "operator '%s' expects a list of sub-queries" \
+                            % key
+                    r = validate_filter(v)
+                    if r:
+                        return r
+            elif isinstance(value, dict):
+                r = validate_filter(value)
                 if r:
-                    break
-            if r:
-                break
+                    return r
 
-        return r
-
-    return validate_filter([where]) if '*' not in allowed else None
+    return validate_filter(where) if '*' not in allowed else None
 
 
 def auto_fields(resource):
@@ -368,17 +404,22 @@ def auto_fields(resource):
 
     .. versionadded:: 0.4
     """
+    resource_def = config.DOMAIN[resource]
+
     # preserved meta data
-    fields = [config.ID_FIELD, config.LAST_UPDATED, config.DATE_CREATED,
-              config.ETAG]
+    fields = [resource_def['id_field'], config.LAST_UPDATED,
+              config.DATE_CREATED, config.ETAG]
 
     # on-the-fly meta data (not in data store)
     fields += [config.ISSUES, config.STATUS, config.LINKS]
 
-    if config.DOMAIN[resource]['versioning'] is True:
+    if resource_def['versioning'] is True:
         fields.append(config.VERSION)
         fields.append(config.LATEST_VERSION)  # on-the-fly meta data
-        fields.append(config.ID_FIELD + config.VERSION_ID_SUFFIX)
+        fields.append(resource_def['id_field'] + config.VERSION_ID_SUFFIX)
+
+    if resource_def['soft_delete'] is True:
+        fields.append(config.DELETED)
 
     return fields
 

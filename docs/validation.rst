@@ -39,6 +39,8 @@ status is ``201 Created``. If any document fails validation the response status
 is ``422 Unprocessable Entity``, or any other error code defined by
 ``VALIDATION_ERROR_STATUS`` configuration.
 
+For information on how to define documents schema and standard validation
+rules, see :ref:`schema`. 
 
 Extending Data Validation
 -------------------------
@@ -82,6 +84,9 @@ can now do something like:
           }
     }
 
+Cerberus and Eve also offer `function-based validation`_ and `type coercion`_,
+lightweight alternatives to class-based custom validation.
+
 Custom Data Types
 -----------------
 You can also add new data types by simply adding ``_validate_type_<typename>``
@@ -115,8 +120,15 @@ allowing something like this:
 
 You can also check the `source code`_ for Eve custom validation, where you will
 find more advanced use cases, such as the implementation of the ``unique`` and
-``data_relation`` constraints. Please see the Cerberus_ documentation for
-a complete list rules and data types available. 
+``data_relation`` constraints. 
+
+For more information on
+
+.. note::
+
+    We have only scratched the surface of data validation. Please make sure
+    to check the Cerberus_ documentation for a complete list of available
+    validation rules and data types. 
 
 .. _unknown:
 
@@ -162,6 +174,7 @@ a payload like this will be accepted:
     option is enabled, clients will be capable of actually `adding` fields via
     PATCH (edit).
 
-.. _Cerberus: http://cerberus.readthedocs.org
+.. _Cerberus: http://python-cerberus.org
 .. _`source code`: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/mongo/validation.py
-
+.. _`function-based validation`: http://docs.python-cerberus.org/en/latest/customize.html#function-validator
+.. _`type coercion`: http://docs.python-cerberus.org/en/latest/usage.html#type-coercion

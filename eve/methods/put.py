@@ -9,18 +9,20 @@
     :copyright: (c) 2015 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-
-from werkzeug import exceptions
 from datetime import datetime
+
+from flask import current_app as app, abort
+from werkzeug import exceptions
+
 from eve.auth import requires_auth
 from eve.defaults import resolve_default_values
-from eve.validation import ValidationError
-from flask import current_app as app, abort
-from eve.utils import config, debug_error_message, parse_request
 from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, pre_event, store_media_files, resolve_user_restricted_access, \
     resolve_embedded_fields, build_response_document, marshal_write_response, \
-    resolve_document_etag, oplog_push
+    resolve_sub_resource_path, resolve_document_etag, oplog_push
+from eve.methods.post import post_internal
+from eve.utils import config, debug_error_message, parse_request
+from eve.validation import ValidationError
 from eve.versioning import resolve_document_version, \
     insert_versioning_documents, late_versioning_catch
 
@@ -62,6 +64,10 @@ def put_internal(resource, payload=None, concurrency_check=False,
     :param concurrency_check: concurrency check switch (bool)
     :param skip_validation: skip payload validation before write (bool)
     :param **lookup: document lookup query.
+
+    .. versionchanged:: 0.6
+       Create document if it does not exist. Closes #634.
+       Allow restoring soft deleted documents via PUT
 
     .. versionchanged:: 0.5
        Back to resolving default values after validaton as now the validator
@@ -111,13 +117,21 @@ def put_internal(resource, payload=None, concurrency_check=False,
 
     original = get_document(resource, concurrency_check, **lookup)
     if not original:
-        # not found
-        abort(404)
+        if config.UPSERT_ON_PUT:
+            id = lookup[resource_def['id_field']]
+            # this guard avoids a bson dependency, which would be needed if we
+            # wanted to use 'isinstance'. Should also be slightly faster.
+            if schema[resource_def['id_field']].get('type', '') == 'objectid':
+                id = str(id)
+            payload[resource_def['id_field']] = id
+            return post_internal(resource, payl=payload)
+        else:
+            abort(404)
 
     last_modified = None
     etag = None
     issues = {}
-    object_id = original[config.ID_FIELD]
+    object_id = original[resource_def['id_field']]
 
     response = {}
 
@@ -129,12 +143,16 @@ def put_internal(resource, payload=None, concurrency_check=False,
 
     try:
         document = parse(payload, resource)
+        resolve_sub_resource_path(document, resource)
         if skip_validation:
             validation = True
         else:
             validation = validator.validate_replace(document, object_id,
                                                     original)
         if validation:
+            # Apply coerced values
+            document = validator.document
+
             # sneak in a shadow copy if it wasn't already there
             late_versioning_catch(original, resource)
 
@@ -142,12 +160,17 @@ def put_internal(resource, payload=None, concurrency_check=False,
             last_modified = datetime.utcnow().replace(microsecond=0)
             document[config.LAST_UPDATED] = last_modified
             document[config.DATE_CREATED] = original[config.DATE_CREATED]
+            if resource_def['soft_delete'] is True:
+                # PUT with soft delete enabled should always set the DELETED
+                # field to False. We are either carrying through un-deleted
+                # status, or restoring a soft deleted document
+                document[config.DELETED] = False
 
-            # ID_FIELD not in document means it is not being automatically
+            # id_field not in document means it is not being automatically
             # handled (it has been set to a field which exists in the
             # resource schema.
-            if config.ID_FIELD not in document:
-                document[config.ID_FIELD] = object_id
+            if resource_def['id_field'] not in document:
+                document[resource_def['id_field']] = object_id
 
             resolve_user_restricted_access(document, resource)
             resolve_default_values(document, resource_def['defaults'])
@@ -158,7 +181,7 @@ def put_internal(resource, payload=None, concurrency_check=False,
             getattr(app, "on_replace")(resource, document, original)
             getattr(app, "on_replace_%s" % resource)(document, original)
 
-            resolve_document_etag(document)
+            resolve_document_etag(document, resource)
 
             # write to db
             try:
@@ -166,9 +189,8 @@ def put_internal(resource, payload=None, concurrency_check=False,
                     resource, object_id, document, original)
             except app.data.OriginalChangedError:
                 if concurrency_check:
-                    abort(412, description=debug_error_message(
-                        'Client and server etags don\'t match'
-                    ))
+                    abort(412,
+                          description='Client and server etags don\'t match')
 
             # update oplog if needed
             oplog_push(resource, document, 'PUT')
@@ -195,6 +217,7 @@ def put_internal(resource, payload=None, concurrency_check=False,
         raise e
     except Exception as e:
         # consider all other exceptions as Bad Requests
+        app.logger.exception(e)
         abort(400, description=debug_error_message(
             'An exception occurred: %s' % e
         ))

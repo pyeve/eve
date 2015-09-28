@@ -10,6 +10,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
+from copy import deepcopy
 from flask import current_app as app, abort
 from werkzeug import exceptions
 from datetime import datetime
@@ -61,6 +62,10 @@ def patch_internal(resource, payload=None, concurrency_check=False,
     :param concurrency_check: concurrency check switch (bool)
     :param skip_validation: skip payload validation before write (bool)
     :param **lookup: document lookup query.
+
+    .. versionchanged:: 0.6
+       on_updated returns the updated document (#682).
+       Allow restoring soft deleted documents via PATCH
 
     .. versionchanged:: 0.5
        Updating nested document fields does not overwrite the nested document
@@ -133,7 +138,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
     if not skip_validation:
         validator = app.validator(schema, resource)
 
-    object_id = original[config.ID_FIELD]
+    object_id = original[resource_def['id_field']]
     last_modified = None
     etag = None
 
@@ -154,6 +159,9 @@ def patch_internal(resource, payload=None, concurrency_check=False,
             validation = validator.validate_update(updates, object_id,
                                                    original)
         if validation:
+            # Apply coerced values
+            updates = validator.document
+
             # sneak in a shadow copy if it wasn't already there
             late_versioning_catch(original, resource)
 
@@ -164,13 +172,19 @@ def patch_internal(resource, payload=None, concurrency_check=False,
             updates[config.LAST_UPDATED] = \
                 datetime.utcnow().replace(microsecond=0)
 
+            if resource_def['soft_delete'] is True:
+                # PATCH with soft delete enabled should always set the DELETED
+                # field to False. We are either carrying through un-deleted
+                # status, or restoring a soft deleted document
+                updates[config.DELETED] = False
+
             # the mongo driver has a different precision than the python
             # datetime. since we don't want to reload the document once it
             # has been updated, and we still have to provide an updated
             # etag, we're going to update the local version of the
             # 'original' document, and we will use it for the etag
             # computation.
-            updated = original.copy()
+            updated = deepcopy(original)
 
             # notify callbacks
             getattr(app, "on_update")(resource, updates, original)
@@ -180,7 +194,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
             updated.update(updates)
 
             if config.IF_MATCH:
-                resolve_document_etag(updated)
+                resolve_document_etag(updated, resource)
                 # now storing the (updated) ETAG with every document (#453)
                 updates[config.ETAG] = updated[config.ETAG]
 
@@ -189,9 +203,8 @@ def patch_internal(resource, payload=None, concurrency_check=False,
                     resource, object_id, updates, original)
             except app.data.OriginalChangedError:
                 if concurrency_check:
-                    abort(412, description=debug_error_message(
-                        'Client and server etags don\'t match'
-                    ))
+                    abort(412,
+                          description='Client and server etags don\'t match')
 
             # update oplog if needed
             oplog_push(resource, updates, 'PATCH', object_id)
@@ -201,6 +214,8 @@ def patch_internal(resource, payload=None, concurrency_check=False,
             # nofity callbacks
             getattr(app, "on_updated")(resource, updates, original)
             getattr(app, "on_updated_%s" % resource)(updates, original)
+
+            updated.update(updates)
 
             # build the full response document
             build_response_document(
@@ -218,6 +233,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
         raise e
     except Exception as e:
         # consider all other exceptions as Bad Requests
+        app.logger.exception(e)
         abort(400, description=debug_error_message(
             'An exception occurred: %s' % e
         ))

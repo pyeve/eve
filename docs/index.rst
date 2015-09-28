@@ -32,8 +32,6 @@ All you need to bring your API online is a database, a configuration file
 (defaults to ``settings.py``) and a launch script.  Overall, you will find that
 configuring and fine-tuning your API is a very simple process.
 
-Eve is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4 and PyPy.
-
 .. _demo:
 
 Live demo
@@ -64,6 +62,7 @@ link <http://eve.readthedocs.org/en/stable/>`_.
     validation
     authentication
     tutorials/index
+    snippets/index
     extensions
     contributing
     testing
@@ -94,5 +93,5 @@ link <http://eve.readthedocs.org/en/stable/>`_.
 .. _eve-sqlalchemy: https://github.com/RedTurtle/eve-sqlalchemy
 .. _MongoDB: https://mongodb.org
 .. _Redis: http://redis.io
-.. _Cerberus: https://github.com/nicolaiarocci/cerberus
+.. _Cerberus: http://python-cerberus.org
 .. _events: https://github.com/nicolaiarocci/events

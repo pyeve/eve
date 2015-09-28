@@ -22,9 +22,10 @@ implementation of CRUD via REST:
 Action  HTTP Verb Context
 ======= ========= ===================
 Create  POST      Collection
+Create  PUT       Document
+Replace PUT       Document
 Read    GET, HEAD Collection/Document
 Update  PATCH     Document
-Replace PUT       Document
 Delete  DELETE    Collection/Document
 ======= ========= ===================
 
@@ -390,12 +391,6 @@ want to turn HATEOAS off? Well, if you know that your client application is not
 going to use the feature, then you might want to save on both bandwidth and
 performance. 
 
-.. admonition:: Please note
-
-    When HATEOAS is disabled, the API entry point (the home page) will return
-    a ``404``, since its only usefulness would be to return a list of available
-    resources, which is the standard behavior when HATEOAS is enabled.
-
 .. _jsonxml:
 
 JSON and XML Rendering
@@ -460,7 +455,7 @@ Consider the following workflow:
 
 .. code-block:: console
 
-    $ curl -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
+    $ curl -H "Content-Type: application/json" -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
     HTTP/1.1 403 FORBIDDEN
 
 We attempted an edit (``PATCH``), but we did not provide an ``ETag`` for the
@@ -468,7 +463,7 @@ item so we got a ``403 FORBIDDEN`` back. Let's try again:
 
 .. code-block:: console
 
-    $ curl -H "If-Match: 1234567890123456789012345678901234567890" -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
+    $ curl -H "If-Match: 1234567890123456789012345678901234567890" -H "Content-Type: application/json" -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
     HTTP/1.1 412 PRECONDITION FAILED
 
 What went wrong this time? We provided the mandatory ``If-Match`` header, but
@@ -477,7 +472,7 @@ currently stored on the server, so we got a ``412 PRECONDITION FAILED``. Again!
 
 .. code-block:: console
 
-    $ curl -H "If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012" -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37 -d '{"firstname": "ronald"}'
+    $ curl -H "If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012" -H "Content-Type: application/json" -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37 -d '{"firstname": "ronald"}'
     HTTP/1.1 200 OK
 
 Finally! And the response payload looks something like this:
@@ -681,6 +676,26 @@ with the same version number. In normal practice, ``VERSIONING`` can be enable
 without worry for any new collection or even an existing collection which has
 not previously had versioning enabled.
 
+Additionally, there are caching corner cases unique to document versions. A
+specific document version includes the ``_latest_version`` field, the value of
+which will change when a new document version is created. To account for this,
+Eve determines the time ``_latest_version`` changed (the timestamp of the last
+update to the primary document) and uses that value to populate the
+``Last-Modified`` header and check the ``If-Modified-Since`` conditional cache
+validator of specific document version queries. Note that this will be
+different from the timestamp in the version's last updated field. The etag for
+a document version does not change when ``_latest_version`` changes, however.
+This results in two corner cases. First, because Eve cannot determine if the
+client's ``_latest_version`` is up to date from an ETag alone, a query using
+only ``If-None-Match`` for cache validation of old document versions will always
+have its cache invalidated. Second, a version fetched and cached in the same
+second that multiple new versions are created can receive incorrect
+``Not Modified`` responses on ensuing ``GET`` queries due to ``Last-Modified``
+values having a resolution of one second and the static etag values not
+providing indication of the changes. These are both highly unlikely scenarios,
+but an application expecting multiple edits per second should account for the
+possibility of holing stale ``_latest_version`` data.
+
 For more information see and :ref:`global` and :ref:`domain`.
 
 
@@ -698,6 +713,31 @@ CORS Cross-Origin Resource Sharing
 Disabled by default, CORS_ allows web pages to work with REST APIs, something
 that is usually restricted by most broswers 'same domain' security policy.
 Eve-powered APIs can be accessed by the JavaScript contained in web pages.
+
+JSONP Support
+-------------
+In general you don't really want to add JSONP when you can enable CORS instead:
+
+    There have been some criticisms raised about JSONP. Cross-origin resource
+    sharing (CORS) is a more recent method of getting data from a server in
+    a different domain, which addresses some of those criticisms. All modern
+    browsers now support CORS making it a viable cross-browser alternative (source_.)
+
+There are circumstances however when you do need JSONP, like when you have to
+support legacy software (IE6 anyone?) 
+
+To enable JSONP in Eve you just set
+``JSONP_ARGUMENT``. Then, any valid request with ``JSONP_ARGUMENT`` will get
+back a response wrapped with said argument value. For example if you set
+``JSON_ARGUMENT = 'callback'``:
+
+.. code-block:: console
+
+    $ curl -i http://localhost:5000/?callback=hello
+    hello(<JSON here>)
+
+Requests with no ``callback`` argument will be served with no JSONP.
+ 
 
 Read-only by default
 --------------------
@@ -836,10 +876,15 @@ in this scenario would be a dictionary with fields ``_id`` and ``_version``.
 Predefined Resource Serialization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 It is also possible to elect some fields for predefined resource
-serialization. The ``embedded_fields`` option accepts a list of fields. If the
-listed fields are embeddable and they are actually referencing documents in other
-resources (and embedding is enbaled for the resource), then the referenced
-documents will be embedded by default.
+serialization. If the listed fields are embeddable and they are actually referencing
+documents in other resources (and embedding is enbaled for the resource), then the
+referenced documents will be embedded by default. Clients can still opt out from field
+that are embedded by default:
+
+.. code-block:: console
+
+    $ curl -i http://example.com/people/?embedded{"author": 0}
+    HTTP/1.1 200 OK
 
 Limitations
 ~~~~~~~~~~~
@@ -848,9 +893,8 @@ subdocuments (nested dicts and lists). For example, a query
 ``/invoices?/embedded={"user.friends":1}`` will return a document with ``user``
 and all his ``friends`` embedded, but only if ``user`` is a subdocument and
 ``friends`` is a list of reference (it could be a list of dicts, nested
-dict, ect.). We *do not* support multiple layers embeddings. This feature is
-about serialization on GET requests. There's no support for POST, PUT or PATCH
-of embedded documents.
+dict, ect.). This feature is about serialization on GET requests. There's no
+support for POST, PUT or PATCH of embedded documents.
 
 Document embedding is enabled by default.
 
@@ -865,13 +909,112 @@ Document embedding is enabled by default.
     that each embedded resource being looked up will require a database lookup,
     which can easily lead to performance issues.
 
+.. _soft_delete:
+
+Soft Delete
+-----------
+Eve provides an optional "soft delete" mode in which deleted documents continue
+to be stored in the database and are able to be restored, but still act as
+removed items in response to API requests. Soft delete is disabled by default,
+but can be enabled globally using the ``SOFT_DELETE`` configuration setting, or
+individually configured at the resource level using the domain configuration
+``soft_delete`` setting. See :ref:`global` and :ref:`domain` for more
+information on enabling and configuring soft delete.
+
+Behavior
+~~~~~~~~
+With soft delete enabled, DELETE requests to individual items and resources
+respond just as they do for a traditional "hard" delete. Behind the scenes,
+however, Eve does not remove deleted items from the database, but instead
+patches the document with a ``_deleted`` meta field set to ``true``. (The name
+of the ``_deleted`` field is configurable. See :ref:`global`.) All requests
+made when soft delete is enabled filter against or otherwise account for the
+``_deleted`` field.
+
+The ``_deleted`` field is automatically added and initialized to ``false`` for
+all documents created while soft delete is enabled. Documents created prior to
+soft delete being enabled and which therefore do not define the ``_deleted``
+field in the database will still include ``_deleted: false`` in API response
+data, added by Eve during response construction. PUTs or PATCHes to these
+documents will add the ``_deleted`` field to the stored documents, set to
+``false``.
+
+Responses to GET requests for soft deleted documents vary slightly from
+responses to missing or "hard" deleted documents. GET requests for soft deleted
+documents will still respond with ``404 Not Found`` status codes, but the
+response body will contain the soft deleted document with ``_deleted: true``.
+Documents embedded in the deleted document will not be expanded in the
+response, regardless of any default settings or the contents of the request's
+``embedded`` query param. This is to ensure that soft deleted documents
+included in ``404`` responses reflect the state of a document when it was
+deleted, and do not to change if embedded documents are updated.
+
+By default, resource level GET requests will not include soft deleted items in
+their response. This behavior matches that of requests after a "hard" delete.
+If including deleted items in the response is desired, the ``show_deleted``
+query param can be added to the request. (the ``show_deleted`` param name is
+configurable. See :ref:`global`) Eve will respond with all documents, deleted
+or not, and it is up to the client to parse returned documents' ``_deleted``
+field. The ``_deleted`` field can also be explicitly filtered against in a
+request, allowing only deleted documents to be returned using a
+``?where={"_deleted": true}`` query.
+
+Soft delete is enforced in the data layer, meaning queries made by application
+code using the ``app.data.find_one`` and ``app.data.find`` methods will
+automatically filter out soft deleted items. Passing a request object with
+``req.show_deleted == True`` or a lookup dictionary that explicitly filters on
+the ``_deleted`` field will override the default filtering.
+
+Restoring Soft Deleted Items
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PUT or PATCH requests made to a soft deleted document will restore it,
+automatically setting ``_deleted`` to ``false`` in the database. Modifying the
+``_deleted`` field directly is not necessary (or allowed). For example, using
+PATCH requests, only the fields to be changed in the restored version would be
+specified, or an empty request would be made to restore the document as is. The
+request must be made with proper authorization for write permission to the soft
+deleted document or it will be refused.
+
+Versioning
+~~~~~~~~~~
+Soft deleting a versioned document creates a new version of that document with
+``_deleted`` set to ``true``. A GET request to the deleted version will recieve
+a ``404 Not Found`` response as described above, while previous versions will
+continue to respond with ``200 OK``. Responses to ``?version=diff`` or
+``?version=all`` will include the deleted version as if it were any other.
+
+Data Relations
+~~~~~~~~~~~~~~
+The Eve ``data_relation`` validator will not allow references to documents that
+have been soft deleted. Attempting to create or update a document with a
+reference to a soft deleted document will fail just as if that document had
+been hard deleted. Existing data relations to documents that are soft deleted
+remain in the database, but requests requiring embedded document serialization
+of those relations will resolve to a null value. Again, this matches the
+behavior of relations to hard deleted documents.
+
+Versioned data relations to a deleted document version will also fail to
+validate, but relations to versions prior to deletion or after restoration of
+the document are allowed and will continue to resolve successfully.
+
+Considerations
+~~~~~~~~~~~~~~
+Disabling soft delete after use in an application requires database maintenance
+to ensure your API remains consistent. With soft delete disabled, requests will
+no longer filter against or handle the ``_deleted`` field, and documents that
+were soft deleted will now be live again on your API. It is therefore necessary
+when disabling soft delete to perform a data migration to remove all documents
+with ``_deleted == True``, and recommended to remove the ``_deleted`` field
+from documents where ``_deleted == False``. Enabling soft delete in an existing
+application is safe, and will maintain documents deleted from that point on.
+
 .. _eventhooks:
 
 Event Hooks
 -----------
 Pre-Request Event Hooks
 ~~~~~~~~~~~~~~~~~~~~~~~
-When a GET, POST, PATCH, PUT, DELETE request is received, both
+When a GET/HEAD, POST, PATCH, PUT, DELETE request is received, both
 a ``on_pre_<method>`` and a ``on_pre_<method>_<resource>`` event is raised.
 You can subscribe to these events with multiple callback functions. 
 
@@ -1022,10 +1165,10 @@ Let's see an overview of what events are available:
 |       |        |      || ``def event(updates, original)``               |
 |       |        +------+-------------------------------------------------+
 |       |        |After || ``on_updated``                                 |
-|       |        |      || ``def event(resource_name, updates, original)``|
+|       |        |      || ``def event(resource_name, updated, original)``|
 |       |        |      +-------------------------------------------------+
 |       |        |      || ``on_updated_<resource_name>``                 |
-|       |        |      || ``def event(updates, original)``               |
+|       |        |      || ``def event(updated, original)``               |
 +-------+--------+------+-------------------------------------------------+
 |Delete |Item    |Before|| ``on_delete_item``                             |
 |       |        |      || ``def event(resource_name, item)``             |
@@ -1311,6 +1454,8 @@ As a proper developer guide is not available yet, you can peek at the
 MediaStorage_ source if you are interested in developing custom storage
 classes.
 
+Serving media files as Base64 strings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 When a document is requested media files will be returned as Base64 strings,
 
 .. code-block:: python
@@ -1364,6 +1509,34 @@ If you have other means to retrieve the media files (custom Flask endpoint for
 example) then the media files can be excluded from the paylod by setting to
 ``False`` the ``RETURN_MEDIA_AS_BASE64_STRING`` flag. This takes into account
 if ``EXTENDED_MEDIA_INFO`` is used.
+
+Serving media files at a dedicated endpoint
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+While returning files embedded as Base64 fields is the default behaviour, you
+can opt for serving them at a dedicated media endpoint. You achieve that by
+setting ``RETURN_MEDIA_AS_URL`` to ``True``. When this feature is enabled
+document fields contain urls to the correspondent files, which are served at the
+media endpoint. 
+
+You can change the default media endpoint (``media``) by updating the
+``MEDIA_BASE_URL`` and ``MEDIA_ENDPOINT`` setting. Suppose you are storing your
+images on Amazon S3 via a custom ``MediaStorage`` subclass. You would probably
+set your media endpoint like so:
+
+.. code-block:: python
+
+    # disable default behaviour
+    RETURN_MEDIA_AS_BASE64_STRING = False
+
+    # return media as URL instead
+    RETURN_MEDIA_AS_URL = True
+
+    # set up the desired media endpoint
+    MEDIA_BASE_URL = 'https://s3-us-west-2.amazonaws.com'
+    MEDIA_ENDPOINT = 'media'
+
+Setting ``MEDIA_BASE_URL`` is optional. If no value is set, then
+the API base address will be used when building the URL for ``MEDIA_ENDPOINT``.
 
 .. _projection_filestorage:
 
@@ -1454,7 +1627,7 @@ Storing a contact along with its location is pretty straightforward:
 
 Querying GeoJSON Data
 ~~~~~~~~~~~~~~~~~~~~~
-As a genera rule all MongoDB `geospatial query operators`_ and their associated
+As a general rule all MongoDB `geospatial query operators`_ and their associated
 geometry specifiers are supported. In this example we are using the `$near`_
 operator to query for all contacts living in a location within 1000 meters from
 a certain point:
@@ -1524,6 +1697,75 @@ Something like this:
 
 I admit that this example is as rudimentary as it can get, but hopefully it
 will get the point across.
+
+.. _logging:
+
+Enhanced Logging
+----------------
+A number of events are available for logging via the default application
+logger. The standard `LogRecord attributes`_ are extended with a few request
+attributes:
+
+.. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
+
+=================================== =========================================
+``clientip``                        IP address of the client performing the
+                                    request.
+
+``url``                             Full request URL, eventual query parameters 
+                                    included.
+
+``method``                          Request method (``POST``, ``GET``, etc.)
+
+=================================== =========================================
+
+
+You can use these fields when logging to a file or any other destination.
+
+Callback functions can also take advantage of the builtin logger. The following
+example logs application events to a file, and also logs custom messages every
+time a custom function is invoked.
+
+.. code-block:: python
+
+    import logging
+
+    from eve import Eve
+
+    def log_every_get(resoure, request, payload):
+        # custom INFO-level message is sent to the log file
+        app.logger.info('We just answered to a GET request!')
+
+    app = Eve()
+    app.on_post_GET += log_every_get
+
+    if __name__ == '__main__':
+
+        # enable logging to 'app.log' file
+        handler = logging.FileHandler('app.log')
+
+        # set a custom log format, and add request 
+        # metadata to each log line
+        handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s '
+            '[in %(filename)s:%(lineno)d] -- ip: %(clientip)s, '
+            'url: %(url)s, method:%(method)s'))
+
+        # the default log level is set to WARNING, so
+        # we have to explictly set the logging level 
+        # to INFO to get our custom message logged.
+        app.logger.setLevel(logging.INFO)
+
+        # append the handler to the default application logger
+        app.logger.addHandler(handler)
+
+        # let's go
+        app.run()
+
+
+Currently only exceptions raised by the MongoDB layer and ``POST``, ``PATCH``
+and ``PUT`` methods are logged. The idea is to also add some ``INFO`` and
+possibly ``DEBUG`` level events in the future. 
 
 .. _oplog:
 
@@ -1625,12 +1867,25 @@ query the oplog for changes occured on that endpoint.
     in case you are wondering yes, the Eve oplog is blatantly inpsired by the
     awesome `Replica Set Oplog`_.
 
+.. _schema_endpoint:
+
+The Schema Endpoint
+-------------------
+Resource schema can be exposed to API clients by enabling Eve's schema
+endpoint. To do so, set the ``SCHEMA_ENDPOINT`` configuration option to the API
+endpoint name from which you want to serve schema data. Once enabled, Eve will
+treat the endpoint as a read only resource containing JSON encoded Cerberus
+schema definitons, indexed by resource name. Resource visibility and
+authorization settings are honored, so internal resources or resources for
+which a request does not have read authentication will not be accessible at the
+schema endpoint. By default, ``SCHEMA_ENDPOINT`` is set to ``None``.
+
 MongoDB and SQL Support
 ------------------------
-Support for MongoDB comes out of the box. An SQLAlchemy extension provides
-support for SQL backends. Additional data layers can can be developed with
-relative ease. Visit the `extensions page`_ for a list of community developed
-data layers and extensions. 
+Support for single or multiple MongoDB database/servers comes out of the box.
+An SQLAlchemy extension provides support for SQL backends. Additional data
+layers can can be developed with relative ease. Visit the `extensions page`_
+for a list of community developed data layers and extensions. 
 
 Powered by Flask
 ----------------
@@ -1663,3 +1918,5 @@ for unittesting_ and an `extensive documentation`_.
 .. _`capped collection`: http://docs.mongodb.org/manual/ore/capped-collections/
 .. _`Replica Set Oplog`: http://docs.mongodb.org/manual/core/replica-set-oplog/
 .. _`extensions page`: http://python-eve.org/extensions
+.. _source: http://en.wikipedia.org/wiki/JSONP
+.. _`LogRecord attributes`: https://docs.python.org/2/library/logging.html#logrecord-attributes 

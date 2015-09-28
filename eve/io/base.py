@@ -15,7 +15,7 @@ from copy import copy
 from flask import request, abort
 from eve.utils import date_to_str
 from eve.auth import auth_field_and_value
-from eve.utils import config, debug_error_message, auto_fields
+from eve.utils import config, auto_fields
 
 
 class BaseJSONEncoder(json.JSONEncoder):
@@ -30,6 +30,9 @@ class BaseJSONEncoder(json.JSONEncoder):
             # should not happen since the only supported date-like format
             # supported at dmain schema level is 'datetime' .
             return obj.isoformat()
+        elif isinstance(obj, set):
+            # convert set objects to encodable lists
+            return list(obj)
         return json.JSONEncoder.default(self, obj)
 
 
@@ -116,7 +119,7 @@ class DataLayer(object):
         (`/people/`).
 
         :param resource: resource being accessed. You should then use
-                         the ``_datasource`` helper function to retrieve both
+                         the ``datasource`` helper function to retrieve both
                          the db collection/table and base query (filter), if
                          any.
         :param req: an instance of ``eve.utils.ParsedRequest``. This contains
@@ -138,7 +141,7 @@ class DataLayer(object):
         item endpoint (`/people/id/`).
 
         :param resource: resource being accessed. You should then use the
-                         ``_datasource`` helper function to retrieve both the
+                         ``datasource`` helper function to retrieve both the
                          db collection/table and base query (filter), if any.
         :param req: an instance of ``eve.utils.ParsedRequest``. This contains
                     all the constraints that must be fulfilled in order to
@@ -190,7 +193,7 @@ class DataLayer(object):
         """ Inserts a document into a resource collection/table.
 
         :param resource: resource being accessed. You should then use
-                         the ``_datasource`` helper function to retrieve both
+                         the ``datasource`` helper function to retrieve both
                          the actual datasource name.
         :param doc_or_docs: json document or list of json documents to be added
                             to the database.
@@ -204,7 +207,7 @@ class DataLayer(object):
     def update(self, resource, id_, updates, original):
         """ Updates a collection/table document/row.
         :param resource: resource being accessed. You should then use
-                         the ``_datasource`` helper function to retrieve
+                         the ``datasource`` helper function to retrieve
                          the actual datasource name.
         :param id_: the unique id of the document.
         :param updates: json updates to be performed on the database document
@@ -219,7 +222,7 @@ class DataLayer(object):
     def replace(self, resource, id_, document, original):
         """ Replaces a collection/table document/row.
         :param resource: resource being accessed. You should then use
-                         the ``_datasource`` helper function to retrieve
+                         the ``datasource`` helper function to retrieve
                          the actual datasource name.
         :param id_: the unique id of the document.
         :param document: the new json document
@@ -236,7 +239,7 @@ class DataLayer(object):
         database collection/table.
 
         :param resource: resource being accessed. You should then use
-                         the ``_datasource`` helper function to retrieve
+                         the ``datasource`` helper function to retrieve
                          the actual datasource name.
         :param lookup: a dict with the query that documents must match in order
                        to qualify for deletion. For single document deletes,
@@ -288,19 +291,22 @@ class DataLayer(object):
         the is_empty() check (see eve.io.mongo.mongo.py implementation).
 
         :param resource: resource being accessed. You should then use
-                         the ``_datasource`` helper function to retrieve
+                         the ``datasource`` helper function to retrieve
                          the actual datasource name.
 
         .. versionadded: 0.3
         """
         raise NotImplementedError
 
-    def _datasource(self, resource):
+    def datasource(self, resource):
         """ Returns a tuple with the actual name of the database
         collection/table, base query and projection for the resource being
         accessed.
 
         :param resource: resource being accessed.
+
+        .. versionchanged:: 0.6
+           Name change: from _datasource to datasource.
 
         .. versionchanged:: 0.5
            If allow_unknown is enabled for the resource, don't return any
@@ -370,7 +376,7 @@ class DataLayer(object):
         .. versionadded:: 0.0.4
         """
 
-        datasource, filter_, projection_, sort_ = self._datasource(resource)
+        datasource, filter_, projection_, sort_ = self.datasource(resource)
 
         if client_sort:
             sort = client_sort
@@ -437,16 +443,16 @@ class DataLayer(object):
                     if auth_field_in_query and \
                             self.app.data.get_value_from_query(
                                 query, auth_field) != request_auth_value:
-                        abort(401, description=debug_error_message(
-                            'Incompatible User-Restricted Resource request. '
-                            'Request was for "%s"="%s" but `auth_field` '
-                            'requires "%s"="%s".' % (
-                                auth_field,
-                                self.app.data.get_value_from_query(
-                                    query, auth_field),
-                                auth_field,
-                                request_auth_value)
-                        ))
+                        abort(401, description='Incompatible User-Restricted '
+                              'Resource request. '
+                              'Request was for "%s"="%s" but `auth_field` '
+                              'requires "%s"="%s".' % (
+                                  auth_field,
+                                  self.app.data.get_value_from_query(
+                                      query, auth_field),
+                                  auth_field,
+                                  request_auth_value)
+                              )
                     else:
                         query = self.app.data.combine_queries(
                             query, {auth_field: request_auth_value}

@@ -115,8 +115,8 @@ script, can be hard-coded to handle the case:
 
     class BCryptAuth(BasicAuth):
         def check_auth(self, username, password, allowed_roles, resource, method):
-            if resource = 'accounts':
-                return username == 'superuser' and password = 'password'
+            if resource == 'accounts':
+                return username == 'superuser' and password == 'password'
             else:
                 # use Eve's own db driver; no additional connections/resources are used
                 accounts = app.data.driver.db['accounts']
@@ -501,7 +501,7 @@ definition accordingly:
         'allowed_roles': ['superuser', 'admin'],
 
         # Allow 'token' to be returned with POST responses
-        extra_response_fields: ['token'],
+        'extra_response_fields': ['token'],
         
         # Finally, let's add the schema definition for this endpoint.
         'schema': schema,

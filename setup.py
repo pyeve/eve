@@ -6,7 +6,7 @@ with open('README.rst') as f:
     LONG_DESCRIPTION = f.read()
 
 install_requires = [
-    'cerberus>=0.8,<0.9',
+    'cerberus>=0.9.2,<0.10',
     'events>=0.2.1,<0.3',
     'simplejson>=3.3.0,<4.0',
     'werkzeug>=0.9.4,<0.11',
@@ -14,7 +14,7 @@ install_requires = [
     'jinja2>=2.7.2,<3.0',
     'itsdangerous>=0.22,<1.0',
     'flask>=0.10.1,<0.11',
-    'pymongo>=2.7.1,<3.0',
+    'pymongo>=2.8,<3.0',
     'flask-pymongo>=0.3.0,<0.4',
 ]
 
@@ -27,7 +27,7 @@ except ImportError:
 
 setup(
     name='Eve',
-    version='0.5.3',
+    version='0.6',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',
@@ -38,7 +38,7 @@ setup(
     packages=find_packages(),
     test_suite="eve.tests",
     install_requires=install_requires,
-    tests_require=['redis'],
+    tests_require=['redis', 'testfixtures'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',

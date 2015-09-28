@@ -38,7 +38,7 @@
 
 """
 
-__version__ = '0.5.3'
+__version__ = '0.6'
 
 # RFC 1123 (ex RFC 822)
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
@@ -71,6 +71,7 @@ LINKS = '_links'
 ETAG = '_etag'
 VERSION = '_version'
 META = '_meta'
+INFO = None
 
 QUERY_WHERE = 'where'
 QUERY_SORT = 'sort'
@@ -80,6 +81,7 @@ QUERY_EMBEDDED = 'embedded'
 QUERY_PROJECTION = 'projection'
 
 VALIDATION_ERROR_STATUS = 422
+VALIDATION_ERROR_AS_LIST = False
 
 # must be the last line (will raise W402 on pyflakes)
 from eve.flaskapp import Eve  # noqa
