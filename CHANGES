@@ -9,38 +9,22 @@ In Development
 Version 0.6
 ~~~~~~~~~~~
 
+Released on 28 September, 2015
+
 - New: support for embedding simple ObjectId fields: you can now use the
   ``data_relation`` rule on them (Gonéri Le Bouder).
 - New: support for multiple layers of embedding (Gonéri Le Bouder).
-- Update: Cerberus 0.9.2 is now required.
 - New: ``SCHEMA_ENDPOINT`` allows resource schema to be returned from an API
   endpoint (Nick Park).
-- Fix: store versions in the same mongo collection when ``datasource`` is used
-  (Magdas Adrian).
 - New: HATEOAS links can be customized from within callback functions (Magdas
   Adrian).
-- Fix: changes to the ``updates`` argument, applied by callbacks hooked to the
-  ``on_updated`` event, were not persisted to the database (Magdas Adrian).
-  Closes #682.
-- Fix: Changes applied to the ``updates`` argument``on_updated`` returns the
-  whole updated document. Previously, it was only returning the updates sent
-  with the request. Closes #682.
-- Fix: Replace the Cerberus rule ``keyschema``, now deprecated, with the new
-  ``propertyschema`` (Julian Hille).
 - New: ``_INFO``: string value to include an info section, with the given INFO
   name, at the Eve homepage (suggested value ``_info``). The info section will
   include Eve server version and API version (API_VERSION, if set).  ``None``
   otherwise, if you do not want to expose any server info. Defaults to ``None``
   (Stratos Gerakakis). 
-- Change: when HATEOAS is off the home endpoint will respond with ``200 OK``
-  instead of ``404 Not Found`` (Stratos Gerakakis). 
 - New: ``id_field`` sets a field used to uniquely identify resource items
   within the database. Locally overrides ``ID_FIELD`` (Dominik Kellner).
-- Fix: some error message are not filtered out of debug mode anymore, as they
-  are useful for users and do not leak informations. Closes #671 (Sebastien
-  Estienne).
-- Fix: reinforce Content-Type Header handling to avoid possible crash when it
-  is missing (Sebastien Estienne).
 - New: ``UPSERT_ON_PUT`` allows document creation on PUT if the document does
   not exist. Defaults to ``True``. See below for details.
 - New: PUT attempts to create a document if it does not exist. The URL endpoint
@@ -50,9 +34,6 @@ Version 0.6
   identical the one you would get by performing a single document POST to the
   resource endpoint. Set ``UPSET_ON_PUT`` to ``False`` to disable this
   behaviour, and get a ``404`` instead.  Closes #634.
-- Change: PUT does not return ``404`` if a document URL does not exist. It will
-  attempt to create the document instead. Set ``UPSET_ON_PUT`` to ``False`` to
-  disable this behaviour and get a ``404`` instead.
 - New: POST accepts documents which include ``ID_FIELD`` (``_id``) values. This
   is in addition to the old behaviour of auto-generating ``ID_FIELD`` values
   when the submitted document does not contain it. Please note that, while you
@@ -60,22 +41,8 @@ Version 0.6
   have to, unless its type is different from the ``ObjectId`` default. This
   means that in most cases you can start storing ``ID_FIELD``-included
   documents right away, without making any changes.
-- Change: A PATCH including an ``ID_FIELD`` field which value is different than
-  the original will get a ``400 Bad Request``, along with an explanation in the
-  message body that the field is immutable. Previously, it would get an
-  ``unknown field`` validation error.
-- Fix: some schema errors were not being reported as SchemaError exceptions.
-  A more generic 'DOMAIN missing or wrong' message was returned instead.
-- Fix: When versioning is enabled on a resource with a custom ID_FIELD,
-  versioning documents will inherit their ID from the versioned document,
-  making any update of the document result in a DuplicateKeyError (Matthieu
-  Prat).
-- Fix: Filter validation fails to validate query selectors that contain a value
-  of the list data-type, which is not a list of sub-queries. See #674 (Matthieu
-  Prat).
 - New: Log MongoDB and HTTP methods exceptions (Sebastien Estienne).
 - New: Enhanced Logging.
-- Fix: ``_validate_dependencies`` always returns ``None``.
 - New: ``VALIDATION_ERROR_AS_LIST``. If ``True`` even single field errors will
   be returned in a list. By default single field errors are returned as strings
   while multiple field errors are bundled in a list. If you want to standardize
@@ -84,9 +51,6 @@ Version 0.6
 - New: ``STANDARD_ERRORS`` is a list of HTTP codes that will be served with the
   canonical API response format, which includes a JSON body providing both
   error code and description. Addresses #586.
-- Fix: ``412 Precondition Failed`` does not return a JSON body. Closes #661.
-- Fix: ``embedded_fields`` may point on a field that come from another embedded
-  document. For example, ``['a.b.c', 'a.b', 'a']`` (Gonéri Le Bouder).
 - New: ``anyof`` validation rule allows you to list multiple sets of rules to
   validate against.
 - New: ``alloff`` validation rule, same as ``anyof`` except that all rule
@@ -101,42 +65,17 @@ Version 0.6
   the keys of a dict.
 - New: ``coerce`` validation rule. Type coercion allows you to apply a callable
   to a value before any other validators run.
-- Fix: add handling of sub-resource resolving for PUT method (Olivier Poitrey).
-- Fix: ``dependencies`` rule would mistakenly validate documents when target
-  fields happened to also have a ``default`` value. 
-- Fix: According to RFC2617 the separator should be (=) instead of (:). This
-  caused at least Chrome not to prompt user for the credentials, and not to
-  send the Authorization header even when credentials were in the url (Samuli
-  Tuomola).
 - New: ``MONGO_AUTHDBNAME`` allows to specify a MongoDB authorization database.
   Defaults to ``None`` (David Wood).
 - New: ``remove`` method in Mongo data layer now returns the deletion status or
   ``None`` if write acknowledgement is disabled (Mayur Dhamanwala).
-- Fix: Update ``serialize`` to gracefully handle non-dictionary values in dict
-  type fields (Nick Park).
 - New: ``unique_to_user`` validation rule allows to validate that a field value
   is unique to the user. Different users can share the same value for the
   field. This is useful when User Restricted Resource Access is enabled on an
   endpoint. If URRA is not active on the endpoint, this rule behaves like
   ``unique``. Closes #646.
-- Fix: make sure ``unique`` validation rule is consistent between HTTP methods.
-  A field value must be unique within the datasource, regardless of the user
-  who created it. Closes #646.
-- Fix: OpLog domain entry is not created if ``OPLOG_ENDPOINT`` is ``None``.
-  Closes #628.
-- Improve GET perfomance on large versioned documents (Nick Park.)
-- Fix: Do not overwrite ``ID_FIELD`` as it is not a sub resource. See #641 for
-  details (Olivier Poitrey).
 - New: ``MEDIA_BASE_URL`` allows to set a custom base URL to be used when
   ``RETURN_MEDIA_AS_URL`` is active (Henrique Barroso).  
-- The ``MediaStorage`` base class now accepts the active resource as an
-  argument for its methods. This allows data-layers to avoid resorting to the
-  Flask request object to determine the active resource. To preserve backward
-  compatibility the new ``resource`` argument defaults to ``None`` (Magdas
-  Adrian).
-- The Mongo data-layer is not dependant on the Flask request object anymore. It
-  will still fallback to it if the ``resource`` argument is ``None``. Closes
-  #632. (Magdas Adrian).
 - New: ``SOFT_DELETE`` enables soft deletes when set to ``True`` (Nick Park.)
 - New: ``mongo_indexes`` allows for creation of MongoDB indexes at application
   launch (Pau Freixes.)
@@ -187,9 +126,73 @@ Version 0.6
 - New: ``etag_ignore_fields``. Resource setting with a list of fields belonging
   to the schema that won't be used to compute the ETag value. Defaults to
   ``None`` (Olivier Carrère.)
+
+- Change: when HATEOAS is off the home endpoint will respond with ``200 OK``
+  instead of ``404 Not Found`` (Stratos Gerakakis). 
+- Change: PUT does not return ``404`` if a document URL does not exist. It will
+  attempt to create the document instead. Set ``UPSET_ON_PUT`` to ``False`` to
+  disable this behaviour and get a ``404`` instead.
+- Change: A PATCH including an ``ID_FIELD`` field which value is different than
+  the original will get a ``400 Bad Request``, along with an explanation in the
+  message body that the field is immutable. Previously, it would get an
+  ``unknown field`` validation error.
+
+- Dev: Improve GET perfomance on large versioned documents (Nick Park.)
+- Dev: The ``MediaStorage`` base class now accepts the active resource as an
+  argument for its methods. This allows data-layers to avoid resorting to the
+  Flask request object to determine the active resource. To preserve backward
+  compatibility the new ``resource`` argument defaults to ``None`` (Magdas
+  Adrian).
+- Dev: The Mongo data-layer is not dependant on the Flask request object
+  anymore. It will still fallback to it if the ``resource`` argument is
+  ``None``. Closes #632. (Magdas Adrian).
+
+- Fix: store versions in the same mongo collection when ``datasource`` is used
+  (Magdas Adrian).
+- Fix: Update ``serialize`` to gracefully handle non-dictionary values in dict
+  type fields (Nick Park).
+- Fix: changes to the ``updates`` argument, applied by callbacks hooked to the
+  ``on_updated`` event, were not persisted to the database (Magdas Adrian).
+  Closes #682.
+- Fix: Changes applied to the ``updates`` argument``on_updated`` returns the
+  whole updated document. Previously, it was only returning the updates sent
+  with the request. Closes #682.
+- Fix: Replace the Cerberus rule ``keyschema``, now deprecated, with the new
+  ``propertyschema`` (Julian Hille).
+- Fix: some error message are not filtered out of debug mode anymore, as they
+  are useful for users and do not leak informations. Closes #671 (Sebastien
+  Estienne).
+- Fix: reinforce Content-Type Header handling to avoid possible crash when it
+  is missing (Sebastien Estienne).
+- Fix: some schema errors were not being reported as SchemaError exceptions.
+  A more generic 'DOMAIN missing or wrong' message was returned instead.
+- Fix: When versioning is enabled on a resource with a custom ID_FIELD,
+  versioning documents will inherit their ID from the versioned document,
+  making any update of the document result in a DuplicateKeyError (Matthieu
+  Prat).
+- Fix: Filter validation fails to validate query selectors that contain a value
+  of the list data-type, which is not a list of sub-queries. See #674 (Matthieu
+  Prat).
+- Fix: ``_validate_dependencies`` always returns ``None``.
+- Fix: ``412 Precondition Failed`` does not return a JSON body. Closes #661.
+- Fix: ``embedded_fields`` may point on a field that come from another embedded
+  document. For example, ``['a.b.c', 'a.b', 'a']`` (Gonéri Le Bouder).
+- Fix: add handling of sub-resource resolving for PUT method (Olivier Poitrey).
+- Fix: ``dependencies`` rule would mistakenly validate documents when target
+  fields happened to also have a ``default`` value. 
+- Fix: According to RFC2617 the separator should be (=) instead of (:). This
+  caused at least Chrome not to prompt user for the credentials, and not to
+  send the Authorization header even when credentials were in the url (Samuli
+  Tuomola).
+- Fix: make sure ``unique`` validation rule is consistent between HTTP methods.
+  A field value must be unique within the datasource, regardless of the user
+  who created it. Closes #646.
+- Fix: OpLog domain entry is not created if ``OPLOG_ENDPOINT`` is ``None``.
+  Closes #628.
+- Fix: Do not overwrite ``ID_FIELD`` as it is not a sub resource. See #641 for
+  details (Olivier Poitrey).
 - Fix: ETag computation crash when non-standard json serializers are used
   (Kevin Roy.)
-- Update: PyMongo 2.8 is now required (which in turn supports MongoDB 3.0)
 - Fix: Remove duplicate item in Mongo operators list. Closes #619.
 - Fix: Versioning: invalidate cache when ``_latest_version`` changes in
   versioned doc (Nick Park.)
@@ -207,6 +210,9 @@ Version 0.6
 - Fix: Geopoint coordinates do not accept integers. Closes #591 (Joakim
   Uddholm.)
 - Fix: OpLog enabled makes PUT return wrong Etag. Closes #590.
+
+- Update: Cerberus 0.9.2 is now required.
+- Update: PyMongo 2.8 is now required (which in turn supports MongoDB 3.0)
 
 Stable
 ------
