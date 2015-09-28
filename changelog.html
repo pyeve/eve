@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Changelog &mdash; Eve 0.6-dev0 documentation</title>
+    <title>Changelog &mdash; Eve 0.6 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.6-dev0',
+        VERSION:     '0.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.6-dev0 documentation" href="index.html" />
+    <link rel="top" title="Eve 0.6 documentation" href="index.html" />
     <link rel="prev" title="Licensing" href="license.html" />
    
   
@@ -41,7 +41,7 @@
         <li class="right" >
           <a href="license.html" title="Licensing"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Eve 0.6-dev0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Eve 0.6 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -57,33 +57,18 @@
 <h2>In Development<a class="headerlink" href="#in-development" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="version-0-6">
 <h3>Version 0.6<a class="headerlink" href="#version-0-6" title="Permalink to this headline">¶</a></h3>
+<p>Released on 28 September, 2015</p>
 <ul>
 <li><p class="first">New: support for embedding simple ObjectId fields: you can now use the
 <tt class="docutils literal"><span class="pre">data_relation</span></tt> rule on them (Gonéri Le Bouder).</p>
 </li>
 <li><p class="first">New: support for multiple layers of embedding (Gonéri Le Bouder).</p>
 </li>
-<li><p class="first">Update: Cerberus 0.9.2 is now required.</p>
-</li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">SCHEMA_ENDPOINT</span></tt> allows resource schema to be returned from an API
 endpoint (Nick Park).</p>
 </li>
-<li><p class="first">Fix: store versions in the same mongo collection when <tt class="docutils literal"><span class="pre">datasource</span></tt> is used
-(Magdas Adrian).</p>
-</li>
 <li><p class="first">New: HATEOAS links can be customized from within callback functions (Magdas
 Adrian).</p>
-</li>
-<li><p class="first">Fix: changes to the <tt class="docutils literal"><span class="pre">updates</span></tt> argument, applied by callbacks hooked to the
-<tt class="docutils literal"><span class="pre">on_updated</span></tt> event, were not persisted to the database (Magdas Adrian).
-Closes #682.</p>
-</li>
-<li><p class="first">Fix: Changes applied to the <tt class="docutils literal"><span class="pre">updates</span></tt> argument``on_updated`` returns the
-whole updated document. Previously, it was only returning the updates sent
-with the request. Closes #682.</p>
-</li>
-<li><p class="first">Fix: Replace the Cerberus rule <tt class="docutils literal"><span class="pre">keyschema</span></tt>, now deprecated, with the new
-<tt class="docutils literal"><span class="pre">propertyschema</span></tt> (Julian Hille).</p>
 </li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">_INFO</span></tt>: string value to include an info section, with the given INFO
 name, at the Eve homepage (suggested value <tt class="docutils literal"><span class="pre">_info</span></tt>). The info section will
@@ -91,18 +76,8 @@ include Eve server version and API version (API_VERSION, if set).  <tt class="do
 otherwise, if you do not want to expose any server info. Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>
 (Stratos Gerakakis).</p>
 </li>
-<li><p class="first">Change: when HATEOAS is off the home endpoint will respond with <tt class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></tt>
-instead of <tt class="docutils literal"><span class="pre">404</span> <span class="pre">Not</span> <span class="pre">Found</span></tt> (Stratos Gerakakis).</p>
-</li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">id_field</span></tt> sets a field used to uniquely identify resource items
 within the database. Locally overrides <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> (Dominik Kellner).</p>
-</li>
-<li><p class="first">Fix: some error message are not filtered out of debug mode anymore, as they
-are useful for users and do not leak informations. Closes #671 (Sebastien
-Estienne).</p>
-</li>
-<li><p class="first">Fix: reinforce Content-Type Header handling to avoid possible crash when it
-is missing (Sebastien Estienne).</p>
 </li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">UPSERT_ON_PUT</span></tt> allows document creation on PUT if the document does
 not exist. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>. See below for details.</p>
@@ -115,10 +90,6 @@ identical the one you would get by performing a single document POST to the
 resource endpoint. Set <tt class="docutils literal"><span class="pre">UPSET_ON_PUT</span></tt> to <tt class="docutils literal"><span class="pre">False</span></tt> to disable this
 behaviour, and get a <tt class="docutils literal"><span class="pre">404</span></tt> instead.  Closes #634.</p>
 </li>
-<li><p class="first">Change: PUT does not return <tt class="docutils literal"><span class="pre">404</span></tt> if a document URL does not exist. It will
-attempt to create the document instead. Set <tt class="docutils literal"><span class="pre">UPSET_ON_PUT</span></tt> to <tt class="docutils literal"><span class="pre">False</span></tt> to
-disable this behaviour and get a <tt class="docutils literal"><span class="pre">404</span></tt> instead.</p>
-</li>
 <li><p class="first">New: POST accepts documents which include <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> (<tt class="docutils literal"><span class="pre">_id</span></tt>) values. This
 is in addition to the old behaviour of auto-generating <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> values
 when the submitted document does not contain it. Please note that, while you
@@ -127,28 +98,9 @@ have to, unless its type is different from the <tt class="docutils literal"><spa
 means that in most cases you can start storing <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>-included
 documents right away, without making any changes.</p>
 </li>
-<li><p class="first">Change: A PATCH including an <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> field which value is different than
-the original will get a <tt class="docutils literal"><span class="pre">400</span> <span class="pre">Bad</span> <span class="pre">Request</span></tt>, along with an explanation in the
-message body that the field is immutable. Previously, it would get an
-<tt class="docutils literal"><span class="pre">unknown</span> <span class="pre">field</span></tt> validation error.</p>
-</li>
-<li><p class="first">Fix: some schema errors were not being reported as SchemaError exceptions.
-A more generic &#8216;DOMAIN missing or wrong&#8217; message was returned instead.</p>
-</li>
-<li><p class="first">Fix: When versioning is enabled on a resource with a custom ID_FIELD,
-versioning documents will inherit their ID from the versioned document,
-making any update of the document result in a DuplicateKeyError (Matthieu
-Prat).</p>
-</li>
-<li><p class="first">Fix: Filter validation fails to validate query selectors that contain a value
-of the list data-type, which is not a list of sub-queries. See #674 (Matthieu
-Prat).</p>
-</li>
 <li><p class="first">New: Log MongoDB and HTTP methods exceptions (Sebastien Estienne).</p>
 </li>
 <li><p class="first">New: Enhanced Logging.</p>
-</li>
-<li><p class="first">Fix: <tt class="docutils literal"><span class="pre">_validate_dependencies</span></tt> always returns <tt class="docutils literal"><span class="pre">None</span></tt>.</p>
 </li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">VALIDATION_ERROR_AS_LIST</span></tt>. If <tt class="docutils literal"><span class="pre">True</span></tt> even single field errors will
 be returned in a list. By default single field errors are returned as strings
@@ -159,11 +111,6 @@ a list of field issues. Defaults to <tt class="docutils literal"><span class="pr
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">STANDARD_ERRORS</span></tt> is a list of HTTP codes that will be served with the
 canonical API response format, which includes a JSON body providing both
 error code and description. Addresses #586.</p>
-</li>
-<li><p class="first">Fix: <tt class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></tt> does not return a JSON body. Closes #661.</p>
-</li>
-<li><p class="first">Fix: <tt class="docutils literal"><span class="pre">embedded_fields</span></tt> may point on a field that come from another embedded
-document. For example, <tt class="docutils literal"><span class="pre">['a.b.c',</span> <span class="pre">'a.b',</span> <span class="pre">'a']</span></tt> (Gonéri Le Bouder).</p>
 </li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">anyof</span></tt> validation rule allows you to list multiple sets of rules to
 validate against.</p>
@@ -186,24 +133,11 @@ the keys of a dict.</p>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">coerce</span></tt> validation rule. Type coercion allows you to apply a callable
 to a value before any other validators run.</p>
 </li>
-<li><p class="first">Fix: add handling of sub-resource resolving for PUT method (Olivier Poitrey).</p>
-</li>
-<li><p class="first">Fix: <tt class="docutils literal"><span class="pre">dependencies</span></tt> rule would mistakenly validate documents when target
-fields happened to also have a <a href="#id2"><span class="problematic" id="id3">``</span></a>default``&nbsp;value.</p>
-</li>
-<li><p class="first">Fix: According to RFC2617 the separator should be (=) instead of (:). This
-caused at least Chrome not to prompt user for the credentials, and not to
-send the Authorization header even when credentials were in the url (Samuli
-Tuomola).</p>
-</li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">MONGO_AUTHDBNAME</span></tt> allows to specify a MongoDB authorization database.
 Defaults to <tt class="docutils literal"><span class="pre">None</span></tt> (David Wood).</p>
 </li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">remove</span></tt> method in Mongo data layer now returns the deletion status or
 <tt class="docutils literal"><span class="pre">None</span></tt> if write acknowledgement is disabled (Mayur Dhamanwala).</p>
-</li>
-<li><p class="first">Fix: Update <tt class="docutils literal"><span class="pre">serialize</span></tt> to gracefully handle non-dictionary values in dict
-type fields (Nick Park).</p>
 </li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">unique_to_user</span></tt> validation rule allows to validate that a field value
 is unique to the user. Different users can share the same value for the
@@ -211,30 +145,8 @@ field. This is useful when User Restricted Resource Access is enabled on an
 endpoint. If URRA is not active on the endpoint, this rule behaves like
 <tt class="docutils literal"><span class="pre">unique</span></tt>. Closes #646.</p>
 </li>
-<li><p class="first">Fix: make sure <tt class="docutils literal"><span class="pre">unique</span></tt> validation rule is consistent between HTTP methods.
-A field value must be unique within the datasource, regardless of the user
-who created it. Closes #646.</p>
-</li>
-<li><p class="first">Fix: OpLog domain entry is not created if <tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt> is <tt class="docutils literal"><span class="pre">None</span></tt>.
-Closes #628.</p>
-</li>
-<li><p class="first">Improve GET perfomance on large versioned documents (Nick Park.)</p>
-</li>
-<li><p class="first">Fix: Do not overwrite <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> as it is not a sub resource. See #641 for
-details (Olivier Poitrey).</p>
-</li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">MEDIA_BASE_URL</span></tt> allows to set a custom base URL to be used when
 <tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt> is active (Henrique Barroso).</p>
-</li>
-<li><p class="first">The <tt class="docutils literal"><span class="pre">MediaStorage</span></tt> base class now accepts the active resource as an
-argument for its methods. This allows data-layers to avoid resorting to the
-Flask request object to determine the active resource. To preserve backward
-compatibility the new <tt class="docutils literal"><span class="pre">resource</span></tt> argument defaults to <tt class="docutils literal"><span class="pre">None</span></tt> (Magdas
-Adrian).</p>
-</li>
-<li><p class="first">The Mongo data-layer is not dependant on the Flask request object anymore. It
-will still fallback to it if the <tt class="docutils literal"><span class="pre">resource</span></tt> argument is <tt class="docutils literal"><span class="pre">None</span></tt>. Closes
-#632. (Magdas Adrian).</p>
 </li>
 <li><p class="first">New: <tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt> enables soft deletes when set to <tt class="docutils literal"><span class="pre">True</span></tt> (Nick Park.)</p>
 </li>
@@ -293,10 +205,95 @@ document media fields (Daniel Lytkin.)</p>
 to the schema that won&#8217;t be used to compute the ETag value. Defaults to
 <tt class="docutils literal"><span class="pre">None</span></tt> (Olivier Carrère.)</p>
 </li>
+<li><p class="first">Change: when HATEOAS is off the home endpoint will respond with <tt class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></tt>
+instead of <tt class="docutils literal"><span class="pre">404</span> <span class="pre">Not</span> <span class="pre">Found</span></tt> (Stratos Gerakakis).</p>
+</li>
+<li><p class="first">Change: PUT does not return <tt class="docutils literal"><span class="pre">404</span></tt> if a document URL does not exist. It will
+attempt to create the document instead. Set <tt class="docutils literal"><span class="pre">UPSET_ON_PUT</span></tt> to <tt class="docutils literal"><span class="pre">False</span></tt> to
+disable this behaviour and get a <tt class="docutils literal"><span class="pre">404</span></tt> instead.</p>
+</li>
+<li><p class="first">Change: A PATCH including an <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> field which value is different than
+the original will get a <tt class="docutils literal"><span class="pre">400</span> <span class="pre">Bad</span> <span class="pre">Request</span></tt>, along with an explanation in the
+message body that the field is immutable. Previously, it would get an
+<tt class="docutils literal"><span class="pre">unknown</span> <span class="pre">field</span></tt> validation error.</p>
+</li>
+<li><p class="first">Dev: Improve GET perfomance on large versioned documents (Nick Park.)</p>
+</li>
+<li><p class="first">Dev: The <tt class="docutils literal"><span class="pre">MediaStorage</span></tt> base class now accepts the active resource as an
+argument for its methods. This allows data-layers to avoid resorting to the
+Flask request object to determine the active resource. To preserve backward
+compatibility the new <tt class="docutils literal"><span class="pre">resource</span></tt> argument defaults to <tt class="docutils literal"><span class="pre">None</span></tt> (Magdas
+Adrian).</p>
+</li>
+<li><p class="first">Dev: The Mongo data-layer is not dependant on the Flask request object
+anymore. It will still fallback to it if the <tt class="docutils literal"><span class="pre">resource</span></tt> argument is
+<tt class="docutils literal"><span class="pre">None</span></tt>. Closes #632. (Magdas Adrian).</p>
+</li>
+<li><p class="first">Fix: store versions in the same mongo collection when <tt class="docutils literal"><span class="pre">datasource</span></tt> is used
+(Magdas Adrian).</p>
+</li>
+<li><p class="first">Fix: Update <tt class="docutils literal"><span class="pre">serialize</span></tt> to gracefully handle non-dictionary values in dict
+type fields (Nick Park).</p>
+</li>
+<li><p class="first">Fix: changes to the <tt class="docutils literal"><span class="pre">updates</span></tt> argument, applied by callbacks hooked to the
+<tt class="docutils literal"><span class="pre">on_updated</span></tt> event, were not persisted to the database (Magdas Adrian).
+Closes #682.</p>
+</li>
+<li><p class="first">Fix: Changes applied to the <tt class="docutils literal"><span class="pre">updates</span></tt> argument``on_updated`` returns the
+whole updated document. Previously, it was only returning the updates sent
+with the request. Closes #682.</p>
+</li>
+<li><p class="first">Fix: Replace the Cerberus rule <tt class="docutils literal"><span class="pre">keyschema</span></tt>, now deprecated, with the new
+<tt class="docutils literal"><span class="pre">propertyschema</span></tt> (Julian Hille).</p>
+</li>
+<li><p class="first">Fix: some error message are not filtered out of debug mode anymore, as they
+are useful for users and do not leak informations. Closes #671 (Sebastien
+Estienne).</p>
+</li>
+<li><p class="first">Fix: reinforce Content-Type Header handling to avoid possible crash when it
+is missing (Sebastien Estienne).</p>
+</li>
+<li><p class="first">Fix: some schema errors were not being reported as SchemaError exceptions.
+A more generic &#8216;DOMAIN missing or wrong&#8217; message was returned instead.</p>
+</li>
+<li><p class="first">Fix: When versioning is enabled on a resource with a custom ID_FIELD,
+versioning documents will inherit their ID from the versioned document,
+making any update of the document result in a DuplicateKeyError (Matthieu
+Prat).</p>
+</li>
+<li><p class="first">Fix: Filter validation fails to validate query selectors that contain a value
+of the list data-type, which is not a list of sub-queries. See #674 (Matthieu
+Prat).</p>
+</li>
+<li><p class="first">Fix: <tt class="docutils literal"><span class="pre">_validate_dependencies</span></tt> always returns <tt class="docutils literal"><span class="pre">None</span></tt>.</p>
+</li>
+<li><p class="first">Fix: <tt class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></tt> does not return a JSON body. Closes #661.</p>
+</li>
+<li><p class="first">Fix: <tt class="docutils literal"><span class="pre">embedded_fields</span></tt> may point on a field that come from another embedded
+document. For example, <tt class="docutils literal"><span class="pre">['a.b.c',</span> <span class="pre">'a.b',</span> <span class="pre">'a']</span></tt> (Gonéri Le Bouder).</p>
+</li>
+<li><p class="first">Fix: add handling of sub-resource resolving for PUT method (Olivier Poitrey).</p>
+</li>
+<li><p class="first">Fix: <tt class="docutils literal"><span class="pre">dependencies</span></tt> rule would mistakenly validate documents when target
+fields happened to also have a <a href="#id2"><span class="problematic" id="id3">``</span></a>default``&nbsp;value.</p>
+</li>
+<li><p class="first">Fix: According to RFC2617 the separator should be (=) instead of (:). This
+caused at least Chrome not to prompt user for the credentials, and not to
+send the Authorization header even when credentials were in the url (Samuli
+Tuomola).</p>
+</li>
+<li><p class="first">Fix: make sure <tt class="docutils literal"><span class="pre">unique</span></tt> validation rule is consistent between HTTP methods.
+A field value must be unique within the datasource, regardless of the user
+who created it. Closes #646.</p>
+</li>
+<li><p class="first">Fix: OpLog domain entry is not created if <tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt> is <tt class="docutils literal"><span class="pre">None</span></tt>.
+Closes #628.</p>
+</li>
+<li><p class="first">Fix: Do not overwrite <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> as it is not a sub resource. See #641 for
+details (Olivier Poitrey).</p>
+</li>
 <li><p class="first">Fix: ETag computation crash when non-standard json serializers are used
 (Kevin Roy.)</p>
-</li>
-<li><p class="first">Update: PyMongo 2.8 is now required (which in turn supports MongoDB 3.0)</p>
 </li>
 <li><p class="first">Fix: Remove duplicate item in Mongo operators list. Closes #619.</p>
 </li>
@@ -325,6 +322,10 @@ they are validated. Addresses #354. (Matthew Ellison.)</p>
 Uddholm.)</p>
 </li>
 <li><p class="first">Fix: OpLog enabled makes PUT return wrong Etag. Closes #590.</p>
+</li>
+<li><p class="first">Update: Cerberus 0.9.2 is now required.</p>
+</li>
+<li><p class="first">Update: PyMongo 2.8 is now required (which in turn supports MongoDB 3.0)</p>
 </li>
 </ul>
 </div>
