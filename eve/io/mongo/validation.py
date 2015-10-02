@@ -275,6 +275,10 @@ class Validator(Validator):
         proposed changes with the original document before validating
         dependencies.
 
+        .. versionchanged:: 0.6.1
+           Fix: dependencies on sub-document fields are now properly
+           processed (#706).
+
         .. versionchanged:: 0.6
            Fix: Only evaluate dependencies that don't have valid default
            values.
@@ -296,9 +300,10 @@ class Validator(Validator):
 
         defaults = {}
         for d in dependencies:
-            default = self.schema[d].get('default')
-            if default and d not in document:
-                defaults[d] = default
+            root = d.split('.')[0]
+            default = self.schema[root].get('default')
+            if default and root not in document:
+                defaults[root] = default
 
         if isinstance(dependencies, Mapping):
             # Only evaluate dependencies that don't have *valid* defaults
