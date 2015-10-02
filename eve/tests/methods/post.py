@@ -616,6 +616,17 @@ class TestPost(TestBase):
             r, _, _, status = post_internal(self.known_resource, payl=payload)
         self.assert201(status)
 
+    def test_post_internal_skip_validation(self):
+        # test that when skip_validation is active everything behaves as
+        # expected. Also make sure that #726 is fixed.
+        test_field = 'ref'
+        test_value = "1234567890123456789054321"
+        payload = {test_field: test_value}
+        with self.app.test_request_context(self.known_resource_url):
+            r, _, _, status = post_internal(self.known_resource, payl=payload,
+                                            skip_validation=True)
+        self.assert201(status)
+
     def test_post_nested(self):
         del(self.domain['contacts']['schema']['ref']['required'])
         data = {'location.city': 'a nested city',

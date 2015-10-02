@@ -11,6 +11,8 @@ Version 0.6.1
 
 Not released.
 
+- Fix: invoking ``post_internal`` with ``skpi_validation = True``
+  causes a ``422`` response. Closes #726.
 - Fix: explict inclusive datasource projection is ignored. Closes #722.
 
 - Dev: ``_client_projection`` method has been moved up from the mongo layer to
