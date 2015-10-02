@@ -769,26 +769,6 @@ class Mongo(DataLayer):
         """
         return config.DOMAIN[resource]['mongo_write_concern']
 
-    def _client_projection(self, req):
-        """ Returns a properly parsed client projection if available.
-
-        :param req: a :class:`ParsedRequest` instance.
-
-        .. versionadded:: 0.4
-        """
-        client_projection = {}
-        if req and req.projection:
-            try:
-                client_projection = json.loads(req.projection)
-                if not isinstance(client_projection, dict):
-                    raise Exception('The projection parameter has to be a '
-                                    'dict')
-            except:
-                abort(400, description=debug_error_message(
-                    'Unable to parse `projection` clause'
-                ))
-        return client_projection
-
     def current_mongo_prefix(self, resource=None):
         """ Returns the active mongo_prefix that should be used to retrieve
         a valid PyMongo instance from the cache. If 'self.mongo_prefix' is set
