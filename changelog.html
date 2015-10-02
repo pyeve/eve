@@ -55,9 +55,16 @@
 <p>Here you can see the full list of changes between each Eve release.</p>
 <div class="section" id="in-development">
 <h2>In Development<a class="headerlink" href="#in-development" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="version-0-6-1">
+<h3>Version 0.6.1<a class="headerlink" href="#version-0-6-1" title="Permalink to this headline">¶</a></h3>
+<p>Not released.</p>
 <ul class="simple">
-<li>Move along nothing to see here.</li>
+<li>Fix: explict inclusive datasource projection is ignored. Closes #722.</li>
+<li>Dev: <tt class="docutils literal"><span class="pre">_client_projection</span></tt> method has been moved up from the mongo layer to
+the base DataLayer class. It is now available for other data layers
+implementations, such as Eve-SQLAlchemy (Gonéri Le Bouder).</li>
 </ul>
+</div>
 </div>
 <div class="section" id="stable">
 <h2>Stable<a class="headerlink" href="#stable" title="Permalink to this headline">¶</a></h2>
@@ -1256,7 +1263,10 @@ signature, allowing for further subclassing.</li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#in-development">In Development</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#in-development">In Development</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-6-1">Version 0.6.1</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#stable">Stable</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#version-0-6">Version 0.6</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#version-0-5-3">Version 0.5.3</a></li>
