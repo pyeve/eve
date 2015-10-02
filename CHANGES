@@ -11,6 +11,7 @@ Version 0.6.1
 
 Not released.
 
+- Fix: dependendencies on sub-document fields always return 422. Closes #706.
 - Fix: invoking ``post_internal`` with ``skpi_validation = True``
   causes a ``422`` response. Closes #726.
 - Fix: explict inclusive datasource projection is ignored. Closes #722.

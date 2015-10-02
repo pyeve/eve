@@ -549,6 +549,41 @@ class TestPost(TestBase):
         r, s = self.post('posts', data=data)
         self.assert201(s)
 
+    def test_post_dependency_fields_with_subdocuments(self):
+        # test that dependencies with sub-document fields are properly
+        # validated. See #706.
+        del(self.domain['contacts']['schema']['ref']['required'])
+
+        schema = {
+            'field1': {
+                'type': 'dict',
+                'schema': {
+                    'address': {'type': 'string'}
+                }
+            },
+            'field2': {
+                'dependencies': {'field1.address': ['one', 'two']}
+            }
+        }
+        settings = {
+            'RESOURCE_METHODS': ['GET', 'POST', 'DELETE'],
+            'ITEM_METHODS': ['GET', 'PATCH', 'PUT', 'DELETE'],
+            'schema': schema
+        }
+        self.app.register_resource('endpoint', settings)
+
+        data = {"field1": {"address": "three"}, "field2": 7}
+        r, s = self.post('endpoint', data=data)
+        self.assert422(s)
+
+        data = {"field1": {"address": "one"}, "field2": 7}
+        r, s = self.post('endpoint', data=data)
+        self.assert201(s)
+
+        data = {"field1": {"address": "two"}, "field2": 7}
+        r, s = self.post('endpoint', data=data)
+        self.assert201(s)
+
     def test_post_readonly_field_with_default(self):
         # test that a read only field with a 'default' setting is correctly
         # validated now that we resolve field values before validation.
