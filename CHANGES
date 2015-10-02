@@ -6,7 +6,12 @@ Here you can see the full list of changes between each Eve release.
 In Development
 --------------
 
-- Move along nothing to see here.
+Version 0.6.1
+~~~~~~~~~~~~~
+
+Not released.
+
+- Fix: explict inclusive datasource projection is ignored. Closes #722.
 
 Stable
 ------

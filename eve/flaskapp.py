@@ -498,6 +498,10 @@ class Eve(Flask, Events):
     def _set_resource_defaults(self, resource, settings):
         """ Low-level method which sets default values for one resource.
 
+        .. versionchanged:: 0.6.1
+           Fix: inclusive projection defined for a datasource is ignored
+           (#722).
+
         .. versionchanged:: 0.6
            Support for 'mongo_indexes'.
 
@@ -583,8 +587,7 @@ class Eve(Flask, Events):
         settings['datasource'].setdefault('filter', None)
         settings['datasource'].setdefault('default_sort', None)
 
-        projection = settings['datasource'].get('projection', {})
-        projection = projection or {}
+        projection = settings['datasource'].get('projection', {}).copy()
 
         # check if any exclusion projection is defined
         exclusion = any(((k, v) for k, v in projection.items() if v == 0))
@@ -608,7 +611,10 @@ class Eve(Flask, Events):
                     self.config['VERSION_ID_SUFFIX']] = 1
             projection.update(dict((field, 1) for (field) in schema))
             if settings['soft_delete'] is True:
-                projection[self.config['DELETED']] = 1
+                # careful here, we want the actual settings updated, not the
+                # local copy
+                key = self.config['DELETED']
+                settings['datasource']['projection'][key] = 1
         else:
             # all fields are returned.
             projection = None
