@@ -466,6 +466,9 @@ class DataLayer(object):
 
         :param req: a :class:`ParsedRequest` instance.
 
+        .. versionchanged:: 0.6.1
+           Moved from the mongo layer up to the DataLayer base class (#724).
+
         .. versionadded:: 0.4
         """
         client_projection = {}
