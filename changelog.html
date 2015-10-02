@@ -59,6 +59,8 @@
 <h3>Version 0.6.1<a class="headerlink" href="#version-0-6-1" title="Permalink to this headline">¶</a></h3>
 <p>Not released.</p>
 <ul class="simple">
+<li>Fix: invoking <tt class="docutils literal"><span class="pre">post_internal</span></tt> with <tt class="docutils literal"><span class="pre">skpi_validation</span> <span class="pre">=</span> <span class="pre">True</span></tt>
+causes a <tt class="docutils literal"><span class="pre">422</span></tt> response. Closes #726.</li>
 <li>Fix: explict inclusive datasource projection is ignored. Closes #722.</li>
 <li>Dev: <tt class="docutils literal"><span class="pre">_client_projection</span></tt> method has been moved up from the mongo layer to
 the base DataLayer class. It is now available for other data layers
