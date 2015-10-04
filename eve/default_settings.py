@@ -141,6 +141,7 @@ HATEOAS = True                  # HATEOAS enabled by default.
 IF_MATCH = True                 # IF_MATCH (ETag match) enabled by default.
 
 ALLOWED_FILTERS = ['*']         # filtering enabled by default
+VALIDATE_FILTERS = False
 SORTING = True                  # sorting enabled by default.
 JSON_SORT_KEYS = False          # json key sorting
 EMBEDDING = True                # embedding enabled by default

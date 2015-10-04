@@ -14,6 +14,7 @@ import sys
 import eve
 import hashlib
 import werkzeug.exceptions
+from cerberus import Validator
 from copy import copy
 from flask import request
 from flask import current_app as app
@@ -373,7 +374,7 @@ def validate_filters(where, resource):
 
     def validate_filter(filter):
         for key, value in filter.items():
-            if key not in allowed:
+            if '*' not in allowed and key not in allowed:
                 return "filter on '%s' not allowed" % key
 
             if key in ('$or', '$and', '$nor'):
@@ -386,12 +387,23 @@ def validate_filters(where, resource):
                     r = validate_filter(v)
                     if r:
                         return r
-            elif isinstance(value, dict):
-                r = validate_filter(value)
-                if r:
-                    return r
+            else:
+                if config.VALIDATE_FILTERS:
+                    res_schema = config.DOMAIN[resource]['schema']
+                    if key not in res_schema:
+                        return "filter on '%s' is invalid"
+                    else:
+                        field_schema = res_schema.get(key)
+                        v = Validator({key: field_schema})
+                        if not v.validate({key: value}):
+                            return "filter on '%s' is invalid"
+                        else:
+                            return None
 
-    return validate_filter(where) if '*' not in allowed else None
+    if '*' in allowed and not config.VALIDATE_FILTERS:
+        return None
+
+    return validate_filter(where)
 
 
 def auto_fields(resource):
