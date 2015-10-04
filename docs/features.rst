@@ -276,6 +276,11 @@ maintainer can choose to disable them all and/or whitelist allowed ones (see
 by querying on non-indexed fields is a concern, then whitelisting allowed
 filters is the way to go.
 
+You also have the option to validate the incoming filters against the resource's
+schema and refuse to apply the filtering if any filters are invalid, by using the
+``VALIDATE_FILTERING`` system setting (see :ref:`global`)
+
+
 Sorting
 -------
 Sorting is supported as well:
