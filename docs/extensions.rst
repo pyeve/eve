@@ -8,13 +8,14 @@ show me your tool!
 
 - Eve-Elastic_
 - Eve-Mongoengine_
+- Eve-Swagger_
 - Eve-Docs_
-- Eve-Mocker_
-- Eve.NET_
 - Eve-SQLAlchemy_
+- Eve.NET_
 - Eve-OAuth2_ and Flask-Sentinel_
 - Eve-Auth-JWT_
 - EveGenie_
+- Eve-Mocker_
 
 - `REST Layer for Golang`_
 
@@ -37,6 +38,21 @@ simultaneously want to use Eve, instead of writing schema again in Cerberus
 format (DRY!), you can use this extension, which takes your mongoengine models
 and auto-transforms them into Cerberus schema under the hood. 
 
+Eve-Swagger
+-----------
+
+| *by Nicola Iarocci*
+
+Eve-Swagger_ is a swagger.io extension for Eve. With a Swagger-enabled API, you
+get interactive documentation, client SDK generation and discoverability. From
+Swagger website:
+
+    Swagger is a simple yet powerful representation of your RESTful API. With
+    the largest ecosystem of API tooling on the planet, thousands of developers
+    are supporting Swagger in almost every modern programming language and
+    deployment environment. With a Swagger-enabled API, you get interactive
+    documentation, client SDK generation and discoverability.
+
 Eve-Docs
 --------
 
@@ -46,15 +62,6 @@ Eve-docs_ is a blueprint that generates documentation for Eve APIs in HTML and
 JSON formats. Eve-docs creates the documentation from your existing Eve
 configuration file, with no additional configuration required. For a nice
 screenshot, check out the relevant blog post `Auto generate API docs`_.
-
-Eve-Mocker
-----------
-*by Thomas Sileo*
-
-`Eve-Mocker`_ is a mocking tool for Eve powered REST APIs, based on the
-excellent HTTPretty, aimed to be used in your unit tests, when you rely on an
-Eve API. Eve-Mocker has been featured on the Eve blog: `Mocking tool for Eve
-APIs`_
 
 Eve.NET
 -------
@@ -97,6 +104,15 @@ EveGenie
 EveGenie_ is a tool for generating Eve schemas. It accepts a json document of
 one or more resources and provides you with a starting schema definition.
 
+Eve-Mocker
+----------
+*by Thomas Sileo*
+
+`Eve-Mocker`_ is a mocking tool for Eve powered REST APIs, based on the
+excellent HTTPretty, aimed to be used in your unit tests, when you rely on an
+Eve API. Eve-Mocker has been featured on the Eve blog: `Mocking tool for Eve
+APIs`_
+
 REST Layer for Golang
 ---------------------
 If you are into Golang, you should also check `REST Layer`_. Developed by
@@ -123,3 +139,4 @@ Olivier Poitrey, a long time Eve contributor and sustainer. REST Layer is
 .. _Eve-Auth-JWT: https://github.com/rs/eve-auth-jwt
 .. _`REST Layer`: https://github.com/rs/rest-layer
 .. _EveGenie: https://github.com/newmediadenver/evegenie
+.. _Eve-Swagger: https://github.com/nicolaiarocci/eve-swagger
