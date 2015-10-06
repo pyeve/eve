@@ -583,11 +583,13 @@ class Eve(Flask, Events):
 
         datasource = {}
         settings.setdefault('datasource', datasource)
-        settings['datasource'].setdefault('source', resource)
-        settings['datasource'].setdefault('filter', None)
-        settings['datasource'].setdefault('default_sort', None)
 
-        projection = settings['datasource'].get('projection', {}).copy()
+        ds = settings['datasource']
+        ds.setdefault('source', resource)
+        ds.setdefault('filter', None)
+        ds.setdefault('default_sort', None)
+
+        projection = {}
 
         # check if any exclusion projection is defined
         exclusion = any(((k, v) for k, v in projection.items() if v == 0))
@@ -610,15 +612,13 @@ class Eve(Flask, Events):
                     settings['id_field'] +
                     self.config['VERSION_ID_SUFFIX']] = 1
             projection.update(dict((field, 1) for (field) in schema))
-            if settings['soft_delete'] is True:
-                # careful here, we want the actual settings updated, not the
-                # local copy
-                key = self.config['DELETED']
-                settings['datasource']['projection'][key] = 1
         else:
             # all fields are returned.
             projection = None
-        settings['datasource'].setdefault('projection', projection)
+        ds.setdefault('projection', projection)
+
+        if settings['soft_delete'] is True:
+            ds['projection'][self.config['DELETED']] = 1
 
         # 'defaults' helper set contains the names of fields with default
         # values in their schema definition.
