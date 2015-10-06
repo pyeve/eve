@@ -335,6 +335,10 @@ class TestBase(TestMinimal):
     def setUp(self, url_converters=None):
         super(TestBase, self).setUp(url_converters=url_converters)
 
+        self.disabled_bulk = 'disabled_bulk'
+        self.disabled_bulk_url = ('/%s' %
+                                  self.domain[self.disabled_bulk]['url'])
+
         self.known_resource = 'contacts'
         self.known_resource_url = ('/%s' %
                                    self.domain[self.known_resource]['url'])

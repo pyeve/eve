@@ -172,6 +172,11 @@ def post_internal(resource, payl=None, skip_validation=False):
             'Empty bulk insert'
         ))
 
+    if len(payl) > 1 and not config.DOMAIN[resource]['bulk_enabled']:
+        abort(400, description=debug_error_message(
+            'Bulk insert not allowed'
+        ))
+
     for value in payl:
         document = []
         doc_issues = {}

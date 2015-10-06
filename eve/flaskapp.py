@@ -557,6 +557,7 @@ class Eve(Flask, Events):
         settings.setdefault('projection', self.config['PROJECTION'])
         settings.setdefault('versioning', self.config['VERSIONING'])
         settings.setdefault('soft_delete', self.config['SOFT_DELETE'])
+        settings.setdefault('bulk_enabled', self.config['BULK_ENABLED'])
         settings.setdefault('internal_resource',
                             self.config['INTERNAL_RESOURCE'])
         settings.setdefault('etag_ignore_fields', None)

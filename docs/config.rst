@@ -619,6 +619,10 @@ uppercase.
                                     wrapped in a ``funcname`` call. Defaults to
                                     ``None``.
 
+``BULK_ENABLED``                    Enables bulk insert when set to ``True``.
+                                    See :ref:`bulk_enabled` for more
+                                    information. Defaults to ``True``.
+
 ``SOFT_DELETE``                     Enables soft delete when set to ``True``.
                                     See :ref:`soft_delete` for more
                                     information. Defaults to ``False``.
@@ -972,6 +976,10 @@ always lowercase.
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data
                                 validation. See `Schema Definition`_.
+
+``bulk_enabled``                When ``True`` this option enables the
+                                :ref:`bulk_enabled` feature for this resource.
+                                Locally overrides ``BULK_ENABLED``.
 
 ``soft_delete``                 When ``True`` this option enables the
                                 :ref:`soft_delete` feature for this resource.

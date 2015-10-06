@@ -155,6 +155,7 @@ INTERNAL_RESOURCE = False       # resources are public by default.
 JSONP_ARGUMENT = None           # JSONP disabled by default.
 SOFT_DELETE = False             # soft delete disabled by default.
 SHOW_DELETED_PARAM = 'show_deleted'
+BULK_ENABLED = True
 
 OPLOG = False                   # oplog is disabled by default.
 OPLOG_NAME = 'oplog'            # default oplog resource name.
