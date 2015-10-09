@@ -1,4 +1,3 @@
-import copy
 from flask import current_app as app, abort
 from eve.utils import config, debug_error_message, ParsedRequest
 from werkzeug.exceptions import BadRequestKeyError
@@ -210,10 +209,11 @@ def diff_document(resource_def, old_doc, new_doc):
 
 
 def synthesize_versioned_document(document, delta, resource_def):
-    """ Synthesizes an old document from the latest document and the values of
-    all versioned fields from the old version. This is accomplished by removing
-    all versioned fields from the latest document before updating fields to
-    ensure that fields with required=False can be removed.
+    """ Synthesizes a versioned document from the latest document and the
+    values of all versioned fields from the old version. This is accomplished
+    by first creating a new document with only the un-versioned fields of
+    latest document, before updating with versioned fields from the old
+    document.
 
     :param document: the current version of a document.
     :param delta: the versioned fields from a specific document version.
@@ -221,7 +221,7 @@ def synthesize_versioned_document(document, delta, resource_def):
 
     .. versionadded:: 0.4
     """
-    old_doc = copy.deepcopy(document)
+    versioned_doc = {}
     id_field = versioned_id_field(resource_def)
 
     if id_field not in delta:
@@ -232,21 +232,21 @@ def synthesize_versioned_document(document, delta, resource_def):
     delta[resource_def['id_field']] = delta[id_field]
     del delta[id_field]
 
-    # remove all versioned fields from document
+    # add unversioned fields from latest document to versioned_doc
     fields = versioned_fields(resource_def)
     for field in document:
-        if field in fields:
-            del old_doc[field]
+        if field not in fields:
+            versioned_doc[field] = document[field]
 
     # add versioned fields
-    old_doc.update(delta)
+    versioned_doc.update(delta)
 
-    return old_doc
+    return versioned_doc
 
 
 def get_old_document(resource, req, lookup, document, version):
-    """ Returns an old document if appropriate, otherwise returns a copy of the
-    given document.
+    """ Returns an old document if appropriate, otherwise returns a shallow
+    copy of the given document.
 
     :param resource: the name of the resource.
     :param req: the parsed request object.
@@ -280,7 +280,9 @@ def get_old_document(resource, req, lookup, document, version):
         old_document = synthesize_versioned_document(
             document, delta, resource_def)
     else:
-        old_document = copy.deepcopy(document)
+        # perform a shallow copy to allow this document to be used as a delta
+        # for synthesize_versioned_document where id_field is removed
+        old_document = document.copy()
 
     return old_document
 
