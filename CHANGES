@@ -16,6 +16,8 @@ Not released.
   causes a ``422`` response. Closes #726.
 - Fix: explict inclusive datasource projection is ignored. Closes #722.
 
+- Dev: optimize versioning by building specific versions without deepcopying
+  the root document (Nick Park).
 - Dev: ``_client_projection`` method has been moved up from the mongo layer to
   the base DataLayer class. It is now available for other data layers
   implementations, such as Eve-SQLAlchemy (Gonéri Le Bouder).
