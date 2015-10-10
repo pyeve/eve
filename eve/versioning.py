@@ -219,6 +219,10 @@ def synthesize_versioned_document(document, delta, resource_def):
     :param delta: the versioned fields from a specific document version.
     :param resource_def: a resource definition.
 
+    .. versionchanged:: 0.6.1
+       Use shallow copies instead of deepcopies to optimize for performance.
+       #732.
+
     .. versionadded:: 0.4
     """
     versioned_doc = {}
@@ -253,6 +257,10 @@ def get_old_document(resource, req, lookup, document, version):
     :param lookup: a dictionary of lookup parameters.
     :param document: the current version of the document.
     :param version: the value of the version request parameter.
+
+    .. versionchanged:: 0.6.1
+       Use shallow copies instead of deepcopies to optimize for performance.
+       #732.
 
     .. versionadded:: 0.4
     """
