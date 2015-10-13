@@ -174,7 +174,7 @@ class Validator(Validator):
         by 'data_relation'.
 
         :param data_relation: a dict following keys:
-            'collection': foreign collection name
+            'resource': foreign resource name
             'field': foreign field name
             'version': True if this relation points to a specific version
             'type': the type for the reference field if 'version': True
