@@ -328,19 +328,6 @@ def extract_key_values(key, d):
                 yield j
 
 
-def request_method():
-    """ Returns the proper request method, also taking into account the
-    possibile override requested by the client (via 'X-HTTP-Method-Override'
-    header).
-
-    .. versionchanged: 0.1.0
-       Supports overriding of any HTTP Method (#95).
-
-    .. versionadded: 0.0.7
-    """
-    return request.headers.get('X-HTTP-Method-Override', request.method)
-
-
 def debug_error_message(msg):
     """ Returns the error message `msg` if config.DEBUG is True
     otherwise returns `None` which will cause Werkzeug to provide

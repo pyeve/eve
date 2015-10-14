@@ -16,7 +16,7 @@ import simplejson as json
 from werkzeug import utils
 from functools import wraps
 from eve.methods.common import get_rate_limit
-from eve.utils import date_to_str, date_to_rfc1123, config, request_method, \
+from eve.utils import date_to_str, date_to_rfc1123, config, \
     debug_error_message
 from flask import make_response, request, Response, current_app as app, abort
 
@@ -54,7 +54,7 @@ def raise_event(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         r = f(*args, **kwargs)
-        method = request_method()
+        method = request.method
         if method in ('GET', 'POST', 'PATCH', 'DELETE', 'PUT'):
             event_name = 'on_post_' + method
             resource = args[0] if args else None

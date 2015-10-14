@@ -18,7 +18,7 @@ from eve.auth import requires_auth, resource_auth
 from eve.methods import get, getitem, post, patch, delete, deleteitem, put
 from eve.methods.common import ratelimit
 from eve.render import send_response
-from eve.utils import config, request_method, weak_date, date_to_rfc1123
+from eve.utils import config, weak_date, date_to_rfc1123
 import eve
 
 
@@ -49,7 +49,7 @@ def collections_endpoint(**lookup):
 
     resource = _resource()
     response = None
-    method = request_method()
+    method = request.method
     if method in ('GET', 'HEAD'):
         response = get(resource, lookup)
     elif method == 'POST':
@@ -87,7 +87,7 @@ def item_endpoint(**lookup):
     """
     resource = _resource()
     response = None
-    method = request_method()
+    method = request.method
     if method in ('GET', 'HEAD'):
         response = getitem(resource, **lookup)
     elif method == 'PATCH':
