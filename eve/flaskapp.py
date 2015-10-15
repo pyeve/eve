@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
     eve.flaskapp
     ~~~~~~~~~~~~
@@ -913,3 +912,15 @@ class Eve(Flask, Events):
             self.add_url_rule(schema_url + '/<resource>', 'schema_item',
                               view_func=schema_item_endpoint,
                               methods=['GET'])
+
+    def __call__(self, environ, start_response):
+        """ If HTTP_X_METHOD_OVERRIDE is included with the request and method
+        override is allowed, make sure the override method is returned to Eve
+        as the request method, so normal routing and method validation can be
+        performed.
+        """
+        if self.config['ALLOW_OVERRIDE_HTTP_METHOD']:
+            environ['REQUEST_METHOD'] = environ.get(
+                'HTTP_X_HTTP_METHOD_OVERRIDE',
+                environ['REQUEST_METHOD']).upper()
+        return super(Eve, self).__call__(environ, start_response)

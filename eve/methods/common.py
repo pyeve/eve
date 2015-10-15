@@ -19,7 +19,7 @@ from copy import copy
 from flask import current_app as app, request, abort, g, Response
 from functools import wraps
 
-from eve.utils import parse_request, document_etag, config, request_method, \
+from eve.utils import parse_request, document_etag, config, \
     debug_error_message, auto_fields
 from eve.versioning import resolve_document_version, \
     get_data_version_relation_document
@@ -222,7 +222,7 @@ def ratelimit():
     def decorator(f):
         @wraps(f)
         def rate_limited(*args, **kwargs):
-            method_limit = app.config.get('RATE_LIMIT_' + request_method())
+            method_limit = app.config.get('RATE_LIMIT_' + request.method)
             if method_limit and app.redis:
                 limit = method_limit[0]
                 period = method_limit[1]
@@ -890,7 +890,7 @@ def pre_event(f):
     """
     @wraps(f)
     def decorated(*args, **kwargs):
-        method = request_method()
+        method = request.method
         if method == 'HEAD':
             method = 'GET'
 

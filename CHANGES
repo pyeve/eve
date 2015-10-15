@@ -11,11 +11,15 @@ Version 0.6.1
 
 Not released.
 
+- New: ``ALLOW_OVERRIDE_HTTP_METHOD`` enables/disables support for overriding
+  request methods with ``X-HTTP-Method-Override`` headers (Julian Hille).
 - Fix: dependendencies on sub-document fields always return 422. Closes #706.
-- Fix: invoking ``post_internal`` with ``skpi_validation = True``
-  causes a ``422`` response. Closes #726.
+- Fix: invoking ``post_internal`` with ``skpi_validation = True`` causes
+  a ``422`` response. Closes #726.
 - Fix: explict inclusive datasource projection is ignored. Closes #722.
 
+- Dev: use middleware to parse overrides and eventually update request method
+  (Julian Hille). 
 - Dev: optimize versioning by building specific versions without deepcopying
   the root document (Nick Park).
 - Dev: ``_client_projection`` method has been moved up from the mongo layer to
