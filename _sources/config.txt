@@ -221,7 +221,11 @@ uppercase.
                                     be overridden by resource settings.
                                     Defaults to ``[]``.
 
-``CACHE_CONTROL``                   Value of the ``Cache-Control`` header field 
+``ALLOW_OVERRIDE_HTTP_METHOD``      Enables / Disables global the possibility
+                                    to override the sent method with a header
+                                    ``X-HTTP-METHOD-OVERRIDE``.
+
+``CACHE_CONTROL``                   Value of the ``Cache-Control`` header field
                                     used when serving ``GET`` requests (e.g.,
                                     ``max-age=20,must-revalidate``). Leave
                                     empty if you don't want to include cache
