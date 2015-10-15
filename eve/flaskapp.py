@@ -914,6 +914,11 @@ class Eve(Flask, Events):
                               methods=['GET'])
 
     def __call__(self, environ, start_response):
+        """ If HTTP_X_METHOD_OVERRIDE is included with the request and method
+        override is allowed, make sure the override method is returned to Eve
+        as the request method, so normal routing and method validation can be
+        performed.
+        """
         if self.config['ALLOW_OVERRIDE_HTTP_METHOD']:
             environ['REQUEST_METHOD'] = environ.get(
                 'HTTP_X_HTTP_METHOD_OVERRIDE',
