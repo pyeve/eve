@@ -214,6 +214,9 @@ AUTH_FIELD = None
 # don't allow unknown key/value pairs for POST/PATCH payloads.
 ALLOW_UNKNOWN = False
 
+# don't ignore unknown schema rules (raise SchemaError)
+TRANSPARENT_SCHEMA_RULES = False
+
 # Rate limits are disabled by default. Needs a running redis-server.
 RATE_LIMIT_GET = None
 RATE_LIMIT_POST = None
