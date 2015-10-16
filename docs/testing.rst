@@ -145,6 +145,18 @@ submitting a pull request, or be prepared to be mail-spammed by CI.
 Please note that in practice you're only supposed to submit pull requests
 against the ``develop`` branch, see :ref:`contributing`.
 
+Building documentation
+----------------------
+Eve uses Sphinx_ for its documentation. To build the documentation locally,
+switch to the ``docs`` folder and run ::
+
+    $ make html
+
+This will generate html documentation in the folder ``~/code/eve.docs/html``,
+which can be overridden with the ``BUILDDIR`` make variable ::
+
+    $ make html BUILDDIR=/path/to/my/docs
+
 .. _`continuous integration server`: https://travis-ci.org/nicolaiarocci/eve/
 .. _tox: http://tox.readthedocs.org/en/latest/
 .. _Redis:  http://redis.io/
@@ -153,3 +165,4 @@ against the ``develop`` branch, see :ref:`contributing`.
 .. _pytest: http://pytest.org
 .. _pytest.vim: https://github.com/alfredodeza/pytest.vim
 .. _Vim: http://en.wikipedia.org/wiki/Vim_(text_editor)
+.. _Sphinx: http://sphinx-doc.org
