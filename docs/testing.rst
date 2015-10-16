@@ -35,6 +35,8 @@ Or even a single class function:
    $ python setup.py test -s eve.tests.methods.get.TestGetItem.test_expires
 
 
+.. _test_prerequisites:
+
 Prerequisites
 -------------
 
@@ -157,6 +159,11 @@ which can be overridden with the ``BUILDDIR`` make variable ::
 
     $ make html BUILDDIR=/path/to/my/docs
 
+.. note::
+
+    Eve uses a customised Sphinx_ theme based on alabaster_. The easiest way
+    to get the right version is by installing the :ref:`test_prerequisites`.
+
 .. _`continuous integration server`: https://travis-ci.org/nicolaiarocci/eve/
 .. _tox: http://tox.readthedocs.org/en/latest/
 .. _Redis:  http://redis.io/
@@ -166,3 +173,4 @@ which can be overridden with the ``BUILDDIR`` make variable ::
 .. _pytest.vim: https://github.com/alfredodeza/pytest.vim
 .. _Vim: http://en.wikipedia.org/wiki/Vim_(text_editor)
 .. _Sphinx: http://sphinx-doc.org
+.. _alabaster: https://pypi.python.org/pypi/alabaster
