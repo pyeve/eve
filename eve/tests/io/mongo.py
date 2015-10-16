@@ -120,6 +120,10 @@ class TestMongoValidator(TestCase):
         v = Validator(schema, transparent_schema_rules=True)
         self.assertTrue(v.transparent_schema_rules)
 
+    def test_transparent_rules_accept_invalid_schema(self):
+        schema = {'a_field': {'foo': 'bar'}}
+        Validator(schema, transparent_schema_rules=True)
+
     def test_geojson_not_compilant(self):
         schema = {'location': {'type': 'point'}}
         doc = {'location': [10.0, 123.0]}
