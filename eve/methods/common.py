@@ -425,7 +425,7 @@ def normalize_dotted_fields(document):
         for i in document:
             normalize_dotted_fields(i)
     elif isinstance(document, dict):
-        for field in document.keys():
+        for field in list(document):
             if '.' in field:
                 parts = field.split('.')
                 prev = document
