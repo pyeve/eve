@@ -159,6 +159,14 @@ which can be overridden with the ``BUILDDIR`` make variable ::
 
     $ make html BUILDDIR=/path/to/my/docs
 
+Make sure Sphinx_ reports no errors or warnings when running the above.
+
+To preview the documentation, switch to the build directory and run ::
+
+    $ python3 -m http.server
+
+and then point your browser at ``localhost:8000``.
+
 .. note::
 
     Eve uses a customised Sphinx_ theme based on alabaster_. The easiest way
