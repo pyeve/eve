@@ -124,7 +124,7 @@ a <tt class="docutils literal"><span class="pre">PATCH</span></tt>, overriding t
 <span id="resource-endpoints"></span><h2>Customizable resource endpoints<a class="headerlink" href="#customizable-resource-endpoints" title="Permalink to this headline">¶</a></h2>
 <p>By default, Eve will make known database collections available as resource
 endpoints (persistent identifiers in REST idiom). So a database <tt class="docutils literal"><span class="pre">people</span></tt>
-collection will be avaliable at the <tt class="docutils literal"><span class="pre">example.com/people</span></tt> API endpoint.  You
+collection will be available at the <tt class="docutils literal"><span class="pre">example.com/people</span></tt> API endpoint.  You
 can customize the URIs though, so the API endpoint could become, say,
 <tt class="docutils literal"><span class="pre">example.com/customers/overseas</span></tt>. Consider the following request:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people
@@ -696,7 +696,7 @@ well. For more information see <a class="reference internal" href="authenticatio
 <div class="section" id="cors-cross-origin-resource-sharing">
 <h2>CORS Cross-Origin Resource Sharing<a class="headerlink" href="#cors-cross-origin-resource-sharing" title="Permalink to this headline">¶</a></h2>
 <p>Disabled by default, <a class="reference external" href="http://en.wikipedia.org/wiki/Cross-origin_resource_sharing">CORS</a> allows web pages to work with REST APIs, something
-that is usually restricted by most broswers &#8216;same domain&#8217; security policy.
+that is usually restricted by most browsers &#8216;same domain&#8217; security policy.
 Eve-powered APIs can be accessed by the JavaScript contained in web pages.</p>
 </div>
 <div class="section" id="jsonp-support">
@@ -843,7 +843,7 @@ in this scenario would be a dictionary with fields <tt class="docutils literal">
 <h3>Predefined Resource Serialization<a class="headerlink" href="#predefined-resource-serialization" title="Permalink to this headline">¶</a></h3>
 <p>It is also possible to elect some fields for predefined resource
 serialization. If the listed fields are embeddable and they are actually referencing
-documents in other resources (and embedding is enbaled for the resource), then the
+documents in other resources (and embedding is enabled for the resource), then the
 referenced documents will be embedded by default. Clients can still opt out from field
 that are embedded by default:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://example.com/people/?embedded<span class="o">{</span><span class="s2">&quot;author&quot;</span>: 0<span class="o">}</span>
@@ -936,7 +936,7 @@ deleted document or it will be refused.</p>
 <div class="section" id="versioning">
 <h3>Versioning<a class="headerlink" href="#versioning" title="Permalink to this headline">¶</a></h3>
 <p>Soft deleting a versioned document creates a new version of that document with
-<tt class="docutils literal"><span class="pre">_deleted</span></tt> set to <tt class="docutils literal"><span class="pre">true</span></tt>. A GET request to the deleted version will recieve
+<tt class="docutils literal"><span class="pre">_deleted</span></tt> set to <tt class="docutils literal"><span class="pre">true</span></tt>. A GET request to the deleted version will receive
 a <tt class="docutils literal"><span class="pre">404</span> <span class="pre">Not</span> <span class="pre">Found</span></tt> response as described above, while previous versions will
 continue to respond with <tt class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></tt>. Responses to <tt class="docutils literal"><span class="pre">?version=diff</span></tt> or
 <tt class="docutils literal"><span class="pre">?version=all</span></tt> will include the deleted version as if it were any other.</p>
@@ -1418,7 +1418,7 @@ the delete operation at this point (you should probably look at
 <h5>Resources<a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h5>
 <p>If you were brave enough to enable the DELETE command on resource endpoints
 (allowing for wipeout of the entire collection in one go), then you can be
-notified of such a disastrous occurence by hooking a callback function to the
+notified of such a disastrous occurrence by hooking a callback function to the
 <tt class="docutils literal"><span class="pre">on_delete_resource(resource_name)</span></tt> or
 <tt class="docutils literal"><span class="pre">on_delete_resource_&lt;resource_name&gt;()</span></tt> hooks.</p>
 <div class="admonition-please-note admonition">
@@ -1476,7 +1476,7 @@ fields. Upload is done via <tt class="docutils literal"><span class="pre">POST</
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -F <span class="s2">&quot;name=john&quot;</span> -F <span class="s2">&quot;pic=@profile.jpg&quot;</span> http://example.com/accounts
 </pre></div>
 </div>
-<p>For optmized performance files are stored in <a class="reference external" href="http://docs.mongodb.org/manual/core/gridfs/">GridFS</a> by default. Custom
+<p>For optimized performance files are stored in <a class="reference external" href="http://docs.mongodb.org/manual/core/gridfs/">GridFS</a> by default. Custom
 <tt class="docutils literal"><span class="pre">MediaStorage</span></tt> classes can be implemented and passed to the application to
 support alternative storage systems. A <tt class="docutils literal"><span class="pre">FileSystemMediaStorage</span></tt> class is in
 the works, and will soon be included with the Eve package.</p>
@@ -1527,7 +1527,7 @@ are the meta fields. Suppose that the flag is set like this:</p>
 </div>
 <p>For MongoDB, further fields can be found in the <a class="reference external" href="http://api.mongodb.org/python/2.7rc0/api/gridfs/grid_file.html#gridfs.grid_file.GridOut">driver documentation</a>.</p>
 <p>If you have other means to retrieve the media files (custom Flask endpoint for
-example) then the media files can be excluded from the paylod by setting to
+example) then the media files can be excluded from the payload by setting to
 <tt class="docutils literal"><span class="pre">False</span></tt> the <tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_BASE64_STRING</span></tt> flag. This takes into account
 if <tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt> is used.</p>
 </div>
@@ -1572,7 +1572,7 @@ response payload:</p>
 </div>
 <p>The document will be returned with all its fields except the <em>image</em> field.</p>
 <p>Moreover, when setting the <tt class="docutils literal"><span class="pre">datasource</span></tt> property for any given resource
-endpoint it is possible to explictly exclude fields (of <tt class="docutils literal"><span class="pre">media</span></tt> type, but
+endpoint it is possible to explicitly exclude fields (of <tt class="docutils literal"><span class="pre">media</span></tt> type, but
 also of any other type) from default responses:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -1668,7 +1668,7 @@ First we define an <tt class="docutils literal"><span class="pre">internal_trans
 </pre></div>
 </div>
 <p>Now, if we access the home endpoint and <tt class="docutils literal"><span class="pre">HATEOAS</span></tt> is enabled, we won&#8217;t get
-the <tt class="docutils literal"><span class="pre">internal-transactions</span></tt> listed (and hitting the endpoint via HTTP wil
+the <tt class="docutils literal"><span class="pre">internal-transactions</span></tt> listed (and hitting the endpoint via HTTP will
 return a <tt class="docutils literal"><span class="pre">404</span></tt>.) We can use the data layer to access our secret endpoint.
 Something like this:</p>
 <div class="highlight-python"><div class="highlight"><pre> <span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
@@ -1725,7 +1725,7 @@ time a custom function is invoked.</p>
 
 <span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
 
-<span class="k">def</span> <span class="nf">log_every_get</span><span class="p">(</span><span class="n">resoure</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">log_every_get</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
     <span class="c"># custom INFO-level message is sent to the log file</span>
     <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;We just answered to a GET request!&#39;</span><span class="p">)</span>
 
