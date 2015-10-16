@@ -416,20 +416,29 @@ def normalize_dotted_fields(document):
 
         {"location": {"city": "a city", "sub": {"address": "a subaddress}}}
 
+    .. versionchanged:: 0.7
+       Fix normalization of nested inputs (#738).
+
     .. versionadded:: 0.6
     """
-    for field in document.keys():
-        if '.' in field:
-            parts = field.split('.')
-            prev = document
-            for part in parts[:-1]:
-                if part not in prev:
-                    prev[part] = {}
-                prev = prev[part]
-            prev[parts[-1]] = document[field]
-            document.pop(field)
-        elif isinstance(document[field], dict):
-            normalize_dotted_fields(document[field])
+    if isinstance(document, list):
+        for i in document:
+            normalize_dotted_fields(i)
+    elif isinstance(document, dict):
+        for field in document.keys():
+            if '.' in field:
+                parts = field.split('.')
+                prev = document
+                for part in parts[:-1]:
+                    if part not in prev:
+                        prev[part] = {}
+                    prev = prev[part]
+                if isinstance(document[field], (dict, list)):
+                    normalize_dotted_fields(document[field])
+                prev[parts[-1]] = document[field]
+                document.pop(field)
+            elif isinstance(document[field], (dict, list)):
+                normalize_dotted_fields(document[field])
 
 
 def build_response_document(
