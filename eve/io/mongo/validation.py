@@ -33,10 +33,11 @@ class Validator(Validator):
                    documentation.
     :param resource: the resource name.
 
-    .. versionchanged:: 0.6.2
+    .. versionchanged:: 0.6.1
        __init__ signature update for cerberus v0.8.1 compatibility.
-       Remove support for 'transparent_schema_rules' in favor of explicit
-       validators for rules unsupported by cerberus.
+       Disable 'transparent_schema_rules' by default in favor of explicit
+       validators for rules unsupported by cerberus. This can be overridden
+       globally or on a per-resource basis through a config option.
 
     .. versionchanged:: 0.5
        Support for _original_document
