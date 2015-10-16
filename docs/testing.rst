@@ -35,6 +35,14 @@ Or even a single class function:
    $ python setup.py test -s eve.tests.methods.get.TestGetItem.test_expires
 
 
+Prerequisites
+-------------
+
+Install the required dependencies for running tests and building documentation
+by running ::
+
+    $ pip install -r dev-requirements.txt
+
 Testing with other python versions
 ----------------------------------
 Before you submit a pull request, make sure your tests and changes run in
