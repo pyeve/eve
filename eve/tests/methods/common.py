@@ -3,7 +3,7 @@ from datetime import datetime
 import simplejson as json
 from bson import ObjectId
 
-from eve.methods.common import serialize
+from eve.methods.common import serialize, normalize_dotted_fields
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
 from eve.utils import config
@@ -167,6 +167,56 @@ class TestSerializer(TestBase):
             except Exception:
                 self.assertTrue(False, "Serializing null dictionaries should "
                                        "not raise an exception.")
+
+
+class TestNormalizeDottedFields(TestBase):
+    def test_normalize_dotted_fields(self):
+        document = {
+            'a.b': 1,
+            'c.d': {
+                'e.f': {
+                    'g': 1,
+                    'h': 2,
+                },
+                'e.f.i': {
+                    'j.k': 3,
+                },
+            },
+            'l': [
+                {
+                    'm.n': 4,
+                },
+            ],
+        }
+        expected_result = {
+            'a': {
+                'b': 1,
+            },
+            'c': {
+                'd': {
+                    'e': {
+                        'f': {
+                            'g': 1,
+                            'h': 2,
+                            'i': {
+                                'j': {
+                                    'k': 3,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            'l': [
+                {
+                    'm': {
+                        'n': 4,
+                    },
+                },
+            ],
+        }
+        normalize_dotted_fields(document)
+        self.assertTrue(document == expected_result)
 
 
 class TestOpLogBase(TestBase):
