@@ -422,7 +422,8 @@ def normalize_dotted_fields(document):
     .. versionadded:: 0.6
     """
     if isinstance(document, list):
-        for i in document:
+        prev = document
+        for i in prev:
             normalize_dotted_fields(i)
     elif isinstance(document, dict):
         for field in list(document):
