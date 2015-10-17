@@ -33,10 +33,11 @@ class Validator(Validator):
                    documentation.
     :param resource: the resource name.
 
-    .. versionchanged:: 0.6.2
+    .. versionchanged:: 0.6.1
        __init__ signature update for cerberus v0.8.1 compatibility.
-       Remove support for 'transparent_schema_rules' in favor of explicit
-       validators for rules unsupported by cerberus.
+       Disable 'transparent_schema_rules' by default in favor of explicit
+       validators for rules unsupported by cerberus. This can be overridden
+       globally or on a per-resource basis through a config option.
 
     .. versionchanged:: 0.5
        Support for _original_document
@@ -50,14 +51,20 @@ class Validator(Validator):
        Support for 'transparent_schema_rules' introduced with Cerberus 0.0.3,
        which allows for insertion of 'default' values in POST requests.
     """
-    def __init__(self, schema=None, resource=None, allow_unknown=False):
+    def __init__(self, schema=None, resource=None, allow_unknown=False,
+                 transparent_schema_rules=False):
         self.resource = resource
         self._id = None
         self._original_document = None
         schema = self._remove_unique_rules_on_fields_with_unique_index(schema)
-        super(Validator, self).__init__(schema)
         if resource:
-            self.allow_unknown = config.DOMAIN[resource]['allow_unknown']
+            transparent_schema_rules = \
+                config.DOMAIN[resource]['transparent_schema_rules']
+            allow_unknown = config.DOMAIN[resource]['allow_unknown']
+        super(Validator, self).__init__(
+            schema,
+            transparent_schema_rules=transparent_schema_rules,
+            allow_unknown=allow_unknown)
 
     def _remove_unique_rules_on_fields_with_unique_index(self, schema):
         # TODO: Actually do what the function name suggests. This version just

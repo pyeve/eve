@@ -328,6 +328,9 @@ uppercase.
                                     :ref:`unknown` for more information.
                                     Defaults to ``False``.
 
+``TRANSPARENT_SCHEMA_RULES``        When ``True``, this option globally disables
+                                    :ref:`schema_validation` for any API endpoint.
+
 ``PROJECTION``                      When ``True``, this option enables the
                                     :ref:`projections` feature. Can be
                                     overridden by resource settings. Defaults
@@ -858,6 +861,9 @@ always lowercase.
                                 Use with caution. Locally overrides
                                 ``ALLOW_UNKNOWN``. See :ref:`unknown` for more
                                 information. Defaults to ``False``.
+
+``transparent_schema_rules``    When ``True``, this option disables
+                                :ref:`schema_validation` for the endpoint.
 
 ``projection``                  When ``True``, this option enables the
                                 :ref:`projections` feature. Locally overrides

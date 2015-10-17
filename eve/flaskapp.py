@@ -568,6 +568,8 @@ class Eve(Flask, Events):
         settings.setdefault('auth_field',
                             self.config['AUTH_FIELD'])
         settings.setdefault('allow_unknown', self.config['ALLOW_UNKNOWN'])
+        settings.setdefault('transparent_schema_rules',
+                            self.config['TRANSPARENT_SCHEMA_RULES'])
         settings.setdefault('extra_response_fields',
                             self.config['EXTRA_RESPONSE_FIELDS'])
         settings.setdefault('mongo_write_concern',

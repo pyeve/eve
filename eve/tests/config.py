@@ -225,6 +225,8 @@ class TestConfig(TestBase):
                          self.app.config['AUTH_FIELD'])
         self.assertEqual(settings['allow_unknown'],
                          self.app.config['ALLOW_UNKNOWN'])
+        self.assertEqual(settings['transparent_schema_rules'],
+                         self.app.config['TRANSPARENT_SCHEMA_RULES'])
         self.assertEqual(settings['extra_response_fields'],
                          self.app.config['EXTRA_RESPONSE_FIELDS'])
         self.assertEqual(settings['mongo_write_concern'],
