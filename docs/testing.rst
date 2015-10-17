@@ -157,11 +157,15 @@ switch to the ``docs`` folder and run ::
 This will generate html documentation in the folder ``~/code/eve.docs/html``,
 which can be overridden with the ``BUILDDIR`` make variable ::
 
-    $ make html BUILDDIR=/path/to/my/docs
+    $ make html BUILDDIR=/path/to/docs
 
 Make sure Sphinx_ reports no errors or warnings when running the above.
 
-To preview the documentation, switch to the build directory and run ::
+To preview the documentation open ``index.html`` in the build directory ::
+
+    $ open /path/to/docs/index.html
+
+Alternatively switch to the build directory, start a local webserver ::
 
     $ python3 -m http.server
 
