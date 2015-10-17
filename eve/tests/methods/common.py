@@ -171,6 +171,14 @@ class TestSerializer(TestBase):
 
 class TestNormalizeDottedFields(TestBase):
     def test_normalize_dotted_fields(self):
+        def compare_recursive(a, b):
+            for key, value in a.items():
+                if key not in b:
+                    return False
+                if isinstance(value, dict):
+                    compare_recursive(value, b[key])
+            return True
+
         document = {
             'a.b': 1,
             'c.d': {
@@ -178,9 +186,8 @@ class TestNormalizeDottedFields(TestBase):
                     'g': 1,
                     'h': 2,
                 },
-                'e.f.i': {
-                    'j.k': 3,
-                },
+                'e.f.i': {'j.k': 3,
+                          },
             },
             'l': [
                 {
@@ -216,7 +223,7 @@ class TestNormalizeDottedFields(TestBase):
             ],
         }
         normalize_dotted_fields(document)
-        self.assertTrue(document == expected_result)
+        self.assertTrue(compare_recursive(document, expected_result))
 
 
 class TestOpLogBase(TestBase):
