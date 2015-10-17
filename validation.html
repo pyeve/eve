@@ -97,7 +97,7 @@ Cerberus validation, implementing the <tt class="docutils literal"><span class="
 constraints and the <tt class="docutils literal"><span class="pre">ObjectId</span></tt> data type on top of the standard rules.</p>
 </div>
 <div class="section" id="custom-validation-rules">
-<h2>Custom Validation Rules<a class="headerlink" href="#custom-validation-rules" title="Permalink to this headline">¶</a></h2>
+<span id="id1"></span><h2>Custom Validation Rules<a class="headerlink" href="#custom-validation-rules" title="Permalink to this headline">¶</a></h2>
 <p>Suppose that in your specific and very peculiar use case, a certain value can
 only be expressed as an odd integer. You decide to add support for a new
 <tt class="docutils literal"><span class="pre">isodd</span></tt> rule to our validation schema. This is how you would implement
@@ -205,6 +205,19 @@ option is enabled, clients will be capable of actually <cite>adding</cite> field
 PATCH (edit).</p>
 </div>
 </div>
+<div class="section" id="schema-validation">
+<span id="id2"></span><h2>Schema validation<a class="headerlink" href="#schema-validation" title="Permalink to this headline">¶</a></h2>
+<p>By default, schemas are validated to ensure they conform to the structure
+documented in <a class="reference internal" href="config.html#schema"><em>Schema Definition</em></a>.</p>
+<p>There are two ways to deal with non-conforming schemas:</p>
+<ol class="arabic simple">
+<li>Add <a class="reference internal" href="#custom-validation-rules"><em>Custom Validation Rules</em></a> for non-conforming keys used in the
+schema.</li>
+<li>Set the global option <tt class="docutils literal"><span class="pre">TRANSPARENT_SCHEMA_RULES</span></tt> to disable schema
+validation globally or the resource option <tt class="docutils literal"><span class="pre">transparent_schema_rules</span></tt>
+to disable schema validation for a given endpoint.</li>
+</ol>
+</div>
 </div>
 
 
@@ -255,6 +268,7 @@ PATCH (edit).</p>
 <li class="toctree-l2"><a class="reference internal" href="#custom-validation-rules">Custom Validation Rules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#custom-data-types">Custom Data Types</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#allowing-the-unknown">Allowing the Unknown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#schema-validation">Schema validation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication and Authorization</a></li>

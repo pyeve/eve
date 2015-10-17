@@ -49,6 +49,8 @@ extensible. As a matter of fact, Eve's MongoDB data-layer itself extends
 Cerberus validation, implementing the ``unique`` and ``data_relation``
 constraints and the ``ObjectId`` data type on top of the standard rules.
 
+.. _custom_validation_rules:
+
 Custom Validation Rules
 ------------------------
 Suppose that in your specific and very peculiar use case, a certain value can
@@ -173,6 +175,23 @@ a payload like this will be accepted:
     Use this feature with extreme caution. Also be aware that, when this
     option is enabled, clients will be capable of actually `adding` fields via
     PATCH (edit).
+
+.. _schema_validation:
+
+Schema validation
+-----------------
+
+By default, schemas are validated to ensure they conform to the structure
+documented in :ref:`schema`.
+
+There are two ways to deal with non-conforming schemas:
+
+1.  Add :ref:`custom_validation_rules` for non-conforming keys used in the
+    schema.
+
+2.  Set the global option ``TRANSPARENT_SCHEMA_RULES`` to disable schema
+    validation globally or the resource option ``transparent_schema_rules``
+    to disable schema validation for a given endpoint.
 
 .. _Cerberus: http://python-cerberus.org
 .. _`source code`: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/mongo/validation.py
