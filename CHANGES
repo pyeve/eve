@@ -15,6 +15,7 @@ Not released.
   globally and ``transparent_schema_rules`` per resource (Florian Rathgeber).
 - New: ``ALLOW_OVERRIDE_HTTP_METHOD`` enables/disables support for overriding
   request methods with ``X-HTTP-Method-Override`` headers (Julian Hille).
+
 - Fix: recursion for dotted field normalization (Matt Tucker).
 - Fix: dependendencies on sub-document fields always return 422. Closes #706.
 - Fix: invoking ``post_internal`` with ``skpi_validation = True`` causes
