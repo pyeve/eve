@@ -79,6 +79,14 @@ with:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py <span class="nb">test</span> -s eve.tests.methods.get.TestGetItem.test_expires
 </pre></div>
 </div>
+<div class="section" id="prerequisites">
+<span id="test-prerequisites"></span><h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>Install the required dependencies for running tests and building documentation
+by running</p>
+<div class="highlight-python"><div class="highlight"><pre>$ pip install -r dev-requirements.txt
+</pre></div>
+</div>
+</div>
 <div class="section" id="testing-with-other-python-versions">
 <h2>Testing with other python versions<a class="headerlink" href="#testing-with-other-python-versions" title="Permalink to this headline">¶</a></h2>
 <p>Before you submit a pull request, make sure your tests and changes run in
@@ -165,6 +173,34 @@ submitting a pull request, or be prepared to be mail-spammed by CI.</p>
 <p>Please note that in practice you&#8217;re only supposed to submit pull requests
 against the <tt class="docutils literal"><span class="pre">develop</span></tt> branch, see <a class="reference internal" href="contributing.html#contributing"><em>How to Contribute</em></a>.</p>
 </div>
+<div class="section" id="building-documentation">
+<h2>Building documentation<a class="headerlink" href="#building-documentation" title="Permalink to this headline">¶</a></h2>
+<p>Eve uses <a class="reference external" href="http://sphinx-doc.org">Sphinx</a> for its documentation. To build the documentation locally,
+switch to the <tt class="docutils literal"><span class="pre">docs</span></tt> folder and run</p>
+<div class="highlight-python"><div class="highlight"><pre>$ make html
+</pre></div>
+</div>
+<p>This will generate html documentation in the folder <tt class="docutils literal"><span class="pre">~/code/eve.docs/html</span></tt>,
+which can be overridden with the <tt class="docutils literal"><span class="pre">BUILDDIR</span></tt> make variable</p>
+<div class="highlight-python"><div class="highlight"><pre>$ make html BUILDDIR=/path/to/docs
+</pre></div>
+</div>
+<p>Make sure <a class="reference external" href="http://sphinx-doc.org">Sphinx</a> reports no errors or warnings when running the above.</p>
+<p>To preview the documentation open <tt class="docutils literal"><span class="pre">index.html</span></tt> in the build directory</p>
+<div class="highlight-python"><div class="highlight"><pre>$ open /path/to/docs/index.html
+</pre></div>
+</div>
+<p>Alternatively switch to the build directory, start a local webserver</p>
+<div class="highlight-python"><div class="highlight"><pre>$ python3 -m http.server
+</pre></div>
+</div>
+<p>and then point your browser at <tt class="docutils literal"><span class="pre">localhost:8000</span></tt>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Eve uses a customised <a class="reference external" href="http://sphinx-doc.org">Sphinx</a> theme based on <a class="reference external" href="https://pypi.python.org/pypi/alabaster">alabaster</a>. The easiest way
+to get the right version is by installing the <a class="reference internal" href="#test-prerequisites"><em>Prerequisites</em></a>.</p>
+</div>
+</div>
 </div>
 
 
@@ -217,10 +253,12 @@ against the <tt class="docutils literal"><span class="pre">develop</span></tt> b
 <li class="toctree-l1"><a class="reference internal" href="extensions.html">Extensions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">How to Contribute</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Running the Tests</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#testing-with-other-python-versions">Testing with other python versions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#using-pytest">Using Pytest</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ratelimiting-and-redis">RateLimiting and Redis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#continuous-integration">Continuous Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-documentation">Building documentation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
