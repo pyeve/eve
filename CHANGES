@@ -33,7 +33,7 @@ Not released.
 - Docs: add instructions for installing dependencies and building docs (Florian
   Rathgeber).
 - Docs: fix link to contributing guidelines (Florian Rathgeber).
-- Docs: fix some typos (Stratos Gerakakis).
+- Docs: fix some typos (Stratos Gerakakis, Julian Hille).
 - Docs: add Eve-Swagger to Extensions page.
 - Docs: fix broken link to Mongo's capped collections (Nathan Reynolds).
 
