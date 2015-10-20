@@ -883,7 +883,7 @@ that are embedded by default:
 
 .. code-block:: console
 
-    $ curl -i http://example.com/people/?embedded{"author": 0}
+    $ curl -i http://example.com/people/?embedded={"author": 0}
     HTTP/1.1 200 OK
 
 Limitations
