@@ -30,6 +30,8 @@ Not released.
   the base DataLayer class. It is now available for other data layers
   implementations, such as Eve-SQLAlchemy (Gonéri Le Bouder).
 
+- Docs: add instructions for installing dependencies and building docs (Florian
+  Rathgeber).
 - Docs: fix link to contributing guidelines (Florian Rathgeber).
 - Docs: fix some typos (Stratos Gerakakis).
 - Docs: add Eve-Swagger to Extensions page.
