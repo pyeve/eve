@@ -63,6 +63,7 @@
 globally and <tt class="docutils literal"><span class="pre">transparent_schema_rules</span></tt> per resource (Florian Rathgeber).</li>
 <li>New: <tt class="docutils literal"><span class="pre">ALLOW_OVERRIDE_HTTP_METHOD</span></tt> enables/disables support for overriding
 request methods with <tt class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></tt> headers (Julian Hille).</li>
+<li>Fix: flake8 fails on Python 3. Closes #747 (Simon Schönfeld).</li>
 <li>Fix: recursion for dotted field normalization (Matt Tucker).</li>
 <li>Fix: dependendencies on sub-document fields always return 422. Closes #706.</li>
 <li>Fix: invoking <tt class="docutils literal"><span class="pre">post_internal</span></tt> with <tt class="docutils literal"><span class="pre">skpi_validation</span> <span class="pre">=</span> <span class="pre">True</span></tt> causes
