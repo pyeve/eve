@@ -116,6 +116,10 @@ uppercase.
                                     disabling filters and whitelisting valid
                                     ones at the local level is the way to go.
 
+``VALIDATE_FILTERS``                Whether to validate the filters against the
+                                    resource schema. Invalid filters will throw
+                                    an exception. Defaults to ``False``.
+
 ``SORTING``                         ``True`` if sorting is supported for ``GET``
                                     requests, otherwise ``False``. Can be
                                     overridden by resource settings. Defaults
