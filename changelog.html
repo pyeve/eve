@@ -59,8 +59,10 @@
 <h3>Version 0.6.1<a class="headerlink" href="#version-0-6-1" title="Permalink to this headline">¶</a></h3>
 <p>Not released.</p>
 <ul class="simple">
-<li>New: <tt class="docutils literal"><span class="pre">TRANSPARENT_SCHEMA_RULES</span></tt> enables/disables schema validation
-globally and <tt class="docutils literal"><span class="pre">transparent_schema_rules</span></tt> per resource (Florian Rathgeber).</li>
+<li>New: <tt class="docutils literal"><span class="pre">VALIDATE_FILTERS</span></tt> enables/disables validating of query filters
+against resource schema. Closes #728 (Stratos Gerakakis).</li>
+<li>New: <tt class="docutils literal"><span class="pre">TRANSPARENT_SCHEMA_RULES</span></tt> enables/disables schema validation globally
+and <tt class="docutils literal"><span class="pre">transparent_schema_rules</span></tt> per resource (Florian Rathgeber).</li>
 <li>New: <tt class="docutils literal"><span class="pre">ALLOW_OVERRIDE_HTTP_METHOD</span></tt> enables/disables support for overriding
 request methods with <tt class="docutils literal"><span class="pre">X-HTTP-Method-Override</span></tt> headers (Julian Hille).</li>
 <li>Fix: flake8 fails on Python 3. Closes #747 (Simon Schönfeld).</li>

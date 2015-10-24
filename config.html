@@ -167,19 +167,24 @@ disabling filters and whitelisting valid
 ones at the local level is the way to go.</p>
 </td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">SORTING</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VALIDATE_FILTERS</span></tt></td>
+<td>Whether to validate the filters against the
+resource schema. Invalid filters will throw
+an exception. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SORTING</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> if sorting is supported for <tt class="docutils literal"><span class="pre">GET</span></tt>
 requests, otherwise <tt class="docutils literal"><span class="pre">False</span></tt>. Can be
 overridden by resource settings. Defaults
 to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PAGINATION</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">PAGINATION</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> if pagination is enabled for <tt class="docutils literal"><span class="pre">GET</span></tt>
 requests, otherwise <tt class="docutils literal"><span class="pre">False</span></tt>. Can be
 overridden by resource settings. Defaults
 to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">PAGINATION_LIMIT</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PAGINATION_LIMIT</span></tt></td>
 <td>Maximum value allowed for QUERY_MAX_RESULTS
 query parameter. Values exceeding the
 limit will be silently replaced with this
@@ -187,29 +192,29 @@ value. You want to aim for a reasonable
 compromise between performance and transfer
 size. Defaults to 50.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PAGINATION_DEFAULT</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">PAGINATION_DEFAULT</span></tt></td>
 <td>Default value for QUERY_MAX_RESULTS.
 Defaults to 25.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">QUERY_WHERE</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">QUERY_WHERE</span></tt></td>
 <td>Key for the filters query parameter. Defaults to <tt class="docutils literal"><span class="pre">where</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">QUERY_SORT</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">QUERY_SORT</span></tt></td>
 <td>Key for the sort query parameter. Defaults to <tt class="docutils literal"><span class="pre">sort</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">QUERY_PROJECTION</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">QUERY_PROJECTION</span></tt></td>
 <td>Key for the projections query parameter. Defaults to <tt class="docutils literal"><span class="pre">projection</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">QUERY_PAGE</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">QUERY_PAGE</span></tt></td>
 <td>Key for the pages query parameter. Defaults to <tt class="docutils literal"><span class="pre">page</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">QUERY_MAX_RESULTS</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">QUERY_MAX_RESULTS</span></tt></td>
 <td>Key for the max results query parameter. Defaults to <tt class="docutils literal"><span class="pre">max_results</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">QUERY_EMBEDDED</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">QUERY_EMBEDDED</span></tt></td>
 <td>Key for the embedding query parameter. Defaults to <tt class="docutils literal"><span class="pre">embedded</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DATE_FORMAT</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DATE_FORMAT</span></tt></td>
 <td>A Python date format used to parse and render
 datetime values. When serving requests,
 matching JSON strings will be parsed and
@@ -220,7 +225,7 @@ Defaults to the RFC1123 (ex RFC 822)
 standard <tt class="docutils literal"><span class="pre">a,</span> <span class="pre">%d</span> <span class="pre">%b</span> <span class="pre">%Y</span> <span class="pre">%H:%M:%S</span> <span class="pre">GMT</span></tt>
 (&#8220;Tue, 02 Apr 2013 10:29:13 GMT&#8221;).</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RESOURCE_METHODS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RESOURCE_METHODS</span></tt></td>
 <td>A list of HTTP methods supported at resource
 endpoints. Allowed values: <tt class="docutils literal"><span class="pre">GET</span></tt>,
 <tt class="docutils literal"><span class="pre">POST</span></tt>, <tt class="docutils literal"><span class="pre">DELETE</span></tt>. <tt class="docutils literal"><span class="pre">POST</span></tt> is used for
@@ -229,13 +234,13 @@ resource contents (enable with caution).
 Can be overridden by resource settings.
 Defaults to <tt class="docutils literal"><span class="pre">['GET']</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">PUBLIC_METHODS</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PUBLIC_METHODS</span></tt></td>
 <td>A list of HTTP methods supported at resource
 endpoints, open to public access even when
 <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> is enabled. Can be overridden
 by resource settings. Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ITEM_METHODS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ITEM_METHODS</span></tt></td>
 <td>A list of HTTP methods supported at item
 endpoints. Allowed values: <tt class="docutils literal"><span class="pre">GET</span></tt>,
 <tt class="docutils literal"><span class="pre">PATCH</span></tt>, <tt class="docutils literal"><span class="pre">PUT</span></tt> and <tt class="docutils literal"><span class="pre">DELETE</span></tt>. <tt class="docutils literal"><span class="pre">PATCH</span></tt>
@@ -246,59 +251,59 @@ header tag, is used for item updates;
 overridden by resource settings. Defaults to
 <tt class="docutils literal"><span class="pre">['GET']</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></tt></td>
 <td>A list of HTTP methods supported at item
 endpoints, left open to public access when
 when <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> is enabled. Can be
 overridden by resource settings. Defaults
 to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ALLOWED_ROLES</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ALLOWED_ROLES</span></tt></td>
 <td>A list of allowed <cite>roles</cite> for resource
 endpoints. Can be overridden by resource
 settings. See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more
 information. Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ALLOWED_READ_ROLES</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ALLOWED_READ_ROLES</span></tt></td>
 <td>A list of allowed <cite>roles</cite> for resource
 endpoints with GET and OPTIONS methods.
 Can be overridden by resource
 settings. See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more
 information. Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ALLOWED_WRITE_ROLES</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ALLOWED_WRITE_ROLES</span></tt></td>
 <td>A list of allowed <cite>roles</cite> for resource
 endpoints with POST, PUT and DELETE
 methods. Can be overridden by resource
 settings. See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more
 information. Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ALLOWED_ITEM_ROLES</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ALLOWED_ITEM_ROLES</span></tt></td>
 <td>A list of allowed <cite>roles</cite> for item endpoints.
 See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more information. Can
 be overridden by resource settings.
 Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ALLOWED_ITEM_READ_ROLES</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ALLOWED_ITEM_READ_ROLES</span></tt></td>
 <td>A list of allowed <cite>roles</cite> for item endpoints
 with GET and OPTIONS methods.
 See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more information. Can
 be overridden by resource settings.
 Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ALLOWED_ITEM_WRITE_ROLES</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ALLOWED_ITEM_WRITE_ROLES</span></tt></td>
 <td>A list of allowed <cite>roles</cite> for item endpoints
 with PUT, PATCH and DELETE methods.
 See <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> for more information. Can
 be overridden by resource settings.
 Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ALLOW_OVERRIDE_HTTP_METHOD</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ALLOW_OVERRIDE_HTTP_METHOD</span></tt></td>
 <td>Enables / Disables global the possibility
 to override the sent method with a header
 <tt class="docutils literal"><span class="pre">X-HTTP-METHOD-OVERRIDE</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">CACHE_CONTROL</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">CACHE_CONTROL</span></tt></td>
 <td>Value of the <tt class="docutils literal"><span class="pre">Cache-Control</span></tt> header field
 used when serving <tt class="docutils literal"><span class="pre">GET</span></tt> requests (e.g.,
 <tt class="docutils literal"><span class="pre">max-age=20,must-revalidate</span></tt>). Leave
@@ -307,7 +312,7 @@ directives with API responses. Can be
 overridden by resource settings. Defaults
 to <tt class="docutils literal"><span class="pre">''</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">CACHE_EXPIRES</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">CACHE_EXPIRES</span></tt></td>
 <td>Value (in seconds) of the <tt class="docutils literal"><span class="pre">Expires</span></tt> header
 field used when serving <tt class="docutils literal"><span class="pre">GET</span></tt> requests.
 If set to a non-zero value, the header will
@@ -316,7 +321,7 @@ setting of <tt class="docutils literal"><span class="pre">CACHE_CONTROL</span></
 overridden by resource settings. Defaults
 to 0.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">X_DOMAINS</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">X_DOMAINS</span></tt></td>
 <td>CORS (Cross-Origin Resource Sharing) support.
 Allows API maintainers to specify which
 domains are allowed to perform CORS
@@ -324,7 +329,7 @@ requests. Allowed values are: <tt class="docutils literal"><span class="pre">Non
 a list of domains or <tt class="docutils literal"><span class="pre">'*'</span></tt> for a wide-open
 API. Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">X_HEADERS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">X_HEADERS</span></tt></td>
 <td>CORS (Cross-Origin Resource Sharing) support.
 Allows API maintainers to specify which
 headers are allowed to be sent with CORS
@@ -332,7 +337,7 @@ requests. Allowed values are: <tt class="docutils literal"><span class="pre">Non
 a list of headers names. Defaults to
 <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">X_EXPOSE_HEADERS</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">X_EXPOSE_HEADERS</span></tt></td>
 <td>CORS (Cross-Origin Resource Sharing) support.
 Allows API maintainers to specify which
 headers are exposed within a CORS response.
@@ -340,7 +345,7 @@ Allowed values are: <tt class="docutils literal"><span class="pre">None</span></
 a list of headers names. Defaults to
 <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">X_ALLOW_CREDENTIALS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">X_ALLOW_CREDENTIALS</span></tt></td>
 <td>CORS (Cross-Origin Resource Sharing) support.
 Allows API maintainers to specify if cookies can
 be sent by clients.
@@ -348,49 +353,49 @@ The only allowed value is: <tt class="docutils literal"><span class="pre">True</
 will be ignored. Defaults to
 <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">X_MAX_AGE</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">X_MAX_AGE</span></tt></td>
 <td>CORS (Cross-Origin Resource Sharing)
 support. Allows to set max age for the
 access control allow header. Defaults to
 21600.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt></td>
 <td>Name of the field used to record a document&#8217;s
 last update date. This field is
 automatically handled by Eve. Defaults to
 <tt class="docutils literal"><span class="pre">_updated</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt></td>
 <td>Name for the field used to record a document
 creation date. This field is automatically
 handled by Eve. Defaults to <tt class="docutils literal"><span class="pre">_created</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ID_FIELD</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ID_FIELD</span></tt></td>
 <td>Name of the field used to uniquely identify
 resource items within the database. You
 want this field to be properly indexed on
 the database. Can be overridden by resource
 settings. Defaults to <tt class="docutils literal"><span class="pre">_id</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ITEM_LOOKUP</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ITEM_LOOKUP</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> if item endpoints should be generally
 available across the API, <tt class="docutils literal"><span class="pre">False</span></tt>
 otherwise. Can be overridden by resource
 settings. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ITEM_LOOKUP_FIELD</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ITEM_LOOKUP_FIELD</span></tt></td>
 <td>Document field used when looking up a resource
 item. Can be overridden by resource
 settings. Defaults to <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ITEM_URL</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ITEM_URL</span></tt></td>
 <td>URL rule used to construct default item
 endpoint URLs. Can be overridden by
 resource settings. Defaults
 <tt class="docutils literal"><span class="pre">regex(&quot;[a-f0-9]{24}&quot;)</span></tt> which is MongoDB
 standard <tt class="docutils literal"><span class="pre">Object_Id</span></tt> format.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ITEM_TITLE</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ITEM_TITLE</span></tt></td>
 <td>Title to be used when building item references,
 both in XML and JSON responses. Defaults to
 resource name, with the plural &#8216;s&#8217; stripped
@@ -398,7 +403,7 @@ if present. Can and most likely will be
 overridden when configuring single resource
 endpoints.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt></td>
 <td>Enables <a class="reference internal" href="authentication.html#user-restricted"><em>User-Restricted Resource Access</em></a>. When the
 feature is enabled, users can only
 read/update/delete resource items created
@@ -409,36 +414,36 @@ item. Can be overridden by resource
 settings. Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>, which
 disables the feature.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">True</span></tt>, this option will allow insertion
 of arbitrary, unknown fields to any API
 endpoint. Use with caution. See
 <a class="reference internal" href="validation.html#unknown"><em>Allowing the Unknown</em></a> for more information.
 Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">TRANSPARENT_SCHEMA_RULES</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">TRANSPARENT_SCHEMA_RULES</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">True</span></tt>, this option globally disables
 <a class="reference internal" href="validation.html#schema-validation"><em>Schema validation</em></a> for any API endpoint.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PROJECTION</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">PROJECTION</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">True</span></tt>, this option enables the
 <a class="reference internal" href="features.html#projections"><em>Projections</em></a> feature. Can be
 overridden by resource settings. Defaults
 to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">EMBEDDING</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">EMBEDDING</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">True</span></tt>, this option enables the
 <a class="reference internal" href="features.html#embedded-docs"><em>Embedded Resource Serialization</em></a> feature. Defaults to
 <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">BANDWIDTH_SAVER</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">BANDWIDTH_SAVER</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">True</span></tt>, POST, PUT, and PATCH responses
 only return automatically handled fields
 and <tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt>. When
 <tt class="docutils literal"><span class="pre">False</span></tt>, the entire document will be
 sent. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt></td>
 <td>Allows to configure a list of additional
 document fields that should be provided
 with every POST response. Normally only
@@ -449,7 +454,7 @@ payloads. Can be overridden by resource
 settings. Defaults to <tt class="docutils literal"><span class="pre">[]</span></tt>, effectively
 disabling the feature.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_GET</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_GET</span></tt></td>
 <td>A tuple expressing the rate limit on GET
 requests. The first element of the tuple is
 the number of requests allowed, while the
@@ -458,7 +463,7 @@ example, <tt class="docutils literal"><span class="pre">(300,</span> <span class
 a limit of 300 requests every 15 minutes.
 Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_POST</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_POST</span></tt></td>
 <td>A tuple expressing the rate limit on POST
 requests. The first element of the tuple is
 the number of requests allowed, while the
@@ -467,7 +472,7 @@ example <tt class="docutils literal"><span class="pre">(300,</span> <span class=
 a limit of 300 requests every 15 minutes.
 Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_PATCH</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_PATCH</span></tt></td>
 <td>A tuple expressing the rate limit on PATCH
 requests. The first element of the tuple is
 the number of requests allowed, while the
@@ -476,7 +481,7 @@ example <tt class="docutils literal"><span class="pre">(300,</span> <span class=
 a limit of 300 requests every 15 minutes.
 Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_DELETE</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RATE_LIMIT_DELETE</span></tt></td>
 <td>A tuple expressing the rate limit on DELETE
 requests. The first element of the tuple is
 the number of requests allowed, while the
@@ -485,44 +490,44 @@ example <tt class="docutils literal"><span class="pre">(300,</span> <span class=
 a limit of 300 requests every 15 minutes. Defaults to
 <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DEBUG</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DEBUG</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> to enable Debug Mode, <tt class="docutils literal"><span class="pre">False</span></tt>
 otherwise.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ERROR</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ERROR</span></tt></td>
 <td>Allows to customize the error_code field. Defaults
 to <tt class="docutils literal"><span class="pre">_error</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">HATEOAS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">HATEOAS</span></tt></td>
 <td>When <tt class="docutils literal"><span class="pre">False</span></tt>, this option disables
 <a class="reference internal" href="features.html#hateoas-feature"><em>HATEOAS</em></a>. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ISSUES</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ISSUES</span></tt></td>
 <td>Allows to customize the issues field. Defaults
 to <tt class="docutils literal"><span class="pre">_issues</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">STATUS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">STATUS</span></tt></td>
 <td>Allows to customize the status field. Defaults
 to <tt class="docutils literal"><span class="pre">_status</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">STATUS_OK</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">STATUS_OK</span></tt></td>
 <td>Status message returned when data validation is
 successful. Defaults to <tt class="docutils literal"><span class="pre">OK</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">STATUS_ERR</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">STATUS_ERR</span></tt></td>
 <td>Status message returned when data validation
 failed. Defaults to <tt class="docutils literal"><span class="pre">ERR</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ITEMS</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ITEMS</span></tt></td>
 <td>Allows to customize the items field. Defaults
 to <tt class="docutils literal"><span class="pre">_items</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">META</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">META</span></tt></td>
 <td>Allows to customize the meta field. Defaults
 to <tt class="docutils literal"><span class="pre">_meta</span></tt>
 to <tt class="docutils literal"><span class="pre">_meta</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">INFO</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">INFO</span></tt></td>
 <td>String value to include an info section, with the
 given INFO name, at the Eve homepage (suggested
 value <tt class="docutils literal"><span class="pre">_info</span></tt>). The info section will include
@@ -530,43 +535,43 @@ Eve server version and API version (API_VERSION,
 if set).  <tt class="docutils literal"><span class="pre">None</span></tt> otherwise, if you do not want
 to expose any server info. Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">LINKS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">LINKS</span></tt></td>
 <td>Allows to customize the links field. Defaults
 to <tt class="docutils literal"><span class="pre">_links</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ETAG</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ETAG</span></tt></td>
 <td>Allows to customize the etag field. Defaults
 to <tt class="docutils literal"><span class="pre">_etag</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">IF_MATCH</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">IF_MATCH</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> to enable concurrency control, <tt class="docutils literal"><span class="pre">False</span></tt>
 otherwise. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>. See
 <a class="reference internal" href="features.html#concurrency"><em>Data Integrity and Concurrency Control</em></a>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">XML</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">XML</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> to enable XML support, <tt class="docutils literal"><span class="pre">False</span></tt>
 otherwise. See <a class="reference internal" href="features.html#jsonxml"><em>JSON and XML Rendering</em></a>. Defaults to
 <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">JSON</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">JSON</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> to enable JSON support, <tt class="docutils literal"><span class="pre">False</span></tt>
 otherwise. See <a class="reference internal" href="features.html#jsonxml"><em>JSON and XML Rendering</em></a>. Defaults to
 <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">JSON_SORT_KEYS</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">JSON_SORT_KEYS</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> to enable JSON key sorting, <tt class="docutils literal"><span class="pre">False</span></tt>
 otherwise. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VALIDATION_ERROR_STATUS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VALIDATION_ERROR_STATUS</span></tt></td>
 <td>The HTTP status code to use for validation errors.
 Defaults to <tt class="docutils literal"><span class="pre">422</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VERSIONING</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VERSIONING</span></tt></td>
 <td>Enabled documents version control when
 <tt class="docutils literal"><span class="pre">True</span></tt>. Can be overridden by resource
 settings. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VERSIONS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VERSIONS</span></tt></td>
 <td>Suffix added to the name of the primary
 collection to create the name of the shadow
 collection to store document versions.
@@ -576,7 +581,7 @@ such as <tt class="docutils literal"><span class="pre">myresource_versions</span
 created for a resource with a datasource of
 <tt class="docutils literal"><span class="pre">myresource</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VERSION_PARAM</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VERSION_PARAM</span></tt></td>
 <td>The URL query parameter used to access the
 specific version of a document. Defaults to
 <tt class="docutils literal"><span class="pre">version</span></tt>. Omit this parameter to get the
@@ -585,73 +590,73 @@ latest version of a document or use
 version of the document. Only valid for
 individual item endpoints.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VERSION</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VERSION</span></tt></td>
 <td>Field used to store the version number of a
 document. Defaults to <tt class="docutils literal"><span class="pre">_version</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">LATEST_VERSION</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">LATEST_VERSION</span></tt></td>
 <td>Field used to store the latest version number
 of a document. Defaults to
 <tt class="docutils literal"><span class="pre">_latest_version</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VERSION_ID_SUFFIX</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VERSION_ID_SUFFIX</span></tt></td>
 <td>Used in the shadow collection to store the
 document id. Defaults to <tt class="docutils literal"><span class="pre">_document</span></tt>. If
 <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> is set to <tt class="docutils literal"><span class="pre">_id</span></tt>, the
 document id will be stored in field
 <tt class="docutils literal"><span class="pre">_id_document</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_URI</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_URI</span></tt></td>
 <td>A <a class="reference external" href="http://docs.mongodb.org/manual/reference/connection-string/#Connections-StandardConnectionStringFormat">MongoDB URI</a> which is used in preference
 of the other configuration variables.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt></td>
 <td>MongoDB server address. Defaults to <tt class="docutils literal"><span class="pre">localhost</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_PORT</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_PORT</span></tt></td>
 <td>MongoDB port. Defaults to <tt class="docutils literal"><span class="pre">27017</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_USERNAME</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_USERNAME</span></tt></td>
 <td>MongoDB user name.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_PASSWORD</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_PASSWORD</span></tt></td>
 <td>MongoDB password.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt></td>
 <td>MongoDB database name.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_AUTHDBNAME</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_AUTHDBNAME</span></tt></td>
 <td>MongoDB authorization database name. Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_MAX_POOL_SIZE</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_MAX_POOL_SIZE</span></tt></td>
 <td>The maximum number of idle connections
 maintained in the PyMongo connection pool.
 Default: PyMongo default.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_SOCKET_TIMEOUT_MS</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_SOCKET_TIMEOUT_MS</span></tt></td>
 <td>How long (in milliseconds) a send or
 receive on a socket can take before timing
 out. Default: PyMongo default.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_CONNECT_TIMEOUT_MS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_CONNECT_TIMEOUT_MS</span></tt></td>
 <td>How long (in milliseconds) a connection can
 take to be opened before timing out.
 Default: PyMongo default.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_REPLICA_SET</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_REPLICA_SET</span></tt></td>
 <td>The name of a replica set to connect to;
 this must match the internal name of the
 replica set (as deteremined by the
 <a class="reference external" href="http://www.mongodb.org/display/DOCS/Replica+Set+Commands#ReplicaSetCommands-isMaster">isMaster</a>
 command). Default: <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_READ_PREFERENCE</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_READ_PREFERENCE</span></tt></td>
 <td>Determines how read queries are routed to
 the replica set members. Must be one of the
 constants defined on PyMongo&#8217;s <a class="reference external" href="http://api.mongodb.org/python/current/api/pymongo/read_preferences.html#pymongo.read_preferences.ReadPreference">ReadPreference</a>,
 or the string names thereof.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_QUERY_BLACKLIST</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_QUERY_BLACKLIST</span></tt></td>
 <td><p class="first">A list of Mongo query operators that are not
 allowed to be used in resource filters
 (<tt class="docutils literal"><span class="pre">?where=</span></tt>). Defaults to <tt class="docutils literal"><span class="pre">['$where',</span>
@@ -664,7 +669,7 @@ easily replaced with the (very rich) Mongo
 query dialect.</p>
 </td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></tt></td>
 <td><p class="first">A dictionary defining MongoDB write concern
 settings. All standard write concern
 settings (w, wtimeout, j, fsync) are
@@ -682,15 +687,15 @@ collection) level. See
 <tt class="docutils literal"><span class="pre">mongo_write_concern</span></tt> below.</p>
 </td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
 <td>A dict holding the API domain definition.
 See <a class="reference internal" href="#domain-configuration">Domain Configuration</a>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt></td>
 <td>A list of properties to forward from the file upload
 driver.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_BASE64_STRING</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_BASE64_STRING</span></tt></td>
 <td>Controls the embedding of the media type in
 the endpoint response. This is useful when
 you have other means of getting the binary
@@ -698,12 +703,12 @@ you have other means of getting the binary
 want clients to be able to POST/PATCH it.
 Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt></td>
 <td>Set it to <tt class="docutils literal"><span class="pre">True</span></tt> to enable serving media
 files at a dedicated media endpoint.
 Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MEDIA_BASE_URL</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MEDIA_BASE_URL</span></tt></td>
 <td>Base URL to be used when
 <tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt> is active. Combined
 with <tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt> and <tt class="docutils literal"><span class="pre">MEDIA_URL</span></tt>
@@ -711,49 +716,49 @@ dictates the URL returned for media files.
 If <tt class="docutils literal"><span class="pre">None</span></tt>, which is the default value,
 the API base address will be used instead.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt></td>
 <td>The media endpoint to be used when
 <tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt> is enabled.
 Defaults to <tt class="docutils literal"><span class="pre">media</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MEDIA_URL</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MEDIA_URL</span></tt></td>
 <td>Format of a file url served at the
 dedicated media endpoints. Defaults to
 <tt class="docutils literal"><span class="pre">regex(&quot;[a-f0-9]{24}&quot;)</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG</span></tt></td>
 <td>Set it to <tt class="docutils literal"><span class="pre">True</span></tt> to enable the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>.
 Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_NAME</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_NAME</span></tt></td>
 <td>This is the name of the database collection
 where the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a> is stored. Defaults
 to <tt class="docutils literal"><span class="pre">oplog</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_METHODS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_METHODS</span></tt></td>
 <td>List of HTTP methods which operations
 should be logged in the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>.
 Defaults to <tt class="docutils literal"><span class="pre">['DELETE',</span> <span class="pre">'POST',</span> <span class="pre">'PATCH',</span>
 <span class="pre">'PUT']</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt></td>
 <td>Name of the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a> endpoint. If the
 endpoint is enabled it can be configured
 like any other API endpoint. Set it to
 <tt class="docutils literal"><span class="pre">None</span></tt> to disable the endpoint. Defaults
 to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt></td>
 <td>Set it to <tt class="docutils literal"><span class="pre">True</span></tt> to enable the audit
 feature. When audit is enabled client IP
 and document changes are also logged to the
 <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">SCHEMA_ENDPOINT</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SCHEMA_ENDPOINT</span></tt></td>
 <td>Name of the <a class="reference internal" href="features.html#schema-endpoint"><em>The Schema Endpoint</em></a>. Defaults
 to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">HEADER_TOTAL_COUNT</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">HEADER_TOTAL_COUNT</span></tt></td>
 <td>Custom header containing total count of
 items in response payloads for collection
 <tt class="docutils literal"><span class="pre">GET</span></tt> requests. This is handy for <tt class="docutils literal"><span class="pre">HEAD</span></tt>
@@ -764,7 +769,7 @@ of unread posts using <tt class="docutils literal"><span class="pre">where</span
 loading posts themselves. Defaults to
 <tt class="docutils literal"><span class="pre">X-Total-Count</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">JSONP_ARGUMENT</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">JSONP_ARGUMENT</span></tt></td>
 <td>This option will cause the response to be
 wrapped in a JavaScript function call if
 the argument is set in the request. For
@@ -774,22 +779,22 @@ example if you set <tt class="docutils literal"><span class="pre">JSON_ARGUMENT<
 wrapped in a <tt class="docutils literal"><span class="pre">funcname</span></tt> call. Defaults to
 <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt></td>
 <td>Enables soft delete when set to <tt class="docutils literal"><span class="pre">True</span></tt>.
 See <a class="reference internal" href="features.html#soft-delete"><em>Soft Delete</em></a> for more
 information. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DELETED</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DELETED</span></tt></td>
 <td>Field name used to indicate if a document
 has been deleted when <tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt>
 is enabled. Defaults to <tt class="docutils literal"><span class="pre">_deleted</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SHOW_DELETED_PARAM</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">SHOW_DELETED_PARAM</span></tt></td>
 <td>The URL query parameter used to include
 soft deleted items in resource level GET
 responses. Defaults to &#8216;show_deleted&#8217;.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">STANDARD_ERRORS</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">STANDARD_ERRORS</span></tt></td>
 <td>This is a list of HTTP error codes for
 which a standard API response will be
 provided. Canonical error response includes
@@ -799,7 +804,7 @@ you want to disable canonical responses
 altogether. Defaults to <tt class="docutils literal"><span class="pre">[400,</span> <span class="pre">401,</span> <span class="pre">403,</span>
 <span class="pre">404,</span> <span class="pre">405,</span> <span class="pre">406,</span> <span class="pre">409,</span> <span class="pre">410,</span> <span class="pre">412,</span> <span class="pre">422]</span></tt></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VALIDATION_ERROR_AS_STRING</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VALIDATION_ERROR_AS_STRING</span></tt></td>
 <td>If <tt class="docutils literal"><span class="pre">True</span></tt> even single field errors will
 be returned in a list. By default single
 field errors are returned as strings while
@@ -809,7 +814,7 @@ errors output, set this setting to <tt class="docutils literal"><span class="pre
 and you will always get a list of field
 issues. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">UPSERT_ON_PUT</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">UPSERT_ON_PUT</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">PUT</span></tt> attempts to create a document if it
 does not exist. The URL endpoint will be
 used as <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> value (if <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>
