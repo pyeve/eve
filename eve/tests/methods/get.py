@@ -899,6 +899,59 @@ class TestGet(TestBase):
         response, status = self.get(self.known_resource, where)
         self.assert400(status)
 
+    def test_get_nested_filter_operators_unvalidated(self):
+        """ test that nested filter operators are working correctly.
+        """
+        where = ''.join(
+            ('?where={"$and":[{"$or":[{"fldA":"valA"},',
+             '{"fldB":"valB"}]},{"fld2":"val2"}]}'))
+        response, status = self.get(self.known_resource, where)
+        self.assert200(status)
+
+    def test_get_nested_filter_operators_validated(self):
+        """ test that nested filter operators are working correctly.
+        """
+        self.app.config['VALIDATE_FILTERS'] = True
+
+        where = ''.join(
+            ('?where={"$and":[{"$or":[{"fldA":"valA"},',
+             '{"fldB":"valB"}]},{"fld2":"val2"}]}'))
+        response, status = self.get(self.known_resource, where)
+        self.assert400(status)
+
+        where = ''.join(
+            ('?where={"$and":[{"$or":[{"role":',
+             '["agent","client"]},{"key1":"str"}]}, {"prog":1}]}'))
+        response, status = self.get(self.known_resource, where)
+        self.assert200(status)
+
+    def test_get_invalid_where_fields(self):
+        """ test that checks all fields of the where clause to be valid
+           resource fields according to the resource schema.
+        """
+        self.app.config['VALIDATE_FILTERS'] = True
+
+        # test for an outright missing/invalid field present
+        where = '?where={"$and": [{"bad_field": "val"}, {"fld2": "val2"}]}'
+        response, status = self.get(self.known_resource, where)
+        self.assert400(status)
+
+        # test for resource field not validating correctly (prog is number)
+        where = '?where={"prog": "stringValue"}'
+        response, status = self.get(self.known_resource, where)
+        self.assert400(status)
+
+        # test for resource field validating correctly (key1 is string)
+        where = '?where={"key1": "qwerty"}'
+        response, status = self.get(self.known_resource, where)
+        self.assert200(status)
+
+        # test for nested resource field validating correctly
+        # (location is dict)
+        where = '?where={"location":{"address":"str 1","city":"SomeCity"}}'
+        response, status = self.get(self.known_resource, where)
+        self.assert200(status)
+
     def test_get_lookup_field_as_string(self):
         # Test that a resource where 'item_lookup_field' is set to a field
         # of string type and which value is castable to a ObjectId is still
