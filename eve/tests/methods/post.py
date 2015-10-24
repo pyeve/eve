@@ -31,6 +31,12 @@ class TestPost(TestBase):
         self.assertValidationErrorStatus(status)
         self.assertValidationError(r, {'ref': 'required'})
 
+    def test_post_bulk_insert_on_disabled_bulk(self):
+        r, status = self.post(
+            self.disabled_bulk_url,
+            data=[{'string_field': '123'}, {'string_field': '123'}])
+        self.assert400(status)
+
     def test_post_empty_bulk_insert(self):
         r, status = self.post(self.empty_resource_url, data=[])
         self.assert400(status)
