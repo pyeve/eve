@@ -902,8 +902,9 @@ class TestGet(TestBase):
     def test_get_nested_filter_operators_unvalidated(self):
         """ test that nested filter operators are working correctly.
         """
-        where = ''.join(('?where={"$and":[{"$or":[{"fldA":"valA"},',
-                    '{"fldB":"valB"}]},{"fld2":"val2"}]}'))
+        where = ''.join(
+            ('?where={"$and":[{"$or":[{"fldA":"valA"},',
+             '{"fldB":"valB"}]},{"fld2":"val2"}]}'))
         response, status = self.get(self.known_resource, where)
         self.assert200(status)
 
@@ -912,13 +913,15 @@ class TestGet(TestBase):
         """
         self.app.config['VALIDATE_FILTERS'] = True
 
-        where = ''.join(('?where={"$and":[{"$or":[{"fldA":"valA"},',
-                    '{"fldB":"valB"}]},{"fld2":"val2"}]}'))
+        where = ''.join(
+            ('?where={"$and":[{"$or":[{"fldA":"valA"},',
+             '{"fldB":"valB"}]},{"fld2":"val2"}]}'))
         response, status = self.get(self.known_resource, where)
         self.assert400(status)
 
-        where = ''.join(('?where={"$and":[{"$or":[{"role":',
-                   '["agent","client"]},{"key1":"str"}]}, {"prog":1}]}'))
+        where = ''.join(
+            ('?where={"$and":[{"$or":[{"role":',
+             '["agent","client"]},{"key1":"str"}]}, {"prog":1}]}'))
         response, status = self.get(self.known_resource, where)
         self.assert200(status)
 
