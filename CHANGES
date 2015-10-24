@@ -11,8 +11,10 @@ Version 0.6.1
 
 Not released.
 
-- New: ``TRANSPARENT_SCHEMA_RULES`` enables/disables schema validation
-  globally and ``transparent_schema_rules`` per resource (Florian Rathgeber).
+- New: ``VALIDATE_FILTERS`` enables/disables validating of query filters
+  against resource schema. Closes #728 (Stratos Gerakakis).
+- New: ``TRANSPARENT_SCHEMA_RULES`` enables/disables schema validation globally
+  and ``transparent_schema_rules`` per resource (Florian Rathgeber).
 - New: ``ALLOW_OVERRIDE_HTTP_METHOD`` enables/disables support for overriding
   request methods with ``X-HTTP-Method-Override`` headers (Julian Hille).
 
