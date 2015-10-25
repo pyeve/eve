@@ -631,7 +631,7 @@ uppercase.
                                     ``None``.
 
 ``BULK_ENABLED``                    Enables bulk insert when set to ``True``.
-                                    See :ref:`bulk_enabled` for more
+                                    See :ref:`bulk_insert` for more
                                     information. Defaults to ``True``.
 
 ``SOFT_DELETE``                     Enables soft delete when set to ``True``.
@@ -992,7 +992,7 @@ always lowercase.
                                 validation. See `Schema Definition`_.
 
 ``bulk_enabled``                When ``True`` this option enables the
-                                :ref:`bulk_enabled` feature for this resource.
+                                :ref:`bulk_insert` feature for this resource.
                                 Locally overrides ``BULK_ENABLED``.
 
 ``soft_delete``                 When ``True`` this option enables the
