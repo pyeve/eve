@@ -508,6 +508,8 @@ control is disabled no etag is provided with responses. You should be careful
 about disabling this feature, as you would effectively open your API to the
 risk of older versions replacing your documents.
 
+.. _bulk_insert:
+
 Bulk Inserts
 ------------
 A client may submit a single document for insertion:

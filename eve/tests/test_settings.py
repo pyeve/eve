@@ -15,6 +15,19 @@ ITEM_CACHE_CONTROL = ''
 ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
 
+
+disabled_bulk = {
+    'url': 'somebulkurl',
+    'item_title': 'bulkdisabled',
+    'bulk_enabled': False,
+    'schema': {
+        'string_field': {
+            'type': 'string'
+        }
+    }
+}
+
+
 contacts = {
     'url': 'arbitraryurl',
     'cache_control': 'max-age=20,must-revalidate',
@@ -287,6 +300,7 @@ child_products['url'] = 'products/<regex("[A-Z]+"):parent_product>/children'
 child_products['datasource'] = {'source': 'products'}
 
 DOMAIN = {
+    'disabled_bulk': disabled_bulk,
     'contacts': contacts,
     'users': users,
     'users_overseas': users_overseas,

@@ -11,6 +11,8 @@ Version 0.6.1
 
 Not released.
 
+- New: ``BULK_ENABLED`` enables/disables bulk insert. Defaults to ``True``
+  (Julian Hille).
 - New: ``VALIDATE_FILTERS`` enables/disables validating of query filters
   against resource schema. Closes #728 (Stratos Gerakakis).
 - New: ``TRANSPARENT_SCHEMA_RULES`` enables/disables schema validation globally
