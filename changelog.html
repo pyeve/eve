@@ -59,6 +59,8 @@
 <h3>Version 0.6.1<a class="headerlink" href="#version-0-6-1" title="Permalink to this headline">¶</a></h3>
 <p>Not released.</p>
 <ul class="simple">
+<li>New: <tt class="docutils literal"><span class="pre">BULK_ENABLED</span></tt> enables/disables bulk insert. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>
+(Julian Hille).</li>
 <li>New: <tt class="docutils literal"><span class="pre">VALIDATE_FILTERS</span></tt> enables/disables validating of query filters
 against resource schema. Closes #728 (Stratos Gerakakis).</li>
 <li>New: <tt class="docutils literal"><span class="pre">TRANSPARENT_SCHEMA_RULES</span></tt> enables/disables schema validation globally
@@ -71,6 +73,8 @@ request methods with <tt class="docutils literal"><span class="pre">X-HTTP-Metho
 <li>Fix: invoking <tt class="docutils literal"><span class="pre">post_internal</span></tt> with <tt class="docutils literal"><span class="pre">skpi_validation</span> <span class="pre">=</span> <span class="pre">True</span></tt> causes
 a <tt class="docutils literal"><span class="pre">422</span></tt> response. Closes #726.</li>
 <li>Fix: explict inclusive datasource projection is ignored. Closes #722.</li>
+<li>Dev: make sure all connections opened by the test suite are properly closed
+on termination.</li>
 <li>Dev: use middleware to parse overrides and eventually update request method
 (Julian Hille).</li>
 <li>Dev: optimize versioning by building specific versions without deepcopying

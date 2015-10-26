@@ -517,7 +517,7 @@ risk of older versions replacing your documents.</p>
 </div>
 </div>
 <div class="section" id="bulk-inserts">
-<h2>Bulk Inserts<a class="headerlink" href="#bulk-inserts" title="Permalink to this headline">¶</a></h2>
+<span id="bulk-insert"></span><h2>Bulk Inserts<a class="headerlink" href="#bulk-inserts" title="Permalink to this headline">¶</a></h2>
 <p>A client may submit a single document for insertion:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;{&quot;firstname&quot;: &quot;barack&quot;, &quot;lastname&quot;: &quot;obama&quot;}&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> http://eve-demo.herokuapp.com/people
 <span class="go">HTTP/1.1 201 OK</span>
