@@ -48,7 +48,7 @@ def close_pymongo_connection(app):
     """
     if 'pymongo' not in app.extensions:
         return
-    del app.extensions['pymongo']['MONGO']
+    del app.extensions['pymongo']
     del app.media
 
 
