@@ -12,6 +12,10 @@ Version 0.6.2
 - Fix: When ``SOFT_DELETE`` is active an exclusive ``datasource.projection``
   causes a ``500`` error. Closes #752.
 
+- Update: PyMongo 3.0+ is now required.
+- Update: Flask-PyMongo 0.4+ is now required.
+
+
 Stable
 ------
 
@@ -39,6 +43,8 @@ Released on 29 October, 2015
 - Dev: fix rate limiting tests so they don't occasionally fail.
 - Dev: make sure connections opened by test suite are properly closed on
   teardown. 
+- Dev: make sure all connections opened by the test suite are properly closed
+  on termination. 
 - Dev: use middleware to parse overrides and eventually update request method
   (Julian Hille). 
 - Dev: optimize versioning by building specific versions without deepcopying

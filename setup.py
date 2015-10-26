@@ -14,8 +14,8 @@ install_requires = [
     'jinja2>=2.7.2,<3.0',
     'itsdangerous>=0.22,<1.0',
     'flask>=0.10.1,<0.11',
-    'pymongo>=2.8,<3.0',
-    'flask-pymongo>=0.3.0,<0.4',
+    'pymongo>=3.0',
+    'flask-pymongo>=0.4',
 ]
 
 try:
