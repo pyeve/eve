@@ -27,8 +27,9 @@ Not released.
   a ``422`` response. Closes #726.
 - Fix: explict inclusive datasource projection is ignored. Closes #722.
 
-- Dev: make sure all connections opened by the test suite are properly closed
-  on termination. 
+- Dev: fix rate limiting tests so they don't occasionally fail.
+- Dev: make sure connections opened by test suite are properly closed on
+  teardown. 
 - Dev: use middleware to parse overrides and eventually update request method
   (Julian Hille). 
 - Dev: optimize versioning by building specific versions without deepcopying
