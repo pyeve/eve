@@ -65,6 +65,9 @@ def post_internal(resource, payl=None, skip_validation=False):
     :param skip_validation: skip payload validation before write (bool)
 
     .. versionchanged:: 0.6
+       Fix: since v0.6, skip_validation = True causes a 422 response (#726).
+
+    .. versionchanged:: 0.6
        Initialize DELETED field when soft_delete is enabled.
 
     .. versionchanged:: 0.5
@@ -145,8 +148,7 @@ def post_internal(resource, payl=None, skip_validation=False):
     date_utc = datetime.utcnow().replace(microsecond=0)
     resource_def = app.config['DOMAIN'][resource]
     schema = resource_def['schema']
-    if not skip_validation:
-        validator = app.validator(schema, resource)
+    validator = None if skip_validation else app.validator(schema, resource)
     documents = []
     results = []
     failures = 0
@@ -170,6 +172,11 @@ def post_internal(resource, payl=None, skip_validation=False):
             'Empty bulk insert'
         ))
 
+    if len(payl) > 1 and not config.DOMAIN[resource]['bulk_enabled']:
+        abort(400, description=debug_error_message(
+            'Bulk insert not allowed'
+        ))
+
     for value in payl:
         document = []
         doc_issues = {}
@@ -181,8 +188,10 @@ def post_internal(resource, payl=None, skip_validation=False):
             else:
                 validation = validator.validate(document)
             if validation:  # validation is successful
-                # Apply coerced values
-                document = validator.document
+                # validator might be not available if skip_validation. #726.
+                if validator:
+                    # Apply coerced values
+                    document = validator.document
 
                 # Populate meta and default fields
                 document[config.LAST_UPDATED] = \

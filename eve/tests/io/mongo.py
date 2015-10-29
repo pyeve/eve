@@ -3,6 +3,7 @@
 from unittest import TestCase
 from bson import ObjectId
 from datetime import datetime
+from cerberus import SchemaError
 from eve.io.mongo.parser import parse, ParseError
 from eve.io.mongo import Validator, Mongo, MongoJSONEncoder
 from eve.tests import TestBase
@@ -109,6 +110,19 @@ class TestMongoValidator(TestCase):
         schema = {'a_field': {'type': 'string'}}
         v = Validator(schema)
         self.assertFalse(v.transparent_schema_rules)
+
+    def test_reject_invalid_schema(self):
+        schema = {'a_field': {'foo': 'bar'}}
+        self.assertRaises(SchemaError, lambda: Validator(schema))
+
+    def test_enable_transparent_rules(self):
+        schema = {'a_field': {'type': 'string'}}
+        v = Validator(schema, transparent_schema_rules=True)
+        self.assertTrue(v.transparent_schema_rules)
+
+    def test_transparent_rules_accept_invalid_schema(self):
+        schema = {'a_field': {'foo': 'bar'}}
+        Validator(schema, transparent_schema_rules=True)
 
     def test_geojson_not_compilant(self):
         schema = {'location': {'type': 'point'}}

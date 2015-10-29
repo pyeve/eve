@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
     eve.flaskapp
     ~~~~~~~~~~~~
@@ -498,6 +497,10 @@ class Eve(Flask, Events):
     def _set_resource_defaults(self, resource, settings):
         """ Low-level method which sets default values for one resource.
 
+        .. versionchanged:: 0.6.1
+           Fix: inclusive projection defined for a datasource is ignored
+           (#722).
+
         .. versionchanged:: 0.6
            Support for 'mongo_indexes'.
 
@@ -553,6 +556,7 @@ class Eve(Flask, Events):
         settings.setdefault('projection', self.config['PROJECTION'])
         settings.setdefault('versioning', self.config['VERSIONING'])
         settings.setdefault('soft_delete', self.config['SOFT_DELETE'])
+        settings.setdefault('bulk_enabled', self.config['BULK_ENABLED'])
         settings.setdefault('internal_resource',
                             self.config['INTERNAL_RESOURCE'])
         settings.setdefault('etag_ignore_fields', None)
@@ -565,6 +569,8 @@ class Eve(Flask, Events):
         settings.setdefault('auth_field',
                             self.config['AUTH_FIELD'])
         settings.setdefault('allow_unknown', self.config['ALLOW_UNKNOWN'])
+        settings.setdefault('transparent_schema_rules',
+                            self.config['TRANSPARENT_SCHEMA_RULES'])
         settings.setdefault('extra_response_fields',
                             self.config['EXTRA_RESPONSE_FIELDS'])
         settings.setdefault('mongo_write_concern',
@@ -579,12 +585,13 @@ class Eve(Flask, Events):
 
         datasource = {}
         settings.setdefault('datasource', datasource)
-        settings['datasource'].setdefault('source', resource)
-        settings['datasource'].setdefault('filter', None)
-        settings['datasource'].setdefault('default_sort', None)
 
-        projection = settings['datasource'].get('projection', {})
-        projection = projection or {}
+        ds = settings['datasource']
+        ds.setdefault('source', resource)
+        ds.setdefault('filter', None)
+        ds.setdefault('default_sort', None)
+
+        projection = {}
 
         # check if any exclusion projection is defined
         exclusion = any(((k, v) for k, v in projection.items() if v == 0))
@@ -607,12 +614,13 @@ class Eve(Flask, Events):
                     settings['id_field'] +
                     self.config['VERSION_ID_SUFFIX']] = 1
             projection.update(dict((field, 1) for (field) in schema))
-            if settings['soft_delete'] is True:
-                projection[self.config['DELETED']] = 1
         else:
             # all fields are returned.
             projection = None
-        settings['datasource'].setdefault('projection', projection)
+        ds.setdefault('projection', projection)
+
+        if settings['soft_delete'] is True:
+            ds['projection'][self.config['DELETED']] = 1
 
         # 'defaults' helper set contains the names of fields with default
         # values in their schema definition.
@@ -907,3 +915,15 @@ class Eve(Flask, Events):
             self.add_url_rule(schema_url + '/<resource>', 'schema_item',
                               view_func=schema_item_endpoint,
                               methods=['GET'])
+
+    def __call__(self, environ, start_response):
+        """ If HTTP_X_METHOD_OVERRIDE is included with the request and method
+        override is allowed, make sure the override method is returned to Eve
+        as the request method, so normal routing and method validation can be
+        performed.
+        """
+        if self.config['ALLOW_OVERRIDE_HTTP_METHOD']:
+            environ['REQUEST_METHOD'] = environ.get(
+                'HTTP_X_HTTP_METHOD_OVERRIDE',
+                environ['REQUEST_METHOD']).upper()
+        return super(Eve, self).__call__(environ, start_response)

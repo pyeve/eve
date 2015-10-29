@@ -39,10 +39,19 @@ class TestRateLimit(TestBase):
 
     def get_ratelimit(self, url):
         if self.app.redis:
-            self.assertRateLimit(self.test_client.get(url))
-            r = self.test_client.get(url)
-            self.assertEqual(r.status_code, 429)
-            self.assertTrue(b'Rate limit exceeded' in r.get_data())
+            # we want the following two GET to be executed within the same
+            # tick (1 second)
+            t1, t2 = 1, 2
+            while (t1 != t2):
+                t1 = int(time.time())
+                r1 = self.test_client.get(url)
+                t2 = int(time.time())
+                r2 = self.test_client.get(url)
+                if t1 != t2:
+                    time.sleep(1)
+            self.assertRateLimit(r1)
+            self.assertEqual(r2.status_code, 429)
+            self.assertTrue(b'Rate limit exceeded' in r2.get_data())
 
             time.sleep(1)
             self.assertRateLimit(self.test_client.get(url))

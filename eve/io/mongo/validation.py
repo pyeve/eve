@@ -33,10 +33,11 @@ class Validator(Validator):
                    documentation.
     :param resource: the resource name.
 
-    .. versionchanged:: 0.6.2
+    .. versionchanged:: 0.6.1
        __init__ signature update for cerberus v0.8.1 compatibility.
-       Remove support for 'transparent_schema_rules' in favor of explicit
-       validators for rules unsupported by cerberus.
+       Disable 'transparent_schema_rules' by default in favor of explicit
+       validators for rules unsupported by cerberus. This can be overridden
+       globally or on a per-resource basis through a config option.
 
     .. versionchanged:: 0.5
        Support for _original_document
@@ -50,14 +51,20 @@ class Validator(Validator):
        Support for 'transparent_schema_rules' introduced with Cerberus 0.0.3,
        which allows for insertion of 'default' values in POST requests.
     """
-    def __init__(self, schema=None, resource=None, allow_unknown=False):
+    def __init__(self, schema=None, resource=None, allow_unknown=False,
+                 transparent_schema_rules=False):
         self.resource = resource
         self._id = None
         self._original_document = None
         schema = self._remove_unique_rules_on_fields_with_unique_index(schema)
-        super(Validator, self).__init__(schema)
         if resource:
-            self.allow_unknown = config.DOMAIN[resource]['allow_unknown']
+            transparent_schema_rules = \
+                config.DOMAIN[resource]['transparent_schema_rules']
+            allow_unknown = config.DOMAIN[resource]['allow_unknown']
+        super(Validator, self).__init__(
+            schema,
+            transparent_schema_rules=transparent_schema_rules,
+            allow_unknown=allow_unknown)
 
     def _remove_unique_rules_on_fields_with_unique_index(self, schema):
         # TODO: Actually do what the function name suggests. This version just
@@ -174,7 +181,7 @@ class Validator(Validator):
         by 'data_relation'.
 
         :param data_relation: a dict following keys:
-            'collection': foreign collection name
+            'resource': foreign resource name
             'field': foreign field name
             'version': True if this relation points to a specific version
             'type': the type for the reference field if 'version': True
@@ -275,6 +282,10 @@ class Validator(Validator):
         proposed changes with the original document before validating
         dependencies.
 
+        .. versionchanged:: 0.6.1
+           Fix: dependencies on sub-document fields are now properly
+           processed (#706).
+
         .. versionchanged:: 0.6
            Fix: Only evaluate dependencies that don't have valid default
            values.
@@ -296,9 +307,10 @@ class Validator(Validator):
 
         defaults = {}
         for d in dependencies:
-            default = self.schema[d].get('default')
-            if default and d not in document:
-                defaults[d] = default
+            root = d.split('.')[0]
+            default = self.schema[root].get('default')
+            if default and root not in document:
+                defaults[root] = default
 
         if isinstance(dependencies, Mapping):
             # Only evaluate dependencies that don't have *valid* defaults

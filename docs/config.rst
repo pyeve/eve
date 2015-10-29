@@ -116,6 +116,10 @@ uppercase.
                                     disabling filters and whitelisting valid
                                     ones at the local level is the way to go.
 
+``VALIDATE_FILTERS``                Whether to validate the filters against the
+                                    resource schema. Invalid filters will throw
+                                    an exception. Defaults to ``False``.
+
 ``SORTING``                         ``True`` if sorting is supported for ``GET``
                                     requests, otherwise ``False``. Can be
                                     overridden by resource settings. Defaults
@@ -221,7 +225,11 @@ uppercase.
                                     be overridden by resource settings.
                                     Defaults to ``[]``.
 
-``CACHE_CONTROL``                   Value of the ``Cache-Control`` header field 
+``ALLOW_OVERRIDE_HTTP_METHOD``      Enables / Disables global the possibility
+                                    to override the sent method with a header
+                                    ``X-HTTP-METHOD-OVERRIDE``.
+
+``CACHE_CONTROL``                   Value of the ``Cache-Control`` header field
                                     used when serving ``GET`` requests (e.g.,
                                     ``max-age=20,must-revalidate``). Leave
                                     empty if you don't want to include cache
@@ -323,6 +331,9 @@ uppercase.
                                     endpoint. Use with caution. See
                                     :ref:`unknown` for more information.
                                     Defaults to ``False``.
+
+``TRANSPARENT_SCHEMA_RULES``        When ``True``, this option globally disables
+                                    :ref:`schema_validation` for any API endpoint.
 
 ``PROJECTION``                      When ``True``, this option enables the
                                     :ref:`projections` feature. Can be
@@ -619,6 +630,10 @@ uppercase.
                                     wrapped in a ``funcname`` call. Defaults to
                                     ``None``.
 
+``BULK_ENABLED``                    Enables bulk insert when set to ``True``.
+                                    See :ref:`bulk_insert` for more
+                                    information. Defaults to ``True``.
+
 ``SOFT_DELETE``                     Enables soft delete when set to ``True``.
                                     See :ref:`soft_delete` for more
                                     information. Defaults to ``False``.
@@ -855,6 +870,9 @@ always lowercase.
                                 ``ALLOW_UNKNOWN``. See :ref:`unknown` for more
                                 information. Defaults to ``False``.
 
+``transparent_schema_rules``    When ``True``, this option disables
+                                :ref:`schema_validation` for the endpoint.
+
 ``projection``                  When ``True``, this option enables the
                                 :ref:`projections` feature. Locally overrides
                                 ``PROJECTION``. Defaults to ``True``.
@@ -972,6 +990,10 @@ always lowercase.
 ``schema``                      A dict defining the actual data structure being
                                 handled by the resource. Enables data
                                 validation. See `Schema Definition`_.
+
+``bulk_enabled``                When ``True`` this option enables the
+                                :ref:`bulk_insert` feature for this resource.
+                                Locally overrides ``BULK_ENABLED``.
 
 ``soft_delete``                 When ``True`` this option enables the
                                 :ref:`soft_delete` feature for this resource.

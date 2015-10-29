@@ -43,7 +43,7 @@ Customizable resource endpoints
 -------------------------------
 By default, Eve will make known database collections available as resource
 endpoints (persistent identifiers in REST idiom). So a database ``people``
-collection will be avaliable at the ``example.com/people`` API endpoint.  You
+collection will be available at the ``example.com/people`` API endpoint.  You
 can customize the URIs though, so the API endpoint could become, say,
 ``example.com/customers/overseas``. Consider the following request:
 
@@ -276,6 +276,11 @@ maintainer can choose to disable them all and/or whitelist allowed ones (see
 by querying on non-indexed fields is a concern, then whitelisting allowed
 filters is the way to go.
 
+You also have the option to validate the incoming filters against the resource's
+schema and refuse to apply the filtering if any filters are invalid, by using the
+``VALIDATE_FILTERING`` system setting (see :ref:`global`)
+
+
 Sorting
 -------
 Sorting is supported as well:
@@ -503,6 +508,8 @@ control is disabled no etag is provided with responses. You should be careful
 about disabling this feature, as you would effectively open your API to the
 risk of older versions replacing your documents.
 
+.. _bulk_insert:
+
 Bulk Inserts
 ------------
 A client may submit a single document for insertion:
@@ -711,7 +718,7 @@ well. For more information see :ref:`auth`.
 CORS Cross-Origin Resource Sharing
 ----------------------------------
 Disabled by default, CORS_ allows web pages to work with REST APIs, something
-that is usually restricted by most broswers 'same domain' security policy.
+that is usually restricted by most browsers 'same domain' security policy.
 Eve-powered APIs can be accessed by the JavaScript contained in web pages.
 
 JSONP Support
@@ -877,13 +884,13 @@ Predefined Resource Serialization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 It is also possible to elect some fields for predefined resource
 serialization. If the listed fields are embeddable and they are actually referencing
-documents in other resources (and embedding is enbaled for the resource), then the
+documents in other resources (and embedding is enabled for the resource), then the
 referenced documents will be embedded by default. Clients can still opt out from field
 that are embedded by default:
 
 .. code-block:: console
 
-    $ curl -i http://example.com/people/?embedded{"author": 0}
+    $ curl -i http://example.com/people/?embedded={"author": 0}
     HTTP/1.1 200 OK
 
 Limitations
@@ -978,7 +985,7 @@ deleted document or it will be refused.
 Versioning
 ~~~~~~~~~~
 Soft deleting a versioned document creates a new version of that document with
-``_deleted`` set to ``true``. A GET request to the deleted version will recieve
+``_deleted`` set to ``true``. A GET request to the deleted version will receive
 a ``404 Not Found`` response as described above, while previous versions will
 continue to respond with ``200 OK``. Responses to ``?version=diff`` or
 ``?version=all`` will include the deleted version as if it were any other.
@@ -1380,7 +1387,7 @@ Resources
 
 If you were brave enough to enable the DELETE command on resource endpoints
 (allowing for wipeout of the entire collection in one go), then you can be
-notified of such a disastrous occurence by hooking a callback function to the
+notified of such a disastrous occurrence by hooking a callback function to the
 ``on_delete_resource(resource_name)`` or
 ``on_delete_resource_<resource_name>()`` hooks.
 
@@ -1445,7 +1452,7 @@ With curl we would ``POST`` like this:
 
     $ curl -F "name=john" -F "pic=@profile.jpg" http://example.com/accounts
 
-For optmized performance files are stored in GridFS_ by default. Custom
+For optimized performance files are stored in GridFS_ by default. Custom
 ``MediaStorage`` classes can be implemented and passed to the application to
 support alternative storage systems. A ``FileSystemMediaStorage`` class is in
 the works, and will soon be included with the Eve package.
@@ -1506,7 +1513,7 @@ Then the output will be something like
 For MongoDB, further fields can be found in the `driver documentation`_. 
 
 If you have other means to retrieve the media files (custom Flask endpoint for
-example) then the media files can be excluded from the paylod by setting to
+example) then the media files can be excluded from the payload by setting to
 ``False`` the ``RETURN_MEDIA_AS_BASE64_STRING`` flag. This takes into account
 if ``EXTENDED_MEDIA_INFO`` is used.
 
@@ -1560,7 +1567,7 @@ response payload:
 The document will be returned with all its fields except the *image* field.
 
 Moreover, when setting the ``datasource`` property for any given resource
-endpoint it is possible to explictly exclude fields (of ``media`` type, but
+endpoint it is possible to explicitly exclude fields (of ``media`` type, but
 also of any other type) from default responses:
 
 .. code-block:: python
@@ -1670,7 +1677,7 @@ First we define an ``internal_transaction`` endpoint, which is flagged as an
 
 
 Now, if we access the home endpoint and ``HATEOAS`` is enabled, we won't get
-the ``internal-transactions`` listed (and hitting the endpoint via HTTP wil
+the ``internal-transactions`` listed (and hitting the endpoint via HTTP will
 return a ``404``.) We can use the data layer to access our secret endpoint.
 Something like this:
 
@@ -1732,7 +1739,7 @@ time a custom function is invoked.
 
     from eve import Eve
 
-    def log_every_get(resoure, request, payload):
+    def log_every_get(resource, request, payload):
         # custom INFO-level message is sent to the log file
         app.logger.info('We just answered to a GET request!')
 
@@ -1915,7 +1922,7 @@ for unittesting_ and an `extensive documentation`_.
 .. _MongoDB: http://docs.mongodb.org/manual/applications/geospatial-indexes/#geojson-objects
 .. _`geospatial query operators`: http://docs.mongodb.org/manual/reference/operator/query-geospatial/#query-selectors
 .. _$near: http://docs.mongodb.org/manual/reference/operator/query/near/#op._S_near
-.. _`capped collection`: http://docs.mongodb.org/manual/ore/capped-collections/
+.. _`capped collection`: http://docs.mongodb.org/manual/core/capped-collections/
 .. _`Replica Set Oplog`: http://docs.mongodb.org/manual/core/replica-set-oplog/
 .. _`extensions page`: http://python-eve.org/extensions
 .. _source: http://en.wikipedia.org/wiki/JSONP

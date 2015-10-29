@@ -3,6 +3,51 @@ Changelog
 
 Here you can see the full list of changes between each Eve release.
 
+In Development
+--------------
+
+Version 0.6.1
+~~~~~~~~~~~~~
+
+Not released.
+
+- New: ``BULK_ENABLED`` enables/disables bulk insert. Defaults to ``True``
+  (Julian Hille).
+- New: ``VALIDATE_FILTERS`` enables/disables validating of query filters
+  against resource schema. Closes #728 (Stratos Gerakakis).
+- New: ``TRANSPARENT_SCHEMA_RULES`` enables/disables schema validation globally
+  and ``transparent_schema_rules`` per resource (Florian Rathgeber).
+- New: ``ALLOW_OVERRIDE_HTTP_METHOD`` enables/disables support for overriding
+  request methods with ``X-HTTP-Method-Override`` headers (Julian Hille).
+
+- Fix: flake8 fails on Python 3. Closes #747 (Simon Schönfeld).
+- Fix: recursion for dotted field normalization (Matt Tucker).
+- Fix: dependendencies on sub-document fields always return 422. Closes #706.
+- Fix: invoking ``post_internal`` with ``skpi_validation = True`` causes
+  a ``422`` response. Closes #726.
+- Fix: explict inclusive datasource projection is ignored. Closes #722.
+
+- Dev: fix rate limiting tests so they don't occasionally fail.
+- Dev: make sure connections opened by test suite are properly closed on
+  teardown. 
+- Dev: use middleware to parse overrides and eventually update request method
+  (Julian Hille). 
+- Dev: optimize versioning by building specific versions without deepcopying
+  the root document (Nick Park).
+- Dev: ``_client_projection`` method has been moved up from the mongo layer to
+  the base DataLayer class. It is now available for other data layers
+  implementations, such as Eve-SQLAlchemy (Gonéri Le Bouder).
+
+- Docs: add instructions for installing dependencies and building docs (Florian
+  Rathgeber).
+- Docs: fix link to contributing guidelines (Florian Rathgeber).
+- Docs: fix some typos (Stratos Gerakakis, Julian Hille).
+- Docs: add Eve-Swagger to Extensions page.
+- Docs: fix broken link to Mongo's capped collections (Nathan Reynolds).
+
+Stable
+------
+
 Version 0.6
 ~~~~~~~~~~~
 
@@ -210,9 +255,6 @@ Released on 28 September, 2015
 
 - Update: Cerberus 0.9.2 is now required.
 - Update: PyMongo 2.8 is now required (which in turn supports MongoDB 3.0)
-
-Stable
-------
 
 Version 0.5.3
 ~~~~~~~~~~~~~

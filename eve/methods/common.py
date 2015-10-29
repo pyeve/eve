@@ -19,7 +19,7 @@ from copy import copy
 from flask import current_app as app, request, abort, g, Response
 from functools import wraps
 
-from eve.utils import parse_request, document_etag, config, request_method, \
+from eve.utils import parse_request, document_etag, config, \
     debug_error_message, auto_fields
 from eve.versioning import resolve_document_version, \
     get_data_version_relation_document
@@ -222,7 +222,7 @@ def ratelimit():
     def decorator(f):
         @wraps(f)
         def rate_limited(*args, **kwargs):
-            method_limit = app.config.get('RATE_LIMIT_' + request_method())
+            method_limit = app.config.get('RATE_LIMIT_' + request.method)
             if method_limit and app.redis:
                 limit = method_limit[0]
                 period = method_limit[1]
@@ -416,20 +416,30 @@ def normalize_dotted_fields(document):
 
         {"location": {"city": "a city", "sub": {"address": "a subaddress}}}
 
+    .. versionchanged:: 0.7
+       Fix normalization of nested inputs (#738).
+
     .. versionadded:: 0.6
     """
-    for field in document.keys():
-        if '.' in field:
-            parts = field.split('.')
-            prev = document
-            for part in parts[:-1]:
-                if part not in prev:
-                    prev[part] = {}
-                prev = prev[part]
-            prev[parts[-1]] = document[field]
-            document.pop(field)
-        elif isinstance(document[field], dict):
-            normalize_dotted_fields(document[field])
+    if isinstance(document, list):
+        prev = document
+        for i in prev:
+            normalize_dotted_fields(i)
+    elif isinstance(document, dict):
+        for field in list(document):
+            if '.' in field:
+                parts = field.split('.')
+                prev = document
+                for part in parts[:-1]:
+                    if part not in prev:
+                        prev[part] = {}
+                    prev = prev[part]
+                if isinstance(document[field], (dict, list)):
+                    normalize_dotted_fields(document[field])
+                prev[parts[-1]] = document[field]
+                document.pop(field)
+            elif isinstance(document[field], (dict, list)):
+                normalize_dotted_fields(document[field])
 
 
 def build_response_document(
@@ -890,7 +900,7 @@ def pre_event(f):
     """
     @wraps(f)
     def decorated(*args, **kwargs):
-        method = request_method()
+        method = request.method
         if method == 'HEAD':
             method = 'GET'
 

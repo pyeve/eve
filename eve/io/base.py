@@ -15,7 +15,7 @@ from copy import copy
 from flask import request, abort
 from eve.utils import date_to_str
 from eve.auth import auth_field_and_value
-from eve.utils import config, auto_fields
+from eve.utils import config, auto_fields, debug_error_message
 
 
 class BaseJSONEncoder(json.JSONEncoder):
@@ -460,3 +460,26 @@ class DataLayer(object):
                 else:
                     query = {auth_field: request_auth_value}
         return datasource, query, fields, sort
+
+    def _client_projection(self, req):
+        """ Returns a properly parsed client projection if available.
+
+        :param req: a :class:`ParsedRequest` instance.
+
+        .. versionchanged:: 0.6.1
+           Moved from the mongo layer up to the DataLayer base class (#724).
+
+        .. versionadded:: 0.4
+        """
+        client_projection = {}
+        if req and req.projection:
+            try:
+                client_projection = json.loads(req.projection)
+                if not isinstance(client_projection, dict):
+                    raise Exception('The projection parameter has to be a '
+                                    'dict')
+            except:
+                abort(400, description=debug_error_message(
+                    'Unable to parse `projection` clause'
+                ))
+        return client_projection

@@ -141,6 +141,7 @@ HATEOAS = True                  # HATEOAS enabled by default.
 IF_MATCH = True                 # IF_MATCH (ETag match) enabled by default.
 
 ALLOWED_FILTERS = ['*']         # filtering enabled by default
+VALIDATE_FILTERS = False
 SORTING = True                  # sorting enabled by default.
 JSON_SORT_KEYS = False          # json key sorting
 EMBEDDING = True                # embedding enabled by default
@@ -155,6 +156,7 @@ INTERNAL_RESOURCE = False       # resources are public by default.
 JSONP_ARGUMENT = None           # JSONP disabled by default.
 SOFT_DELETE = False             # soft delete disabled by default.
 SHOW_DELETED_PARAM = 'show_deleted'
+BULK_ENABLED = True
 
 OPLOG = False                   # oplog is disabled by default.
 OPLOG_NAME = 'oplog'            # default oplog resource name.
@@ -175,6 +177,8 @@ PUBLIC_ITEM_METHODS = []
 ALLOWED_ITEM_ROLES = []
 ALLOWED_ITEM_READ_ROLES = []
 ALLOWED_ITEM_WRITE_ROLES = []
+# globally enables / disables HTTP method overriding
+ALLOW_OVERRIDE_HTTP_METHOD = True
 ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
 ITEM_URL = 'regex("[a-f0-9]{24}")'
@@ -211,6 +215,9 @@ AUTH_FIELD = None
 
 # don't allow unknown key/value pairs for POST/PATCH payloads.
 ALLOW_UNKNOWN = False
+
+# don't ignore unknown schema rules (raise SchemaError)
+TRANSPARENT_SCHEMA_RULES = False
 
 # Rate limits are disabled by default. Needs a running redis-server.
 RATE_LIMIT_GET = None

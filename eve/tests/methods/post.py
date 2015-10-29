@@ -31,6 +31,12 @@ class TestPost(TestBase):
         self.assertValidationErrorStatus(status)
         self.assertValidationError(r, {'ref': 'required'})
 
+    def test_post_bulk_insert_on_disabled_bulk(self):
+        r, status = self.post(
+            self.disabled_bulk_url,
+            data=[{'string_field': '123'}, {'string_field': '123'}])
+        self.assert400(status)
+
     def test_post_empty_bulk_insert(self):
         r, status = self.post(self.empty_resource_url, data=[])
         self.assert400(status)
@@ -549,6 +555,41 @@ class TestPost(TestBase):
         r, s = self.post('posts', data=data)
         self.assert201(s)
 
+    def test_post_dependency_fields_with_subdocuments(self):
+        # test that dependencies with sub-document fields are properly
+        # validated. See #706.
+        del(self.domain['contacts']['schema']['ref']['required'])
+
+        schema = {
+            'field1': {
+                'type': 'dict',
+                'schema': {
+                    'address': {'type': 'string'}
+                }
+            },
+            'field2': {
+                'dependencies': {'field1.address': ['one', 'two']}
+            }
+        }
+        settings = {
+            'RESOURCE_METHODS': ['GET', 'POST', 'DELETE'],
+            'ITEM_METHODS': ['GET', 'PATCH', 'PUT', 'DELETE'],
+            'schema': schema
+        }
+        self.app.register_resource('endpoint', settings)
+
+        data = {"field1": {"address": "three"}, "field2": 7}
+        r, s = self.post('endpoint', data=data)
+        self.assert422(s)
+
+        data = {"field1": {"address": "one"}, "field2": 7}
+        r, s = self.post('endpoint', data=data)
+        self.assert201(s)
+
+        data = {"field1": {"address": "two"}, "field2": 7}
+        r, s = self.post('endpoint', data=data)
+        self.assert201(s)
+
     def test_post_readonly_field_with_default(self):
         # test that a read only field with a 'default' setting is correctly
         # validated now that we resolve field values before validation.
@@ -614,6 +655,17 @@ class TestPost(TestBase):
         payload = {test_field: test_value}
         with self.app.test_request_context(self.known_resource_url):
             r, _, _, status = post_internal(self.known_resource, payl=payload)
+        self.assert201(status)
+
+    def test_post_internal_skip_validation(self):
+        # test that when skip_validation is active everything behaves as
+        # expected. Also make sure that #726 is fixed.
+        test_field = 'ref'
+        test_value = "1234567890123456789054321"
+        payload = {test_field: test_value}
+        with self.app.test_request_context(self.known_resource_url):
+            r, _, _, status = post_internal(self.known_resource, payl=payload,
+                                            skip_validation=True)
         self.assert201(status)
 
     def test_post_nested(self):

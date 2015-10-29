@@ -59,6 +59,11 @@ class TestDelete(TestBase):
         _, status = self.delete(self.readonly_id_url)
         self.assert405(status)
 
+    def test_delete_readonly_resource_with_override(self):
+        headers = [('X-HTTP-Method-Override', 'DELETE')]
+        r = self.test_client.get(self.readonly_resource_url, headers=headers)
+        self.assert405(r.status_code)
+
     def test_delete_unknown_item(self):
         url = '%s%s/' % (self.known_resource_url, self.unknown_item_id)
         _, status = self.delete(url)
