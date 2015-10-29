@@ -43,8 +43,6 @@ Released on 29 October, 2015
 - Dev: fix rate limiting tests so they don't occasionally fail.
 - Dev: make sure connections opened by test suite are properly closed on
   teardown. 
-- Dev: make sure all connections opened by the test suite are properly closed
-  on termination. 
 - Dev: use middleware to parse overrides and eventually update request method
   (Julian Hille). 
 - Dev: optimize versioning by building specific versions without deepcopying
