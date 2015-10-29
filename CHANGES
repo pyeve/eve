@@ -3,13 +3,13 @@ Changelog
 
 Here you can see the full list of changes between each Eve release.
 
-In Development
---------------
+Stable
+------
 
 Version 0.6.1
 ~~~~~~~~~~~~~
 
-Not released.
+Released on 29 October, 2015
 
 - New: ``BULK_ENABLED`` enables/disables bulk insert. Defaults to ``True``
   (Julian Hille).
@@ -45,8 +45,6 @@ Not released.
 - Docs: add Eve-Swagger to Extensions page.
 - Docs: fix broken link to Mongo's capped collections (Nathan Reynolds).
 
-Stable
-------
 
 Version 0.6
 ~~~~~~~~~~~
