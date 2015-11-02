@@ -569,6 +569,15 @@ class TestSoftDelete(TestDelete):
                 self.known_resource, _id=ObjectId(new_item_id))
             self.assertTrue(self.deleted_field in db_stored_doc)
 
+    def test_exclusive_projection(self):
+        """ Test that when an exclusive projection is used in the 'datasource'
+        setting for the resource, enabling soft_deletes does not cause a 500
+        error. See #752.
+        """
+        r = self.test_client.get('/exclusion?show_deleted')
+        data, status = self.parse_response(r)
+        self.assert200(status)
+
 
 class TestResourceSpecificSoftDelete(TestBase):
     def setUp(self):
