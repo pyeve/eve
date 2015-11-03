@@ -11,14 +11,15 @@
 """
 import itertools
 from datetime import datetime
-from copy import copy
 
 import ast
 import pymongo
 import simplejson as json
 from bson import ObjectId
+from copy import copy
 from flask import abort, request
 from flask.ext.pymongo import PyMongo
+from pymongo import WriteConcern
 from werkzeug.exceptions import HTTPException
 
 from eve.auth import resource_auth
@@ -238,13 +239,13 @@ class Mongo(DataLayer):
                 {'$gt': req.if_modified_since}
 
         if len(spec) > 0:
-            args['spec'] = spec
+            args['filter'] = spec
 
         if sort is not None:
             args['sort'] = sort
 
         if projection is not None:
-            args['fields'] = projection
+            args['projection'] = projection
 
         return self.pymongo(resource).db[datasource].find(**args)
 
@@ -359,12 +360,15 @@ class Mongo(DataLayer):
         )
 
         documents = self.pymongo(resource).db[datasource].find(
-            spec=spec, fields=projection
+            filter=spec, projection=projection
         )
         return documents
 
     def insert(self, resource, doc_or_docs):
         """ Inserts a document into a resource collection.
+
+        .. versionchanged:: 0.6.1
+           Support for PyMongo 3.0.
 
         .. versionchanged:: 0.6
            Support for multiple databases.
@@ -384,10 +388,14 @@ class Mongo(DataLayer):
            retrieves the target collection via the new config.SOURCES helper.
         """
         datasource, _, _, _ = self._datasource_ex(resource)
+
+        coll = self.get_collection_with_write_concern(datasource, resource)
+
+        if isinstance(doc_or_docs, dict):
+            doc_or_docs = [doc_or_docs]
+
         try:
-            return self.pymongo(resource).db[datasource].insert(
-                doc_or_docs, **self._wc(resource)
-            )
+            return coll.insert_many(doc_or_docs).inserted_ids
         except pymongo.errors.DuplicateKeyError as e:
             abort(409, description=debug_error_message(
                 'pymongo.errors.DuplicateKeyError: %s' % e
@@ -406,8 +414,11 @@ class Mongo(DataLayer):
                 'pymongo.errors.OperationFailure: %s' % e
             ))
 
-    def _change_request(self, resource, id_, changes, original):
+    def _change_request(self, resource, id_, changes, original, replace=False):
         """ Performs a change, be it a replace or update.
+
+        .. versionchanged:: 0.6.1
+           Support for PyMongo 3.0.
 
         .. versionchanged:: 0.6
            Return 400 if an attempt is made to update/replace an immutable
@@ -420,11 +431,13 @@ class Mongo(DataLayer):
 
         datasource, filter_, _, _ = self._datasource_ex(
             resource, query)
-        try:
-            result = self.pymongo(resource).db[datasource].update(
-                filter_, changes, **self._wc(resource))
 
-            if result and result["n"] == 0:
+        coll = self.get_collection_with_write_concern(datasource, resource)
+        try:
+            result = coll.replace_one(filter_, changes) if replace else \
+                coll.update_one(filter_, changes)
+
+            if result and result.acknowledged and result.modified_count == 0:
                 raise self.OriginalChangedError()
         except pymongo.errors.DuplicateKeyError as e:
             abort(400, description=debug_error_message(
@@ -433,7 +446,7 @@ class Mongo(DataLayer):
         except pymongo.errors.OperationFailure as e:
             # server error codes and messages changed between 2.4 and 2.6/3.0.
             server_version = \
-                self.driver.db.connection.server_info()['version'][:3]
+                self.driver.db.client.server_info()['version'][:3]
             if (
                 (server_version == '2.4' and e.code in (13596, 10148)) or
                 (server_version in ('2.6', '3.0') and e.code in (66, 16837))
@@ -509,11 +522,15 @@ class Mongo(DataLayer):
         .. versionadded:: 0.1.0
         """
 
-        return self._change_request(resource, id_, document, original)
+        return self._change_request(resource, id_, document, original,
+                                    replace=True)
 
     def remove(self, resource, lookup):
         """ Removes a document or the entire set of documents from a
         collection.
+
+        .. versionchanged:: 0.6.1
+           Support for PyMongo 3.0.
 
         .. versionchanged:: 0.6
            Support for multiple databases.
@@ -546,9 +563,10 @@ class Mongo(DataLayer):
         """
         lookup = self._mongotize(lookup, resource)
         datasource, filter_, _, _ = self._datasource_ex(resource, lookup)
+
+        coll = self.get_collection_with_write_concern(datasource, resource)
         try:
-            return self.pymongo(resource).db[datasource]\
-                .remove(filter_, **self._wc(resource))
+            coll.delete_many(filter_)
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
             self.app.logger.exception(e)
@@ -651,7 +669,7 @@ class Mongo(DataLayer):
         coll = self.pymongo(resource).db[datasource]
         try:
             if not filter_:
-                # faster, but we can only affrd it if there's now predefined
+                # faster, but we can only afford it if there's now predefined
                 # filter on the datasource.
                 return coll.count() == 0
             else:
@@ -827,6 +845,20 @@ class Mongo(DataLayer):
             return self.driver[px]
         except Exception as e:
             raise ConnectionException(e)
+
+    def get_collection_with_write_concern(self, datasource, resource):
+        """ Returns a pymongo Collection with the desired write_concern
+        setting.
+
+        PyMongo 3.0+ collections are immutable, yet we still want to allow the
+        maintainer to change the write concern setting on the fly, hence the
+        clone.
+
+        .. versionadded:: 0.6.1
+        """
+        wc = WriteConcern(config.DOMAIN[resource]['mongo_write_concern']['w'])
+        return self.pymongo(resource).db[datasource].with_options(
+            write_concern=wc)
 
 
 class PyMongos(dict):
