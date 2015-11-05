@@ -17,7 +17,7 @@ import pymongo
 import simplejson as json
 from bson import ObjectId
 from copy import copy
-from flask import abort, request
+from flask import abort, request, g
 from flask.ext.pymongo import PyMongo
 from pymongo import WriteConcern
 from werkzeug.exceptions import HTTPException
@@ -814,11 +814,16 @@ class Mongo(DataLayer):
             pass
 
         px = auth.get_mongo_prefix() if auth else None
+
+        if px is None:
+            px = g.get('mongo_prefix', None)
+
         if px is None:
             if resource:
                 px = config.DOMAIN[resource].get('mongo_prefix', 'MONGO')
             else:
                 px = 'MONGO'
+
         return px
 
     def pymongo(self, resource=None, prefix=None):
