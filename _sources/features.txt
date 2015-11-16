@@ -900,7 +900,7 @@ subdocuments (nested dicts and lists). For example, a query
 ``/invoices?/embedded={"user.friends":1}`` will return a document with ``user``
 and all his ``friends`` embedded, but only if ``user`` is a subdocument and
 ``friends`` is a list of reference (it could be a list of dicts, nested
-dict, ect.). This feature is about serialization on GET requests. There's no
+dict, etc.). This feature is about serialization on GET requests. There's no
 support for POST, PUT or PATCH of embedded documents.
 
 Document embedding is enabled by default.
