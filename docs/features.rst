@@ -1840,6 +1840,7 @@ Six settings are dedicated to the OpLog:
 - ``OPLOG_METHODS`` is a list of HTTP methods to be logged. Defaults to all of them.
 - ``OPLOG_ENDPOINT`` is the endpoint name. Defaults to ``None``.
 - ``OPLOG_AUDIT`` if enabled, IP addresses and changes are also logged. Defaults to ``True``.
+- ``OPLOG_CHANGE_METHODS`` determines which methods will log changes. Defaults to ['PATCH', 'PUT', 'DELETE'].
 
 As you can see the oplog feature is turned off by default. Also, since
 ``OPLOG_ENDPOINT`` defaults to ``None``, even if you switch the feature on no

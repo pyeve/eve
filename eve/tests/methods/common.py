@@ -250,7 +250,7 @@ class TestOpLogBase(TestBase):
         self.assertTrue('o' in entry)
         self.assertEqual(entry['o'], op)
         self.assertTrue('127.0.0.1' in entry['ip'])
-        if op in ('PATCH', 'PUT', 'DELETE'):
+        if op in config.OPLOG_CHANGE_METHODS:
             self.assertTrue('c' in entry)
 
 
