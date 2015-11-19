@@ -250,7 +250,7 @@ class TestOpLogBase(TestBase):
         self.assertTrue('o' in entry)
         self.assertEqual(entry['o'], op)
         self.assertTrue('127.0.0.1' in entry['ip'])
-        if op in config.OPLOG_CHANGE_METHODS:
+        if op in self.app.config['OPLOG_CHANGE_METHODS']:
             self.assertTrue('c' in entry)
 
 
@@ -259,6 +259,8 @@ class TestOpLogEndpointDisabled(TestOpLogBase):
         super(TestOpLogEndpointDisabled, self).setUp()
 
         self.app.config['OPLOG'] = True
+        from eve.default_settings import OPLOG_CHANGE_METHODS
+        self.app.config['OPLOG_CHANGE_METHODS'] = OPLOG_CHANGE_METHODS
         self.oplog_reset()
 
     def test_post_oplog(self):

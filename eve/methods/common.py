@@ -1043,7 +1043,6 @@ def oplog_push(resource, document, op, id=None):
             if op in config.OPLOG_CHANGE_METHODS:
                 # these fields are already contained in 'entry'.
                 del(update[config.LAST_UPDATED])
-                del(update[config.DATE_CREATED])
                 # legacy documents (v0.4 or less) could be missing the etag
                 # field
                 if config.ETAG in update:
