@@ -27,7 +27,7 @@ Alternatively, you can choose to provide a settings dictionary:
     my_settings = {
         'MONGO_HOST': 'localhost',
         'MONGO_PORT': 27017,
-        'MONGO_DBNAME': 'the_db_name'
+        'MONGO_DBNAME': 'the_db_name',
         'DOMAIN': {'contacts': {}} 
     }
 
