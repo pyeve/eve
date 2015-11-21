@@ -14,8 +14,8 @@ install_requires = [
     'jinja2>=2.7.2,<3.0',
     'itsdangerous>=0.22,<1.0',
     'flask>=0.10.1,<0.11',
-    'pymongo>=2.8,<3.0',
-    'flask-pymongo>=0.3.0,<0.4',
+    'pymongo>=3.1',
+    'flask-pymongo>=0.4',
 ]
 
 try:
@@ -27,7 +27,7 @@ except ImportError:
 
 setup(
     name='Eve',
-    version='0.6.1',
+    version='0.6.2.dev0',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',

@@ -74,6 +74,10 @@ class Eve(Flask, Events):
                   :class:`~eve.io.media.MediaStorage` subclass.
     :param kwargs: optional, standard, Flask parameters.
 
+    .. versionchanged:: 0.6.1
+       Fix: When `SOFT_DELETE` is active an exclusive `datasource.projection`
+       causes a 500 error. Closes #752.
+
     .. versionchanged:: 0.6
        Add request metadata to default log record.
 
@@ -591,7 +595,7 @@ class Eve(Flask, Events):
         ds.setdefault('filter', None)
         ds.setdefault('default_sort', None)
 
-        projection = {}
+        projection = ds.get('projection', {})
 
         # check if any exclusion projection is defined
         exclusion = any(((k, v) for k, v in projection.items() if v == 0))
@@ -619,7 +623,7 @@ class Eve(Flask, Events):
             projection = None
         ds.setdefault('projection', projection)
 
-        if settings['soft_delete'] is True:
+        if settings['soft_delete'] is True and not exclusion:
             ds['projection'][self.config['DELETED']] = 1
 
         # 'defaults' helper set contains the names of fields with default
