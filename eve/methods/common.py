@@ -1040,7 +1040,7 @@ def oplog_push(resource, document, op, id=None):
             # https://stackoverflow.com/questions/22868900/how-do-i-safely-get-the-users-real-ip-address-in-flask-using-mod-wsgi
             entry['ip'] = request.remote_addr
 
-            if op in ('PATCH', 'PUT', 'DELETE'):
+            if op in config.OPLOG_CHANGE_METHODS:
                 # these fields are already contained in 'entry'.
                 del(update[config.LAST_UPDATED])
                 # legacy documents (v0.4 or less) could be missing the etag

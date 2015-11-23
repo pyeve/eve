@@ -166,6 +166,9 @@ OPLOG_METHODS = ['DELETE',
                  'POST',
                  'PATCH',
                  'PUT']         # oplog logs all operations by default.
+OPLOG_CHANGE_METHODS = ['DELETE',
+                        'PATCH',
+                        'PUT']  # methods which write changes to the oplog
 
 RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']

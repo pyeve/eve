@@ -57,7 +57,9 @@ class TestConfig(TestBase):
                                                             'POST',
                                                             'PATCH',
                                                             'PUT'])
-
+        self.assertEqual(self.app.config['OPLOG_CHANGE_METHODS'], ['DELETE',
+                                                                   'PATCH',
+                                                                   'PUT'])
         self.assertEqual(self.app.config['QUERY_WHERE'], 'where')
         self.assertEqual(self.app.config['QUERY_PROJECTION'], 'projection')
         self.assertEqual(self.app.config['QUERY_SORT'], 'sort')
