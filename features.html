@@ -1813,6 +1813,10 @@ applied to the document (for <tt class="docutils literal"><span class="pre">DELE
 <p><tt class="docutils literal"><span class="pre">_created</span></tt> and <tt class="docutils literal"><span class="pre">_updated</span></tt> are relative to the target document, which comes
 handy in a variety of scenarios (like when the oplog is available to clients,
 more on this later).</p>
+<p>Please note that by default the <tt class="docutils literal"><span class="pre">c</span></tt> (changes) field is not included for
+<tt class="docutils literal"><span class="pre">POST</span></tt> operations. You can add <tt class="docutils literal"><span class="pre">POST</span></tt> to the <tt class="docutils literal"><span class="pre">OPLOG_CHANGE_METHODS</span></tt>
+setting (see <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a>) if you whish the whole document to be included on
+every insertion.</p>
 <div class="section" id="how-is-the-oplog-operated">
 <h3>How is the oplog operated?<a class="headerlink" href="#how-is-the-oplog-operated" title="Permalink to this headline">¶</a></h3>
 <p>Six settings are dedicated to the OpLog:</p>
@@ -1822,6 +1826,7 @@ more on this later).</p>
 <li><tt class="docutils literal"><span class="pre">OPLOG_METHODS</span></tt> is a list of HTTP methods to be logged. Defaults to all of them.</li>
 <li><tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt> is the endpoint name. Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</li>
 <li><tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt> if enabled, IP addresses and changes are also logged. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</li>
+<li><tt class="docutils literal"><span class="pre">OPLOG_CHANGE_METHODS</span></tt> determines which methods will log changes. Defaults to [&#8216;PATCH&#8217;, &#8216;PUT&#8217;, &#8216;DELETE&#8217;].</li>
 </ul>
 <p>As you can see the oplog feature is turned off by default. Also, since
 <tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt> defaults to <tt class="docutils literal"><span class="pre">None</span></tt>, even if you switch the feature on no

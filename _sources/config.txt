@@ -597,6 +597,10 @@ uppercase.
                                     Defaults to ``['DELETE', 'POST', 'PATCH',
                                     'PUT']``.
 
+``OPLOG_CHANGE_METHODS``            List of HTTP methods which operations
+                                    will include changes into the :ref:`oplog` entry.
+                                    Defaults to ``['DELETE','PATCH', 'PUT']``.
+
 ``OPLOG_ENDPOINT``                  Name of the :ref:`oplog` endpoint. If the 
                                     endpoint is enabled it can be configured
                                     like any other API endpoint. Set it to
