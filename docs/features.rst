@@ -1800,7 +1800,7 @@ Like any other API-maintained document, oplog entries also expose:
 - HATEOAS fields if that's enabled.
 
 If ``OPLOG_AUDIT`` is enabled entries also expose both client IP and changes
-applied to the document (for ``DELETE`` the whole document is included).
+applied to the document (for ``DELETE`` the whole document is included). 
 
 A typical oplog entry looks like this:
 
@@ -1830,6 +1830,11 @@ To save a little space (at least on MongoDB) field names have been shortened:
 ``_created`` and ``_updated`` are relative to the target document, which comes
 handy in a variety of scenarios (like when the oplog is available to clients,
 more on this later).
+
+Please note that by default the ``c`` (changes) field is not included for
+``POST`` operations. You can add ``POST`` to the ``OPLOG_CHANGE_METHODS``
+setting (see :ref:`global`) if you whish the whole document to be included on
+every insertion.
 
 How is the oplog operated?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
