@@ -265,8 +265,8 @@ def querydef(max_results=config.PAGINATION_DEFAULT, where=None, sort=None,
         else ''
     max_results_part = '%s=%s' % (config.QUERY_MAX_RESULTS, max_results) \
         if max_results != config.PAGINATION_DEFAULT else ''
-    other_params_part = ''.join(['&%s=%s' % (key, value) for key, value
-                                 in other_params.items()])
+    other_params_part = ''.join('&%s=%s' % (param, value) for param, values
+                                in other_params.lists() for value in values)
 
     # remove sort set by Eve if version is set
     if version and sort is not None:

@@ -9,6 +9,7 @@ from eve.tests import TestBase
 from eve.tests.utils import DummyEvent
 from eve.tests.test_settings import MONGO_DBNAME
 from eve.utils import str_to_date, date_to_rfc1123
+from werkzeug import MultiDict
 
 
 class TestGet(TestBase):
@@ -48,6 +49,22 @@ class TestGet(TestBase):
         self.assert200(status)
         resource = response['_items']
         self.assertEqual(len(resource), maxr)
+
+    def test_get_custom_params(self):
+        page = 2
+        custom_params = MultiDict([('my_param', 'value1'),
+                                   ('my_param', 'value2')])
+        custom_query = '&'.join('%s=%s' % (param, value) for param, values
+                                in custom_params.lists() for value in values)
+        response, status = self.get(self.known_resource,
+                                    '?%s&page=%d' % (custom_query, page))
+        self.assert200(status)
+
+        links = response['_links']
+        self.assertCustomParams(links['prev'], custom_params)
+        self.assertCustomParams(links['next'], custom_params)
+        self.assertCustomParams(links['self'], custom_params)
+        self.assertCustomParams(links['last'], custom_params)
 
     def test_get_page(self):
         response, status = self.get(self.known_resource)

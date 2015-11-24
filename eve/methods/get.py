@@ -462,8 +462,8 @@ def _other_params(args):
     default_params = [config.QUERY_WHERE, config.QUERY_SORT,
                       config.QUERY_PAGE, config.QUERY_MAX_RESULTS,
                       config.QUERY_EMBEDDED, config.QUERY_PROJECTION]
-    return MultiDict([(key, value) for key, value in args.items()
-                      if key not in default_params])
+    return MultiDict((key, value) for key, values in args.lists()
+                     for value in values if key not in default_params)
 
 
 def _meta_links(req, count):
