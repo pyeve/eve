@@ -135,8 +135,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
 
     resource_def = app.config['DOMAIN'][resource]
     schema = resource_def['schema']
-    if not skip_validation:
-        validator = app.validator(schema, resource)
+    validator = app.validator(schema, resource)
 
     object_id = original[resource_def['id_field']]
     last_modified = None
