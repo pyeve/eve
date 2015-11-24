@@ -9,6 +9,8 @@ In Development
 Version 0.6.2
 ~~~~~~~~~~~~~
 
+- New: Query parameters not recognised by Eve are now returned in HATEOAS URLs
+  (Mugur Rus).
 - New: ``OPLOG_CHANGE_METHODS`` is a list of HTTP methods which operations will
   include changes into the OpLog (mmizotin).
 - Fix: When ``SOFT_DELETE`` is active an exclusive ``datasource.projection``
