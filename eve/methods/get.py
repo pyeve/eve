@@ -11,6 +11,7 @@
     :license: BSD, see LICENSE for more details.
 """
 import math
+from werkzeug import MultiDict
 from flask import current_app as app, abort, request
 from .common import ratelimit, epoch, pre_event, resolve_embedded_fields, \
     build_response_document, resource_link, document_link, last_updated
@@ -390,8 +391,10 @@ def _pagination_links(resource, req, documents_count, document_id=None):
     if config.DOMAIN[resource]['versioning'] is True:
         version = request.args.get(config.VERSION_PARAM)
 
+    other_params = _other_params(req.args)
     # construct the default links
-    q = querydef(req.max_results, req.where, req.sort, version, req.page)
+    q = querydef(req.max_results, req.where, req.sort, version, req.page,
+                 other_params)
     resource_title = config.DOMAIN[resource]['resource_title']
     _links = {'parent': home_link(),
               'self': {'title': resource_title,
@@ -426,7 +429,7 @@ def _pagination_links(resource, req, documents_count, document_id=None):
         _pagination_link = _links['self']['href'].split('?')[0]
         if req.page * req.max_results < documents_count:
             q = querydef(req.max_results, req.where, req.sort, version,
-                         req.page + 1)
+                         req.page + 1, other_params)
             _links['next'] = {'title': 'next page', 'href': '%s%s' %
                               (_pagination_link, q)}
 
@@ -438,17 +441,29 @@ def _pagination_links(resource, req, documents_count, document_id=None):
             last_page = int(math.ceil(documents_count /
                                       float(req.max_results)))
             q = querydef(req.max_results, req.where, req.sort, version,
-                         last_page)
+                         last_page, other_params)
             _links['last'] = {'title': 'last page', 'href': '%s%s'
                               % (_pagination_link, q)}
 
         if req.page > 1:
             q = querydef(req.max_results, req.where, req.sort, version,
-                         req.page - 1)
+                         req.page - 1, other_params)
             _links['prev'] = {'title': 'previous page', 'href': '%s%s' %
                               (_pagination_link, q)}
 
     return _links
+
+
+def _other_params(args):
+    """ Returns a multidict of params that are not used internally by Eve.
+
+    :param args: multidict containing the request parameters
+    """
+    default_params = [config.QUERY_WHERE, config.QUERY_SORT,
+                      config.QUERY_PAGE, config.QUERY_MAX_RESULTS,
+                      config.QUERY_EMBEDDED, config.QUERY_PROJECTION]
+    return MultiDict((key, value) for key, values in args.lists()
+                     for value in values if key not in default_params)
 
 
 def _meta_links(req, count):
