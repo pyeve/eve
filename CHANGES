@@ -19,6 +19,8 @@ Version 0.6.2
 - Update: PyMongo 3.1 is now required.
 - Update: Flask-PyMongo 0.4+ is now required.
 
+- Docs: fix some typos (Manquer).
+
 
 Stable
 ------
