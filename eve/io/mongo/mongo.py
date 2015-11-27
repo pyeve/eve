@@ -66,6 +66,7 @@ class Mongo(DataLayer):
         'datetime': str_to_date,
         'integer': lambda value: int(value) if value is not None else None,
         'float': lambda value: float(value) if value is not None else None,
+        'number': lambda val: json.loads(val) if val is not None else None
     }
 
     # JSON serializer is a class attribute. Allows extensions to replace it

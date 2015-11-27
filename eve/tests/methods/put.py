@@ -71,6 +71,17 @@ class TestPut(TestBase):
         self.assert200(status)
         self.assertTrue('OK' in r[STATUS])
 
+    def test_put_x_www_form_urlencoded_number_serialization(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        field = 'anumber'
+        test_value = 41
+        changes = {field: test_value}
+        headers = [('If-Match', self.item_etag)]
+        r, status = self.parse_response(self.test_client.put(
+            self.item_id_url, data=changes, headers=headers))
+        self.assert200(status)
+        self.assertTrue('OK' in r[STATUS])
+
     def test_put_referential_integrity(self):
         data = {"person": self.unknown_item_id}
         headers = [('If-Match', self.invoice_etag)]

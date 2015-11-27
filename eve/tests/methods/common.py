@@ -188,6 +188,20 @@ class TestSerializer(TestBase):
                 self.fail('Serializing null lists'
                           ' should not raise an exception')
 
+    def test_serialize_number(self):
+        schema = {
+            'anumber': {
+                'type': 'number',
+            }
+        }
+        for expected_type, value in [(int, '35'), (float, '3.5')]:
+            doc = {
+                'anumber': value
+            }
+            with self.app.app_context():
+                serialized = serialize(doc, schema=schema)
+                self.assertIsInstance(serialized['anumber'], expected_type)
+
 
 class TestNormalizeDottedFields(TestBase):
     def test_normalize_dotted_fields(self):
