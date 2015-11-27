@@ -225,7 +225,7 @@ class TestPost(TestBase):
         r, status = self.parse_response(self.test_client.post(
             self.known_resource_url, data=data))
         self.assert201(status)
-        self.assertIn('OK', r[STATUS])
+        self.assertTrue('OK' in r[STATUS])
         self.assertPostResponse(r)
 
     def test_post_referential_integrity(self):

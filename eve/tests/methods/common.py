@@ -180,7 +180,9 @@ class TestSerializer(TestBase):
             }
             with self.app.app_context():
                 serialized = serialize(doc, schema=schema)
-                self.assertIsInstance(serialized['anumber'], expected_type)
+                self.assertTrue(
+                    isinstance(serialized['anumber'], expected_type)
+                )
 
 
 class TestNormalizeDottedFields(TestBase):
