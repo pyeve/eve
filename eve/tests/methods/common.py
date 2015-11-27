@@ -168,6 +168,25 @@ class TestSerializer(TestBase):
                 self.assertTrue(False, "Serializing null dictionaries should "
                                        "not raise an exception.")
 
+    def test_serialize_null_list(self):
+        schema = {
+            'nullable_list': {
+                'type': 'list',
+                'nullable': True,
+                'schema': {
+                    'type': 'objectid'
+                }
+            }
+        }
+        doc = {
+            'nullable_list': None
+        }
+        with self.app.app_context():
+            try:
+                serialize(doc, schema=schema)
+            except Exception:
+                self.fail('Serializing null lists should not raise an exception')
+
 
 class TestNormalizeDottedFields(TestBase):
     def test_normalize_dotted_fields(self):

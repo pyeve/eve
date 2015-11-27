@@ -328,6 +328,8 @@ def serialize(document, resource=None, schema=None, fields=None):
         if not fields:
             fields = document.keys()
         for field in fields:
+            if document[field] is None:
+                continue
             if field in schema:
                 field_schema = schema[field]
                 field_type = field_schema.get('type')
@@ -341,7 +343,7 @@ def serialize(document, resource=None, schema=None, fields=None):
                             if type(subdocument) is not dict:
                                 # value is not a dict - continue serialization
                                 # error will be reported by validation if
-                                # appropriate (could be allowed nullable dict)
+                                # appropriate
                                 continue
                             elif 'schema' in field_schema:
                                 serialize(subdocument,
