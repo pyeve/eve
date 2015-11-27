@@ -217,6 +217,17 @@ class TestPost(TestBase):
         self.assertTrue('OK' in r[STATUS])
         self.assertPostResponse(r)
 
+    def test_post_x_www_form_urlencoded_number_serialization(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        test_field = "anumber"
+        test_value = 34
+        data = {test_field: test_value}
+        r, status = self.parse_response(self.test_client.post(
+            self.known_resource_url, data=data))
+        self.assert201(status)
+        self.assertTrue('OK' in r[STATUS])
+        self.assertPostResponse(r)
+
     def test_post_referential_integrity(self):
         data = {"person": self.unknown_item_id}
         r, status = self.post('/invoices/', data=data)

@@ -143,6 +143,9 @@ contacts = {
         },
         'afloat': {
             'type': 'float',
+        },
+        'anumber': {
+            'type': 'number'
         }
     }
 }

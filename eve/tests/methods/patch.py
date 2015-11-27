@@ -270,6 +270,17 @@ class TestPatch(TestBase):
         self.assert200(status)
         self.assertTrue('OK' in r[STATUS])
 
+    def test_patch_x_www_form_urlencoded_number_serialization(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        field = 'anumber'
+        test_value = 3.5
+        changes = {field: test_value}
+        headers = [('If-Match', self.item_etag)]
+        r, status = self.parse_response(self.test_client.patch(
+            self.item_id_url, data=changes, headers=headers))
+        self.assert200(status)
+        self.assertTrue('OK' in r[STATUS])
+
     def test_patch_referential_integrity(self):
         data = {"person": self.unknown_item_id}
         headers = [('If-Match', self.invoice_etag)]
