@@ -185,7 +185,8 @@ class TestSerializer(TestBase):
             try:
                 serialize(doc, schema=schema)
             except Exception:
-                self.fail('Serializing null lists should not raise an exception')
+                self.fail('Serializing null lists'
+                          ' should not raise an exception')
 
 
 class TestNormalizeDottedFields(TestBase):
