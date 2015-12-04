@@ -338,7 +338,7 @@ def serialize(document, resource=None, schema=None, fields=None):
                         for optschema in field_schema.get(x_of, []):
                             schema = {field: optschema}
                             serialize(document, schema=schema)
-                        x_of_type = '{}_type'.format(x_of)
+                        x_of_type = '{0}_type'.format(x_of)
                         for opttype in field_schema.get(x_of_type, []):
                             schema = {field: {'type': opttype}}
                             serialize(document, schema=schema)
