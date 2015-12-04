@@ -461,10 +461,10 @@ Consider the following workflow:
 .. code-block:: console
 
     $ curl -H "Content-Type: application/json" -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
-    HTTP/1.1 403 FORBIDDEN
+    HTTP/1.1 428 PRECONDITION REQUIRED
 
 We attempted an edit (``PATCH``), but we did not provide an ``ETag`` for the
-item so we got a ``403 FORBIDDEN`` back. Let's try again:
+item so we got a ``428 PRECONDITION REQUIRED`` back. Let's try again:
 
 .. code-block:: console
 

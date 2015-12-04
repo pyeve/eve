@@ -109,9 +109,9 @@ class TestBasicAuth(TestBase):
         r = self.test_client.patch(self.item_id_url,
                                    data=json.dumps({"k": "value"}),
                                    headers=self.valid_auth)
-        self.assert403(r.status_code)
+        self.assert428(r.status_code)
         r = self.test_client.delete(self.item_id_url, headers=self.valid_auth)
-        self.assert403(r.status_code)
+        self.assert428(r.status_code)
 
     def test_authorized_schema_access(self):
         self.app.config['SCHEMA_ENDPOINT'] = 'schema'

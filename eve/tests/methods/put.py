@@ -25,7 +25,7 @@ class TestPut(TestBase):
 
     def test_ifmatch_missing(self):
         _, status = self.put(self.item_id_url, data={'key1': 'value1'})
-        self.assert403(status)
+        self.assert428(status)
 
     def test_ifmatch_disabled(self):
         self.app.config['IF_MATCH'] = False

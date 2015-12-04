@@ -43,8 +43,8 @@ class TestPatch(TestBase):
         self.assert405(status)
 
     def test_ifmatch_missing(self):
-        _, status = self.patch(self.item_id_url, data={'key1': 'value1'})
-        self.assert403(status)
+        res, status = self.patch(self.item_id_url, data={'key1': 'value1'})
+        self.assert428(status)
 
     def test_ifmatch_disabled(self):
         self.app.config['IF_MATCH'] = False
