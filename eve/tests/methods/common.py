@@ -249,7 +249,7 @@ class TestSerializer(TestBase):
         for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
             schema = {
                 'x_of-field': {
-                    '{}_type'.format(x_of): ['objectid', 'float', 'boolean']
+                    '{0}_type'.format(x_of): ['objectid', 'float', 'boolean']
                 }
             }
             doc = {'x_of-field': '50656e4538345b39dd0414f0'}
