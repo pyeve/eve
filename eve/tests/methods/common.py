@@ -204,6 +204,59 @@ class TestSerializer(TestBase):
                     isinstance(serialized['anumber'], expected_type)
                 )
 
+    def test_serialize_inside_x_of_rules(self):
+        for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+            schema = {
+                'x_of-field': {
+                    x_of: [
+                        {'type': 'objectid'},
+                        {'required': True}
+                    ]
+                }
+            }
+            doc = {'x_of-field': '50656e4538345b39dd0414f0'}
+            with self.app.app_context():
+                serialized = serialize(doc, schema=schema)
+                self.assertTrue(isinstance(serialized['x_of-field'], ObjectId))
+
+    def test_serialize_inside_nested_x_of_rules(self):
+        schema = {
+            'nested-x_of-field': {
+                'oneof': [
+                    {
+                        'anyof': [
+                            {'type': 'objectid'},
+                            {'type': 'datetime'}
+                        ],
+                        'required': True
+                    },
+                    {
+                        'allof': [
+                            {'type': 'boolean'},
+                            {'required': True}
+                        ]
+                    }
+                ]
+            }
+        }
+        doc = {'nested-x_of-field': '50656e4538345b39dd0414f0'}
+        with self.app.app_context():
+            serialized = serialize(doc, schema=schema)
+            self.assertTrue(
+                isinstance(serialized['nested-x_of-field'], ObjectId))
+
+    def test_serialize_inside_x_of_typesavers(self):
+        for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+            schema = {
+                'x_of-field': {
+                    '{}_type'.format(x_of): ['objectid', 'float', 'boolean']
+                }
+            }
+            doc = {'x_of-field': '50656e4538345b39dd0414f0'}
+            with self.app.app_context():
+                serialized = serialize(doc, schema=schema)
+                self.assertTrue(isinstance(serialized['x_of-field'], ObjectId))
+
 
 class TestNormalizeDottedFields(TestBase):
     def test_normalize_dotted_fields(self):
