@@ -71,7 +71,7 @@ class TestDelete(TestBase):
 
     def test_delete_ifmatch_missing(self):
         _, status = self.delete(self.item_id_url)
-        self.assert403(status)
+        self.assert428(status)
 
     def test_delete_ifmatch_disabled(self):
         self.app.config['IF_MATCH'] = False
