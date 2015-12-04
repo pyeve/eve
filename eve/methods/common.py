@@ -333,6 +333,15 @@ def serialize(document, resource=None, schema=None, fields=None):
             if field in schema:
                 field_schema = schema[field]
                 field_type = field_schema.get('type')
+                if field_type is None:
+                    for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+                        for optschema in field_schema.get(x_of, []):
+                            schema = {field: optschema}
+                            serialize(document, schema=schema)
+                        x_of_type = '{}_type'.format(x_of)
+                        for opttype in field_schema.get(x_of_type, []):
+                            schema = {field: {'type': opttype}}
+                            serialize(document, schema=schema)
                 if 'schema' in field_schema:
                     field_schema = field_schema['schema']
                     if 'dict' in (field_type, field_schema.get('type')):
@@ -391,7 +400,7 @@ def serialize(document, resource=None, schema=None, fields=None):
                     try:
                         document[field] = \
                             app.data.serializers[field_type](document[field])
-                    except (ValueError, InvalidId):
+                    except (ValueError, TypeError, InvalidId):
                         # value can't be casted, we continue processing the
                         # rest of the document. Validation will later report
                         # back the issue.
