@@ -29,6 +29,17 @@ from eve.versioning import synthesize_versioned_document, versioned_id_field, \
 @requires_auth('resource')
 @pre_event
 def get(resource, **lookup):
+    """
+    Default function for handling GET requests, it has decorators for
+    rate limiting, authentication and for raising pre-request events. After the
+    decorators are applied forwards to call to :func:`get_internal`
+
+    .. versionadded:: 0.6.2
+    """
+    return get_internal(resource, **lookup)
+
+
+def get_internal(resource, **lookup):
     """ Retrieves the resource documents that match the current request.
 
     :param resource: the name of the resource.
@@ -216,6 +227,18 @@ def _perform_find(resource, lookup):
 @requires_auth('item')
 @pre_event
 def getitem(resource, **lookup):
+    """
+    Default function for handling GET requests to document endpoints, it has
+    decorators for rate limiting, authentication and for raising pre-request
+    events. After the decorators are applied forwards to call to
+    :func:`getitem_internal`
+
+    .. versionadded:: 0.6.2
+    """
+    return getitem_internal(resource, **lookup)
+
+
+def getitem_internal(resource, **lookup):
     """
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.

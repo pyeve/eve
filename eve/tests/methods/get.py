@@ -11,6 +11,7 @@ from eve.tests.utils import DummyEvent
 from eve.tests.test_settings import MONGO_DBNAME
 from eve.utils import str_to_date, date_to_rfc1123
 from werkzeug import MultiDict
+from eve.methods.get import get_internal, getitem_internal
 
 
 class TestGet(TestBase):
@@ -70,7 +71,14 @@ class TestGet(TestBase):
     def test_get_page(self):
         response, status = self.get(self.known_resource)
         self.assert200(status)
+        self.assertPage(response, status)
 
+    def test_get_internal_page(self):
+        with self.app.test_request_context(self.known_resource_url):
+            response, _, _, status, _ = get_internal(self.known_resource)
+        self.assertPage(response, status)
+
+    def assertPage(self, response, status):
         links = response['_links']
         self.assertNextLink(links, 2)
         self.assertLastLink(links, 5)
@@ -1295,6 +1303,11 @@ class TestGetItem(TestBase):
         response, status = self.get(self.known_resource,
                                     item=self.unknown_item_id)
         self.assert404(status)
+
+    def test_getitem_internal_by_id(self):
+        with self.app.test_request_context(self.known_resource_url):
+            response, _, _, status = getitem_internal(self.known_resource)
+        self.assert200(status)
 
     def test_getitem_noschema(self):
         self.app.config['DOMAIN'][self.known_resource]['schema'] = {}

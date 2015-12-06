@@ -9,6 +9,10 @@ In Development
 Version 0.7
 ~~~~~~~~~~~
 
+- New ``get_internal`` and ``getitem_internal`` functions can be used for
+  internal GET calls. These methods are not rate limited, authentication is not
+  checked and pre-request events are not raised.
+
 - New: Add support for MongoDB ``DBRef`` fields (Roman Gavrilov).
 
 - New: ``MULTIPART_FORM_FIELDS_AS_JSON``. In case you are submitting your
