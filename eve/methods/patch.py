@@ -63,6 +63,9 @@ def patch_internal(resource, payload=None, concurrency_check=False,
     :param skip_validation: skip payload validation before write (bool)
     :param **lookup: document lookup query.
 
+    .. versionchanged:: 0.6.2
+       Fix: validator is not set when skip_validation is true.
+
     .. versionchanged:: 0.6
        on_updated returns the updated document (#682).
        Allow restoring soft deleted documents via PATCH
@@ -135,8 +138,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
 
     resource_def = app.config['DOMAIN'][resource]
     schema = resource_def['schema']
-    if not skip_validation:
-        validator = app.validator(schema, resource)
+    validator = app.validator(schema, resource)
 
     object_id = original[resource_def['id_field']]
     last_modified = None
@@ -158,9 +160,10 @@ def patch_internal(resource, payload=None, concurrency_check=False,
         else:
             validation = validator.validate_update(updates, object_id,
                                                    original)
+            updates = validator.document
+
         if validation:
             # Apply coerced values
-            updates = validator.document
 
             # sneak in a shadow copy if it wasn't already there
             late_versioning_catch(original, resource)
