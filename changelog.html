@@ -62,6 +62,8 @@
 (Mugur Rus).</li>
 <li>New: <tt class="docutils literal"><span class="pre">OPLOG_CHANGE_METHODS</span></tt> is a list of HTTP methods which operations will
 include changes into the OpLog (mmizotin).</li>
+<li>Fix: Serialize inside <a href="#id2"><span class="problematic" id="id3">*</span></a>of and <a href="#id4"><span class="problematic" id="id5">*</span></a>of_type rules new in Cerberus 0.9. Closes #692
+(Arnau Orriols).</li>
 <li>Fix: In <tt class="docutils literal"><span class="pre">patch_internal</span></tt> Validator is not se twhen <tt class="docutils literal"><span class="pre">skip_validation</span></tt> is
 <tt class="docutils literal"><span class="pre">true</span></tt> (Stratos Gerakakis).</li>
 <li>Fix: Skip any null value from serialization (Arnau Orriols).</li>
@@ -331,7 +333,7 @@ document. For example, <tt class="docutils literal"><span class="pre">['a.b.c',<
 <li><p class="first">Fix: add handling of sub-resource resolving for PUT method (Olivier Poitrey).</p>
 </li>
 <li><p class="first">Fix: <tt class="docutils literal"><span class="pre">dependencies</span></tt> rule would mistakenly validate documents when target
-fields happened to also have a <a href="#id2"><span class="problematic" id="id3">``</span></a>default``&nbsp;value.</p>
+fields happened to also have a <a href="#id6"><span class="problematic" id="id7">``</span></a>default``&nbsp;value.</p>
 </li>
 <li><p class="first">Fix: According to RFC2617 the separator should be (=) instead of (:). This
 caused at least Chrome not to prompt user for the credentials, and not to
