@@ -897,7 +897,7 @@ Limitations
 ~~~~~~~~~~~
 Currently we support embedding of documents by references located in any
 subdocuments (nested dicts and lists). For example, a query
-``/invoices?/embedded={"user.friends":1}`` will return a document with ``user``
+``/invoices/?embedded={"user.friends":1}`` will return a document with ``user``
 and all his ``friends`` embedded, but only if ``user`` is a subdocument and
 ``friends`` is a list of reference (it could be a list of dicts, nested
 dict, etc.). This feature is about serialization on GET requests. There's no
