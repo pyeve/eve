@@ -241,7 +241,7 @@ class TokenAuth(BasicAuth):
                               string or a list of roles.
         :param resource: resource being requested.
         """
-	if request.authorization:
+        if request.authorization:
        	    auth = request.authorization.username 
         else:
             auth = request.headers.get('Authorization').strip()
