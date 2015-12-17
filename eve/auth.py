@@ -241,8 +241,13 @@ class TokenAuth(BasicAuth):
                               string or a list of roles.
         :param resource: resource being requested.
         """
-        auth = request.authorization
-        return auth and self.check_auth(auth.username, allowed_roles, resource,
+	if request.authorization:
+       	    auth = request.authorization.username 
+        else:
+            auth = request.headers.get('Authorization').strip()
+            if auth.startswith('Token') or auth.startswith('token'):
+                auth = auth.split(" ")[1] 
+        return auth and self.check_auth(auth, allowed_roles, resource,
                                         method)
 
 
