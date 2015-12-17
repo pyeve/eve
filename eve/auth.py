@@ -241,8 +241,13 @@ class TokenAuth(BasicAuth):
                               string or a list of roles.
         :param resource: resource being requested.
         """
-        auth = request.authorization.username if hasattr(request.authorization, 'username') else None
-        # Werkzeug parse_authorization does not handle "Authorization: <token>" or "Authorization: Token <token>" headers, therefore they should be explicitly handled
+        auth = None
+        if hasattr(request.authorization, 'username'):
+            auth = request.authorization.username
+        # Werkzeug parse_authorization does not handle
+        # "Authorization: <token>" or
+        # "Authorization: Token <token>"
+        # headers, therefore they should be explicitly handled
         if not auth and request.headers.get('Authorization'):
             auth = request.headers.get('Authorization').strip()
             if auth.startswith('Token') or auth.startswith('token'):
