@@ -1318,6 +1318,29 @@ of the database collection. It is a dictionary with four allowed keys:
                                 For more informations on sort and filters see
                                 :ref:`filters`.
 
+``aggregate``                   Aggregation expression. When ``aggregate`` is 
+                                used all other settings in this table are
+                                ignored, except ``source``. The endpoint will be
+                                read-only and no item lookup will be available.
+
+                                The pipeline syntax must match the one
+                                supported by PyMongo. For more informations see
+                                `PyMongo Aggregation Examples`_ and the
+                                official `MongoDB Aggregation Framework`_
+                                documentation.
+
+``aggregate_options``           Options for the aggregation command. Must be
+                                a dictionary with one or more of these keys: 
+                                
+                                - ``allowDiskUse`` (bool)
+                                - ``maxTimeMS`` (int)
+                                - ``batchSize`` (int)
+                                - ``useCursor`` (bool)
+
+                                You only need to set ``aggregate_options`` if
+                                you want to change any of `PyMongo aggregation
+                                defaults`_. 
+
 =============================== ==============================================
 
 .. _filter:
@@ -1416,3 +1439,6 @@ read access open to the public.
 .. _`MongoDB URI`: http://docs.mongodb.org/manual/reference/connection-string/#Connections-StandardConnectionStringFormat
 .. _ReadPreference: http://api.mongodb.org/python/current/api/pymongo/read_preferences.html#pymongo.read_preferences.ReadPreference
 .. _PyMongo: http://api.mongodb.org/python/current/api/pymongo/collection.html#pymongo.collection.Collection.create_index
+.. _`PyMongo Aggregation Examples`: http://api.mongodb.org/python/current/examples/aggregation.html#aggregation-framework
+.. _`MongoDB Aggregation Framework`: https://docs.mongodb.org/v3.0/applications/aggregation/
+.. _`PyMongo aggregation defaults`: http://api.mongodb.org/python/current/api/pymongo/collection.html#pymongo.collection.Collection.aggregate

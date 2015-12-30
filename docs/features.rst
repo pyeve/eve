@@ -1893,6 +1893,36 @@ authorization settings are honored, so internal resources or resources for
 which a request does not have read authentication will not be accessible at the
 schema endpoint. By default, ``SCHEMA_ENDPOINT`` is set to ``None``.
 
+.. _aggregation:
+
+MongoDB Aggregation Framework
+-----------------------------
+Support for the `MongoDB Aggregation Framework`_ is built-in. All you have to
+do is set the appropriate configuration settings. In the example below (taken
+from PyMongo) we’ll perform a simple aggregation to count the number of
+occurrences for each tag in the tags array, across the entire collection. To
+achieve this we need to pass in three operations to the pipeline. First, we
+need to unwind the tags array, then group by the tags and sum them up, finally
+we sort by count.
+
+As python dictionaries don’t maintain order you should use ``SON`` or
+collections ``OrderedDict`` where explicit ordering is required eg ``$sort``:
+
+::
+
+    posts = {
+        'datasource': {
+            'aggregate': [
+                {"$unwind": "$tags"}, 
+                {"$group": {"_id": "$tags", "count": {"$sum": 1}}}, 
+                {"$sort": SON([("count", -1), ("_id", -1)])}
+                ]
+            }
+        }
+
+You can also set all options natively supported by PyMongo. For more
+informations on aggregation see :ref:`datasource`.
+
 MongoDB and SQL Support
 ------------------------
 Support for single or multiple MongoDB database/servers comes out of the box.
@@ -1933,3 +1963,4 @@ for unittesting_ and an `extensive documentation`_.
 .. _`extensions page`: http://python-eve.org/extensions
 .. _source: http://en.wikipedia.org/wiki/JSONP
 .. _`LogRecord attributes`: https://docs.python.org/2/library/logging.html#logrecord-attributes 
+.. _`MongoDB Aggregation Framework`: https://docs.mongodb.org/v3.0/applications/aggregation/
