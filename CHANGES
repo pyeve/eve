@@ -14,7 +14,7 @@ Version 0.6.2
 - New: ``OPLOG_CHANGE_METHODS`` is a list of HTTP methods which operations will
   include changes into the OpLog (mmizotin).
 
-- Fix: Serialize inside *of and *of_type rules new in Cerberus 0.9. Closes #692
+- Fix: Serialize inside ``of`` and ``of_type`` rules new in Cerberus 0.9. Closes #692
   (Arnau Orriols).
 - Fix: In ``patch_internal`` Validator is not se twhen ``skip_validation`` is
   ``true`` (Stratos Gerakakis).
