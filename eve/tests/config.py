@@ -268,6 +268,9 @@ class TestConfig(TestBase):
         self.assertEqual(datasource['source'], resource)
         self.assertEqual(datasource['filter'], None)
 
+        self.assertEqual(datasource['aggregate'], None)
+        self.assertEqual(datasource['aggregate_options'], None)
+
     def test_validate_roles(self):
         for resource in self.domain:
             self.assertValidateRoles(resource, 'allowed_roles')
