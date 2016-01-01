@@ -18,6 +18,7 @@ Version 0.6.2
   (Arnau Orriols).
 - Fix: In ``patch_internal`` Validator is not se twhen ``skip_validation`` is
   ``true`` (Stratos Gerakakis).
+- Fix: Add missing serializer for fields of type ``number``(Arnau Orriols).
 - Fix: Skip any null value from serialization (Arnau Orriols).
 - Fix: When ``SOFT_DELETE`` is active an exclusive ``datasource.projection``
   causes a ``500`` error. Closes #752.
