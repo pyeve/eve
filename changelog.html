@@ -55,17 +55,23 @@
 <p>Here you can see the full list of changes between each Eve release.</p>
 <div class="section" id="in-development">
 <h2>In Development<a class="headerlink" href="#in-development" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="version-0-6-2">
-<h3>Version 0.6.2<a class="headerlink" href="#version-0-6-2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="version-0-7">
+<h3>Version 0.7<a class="headerlink" href="#version-0-7" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>New: Query parameters not recognised by Eve are now returned in HATEOAS URLs
 (Mugur Rus).</li>
 <li>New: <tt class="docutils literal"><span class="pre">OPLOG_CHANGE_METHODS</span></tt> is a list of HTTP methods which operations will
 include changes into the OpLog (mmizotin).</li>
+</ul>
+</div>
+<div class="section" id="version-0-6-2">
+<h3>Version 0.6.2<a class="headerlink" href="#version-0-6-2" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
 <li>Fix: Serialize inside <tt class="docutils literal"><span class="pre">of</span></tt> and <tt class="docutils literal"><span class="pre">of_type</span></tt> rules new in Cerberus 0.9. Closes #692
 (Arnau Orriols).</li>
 <li>Fix: In <tt class="docutils literal"><span class="pre">patch_internal</span></tt> Validator is not se twhen <tt class="docutils literal"><span class="pre">skip_validation</span></tt> is
 <tt class="docutils literal"><span class="pre">true</span></tt> (Stratos Gerakakis).</li>
+<li>Fix: Add missing serializer for fields of type <tt class="docutils literal"><span class="pre">number</span></tt> (Arnau Orriols).</li>
 <li>Fix: Skip any null value from serialization (Arnau Orriols).</li>
 <li>Fix: When <tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt> is active an exclusive <tt class="docutils literal"><span class="pre">datasource.projection</span></tt>
 causes a <tt class="docutils literal"><span class="pre">500</span></tt> error. Closes #752.</li>
@@ -1309,6 +1315,7 @@ signature, allowing for further subclassing.</li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#in-development">In Development</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-7">Version 0.7</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#version-0-6-2">Version 0.6.2</a></li>
 </ul>
 </li>
@@ -1378,7 +1385,7 @@ Artwork by <a href="http://kalamun.org">Kalamun</a> © 2013
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015. A <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
+      &copy;2016. A <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
       
     </div>
 
