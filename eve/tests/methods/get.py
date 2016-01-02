@@ -1033,6 +1033,12 @@ class TestGet(TestBase):
         etag = item.get(self.app.config['ETAG'])
         self.assertTrue(etag is not None)
 
+    def test_get_aggregate_not_implemented(self):
+        datasource = self.domain[self.known_resource]['datasource']
+        datasource['aggregate'] = [{"$project": {"title": 0}}]
+        _, status = self.get(self.known_resource)
+        self.assert500(status)
+
 
 class TestGetItem(TestBase):
 

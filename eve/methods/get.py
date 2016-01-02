@@ -87,6 +87,21 @@ def get(resource, **lookup):
        JSON formatted.
     """
 
+    datasource = config.DOMAIN[resource]['datasource']
+    aggregation_expression = datasource.get('aggregate')
+
+    if aggregation_expression:
+        options = datasource.get('aggregate_options')
+        return _perform_aggregate(resource, aggregation_expression, options)
+    else:
+        return _perform_find(resource, lookup)
+
+
+def _perform_aggregate(resource, expression, options):
+    raise NotImplementedError
+
+
+def _perform_find(resource, lookup):
     documents = []
     response = {}
     etag = None

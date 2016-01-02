@@ -136,6 +136,21 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
+    def aggregate(self, resource, expression, options):
+        """ Perform an aggregation on the resource datasource and returns
+        the result. Only implent this if the underlying db engine supports
+        aggregation operations.
+
+        :param resource: resource being accessed. You should then use
+                         the ``datasource`` helper function to retrieve
+                         the db collection/table consumed by the resource.
+        :param expression: aggregation expression to be executed.
+        :param options: aggregation options to be considered.
+
+        .. versionadded:: 0.7
+        """
+        raise NotImplementedError
+
     def find_one(self, resource, req, **lookup):
         """ Retrieves a single document/record. Consumed when a request hits an
         item endpoint (`/people/id/`).
