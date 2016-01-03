@@ -373,6 +373,22 @@ class Mongo(DataLayer):
         )
         return documents
 
+    def aggregate(self, resource, expression, options={}):
+        """
+        .. versionadded:: 0.7
+        """
+        if options is None:
+            options = {}
+
+        options['useCursor'] = True
+
+        datasource, _, _, _ = self.datasource(resource)
+
+        return self.pymongo(resource).db[datasource].aggregate(
+            expression,
+            **options
+        )
+
     def insert(self, resource, doc_or_docs):
         """ Inserts a document into a resource collection.
 

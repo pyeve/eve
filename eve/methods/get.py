@@ -98,10 +98,23 @@ def get(resource, **lookup):
 
 
 def _perform_aggregate(resource, expression, options):
-    raise NotImplementedError
+    """
+    .. versionadded:: 0.7
+    """
+    cursor = app.data.aggregate(resource, expression, options)
+    response = {}
+    documents =[]
+    for document in cursor:
+        documents.append(document)
+
+    response[config.ITEMS] = documents
+    return response, None, None, 200, []
 
 
 def _perform_find(resource, lookup):
+    """
+    .. versionadded:: 0.7
+    """
     documents = []
     response = {}
     etag = None
