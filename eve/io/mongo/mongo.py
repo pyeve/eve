@@ -380,8 +380,6 @@ class Mongo(DataLayer):
         if options is None:
             options = {}
 
-        options['useCursor'] = True
-
         datasource, _, _, _ = self.datasource(resource)
 
         return self.pymongo(resource).db[datasource].aggregate(

@@ -4,6 +4,7 @@ from io import BytesIO
 import simplejson as json
 from datetime import datetime
 from bson import ObjectId
+from bson.son import SON
 from werkzeug.datastructures import ImmutableMultiDict
 from eve.tests import TestBase
 from eve.tests.utils import DummyEvent
@@ -1013,6 +1014,44 @@ class TestGet(TestBase):
         self.assertEqual(response['_items'][0]['parent_product'],
                          parent_product_sku)
 
+    def test_get_aggregatation_endpoint(self):
+
+        _db = self.connection[MONGO_DBNAME]
+        _db.aggregate_test.insert_many(
+            [
+                {"x": 1, "tags": ["dog", "cat"]},
+                {"x": 2, "tags": ["cat"]},
+                {"x": 2, "tags": ["mouse", "cat", "dog"]},
+                {"x": 3, "tags": []}
+            ]
+        )
+
+        self.app.register_resource(
+            'aggregate_test',
+            {
+                'datasource': {
+                    'aggregate': [
+                        {"$unwind": "$tags"},
+                        {"$group": {"_id": "$tags", "count": {"$sum": 1}}},
+                        {"$sort": SON([("count", -1), ("_id", -1)])}
+                    ]
+                }
+            }
+        )
+
+        response, status = self.get('aggregate_test')
+        self.assert200(status)
+        docs = response['_items']
+        self.assertEqual(len(docs), 3)
+
+        def assertOutput(doc, count, id):
+            self.assertEqual(doc['count'], count)
+            self.assertEqual(doc['_id'], id)
+
+        assertOutput(docs[0], 3, 'cat')
+        assertOutput(docs[1], 2, 'dog')
+        assertOutput(docs[2], 1, 'mouse')
+
     def assertGet(self, response, status, resource=None):
         self.assert200(status)
 
@@ -1032,13 +1071,6 @@ class TestGet(TestBase):
 
         etag = item.get(self.app.config['ETAG'])
         self.assertTrue(etag is not None)
-
-    def test_getaggregate_not_implemented(self):
-        datasource = self.domain[self.known_resource]['datasource']
-        datasource['aggregate'] = [{"$project": {"name": 1, "_id":0}}]
-        response, status = self.get(self.known_resource)
-        import ipdb; ipdb.set_trace()  # XXX BREAKPOINT
-        self.assert200(status)
 
 
 class TestGetItem(TestBase):
