@@ -1100,8 +1100,21 @@ class TestGetItem(TestBase):
         r = self.test_client.get(self.item_id_url)
         etag = r.headers.get('ETag')
         self.assertTrue(etag is not None)
+
+        # test that ETag is compliant to RFC 7232-2.3 and #794 is fixed.
+        self.assertTrue(etag[0] == '"')
+        self.assertTrue(etag[-1] == '"')
+
         r = self.test_client.get(self.item_id_url,
                                  headers=[('If-None-Match', etag)])
+        self.assert304(r.status_code)
+        self.assertTrue(not r.get_data())
+
+        # test that we also support doublequote-less etags, for legacy
+        # reasons. See #794.
+        r = self.test_client.get(self.item_id_url,
+                                 headers=[('If-None-Match',
+                                           etag.replace('"',''))])
         self.assert304(r.status_code)
         self.assertTrue(not r.get_data())
 

@@ -211,6 +211,12 @@ class TestPatch(TestBase):
                                    headers=headers)
         self.assertTrue('Etag' in r.headers)
 
+        # test that ETag is compliant to RFC 7232-2.3 and #794 is fixed.
+        etag = r.headers['ETag']
+
+        self.assertTrue(etag[0] == '"')
+        self.assertTrue(etag[-1] == '"')
+
     def test_patch_nested(self):
         changes = {'location.city': 'a nested city',
                    'location.address': 'a nested address'}
@@ -239,7 +245,7 @@ class TestPatch(TestBase):
         raw_r = self.test_client.get(self.item_id_url)
         r, status = self.parse_response(raw_r)
         self.assert200(status)
-        self.assertEqual(raw_r.headers.get('ETag'),
+        self.assertEqual(raw_r.headers.get('ETag').replace('"', ''),
                          patch_response[ETAG])
         if isinstance(fields, str):
             return r[fields]

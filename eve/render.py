@@ -107,6 +107,9 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     :param etag: ETag header value.
     :param status: response status.
 
+    .. versionchanged:: 0.7
+       ETag value now surrounded by double quotes. Closes #794.
+
     .. versionchanged:: 0.6
        JSONP Support.
 
@@ -176,7 +179,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
 
     # etag and last-modified
     if etag:
-        resp.headers.add('ETag', etag)
+        resp.headers.add('ETag', '"' + etag + '"')
     if last_modified:
         resp.headers.add('Last-Modified', date_to_rfc1123(last_modified))
 
