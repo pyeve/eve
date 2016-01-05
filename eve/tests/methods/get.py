@@ -1114,7 +1114,7 @@ class TestGetItem(TestBase):
         # reasons. See #794.
         r = self.test_client.get(self.item_id_url,
                                  headers=[('If-None-Match',
-                                           etag.replace('"',''))])
+                                           etag.replace('"', ''))])
         self.assert304(r.status_code)
         self.assertTrue(not r.get_data())
 
