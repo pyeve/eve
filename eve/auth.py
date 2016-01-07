@@ -226,13 +226,10 @@ class TokenAuth(BasicAuth):
         raise NotImplementedError
 
     def authenticate(self):
-        """ Returns a standard a 401 response that enables basic auth.
-        Override if you want to change the response and/or the realm.
+        """ Returns a standard a 401. Override if you want to change the
+        response.
         """
-        resp = Response(None, 401, {'WWW-Authenticate': 'Basic realm="%s"' %
-                                    __package__})
-        abort(401, description='Please provide proper credentials',
-              response=resp)
+        abort(401, description='Please provide proper credentials')
 
     def authorized(self, allowed_roles, resource, method):
         """ Validates the the current request is allowed to pass through.
