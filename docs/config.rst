@@ -1318,28 +1318,32 @@ of the database collection. It is a dictionary with four allowed keys:
                                 For more informations on sort and filters see
                                 :ref:`filters`.
 
-``aggregate``                   Aggregation expression. When ``aggregate`` is 
-                                used all other settings in this table are
-                                ignored, except ``source``. The endpoint will be
+``aggregation``                 Aggregation pipeline and options. When used all
+                                other ``datasource`` settings are ignored,
+                                except ``source``. The endpoint will be
                                 read-only and no item lookup will be available.
+                                Defaults to ``None``.
 
-                                The pipeline syntax must match the one
-                                supported by PyMongo. For more informations see
-                                `PyMongo Aggregation Examples`_ and the
-                                official `MongoDB Aggregation Framework`_
-                                documentation.
+                                This is a dictionary with one or more of the
+                                following keys:
 
-``aggregate_options``           Options for the aggregation command. Must be
-                                a dictionary with one or more of these keys: 
+                                - ``pipeline``. The aggregation pipeline. 
+                                  Syntax must match the one supported by
+                                  PyMongo. For more informations see `PyMongo
+                                  Aggregation Examples`_ and the official
+                                  `MongoDB Aggregation Framework`_
+                                  documentation. 
+
+                                - ``options``. Aggregation options. Must be
+                                  a dictionary with one or more of these keys: 
                                 
-                                - ``allowDiskUse`` (bool)
-                                - ``maxTimeMS`` (int)
-                                - ``batchSize`` (int)
-                                - ``useCursor`` (bool)
+                                    - ``allowDiskUse`` (bool)
+                                    - ``maxTimeMS`` (int)
+                                    - ``batchSize`` (int)
+                                    - ``useCursor`` (bool)
 
-                                You only need to set ``aggregate_options`` if
-                                you want to change any of `PyMongo aggregation
-                                defaults`_. 
+                                You only need to set ``options`` if you want to
+                                change any of `PyMongo aggregation defaults`_. 
 
 =============================== ==============================================
 
