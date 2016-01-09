@@ -9,8 +9,10 @@ In Development
 Version 0.6.2
 ~~~~~~~~~~~~~
 
-- Fix: Serialize inside ``of`` and ``of_type`` rules new in Cerberus 0.9. Closes #692
-  (Arnau Orriols).
+- Fix: startup crash when both ``SOFT_DELETE`` and ``ALLOW_UNKNOWN`` are
+  enabled. Closes #800.
+- Fix: Serialize inside ``of`` and ``of_type`` rules new in Cerberus 0.9.
+  Closes #692 (Arnau Orriols).
 - Fix: In ``patch_internal`` Validator is not se twhen ``skip_validation`` is
   ``true`` (Stratos Gerakakis).
 - Fix: Add missing serializer for fields of type ``number``(Arnau Orriols).
