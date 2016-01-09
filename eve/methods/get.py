@@ -88,22 +88,24 @@ def get(resource, **lookup):
     """
 
     datasource = config.DOMAIN[resource]['datasource']
-    aggregation_expression = datasource.get('aggregate')
+    aggregation = datasource.get('aggregation')
 
-    if aggregation_expression:
-        options = datasource.get('aggregate_options')
-        return _perform_aggregate(resource, aggregation_expression, options)
+    if aggregation:
+        return _perform_aggregation(resource, aggregation['pipeline'],
+                                    aggregation['options'])
     else:
         return _perform_find(resource, lookup)
 
 
-def _perform_aggregate(resource, expression, options):
+def _perform_aggregation(resource, pipeline, options):
     """
     .. versionadded:: 0.7
     """
-    cursor = app.data.aggregate(resource, expression, options)
     response = {}
     documents =[]
+
+    cursor = app.data.aggregate(resource, pipeline, options)
+
     for document in cursor:
         documents.append(document)
 

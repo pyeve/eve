@@ -373,17 +373,14 @@ class Mongo(DataLayer):
         )
         return documents
 
-    def aggregate(self, resource, expression, options={}):
+    def aggregate(self, resource, pipeline, options):
         """
         .. versionadded:: 0.7
         """
-        if options is None:
-            options = {}
-
         datasource, _, _, _ = self.datasource(resource)
 
         return self.pymongo(resource).db[datasource].aggregate(
-            expression,
+            pipeline,
             **options
         )
 

@@ -1912,13 +1912,15 @@ collections ``OrderedDict`` where explicit ordering is required eg ``$sort``:
 
     posts = {
         'datasource': {
-            'aggregate': [
-                {"$unwind": "$tags"}, 
-                {"$group": {"_id": "$tags", "count": {"$sum": 1}}}, 
-                {"$sort": SON([("count", -1), ("_id", -1)])}
+            'aggregation': {
+                'pipeline': [
+                    {"$unwind": "$tags"}, 
+                    {"$group": {"_id": "$tags", "count": {"$sum": 1}}}, 
+                    {"$sort": SON([("count", -1), ("_id", -1)])}
                 ]
             }
         }
+    }
 
 You can also set all options natively supported by PyMongo. For more
 informations on aggregation see :ref:`datasource`.

@@ -1014,7 +1014,7 @@ class TestGet(TestBase):
         self.assertEqual(response['_items'][0]['parent_product'],
                          parent_product_sku)
 
-    def test_get_aggregatation_endpoint(self):
+    def test_get_aggregation_endpoint(self):
 
         _db = self.connection[MONGO_DBNAME]
         _db.aggregate_test.insert_many(
@@ -1027,14 +1027,15 @@ class TestGet(TestBase):
         )
 
         self.app.register_resource(
-            'aggregate_test',
-            {
+            'aggregate_test', {
                 'datasource': {
-                    'aggregate': [
-                        {"$unwind": "$tags"},
-                        {"$group": {"_id": "$tags", "count": {"$sum": 1}}},
-                        {"$sort": SON([("count", -1), ("_id", -1)])}
-                    ]
+                    'aggregation': {
+                        'pipeline': [
+                            {"$unwind": "$tags"},
+                            {"$group": {"_id": "$tags", "count": {"$sum": 1}}},
+                            {"$sort": SON([("count", -1), ("_id", -1)])}
+                        ],
+                    }
                 }
             }
         )

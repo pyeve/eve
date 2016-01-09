@@ -136,7 +136,7 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
-    def aggregate(self, resource, expression, options):
+    def aggregate(self, resource, pipeline, options):
         """ Perform an aggregation on the resource datasource and returns
         the result. Only implent this if the underlying db engine supports
         aggregation operations.
@@ -144,7 +144,7 @@ class DataLayer(object):
         :param resource: resource being accessed. You should then use
                          the ``datasource`` helper function to retrieve
                          the db collection/table consumed by the resource.
-        :param expression: aggregation expression to be executed.
+        :param pipeline: aggregation pipeline to be executed.
         :param options: aggregation options to be considered.
 
         .. versionadded:: 0.7

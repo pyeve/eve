@@ -623,12 +623,12 @@ class Eve(Flask, Events):
 
         self._set_resource_projection(ds, schema, settings)
 
-        ds.setdefault('aggregate_options', None)
-        aggregate = ds.setdefault('aggregate', None)
+        aggregation = ds.setdefault('aggregation', None)
+        if aggregation:
+            aggregation.setdefault('options', {})
 
-        # endpoints serving aggregation queries are read-only by default
-        # and do not support item lookup.
-        if aggregate:
+            # endpoints serving aggregation queries are read-only and do not
+            # support item lookup.
             settings['resource_methods'] = ['GET']
             settings['item_lookup'] = False
 
