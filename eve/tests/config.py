@@ -11,6 +11,18 @@ from eve.io.mongo import Mongo, Validator
 
 
 class TestConfig(TestBase):
+    def test_allow_unknown_with_soft_delete(self):
+        my_settings = {
+            'ALLOW_UNKNOWN': True,
+            'SOFT_DELETE': True,
+            'DOMAIN': {'contacts': {}}
+        }
+        try:
+            self.app = Eve(settings=my_settings)
+        except TypeError:
+            self.fail("ALLOW_UNKNOWN and SOFT_DELETE enabled should not cause "
+                      "a crash.")
+
     def test_default_import_name(self):
         self.assertEqual(self.app.import_name, eve.__package__)
 

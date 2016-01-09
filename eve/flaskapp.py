@@ -501,6 +501,10 @@ class Eve(Flask, Events):
     def _set_resource_defaults(self, resource, settings):
         """ Low-level method which sets default values for one resource.
 
+        .. versionchanged:: 0.6.2
+           Fix: startup crash when both SOFT_DELETE and ALLOW_UNKNOWN are True.
+
+           (#722).
         .. versionchanged:: 0.6.1
            Fix: inclusive projection defined for a datasource is ignored
            (#722).
@@ -623,7 +627,8 @@ class Eve(Flask, Events):
             projection = None
         ds.setdefault('projection', projection)
 
-        if settings['soft_delete'] is True and not exclusion:
+        if settings['soft_delete'] is True and not exclusion and \
+                ds['projection'] is not None:
             ds['projection'][self.config['DELETED']] = 1
 
         # 'defaults' helper set contains the names of fields with default
