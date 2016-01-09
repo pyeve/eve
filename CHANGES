@@ -25,6 +25,8 @@ Version 0.7
 Version 0.6.2
 ~~~~~~~~~~~~~
 
+- Fix: the ``__init__.py`` ``ITEM_URL`` does not match default_settings.py.
+  Closes #786 (Ralph Smith).
 - Fix: startup crash when both ``SOFT_DELETE`` and ``ALLOW_UNKNOWN`` are
   enabled. Closes #800.
 - Fix: Serialize inside ``of`` and ``of_type`` rules new in Cerberus 0.9.
