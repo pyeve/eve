@@ -475,11 +475,11 @@ of the resource on the server. Consumers are not allowed to edit (<tt class="doc
 overwriting items with obsolete versions.</p>
 <p>Consider the following workflow:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;Content-Type: application/json&quot;</span> -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d <span class="s1">&#39;{&quot;firstname&quot;: &quot;ronald&quot;}&#39;</span>
-<span class="go">HTTP/1.1 403 FORBIDDEN</span>
+<span class="go">HTTP/1.1 428 PRECONDITION REQUIRED</span>
 </pre></div>
 </div>
 <p>We attempted an edit (<tt class="docutils literal"><span class="pre">PATCH</span></tt>), but we did not provide an <tt class="docutils literal"><span class="pre">ETag</span></tt> for the
-item so we got a <tt class="docutils literal"><span class="pre">403</span> <span class="pre">FORBIDDEN</span></tt> back. Let&#8217;s try again:</p>
+item so we got a <tt class="docutils literal"><span class="pre">428</span> <span class="pre">PRECONDITION</span> <span class="pre">REQUIRED</span></tt> back. Let&#8217;s try again:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -H <span class="s2">&quot;If-Match: 1234567890123456789012345678901234567890&quot;</span> -H <span class="s2">&quot;Content-Type: application/json&quot;</span> -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d <span class="s1">&#39;{&quot;firstname&quot;: &quot;ronald&quot;}&#39;</span>
 <span class="go">HTTP/1.1 412 PRECONDITION FAILED</span>
 </pre></div>

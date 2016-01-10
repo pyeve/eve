@@ -62,18 +62,23 @@
 (Mugur Rus).</li>
 <li>New: <tt class="docutils literal"><span class="pre">OPLOG_CHANGE_METHODS</span></tt> is a list of HTTP methods which operations will
 include changes into the OpLog (mmizotin).</li>
-<li>Change: ETag response header now conforms to RFC 7232/2.3 and is surrounded by
-double quotes. Please note that this might break client code as previously
-we were not returning double quotes sorrounded ETag headers. Closes #794.</li>
+<li>Change: Return <tt class="docutils literal"><span class="pre">428</span> <span class="pre">Precondition</span> <span class="pre">Required</span></tt> instead of a generic <tt class="docutils literal"><span class="pre">403</span>
+<span class="pre">Forbidden</span></tt> when the <tt class="docutils literal"><span class="pre">If-Match</span></tt> request header is missing (Arnau Orriols).</li>
+<li>Change: ETag response header now conforms to RFC 7232/2.3 and is surrounded
+by double quotes. Closes #794.</li>
 <li>Fix: ETag request headers which conform to RFC 7232/2.3 (double quoted value)
-are now properly processed. Also addresses #794.</li>
+are now properly processed. Addresses #794.</li>
 </ul>
 </div>
 <div class="section" id="version-0-6-2">
 <h3>Version 0.6.2<a class="headerlink" href="#version-0-6-2" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Fix: Serialize inside <tt class="docutils literal"><span class="pre">of</span></tt> and <tt class="docutils literal"><span class="pre">of_type</span></tt> rules new in Cerberus 0.9. Closes #692
-(Arnau Orriols).</li>
+<li>Fix: the <tt class="docutils literal"><span class="pre">__init__.py</span></tt> <tt class="docutils literal"><span class="pre">ITEM_URL</span></tt> does not match default_settings.py.
+Closes #786 (Ralph Smith).</li>
+<li>Fix: startup crash when both <tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt> and <tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt> are
+enabled. Closes #800.</li>
+<li>Fix: Serialize inside <tt class="docutils literal"><span class="pre">of</span></tt> and <tt class="docutils literal"><span class="pre">of_type</span></tt> rules new in Cerberus 0.9.
+Closes #692 (Arnau Orriols).</li>
 <li>Fix: In <tt class="docutils literal"><span class="pre">patch_internal</span></tt> Validator is not se twhen <tt class="docutils literal"><span class="pre">skip_validation</span></tt> is
 <tt class="docutils literal"><span class="pre">true</span></tt> (Stratos Gerakakis).</li>
 <li>Fix: Add missing serializer for fields of type <tt class="docutils literal"><span class="pre">number</span></tt> (Arnau Orriols).</li>
