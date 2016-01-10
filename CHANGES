@@ -20,7 +20,7 @@ Version 0.7
   by double quotes. Closes #794.
 
 - Fix: ETag request headers which conform to RFC 7232/2.3 (double quoted value)
-  are now properly processed. Also addresses #794.
+  are now properly processed. Addresses #794.
 
 
 Version 0.6.2
