@@ -14,9 +14,10 @@ Version 0.7
 - New: ``OPLOG_CHANGE_METHODS`` is a list of HTTP methods which operations will
   include changes into the OpLog (mmizotin).
 
-- Change: ETag response header now conforms to RFC 7232/2.3 and is surrounded by
-  double quotes. Please note that this might break client code as previously
-  we were not returning double quotes sorrounded ETag headers. Closes #794.
+- Change: Return ``428 Precondition Required`` instead of a generic ``403
+  Forbidden`` when the ``If-Match`` request header is missing (Arnau Orriols).
+- Change: ETag response header now conforms to RFC 7232/2.3 and is surrounded
+  by double quotes. Closes #794.
 
 - Fix: ETag request headers which conform to RFC 7232/2.3 (double quoted value)
   are now properly processed. Also addresses #794.

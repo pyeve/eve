@@ -116,7 +116,7 @@ VALIDATION_ERROR_AS_LIST = False
 
 # codes for which we want to return a standard response which includes
 # a JSON body with the status, code, and description.
-STANDARD_ERRORS = [400, 401, 403, 404, 405, 406, 409, 410, 412, 422]
+STANDARD_ERRORS = [400, 401, 404, 405, 406, 409, 410, 412, 422, 428]
 
 # field returned on GET requests so we know if we have the latest copy even if
 # we access a specific version
