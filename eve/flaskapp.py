@@ -919,11 +919,11 @@ class Eve(Flask, Events):
             # add schema collections url
             self.add_url_rule(schema_url, 'schema_collection',
                               view_func=schema_collection_endpoint,
-                              methods=['GET'])
+                              methods=['GET', 'OPTIONS'])
             # add schema item url
             self.add_url_rule(schema_url + '/<resource>', 'schema_item',
                               view_func=schema_item_endpoint,
-                              methods=['GET'])
+                              methods=['GET', 'OPTIONS'])
 
     def __call__(self, environ, start_response):
         """ If HTTP_X_METHOD_OVERRIDE is included with the request and method
