@@ -585,6 +585,19 @@ uppercase.
                                     dedicated media endpoints. Defaults to
                                     ``regex("[a-f0-9]{24}")``.
 
+``MULTIPART_FORM_FIELDS_AS_JSON``   In case you are submitting your resource as
+                                    ``multipart/form-data`` all form data fields
+                                    will be submitted as strings, breaking any
+                                    validation rules you might have on the
+                                    resource fields. If you want to treat all
+                                    submitted form data as JSON strings you will
+                                    have to activate this setting. In that case
+                                    field validation will continue working
+                                    correctly. Read more about how the fields
+                                    should be formatted then, at
+                                    multipart_form_fields_as_json_.  Defaults to
+                                    ``False``.
+
 ``OPLOG``                           Set it to ``True`` to enable the :ref:`oplog`.
                                     Defaults to ``False``.
 

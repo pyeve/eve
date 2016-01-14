@@ -126,6 +126,10 @@ def payload():
     then returns the request payload as a dict. If request Content-Type is
     unsupported, aborts with a 400 (Bad Request).
 
+    .. versionchanged:: 0.7
+       Allow 'multipart/form-data' form fields to be JSON encoded, once the
+       MULTIPART_FORM_FIELDS_AS_JSON setting was been set.
+
     .. versionchanged:: 0.3
        Allow 'multipart/form-data' content type.
 
@@ -158,10 +162,25 @@ def payload():
             # merge form fields and request files, so we get a single payload
             # to be validated against the resource schema.
 
-            # list() is needed because Python3 items() returns a dict_view, not
-            # a list as in Python2.
-            return dict(list(request.form.to_dict().items()) +
-                        list(request.files.to_dict().items()))
+            if config.MULTIPART_FORM_FIELDS_AS_JSON:
+
+                formItems = dict(list(request.form.to_dict().items()))
+
+                for key in formItems.keys():
+                    try:
+                        formItems[key] = json.loads(formItems[key])
+                    except ValueError:
+                        formItems[key] = json.loads(
+                            '"{}"'.format(formItems[key]))
+
+                return dict(list(formItems.items()) +
+                            list(request.files.to_dict().items()))
+            else:
+                # list() is needed because Python3 items() returns a
+                # dict_view, not a list as in Python2.
+                return dict(list(request.form.to_dict().items()) +
+                            list(request.files.to_dict().items()))
+
         else:
             abort(400, description='No multipart/form-data supplied')
     else:

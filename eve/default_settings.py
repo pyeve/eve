@@ -195,6 +195,8 @@ MEDIA_ENDPOINT = 'media'
 MEDIA_URL = 'regex("[a-f0-9]{24}")'
 MEDIA_BASE_URL = None
 
+MULTIPART_FORM_FIELDS_AS_JSON = False
+
 SCHEMA_ENDPOINT = None
 
 # list of extra fields to be included with every POST response. This list

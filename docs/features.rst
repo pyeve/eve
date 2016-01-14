@@ -1452,6 +1452,35 @@ With curl we would ``POST`` like this:
 
     $ curl -F "name=john" -F "pic=@profile.jpg" http://example.com/accounts
 
+
+.. _multipart_form_fields_as_json:
+
+.. note:: 
+
+    If you are uploading media files as ``multipart/data-form`` all the
+    additional fields except the file fields will be treated as ``strings`` 
+    for all field validation purposes.  If you have already defined some of
+    the resource fields to be of different type (boolean, number, list etc)
+    the validation rules for these fields would fail, preventing you to
+    succesffully submit your resource.
+
+    If you still want to be able to perform field validation in this case, you 
+    will have to turn on ``MULTIPART_FORM_FIELDS_AS_JSON`` in your settings
+    file in order to treat the incoming fields as JSON encoded strings and still
+    be able to validate your fields.
+
+    Please note, that in case you indeed turn on ``MULTIPART_FORM_FIELDS_AS_JSON``
+    you will have to submit all resource fields as properly encoded JSON strings.
+
+    For example a ``number`` should be submited as '1234' (as you would normally 
+    expect). A ``boolean`` will have to be send as 'true' (note the lowercase 't').
+    A ``list`` of strings as '["abc", "xyz']'. And finally a ``string``, which is
+    the thing that will most likely trip, you will have to be submitted as '"abc"'
+    (note that it is surrounded with double quotes".  If ever in doubt if what you
+    are submitting is a valid JSON string you can try passing it from the JSON 
+    Validator at http://jsonlint.com/ to be sure that it is correct.
+
+ 
 For optimized performance files are stored in GridFS_ by default. Custom
 ``MediaStorage`` classes can be implemented and passed to the application to
 support alternative storage systems. A ``FileSystemMediaStorage`` class is in

@@ -22,6 +22,10 @@ Version 0.7
 - Fix: ETag request headers which conform to RFC 7232/2.3 (double quoted value)
   are now properly processed. Addresses #794.
 
+- Fix: Incoming resource parameters that were submitted through
+  multipart/form-data are correctly validated, instead of assumed that they
+  are all of type "string". Addresses #806 (Stratos Gerakakis)
+
 
 Version 0.6.2
 ~~~~~~~~~~~~~

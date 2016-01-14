@@ -518,6 +518,82 @@ class TestGet(TestBase):
             self.assertTrue('_created_on' in document)
             self.assertTrue('_the_etag' in document)
 
+    def test_get_embedded_media_validate_rest_of_fields(self):
+        """ test multipart/form-data resource fields that are JSON
+             encoded are validated correctly. #806
+        """
+
+        self.app.config['MULTIPART_FORM_FIELDS_AS_JSON'] = True
+        resource_with_media = {
+            'image_file': {
+                'type': 'media'
+            },
+            'some_text': {
+                'type': 'string'
+            },
+            'some_boolean': {
+                'type': 'boolean'
+            },
+            'some_number': {
+                'type': 'number'
+            },
+            'some_list': {
+                'type': 'list',
+                'schema': {'type': 'string'}
+            }
+        }
+        self.app.register_resource('res_img', {'schema': resource_with_media})
+
+        img = b'some_image'
+
+        # fail on boolean validate
+        data = {'image_file': (BytesIO(img), 'test.txt'),
+                'some_boolean': '123'
+                }
+        response, status = self.parse_response(
+            self.test_client.post("res_img",
+                                  data=data,
+                                  headers=[('Content-Type',
+                                            'multipart/form-data')]))
+        self.assert422(status)
+
+        # fail on number validattion
+        data = {'image_file': (BytesIO(img), 'test.txt'),
+                'some_number': 'xyz'
+                }
+        response, status = self.parse_response(
+            self.test_client.post("res_img",
+                                  data=data,
+                                  headers=[('Content-Type',
+                                            'multipart/form-data')]))
+        self.assert422(status)
+
+        # fail on list validation
+        data = {'image_file': (BytesIO(img), 'test.txt'),
+                'some_list': "true"
+                }
+        response, status = self.parse_response(
+            self.test_client.post("res_img",
+                                  data=data,
+                                  headers=[('Content-Type',
+                                            'multipart/form-data')]))
+        self.assert422(status)
+
+        # validate all fields correctly
+        data = {'image_file': (BytesIO(img), 'test.txt'),
+                'some_text': '"abc"',
+                'some_boolean': 'true',
+                'some_number': '123',
+                'some_list': "[\"abc\", \"xyz\"]"
+                }
+        response, status = self.parse_response(
+            self.test_client.post("res_img",
+                                  data=data,
+                                  headers=[('Content-Type',
+                                            'multipart/form-data')]))
+        self.assert201(status)
+        self.app.config['MULTIPART_FORM_FIELDS_AS_JSON'] = False
+
     def test_get_embedded_media(self):
         """ test that embeedded images are properly rendered and #305 is fixed.
         """
@@ -1376,6 +1452,7 @@ class TestHead(TestBase):
 
 
 class TestEvents(TestBase):
+
     def setUp(self):
         super(TestEvents, self).setUp()
         self.devent = DummyEvent(lambda: True)
