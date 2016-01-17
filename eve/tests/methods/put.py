@@ -265,6 +265,19 @@ class TestPut(TestBase):
         self.assertEqual(db_value, test_value)
         self.assert200(status)
 
+    def test_put_internal_skip_validation(self):
+        # test that put_internal is available and working properly.
+        test_field = 'ref'
+        test_value = "9876543210987654321098765"
+        data = {test_field: test_value}
+        with self.app.test_request_context(self.item_id_url):
+            r, _, _, status = put_internal(
+                self.known_resource, data, concurrency_check=False,
+                skip_validation=True, **{'_id': self.item_id})
+        db_value = self.compare_put_with_get(test_field, r)
+        self.assertEqual(db_value, test_value)
+        self.assert200(status)
+
     def test_put_etag_header(self):
         # test that Etag is always includer with response header. See #562.
         changes = {"ref": "1234567890123456789012345"}
