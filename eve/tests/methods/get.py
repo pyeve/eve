@@ -1033,6 +1033,25 @@ class TestGet(TestBase):
         etag = item.get(self.app.config['ETAG'])
         self.assertTrue(etag is not None)
 
+    def test_url_prefix_config_negative(self):
+        """Check that changing url prefix does not result in an unchanged api
+        url.
+        """
+        self.app.config['URL_PREFIX'] = 'api'
+        print(self.known_resource_url)
+        result = self.test_client.get(self.known_resource_url)
+        print(result)
+        self.assertNotEqual(result._status_code, 200)
+
+    def test_url_prefix_config(self):
+        """Check that changing url prefix does results in a correctly changed
+        api url.
+        """
+        self.app.config['URL_PREFIX'] = 'api'
+        print(self.known_resource_url)
+        result = self.test_client.get('/api' + self.known_resource_url)
+        self.assertEqual(result._status_code, 200)
+
 
 class TestGetItem(TestBase):
 
