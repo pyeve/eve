@@ -217,7 +217,7 @@ only so let&#8217;s update the endpoint definition accordingly.</p>
      <span class="c"># &#39;/accounts/&lt;ObjectId&gt;&#39;. We define  an additional read-only entry</span>
      <span class="c"># point accessible at &#39;/accounts/&lt;username&gt;&#39;.</span>
      <span class="s">&#39;additional_lookup&#39;</span><span class="p">:</span> <span class="p">{</span>
-         <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;[\w]+&#39;</span><span class="p">,</span>
+         <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;regex(&quot;[\w]+&quot;)&#39;</span><span class="p">,</span>
          <span class="s">&#39;field&#39;</span><span class="p">:</span> <span class="s">&#39;username&#39;</span><span class="p">,</span>
      <span class="p">},</span>
 
@@ -390,7 +390,7 @@ user roles.</p>
      <span class="c"># &#39;/accounts/&lt;ObjectId&gt;&#39;. We define  an additional read-only entry</span>
      <span class="c"># point accessible at &#39;/accounts/&lt;username&gt;&#39;.</span>
      <span class="s">&#39;additional_lookup&#39;</span><span class="p">:</span> <span class="p">{</span>
-         <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;[\w]+&#39;</span><span class="p">,</span>
+         <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;regex(&quot;[\w]+&quot;)&#39;</span><span class="p">,</span>
          <span class="s">&#39;field&#39;</span><span class="p">:</span> <span class="s">&#39;username&#39;</span><span class="p">,</span>
      <span class="p">},</span>
 
@@ -497,7 +497,7 @@ definition accordingly:</p>
      <span class="c"># &#39;/accounts/&lt;ObjectId&gt;&#39;. We define  an additional read-only entry</span>
      <span class="c"># point accessible at &#39;/accounts/&lt;username&gt;&#39;.</span>
      <span class="s">&#39;additional_lookup&#39;</span><span class="p">:</span> <span class="p">{</span>
-         <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;[\w]+&#39;</span><span class="p">,</span>
+         <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;regex(&quot;[\w]+&quot;)&#39;</span><span class="p">,</span>
          <span class="s">&#39;field&#39;</span><span class="p">:</span> <span class="s">&#39;username&#39;</span><span class="p">,</span>
      <span class="p">},</span>
 

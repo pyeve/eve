@@ -183,7 +183,7 @@ only so let's update the endpoint definition accordingly.
         # '/accounts/<ObjectId>'. We define  an additional read-only entry 
         # point accessible at '/accounts/<username>'. 
         'additional_lookup': {
-            'url': '[\w]+',
+            'url': 'regex("[\w]+")',
             'field': 'username',
         },
 
@@ -373,7 +373,7 @@ user roles.
         # '/accounts/<ObjectId>'. We define  an additional read-only entry 
         # point accessible at '/accounts/<username>'. 
         'additional_lookup': {
-            'url': '[\w]+',
+            'url': 'regex("[\w]+")',
             'field': 'username',
         },
 
@@ -488,7 +488,7 @@ definition accordingly:
         # '/accounts/<ObjectId>'. We define  an additional read-only entry 
         # point accessible at '/accounts/<username>'. 
         'additional_lookup': {
-            'url': '[\w]+',
+            'url': 'regex("[\w]+")',
             'field': 'username',
         },
 
