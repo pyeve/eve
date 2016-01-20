@@ -33,15 +33,23 @@ class MongoJSONEncoder(BaseJSONEncoder):
     """ Proprietary JSONEconder subclass used by the json render function.
     This is needed to address the encoding of special values.
 
+    .. versionchanged:: 0.6.2
+       Do not attempt to serialize callables. Closes #790.
+
     .. versionadded:: 0.2
     """
     def default(self, obj):
         if isinstance(obj, ObjectId):
             # BSON/Mongo ObjectId is rendered as a string
             return str(obj)
-        else:
-            # delegate rendering to base class method
-            return super(MongoJSONEncoder, self).default(obj)
+        if callable(obj):
+            # when SCHEMA_ENDPOINT is active, 'coerce' rule is likely to
+            # contain a lambda/callable which can't be jSON serialized
+            # (and we probably don't want it to be exposed anyway). See #790.
+            return "<callable>"
+
+        # delegate rendering to base class method
+        return super(MongoJSONEncoder, self).default(obj)
 
 
 class Mongo(DataLayer):
