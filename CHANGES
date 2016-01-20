@@ -9,6 +9,8 @@ In Development
 Version 0.6.2
 ~~~~~~~~~~~~~
 
+- Fix: CORS pre-flight requests malfunction on SCHEMA_ENDPOINT endpoint
+  (Valerie Coffman).
 - Fix: do not attempt to parse ``number`` values as strings when they are
   numerical (Nick Park).
 - Fix: the ``__init__.py`` ``ITEM_URL`` does not match default_settings.py.
