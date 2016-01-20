@@ -11,7 +11,7 @@ Version 0.7
 
 - New: Query parameters not recognised by Eve are now returned in HATEOAS URLs
   (Mugur Rus).
-- New: ``OPLOG_CHANGE_METHODS`` is a list of HTTP methods which operations will
+ New: ``OPLOG_CHANGE_METHODS`` is a list of HTTP methods which operations will
   include changes into the OpLog (mmizotin).
 
 - Change: Return ``428 Precondition Required`` instead of a generic ``403
@@ -49,6 +49,7 @@ Version 0.6.2
 - Update: Flask-PyMongo 0.4+ is now required.
 
 - Docs: fix some typos (Manquer, Patrick Decat).
+- Update license to 2016 (Prayag Verma)
 
 
 Stable

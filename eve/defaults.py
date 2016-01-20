@@ -10,7 +10,7 @@
     checked for a missing value, and if a value is missing the default is
     added.
 
-    :copyright: (c) 2015 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
