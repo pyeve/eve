@@ -26,6 +26,8 @@ Version 0.7
 Version 0.6.2
 ~~~~~~~~~~~~~
 
+- Fix: ``SCHEMA_ENDPOINT`` does not work when schema has lambda function as
+  ``coerce`` rule. Closes #790.
 - Fix: CORS pre-flight requests malfunction on ``SCHEMA_ENDPOINT`` endpoint
   (Valerie Coffman).
 - Fix: do not attempt to parse ``number`` values as strings when they are
