@@ -280,4 +280,10 @@ class TestRenders(TestBase):
         self.test_CORS_OPTIONS(url, methods)
         url = '%s%s/%s' % (prefix, self.known_resource_url, self.item_ref)
         methods = ['GET', 'OPTIONS']
-        self.test_CORS_OPTIONS(url, methods)
+
+    def test_CORS_OPTIONS_schema(self):
+        """ Test that CORS is also supported at SCHEMA_ENDPOINT """
+        self.app.config['SCHEMA_ENDPOINT'] = 'schema'
+        self.app._init_schema_endpoint()
+        methods = ['GET', 'OPTIONS']
+        self.test_CORS_OPTIONS('schema', methods)
