@@ -9,13 +9,10 @@ In Development
 Version 0.6.2
 ~~~~~~~~~~~~~
 
-<<<<<<< HEAD
 - Fix: CORS pre-flight requests malfunction on SCHEMA_ENDPOINT endpoint
-=======
 - Fix: ``SCHEMA_ENDPOINT`` does not work when schema has lambda function as
   ``coerce`` rule. Closes #790.
 - Fix: CORS pre-flight requests malfunction on ``SCHEMA_ENDPOINT`` endpoint
->>>>>>> e2e339a... Fix SCHEMA_ENDPOINT crash when lambda used w/'coerce' rule
   (Valerie Coffman).
 - Fix: do not attempt to parse ``number`` values as strings when they are
   numerical (Nick Park).
@@ -36,6 +33,7 @@ Version 0.6.2
 - Update: Flask-PyMongo 0.4+ is now required.
 
 - Docs: fix some typos (Manquer, Patrick Decat).
+- Update license to 2016 (Prayag Verma)
 
 
 Stable

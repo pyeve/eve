@@ -6,7 +6,7 @@
 
     Standard interface implemented by Eve data layers.
 
-    :copyright: (c) 2015 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 import datetime

@@ -7,7 +7,7 @@
     This module implements a Python-to-Mongo syntax parser. Allows the MongoDB
     data-layer to seamlessy respond to a Python-like query.
 
-    :copyright: (c) 2015 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 

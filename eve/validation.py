@@ -8,7 +8,7 @@
     datalayer-agnostic. Specialized Validator classes are implemented in the
     datalayer submodules.
 
-    :copyright: (c) 2015 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
