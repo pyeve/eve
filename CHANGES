@@ -26,7 +26,7 @@ Version 0.7
 Version 0.6.2
 ~~~~~~~~~~~~~
 
-- Fix: CORS pre-flight requests malfunction on SCHEMA_ENDPOINT endpoint
+- Fix: CORS pre-flight requests malfunction on ``SCHEMA_ENDPOINT`` endpoint
   (Valerie Coffman).
 - Fix: do not attempt to parse ``number`` values as strings when they are
   numerical (Nick Park).
