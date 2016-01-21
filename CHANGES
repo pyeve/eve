@@ -22,7 +22,9 @@ Version 0.6.2
   enabled. Closes #800.
 - Fix: Serialize inside ``of`` and ``of_type`` rules new in Cerberus 0.9.
   Closes #692 (Arnau Orriols).
-- Fix: In ``patch_internal`` Validator is not se twhen ``skip_validation`` is
+- Fix: In ``put_internal`` Validator is not set when ``skip_validation`` is
+  ``true`` (Wei Guan).
+- Fix: In ``patch_internal`` Validator is not set when ``skip_validation`` is
   ``true`` (Stratos Gerakakis).
 - Fix: Add missing serializer for fields of type ``number``(Arnau Orriols).
 - Fix: Skip any null value from serialization (Arnau Orriols).
