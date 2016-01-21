@@ -11,9 +11,8 @@ Version 0.7
 
 - New: Query parameters not recognised by Eve are now returned in HATEOAS URLs
   (Mugur Rus).
- New: ``OPLOG_CHANGE_METHODS`` is a list of HTTP methods which operations will
+- New: ``OPLOG_CHANGE_METHODS`` is a list of HTTP methods which operations will
   include changes into the OpLog (mmizotin).
-
 - Change: Return ``428 Precondition Required`` instead of a generic ``403
   Forbidden`` when the ``If-Match`` request header is missing (Arnau Orriols).
 - Change: ETag response header now conforms to RFC 7232/2.3 and is surrounded
