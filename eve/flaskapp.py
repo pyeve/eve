@@ -643,7 +643,7 @@ class Eve(Flask, Events):
 
         if settings['_media'] and not self.media:
             raise ConfigException('A media storage class of type '
-                                  ' eve.io.media.MediaStorage but be defined '
+                                  ' eve.io.media.MediaStorage must be defined '
                                   'for "media" fields to be properly stored.')
 
     def set_schema_defaults(self, schema, id_field):
