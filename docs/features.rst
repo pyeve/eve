@@ -1897,9 +1897,7 @@ schema endpoint. By default, ``SCHEMA_ENDPOINT`` is set to ``None``.
 
 MongoDB Aggregation Framework
 -----------------------------
-Support for the `MongoDB Aggregation Framework`_ is built-in. All you have to
-do is set the appropriate configuration settings. In the example below (taken
-from PyMongo) we’ll perform a simple aggregation to count the number of
+Support for the `MongoDB Aggregation Framework`_ is built-in. In the example below (taken from PyMongo) we’ll perform a simple aggregation to count the number of
 occurrences for each tag in the tags array, across the entire collection. To
 achieve this we need to pass in three operations to the pipeline. First, we
 need to unwind the tags array, then group by the tags and sum them up, finally
@@ -1921,6 +1919,34 @@ collections ``OrderedDict`` where explicit ordering is required eg ``$sort``:
             }
         }
     }
+
+The pipeline above is static. You have the option to allow for dynamic pipelines, whereas the client will directly influence the aggregation results. Let's update the pipeline a little bit:
+
+::
+
+    posts = {
+        'datasource': {
+            'aggregation': {
+                'pipeline': [
+                    {"$unwind": "$tags"}, 
+                    {"$group": {"_id": "$tags", "count": {"$sum": "$value"}}}, 
+                    {"$sort": SON([("count", -1), ("_id", -1)])}
+                ]
+            }
+        }
+    }
+
+As you can see the `count` field is now going to sum the value of ``$value``, which will be set by the client upon perfoming the request:
+
+::
+
+    $ curl -i http://example.com/posts?aggregate={"$value": 2}
+
+The request above will cause the aggregation to be executed on the server with
+a `count` field configured as if it was a static ``{"$sum": 2}``. The client
+simply adds the ``aggregate`` query parameter and then passes a dictionary with field/value pairs. Like with all other keywords, you can change
+``aggregate`` to a keyword of your liking, just set ``QUERY_AGGREGATION`` in
+your settings. 
 
 You can also set all options natively supported by PyMongo. For more
 informations on aggregation see :ref:`datasource`.
