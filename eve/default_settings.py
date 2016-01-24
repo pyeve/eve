@@ -210,6 +210,7 @@ QUERY_SORT = 'sort'
 QUERY_PAGE = 'page'
 QUERY_MAX_RESULTS = 'max_results'
 QUERY_EMBEDDED = 'embedded'
+QUERY_AGGREGATION = 'aggregate'
 
 HEADER_TOTAL_COUNT = 'X-Total-Count'
 

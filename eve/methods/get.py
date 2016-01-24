@@ -11,8 +11,12 @@
     :license: BSD, see LICENSE for more details.
 """
 import math
-from werkzeug import MultiDict
+
+import copy
+import json
 from flask import current_app as app, abort, request
+from werkzeug import MultiDict
+
 from .common import ratelimit, epoch, pre_event, resolve_embedded_fields, \
     build_response_document, resource_link, document_link, last_updated
 from eve.auth import requires_auth
@@ -101,10 +105,32 @@ def _perform_aggregation(resource, pipeline, options):
     """
     .. versionadded:: 0.7
     """
+    def parse_aggregation_stage(d, key, value):
+        for st_key, st_value in d.items():
+            if isinstance(st_value, dict):
+                parse_aggregation_stage(st_value, key, value)
+            if key == st_value:
+                d[st_key] = value
+
     response = {}
     documents =[]
+    req = parse_request(resource)
 
-    cursor = app.data.aggregate(resource, pipeline, options)
+    req_pipeline = copy.deepcopy(pipeline)
+    if req.aggregation:
+        try:
+            query = json.loads(req.aggregation)
+        except ValueError:
+            abort(400, description='Aggregation query could not be parsed.')
+
+        for key, value in query.items():
+            if key[0] != '$':
+                # TODO abort 400 with parse error? Silently ignore?
+                pass
+            for stage in req_pipeline:
+                parse_aggregation_stage(stage, key, value)
+
+    cursor = app.data.aggregate(resource, req_pipeline, options)
 
     for document in cursor:
         documents.append(document)

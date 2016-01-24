@@ -152,6 +152,9 @@ uppercase.
 
 ``QUERY_EMBEDDED``                  Key for the embedding query parameter. Defaults to ``embedded``.
 
+``QUERY_AGGREGATION``               Key for the aggregation query parameter. 
+                                    Defaults to ``aggregate``.
+
 ``DATE_FORMAT``                     A Python date format used to parse and render 
                                     datetime values. When serving requests,
                                     matching JSON strings will be parsed and

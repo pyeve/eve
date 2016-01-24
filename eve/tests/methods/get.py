@@ -1032,7 +1032,8 @@ class TestGet(TestBase):
                     'aggregation': {
                         'pipeline': [
                             {"$unwind": "$tags"},
-                            {"$group": {"_id": "$tags", "count": {"$sum": 1}}},
+                            {"$group": {"_id": "$tags", "count": {"$sum":
+                                                                  "$field1"}}},
                             {"$sort": SON([("count", -1), ("_id", -1)])}
                         ],
                     }
@@ -1040,18 +1041,38 @@ class TestGet(TestBase):
             }
         )
 
-        response, status = self.get('aggregate_test')
-        self.assert200(status)
-        docs = response['_items']
-        self.assertEqual(len(docs), 3)
+        response, status = self.get('aggregate_test?aggregate=ciao')
+        self.assert400(status)
 
         def assertOutput(doc, count, id):
             self.assertEqual(doc['count'], count)
             self.assertEqual(doc['_id'], id)
 
+        response, status = self.get('aggregate_test?aggregate={"$field1":1}')
+        self.assert200(status)
+        docs = response['_items']
+        self.assertEqual(len(docs), 3)
         assertOutput(docs[0], 3, 'cat')
         assertOutput(docs[1], 2, 'dog')
         assertOutput(docs[2], 1, 'mouse')
+
+        response, status = self.get('aggregate_test?aggregate={"$field1":2}')
+        self.assert200(status)
+        docs = response['_items']
+        self.assertEqual(len(docs), 3)
+        assertOutput(docs[0], 6, 'cat')
+        assertOutput(docs[1], 4, 'dog')
+        assertOutput(docs[2], 2, 'mouse')
+
+        # this will return 0 for all documents 'count' fields as no $field1
+        # will be gien with the query (actually, no query will be there at all)
+        response, status = self.get('aggregate_test')
+        self.assert200(status)
+        docs = response['_items']
+        self.assertEqual(len(docs), 3)
+        self.assertEqual(docs[0]['count'], 0)
+        self.assertEqual(docs[1]['count'], 0)
+        self.assertEqual(docs[2]['count'], 0)
 
     def assertGet(self, response, status, resource=None):
         self.assert200(status)
