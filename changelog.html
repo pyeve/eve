@@ -58,16 +58,12 @@
 <div class="section" id="version-0-7">
 <h3>Version 0.7<a class="headerlink" href="#version-0-7" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>New: Flask views (<tt class="docutils literal"><span class="pre">&#64;app.route</span></tt>) can now set <tt class="docutils literal"><span class="pre">mongo_prefix</span></tt> via Flask&#8217;s
+<tt class="docutils literal"><span class="pre">g</span></tt> object: <tt class="docutils literal"><span class="pre">g.mongo_prefix</span> <span class="pre">=</span> <span class="pre">'MONGO2'</span></tt> (Gustavo Vargas).</li>
 <li>New: Query parameters not recognised by Eve are now returned in HATEOAS URLs
 (Mugur Rus).</li>
-</ul>
-<blockquote>
-<div><dl class="docutils">
-<dt>New: <tt class="docutils literal"><span class="pre">OPLOG_CHANGE_METHODS</span></tt> is a list of HTTP methods which operations will</dt>
-<dd>include changes into the OpLog (mmizotin).</dd>
-</dl>
-</div></blockquote>
-<ul class="simple">
+<li>New: <tt class="docutils literal"><span class="pre">OPLOG_CHANGE_METHODS</span></tt> is a list of HTTP methods which operations will
+include changes into the OpLog (mmizotin).</li>
 <li>Change: Return <tt class="docutils literal"><span class="pre">428</span> <span class="pre">Precondition</span> <span class="pre">Required</span></tt> instead of a generic <tt class="docutils literal"><span class="pre">403</span>
 <span class="pre">Forbidden</span></tt> when the <tt class="docutils literal"><span class="pre">If-Match</span></tt> request header is missing (Arnau Orriols).</li>
 <li>Change: ETag response header now conforms to RFC 7232/2.3 and is surrounded
