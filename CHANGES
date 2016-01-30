@@ -9,6 +9,8 @@ In Development
 Version 0.7
 ~~~~~~~~~~~
 
+- New: Flask views (``@app.route``) can now set ``mongo_prefix`` via Flask's
+  ``g`` object: ``g.mongo_prefix = 'MONGO2'`` (Gustavo Vargas).
 - New: Query parameters not recognised by Eve are now returned in HATEOAS URLs
   (Mugur Rus).
 - New: ``OPLOG_CHANGE_METHODS`` is a list of HTTP methods which operations will
