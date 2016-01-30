@@ -226,13 +226,10 @@ class TokenAuth(BasicAuth):
         raise NotImplementedError
 
     def authenticate(self):
-        """ Returns a standard a 401 response that enables basic auth.
-        Override if you want to change the response and/or the realm.
+        """ Returns a standard a 401. Override if you want to change the
+        response.
         """
-        resp = Response(None, 401, {'WWW-Authenticate': 'Basic realm="%s"' %
-                                    __package__})
-        abort(401, description='Please provide proper credentials',
-              response=resp)
+        abort(401, description='Please provide proper credentials')
 
     def authorized(self, allowed_roles, resource, method):
         """ Validates the the current request is allowed to pass through.
@@ -241,8 +238,18 @@ class TokenAuth(BasicAuth):
                               string or a list of roles.
         :param resource: resource being requested.
         """
-        auth = request.authorization
-        return auth and self.check_auth(auth.username, allowed_roles, resource,
+        auth = None
+        if hasattr(request.authorization, 'username'):
+            auth = request.authorization.username
+        # Werkzeug parse_authorization does not handle
+        # "Authorization: <token>" or
+        # "Authorization: Token <token>"
+        # headers, therefore they should be explicitly handled
+        if not auth and request.headers.get('Authorization'):
+            auth = request.headers.get('Authorization').strip()
+            if auth.startswith('Token') or auth.startswith('token'):
+                auth = auth.split(' ')[1]
+        return auth and self.check_auth(auth, allowed_roles, resource,
                                         method)
 
 
