@@ -803,7 +803,17 @@ class Mongo(DataLayer):
         This allows Auth classes (for instance) to override default settings to
         use a user-reserved db instance.
 
+        Even a standard Flask view can set the mongo_prefix:
+
+            from flask import g
+
+            g.mongo_prefix = 'MONGO2'
+
         :param resource: endpoint for which a mongo prefix is needed.
+
+        ..versionchanged:: 0.7
+          Allow standard Flask views (@app.route) to set the mongo_prefix on
+          their own.
 
         ..versionadded:: 0.6
         """
