@@ -113,7 +113,7 @@ def _perform_aggregation(resource, pipeline, options):
                 d[st_key] = value
 
     response = {}
-    documents =[]
+    documents = []
     req = parse_request(resource)
 
     req_pipeline = copy.deepcopy(pipeline)
@@ -125,7 +125,6 @@ def _perform_aggregation(resource, pipeline, options):
 
         for key, value in query.items():
             if key[0] != '$':
-                # TODO abort 400 with parse error? Silently ignore?
                 pass
             for stage in req_pipeline:
                 parse_aggregation_stage(stage, key, value)

@@ -1074,6 +1074,14 @@ class TestGet(TestBase):
         self.assertEqual(docs[1]['count'], 0)
         self.assertEqual(docs[2]['count'], 0)
 
+        # malformed field name is ignored
+        response, status = self.get('aggregate_test?aggregate={"field1":1}')
+        self.assert200(status)
+
+        # unknown field is ignored
+        response, status = self.get('aggregate_test?aggregate={"$unknown":1}')
+        self.assert200(status)
+
     def assertGet(self, response, status, resource=None):
         self.assert200(status)
 
