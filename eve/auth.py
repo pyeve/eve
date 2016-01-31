@@ -244,14 +244,16 @@ class TokenAuth(BasicAuth):
         auth = None
         if hasattr(request.authorization, 'username'):
             auth = request.authorization.username
+
         # Werkzeug parse_authorization does not handle
         # "Authorization: <token>" or
         # "Authorization: Token <token>"
         # headers, therefore they should be explicitly handled
         if not auth and request.headers.get('Authorization'):
-            auth = request.headers.get('Authorization').strip()
-            if auth.startswith('Token') or auth.startswith('token'):
+            auth = request.headers.get('Authorization').strip().lower()
+            if auth.startswith('token'):
                 auth = auth.split(' ')[1]
+
         return auth and self.check_auth(auth, allowed_roles, resource,
                                         method)
 
