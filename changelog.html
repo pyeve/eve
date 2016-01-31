@@ -75,6 +75,10 @@ are now properly processed. Addresses #794.</li>
 <div class="section" id="version-0-6-2">
 <h3>Version 0.6.2<a class="headerlink" href="#version-0-6-2" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>Fix: TokenAuth. When the tokens are passed as &#8220;Authorization: &#8221; or
+&#8220;Authorization: Token &#8221; headers, werkzeug does not recognize them as valid
+authorization header, therefore the <tt class="docutils literal"><span class="pre">request.authorization</span></tt> field is empty
+(Luca Di Gaspero).</li>
 <li>Fix: <tt class="docutils literal"><span class="pre">SCHEMA_ENDPOINT</span></tt> does not work when schema has lambda function as
 <tt class="docutils literal"><span class="pre">coerce</span></tt> rule. Closes #790.</li>
 <li>Fix: CORS pre-flight requests malfunction on <tt class="docutils literal"><span class="pre">SCHEMA_ENDPOINT</span></tt> endpoint
