@@ -229,7 +229,10 @@ class TokenAuth(BasicAuth):
         """ Returns a standard a 401. Override if you want to change the
         response.
         """
-        abort(401, description='Please provide proper credentials')
+        resp = Response(None, 401, {'WWW-Authenticate': 'Basic realm="%s"' %
+                                    __package__})
+        abort(401, description='Please provide proper credentials',
+              response=resp)
 
     def authorized(self, allowed_roles, resource, method):
         """ Validates the the current request is allowed to pass through.
