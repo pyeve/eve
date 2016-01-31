@@ -27,6 +27,10 @@ Version 0.7
 Version 0.6.2
 ~~~~~~~~~~~~~
 
+- Fix: TokenAuth. When the tokens are passed as "Authorization: " or
+  "Authorization: Token " headers, werkzeug does not recognize them as valid
+  authorization header, therefore the ``request.authorization`` field is empty
+  (Luca Di Gaspero).
 - Fix: ``SCHEMA_ENDPOINT`` does not work when schema has lambda function as
   ``coerce`` rule. Closes #790.
 - Fix: CORS pre-flight requests malfunction on ``SCHEMA_ENDPOINT`` endpoint
