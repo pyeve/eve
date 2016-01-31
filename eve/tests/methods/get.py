@@ -1082,6 +1082,77 @@ class TestGet(TestBase):
         response, status = self.get('aggregate_test?aggregate={"$unknown":1}')
         self.assert200(status)
 
+    def test_get_aggregation_pagination(self):
+        _db = self.connection[MONGO_DBNAME]
+
+        num = 75
+        _db.aggregate_test.insert_many([{'x': x} for x in range(num)])
+
+        self.app.register_resource(
+            'aggregate_test', {
+                'datasource': {
+                    'aggregation': {
+                        'pipeline': [
+                            {"$sort": SON([("x", -1)])}
+                        ],
+                    }
+                }
+            }
+        )
+
+        # first page
+        response, status = self.get('aggregate_test')
+        self.assert200(status)
+
+        items = response['_items']
+        expected_length = self.app.config['PAGINATION_DEFAULT']
+        self.assertEqual(len(items), expected_length)
+
+        item, value = 0, num-1
+        self.assertEqual(items[item]['x'], value)
+        item, value = expected_length-1, num-expected_length
+        self.assertEqual(items[item]['x'], value)
+
+        # second page
+        response, status = self.get('aggregate_test?page=2')
+        self.assert200(status)
+
+        items = response['_items']
+        expected_length = self.app.config['PAGINATION_DEFAULT']
+        self.assertEqual(len(items), expected_length)
+
+        item, value = 0, num-1-self.app.config['PAGINATION_DEFAULT']
+        self.assertEqual(items[item]['x'], value)
+        item, value = expected_length-1, num-expected_length*2
+        self.assertEqual(items[item]['x'], value)
+
+        # third page
+        response, status = self.get('aggregate_test?page=3')
+        self.assert200(status)
+
+        items = response['_items']
+        expected_length = num - self.app.config['PAGINATION_DEFAULT']*2
+        self.assertEqual(len(items), expected_length)
+
+        item, value = 0, expected_length-1
+        self.assertEqual(items[item]['x'], value)
+
+        item, value = expected_length-1, 0
+        self.assertEqual(items[item]['x'], 0)
+
+        # pagination is disabled for the endpoint
+        self.domain['aggregate_test']['pagination'] = False
+        # hence we get all documents with a single request
+        response, status = self.get('aggregate_test')
+        self.assert200(status)
+        items = response['_items']
+        self.assertEqual(len(items), num)
+        # and pagination requests are ignored
+        response, status = self.get('aggregate_test?page=2')
+        self.assert200(status)
+        items = response['_items']
+        self.assertEqual(len(items), num)
+
     def assertGet(self, response, status, resource=None):
         self.assert200(status)
 
