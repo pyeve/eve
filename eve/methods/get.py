@@ -105,6 +105,11 @@ def _perform_aggregation(resource, pipeline, options):
     """
     .. versionadded:: 0.7
     """
+    # TODO move most of this down to the Mongo layer?
+
+    # TODO experiment with cursor.batch_size as alternative pagination
+    # implementation
+
     def parse_aggregation_stage(d, key, value):
         for st_key, st_value in d.items():
             if isinstance(st_value, dict):
@@ -129,12 +134,23 @@ def _perform_aggregation(resource, pipeline, options):
             for stage in req_pipeline:
                 parse_aggregation_stage(stage, key, value)
 
+    if req.max_results > 1:
+        limit = {"$limit": req.max_results}
+        skip = {"$skip": (req.page - 1) * req.max_results}
+        req_pipeline.append(skip)
+        req_pipeline.append(limit)
+
     cursor = app.data.aggregate(resource, req_pipeline, options)
 
     for document in cursor:
         documents.append(document)
 
     response[config.ITEMS] = documents
+
+    # PyMongo's CommandCursor does not return a count, so we cannot
+    # provide paination/total count info as we do with a normal (non-aggregate)
+    # GET request.
+
     return response, None, None, 200, []
 
 
