@@ -122,7 +122,7 @@ def deleteitem_internal(
         # update oplog if needed
         oplog_push(resource, marked_document, 'DELETE', id)
 
-   else:
+    else:
         # Delete the document for real
 
         # media cleanup
