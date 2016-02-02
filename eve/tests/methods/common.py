@@ -1,4 +1,5 @@
 from datetime import datetime
+import time
 
 import simplejson as json
 from bson import ObjectId
@@ -436,6 +437,24 @@ class TestOpLogEndpointEnabled(TestOpLogBase):
         self.assertEqual(len(r['_items']), 1)
         oplog_entry = r['_items'][0]
         self.assertOpLogEntry(oplog_entry, 'DELETE')
+
+    def test_soft_delete_oplog(self):
+        r, s = self.parse_response(self.test_client.get(self.item_id_url))
+        doc_date = r[config.LAST_UPDATED]
+        time.sleep(1)
+
+        self.domain[self.known_resource]['soft_delete'] = True
+
+        self.headers.append(('If-Match', self.item_etag))
+        r = self.test_client.delete(self.item_id_url,
+                                    headers=self.headers,
+                                    environ_base={'REMOTE_ADDR': '127.0.0.1'})
+        r, status = self.oplog_get()
+        self.assert200(status)
+        self.assertEqual(len(r['_items']), 1)
+        oplog_entry = r['_items'][0]
+        self.assertOpLogEntry(oplog_entry, 'DELETE')
+        self.assertTrue(doc_date != oplog_entry[config.LAST_UPDATED])
 
     def patch(self, url, data, headers=[], content_type='application/json'):
         headers.append(('Content-Type', content_type))

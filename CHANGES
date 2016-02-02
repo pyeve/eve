@@ -27,6 +27,9 @@ Version 0.7
 Version 0.6.2
 ~~~~~~~~~~~~~
 
+- Fix: when a document is soft deleted, the OPLOG `_updated` field is not the
+  time of the deletion but the time of the previous last update (Cyril
+  Bonnard).
 - Fix: TokenAuth. When the tokens are passed as "Authorization: " or
   "Authorization: Token " headers, werkzeug does not recognize them as valid
   authorization header, therefore the ``request.authorization`` field is empty
