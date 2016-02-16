@@ -9,6 +9,7 @@
     :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
+import inspect
 import os
 import sys
 
@@ -227,7 +228,9 @@ class Eve(Flask, Events):
             if os.path.isabs(self.settings):
                 pyfile = self.settings
             else:
-                abspath = os.path.abspath(os.path.dirname(sys.argv[0]))
+                abspath = inspect.getabsfile(
+                    inspect.currentframe().f_back.f_back)
+                absdir = os.path.dirname(abspath)
                 pyfile = os.path.join(abspath, self.settings)
             try:
                 self.config.from_pyfile(pyfile)
