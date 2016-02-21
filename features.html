@@ -1871,6 +1871,87 @@ authorization settings are honored, so internal resources or resources for
 which a request does not have read authentication will not be accessible at the
 schema endpoint. By default, <tt class="docutils literal"><span class="pre">SCHEMA_ENDPOINT</span></tt> is set to <tt class="docutils literal"><span class="pre">None</span></tt>.</p>
 </div>
+<div class="section" id="mongodb-aggregation-framework">
+<span id="aggregation"></span><h2>MongoDB Aggregation Framework<a class="headerlink" href="#mongodb-aggregation-framework" title="Permalink to this headline">¶</a></h2>
+<p>Support for the <a class="reference external" href="https://docs.mongodb.org/v3.0/applications/aggregation/">MongoDB Aggregation Framework</a> is built-in. In the example
+below (taken from PyMongo) we’ll perform a simple aggregation to count the
+number of occurrences for each tag in the tags array, across the entire
+collection. To achieve this we need to pass in three operations to the
+pipeline. First, we need to unwind the tags array, then group by the tags and
+sum them up, finally we sort by count.</p>
+<p>As python dictionaries don’t maintain order you should use <tt class="docutils literal"><span class="pre">SON</span></tt> or
+collections <tt class="docutils literal"><span class="pre">OrderedDict</span></tt> where explicit ordering is required eg <tt class="docutils literal"><span class="pre">$sort</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">posts</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;aggregation&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;pipeline&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s">&quot;$unwind&quot;</span><span class="p">:</span> <span class="s">&quot;$tags&quot;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&quot;$group&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;_id&quot;</span><span class="p">:</span> <span class="s">&quot;$tags&quot;</span><span class="p">,</span> <span class="s">&quot;count&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;$sum&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}}},</span>
+                <span class="p">{</span><span class="s">&quot;$sort&quot;</span><span class="p">:</span> <span class="n">SON</span><span class="p">([(</span><span class="s">&quot;count&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="s">&quot;_id&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)])}</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The pipeline above is static. You have the option to allow for dynamic
+pipelines, whereas the client will directly influence the aggregation results.
+Let&#8217;s update the pipeline a little bit:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">posts</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;aggregation&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;pipeline&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s">&quot;$unwind&quot;</span><span class="p">:</span> <span class="s">&quot;$tags&quot;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&quot;$group&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;_id&quot;</span><span class="p">:</span> <span class="s">&quot;$tags&quot;</span><span class="p">,</span> <span class="s">&quot;count&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;$sum&quot;</span><span class="p">:</span> <span class="s">&quot;$value&quot;</span><span class="p">}}},</span>
+                <span class="p">{</span><span class="s">&quot;$sort&quot;</span><span class="p">:</span> <span class="n">SON</span><span class="p">([(</span><span class="s">&quot;count&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="s">&quot;_id&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)])}</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>As you can see the <cite>count</cite> field is now going to sum the value of <tt class="docutils literal"><span class="pre">$value</span></tt>,
+which will be set by the client upon perfoming the request:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ curl -i http://example.com/posts?aggregate={&quot;$value&quot;: 2}
+</pre></div>
+</div>
+<p>The request above will cause the aggregation to be executed on the server with
+a <cite>count</cite> field configured as if it was a static <tt class="docutils literal"><span class="pre">{&quot;$sum&quot;:</span> <span class="pre">2}</span></tt>. The client
+simply adds the <tt class="docutils literal"><span class="pre">aggregate</span></tt> query parameter and then passes a dictionary with
+field/value pairs. Like with all other keywords, you can change <tt class="docutils literal"><span class="pre">aggregate</span></tt>
+to a keyword of your liking, just set <tt class="docutils literal"><span class="pre">QUERY_AGGREGATION</span></tt> in your settings.</p>
+<p>You can also set all options natively supported by PyMongo. For more
+informations on aggregation see <a class="reference internal" href="config.html#datasource"><em>Advanced Datasource Patterns</em></a>.</p>
+<div class="section" id="id7">
+<h3>Limitations<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<p><tt class="docutils literal"><span class="pre">HATEOAS</span></tt> is not available at aggregation endpoints. This should not
+be surprising as documents returned by these endpoints are aggregation results
+and do not reside on the database, so there is no static link available for them.</p>
+<p>Client pagination (<tt class="docutils literal"><span class="pre">?page=2</span></tt>) is enabled by default. This is currently
+achieved by injecting two additional stages (<tt class="docutils literal"><span class="pre">$limit</span></tt> first, then <tt class="docutils literal"><span class="pre">$skip</span></tt>)
+to the very end of the aggregation pipeline. You can turn pagination off by setting
+<tt class="docutils literal"><span class="pre">pagination</span></tt> to <tt class="docutils literal"><span class="pre">False</span></tt> for the endpoint. Keep in mind that, when pagination
+is disabled, all aggregation results are included with every response.
+Disabling pagination might be appropriate (and actually advisable) only if the
+expected response payload is not huge.</p>
+<p>Client sorting (<tt class="docutils literal"><span class="pre">?sort=field1</span></tt>) is not supported at aggregation endpoints.
+You can of course add one or more <tt class="docutils literal"><span class="pre">$sort</span></tt> stages to the pipeline, as we did
+with the example above. If you do add a <tt class="docutils literal"><span class="pre">$sort</span></tt> stage to the pipeline,
+consider adding it at the end of the pipeline. According to MongoDB&#8217;s <tt class="docutils literal"><span class="pre">$limit</span></tt>
+documentation (<a class="reference external" href="https://docs.mongodb.org/manual/reference/operator/aggregation/limit/">link</a>):</p>
+<blockquote>
+<div>When a <tt class="docutils literal"><span class="pre">$sort</span></tt> immediately precedes a <tt class="docutils literal"><span class="pre">$limit</span></tt> in the pipeline, the
+sort operation only maintains the top <strong>n</strong> results as it progresses, where
+<strong>n</strong> is the specified limit, and MongoDB only needs to store <strong>n</strong> items
+in memory.</div></blockquote>
+<p>As we just saw earlier, pagination adds a <tt class="docutils literal"><span class="pre">$limit</span></tt> stage to the end of the
+pipeline. So if pagination is enabled and <tt class="docutils literal"><span class="pre">$sort</span></tt> is the last stage of your
+pipeline, then the resulting combined pipeline should be optimized.</p>
+<p>A single endpoint cannot serve both regular and aggregation results. However,
+since it is possible to setup multiple endpoints all serving from the same
+datasource (see <a class="reference internal" href="config.html#source"><em>Multiple API Endpoints, One Datasource</em></a>), similar functionality can be easily achieved.</p>
+</div>
+</div>
 <div class="section" id="mongodb-and-sql-support">
 <h2>MongoDB and SQL Support<a class="headerlink" href="#mongodb-and-sql-support" title="Permalink to this headline">¶</a></h2>
 <p>Support for single or multiple MongoDB database/servers comes out of the box.
@@ -2018,6 +2099,10 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#the-schema-endpoint">The Schema Endpoint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mongodb-aggregation-framework">MongoDB Aggregation Framework</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Limitations</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#mongodb-and-sql-support">MongoDB and SQL Support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#powered-by-flask">Powered by Flask</a></li>
 </ul>

@@ -1893,6 +1893,101 @@ authorization settings are honored, so internal resources or resources for
 which a request does not have read authentication will not be accessible at the
 schema endpoint. By default, ``SCHEMA_ENDPOINT`` is set to ``None``.
 
+.. _aggregation:
+
+MongoDB Aggregation Framework
+-----------------------------
+Support for the `MongoDB Aggregation Framework`_ is built-in. In the example
+below (taken from PyMongo) we’ll perform a simple aggregation to count the
+number of occurrences for each tag in the tags array, across the entire
+collection. To achieve this we need to pass in three operations to the
+pipeline. First, we need to unwind the tags array, then group by the tags and
+sum them up, finally we sort by count.
+
+As python dictionaries don’t maintain order you should use ``SON`` or
+collections ``OrderedDict`` where explicit ordering is required eg ``$sort``:
+
+::
+
+    posts = {
+        'datasource': {
+            'aggregation': {
+                'pipeline': [
+                    {"$unwind": "$tags"}, 
+                    {"$group": {"_id": "$tags", "count": {"$sum": 1}}}, 
+                    {"$sort": SON([("count", -1), ("_id", -1)])}
+                ]
+            }
+        }
+    }
+
+The pipeline above is static. You have the option to allow for dynamic
+pipelines, whereas the client will directly influence the aggregation results.
+Let's update the pipeline a little bit:
+
+::
+
+    posts = {
+        'datasource': {
+            'aggregation': {
+                'pipeline': [
+                    {"$unwind": "$tags"}, 
+                    {"$group": {"_id": "$tags", "count": {"$sum": "$value"}}}, 
+                    {"$sort": SON([("count", -1), ("_id", -1)])}
+                ]
+            }
+        }
+    }
+
+As you can see the `count` field is now going to sum the value of ``$value``,
+which will be set by the client upon perfoming the request:
+
+::
+
+    $ curl -i http://example.com/posts?aggregate={"$value": 2}
+
+The request above will cause the aggregation to be executed on the server with
+a `count` field configured as if it was a static ``{"$sum": 2}``. The client
+simply adds the ``aggregate`` query parameter and then passes a dictionary with
+field/value pairs. Like with all other keywords, you can change ``aggregate``
+to a keyword of your liking, just set ``QUERY_AGGREGATION`` in your settings. 
+
+You can also set all options natively supported by PyMongo. For more
+informations on aggregation see :ref:`datasource`.
+
+Limitations
+~~~~~~~~~~~
+``HATEOAS`` is not available at aggregation endpoints. This should not
+be surprising as documents returned by these endpoints are aggregation results
+and do not reside on the database, so there is no static link available for them. 
+
+Client pagination (``?page=2``) is enabled by default. This is currently
+achieved by injecting two additional stages (``$limit`` first, then ``$skip``)
+to the very end of the aggregation pipeline. You can turn pagination off by setting
+``pagination`` to ``False`` for the endpoint. Keep in mind that, when pagination
+is disabled, all aggregation results are included with every response.
+Disabling pagination might be appropriate (and actually advisable) only if the
+expected response payload is not huge.
+
+Client sorting (``?sort=field1``) is not supported at aggregation endpoints.
+You can of course add one or more ``$sort`` stages to the pipeline, as we did
+with the example above. If you do add a ``$sort`` stage to the pipeline,
+consider adding it at the end of the pipeline. According to MongoDB's ``$limit``
+documentation (link_):
+
+    When a ``$sort`` immediately precedes a ``$limit`` in the pipeline, the
+    sort operation only maintains the top **n** results as it progresses, where
+    **n** is the specified limit, and MongoDB only needs to store **n** items
+    in memory. 
+
+As we just saw earlier, pagination adds a ``$limit`` stage to the end of the
+pipeline. So if pagination is enabled and ``$sort`` is the last stage of your
+pipeline, then the resulting combined pipeline should be optimized.
+
+A single endpoint cannot serve both regular and aggregation results. However,
+since it is possible to setup multiple endpoints all serving from the same
+datasource (see :ref:`source`), similar functionality can be easily achieved.
+
 MongoDB and SQL Support
 ------------------------
 Support for single or multiple MongoDB database/servers comes out of the box.
@@ -1933,3 +2028,5 @@ for unittesting_ and an `extensive documentation`_.
 .. _`extensions page`: http://python-eve.org/extensions
 .. _source: http://en.wikipedia.org/wiki/JSONP
 .. _`LogRecord attributes`: https://docs.python.org/2/library/logging.html#logrecord-attributes 
+.. _`MongoDB Aggregation Framework`: https://docs.mongodb.org/v3.0/applications/aggregation/
+.. _link: https://docs.mongodb.org/manual/reference/operator/aggregation/limit/

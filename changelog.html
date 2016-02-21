@@ -58,6 +58,9 @@
 <div class="section" id="version-0-7">
 <h3>Version 0.7<a class="headerlink" href="#version-0-7" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>New: Support for MongoDB Aggregation Framework. Endpoints can respond with
+aggregation results. Clients can optionally influence aggregation
+results by using the new <tt class="docutils literal"><span class="pre">aggregate</span></tt> option: <tt class="docutils literal"><span class="pre">aggregate={&quot;$year&quot;:</span> <span class="pre">2015}</span></tt>.</li>
 <li>New: Flask views (<tt class="docutils literal"><span class="pre">&#64;app.route</span></tt>) can now set <tt class="docutils literal"><span class="pre">mongo_prefix</span></tt> via Flask&#8217;s
 <tt class="docutils literal"><span class="pre">g</span></tt> object: <tt class="docutils literal"><span class="pre">g.mongo_prefix</span> <span class="pre">=</span> <span class="pre">'MONGO2'</span></tt> (Gustavo Vargas).</li>
 <li>New: Query parameters not recognised by Eve are now returned in HATEOAS URLs
@@ -75,6 +78,9 @@ are now properly processed. Addresses #794.</li>
 <div class="section" id="version-0-6-2">
 <h3>Version 0.6.2<a class="headerlink" href="#version-0-6-2" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>Fix: when a document is soft deleted, the OPLOG <cite>_updated</cite> field is not the
+time of the deletion but the time of the previous last update (Cyril
+Bonnard).</li>
 <li>Fix: TokenAuth. When the tokens are passed as &#8220;Authorization: &#8221; or
 &#8220;Authorization: Token &#8221; headers, werkzeug does not recognize them as valid
 authorization header, therefore the <tt class="docutils literal"><span class="pre">request.authorization</span></tt> field is empty
