@@ -1984,6 +1984,10 @@ As we just saw earlier, pagination adds a ``$limit`` stage to the end of the
 pipeline. So if pagination is enabled and ``$sort`` is the last stage of your
 pipeline, then the resulting combined pipeline should be optimized.
 
+A single endpoint cannot serve both regular and aggregation results. However,
+since it is possible to setup multiple endpoints all serving from the same
+datasource (see :ref:`source`), similar functionality can be easily achieved.
+
 MongoDB and SQL Support
 ------------------------
 Support for single or multiple MongoDB database/servers comes out of the box.
