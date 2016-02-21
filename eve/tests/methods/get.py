@@ -1110,7 +1110,7 @@ class TestGet(TestBase):
 
         item, value = 0, num - 1
         self.assertEqual(items[item]['x'], value)
-        item, value = expected_length - 1, num-expected_length
+        item, value = expected_length - 1, num - expected_length
         self.assertEqual(items[item]['x'], value)
 
         # second page
@@ -1123,7 +1123,7 @@ class TestGet(TestBase):
 
         item, value = 0, num - 1 - self.app.config['PAGINATION_DEFAULT']
         self.assertEqual(items[item]['x'], value)
-        item, value = expected_length - 1, num-expected_length * 2
+        item, value = expected_length - 1, num - expected_length * 2
         self.assertEqual(items[item]['x'], value)
 
         # third page
@@ -1131,7 +1131,7 @@ class TestGet(TestBase):
         self.assert200(status)
 
         items = response['_items']
-        expected_length = num - self.app.config['PAGINATION_DEFAULT']*2
+        expected_length = num - self.app.config['PAGINATION_DEFAULT'] * 2
         self.assertEqual(len(items), expected_length)
 
         item, value = 0, expected_length - 1
