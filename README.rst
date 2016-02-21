@@ -68,6 +68,7 @@ Features
 * Internal Resources
 * Enhanced Logging
 * Operations Log
+* MongoDB Aggregation Framework
 * MongoDB and SQL Support
 * Powered by Flask
 

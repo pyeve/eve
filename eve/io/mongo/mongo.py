@@ -373,6 +373,17 @@ class Mongo(DataLayer):
         )
         return documents
 
+    def aggregate(self, resource, pipeline, options):
+        """
+        .. versionadded:: 0.7
+        """
+        datasource, _, _, _ = self.datasource(resource)
+
+        return self.pymongo(resource).db[datasource].aggregate(
+            pipeline,
+            **options
+        )
+
     def insert(self, resource, doc_or_docs):
         """ Inserts a document into a resource collection.
 

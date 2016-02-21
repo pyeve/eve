@@ -591,13 +591,52 @@ class Eve(Flask, Events):
         schema = settings.setdefault('schema', {})
         self.set_schema_defaults(schema, settings['id_field'])
 
-        datasource = {}
-        settings.setdefault('datasource', datasource)
+        # 'defaults' helper set contains the names of fields with default
+        # values in their schema definition.
+
+        # TODO support default values for embedded documents.
+        settings['defaults'] = build_defaults(schema)
+
+        # list of all media fields for the resource
+        settings['_media'] = [field for field, definition in schema.items() if
+                              definition.get('type') == 'media']
+
+        if settings['_media'] and not self.media:
+            raise ConfigException('A media storage class of type '
+                                  ' eve.io.media.MediaStorage but be defined '
+                                  'for "media" fields to be properly stored.')
+
+        self._set_resource_datasource(resource, schema, settings)
+
+    def _set_resource_datasource(self, resource, schema, settings):
+        """ Set the default values for the resource 'datasource' setting.
+
+        .. versionadded:: 0.7
+        """
+
+        settings.setdefault('datasource', {})
 
         ds = settings['datasource']
         ds.setdefault('source', resource)
         ds.setdefault('filter', None)
         ds.setdefault('default_sort', None)
+
+        self._set_resource_projection(ds, schema, settings)
+
+        aggregation = ds.setdefault('aggregation', None)
+        if aggregation:
+            aggregation.setdefault('options', {})
+
+            # endpoints serving aggregation queries are read-only and do not
+            # support item lookup.
+            settings['resource_methods'] = ['GET']
+            settings['item_lookup'] = False
+
+    def _set_resource_projection(self, ds, schema, settings):
+        """ Set datasource projection for a resource
+
+        .. versionadded:: 0.7
+        """
 
         projection = ds.get('projection', {})
 
@@ -608,7 +647,7 @@ class Eve(Flask, Events):
         # with automatic fields. Using both inclusion and exclusion will
         # be rejected by Mongo
         if not exclusion and len(schema) and \
-           settings['allow_unknown'] is False:
+                settings['allow_unknown'] is False:
             # enable retrieval of actual schema fields only. Eventual db
             # fields not included in the schema won't be returned.
             # despite projection, automatic fields are always included.

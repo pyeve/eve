@@ -4,6 +4,7 @@ from io import BytesIO
 import simplejson as json
 from datetime import datetime
 from bson import ObjectId
+from bson.son import SON
 from werkzeug.datastructures import ImmutableMultiDict
 from eve.tests import TestBase
 from eve.tests.utils import DummyEvent
@@ -1012,6 +1013,145 @@ class TestGet(TestBase):
         self.assertEqual(len(response['_links']), 2)
         self.assertEqual(response['_items'][0]['parent_product'],
                          parent_product_sku)
+
+    def test_get_aggregation_endpoint(self):
+
+        _db = self.connection[MONGO_DBNAME]
+        _db.aggregate_test.insert_many(
+            [
+                {"x": 1, "tags": ["dog", "cat"]},
+                {"x": 2, "tags": ["cat"]},
+                {"x": 2, "tags": ["mouse", "cat", "dog"]},
+                {"x": 3, "tags": []}
+            ]
+        )
+
+        self.app.register_resource(
+            'aggregate_test', {
+                'datasource': {
+                    'aggregation': {
+                        'pipeline': [
+                            {"$unwind": "$tags"},
+                            {"$group": {"_id": "$tags", "count": {"$sum":
+                                                                  "$field1"}}},
+                            {"$sort": SON([("count", -1), ("_id", -1)])}
+                        ],
+                    }
+                }
+            }
+        )
+
+        response, status = self.get('aggregate_test?aggregate=ciao')
+        self.assert400(status)
+
+        def assertOutput(doc, count, id):
+            self.assertEqual(doc['count'], count)
+            self.assertEqual(doc['_id'], id)
+
+        response, status = self.get('aggregate_test?aggregate={"$field1":1}')
+        self.assert200(status)
+        docs = response['_items']
+        self.assertEqual(len(docs), 3)
+        assertOutput(docs[0], 3, 'cat')
+        assertOutput(docs[1], 2, 'dog')
+        assertOutput(docs[2], 1, 'mouse')
+
+        response, status = self.get('aggregate_test?aggregate={"$field1":2}')
+        self.assert200(status)
+        docs = response['_items']
+        self.assertEqual(len(docs), 3)
+        assertOutput(docs[0], 6, 'cat')
+        assertOutput(docs[1], 4, 'dog')
+        assertOutput(docs[2], 2, 'mouse')
+
+        # this will return 0 for all documents 'count' fields as no $field1
+        # will be gien with the query (actually, no query will be there at all)
+        response, status = self.get('aggregate_test')
+        self.assert200(status)
+        docs = response['_items']
+        self.assertEqual(len(docs), 3)
+        self.assertEqual(docs[0]['count'], 0)
+        self.assertEqual(docs[1]['count'], 0)
+        self.assertEqual(docs[2]['count'], 0)
+
+        # malformed field name is ignored
+        response, status = self.get('aggregate_test?aggregate={"field1":1}')
+        self.assert200(status)
+
+        # unknown field is ignored
+        response, status = self.get('aggregate_test?aggregate={"$unknown":1}')
+        self.assert200(status)
+
+    def test_get_aggregation_pagination(self):
+        _db = self.connection[MONGO_DBNAME]
+
+        num = 75
+        _db.aggregate_test.insert_many([{'x': x} for x in range(num)])
+
+        self.app.register_resource(
+            'aggregate_test', {
+                'datasource': {
+                    'aggregation': {
+                        'pipeline': [
+                            {"$sort": SON([("x", -1)])}
+                        ],
+                    }
+                }
+            }
+        )
+
+        # first page
+        response, status = self.get('aggregate_test')
+        self.assert200(status)
+
+        items = response['_items']
+        expected_length = self.app.config['PAGINATION_DEFAULT']
+        self.assertEqual(len(items), expected_length)
+
+        item, value = 0, num-1
+        self.assertEqual(items[item]['x'], value)
+        item, value = expected_length-1, num-expected_length
+        self.assertEqual(items[item]['x'], value)
+
+        # second page
+        response, status = self.get('aggregate_test?page=2')
+        self.assert200(status)
+
+        items = response['_items']
+        expected_length = self.app.config['PAGINATION_DEFAULT']
+        self.assertEqual(len(items), expected_length)
+
+        item, value = 0, num-1-self.app.config['PAGINATION_DEFAULT']
+        self.assertEqual(items[item]['x'], value)
+        item, value = expected_length-1, num-expected_length*2
+        self.assertEqual(items[item]['x'], value)
+
+        # third page
+        response, status = self.get('aggregate_test?page=3')
+        self.assert200(status)
+
+        items = response['_items']
+        expected_length = num - self.app.config['PAGINATION_DEFAULT']*2
+        self.assertEqual(len(items), expected_length)
+
+        item, value = 0, expected_length-1
+        self.assertEqual(items[item]['x'], value)
+
+        item, value = expected_length-1, 0
+        self.assertEqual(items[item]['x'], 0)
+
+        # pagination is disabled for the endpoint
+        self.domain['aggregate_test']['pagination'] = False
+        # hence we get all documents with a single request
+        response, status = self.get('aggregate_test')
+        self.assert200(status)
+        items = response['_items']
+        self.assertEqual(len(items), num)
+        # and pagination requests are ignored
+        response, status = self.get('aggregate_test?page=2')
+        self.assert200(status)
+        items = response['_items']
+        self.assertEqual(len(items), num)
 
     def assertGet(self, response, status, resource=None):
         self.assert200(status)

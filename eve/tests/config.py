@@ -78,6 +78,7 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.config['QUERY_PAGE'], 'page')
         self.assertEqual(self.app.config['QUERY_MAX_RESULTS'], 'max_results')
         self.assertEqual(self.app.config['QUERY_EMBEDDED'], 'embedded')
+        self.assertEqual(self.app.config['QUERY_AGGREGATION'], 'aggregate')
 
         self.assertEqual(self.app.config['JSON_SORT_KEYS'], False)
         self.assertEqual(self.app.config['SOFT_DELETE'], False)
@@ -267,6 +268,8 @@ class TestConfig(TestBase):
                          dict((field, 1) for (field) in compare))
         self.assertEqual(datasource['source'], resource)
         self.assertEqual(datasource['filter'], None)
+
+        self.assertEqual(datasource['aggregation'], None)
 
     def test_validate_roles(self):
         for resource in self.domain:

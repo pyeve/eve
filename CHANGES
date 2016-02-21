@@ -9,6 +9,9 @@ In Development
 Version 0.7
 ~~~~~~~~~~~
 
+- New: Support for MongoDB Aggregation Framework. Endpoints can respond with
+  aggregation results. Clients can optionally influence aggregation
+  results by using the new ``aggregate`` option: ``aggregate={"$year": 2015}``.
 - New: Flask views (``@app.route``) can now set ``mongo_prefix`` via Flask's
   ``g`` object: ``g.mongo_prefix = 'MONGO2'`` (Gustavo Vargas).
 - New: Query parameters not recognised by Eve are now returned in HATEOAS URLs

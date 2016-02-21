@@ -11,8 +11,12 @@
     :license: BSD, see LICENSE for more details.
 """
 import math
-from werkzeug import MultiDict
+
+import copy
+import json
 from flask import current_app as app, abort, request
+from werkzeug import MultiDict
+
 from .common import ratelimit, epoch, pre_event, resolve_embedded_fields, \
     build_response_document, resource_link, document_link, last_updated
 from eve.auth import requires_auth
@@ -87,6 +91,73 @@ def get(resource, **lookup):
        JSON formatted.
     """
 
+    datasource = config.DOMAIN[resource]['datasource']
+    aggregation = datasource.get('aggregation')
+
+    if aggregation:
+        return _perform_aggregation(resource, aggregation['pipeline'],
+                                    aggregation['options'])
+    else:
+        return _perform_find(resource, lookup)
+
+
+def _perform_aggregation(resource, pipeline, options):
+    """
+    .. versionadded:: 0.7
+    """
+    # TODO move most of this down to the Mongo layer?
+
+    # TODO experiment with cursor.batch_size as alternative pagination
+    # implementation
+
+    def parse_aggregation_stage(d, key, value):
+        for st_key, st_value in d.items():
+            if isinstance(st_value, dict):
+                parse_aggregation_stage(st_value, key, value)
+            if key == st_value:
+                d[st_key] = value
+
+    response = {}
+    documents = []
+    req = parse_request(resource)
+
+    req_pipeline = copy.deepcopy(pipeline)
+    if req.aggregation:
+        try:
+            query = json.loads(req.aggregation)
+        except ValueError:
+            abort(400, description='Aggregation query could not be parsed.')
+
+        for key, value in query.items():
+            if key[0] != '$':
+                pass
+            for stage in req_pipeline:
+                parse_aggregation_stage(stage, key, value)
+
+    if req.max_results > 1:
+        limit = {"$limit": req.max_results}
+        skip = {"$skip": (req.page - 1) * req.max_results}
+        req_pipeline.append(skip)
+        req_pipeline.append(limit)
+
+    cursor = app.data.aggregate(resource, req_pipeline, options)
+
+    for document in cursor:
+        documents.append(document)
+
+    response[config.ITEMS] = documents
+
+    # PyMongo's CommandCursor does not return a count, so we cannot
+    # provide paination/total count info as we do with a normal (non-aggregate)
+    # GET request.
+
+    return response, None, None, 200, []
+
+
+def _perform_find(resource, lookup):
+    """
+    .. versionadded:: 0.7
+    """
     documents = []
     response = {}
     etag = None

@@ -152,6 +152,9 @@ uppercase.
 
 ``QUERY_EMBEDDED``                  Key for the embedding query parameter. Defaults to ``embedded``.
 
+``QUERY_AGGREGATION``               Key for the aggregation query parameter. 
+                                    Defaults to ``aggregate``.
+
 ``DATE_FORMAT``                     A Python date format used to parse and render 
                                     datetime values. When serving requests,
                                     matching JSON strings will be parsed and
@@ -1318,6 +1321,33 @@ of the database collection. It is a dictionary with four allowed keys:
                                 For more informations on sort and filters see
                                 :ref:`filters`.
 
+``aggregation``                 Aggregation pipeline and options. When used all
+                                other ``datasource`` settings are ignored,
+                                except ``source``. The endpoint will be
+                                read-only and no item lookup will be available.
+                                Defaults to ``None``.
+
+                                This is a dictionary with one or more of the
+                                following keys:
+
+                                - ``pipeline``. The aggregation pipeline. 
+                                  Syntax must match the one supported by
+                                  PyMongo. For more informations see `PyMongo
+                                  Aggregation Examples`_ and the official
+                                  `MongoDB Aggregation Framework`_
+                                  documentation. 
+
+                                - ``options``. Aggregation options. Must be
+                                  a dictionary with one or more of these keys: 
+                                
+                                    - ``allowDiskUse`` (bool)
+                                    - ``maxTimeMS`` (int)
+                                    - ``batchSize`` (int)
+                                    - ``useCursor`` (bool)
+
+                                You only need to set ``options`` if you want to
+                                change any of `PyMongo aggregation defaults`_. 
+
 =============================== ==============================================
 
 .. _filter:
@@ -1416,3 +1446,6 @@ read access open to the public.
 .. _`MongoDB URI`: http://docs.mongodb.org/manual/reference/connection-string/#Connections-StandardConnectionStringFormat
 .. _ReadPreference: http://api.mongodb.org/python/current/api/pymongo/read_preferences.html#pymongo.read_preferences.ReadPreference
 .. _PyMongo: http://api.mongodb.org/python/current/api/pymongo/collection.html#pymongo.collection.Collection.create_index
+.. _`PyMongo Aggregation Examples`: http://api.mongodb.org/python/current/examples/aggregation.html#aggregation-framework
+.. _`MongoDB Aggregation Framework`: https://docs.mongodb.org/v3.0/applications/aggregation/
+.. _`PyMongo aggregation defaults`: http://api.mongodb.org/python/current/api/pymongo/collection.html#pymongo.collection.Collection.aggregate
