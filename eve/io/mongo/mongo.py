@@ -415,23 +415,29 @@ class Mongo(DataLayer):
             doc_or_docs = [doc_or_docs]
 
         try:
-            return coll.insert_many(doc_or_docs).inserted_ids
-        except pymongo.errors.DuplicateKeyError as e:
-            abort(409, description=debug_error_message(
-                'pymongo.errors.DuplicateKeyError: %s' % e
-            ))
-        except pymongo.errors.InvalidOperation as e:
+            return coll.insert_many(doc_or_docs, ordered=True).inserted_ids
+        except pymongo.errors.BulkWriteError as e:
             self.app.logger.exception(e)
+
+            # since this is an ordered bulk operation, all remaining inserts
+            # are aborted. Be aware that if BULK_ENABLED is True and more than
+            # one document is included with the payload, some documents might
+            # have been successfully inserted, even if the operation was
+            # aborted.
+
+            # report a duplicate key error since this can probably be
+            # handled by the client.
+            for error in e.details['writeErrors']:
+                # amazingly enough, pymongo does not appear to be exposing
+                # error codes as constants.
+                if error['code'] == 11000:
+                    abort(409, description=debug_error_message(
+                        'Duplicate key error at index: %s, message: %s' % (
+                            error['index'], error['errmsg'])
+                    ))
+
             abort(500, description=debug_error_message(
-                'pymongo.errors.InvalidOperation: %s' % e
-            ))
-        except pymongo.errors.OperationFailure as e:
-            # most likely a 'w' (write_concern) setting which needs an
-            # existing ReplicaSet which doesn't exist. Please note that the
-            # update will actually succeed (a new ETag will be needed).
-            self.app.logger.exception(e)
-            abort(500, description=debug_error_message(
-                'pymongo.errors.OperationFailure: %s' % e
+                'pymongo.errors.BulkWriteError: %s' % e
             ))
 
     def _change_request(self, resource, id_, changes, original, replace=False):
