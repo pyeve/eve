@@ -9,6 +9,7 @@ In Development
 Version 0.6.2
 ~~~~~~~~~~~~~
 
+- Fix: ``409 Conflict`` not reported since upgrading to PyMongo 3. Closes #680.
 - Fix: when a document is soft deleted, the OPLOG `_updated` field is not the
   time of the deletion but the time of the previous last update (Cyril
   Bonnard).

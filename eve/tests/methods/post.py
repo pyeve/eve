@@ -55,6 +55,15 @@ class TestPost(TestBase):
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 
+    def test_post_duplicate_key(self):
+        data = {'ref': '1234567890123456789054321'}
+        r = self.perform_post(data)
+        id_field = self.domain[self.known_resource]['id_field']
+        item_id = r[id_field]
+        data = {'ref': '0123456789012345678901234', id_field: item_id}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assertEqual(status, 409)
+
     def test_post_integer(self):
         del(self.domain['contacts']['schema']['ref']['required'])
         test_field = 'prog'
