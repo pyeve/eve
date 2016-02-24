@@ -1172,10 +1172,10 @@ Let's see an overview of what events are available:
 |       |        |      || ``def event(updates, original)``               |
 |       |        +------+-------------------------------------------------+
 |       |        |After || ``on_updated``                                 |
-|       |        |      || ``def event(resource_name, updated, original)``|
+|       |        |      || ``def event(resource_name, updates, original)``|
 |       |        |      +-------------------------------------------------+
 |       |        |      || ``on_updated_<resource_name>``                 |
-|       |        |      || ``def event(updated, original)``               |
+|       |        |      || ``def event(updates, original)``               |
 +-------+--------+------+-------------------------------------------------+
 |Delete |Item    |Before|| ``on_delete_item``                             |
 |       |        |      || ``def event(resource_name, item)``             |
