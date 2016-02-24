@@ -92,6 +92,10 @@ class TestMongoValidator(TestCase):
         app_context running here """
         pass
 
+    def test_empty_schema(self):
+        v = Validator(None, None)
+        self.assertTrue(v)
+
     def test_objectid_fail(self):
         schema = {'id': {'type': 'objectid'}}
         doc = {'id': 'not_an_object_id'}

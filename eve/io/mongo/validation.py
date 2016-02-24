@@ -71,10 +71,10 @@ class Validator(Validator):
         # removes the unique constraint on _id. We could use the information
         # available by app.data.driver.db[datasource].index_information() to
         # remove all unnecessary unique constraints.
-        result = copy.deepcopy(schema)
-        if '_id' in result and 'unique' in result['_id']:
-            del(result['_id']['unique'])
-        return result
+        if schema and '_id' in schema and 'unique' in schema['_id']:
+            schema = copy.deepcopy(schema)
+            del(schema['_id']['unique'])
+        return schema
 
     def validate_update(self, document, _id, original_document=None):
         """ Validate method to be invoked when performing an update, not an
