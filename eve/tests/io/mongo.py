@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
-
-from unittest import TestCase
-from bson import ObjectId
 from datetime import datetime
-from cerberus import SchemaError
-from eve.io.mongo.parser import parse, ParseError
-from eve.io.mongo import Validator, Mongo, MongoJSONEncoder
-from eve.tests import TestBase
-from eve.utils import config
-from eve.tests.test_settings import MONGO_DBNAME
+
 import simplejson as json
+from bson import ObjectId
+from cerberus import SchemaError
+from unittest import TestCase
+
+from eve.io.mongo import Validator, Mongo, MongoJSONEncoder
+from eve.io.mongo.parser import parse, ParseError
+from eve.tests import TestBase
+from eve.tests.test_settings import MONGO_DBNAME
 
 
 class TestPythonParser(TestCase):
