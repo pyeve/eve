@@ -178,8 +178,7 @@ class TestConfig(TestBase):
                          self.domain['contacts']['id_field'])
         id_field = self.domain['invoices']['id_field']
         self.assertTrue(id_field in schema)
-        self.assertEqual(schema[id_field],
-                         {'type': 'objectid', 'unique': True})
+        self.assertEqual(schema[id_field], {'type': 'objectid'})
 
     def test_set_defaults(self):
         self.domain.clear()

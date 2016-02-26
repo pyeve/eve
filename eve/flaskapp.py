@@ -390,12 +390,6 @@ class Eve(Flask, Events):
         """
         resource_settings = self.config['DOMAIN'][resource]
 
-        # ensure id_field is defined as unique
-        id_field = resource_settings['id_field']
-        if 'unique' not in schema[id_field] or not schema[id_field]['unique']:
-            raise SchemaException("'unique' key is mandatory for id field "
-                                  "'%s'" % id_field)
-
         # ensure automatically handled fields aren't defined
         fields = [eve.DATE_CREATED, eve.LAST_UPDATED, eve.ETAG]
 
@@ -703,14 +697,11 @@ class Eve(Flask, Events):
         .. versionadded: 0.0.5
         """
 
-        # id_field has to be 'unique'. Some data layers, e.g. the default mongo
-        # layer ignore this validation rule to avoid a performance hit (with
-        # 'unique' rule set, we would end up with an extra db loopback on every
-        # insert).
-        schema.setdefault(id_field, {
-            'type': 'objectid',
-            'unique': True
-        })
+        # Don't set id_field 'unique' since we already handle
+        # DuplicateKeyConflict in the mongo layer. This also
+        # avoids a performance hit (with 'unique' rule set, we would
+        # end up with an extra db loopback on every insert).
+        schema.setdefault(id_field, {'type': 'objectid'})
 
         # set default 'field' value for all 'data_relation' rulesets, however
         # nested

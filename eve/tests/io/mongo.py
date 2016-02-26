@@ -7,6 +7,7 @@ from cerberus import SchemaError
 from eve.io.mongo.parser import parse, ParseError
 from eve.io.mongo import Validator, Mongo, MongoJSONEncoder
 from eve.tests import TestBase
+from eve.utils import config
 from eve.tests.test_settings import MONGO_DBNAME
 import simplejson as json
 
@@ -294,30 +295,6 @@ class TestMongoValidator(TestCase):
         schema['test_field'] = {'dependencies': ['foo', 'bar']}
         v = Validator(schema)
         self.assertTrue(v.validate(doc))
-
-    def test_removal_of_unnecessary_unique_constraints(self):
-        schema = {
-            '_id': {
-                'type': 'objectid',
-                'unique': True
-            },
-            'foo': {
-                'type': 'string',
-                'minlength': 2
-            }
-        }
-        expected_schema = {
-            '_id': {
-                'type': 'objectid'
-            },
-            'foo': {
-                'type': 'string',
-                'minlength': 2
-            }
-        }
-        v = Validator(schema)
-        schema = v._remove_unique_rules_on_fields_with_unique_index(schema)
-        self.assertEqual(expected_schema, schema)
 
 
 class TestMongoDriver(TestBase):
