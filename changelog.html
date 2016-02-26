@@ -78,6 +78,8 @@ are now properly processed. Addresses #794.</li>
 <div class="section" id="version-0-6-2">
 <h3>Version 0.6.2<a class="headerlink" href="#version-0-6-2" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>Fix: Remove &#8220;ensure uniqueness of (custom) id fields&#8221; feature. Addresses
+#788.</li>
 <li>Fix: <tt class="docutils literal"><span class="pre">409</span> <span class="pre">Conflict</span></tt> not reported since upgrading to PyMongo 3. Closes #680.</li>
 <li>Fix: when a document is soft deleted, the OPLOG <cite>_updated</cite> field is not the
 time of the deletion but the time of the previous last update (Cyril
