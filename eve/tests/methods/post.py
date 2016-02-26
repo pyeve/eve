@@ -695,8 +695,7 @@ class TestPost(TestBase):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
         values = self.compare_post_with_get(
-            r[self.domain[self.known_resource]['id_field']],
-            ['location']).pop()
+            r[self.domain[self.known_resource]['id_field']], ['location']).pop()
         self.assertEqual(values['city'], 'a nested city')
         self.assertEqual(values['address'], 'a nested address')
 

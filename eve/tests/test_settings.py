@@ -284,8 +284,7 @@ products = {
     'schema': {
         'sku': {
             'type': 'string',
-            'maxlength': 16,
-            'unique': True
+            'maxlength': 16
         },
         'title': {
             'type': 'string',

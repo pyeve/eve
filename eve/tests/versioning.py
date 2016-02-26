@@ -1355,7 +1355,6 @@ class TestVersioningWithCustomIdField(TestNormalVersioning):
         super(TestVersioningWithCustomIdField, self).setUp()
         self.domain[self.known_resource]['schema'][self.id_field] = {
             'type': 'string',
-            'unique': True
         }
         self.enableVersioning()
         self.insertTestData()
