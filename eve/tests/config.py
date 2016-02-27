@@ -169,6 +169,25 @@ class TestConfig(TestBase):
         del(schema['person']['data_relation']['resource'])
         self.assertValidateSchemaFailure('invoices', schema, 'resource')
 
+    def test_validate_invalid_field_names(self):
+        schema = self.domain['invoices']['schema']
+        schema['te$t'] = {'type': 'string'}
+        self.assertValidateSchemaFailure('invoices', schema, 'te$t')
+        del(schema['te$t'])
+
+        schema['te.t'] = {'type': 'string'}
+        self.assertValidateSchemaFailure('invoices', schema, 'te.t')
+        del(schema['te.t'])
+
+        schema['test_a_dict_schema'] = {
+            'type': 'dict',
+            'schema': {'te$t': {'type': 'string'}}
+        }
+        self.assertValidateSchemaFailure('invoices', schema, 'te$t')
+
+        schema['test_a_dict_schema']['schema'] = {'te.t': {'type': 'string'}}
+        self.assertValidateSchemaFailure('invoices', schema, 'te.t')
+
     def test_set_schema_defaults(self):
         # default data_relation field value
         schema = self.domain['invoices']['schema']
