@@ -363,6 +363,9 @@ class Eve(Flask, Events):
         :param resource: resource name.
         :param schema: schema definition for the resource.
 
+        .. versionchanged:: 0.6.2
+           Do not allow '$' and '.' in root and dict field names. #780.
+
         .. versionchanged:: 0.6
            ID_FIELD in the schema is not an offender anymore.
 
@@ -388,6 +391,13 @@ class Eve(Flask, Events):
            Now collecting offending items in a list and inserting results into
            the exception message.
         """
+        def validate_field_name(field):
+            forbidden = ['$', '.']
+            if any(x in field for x in forbidden):
+                raise SchemaException(
+                    "Field '%s' cannot contain any of the following: '%s'." %
+                    (field, ', '.join(forbidden)))
+
         resource_settings = self.config['DOMAIN'][resource]
 
         # ensure automatically handled fields aren't defined
@@ -411,8 +421,13 @@ class Eve(Flask, Events):
                                   '(they will be handled automatically).'
                                   % (', '.join(offenders), resource))
 
-        # check data_relation rules
         for field, ruleset in schema.items():
+            validate_field_name(field)
+            if 'dict' in ruleset.get('type', ''):
+                for field in ruleset.get('schema', {}).keys():
+                    validate_field_name(field)
+
+            # check data_relation rules
             if 'data_relation' in ruleset:
                 if 'resource' not in ruleset['data_relation']:
                     raise SchemaException("'resource' key is mandatory for "

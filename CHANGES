@@ -9,6 +9,8 @@ In Development
 Version 0.6.2
 ~~~~~~~~~~~~~
 
+- Fix: Mongo does not allow ``$`` and ``.`` in field names. Apply this
+  validation in schemas and dict fields. Closes #780.
 - Fix: Remove "ensure uniqueness of (custom) id fields" feature. Addresses
   #788.
 - Fix: ``409 Conflict`` not reported since upgrading to PyMongo 3. Closes #680.
