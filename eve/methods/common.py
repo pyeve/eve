@@ -171,7 +171,7 @@ def payload():
                         formItems[key] = json.loads(formItems[key])
                     except ValueError:
                         formItems[key] = json.loads(
-                            '"{}"'.format(formItems[key]))
+                            '"{0}"'.format(formItems[key]))
 
                 return dict(list(formItems.items()) +
                             list(request.files.to_dict().items()))
