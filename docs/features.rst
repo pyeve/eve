@@ -1472,13 +1472,14 @@ With curl we would ``POST`` like this:
     Please note, that in case you indeed turn on ``MULTIPART_FORM_FIELDS_AS_JSON``
     you will have to submit all resource fields as properly encoded JSON strings.
 
-    For example a ``number`` should be submited as '1234' (as you would normally 
-    expect). A ``boolean`` will have to be send as 'true' (note the lowercase 't').
-    A ``list`` of strings as '["abc", "xyz']'. And finally a ``string``, which is
-    the thing that will most likely trip, you will have to be submitted as '"abc"'
-    (note that it is surrounded with double quotes".  If ever in doubt if what you
-    are submitting is a valid JSON string you can try passing it from the JSON 
-    Validator at http://jsonlint.com/ to be sure that it is correct.
+    For example a ``number`` should be submited as ``1234`` (as you would normally 
+    expect). A ``boolean`` will have to be send as ``true`` (note the lowercase
+    ``t``). A ``list`` of strings as ``["abc", "xyz"]``. And finally
+    a ``string``, which is the thing that will most likely trip, you will have
+    to be submitted as ``"'abc'"`` (note that it is surrounded with double
+    quotes). If ever in doubt if what you are submitting is a valid JSON string
+    you can try passing it from the JSON Validator at http://jsonlint.com/ to
+    be sure that it is correct.
 
  
 For optimized performance files are stored in GridFS_ by default. Custom
