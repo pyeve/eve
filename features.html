@@ -1479,6 +1479,29 @@ fields. Upload is done via <tt class="docutils literal"><span class="pre">POST</
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -F <span class="s2">&quot;name=john&quot;</span> -F <span class="s2">&quot;pic=@profile.jpg&quot;</span> http://example.com/accounts
 </pre></div>
 </div>
+<div class="admonition note" id="multipart-form-fields-as-json">
+<p class="first admonition-title">Note</p>
+<p>If you are uploading media files as <tt class="docutils literal"><span class="pre">multipart/data-form</span></tt> all the
+additional fields except the file fields will be treated as <tt class="docutils literal"><span class="pre">strings</span></tt>
+for all field validation purposes.  If you have already defined some of
+the resource fields to be of different type (boolean, number, list etc)
+the validation rules for these fields would fail, preventing you to
+succesffully submit your resource.</p>
+<p>If you still want to be able to perform field validation in this case, you
+will have to turn on <tt class="docutils literal"><span class="pre">MULTIPART_FORM_FIELDS_AS_JSON</span></tt> in your settings
+file in order to treat the incoming fields as JSON encoded strings and still
+be able to validate your fields.</p>
+<p>Please note, that in case you indeed turn on <tt class="docutils literal"><span class="pre">MULTIPART_FORM_FIELDS_AS_JSON</span></tt>
+you will have to submit all resource fields as properly encoded JSON strings.</p>
+<p class="last">For example a <tt class="docutils literal"><span class="pre">number</span></tt> should be submited as <tt class="docutils literal"><span class="pre">1234</span></tt> (as you would normally
+expect). A <tt class="docutils literal"><span class="pre">boolean</span></tt> will have to be send as <tt class="docutils literal"><span class="pre">true</span></tt> (note the lowercase
+<tt class="docutils literal"><span class="pre">t</span></tt>). A <tt class="docutils literal"><span class="pre">list</span></tt> of strings as <tt class="docutils literal"><span class="pre">[&quot;abc&quot;,</span> <span class="pre">&quot;xyz&quot;]</span></tt>. And finally
+a <tt class="docutils literal"><span class="pre">string</span></tt>, which is the thing that will most likely trip, you will have
+to be submitted as <tt class="docutils literal"><span class="pre">&quot;'abc'&quot;</span></tt> (note that it is surrounded with double
+quotes). If ever in doubt if what you are submitting is a valid JSON string
+you can try passing it from the JSON Validator at <a class="reference external" href="http://jsonlint.com/">http://jsonlint.com/</a> to
+be sure that it is correct.</p>
+</div>
 <p>For optimized performance files are stored in <a class="reference external" href="http://docs.mongodb.org/manual/core/gridfs/">GridFS</a> by default. Custom
 <tt class="docutils literal"><span class="pre">MediaStorage</span></tt> classes can be implemented and passed to the application to
 support alternative storage systems. A <tt class="docutils literal"><span class="pre">FileSystemMediaStorage</span></tt> class is in

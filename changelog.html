@@ -58,6 +58,11 @@
 <div class="section" id="version-0-7">
 <h3>Version 0.7<a class="headerlink" href="#version-0-7" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>New: <tt class="docutils literal"><span class="pre">MULTIPART_FORM_FIELDS_AS_JSON</span></tt>. In case you are submitting your
+resource as <tt class="docutils literal"><span class="pre">multipart/form-data</span></tt> all form data fields will be submitted as
+strings, breaking any validation rules you might have on the resource fields.
+If you want to treat all submitted form data as JSON strings you will have to
+activate this setting. Closes #806 (Stratos Gerakakis).</li>
 <li>New: Support for MongoDB Aggregation Framework. Endpoints can respond with
 aggregation results. Clients can optionally influence aggregation
 results by using the new <tt class="docutils literal"><span class="pre">aggregate</span></tt> option: <tt class="docutils literal"><span class="pre">aggregate={&quot;$year&quot;:</span> <span class="pre">2015}</span></tt>.</li>
