@@ -7,7 +7,7 @@
     This module imlements the POST method, supported by the resources
     endopints.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -37,10 +37,10 @@ def post(resource, payl=None):
     .. versionchanged:: 0.5
        Split original post() into post/post_internal combo.
     """
-    return post_internal(resource, payl)
+    return post_internal(resource, payl, skip_validation=False)
 
 
-def post_internal(resource, payl=None):
+def post_internal(resource, payl=None, skip_validation=False):
     """
     Intended for internal post calls, this method is not rate limited,
     authentication is not checked and pre-request events are not raised.
@@ -62,8 +62,18 @@ def post_internal(resource, payl=None):
 
                  See https://github.com/nicolaiarocci/eve/issues/74 for a
                  discussion, and a typical use case.
+    :param skip_validation: skip payload validation before write (bool)
+
+    .. versionchanged:: 0.6
+       Fix: since v0.6, skip_validation = True causes a 422 response (#726).
+
+    .. versionchanged:: 0.6
+       Initialize DELETED field when soft_delete is enabled.
 
     .. versionchanged:: 0.5
+       Back to resolving default values after validaton as now the validator
+       can properly validate dependency even when some have default values. See
+       #353.
        Push updates to the OpLog.
        Original post() has been split into post() and post_internal().
        ETAGS are now stored with documents (#369).
@@ -138,7 +148,7 @@ def post_internal(resource, payl=None):
     date_utc = datetime.utcnow().replace(microsecond=0)
     resource_def = app.config['DOMAIN'][resource]
     schema = resource_def['schema']
-    validator = app.validator(schema, resource)
+    validator = None if skip_validation else app.validator(schema, resource)
     documents = []
     results = []
     failures = 0
@@ -162,20 +172,36 @@ def post_internal(resource, payl=None):
             'Empty bulk insert'
         ))
 
+    if len(payl) > 1 and not config.DOMAIN[resource]['bulk_enabled']:
+        abort(400, description=debug_error_message(
+            'Bulk insert not allowed'
+        ))
+
     for value in payl:
         document = []
         doc_issues = {}
         try:
             document = parse(value, resource)
-            resolve_default_values(document, resource_def['defaults'])
-            validation = validator.validate(document)
-            if validation:
-                # validation is successful
+            resolve_sub_resource_path(document, resource)
+            if skip_validation:
+                validation = True
+            else:
+                validation = validator.validate(document)
+            if validation:  # validation is successful
+                # validator might be not available if skip_validation. #726.
+                if validator:
+                    # Apply coerced values
+                    document = validator.document
+
+                # Populate meta and default fields
                 document[config.LAST_UPDATED] = \
                     document[config.DATE_CREATED] = date_utc
 
+                if config.DOMAIN[resource]['soft_delete'] is True:
+                    document[config.DELETED] = False
+
                 resolve_user_restricted_access(document, resource)
-                resolve_sub_resource_path(document, resource)
+                resolve_default_values(document, resource_def['defaults'])
                 store_media_files(document, resource)
                 resolve_document_version(document, resource, 'POST')
             else:
@@ -186,6 +212,7 @@ def post_internal(resource, payl=None):
         except Exception as e:
             # most likely a problem with the incoming payload, report back to
             # the client as if it was a validation issue
+            app.logger.exception(e)
             doc_issues['exception'] = str(e)
 
         if len(doc_issues):
@@ -214,7 +241,7 @@ def post_internal(resource, payl=None):
         getattr(app, "on_insert_%s" % resource)(documents)
 
         # compute etags here as documents might have been updated by callbacks.
-        resolve_document_etag(documents)
+        resolve_document_etag(documents, resource)
 
         # bulk insert
         ids = app.data.insert(resource, documents)
@@ -226,8 +253,8 @@ def post_internal(resource, payl=None):
         for document in documents:
             # either return the custom ID_FIELD or the id returned by
             # data.insert().
-            document[config.ID_FIELD] = \
-                document.get(config.ID_FIELD, ids.pop(0))
+            document[resource_def['id_field']] = \
+                document.get(resource_def['id_field'], ids.pop(0))
 
             # build the full response document
             result = document

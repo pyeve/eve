@@ -55,8 +55,7 @@ class UUIDValidator(Validator):
 
 class TestCustomConverters(TestMinimal):
     """
-    Test that we can use custom types as ID_FIELD ('_id' by default).
-
+    Test that we can use custom types as id field ('_id' by default).
     """
 
     def setUp(self):
@@ -65,7 +64,7 @@ class TestCustomConverters(TestMinimal):
             'item_methods': ['GET', 'PATCH', 'PUT', 'DELETE'],
             'item_url': 'uuid',
             'schema': {
-                '_id': {'type': 'uuid'},
+                '_id': {'type': 'uuid', 'unique': True},
                 'name': {'type': 'string'}
             }
         }
@@ -89,7 +88,7 @@ class TestCustomConverters(TestMinimal):
         self.app.data.json_encoder_class = UUIDEncoder
 
     def bulk_insert(self):
-        # create a document which has a ID_FIELD of UUID type and store it
+        # create a document which has a id field of UUID type and store it
         # into the database
         _db = self.connection[MONGO_DBNAME]
         fake = {'_id': UUID(self.uuid_valid), }
@@ -124,7 +123,7 @@ class TestCustomConverters(TestMinimal):
         etag = self._get_etag()
         self.headers.append(('If-Match', etag))
         r = self.test_client.delete(self.url, headers=self.headers)
-        self.assert200(r.status_code)
+        self.assert204(r.status_code)
 
     def test_post_uuid(self):
         new_id = '48c00ee9-4dbe-413f-9fc3-d5f12a91de13'
@@ -143,7 +142,10 @@ class TestEndPoints(TestBase):
 
     def test_resource_endpoint(self):
         del(self.domain['peopleinvoices'])
+        del(self.domain['peoplerequiredinvoices'])
+        del(self.domain['peoplesearches'])
         del(self.domain['internal_transactions'])
+        del(self.domain['child_products'])
         for settings in self.domain.values():
             r = self.test_client.get('/%s/' % settings['url'])
             self.assert200(r.status_code)
@@ -151,8 +153,9 @@ class TestEndPoints(TestBase):
             r = self.test_client.get('/%s' % settings['url'])
             self.assert200(r.status_code)
 
-    def assert_item_fields(self, data):
-        self.assertTrue(self.app.config['ID_FIELD'] in list(data))
+    def assert_item_fields(self, data, resource=None):
+        id_field = self.domain[resource or self.known_resource]['id_field']
+        self.assertTrue(id_field in list(data))
         self.assertTrue('_created' in list(data))
         self.assertTrue('_updated' in list(data))
         self.assertTrue('_etag' in list(data))
@@ -171,7 +174,8 @@ class TestEndPoints(TestBase):
     def test_item_self_link(self):
         data, status_code = self.get(self.known_resource, item=self.item_id)
         lookup_field = self.domain[self.known_resource]['item_lookup_field']
-        link = '%s/%s' % (self.known_resource_url, self.item[lookup_field])
+        link = '%s/%s' % (self.known_resource_url.lstrip('/'),
+                          self.item[lookup_field])
         self.assertEqual(data.get('_links').get('self').get('href'), link)
 
     def test_unknown_endpoints(self):
@@ -240,11 +244,11 @@ class TestEndPoints(TestBase):
 
         r = self.test_prefix.get('/prefix/v1/')
         href = json.loads(r.get_data())['_links']['child'][0]['href']
-        self.assertEqual(href, '/contacts')
+        self.assertEqual(href, 'contacts')
 
         r = self.test_prefix.get('/prefix/v1/contacts')
         href = json.loads(r.get_data())['_links']['self']['href']
-        self.assertEqual(href, '/contacts')
+        self.assertEqual(href, 'contacts')
 
     def test_nested_endpoint(self):
         r = self.test_client.get('/users/overseas')
@@ -262,7 +266,7 @@ class TestEndPoints(TestBase):
         if resource != 'internal_transactions':
             dt = datetime.now()
             transaction = {
-                'entities':  [doc['_id'] for doc in docs],
+                'entities': [doc['_id'] for doc in docs],
                 'original_resource': resource,
                 config.LAST_UPDATED: dt,
                 config.DATE_CREATED: dt,
@@ -299,3 +303,50 @@ class TestEndPoints(TestBase):
         self.assert405(status_code)
         _, status_code = self.delete('/oplog')
         self.assert405(status_code)
+
+    def test_schema_endpoint(self):
+        known_schema_path = '/schema/%s' % self.known_resource
+
+        r = self.test_client.get(known_schema_path)
+        self.assert404(r.status_code)
+
+        self.app.config['SCHEMA_ENDPOINT'] = 'schema'
+        self.app._init_schema_endpoint()
+        r = self.test_client.get(known_schema_path)
+        self.assert200(r.status_code)
+        self.assertEqual(r.mimetype, 'application/json')
+        self.assertEqual(
+            json.loads(r.data),
+            self.app.config['DOMAIN'][self.known_resource]['schema'])
+
+        r = self.test_client.get('/schema/%s' % self.unknown_resource)
+        self.assert404(r.status_code)
+
+        # schema endpoint doesn't reveal internal resources
+        r = self.test_client.get('/schema/internal_transactions')
+        self.assert404(r.status_code)
+
+        # schema endpoint is read-only
+        data = {'field': 'value'}
+        _, status_code = self.patch(known_schema_path, data)
+        self.assert405(status_code)
+        _, status_code = self.put(known_schema_path, data)
+        self.assert405(status_code)
+        _, status_code = self.post(known_schema_path, data)
+        self.assert405(status_code)
+        _, status_code = self.delete(known_schema_path)
+        self.assert405(status_code)
+
+    def test_schema_endpoint_does_not_attempt_callable_serialization(self):
+        self.domain[self.known_resource]['schema']['lambda'] = {
+            'type': 'boolean',
+            'coerce': lambda v: v if type(v) is bool else v.lower() in ['true',
+                                                                        '1']
+        }
+        known_schema_path = '/schema/%s' % self.known_resource
+        self.app.config['SCHEMA_ENDPOINT'] = 'schema'
+        self.app._init_schema_endpoint()
+
+        r = self.test_client.get(known_schema_path)
+        self.assert200(r.status_code)
+        self.assertEqual(json.loads(r.data)['lambda']['coerce'], '<callable>')

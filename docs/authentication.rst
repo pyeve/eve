@@ -6,7 +6,8 @@ Introduction to Security
 ------------------------
 Authentication is the mechanism whereby systems may securely identify their
 users. Eve supports several authentication schemes: Basic Authentication, Token
-Authentication, HMAC Authentication.
+Authentication, HMAC Authentication. `OAuth2 integration`_ is easily
+accomplished.
 
 Authorization is the mechanism by which a system determines what level of
 access a particular (authenticated) user should have access to resources
@@ -518,6 +519,60 @@ BCrypt-authentication example from above:
         app = Eve(auth=BCryptAuth)
         app.run()
 
+.. _authdrivendb:
+
+Auth-driven Database Access
+---------------------------
+Custom authentication classes can also set the database that should be used
+when serving the active request. 
+
+Normally you either use a single database for the whole API or you configure
+which database each endpoint consumes by setting ``mongo_prefix`` to the
+desired value (see :ref:`local`).
+
+However, you might opt to select the target database based on the active token,
+user or client. This is handy if your use-case includes user-dedicated database
+instances. All you have to do is set invoke the ``set_mongo_prefix()`` method
+when authenticating the request.
+
+A trivial example would be:
+
+.. code-block:: python
+
+    from eve.auth import BasicAuth
+
+    class MyBasicAuth(BasicAuth):
+        def check_auth(self, username, password, allowed_roles, resource, method):
+            if username == 'user1':
+                self.set_mongo_prefix('MONGO1')
+            elif username == 'user2':
+                self.set_mongo_prefix('MONGO2')
+            else:
+                # serve all other users from the default db.
+                self.set_mongo_prefix(None)
+            return username is not None and password == 'secret'
+
+    app = Eve(auth=MyBasicAuth)
+    app.run()
+
+The above class will serve ``user1`` with data coming from the database which
+configuration settings are prefixed by ``MONGO1`` in ``settings.py``. Same
+happens with ``user2`` and ``MONGO2`` while all other users are served with
+the default database. 
+
+Since values set by ``set_mongo_prefix()`` have precedence over both default
+and endpoint-level ``mongo_prefix`` settings, what happens here is that the two
+users will always be served from their reserved databases, no matter the
+eventual database configuration for the endpoint.
+
+OAuth2 Integration
+------------------
+Since you have total control over the Authorization process, integrating
+OAuth2 with Eve is easy. Make yourself comfortable with the topics illustrated
+in this page, then head over to `Eve-OAuth2`_, an example project which
+leverages `Flask-Sentinel`_ to demonstrate how you can protect your API with
+OAuth2.
+
 .. admonition:: Please note
 
     The snippets in this page can also be found in the `examples/security`
@@ -525,3 +580,5 @@ BCrypt-authentication example from above:
 
 .. _`repository`: https://github.com/nicolaiarocci/eve
 .. _bcrypt: http://en.wikipedia.org/wiki/Bcrypt
+.. _`Eve-OAuth2`: https://github.com/nicolaiarocci/eve-oauth2
+.. _`Flask-Sentinel`: https://github.com/nicolaiarocci/flask-sentinel

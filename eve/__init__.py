@@ -6,7 +6,7 @@
 
     An out-of-the-box REST Web API that's as dangerous as you want it to be.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.5
@@ -38,7 +38,7 @@
 
 """
 
-__version__ = '0.5-dev'
+__version__ = '0.6.2.dev0'
 
 # RFC 1123 (ex RFC 822)
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
@@ -57,7 +57,7 @@ RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']
 ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
-ITEM_URL = '[a-f0-9]{24}'
+ITEM_URL = 'regex("[a-f0-9]{24}")'
 
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"
@@ -71,6 +71,7 @@ LINKS = '_links'
 ETAG = '_etag'
 VERSION = '_version'
 META = '_meta'
+INFO = None
 
 QUERY_WHERE = 'where'
 QUERY_SORT = 'sort'
@@ -80,6 +81,7 @@ QUERY_EMBEDDED = 'embedded'
 QUERY_PROJECTION = 'projection'
 
 VALIDATION_ERROR_STATUS = 422
+VALIDATION_ERROR_AS_LIST = False
 
 # must be the last line (will raise W402 on pyflakes)
 from eve.flaskapp import Eve  # noqa

@@ -5,7 +5,7 @@ from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
 from eve.tests.utils import DummyEvent
 
-from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES, STATUS, ETAG
+from eve import STATUS_OK, LAST_UPDATED, ISSUES, STATUS, ETAG
 from eve.methods.put import put_internal
 
 
@@ -19,34 +19,13 @@ class TestPut(TestBase):
         _, status = self.put(self.readonly_id_url, data={})
         self.assert405(status)
 
-    def test_unknown_id(self):
-        _, status = self.put(self.unknown_item_id_url,
-                             data={'key1': 'value1'})
-        self.assert404(status)
-
-    def test_unknown_id_different_resource(self):
-        # replacing a 'user' with a valid 'contact' id will 404
-        _, status = self.put('%s/%s/' % (self.different_resource,
-                                         self.item_id),
-                             data={'ref': '1234567890123456789012345',
-                                   'username': 'username1'})
-        self.assert404(status)
-
-        # of course we can still put a 'user'
-        _, status = self.put('%s/%s/' % (self.different_resource,
-                                         self.user_id),
-                             data={'ref': '1234567890123456789012345',
-                                   'username': 'username1'},
-                             headers=[('If-Match', self.user_etag)])
-        self.assert200(status)
-
     def test_by_name(self):
         _, status = self.put(self.item_name_url, data={'key1': 'value1'})
         self.assert405(status)
 
     def test_ifmatch_missing(self):
         _, status = self.put(self.item_id_url, data={'key1': 'value1'})
-        self.assert403(status)
+        self.assert428(status)
 
     def test_ifmatch_disabled(self):
         self.app.config['IF_MATCH'] = False
@@ -92,6 +71,17 @@ class TestPut(TestBase):
         self.assert200(status)
         self.assertTrue('OK' in r[STATUS])
 
+    def test_put_x_www_form_urlencoded_number_serialization(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        field = 'anumber'
+        test_value = 41
+        changes = {field: test_value}
+        headers = [('If-Match', self.item_etag)]
+        r, status = self.parse_response(self.test_client.put(
+            self.item_id_url, data=changes, headers=headers))
+        self.assert200(status)
+        self.assertTrue('OK' in r[STATUS])
+
     def test_put_referential_integrity(self):
         data = {"person": self.unknown_item_id}
         headers = [('If-Match', self.invoice_etag)]
@@ -99,13 +89,28 @@ class TestPut(TestBase):
         self.assertValidationErrorStatus(status)
         expected = ("value '%s' must exist in resource '%s', field '%s'" %
                     (self.unknown_item_id, 'contacts',
-                     self.app.config['ID_FIELD']))
+                     self.domain['contacts']['id_field']))
         self.assertValidationError(r, {'person': expected})
 
         data = {"person": self.item_id}
         r, status = self.put(self.invoice_id_url, data=data, headers=headers)
         self.assert200(status)
-        self.assertPutResponse(r, self.invoice_id)
+        self.assertPutResponse(r, self.invoice_id, 'invoices')
+
+    def test_put_referential_integrity_list(self):
+        data = {"invoicing_contacts": [self.item_id, self.unknown_item_id]}
+        headers = [('If-Match', self.invoice_etag)]
+        r, status = self.put(self.invoice_id_url, data=data, headers=headers)
+        self.assertValidationErrorStatus(status)
+        expected = ("value '%s' must exist in resource '%s', field '%s'" %
+                    (self.unknown_item_id, 'contacts',
+                     self.domain['contacts']['id_field']))
+        self.assertValidationError(r, {'invoicing_contacts': expected})
+
+        data = {"invoicing_contacts": [self.item_id, self.item_id]}
+        r, status = self.put(self.invoice_id_url, data=data, headers=headers)
+        self.assert200(status)
+        self.assertPutResponse(r, self.invoice_id, 'invoices')
 
     def test_put_write_concern_success(self):
         # 0 and 1 are the only valid values for 'w' on our mongod instance (1
@@ -157,8 +162,26 @@ class TestPut(TestBase):
         db_value = self.compare_put_with_get(test_field, r)
         self.assertEqual(test_value, db_value)
 
+    def test_put_readonly_value_same(self):
+        data = {'ref': self.item['ref'],
+                'read_only_field': self.item['read_only_field']}
+        r, status = self.put(self.item_id_url,
+                             data=data,
+                             headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+
+    def test_put_readonly_value_different(self):
+        field = 'read_only_field'
+        data = {'ref': self.item['ref'], field: 'somethingelse'}
+        r, status = self.put(self.item_id_url,
+                             data=data,
+                             headers=[('If-Match', self.item_etag)])
+        self.assert422(status)
+        self.assertValidationError(r, {field: "field is read-only"})
+
     def test_put_subresource(self):
         _db = self.connection[MONGO_DBNAME]
+        self.app.config['BANDWIDTH_SAVER'] = False
 
         # create random contact
         fake_contact = self.random_contacts(1)
@@ -179,7 +202,8 @@ class TestPut(TestBase):
                                     (fake_contact_id, self.invoice_id),
                                     data=data, headers=headers)
         self.assert200(status)
-        self.assertPutResponse(response, self.invoice_id)
+        self.assertPutResponse(response, self.invoice_id, 'peopleinvoices')
+        self.assertEqual(response.get('person'), str(fake_contact_id))
 
     def test_put_bandwidth_saver(self):
         changes = {'ref': '1234567890123456789012345'}
@@ -200,7 +224,8 @@ class TestPut(TestBase):
         self.assertEqual(db_value, r[self.app.config['ETAG']])
 
     def test_put_dependency_fields_with_default(self):
-        # test that default values are resolved before validation. See #353.
+        # Test that if a dependency is missing but has a default value then the
+        # field is still accepted. See #353.
         del(self.domain['contacts']['schema']['ref']['required'])
         field = "dependency_field2"
         test_value = "a value"
@@ -208,6 +233,24 @@ class TestPut(TestBase):
         r = self.perform_put(changes)
         db_value = self.compare_put_with_get(field, r)
         self.assertEqual(db_value, test_value)
+
+    def test_put_dependency_fields_with_wrong_value(self):
+        # Test that if a dependency is not met, the put is refused
+        del(self.domain['contacts']['schema']['ref']['required'])
+        r, status = self.put(self.item_id_url,
+                             data={'dependency_field3': 'value'},
+                             headers=[('If-Match', self.item_etag)])
+        self.assert422(status)
+        r, status = self.put(self.item_id_url,
+                             data={'dependency_field1': 'value',
+                                   'dependency_field3': 'value'},
+                             headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+
+    def test_put_custom_idfield(self):
+        product = {'title': 'Awesome Hypercube'}
+        r, status = self.put('products/FOOBAR', data=product)
+        self.assert201(status)
 
     def test_put_internal(self):
         # test that put_internal is available and working properly.
@@ -222,6 +265,98 @@ class TestPut(TestBase):
         self.assertEqual(db_value, test_value)
         self.assert200(status)
 
+    def test_put_internal_skip_validation(self):
+        # test that put_internal is available and working properly.
+        test_field = 'ref'
+        test_value = "9876543210987654321098765"
+        data = {test_field: test_value}
+        with self.app.test_request_context(self.item_id_url):
+            r, _, _, status = put_internal(
+                self.known_resource, data, concurrency_check=False,
+                skip_validation=True, **{'_id': self.item_id})
+        db_value = self.compare_put_with_get(test_field, r)
+        self.assertEqual(db_value, test_value)
+        self.assert200(status)
+
+    def test_put_etag_header(self):
+        # test that Etag is always includer with response header. See #562.
+        changes = {"ref": "1234567890123456789012345"}
+        headers = [('Content-Type', 'application/json'),
+                   ('If-Match', self.item_etag)]
+        r = self.test_client.put(self.item_id_url,
+                                 data=json.dumps(changes),
+                                 headers=headers)
+        self.assertTrue('Etag' in r.headers)
+
+        # test that ETag is compliant to RFC 7232-2.3 and #794 is fixed.
+        etag = r.headers['ETag']
+
+        self.assertTrue(etag[0] == '"')
+        self.assertTrue(etag[-1] == '"')
+
+    def test_put_nested(self):
+        changes = {
+            'ref': '1234567890123456789012345',
+            'location.city': 'a nested city',
+            'location.address': 'a nested address'
+        }
+        r = self.perform_put(changes)
+        values = self.compare_put_with_get('location', r)
+        self.assertEqual(values['city'], 'a nested city')
+        self.assertEqual(values['address'], 'a nested address')
+
+    def test_put_creates_unexisting_document(self):
+        id = str(ObjectId())
+        url = '%s/%s' % (self.known_resource_url, id)
+        id_field = self.domain[self.known_resource]['id_field']
+        changes = {"ref": "1234567890123456789012345"}
+        r, status = self.put(url, data=changes)
+        # 201 is a creation (POST) response
+        self.assert201(status)
+        # new document has id_field matching the PUT endpoint
+        self.assertEqual(r[id_field], str(id))
+
+    def test_put_returns_404_on_unexisting_document(self):
+        self.app.config['UPSERT_ON_PUT'] = False
+        id = str(ObjectId())
+        url = '%s/%s' % (self.known_resource_url, id)
+        changes = {"ref": "1234567890123456789012345"}
+        r, status = self.put(url, data=changes)
+        self.assert404(status)
+
+    def test_put_creates_unexisting_document_with_url_as_id(self):
+        id = str(ObjectId())
+        url = '%s/%s' % (self.known_resource_url, id)
+        id_field = self.domain[self.known_resource]['id_field']
+        changes = {"ref": "1234567890123456789012345",
+                   id_field: str(ObjectId())}
+        r, status = self.put(url, data=changes)
+        # 201 is a creation (POST) response
+        self.assert201(status)
+        # new document has id_field matching the PUT endpoint
+        # (eventual mismatching id_field in the payload is ignored/replaced)
+        self.assertEqual(r[id_field], str(id))
+
+    def test_put_creates_unexisting_document_fails_on_mismatching_id(self):
+        id = str(ObjectId())
+        id_field = self.domain[self.known_resource]['id_field']
+        changes = {"ref": "1234567890123456789012345", id_field: id}
+        r, status = self.put(self.item_id_url,
+                             data=changes,
+                             headers=[('If-Match', self.item_etag)])
+        self.assert400(status)
+        self.assertTrue('immutable' in r['_error']['message'])
+
+    def test_put_type_coercion(self):
+        schema = self.domain[self.known_resource]['schema']
+        schema['aninteger']['coerce'] = lambda string: int(float(string))
+        changes = {'ref': '1234567890123456789054321', 'aninteger': '42.3'}
+        r, status = self.put(self.item_id_url, data=changes,
+                             headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+        r, status = self.get(r['_links']['self']['href'])
+        self.assertEqual(r['aninteger'], 42)
+
     def perform_put(self, changes):
         r, status = self.put(self.item_id_url,
                              data=changes,
@@ -230,12 +365,13 @@ class TestPut(TestBase):
         self.assertPutResponse(r, self.item_id)
         return r
 
-    def assertPutResponse(self, response, item_id):
+    def assertPutResponse(self, response, item_id, resource=None):
+        id_field = self.domain[resource or self.known_resource]['id_field']
         self.assertTrue(STATUS in response)
         self.assertTrue(STATUS_OK in response[STATUS])
         self.assertFalse(ISSUES in response)
-        self.assertTrue(ID_FIELD in response)
-        self.assertEqual(response[ID_FIELD], item_id)
+        self.assertTrue(id_field in response)
+        self.assertEqual(response[id_field], item_id)
         self.assertTrue(LAST_UPDATED in response)
         self.assertTrue(ETAG in response)
         self.assertTrue('_links' in response)
@@ -245,7 +381,7 @@ class TestPut(TestBase):
         raw_r = self.test_client.get(self.item_id_url)
         r, status = self.parse_response(raw_r)
         self.assert200(status)
-        self.assertEqual(raw_r.headers.get('ETag'),
+        self.assertEqual(raw_r.headers.get('ETag').replace('"', ''),
                          put_response[ETAG])
         if isinstance(fields, str):
             return r[fields]
@@ -275,7 +411,7 @@ class TestEvents(TestBase):
         self.app.on_pre_PUT += filter_this
         # Would normally delete the known document; will return 404 instead.
         r, s = self.parse_response(self.put())
-        self.assert404(s)
+        self.assert201(s)
 
     def test_on_post_PUT(self):
         devent = DummyEvent(self.after_replace)

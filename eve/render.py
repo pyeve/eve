@@ -6,7 +6,7 @@
 
     Implements proper, automated rendering for Eve responses.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -16,7 +16,7 @@ import simplejson as json
 from werkzeug import utils
 from functools import wraps
 from eve.methods.common import get_rate_limit
-from eve.utils import date_to_str, date_to_rfc1123, config, request_method, \
+from eve.utils import date_to_str, date_to_rfc1123, config, \
     debug_error_message
 from flask import make_response, request, Response, current_app as app, abort
 
@@ -54,7 +54,7 @@ def raise_event(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         r = f(*args, **kwargs)
-        method = request_method()
+        method = request.method
         if method in ('GET', 'POST', 'PATCH', 'DELETE', 'PUT'):
             event_name = 'on_post_' + method
             resource = args[0] if args else None
@@ -107,6 +107,12 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     :param etag: ETag header value.
     :param status: response status.
 
+    .. versionchanged:: 0.7
+       ETag value now surrounded by double quotes. Closes #794.
+
+    .. versionchanged:: 0.6
+       JSONP Support.
+
     .. versionchanged:: 0.4
        Support for optional extra headers.
        Fix #381. 500 instead of 404 if CORS is enabled.
@@ -141,6 +147,13 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         # invoke the render function and obtain the corresponding rendered item
         rendered = globals()[renderer](dct)
 
+        # JSONP
+        if config.JSONP_ARGUMENT:
+            jsonp_arg = config.JSONP_ARGUMENT
+            if jsonp_arg in request.args and 'json' in mime:
+                callback = request.args.get(jsonp_arg)
+                rendered = "%s(%s)" % (callback, rendered)
+
         # build the main wsgi rensponse object
         resp = make_response(rendered, status)
         resp.mimetype = mime
@@ -166,7 +179,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
 
     # etag and last-modified
     if etag:
-        resp.headers.add('ETag', etag)
+        resp.headers.add('ETag', '"' + etag + '"')
     if last_modified:
         resp.headers.add('Last-Modified', date_to_rfc1123(last_modified))
 
@@ -192,9 +205,16 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         else:
             expose_headers = config.X_EXPOSE_HEADERS
 
+        # The only accepted value for Access-Control-Allow-Credentials header
+        # is "true"
+        allow_credentials = config.X_ALLOW_CREDENTIALS is True
+
         methods = app.make_default_options_response().headers.get('allow', '')
 
-        if '*' in domains or origin in domains:
+        if '*' in domains:
+            resp.headers.add('Access-Control-Allow-Origin', origin)
+            resp.headers.add('Vary', 'Origin')
+        elif origin in domains:
             resp.headers.add('Access-Control-Allow-Origin', origin)
         else:
             resp.headers.add('Access-Control-Allow-Origin', '')
@@ -203,6 +223,8 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
                          ', '.join(expose_headers))
         resp.headers.add('Access-Control-Allow-Methods', methods)
         resp.headers.add('Access-Control-Allow-Max-Age', config.X_MAX_AGE)
+        if allow_credentials:
+            resp.headers.add('Access-Control-Allow-Credentials', "true")
 
     # Rate-Limiting
     limit = get_rate_limit()

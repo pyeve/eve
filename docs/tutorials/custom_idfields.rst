@@ -128,6 +128,14 @@ are instancing the application:
     app = Eve(json_encoder=UUIDEncoder, validator=UUIDValidator)
 
 
+Remember, if you are using custom ``ID_FIELD`` values then you should not rely
+on MongoDB (and Eve) to auto-generate the ``ID_FIELD`` for you. You are
+supposed to pass the value, like so:
+
+::
+
+    POST
+    {"name":"bill", "_id":"48c00ee9-4dbe-413f-9fc3-d5f12a91de1c"}
 
 .. _`custom url converters`: http://werkzeug.pocoo.org/docs/routing/#custom-converters
 .. _Flask: http://flask.pocoo.org/

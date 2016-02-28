@@ -8,16 +8,18 @@
     home) invokes the appropriate method handler, returning its response
     to the client, properly rendered.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
+from bson import tz_util
+from flask import abort, request, current_app as app, Response
 
+from eve.auth import requires_auth, resource_auth
 from eve.methods import get, getitem, post, patch, delete, deleteitem, put
 from eve.methods.common import ratelimit
 from eve.render import send_response
-from eve.auth import requires_auth
-from eve.utils import config, request_method, debug_error_message
-from flask import abort, request
+from eve.utils import config, weak_date, date_to_rfc1123
+import eve
 
 
 def collections_endpoint(**lookup):
@@ -47,7 +49,7 @@ def collections_endpoint(**lookup):
 
     resource = _resource()
     response = None
-    method = request_method()
+    method = request.method
     if method in ('GET', 'HEAD'):
         response = get(resource, lookup)
     elif method == 'POST':
@@ -85,7 +87,7 @@ def item_endpoint(**lookup):
     """
     resource = _resource()
     response = None
-    method = request_method()
+    method = request.method
     if method in ('GET', 'HEAD'):
         response = getitem(resource, **lookup)
     elif method == 'PATCH':
@@ -119,22 +121,32 @@ def home_endpoint():
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
     """
+    response = {}
+    if config.INFO:
+        info = {}
+        info['server'] = 'Eve'
+        info['version'] = eve.__version__
+        if config.API_VERSION:
+            info['api_version'] = config.API_VERSION
+        response[config.INFO] = info
+
     if config.HATEOAS:
-        response = {}
         links = []
         for resource in config.DOMAIN.keys():
             internal = config.DOMAIN[resource]['internal_resource']
             if not resource.endswith(config.VERSIONS):
                 if not bool(internal):
-                    links.append({'href': '/%s' % config.URLS[resource],
+                    links.append({'href': '%s' % config.URLS[resource],
                                   'title': '%s' %
                                   config.DOMAIN[resource]['resource_title']})
+        if config.SCHEMA_ENDPOINT is not None:
+            links.append({'href': '%s' % config.SCHEMA_ENDPOINT,
+                          'title': '%s' % config.SCHEMA_ENDPOINT})
 
         response[config.LINKS] = {'child': links}
         return send_response(None, (response,))
     else:
-        abort(404, debug_error_message("HATEOAS is disabled so we have no data"
-                                       " to display at the API homepage."))
+        return send_response(None, (response,))
 
 
 def error_endpoint(error):
@@ -154,3 +166,73 @@ def error_endpoint(error):
 
 def _resource():
     return request.endpoint.split('|')[0]
+
+
+def media_endpoint(_id):
+    """ This endpoint is active when RETURN_MEDIA_AS_URL is True. It retrieves
+    a media file and streams it to the client.
+
+    .. versionadded:: 0.6
+    """
+    file_ = app.media.get(_id)
+    if file_ is None:
+        return abort(404)
+
+    if_modified_since = weak_date(request.headers.get('If-Modified-Since'))
+    if if_modified_since is not None:
+        if if_modified_since.tzinfo is None:
+            if_modified_since = if_modified_since.replace(
+                tzinfo=tz_util.utc)
+
+        if if_modified_since > file_.upload_date:
+            return Response(status=304)
+
+    headers = {
+        'Last-Modified': date_to_rfc1123(file_.upload_date),
+        'Content-Length': file_.length,
+    }
+
+    response = Response(file_, headers=headers, mimetype=file_.content_type,
+                        direct_passthrough=True)
+
+    return response
+
+
+@requires_auth('resource')
+def schema_item_endpoint(resource):
+    """ This endpoint is active when SCHEMA_ENDPOINT != None. It returns the
+    requested resource's schema definition in JSON format.
+    """
+    resource_config = app.config['DOMAIN'].get(resource)
+    if not resource_config or resource_config.get('internal_resource') is True:
+        return abort(404)
+
+    return send_response(None, (resource_config['schema'],))
+
+
+@requires_auth('home')
+def schema_collection_endpoint():
+    """ This endpoint is active when SCHEMA_ENDPOINT != None. It returns the
+    schema definition for all public or request authenticated resources in
+    JSON format.
+    """
+    schemas = {}
+    for resource_name, resource_config in app.config['DOMAIN'].items():
+        # skip versioned shadow collections
+        if resource_name.endswith(config.VERSIONS):
+            continue
+        # skip internal resources
+        internal = resource_config.get('internal_resource', False)
+        if internal:
+            continue
+        # skip resources for which request does not have read authorization
+        auth = resource_auth(resource_name)
+        if auth and request.method not in resource_config['public_methods']:
+            roles = list(resource_config['allowed_roles'])
+            roles += resource_config['allowed_read_roles']
+            if not auth.authorized(roles, resource_name, request.method):
+                continue
+        # otherwise include this resource in domain wide schema response
+        schemas[resource_name] = resource_config['schema']
+
+    return send_response(None, (schemas,))

@@ -7,14 +7,18 @@
     This module implements the API 'GET' methods, supported by both the
     resources and single item endpoints.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-import copy
 import math
+
+import copy
+import json
 from flask import current_app as app, abort, request
+from werkzeug import MultiDict
+
 from .common import ratelimit, epoch, pre_event, resolve_embedded_fields, \
-    build_response_document, resource_link, document_link
+    build_response_document, resource_link, document_link, last_updated
 from eve.auth import requires_auth
 from eve.utils import parse_request, home_link, querydef, config
 from eve.versioning import synthesize_versioned_document, versioned_id_field, \
@@ -28,6 +32,9 @@ def get(resource, **lookup):
     """ Retrieves the resource documents that match the current request.
 
     :param resource: the name of the resource.
+
+    .. versionchanged:: 0.6
+       Support for HEADER_TOTAL_COUNT returned with response header.
 
     .. versionchanged:: 0.5
        Support for customisable query parameters.
@@ -84,6 +91,73 @@ def get(resource, **lookup):
        JSON formatted.
     """
 
+    datasource = config.DOMAIN[resource]['datasource']
+    aggregation = datasource.get('aggregation')
+
+    if aggregation:
+        return _perform_aggregation(resource, aggregation['pipeline'],
+                                    aggregation['options'])
+    else:
+        return _perform_find(resource, lookup)
+
+
+def _perform_aggregation(resource, pipeline, options):
+    """
+    .. versionadded:: 0.7
+    """
+    # TODO move most of this down to the Mongo layer?
+
+    # TODO experiment with cursor.batch_size as alternative pagination
+    # implementation
+
+    def parse_aggregation_stage(d, key, value):
+        for st_key, st_value in d.items():
+            if isinstance(st_value, dict):
+                parse_aggregation_stage(st_value, key, value)
+            if key == st_value:
+                d[st_key] = value
+
+    response = {}
+    documents = []
+    req = parse_request(resource)
+
+    req_pipeline = copy.deepcopy(pipeline)
+    if req.aggregation:
+        try:
+            query = json.loads(req.aggregation)
+        except ValueError:
+            abort(400, description='Aggregation query could not be parsed.')
+
+        for key, value in query.items():
+            if key[0] != '$':
+                pass
+            for stage in req_pipeline:
+                parse_aggregation_stage(stage, key, value)
+
+    if req.max_results > 1:
+        limit = {"$limit": req.max_results}
+        skip = {"$skip": (req.page - 1) * req.max_results}
+        req_pipeline.append(skip)
+        req_pipeline.append(limit)
+
+    cursor = app.data.aggregate(resource, req_pipeline, options)
+
+    for document in cursor:
+        documents.append(document)
+
+    response[config.ITEMS] = documents
+
+    # PyMongo's CommandCursor does not return a count, so we cannot
+    # provide paination/total count info as we do with a normal (non-aggregate)
+    # GET request.
+
+    return response, None, None, 200, []
+
+
+def _perform_find(resource, lookup):
+    """
+    .. versionadded:: 0.7
+    """
     documents = []
     response = {}
     etag = None
@@ -97,6 +171,8 @@ def get(resource, **lookup):
     req.if_modified_since = None
 
     cursor = app.data.find(resource, req, lookup)
+    # If soft delete is enabled, data.find will not include items marked
+    # deleted unless req.show_deleted is True
     for document in cursor:
         build_response_document(document, resource, embedded_fields)
         documents.append(document)
@@ -106,10 +182,13 @@ def get(resource, **lookup):
             last_update = document[config.LAST_UPDATED]
 
     status = 200
+    headers = []
     last_modified = last_update if last_update > epoch() else None
 
     response[config.ITEMS] = documents
     count = cursor.count(with_limit_and_skip=False)
+    headers.append((config.HEADER_TOTAL_COUNT, count))
+
     if config.DOMAIN[resource]['hateoas']:
         response[config.LINKS] = _pagination_links(resource, req, count)
 
@@ -130,7 +209,7 @@ def get(resource, **lookup):
     if hasattr(cursor, 'extra'):
         getattr(cursor, 'extra')(response)
 
-    return response, last_modified, etag, status
+    return response, last_modified, etag, status, headers
 
 
 @ratelimit()
@@ -140,6 +219,9 @@ def getitem(resource, **lookup):
     """
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
+
+    .. versionchanged:: 0.6
+       Handle soft deleted documents
 
     .. versionchanged:: 0.5
        Allow ``?version=all`` requests to fire ``on_fetched_*`` events.
@@ -193,6 +275,12 @@ def getitem(resource, **lookup):
     resource_def = config.DOMAIN[resource]
     embedded_fields = resolve_embedded_fields(resource, req)
 
+    soft_delete_enabled = config.DOMAIN[resource]['soft_delete']
+    if soft_delete_enabled:
+        # GET requests should always fetch soft deleted documents from the db
+        # They are handled and included in 404 responses below.
+        req.show_deleted = True
+
     document = app.data.find_one(resource, req, **lookup)
     if not document:
         abort(404)
@@ -203,37 +291,51 @@ def getitem(resource, **lookup):
     latest_doc = None
     cursor = None
 
+    # calculate last_modified before get_old_document rolls back the document,
+    # allowing us to invalidate the cache when _latest_version changes
+    last_modified = last_updated(document)
+
     # synthesize old document version(s)
     if resource_def['versioning'] is True:
-        latest_doc = copy.deepcopy(document)
+        latest_doc = document
         document = get_old_document(
             resource, req, lookup, document, version)
 
     # meld into response document
     build_response_document(document, resource, embedded_fields, latest_doc)
-
-    # last_modified for the response
-    last_modified = document[config.LAST_UPDATED]
-
-    # facilitate client caching by returning a 304 when appropriate
     if config.IF_MATCH:
         etag = document[config.ETAG]
 
-        if req.if_none_match and etag == req.if_none_match:
-            # request etag matches the current server representation of the
-            # document, return a 304 Not-Modified.
-            return {}, last_modified, document[config.ETAG], 304
+    # check embedded fields resolved in build_response_document() for more
+    # recent last updated timestamps. We don't want to respond 304 if embedded
+    # fields have changed
+    for field in embedded_fields:
+        embedded_document = document.get(field)
+        if isinstance(embedded_document, dict):
+            embedded_last_updated = last_updated(embedded_document)
+            if embedded_last_updated > last_modified:
+                last_modified = embedded_last_updated
 
-    if req.if_modified_since and last_modified <= req.if_modified_since:
-        # request If-Modified-Since conditional request match. We test
-        # this after the etag since Last-Modified dates have lower
-        # resolution (1 second).
-        return {}, last_modified, document.get(config.ETAG), 304
+    # facilitate client caching by returning a 304 when appropriate
+    cache_validators = {True: 0, False: 0}
+    if req.if_modified_since:
+        cache_valid = (last_modified <= req.if_modified_since)
+        cache_validators[cache_valid] += 1
+    if req.if_none_match:
+        if (resource_def['versioning'] is False) or \
+           (document[app.config['VERSION']] ==
+                document[app.config['LATEST_VERSION']]):
+            cache_valid = (etag == req.if_none_match)
+            cache_validators[cache_valid] += 1
+    # If all cache validators are true, return 304
+    if (cache_validators[True] > 0) and (cache_validators[False] == 0):
+        return {}, last_modified, etag, 304
 
     if version == 'all' or version == 'diffs':
         # find all versions
-        lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
-        del lookup[app.config['ID_FIELD']]
+        lookup[versioned_id_field(resource_def)] \
+            = lookup[resource_def['id_field']]
+        del lookup[resource_def['id_field']]
         if version == 'diffs' or req.sort is None:
             # default sort for 'all', required sort for 'diffs'
             req.sort = '[("%s", 1)]' % config.VERSION
@@ -276,6 +378,15 @@ def getitem(resource, **lookup):
             response[config.ITEMS] = documents
         else:
             response = documents
+    elif soft_delete_enabled and document.get(config.DELETED) is True:
+        # This document was soft deleted. Respond with 404 and the deleted
+        # version of the document.
+        document[config.STATUS] = config.STATUS_ERR,
+        document[config.ERROR] = {
+            'code': 404,
+            'message': 'The requested URL was not found on this server.'
+        }
+        return document, last_modified, etag, 404
     else:
         response = document
 
@@ -286,13 +397,13 @@ def getitem(resource, **lookup):
             count = cursor.count(with_limit_and_skip=False)
             response[config.LINKS] = \
                 _pagination_links(resource, req, count,
-                                  latest_doc[config.ID_FIELD])
+                                  latest_doc[resource_def['id_field']])
             if config.DOMAIN[resource]['pagination']:
                 response[config.META] = _meta_links(req, count)
         else:
             response[config.LINKS] = \
                 _pagination_links(resource, req, None,
-                                  response[config.ID_FIELD])
+                                  response[resource_def['id_field']])
 
     # callbacks not supported on version diffs because of partial documents
     if version != 'diffs':
@@ -351,8 +462,10 @@ def _pagination_links(resource, req, documents_count, document_id=None):
     if config.DOMAIN[resource]['versioning'] is True:
         version = request.args.get(config.VERSION_PARAM)
 
+    other_params = _other_params(req.args)
     # construct the default links
-    q = querydef(req.max_results, req.where, req.sort, version, req.page)
+    q = querydef(req.max_results, req.where, req.sort, version, req.page,
+                 other_params)
     resource_title = config.DOMAIN[resource]['resource_title']
     _links = {'parent': home_link(),
               'self': {'title': resource_title,
@@ -387,7 +500,7 @@ def _pagination_links(resource, req, documents_count, document_id=None):
         _pagination_link = _links['self']['href'].split('?')[0]
         if req.page * req.max_results < documents_count:
             q = querydef(req.max_results, req.where, req.sort, version,
-                         req.page + 1)
+                         req.page + 1, other_params)
             _links['next'] = {'title': 'next page', 'href': '%s%s' %
                               (_pagination_link, q)}
 
@@ -396,20 +509,32 @@ def _pagination_links(resource, req, documents_count, document_id=None):
             # a correct result. Wonder if 2 casts + ceil() call are actually
             # faster than documents_count // req.max_results and then adding
             # 1 if the modulo is non-zero...
-            last_page = int(math.ceil(documents_count
-                                      / float(req.max_results)))
+            last_page = int(math.ceil(documents_count /
+                                      float(req.max_results)))
             q = querydef(req.max_results, req.where, req.sort, version,
-                         last_page)
+                         last_page, other_params)
             _links['last'] = {'title': 'last page', 'href': '%s%s'
                               % (_pagination_link, q)}
 
         if req.page > 1:
             q = querydef(req.max_results, req.where, req.sort, version,
-                         req.page - 1)
+                         req.page - 1, other_params)
             _links['prev'] = {'title': 'previous page', 'href': '%s%s' %
                               (_pagination_link, q)}
 
     return _links
+
+
+def _other_params(args):
+    """ Returns a multidict of params that are not used internally by Eve.
+
+    :param args: multidict containing the request parameters
+    """
+    default_params = [config.QUERY_WHERE, config.QUERY_SORT,
+                      config.QUERY_PAGE, config.QUERY_MAX_RESULTS,
+                      config.QUERY_EMBEDDED, config.QUERY_PROJECTION]
+    return MultiDict((key, value) for key, values in args.lists()
+                     for value in values if key not in default_params)
 
 
 def _meta_links(req, count):

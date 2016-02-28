@@ -1,33 +1,40 @@
+# -*- coding: utf-8 -*-
+
 """
     eve.io.mongo.mongo (eve.io.mongo)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     The actual implementation of the MongoDB data layer.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-
-import sys
-import ast
 import itertools
-from bson.errors import InvalidId
-import simplejson as json
-import pymongo
-from flask import abort, request
-from flask.ext.pymongo import PyMongo
-from werkzeug.exceptions import HTTPException
-from bson import ObjectId
 from datetime import datetime
-from eve.io.mongo.parser import parse, ParseError
+
+import ast
+import pymongo
+import simplejson as json
+from bson import ObjectId
+from copy import copy
+from flask import abort, request, g
+from flask.ext.pymongo import PyMongo
+from pymongo import WriteConcern
+from werkzeug.exceptions import HTTPException
+
+from eve.auth import resource_auth
 from eve.io.base import DataLayer, ConnectionException, BaseJSONEncoder
+from eve.io.mongo.parser import parse, ParseError
 from eve.utils import config, debug_error_message, validate_filters, \
-    str_to_date
+    str_to_date, str_type
 
 
 class MongoJSONEncoder(BaseJSONEncoder):
     """ Proprietary JSONEconder subclass used by the json render function.
     This is needed to address the encoding of special values.
+
+    .. versionchanged:: 0.6.2
+       Do not attempt to serialize callables. Closes #790.
 
     .. versionadded:: 0.2
     """
@@ -35,9 +42,14 @@ class MongoJSONEncoder(BaseJSONEncoder):
         if isinstance(obj, ObjectId):
             # BSON/Mongo ObjectId is rendered as a string
             return str(obj)
-        else:
-            # delegate rendering to base class method
-            return super(MongoJSONEncoder, self).default(obj)
+        if callable(obj):
+            # when SCHEMA_ENDPOINT is active, 'coerce' rule is likely to
+            # contain a lambda/callable which can't be jSON serialized
+            # (and we probably don't want it to be exposed anyway). See #790.
+            return "<callable>"
+
+        # delegate rendering to base class method
+        return super(MongoJSONEncoder, self).default(obj)
 
 
 class Mongo(DataLayer):
@@ -60,8 +72,9 @@ class Mongo(DataLayer):
     serializers = {
         'objectid': lambda value: ObjectId(value) if value else None,
         'datetime': str_to_date,
-        'integer': lambda value: int(value) if value else None,
-        'float': lambda value: float(value) if value else None,
+        'integer': lambda value: int(value) if value is not None else None,
+        'float': lambda value: float(value) if value is not None else None,
+        'number': lambda val: json.loads(val) if val is not None else None
     }
 
     # JSON serializer is a class attribute. Allows extensions to replace it
@@ -69,7 +82,7 @@ class Mongo(DataLayer):
     json_encoder_class = MongoJSONEncoder
 
     operators = set(
-        ['$gt', '$gte', '$in', '$lt', '$lt', '$lte', '$ne', '$nin'] +
+        ['$gt', '$gte', '$in', '$lt', '$lte', '$ne', '$nin'] +
         ['$or', '$and', '$not', '$nor'] +
         ['$mod', '$regex', '$text', '$where'] +
         ['$options', '$search', '$language'] +
@@ -96,7 +109,7 @@ class Mongo(DataLayer):
         be expressed in two different formats: the mongo query syntax, and the
         python syntax. The first kind of query would look like: ::
 
-            ?where={"name": "john doe}
+            ?where={"name": "john doe"}
 
         while the second would look like: ::
 
@@ -110,6 +123,10 @@ class Mongo(DataLayer):
 
         .. versionchanged:: 0.6
            Support for multiple databases.
+<<<<<<< HEAD
+=======
+           Filter soft deleted documents by default
+>>>>>>> 85c9e087b26b5a9a0bbce6622ed23a8a7aa19f15
 
         .. versionchanged:: 0.5
            Support for comma delimited sort syntax. Addresses #443.
@@ -186,6 +203,7 @@ class Mongo(DataLayer):
                 if len(sort) > 0:
                     client_sort = sort
             except Exception as e:
+                self.app.logger.exception(e)
                 abort(400, description=debug_error_message(str(e)))
 
         if req.where:
@@ -210,6 +228,14 @@ class Mongo(DataLayer):
         if sub_resource_lookup:
             spec = self.combine_queries(spec, sub_resource_lookup)
 
+        if config.DOMAIN[resource]['soft_delete'] and not req.show_deleted:
+            # Soft delete filtering applied after validate_filters call as
+            # querying against the DELETED field must always be allowed when
+            # soft_delete is enabled
+            if not self.query_contains_field(spec, config.DELETED):
+                spec = self.combine_queries(
+                    spec, {config.DELETED: {"$ne": True}})
+
         spec = self._mongotize(spec, resource)
 
         client_projection = self._client_projection(req)
@@ -225,15 +251,15 @@ class Mongo(DataLayer):
                 {'$gt': req.if_modified_since}
 
         if len(spec) > 0:
-            args['spec'] = spec
+            args['filter'] = spec
 
         if sort is not None:
             args['sort'] = sort
 
         if projection is not None:
-            args['fields'] = projection
+            args['projection'] = projection
 
-        return self.pymongo().db[datasource].find(**args)
+        return self.pymongo(resource).db[datasource].find(**args)
 
     def find_one(self, resource, req, **lookup):
         """ Retrieves a single document.
@@ -244,6 +270,7 @@ class Mongo(DataLayer):
 
         .. versionchanged:: 0.6
            Support for multiple databases.
+           Filter soft deleted documents by default
 
         .. versionchanged:: 0.4
            Honor client projection requests.
@@ -262,13 +289,6 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
-        if config.ID_FIELD in lookup:
-            try:
-                lookup[config.ID_FIELD] = ObjectId(lookup[config.ID_FIELD])
-            except (InvalidId, TypeError):
-                # Returns a type error when {'_id': {...}}
-                pass
-
         self._mongotize(lookup, resource)
 
         client_projection = self._client_projection(req)
@@ -278,7 +298,14 @@ class Mongo(DataLayer):
             lookup,
             client_projection)
 
-        document = self.pymongo().db[datasource].find_one(filter_, projection)
+        if (config.DOMAIN[resource]['soft_delete']) and \
+                (not req or not req.show_deleted) and \
+                (not self.query_contains_field(lookup, config.DELETED)):
+            filter_ = self.combine_queries(
+                filter_, {config.DELETED: {"$ne": True}})
+
+        document = self.pymongo(resource).db[datasource] \
+                                         .find_one(filter_, projection)
         return document
 
     def find_one_raw(self, resource, _id):
@@ -292,11 +319,12 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.4
         """
+        id_field = config.DOMAIN[resource]['id_field']
         datasource, filter_, _, _ = self._datasource_ex(resource,
-                                                        {config.ID_FIELD: _id},
+                                                        {id_field: _id},
                                                         None)
 
-        document = self.pymongo().db[datasource].find_one(_id)
+        document = self.pymongo(resource).db[datasource].find_one(_id)
         return document
 
     def find_list_of_ids(self, resource, ids, client_projection=None):
@@ -334,22 +362,40 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.1.0
         """
+        id_field = config.DOMAIN[resource]['id_field']
         query = {'$or': [
-            {config.ID_FIELD: id_} for id_ in ids
+            {id_field: id_} for id_ in ids
         ]}
 
         datasource, spec, projection, _ = self._datasource_ex(
             resource, query=query, client_projection=client_projection
         )
 
-        documents = self.pymongo().db[datasource].find(
-            spec=spec, fields=projection
+        documents = self.pymongo(resource).db[datasource].find(
+            filter=spec, projection=projection
         )
         return documents
+
+    def aggregate(self, resource, pipeline, options):
+        """
+        .. versionadded:: 0.7
+        """
+        datasource, _, _, _ = self.datasource(resource)
+
+        return self.pymongo(resource).db[datasource].aggregate(
+            pipeline,
+            **options
+        )
 
     def insert(self, resource, doc_or_docs):
         """ Inserts a document into a resource collection.
 
+<<<<<<< HEAD
+=======
+        .. versionchanged:: 0.6.1
+           Support for PyMongo 3.0.
+
+>>>>>>> 85c9e087b26b5a9a0bbce6622ed23a8a7aa19f15
         .. versionchanged:: 0.6
            Support for multiple databases.
 
@@ -368,11 +414,20 @@ class Mongo(DataLayer):
            retrieves the target collection via the new config.SOURCES helper.
         """
         datasource, _, _, _ = self._datasource_ex(resource)
+
+        coll = self.get_collection_with_write_concern(datasource, resource)
+
+        if isinstance(doc_or_docs, dict):
+            doc_or_docs = [doc_or_docs]
+
         try:
-            return self.pymongo().db[datasource].insert(
-                doc_or_docs, **self._wc(resource)
-            )
+            return coll.insert_many(doc_or_docs).inserted_ids
+        except pymongo.errors.DuplicateKeyError as e:
+            abort(409, description=debug_error_message(
+                'pymongo.errors.DuplicateKeyError: %s' % e
+            ))
         except pymongo.errors.InvalidOperation as e:
+            self.app.logger.exception(e)
             abort(500, description=debug_error_message(
                 'pymongo.errors.InvalidOperation: %s' % e
             ))
@@ -380,12 +435,74 @@ class Mongo(DataLayer):
             # most likely a 'w' (write_concern) setting which needs an
             # existing ReplicaSet which doesn't exist. Please note that the
             # update will actually succeed (a new ETag will be needed).
+            self.app.logger.exception(e)
             abort(500, description=debug_error_message(
                 'pymongo.errors.OperationFailure: %s' % e
             ))
 
-    def update(self, resource, id_, updates):
+    def _change_request(self, resource, id_, changes, original, replace=False):
+        """ Performs a change, be it a replace or update.
+
+        .. versionchanged:: 0.6.1
+           Support for PyMongo 3.0.
+
+        .. versionchanged:: 0.6
+           Return 400 if an attempt is made to update/replace an immutable
+           field.
+        """
+        id_field = config.DOMAIN[resource]['id_field']
+        query = {id_field: id_}
+        if config.ETAG in original:
+            query[config.ETAG] = original[config.ETAG]
+
+        datasource, filter_, _, _ = self._datasource_ex(
+            resource, query)
+
+        coll = self.get_collection_with_write_concern(datasource, resource)
+        try:
+            result = coll.replace_one(filter_, changes) if replace else \
+                coll.update_one(filter_, changes)
+
+            if result and result.acknowledged and result.modified_count == 0:
+                raise self.OriginalChangedError()
+        except pymongo.errors.DuplicateKeyError as e:
+            abort(400, description=debug_error_message(
+                'pymongo.errors.DuplicateKeyError: %s' % e
+            ))
+        except pymongo.errors.OperationFailure as e:
+            # server error codes and messages changed between 2.4 and 2.6/3.0.
+            server_version = \
+                self.driver.db.client.server_info()['version'][:3]
+            if (
+                (server_version == '2.4' and e.code in (13596, 10148)) or
+                (server_version in ('2.6', '3.0') and e.code in (66, 16837))
+            ):
+                # attempt to update an immutable field. this usually
+                # happens when a PATCH or PUT includes a mismatching ID_FIELD.
+                self.app.logger.warn(e)
+                description = debug_error_message(
+                    'pymongo.errors.OperationFailure: %s' % e) or \
+                    "Attempt to update an immutable field. Usually happens " \
+                    "when PATCH or PUT include a '%s' field, " \
+                    "which is immutable (PUT can include it as long as " \
+                    "it is unchanged)." % id_field
+
+                abort(400, description=description)
+            else:
+                # see comment in :func:`insert()`.
+                self.app.logger.exception(e)
+                abort(500, description=debug_error_message(
+                    'pymongo.errors.OperationFailure: %s' % e
+                ))
+
+    def update(self, resource, id_, updates, original):
         """ Updates a collection document.
+        .. versionchanged:: 0.6
+           Support for multiple databases.
+
+        .. versionchanged:: 5.2
+           Raise OriginalChangedError if document is changed from the
+           specified original.
 
         .. versionchanged:: 0.6
            Support for multiple databases.
@@ -412,28 +529,17 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
-        datasource, filter_, _, _ = self._datasource_ex(resource,
-                                                        {config.ID_FIELD: id_})
 
-        # TODO consider using find_and_modify() instead. The document might
-        # have changed since the ETag was computed. This would require getting
-        # the original document as an argument though.
-        try:
-            self.pymongo().db[datasource].update(
-                filter_, {"$set": updates}, **self._wc(resource)
-            )
-        except pymongo.errors.DuplicateKeyError as e:
-            abort(400, description=debug_error_message(
-                'pymongo.errors.DuplicateKeyError: %s' % e
-            ))
-        except pymongo.errors.OperationFailure as e:
-            # see comment in :func:`insert()`.
-            abort(500, description=debug_error_message(
-                'pymongo.errors.OperationFailure: %s' % e
-            ))
+        return self._change_request(resource, id_, {"$set": updates}, original)
 
-    def replace(self, resource, id_, document):
+    def replace(self, resource, id_, document, original):
         """ Replaces an existing document.
+        .. versionchanged:: 0.6
+           Support for multiple databases.
+
+        .. versionchanged:: 5.2
+           Raise OriginalChangedError if document is changed from the
+           specified original.
 
         .. versionchanged:: 0.6
            Support for multiple databases.
@@ -447,24 +553,16 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.1.0
         """
-        datasource, filter_, _, _ = self._datasource_ex(resource,
-                                                        {config.ID_FIELD: id_})
 
-        # TODO consider using find_and_modify() instead. The document might
-        # have changed since the ETag was computed. This would require getting
-        # the original document as an argument though.
-        try:
-            self.pymongo().db[datasource].update(filter_, document,
-                                                 **self._wc(resource))
-        except pymongo.errors.OperationFailure as e:
-            # see comment in :func:`insert()`.
-            abort(500, description=debug_error_message(
-                'pymongo.errors.OperationFailure: %s' % e
-            ))
+        return self._change_request(resource, id_, document, original,
+                                    replace=True)
 
     def remove(self, resource, lookup):
         """ Removes a document or the entire set of documents from a
         collection.
+
+        .. versionchanged:: 0.6.1
+           Support for PyMongo 3.0.
 
         .. versionchanged:: 0.6
            Support for multiple databases.
@@ -491,13 +589,19 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.0.2
             Support for deletion of entire documents collection.
+        :returns
+            A document (dict) describing the effect of the remove
+            or None if write acknowledgement is disabled.
         """
         lookup = self._mongotize(lookup, resource)
         datasource, filter_, _, _ = self._datasource_ex(resource, lookup)
+
+        coll = self.get_collection_with_write_concern(datasource, resource)
         try:
-            self.pymongo().db[datasource].remove(filter_, **self._wc(resource))
+            coll.delete_many(filter_)
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
+            self.app.logger.exception(e)
             abort(500, description=debug_error_message(
                 'pymongo.errors.OperationFailure: %s' % e
             ))
@@ -593,11 +697,11 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.3
         """
-        datasource, filter_, _, _ = self._datasource(resource)
-        coll = self.pymongo().db[datasource]
+        datasource, filter_, _, _ = self.datasource(resource)
+        coll = self.pymongo(resource).db[datasource]
         try:
             if not filter_:
-                # faster, but we can only affrd it if there's now predefined
+                # faster, but we can only afford it if there's now predefined
                 # filter on the datasource.
                 return coll.count() == 0
             else:
@@ -611,6 +715,7 @@ class Mongo(DataLayer):
                 return coll.find(filter_).count() == 0
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
+            self.app.logger.exception(e)
             abort(500, description=debug_error_message(
                 'pymongo.errors.OperationFailure: %s' % e
             ))
@@ -635,11 +740,6 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.0.4
         """
-        if sys.version_info[0] == 3:
-            _str_type = str
-        else:
-            _str_type = basestring  # noqa
-
         schema = config.DOMAIN[resource]
         skip_objectid = schema.get('query_objectid_as_string', False)
 
@@ -653,7 +753,12 @@ class Mongo(DataLayer):
                         # 12-character strings (but not unicode) as binary
                         # representations of ObjectId's.  See
                         # https://github.com/nicolaiarocci/eve/issues/508
-                        return ObjectId(unicode(v))
+                        try:
+                            r = ObjectId(unicode(v))
+                        except NameError:
+                            # We're on Python 3 so it's all unicode # already.
+                            r = ObjectId(v)
+                        return r
                     except:
                         return v
                 else:
@@ -668,7 +773,7 @@ class Mongo(DataLayer):
                         source[k][i] = self._mongotize(v1, resource)
                     else:
                         source[k][i] = try_cast(v1)
-            elif isinstance(v, _str_type):
+            elif isinstance(v, str_type):
                 source[k] = try_cast(v)
 
         return source
@@ -714,34 +819,24 @@ class Mongo(DataLayer):
         """
         return config.DOMAIN[resource]['mongo_write_concern']
 
-    def _client_projection(self, req):
-        """ Returns a properly parsed client projection if available.
-
-        :param req: a :class:`ParsedRequest` instance.
-
-        .. versionadded:: 0.4
-        """
-        client_projection = {}
-        if req and req.projection:
-            try:
-                client_projection = json.loads(req.projection)
-                if not isinstance(client_projection, dict):
-                    raise Exception('The projection parameter has to be a '
-                                    'dict')
-            except:
-                abort(400, description=debug_error_message(
-                    'Unable to parse `projection` clause'
-                ))
-        return client_projection
-
-    def current_mongo_prefix(self):
+    def current_mongo_prefix(self, resource=None):
         """ Returns the active mongo_prefix that should be used to retrieve
         a valid PyMongo instance from the cache. If 'self.mongo_prefix' is set
         it has precedence over both endpoint (resource) and default drivers.
         This allows Auth classes (for instance) to override default settings to
         use a user-reserved db instance.
 
+        Even a standard Flask view can set the mongo_prefix:
+
+            from flask import g
+
+            g.mongo_prefix = 'MONGO2'
+
         :param resource: endpoint for which a mongo prefix is needed.
+
+        ..versionchanged:: 0.7
+          Allow standard Flask views (@app.route) to set the mongo_prefix on
+          their own.
 
         ..versionadded:: 0.6
         """
@@ -751,18 +846,26 @@ class Mongo(DataLayer):
         # eve.io.media.MediaStorage interface, possibly breaking compatibility
         # for other database implementations.
 
+        auth = None
         try:
-            resource = request.endpoint[:request.endpoint.index('|')]
+            if resource is None and request and request.endpoint:
+                resource = request.endpoint[:request.endpoint.index('|')]
+            if request and request.endpoint:
+                auth = resource_auth(resource)
         except ValueError:
-            resource = None
+            pass
 
-        if self.mongo_prefix:
-            px = self.mongo_prefix
-        else:
+        px = auth.get_mongo_prefix() if auth else None
+
+        if px is None:
+            px = g.get('mongo_prefix', None)
+
+        if px is None:
             if resource:
                 px = config.DOMAIN[resource].get('mongo_prefix', 'MONGO')
             else:
                 px = 'MONGO'
+
         return px
 
     def pymongo(self, resource=None, prefix=None):
@@ -776,7 +879,7 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.6
         """
-        px = prefix if prefix else self.current_mongo_prefix()
+        px = prefix if prefix else self.current_mongo_prefix(resource=resource)
 
         if px not in self.driver:
             # instantiate and add to cache
@@ -789,6 +892,20 @@ class Mongo(DataLayer):
             return self.driver[px]
         except Exception as e:
             raise ConnectionException(e)
+
+    def get_collection_with_write_concern(self, datasource, resource):
+        """ Returns a pymongo Collection with the desired write_concern
+        setting.
+
+        PyMongo 3.0+ collections are immutable, yet we still want to allow the
+        maintainer to change the write concern setting on the fly, hence the
+        clone.
+
+        .. versionadded:: 0.6.1
+        """
+        wc = WriteConcern(config.DOMAIN[resource]['mongo_write_concern']['w'])
+        return self.pymongo(resource).db[datasource].with_options(
+            write_concern=wc)
 
 
 class PyMongos(dict):
@@ -809,3 +926,86 @@ class PyMongos(dict):
         'self.data.driver.db[collection]' pattern.
         """
         return self.mongo.pymongo().db
+
+
+def create_index(app, resource, name, list_of_keys, index_options):
+    """ Create a specific index composed of the `list_of_keys` for the
+    mongo collection behind the `resource` using the `app.config`
+    to retrieve all data needed to find out the mongodb configuration.
+    The index is also configured by the `index_options`.
+
+    Index are a list of tuples setting for each one the name of the
+    fields and the kind of order used, 1 for ascending and -1 for
+    descending.
+
+    For example:
+        [('field_name', 1), ('other_field', -1)]
+
+    Other indexes such as "hash", "2d", "text" can be used.
+
+    Index options are a dictionary to set specific behaviour of the
+    index.
+
+    For example:
+        {"sparse": True}
+
+    .. versionadded:: 0.6
+    """
+    # it doesn't work as a typical mongodb method run in the request
+    # life cicle, it is just called when the app start and it uses
+    # pymongo directly.
+    collection = app.config['SOURCES'][resource]['source']
+
+    if 'MONGO_URI' in app.config and app.config['MONGO_URI']:
+        conn = pymongo.MongoClient(app.config['MONGO_URI'])
+        db = conn.get_default_database()
+    else:
+        config_prefix = app.config['DOMAIN'][resource].get('mongo_prefix',
+                                                           'MONGO')
+
+        def key(suffix):
+            return '%s_%s' % (config_prefix, suffix)
+
+        db_name = app.config[key('DBNAME')]
+
+        # just reproduced the same behaviour for username
+        # and password, the other fields come set by Eve by
+        # default.
+        username = app.config[key('USERNAME')] \
+            if key('USERNAME') in app.config else None
+        password = app.config[key('PASSWORD')] \
+            if key('PASSWORD') in app.config else None
+        auth_db_name = app.config[key('AUTHDBNAME')] \
+            if key('AUTHDBNAME') in app.config else None
+        host = app.config[key('HOST')]
+        port = app.config[key('PORT')]
+        auth = (username, password)
+        host_and_port = '%s:%s' % (host, port)
+        conn = pymongo.MongoClient(host_and_port)
+        db = conn[db_name]
+
+        if any(auth):
+            db.authenticate(username, password, source=auth_db_name)
+
+    kw = copy(index_options)
+    kw['name'] = name
+
+    colls = [db[collection]]
+    if app.config['DOMAIN'][resource]['versioning']:
+        colls.append(db['%s_versions' % collection])
+
+    for coll in colls:
+        try:
+            coll.create_index(list_of_keys, **kw)
+        except pymongo.errors.OperationFailure as e:
+            if e.code == 85:
+                # This error is raised when the definition of the index has
+                # been changed, we didn't found any spec out there but we think
+                # that this error is not going to change and we can trust.
+
+                # by default, drop the old index with old configuration and
+                # create the index again with the new configuration.
+                coll.drop_index(name)
+                coll.create_index(list_of_keys, **kw)
+            else:
+                raise

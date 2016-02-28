@@ -57,15 +57,25 @@ payload:
 ::
 
     {
+        "_info": {
+            "server": "Eve",
+            "version": "a.b.c",
+            "api_version": "x.y.z"
+        },
         "_links": {
             "child": [
                 {
-                    "href": "/people", 
+                    "href": "people", 
                     "title": "people"
                 }
             ]
         }
     }
+
+The `_info` section displays the current version of Eve (a.b.c) and the current
+version of the API as defined in your :ref:`global` configuration section. This
+is an optional feature that you can turn on by setting a value in the `INFO` value
+in your settings (defaults to off).
 
 API entry points adhere to the :ref:`hateoas_feature` principle and provide
 information about the resources accessible through the API. In our case
@@ -83,7 +93,7 @@ Try requesting `people` now:
         "_items": [], 
         "_links": {
             "self": {
-                "href": "/people", 
+                "href": "people", 
                 "title": "people"
             }, 
             "parent": {
@@ -276,9 +286,9 @@ endpoint:
         "updated": "Wed, 21 Nov 2012 16:04:56 GMT",
         "created": "Wed, 21 Nov 2012 16:04:56 GMT",
         "_links": {
-            "self": {"href": "/people/50acfba938345b0978fccad7", "title": "person"},
+            "self": {"href": "people/50acfba938345b0978fccad7", "title": "person"},
             "parent": {"href": "/", "title": "home"},
-            "collection": {"href": "/people", "title": "people"}
+            "collection": {"href": "people", "title": "people"}
         }
     }
 

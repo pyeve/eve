@@ -153,7 +153,7 @@ html_sidebars = {
        'alabaster/dev.html',
        'alabaster/links.html',
        #'powered.html',
-       'donate.html',
+       #'donate.html',
        'searchbox.html',
        'alabaster/artwork.html'
    ]
@@ -281,8 +281,7 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 #intersphinx_mapping = {'http://docs.python.org/': None}
-#cerberus = 'http://cerberus.readthedocs.org/en/latest/'
-intersphinx_mapping = {'cerberus': ('http://cerberus.readthedocs.org/en/latest/', None)}
+intersphinx_mapping = {'cerberus': ('http://docs.python-cerberus.org/en/latest/', None)}
 
 pygments_style = 'flask_theme_support.FlaskyStyle'
 

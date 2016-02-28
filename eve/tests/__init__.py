@@ -13,6 +13,10 @@ from eve.tests.test_settings import MONGO_PASSWORD, MONGO_USERNAME, \
     MONGO_DBNAME, DOMAIN, MONGO_HOST, MONGO_PORT
 from eve import ISSUES, ETAG
 from eve.utils import date_to_str
+try:
+    from urlparse import parse_qs, urlparse
+except ImportError:
+    from urllib.parse import parse_qs, urlparse
 
 
 class ValueStack(object):
@@ -48,7 +52,7 @@ def close_pymongo_connection(app):
     """
     if 'pymongo' not in app.extensions:
         return
-    del app.extensions['pymongo']['MONGO']
+    del app.extensions['pymongo']
     del app.media
 
 
@@ -93,14 +97,17 @@ class TestMinimal(unittest.TestCase):
     def assert201(self, status):
         self.assertEqual(status, 201)
 
+    def assert204(self, status):
+        self.assertEqual(status, 204)
+
     def assert301(self, status):
         self.assertEqual(status, 301)
 
-    def assert404(self, status):
-        self.assertEqual(status, 404)
-
     def assert304(self, status):
         self.assertEqual(status, 304)
+
+    def assert404(self, status):
+        self.assertEqual(status, 404)
 
     def assert422(self, status):
         self.assertEqual(status, 422)
@@ -189,7 +196,7 @@ class TestMinimal(unittest.TestCase):
         self.assert304(r.status_code)
         self.assertTrue(not r.get_data())
 
-    def assertItem(self, item):
+    def assertItem(self, item, resource):
         self.assertEqual(type(item), dict)
 
         updated_on = item.get(self.app.config['LAST_UPDATED'])
@@ -209,7 +216,7 @@ class TestMinimal(unittest.TestCase):
                       (self.app.config['DATE_CREATED'], e))
 
         link = item.get('_links')
-        _id = item.get(self.app.config['ID_FIELD'])
+        _id = item.get(self.domain[resource]['id_field'])
         self.assertItemLink(link, _id)
 
     def assertPagination(self, response, page, total, max_results):
@@ -239,7 +246,7 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue('href' in link)
         url = self.domain[resource]['url']
         self.assertEqual(url, link['title'])
-        self.assertEqual("/%s" % url, link['href'])
+        self.assertEqual("%s" % url, link['href'])
 
     def assertCollectionLink(self, links, resource):
         self.assertTrue('collection' in links)
@@ -248,7 +255,7 @@ class TestMinimal(unittest.TestCase):
         self.assertTrue('href' in link)
         url = self.domain[resource]['url']
         self.assertEqual(url, link['title'])
-        self.assertEqual("/%s" % url, link['href'])
+        self.assertEqual("%s" % url, link['href'])
 
     def assertNextLink(self, links, page):
         self.assertTrue('next' in links)
@@ -289,6 +296,14 @@ class TestMinimal(unittest.TestCase):
         else:
             self.assertTrue('last' not in links)
 
+    def assertCustomParams(self, link, params):
+        self.assertTrue('href' in link)
+        url_params = parse_qs(urlparse(link['href']).query)
+        for param, values in params.lists():
+            self.assertTrue(param in url_params)
+            for value in values:
+                self.assertTrue(value in url_params[param])
+
     def assert400(self, status):
         self.assertEqual(status, 400)
 
@@ -306,6 +321,9 @@ class TestMinimal(unittest.TestCase):
 
     def assert412(self, status):
         self.assertEqual(status, 412)
+
+    def assert428(self, status):
+        self.assertEqual(status, 428)
 
     def assert500(self, status):
         self.assertEqual(status, 500)
@@ -331,6 +349,10 @@ class TestBase(TestMinimal):
 
     def setUp(self, url_converters=None):
         super(TestBase, self).setUp(url_converters=url_converters)
+
+        self.disabled_bulk = 'disabled_bulk'
+        self.disabled_bulk_url = ('/%s' %
+                                  self.domain[self.disabled_bulk]['url'])
 
         self.known_resource = 'contacts'
         self.known_resource_url = ('/%s' %
@@ -362,7 +384,7 @@ class TestBase(TestMinimal):
         response, _ = self.get('contacts', '?max_results=2')
         contact = self.response_item(response)
         self.item = contact
-        self.item_id = contact[self.app.config['ID_FIELD']]
+        self.item_id = contact[self.domain['contacts']['id_field']]
         self.item_name = contact['ref']
         self.item_tid = contact['tid']
         self.item_etag = contact[ETAG]
@@ -382,7 +404,7 @@ class TestBase(TestMinimal):
 
         response, _ = self.get('users')
         user = self.response_item(response)
-        self.user_id = user[self.app.config['ID_FIELD']]
+        self.user_id = user[self.domain['users']['id_field']]
         self.user_username = user['username']
         self.user_name = user['ref']
         self.user_etag = user[ETAG]
@@ -396,7 +418,7 @@ class TestBase(TestMinimal):
 
         response, _ = self.get('invoices')
         invoice = self.response_item(response)
-        self.invoice_id = invoice[self.app.config['ID_FIELD']]
+        self.invoice_id = invoice[self.domain['invoices']['id_field']]
         self.invoice_etag = invoice[ETAG]
         self.invoice_id_url = ('/%s/%s' %
                                (self.domain['invoices']['url'],
@@ -414,9 +436,9 @@ class TestBase(TestMinimal):
         schema = DOMAIN['contacts']['schema']
         contacts = []
         for i in range(num):
-            dt = datetime.now()
+            dt = datetime.utcnow().replace(microsecond=0)
             contact = {
-                'ref':  self.random_string(schema['ref']['maxlength']),
+                'ref': self.random_string(schema['ref']['maxlength']),
                 'prog': i,
                 'role': random.choice(schema['role']['allowed']),
                 'rows': self.random_rows(random.randint(0, 5)),
@@ -429,6 +451,7 @@ class TestBase(TestMinimal):
                     days=random.randint(-10, 10)),
 
                 'tid': ObjectId(),
+                'read_only_field': schema['read_only_field']['default']
             }
             if standard_date_fields:
                 contact[eve.LAST_UPDATED] = dt
@@ -446,9 +469,9 @@ class TestBase(TestMinimal):
     def random_payments(self, num):
         payments = []
         for i in range(num):
-            dt = datetime.now()
+            dt = datetime.utcnow().replace(microsecond=0)
             payment = {
-                'a_string':  self.random_string(10),
+                'a_string': self.random_string(10),
                 'a_number': i,
                 eve.LAST_UPDATED: dt,
                 eve.DATE_CREATED: dt,
@@ -459,14 +482,27 @@ class TestBase(TestMinimal):
     def random_invoices(self, num):
         invoices = []
         for _ in range(num):
-            dt = datetime.now()
+            dt = datetime.utcnow().replace(microsecond=0)
             invoice = {
-                'inv_number':  self.random_string(10),
+                'inv_number': self.random_string(10),
                 eve.LAST_UPDATED: dt,
                 eve.DATE_CREATED: dt,
             }
             invoices.append(invoice)
         return invoices
+
+    def random_products(self, num):
+        schema = DOMAIN['products']['schema']
+        products = []
+        for _ in range(num):
+            products.append(
+                {
+                    'sku': self.random_string(schema['sku']['maxlength']),
+                    'title': ("Hypercube " + self.random_string(2) +
+                              str(random.randint(100, 1000)))
+                }
+            )
+        return products
 
     def random_string(self, num):
         return (''.join(random.choice(string.ascii_uppercase)
@@ -493,9 +529,9 @@ class TestBase(TestMinimal):
     def random_internal_transactions(self, num):
         transactions = []
         for i in range(num):
-            dt = datetime.now()
+            dt = datetime.utcnow().replace(microsecond=0)
             transaction = {
-                'internal_string':  self.random_string(10),
+                'internal_string': self.random_string(10),
                 'internal_number': i,
                 eve.LAST_UPDATED: dt,
                 eve.DATE_CREATED: dt,
@@ -510,4 +546,5 @@ class TestBase(TestMinimal):
         _db.payments.insert(self.random_payments(10))
         _db.invoices.insert(self.random_invoices(1))
         _db.internal_transactions.insert(self.random_internal_transactions(4))
+        _db.products.insert(self.random_products(2))
         self.connection.close()

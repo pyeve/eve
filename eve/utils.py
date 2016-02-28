@@ -6,22 +6,26 @@
 
     Utility functions and classes.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
+import sys
 import eve
 import hashlib
 import werkzeug.exceptions
+from cerberus import Validator
+from copy import copy
 from flask import request
 from flask import current_app as app
 from datetime import datetime, timedelta
 from bson.json_util import dumps
 from eve import RFC1123_DATE_FORMAT
+from werkzeug import MultiDict
 
 
 class Config(object):
-    """ Helper class used trorough the code to access configuration settings.
+    """ Helper class used through the code to access configuration settings.
     If the main flaskapp object is not instantiated yet, returns the default
     setting in the eve __init__.py module, otherwise returns the flaskapp
     config value (which value might override the static defaults).
@@ -81,6 +85,13 @@ class ParsedRequest(object):
     # `embedded` value of the query string (?embedded). Defaults to None.
     embedded = None
 
+    # `show_deleted` True when the SHOW_DELETED_PARAM is included in query.
+    # Only relevant when soft delete is enabled. Defaults to False.
+    show_deleted = False
+
+    # `aggregation` value of the query string (?aggregation). Defaults to None.
+    aggregation = None
+
     # `args` value of the original request. Defaults to None.
     args = None
 
@@ -90,6 +101,9 @@ def parse_request(resource):
     containing relevant request data.
 
     :param resource: the resource currently being accessed by the client.
+
+    .. versionchanged:: 0.7
+       Handle ETag values surrounded by double quotes. Closes #794.
 
     .. versionchanged:: 0.5
        Support for custom query parameters via configuration settings.
@@ -119,6 +133,10 @@ def parse_request(resource):
         r.sort = args.get(config.QUERY_SORT)
     if settings['embedding']:
         r.embedded = args.get(config.QUERY_EMBEDDED)
+    if settings['datasource']['aggregation']:
+        r.aggregation = args.get(config.QUERY_AGGREGATION)
+
+    r.show_deleted = config.SHOW_DELETED_PARAM in args
 
     max_results_default = config.PAGINATION_DEFAULT if \
         settings['pagination'] else 0
@@ -142,13 +160,14 @@ def parse_request(resource):
         if r.max_results > config.PAGINATION_LIMIT:
             r.max_results = config.PAGINATION_LIMIT
 
+    def etag_parse(challenge):
+        return headers[challenge].replace('\"', '') if challenge in headers \
+            else None
+
     if headers:
         r.if_modified_since = weak_date(headers.get('If-Modified-Since'))
-        # TODO if_none_match and if_match should probably be validated as
-        # valid etags, returning 400 on fail. Not sure however since
-        # we're just going to use these for string-type comparision
-        r.if_none_match = headers.get('If-None-Match')
-        r.if_match = headers.get('If-Match')
+        r.if_none_match = etag_parse('If-None-Match')
+        r.if_match = etag_parse('If-Match')
 
     return r
 
@@ -231,7 +250,7 @@ def api_prefix(url_prefix=None, api_version=None):
 
 
 def querydef(max_results=config.PAGINATION_DEFAULT, where=None, sort=None,
-             version=None, page=None):
+             version=None, page=None, other_params=MultiDict()):
     """ Returns a valid query string.
 
     :param max_results: `max_result` part of the query string. Defaults to
@@ -240,6 +259,8 @@ def querydef(max_results=config.PAGINATION_DEFAULT, where=None, sort=None,
     :param sort: `sort` part of the query string. Defaults to None.
     :param page: `version` part of the query string. Defaults to None.
     :param page: `page` part of the query string. Defaults to None.
+    :param other_params: dictionary of parameters that are not used
+                         internally by Eve
 
     .. versionchanged:: 0.5
        Support for customizable query parameters.
@@ -253,6 +274,8 @@ def querydef(max_results=config.PAGINATION_DEFAULT, where=None, sort=None,
         else ''
     max_results_part = '%s=%s' % (config.QUERY_MAX_RESULTS, max_results) \
         if max_results != config.PAGINATION_DEFAULT else ''
+    other_params_part = ''.join('&%s=%s' % (param, value) for param, values
+                                in other_params.lists() for value in values)
 
     # remove sort set by Eve if version is set
     if version and sort is not None:
@@ -260,20 +283,48 @@ def querydef(max_results=config.PAGINATION_DEFAULT, where=None, sort=None,
             if sort != '[("%s", 1)]' % config.VERSION else ''
 
     return ('?' + ''.join([max_results_part, where_part, sort_part,
-                           version_part, page_part]).lstrip('&')).rstrip('?')
+                           version_part, page_part, other_params_part])
+            .lstrip('&')).rstrip('?')
 
 
-def document_etag(value):
+def document_etag(value, ignore_fields=None):
     """ Computes and returns a valid ETag for the input value.
 
     :param value: the value to compute the ETag with.
+    :param ignore_fields: `ignore_fields` list of fields to skip to
+                          compute the ETag value.
+
+    .. versionchanged:: 0.5.4
+       Use json_encoder_class. See #624.
 
     .. versionchanged:: 0.0.4
        Using bson.json_util.dumps over str(value) to make etag computation
        consistent between different runs and/or server instances (#16).
     """
+    if ignore_fields:
+        def filter_ignore_fields(d, fields):
+            # recursive function to remove the fields that they are in d,
+            # field is a list of fields to skip or dotted fields to look up
+            # to nested keys such as  ["foo", "dict.bar", "dict.joe"]
+            for field in fields:
+                key, _, value = field.partition(".")
+                if value:
+                    filter_ignore_fields(d[key], [value])
+                elif field in d:
+                    d.pop(field)
+                else:
+                    # not required fields can be not present
+                    pass
+
+        value_ = copy(value)
+        filter_ignore_fields(value_, ignore_fields)
+    else:
+        value_ = value
+
     h = hashlib.sha1()
-    h.update(dumps(value, sort_keys=True).encode('utf-8'))
+    json_encoder = app.data.json_encoder_class()
+    h.update(dumps(value_, sort_keys=True,
+                   default=json_encoder.default).encode('utf-8'))
     return h.hexdigest()
 
 
@@ -291,19 +342,6 @@ def extract_key_values(key, d):
         if isinstance(d[k], dict):
             for j in extract_key_values(key, d[k]):
                 yield j
-
-
-def request_method():
-    """ Returns the proper request method, also taking into account the
-    possibile override requested by the client (via 'X-HTTP-Method-Override'
-    header).
-
-    .. versionchanged: 0.1.0
-       Supports overriding of any HTTP Method (#95).
-
-    .. versionadded: 0.0.7
-    """
-    return request.headers.get('X-HTTP-Method-Override', request.method)
 
 
 def debug_error_message(msg):
@@ -336,25 +374,38 @@ def validate_filters(where, resource):
     operators = getattr(app.data, 'operators', set())
     allowed = config.DOMAIN[resource]['allowed_filters'] + list(operators)
 
-    def validate_filter(filters):
-        r = None
-        for d in filters:
-            for key, value in d.items():
-                if key not in allowed:
-                    return "filter on '%s' not allowed" % key
-                if isinstance(value, dict):
-                    r = validate_filter([value])
-                elif isinstance(value, list):
-                    r = validate_filter(value)
+    def validate_filter(filter):
+        for key, value in filter.items():
+            if '*' not in allowed and key not in allowed:
+                return "filter on '%s' not allowed" % key
 
-                if r:
-                    break
-            if r:
-                break
+            if key in ('$or', '$and', '$nor'):
+                if not isinstance(value, list):
+                    return "operator '%s' expects a list of sub-queries" % key
+                for v in value:
+                    if not isinstance(v, dict):
+                        return "operator '%s' expects a list of sub-queries" \
+                            % key
+                    r = validate_filter(v)
+                    if r:
+                        return r
+            else:
+                if config.VALIDATE_FILTERS:
+                    res_schema = config.DOMAIN[resource]['schema']
+                    if key not in res_schema:
+                        return "filter on '%s' is invalid"
+                    else:
+                        field_schema = res_schema.get(key)
+                        v = Validator({key: field_schema})
+                        if not v.validate({key: value}):
+                            return "filter on '%s' is invalid"
+                        else:
+                            return None
 
-        return r
+    if '*' in allowed and not config.VALIDATE_FILTERS:
+        return None
 
-    return validate_filter([where]) if '*' not in allowed else None
+    return validate_filter(where)
 
 
 def auto_fields(resource):
@@ -367,16 +418,24 @@ def auto_fields(resource):
 
     .. versionadded:: 0.4
     """
+    resource_def = config.DOMAIN[resource]
+
     # preserved meta data
-    fields = [config.ID_FIELD, config.LAST_UPDATED, config.DATE_CREATED,
-              config.ETAG]
+    fields = [resource_def['id_field'], config.LAST_UPDATED,
+              config.DATE_CREATED, config.ETAG]
 
     # on-the-fly meta data (not in data store)
     fields += [config.ISSUES, config.STATUS, config.LINKS]
 
-    if config.DOMAIN[resource]['versioning'] is True:
+    if resource_def['versioning'] is True:
         fields.append(config.VERSION)
         fields.append(config.LATEST_VERSION)  # on-the-fly meta data
-        fields.append(config.ID_FIELD + config.VERSION_ID_SUFFIX)
+        fields.append(resource_def['id_field'] + config.VERSION_ID_SUFFIX)
+
+    if resource_def['soft_delete'] is True:
+        fields.append(config.DELETED)
 
     return fields
+
+# Base string type that is compatible with both Python 2.x and 3.x.
+str_type = str if sys.version_info[0] == 3 else basestring
