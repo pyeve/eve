@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
     eve.flaskapp
     ~~~~~~~~~~~~
@@ -7,24 +6,27 @@
     This module implements the central WSGI application object as a Flask
     subclass.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-
-import eve
-import sys
 import os
+import sys
+
 import copy
+from events import Events
 from flask import Flask
 from werkzeug.routing import BaseConverter
 from werkzeug.serving import WSGIRequestHandler
-from eve.io.mongo import Mongo, Validator, GridFSMediaStorage
-from eve.exceptions import ConfigException, SchemaException
-from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint, \
-    error_endpoint
+
+import eve
 from eve.defaults import build_defaults
+from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint, \
+    error_endpoint, media_endpoint, schema_collection_endpoint, \
+    schema_item_endpoint
+from eve.exceptions import ConfigException, SchemaException
+from eve.io.mongo import Mongo, Validator, GridFSMediaStorage, create_index
+from eve.logging import RequestFilter
 from eve.utils import api_prefix, extract_key_values
-from events import Events
 
 
 class EveWSGIRequestHandler(WSGIRequestHandler):
@@ -71,6 +73,13 @@ class Eve(Flask, Events):
     :param media: the media storage class. Must be a
                   :class:`~eve.io.media.MediaStorage` subclass.
     :param kwargs: optional, standard, Flask parameters.
+
+    .. versionchanged:: 0.6.1
+       Fix: When `SOFT_DELETE` is active an exclusive `datasource.projection`
+       causes a 500 error. Closes #752.
+
+    .. versionchanged:: 0.6
+       Add request metadata to default log record.
 
     .. versionchanged:: 0.4
        Ensure all errors returns a parseable body. Closes #365.
@@ -120,6 +129,9 @@ class Eve(Flask, Events):
 
         super(Eve, self).__init__(import_name, **kwargs)
 
+        # add support for request metadata to the log record
+        self.logger.addFilter(RequestFilter())
+
         self.validator = validator
         self.settings = settings
 
@@ -146,8 +158,11 @@ class Eve(Flask, Events):
             self.auth = None
 
         self._init_url_rules()
+        self._init_media_endpoint()
+        self._init_schema_endpoint()
 
-        self._init_oplog()
+        if self.config['OPLOG'] is True:
+            self._init_oplog()
 
         # validate and set defaults for each resource
 
@@ -158,6 +173,7 @@ class Eve(Flask, Events):
         domain_copy = copy.deepcopy(self.config['DOMAIN'])
         for resource, settings in domain_copy.items():
             self.register_resource(resource, settings)
+
         # it seems like both domain_copy and config['DOMAIN']
         # suffered changes at this point, so merge them
         # self.config['DOMAIN'].update(domain_copy)
@@ -192,6 +208,8 @@ class Eve(Flask, Events):
         Since we are a Flask subclass, any configuration value supported by
         Flask itself is available (besides Eve's proper settings).
 
+        .. versionchanged:: 0.6
+           SchemaErrors raised during configuration
         .. versionchanged:: 0.5
            Allow EVE_SETTINGS envvar to be used exclusively. Closes #461.
 
@@ -213,9 +231,11 @@ class Eve(Flask, Events):
                 pyfile = os.path.join(abspath, self.settings)
             try:
                 self.config.from_pyfile(pyfile)
-            except:
-                # assume an envvar is going to be used exclusively
+            except IOError:
+                # assume envvar is going to be used exclusively
                 pass
+            except:
+                raise
 
         # overwrite settings with custom environment variable
         envvar = 'EVE_SETTINGS'
@@ -298,9 +318,9 @@ class Eve(Flask, Events):
         self.validate_roles('allowed_item_read_roles', settings, resource)
         self.validate_roles('allowed_item_write_roles', settings, resource)
 
-        if settings['auth_field'] == self.config['ID_FIELD']:
-            raise ConfigException('"%s": auth_field cannot be set to ID_FIELD '
-                                  '(%s)' % (resource, self.config['ID_FIELD']))
+        if settings['auth_field'] == settings['id_field']:
+            raise ConfigException('"%s": auth_field cannot be set to id_field '
+                                  '(%s)' % (resource, settings['id_field']))
 
         self.validate_schema(resource, settings['schema'])
 
@@ -343,6 +363,9 @@ class Eve(Flask, Events):
         :param resource: resource name.
         :param schema: schema definition for the resource.
 
+        .. versionchanged:: 0.6
+           ID_FIELD in the schema is not an offender anymore.
+
         .. versionchanged:: 0.5
            Add ETAG to automatic fields check.
 
@@ -365,20 +388,30 @@ class Eve(Flask, Events):
            Now collecting offending items in a list and inserting results into
            the exception message.
         """
+        resource_settings = self.config['DOMAIN'][resource]
+
+        # ensure id_field is defined as unique
+        id_field = resource_settings['id_field']
+        if 'unique' not in schema[id_field] or not schema[id_field]['unique']:
+            raise SchemaException("'unique' key is mandatory for id field "
+                                  "'%s'" % id_field)
+
         # ensure automatically handled fields aren't defined
         fields = [eve.DATE_CREATED, eve.LAST_UPDATED, eve.ETAG]
-        # TODO: only add the following checks if settings['versioning'] == True
-        fields += [
-            self.config['VERSION'],
-            self.config['LATEST_VERSION'],
-            self.config['ID_FIELD'] + self.config['VERSION_ID_SUFFIX']]
+
+        if resource_settings['versioning'] is True:
+            fields += [
+                self.config['VERSION'],
+                self.config['LATEST_VERSION'],
+                resource_settings['id_field'] +
+                self.config['VERSION_ID_SUFFIX']]
+        if resource_settings['soft_delete'] is True:
+            fields += [self.config['DELETED']]
+
         offenders = []
         for field in fields:
             if field in schema:
                 offenders.append(field)
-        if eve.ID_FIELD in schema and \
-                schema[eve.ID_FIELD]['type'] == 'objectid':
-            offenders.append(eve.ID_FIELD)
         if offenders:
             raise SchemaException('field(s) "%s" not allowed in "%s" schema '
                                   '(they will be handled automatically).'
@@ -468,6 +501,17 @@ class Eve(Flask, Events):
     def _set_resource_defaults(self, resource, settings):
         """ Low-level method which sets default values for one resource.
 
+        .. versionchanged:: 0.6.2
+           Fix: startup crash when both SOFT_DELETE and ALLOW_UNKNOWN are True.
+
+           (#722).
+        .. versionchanged:: 0.6.1
+           Fix: inclusive projection defined for a datasource is ignored
+           (#722).
+
+        .. versionchanged:: 0.6
+           Support for 'mongo_indexes'.
+
         .. versionchanged:: 0.5
            Don't set default projection if 'allow_unknown' is active (#497).
            'internal_resource'
@@ -495,6 +539,7 @@ class Eve(Flask, Events):
         settings.setdefault('cache_control', self.config['CACHE_CONTROL'])
         settings.setdefault('cache_expires', self.config['CACHE_EXPIRES'])
 
+        settings.setdefault('id_field', self.config['ID_FIELD'])
         settings.setdefault('item_lookup_field',
                             self.config['ITEM_LOOKUP_FIELD'])
         settings.setdefault('item_url', self.config['ITEM_URL'])
@@ -518,8 +563,11 @@ class Eve(Flask, Events):
         settings.setdefault('pagination', self.config['PAGINATION'])
         settings.setdefault('projection', self.config['PROJECTION'])
         settings.setdefault('versioning', self.config['VERSIONING'])
+        settings.setdefault('soft_delete', self.config['SOFT_DELETE'])
+        settings.setdefault('bulk_enabled', self.config['BULK_ENABLED'])
         settings.setdefault('internal_resource',
                             self.config['INTERNAL_RESOURCE'])
+        settings.setdefault('etag_ignore_fields', None)
         # TODO make sure that this we really need the test below
         if settings['item_lookup']:
             item_methods = self.config['ITEM_METHODS']
@@ -529,42 +577,19 @@ class Eve(Flask, Events):
         settings.setdefault('auth_field',
                             self.config['AUTH_FIELD'])
         settings.setdefault('allow_unknown', self.config['ALLOW_UNKNOWN'])
+        settings.setdefault('transparent_schema_rules',
+                            self.config['TRANSPARENT_SCHEMA_RULES'])
         settings.setdefault('extra_response_fields',
                             self.config['EXTRA_RESPONSE_FIELDS'])
         settings.setdefault('mongo_write_concern',
                             self.config['MONGO_WRITE_CONCERN'])
+        settings.setdefault('mongo_indexes', {})
         settings.setdefault('hateoas',
                             self.config['HATEOAS'])
         settings.setdefault('authentication', self.auth if self.auth else None)
         # empty schemas are allowed for read-only access to resources
         schema = settings.setdefault('schema', {})
-        self.set_schema_defaults(schema)
-
-        datasource = {}
-        settings.setdefault('datasource', datasource)
-        settings['datasource'].setdefault('source', resource)
-        settings['datasource'].setdefault('filter', None)
-        settings['datasource'].setdefault('default_sort', None)
-
-        if len(schema) and settings['allow_unknown'] is False:
-            # enable retrieval of actual schema fields only. Eventual db
-            # fields not included in the schema won't be returned.
-            projection = {}
-            # despite projection, automatic fields are always included.
-            projection[self.config['ID_FIELD']] = 1
-            projection[self.config['LAST_UPDATED']] = 1
-            projection[self.config['DATE_CREATED']] = 1
-            projection[self.config['ETAG']] = 1
-            if settings['versioning'] is True:
-                projection[self.config['VERSION']] = 1
-                projection[
-                    self.config['ID_FIELD'] +
-                    self.config['VERSION_ID_SUFFIX']] = 1
-            projection.update(dict((field, 1) for (field) in schema))
-        else:
-            # all fields are returned.
-            projection = None
-        settings['datasource'].setdefault('projection', projection)
+        self.set_schema_defaults(schema, settings['id_field'])
 
         # 'defaults' helper set contains the names of fields with default
         # values in their schema definition.
@@ -581,12 +606,95 @@ class Eve(Flask, Events):
                                   ' eve.io.media.MediaStorage but be defined '
                                   'for "media" fields to be properly stored.')
 
-    def set_schema_defaults(self, schema):
+        self._set_resource_datasource(resource, schema, settings)
+
+    def _set_resource_datasource(self, resource, schema, settings):
+        """ Set the default values for the resource 'datasource' setting.
+
+        .. versionadded:: 0.7
+        """
+
+        settings.setdefault('datasource', {})
+
+        ds = settings['datasource']
+        ds.setdefault('source', resource)
+        ds.setdefault('filter', None)
+        ds.setdefault('default_sort', None)
+
+        self._set_resource_projection(ds, schema, settings)
+
+        aggregation = ds.setdefault('aggregation', None)
+        if aggregation:
+            aggregation.setdefault('options', {})
+
+            # endpoints serving aggregation queries are read-only and do not
+            # support item lookup.
+            settings['resource_methods'] = ['GET']
+            settings['item_lookup'] = False
+
+    def _set_resource_projection(self, ds, schema, settings):
+        """ Set datasource projection for a resource
+
+        .. versionadded:: 0.7
+        """
+
+        projection = ds.get('projection', {})
+
+        # check if any exclusion projection is defined
+        exclusion = any(((k, v) for k, v in projection.items() if v == 0))
+
+        # If no exclusion projection is defined, enhance the projection
+        # with automatic fields. Using both inclusion and exclusion will
+        # be rejected by Mongo
+        if not exclusion and len(schema) and \
+                settings['allow_unknown'] is False:
+            # enable retrieval of actual schema fields only. Eventual db
+            # fields not included in the schema won't be returned.
+            # despite projection, automatic fields are always included.
+            projection[settings['id_field']] = 1
+            projection[self.config['LAST_UPDATED']] = 1
+            projection[self.config['DATE_CREATED']] = 1
+            projection[self.config['ETAG']] = 1
+            if settings['versioning'] is True:
+                projection[self.config['VERSION']] = 1
+                projection[
+                    settings['id_field'] +
+                    self.config['VERSION_ID_SUFFIX']] = 1
+            projection.update(dict((field, 1) for (field) in schema))
+        else:
+            # all fields are returned.
+            projection = None
+        ds.setdefault('projection', projection)
+
+        if settings['soft_delete'] is True and not exclusion and \
+                ds['projection'] is not None:
+            ds['projection'][self.config['DELETED']] = 1
+
+        # 'defaults' helper set contains the names of fields with default
+        # values in their schema definition.
+
+        # TODO support default values for embedded documents.
+        settings['defaults'] = build_defaults(schema)
+
+        # list of all media fields for the resource
+        settings['_media'] = [field for field, definition in schema.items() if
+                              definition.get('type') == 'media']
+
+        if settings['_media'] and not self.media:
+            raise ConfigException('A media storage class of type '
+                                  ' eve.io.media.MediaStorage must be defined '
+                                  'for "media" fields to be properly stored.')
+
+    def set_schema_defaults(self, schema, id_field):
         """ When not provided, fills individual schema settings with default
         or global configuration settings.
 
         :param schema: the resource schema to be initialized with default
                        values
+
+        .. versionchanged: 0.6
+           Add default ID_FIELD to the schema, so documents with an existing
+           ID_FIELD can also be stored.
 
         .. versionchanged: 0.0.7
            Setting the default 'field' value would not happen if the
@@ -594,15 +702,20 @@ class Eve(Flask, Events):
 
         .. versionadded: 0.0.5
         """
-        # TODO fill schema{} defaults, like field type, etc.
+
+        # id_field has to be 'unique'. Some data layers, e.g. the default mongo
+        # layer ignore this validation rule to avoid a performance hit (with
+        # 'unique' rule set, we would end up with an extra db loopback on every
+        # insert).
+        schema.setdefault(id_field, {
+            'type': 'objectid',
+            'unique': True
+        })
 
         # set default 'field' value for all 'data_relation' rulesets, however
         # nested
         for data_relation in list(extract_key_values('data_relation', schema)):
-            data_relation.setdefault('field', self.config['ID_FIELD'])
-
-        # TODO: find a way to autofill "self.app.config['VERSION']: \
-        # {'type': 'integer'}" for data_relations
+            data_relation.setdefault('field', id_field)
 
     @property
     def api_prefix(self):
@@ -632,8 +745,8 @@ class Eve(Flask, Events):
 
         pretty_url = settings['url']
         if '<' in pretty_url:
-            pretty_url = pretty_url[:pretty_url.index('<')+1] + \
-                pretty_url[pretty_url.index(':')+1:]
+            pretty_url = pretty_url[:pretty_url.index('<') + 1] + \
+                pretty_url[pretty_url.rindex(':') + 1:]
         self.config['URLS'][resource] = pretty_url
 
         # resource endpoint
@@ -725,6 +838,9 @@ class Eve(Flask, Events):
         :param resource: resource name.
         :param settings: settings for given resource.
 
+        .. versionchanged:: 0.6
+           Support for 'mongo_indexes'.
+
         .. versionchanged:: 0.4
            Support for document versioning.
 
@@ -758,13 +874,25 @@ class Eve(Flask, Events):
                 self.config['DOMAIN'][versioned_resource]
             )
 
+        # create the mongo db indexes
+        mongo_indexes = self.config['DOMAIN'][resource]['mongo_indexes']
+        if mongo_indexes:
+            for name, value in mongo_indexes.items():
+                if isinstance(value, tuple):
+                    list_of_keys, index_options = value
+                else:
+                    list_of_keys = value
+                    index_options = {}
+
+                create_index(self, resource, name, list_of_keys, index_options)
+
     def register_error_handlers(self):
         """ Register custom error handlers so we make sure that all errors
         return a parseable body.
 
         .. versionadded:: 0.4
         """
-        for code in [400, 401, 403, 404, 405, 406, 409, 410, 422]:
+        for code in self.config['STANDARD_ERRORS']:
             self.error_handler_spec[None][code] = error_endpoint
 
     def _init_oplog(self):
@@ -778,28 +906,72 @@ class Eve(Flask, Events):
             self.config['OPLOG_AUDIT']
         )
 
+        settings = self.config['DOMAIN'].setdefault(name, {})
+
+        settings.setdefault('datasource', {'source': name})
+
+        # this endpoint is always read-only
+        settings['resource_methods'] = ['GET']
+        settings['item_methods'] = ['GET']
+
         if endpoint:
-            settings = self.config['DOMAIN'].setdefault(name, {})
-
             settings.setdefault('url', endpoint)
-            settings.setdefault('datasource', {'source': name})
+            settings['internal_resource'] = False
+        else:
+            # make it an internal resource
+            settings['url'] = name
+            settings['internal_resource'] = True
 
-            # this endpoint is always read-only
-            settings['resource_methods'] = ['GET']
-            settings['item_methods'] = ['GET']
+        # schema is also fixed. it is needed because otherwise we
+        # would end up exposing the AUTH_FIELD when User-Restricted-
+        # Resource-Access is enabled.
+        settings['schema'] = {
+            'r': {},
+            'o': {},
+            'i': {},
+        }
+        if audit:
+            settings['schema'].update(
+                {
+                    'ip': {},
+                    'c': {}
+                }
+            )
 
-            # schema is also fixed. it is needed because otherwise we
-            # would end up exposing the AUTH_FIELD when User-Restricted-
-            # Resource-Access is enabled.
-            settings['schema'] = {
-                'r': {},
-                'o': {},
-                'i': {},
-            }
-            if audit:
-                settings['schema'].update(
-                    {
-                        'ip': {},
-                        'c': {}
-                    }
-                )
+    def _init_media_endpoint(self):
+        endpoint = self.config['MEDIA_ENDPOINT']
+
+        if endpoint:
+            media_url = '%s/%s/<%s:_id>' % (self.api_prefix,
+                                            endpoint,
+                                            self.config['MEDIA_URL'])
+            self.add_url_rule(media_url, 'media',
+                              view_func=media_endpoint, methods=['GET'])
+
+    def _init_schema_endpoint(self):
+        """Configures the schema endpoint if set in configuration.
+        """
+        endpoint = self.config['SCHEMA_ENDPOINT']
+
+        if endpoint:
+            schema_url = '%s/%s' % (self.api_prefix, endpoint)
+            # add schema collections url
+            self.add_url_rule(schema_url, 'schema_collection',
+                              view_func=schema_collection_endpoint,
+                              methods=['GET', 'OPTIONS'])
+            # add schema item url
+            self.add_url_rule(schema_url + '/<resource>', 'schema_item',
+                              view_func=schema_item_endpoint,
+                              methods=['GET', 'OPTIONS'])
+
+    def __call__(self, environ, start_response):
+        """ If HTTP_X_METHOD_OVERRIDE is included with the request and method
+        override is allowed, make sure the override method is returned to Eve
+        as the request method, so normal routing and method validation can be
+        performed.
+        """
+        if self.config['ALLOW_OVERRIDE_HTTP_METHOD']:
+            environ['REQUEST_METHOD'] = environ.get(
+                'HTTP_X_HTTP_METHOD_OVERRIDE',
+                environ['REQUEST_METHOD']).upper()
+        return super(Eve, self).__call__(environ, start_response)

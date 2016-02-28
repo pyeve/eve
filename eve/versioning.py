@@ -1,15 +1,14 @@
-import copy
 from flask import current_app as app, abort
-from eve.utils import config, debug_error_message
+from eve.utils import config, debug_error_message, ParsedRequest
 from werkzeug.exceptions import BadRequestKeyError
 
 
-def versioned_id_field():
+def versioned_id_field(resource_settings):
     """ Shorthand to add two commonly added versioning parameters.
 
     .. versionadded: 0.4
     """
-    return app.config['ID_FIELD']+app.config['VERSION_ID_SUFFIX']
+    return resource_settings['id_field'] + app.config['VERSION_ID_SUFFIX']
 
 
 def resolve_document_version(document, resource, method, latest_doc=None):
@@ -57,7 +56,8 @@ def resolve_document_version(document, resource, method, latest_doc=None):
             # this one is easy! it is a new document
             document[version] = 1
 
-        if method == 'PUT' or method == 'PATCH':
+        if method == 'PUT' or method == 'PATCH' or \
+                (method == 'DELETE' and resource_def['soft_delete'] is True):
             if not latest_doc:
                 abort(500, description=debug_error_message(
                     'I need the latest document here!'
@@ -108,7 +108,7 @@ def insert_versioning_documents(resource, documents):
     .. versionadded:: 0.4
     """
     resource_def = app.config['DOMAIN'][resource]
-    _id = app.config['ID_FIELD']
+    _id = resource_def['id_field']
 
     # push back versioned items if applicable
     # note: MongoDB doesn't have transactions! if the server dies, no
@@ -131,14 +131,16 @@ def insert_versioning_documents(resource, documents):
                     ver_doc[field] = document[field]
 
             # push special fields
-            ver_doc[versioned_id_field()] = document[_id]
+            ver_doc[versioned_id_field(resource_def)] = document[_id]
             ver_doc[version] = document[version]
 
             # add document to the stack
             versioned_documents.append(ver_doc)
 
         # bulk insert
-        app.data.insert(resource+app.config['VERSIONS'], versioned_documents)
+        source = resource_def['datasource']['source']
+        versionable_resource_name = source + app.config['VERSIONS']
+        app.data.insert(versionable_resource_name, versioned_documents)
 
 
 def versioned_fields(resource_def):
@@ -146,20 +148,27 @@ def versioned_fields(resource_def):
 
     :param resource_def: a resource definition.
 
+    .. versionchanged:: 0.6
+       Added DELETED as versioned field for soft delete (#335)
+
     .. versionchanged:: 0.5
        ETAG is now a versioned field (#369).
 
     .. versionadded:: 0.4
     """
+    if resource_def['versioning'] is not True:
+        return []
+
     schema = resource_def['schema']
-    fields = []
-    if resource_def['versioning'] is True:
-        fields.append(app.config['LAST_UPDATED'])
-        fields.append(app.config['ETAG'])
-        for field in schema:
-            if field not in schema or \
-                    schema[field].get('versioned', True) is True:
-                fields.append(field)
+
+    fields = [f for f in schema
+              if schema[f].get('versioned', True) is True and
+              f != resource_def['id_field']]
+
+    fields.extend((app.config['LAST_UPDATED'],
+                   app.config['ETAG'],
+                   app.config['DELETED'],
+                   ))
 
     return fields
 
@@ -177,11 +186,13 @@ def diff_document(resource_def, old_doc, new_doc):
     fields = list(resource_def['schema'].keys()) + [
         app.config['VERSION'],
         app.config['LATEST_VERSION'],
-        app.config['ID_FIELD'],
+        resource_def['id_field'],
         app.config['LAST_UPDATED'],
         app.config['DATE_CREATED'],
         app.config['ETAG'],
         app.config['LINKS']]
+    if resource_def['soft_delete'] is True:
+        fields.append(app.config['DELETED'])
 
     for field in fields:
         if field in new_doc and \
@@ -198,48 +209,58 @@ def diff_document(resource_def, old_doc, new_doc):
 
 
 def synthesize_versioned_document(document, delta, resource_def):
-    """ Synthesizes an old document from the latest document and the values of
-    all versioned fields from the old version. This is accomplished by removing
-    all versioned fields from the latest document before updating fields to
-    ensure that fields with required=False can be removed.
+    """ Synthesizes a versioned document from the latest document and the
+    values of all versioned fields from the old version. This is accomplished
+    by first creating a new document with only the un-versioned fields of
+    latest document, before updating with versioned fields from the old
+    document.
 
     :param document: the current version of a document.
     :param delta: the versioned fields from a specific document version.
     :param resource_def: a resource definition.
 
+    .. versionchanged:: 0.6.1
+       Use shallow copies instead of deepcopies to optimize for performance.
+       #732.
+
     .. versionadded:: 0.4
     """
-    old_doc = copy.deepcopy(document)
+    versioned_doc = {}
+    id_field = versioned_id_field(resource_def)
 
-    if versioned_id_field() not in delta:
+    if id_field not in delta:
         abort(400, description=debug_error_message(
             'You must include %s in any projection with a version query.'
-            % versioned_id_field()
+            % id_field
         ))
-    delta[app.config['ID_FIELD']] = delta[versioned_id_field()]
-    del delta[versioned_id_field()]
+    delta[resource_def['id_field']] = delta[id_field]
+    del delta[id_field]
 
-    # remove all versioned fields from document
+    # add unversioned fields from latest document to versioned_doc
     fields = versioned_fields(resource_def)
     for field in document:
-        if field in fields:
-            del old_doc[field]
+        if field not in fields:
+            versioned_doc[field] = document[field]
 
     # add versioned fields
-    old_doc.update(delta)
+    versioned_doc.update(delta)
 
-    return old_doc
+    return versioned_doc
 
 
 def get_old_document(resource, req, lookup, document, version):
-    """ Returns an old document if appropriate, otherwise passes the given
-    document through.
+    """ Returns an old document if appropriate, otherwise returns a shallow
+    copy of the given document.
 
     :param resource: the name of the resource.
     :param req: the parsed request object.
     :param lookup: a dictionary of lookup parameters.
     :param document: the current version of the document.
     :param version: the value of the version request parameter.
+
+    .. versionchanged:: 0.6.1
+       Use shallow copies instead of deepcopies to optimize for performance.
+       #732.
 
     .. versionadded:: 0.4
     """
@@ -253,26 +274,31 @@ def get_old_document(resource, req, lookup, document, version):
             ))
 
         # parameters to find specific document version
-        if versioned_id_field() not in lookup:
-            lookup[versioned_id_field()] = lookup[app.config['ID_FIELD']]
-            del lookup[app.config['ID_FIELD']]
+        resource_def = config.DOMAIN[resource]
+        if versioned_id_field(resource_def) not in lookup:
+            lookup[versioned_id_field(resource_def)] \
+                = lookup[resource_def['id_field']]
+            del lookup[resource_def['id_field']]
         lookup[config.VERSION] = version
 
         # synthesize old document from latest and delta
-        delta = app.data.find_one(resource+config.VERSIONS, req, **lookup)
+        delta = app.data.find_one(resource + config.VERSIONS, req, **lookup)
         if not delta:
             abort(404)
-        document = synthesize_versioned_document(
-            document,
-            delta,
-            config.DOMAIN[resource])
+        old_document = synthesize_versioned_document(
+            document, delta, resource_def)
+    else:
+        # perform a shallow copy to allow this document to be used as a delta
+        # for synthesize_versioned_document where id_field is removed
+        old_document = document.copy()
 
-    return document
+    return old_document
 
 
 def get_data_version_relation_document(data_relation, reference, latest=False):
-    """ Returns an old document if appropriate, otherwise passes the given
-    document through.
+    """ Returns document at the version specified in data_relation, or at the
+    latest version if passed `latest=True`. Returns None if data_relation
+    cannot be satisfied.
 
     :param data_relation: the schema definition describing the data_relation.
     :param reference: a dictionary with a value_field and a version_field.
@@ -283,30 +309,57 @@ def get_data_version_relation_document(data_relation, reference, latest=False):
     value_field = data_relation['field']
     version_field = app.config['VERSION']
     collection = data_relation['resource']
+    versioned_collection = collection + config.VERSIONS
     resource_def = app.config['DOMAIN'][data_relation['resource']]
-    query = {}
+    id_field = resource_def['id_field']
 
-    # tweak the query if the foreign field is versioned
-    if value_field in versioned_fields(resource_def) and latest is False:
-        # the field is versioned, search the shadow collection
-        collection += app.config['VERSIONS']
-
-        # special consideration for _id overloading
-        if value_field == app.config['ID_FIELD']:
-            query[value_field + app.config['VERSION_ID_SUFFIX']] = \
-                reference[value_field]
-        else:
-            query[value_field] = reference[value_field]
-
-        # add the version to the query
-        query[version_field] = reference[version_field]
+    # Fetch document data at the referenced version
+    query = {version_field: reference[version_field]}
+    if value_field == id_field:
+        # Versioned documents store the primary id in a different field
+        query[versioned_id_field(resource_def)] = reference[value_field]
+    elif value_field not in versioned_fields(resource_def):
+        # The relation value field is unversioned, and will not be present in
+        # the versioned collection. Need to find id field for version query
+        req = ParsedRequest()
+        if resource_def['soft_delete']:
+            req.show_deleted = True
+        latest_version = app.data.find_one(
+            collection, req, **{value_field: reference[value_field]})
+        if not latest_version:
+            return None
+        query[versioned_id_field(resource_def)] = latest_version[id_field]
     else:
-        # the field is not versioned, search the primary doc
+        # Field will be present in the versioned collection
         query[value_field] = reference[value_field]
-        if latest is False:
-            query[version_field] = {'$gte': reference[version_field]}
 
-    return app.data.find_one(collection, None, **query)
+    referenced_version = app.data.find_one(versioned_collection, None, **query)
+
+    # support late versioning
+    if referenced_version is None and reference[version_field] == 1:
+        # there is a chance this document hasn't been saved
+        # since versioning was turned on
+        referenced_version = missing_version_field(data_relation, reference)
+        return referenced_version  # v1 is both referenced and latest
+
+    if referenced_version is None:
+        return None  # The referenced document version was not found
+
+    # Fetch the latest version of this document to use in version synthesis
+    query = {id_field: referenced_version[versioned_id_field(resource_def)]}
+    req = ParsedRequest()
+    if resource_def['soft_delete']:
+        # Still return latest after soft delete. It is needed to synthesize
+        # full document version.
+        req.show_deleted = True
+    latest_version = app.data.find_one(collection, req, **query)
+    if latest is True:
+        return latest_version
+
+    # Syntheisze referenced version from latest and versioned data
+    document = synthesize_versioned_document(
+        latest_version, referenced_version, resource_def)
+    return document
 
 
 def missing_version_field(data_relation, reference):

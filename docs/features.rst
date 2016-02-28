@@ -22,9 +22,10 @@ implementation of CRUD via REST:
 Action  HTTP Verb Context
 ======= ========= ===================
 Create  POST      Collection
+Create  PUT       Document
+Replace PUT       Document
 Read    GET, HEAD Collection/Document
 Update  PATCH     Document
-Replace PUT       Document
 Delete  DELETE    Collection/Document
 ======= ========= ===================
 
@@ -42,7 +43,7 @@ Customizable resource endpoints
 -------------------------------
 By default, Eve will make known database collections available as resource
 endpoints (persistent identifiers in REST idiom). So a database ``people``
-collection will be avaliable at the ``example.com/people`` API endpoint.  You
+collection will be available at the ``example.com/people`` API endpoint.  You
 can customize the URIs though, so the API endpoint could become, say,
 ``example.com/customers/overseas``. Consider the following request:
 
@@ -68,7 +69,7 @@ The response payload will look something like this:
                 "_created": "Wed, 05 Dec 2012 09:53:07 GMT",
                 "_etag": "ec5e8200b8fa0596afe9ca71a87f23e71ca30e2d",
                 "_links": {
-                    "self": {"href": "/people/50bf198338345b1c604faf31", "title": "person"},
+                    "self": {"href": "people/50bf198338345b1c604faf31", "title": "person"},
                 },
             },
             ...
@@ -79,7 +80,7 @@ The response payload will look something like this:
             "page": 1
         },
         "_links": {
-            "self": {"href": "/people", "title": "people"},
+            "self": {"href": "people", "title": "people"},
             "parent": {"href": "/", "title": "home"}
         }
     }
@@ -109,7 +110,7 @@ document being returned. The ``_links`` list provides HATEOAS_ directives.
 Sub Resources
 ~~~~~~~~~~~~~
 Endpoints support sub-resources so you could have something like:
-``/people/<contact_id>/invoices``. When setting the ``url`` rule for such and
+``people/<contact_id>/invoices``. When setting the ``url`` rule for such and
 endpoint you would use a regex and assign a field name to it:
 
 .. code-block:: python
@@ -159,7 +160,7 @@ or
     invoices?where={"contact_id": 51f63e0838345b6dcd7eabff, "number": 10}
 
 It's mostly a design choice, but keep in mind that when it comes to enabling
-individual documment endpoints you might incur in performance hits. This
+individual document endpoints you might incur performance hits. This
 otherwise legit GET request:
 
 ::
@@ -179,7 +180,7 @@ a simple resource endpoint the document lookup would happen on a single field:
 Customizable, multiple item endpoints
 -------------------------------------
 Resources can or cannot expose individual item endpoints. API consumers could
-get access to ``/people``, ``/people/<ObjectId>`` and ``/people/Doe``,
+get access to ``people``, ``people/<ObjectId>`` and ``people/Doe``,
 but only to ``/works``.  When you do grant access to item endpoints, you can
 define up to two lookups, both defined with regexes. The first will be the
 primary endpoint and will match your database primary key structure (i.e., an
@@ -220,9 +221,9 @@ look something like this:
         "_created": "Wed, 21 Nov 2012 16:04:56 GMT",
         "_etag": "28995829ee85d69c4c18d597a0f68ae606a266cc",
         "_links": {
-            "self": {"href": "/people/50acfba938345b0978fccad7", "title": "person"},
+            "self": {"href": "people/50acfba938345b0978fccad7", "title": "person"},
             "parent": {"href": "/", "title": "home"},
-            "collection": {"href": "/people", "title": "people"}
+            "collection": {"href": "people", "title": "people"}
         }
     }
 
@@ -234,9 +235,9 @@ As you can see, item endpoints provide their own HATEOAS_ directives.
     identifier. Eve abides by providing one default endpoint per item. Adding
     a secondary endpoint is a decision that should be pondered carefully.
 
-    Consider our example above. Even without the ``/people/<lastname>``
+    Consider our example above. Even without the ``people/<lastname>``
     endpoint, a client could always retrieve a person by querying the resource
-    endpoint by last name: ``/people/?where={"lastname": "Doe"}``. Actually the
+    endpoint by last name: ``people/?where={"lastname": "Doe"}``. Actually the
     whole example is fubar, as there could be multiple people sharing the same
     last name, but you get the idea.
 
@@ -274,6 +275,11 @@ maintainer can choose to disable them all and/or whitelist allowed ones (see
 ``ALLOWED_FILTERS`` in :ref:`global`). If scraping, or fear of DB DoS attacks
 by querying on non-indexed fields is a concern, then whitelisting allowed
 filters is the way to go.
+
+You also have the option to validate the incoming filters against the resource's
+schema and refuse to apply the filtering if any filters are invalid, by using the
+``VALIDATE_FILTERING`` system setting (see :ref:`global`)
+
 
 Sorting
 -------
@@ -354,7 +360,7 @@ UI, or to navigate the API without knowing its structure beforehand. An example:
     {
         "_links": {
             "self": {
-                "href": "/people",
+                "href": "people",
                 "title": "people"
             },
             "parent": {
@@ -362,11 +368,11 @@ UI, or to navigate the API without knowing its structure beforehand. An example:
                 "title": "home"
             },
             "next": {
-                "href": "/people?page=2",
+                "href": "people?page=2",
                 "title": "next page"
             },
             "last": {
-                "href": "/people?page=10",
+                "href": "people?page=10",
                 "title": "last page"
             }
         }
@@ -376,8 +382,12 @@ A GET request to the API home page (the API entry point) will be served with
 a list of links to accessible resources. From there, any client could navigate
 the API just by following the links provided with every response.
 
+HATEOAS links are always relative to the API entry point, so if your API home
+is at ``examples.com/api/v1``, the ``self`` link in the above example would
+mean that the *people* endpoint is located at ``examples.com/api/v1/people``.
+
 Please note that ``next``, ``previous`` and ``last`` items will only be
-included when appropriate.
+included when appropriate. 
 
 Disabling HATEOAS
 ~~~~~~~~~~~~~~~~~
@@ -385,12 +395,6 @@ HATEOAS can be disabled both at the API and/or resource level. Why would you
 want to turn HATEOAS off? Well, if you know that your client application is not
 going to use the feature, then you might want to save on both bandwidth and
 performance. 
-
-.. admonition:: Please note
-
-    When HATEOAS is disabled, the API entry point (the home page) will return
-    a ``404``, since its only usefulness would be to return a list of available
-    resources, which is the standard behavior when HATEOAS is enabled.
 
 .. _jsonxml:
 
@@ -410,8 +414,8 @@ edits) are in JSON format.
 .. code-block:: html
 
     <resource>
-        <link rel="child" href="/people" title="people" />
-        <link rel="child" href="/works" title="works" />
+        <link rel="child" href="people" title="people" />
+        <link rel="child" href="works" title="works" />
     </resource>
 
 XML support can be disabled by setting ``XML`` to ``False`` in the settings
@@ -456,15 +460,15 @@ Consider the following workflow:
 
 .. code-block:: console
 
-    $ curl -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
-    HTTP/1.1 403 FORBIDDEN
+    $ curl -H "Content-Type: application/json" -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
+    HTTP/1.1 428 PRECONDITION REQUIRED
 
 We attempted an edit (``PATCH``), but we did not provide an ``ETag`` for the
-item so we got a ``403 FORBIDDEN`` back. Let's try again:
+item so we got a ``428 PRECONDITION REQUIRED`` back. Let's try again:
 
 .. code-block:: console
 
-    $ curl -H "If-Match: 1234567890123456789012345678901234567890" -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
+    $ curl -H "If-Match: 1234567890123456789012345678901234567890" -H "Content-Type: application/json" -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
     HTTP/1.1 412 PRECONDITION FAILED
 
 What went wrong this time? We provided the mandatory ``If-Match`` header, but
@@ -473,7 +477,7 @@ currently stored on the server, so we got a ``412 PRECONDITION FAILED``. Again!
 
 .. code-block:: console
 
-    $ curl -H "If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012" -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37 -d '{"firstname": "ronald"}'
+    $ curl -H "If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012" -H "Content-Type: application/json" -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37 -d '{"firstname": "ronald"}'
     HTTP/1.1 200 OK
 
 Finally! And the response payload looks something like this:
@@ -504,6 +508,8 @@ control is disabled no etag is provided with responses. You should be careful
 about disabling this feature, as you would effectively open your API to the
 risk of older versions replacing your documents.
 
+.. _bulk_insert:
+
 Bulk Inserts
 ------------
 A client may submit a single document for insertion:
@@ -523,7 +529,7 @@ metadata:
         "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
         "_id": "50ae43339fa12500024def5b",
         "_etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
-        "_links": {"self": {"href": "/people/50ae43339fa12500024def5b", "title": "person"}}
+        "_links": {"self": {"href": "people/50ae43339fa12500024def5b", "title": "person"}}
     }
 
 However, in order to reduce the number of loopbacks, a client might also submit
@@ -547,14 +553,14 @@ The response will be a list itself, with the state of each document:
                 "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
                 "_id": "50ae43339fa12500024def5b",
                 "_etag": "749093d334ebd05cf7f2b7dbfb7868605578db2c"
-                "_links": {"self": {"href": "/people/50ae43339fa12500024def5b", "title": "person"}}
+                "_links": {"self": {"href": "people/50ae43339fa12500024def5b", "title": "person"}}
             },
             {
                 "_status": "OK",
                 "_updated": "Thu, 22 Nov 2012 15:22:27 GMT",
                 "_id": "50ae43339fa12500024def5c",
                 "_etag": "62d356f623c7d9dc864ffa5facc47dced4ba6907"
-                "_links": {"self": {"href": "/people/50ae43339fa12500024def5c", "title": "person"}}
+                "_links": {"self": {"href": "people/50ae43339fa12500024def5c", "title": "person"}}
             }
         ]
     }
@@ -677,23 +683,68 @@ with the same version number. In normal practice, ``VERSIONING`` can be enable
 without worry for any new collection or even an existing collection which has
 not previously had versioning enabled.
 
+Additionally, there are caching corner cases unique to document versions. A
+specific document version includes the ``_latest_version`` field, the value of
+which will change when a new document version is created. To account for this,
+Eve determines the time ``_latest_version`` changed (the timestamp of the last
+update to the primary document) and uses that value to populate the
+``Last-Modified`` header and check the ``If-Modified-Since`` conditional cache
+validator of specific document version queries. Note that this will be
+different from the timestamp in the version's last updated field. The etag for
+a document version does not change when ``_latest_version`` changes, however.
+This results in two corner cases. First, because Eve cannot determine if the
+client's ``_latest_version`` is up to date from an ETag alone, a query using
+only ``If-None-Match`` for cache validation of old document versions will always
+have its cache invalidated. Second, a version fetched and cached in the same
+second that multiple new versions are created can receive incorrect
+``Not Modified`` responses on ensuing ``GET`` queries due to ``Last-Modified``
+values having a resolution of one second and the static etag values not
+providing indication of the changes. These are both highly unlikely scenarios,
+but an application expecting multiple edits per second should account for the
+possibility of holing stale ``_latest_version`` data.
+
 For more information see and :ref:`global` and :ref:`domain`.
 
 
 Authentication
 --------------
 Customizable Basic Authentication (RFC-2617), Token-based authentication and
-HMAC-based Authentication are supported. You can lockdown the whole API, or
-just some endpoints. You can also restrict CRUD commands, like allowing open
-read-only access while restricting edits, inserts and deletes to authorized
-users. Role-based access control is supported as well. For more information
-see :ref:`auth`.
+HMAC-based Authentication are supported. OAuth2 can be easily integrated. You
+can lockdown the whole API, or just some endpoints. You can also restrict CRUD
+commands, like allowing open read-only access while restricting edits, inserts
+and deletes to authorized users. Role-based access control is supported as
+well. For more information see :ref:`auth`.
 
 CORS Cross-Origin Resource Sharing
 ----------------------------------
 Disabled by default, CORS_ allows web pages to work with REST APIs, something
-that is usually restricted by most broswers 'same domain' security policy.
+that is usually restricted by most browsers 'same domain' security policy.
 Eve-powered APIs can be accessed by the JavaScript contained in web pages.
+
+JSONP Support
+-------------
+In general you don't really want to add JSONP when you can enable CORS instead:
+
+    There have been some criticisms raised about JSONP. Cross-origin resource
+    sharing (CORS) is a more recent method of getting data from a server in
+    a different domain, which addresses some of those criticisms. All modern
+    browsers now support CORS making it a viable cross-browser alternative (source_.)
+
+There are circumstances however when you do need JSONP, like when you have to
+support legacy software (IE6 anyone?) 
+
+To enable JSONP in Eve you just set
+``JSONP_ARGUMENT``. Then, any valid request with ``JSONP_ARGUMENT`` will get
+back a response wrapped with said argument value. For example if you set
+``JSON_ARGUMENT = 'callback'``:
+
+.. code-block:: console
+
+    $ curl -i http://localhost:5000/?callback=hello
+    hello(<JSON here>)
+
+Requests with no ``callback`` argument will be served with no JSONP.
+ 
 
 Read-only by default
 --------------------
@@ -832,21 +883,25 @@ in this scenario would be a dictionary with fields ``_id`` and ``_version``.
 Predefined Resource Serialization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 It is also possible to elect some fields for predefined resource
-serialization. The ``embedded_fields`` option accepts a list of fields. If the
-listed fields are embeddable and they are actually referencing documents in other
-resources (and embedding is enbaled for the resource), then the referenced
-documents will be embedded by default.
+serialization. If the listed fields are embeddable and they are actually referencing
+documents in other resources (and embedding is enabled for the resource), then the
+referenced documents will be embedded by default. Clients can still opt out from field
+that are embedded by default:
+
+.. code-block:: console
+
+    $ curl -i http://example.com/people/?embedded={"author": 0}
+    HTTP/1.1 200 OK
 
 Limitations
 ~~~~~~~~~~~
 Currently we support embedding of documents by references located in any
 subdocuments (nested dicts and lists). For example, a query
-``/invoices?/embedded={"user.friends":1}`` will return a document with ``user``
+``/invoices/?embedded={"user.friends":1}`` will return a document with ``user``
 and all his ``friends`` embedded, but only if ``user`` is a subdocument and
 ``friends`` is a list of reference (it could be a list of dicts, nested
-dict, ect.). We *do not* support multiple layers embeddings. This feature is
-about serialization on GET requests. There's no support for POST, PUT or PATCH
-of embedded documents.
+dict, etc.). This feature is about serialization on GET requests. There's no
+support for POST, PUT or PATCH of embedded documents.
 
 Document embedding is enabled by default.
 
@@ -861,13 +916,112 @@ Document embedding is enabled by default.
     that each embedded resource being looked up will require a database lookup,
     which can easily lead to performance issues.
 
+.. _soft_delete:
+
+Soft Delete
+-----------
+Eve provides an optional "soft delete" mode in which deleted documents continue
+to be stored in the database and are able to be restored, but still act as
+removed items in response to API requests. Soft delete is disabled by default,
+but can be enabled globally using the ``SOFT_DELETE`` configuration setting, or
+individually configured at the resource level using the domain configuration
+``soft_delete`` setting. See :ref:`global` and :ref:`domain` for more
+information on enabling and configuring soft delete.
+
+Behavior
+~~~~~~~~
+With soft delete enabled, DELETE requests to individual items and resources
+respond just as they do for a traditional "hard" delete. Behind the scenes,
+however, Eve does not remove deleted items from the database, but instead
+patches the document with a ``_deleted`` meta field set to ``true``. (The name
+of the ``_deleted`` field is configurable. See :ref:`global`.) All requests
+made when soft delete is enabled filter against or otherwise account for the
+``_deleted`` field.
+
+The ``_deleted`` field is automatically added and initialized to ``false`` for
+all documents created while soft delete is enabled. Documents created prior to
+soft delete being enabled and which therefore do not define the ``_deleted``
+field in the database will still include ``_deleted: false`` in API response
+data, added by Eve during response construction. PUTs or PATCHes to these
+documents will add the ``_deleted`` field to the stored documents, set to
+``false``.
+
+Responses to GET requests for soft deleted documents vary slightly from
+responses to missing or "hard" deleted documents. GET requests for soft deleted
+documents will still respond with ``404 Not Found`` status codes, but the
+response body will contain the soft deleted document with ``_deleted: true``.
+Documents embedded in the deleted document will not be expanded in the
+response, regardless of any default settings or the contents of the request's
+``embedded`` query param. This is to ensure that soft deleted documents
+included in ``404`` responses reflect the state of a document when it was
+deleted, and do not to change if embedded documents are updated.
+
+By default, resource level GET requests will not include soft deleted items in
+their response. This behavior matches that of requests after a "hard" delete.
+If including deleted items in the response is desired, the ``show_deleted``
+query param can be added to the request. (the ``show_deleted`` param name is
+configurable. See :ref:`global`) Eve will respond with all documents, deleted
+or not, and it is up to the client to parse returned documents' ``_deleted``
+field. The ``_deleted`` field can also be explicitly filtered against in a
+request, allowing only deleted documents to be returned using a
+``?where={"_deleted": true}`` query.
+
+Soft delete is enforced in the data layer, meaning queries made by application
+code using the ``app.data.find_one`` and ``app.data.find`` methods will
+automatically filter out soft deleted items. Passing a request object with
+``req.show_deleted == True`` or a lookup dictionary that explicitly filters on
+the ``_deleted`` field will override the default filtering.
+
+Restoring Soft Deleted Items
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PUT or PATCH requests made to a soft deleted document will restore it,
+automatically setting ``_deleted`` to ``false`` in the database. Modifying the
+``_deleted`` field directly is not necessary (or allowed). For example, using
+PATCH requests, only the fields to be changed in the restored version would be
+specified, or an empty request would be made to restore the document as is. The
+request must be made with proper authorization for write permission to the soft
+deleted document or it will be refused.
+
+Versioning
+~~~~~~~~~~
+Soft deleting a versioned document creates a new version of that document with
+``_deleted`` set to ``true``. A GET request to the deleted version will receive
+a ``404 Not Found`` response as described above, while previous versions will
+continue to respond with ``200 OK``. Responses to ``?version=diff`` or
+``?version=all`` will include the deleted version as if it were any other.
+
+Data Relations
+~~~~~~~~~~~~~~
+The Eve ``data_relation`` validator will not allow references to documents that
+have been soft deleted. Attempting to create or update a document with a
+reference to a soft deleted document will fail just as if that document had
+been hard deleted. Existing data relations to documents that are soft deleted
+remain in the database, but requests requiring embedded document serialization
+of those relations will resolve to a null value. Again, this matches the
+behavior of relations to hard deleted documents.
+
+Versioned data relations to a deleted document version will also fail to
+validate, but relations to versions prior to deletion or after restoration of
+the document are allowed and will continue to resolve successfully.
+
+Considerations
+~~~~~~~~~~~~~~
+Disabling soft delete after use in an application requires database maintenance
+to ensure your API remains consistent. With soft delete disabled, requests will
+no longer filter against or handle the ``_deleted`` field, and documents that
+were soft deleted will now be live again on your API. It is therefore necessary
+when disabling soft delete to perform a data migration to remove all documents
+with ``_deleted == True``, and recommended to remove the ``_deleted`` field
+from documents where ``_deleted == False``. Enabling soft delete in an existing
+application is safe, and will maintain documents deleted from that point on.
+
 .. _eventhooks:
 
 Event Hooks
 -----------
 Pre-Request Event Hooks
 ~~~~~~~~~~~~~~~~~~~~~~~
-When a GET, POST, PATCH, PUT, DELETE request is received, both
+When a GET/HEAD, POST, PATCH, PUT, DELETE request is received, both
 a ``on_pre_<method>`` and a ``on_pre_<method>_<resource>`` event is raised.
 You can subscribe to these events with multiple callback functions. 
 
@@ -1018,10 +1172,10 @@ Let's see an overview of what events are available:
 |       |        |      || ``def event(updates, original)``               |
 |       |        +------+-------------------------------------------------+
 |       |        |After || ``on_updated``                                 |
-|       |        |      || ``def event(resource_name, updates, original)``|
+|       |        |      || ``def event(resource_name, updated, original)``|
 |       |        |      +-------------------------------------------------+
 |       |        |      || ``on_updated_<resource_name>``                 |
-|       |        |      || ``def event(updates, original)``               |
+|       |        |      || ``def event(updated, original)``               |
 +-------+--------+------+-------------------------------------------------+
 |Delete |Item    |Before|| ``on_delete_item``                             |
 |       |        |      || ``def event(resource_name, item)``             |
@@ -1233,7 +1387,7 @@ Resources
 
 If you were brave enough to enable the DELETE command on resource endpoints
 (allowing for wipeout of the entire collection in one go), then you can be
-notified of such a disastrous occurence by hooking a callback function to the
+notified of such a disastrous occurrence by hooking a callback function to the
 ``on_delete_resource(resource_name)`` or
 ``on_delete_resource_<resource_name>()`` hooks.
 
@@ -1298,7 +1452,7 @@ With curl we would ``POST`` like this:
 
     $ curl -F "name=john" -F "pic=@profile.jpg" http://example.com/accounts
 
-For optmized performance files are stored in GridFS_ by default. Custom
+For optimized performance files are stored in GridFS_ by default. Custom
 ``MediaStorage`` classes can be implemented and passed to the application to
 support alternative storage systems. A ``FileSystemMediaStorage`` class is in
 the works, and will soon be included with the Eve package.
@@ -1307,6 +1461,8 @@ As a proper developer guide is not available yet, you can peek at the
 MediaStorage_ source if you are interested in developing custom storage
 classes.
 
+Serving media files as Base64 strings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 When a document is requested media files will be returned as Base64 strings,
 
 .. code-block:: python
@@ -1357,9 +1513,37 @@ Then the output will be something like
 For MongoDB, further fields can be found in the `driver documentation`_. 
 
 If you have other means to retrieve the media files (custom Flask endpoint for
-example) then the media files can be excluded from the paylod by setting to
+example) then the media files can be excluded from the payload by setting to
 ``False`` the ``RETURN_MEDIA_AS_BASE64_STRING`` flag. This takes into account
 if ``EXTENDED_MEDIA_INFO`` is used.
+
+Serving media files at a dedicated endpoint
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+While returning files embedded as Base64 fields is the default behaviour, you
+can opt for serving them at a dedicated media endpoint. You achieve that by
+setting ``RETURN_MEDIA_AS_URL`` to ``True``. When this feature is enabled
+document fields contain urls to the correspondent files, which are served at the
+media endpoint. 
+
+You can change the default media endpoint (``media``) by updating the
+``MEDIA_BASE_URL`` and ``MEDIA_ENDPOINT`` setting. Suppose you are storing your
+images on Amazon S3 via a custom ``MediaStorage`` subclass. You would probably
+set your media endpoint like so:
+
+.. code-block:: python
+
+    # disable default behaviour
+    RETURN_MEDIA_AS_BASE64_STRING = False
+
+    # return media as URL instead
+    RETURN_MEDIA_AS_URL = True
+
+    # set up the desired media endpoint
+    MEDIA_BASE_URL = 'https://s3-us-west-2.amazonaws.com'
+    MEDIA_ENDPOINT = 'media'
+
+Setting ``MEDIA_BASE_URL`` is optional. If no value is set, then
+the API base address will be used when building the URL for ``MEDIA_ENDPOINT``.
 
 .. _projection_filestorage:
 
@@ -1383,7 +1567,7 @@ response payload:
 The document will be returned with all its fields except the *image* field.
 
 Moreover, when setting the ``datasource`` property for any given resource
-endpoint it is possible to explictly exclude fields (of ``media`` type, but
+endpoint it is possible to explicitly exclude fields (of ``media`` type, but
 also of any other type) from default responses:
 
 .. code-block:: python
@@ -1450,7 +1634,7 @@ Storing a contact along with its location is pretty straightforward:
 
 Querying GeoJSON Data
 ~~~~~~~~~~~~~~~~~~~~~
-As a genera rule all MongoDB `geospatial query operators`_ and their associated
+As a general rule all MongoDB `geospatial query operators`_ and their associated
 geometry specifiers are supported. In this example we are using the `$near`_
 operator to query for all contacts living in a location within 1000 meters from
 a certain point:
@@ -1493,7 +1677,7 @@ First we define an ``internal_transaction`` endpoint, which is flagged as an
 
 
 Now, if we access the home endpoint and ``HATEOAS`` is enabled, we won't get
-the ``internal-transactions`` listed (and hitting the endpoint via HTTP wil
+the ``internal-transactions`` listed (and hitting the endpoint via HTTP will
 return a ``404``.) We can use the data layer to access our secret endpoint.
 Something like this:
 
@@ -1521,6 +1705,75 @@ Something like this:
 I admit that this example is as rudimentary as it can get, but hopefully it
 will get the point across.
 
+.. _logging:
+
+Enhanced Logging
+----------------
+A number of events are available for logging via the default application
+logger. The standard `LogRecord attributes`_ are extended with a few request
+attributes:
+
+.. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
+
+=================================== =========================================
+``clientip``                        IP address of the client performing the
+                                    request.
+
+``url``                             Full request URL, eventual query parameters 
+                                    included.
+
+``method``                          Request method (``POST``, ``GET``, etc.)
+
+=================================== =========================================
+
+
+You can use these fields when logging to a file or any other destination.
+
+Callback functions can also take advantage of the builtin logger. The following
+example logs application events to a file, and also logs custom messages every
+time a custom function is invoked.
+
+.. code-block:: python
+
+    import logging
+
+    from eve import Eve
+
+    def log_every_get(resource, request, payload):
+        # custom INFO-level message is sent to the log file
+        app.logger.info('We just answered to a GET request!')
+
+    app = Eve()
+    app.on_post_GET += log_every_get
+
+    if __name__ == '__main__':
+
+        # enable logging to 'app.log' file
+        handler = logging.FileHandler('app.log')
+
+        # set a custom log format, and add request 
+        # metadata to each log line
+        handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s '
+            '[in %(filename)s:%(lineno)d] -- ip: %(clientip)s, '
+            'url: %(url)s, method:%(method)s'))
+
+        # the default log level is set to WARNING, so
+        # we have to explictly set the logging level 
+        # to INFO to get our custom message logged.
+        app.logger.setLevel(logging.INFO)
+
+        # append the handler to the default application logger
+        app.logger.addHandler(handler)
+
+        # let's go
+        app.run()
+
+
+Currently only exceptions raised by the MongoDB layer and ``POST``, ``PATCH``
+and ``PUT`` methods are logged. The idea is to also add some ``INFO`` and
+possibly ``DEBUG`` level events in the future. 
+
 .. _oplog:
 
 Operations Log
@@ -1547,7 +1800,7 @@ Like any other API-maintained document, oplog entries also expose:
 - HATEOAS fields if that's enabled.
 
 If ``OPLOG_AUDIT`` is enabled entries also expose both client IP and changes
-applied to the document (for ``DELETE`` the whole document is included).
+applied to the document (for ``DELETE`` the whole document is included). 
 
 A typical oplog entry looks like this:
 
@@ -1578,6 +1831,11 @@ To save a little space (at least on MongoDB) field names have been shortened:
 handy in a variety of scenarios (like when the oplog is available to clients,
 more on this later).
 
+Please note that by default the ``c`` (changes) field is not included for
+``POST`` operations. You can add ``POST`` to the ``OPLOG_CHANGE_METHODS``
+setting (see :ref:`global`) if you whish the whole document to be included on
+every insertion.
+
 How is the oplog operated?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 Six settings are dedicated to the OpLog:
@@ -1587,6 +1845,7 @@ Six settings are dedicated to the OpLog:
 - ``OPLOG_METHODS`` is a list of HTTP methods to be logged. Defaults to all of them.
 - ``OPLOG_ENDPOINT`` is the endpoint name. Defaults to ``None``.
 - ``OPLOG_AUDIT`` if enabled, IP addresses and changes are also logged. Defaults to ``True``.
+- ``OPLOG_CHANGE_METHODS`` determines which methods will log changes. Defaults to ['PATCH', 'PUT', 'DELETE'].
 
 As you can see the oplog feature is turned off by default. Also, since
 ``OPLOG_ENDPOINT`` defaults to ``None``, even if you switch the feature on no
@@ -1621,11 +1880,116 @@ query the oplog for changes occured on that endpoint.
     in case you are wondering yes, the Eve oplog is blatantly inpsired by the
     awesome `Replica Set Oplog`_.
 
-MongoDB Support
----------------
-Support for MongoDB comes out of the box. Extensions for other SQL/NoSQL
-backends can be developed with relative ease (a `PostgreSQL effort`_ is
-ongoing, maybe you can lend a hand?)
+.. _schema_endpoint:
+
+The Schema Endpoint
+-------------------
+Resource schema can be exposed to API clients by enabling Eve's schema
+endpoint. To do so, set the ``SCHEMA_ENDPOINT`` configuration option to the API
+endpoint name from which you want to serve schema data. Once enabled, Eve will
+treat the endpoint as a read only resource containing JSON encoded Cerberus
+schema definitons, indexed by resource name. Resource visibility and
+authorization settings are honored, so internal resources or resources for
+which a request does not have read authentication will not be accessible at the
+schema endpoint. By default, ``SCHEMA_ENDPOINT`` is set to ``None``.
+
+.. _aggregation:
+
+MongoDB Aggregation Framework
+-----------------------------
+Support for the `MongoDB Aggregation Framework`_ is built-in. In the example
+below (taken from PyMongo) we’ll perform a simple aggregation to count the
+number of occurrences for each tag in the tags array, across the entire
+collection. To achieve this we need to pass in three operations to the
+pipeline. First, we need to unwind the tags array, then group by the tags and
+sum them up, finally we sort by count.
+
+As python dictionaries don’t maintain order you should use ``SON`` or
+collections ``OrderedDict`` where explicit ordering is required eg ``$sort``:
+
+::
+
+    posts = {
+        'datasource': {
+            'aggregation': {
+                'pipeline': [
+                    {"$unwind": "$tags"}, 
+                    {"$group": {"_id": "$tags", "count": {"$sum": 1}}}, 
+                    {"$sort": SON([("count", -1), ("_id", -1)])}
+                ]
+            }
+        }
+    }
+
+The pipeline above is static. You have the option to allow for dynamic
+pipelines, whereas the client will directly influence the aggregation results.
+Let's update the pipeline a little bit:
+
+::
+
+    posts = {
+        'datasource': {
+            'aggregation': {
+                'pipeline': [
+                    {"$unwind": "$tags"}, 
+                    {"$group": {"_id": "$tags", "count": {"$sum": "$value"}}}, 
+                    {"$sort": SON([("count", -1), ("_id", -1)])}
+                ]
+            }
+        }
+    }
+
+As you can see the `count` field is now going to sum the value of ``$value``,
+which will be set by the client upon perfoming the request:
+
+::
+
+    $ curl -i http://example.com/posts?aggregate={"$value": 2}
+
+The request above will cause the aggregation to be executed on the server with
+a `count` field configured as if it was a static ``{"$sum": 2}``. The client
+simply adds the ``aggregate`` query parameter and then passes a dictionary with
+field/value pairs. Like with all other keywords, you can change ``aggregate``
+to a keyword of your liking, just set ``QUERY_AGGREGATION`` in your settings. 
+
+You can also set all options natively supported by PyMongo. For more
+informations on aggregation see :ref:`datasource`.
+
+Limitations
+~~~~~~~~~~~
+``HATEOAS`` is not available at aggregation endpoints. This should not
+be surprising as documents returned by these endpoints are aggregation results
+and do not reside on the database, so there is no static link available for them. 
+
+Client pagination (``?page=2``) is enabled by default. This is currently
+achieved by injecting two additional stages (``$limit`` first, then ``$skip``)
+to the very end of the aggregation pipeline. You can turn pagination off by setting
+``pagination`` to ``False`` for the endpoint. Keep in mind that, when pagination
+is disabled, all aggregation results are included with every response.
+Disabling pagination might be appropriate (and actually advisable) only if the
+expected response payload is not huge.
+
+Client sorting (``?sort=field1``) is not supported at aggregation endpoints.
+You can of course add one or more ``$sort`` stages to the pipeline, as we did
+with the example above. If you do add a ``$sort`` stage to the pipeline,
+consider adding it at the end of the pipeline. According to MongoDB's ``$limit``
+documentation (link_):
+
+    When a ``$sort`` immediately precedes a ``$limit`` in the pipeline, the
+    sort operation only maintains the top **n** results as it progresses, where
+    **n** is the specified limit, and MongoDB only needs to store **n** items
+    in memory. 
+
+As we just saw earlier, pagination adds a ``$limit`` stage to the end of the
+pipeline. So if pagination is enabled and ``$sort`` is the last stage of your
+pipeline, then the resulting combined pipeline should be optimized.
+
+MongoDB and SQL Support
+------------------------
+Support for single or multiple MongoDB database/servers comes out of the box.
+An SQLAlchemy extension provides support for SQL backends. Additional data
+layers can can be developed with relative ease. Visit the `extensions page`_
+for a list of community developed data layers and extensions. 
 
 Powered by Flask
 ----------------
@@ -1657,3 +2021,8 @@ for unittesting_ and an `extensive documentation`_.
 .. _$near: http://docs.mongodb.org/manual/reference/operator/query/near/#op._S_near
 .. _`capped collection`: http://docs.mongodb.org/manual/core/capped-collections/
 .. _`Replica Set Oplog`: http://docs.mongodb.org/manual/core/replica-set-oplog/
+.. _`extensions page`: http://python-eve.org/extensions
+.. _source: http://en.wikipedia.org/wiki/JSONP
+.. _`LogRecord attributes`: https://docs.python.org/2/library/logging.html#logrecord-attributes 
+.. _`MongoDB Aggregation Framework`: https://docs.mongodb.org/v3.0/applications/aggregation/
+.. _link: https://docs.mongodb.org/manual/reference/operator/aggregation/limit/

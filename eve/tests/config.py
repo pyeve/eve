@@ -11,6 +11,18 @@ from eve.io.mongo import Mongo, Validator
 
 
 class TestConfig(TestBase):
+    def test_allow_unknown_with_soft_delete(self):
+        my_settings = {
+            'ALLOW_UNKNOWN': True,
+            'SOFT_DELETE': True,
+            'DOMAIN': {'contacts': {}}
+        }
+        try:
+            self.app = Eve(settings=my_settings)
+        except TypeError:
+            self.fail("ALLOW_UNKNOWN and SOFT_DELETE enabled should not cause "
+                      "a crash.")
+
     def test_default_import_name(self):
         self.assertEqual(self.app.import_name, eve.__package__)
 
@@ -57,15 +69,24 @@ class TestConfig(TestBase):
                                                             'POST',
                                                             'PATCH',
                                                             'PUT'])
-
+        self.assertEqual(self.app.config['OPLOG_CHANGE_METHODS'], ['DELETE',
+                                                                   'PATCH',
+                                                                   'PUT'])
         self.assertEqual(self.app.config['QUERY_WHERE'], 'where')
         self.assertEqual(self.app.config['QUERY_PROJECTION'], 'projection')
         self.assertEqual(self.app.config['QUERY_SORT'], 'sort')
         self.assertEqual(self.app.config['QUERY_PAGE'], 'page')
         self.assertEqual(self.app.config['QUERY_MAX_RESULTS'], 'max_results')
         self.assertEqual(self.app.config['QUERY_EMBEDDED'], 'embedded')
+        self.assertEqual(self.app.config['QUERY_AGGREGATION'], 'aggregate')
 
         self.assertEqual(self.app.config['JSON_SORT_KEYS'], False)
+        self.assertEqual(self.app.config['SOFT_DELETE'], False)
+        self.assertEqual(self.app.config['DELETED'], '_deleted')
+        self.assertEqual(self.app.config['SHOW_DELETED_PARAM'], 'show_deleted')
+        self.assertEqual(self.app.config['STANDARD_ERRORS'],
+                         [400, 401, 404, 405, 406, 409, 410, 412, 422, 428])
+        self.assertEqual(self.app.config['UPSERT_ON_PUT'], True)
 
     def test_settings_as_dict(self):
         my_settings = {'API_VERSION': 'override!', 'DOMAIN': {'contacts': {}}}
@@ -135,9 +156,6 @@ class TestConfig(TestBase):
     def test_validate_lastupdated_in_schema(self):
         self.assertUnallowedField(eve.LAST_UPDATED)
 
-    def test_validate_idfield_in_schema(self):
-        self.assertUnallowedField(eve.ID_FIELD, 'objectid')
-
     def assertUnallowedField(self, field, field_type='datetime'):
         self.domain.clear()
         schema = {field: {'type': field_type}}
@@ -156,7 +174,12 @@ class TestConfig(TestBase):
         schema = self.domain['invoices']['schema']
         data_relation = schema['person']['data_relation']
         self.assertTrue('field' in data_relation)
-        self.assertEqual(data_relation['field'], self.app.config['ID_FIELD'])
+        self.assertEqual(data_relation['field'],
+                         self.domain['contacts']['id_field'])
+        id_field = self.domain['invoices']['id_field']
+        self.assertTrue(id_field in schema)
+        self.assertEqual(schema[id_field],
+                         {'type': 'objectid', 'unique': True})
 
     def test_set_defaults(self):
         self.domain.clear()
@@ -165,7 +188,7 @@ class TestConfig(TestBase):
         self.app.set_defaults()
         self._test_defaults_for_resource(resource)
         settings = self.domain[resource]
-        self.assertEqual(len(settings['schema']), 0)
+        self.assertEqual(len(settings['schema']), 1)
 
     def _test_defaults_for_resource(self, resource):
         settings = self.domain[resource]
@@ -208,6 +231,8 @@ class TestConfig(TestBase):
                          self.app.config['ALLOWED_FILTERS'])
         self.assertEqual(settings['projection'], self.app.config['PROJECTION'])
         self.assertEqual(settings['versioning'], self.app.config['VERSIONING'])
+        self.assertEqual(settings['soft_delete'],
+                         self.app.config['SOFT_DELETE'])
         self.assertEqual(settings['sorting'], self.app.config['SORTING'])
         self.assertEqual(settings['embedding'], self.app.config['EMBEDDING'])
         self.assertEqual(settings['pagination'], self.app.config['PAGINATION'])
@@ -215,6 +240,8 @@ class TestConfig(TestBase):
                          self.app.config['AUTH_FIELD'])
         self.assertEqual(settings['allow_unknown'],
                          self.app.config['ALLOW_UNKNOWN'])
+        self.assertEqual(settings['transparent_schema_rules'],
+                         self.app.config['TRANSPARENT_SCHEMA_RULES'])
         self.assertEqual(settings['extra_response_fields'],
                          self.app.config['EXTRA_RESPONSE_FIELDS'])
         self.assertEqual(settings['mongo_write_concern'],
@@ -223,6 +250,7 @@ class TestConfig(TestBase):
 
         self.assertNotEqual(settings['schema'], None)
         self.assertEqual(type(settings['schema']), dict)
+        self.assertEqual(settings['etag_ignore_fields'], None)
 
     def test_datasource(self):
         self._test_datasource_for_resource('invoices')
@@ -231,7 +259,7 @@ class TestConfig(TestBase):
         datasource = self.domain[resource]['datasource']
         schema = self.domain[resource]['schema']
         compare = [key for key in datasource['projection'] if key in schema]
-        compare.extend([self.app.config['ID_FIELD'],
+        compare.extend([self.domain[resource]['id_field'],
                         self.app.config['LAST_UPDATED'],
                         self.app.config['DATE_CREATED'],
                         self.app.config['ETAG']])
@@ -240,6 +268,9 @@ class TestConfig(TestBase):
                          dict((field, 1) for (field) in compare))
         self.assertEqual(datasource['source'], resource)
         self.assertEqual(datasource['filter'], None)
+
+        self.assertEqual(datasource['aggregate'], None)
+        self.assertEqual(datasource['aggregate_options'], None)
 
     def test_validate_roles(self):
         for resource in self.domain:
@@ -324,12 +355,18 @@ class TestConfig(TestBase):
         resource_url = self.app.config['URLS']['peopleinvoices']
         pretty_url = 'users/<person>/invoices'
         self.assertEqual(resource_url, pretty_url)
+        resource_url = self.app.config['URLS']['peoplesearches']
+        pretty_url = 'users/<person>/saved_searches'
+        self.assertEqual(resource_url, pretty_url)
 
     def test_url_rules(self):
         map_adapter = self.app.url_map.bind('')
 
         del(self.domain['peopleinvoices'])
+        del(self.domain['peoplerequiredinvoices'])
+        del(self.domain['peoplesearches'])
         del(self.domain['internal_transactions'])
+        del(self.domain['child_products'])
         for _, settings in self.domain.items():
             for method in settings['resource_methods']:
                 self.assertTrue(map_adapter.test('/%s/' % settings['url'],
@@ -365,11 +402,19 @@ class TestConfig(TestBase):
         self.assertRaises(ConfigException, self.app.register_resource,
                           resource, settings)
 
-    def test_oplog_config(self):
+    def test_auth_field_as_custom_idfield(self):
+        resource = 'resource'
+        settings = {
+            'schema': {
+                'id': {'type': 'string'}
+            },
+            'id_field': 'id',
+            'auth_field': 'id'
+        }
+        self.assertRaises(ConfigException, self.app.register_resource,
+                          resource, settings)
 
-        # OPLOG_ENDPOINT is disabled by default so we don't have the endpoint
-        # in our domain
-        self.assertFalse('oplog' in self.domain)
+    def test_oplog_config(self):
 
         # if OPLOG_ENDPOINT is eanbled the endoint is included with the domain
         self.app.config['OPLOG_ENDPOINT'] = 'oplog'
@@ -411,3 +456,67 @@ class TestConfig(TestBase):
         self.assertEqual(settings['item_methods'], ['GET'])
         self.assertEqual(settings['url'], endpoint)
         self.assertEqual(settings['datasource']['source'], key)
+
+    def test_create_indexes(self):
+        # prepare a specific schema with mongo indexes declared
+        # along with the schema.
+        settings = {
+            'schema': {
+                'name': {'type': 'string'},
+                'other_field': {'type': 'string'},
+                'lat_long': {'type': 'list'}
+            },
+            'versioning': True,
+            'mongo_indexes': {
+                'name': [('name', 1)],
+                'composed': [('name', 1), ('other_field', 1)],
+                'arguments': ([('lat_long', "2d")], {"sparce": True})
+            }
+        }
+        self.app.register_resource('mongodb_features', settings)
+
+        # check that the indexes are there as a part of the resource
+        # settings
+        self.assertEqual(
+            self.app.config['DOMAIN']['mongodb_features']['mongo_indexes'],
+            settings['mongo_indexes']
+        )
+
+        # check that the indexes were created
+        from pymongo import MongoClient
+        db_name = self.app.config['MONGO_DBNAME']
+
+        db = MongoClient()[db_name]
+        for coll in [db['mongodb_features'], db['mongodb_features_versions']]:
+            indexes = coll.index_information()
+
+            # at least there is an index for the _id field plus the indexes
+            # created by the resource of this test
+            self.assertTrue(len(indexes) > len(settings['mongo_indexes']))
+
+            # check each one, fields involved and arguments given
+            for key, value in settings['mongo_indexes'].items():
+                if isinstance(value, tuple):
+                    fields, args = value
+                else:
+                    fields = value
+                    args = None
+
+                self.assertTrue(key in indexes)
+                self.assertEqual(indexes[key]['key'], fields)
+
+                for arg in args or ():
+                    self.assertTrue(arg in indexes[key])
+                    self.assertEqual(args[arg], indexes[key][arg])
+
+    def test_custom_error_handlers(self):
+        """ Test that the standard, custom error handler is registered for
+        supported error codes.
+        """
+        codes = self.app.config['STANDARD_ERRORS']
+
+        # http://flask.pocoo.org/docs/0.10/api/#flask.Flask.error_handler_spec
+        handlers = self.app.error_handler_spec[None]
+
+        challenge = lambda code: self.assertTrue(code in handlers)  # noqa
+        map(challenge, codes)

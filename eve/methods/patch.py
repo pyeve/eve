@@ -6,10 +6,11 @@
 
     This module imlements the PATCH method.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
+from copy import deepcopy
 from flask import current_app as app, abort
 from werkzeug import exceptions
 from datetime import datetime
@@ -36,10 +37,12 @@ def patch(resource, payload=None, **lookup):
     .. versionchanged:: 0.5
        Split into patch() and patch_internal().
     """
-    return patch_internal(resource, payload, concurrency_check=True, **lookup)
+    return patch_internal(resource, payload, concurrency_check=True,
+                          skip_validation=False, **lookup)
 
 
-def patch_internal(resource, payload=None, concurrency_check=False, **lookup):
+def patch_internal(resource, payload=None, concurrency_check=False,
+                   skip_validation=False, **lookup):
     """ Intended for internal patch calls, this method is not rate limited,
     authentication is not checked, pre-request events are not raised, and
     concurrency checking is optional. Performs a document patch/update.
@@ -57,9 +60,19 @@ def patch_internal(resource, payload=None, concurrency_check=False, **lookup):
                     Please be advised that in order to successfully use this
                     option, a request context must be available.
     :param concurrency_check: concurrency check switch (bool)
+    :param skip_validation: skip payload validation before write (bool)
     :param **lookup: document lookup query.
 
+    .. versionchanged:: 0.6.2
+       Fix: validator is not set when skip_validation is true.
+
+    .. versionchanged:: 0.6
+       on_updated returns the updated document (#682).
+       Allow restoring soft deleted documents via PATCH
+
     .. versionchanged:: 0.5
+       Updating nested document fields does not overwrite the nested document
+       itself (#519).
        Push updates to the OpLog.
        Original patch() has been split into patch() and patch_internal().
        You can now pass a pre-defined custom payload to the funcion.
@@ -127,7 +140,7 @@ def patch_internal(resource, payload=None, concurrency_check=False, **lookup):
     schema = resource_def['schema']
     validator = app.validator(schema, resource)
 
-    object_id = original[config.ID_FIELD]
+    object_id = original[resource_def['id_field']]
     last_modified = None
     etag = None
 
@@ -142,8 +155,16 @@ def patch_internal(resource, payload=None, concurrency_check=False, **lookup):
 
     try:
         updates = parse(payload, resource)
-        validation = validator.validate_update(updates, object_id, original)
+        if skip_validation:
+            validation = True
+        else:
+            validation = validator.validate_update(updates, object_id,
+                                                   original)
+            updates = validator.document
+
         if validation:
+            # Apply coerced values
+
             # sneak in a shadow copy if it wasn't already there
             late_versioning_catch(original, resource)
 
@@ -154,25 +175,39 @@ def patch_internal(resource, payload=None, concurrency_check=False, **lookup):
             updates[config.LAST_UPDATED] = \
                 datetime.utcnow().replace(microsecond=0)
 
+            if resource_def['soft_delete'] is True:
+                # PATCH with soft delete enabled should always set the DELETED
+                # field to False. We are either carrying through un-deleted
+                # status, or restoring a soft deleted document
+                updates[config.DELETED] = False
+
             # the mongo driver has a different precision than the python
-            # datetime. since we don't want to reload the document once it has
-            # been updated, and we still have to provide an updated etag,
-            # we're going to update the local version of the 'original'
-            # document, and we will use it for the etag computation.
-            updated = original.copy()
+            # datetime. since we don't want to reload the document once it
+            # has been updated, and we still have to provide an updated
+            # etag, we're going to update the local version of the
+            # 'original' document, and we will use it for the etag
+            # computation.
+            updated = deepcopy(original)
 
             # notify callbacks
             getattr(app, "on_update")(resource, updates, original)
             getattr(app, "on_update_%s" % resource)(updates, original)
 
+            updates = resolve_nested_documents(updates, updated)
             updated.update(updates)
 
             if config.IF_MATCH:
-                resolve_document_etag(updated)
+                resolve_document_etag(updated, resource)
                 # now storing the (updated) ETAG with every document (#453)
                 updates[config.ETAG] = updated[config.ETAG]
 
-            app.data.update(resource, object_id, updates)
+            try:
+                app.data.update(
+                    resource, object_id, updates, original)
+            except app.data.OriginalChangedError:
+                if concurrency_check:
+                    abort(412,
+                          description='Client and server etags don\'t match')
 
             # update oplog if needed
             oplog_push(resource, updates, 'PATCH', object_id)
@@ -183,11 +218,14 @@ def patch_internal(resource, payload=None, concurrency_check=False, **lookup):
             getattr(app, "on_updated")(resource, updates, original)
             getattr(app, "on_updated_%s" % resource)(updates, original)
 
+            updated.update(updates)
+
             # build the full response document
             build_response_document(
                 updated, resource, embedded_fields, updated)
             response = updated
-
+            if config.IF_MATCH:
+                etag = response[config.ETAG]
         else:
             issues = validator.errors
     except ValidationError as e:
@@ -198,6 +236,7 @@ def patch_internal(resource, payload=None, concurrency_check=False, **lookup):
         raise e
     except Exception as e:
         # consider all other exceptions as Bad Requests
+        app.logger.exception(e)
         abort(400, description=debug_error_message(
             'An exception occurred: %s' % e
         ))
@@ -214,3 +253,23 @@ def patch_internal(resource, payload=None, concurrency_check=False, **lookup):
     response = marshal_write_response(response, resource)
 
     return response, last_modified, etag, status
+
+
+def resolve_nested_documents(updates, original):
+    """ Nested document updates are merged with the original contents
+    we don't overwrite the whole thing. See #519 for details.
+
+    .. versionadded:: 0.5
+    """
+    r = {}
+    for field, value in updates.items():
+        if isinstance(value, dict):
+            orig_value = original.setdefault(field, {})
+            if orig_value is None:
+                r[field] = value
+            else:
+                orig_value.update(resolve_nested_documents(value, orig_value))
+                r[field] = orig_value
+        else:
+            r[field] = value
+    return r

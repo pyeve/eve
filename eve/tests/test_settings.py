@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+import copy
+
 
 MONGO_HOST = 'localhost'
 MONGO_PORT = 27017
-MONGO_USERNAME = 'test_user'
-MONGO_PASSWORD = 'test_pw'
-MONGO_DBNAME = 'eve_test'
+MONGO_USERNAME = MONGO1_USERNAME = 'test_user'
+MONGO_PASSWORD = MONGO1_PASSWORD = 'test_pw'
+MONGO_DBNAME, MONGO1_DBNAME = 'eve_test', 'eve_test1'
 ID_FIELD = '_id'
 
 RESOURCE_METHODS = ['GET', 'POST', 'DELETE']
@@ -12,6 +14,19 @@ ITEM_METHODS = ['GET', 'PATCH', 'DELETE', 'PUT']
 ITEM_CACHE_CONTROL = ''
 ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
+
+
+disabled_bulk = {
+    'url': 'somebulkurl',
+    'item_title': 'bulkdisabled',
+    'bulk_enabled': False,
+    'schema': {
+        'string_field': {
+            'type': 'string'
+        }
+    }
+}
+
 
 contacts = {
     'url': 'arbitraryurl',
@@ -93,6 +108,10 @@ contacts = {
             'type': 'string',
             'dependencies': ['dependency_field1']
         },
+        'dependency_field3': {
+            'type': 'string',
+            'dependencies': {'dependency_field1': 'value'}
+        },
         'read_only_field': {
             'type': 'string',
             'default': 'default',
@@ -111,14 +130,26 @@ contacts = {
         'key1': {
             'type': 'string',
         },
-        'keyschema_dict': {
+        'propertyschema_dict': {
             'type': 'dict',
-            'keyschema': {'type': 'integer'}
+            'propertyschema': {'type': 'string', 'regex': '[a-z]+'}
+        },
+        'valueschema_dict': {
+            'type': 'dict',
+            'valueschema': {'type': 'integer'}
+        },
+        'aninteger': {
+            'type': 'integer',
+        },
+        'afloat': {
+            'type': 'float',
+        },
+        'anumber': {
+            'type': 'number'
         }
     }
 }
 
-import copy
 users = copy.deepcopy(contacts)
 users['url'] = 'users'
 users['datasource'] = {'source': 'contacts',
@@ -135,6 +166,10 @@ invoices = {
         'person': {
             'type': 'objectid',
             'data_relation': {'resource': 'contacts'}
+        },
+        'invoicing_contacts': {
+            'type': 'list',
+            'data_relation': {'resource': 'contacts'}
         }
     }
 }
@@ -143,6 +178,11 @@ invoices = {
 # level versioning
 versioned_invoices = copy.deepcopy(invoices)
 versioned_invoices['versioning'] = True
+
+# This resource is used to test subresources that have a reference/objectid
+# field that is set to be required.
+required_invoices = copy.deepcopy(invoices)
+required_invoices['schema']['person']['required'] = True
 
 companies = {
     'item_title': 'company',
@@ -157,11 +197,15 @@ companies = {
                         'type': 'list',
                         'schema': {
                             'type': 'objectid',
-                            'data_relation': {'resource': 'contacts'}
+                            'data_relation': {'resource': 'contacts'},
                         }
                     }
                 }
             }
+        },
+        'holding': {
+            'type': 'objectid',
+            'data_relation': {'resource': 'companies'},
         }
     }
 }
@@ -185,22 +229,104 @@ users_invoices = copy.deepcopy(invoices)
 users_invoices['url'] = 'users/<regex("[a-f0-9]{24}"):person>/invoices'
 users_invoices['datasource'] = {'source': 'invoices'}
 
+users_required_invoices = copy.deepcopy(required_invoices)
+users_required_invoices['url'] =\
+    'users/<regex("[a-f0-9]{24}"):person>/required_invoices'
+users_required_invoices['datasource'] = {'source': 'required_invoices'}
+
+users_searches = copy.deepcopy(invoices)
+users_searches['datasource'] = {'source': 'invoices'}
+users_searches['url'] = \
+    'users/<regex("[a-zA-Z0-9:\\-\\.]+"):person>/saved_searches'
+
 internal_transactions = {
     'resource_methods': ['GET'],
     'item_methods': ['GET'],
     'internal_resource': True
 }
 
+ids = {
+    'query_objectid_as_string': True,
+    'item_lookup_field': 'id',
+    'resource_methods': ['POST', 'GET'],
+    'schema': {
+        'id': {'type': 'string'},
+        'name': {'type': 'string'}
+    }
+}
+
+login = {
+    'item_title': 'login',
+    'url': 'login',
+    'datasource': {
+        'projection': {
+            'password': 0
+        }
+    },
+    'schema': {
+        'email': {
+            'type': 'string',
+            'required': True,
+            'unique': True
+        },
+        'password': {
+            'type': 'string',
+            'required': True
+        }
+    }
+}
+
+# This resource is used to test resource-specific id fields.
+products = {
+    'id_field': 'sku',
+    'item_lookup_field': 'sku',
+    'item_url': 'regex("[A-Z]+")',
+    'schema': {
+        'sku': {
+            'type': 'string',
+            'maxlength': 16,
+            'unique': True
+        },
+        'title': {
+            'type': 'string',
+            'minlength': 4,
+            'maxlength': 32
+        },
+        'parent_product': {
+            'type': 'string',
+            'data_relation': {'resource': 'products'}
+        }
+    }
+}
+child_products = copy.deepcopy(products)
+child_products['url'] = 'products/<regex("[A-Z]+"):parent_product>/children'
+child_products['datasource'] = {'source': 'products'}
+
+exclusion = copy.deepcopy(contacts)
+exclusion['url'] = 'exclusion'
+exclusion['soft_delete'] = True
+exclusion['datasource']['source'] = 'contacts'
+exclusion['datasource']['projection'] = {'int': 0}
+
 DOMAIN = {
+    'disabled_bulk': disabled_bulk,
     'contacts': contacts,
     'users': users,
     'users_overseas': users_overseas,
     'invoices': invoices,
     'versioned_invoices': versioned_invoices,
+    'required_invoices': required_invoices,
     'payments': payments,
     'empty': empty,
     'restricted': user_restricted_access,
     'peopleinvoices': users_invoices,
+    'peoplerequiredinvoices': users_required_invoices,
+    'peoplesearches': users_searches,
     'companies': companies,
     'internal_transactions': internal_transactions,
+    'ids': ids,
+    'login': login,
+    'products': products,
+    'child_products': child_products,
+    'exclusion': exclusion,
 }

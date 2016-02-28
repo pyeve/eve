@@ -16,8 +16,8 @@ class ValidBasicAuth(BasicAuth):
 
     def check_auth(self, username, password, allowed_roles, resource, method):
         self.set_request_auth_value(self.request_auth_value)
-        return username == 'admin' and password == 'secret' and  \
-            (allowed_roles == ['admin'] if allowed_roles else True)
+        return username in ('admin', 'alt') and password == 'secret' and  \
+            ('admin' in allowed_roles if allowed_roles else True)
 
 
 class BadBasicAuth(BasicAuth):
@@ -26,15 +26,20 @@ class BadBasicAuth(BasicAuth):
 
 class ValidTokenAuth(TokenAuth):
     def check_auth(self, token, allowed_roles, resource, method):
-        return token == 'test_token' and (allowed_roles == ['admin'] if
+        return token == 'test_token' and ('admin' in allowed_roles if
                                           allowed_roles else True)
+
+
+class BadTokenAuth(TokenAuth):
+    pass
 
 
 class ValidHMACAuth(HMACAuth):
     def check_auth(self, userid, hmac_hash, headers, data, allowed_roles,
                    resource, method):
+        self.set_request_auth_value(userid)
         return userid == 'admin' and hmac_hash == 'secret' and  \
-            (allowed_roles == ['admin'] if allowed_roles else True)
+            ('admin' in allowed_roles if allowed_roles else True)
 
 
 class BadHMACAuth(HMACAuth):
@@ -52,10 +57,16 @@ class TestBasicAuth(TestBase):
                            self.content_type]
         self.invalid_auth = [('Authorization', 'Basic IDontThinkSo'),
                              self.content_type]
+        self.setUpRoles()
+        self.app.set_defaults()
+
+    def setUpRoles(self):
         for _, schema in self.app.config['DOMAIN'].items():
             schema['allowed_roles'] = ['admin']
+            schema['allowed_read_roles'] = ['reader']
             schema['allowed_item_roles'] = ['admin']
-        self.app.set_defaults()
+            schema['allowed_item_read_roles'] = ['reader']
+            schema['allowed_item_write_roles'] = ['editor']
 
     def test_custom_auth(self):
         self.assertTrue(isinstance(self.app.auth, ValidBasicAuth))
@@ -81,7 +92,7 @@ class TestBasicAuth(TestBase):
         self.assert401(r.status_code)
 
     def test_authorized_home_access(self):
-        r = self.test_client.get('/',  headers=self.valid_auth)
+        r = self.test_client.get('/', headers=self.valid_auth)
         self.assert200(r.status_code)
 
     def test_authorized_resource_access(self):
@@ -94,7 +105,7 @@ class TestBasicAuth(TestBase):
         self.assertValidationErrorStatus(r.status_code)
         r = self.test_client.delete(self.known_resource_url,
                                     headers=self.valid_auth)
-        self.assert200(r.status_code)
+        self.assert204(r.status_code)
 
     def test_authorized_item_access(self):
         r = self.test_client.get(self.item_id_url, headers=self.valid_auth)
@@ -102,12 +113,20 @@ class TestBasicAuth(TestBase):
         r = self.test_client.patch(self.item_id_url,
                                    data=json.dumps({"k": "value"}),
                                    headers=self.valid_auth)
-        self.assert403(r.status_code)
+        self.assert428(r.status_code)
         r = self.test_client.delete(self.item_id_url, headers=self.valid_auth)
-        self.assert403(r.status_code)
+        self.assert428(r.status_code)
+
+    def test_authorized_schema_access(self):
+        self.app.config['SCHEMA_ENDPOINT'] = 'schema'
+        self.app._init_schema_endpoint()
+
+        r = self.test_client.get('/schema/%s' % self.known_resource,
+                                 headers=self.valid_auth)
+        self.assert200(r.status_code)
 
     def test_unauthorized_home_access(self):
-        r = self.test_client.get('/',  headers=self.invalid_auth)
+        r = self.test_client.get('/', headers=self.invalid_auth)
         self.assert401(r.status_code)
 
     def test_unauthorized_resource_access(self):
@@ -130,6 +149,14 @@ class TestBasicAuth(TestBase):
                                     headers=self.invalid_auth)
         self.assert401(r.status_code)
 
+    def test_unauthorized_schema_access(self):
+        self.app.config['SCHEMA_ENDPOINT'] = 'schema'
+        self.app._init_schema_endpoint()
+
+        r = self.test_client.get('/schema/%s' % self.known_resource,
+                                 headers=self.invalid_auth)
+        self.assert401(r.status_code)
+
     def test_home_public_methods(self):
         self.app.config['PUBLIC_METHODS'] = ['GET']
         r = self.test_client.get('/')
@@ -144,7 +171,10 @@ class TestBasicAuth(TestBase):
             del(settings['public_methods'])
         self.app.set_defaults()
         del(domain['peopleinvoices'])
+        del(domain['peoplerequiredinvoices'])
+        del(domain['peoplesearches'])
         del(domain['internal_transactions'])
+        del(domain['child_products'])
         for resource in domain:
             url = self.app.config['URLS'][resource]
             r = self.test_client.get(url)
@@ -214,8 +244,24 @@ class TestBasicAuth(TestBase):
     def test_rfc2617_response(self):
         r = self.test_client.get('/')
         self.assert401(r.status_code)
-        self.assertTrue(('WWW-Authenticate', 'Basic realm:"%s"' %
+        self.assertTrue(('WWW-Authenticate', 'Basic realm="%s"' %
                          eve.__package__) in r.headers.to_wsgi_list())
+
+    def test_allowed_roles_does_not_change(self):
+        self.test_client.get(self.known_resource_url)
+        resource = self.app.config['DOMAIN'][self.known_resource]
+        self.assertEqual(resource['allowed_roles'], ['admin'])
+
+    def test_allowed_item_roles_does_not_change(self):
+        self.test_client.get(self.item_id_url)
+        resource = self.app.config['DOMAIN'][self.known_resource]
+        self.assertEqual(resource['allowed_item_roles'], ['admin'])
+
+    def test_ALLOWED_ROLES_does_not_change(self):
+        self.app.config['ALLOWED_ROLES'] = ['admin']
+        self.app.config['ALLOWED_READ_ROLES'] = ['reader']
+        self.test_client.get('/')
+        self.assertEqual(self.app.config['ALLOWED_ROLES'], ['admin'])
 
 
 class TestTokenAuth(TestBasicAuth):
@@ -225,9 +271,24 @@ class TestTokenAuth(TestBasicAuth):
         self.test_client = self.app.test_client()
         self.valid_auth = [('Authorization', 'Basic dGVzdF90b2tlbjo='),
                            self.content_type]
+        self.setUpRoles()
 
     def test_custom_auth(self):
         self.assertTrue(isinstance(self.app.auth, ValidTokenAuth))
+
+
+class TestCustomTokenAuth(TestTokenAuth):
+    def setUp(self):
+        super(TestCustomTokenAuth, self).setUp()
+        self.valid_auth = [('Authorization', 'Token test_token'),
+                           self.content_type]
+
+    def test_bad_auth_class(self):
+        self.app = Eve(settings=self.settings_file, auth=BadTokenAuth)
+        self.test_client = self.app.test_client()
+        r = self.test_client.get('/', headers=self.valid_auth)
+        # will fail because check_auth() is not implemented in the custom class
+        self.assert500(r.status_code)
 
 
 class TestHMACAuth(TestBasicAuth):
@@ -237,6 +298,7 @@ class TestHMACAuth(TestBasicAuth):
         self.test_client = self.app.test_client()
         self.valid_auth = [('Authorization', 'admin:secret'),
                            self.content_type]
+        self.setUpRoles()
 
     def test_custom_auth(self):
         self.assertTrue(isinstance(self.app.auth, ValidHMACAuth))
@@ -251,6 +313,24 @@ class TestHMACAuth(TestBasicAuth):
     def test_rfc2617_response(self):
         r = self.test_client.get('/')
         self.assert401(r.status_code)
+
+    def test_post_resource_hmac_auth(self):
+        # Test that user restricted access works with HMAC auth.
+        resource_def = self.app.config['DOMAIN']['restricted']
+        resource_def['auth_field'] = 'username'
+        url = resource_def['url']
+        data = {"ref": "0123456789123456789012345"}
+
+        r = self.app.test_client().post(url, data=json.dumps(data),
+                                        headers=self.valid_auth,
+                                        content_type='application/json')
+
+        # Verify that we can retrieve the same document
+        r, status = self.parse_response(
+            self.app.test_client().get(url, headers=self.valid_auth))
+        self.assert200(status)
+        self.assertEqual(len(r['_items']), 1)
+        self.assertEqual(r['_items'][0]['ref'], data['ref'])
 
 
 class TestResourceAuth(TestBase):
@@ -351,8 +431,8 @@ class TestUserRestrictedAccess(TestBase):
         """ To test handling of ObjectIds
         """
         # set auth_field to `_id`
-        self.app.config['DOMAIN']['users'][self.field_name] = \
-            self.app.config['ID_FIELD']
+        self.domain['users'][self.field_name] = \
+            self.domain['users']['id_field']
 
         _, status = self.parse_response(
             self.test_client.get(self.user_id_url,
@@ -427,7 +507,38 @@ class TestUserRestrictedAccess(TestBase):
                                  headers=self.valid_auth))
         self.assert200(status)
         # len of 1 as there are is only 1 doc saved by user
-        self.assertEqual(len(data['_items']), 1)
+
+    def test_unique_to_user_on_post(self):
+        # make the field unique to user, not globally.
+        self.resource['schema']['ref']['unique'] = False
+        self.resource['schema']['ref']['unique_to_user'] = True
+
+        # first post as 'admin' is a success.
+        _, status = self.post()
+        self.assert201(status)
+
+        # second post as 'admin' fails since value is not unique to user.
+        _, status = self.post()
+        self.assert422(status)
+
+        self.resource['authentication'].request_auth_value = 'alt'
+        # first post as 'alt' succeeds as value is unique to this user.
+        alt_auth = [('Authorization', 'Basic YWx0OnNlY3JldA==')]
+        r = self.test_client.post(self.url,
+                                  data=self.data,
+                                  headers=alt_auth,
+                                  content_type='application/json')
+
+        self.assert201(r.status_code)
+
+        # second post as 'alt' fails since value is not unique to user anymore.
+        r = self.test_client.post(self.url,
+                                  data=self.data,
+                                  headers=alt_auth,
+                                  content_type='application/json')
+
+        # post succeeds since value is unique to 'alt' user
+        self.assert422(r.status_code)
 
     def test_post_resource_auth(self):
         # Ticket #231.
@@ -439,7 +550,7 @@ class TestUserRestrictedAccess(TestBase):
 
         # set auth at resource level instead.
         resource_def = self.app.config['DOMAIN'][self.url]
-        resource_def['authentication'] = ValidBasicAuth()
+        resource_def['authentication'] = ValidBasicAuth
         resource_def['auth_field'] = 'username'
 
         # post with valid auth - must store the document with the correct
@@ -456,6 +567,17 @@ class TestUserRestrictedAccess(TestBase):
         self.assertEqual(len(data['_items']), 1)
         self.assertEqual(data['_items'][0]['ref'],
                          json.loads(self.data)['ref'])
+
+    def test_post_bandwidth_saver_off_resource_auth(self):
+        """ Test that when BANDWIDTH_SAVER is turned off the auth_field is
+        not exposed in the response payload
+        """
+        self.app.config['BANDWIDTH_SAVER'] = False
+        r = self.app.test_client().post(self.url, data=self.data,
+                                        headers=self.valid_auth,
+                                        content_type='application/json')
+        r, status = self.parse_response(r)
+        self.assertTrue('username' not in r)
 
     def test_put(self):
         new_ref = "9999999999999999999999999"
@@ -489,7 +611,7 @@ class TestUserRestrictedAccess(TestBase):
 
         # set auth at resource level instead.
         resource_def = self.app.config['DOMAIN'][self.url]
-        resource_def['authentication'] = ValidBasicAuth()
+        resource_def['authentication'] = ValidBasicAuth
         resource_def['auth_field'] = 'username'
 
         # post
@@ -519,6 +641,28 @@ class TestUserRestrictedAccess(TestBase):
             self.app.test_client().get(url, headers=self.valid_auth))
         self.assert200(status)
         self.assertEqual(data['ref'], new_ref)
+
+    def test_put_bandwidth_saver_off_resource_auth(self):
+        """ Test that when BANDWIDTH_SAVER is turned off the auth_field is
+        not exposed in the response payload
+        """
+        self.app.config['BANDWIDTH_SAVER'] = False
+
+        new_ref = "9999999999999999999999999"
+        changes = json.dumps({"ref": new_ref})
+
+        # post document
+        data, status = self.post()
+
+        url = '%s/%s' % (self.url, data['_id'])
+
+        # perform put
+        headers = [('If-Match', data['_etag']), self.valid_auth[0]]
+        response, status = self.parse_response(
+            self.test_client.put(url, data=json.dumps(changes),
+                                 headers=headers,
+                                 content_type='application/json'))
+        self.assertTrue('username' not in response)
 
     def test_patch(self):
         new_ref = "9999999999999999999999999"
@@ -558,7 +702,7 @@ class TestUserRestrictedAccess(TestBase):
         # delete the document we just inserted
         response, status = self.parse_response(
             self.test_client.delete(self.url, headers=self.valid_auth))
-        self.assert200(status)
+        self.assert204(status)
 
         # we now get an empty items list (other documents in collection are
         # filtered by auth).
@@ -591,7 +735,7 @@ class TestUserRestrictedAccess(TestBase):
         # delete the document
         response, status = self.parse_response(
             self.test_client.delete(url, headers=headers))
-        self.assert200(status)
+        self.assert204(status)
 
         # make sure no other document has been deleted.
         cursor = _db.contacts.find()

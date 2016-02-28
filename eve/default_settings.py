@@ -8,8 +8,21 @@
     appropriately, by using a custom settings module (see the optional
     'settings' argument or the EVE_SETTING environment variable).
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
+
+    .. versionchanged:: 0.6
+       'UPSERT_ON_PUT? added and set to True.
+       'STANDARD_ERRORS' added.
+       'JSONP_ARGUMENT' added and set to None.
+       'HEADER_TOTAL_COUNT' added and set to 'X-Total-Count'.
+       'RETURN_MEDIA_AS_URL' added and set to None.
+       'MEDIA_ENDPOINT' added and set to 'media'.
+       'MEDIA_URL' added and set to regex("[a-f0-9]{24}").
+       'SOFT_DELETE' added and set to False.
+       'DELETED' added and set to '_deleted'.
+       'SHOW_DELETED_PARAM' added and set to 'show_deleted'.
+       'SCHEMA_ENDPOINT' added and set to None
 
     .. versionchanged:: 0.5
        'SERVER_NAME' removed.
@@ -92,9 +105,18 @@ ITEMS = '_items'
 LINKS = '_links'
 ETAG = '_etag'
 VERSION = '_version'            # field that stores the version number
+DELETED = '_deleted'            # field to store soft delete status
 META = '_meta'
-
+INFO = None
 VALIDATION_ERROR_STATUS = 422
+
+# return a single field validation error as a list (by default a single error
+# is retuned as string, while multiple errors are returned as a list).
+VALIDATION_ERROR_AS_LIST = False
+
+# codes for which we want to return a standard response which includes
+# a JSON body with the status, code, and description.
+STANDARD_ERRORS = [400, 401, 404, 405, 406, 409, 410, 412, 422, 428]
 
 # field returned on GET requests so we know if we have the latest copy even if
 # we access a specific version
@@ -113,11 +135,13 @@ ITEM_CACHE_CONTROL = ''
 X_DOMAINS = None                # CORS disabled by default.
 X_HEADERS = None                # CORS disabled by default.
 X_EXPOSE_HEADERS = None         # CORS disabled by default.
+X_ALLOW_CREDENTIALS = None      # CORS disabled by default.
 X_MAX_AGE = 21600               # Access-Control-Max-Age when CORS is enabled
 HATEOAS = True                  # HATEOAS enabled by default.
 IF_MATCH = True                 # IF_MATCH (ETag match) enabled by default.
 
 ALLOWED_FILTERS = ['*']         # filtering enabled by default
+VALIDATE_FILTERS = False
 SORTING = True                  # sorting enabled by default.
 JSON_SORT_KEYS = False          # json key sorting
 EMBEDDING = True                # embedding enabled by default
@@ -129,6 +153,10 @@ VERSIONING = False              # turn document versioning on or off.
 VERSIONS = '_versions'          # suffix for parallel collection w/old versions
 VERSION_PARAM = 'version'       # URL param for specific version of a document.
 INTERNAL_RESOURCE = False       # resources are public by default.
+JSONP_ARGUMENT = None           # JSONP disabled by default.
+SOFT_DELETE = False             # soft delete disabled by default.
+SHOW_DELETED_PARAM = 'show_deleted'
+BULK_ENABLED = True
 
 OPLOG = False                   # oplog is disabled by default.
 OPLOG_NAME = 'oplog'            # default oplog resource name.
@@ -138,6 +166,9 @@ OPLOG_METHODS = ['DELETE',
                  'POST',
                  'PATCH',
                  'PUT']         # oplog logs all operations by default.
+OPLOG_CHANGE_METHODS = ['DELETE',
+                        'PATCH',
+                        'PUT']  # methods which write changes to the oplog
 
 RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']
@@ -149,13 +180,22 @@ PUBLIC_ITEM_METHODS = []
 ALLOWED_ITEM_ROLES = []
 ALLOWED_ITEM_READ_ROLES = []
 ALLOWED_ITEM_WRITE_ROLES = []
+# globally enables / disables HTTP method overriding
+ALLOW_OVERRIDE_HTTP_METHOD = True
 ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
 ITEM_URL = 'regex("[a-f0-9]{24}")'
+UPSERT_ON_PUT = True            # insert unexisting documents on PUT.
 
 # use a simple file response format by default
 EXTENDED_MEDIA_INFO = []
 RETURN_MEDIA_AS_BASE64_STRING = True
+RETURN_MEDIA_AS_URL = False
+MEDIA_ENDPOINT = 'media'
+MEDIA_URL = 'regex("[a-f0-9]{24}")'
+MEDIA_BASE_URL = None
+
+SCHEMA_ENDPOINT = None
 
 # list of extra fields to be included with every POST response. This list
 # should not include the 'standard' fields (ID_FIELD, LAST_UPDATED,
@@ -170,12 +210,18 @@ QUERY_SORT = 'sort'
 QUERY_PAGE = 'page'
 QUERY_MAX_RESULTS = 'max_results'
 QUERY_EMBEDDED = 'embedded'
+QUERY_AGGREGATION = 'aggregate'
+
+HEADER_TOTAL_COUNT = 'X-Total-Count'
 
 # user-restricted resource access is disabled by default.
 AUTH_FIELD = None
 
 # don't allow unknown key/value pairs for POST/PATCH payloads.
 ALLOW_UNKNOWN = False
+
+# don't ignore unknown schema rules (raise SchemaError)
+TRANSPARENT_SCHEMA_RULES = False
 
 # Rate limits are disabled by default. Needs a running redis-server.
 RATE_LIMIT_GET = None

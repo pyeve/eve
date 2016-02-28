@@ -35,6 +35,16 @@ Or even a single class function:
    $ python setup.py test -s eve.tests.methods.get.TestGetItem.test_expires
 
 
+.. _test_prerequisites:
+
+Prerequisites
+-------------
+
+Install the required dependencies for running tests and building documentation
+by running ::
+
+    $ pip install -r dev-requirements.txt
+
 Testing with other python versions
 ----------------------------------
 Before you submit a pull request, make sure your tests and changes run in
@@ -137,6 +147,35 @@ submitting a pull request, or be prepared to be mail-spammed by CI.
 Please note that in practice you're only supposed to submit pull requests
 against the ``develop`` branch, see :ref:`contributing`.
 
+Building documentation
+----------------------
+Eve uses Sphinx_ for its documentation. To build the documentation locally,
+switch to the ``docs`` folder and run ::
+
+    $ make html
+
+This will generate html documentation in the folder ``~/code/eve.docs/html``,
+which can be overridden with the ``BUILDDIR`` make variable ::
+
+    $ make html BUILDDIR=/path/to/docs
+
+Make sure Sphinx_ reports no errors or warnings when running the above.
+
+To preview the documentation open ``index.html`` in the build directory ::
+
+    $ open /path/to/docs/index.html
+
+Alternatively switch to the build directory, start a local webserver ::
+
+    $ python3 -m http.server
+
+and then point your browser at ``localhost:8000``.
+
+.. note::
+
+    Eve uses a customised Sphinx_ theme based on alabaster_. The easiest way
+    to get the right version is by installing the :ref:`test_prerequisites`.
+
 .. _`continuous integration server`: https://travis-ci.org/nicolaiarocci/eve/
 .. _tox: http://tox.readthedocs.org/en/latest/
 .. _Redis:  http://redis.io/
@@ -145,3 +184,5 @@ against the ``develop`` branch, see :ref:`contributing`.
 .. _pytest: http://pytest.org
 .. _pytest.vim: https://github.com/alfredodeza/pytest.vim
 .. _Vim: http://en.wikipedia.org/wiki/Vim_(text_editor)
+.. _Sphinx: http://sphinx-doc.org
+.. _alabaster: https://pypi.python.org/pypi/alabaster

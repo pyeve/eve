@@ -1,11 +1,16 @@
 .. meta::
-   :description: Python REST API Framework to effortlessly build and deploy full featured, highly customizable RESTful Web Services. Powerd by Flask, MongoDB, Redis and good intentions.  
+   :description: Python REST API Framework to effortlessly build and deploy full featured, highly customizable RESTful Web Services.
 
 Python REST API Framework
 =========================
-*Powered by Flask, MongoDB, Redis and good intentions Eve allows to
-effortlessly build and deploy highly customizable, fully featured RESTful Web
-Services*
+Eve is an :doc:`open source <license>` Python REST API framework designed for
+human beings. It allows to effortlessly build and deploy highly customizable,
+fully featured RESTful Web Services.
+
+Eve is powered by Flask_, Redis_, Cerberus_, Events_ and offers support for
+both MongoDB_ and SQL backends [*]_.
+
+The codebase is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4 and PyPy.
 
 Eve is Simple
 -------------
@@ -27,8 +32,6 @@ All you need to bring your API online is a database, a configuration file
 (defaults to ``settings.py``) and a launch script.  Overall, you will find that
 configuring and fine-tuning your API is a very simple process.
 
-Eve is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4 and PyPy.
-
 .. _demo:
 
 Live demo
@@ -47,10 +50,8 @@ If you are on python-eve.org_ then you are looking at the documentation of the
 development version. Looking for last release docs? Follow `this
 link <http://eve.readthedocs.org/en/stable/>`_.
 
-User's Guide
-------------
 .. toctree::
-    :maxdepth: 2
+    :hidden:
 
     foreword
     rest_api_for_humans
@@ -61,45 +62,36 @@ User's Guide
     validation
     authentication
     tutorials/index
+    snippets/index
     extensions
-
-Developer's Guide
------------------
-.. toctree::
-    :maxdepth: 1
-
     contributing
     testing
-
-*A proper developer guide will be available when 1.0 is released*
-
-Support, Updates and Licensing
-------------------------------
-.. toctree::
-    :maxdepth: 1
-
     support
     updates
     authors
     license
-
-Changelog
----------
-.. toctree::
-    :maxdepth: 2
-
     changelog
+
+.. [*] SQLALchemy support is provided by the awesome eve-sqlalchemy_ extension.
 
 .. note::
    This documentation is under development. Please refer to the links on the
    sidebar for more information, or to get in touch with the development team
    (that being me_).
 
+
 .. _python-eve.org: http://python-eve.org
 .. _`Eve Demo instructions`: http://github.com/nicolaiarocci/eve-demo#readme
-.. _`live demo`: http://eve-demo.herokuapp.com
+.. _`live demo`: https://eve-demo.herokuapp.com/people
 .. _`source code`: https://github.com/nicolaiarocci/eve-demo
 .. _`usage examples`: https://github.com/nicolaiarocci/eve-demo#readme
 .. _`client app`: https://github.com/nicolaiarocci/eve-demo-client
-.. _me: mailto:me@nicolaiaroccicom
+.. _me: mailto:me@nicolaiarocci.com
 .. _Postman: https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&ved=0CC0QFjAA&url=https%3A%2F%2Fchrome.google.com%2Fwebstore%2Fdetail%2Fpostman-rest-client%2Ffdmmgilgnpjigdojojpjoooidkmcomcm&ei=dPQ7UpqEBISXtAbPpIGwDg&usg=AFQjCNFL71vN61QG0LKlw7VDJvIZDprjHA&bvm=bv.52434380,d.Yms
+
+.. _Flask: http://flask.pocoo.org/
+.. _eve-sqlalchemy: https://github.com/RedTurtle/eve-sqlalchemy
+.. _MongoDB: https://mongodb.org
+.. _Redis: http://redis.io
+.. _Cerberus: http://python-cerberus.org
+.. _events: https://github.com/nicolaiarocci/events

@@ -6,7 +6,7 @@
 
     Standard interface implemented by Eve data layers.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 import datetime
@@ -15,7 +15,7 @@ from copy import copy
 from flask import request, abort
 from eve.utils import date_to_str
 from eve.auth import auth_field_and_value
-from eve.utils import config, debug_error_message, auto_fields
+from eve.utils import config, auto_fields, debug_error_message
 
 
 class BaseJSONEncoder(json.JSONEncoder):
@@ -30,6 +30,9 @@ class BaseJSONEncoder(json.JSONEncoder):
             # should not happen since the only supported date-like format
             # supported at dmain schema level is 'datetime' .
             return obj.isoformat()
+        elif isinstance(obj, set):
+            # convert set objects to encodable lists
+            return list(obj)
         return json.JSONEncoder.default(self, obj)
 
 
@@ -78,6 +81,9 @@ class DataLayer(object):
        the _datasource helper function has been added.
     """
 
+    class OriginalChangedError(Exception):
+        pass
+
     # if custom serialize functions are needed, add them to the 'serializers'
     # dictionary, eg:
     # serializers = {'objectid': ObjectId, 'datetime': serialize_date}
@@ -113,7 +119,7 @@ class DataLayer(object):
         (`/people/`).
 
         :param resource: resource being accessed. You should then use
-                         the ``_datasource`` helper function to retrieve both
+                         the ``datasource`` helper function to retrieve both
                          the db collection/table and base query (filter), if
                          any.
         :param req: an instance of ``eve.utils.ParsedRequest``. This contains
@@ -130,12 +136,27 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
+    def aggregate(self, resource, pipeline, options):
+        """ Perform an aggregation on the resource datasource and returns
+        the result. Only implent this if the underlying db engine supports
+        aggregation operations.
+
+        :param resource: resource being accessed. You should then use
+                         the ``datasource`` helper function to retrieve
+                         the db collection/table consumed by the resource.
+        :param pipeline: aggregation pipeline to be executed.
+        :param options: aggregation options to be considered.
+
+        .. versionadded:: 0.7
+        """
+        raise NotImplementedError
+
     def find_one(self, resource, req, **lookup):
         """ Retrieves a single document/record. Consumed when a request hits an
         item endpoint (`/people/id/`).
 
         :param resource: resource being accessed. You should then use the
-                         ``_datasource`` helper function to retrieve both the
+                         ``datasource`` helper function to retrieve both the
                          db collection/table and base query (filter), if any.
         :param req: an instance of ``eve.utils.ParsedRequest``. This contains
                     all the constraints that must be fulfilled in order to
@@ -187,7 +208,7 @@ class DataLayer(object):
         """ Inserts a document into a resource collection/table.
 
         :param resource: resource being accessed. You should then use
-                         the ``_datasource`` helper function to retrieve both
+                         the ``datasource`` helper function to retrieve both
                          the actual datasource name.
         :param doc_or_docs: json document or list of json documents to be added
                             to the database.
@@ -198,25 +219,32 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
-    def update(self, resource, id_, updates):
+    def update(self, resource, id_, updates, original):
         """ Updates a collection/table document/row.
         :param resource: resource being accessed. You should then use
-                         the ``_datasource`` helper function to retrieve
+                         the ``datasource`` helper function to retrieve
                          the actual datasource name.
         :param id_: the unique id of the document.
         :param updates: json updates to be performed on the database document
                         (or row).
+        :param original: definition of the json document that should be
+        updated.
+        :raise OriginalChangedError: raised if the database layer notices a
+        change from the supplied `original` parameter.
         """
         raise NotImplementedError
 
-    def replace(self, resource, id_, document):
+    def replace(self, resource, id_, document, original):
         """ Replaces a collection/table document/row.
         :param resource: resource being accessed. You should then use
-                         the ``_datasource`` helper function to retrieve
+                         the ``datasource`` helper function to retrieve
                          the actual datasource name.
         :param id_: the unique id of the document.
         :param document: the new json document
-
+        :param original: definition of the json document that should be
+        updated.
+        :raise OriginalChangedError: raised if the database layer notices a
+        change from the supplied `original` parameter.
         .. versionadded:: 0.1.0
         """
         raise NotImplementedError
@@ -226,7 +254,7 @@ class DataLayer(object):
         database collection/table.
 
         :param resource: resource being accessed. You should then use
-                         the ``_datasource`` helper function to retrieve
+                         the ``datasource`` helper function to retrieve
                          the actual datasource name.
         :param lookup: a dict with the query that documents must match in order
                        to qualify for deletion. For single document deletes,
@@ -278,19 +306,22 @@ class DataLayer(object):
         the is_empty() check (see eve.io.mongo.mongo.py implementation).
 
         :param resource: resource being accessed. You should then use
-                         the ``_datasource`` helper function to retrieve
+                         the ``datasource`` helper function to retrieve
                          the actual datasource name.
 
         .. versionadded: 0.3
         """
         raise NotImplementedError
 
-    def _datasource(self, resource):
+    def datasource(self, resource):
         """ Returns a tuple with the actual name of the database
         collection/table, base query and projection for the resource being
         accessed.
 
         :param resource: resource being accessed.
+
+        .. versionchanged:: 0.6
+           Name change: from _datasource to datasource.
 
         .. versionchanged:: 0.5
            If allow_unknown is enabled for the resource, don't return any
@@ -315,6 +346,9 @@ class DataLayer(object):
                        client_sort=None):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to.
+
+        .. versionchanged:: 0.5.2
+           Make User Restricted Resource Access work with HMAC Auth too.
 
         .. versionchanged:: 0.5
            Let client projection work when 'allow_unknown' is active (#497).
@@ -357,7 +391,7 @@ class DataLayer(object):
         .. versionadded:: 0.0.4
         """
 
-        datasource, filter_, projection_, sort_ = self._datasource(resource)
+        datasource, filter_, projection_, sort_ = self.datasource(resource)
 
         if client_sort:
             sort = client_sort
@@ -413,7 +447,7 @@ class DataLayer(object):
         # documents.
         if request and request.method not in ('POST', 'PUT'):
             auth_field, request_auth_value = auth_field_and_value(resource)
-            if auth_field and request.authorization and request_auth_value:
+            if auth_field and request_auth_value:
                 if query:
                     # If the auth_field *replaces* a field in the query,
                     # and the values are /different/, deny the request
@@ -424,16 +458,16 @@ class DataLayer(object):
                     if auth_field_in_query and \
                             self.app.data.get_value_from_query(
                                 query, auth_field) != request_auth_value:
-                        abort(401, description=debug_error_message(
-                            'Incompatible User-Restricted Resource request. '
-                            'Request was for "%s"="%s" but `auth_field` '
-                            'requires "%s"="%s".' % (
-                                auth_field,
-                                self.app.data.get_value_from_query(
-                                    query, auth_field),
-                                auth_field,
-                                request_auth_value)
-                        ))
+                        abort(401, description='Incompatible User-Restricted '
+                              'Resource request. '
+                              'Request was for "%s"="%s" but `auth_field` '
+                              'requires "%s"="%s".' % (
+                                  auth_field,
+                                  self.app.data.get_value_from_query(
+                                      query, auth_field),
+                                  auth_field,
+                                  request_auth_value)
+                              )
                     else:
                         query = self.app.data.combine_queries(
                             query, {auth_field: request_auth_value}
@@ -441,3 +475,26 @@ class DataLayer(object):
                 else:
                     query = {auth_field: request_auth_value}
         return datasource, query, fields, sort
+
+    def _client_projection(self, req):
+        """ Returns a properly parsed client projection if available.
+
+        :param req: a :class:`ParsedRequest` instance.
+
+        .. versionchanged:: 0.6.1
+           Moved from the mongo layer up to the DataLayer base class (#724).
+
+        .. versionadded:: 0.4
+        """
+        client_projection = {}
+        if req and req.projection:
+            try:
+                client_projection = json.loads(req.projection)
+                if not isinstance(client_projection, dict):
+                    raise Exception('The projection parameter has to be a '
+                                    'dict')
+            except:
+                abort(400, description=debug_error_message(
+                    'Unable to parse `projection` clause'
+                ))
+        return client_projection

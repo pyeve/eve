@@ -8,19 +8,21 @@
     objects incoming via POST/PATCH requests conform to the API domain.
     An extension of Cerberus Validator.
 
-    :copyright: (c) 2014 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-
-from eve.utils import config
+import copy
 from bson import ObjectId
+from collections import Mapping
 from flask import current_app as app
-from cerberus import Validator
 from werkzeug.datastructures import FileStorage
-from eve.versioning import get_data_version_relation_document, \
-    missing_version_field
+from cerberus import Validator
+
+from eve.auth import auth_field_and_value
 from eve.io.mongo.geo import Point, MultiPoint, LineString, Polygon, \
     MultiLineString, MultiPolygon, GeometryCollection
+from eve.utils import config, str_type
+from eve.versioning import get_data_version_relation_document
 
 
 class Validator(Validator):
@@ -30,6 +32,12 @@ class Validator(Validator):
     :param schema: the validation schema, to be composed according to Cerberus
                    documentation.
     :param resource: the resource name.
+
+    .. versionchanged:: 0.6.1
+       __init__ signature update for cerberus v0.8.1 compatibility.
+       Disable 'transparent_schema_rules' by default in favor of explicit
+       validators for rules unsupported by cerberus. This can be overridden
+       globally or on a per-resource basis through a config option.
 
     .. versionchanged:: 0.5
        Support for _original_document
@@ -43,13 +51,30 @@ class Validator(Validator):
        Support for 'transparent_schema_rules' introduced with Cerberus 0.0.3,
        which allows for insertion of 'default' values in POST requests.
     """
-    def __init__(self, schema=None, resource=None):
+    def __init__(self, schema=None, resource=None, allow_unknown=False,
+                 transparent_schema_rules=False):
         self.resource = resource
         self._id = None
         self._original_document = None
-        super(Validator, self).__init__(schema, transparent_schema_rules=True)
+        schema = self._remove_unique_rules_on_fields_with_unique_index(schema)
         if resource:
-            self.allow_unknown = config.DOMAIN[resource]['allow_unknown']
+            transparent_schema_rules = \
+                config.DOMAIN[resource]['transparent_schema_rules']
+            allow_unknown = config.DOMAIN[resource]['allow_unknown']
+        super(Validator, self).__init__(
+            schema,
+            transparent_schema_rules=transparent_schema_rules,
+            allow_unknown=allow_unknown)
+
+    def _remove_unique_rules_on_fields_with_unique_index(self, schema):
+        # TODO: Actually do what the function name suggests. This version just
+        # removes the unique constraint on _id. We could use the information
+        # available by app.data.driver.db[datasource].index_information() to
+        # remove all unnecessary unique constraints.
+        result = copy.deepcopy(schema)
+        if '_id' in result and 'unique' in result['_id']:
+            del(result['_id']['unique'])
+        return result
 
     def validate_update(self, document, _id, original_document=None):
         """ Validate method to be invoked when performing an update, not an
@@ -62,7 +87,7 @@ class Validator(Validator):
         self._original_document = original_document
         return super(Validator, self).validate_update(document)
 
-    def validate_replace(self, document, _id):
+    def validate_replace(self, document, _id, original_document=None):
         """ Validation method to be invoked when performing a document
         replacement. This differs from :func:`validation_update` since in this
         case we want to perform a full :func:`validate` (the new document is to
@@ -73,7 +98,39 @@ class Validator(Validator):
         .. versionadded:: 0.1.0
         """
         self._id = _id
+        self._original_document = original_document
         return super(Validator, self).validate(document)
+
+    def _validate_default(self, unique, field, value):
+        """ Fake validate function to let cerberus accept "default"
+            as keyword in the schema
+
+        .. versionadded:: 0.6.2
+        """
+        pass
+
+    def _validate_versioned(self, unique, field, value):
+        """ Fake validate function to let cerberus accept "versioned"
+            as keyword in the schema
+
+        .. versionadded:: 0.6.2
+        """
+        pass
+
+    def _validate_unique_to_user(self, unique, field, value):
+        """ Validates that a value is unique to the active user. Active user is
+        the user authenticated for current request. See #646.
+
+        .. versionadded: 0.6
+        """
+
+        auth_field, auth_value = auth_field_and_value(self.resource)
+
+        # if an auth value has been set for this request, then make sure it is
+        # taken into account when checking for value uniqueness.
+        query = {auth_field: auth_value} if auth_field else {}
+
+        self._is_value_unique(unique, field, value, query)
 
     def _validate_unique(self, unique, field, value):
         """ Enables validation for `unique` schema attribute.
@@ -83,6 +140,10 @@ class Validator(Validator):
         :param field: field name.
         :param value: field value.
 
+        .. versionchanged:: 0.6
+           Validates field value uniqueness against the whole datasource,
+           indipendently of the request method. See #646.
+
         .. versionchanged:: 0.3
            Support for new 'self._error' signature introduced with Cerberus
            v0.5.
@@ -90,15 +151,28 @@ class Validator(Validator):
         .. versionchanged:: 0.2
            Handle the case in which ID_FIELD is not of ObjectId type.
         """
-        if unique:
-            query = {field: value}
-            if self._id:
-                try:
-                    query[config.ID_FIELD] = {'$ne': ObjectId(self._id)}
-                except:
-                    query[config.ID_FIELD] = {'$ne': self._id}
+        self._is_value_unique(unique, field, value, {})
 
-            if app.data.find_one(self.resource, None, **query):
+    def _is_value_unique(self, unique, field, value, query):
+        """ Validates that a field value is unique.
+
+        .. versionadded:: 0.6
+        """
+        if unique:
+            query[field] = value
+
+            # exclude current document
+            if self._id:
+                id_field = config.DOMAIN[self.resource]['id_field']
+                query[id_field] = {'$ne': self._id}
+
+            # we perform the check on the native mongo driver (and not on
+            # app.data.find_one()) because in this case we don't want the usual
+            # (for eve) query injection to interfere with this validation. We
+            # are still operating within eve's mongo namespace anyway.
+
+            datasource, _, _, _ = app.data.datasource(self.resource)
+            if app.data.driver.db[datasource].find_one(query):
                 self._error(field, "value '%s' is not unique" % value)
 
     def _validate_data_relation(self, data_relation, field, value):
@@ -107,7 +181,7 @@ class Validator(Validator):
         by 'data_relation'.
 
         :param data_relation: a dict following keys:
-            'collection': foreign collection name
+            'resource': foreign resource name
             'field': foreign field name
             'version': True if this relation points to a specific version
             'type': the type for the reference field if 'version': True
@@ -140,17 +214,8 @@ class Validator(Validator):
                         " data_relation if '%s' isn't versioned" %
                         data_relation['resource'])
                 else:
-                    search = None
-
-                    # support late versioning
-                    if value[version_field] == 1:
-                        # there is a chance this document hasn't been saved
-                        # since versioning was turned on
-                        search = missing_version_field(data_relation, value)
-
-                    if not search:
-                        search = get_data_version_relation_document(
-                            data_relation, value)
+                    search = get_data_version_relation_document(
+                        data_relation, value)
 
                     if not search:
                         self._error(
@@ -164,12 +229,18 @@ class Validator(Validator):
                     " with fields '%s' and '%s'" %
                     (value_field, version_field))
         else:
-            query = {data_relation['field']: value}
-            if not app.data.find_one(data_relation['resource'], None, **query):
-                self._error(
-                    field,
-                    "value '%s' must exist in resource '%s', field '%s'." %
-                    (value, data_relation['resource'], data_relation['field']))
+            if not isinstance(value, list):
+                value = [value]
+
+            data_resource = data_relation['resource']
+            for item in value:
+                    query = {data_relation['field']: item}
+                    if not app.data.find_one(data_resource, None, **query):
+                        self._error(
+                            field,
+                            "value '%s' must exist in resource"
+                            " '%s', field '%s'." %
+                            (item, data_resource, data_relation['field']))
 
     def _validate_type_objectid(self, field, value):
         """ Enables validation for `objectid` data type.
@@ -189,20 +260,76 @@ class Validator(Validator):
                         % value)
 
     def _validate_readonly(self, read_only, field, value):
-        """ Since default values are now resolved before validation we make
-        sure that a value for a read-only field is considered legit if it
-        matches an eventual 'default' setting for the field.
-
+        """
         .. versionchanged:: 0.5
+           Not taking defaul values in consideration anymore since they are now
+           being resolved after validation (#353).
            Consider the original value if available (#479).
 
         .. versionadded:: 0.4
         """
-        default = self.schema[field].get('default')
         original_value = self._original_document.get(field) \
             if self._original_document else None
-        if value not in (default, original_value):
+        if value != original_value:
             super(Validator, self)._validate_readonly(read_only, field, value)
+
+    def _validate_dependencies(self, document, dependencies, field,
+                               break_on_error=False):
+        """ With PATCH method, the validator is only provided with the updated
+        fields. If an updated field depends on another field in order to be
+        edited and the other field was previously set, the validator doesn't
+        see it and rejects the update. In order to avoid that we merge the
+        proposed changes with the original document before validating
+        dependencies.
+
+        .. versionchanged:: 0.6.1
+           Fix: dependencies on sub-document fields are now properly
+           processed (#706).
+
+        .. versionchanged:: 0.6
+           Fix: Only evaluate dependencies that don't have valid default
+           values.
+
+        .. versionchanged:: 0.5.1
+           Fix: dependencies with value checking seems broken #547.
+
+        .. versionadded:: 0.5
+           If a dependency has a default value, skip it as Cerberus does not
+           have the notion of default values and would report a missing
+           dependency (#353).
+           Fix for #363 (see docstring).
+        """
+        if dependencies is None:
+            return True
+
+        if isinstance(dependencies, str_type):
+            dependencies = [dependencies]
+
+        defaults = {}
+        for d in dependencies:
+            root = d.split('.')[0]
+            default = self.schema[root].get('default')
+            if default and root not in document:
+                defaults[root] = default
+
+        if isinstance(dependencies, Mapping):
+            # Only evaluate dependencies that don't have *valid* defaults
+            for k, v in defaults.items():
+                if v in dependencies[k]:
+                    del(dependencies[k])
+        else:
+            # Only evaluate dependencies that don't have defaults values
+            dependencies = [d for d in dependencies if d not in
+                            defaults.keys()]
+
+        dcopy = None
+        if self._original_document:
+            dcopy = copy.copy(document)
+            dcopy.update(self._original_document)
+        return super(Validator, self)._validate_dependencies(dcopy or document,
+                                                             dependencies,
+                                                             field,
+                                                             break_on_error)
 
     def _validate_type_media(self, field, value):
         """ Enables validation for `media` data type.
@@ -291,3 +418,18 @@ class Validator(Validator):
             GeometryCollection(value)
         except TypeError:
             self._error(field, "GeometryCollection not correct" % value)
+
+    def _error(self, field, _error):
+        """ Change the default behaviour so that, if VALIDATION_ERROR_AS_LIST
+        is enabled, single validation errors are returned as a list. See #536.
+
+        :param field: field name
+        :param _error: field error(s)
+
+        .. versionadded:: 0.6
+        """
+        super(Validator, self)._error(field, _error)
+        if config.VALIDATION_ERROR_AS_LIST:
+            err = self._errors[field]
+            if not isinstance(err, list):
+                self._errors[field] = [err]

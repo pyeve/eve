@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from eve.tests import TestBase
 from eve.utils import parse_request, str_to_date, config, weak_date, \
     date_to_str, querydef, document_etag, extract_key_values, \
-    debug_error_message
+    debug_error_message, validate_filters
 
 
 class TestUtils(TestBase):
@@ -168,8 +168,36 @@ class TestUtils(TestBase):
     def test_document_etag(self):
         test = {'key1': 'value1', 'another': 'value2'}
         challenge = dumps(test, sort_keys=True).encode('utf-8')
-        self.assertEqual(hashlib.sha1(challenge).hexdigest(),
-                         document_etag(test))
+        with self.app.test_request_context():
+            self.assertEqual(hashlib.sha1(challenge).hexdigest(),
+                             document_etag(test))
+
+    def test_document_etag_ignore_fields(self):
+        test = {'key1': 'value1', 'key2': 'value2'}
+        ignore_fields = ["key2"]
+        test_without_ignore = {'key1': 'value1'}
+        challenge = dumps(test_without_ignore, sort_keys=True).encode('utf-8')
+        with self.app.test_request_context():
+            self.assertEqual(hashlib.sha1(challenge).hexdigest(),
+                             document_etag(test, ignore_fields))
+
+        # not required fields can not be present
+        test = {'key1': 'value1', 'key2': 'value2'}
+        ignore_fields = ["key3"]
+        test_without_ignore = {'key1': 'value1', 'key2': 'value2'}
+        challenge = dumps(test_without_ignore, sort_keys=True).encode('utf-8')
+        with self.app.test_request_context():
+            self.assertEqual(hashlib.sha1(challenge).hexdigest(),
+                             document_etag(test, ignore_fields))
+
+        # ignore fiels nested using doting notation
+        test = {'key1': 'value1', 'dict': {'key2': 'value2', 'key3': 'value3'}}
+        ignore_fields = ['dict.key2']
+        test_without_ignore = {'key1': 'value1', 'dict': {'key3': 'value3'}}
+        challenge = dumps(test_without_ignore, sort_keys=True).encode('utf-8')
+        with self.app.test_request_context():
+            self.assertEqual(hashlib.sha1(challenge).hexdigest(),
+                             document_etag(test, ignore_fields))
 
     def test_extract_key_values(self):
         test = {
@@ -191,6 +219,47 @@ class TestUtils(TestBase):
             self.app.config['DEBUG'] = True
             self.assertEqual(debug_error_message('An error message'),
                              'An error message')
+
+    def test_validate_filters(self):
+        self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = []
+        with self.app.test_request_context():
+            self.assertTrue('key' in validate_filters(
+                {'key': 'val'},
+                self.known_resource))
+            self.assertTrue('key' in validate_filters(
+                {'key': ['val1', 'val2']},
+                self.known_resource))
+            self.assertTrue('key' in validate_filters(
+                {'key': {'$in': ['val1', 'val2']}},
+                self.known_resource))
+            self.assertTrue('key' in validate_filters(
+                {'$or': [{'key': 'val1'}, {'key': 'val2'}]},
+                self.known_resource))
+            self.assertTrue('$or' in validate_filters(
+                {'$or': 'val'},
+                self.known_resource))
+            self.assertTrue('$or' in validate_filters(
+                {'$or': {'key': 'val1'}},
+                self.known_resource))
+            self.assertTrue('$or' in validate_filters(
+                {'$or': ['val']},
+                self.known_resource))
+
+        self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
+            ['key']
+        with self.app.test_request_context():
+            self.assertTrue(validate_filters(
+                {'key': 'val'},
+                self.known_resource) is None)
+            self.assertTrue(validate_filters(
+                {'key': ['val1', 'val2']},
+                self.known_resource) is None)
+            self.assertTrue(validate_filters(
+                {'key': {'$in': ['val1', 'val2']}},
+                self.known_resource) is None)
+            self.assertTrue(validate_filters(
+                {'$or': [{'key': 'val1'}, {'key': 'val2'}]},
+                self.known_resource) is None)
 
 
 class DummyEvent(object):

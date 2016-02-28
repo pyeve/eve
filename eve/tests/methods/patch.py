@@ -5,11 +5,10 @@ from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
 from eve.tests.utils import DummyEvent
 
-from eve import STATUS_OK, LAST_UPDATED, ID_FIELD, ISSUES, STATUS, ETAG
+from eve import STATUS_OK, LAST_UPDATED, ISSUES, STATUS, ETAG
 from eve.methods.patch import patch_internal
 
 
-# @unittest.skip("don't need no freakin' tests!")
 class TestPatch(TestBase):
 
     def test_patch_to_resource_endpoint(self):
@@ -44,8 +43,8 @@ class TestPatch(TestBase):
         self.assert405(status)
 
     def test_ifmatch_missing(self):
-        _, status = self.patch(self.item_id_url, data={'key1': 'value1'})
-        self.assert403(status)
+        res, status = self.patch(self.item_id_url, data={'key1': 'value1'})
+        self.assert428(status)
 
     def test_ifmatch_disabled(self):
         self.app.config['IF_MATCH'] = False
@@ -122,9 +121,17 @@ class TestPatch(TestBase):
         field = "location"
         test_value = {'address': 'an address', 'city': 'a city'}
         changes = {field: test_value}
+        original_city = []
+
+        def keep_original_city(resource_name, updates, original):
+            original_city.append(original['location']['city'])
+
+        self.app.on_update += keep_original_city
+        self.app.on_updated += keep_original_city
         r = self.perform_patch(changes)
         db_value = self.compare_patch_with_get(field, r)
         self.assertEqual(db_value, test_value)
+        self.assertEqual(original_city[0], original_city[1])
 
     def test_patch_datetime(self):
         field = "born"
@@ -194,6 +201,30 @@ class TestPatch(TestBase):
         self.assertEqual(db_value, test_value)
         self.assert200(status)
 
+    def test_patch_etag_header(self):
+        # test that Etag is always includer with response header. See #562.
+        changes = {"ref": "1234567890123456789012345"}
+        headers = [('Content-Type', 'application/json'),
+                   ('If-Match', self.item_etag)]
+        r = self.test_client.patch(self.item_id_url,
+                                   data=json.dumps(changes),
+                                   headers=headers)
+        self.assertTrue('Etag' in r.headers)
+
+        # test that ETag is compliant to RFC 7232-2.3 and #794 is fixed.
+        etag = r.headers['ETag']
+
+        self.assertTrue(etag[0] == '"')
+        self.assertTrue(etag[-1] == '"')
+
+    def test_patch_nested(self):
+        changes = {'location.city': 'a nested city',
+                   'location.address': 'a nested address'}
+        r = self.perform_patch(changes)
+        values = self.compare_patch_with_get('location', r)
+        self.assertEqual(values['city'], 'a nested city')
+        self.assertEqual(values['address'], 'a nested address')
+
     def perform_patch(self, changes):
         r, status = self.patch(self.item_id_url,
                                data=changes,
@@ -214,7 +245,7 @@ class TestPatch(TestBase):
         raw_r = self.test_client.get(self.item_id_url)
         r, status = self.parse_response(raw_r)
         self.assert200(status)
-        self.assertEqual(raw_r.headers.get('ETag'),
+        self.assertEqual(raw_r.headers.get('ETag').replace('"', ''),
                          patch_response[ETAG])
         if isinstance(fields, str):
             return r[fields]
@@ -245,6 +276,17 @@ class TestPatch(TestBase):
         self.assert200(status)
         self.assertTrue('OK' in r[STATUS])
 
+    def test_patch_x_www_form_urlencoded_number_serialization(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        field = 'anumber'
+        test_value = 3.5
+        changes = {field: test_value}
+        headers = [('If-Match', self.item_etag)]
+        r, status = self.parse_response(self.test_client.patch(
+            self.item_id_url, data=changes, headers=headers))
+        self.assert200(status)
+        self.assertTrue('OK' in r[STATUS])
+
     def test_patch_referential_integrity(self):
         data = {"person": self.unknown_item_id}
         headers = [('If-Match', self.invoice_etag)]
@@ -252,7 +294,7 @@ class TestPatch(TestBase):
         self.assertValidationErrorStatus(status)
         expected = ("value '%s' must exist in resource '%s', field '%s'" %
                     (self.unknown_item_id, 'contacts',
-                     self.app.config['ID_FIELD']))
+                     self.domain['contacts']['id_field']))
         self.assertValidationError(r, {'person': expected})
 
         data = {"person": self.item_id}
@@ -332,7 +374,7 @@ class TestPatch(TestBase):
                                       (fake_contact_id, self.invoice_id),
                                       data=data, headers=headers)
         self.assert200(status)
-        self.assertPatchResponse(response, self.invoice_id)
+        self.assertPatchResponse(response, self.invoice_id, 'peopleinvoices')
 
     def test_patch_bandwidth_saver(self):
         changes = {'ref': '1234567890123456789012345'}
@@ -383,12 +425,213 @@ class TestPatch(TestBase):
         self.assert422(status)
         self.assertTrue('is read-only' in r['_issues']['read_only_field'])
 
-    def assertPatchResponse(self, response, item_id):
+    def test_patch_nested_document_not_overwritten(self):
+        """ Test that nested documents are not overwritten on PATCH and #519
+        is fixed.
+        """
+
+        schema = {
+            'sensor': {
+                "type": "dict",
+                "schema": {
+                    "name": {"type": "string"},
+                    "lon": {"type": "float"},
+                    "lat": {"type": "float"},
+                    "value": {"type": "float", "default": 10.3},
+                    "dict": {
+                        'type': 'dict',
+                        'schema': {
+                            'string': {'type': 'string'},
+                            'int': {'type': 'integer'},
+                        }
+                    }
+                }
+            },
+            'test': {
+                'type': 'string',
+                'readonly': True,
+                'default': 'default'
+            }
+        }
+
+        self.app.config['BANDWIDTH_SAVER'] = False
+        self.app.register_resource('sensors', {'schema': schema})
+
+        changes = {
+            'sensor': {
+                'name': 'device_name',
+                'lon': 43.4,
+                'lat': 1.31,
+                'dict': {'int': 99}
+            }
+        }
+        r, status = self.post("sensors", data=changes)
+        self.assert201(status)
+
+        id, etag, value, test, int = (
+            r[self.domain['sensors']['id_field']],
+            r[ETAG],
+            r['sensor']['value'],
+            r['test'],
+            r['sensor']['dict']['int']
+        )
+
+        changes = {
+            'sensor': {
+                'lon': 10.0,
+                'dict': {'string': 'hi'}
+            }
+        }
+
+        r, status = self.patch(
+            "/%s/%s" % ('sensors', id),
+            data=changes,
+            headers=[('If-Match', etag)]
+        )
+        self.assert200(status)
+
+        etag, value, int = (
+            r[ETAG],
+            r['sensor']['value'],
+            r['sensor']['dict']['int']
+        )
+        self.assertEqual(value, 10.3)
+        self.assertEqual(test, 'default')
+        self.assertEqual(int, 99)
+
+    def test_patch_nested_document_nullable_missing(self):
+        schema = {
+            'sensor': {
+                'type': 'dict',
+                'schema': {
+                    'name': {'type': 'string'},
+                },
+                'default': None,
+            },
+            'other': {
+                'type': 'dict',
+                'schema': {
+                    'name': {'type': 'string'},
+                },
+            }
+        }
+        self.app.config['BANDWIDTH_SAVER'] = False
+        self.app.register_resource('sensors', {'schema': schema})
+
+        changes = {}
+
+        r, status = self.post("sensors", data=changes)
+        self.assert201(status)
+        id, etag = r[self.domain['sensors']['id_field']], r[ETAG]
+        self.assertTrue('sensor' in r)
+        self.assertEqual(r['sensor'], None)
+        self.assertFalse('other' in r)
+
+        changes = {
+            'sensor': {'name': 'device_name'},
+            'other': {'name': 'other_name'},
+        }
+
+        r, status = self.patch(
+            "/%s/%s" % ('sensors', id),
+            data=changes,
+            headers=[('If-Match', etag)]
+        )
+        self.assert200(status)
+        self.assertEqual(r['sensor'], {'name': 'device_name'})
+        self.assertEqual(r['other'], {'name': 'other_name'})
+
+    def test_patch_dependent_field_on_origin_document(self):
+        """ Test that when patching a field which is dependent on another and
+        this other field is not provided with the patch but is still present
+        on the target document, the patch will be accepted. See #363.
+        """
+        # this will fail as dependent field is missing even in the
+        # document we are trying to update.
+        del(self.domain['contacts']['schema']['dependency_field1']['default'])
+        del(self.domain['contacts']['defaults']['dependency_field1'])
+        changes = {'dependency_field2': 'value'}
+        r, status = self.patch(self.item_id_url, data=changes,
+                               headers=[('If-Match', self.item_etag)])
+        self.assert422(status)
+
+        # update the stored document by adding dependency field.
+        changes = {'dependency_field1': 'value'}
+        r, status = self.patch(self.item_id_url, data=changes,
+                               headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+
+        # now the field2 update will be accepted as the dependency field is
+        # present in the stored document already.
+        etag = r['_etag']
+        changes = {'dependency_field2': 'value'}
+        r, status = self.patch(self.item_id_url, data=changes,
+                               headers=[('If-Match', etag)])
+        self.assert200(status)
+
+    def test_patch_dependent_field_value_on_origin_document(self):
+        """ Test that when patching a field which is dependent on another and
+        this other field is not provided with the patch but is still present
+        on the target document, the patch will be accepted. See #363.
+        """
+        # this will fail as dependent field is missing even in the
+        # document we are trying to update.
+        changes = {'dependency_field3': 'value'}
+        r, status = self.patch(self.item_id_url, data=changes,
+                               headers=[('If-Match', self.item_etag)])
+        self.assert422(status)
+
+        # update the stored document by setting the dependency field to
+        # the required value.
+        changes = {'dependency_field1': 'value'}
+        r, status = self.patch(self.item_id_url, data=changes,
+                               headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+
+        # now the field2 update will be accepted as the dependency field is
+        # present in the stored document already.
+        etag = r['_etag']
+        changes = {'dependency_field3': 'value'}
+        r, status = self.patch(self.item_id_url, data=changes,
+                               headers=[('If-Match', etag)])
+        self.assert200(status)
+
+    def test_id_field_in_document_fails(self):
+        # since v0.6 we also allow the id field to be included with the POSTed
+        # document, but not with PATCH since it is immutable
+        self.app.config['IF_MATCH'] = False
+        id_field = self.domain[self.known_resource]['id_field']
+        data = {id_field: '55b2340538345bd048100ffe'}
+        r, status = self.patch(self.item_id_url, data=data)
+        self.assert400(status)
+        self.assertTrue('immutable' in r['_error']['message'])
+
+    def test_patch_custom_idfield(self):
+        response, status = self.get('products?max_results=1')
+        product = response['_items'][0]
+        headers = [('If-Match', product[ETAG])]
+        data = {'title': 'Awesome product'}
+        r, status = self.patch('products/%s' % product['sku'], data=data,
+                               headers=headers)
+        self.assert200(status)
+
+    def test_patch_type_coercion(self):
+        schema = self.domain[self.known_resource]['schema']
+        schema['aninteger']['coerce'] = lambda string: int(float(string))
+        changes = {'ref': '1234567890123456789054321', 'aninteger': '42.3'}
+        r, status = self.patch(self.item_id_url, data=changes,
+                               headers=[('If-Match', self.item_etag)])
+        self.assert200(status)
+        r, status = self.get(r['_links']['self']['href'])
+        self.assertEqual(r['aninteger'], 42)
+
+    def assertPatchResponse(self, response, item_id, resource=None):
+        id_field = self.domain[resource or self.known_resource]['id_field']
         self.assertTrue(STATUS in response)
         self.assertTrue(STATUS_OK in response[STATUS])
         self.assertFalse(ISSUES in response)
-        self.assertTrue(ID_FIELD in response)
-        self.assertEqual(response[ID_FIELD], item_id)
+        self.assertTrue(id_field in response)
+        self.assertEqual(response[id_field], item_id)
         self.assertTrue(LAST_UPDATED in response)
         self.assertTrue(ETAG in response)
         self.assertTrue('_links' in response)
