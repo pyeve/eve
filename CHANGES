@@ -9,22 +9,34 @@ In Development
 Version 0.7
 ~~~~~~~~~~~
 
+- New: ``MULTIPART_FORM_FIELDS_AS_JSON``. In case you are submitting your
+  resource as ``multipart/form-data`` all form data fields will be submitted as
+  strings, breaking any validation rules you might have on the resource fields.
+  If you want to treat all submitted form data as JSON strings you will have to
+  activate this setting. Closes #806 (Stratos Gerakakis).
+
 - New: Support for MongoDB Aggregation Framework. Endpoints can respond with
   aggregation results. Clients can optionally influence aggregation
   results by using the new ``aggregate`` option: ``aggregate={"$year": 2015}``.
+
 - New: Flask views (``@app.route``) can now set ``mongo_prefix`` via Flask's
   ``g`` object: ``g.mongo_prefix = 'MONGO2'`` (Gustavo Vargas).
+
 - New: Query parameters not recognised by Eve are now returned in HATEOAS URLs
   (Mugur Rus).
+
 - New: ``OPLOG_CHANGE_METHODS`` is a list of HTTP methods which operations will
   include changes into the OpLog (mmizotin).
+
 - Change: Return ``428 Precondition Required`` instead of a generic ``403
   Forbidden`` when the ``If-Match`` request header is missing (Arnau Orriols).
+
 - Change: ETag response header now conforms to RFC 7232/2.3 and is surrounded
   by double quotes. Closes #794.
 
 - Fix: ETag request headers which conform to RFC 7232/2.3 (double quoted value)
   are now properly processed. Addresses #794.
+
 
 
 Version 0.6.2
