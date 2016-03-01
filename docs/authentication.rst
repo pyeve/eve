@@ -219,7 +219,7 @@ resources/methods will be secured unless they are made explicitly public.
     import bcrypt
     from eve import Eve
     from eve.auth import BasicAuth
-
+    from flask import current_app as app
 
     class BCryptAuth(BasicAuth):
         def check_auth(self, username, password, allowed_roles, resource, method):
@@ -260,7 +260,7 @@ resources/methods will be secured unless they are made explicitly public.
     from eve import Eve
     from eve.auth import BasicAuth
     from werkzeug.security import check_password_hash
-
+    from flask import current_app as app
 
     class Sha1Auth(BasicAuth):
         def check_auth(self, username, password, allowed_roles, resource, method):
@@ -304,7 +304,7 @@ resources and/or methods to public access -see docs).
 
     from eve import Eve
     from eve.auth import TokenAuth
-
+    from flask import current_app as app
 
     class TokenAuth(TokenAuth):
         def check_auth(self, token, allowed_roles, resource, method):
@@ -371,6 +371,7 @@ Eve `repository`_.
 
     from eve import Eve
     from eve.auth import HMACAuth
+    from flask import current_app as app
     from hashlib import sha1
     import hmac
 
@@ -440,7 +441,7 @@ unless they are made explicitly public.
     from eve import Eve
     from eve.auth import BasicAuth
     from werkzeug.security import check_password_hash
-
+    from flask import current_app as app
 
     class RolesAuth(BasicAuth):
         def check_auth(self, username, password, allowed_roles, resource, method):
