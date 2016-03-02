@@ -597,9 +597,8 @@ uppercase.
                                     have to activate this setting. In that case
                                     field validation will continue working
                                     correctly. Read more about how the fields
-                                    should be formatted then, at
-                                    multipart_form_fields_as_json_.  Defaults to
-                                    ``False``.
+                                    should be formatted at
+                                    :ref:`multipart`. Defaults to ``False``.
 
 ``OPLOG``                           Set it to ``True`` to enable the :ref:`oplog`.
                                     Defaults to ``False``.
