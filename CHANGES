@@ -46,6 +46,7 @@ Version 0.6.2
 - Update: Flask-PyMongo 0.4+ is now required.
 
 - Docs: fix some typos (Manquer, Patrick Decat).
+- Docs: add missing imports to authentication docs (Hamdy)
 - Update license to 2016 (Prayag Verma)
 
 
