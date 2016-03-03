@@ -118,7 +118,8 @@ class TestMongoValidator(TestCase):
 
     def test_dbref_success(self):
         schema = {'id': {'type': 'dbref'}}
-        doc = {'id': DBRef("SomeCollection", ObjectId("50656e4538345b39dd0414f0"))}
+        doc = {'id': DBRef("SomeCollection",
+                           ObjectId("50656e4538345b39dd0414f0"))}
         v = Validator(schema, None)
         self.assertTrue(v.validate(doc))
 

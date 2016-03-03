@@ -49,7 +49,7 @@ class MongoJSONEncoder(BaseJSONEncoder):
             # (and we probably don't want it to be exposed anyway). See #790.
             return "<callable>"
         if isinstance(obj, DBRef):
-            retval = {'$id' : str(obj.id), '$ref' : obj.collection}
+            retval = {'$id': str(obj.id), '$ref': obj.collection}
             if obj.database:
                 retval['$db'] = obj.database
             return retval
@@ -80,7 +80,9 @@ class Mongo(DataLayer):
         'integer': lambda value: int(value) if value is not None else None,
         'float': lambda value: float(value) if value is not None else None,
         'number': lambda val: json.loads(val) if val is not None else None,
-        'dbref' : lambda value: DBRef(value['$col'],value['$id'], value['$db'] if '$db' in value else None) if value is not None else None,
+        'dbref': lambda value:
+        DBRef(value['$col'], value['$id'], value['$db']
+              if '$db' in value else None) if value is not None else None,
     }
 
     # JSON serializer is a class attribute. Allows extensions to replace it

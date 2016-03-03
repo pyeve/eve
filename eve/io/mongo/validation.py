@@ -225,13 +225,15 @@ class Validator(Validator):
 
             data_resource = data_relation['resource']
             for item in value:
-                    query = {data_relation['field']: item.id if isinstance(item, DBRef) else item }
+                    query = {data_relation['field']: item.id
+                             if isinstance(item, DBRef) else item}
                     if not app.data.find_one(data_resource, None, **query):
                         self._error(
                             field,
                             "value '%s' must exist in resource"
                             " '%s', field '%s'." %
-                            (item.id if isinstance(item, DBRef) else item, data_resource, data_relation['field']))
+                            (item.id if isinstance(item, DBRef) else item,
+                             data_resource, data_relation['field']))
 
     def _validate_type_objectid(self, field, value):
         """ Enables validation for `objectid` data type.

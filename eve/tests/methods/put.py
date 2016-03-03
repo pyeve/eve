@@ -216,14 +216,19 @@ class TestPut(TestBase):
 
         # update first invoice to reference the new contact
         _db.invoices.update({'_id': ObjectId(self.invoice_id)},
-                            {'$set': {'person': fake_contact_id,
-                                      'persondbref': DBRef("contacts",ObjectId(fake_contact_id))}})
+                            {'$set': {
+                                'person': fake_contact_id,
+                                'persondbref':
+                                    DBRef("contacts",
+                                          ObjectId(fake_contact_id))}
+                             })
 
         # GET all invoices by new contact
         response, status = self.get('users/%s/invoices/%s' %
                                     (fake_contact_id, self.invoice_id))
 
-        self.assertEqual(response.get('persondbref')['$id'], str(fake_contact_id))
+        self.assertEqual(response.get('persondbref')['$id'],
+                         str(fake_contact_id))
 
         etag = response[ETAG]
 
@@ -235,7 +240,6 @@ class TestPut(TestBase):
 
         self.assert200(status)
         self.assertPutResponse(response, self.invoice_id, 'peopleinvoices')
-
 
     def test_put_bandwidth_saver(self):
         changes = {'ref': '1234567890123456789012345'}
