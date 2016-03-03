@@ -252,7 +252,8 @@ class TestPost(TestBase):
         self.assertPostResponse(r)
 
     def test_dbref_post_referential_integrity(self):
-        data = {"persondbref": {"$col" :"contacts", "$id" : self.unknown_item_id}}
+        data = {"persondbref": {"$col": "contacts",
+                                "$id": self.unknown_item_id}}
         r, status = self.post('/invoices/', data=data)
         self.assertValidationErrorStatus(status)
         expected = ("value '%s' must exist in resource '%s', field '%s'" %
@@ -261,7 +262,7 @@ class TestPost(TestBase):
 
         self.assertValidationError(r, {'persondbref': expected})
 
-        data = {"persondbref": {"$col" :"contacts", "$id" : self.item_id}}
+        data = {"persondbref": {"$col": "contacts", "$id": self.item_id}}
         r, status = self.post('/invoices/', data=data)
         self.assert201(status)
         self.assertPostResponse(r)

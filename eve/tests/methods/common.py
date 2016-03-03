@@ -37,7 +37,7 @@ class TestSerializer(TestBase):
             'dict_valueschema': {
                 'valueschema': {'type': 'objectid'}
             },
-            'refobj' : {'type' : 'dbref'}
+            'refobj': {'type': 'dbref'}
         }
         with self.app.app_context():
             # Success
@@ -51,9 +51,9 @@ class TestSerializer(TestBase):
                         'foo1': '50656e4538345b39dd0414f0',
                         'foo2': '50656e4538345b39dd0414f0',
                     },
-                    'refobj' : {
-                        '$id' : '50656e4538345b39dd0414f0',
-                        '$col' : 'SomeCollection'
+                    'refobj': {
+                        '$id': '50656e4538345b39dd0414f0',
+                        '$col': 'SomeCollection'
                     }
                 },
                 schema=schema
@@ -67,7 +67,6 @@ class TestSerializer(TestBase):
             self.assertTrue(isinstance(ks['foo1'], ObjectId))
             self.assertTrue(isinstance(ks['foo2'], ObjectId))
             self.assertTrue(isinstance(res['refobj'], DBRef))
-
 
     def test_non_blocking_on_simple_field_serialization_exception(self):
         schema = {
@@ -153,7 +152,6 @@ class TestSerializer(TestBase):
             for item in sublist:
                 self.assertTrue(isinstance(item['_id'], ObjectId))
 
-
     def test_dbref_serialize_lists_of_lists(self):
         # serialize should handle list of lists of basic types
         schema = {
@@ -169,8 +167,10 @@ class TestSerializer(TestBase):
         }
         doc = {
             'l_of_l': [
-                [{'$col' : 'SomeCollection', '$id':'50656e4538345b39dd0414f0'}, {'$col' : 'SomeCollection', '$id':'50656e4538345b39dd0414f0'}],
-                [{'$col' : 'SomeCollection', '$id':'50656e4538345b39dd0414f0'}, {'$col' : 'SomeCollection', '$id':'50656e4538345b39dd0414f0'}]
+                [{'$col': 'SomeCollection', '$id':'50656e4538345b39dd0414f0'},
+                 {'$col': 'SomeCollection', '$id':'50656e4538345b39dd0414f0'}],
+                [{'$col': 'SomeCollection', '$id':'50656e4538345b39dd0414f0'},
+                 {'$col': 'SomeCollection', '$id':'50656e4538345b39dd0414f0'}]
             ]
         }
 
@@ -200,12 +200,20 @@ class TestSerializer(TestBase):
         doc = {
             'l_of_l': [
                 [
-                    {'_id': {'$col' : 'SomeCollection', '$id':'50656e4538345b39dd0414f0'}},
-                    {'_id': {'$col' : 'SomeCollection', '$id':'50656e4538345b39dd0414f0'}}
+                    {'_id': {'$col': 'SomeCollection',
+                             '$id': '50656e4538345b39dd0414f0'}
+                     },
+                    {'_id': {'$col': 'SomeCollection',
+                             '$id': '50656e4538345b39dd0414f0'}
+                     }
                 ],
                 [
-                    {'_id': {'$col' : 'SomeCollection', '$id':'50656e4538345b39dd0414f0'}},
-                    {'_id': {'$col' : 'SomeCollection', '$id':'50656e4538345b39dd0414f0'}}
+                    {'_id': {'$col': 'SomeCollection',
+                             '$id': '50656e4538345b39dd0414f0'}
+                     },
+                    {'_id': {'$col': 'SomeCollection',
+                             '$id': '50656e4538345b39dd0414f0'}
+                     }
                 ],
             ]
         }
