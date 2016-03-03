@@ -3,6 +3,7 @@ from datetime import datetime
 
 import simplejson as json
 from bson import ObjectId
+from bson.dbref import DBRef
 from cerberus import SchemaError
 from unittest import TestCase
 
@@ -104,6 +105,20 @@ class TestMongoValidator(TestCase):
     def test_objectid_success(self):
         schema = {'id': {'type': 'objectid'}}
         doc = {'id': ObjectId('50656e4538345b39dd0414f0')}
+        v = Validator(schema, None)
+        self.assertTrue(v.validate(doc))
+
+    def test_dbref_fail(self):
+        schema = {'id': {'type': 'dbref'}}
+        doc = {'id': 'not_an_object_id'}
+        v = Validator(schema, None)
+        self.assertFalse(v.validate(doc))
+        self.assertTrue('id' in v.errors)
+        self.assertTrue('DBRef' in v.errors['id'])
+
+    def test_dbref_success(self):
+        schema = {'id': {'type': 'dbref'}}
+        doc = {'id': DBRef("SomeCollection", ObjectId("50656e4538345b39dd0414f0"))}
         v = Validator(schema, None)
         self.assertTrue(v.validate(doc))
 

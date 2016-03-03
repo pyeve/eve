@@ -3,6 +3,7 @@ import time
 
 import simplejson as json
 from bson import ObjectId
+from bson.dbref import DBRef
 
 from eve.methods.common import serialize, normalize_dotted_fields
 from eve.tests import TestBase
@@ -35,7 +36,8 @@ class TestSerializer(TestBase):
             'average': {'type': 'float'},
             'dict_valueschema': {
                 'valueschema': {'type': 'objectid'}
-            }
+            },
+            'refobj' : {'type' : 'dbref'}
         }
         with self.app.app_context():
             # Success
@@ -48,6 +50,10 @@ class TestSerializer(TestBase):
                     'dict_valueschema': {
                         'foo1': '50656e4538345b39dd0414f0',
                         'foo2': '50656e4538345b39dd0414f0',
+                    },
+                    'refobj' : {
+                        '$id' : '50656e4538345b39dd0414f0',
+                        '$col' : 'SomeCollection'
                     }
                 },
                 schema=schema
@@ -60,6 +66,8 @@ class TestSerializer(TestBase):
             ks = res['dict_valueschema']
             self.assertTrue(isinstance(ks['foo1'], ObjectId))
             self.assertTrue(isinstance(ks['foo2'], ObjectId))
+            self.assertTrue(isinstance(res['refobj'], DBRef))
+
 
     def test_non_blocking_on_simple_field_serialization_exception(self):
         schema = {
@@ -145,6 +153,68 @@ class TestSerializer(TestBase):
             for item in sublist:
                 self.assertTrue(isinstance(item['_id'], ObjectId))
 
+
+    def test_dbref_serialize_lists_of_lists(self):
+        # serialize should handle list of lists of basic types
+        schema = {
+            'l_of_l': {
+                'type': 'list',
+                'schema': {
+                    'type': 'list',
+                    'schema': {
+                        'type': 'dbref'
+                    }
+                }
+            }
+        }
+        doc = {
+            'l_of_l': [
+                [{'$col' : 'SomeCollection', '$id':'50656e4538345b39dd0414f0'}, {'$col' : 'SomeCollection', '$id':'50656e4538345b39dd0414f0'}],
+                [{'$col' : 'SomeCollection', '$id':'50656e4538345b39dd0414f0'}, {'$col' : 'SomeCollection', '$id':'50656e4538345b39dd0414f0'}]
+            ]
+        }
+
+        with self.app.app_context():
+            serialized = serialize(doc, schema=schema)
+        for sublist in serialized['l_of_l']:
+            for item in sublist:
+                self.assertTrue(isinstance(item, DBRef))
+
+        # serialize should handle list of lists of dicts
+        schema = {
+            'l_of_l': {
+                'type': 'list',
+                'schema': {
+                    'type': 'list',
+                    'schema': {
+                        'type': 'dict',
+                        'schema': {
+                            '_id': {
+                                'type': 'dbref'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        doc = {
+            'l_of_l': [
+                [
+                    {'_id': {'$col' : 'SomeCollection', '$id':'50656e4538345b39dd0414f0'}},
+                    {'_id': {'$col' : 'SomeCollection', '$id':'50656e4538345b39dd0414f0'}}
+                ],
+                [
+                    {'_id': {'$col' : 'SomeCollection', '$id':'50656e4538345b39dd0414f0'}},
+                    {'_id': {'$col' : 'SomeCollection', '$id':'50656e4538345b39dd0414f0'}}
+                ],
+            ]
+        }
+        with self.app.app_context():
+            serialized = serialize(doc, schema=schema)
+        for sublist in serialized['l_of_l']:
+            for item in sublist:
+                self.assertTrue(isinstance(item['_id'], DBRef))
+
     def test_serialize_null_dictionary(self):
         # Serialization should continue after encountering a null value dict
         # field. Field may be nullable, or error will be caught in validation.
@@ -176,6 +246,25 @@ class TestSerializer(TestBase):
                 'nullable': True,
                 'schema': {
                     'type': 'objectid'
+                }
+            }
+        }
+        doc = {
+            'nullable_list': None
+        }
+        with self.app.app_context():
+            try:
+                serialize(doc, schema=schema)
+            except Exception:
+                self.fail('Serializing null lists'
+                          ' should not raise an exception')
+
+        schema = {
+            'nullable_list': {
+                'type': 'list',
+                'nullable': True,
+                'schema': {
+                    'type': 'dbref'
                 }
             }
         }
