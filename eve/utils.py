@@ -161,8 +161,16 @@ def parse_request(resource):
             r.max_results = config.PAGINATION_LIMIT
 
     def etag_parse(challenge):
-        return headers[challenge].replace('\"', '') if challenge in headers \
-            else None
+        if challenge in headers:
+            etag = headers[challenge]
+            # allow weak etags (Eve does not support byte-range requests)
+            if etag.startswith('W/\"'):
+                etag = etag.lstrip('W/')
+            # remove double quotes from challenge etag format to allow direct
+            # string comparison with stored values
+            return etag.replace('\"', '')
+        else:
+            return None
 
     if headers:
         r.if_modified_since = weak_date(headers.get('If-Modified-Since'))

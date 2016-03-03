@@ -1369,6 +1369,13 @@ class TestGetItem(TestBase):
         self.assert304(r.status_code)
         self.assertTrue(not r.get_data())
 
+        # test that we support weak etags
+        weak_etag = 'W/' + etag
+        r = self.test_client.get(self.item_id_url,
+                                 headers=[('If-None-Match', weak_etag)])
+        self.assert304(r.status_code)
+        self.assertTrue(not r.get_data())
+
     def test_cache_control(self):
         self.assertCacheControl(self.item_id_url)
 
