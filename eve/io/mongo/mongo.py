@@ -16,6 +16,7 @@ import ast
 import pymongo
 import simplejson as json
 from bson import ObjectId
+from bson.dbref import DBRef
 from copy import copy
 from flask import abort, request, g
 from flask.ext.pymongo import PyMongo
@@ -47,7 +48,11 @@ class MongoJSONEncoder(BaseJSONEncoder):
             # contain a lambda/callable which can't be jSON serialized
             # (and we probably don't want it to be exposed anyway). See #790.
             return "<callable>"
-
+        if isinstance(obj, DBRef):
+            retval = {'$id' : str(obj.id), '$ref' : obj.collection}
+            if obj.database:
+                retval['$db'] = obj.database
+            return retval
         # delegate rendering to base class method
         return super(MongoJSONEncoder, self).default(obj)
 
@@ -74,7 +79,8 @@ class Mongo(DataLayer):
         'datetime': str_to_date,
         'integer': lambda value: int(value) if value is not None else None,
         'float': lambda value: float(value) if value is not None else None,
-        'number': lambda val: json.loads(val) if val is not None else None
+        'number': lambda val: json.loads(val) if val is not None else None,
+        'dbref' : lambda value: DBRef(value['$col'],value['$id'], value['$db'] if '$db' in value else None) if value is not None else None,
     }
 
     # JSON serializer is a class attribute. Allows extensions to replace it
