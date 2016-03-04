@@ -638,14 +638,14 @@ def embedded_document(reference, data_relation, field_name):
         build_response_document(embedded_doc, data_relation['resource'],
                                 [], latest_embedded_doc)
     else:
-        """ if reference is DBRef take the referenced collection as subresource"""
+        # if reference is DBRef take the referenced collection as subresource
         subresource = reference.collection if isinstance(reference, DBRef) \
             else data_relation['resource']
         id_field = config.DOMAIN[subresource]['id_field']
         embedded_doc = app.data.find_one(subresource, None,
                                          **{id_field: reference.id
-                                         if isinstance(reference, DBRef)
-                                         else reference})
+                                            if isinstance(reference, DBRef)
+                                            else reference})
         if embedded_doc:
             resolve_media_files(embedded_doc, subresource)
 

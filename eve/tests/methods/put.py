@@ -219,8 +219,9 @@ class TestPut(TestBase):
                             {'$set': {
                                 'person': fake_contact_id,
                                 'persondbref':
-                                          DBRef("contacts",
-                                                ObjectId(fake_contact_id))}})
+                                    DBRef("contacts",
+                                          ObjectId(fake_contact_id))}
+                             })
 
         # GET all invoices by new contact
         response, status = self.get('users/%s/invoices/%s' %

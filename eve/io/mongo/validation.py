@@ -226,7 +226,7 @@ class Validator(Validator):
             data_resource = data_relation['resource']
             for item in value:
                     query = {data_relation['field']: item.id
-                    if isinstance(item, DBRef) else item}
+                             if isinstance(item, DBRef) else item}
                     if not app.data.find_one(data_resource, None, **query):
                         self._error(
                             field,

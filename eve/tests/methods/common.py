@@ -167,10 +167,10 @@ class TestSerializer(TestBase):
         }
         doc = {
             'l_of_l': [
-                [{'$col': 'SomeCollection', '$id':'50656e4538345b39dd0414f0'},
-                 {'$col': 'SomeCollection', '$id':'50656e4538345b39dd0414f0'}],
-                [{'$col': 'SomeCollection', '$id':'50656e4538345b39dd0414f0'},
-                 {'$col': 'SomeCollection', '$id':'50656e4538345b39dd0414f0'}]
+                [{'$col': 'SomeCollection', '$id': '50656e4538345b39dd0414f0'},
+                 {'$col': 'SomeCollection', '$id': '50656e4538345b39dd0414f0'}],
+                [{'$col': 'SomeCollection', '$id': '50656e4538345b39dd0414f0'},
+                 {'$col': 'SomeCollection', '$id': '50656e4538345b39dd0414f0'}]
             ]
         }
 
