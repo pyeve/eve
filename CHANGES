@@ -9,6 +9,8 @@ In Development
 Version 0.7
 ~~~~~~~~~~~
 
+- New: Add support for MongoDB `DBRef` fields (Roman Gavrilov).
+
 - New: ``MULTIPART_FORM_FIELDS_AS_JSON``. In case you are submitting your
   resource as ``multipart/form-data`` all form data fields will be submitted as
   strings, breaking any validation rules you might have on the resource fields.

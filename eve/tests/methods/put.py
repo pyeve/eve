@@ -1,4 +1,5 @@
 from bson import ObjectId
+from bson.dbref import DBRef
 import simplejson as json
 
 from eve.tests import TestBase
@@ -204,6 +205,41 @@ class TestPut(TestBase):
         self.assert200(status)
         self.assertPutResponse(response, self.invoice_id, 'peopleinvoices')
         self.assertEqual(response.get('person'), str(fake_contact_id))
+
+    def test_put_dbref_subresource(self):
+        _db = self.connection[MONGO_DBNAME]
+        self.app.config['BANDWIDTH_SAVER'] = False
+
+        # create random contact
+        fake_contact = self.random_contacts(1)
+        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+
+        # update first invoice to reference the new contact
+        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
+                            {'$set': {
+                                'person': fake_contact_id,
+                                'persondbref':
+                                    DBRef("contacts",
+                                          ObjectId(fake_contact_id))}
+                             })
+
+        # GET all invoices by new contact
+        response, status = self.get('users/%s/invoices/%s' %
+                                    (fake_contact_id, self.invoice_id))
+
+        self.assertEqual(response.get('persondbref')['$id'],
+                         str(fake_contact_id))
+
+        etag = response[ETAG]
+
+        data = {"inv_number": "new_number"}
+        headers = [('If-Match', etag)]
+        response, status = self.put('users/%s/invoices/%s' %
+                                    (fake_contact_id, self.invoice_id),
+                                    data=data, headers=headers)
+
+        self.assert200(status)
+        self.assertPutResponse(response, self.invoice_id, 'peopleinvoices')
 
     def test_put_bandwidth_saver(self):
         changes = {'ref': '1234567890123456789012345'}

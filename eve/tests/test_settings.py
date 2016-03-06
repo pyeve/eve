@@ -170,7 +170,11 @@ invoices = {
         'invoicing_contacts': {
             'type': 'list',
             'data_relation': {'resource': 'contacts'}
-        }
+        },
+        'persondbref': {
+            'type': 'dbref',
+            'data_relation': {'resource': 'contacts'}
+        },
     }
 }
 
