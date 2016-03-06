@@ -741,7 +741,7 @@ have to activate this setting. In that case
 field validation will continue working
 correctly. Read more about how the fields
 should be formatted at
-<a class="reference internal" href="features.html#multipart"><em>Media files as multipart/data-form</em></a>. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
+<a class="reference internal" href="features.html#multipart"><em>Note on media files as multipart/data-form</em></a>. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG</span></tt></td>
 <td>Set it to <tt class="docutils literal"><span class="pre">True</span></tt> to enable the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>.
@@ -1294,12 +1294,14 @@ defining the field validation rules. Allowed validation rules are:</p>
 <li><tt class="docutils literal"><span class="pre">datetime</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">dict</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">list</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">objectid</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">media</span></tt></li>
 </ul>
-<p>If the MongoDB data layer is used, then
-geographic data structures are also allowed:</p>
+<p>If the MongoDB data layer is used then
+<tt class="docutils literal"><span class="pre">objectid</span></tt>, <tt class="docutils literal"><span class="pre">dbref</span></tt> and geographic data
+structures are also allowed:</p>
 <ul class="simple">
+<li><tt class="docutils literal"><span class="pre">objectid</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">dbref</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">point</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">multipoint</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">linestring</span></tt></li>
@@ -1308,7 +1310,8 @@ geographic data structures are also allowed:</p>
 <li><tt class="docutils literal"><span class="pre">multipolygon</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">geometrycollection</span></tt></li>
 </ul>
-<p class="last">See <a class="reference internal" href="features.html#geojson-feature"><em>GeoJSON</em></a> for more informations.</p>
+<p class="last">See <a class="reference internal" href="features.html#geojson-feature"><em>GeoJSON</em></a> for more
+informations geo fields.</p>
 </td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">required</span></tt></td>
