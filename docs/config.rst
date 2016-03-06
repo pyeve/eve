@@ -1105,12 +1105,14 @@ defining the field validation rules. Allowed validation rules are:
                                 - ``datetime``
                                 - ``dict``
                                 - ``list``
-                                - ``objectid``
                                 - ``media``
 
-                                If the MongoDB data layer is used, then
-                                geographic data structures are also allowed:
+                                If the MongoDB data layer is used then
+                                ``objectid``, ``dbref`` and geographic data
+                                structures are also allowed:
 
+                                - ``objectid``
+                                - ``dbref``
                                 - ``point``
                                 - ``multipoint``
                                 - ``linestring``
@@ -1119,7 +1121,8 @@ defining the field validation rules. Allowed validation rules are:
                                 - ``multipolygon``
                                 - ``geometrycollection``
 
-                                See :ref:`GeoJSON <geojson_feature>` for more informations.
+                                See :ref:`GeoJSON <geojson_feature>` for more
+                                informations geo fields.
 
 ``required``                    If ``True``, the field is mandatory on
                                 insertion.
