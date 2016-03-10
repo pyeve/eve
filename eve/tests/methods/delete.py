@@ -578,6 +578,44 @@ class TestSoftDelete(TestDelete):
         data, status = self.parse_response(r)
         self.assert200(status)
 
+    def test_exclude_soft_deleted_documents_from_unique_checks(self):
+        """ Test that soft deleted documents are ignored when validating new
+        documents against the 'unique' rule. See #831.
+        """
+        unique_value = "1234567890123456789054321"
+
+        # 'ref' field has a 'unique' rule applied to it.
+        r = self.test_client.post(self.known_resource_url, data={
+            'ref': unique_value
+        })
+        data, status = self.parse_response(r)
+        self.assert201(status)
+        new_item_id = data[self.domain[self.known_resource]['id_field']]
+        new_item_etag = data[self.app.config['ETAG']]
+
+        # we can't post a new document with the same value.
+        r = self.test_client.post(self.known_resource_url, data={
+            'ref': unique_value
+        })
+        data, status = self.parse_response(r)
+        self.assert422(status)
+
+        # we now soft delete the document.
+        r = self.test_client.delete(
+            self.known_resource_url + "/" + new_item_id,
+            headers=[('If-Match', new_item_etag)]
+        )
+        data, status = self.parse_response(r)
+        self.assert204(status)
+
+        # posting a new document with the same value for 'ref'
+        # is now possible.
+        r = self.test_client.post(self.known_resource_url, data={
+            'ref': unique_value
+        })
+        data, status = self.parse_response(r)
+        self.assert201(status)
+
 
 class TestResourceSpecificSoftDelete(TestBase):
     def setUp(self):
