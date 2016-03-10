@@ -84,6 +84,8 @@ are now properly processed. Addresses #794.</li>
 <div class="section" id="version-0-6-2">
 <h3>Version 0.6.2<a class="headerlink" href="#version-0-6-2" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>Fix: <tt class="docutils literal"><span class="pre">unique</span></tt> validation rule is checked against soft deleted documents.
+Closes #831.</li>
 <li>Fix: Mongo does not allow <tt class="docutils literal"><span class="pre">$</span></tt> and <tt class="docutils literal"><span class="pre">.</span></tt> in field names. Apply this
 validation in schemas and dict fields. Closes #780.</li>
 <li>Fix: Remove &#8220;ensure uniqueness of (custom) id fields&#8221; feature. Addresses
