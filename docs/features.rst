@@ -982,6 +982,14 @@ specified, or an empty request would be made to restore the document as is. The
 request must be made with proper authorization for write permission to the soft
 deleted document or it will be refused.
 
+Be aware that, should a previously soft deleted document be restored, there is
+a chance that an eventual unique field might end up being now duplicated in two
+different documents: the restored one, and another which might have been stored
+with the same field value while the original (now restored) was in 'deleted'
+state. This is because soft deleted documents are ignored when validating the
+`unique` rule for new or updated documents.
+
+
 Versioning
 ~~~~~~~~~~
 Soft deleting a versioned document creates a new version of that document with

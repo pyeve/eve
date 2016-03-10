@@ -146,14 +146,34 @@ class Validator(Validator):
     def _is_value_unique(self, unique, field, value, query):
         """ Validates that a field value is unique.
 
+        .. versionchanged:: 0.6.2
+           Exclude soft deleted documents from uniqueness check. Closes #831.
+
         .. versionadded:: 0.6
         """
         if unique:
             query[field] = value
 
+            resource_config = config.DOMAIN[self.resource]
+
+            # exclude soft deleted documents if applicable
+            if resource_config['soft_delete']:
+                # be aware that, should a previously (soft) deleted document be
+                # restored, and because we explicitly ignore soft deleted
+                # documents while validating 'unique' fields, there is a chance
+                # that a unique field value will end up being now duplicated
+                # in two documents: the restored one, and the one which has
+                # been stored with the same field value while the original
+                # document was in 'deleted' state.
+
+                # we make sure to also include documents which are missing the
+                # DELETED field. This happens when soft deletes are enabled on
+                # an a resource with existing documents.
+                query[config.DELETED] = {'$ne': True}
+
             # exclude current document
             if self._id:
-                id_field = config.DOMAIN[self.resource]['id_field']
+                id_field = resource_config['id_field']
                 query[id_field] = {'$ne': self._id}
 
             # we perform the check on the native mongo driver (and not on

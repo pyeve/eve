@@ -9,6 +9,8 @@ In Development
 Version 0.6.2
 ~~~~~~~~~~~~~
 
+- Fix: ``unique`` validation rule is checked against soft deleted documents.
+  Closes #831.
 - Fix: Mongo does not allow ``$`` and ``.`` in field names. Apply this
   validation in schemas and dict fields. Closes #780.
 - Fix: Remove "ensure uniqueness of (custom) id fields" feature. Addresses
