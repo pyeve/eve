@@ -9,6 +9,8 @@ In Development
 Version 0.6.2
 ~~~~~~~~~~~~~
 
+- Fix: ``Access-Control-Allow-Max-Age`` should actually be
+  ``Access-Control-Max-Age``. Closes #829.
 - Fix: ``unique`` validation rule is checked against soft deleted documents.
   Closes #831.
 - Fix: Mongo does not allow ``$`` and ``.`` in field names. Apply this

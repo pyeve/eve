@@ -219,7 +219,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         resp.headers.add('Access-Control-Expose-Headers',
                          ', '.join(expose_headers))
         resp.headers.add('Access-Control-Allow-Methods', methods)
-        resp.headers.add('Access-Control-Allow-Max-Age', config.X_MAX_AGE)
+        resp.headers.add('Access-Control-Max-Age', config.X_MAX_AGE)
         if allow_credentials:
             resp.headers.add('Access-Control-Allow-Credentials', "true")
 
