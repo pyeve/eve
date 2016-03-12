@@ -11,7 +11,6 @@
 """
 import inspect
 import os
-import sys
 
 import copy
 from events import Events
@@ -231,7 +230,7 @@ class Eve(Flask, Events):
                 abspath = inspect.getabsfile(
                     inspect.currentframe().f_back.f_back)
                 absdir = os.path.dirname(abspath)
-                pyfile = os.path.join(abspath, self.settings)
+                pyfile = os.path.join(absdir, self.settings)
             try:
                 self.config.from_pyfile(pyfile)
             except IOError:
