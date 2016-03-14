@@ -6,6 +6,57 @@ Here you can see the full list of changes between each Eve release.
 Stable
 ------
 
+Version 0.6.2
+~~~~~~~~~~~~~
+
+Released on 14 March, 2016
+
+- Fix: ``Access-Control-Allow-Max-Age`` should actually be
+  ``Access-Control-Max-Age``. Closes #829.
+- Fix: ``unique`` validation rule is checked against soft deleted documents.
+  Closes #831.
+- Fix: Mongo does not allow ``$`` and ``.`` in field names. Apply this
+  validation in schemas and dict fields. Closes #780.
+- Fix: Remove "ensure uniqueness of (custom) id fields" feature. Addresses
+  #788.
+- Fix: ``409 Conflict`` not reported since upgrading to PyMongo 3. Closes #680.
+- Fix: when a document is soft deleted, the OPLOG `_updated` field is not the
+  time of the deletion but the time of the previous last update (Cyril
+  Bonnard).
+- Fix: TokenAuth. When the tokens are passed as "Authorization: " or
+  "Authorization: Token " headers, werkzeug does not recognize them as valid
+  authorization header, therefore the ``request.authorization`` field is empty
+  (Luca Di Gaspero).
+- Fix: ``SCHEMA_ENDPOINT`` does not work when schema has lambda function as
+  ``coerce`` rule. Closes #790.
+- Fix: CORS pre-flight requests malfunction on ``SCHEMA_ENDPOINT`` endpoint
+  (Valerie Coffman).
+- Fix: do not attempt to parse ``number`` values as strings when they are
+  numerical (Nick Park).
+- Fix: the ``__init__.py`` ``ITEM_URL`` does not match default_settings.py.
+  Closes #786 (Ralph Smith).
+- Fix: startup crash when both ``SOFT_DELETE`` and ``ALLOW_UNKNOWN`` are
+  enabled. Closes #800.
+- Fix: Serialize inside ``of`` and ``of_type`` rules new in Cerberus 0.9.
+  Closes #692 (Arnau Orriols).
+- Fix: In ``put_internal`` Validator is not set when ``skip_validation`` is
+  ``true`` (Wei Guan).
+- Fix: In ``patch_internal`` Validator is not set when ``skip_validation`` is
+  ``true`` (Stratos Gerakakis).
+- Fix: Add missing serializer for fields of type ``number``(Arnau Orriols).
+- Fix: Skip any null value from serialization (Arnau Orriols).
+- Fix: When ``SOFT_DELETE`` is active an exclusive ``datasource.projection``
+  causes a ``500`` error. Closes #752.
+
+- Update: PyMongo 3.2 is now required.
+- Update: Flask-PyMongo 0.4+ is now required.
+- Update: Werkzeug up to 0.11.4 is now required
+- Change: simplejson v3.8.2 is now required.
+
+- Docs: fix some typos (Manquer, Patrick Decat).
+- Docs: add missing imports to authentication docs (Hamdy)
+- Update license to 2016 (Prayag Verma)
+
 Version 0.6.1
 ~~~~~~~~~~~~~
 

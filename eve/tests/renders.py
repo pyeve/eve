@@ -118,7 +118,7 @@ class TestRenders(TestBase):
         r = self.test_client.get('/')
         self.assertFalse('Access-Control-Allow-Origin' in r.headers)
         self.assertFalse('Access-Control-Allow-Methods' in r.headers)
-        self.assertFalse('Access-Control-Allow-Max-Age' in r.headers)
+        self.assertFalse('Access-Control-Max-Age' in r.headers)
         self.assertFalse('Access-Control-Expose-Headers' in r.headers)
         self.assertFalse('Access-Control-Allow-Credentials' in r.headers)
         self.assert200(r.status_code)
@@ -172,20 +172,20 @@ class TestRenders(TestBase):
         # other Access-Control-Allow- headers are included.
         self.assertTrue('Access-Control-Allow-Headers' in r.headers)
         self.assertTrue('Access-Control-Allow-Methods' in r.headers)
-        self.assertTrue('Access-Control-Allow-Max-Age' in r.headers)
+        self.assertTrue('Access-Control-Max-Age' in r.headers)
         self.assertTrue('Access-Control-Expose-Headers' in r.headers)
 
     def test_CORS_MAX_AGE(self):
         self.app.config['X_DOMAINS'] = '*'
         r = self.test_client.get('/', headers=[('Origin',
                                                 'http://example.com')])
-        self.assertEqual(r.headers['Access-Control-Allow-Max-Age'],
+        self.assertEqual(r.headers['Access-Control-Max-Age'],
                          '21600')
 
         self.app.config['X_MAX_AGE'] = 2000
         r = self.test_client.get('/', headers=[('Origin',
                                                 'http://example.com')])
-        self.assertEqual(r.headers['Access-Control-Allow-Max-Age'],
+        self.assertEqual(r.headers['Access-Control-Max-Age'],
                          '2000')
 
     def test_CORS_OPTIONS(self, url='/', methods=None):
@@ -195,7 +195,7 @@ class TestRenders(TestBase):
         r = self.test_client.open(url, method='OPTIONS')
         self.assertFalse('Access-Control-Allow-Origin' in r.headers)
         self.assertFalse('Access-Control-Allow-Methods' in r.headers)
-        self.assertFalse('Access-Control-Allow-Max-Age' in r.headers)
+        self.assertFalse('Access-Control-Max-Age' in r.headers)
         self.assertFalse('Access-Control-Expose-Headers' in r.headers)
         self.assertFalse('Access-Control-Allow-Credentials' in r.headers)
         self.assert200(r.status_code)
@@ -245,7 +245,7 @@ class TestRenders(TestBase):
             self.assertTrue(m in r.headers['Access-Control-Allow-Methods'])
 
         self.assertTrue('Access-Control-Allow-Origin' in r.headers)
-        self.assertTrue('Access-Control-Allow-Max-Age' in r.headers)
+        self.assertTrue('Access-Control-Max-Age' in r.headers)
         self.assertTrue('Access-Control-Expose-Headers' in r.headers)
 
         r = self.test_client.get(url, headers=[('Origin',
@@ -280,4 +280,10 @@ class TestRenders(TestBase):
         self.test_CORS_OPTIONS(url, methods)
         url = '%s%s/%s' % (prefix, self.known_resource_url, self.item_ref)
         methods = ['GET', 'OPTIONS']
-        self.test_CORS_OPTIONS(url, methods)
+
+    def test_CORS_OPTIONS_schema(self):
+        """ Test that CORS is also supported at SCHEMA_ENDPOINT """
+        self.app.config['SCHEMA_ENDPOINT'] = 'schema'
+        self.app._init_schema_endpoint()
+        methods = ['GET', 'OPTIONS']
+        self.test_CORS_OPTIONS('schema', methods)

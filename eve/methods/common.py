@@ -6,7 +6,7 @@
 
     Utility functions for API methods implementations.
 
-    :copyright: (c) 2015 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 import time
@@ -328,9 +328,20 @@ def serialize(document, resource=None, schema=None, fields=None):
         if not fields:
             fields = document.keys()
         for field in fields:
+            if document[field] is None:
+                continue
             if field in schema:
                 field_schema = schema[field]
                 field_type = field_schema.get('type')
+                if field_type is None:
+                    for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+                        for optschema in field_schema.get(x_of, []):
+                            schema = {field: optschema}
+                            serialize(document, schema=schema)
+                        x_of_type = '{0}_type'.format(x_of)
+                        for opttype in field_schema.get(x_of_type, []):
+                            schema = {field: {'type': opttype}}
+                            serialize(document, schema=schema)
                 if 'schema' in field_schema:
                     field_schema = field_schema['schema']
                     if 'dict' in (field_type, field_schema.get('type')):
@@ -341,7 +352,7 @@ def serialize(document, resource=None, schema=None, fields=None):
                             if type(subdocument) is not dict:
                                 # value is not a dict - continue serialization
                                 # error will be reported by validation if
-                                # appropriate (could be allowed nullable dict)
+                                # appropriate
                                 continue
                             elif 'schema' in field_schema:
                                 serialize(subdocument,
@@ -358,15 +369,14 @@ def serialize(document, resource=None, schema=None, fields=None):
                                     serialize(sublist[i],
                                               schema=sublist_schema['schema'])
                                 elif item_type in app.data.serializers:
-                                        sublist[i] = \
-                                            app.data.serializers[item_type](v)
+                                    sublist[i] = serialize_value(item_type, v)
                     else:
                         # a list of one type, arbitrary length
                         field_type = field_schema.get('type')
                         if field_type in app.data.serializers:
                             for i, v in enumerate(document[field]):
                                 document[field][i] = \
-                                    app.data.serializers[field_type](v)
+                                    serialize_value(field_type, v)
                 elif 'items' in field_schema:
                     # a list of multiple types, fixed length
                     for i, (s, v) in enumerate(zip(field_schema['items'],
@@ -374,8 +384,7 @@ def serialize(document, resource=None, schema=None, fields=None):
                         field_type = s.get('type')
                         if field_type in app.data.serializers:
                             document[field][i] = \
-                                app.data.serializers[field_type](
-                                    document[field][i])
+                                serialize_value(field_type, document[field][i])
                 elif 'valueschema' in field_schema:
                     # a valueschema
                     field_type = field_schema['valueschema']['type']
@@ -383,18 +392,25 @@ def serialize(document, resource=None, schema=None, fields=None):
                         target = document[field]
                         for field in target:
                             target[field] = \
-                                app.data.serializers[field_type](target[field])
+                                serialize_value(field_type, target[field])
                 elif field_type in app.data.serializers:
                     # a simple field
-                    try:
-                        document[field] = \
-                            app.data.serializers[field_type](document[field])
-                    except (ValueError, InvalidId):
-                        # value can't be casted, we continue processing the
-                        # rest of the document. Validation will later report
-                        # back the issue.
-                        pass
+                    document[field] = \
+                        serialize_value(field_type, document[field])
+
     return document
+
+
+def serialize_value(field_type, value):
+    """Serialize value of a given type. Relies on the app.data.serializers
+    dictionary.
+    """
+    try:
+        return app.data.serializers[field_type](value)
+    except (KeyError, ValueError, TypeError, InvalidId):
+        # value can't be cast or no serializer defined, return as is and
+        # validation will later report back the issue.
+        return value
 
 
 def normalize_dotted_fields(document):

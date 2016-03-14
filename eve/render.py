@@ -6,7 +6,7 @@
 
     Implements proper, automated rendering for Eve responses.
 
-    :copyright: (c) 2015 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -219,7 +219,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         resp.headers.add('Access-Control-Expose-Headers',
                          ', '.join(expose_headers))
         resp.headers.add('Access-Control-Allow-Methods', methods)
-        resp.headers.add('Access-Control-Allow-Max-Age', config.X_MAX_AGE)
+        resp.headers.add('Access-Control-Max-Age', config.X_MAX_AGE)
         if allow_credentials:
             resp.headers.add('Access-Control-Allow-Credentials', "true")
 

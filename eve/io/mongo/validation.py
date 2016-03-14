@@ -8,7 +8,7 @@
     objects incoming via POST/PATCH requests conform to the API domain.
     An extension of Cerberus Validator.
 
-    :copyright: (c) 2015 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 import copy
@@ -56,7 +56,7 @@ class Validator(Validator):
         self.resource = resource
         self._id = None
         self._original_document = None
-        schema = self._remove_unique_rules_on_fields_with_unique_index(schema)
+
         if resource:
             transparent_schema_rules = \
                 config.DOMAIN[resource]['transparent_schema_rules']
@@ -65,16 +65,6 @@ class Validator(Validator):
             schema,
             transparent_schema_rules=transparent_schema_rules,
             allow_unknown=allow_unknown)
-
-    def _remove_unique_rules_on_fields_with_unique_index(self, schema):
-        # TODO: Actually do what the function name suggests. This version just
-        # removes the unique constraint on _id. We could use the information
-        # available by app.data.driver.db[datasource].index_information() to
-        # remove all unnecessary unique constraints.
-        result = copy.deepcopy(schema)
-        if '_id' in result and 'unique' in result['_id']:
-            del(result['_id']['unique'])
-        return result
 
     def validate_update(self, document, _id, original_document=None):
         """ Validate method to be invoked when performing an update, not an
@@ -156,14 +146,34 @@ class Validator(Validator):
     def _is_value_unique(self, unique, field, value, query):
         """ Validates that a field value is unique.
 
+        .. versionchanged:: 0.6.2
+           Exclude soft deleted documents from uniqueness check. Closes #831.
+
         .. versionadded:: 0.6
         """
         if unique:
             query[field] = value
 
+            resource_config = config.DOMAIN[self.resource]
+
+            # exclude soft deleted documents if applicable
+            if resource_config['soft_delete']:
+                # be aware that, should a previously (soft) deleted document be
+                # restored, and because we explicitly ignore soft deleted
+                # documents while validating 'unique' fields, there is a chance
+                # that a unique field value will end up being now duplicated
+                # in two documents: the restored one, and the one which has
+                # been stored with the same field value while the original
+                # document was in 'deleted' state.
+
+                # we make sure to also include documents which are missing the
+                # DELETED field. This happens when soft deletes are enabled on
+                # an a resource with existing documents.
+                query[config.DELETED] = {'$ne': True}
+
             # exclude current document
             if self._id:
-                id_field = config.DOMAIN[self.resource]['id_field']
+                id_field = resource_config['id_field']
                 query[id_field] = {'$ne': self._id}
 
             # we perform the check on the native mongo driver (and not on

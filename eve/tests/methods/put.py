@@ -71,6 +71,17 @@ class TestPut(TestBase):
         self.assert200(status)
         self.assertTrue('OK' in r[STATUS])
 
+    def test_put_x_www_form_urlencoded_number_serialization(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        field = 'anumber'
+        test_value = 41
+        changes = {field: test_value}
+        headers = [('If-Match', self.item_etag)]
+        r, status = self.parse_response(self.test_client.put(
+            self.item_id_url, data=changes, headers=headers))
+        self.assert200(status)
+        self.assertTrue('OK' in r[STATUS])
+
     def test_put_referential_integrity(self):
         data = {"person": self.unknown_item_id}
         headers = [('If-Match', self.invoice_etag)]
@@ -250,6 +261,19 @@ class TestPut(TestBase):
             r, _, _, status = put_internal(
                 self.known_resource, data, concurrency_check=False,
                 **{'_id': self.item_id})
+        db_value = self.compare_put_with_get(test_field, r)
+        self.assertEqual(db_value, test_value)
+        self.assert200(status)
+
+    def test_put_internal_skip_validation(self):
+        # test that put_internal is available and working properly.
+        test_field = 'ref'
+        test_value = "9876543210987654321098765"
+        data = {test_field: test_value}
+        with self.app.test_request_context(self.item_id_url):
+            r, _, _, status = put_internal(
+                self.known_resource, data, concurrency_check=False,
+                skip_validation=True, **{'_id': self.item_id})
         db_value = self.compare_put_with_get(test_field, r)
         self.assertEqual(db_value, test_value)
         self.assert200(status)

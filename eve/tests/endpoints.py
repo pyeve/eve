@@ -64,7 +64,7 @@ class TestCustomConverters(TestMinimal):
             'item_methods': ['GET', 'PATCH', 'PUT', 'DELETE'],
             'item_url': 'uuid',
             'schema': {
-                '_id': {'type': 'uuid', 'unique': True},
+                '_id': {'type': 'uuid'},
                 'name': {'type': 'string'}
             }
         }
@@ -336,3 +336,17 @@ class TestEndPoints(TestBase):
         self.assert405(status_code)
         _, status_code = self.delete(known_schema_path)
         self.assert405(status_code)
+
+    def test_schema_endpoint_does_not_attempt_callable_serialization(self):
+        self.domain[self.known_resource]['schema']['lambda'] = {
+            'type': 'boolean',
+            'coerce': lambda v: v if type(v) is bool else v.lower() in ['true',
+                                                                        '1']
+        }
+        known_schema_path = '/schema/%s' % self.known_resource
+        self.app.config['SCHEMA_ENDPOINT'] = 'schema'
+        self.app._init_schema_endpoint()
+
+        r = self.test_client.get(known_schema_path)
+        self.assert200(r.status_code)
+        self.assertEqual(json.loads(r.data)['lambda']['coerce'], '<callable>')

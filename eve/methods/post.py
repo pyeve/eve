@@ -7,7 +7,7 @@
     This module imlements the POST method, supported by the resources
     endopints.
 
-    :copyright: (c) 2015 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 

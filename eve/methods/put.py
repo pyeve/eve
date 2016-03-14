@@ -6,7 +6,7 @@
 
     This module imlements the PUT method.
 
-    :copyright: (c) 2015 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 from datetime import datetime
@@ -109,8 +109,7 @@ def put_internal(resource, payload=None, concurrency_check=False,
     """
     resource_def = app.config['DOMAIN'][resource]
     schema = resource_def['schema']
-    if not skip_validation:
-        validator = app.validator(schema, resource)
+    validator = app.validator(schema, resource)
 
     if payload is None:
         payload = payload_()
@@ -149,10 +148,10 @@ def put_internal(resource, payload=None, concurrency_check=False,
         else:
             validation = validator.validate_replace(document, object_id,
                                                     original)
-        if validation:
             # Apply coerced values
             document = validator.document
 
+        if validation:
             # sneak in a shadow copy if it wasn't already there
             late_versioning_catch(original, resource)
 

@@ -1,4 +1,5 @@
 from datetime import datetime
+import time
 
 import simplejson as json
 from bson import ObjectId
@@ -167,6 +168,95 @@ class TestSerializer(TestBase):
             except Exception:
                 self.assertTrue(False, "Serializing null dictionaries should "
                                        "not raise an exception.")
+
+    def test_serialize_null_list(self):
+        schema = {
+            'nullable_list': {
+                'type': 'list',
+                'nullable': True,
+                'schema': {
+                    'type': 'objectid'
+                }
+            }
+        }
+        doc = {
+            'nullable_list': None
+        }
+        with self.app.app_context():
+            try:
+                serialize(doc, schema=schema)
+            except Exception:
+                self.fail('Serializing null lists'
+                          ' should not raise an exception')
+
+    def test_serialize_number(self):
+        schema = {
+            'anumber': {
+                'type': 'number',
+            }
+        }
+        for expected_type, value in [(int, '35'), (float, '3.5')]:
+            doc = {
+                'anumber': value
+            }
+            with self.app.app_context():
+                serialized = serialize(doc, schema=schema)
+                self.assertTrue(
+                    isinstance(serialized['anumber'], expected_type)
+                )
+
+    def test_serialize_inside_x_of_rules(self):
+        for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+            schema = {
+                'x_of-field': {
+                    x_of: [
+                        {'type': 'objectid'},
+                        {'required': True}
+                    ]
+                }
+            }
+            doc = {'x_of-field': '50656e4538345b39dd0414f0'}
+            with self.app.app_context():
+                serialized = serialize(doc, schema=schema)
+                self.assertTrue(isinstance(serialized['x_of-field'], ObjectId))
+
+    def test_serialize_inside_nested_x_of_rules(self):
+        schema = {
+            'nested-x_of-field': {
+                'oneof': [
+                    {
+                        'anyof': [
+                            {'type': 'objectid'},
+                            {'type': 'datetime'}
+                        ],
+                        'required': True
+                    },
+                    {
+                        'allof': [
+                            {'type': 'boolean'},
+                            {'required': True}
+                        ]
+                    }
+                ]
+            }
+        }
+        doc = {'nested-x_of-field': '50656e4538345b39dd0414f0'}
+        with self.app.app_context():
+            serialized = serialize(doc, schema=schema)
+            self.assertTrue(
+                isinstance(serialized['nested-x_of-field'], ObjectId))
+
+    def test_serialize_inside_x_of_typesavers(self):
+        for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+            schema = {
+                'x_of-field': {
+                    '{0}_type'.format(x_of): ['objectid', 'float', 'boolean']
+                }
+            }
+            doc = {'x_of-field': '50656e4538345b39dd0414f0'}
+            with self.app.app_context():
+                serialized = serialize(doc, schema=schema)
+                self.assertTrue(isinstance(serialized['x_of-field'], ObjectId))
 
 
 class TestNormalizeDottedFields(TestBase):
@@ -345,6 +435,24 @@ class TestOpLogEndpointEnabled(TestOpLogBase):
         self.assertEqual(len(r['_items']), 1)
         oplog_entry = r['_items'][0]
         self.assertOpLogEntry(oplog_entry, 'DELETE')
+
+    def test_soft_delete_oplog(self):
+        r, s = self.parse_response(self.test_client.get(self.item_id_url))
+        doc_date = r[config.LAST_UPDATED]
+        time.sleep(1)
+
+        self.domain[self.known_resource]['soft_delete'] = True
+
+        self.headers.append(('If-Match', self.item_etag))
+        r = self.test_client.delete(self.item_id_url,
+                                    headers=self.headers,
+                                    environ_base={'REMOTE_ADDR': '127.0.0.1'})
+        r, status = self.oplog_get()
+        self.assert200(status)
+        self.assertEqual(len(r['_items']), 1)
+        oplog_entry = r['_items'][0]
+        self.assertOpLogEntry(oplog_entry, 'DELETE')
+        self.assertTrue(doc_date != oplog_entry[config.LAST_UPDATED])
 
     def patch(self, url, data, headers=[], content_type='application/json'):
         headers.append(('Content-Type', content_type))

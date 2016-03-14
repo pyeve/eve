@@ -6,7 +6,7 @@
 
     Allow API endpoints to be secured via BasicAuth and derivates.
 
-    :copyright: (c) 2015 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 from flask import request, Response, current_app as app, g, abort
@@ -226,8 +226,8 @@ class TokenAuth(BasicAuth):
         raise NotImplementedError
 
     def authenticate(self):
-        """ Returns a standard a 401 response that enables basic auth.
-        Override if you want to change the response and/or the realm.
+        """ Returns a standard a 401. Override if you want to change the
+        response.
         """
         resp = Response(None, 401, {'WWW-Authenticate': 'Basic realm="%s"' %
                                     __package__})
@@ -241,8 +241,20 @@ class TokenAuth(BasicAuth):
                               string or a list of roles.
         :param resource: resource being requested.
         """
-        auth = request.authorization
-        return auth and self.check_auth(auth.username, allowed_roles, resource,
+        auth = None
+        if hasattr(request.authorization, 'username'):
+            auth = request.authorization.username
+
+        # Werkzeug parse_authorization does not handle
+        # "Authorization: <token>" or
+        # "Authorization: Token <token>"
+        # headers, therefore they should be explicitly handled
+        if not auth and request.headers.get('Authorization'):
+            auth = request.headers.get('Authorization').strip().lower()
+            if auth.startswith('token'):
+                auth = auth.split(' ')[1]
+
+        return auth and self.check_auth(auth, allowed_roles, resource,
                                         method)
 
 

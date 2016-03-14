@@ -6,7 +6,7 @@
 
     This module imlements the DELETE method.
 
-    :copyright: (c) 2015 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -119,6 +119,9 @@ def deleteitem_internal(
         late_versioning_catch(original, resource)
         # and add deleted version
         insert_versioning_documents(resource, marked_document)
+        # update oplog if needed
+        oplog_push(resource, marked_document, 'DELETE', id)
+
     else:
         # Delete the document for real
 
@@ -152,8 +155,8 @@ def deleteitem_internal(
                 {versioned_id_field(resource_def):
                  original[resource_def['id_field']]})
 
-    # update oplog if needed
-    oplog_push(resource, original, 'DELETE', id)
+        # update oplog if needed
+        oplog_push(resource, original, 'DELETE', id)
 
     if suppress_callbacks is not True:
         getattr(app, "on_deleted_item")(resource, original)

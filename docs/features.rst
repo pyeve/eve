@@ -897,10 +897,10 @@ Limitations
 ~~~~~~~~~~~
 Currently we support embedding of documents by references located in any
 subdocuments (nested dicts and lists). For example, a query
-``/invoices?/embedded={"user.friends":1}`` will return a document with ``user``
+``/invoices/?embedded={"user.friends":1}`` will return a document with ``user``
 and all his ``friends`` embedded, but only if ``user`` is a subdocument and
 ``friends`` is a list of reference (it could be a list of dicts, nested
-dict, ect.). This feature is about serialization on GET requests. There's no
+dict, etc.). This feature is about serialization on GET requests. There's no
 support for POST, PUT or PATCH of embedded documents.
 
 Document embedding is enabled by default.
@@ -981,6 +981,14 @@ PATCH requests, only the fields to be changed in the restored version would be
 specified, or an empty request would be made to restore the document as is. The
 request must be made with proper authorization for write permission to the soft
 deleted document or it will be refused.
+
+Be aware that, should a previously soft deleted document be restored, there is
+a chance that an eventual unique field might end up being now duplicated in two
+different documents: the restored one, and another which might have been stored
+with the same field value while the original (now restored) was in 'deleted'
+state. This is because soft deleted documents are ignored when validating the
+`unique` rule for new or updated documents.
+
 
 Versioning
 ~~~~~~~~~~

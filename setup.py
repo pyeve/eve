@@ -9,13 +9,13 @@ install_requires = [
     'cerberus>=0.9.2,<0.10',
     'events>=0.2.1,<0.3',
     'simplejson>=3.3.0,<4.0',
-    'werkzeug>=0.9.4,<0.11',
+    'werkzeug>=0.9.4,<0.11.4',
     'markupsafe>=0.23,<1.0',
     'jinja2>=2.7.2,<3.0',
     'itsdangerous>=0.22,<1.0',
     'flask>=0.10.1,<0.11',
-    'pymongo>=2.8,<3.0',
-    'flask-pymongo>=0.3.0,<0.4',
+    'pymongo>=3.2',
+    'flask-pymongo>=0.4',
 ]
 
 try:
@@ -27,7 +27,7 @@ except ImportError:
 
 setup(
     name='Eve',
-    version='0.6.1',
+    version='0.6.2',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',

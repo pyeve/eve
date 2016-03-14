@@ -82,7 +82,7 @@ link <http://eve.readthedocs.org/en/stable/>`_.
 
 .. _python-eve.org: http://python-eve.org
 .. _`Eve Demo instructions`: http://github.com/nicolaiarocci/eve-demo#readme
-.. _`live demo`: http://eve-demo.herokuapp.com
+.. _`live demo`: https://eve-demo.herokuapp.com/people
 .. _`source code`: https://github.com/nicolaiarocci/eve-demo
 .. _`usage examples`: https://github.com/nicolaiarocci/eve-demo#readme
 .. _`client app`: https://github.com/nicolaiarocci/eve-demo-client

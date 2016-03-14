@@ -11,6 +11,18 @@ from eve.io.mongo import Mongo, Validator
 
 
 class TestConfig(TestBase):
+    def test_allow_unknown_with_soft_delete(self):
+        my_settings = {
+            'ALLOW_UNKNOWN': True,
+            'SOFT_DELETE': True,
+            'DOMAIN': {'contacts': {}}
+        }
+        try:
+            self.app = Eve(settings=my_settings)
+        except TypeError:
+            self.fail("ALLOW_UNKNOWN and SOFT_DELETE enabled should not cause "
+                      "a crash.")
+
     def test_default_import_name(self):
         self.assertEqual(self.app.import_name, eve.__package__)
 
@@ -154,6 +166,25 @@ class TestConfig(TestBase):
         del(schema['person']['data_relation']['resource'])
         self.assertValidateSchemaFailure('invoices', schema, 'resource')
 
+    def test_validate_invalid_field_names(self):
+        schema = self.domain['invoices']['schema']
+        schema['te$t'] = {'type': 'string'}
+        self.assertValidateSchemaFailure('invoices', schema, 'te$t')
+        del(schema['te$t'])
+
+        schema['te.t'] = {'type': 'string'}
+        self.assertValidateSchemaFailure('invoices', schema, 'te.t')
+        del(schema['te.t'])
+
+        schema['test_a_dict_schema'] = {
+            'type': 'dict',
+            'schema': {'te$t': {'type': 'string'}}
+        }
+        self.assertValidateSchemaFailure('invoices', schema, 'te$t')
+
+        schema['test_a_dict_schema']['schema'] = {'te.t': {'type': 'string'}}
+        self.assertValidateSchemaFailure('invoices', schema, 'te.t')
+
     def test_set_schema_defaults(self):
         # default data_relation field value
         schema = self.domain['invoices']['schema']
@@ -163,8 +194,7 @@ class TestConfig(TestBase):
                          self.domain['contacts']['id_field'])
         id_field = self.domain['invoices']['id_field']
         self.assertTrue(id_field in schema)
-        self.assertEqual(schema[id_field],
-                         {'type': 'objectid', 'unique': True})
+        self.assertEqual(schema[id_field], {'type': 'objectid'})
 
     def test_set_defaults(self):
         self.domain.clear()

@@ -8,7 +8,7 @@
     home) invokes the appropriate method handler, returning its response
     to the client, properly rendered.
 
-    :copyright: (c) 2015 by Nicola Iarocci.
+    :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 from bson import tz_util
