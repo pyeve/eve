@@ -3,11 +3,13 @@ Changelog
 
 Here you can see the full list of changes between each Eve release.
 
-In Development
---------------
+Stable
+------
 
 Version 0.6.2
 ~~~~~~~~~~~~~
+
+Released on 14 March, 2016
 
 - Fix: ``Access-Control-Allow-Max-Age`` should actually be
   ``Access-Control-Max-Age``. Closes #829.
@@ -54,10 +56,6 @@ Version 0.6.2
 - Docs: fix some typos (Manquer, Patrick Decat).
 - Docs: add missing imports to authentication docs (Hamdy)
 - Update license to 2016 (Prayag Verma)
-
-
-Stable
-------
 
 Version 0.6.1
 ~~~~~~~~~~~~~
