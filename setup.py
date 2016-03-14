@@ -9,12 +9,12 @@ install_requires = [
     'cerberus>=0.9.2,<0.10',
     'events>=0.2.1,<0.3',
     'simplejson>=3.3.0,<4.0',
-    'werkzeug>=0.9.4,<0.11',
+    'werkzeug>=0.9.4,<0.11.4',
     'markupsafe>=0.23,<1.0',
     'jinja2>=2.7.2,<3.0',
     'itsdangerous>=0.22,<1.0',
     'flask>=0.10.1,<0.11',
-    'pymongo>=3.1',
+    'pymongo>=3.2',
     'flask-pymongo>=0.4',
 ]
 
