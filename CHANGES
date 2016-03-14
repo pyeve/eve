@@ -81,8 +81,10 @@ Version 0.6.2
 - Fix: When ``SOFT_DELETE`` is active an exclusive ``datasource.projection``
   causes a ``500`` error. Closes #752.
 
-- Update: PyMongo 3.1 is now required.
+- Update: PyMongo 3.2 is now required.
 - Update: Flask-PyMongo 0.4+ is now required.
+- Update: Werkzeug up to 0.11.4 is now required
+- Change: simplejson v3.8.2 is now required.
 
 - Docs: fix some typos (Manquer, Patrick Decat).
 - Docs: add missing imports to authentication docs (Hamdy)
