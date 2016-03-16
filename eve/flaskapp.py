@@ -656,7 +656,10 @@ class Eve(Flask, Events):
         # with automatic fields. Using both inclusion and exclusion will
         # be rejected by Mongo
         if not exclusion and len(schema) and \
-                settings['allow_unknown'] is False:
+           settings['allow_unknown'] is False:
+            if not projection:
+                projection.update(dict((field, 1) for (field) in schema))
+
             # enable retrieval of actual schema fields only. Eventual db
             # fields not included in the schema won't be returned.
             # despite projection, automatic fields are always included.
@@ -669,7 +672,6 @@ class Eve(Flask, Events):
                 projection[
                     settings['id_field'] +
                     self.config['VERSION_ID_SUFFIX']] = 1
-            projection.update(dict((field, 1) for (field) in schema))
         else:
             # all fields are returned.
             projection = None

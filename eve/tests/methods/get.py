@@ -296,6 +296,28 @@ class TestGet(TestBase):
             self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
             self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
 
+    def test_get_static_projection(self):
+        """ Test that static projections are honoured """
+        response, status = self.get(self.different_resource)
+        self.assert200(status)
+
+        resource = response['_items']
+
+        # 'users' has a static inclusive projection with 'username' and 'ref'
+        # fields, so other document fields should be excluded.
+        for r in resource:
+            self.assertFalse('location' in r)
+            self.assertFalse('role' in r)
+            self.assertFalse('prog' in r)
+            self.assertTrue('username' in r)
+            self.assertTrue('ref' in r)
+            self.assertTrue(self.domain[self.known_resource]['id_field'] in r)
+            self.assertTrue(self.app.config['ETAG'] in r)
+            self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+            self.assertTrue(self.app.config['DATE_CREATED'] in r)
+            self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+            self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
+
     def test_get_custom_projection(self):
         self.app.config['QUERY_PROJECTION'] = 'view'
         projection = '{"prog": 1}'
