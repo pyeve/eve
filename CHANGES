@@ -39,13 +39,16 @@ Version 0.7
 - Fix: ETag request headers which conform to RFC 7232/2.3 (double quoted value)
   are now properly processed. Addresses #794.
 
+Stable
+------
+
 Version 0.6.3
 ~~~~~~~~~~~~~
 
+Released on 16 March, 2016
+
 - Fix: Since 0.6.2, static projections are not honoured. Closes #837.
 
-Stable
-------
 
 Version 0.6.2
 ~~~~~~~~~~~~~
