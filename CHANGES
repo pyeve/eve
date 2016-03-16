@@ -6,8 +6,13 @@ Here you can see the full list of changes between each Eve release.
 Stable
 ------
 
+Stable
+------
+
 Version 0.6.3
 ~~~~~~~~~~~~~
+
+Released on 16 March, 2016
 
 - Fix: Since 0.6.2, static projections are not honoured. Closes #837.
 
