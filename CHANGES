@@ -43,6 +43,13 @@ Version 0.7
 - Fix: ETag request headers which conform to RFC 7232/2.3 (double quoted value)
   are now properly processed. Addresses #794.
 
+Version 0.6.4
+~~~~~~~~~~~~~
+
+- Fix: If datasource source is specified no fields are included by default.
+  Closes #842.
+
+
 Stable
 ------
 

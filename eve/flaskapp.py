@@ -644,13 +644,18 @@ class Eve(Flask, Events):
     def _set_resource_projection(self, ds, schema, settings):
         """ Set datasource projection for a resource
 
-        .. versionadded:: 0.7
+        .. versionchanged:: 0.6.3
+           Fix: If datasource source is specified no fields are included by
+           default. Closes #842.
+
+        .. versionadded:: 0.6.2
         """
 
         projection = ds.get('projection', {})
 
         # check if any exclusion projection is defined
-        exclusion = any(((k, v) for k, v in projection.items() if v == 0))
+        exclusion = any(((k, v) for k, v in projection.items() if v == 0)) \
+            if projection else None
 
         # If no exclusion projection is defined, enhance the projection
         # with automatic fields. Using both inclusion and exclusion will
