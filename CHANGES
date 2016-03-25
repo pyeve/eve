@@ -6,6 +6,13 @@ Here you can see the full list of changes between each Eve release.
 Stable
 ------
 
+Version 0.6.4
+~~~~~~~~~~~~~
+
+- Fix: If datasource source is specified no fields are included by default.
+  Closes #842.
+
+
 Stable
 ------
 

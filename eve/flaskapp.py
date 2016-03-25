@@ -608,10 +608,32 @@ class Eve(Flask, Events):
         ds.setdefault('filter', None)
         ds.setdefault('default_sort', None)
 
+        self._set_resource_projection(ds, schema, settings)
+
+        aggregation = ds.setdefault('aggregation', None)
+        if aggregation:
+            aggregation.setdefault('options', {})
+
+            # endpoints serving aggregation queries are read-only and do not
+            # support item lookup.
+            settings['resource_methods'] = ['GET']
+            settings['item_lookup'] = False
+
+    def _set_resource_projection(self, ds, schema, settings):
+        """ Set datasource projection for a resource
+
+        .. versionchanged:: 0.6.3
+           Fix: If datasource source is specified no fields are included by
+           default. Closes #842.
+
+        .. versionadded:: 0.6.2
+        """
+
         projection = ds.get('projection', {})
 
         # check if any exclusion projection is defined
-        exclusion = any(((k, v) for k, v in projection.items() if v == 0))
+        exclusion = any(((k, v) for k, v in projection.items() if v == 0)) \
+            if projection else None
 
         # If no exclusion projection is defined, enhance the projection
         # with automatic fields. Using both inclusion and exclusion will
