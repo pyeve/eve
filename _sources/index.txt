@@ -75,9 +75,8 @@ link <http://eve.readthedocs.org/en/stable/>`_.
 .. [*] SQLALchemy support is provided by the awesome eve-sqlalchemy_ extension.
 
 .. note::
-   This documentation is under development. Please refer to the links on the
-   sidebar for more information, or to get in touch with the development team
-   (that being me_).
+   This documentation is under costant development. Please refer to the links
+   on the sidebar for more information. 
 
 
 .. _python-eve.org: http://python-eve.org
@@ -86,7 +85,6 @@ link <http://eve.readthedocs.org/en/stable/>`_.
 .. _`source code`: https://github.com/nicolaiarocci/eve-demo
 .. _`usage examples`: https://github.com/nicolaiarocci/eve-demo#readme
 .. _`client app`: https://github.com/nicolaiarocci/eve-demo-client
-.. _me: mailto:me@nicolaiarocci.com
 .. _Postman: https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&ved=0CC0QFjAA&url=https%3A%2F%2Fchrome.google.com%2Fwebstore%2Fdetail%2Fpostman-rest-client%2Ffdmmgilgnpjigdojojpjoooidkmcomcm&ei=dPQ7UpqEBISXtAbPpIGwDg&usg=AFQjCNFL71vN61QG0LKlw7VDJvIZDprjHA&bvm=bv.52434380,d.Yms
 
 .. _Flask: http://flask.pocoo.org/
