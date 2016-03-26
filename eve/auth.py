@@ -9,7 +9,13 @@
     :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-from flask import request, Response, current_app as app, g, abort
+import re
+
+from flask import Response
+from flask import abort
+from flask import current_app as app
+from flask import g
+from flask import request
 from functools import wraps
 
 
@@ -245,17 +251,24 @@ class TokenAuth(BasicAuth):
         if hasattr(request.authorization, 'username'):
             auth = request.authorization.username
 
+        auth = self.extract_token(auth, request.headers)
+
+        return auth and self.check_auth(auth, allowed_roles, resource, method)
+
+    def extract_token(self, auth, headers):
         # Werkzeug parse_authorization does not handle
         # "Authorization: <token>" or
         # "Authorization: Token <token>"
         # headers, therefore they should be explicitly handled
-        if not auth and request.headers.get('Authorization'):
-            auth = request.headers.get('Authorization').strip().lower()
-            if auth.startswith('token'):
-                auth = auth.split(' ')[1]
-
-        return auth and self.check_auth(auth, allowed_roles, resource,
-                                        method)
+        auth_header = headers.get('Authorization')
+        if not auth and auth_header:
+            auth = auth_header.strip()
+            # Matches any value that starts with header and has some whitespace
+            # before the token
+            match = re.search('token[\s]+(.*)', auth, re.IGNORECASE)
+            if match and len(match.groups()) == 1:
+                auth = match.group(1).strip()
+        return auth
 
 
 def auth_field_and_value(resource):

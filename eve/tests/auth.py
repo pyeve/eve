@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
-from bson import ObjectId
-
 import eve
 import json
+
+from bson import ObjectId
 from eve import Eve
-from eve.auth import BasicAuth, TokenAuth, HMACAuth
+from eve.auth import BasicAuth
+from eve.auth import HMACAuth
+from eve.auth import TokenAuth
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
+from nose_parameterized import parameterized
+from unittest import TestCase
 
 
 class ValidBasicAuth(BasicAuth):
@@ -289,6 +293,30 @@ class TestCustomTokenAuth(TestTokenAuth):
         r = self.test_client.get('/', headers=self.valid_auth)
         # will fail because check_auth() is not implemented in the custom class
         self.assert500(r.status_code)
+
+
+class TestTokenAuthImplemented(TestCase):
+    test_token = 'aTestTOKEN123'
+
+    def setUp(self):
+        self.token_auth = TokenAuth()
+
+    @parameterized.expand([
+        (None, {'INVALID_KEY': '%s' % test_token}, None),
+        ('auth', {'INVALID_KEY': '%s' % test_token}, 'auth'),
+        ('auth', {'Authorization': '%s' % test_token}, 'auth'),
+        (None, {'Authorization': '%s' % test_token}, test_token),
+        (None, {'Authorization': '  %s  ' % test_token}, test_token),
+        (None, {'Authorization': 'Token %s ' % test_token}, test_token),
+        (None, {'Authorization': '  token %s' % test_token}, test_token),
+        (None, {'Authorization': 'ToKen %s' % test_token}, test_token),
+        (None, {'Authorization': 'ToKen  %s' % test_token}, test_token),
+    ])
+    def test_extract_token_method(self, auth, headers, expected):
+        extract_token = self.token_auth.extract_token
+
+        # Token should be untampered
+        self.assertEqual(extract_token(auth, headers), expected)
 
 
 class TestHMACAuth(TestBasicAuth):
