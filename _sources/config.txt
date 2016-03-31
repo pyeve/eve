@@ -1237,6 +1237,9 @@ defining the field validation rules. Allowed validation rules are:
                                       }
                                     }
 
+``versioning``                  Enabled documents version control when ``True``. 
+                                Defaults to ``False``.
+
 ``versioned``                   If ``True``, this field will be included in the
                                 versioned history of each document when
                                 ``versioning`` is enabled. Defaults to ``True``.

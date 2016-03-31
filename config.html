@@ -1440,52 +1440,56 @@ of elements and each element being a <tt class="docutils literal"><span class="p
 </div>
 </td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">versioned</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">versioning</span></tt></td>
+<td>Enabled documents version control when <tt class="docutils literal"><span class="pre">True</span></tt>.
+Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">versioned</span></tt></td>
 <td>If <tt class="docutils literal"><span class="pre">True</span></tt>, this field will be included in the
 versioned history of each document when
 <tt class="docutils literal"><span class="pre">versioning</span></tt> is enabled. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">valueschema</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">valueschema</span></tt></td>
 <td>Validation schema for all values of a <tt class="docutils literal"><span class="pre">dict</span></tt>.
 The dict can have arbitrary keys, the values
 for all of which must validate with given
 schema. See <a class="reference external" href="http://docs.python-cerberus.org/en/latest/usage.html#valueschema">valueschema example</a>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">propertyschema</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">propertyschema</span></tt></td>
 <td>This is the counterpart to <tt class="docutils literal"><span class="pre">valueschema</span></tt> that
 validates the keys of a dict.   Validation
 schema for all values of a <tt class="docutils literal"><span class="pre">dict</span></tt>. See
 <a class="reference external" href="http://docs.python-cerberus.org/en/latest/usage.html#propertyschema">propertyschema example</a>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">regex</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">regex</span></tt></td>
 <td>Validation will fail if field value does not
 match the provided regex rule. Only applies to
 string fields. See <a class="reference external" href="http://docs.python-cerberus.org/en/latest/usage.html#regex">email validation example</a></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">dependencies</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">dependencies</span></tt></td>
 <td>This rule allows a list of fields that must be
 present in order for the target field to be
 allowed. See <a class="reference external" href="http://docs.python-cerberus.org/en/latest/usage.html#dependencies">dependencies example</a></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">anyof</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">anyof</span></tt></td>
 <td>This rule allows you to list multiple sets of
 rules to validate against. The field will be
 considered valid if it validates against one
 set in the list. See <a class="reference external" href="http://docs.python-cerberus.org/en/latest/usage.html#anyof">anyof example</a></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">allof</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">allof</span></tt></td>
 <td>Same as <tt class="docutils literal"><span class="pre">anyof</span></tt>, except that all rule
 collections in the list must validate.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">noneof</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">noneof</span></tt></td>
 <td>Same as <tt class="docutils literal"><span class="pre">anyof</span></tt>, except that it requires no
 rule collections in the list to validate.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">oneof</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">oneof</span></tt></td>
 <td>Same as <tt class="docutils literal"><span class="pre">anyof</span></tt>, except that only one rule
 collections in the list can validate.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">coerce</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">coerce</span></tt></td>
 <td>Type coercion allows you to apply a callable to
 a value before any other validators run. The
 return value of the callable replaces the new
