@@ -49,6 +49,9 @@ Version 0.6.4
 - Fix: If datasource source is specified no fields are included by default.
   Closes #842.
 
+- Docs: Resource configuration doesn't mention ``versioning`` override. Closes
+  #845.
+
 
 Stable
 ------
