@@ -1836,8 +1836,11 @@ Like any other API-maintained document, oplog entries also expose:
 - ETag
 - HATEOAS fields if that's enabled.
 
-If ``OPLOG_AUDIT`` is enabled entries also expose both client IP and changes
-applied to the document (for ``DELETE`` the whole document is included). 
+If ``OPLOG_AUDIT`` is enabled entries also expose:
+
+- client IP
+- Username or token, if available
+- changes applied to the document (for ``DELETE`` the whole document is included). 
 
 A typical oplog entry looks like this:
 
@@ -1849,6 +1852,7 @@ A typical oplog entry looks like this:
         "i": "542d118938345b614ea75b3c",
         "c": {...},
         "ip": "127.0.0.1",
+        "u": "admin",
         "_updated": "Fri, 03 Oct 2014 08:16:52 GMT", 
         "_created": "Fri, 03 Oct 2014 08:16:52 GMT",
         "_etag": "e17218fbca41cb0ee6a5a5933fb9ee4f4ca7e5d6"
@@ -1862,6 +1866,7 @@ To save a little space (at least on MongoDB) field names have been shortened:
 - ``r`` stands for resource endpoint
 - ``i`` stands for document id
 - ``ip`` is the client IP
+- ``u`` stands for user (or token) 
 - ``c`` stands for changes occurred 
   
 ``_created`` and ``_updated`` are relative to the target document, which comes

@@ -9,6 +9,9 @@ In Development
 Version 0.7
 ~~~~~~~~~~~
 
+- New: OPLOG audit informations now include the user (or token) who perfomrd
+  the operation, if available. Closes #846. 
+
 - New ``get_internal`` and ``getitem_internal`` functions can be used for
   internal GET calls. These methods are not rate limited, authentication is not
   checked and pre-request events are not raised.

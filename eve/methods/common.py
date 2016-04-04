@@ -1041,6 +1041,9 @@ def oplog_push(resource, document, op, id=None):
     :param op: operation performed. Can be 'POST', 'PUT', 'PATCH', 'DELETE'.
     :param id: unique id of the document.
 
+    .. versionchanged:: 0.7
+       Add user information to the audit. Closes #846.
+
     .. versionchanged:: 0.5.4
        Use a copy of original document in order to avoid altering its state.
        See #590.
@@ -1074,11 +1077,10 @@ def oplog_push(resource, document, op, id=None):
             last_update = datetime.utcnow().replace(microsecond=0)
         entry[config.LAST_UPDATED] = entry[config.DATE_CREATED] = last_update
         if config.OPLOG_AUDIT:
-
-            # TODO this needs further investigation. See:
-            # http://esd.io/blog/flask-apps-heroku-real-ip-spoofing.html;
-            # https://stackoverflow.com/questions/22868900/how-do-i-safely-get-the-users-real-ip-address-in-flask-using-mod-wsgi
             entry['ip'] = request.remote_addr
+
+            auth = resource_def['authentication']
+            entry['u'] = auth.get_user_or_token() if auth else 'n/a'
 
             if op in config.OPLOG_CHANGE_METHODS:
                 # these fields are already contained in 'entry'.

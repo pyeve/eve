@@ -911,6 +911,9 @@ class Eve(Flask, Events):
     def _init_oplog(self):
         """ If enabled, configures the OPLOG endpoint.
 
+        .. versionchanged:: 0.7
+           Add 'u' field to oplog audit schema. See #846.
+
         .. versionadded:: 0.5
         """
         name, endpoint, audit = (
@@ -947,7 +950,8 @@ class Eve(Flask, Events):
             settings['schema'].update(
                 {
                     'ip': {},
-                    'c': {}
+                    'c': {},
+                    'u': {},
                 }
             )
 
