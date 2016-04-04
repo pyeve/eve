@@ -1814,8 +1814,12 @@ they would with any other API endpoint.</p>
 <li>ETag</li>
 <li>HATEOAS fields if that&#8217;s enabled.</li>
 </ul>
-<p>If <tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt> is enabled entries also expose both client IP and changes
-applied to the document (for <tt class="docutils literal"><span class="pre">DELETE</span></tt> the whole document is included).</p>
+<p>If <tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt> is enabled entries also expose:</p>
+<ul class="simple">
+<li>client IP</li>
+<li>Username or token, if available</li>
+<li>changes applied to the document (for <tt class="docutils literal"><span class="pre">DELETE</span></tt> the whole document is included).</li>
+</ul>
 <p>A typical oplog entry looks like this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
     <span class="s">&quot;o&quot;</span><span class="p">:</span> <span class="s">&quot;DELETE&quot;</span><span class="p">,</span>
@@ -1823,6 +1827,7 @@ applied to the document (for <tt class="docutils literal"><span class="pre">DELE
     <span class="s">&quot;i&quot;</span><span class="p">:</span> <span class="s">&quot;542d118938345b614ea75b3c&quot;</span><span class="p">,</span>
     <span class="s">&quot;c&quot;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">},</span>
     <span class="s">&quot;ip&quot;</span><span class="p">:</span> <span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span>
+    <span class="s">&quot;u&quot;</span><span class="p">:</span> <span class="s">&quot;admin&quot;</span><span class="p">,</span>
     <span class="s">&quot;_updated&quot;</span><span class="p">:</span> <span class="s">&quot;Fri, 03 Oct 2014 08:16:52 GMT&quot;</span><span class="p">,</span>
     <span class="s">&quot;_created&quot;</span><span class="p">:</span> <span class="s">&quot;Fri, 03 Oct 2014 08:16:52 GMT&quot;</span><span class="p">,</span>
     <span class="s">&quot;_etag&quot;</span><span class="p">:</span> <span class="s">&quot;e17218fbca41cb0ee6a5a5933fb9ee4f4ca7e5d6&quot;</span>
@@ -1837,6 +1842,7 @@ applied to the document (for <tt class="docutils literal"><span class="pre">DELE
 <li><tt class="docutils literal"><span class="pre">r</span></tt> stands for resource endpoint</li>
 <li><tt class="docutils literal"><span class="pre">i</span></tt> stands for document id</li>
 <li><tt class="docutils literal"><span class="pre">ip</span></tt> is the client IP</li>
+<li><tt class="docutils literal"><span class="pre">u</span></tt> stands for user (or token)</li>
 <li><tt class="docutils literal"><span class="pre">c</span></tt> stands for changes occurred</li>
 </ul>
 <p><tt class="docutils literal"><span class="pre">_created</span></tt> and <tt class="docutils literal"><span class="pre">_updated</span></tt> are relative to the target document, which comes
