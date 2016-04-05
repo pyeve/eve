@@ -9,8 +9,15 @@ In Development
 Version 0.7
 ~~~~~~~~~~~
 
-- New: OPLOG audit informations now include the user (or token) who perfomrd
-  the operation, if available. Closes #846. 
+- New: ``on_oplog_push`` event is fired when OPLOG is about to be updated.
+  Callbacks receive two arguments: ``resource`` (resource name) and ``entries``
+  (list of oplog entries which are about to be written). 
+
+- New: optional ``extra`` field is available for OPLOG entries. Can be updated
+  by callbacks hooked to the new ``on_oplog_push`` event.
+
+- New: OPLOG audit now include the username or token when available. Closes
+  #846. 
 
 - New ``get_internal`` and ``getitem_internal`` functions can be used for
   internal GET calls. These methods are not rate limited, authentication is not

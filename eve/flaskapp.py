@@ -916,10 +916,11 @@ class Eve(Flask, Events):
 
         .. versionadded:: 0.5
         """
-        name, endpoint, audit = (
+        name, endpoint, audit, extra = (
             self.config['OPLOG_NAME'],
             self.config['OPLOG_ENDPOINT'],
-            self.config['OPLOG_AUDIT']
+            self.config['OPLOG_AUDIT'],
+            self.config['OPLOG_RETURN_EXTRA_FIELD']
         )
 
         settings = self.config['DOMAIN'].setdefault(name, {})
@@ -946,6 +947,10 @@ class Eve(Flask, Events):
             'o': {},
             'i': {},
         }
+        if extra:
+            settings['schema'].update(
+                {'extra': {}}
+            )
         if audit:
             settings['schema'].update(
                 {

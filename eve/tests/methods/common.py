@@ -428,6 +428,12 @@ class TestOpLogBase(TestBase):
         self.app._init_oplog()
         self.app.register_resource('oplog', self.domain['oplog'])
 
+        settings = self.app.config['DOMAIN']['oplog']
+        datasource = settings['datasource']
+        schema = settings['schema']
+        datasource['projection'] = {}
+        self.app._set_resource_projection(datasource, schema, settings)
+
     def oplog_get(self, url='/oplog'):
         r = self.test_client.get(url)
         return self.parse_response(r)
@@ -483,6 +489,47 @@ class TestOpLogEndpointEnabled(TestOpLogBase):
         self.app.config['OPLOG_ENDPOINT'] = 'oplog'
         self.oplog_reset()
 
+    def test_oplog_hook(self):
+        def oplog_callback(resource, entries):
+            for entry in entries:
+                entry['extra'] = {'customfield': 'customvalue'}
+
+        self.app.on_oplog_push += oplog_callback
+
+        r = self.test_client.post(self.known_resource_url,
+                                  data=json.dumps(self.data),
+                                  headers=self.headers,
+                                  environ_base={'REMOTE_ADDR': '127.0.0.1'})
+
+        # oplog enpoint does not expose the 'extra' field
+        r, status = self.oplog_get()
+        self.assert200(status)
+        self.assertEqual(len(r['_items']), 1)
+        oplog_entry = r['_items'][0]
+        self.assertOpLogEntry(oplog_entry, 'POST')
+        self.assertTrue('extra' not in oplog_entry)
+
+        # however the oplog collection has the field.
+        db = self.connection[MONGO_DBNAME]
+        cursor = db.oplog.find()
+        self.assertEqual(cursor.count(), 1)
+        oplog_entry = cursor[0]
+        self.assertTrue('extra' in oplog_entry)
+        self.assertTrue('customvalue' in oplog_entry['extra']['customfield'])
+
+        # enable 'extra' field for the endpoint
+        self.app.config['OPLOG_RETURN_EXTRA_FIELD'] = True
+        self.oplog_reset()
+
+        # now the oplog endpoint includes the 'extra' field
+        r, status = self.oplog_get()
+        self.assert200(status)
+        self.assertEqual(len(r['_items']), 1)
+        oplog_entry = r['_items'][0]
+        self.assertOpLogEntry(oplog_entry, 'POST')
+        self.assertTrue('extra' in oplog_entry)
+        self.assertTrue('customvalue' in oplog_entry['extra']['customfield'])
+
     def test_post_oplog(self):
         r = self.test_client.post(self.known_resource_url,
                                   data=json.dumps(self.data),
@@ -493,6 +540,7 @@ class TestOpLogEndpointEnabled(TestOpLogBase):
         self.assertEqual(len(r['_items']), 1)
         oplog_entry = r['_items'][0]
         self.assertOpLogEntry(oplog_entry, 'POST')
+        self.assertTrue('extra' not in oplog_entry)
 
     def test_patch_oplog(self):
         self.headers.append(('If-Match', self.item_etag))

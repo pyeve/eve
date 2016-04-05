@@ -1829,6 +1829,7 @@ Every oplog entry contains informations about the document and the operation:
 - Creation date
 - Resource endpoint URL
 - User token, if :ref:`user-restricted` is enabled for the endpoint
+- Optional custom data
 
 Like any other API-maintained document, oplog entries also expose:
 
@@ -1868,6 +1869,7 @@ To save a little space (at least on MongoDB) field names have been shortened:
 - ``ip`` is the client IP
 - ``u`` stands for user (or token) 
 - ``c`` stands for changes occurred 
+- ``extra`` is an optional field which you can use to store custom data
   
 ``_created`` and ``_updated`` are relative to the target document, which comes
 handy in a variety of scenarios (like when the oplog is available to clients,
@@ -1888,6 +1890,8 @@ Six settings are dedicated to the OpLog:
 - ``OPLOG_ENDPOINT`` is the endpoint name. Defaults to ``None``.
 - ``OPLOG_AUDIT`` if enabled, IP addresses and changes are also logged. Defaults to ``True``.
 - ``OPLOG_CHANGE_METHODS`` determines which methods will log changes. Defaults to ['PATCH', 'PUT', 'DELETE'].
+- ``OPLOG_RETURN_EXTRA_FIELD`` determines if the optional ``extra`` field
+  should be returned by the ``OPLOG_ENDPOINT``. Defaults to ``False``.
 
 As you can see the oplog feature is turned off by default. Also, since
 ``OPLOG_ENDPOINT`` defaults to ``None``, even if you switch the feature on no
@@ -1897,9 +1901,9 @@ endpoint name in order to expose your oplog to the public.
 The Oplog endpoint
 ~~~~~~~~~~~~~~~~~~
 Since the oplog endpoint is nothing but a standard API endpoint, you can
-customize it. This allows for setting up custom authentication
-(you might want this resource to be only accessible for administrative
-purposes) or any other useful setting. 
+customize it. This allows for setting up custom authentication (you might want
+this resource to be only accessible for administrative purposes) or any other
+useful setting. 
 
 Note that while you can change most of its settings, the endpoint will always
 be read-only so setting either ``resource_methods`` or ``item_methods`` to
@@ -1915,6 +1919,32 @@ since their last access. That’s a single request versus several. This is not
 always the best approach a client could take. Sometimes it is probably better
 to only query for changes on a certain endpoint. That's also possible, just
 query the oplog for changes occured on that endpoint.
+
+Extending Oplog entries
+~~~~~~~~~~~~~~~~~~~~~~~
+Every time the oplog is about to be updated the ``on_oplog_push`` event is fired.
+You can hook one or more callback functions to this event. Callbacks receive
+``resource`` and ``entries`` as arguments. The former is the resource name
+while the latter is a list of oplog entries which are about to be written to
+disk. 
+
+Your callback can add an optional ``extra`` field to canonical oplog entries.
+The field can be of any type. In this example we are adding a custom dict to
+each entry:
+
+.. code-block:: python
+
+    def oplog_extras(resource, entries):
+        for entry in entries:
+            entry['extra'] = {'myfield': 'myvalue'}
+
+    app = Eve()
+
+    app.on_oplog_push += oplog_extras
+    app.run()
+
+Please note that unless you explictly set ``OPLOG_RETURN_EXTRA_FIELD`` to
+``True``, the ``extra`` field will *not* be returned by the ``OPLOG_ENDPOINT``.
 
 .. note:: 
 

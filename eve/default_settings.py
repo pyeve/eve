@@ -11,6 +11,9 @@
     :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.7
+       'OPLOG_RETURN_EXTRA_FIELD' added and set to False.
+
     .. versionchanged:: 0.6
        'UPSERT_ON_PUT? added and set to True.
        'STANDARD_ERRORS' added.
@@ -169,6 +172,7 @@ OPLOG_METHODS = ['DELETE',
 OPLOG_CHANGE_METHODS = ['DELETE',
                         'PATCH',
                         'PUT']  # methods which write changes to the oplog
+OPLOG_RETURN_EXTRA_FIELD = False    # oplog does not return the 'extra' field.
 
 RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']

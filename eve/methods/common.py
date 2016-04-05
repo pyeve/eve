@@ -1043,6 +1043,8 @@ def oplog_push(resource, document, op, id=None):
 
     .. versionchanged:: 0.7
        Add user information to the audit. Closes #846.
+       Raise on_oplog_push event.
+       Add support for 'extra' custom field.
 
     .. versionchanged:: 0.5.4
        Use a copy of original document in order to avoid altering its state.
@@ -1098,4 +1100,7 @@ def oplog_push(resource, document, op, id=None):
         entries.append(entry)
 
     if entries:
+        # notify callbacks
+        getattr(app, "on_oplog_push")(resource, entries)
+        # oplog push
         app.data.insert(config.OPLOG_NAME, entries)
