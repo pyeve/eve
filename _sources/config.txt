@@ -627,6 +627,11 @@ uppercase.
                                     and document changes are also logged to the
                                     :ref:`oplog`. Defaults to ``True``.
 
+``OPLOG_RETURN_EXTRA_FIELD``        When enabled, the optional ``extra`` field 
+                                    will be included in the payload returned by
+                                    the ``OPLOG_ENDPOINT``. Defaults to
+                                    ``False``.
+
 ``SCHEMA_ENDPOINT``                 Name of the :ref:`schema_endpoint`. Defaults
                                     to ``None``.
 

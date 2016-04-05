@@ -58,8 +58,13 @@
 <div class="section" id="version-0-7">
 <h3>Version 0.7<a class="headerlink" href="#version-0-7" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>New: OPLOG audit informations now include the user (or token) who perfomrd
-the operation, if available. Closes #846.</li>
+<li>New: <tt class="docutils literal"><span class="pre">on_oplog_push</span></tt> event is fired when OPLOG is about to be updated.
+Callbacks receive two arguments: <tt class="docutils literal"><span class="pre">resource</span></tt> (resource name) and <tt class="docutils literal"><span class="pre">entries</span></tt>
+(list of oplog entries which are about to be written).</li>
+<li>New: optional <tt class="docutils literal"><span class="pre">extra</span></tt> field is available for OPLOG entries. Can be updated
+by callbacks hooked to the new <tt class="docutils literal"><span class="pre">on_oplog_push</span></tt> event.</li>
+<li>New: OPLOG audit now include the username or token when available. Closes
+#846.</li>
 <li>New <tt class="docutils literal"><span class="pre">get_internal</span></tt> and <tt class="docutils literal"><span class="pre">getitem_internal</span></tt> functions can be used for
 internal GET calls. These methods are not rate limited, authentication is not
 checked and pre-request events are not raised.</li>

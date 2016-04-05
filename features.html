@@ -1807,6 +1807,7 @@ they would with any other API endpoint.</p>
 <li>Creation date</li>
 <li>Resource endpoint URL</li>
 <li>User token, if <a class="reference internal" href="authentication.html#user-restricted"><em>User-Restricted Resource Access</em></a> is enabled for the endpoint</li>
+<li>Optional custom data</li>
 </ul>
 <p>Like any other API-maintained document, oplog entries also expose:</p>
 <ul class="simple">
@@ -1844,6 +1845,7 @@ they would with any other API endpoint.</p>
 <li><tt class="docutils literal"><span class="pre">ip</span></tt> is the client IP</li>
 <li><tt class="docutils literal"><span class="pre">u</span></tt> stands for user (or token)</li>
 <li><tt class="docutils literal"><span class="pre">c</span></tt> stands for changes occurred</li>
+<li><tt class="docutils literal"><span class="pre">extra</span></tt> is an optional field which you can use to store custom data</li>
 </ul>
 <p><tt class="docutils literal"><span class="pre">_created</span></tt> and <tt class="docutils literal"><span class="pre">_updated</span></tt> are relative to the target document, which comes
 handy in a variety of scenarios (like when the oplog is available to clients,
@@ -1862,6 +1864,8 @@ every insertion.</p>
 <li><tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt> is the endpoint name. Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</li>
 <li><tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt> if enabled, IP addresses and changes are also logged. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</li>
 <li><tt class="docutils literal"><span class="pre">OPLOG_CHANGE_METHODS</span></tt> determines which methods will log changes. Defaults to [&#8216;PATCH&#8217;, &#8216;PUT&#8217;, &#8216;DELETE&#8217;].</li>
+<li><tt class="docutils literal"><span class="pre">OPLOG_RETURN_EXTRA_FIELD</span></tt> determines if the optional <tt class="docutils literal"><span class="pre">extra</span></tt> field
+should be returned by the <tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt>. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</li>
 </ul>
 <p>As you can see the oplog feature is turned off by default. Also, since
 <tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt> defaults to <tt class="docutils literal"><span class="pre">None</span></tt>, even if you switch the feature on no
@@ -1871,9 +1875,9 @@ endpoint name in order to expose your oplog to the public.</p>
 <div class="section" id="the-oplog-endpoint">
 <h3>The Oplog endpoint<a class="headerlink" href="#the-oplog-endpoint" title="Permalink to this headline">¶</a></h3>
 <p>Since the oplog endpoint is nothing but a standard API endpoint, you can
-customize it. This allows for setting up custom authentication
-(you might want this resource to be only accessible for administrative
-purposes) or any other useful setting.</p>
+customize it. This allows for setting up custom authentication (you might want
+this resource to be only accessible for administrative purposes) or any other
+useful setting.</p>
 <p>Note that while you can change most of its settings, the endpoint will always
 be read-only so setting either <tt class="docutils literal"><span class="pre">resource_methods</span></tt> or <tt class="docutils literal"><span class="pre">item_methods</span></tt> to
 something other than <tt class="docutils literal"><span class="pre">['GET']</span></tt> will serve no purpose. Also, unless you need to
@@ -1887,6 +1891,29 @@ since their last access. That’s a single request versus several. This is not
 always the best approach a client could take. Sometimes it is probably better
 to only query for changes on a certain endpoint. That&#8217;s also possible, just
 query the oplog for changes occured on that endpoint.</p>
+</div>
+<div class="section" id="extending-oplog-entries">
+<h3>Extending Oplog entries<a class="headerlink" href="#extending-oplog-entries" title="Permalink to this headline">¶</a></h3>
+<p>Every time the oplog is about to be updated the <tt class="docutils literal"><span class="pre">on_oplog_push</span></tt> event is fired.
+You can hook one or more callback functions to this event. Callbacks receive
+<tt class="docutils literal"><span class="pre">resource</span></tt> and <tt class="docutils literal"><span class="pre">entries</span></tt> as arguments. The former is the resource name
+while the latter is a list of oplog entries which are about to be written to
+disk.</p>
+<p>Your callback can add an optional <tt class="docutils literal"><span class="pre">extra</span></tt> field to canonical oplog entries.
+The field can be of any type. In this example we are adding a custom dict to
+each entry:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">oplog_extras</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">entries</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+        <span class="n">entry</span><span class="p">[</span><span class="s">&#39;extra&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;myfield&#39;</span><span class="p">:</span> <span class="s">&#39;myvalue&#39;</span><span class="p">}</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">on_oplog_push</span> <span class="o">+=</span> <span class="n">oplog_extras</span>
+<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Please note that unless you explictly set <tt class="docutils literal"><span class="pre">OPLOG_RETURN_EXTRA_FIELD</span></tt> to
+<tt class="docutils literal"><span class="pre">True</span></tt>, the <tt class="docutils literal"><span class="pre">extra</span></tt> field will <em>not</em> be returned by the <tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Are you on MongoDB? Consider making the oplog a <a class="reference external" href="http://docs.mongodb.org/manual/core/capped-collections/">capped collection</a>. Also,
@@ -2132,6 +2159,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li class="toctree-l2"><a class="reference internal" href="#operations-log">Operations Log</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#how-is-the-oplog-operated">How is the oplog operated?</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#the-oplog-endpoint">The Oplog endpoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#extending-oplog-entries">Extending Oplog entries</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#the-schema-endpoint">The Schema Endpoint</a></li>
