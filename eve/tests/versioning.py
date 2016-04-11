@@ -613,10 +613,11 @@ class TestCompleteVersioning(TestNormalVersioning):
             self.assertTrue(self.version_field in item)
             self.assertTrue(self.latest_version_field in item)
 
-    def test_getitem_version_new_latest_version_invalidates_if_modified_since(self):
+    def test_getitem_version_new_latest_version_invalidates_if_modified_since(
+            self):
         """Verify that a cached document version is invalidated via
-        an 'If-Modified-Since' header when the _latest_version field has changed
-        due to creation of a new version
+        an 'If-Modified-Since' header when the _latest_version field has
+        changed due to creation of a new version
         """
         # get first version and record Last-Modified
         r = self.test_client.get(self.item_id_url + "?version=1")
@@ -641,7 +642,8 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assert200(status)
         self.assertEqual(document[self.latest_version_field], 2)
 
-    def test_getitem_version_new_latest_version_invalidates_if_none_match(self):
+    def test_getitem_version_new_latest_version_invalidates_if_none_match(
+            self):
         """Verify that a cached document version is invalidated via
         an 'If-None-Match' header when the _latest_version field has changed
         due to creation of a new version
