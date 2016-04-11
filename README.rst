@@ -75,9 +75,8 @@ Features
 
 License
 -------
-Eve is a `Nicola Iarocci`_ and `Gestionali Amica`_ open source project,
+Eve is a `Nicola Iarocci`_ open source project,
 distributed under the `BSD license
 <https://github.com/nicolaiarocci/eve/blob/master/LICENSE>`_. 
 
 .. _`Nicola Iarocci`: http://nicolaiarocci.com
-.. _`Gestionali Amica`: http://gestionaleamica.com
