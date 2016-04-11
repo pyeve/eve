@@ -9,6 +9,12 @@ In Development
 Version 0.7
 ~~~~~~~~~~~
 
+- New: Allow old document versions to be cache validated using ETags (Nick
+  Park).
+
+- New: Support weak ETags, commonly applied by servers transmitting gzipped
+  content (Nick Park).
+
 - New: ``on_oplog_push`` event is fired when OPLOG is about to be updated.
   Callbacks receive two arguments: ``resource`` (resource name) and ``entries``
   (list of oplog entries which are about to be written). 

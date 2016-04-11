@@ -613,9 +613,11 @@ class TestCompleteVersioning(TestNormalVersioning):
             self.assertTrue(self.version_field in item)
             self.assertTrue(self.latest_version_field in item)
 
-    def test_getitem_version_new_latest_version_invalidates_cache(self):
-        """Verify that a cached document version is invalidate when the
-        _latest_version field has changed due to creation of a new version
+    def test_getitem_version_new_latest_version_invalidates_if_modified_since(
+            self):
+        """Verify that a cached document version is invalidated via
+        an 'If-Modified-Since' header when the _latest_version field has
+        changed due to creation of a new version
         """
         # get first version and record Last-Modified
         r = self.test_client.get(self.item_id_url + "?version=1")
@@ -635,25 +637,37 @@ class TestCompleteVersioning(TestNormalVersioning):
         # get first version again and confirm Last-Modified and latest version
         # have been updated
         r = self.test_client.get(self.item_id_url + "?version=1", headers=[
-            ('If-None-Match', self.item_etag),
             ('If-Modified-Since', last_modified)])
         document, status = self.parse_response(r)
         self.assert200(status)
         self.assertEqual(document[self.latest_version_field], 2)
 
-    def test_getitem_version_ignores_if_none_match(self):
-        """Verify that cached old version documents cannot be validated by
-        etag alone. It is impossible to catch _latest_version changes to old
-        versioned docs with only etags.
+    def test_getitem_version_new_latest_version_invalidates_if_none_match(
+            self):
+        """Verify that a cached document version is invalidated via
+        an 'If-None-Match' header when the _latest_version field has changed
+        due to creation of a new version
         """
+        # get first version and record ETag
+        r = self.test_client.get(self.item_id_url + "?version=1")
+        document, status = self.parse_response(r)
+        self.assert200(status)
+        self.assertEqual(document[self.latest_version_field], 1)
+        version1_etag = r.headers.get('ETag')
+
+        # put a second version
         response, status = self.put(
             self.item_id_url, data=self.item_change,
             headers=[('If-Match', self.item_etag)])
         self.assertGoodPutPatch(response, status)
 
+        # get first version again and confirm latest version has been updated
         r = self.test_client.get(self.item_id_url + "?version=1", headers=[
-            ('If-None-Match', self.item_etag)])
-        self.assert200(r.status_code)
+            ('If-None-Match', version1_etag)
+        ])
+        document, status = self.parse_response(r)
+        self.assert200(status)
+        self.assertEqual(document[self.latest_version_field], 2)
 
     def test_automatic_fields(self):
         """ Make sure that Eve throws an error if we try to set a versioning

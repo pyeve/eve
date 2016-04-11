@@ -328,6 +328,13 @@ def getitem_internal(resource, **lookup):
     build_response_document(document, resource, embedded_fields, latest_doc)
     if config.IF_MATCH:
         etag = document[config.ETAG]
+        if resource_def['versioning'] is True:
+            # In order to keep the LATEST_VERSION field up to date in client
+            # caches, changes to the latest version should invalidate cached
+            # copies of previous verisons. Incorporate the latest version into
+            # versioned document ETags on the fly to ensure 'If-None-Match'
+            # comparisons support this caching behavior.
+            etag += str(document[config.LATEST_VERSION])
 
     # check embedded fields resolved in build_response_document() for more
     # recent last updated timestamps. We don't want to respond 304 if embedded
@@ -345,11 +352,8 @@ def getitem_internal(resource, **lookup):
         cache_valid = (last_modified <= req.if_modified_since)
         cache_validators[cache_valid] += 1
     if req.if_none_match:
-        if (resource_def['versioning'] is False) or \
-           (document[app.config['VERSION']] ==
-                document[app.config['LATEST_VERSION']]):
-            cache_valid = (etag == req.if_none_match)
-            cache_validators[cache_valid] += 1
+        cache_valid = (etag == req.if_none_match)
+        cache_validators[cache_valid] += 1
     # If all cache validators are true, return 304
     if (cache_validators[True] > 0) and (cache_validators[False] == 0):
         return {}, last_modified, etag, 304
