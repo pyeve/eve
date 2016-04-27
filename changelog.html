@@ -58,6 +58,10 @@
 <div class="section" id="version-0-7">
 <h3>Version 0.7<a class="headerlink" href="#version-0-7" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>New: Allow old document versions to be cache validated using ETags (Nick
+Park).</li>
+<li>New: Support weak ETags, commonly applied by servers transmitting gzipped
+content (Nick Park).</li>
 <li>New: <tt class="docutils literal"><span class="pre">on_oplog_push</span></tt> event is fired when OPLOG is about to be updated.
 Callbacks receive two arguments: <tt class="docutils literal"><span class="pre">resource</span></tt> (resource name) and <tt class="docutils literal"><span class="pre">entries</span></tt>
 (list of oplog entries which are about to be written).</li>
