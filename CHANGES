@@ -62,6 +62,7 @@ Version 0.7
 Version 0.6.4
 ~~~~~~~~~~~~~
 
+- Fix: TokenAuth prevents base64 decoding of Tokens. Closes #840.
 - Fix: If datasource source is specified no fields are included by default.
   Closes #842.
 
