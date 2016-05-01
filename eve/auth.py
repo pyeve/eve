@@ -250,8 +250,8 @@ class TokenAuth(BasicAuth):
         # "Authorization: Token <token>"
         # headers, therefore they should be explicitly handled
         if not auth and request.headers.get('Authorization'):
-            auth = request.headers.get('Authorization').strip().lower()
-            if auth.startswith('token'):
+            auth = request.headers.get('Authorization').strip()
+            if auth.lower().startswith('token'):
                 auth = auth.split(' ')[1]
 
         return auth and self.check_auth(auth, allowed_roles, resource,
