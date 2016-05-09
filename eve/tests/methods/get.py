@@ -2,7 +2,7 @@ import base64
 import time
 from io import BytesIO
 import simplejson as json
-from datetime import datetime
+from datetime import datetime, timedelta
 from bson import ObjectId
 from bson.son import SON
 from werkzeug.datastructures import ImmutableMultiDict
@@ -1187,6 +1187,47 @@ class TestGet(TestBase):
         # unknown field is ignored
         response, status = self.get('aggregate_test?aggregate={"$unknown":1}')
         self.assert200(status)
+
+    def test_get_aggregation_parsing(self):
+
+        date = datetime.utcnow()
+
+        _db = self.connection[MONGO_DBNAME]
+        _db.aggregate_test.insert_many(
+            [
+                {"x": 1, "date": date},
+                {"x": 2, "date": date},
+                {"x": 3, "date": date},
+                {"x": 4, "date": date + timedelta(days=-1)},
+            ]
+        )
+
+        self.app.register_resource(
+            'aggregate_test', {
+                'datasource': {
+                    'aggregation': {
+                        'pipeline': [
+                            {"$match": {"date": {"$gte": "$date"}}}
+                        ],
+                    }
+                }
+            }
+        )
+
+        challenge = date.strftime(self.app.config['DATE_FORMAT'])
+        response, status = self.get('aggregate_test?aggregate={"$date": "%s"}'
+                                    % challenge)
+        self.assert200(status)
+        docs = response['_items']
+        self.assertEqual(len(docs), 3)
+
+        challenge = (date + timedelta(days=-1)).strftime(
+            self.app.config['DATE_FORMAT'])
+        response, status = self.get('aggregate_test?aggregate={"$date": "%s"}'
+                                    % challenge)
+        self.assert200(status)
+        docs = response['_items']
+        self.assertEqual(len(docs), 4)
 
     def test_get_aggregation_pagination(self):
         _db = self.connection[MONGO_DBNAME]
