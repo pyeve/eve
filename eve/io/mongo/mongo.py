@@ -386,10 +386,10 @@ class Mongo(DataLayer):
         .. versionadded:: 0.7
         """
         datasource, _, _, _ = self.datasource(resource)
+        challenge = self._mongotize({'key': pipeline}, resource)['key']
 
         return self.pymongo(resource).db[datasource].aggregate(
-            pipeline,
-            **options
+            challenge, **options
         )
 
     def insert(self, resource, doc_or_docs):
