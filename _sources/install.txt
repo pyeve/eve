@@ -5,30 +5,11 @@ Installation
 This part of the documentation covers the installation of Eve. The first step
 to using any software package is getting it properly installed.
 
-Distribute & Pip
-----------------
 Installing Eve is simple with `pip <http://www.pip-installer.org/>`_:
 
 .. code-block:: console
 
     $ pip install eve
-
-or, with `easy_install <http://pypi.python.org/pypi/setuptools>`_:
-
-.. code-block:: console
-
-    $ easy_install eve
-
-But, you really `shouldn't do that <https://stackoverflow.com/questions/3220404/why-use-pip-over-easy-install>`_.
-
-Cheeseshop Mirror
-~~~~~~~~~~~~~~~~~
-If the Cheeseshop is down, you can also install Eve from one of the mirrors.
-`Crate.io <http://crate.io>`_ is one of them:
-
-.. code-block:: console
-
-    $ pip install -i http://simple.crate.io/ eve
 
 Development Version
 --------------------
@@ -44,10 +25,12 @@ Get the git checkout in a new virtualenv and run in development mode.
 
     $ git clone http://github.com/nicolaiarocci/eve.git
     Initialized empty Git repository in ~/dev/eve/.git/
+
     $ cd eve
     $ virtualenv venv --distribute
     New python executable in venv/bin/python
     Installing distribute............done.
+
     $ . venv/bin/activate
     $ python setup.py install
     ...
@@ -67,6 +50,7 @@ To just get the development version without git, do this instead:
     $ . venv/bin/activate
     New python executable in venv/bin/python
     Installing distribute............done.
+
     $ pip install git+git://github.com/nicolaiarocci/eve.git
     ...
     Cleaning up...

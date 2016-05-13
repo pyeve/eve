@@ -58,25 +58,9 @@
 <span id="install"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <p>This part of the documentation covers the installation of Eve. The first step
 to using any software package is getting it properly installed.</p>
-<div class="section" id="distribute-pip">
-<h2>Distribute &amp; Pip<a class="headerlink" href="#distribute-pip" title="Permalink to this headline">¶</a></h2>
 <p>Installing Eve is simple with <a class="reference external" href="http://www.pip-installer.org/">pip</a>:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> pip install eve
 </pre></div>
-</div>
-<p>or, with <a class="reference external" href="http://pypi.python.org/pypi/setuptools">easy_install</a>:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> easy_install eve
-</pre></div>
-</div>
-<p>But, you really <a class="reference external" href="https://stackoverflow.com/questions/3220404/why-use-pip-over-easy-install">shouldn&#8217;t do that</a>.</p>
-<div class="section" id="cheeseshop-mirror">
-<h3>Cheeseshop Mirror<a class="headerlink" href="#cheeseshop-mirror" title="Permalink to this headline">¶</a></h3>
-<p>If the Cheeseshop is down, you can also install Eve from one of the mirrors.
-<a class="reference external" href="http://crate.io">Crate.io</a> is one of them:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> pip install -i http://simple.crate.io/ eve
-</pre></div>
-</div>
-</div>
 </div>
 <div class="section" id="development-version">
 <h2>Development Version<a class="headerlink" href="#development-version" title="Permalink to this headline">¶</a></h2>
@@ -87,10 +71,12 @@ Either way, virtualenv is recommended.</p>
 <p>Get the git checkout in a new virtualenv and run in development mode.</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> git clone http://github.com/nicolaiarocci/eve.git
 <span class="go">Initialized empty Git repository in ~/dev/eve/.git/</span>
+
 <span class="gp">$</span> <span class="nb">cd </span>eve
 <span class="gp">$</span> virtualenv venv --distribute
 <span class="go">New python executable in venv/bin/python</span>
 <span class="go">Installing distribute............done.</span>
+
 <span class="gp">$</span> . venv/bin/activate
 <span class="gp">$</span> python setup.py install
 <span class="go">...</span>
@@ -107,6 +93,7 @@ version inside the virtualenv.  Then all you have to do is run <tt class="docuti
 <span class="gp">$</span> . venv/bin/activate
 <span class="go">New python executable in venv/bin/python</span>
 <span class="go">Installing distribute............done.</span>
+
 <span class="gp">$</span> pip install git+git://github.com/nicolaiarocci/eve.git
 <span class="go">...</span>
 <span class="go">Cleaning up...</span>
@@ -156,10 +143,6 @@ version inside the virtualenv.  Then all you have to do is run <tt class="docuti
 <li class="toctree-l1"><a class="reference internal" href="foreword.html">Foreword</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rest_api_for_humans.html">REST API for Humans</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#distribute-pip">Distribute &amp; Pip</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#cheeseshop-mirror">Cheeseshop Mirror</a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="#development-version">Development Version</a></li>
 </ul>
 </li>
