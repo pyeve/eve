@@ -1,13 +1,13 @@
-from eve.tests import TestBase
-from eve.tests.utils import DummyEvent
-from eve.tests.test_settings import MONGO_DBNAME
-from eve import ETAG
-from bson import ObjectId
-from eve.utils import ParsedRequest
-import simplejson as json
 import copy
+import simplejson as json
 
+from bson import ObjectId
+from eve import ETAG
 from eve.methods.delete import deleteitem_internal
+from eve.tests import TestBase
+from eve.tests.test_settings import MONGO_DBNAME
+from eve.tests.utils import DummyEvent
+from eve.utils import ParsedRequest
 
 
 class TestDelete(TestBase):
@@ -73,14 +73,39 @@ class TestDelete(TestBase):
         _, status = self.delete(self.item_id_url)
         self.assert428(status)
 
+    def test_ifmatch_missing_enforce_ifmatch_disabled(self):
+        self.app.config['ENFORCE_IF_MATCH'] = False
+        r, status = self.delete(self.item_id_url)
+        self.assert204(status)
+
+        r = self.test_client.get(self.item_id_url)
+        self.assert404(r.status_code)
+
     def test_delete_ifmatch_disabled(self):
         self.app.config['IF_MATCH'] = False
         _, status = self.delete(self.item_id_url)
         self.assert204(status)
 
+    def test_ifmatch_disabled_enforce_ifmatch_disabled(self):
+        self.app.config['ENFORCE_IF_MATCH'] = False
+        self.app.config['IF_MATCH'] = False
+        r, status = self.delete(self.item_id_url)
+        self.assert204(status)
+
+        r = self.test_client.get(self.item_id_url)
+        self.assert404(r.status_code)
+
     def test_delete_ifmatch_bad_etag(self):
         _, status = self.delete(self.item_id_url,
                                 headers=[('If-Match', 'not-quite-right')])
+        self.assert412(status)
+
+    def test_ifmatch_bad_etag_enforce_ifmatch_disabled(self):
+        self.app.config['ENFORCE_IF_MATCH'] = False
+        _, status = self.delete(
+            self.item_id_url,
+            headers=[('If-Match', 'not-quite-right')]
+        )
         self.assert412(status)
 
     def test_delete(self):

@@ -9,21 +9,27 @@
     :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-import time
-from datetime import datetime
-
 import base64
 import simplejson as json
-from bson.errors import InvalidId
-from bson.dbref import DBRef
-from copy import copy
-from flask import current_app as app, request, abort, g, Response
-from functools import wraps
+import time
 
-from eve.utils import parse_request, document_etag, config, \
-    debug_error_message, auto_fields
-from eve.versioning import resolve_document_version, \
-    get_data_version_relation_document
+from bson.dbref import DBRef
+from bson.errors import InvalidId
+from copy import copy
+from datetime import datetime
+from eve.utils import auto_fields
+from eve.utils import config
+from eve.utils import debug_error_message
+from eve.utils import document_etag
+from eve.utils import parse_request
+from eve.versioning import get_data_version_relation_document
+from eve.versioning import resolve_document_version
+from flask import Response
+from flask import abort
+from flask import current_app as app
+from flask import g
+from flask import request
+from functools import wraps
 
 
 def get_document(resource, concurrency_check, **lookup):
@@ -60,9 +66,13 @@ def get_document(resource, concurrency_check, **lookup):
 
     document = app.data.find_one(resource, req, **lookup)
     if document:
-        if not req.if_match and config.IF_MATCH and concurrency_check:
+        e_if_m = config.ENFORCE_IF_MATCH
+        if_m = config.IF_MATCH
+        if not req.if_match and e_if_m and if_m and concurrency_check:
             # we don't allow editing unless the client provides an etag
-            # for the document
+            # for the document or explicitly decides to allow editing by either
+            # disabling the ``concurrency_check`` or ``IF_MATCH`` or
+            # ``ENFORCE_IF_MATCH`` fields.
             abort(428, description='To edit a document '
                   'its etag must be provided using the If-Match header')
 

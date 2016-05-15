@@ -9,6 +9,13 @@ In Development
 Version 0.7
 ~~~~~~~~~~~
 
+- New: If ENFORCE_IF_MATCH option is active, then all requests are expected to
+  include the If-Match or they will be rejected (same as old behavior).
+  However, if ENFORCE_IF_MATCH is disabled, then client determines whether
+  request is conditional. When If-Match is included, then request is
+  conditional, otherwise the request is processed with no conditional checks.
+  (Arthur Burkart)
+
 - New: Allow old document versions to be cache validated using ETags (Nick
   Park).
 
@@ -17,13 +24,13 @@ Version 0.7
 
 - New: ``on_oplog_push`` event is fired when OPLOG is about to be updated.
   Callbacks receive two arguments: ``resource`` (resource name) and ``entries``
-  (list of oplog entries which are about to be written). 
+  (list of oplog entries which are about to be written).
 
 - New: optional ``extra`` field is available for OPLOG entries. Can be updated
   by callbacks hooked to the new ``on_oplog_push`` event.
 
 - New: OPLOG audit now include the username or token when available. Closes
-  #846. 
+  #846.
 
 - New ``get_internal`` and ``getitem_internal`` functions can be used for
   internal GET calls. These methods are not rate limited, authentication is not
@@ -156,9 +163,9 @@ Released on 29 October, 2015
 
 - Dev: fix rate limiting tests so they don't occasionally fail.
 - Dev: make sure connections opened by test suite are properly closed on
-  teardown. 
+  teardown.
 - Dev: use middleware to parse overrides and eventually update request method
-  (Julian Hille). 
+  (Julian Hille).
 - Dev: optimize versioning by building specific versions without deepcopying
   the root document (Nick Park).
 - Dev: ``_client_projection`` method has been moved up from the mongo layer to
@@ -189,7 +196,7 @@ Released on 28 September, 2015
   name, at the Eve homepage (suggested value ``_info``). The info section will
   include Eve server version and API version (API_VERSION, if set).  ``None``
   otherwise, if you do not want to expose any server info. Defaults to ``None``
-  (Stratos Gerakakis). 
+  (Stratos Gerakakis).
 - New: ``id_field`` sets a field used to uniquely identify resource items
   within the database. Locally overrides ``ID_FIELD`` (Dominik Kellner).
 - New: ``UPSERT_ON_PUT`` allows document creation on PUT if the document does
@@ -242,7 +249,7 @@ Released on 28 September, 2015
   endpoint. If URRA is not active on the endpoint, this rule behaves like
   ``unique``. Closes #646.
 - New: ``MEDIA_BASE_URL`` allows to set a custom base URL to be used when
-  ``RETURN_MEDIA_AS_URL`` is active (Henrique Barroso).  
+  ``RETURN_MEDIA_AS_URL`` is active (Henrique Barroso).
 - New: ``SOFT_DELETE`` enables soft deletes when set to ``True`` (Nick Park.)
 - New: ``mongo_indexes`` allows for creation of MongoDB indexes at application
   launch (Pau Freixes.)
@@ -253,9 +260,9 @@ Released on 28 September, 2015
 - New: Support for dot notation in POST, PATCH and PUT methods. Be aware that,
   for PATCH and PUT, if dot notation is used even on just one field, the whole
   sub-document will be replaced. So if this document is stored:
-  
+
   ``{"name": "john", "location": {"city": "New York", "address": "address"}}``
-  
+
   A PATCH like this:
 
     ``{"location.city": "Boston"}``
@@ -265,11 +272,11 @@ Released on 28 September, 2015
     ``{"location": {"city": "a nested city"}}``
 
   Will update the document to:
-  
+
   ``{"name": "john", "location": {"city": "Boston"}}``
 
 - New: JSONP Support (Tim Jacobi.)
-- New: Support for multiple MongoDB databases and/or servers. 
+- New: Support for multiple MongoDB databases and/or servers.
 
   - ``mongo_prefix`` resource setting allows overriding of the default
     ``MONGO`` prefix used when retrieving MongoDB settings from configuration.
@@ -295,7 +302,7 @@ Released on 28 September, 2015
   ``None`` (Olivier Carrère.)
 
 - Change: when HATEOAS is off the home endpoint will respond with ``200 OK``
-  instead of ``404 Not Found`` (Stratos Gerakakis). 
+  instead of ``404 Not Found`` (Stratos Gerakakis).
 - Change: PUT does not return ``404`` if a document URL does not exist. It will
   attempt to create the document instead. Set ``UPSET_ON_PUT`` to ``False`` to
   disable this behaviour and get a ``404`` instead.
@@ -346,7 +353,7 @@ Released on 28 September, 2015
   document. For example, ``['a.b.c', 'a.b', 'a']`` (Gonéri Le Bouder).
 - Fix: add handling of sub-resource resolving for PUT method (Olivier Poitrey).
 - Fix: ``dependencies`` rule would mistakenly validate documents when target
-  fields happened to also have a ``default`` value. 
+  fields happened to also have a ``default`` value.
 - Fix: According to RFC2617 the separator should be (=) instead of (:). This
   caused at least Chrome not to prompt user for the credentials, and not to
   send the Authorization header even when credentials were in the url (Samuli
@@ -396,7 +403,7 @@ Released on 17 March, 2015.
 Version 0.5.2
 ~~~~~~~~~~~~~
 
-Released on 23 Feb, 2015. 
+Released on 23 Feb, 2015.
 Codename: 'Giulia'.
 
 - Fix: hardening of database concurrency checks. See #561 (Olivier Carrère.)
@@ -480,17 +487,17 @@ Released on 12 Jan, 2015.
 - New: Add extra 4xx response codes for proper handling. Only ``405`` Method
   not allowed, ``406`` Not acceptable, ``409`` Conflict, and ``410`` Gone have
   been added to the list (Kurt Doherty).
-- New: Add serializers for integer and float types (Grisha K.) 
+- New: Add serializers for integer and float types (Grisha K.)
 - New: dev-requirements.txt added to the repo.
 - New: Embedding of documents by references located in any subdocuments. For
   example, query ``embedded={"user.friends":1}`` will return a document with
   "user" and all his "friends" embedded, but only if ``user`` is a subdocument
   and ``friends`` is a list of references (Dmitry Anoshin).
-- New: Allow mongoengine to work properly with cursor counts (Johan Bloemberg) 
+- New: Allow mongoengine to work properly with cursor counts (Johan Bloemberg)
 - New: ``ALLOW_UNKNOWN`` allows unknown fields to be read, not only written as
   before. Closes #397 and #250.
 - New: ``VALIDATION_ERROR_STATUS`` allows setting of the HTTP status code to
-  use for validation errors. Defaults to ``422`` (Olivier Poitrey). 
+  use for validation errors. Defaults to ``422`` (Olivier Poitrey).
 - New: Support for sub-document projections. Fixes #182 (Olivier Poitrey).
 - New: Return ``409 Conflict`` on pymongo ``DuplicateKeyError`` for ``POST``
   requests, as already happens with ``PUT`` requests (Matt Creenan, #537.)
@@ -531,7 +538,7 @@ Released on 12 Jan, 2015.
   #534).
 - Fix: Fix impossible version ranges in setup.py (Marcus Cobden, #531.)
 - Fix: Bug with expanding lists of roles, compromising authorization (Mikael
-  Berg, #527) 
+  Berg, #527)
 - Fix: ``PATCH`` on subdocument fields does not overwrite the whole
   subdocument anymore. Closes #519.
 - Fix: Added support for validation on field attribute with type list (Jorge
@@ -576,7 +583,7 @@ Released on 12 Jan, 2015.
   Magrí).
 - Fix: KeyError when trying to use embedding on a field that is missing from
   document. It was fixed earlier in #319, but came back again after new
-  embedding mechanism (Daniel Lytkin). 
+  embedding mechanism (Daniel Lytkin).
 - Fix: Support for list of strings as default value for fields (hansotronic).
 - Fix: Media fields are now properly returned even in embedded documents.
   Closes #305.
@@ -592,7 +599,7 @@ Released on 12 Jan, 2015.
   them into consideration when validating a query string. Closes #388.
 - Fix: Abort with 400 if unsupported query operators are used. Closes #387.
 - Fix: Return the error if a blacklisted MongoDB operator is used in a query
-  (debug mode). 
+  (debug mode).
 - Fix: Invalid sort syntax raises 500 instead of 400. Addresses #378.
 - Fix: Fix serialization when `type` is missing in schema. #404 (Jaroslav
   Semančík).
@@ -601,7 +608,7 @@ Released on 12 Jan, 2015.
 - Fix: ``test_get_sort_disabled`` occasional failure.
 - Fix: A POST with an empty array leads to a server crash. Now returns a 400
   error isntead and ensure the server won't crash in case of mongo invalid
-  operations (Olivier Poitrey). 
+  operations (Olivier Poitrey).
 - Fix: PATCH and PUT don't respect flask.abort() in a pre-update event. Closes
   #395 (Christopher Larsen).
 - Fix: Validating keyschema rules would cause a TypeError since 0.4. Closes
@@ -634,13 +641,13 @@ Released on 20 June, 2014.
 - [new] ``ALLOWED_WRITE_ROLES``. A list of allowed `roles` for resource
   endpoints with POST, PUT and DELETE methods (Olivier Poitrey).
 - [new] ``ALLOWED_ITEM_READ_ROLES``. A list of allowed `roles` for item
-  endpoints with GET and OPTIONS methods (Olivier Poitrey). 
+  endpoints with GET and OPTIONS methods (Olivier Poitrey).
 - [new] ``ALLOWED_ITEM_WRITE_ROLES``. A list of allowed `roles` for item
-  endpoints with PUT, PATCH and DELETE methods (Olivier Poitrey). 
+  endpoints with PUT, PATCH and DELETE methods (Olivier Poitrey).
 - [new] 'dependencies' validation rule.
 - [new] 'keyschema' validation rule.
 - [new] 'regex' validation rule.
-- [new] 'set' as a core data type. 
+- [new] 'set' as a core data type.
 - [new] 'min' and 'max' now apply to floats and numbers too.
 - [new] File Storage. ``EXTENDED_MEDIA_INFO`` allows a list of meta fields
   (file properties) to forward from the file upload driver (Ben Demaree).
@@ -648,7 +655,7 @@ Released on 20 June, 2014.
 - [new] Support for default values in documents with more than one level of
   data (Javier Gonel).
 - [new] Ability to send entire document in write responses. ``BANDWITH_SAVER``
-  aka Coherence Mode (Josh Villbrandt). 
+  aka Coherence Mode (Josh Villbrandt).
 - [new] ``on_pre_<METHOD>`` events expose the `lookup` dictionary which allows
   for setting up dynamic database lookups on both resource and item endpoints.
 - [new] Return a 400 response on pymongo DuplicateKeyError, with exception
@@ -701,7 +708,7 @@ Released on 20 June, 2014.
   ``auth_field`` value for the current request.
 - [change] ``on_update(ed)`` and ``on_replace(ed)`` callbacks now receive both
   the original document and the updates (Jaroslav Semančík).
-- [change] Review event names (Javier Gonel). 
+- [change] Review event names (Javier Gonel).
 
 - [fix] return 500 instead of 404 if CORS is enabled. Closes #381.
 - [fix] Crash on GET requests on resource endpoints when ID_FIELD is missing on
@@ -729,11 +736,11 @@ Released on 20 June, 2014.
   (Alexander Hendorf).
 - [fix] ``If-Modified-Since`` misbehaviour when a datasource filter is set.
   Closes #258.
-- [fix] Trouble serializing list of dicts. Closes #265 and #244. 
+- [fix] Trouble serializing list of dicts. Closes #265 and #244.
 - [fix] ``HATEOAS`` item links are now coherent actual endpoint URL even when
   natural immutable keys are used in URLs (Junior Vidotti). Closes #256.
 - [fix] Replaced ``ID_FIELD`` by ``item_lookup_field`` on self link.
-  item_lookup_field will default to ``ID_FIELD`` if blank. 
+  item_lookup_field will default to ``ID_FIELD`` if blank.
 
 Version 0.3
 ~~~~~~~~~~~
@@ -838,7 +845,7 @@ Released on 30 November, 2013.
   inject proprietary data into the response stream (Petr Jašek).
 - [new] ``IF_MATCH`` allows to disable checks for ETag matches on edit, replace
   and delete requests. If disabled, requests without an If-Match header will be
-  honored without returning a 403 error. Defaults to True (enabled by default). 
+  honored without returning a 403 error. Defaults to True (enabled by default).
 - [new] ``LINKS`` allows to customize the links field. Default to '_links'.
 - [new] ``ITEMS`` allows to customize the items field. Default to '_items'.
 - [new] ``STATUS`` allows to customize the status field. Default to 'status'.
@@ -847,7 +854,7 @@ Released on 30 November, 2013.
 - [new] A new ``json_encoder`` initialization argument is available. It allows
   to pass custom JSONEncoder or eve.io.BaseJSONEncoder to the Eve instance.
 - [new] A new ``url_converters`` initialization argument is available. It
-  allows to pass custom Flask url converters to the Eve constructor. 
+  allows to pass custom Flask url converters to the Eve constructor.
 - [new] ID_FIELD fields can now be of arbitrary types, not only ObjectIds.
   Thanks to Kelvin Hammond for contributing to this one.  Closes #136.
 - [new] ``pre_<method>`` and ``pre_<method>_<resource>`` event hooks are now
@@ -877,7 +884,7 @@ Released on 30 November, 2013.
 - [change] JSON encoding is now handled at the DataLayer level allowing for
   specialized, granular, data-aware encoding. Also, since the JSON encoder is
   now a class attribute, extensions can replace the pre-defined data layer
-  encoder with their own implementation. Closes #102. 
+  encoder with their own implementation. Closes #102.
 - [fix] HMAC example and docs updated to align with new hmac in Python 2.7.3,
   which is only accepting bytes string. Closes #199.
 - [fix] Properly escape leaf values in XML responses (Florian Rathgeber).

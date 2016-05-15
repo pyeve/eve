@@ -13,6 +13,7 @@
 
     .. versionchanged:: 0.7
        'OPLOG_RETURN_EXTRA_FIELD' added and set to False.
+       'ENFORCE_IF_MATCH'added and set to True.
 
     .. versionchanged:: 0.6
        'UPSERT_ON_PUT? added and set to True.
@@ -142,6 +143,7 @@ X_ALLOW_CREDENTIALS = None      # CORS disabled by default.
 X_MAX_AGE = 21600               # Access-Control-Max-Age when CORS is enabled
 HATEOAS = True                  # HATEOAS enabled by default.
 IF_MATCH = True                 # IF_MATCH (ETag match) enabled by default.
+ENFORCE_IF_MATCH = True         # ENFORCE_IF_MATCH enabled by default.
 
 ALLOWED_FILTERS = ['*']         # filtering enabled by default
 VALIDATE_FILTERS = False
