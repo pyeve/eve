@@ -511,9 +511,13 @@ subsequent <a class="reference internal" href="#id2">conditional requests</a>.</
 <p>If your use case requires, you can opt to completely disable concurrency
 control. ETag match checks can be disabled by setting the <tt class="docutils literal"><span class="pre">IF_MATCH</span></tt>
 configuration variable to <tt class="docutils literal"><span class="pre">False</span></tt> (see <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a>). When concurrency
-control is disabled no etag is provided with responses. You should be careful
+control is disabled no ETag is provided with responses. You should be careful
 about disabling this feature, as you would effectively open your API to the
-risk of older versions replacing your documents.</p>
+risk of older versions replacing your documents. Alternatively, ETag match
+checks can be made optional by the client if <tt class="docutils literal"><span class="pre">ENFORCE_IF_MATCH</span></tt> is disabled.
+When concurrenncy check enforcement is disabled, requests with the <tt class="docutils literal"><span class="pre">If-Match</span></tt>
+header will be processed as conditional requests, and requests made without
+the <tt class="docutils literal"><span class="pre">If-Match</span></tt> header will not be processed as conditional.</p>
 </div>
 </div>
 <div class="section" id="bulk-inserts">
