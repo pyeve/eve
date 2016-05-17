@@ -62,8 +62,8 @@
 to include the <tt class="docutils literal"><span class="pre">If-Match</span></tt> or they will be rejected (same as old behavior).
 However, if <tt class="docutils literal"><span class="pre">ENFORCE_IF_MATCH</span></tt> is disabled, then client determines whether
 request is conditional. When <tt class="docutils literal"><span class="pre">If-Match</span></tt> is included, then request is
-conditional, otherwise the request is processed with no conditional checks
-(Arthur Burkart).</li>
+conditional, otherwise the request is processed with no conditional checks.
+Closes #657 (Arthur Burkart).</li>
 <li>New: Allow old document versions to be cache validated using ETags (Nick
 Park).</li>
 <li>New: Support weak ETags, commonly applied by servers transmitting gzipped
