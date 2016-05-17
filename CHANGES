@@ -9,12 +9,12 @@ In Development
 Version 0.7
 ~~~~~~~~~~~
 
-- New: If ENFORCE_IF_MATCH option is active, then all requests are expected to
-  include the If-Match or they will be rejected (same as old behavior).
-  However, if ENFORCE_IF_MATCH is disabled, then client determines whether
-  request is conditional. When If-Match is included, then request is
-  conditional, otherwise the request is processed with no conditional checks.
-  (Arthur Burkart)
+- New: If ``ENFORCE_IF_MATCH`` option is active, then all requests are expected
+  to include the ``If-Match`` or they will be rejected (same as old behavior).
+  However, if ``ENFORCE_IF_MATCH`` is disabled, then client determines whether
+  request is conditional. When ``If-Match`` is included, then request is
+  conditional, otherwise the request is processed with no conditional checks
+  (Arthur Burkart).
 
 - New: Allow old document versions to be cache validated using ETags (Nick
   Park).
