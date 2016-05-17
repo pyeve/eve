@@ -1,12 +1,15 @@
-from bson import ObjectId
 import simplejson as json
 
+from bson import ObjectId
+from eve import ETAG
+from eve import ISSUES
+from eve import LAST_UPDATED
+from eve import STATUS
+from eve import STATUS_OK
+from eve.methods.patch import patch_internal
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
 from eve.tests.utils import DummyEvent
-
-from eve import STATUS_OK, LAST_UPDATED, ISSUES, STATUS, ETAG
-from eve.methods.patch import patch_internal
 
 
 class TestPatch(TestBase):
@@ -46,7 +49,20 @@ class TestPatch(TestBase):
         res, status = self.patch(self.item_id_url, data={'key1': 'value1'})
         self.assert428(status)
 
+    def test_ifmatch_missing_enforce_ifmatch_disabled(self):
+        self.app.config['ENFORCE_IF_MATCH'] = False
+        r, status = self.patch(self.item_id_url, data={'key1': 'value1'})
+        self.assert200(status)
+        self.assertTrue(ETAG in r)
+
     def test_ifmatch_disabled(self):
+        self.app.config['IF_MATCH'] = False
+        r, status = self.patch(self.item_id_url, data={'key1': 'value1'})
+        self.assert200(status)
+        self.assertTrue(ETAG not in r)
+
+    def test_ifmatch_disabled_enforce_ifmatch_disabled(self):
+        self.app.config['ENFORCE_IF_MATCH'] = False
         self.app.config['IF_MATCH'] = False
         r, status = self.patch(self.item_id_url, data={'key1': 'value1'})
         self.assert200(status)
@@ -58,12 +74,19 @@ class TestPatch(TestBase):
                                headers=[('If-Match', 'not-quite-right')])
         self.assert412(status)
 
+    def test_ifmatch_bad_etag_enforce_ifmatch_disabled(self):
+        self.app.config['ENFORCE_IF_MATCH'] = False
+        _, status = self.patch(self.item_id_url,
+                               data={'key1': 'value1'},
+                               headers=[('If-Match', 'not-quite-right')])
+        self.assert412(status)
+
     def test_unique_value(self):
         # TODO
         # for the time being we are happy with testing only Eve's custom
         # validation. We rely on Cerberus' own test suite for other validation
         # unit tests. This test also makes sure that response status is
-        # syntatically correcy in case of validation issues.
+        # syntatically correct in case of validation issues.
         # We should probably test every single case as well (seems overkill).
         r, status = self.patch(self.item_id_url,
                                data={"ref": "%s" % self.alt_ref},
@@ -202,7 +225,7 @@ class TestPatch(TestBase):
         self.assert200(status)
 
     def test_patch_etag_header(self):
-        # test that Etag is always includer with response header. See #562.
+        # test that Etag is always included with response header. See #562.
         changes = {"ref": "1234567890123456789012345"}
         headers = [('Content-Type', 'application/json'),
                    ('If-Match', self.item_etag)]
@@ -216,6 +239,20 @@ class TestPatch(TestBase):
 
         self.assertTrue(etag[0] == '"')
         self.assertTrue(etag[-1] == '"')
+
+    def test_patch_etag_header_enforce_ifmatch_disabled(self):
+        self.app.config['ENFORCE_IF_MATCH'] = False
+        changes = {'ref': '1234567890123456789012345'}
+        headers = [('Content-Type', 'application/json'),
+                   ('If-Match', self.item_etag)]
+        r, status = self.patch(
+            self.item_id_url,
+            data=json.dumps(changes),
+            headers=headers
+        )
+
+        self.assertTrue(ETAG in r)
+        self.assertTrue(self.item_etag != r[ETAG])
 
     def test_patch_nested(self):
         changes = {'location.city': 'a nested city',

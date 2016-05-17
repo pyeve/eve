@@ -312,7 +312,7 @@ Would return documents sorted by lastname in descending order.
 Sorting is enabled by default and can be disabled both globally and/or at
 resource level (see ``SORTING`` in :ref:`global` and ``sorting`` in
 :ref:`domain`). It is also possible to set the default sort at every API
-endpoints (see ``default_sort`` in :ref:`domain`). 
+endpoints (see ``default_sort`` in :ref:`domain`).
 
 .. admonition:: Please note
 
@@ -387,14 +387,14 @@ is at ``examples.com/api/v1``, the ``self`` link in the above example would
 mean that the *people* endpoint is located at ``examples.com/api/v1/people``.
 
 Please note that ``next``, ``previous`` and ``last`` items will only be
-included when appropriate. 
+included when appropriate.
 
 Disabling HATEOAS
 ~~~~~~~~~~~~~~~~~
 HATEOAS can be disabled both at the API and/or resource level. Why would you
 want to turn HATEOAS off? Well, if you know that your client application is not
 going to use the feature, then you might want to save on both bandwidth and
-performance. 
+performance.
 
 .. _jsonxml:
 
@@ -434,14 +434,14 @@ conditional requests by using the ``If-Modified-Since`` header:
 
 .. code-block:: console
 
-    $ curl -H "If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT" -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c 
+    $ curl -H "If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT" -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c
     HTTP/1.1 200 OK
 
 or the ``If-None-Match`` header:
 
 .. code-block:: console
 
-    $ curl -H "If-None-Match: 1234567890123456789012345678901234567890" -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c 
+    $ curl -H "If-None-Match: 1234567890123456789012345678901234567890" -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c
     HTTP/1.1 200 OK
 
 
@@ -504,9 +504,13 @@ Disabling concurrency control
 If your use case requires, you can opt to completely disable concurrency
 control. ETag match checks can be disabled by setting the ``IF_MATCH``
 configuration variable to ``False`` (see :ref:`global`). When concurrency
-control is disabled no etag is provided with responses. You should be careful
+control is disabled no ETag is provided with responses. You should be careful
 about disabling this feature, as you would effectively open your API to the
-risk of older versions replacing your documents.
+risk of older versions replacing your documents. Alternatively, ETag match
+checks can be made optional by the client if ``ENFORCE_IF_MATCH`` is disabled.
+When concurrenncy check enforcement is disabled, requests with the ``If-Match``
+header will be processed as conditional requests, and requests made without
+the ``If-Match`` header will not be processed as conditional.
 
 .. _bulk_insert:
 
@@ -602,7 +606,7 @@ request:
     ]
 
 In the example above, the first document did not validate so the whole request
-has been rejected. 
+has been rejected.
 
 When all documents pass validation and are inserted correctly the response
 status is ``201 Created``. If any document fails validation the response status
@@ -731,7 +735,7 @@ In general you don't really want to add JSONP when you can enable CORS instead:
     browsers now support CORS making it a viable cross-browser alternative (source_.)
 
 There are circumstances however when you do need JSONP, like when you have to
-support legacy software (IE6 anyone?) 
+support legacy software (IE6 anyone?)
 
 To enable JSONP in Eve you just set
 ``JSONP_ARGUMENT``. Then, any valid request with ``JSONP_ARGUMENT`` will get
@@ -744,7 +748,7 @@ back a response wrapped with said argument value. For example if you set
     hello(<JSON here>)
 
 Requests with no ``callback`` argument will be served with no JSONP.
- 
+
 
 Read-only by default
 --------------------
@@ -1031,7 +1035,7 @@ Pre-Request Event Hooks
 ~~~~~~~~~~~~~~~~~~~~~~~
 When a GET/HEAD, POST, PATCH, PUT, DELETE request is received, both
 a ``on_pre_<method>`` and a ``on_pre_<method>_<resource>`` event is raised.
-You can subscribe to these events with multiple callback functions. 
+You can subscribe to these events with multiple callback functions.
 
 .. code-block:: pycon
 
@@ -1051,13 +1055,13 @@ You can subscribe to these events with multiple callback functions.
 Callbacks will receive the resource being requested, the original
 ``flask.request`` object and the current lookup dictionary as arguments (only
 exception being the ``on_pre_POST`` hook which does not provide a ``lookup``
-argument). 
+argument).
 
 Dynamic Lookup Filters
 ^^^^^^^^^^^^^^^^^^^^^^
 Since the ``lookup`` dictionary will be used by the data layer to retrieve
 resource documents, developers may choose to alter it in order to add custom
-logic to the lookup query. 
+logic to the lookup query.
 
 .. code-block:: python
 
@@ -1074,7 +1078,7 @@ Altering the lookup dictionary at runtime would have similar effects to
 applying :ref:`filter` via configuration. However, you can only set static
 filters via configuration whereas by hooking to the ``on_pre_<METHOD>`` events
 you are allowed to set dynamic filters instead, which allows for additional
-flexibility. 
+flexibility.
 
 Post-Request Event Hooks
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1346,7 +1350,7 @@ the item in the database that is about to be updated. Callback functions
 could hook into these events to arbitrarily add or update fields in
 `updates`, or to perform other accessory action.
 
-`After` the item has been updated: 
+`After` the item has been updated:
 
 - ``on_updated`` is fired for any resource endpoint.
 - ``on_updated_<resource_name>`` is fired only when the `<resource_name>`
@@ -1484,13 +1488,13 @@ When a document is requested media files will be returned as Base64 strings,
             }
         ]
         ...
-   } 
+   }
 
 However, if the ``EXTENDED_MEDIA_INFO`` list is populated (it isn't by
 default) the payload format will be different. This flag allows passthrough
 from the driver of additional meta fields. For example, using the MongoDB
 driver, fields like ``content_type``, ``name`` and ``length`` can be added to
-this list and will be passed-through from the underlying driver. 
+this list and will be passed-through from the underlying driver.
 
 When ``EXTENDED_MEDIA_INFO`` is used the field will be a dictionary
 whereas the file itself is stored under the ``file`` key and other keys
@@ -1519,7 +1523,7 @@ Then the output will be something like
         ...
     }
 
-For MongoDB, further fields can be found in the `driver documentation`_. 
+For MongoDB, further fields can be found in the `driver documentation`_.
 
 If you have other means to retrieve the media files (custom Flask endpoint for
 example) then the media files can be excluded from the payload by setting to
@@ -1532,7 +1536,7 @@ While returning files embedded as Base64 fields is the default behaviour, you
 can opt for serving them at a dedicated media endpoint. You achieve that by
 setting ``RETURN_MEDIA_AS_URL`` to ``True``. When this feature is enabled
 document fields contain urls to the correspondent files, which are served at the
-media endpoint. 
+media endpoint.
 
 You can change the default media endpoint (``media``) by updating the
 ``MEDIA_BASE_URL`` and ``MEDIA_ENDPOINT`` setting. Suppose you are storing your
@@ -1602,19 +1606,19 @@ response payloads by sending requests like this one:
     - :ref:`datasource`
 
     for details on the ``datasource`` setting.
-    
+
 .. _multipart:
 
 Note on media files as ``multipart/data-form``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If you are uploading media files as ``multipart/data-form`` all the
-additional fields except the file fields will be treated as ``strings`` 
+additional fields except the file fields will be treated as ``strings``
 for all field validation purposes.  If you have already defined some of
 the resource fields to be of different type (boolean, number, list etc)
 the validation rules for these fields would fail, preventing you to
 succesffully submit your resource.
 
-If you still want to be able to perform field validation in this case, you 
+If you still want to be able to perform field validation in this case, you
 will have to turn on ``MULTIPART_FORM_FIELDS_AS_JSON`` in your settings
 file in order to treat the incoming fields as JSON encoded strings and still
 be able to validate your fields.
@@ -1622,7 +1626,7 @@ be able to validate your fields.
 Please note, that in case you indeed turn on ``MULTIPART_FORM_FIELDS_AS_JSON``
 you will have to submit all resource fields as properly encoded JSON strings.
 
-For example a ``number`` should be submited as ``1234`` (as you would normally 
+For example a ``number`` should be submited as ``1234`` (as you would normally
 expect). A ``boolean`` will have to be send as ``true`` (note the lowercase
 ``t``). A ``list`` of strings as ``["abc", "xyz"]``. And finally
 a ``string``, which is the thing that will most likely trip, you will have
@@ -1645,7 +1649,7 @@ encoded in GeoJSON_ format. All GeoJSON objects supported by MongoDB_ are availa
     - ``Polygon``
     - ``MultiPolygon``
     - ``GeometryCollection``
-      
+
 These are implemented as native Eve data types (see :ref:`schema`) so they are
 are subject to proper validation.
 
@@ -1661,7 +1665,7 @@ a ``location`` field is of type Point_.
         },
         ...
     }
-    
+
 Storing a contact along with its location is pretty straightforward:
 
 .. code-block:: console
@@ -1675,13 +1679,13 @@ As a general rule all MongoDB `geospatial query operators`_ and their associated
 geometry specifiers are supported. In this example we are using the `$near`_
 operator to query for all contacts living in a location within 1000 meters from
 a certain point:
-    
+
 ::
 
     ?where={"location": {"$near": {"$geometry": {"type":"Point", "coordinates": [10.0, 20.0]}, "$maxDistance": 1000}}}
 
 Please refer to MongoDB documentation for details on geo queries.
-	
+
 .. _internal_resources:
 
 Internal Resources
@@ -1720,7 +1724,7 @@ Something like this:
 
 .. code-block:: python
    :emphasize-lines: 12
-    
+
     from eve import Eve
 
     def on_generic_inserted(self, resource, documents):
@@ -1756,7 +1760,7 @@ attributes:
 ``clientip``                        IP address of the client performing the
                                     request.
 
-``url``                             Full request URL, eventual query parameters 
+``url``                             Full request URL, eventual query parameters
                                     included.
 
 ``method``                          Request method (``POST``, ``GET``, etc.)
@@ -1788,7 +1792,7 @@ time a custom function is invoked.
         # enable logging to 'app.log' file
         handler = logging.FileHandler('app.log')
 
-        # set a custom log format, and add request 
+        # set a custom log format, and add request
         # metadata to each log line
         handler.setFormatter(logging.Formatter(
             '%(asctime)s %(levelname)s: %(message)s '
@@ -1796,7 +1800,7 @@ time a custom function is invoked.
             'url: %(url)s, method:%(method)s'))
 
         # the default log level is set to WARNING, so
-        # we have to explictly set the logging level 
+        # we have to explictly set the logging level
         # to INFO to get our custom message logged.
         app.logger.setLevel(logging.INFO)
 
@@ -1809,7 +1813,7 @@ time a custom function is invoked.
 
 Currently only exceptions raised by the MongoDB layer and ``POST``, ``PATCH``
 and ``PUT`` methods are logged. The idea is to also add some ``INFO`` and
-possibly ``DEBUG`` level events in the future. 
+possibly ``DEBUG`` level events in the future.
 
 .. _oplog:
 
@@ -1841,36 +1845,36 @@ If ``OPLOG_AUDIT`` is enabled entries also expose:
 
 - client IP
 - Username or token, if available
-- changes applied to the document (for ``DELETE`` the whole document is included). 
+- changes applied to the document (for ``DELETE`` the whole document is included).
 
 A typical oplog entry looks like this:
 
 .. code-block:: python
 
     {
-        "o": "DELETE", 
-        "r": "people", 
+        "o": "DELETE",
+        "r": "people",
         "i": "542d118938345b614ea75b3c",
         "c": {...},
         "ip": "127.0.0.1",
         "u": "admin",
-        "_updated": "Fri, 03 Oct 2014 08:16:52 GMT", 
+        "_updated": "Fri, 03 Oct 2014 08:16:52 GMT",
         "_created": "Fri, 03 Oct 2014 08:16:52 GMT",
         "_etag": "e17218fbca41cb0ee6a5a5933fb9ee4f4ca7e5d6"
-        "_id": "542e5b7438345b6dadf95ba5", 
+        "_id": "542e5b7438345b6dadf95ba5",
         "_links": {...},
     }
 
-To save a little space (at least on MongoDB) field names have been shortened: 
+To save a little space (at least on MongoDB) field names have been shortened:
 
 - ``o`` stands for operation performed
 - ``r`` stands for resource endpoint
 - ``i`` stands for document id
 - ``ip`` is the client IP
-- ``u`` stands for user (or token) 
-- ``c`` stands for changes occurred 
+- ``u`` stands for user (or token)
+- ``c`` stands for changes occurred
 - ``extra`` is an optional field which you can use to store custom data
-  
+
 ``_created`` and ``_updated`` are relative to the target document, which comes
 handy in a variety of scenarios (like when the oplog is available to clients,
 more on this later).
@@ -1896,14 +1900,14 @@ Six settings are dedicated to the OpLog:
 As you can see the oplog feature is turned off by default. Also, since
 ``OPLOG_ENDPOINT`` defaults to ``None``, even if you switch the feature on no
 public oplog endpoint will be available. You will have to explictly set the
-endpoint name in order to expose your oplog to the public. 
+endpoint name in order to expose your oplog to the public.
 
 The Oplog endpoint
 ~~~~~~~~~~~~~~~~~~
 Since the oplog endpoint is nothing but a standard API endpoint, you can
 customize it. This allows for setting up custom authentication (you might want
 this resource to be only accessible for administrative purposes) or any other
-useful setting. 
+useful setting.
 
 Note that while you can change most of its settings, the endpoint will always
 be read-only so setting either ``resource_methods`` or ``item_methods`` to
@@ -1926,7 +1930,7 @@ Every time the oplog is about to be updated the ``on_oplog_push`` event is fired
 You can hook one or more callback functions to this event. Callbacks receive
 ``resource`` and ``entries`` as arguments. The former is the resource name
 while the latter is a list of oplog entries which are about to be written to
-disk. 
+disk.
 
 Your callback can add an optional ``extra`` field to canonical oplog entries.
 The field can be of any type. In this example we are adding a custom dict to
@@ -1946,7 +1950,7 @@ each entry:
 Please note that unless you explictly set ``OPLOG_RETURN_EXTRA_FIELD`` to
 ``True``, the ``extra`` field will *not* be returned by the ``OPLOG_ENDPOINT``.
 
-.. note:: 
+.. note::
 
     Are you on MongoDB? Consider making the oplog a `capped collection`_. Also,
     in case you are wondering yes, the Eve oplog is blatantly inpsired by the
@@ -1985,8 +1989,8 @@ collections ``OrderedDict`` where explicit ordering is required eg ``$sort``:
         'datasource': {
             'aggregation': {
                 'pipeline': [
-                    {"$unwind": "$tags"}, 
-                    {"$group": {"_id": "$tags", "count": {"$sum": 1}}}, 
+                    {"$unwind": "$tags"},
+                    {"$group": {"_id": "$tags", "count": {"$sum": 1}}},
                     {"$sort": SON([("count", -1), ("_id", -1)])}
                 ]
             }
@@ -2003,8 +2007,8 @@ Let's update the pipeline a little bit:
         'datasource': {
             'aggregation': {
                 'pipeline': [
-                    {"$unwind": "$tags"}, 
-                    {"$group": {"_id": "$tags", "count": {"$sum": "$value"}}}, 
+                    {"$unwind": "$tags"},
+                    {"$group": {"_id": "$tags", "count": {"$sum": "$value"}}},
                     {"$sort": SON([("count", -1), ("_id", -1)])}
                 ]
             }
@@ -2022,7 +2026,7 @@ The request above will cause the aggregation to be executed on the server with
 a `count` field configured as if it was a static ``{"$sum": 2}``. The client
 simply adds the ``aggregate`` query parameter and then passes a dictionary with
 field/value pairs. Like with all other keywords, you can change ``aggregate``
-to a keyword of your liking, just set ``QUERY_AGGREGATION`` in your settings. 
+to a keyword of your liking, just set ``QUERY_AGGREGATION`` in your settings.
 
 You can also set all options natively supported by PyMongo. For more
 informations on aggregation see :ref:`datasource`.
@@ -2031,7 +2035,7 @@ Limitations
 ~~~~~~~~~~~
 ``HATEOAS`` is not available at aggregation endpoints. This should not
 be surprising as documents returned by these endpoints are aggregation results
-and do not reside on the database, so there is no static link available for them. 
+and do not reside on the database, so there is no static link available for them.
 
 Client pagination (``?page=2``) is enabled by default. This is currently
 achieved by injecting two additional stages (``$limit`` first, then ``$skip``)
@@ -2050,7 +2054,7 @@ documentation (link_):
     When a ``$sort`` immediately precedes a ``$limit`` in the pipeline, the
     sort operation only maintains the top **n** results as it progresses, where
     **n** is the specified limit, and MongoDB only needs to store **n** items
-    in memory. 
+    in memory.
 
 As we just saw earlier, pagination adds a ``$limit`` stage to the end of the
 pipeline. So if pagination is enabled and ``$sort`` is the last stage of your
@@ -2065,7 +2069,7 @@ MongoDB and SQL Support
 Support for single or multiple MongoDB database/servers comes out of the box.
 An SQLAlchemy extension provides support for SQL backends. Additional data
 layers can can be developed with relative ease. Visit the `extensions page`_
-for a list of community developed data layers and extensions. 
+for a list of community developed data layers and extensions.
 
 Powered by Flask
 ----------------
@@ -2099,6 +2103,6 @@ for unittesting_ and an `extensive documentation`_.
 .. _`Replica Set Oplog`: http://docs.mongodb.org/manual/core/replica-set-oplog/
 .. _`extensions page`: http://python-eve.org/extensions
 .. _source: http://en.wikipedia.org/wiki/JSONP
-.. _`LogRecord attributes`: https://docs.python.org/2/library/logging.html#logrecord-attributes 
+.. _`LogRecord attributes`: https://docs.python.org/2/library/logging.html#logrecord-attributes
 .. _`MongoDB Aggregation Framework`: https://docs.mongodb.org/v3.0/applications/aggregation/
 .. _link: https://docs.mongodb.org/manual/reference/operator/aggregation/limit/
