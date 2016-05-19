@@ -156,7 +156,7 @@ def error_endpoint(error):
     .. versionadded:: 0.4
     """
     headers = None
-    if error.response:
+    if hasattr(error,'response') and error.response:
         headers = error.response.headers
     response = {
         config.STATUS: config.STATUS_ERR,
