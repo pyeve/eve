@@ -837,7 +837,8 @@ class Eve(Flask, Events):
         self.url_map.strict_slashes = False
 
         # home page (API entry point)
-        self.add_url_rule('%s/' % self.api_prefix, 'home',
+        home = self.config['API_HOME'] if self.config['API_HOME'] else 'home'
+        self.add_url_rule('%s/' % self.api_prefix, home,
                           view_func=home_endpoint, methods=['GET', 'OPTIONS'])
 
     def register_resource(self, resource, settings):
