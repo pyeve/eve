@@ -9,6 +9,8 @@ Stable
 Version 0.6.4
 ~~~~~~~~~~~~~
 
+- Fix: Authorization header bearer tokens not parsed correctly. Closes #866
+  (James Stewart).
 - Fix: TokenAuth prevents base64 decoding of Tokens. Closes #840.
 - Fix: If datasource source is specified no fields are included by default.
   Closes #842.
