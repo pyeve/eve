@@ -268,11 +268,12 @@ class TokenAuth(BasicAuth):
 
         # Werkzeug parse_authorization does not handle
         # "Authorization: <token>" or
-        # "Authorization: Token <token>"
+        # "Authorization: Token <token>" or
+        # "Authorization: Bearer <token>"
         # headers, therefore they should be explicitly handled
         if not auth and request.headers.get('Authorization'):
             auth = request.headers.get('Authorization').strip()
-            if auth.lower().startswith('token'):
+            if auth.lower().startswith(('token', 'bearer')):
                 auth = auth.split(' ')[1]
 
         if auth:
