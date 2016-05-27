@@ -74,14 +74,14 @@ assumes that:</p>
     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Just save it as <cite>run.py</cite>. Next, create a new text file with the following
+<p>Just save it as run.py. Next, create a new text file with the following
 content:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;people&#39;</span><span class="p">:</span> <span class="p">{}}</span>
 </pre></div>
 </div>
-<p>Save it as <cite>settings.py</cite> in the same directory where <cite>run.py</cite> is stored. This
+<p>Save it as settings.py in the same directory where run.py is stored. This
 is the Eve configuration file, a standard Python module, and it is telling Eve
-that your API is comprised of just one accessible resource, <cite>people</cite>.</p>
+that your API is comprised of just one accessible resource, <tt class="docutils literal"><span class="pre">people</span></tt>.</p>
 <p>Now your are ready to launch your API.</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python run.py
 <span class="go"> * Running on http://127.0.0.1:5000/</span>
@@ -99,45 +99,36 @@ that your API is comprised of just one accessible resource, <cite>people</cite>.
 <p>Congratulations, your GET request got a nice response back. Let&#8217;s look at the
 payload:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
-    <span class="s">&quot;_info&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&quot;server&quot;</span><span class="p">:</span> <span class="s">&quot;Eve&quot;</span><span class="p">,</span>
-        <span class="s">&quot;version&quot;</span><span class="p">:</span> <span class="s">&quot;a.b.c&quot;</span><span class="p">,</span>
-        <span class="s">&quot;api_version&quot;</span><span class="p">:</span> <span class="s">&quot;x.y.z&quot;</span>
-    <span class="p">},</span>
-    <span class="s">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&quot;child&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">{</span>
-                <span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span><span class="p">,</span>
-                <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span>
-            <span class="p">}</span>
-        <span class="p">]</span>
-    <span class="p">}</span>
+  <span class="s">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&quot;child&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span><span class="p">,</span>
+        <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The <cite>_info</cite> section displays the current version of Eve (a.b.c) and the current
-version of the API as defined in your <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a> configuration section. This
-is an optional feature that you can turn on by setting a value in the <cite>INFO</cite> value
-in your settings (defaults to off).</p>
 <p>API entry points adhere to the <a class="reference internal" href="features.html#hateoas-feature"><em>HATEOAS</em></a> principle and provide
 information about the resources accessible through the API. In our case
-there&#8217;s only one child resource available, that being <cite>people</cite>.</p>
-<p>Try requesting <cite>people</cite> now:</p>
+there&#8217;s only one child resource available, that being <tt class="docutils literal"><span class="pre">people</span></tt>.</p>
+<p>Try requesting <tt class="docutils literal"><span class="pre">people</span></tt> now:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl http://127.0.0.1:5000/people
 </pre></div>
 </div>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
-    <span class="s">&quot;_items&quot;</span><span class="p">:</span> <span class="p">[],</span>
-    <span class="s">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span><span class="p">,</span>
-            <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span>
-        <span class="p">},</span>
-        <span class="s">&quot;parent&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;/&quot;</span><span class="p">,</span>
-            <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;home&quot;</span>
-        <span class="p">}</span>
+  <span class="s">&quot;_items&quot;</span><span class="p">:</span> <span class="p">[],</span>
+  <span class="s">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span><span class="p">,</span>
+      <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span>
+    <span class="p">},</span>
+    <span class="s">&quot;parent&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;/&quot;</span><span class="p">,</span>
+      <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;home&quot;</span>
     <span class="p">}</span>
+  <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -152,30 +143,33 @@ page) and to the resource itself.</p>
 <span class="go">&lt;p&gt;The method DELETE is not allowed for the requested URL.&lt;/p&gt;</span>
 </pre></div>
 </div>
-<p>Since we didn&#8217;t provide any database detail in <cite>settings.py</cite>, Eve has no clue
-about the real content of the <cite>people</cite> collection (it might even be
+<p>Since we didn&#8217;t provide any database detail in settings.py, Eve has no clue
+about the real content of the <tt class="docutils literal"><span class="pre">people</span></tt> collection (it might even be
 non-existent) and seamlessly serves an empty resource, as we don&#8217;t want to let
 API users down.</p>
 </div>
 <div class="section" id="database-interlude">
 <h2>Database Interlude<a class="headerlink" href="#database-interlude" title="Permalink to this headline">¶</a></h2>
-<p>Let&#8217;s connect to a database by adding the following lines to <cite>settings.py</cite>:</p>
+<p>Let&#8217;s connect to a database by adding the following lines to settings.py:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Let&#39;s just use the local mongod instance. Edit as needed.</span>
 
 <span class="c"># Please note that MONGO_HOST and MONGO_PORT could very well be left</span>
 <span class="c"># out as they already default to a bare bones local &#39;mongod&#39; instance.</span>
 <span class="n">MONGO_HOST</span> <span class="o">=</span> <span class="s">&#39;localhost&#39;</span>
 <span class="n">MONGO_PORT</span> <span class="o">=</span> <span class="mi">27017</span>
-<span class="n">MONGO_USERNAME</span> <span class="o">=</span> <span class="s">&#39;user&#39;</span>
-<span class="n">MONGO_PASSWORD</span> <span class="o">=</span> <span class="s">&#39;user&#39;</span>
+
+<span class="c"># Skip these if your db has no auth. But it really should.</span>
+<span class="n">MONGO_USERNAME</span> <span class="o">=</span> <span class="s">&#39;&lt;your username&gt;&#39;</span>
+<span class="n">MONGO_PASSWORD</span> <span class="o">=</span> <span class="s">&#39;&lt;your password&gt;&#39;</span>
+
 <span class="n">MONGO_DBNAME</span> <span class="o">=</span> <span class="s">&#39;apitest&#39;</span>
 </pre></div>
 </div>
 <p>Due to MongoDB <em>laziness</em>, we don&#8217;t really need to create the database
 collections. Actually we don&#8217;t even need to create the database: GET requests
-on an empty/non-existent DB will be served correctly (200 OK with an empty
-collection); DELETE/PATCH/PUT will receive appropriate responses (404 Not
-Found), and POST requests will create database and collections as needed.
+on an empty/non-existent DB will be served correctly (<tt class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></tt> with an empty
+collection); DELETE/PATCH/PUT will receive appropriate responses (<tt class="docutils literal"><span class="pre">404</span> <span class="pre">Not</span>
+<span class="pre">Found</span></tt> ), and POST requests will create database and collections as needed.
 However, such an auto-managed database will perform very poorly since it lacks
 indexes and any sort of optimization.</p>
 </div>
@@ -199,7 +193,7 @@ while <tt class="docutils literal"><span class="pre">ITEM_METHODS</span></tt> li
 all endpoints.  You can then enable or disable HTTP methods at individual
 endpoint level, as we will soon see.</p>
 <p>Since we are enabling editing we also want to enable proper data validation.
-Let&#8217;s define a schema for our <cite>people</cite> resource.</p>
+Let&#8217;s define a schema for our <tt class="docutils literal"><span class="pre">people</span></tt> resource.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">schema</span> <span class="o">=</span> <span class="p">{</span>
     <span class="c"># Schema definition, based on Cerberus grammar. Check the Cerberus project</span>
     <span class="c"># (https://github.com/nicolaiarocci/cerberus) for details.</span>
@@ -237,15 +231,15 @@ Let&#8217;s define a schema for our <cite>people</cite> resource.</p>
 </pre></div>
 </div>
 <p>For more information on validation see <a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a>.</p>
-<p>Now let&#8217;s say that we want to further customize the <cite>people</cite> endpoint. We want
+<p>Now let&#8217;s say that we want to further customize the <tt class="docutils literal"><span class="pre">people</span></tt> endpoint. We want
 to:</p>
 <ul class="simple">
-<li>set the item title to <em>person</em></li>
+<li>set the item title to <tt class="docutils literal"><span class="pre">person</span></tt></li>
 <li>add an extra <a class="reference internal" href="features.html#custom-item-endpoints"><em>custom item endpoint</em></a> at <tt class="docutils literal"><span class="pre">/people/&lt;lastname&gt;</span></tt></li>
 <li>override the default <a class="reference internal" href="features.html#cache-control"><em>cache control directives</em></a></li>
 <li>disable DELETE for the <tt class="docutils literal"><span class="pre">/people</span></tt> endpoint (we enabled it globally)</li>
 </ul>
-<p>Here is how the complete <cite>people</cite> definition looks in our updated <cite>settings.py</cite>
+<p>Here is how the complete <tt class="docutils literal"><span class="pre">people</span></tt> definition looks in our updated settings.py
 file:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
     <span class="c"># &#39;title&#39; tag used in item links. Defaults to the resource title minus</span>
@@ -278,14 +272,14 @@ file:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Save <cite>settings.py</cite> and launch <cite>run.py</cite>. We can now insert documents at the
-<cite>people</cite> endpoint:</p>
+<p>Save settings.py and launch run.py. We can now insert documents at the
+<tt class="docutils literal"><span class="pre">people</span></tt> endpoint:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;[{&quot;firstname&quot;: &quot;barack&quot;, &quot;lastname&quot;: &quot;obama&quot;}, {&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}]&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span>  http://127.0.0.1:5000/people
 <span class="go">HTTP/1.0 201 OK</span>
 </pre></div>
 </div>
 <p>We can also update and delete items (but not the whole resource since we
-disabled that). We can also perform GET requests against the new <cite>lastname</cite>
+disabled that). We can also perform GET requests against the new <tt class="docutils literal"><span class="pre">lastname</span></tt>
 endpoint:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://127.0.0.1:5000/people/obama
 <span class="go">HTTP/1.0 200 OK</span>
