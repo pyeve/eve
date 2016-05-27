@@ -75,6 +75,7 @@ Version 0.6.4
 - Fix: If datasource source is specified no fields are included by default.
   Closes #842.
 
+- Docs: streamline Quickstart guide. Closes #868.
 - Docs: fix broken link in Installation page. Closes #861.
 - Docs: Resource configuration doesn't mention ``versioning`` override. Closes
   #845.
