@@ -22,16 +22,16 @@ A minimal Eve application looks something like this::
     if __name__ == '__main__':
         app.run()
 
-Just save it as `run.py`. Next, create a new text file with the following
+Just save it as run.py. Next, create a new text file with the following
 content:
 
 ::
 
     DOMAIN = {'people': {}}
 
-Save it as `settings.py` in the same directory where `run.py` is stored. This
+Save it as settings.py in the same directory where run.py is stored. This
 is the Eve configuration file, a standard Python module, and it is telling Eve
-that your API is comprised of just one accessible resource, `people`.
+that your API is comprised of just one accessible resource, ``people``.
 
 Now your are ready to launch your API. 
 
@@ -57,31 +57,21 @@ payload:
 ::
 
     {
-        "_info": {
-            "server": "Eve",
-            "version": "a.b.c",
-            "api_version": "x.y.z"
-        },
-        "_links": {
-            "child": [
-                {
-                    "href": "people", 
-                    "title": "people"
-                }
-            ]
-        }
+      "_links": {
+        "child": [
+          {
+            "href": "people", 
+            "title": "people"
+          }
+        ]
+      }
     }
-
-The `_info` section displays the current version of Eve (a.b.c) and the current
-version of the API as defined in your :ref:`global` configuration section. This
-is an optional feature that you can turn on by setting a value in the `INFO` value
-in your settings (defaults to off).
 
 API entry points adhere to the :ref:`hateoas_feature` principle and provide
 information about the resources accessible through the API. In our case
-there's only one child resource available, that being `people`.
+there's only one child resource available, that being ``people``.
 
-Try requesting `people` now:
+Try requesting ``people`` now:
 
 .. code-block:: console
 
@@ -90,17 +80,17 @@ Try requesting `people` now:
 ::
 
     {
-        "_items": [], 
-        "_links": {
-            "self": {
-                "href": "people", 
-                "title": "people"
-            }, 
-            "parent": {
-                "href": "/", 
-                "title": "home"
-            }
+      "_items": [], 
+      "_links": {
+        "self": {
+          "href": "people", 
+          "title": "people"
+        }, 
+        "parent": {
+          "href": "/", 
+          "title": "home"
         }
+      }
     }
 
 This time we also got an ``_items`` list. The ``_links`` are relative to the
@@ -117,14 +107,14 @@ By default Eve APIs are read-only:
     <h1>Method Not Allowed</h1>
     <p>The method DELETE is not allowed for the requested URL.</p>
 
-Since we didn't provide any database detail in `settings.py`, Eve has no clue
-about the real content of the `people` collection (it might even be
+Since we didn't provide any database detail in settings.py, Eve has no clue
+about the real content of the ``people`` collection (it might even be
 non-existent) and seamlessly serves an empty resource, as we don't want to let
 API users down.
 
 Database Interlude
 ------------------
-Let's connect to a database by adding the following lines to `settings.py`:
+Let's connect to a database by adding the following lines to settings.py:
 
 ::
 
@@ -134,15 +124,18 @@ Let's connect to a database by adding the following lines to `settings.py`:
     # out as they already default to a bare bones local 'mongod' instance.
     MONGO_HOST = 'localhost'
     MONGO_PORT = 27017
-    MONGO_USERNAME = 'user'
-    MONGO_PASSWORD = 'user'
+
+    # Skip these if your db has no auth. But it really should.
+    MONGO_USERNAME = '<your username>'
+    MONGO_PASSWORD = '<your password>'
+
     MONGO_DBNAME = 'apitest'
 
 Due to MongoDB *laziness*, we don't really need to create the database
 collections. Actually we don't even need to create the database: GET requests
-on an empty/non-existent DB will be served correctly (200 OK with an empty
-collection); DELETE/PATCH/PUT will receive appropriate responses (404 Not
-Found), and POST requests will create database and collections as needed.
+on an empty/non-existent DB will be served correctly (``200 OK`` with an empty
+collection); DELETE/PATCH/PUT will receive appropriate responses (``404 Not
+Found`` ), and POST requests will create database and collections as needed.
 However, such an auto-managed database will perform very poorly since it lacks
 indexes and any sort of optimization.
 
@@ -169,7 +162,7 @@ all endpoints.  You can then enable or disable HTTP methods at individual
 endpoint level, as we will soon see.
 
 Since we are enabling editing we also want to enable proper data validation.
-Let's define a schema for our `people` resource.
+Let's define a schema for our ``people`` resource.
 
 ::
 
@@ -210,15 +203,15 @@ Let's define a schema for our `people` resource.
 
 For more information on validation see :ref:`validation`. 
 
-Now let's say that we want to further customize the `people` endpoint. We want
+Now let's say that we want to further customize the ``people`` endpoint. We want
 to: 
 
-- set the item title to *person*
+- set the item title to ``person``
 - add an extra :ref:`custom item endpoint <custom_item_endpoints>` at ``/people/<lastname>``
 - override the default :ref:`cache control directives <cache_control>`
 - disable DELETE for the ``/people`` endpoint (we enabled it globally)
 
-Here is how the complete `people` definition looks in our updated `settings.py`
+Here is how the complete ``people`` definition looks in our updated settings.py
 file:
 
 ::
@@ -255,8 +248,8 @@ Finally we update our domain definition:
         'people': people,
     }
 
-Save `settings.py` and launch `run.py`. We can now insert documents at the
-`people` endpoint:
+Save settings.py and launch run.py. We can now insert documents at the
+``people`` endpoint:
 
 .. code-block:: console
 
@@ -264,7 +257,7 @@ Save `settings.py` and launch `run.py`. We can now insert documents at the
     HTTP/1.0 201 OK
 
 We can also update and delete items (but not the whole resource since we
-disabled that). We can also perform GET requests against the new `lastname`
+disabled that). We can also perform GET requests against the new ``lastname``
 endpoint:
 
 .. code-block:: console
