@@ -48,7 +48,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Eve'
-copyright = u'%s. A <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project' % datetime.datetime.now().year
+copyright = u'%s. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project' % datetime.datetime.now().year
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -108,7 +108,7 @@ html_theme = 'alabaster'
 #html_theme_options = {'touch_icon': 'touch-icon.png'}
 
 # Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = ['_themes', alabaster.get_path()]
+html_theme_path = [alabaster.get_path()]
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -149,13 +149,10 @@ html_static_path = ['_static']
 html_sidebars = {
    '**': [
        'about.html',
+       'sidebarintro.html',
        'navigation.html',
-       'alabaster/dev.html',
-       'alabaster/links.html',
-       #'powered.html',
-       #'donate.html',
        'searchbox.html',
-       'alabaster/artwork.html'
+       'artwork.html',
    ]
 }
 
@@ -165,8 +162,6 @@ html_theme_options = {
     'github_repo': 'eve',
     'github_banner': True,
     'github_banner_image': 'forkme_right_green_007200.png',
-    'travis_button': True,
-    'gittip_user': 'nicolaiarocci',
     'show_powered_by': False,
 }
 # Additional templates that should be rendered to pages, maps page names to
