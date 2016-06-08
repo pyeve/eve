@@ -66,8 +66,14 @@ Version 0.7
 - Fix: ETag request headers which conform to RFC 7232/2.3 (double quoted value)
   are now properly processed. Addresses #794.
 
+
+Stable
+------
+
 Version 0.6.4
 ~~~~~~~~~~~~~
+
+Released on 8 June, 2016
 
 - Fix: Cannot serialize data when a field that has a 'valueschema' that is of
   'dict' type. Closes #874.
@@ -81,10 +87,6 @@ Version 0.6.4
 - Docs: fix broken link in Installation page. Closes #861.
 - Docs: Resource configuration doesn't mention ``versioning`` override. Closes
   #845.
-
-
-Stable
-------
 
 Version 0.6.3
 ~~~~~~~~~~~~~
