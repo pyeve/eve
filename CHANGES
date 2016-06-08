@@ -6,8 +6,14 @@ Here you can see the full list of changes between each Eve release.
 Stable
 ------
 
+
+Stable
+------
+
 Version 0.6.4
 ~~~~~~~~~~~~~
+
+Released on 8 June, 2016
 
 - Fix: Cannot serialize data when a field that has a 'valueschema' that is of
   'dict' type. Closes #874.
@@ -20,10 +26,6 @@ Version 0.6.4
 - Docs: fix broken link in Installation page. Closes #861.
 - Docs: Resource configuration doesn't mention ``versioning`` override. Closes
   #845.
-
-
-Stable
-------
 
 Version 0.6.3
 ~~~~~~~~~~~~~
