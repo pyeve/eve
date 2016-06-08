@@ -75,8 +75,8 @@ Version 0.6.4
 
 Released on 8 June, 2016
 
-- Fix: Cannot serialize data when a field that has a 'valueschema' that is of
-  'dict' type. Closes #874.
+- Fix: Cannot serialize data when a field that has a ``valueschema`` that is of
+  ``dict`` type. Closes #874.
 - Fix: Authorization header bearer tokens not parsed correctly. Closes #866
   (James Stewart).
 - Fix: TokenAuth prevents base64 decoding of Tokens. Closes #840.
