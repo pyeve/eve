@@ -393,6 +393,11 @@ def serialize(document, resource=None, schema=None, fields=None):
                         for field in target:
                             target[field] = \
                                 serialize_value(field_type, target[field])
+                    elif field_type == 'dict':
+                        for subdocument in document[field].values():
+                            serialize(
+                                subdocument,
+                                schema=field_schema['valueschema']['schema'])
                 elif field_type in app.data.serializers:
                     # a simple field
                     document[field] = \

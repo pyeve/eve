@@ -146,6 +146,15 @@ contacts = {
         },
         'anumber': {
             'type': 'number'
+        },
+        'dict_valueschema': {
+            'type': 'dict',
+            'valueschema': {
+                'type': 'dict',
+                'schema': {
+                    'challenge': {'type': 'objectid'}
+                }
+            }
         }
     }
 }
