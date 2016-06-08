@@ -9,7 +9,7 @@ show me your tool!
 - Eve-Elastic_
 - Eve-Mongoengine_
 - Eve-Swagger_
-- Eve-Docs_
+- Eve-Docs_ 
 - Eve-SQLAlchemy_
 - Eve.NET_
 - Eve-OAuth2_ and Flask-Sentinel_
@@ -53,6 +53,8 @@ Swagger website:
     deployment environment. With a Swagger-enabled API, you get interactive
     documentation, client SDK generation and discoverability.
 
+For more information, see also the `Meet Eve-Swagger`_ article.
+
 Eve-Docs
 --------
 
@@ -60,8 +62,11 @@ Eve-Docs
 
 Eve-docs_ is a blueprint that generates documentation for Eve APIs in HTML and
 JSON formats. Eve-docs creates the documentation from your existing Eve
-configuration file, with no additional configuration required. For a nice
-screenshot, check out the relevant blog post `Auto generate API docs`_.
+configuration file, with no additional configuration required. 
+
+.. note::
+    Looks like the Eve-Docs project has been stagnant for a while. You might
+    want to consider Eve-Swagger_ as an alternative.
 
 Eve.NET
 -------
@@ -140,3 +145,4 @@ Olivier Poitrey, a long time Eve contributor and sustainer. REST Layer is
 .. _`REST Layer`: https://github.com/rs/rest-layer
 .. _EveGenie: https://github.com/newmediadenver/evegenie
 .. _Eve-Swagger: https://github.com/nicolaiarocci/eve-swagger
+.. _`Meet Eve-Swagger`: http://nicolaiarocci.com/announcing-eve-swagger/
