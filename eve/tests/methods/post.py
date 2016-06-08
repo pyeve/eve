@@ -391,6 +391,13 @@ class TestPost(TestBase):
         self.assertTrue('%s' % objectid in
                         r['_items'][0]['id_list_of_dict'][0]['id'])
 
+    def test_post_valueschema_with_objectid(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        data = {'dict_valueschema': {'id': {'challenge':
+                                            '50656e4538345b39dd0414f0'}}}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert201(status)
+
     def test_post_list_fixed_len(self):
         objectid = '50656e4538345b39dd0414f0'
         del(self.domain['contacts']['schema']['ref']['required'])
