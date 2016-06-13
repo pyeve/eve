@@ -358,6 +358,70 @@ class TestSerializer(TestBase):
                 serialized = serialize(doc, schema=schema)
                 self.assertTrue(isinstance(serialized['x_of-field'], ObjectId))
 
+    def test_serialize_inside_list_of_x_of_rules(self):
+        for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+            schema = {
+                'list-field': {
+                    'type': 'list',
+                    'schema': {
+                        x_of: [
+                            {
+                                'type': 'objectid',
+                                'required': True}
+                        ]
+                    }
+                }
+            }
+            doc = {'list-field': ['50656e4538345b39dd0414f0']}
+            with self.app.app_context():
+                serialized = serialize(doc, schema=schema)
+                serialized_oid = serialized['list-field'][0]
+                self.assertTrue(isinstance(serialized_oid, ObjectId))
+
+    def test_serialize_inside_list_of_schema_of_x_of_rules(self):
+        for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+            schema = {
+                'list-field': {
+                    'type': 'list',
+                    'schema': {
+                        x_of: [
+                            {
+                                'type': 'dict',
+                                'schema': {
+                                    'x_of-field': {
+                                        'type': 'objectid',
+                                        'required': True
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+            doc = {'list-field': [{'x_of-field': '50656e4538345b39dd0414f0'}]}
+            with self.app.app_context():
+                serialized = serialize(doc, schema=schema)
+                serialized_oid = serialized['list-field'][0]['x_of-field']
+                self.assertTrue(isinstance(serialized_oid, ObjectId))
+
+    def test_serialize_inside_list_of_x_of_typesavers(self):
+        for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+            schema = {
+                'list-field': {
+                    'type': 'list',
+                    'schema': {
+                        '{0}_type'.format(x_of): [
+                            'objectid', 'float', 'boolean'
+                        ]
+                    }
+                }
+            }
+            doc = {'list-field': ['50656e4538345b39dd0414f0']}
+            with self.app.app_context():
+                serialized = serialize(doc, schema=schema)
+                serialized_oid = serialized['list-field'][0]
+                self.assertTrue(isinstance(serialized_oid, ObjectId))
+
 
 class TestNormalizeDottedFields(TestBase):
     def test_normalize_dotted_fields(self):
