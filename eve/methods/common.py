@@ -400,6 +400,20 @@ def serialize(document, resource=None, schema=None, fields=None):
                                               schema=sublist_schema['schema'])
                                 elif item_type in app.data.serializers:
                                     sublist[i] = serialize_value(item_type, v)
+                    elif field_schema.get('type') is None:
+                        # a list of items determined by *of rules
+                        for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+                            for optschema in field_schema.get(x_of, []):
+                                schema = {field: {
+                                    'type': field_type,
+                                    'schema': optschema}}
+                                serialize(document, schema=schema)
+                            x_of_type = '{0}_type'.format(x_of)
+                            for opttype in field_schema.get(x_of_type, []):
+                                schema = {field: {
+                                    'type': field_type,
+                                    'schema': {'type': opttype}}}
+                                serialize(document, schema=schema)
                     else:
                         # a list of one type, arbitrary length
                         field_type = field_schema.get('type')
