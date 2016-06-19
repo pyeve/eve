@@ -67,6 +67,12 @@ Version 0.7
   are now properly processed. Addresses #794.
 
 
+Version 0.6.5
+~~~~~~~~~~~~~
+
+- Fix: add Support serialization on lists using anyof, oneof, allof, noneof.
+  Closes #876 (Carles Bruguera).
+
 Stable
 ------
 
