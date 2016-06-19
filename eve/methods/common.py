@@ -331,6 +331,9 @@ def serialize(document, resource=None, schema=None, fields=None):
     """ Recursively handles field values that require data-aware serialization.
     Relies on the app.data.serializers dictionary.
 
+    .. versionchanged:: 0.7
+       Add support for normalizing anyof-like rules inside lists. See #876.
+
     .. versionchanged:: 0.6
        Add support for normalizing dotted fields.
 
