@@ -9,6 +9,9 @@ In Development
 Version 0.7
 ~~~~~~~~~~~
 
+- New: Regexes are allowed when setting ``X_DOMAINS`` values. This allows CORS
+  to support websites with dynamic ranges of subdomains. Closes #660.
+
 - New: If ``ENFORCE_IF_MATCH`` option is active, then all requests are expected
   to include the ``If-Match`` or they will be rejected (same as old behavior).
   However, if ``ENFORCE_IF_MATCH`` is disabled, then client determines whether

@@ -10,6 +10,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
+import re
 import time
 import datetime
 import simplejson as json
@@ -108,6 +109,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     :param status: response status.
 
     .. versionchanged:: 0.7
+       Add support for regexes in X_DOMAINS values. Closes #660.
        ETag value now surrounded by double quotes. Closes #794.
 
     .. versionchanged:: 0.6
@@ -214,7 +216,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         if '*' in domains:
             resp.headers.add('Access-Control-Allow-Origin', origin)
             resp.headers.add('Vary', 'Origin')
-        elif origin in domains:
+        elif any(re.match(re.escape(domain), origin) for domain in domains):
             resp.headers.add('Access-Control-Allow-Origin', origin)
         else:
             resp.headers.add('Access-Control-Allow-Origin', '')

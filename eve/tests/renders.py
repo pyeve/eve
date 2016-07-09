@@ -125,7 +125,7 @@ class TestRenders(TestBase):
 
         # test that if X_DOMAINS is set to '*', then any Origin value is
         # allowed. Also test that only the Origin header included with the
-        # request will be # returned back to the client.
+        # request will be returned to the client.
         self.app.config['X_DOMAINS'] = '*'
         r = self.test_client.get('/', headers=[('Origin',
                                                 'http://example.com')])
@@ -134,7 +134,7 @@ class TestRenders(TestBase):
                          'http://example.com')
         self.assertEqual(r.headers['Vary'], 'Origin')
 
-        # Given that CORS is activated with X_DOMAINS = '*'
+        # Given that CORS is activated with X_DOMAINS = '*',
         # test that if X_ALLOW_CREDENTIALS is set to True
         # then the relevant header is included in the response
         self.app.config['X_ALLOW_CREDENTIALS'] = True
@@ -174,6 +174,18 @@ class TestRenders(TestBase):
         self.assertTrue('Access-Control-Allow-Methods' in r.headers)
         self.assertTrue('Access-Control-Max-Age' in r.headers)
         self.assertTrue('Access-Control-Expose-Headers' in r.headers)
+
+        # unescaped dots of old (pre v0.7) or malicious X_DOMAINS definitions
+        # would be interpreted as any character, causing security issue with
+        # bad guy registering wwwxgithub.com to pass as www.github.com (see
+        # #660).
+
+        self.app.config['X_DOMAINS'] = ['http://www.github.com']
+        r = self.test_client.get('/', headers=[('Origin',
+                                                'http://wwwxgithub.com')])
+        self.assert200(r.status_code)
+        self.assertFalse('http://wwwxgithub.com' in
+                         r.headers['Access-Control-Allow-Origin'])
 
     def test_CORS_MAX_AGE(self):
         self.app.config['X_DOMAINS'] = '*'
