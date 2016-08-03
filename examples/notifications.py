@@ -19,8 +19,9 @@ from __future__ import print_function
 """
 from flask import request
 from eve import Eve
+from settings_notifications import SETTINGS, SQL, ValidatorSQL, Base
 
-app = Eve()
+app = Eve(auth=None, settings=SETTINGS, validator=ValidatorSQL, data=SQL)
 
 
 @app.before_request
@@ -38,4 +39,8 @@ def after(response):
     return response
 
 if __name__ == '__main__':
+    db = app.data.driver
+    Base.metadata.bind = db.engine
+    db.Model = Base
+    db.create_all()
     app.run(debug=True)
