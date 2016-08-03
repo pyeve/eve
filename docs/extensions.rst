@@ -16,6 +16,7 @@ show me your tool!
 - Eve-Auth-JWT_
 - EveGenie_
 - Eve-Mocker_
+- Eve-Neo4j_
 
 - `REST Layer for Golang`_
 
@@ -118,6 +119,14 @@ excellent HTTPretty, aimed to be used in your unit tests, when you rely on an
 Eve API. Eve-Mocker has been featured on the Eve blog: `Mocking tool for Eve
 APIs`_
 
+Eve-Neo4j
+---------
+*by Abraxas Biosystems*
+
+Eve-Neo4j_ is an Eve extension aiming to enable it's users to build and 
+deploy highly customizable, fully featured RESTful Web Services using Neo4j 
+as backend. Powered by Eve, Py2neo, flask-neo4j and good intentions.
+
 REST Layer for Golang
 ---------------------
 If you are into Golang, you should also check `REST Layer`_. Developed by
@@ -146,3 +155,4 @@ Olivier Poitrey, a long time Eve contributor and sustainer. REST Layer is
 .. _EveGenie: https://github.com/newmediadenver/evegenie
 .. _Eve-Swagger: https://github.com/nicolaiarocci/eve-swagger
 .. _`Meet Eve-Swagger`: http://nicolaiarocci.com/announcing-eve-swagger/
+.. _Eve-Neo4j: https://github.com/Abraxas-Biosystems/eve-neo4j
