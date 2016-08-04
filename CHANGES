@@ -76,6 +76,8 @@ Version 0.6.5
 - Fix: add Support serialization on lists using anyof, oneof, allof, noneof.
   Closes #876 (Carles Bruguera).
 
+- Docs: add Eve-Neo4j to the extensions page (Rodrigo Rodriguez).
+
 Stable
 ------
 
