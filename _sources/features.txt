@@ -721,9 +721,12 @@ well. For more information see :ref:`auth`.
 
 CORS Cross-Origin Resource Sharing
 ----------------------------------
-Disabled by default, CORS_ allows web pages to work with REST APIs, something
-that is usually restricted by most browsers 'same domain' security policy.
 Eve-powered APIs can be accessed by the JavaScript contained in web pages.
+Disabled by default, CORS_ allows web pages to work with REST APIs, something
+that is usually restricted by most browsers 'same domain' security policy. The
+``X_DOMAINS`` setting allows to specify which domains are allowed to perform
+CORS requests. Regexes are also allowed, which is useful for websites with
+dynamic ranges of subdomains. 
 
 JSONP Support
 -------------

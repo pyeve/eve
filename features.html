@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Features &mdash; Eve 0.6.4.dev0 documentation</title>
+    <title>Features &mdash; Eve 0.6.5.dev0 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.6.4.dev0',
+        VERSION:     '0.6.5.dev0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.6.4.dev0 documentation" href="index.html" />
+    <link rel="top" title="Eve 0.6.5.dev0 documentation" href="index.html" />
     <link rel="next" title="Configuration" href="config.html" />
     <link rel="prev" title="Quickstart" href="quickstart.html" />
    
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="quickstart.html" title="Quickstart"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Eve 0.6.4.dev0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Eve 0.6.5.dev0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -702,9 +702,12 @@ well. For more information see <a class="reference internal" href="authenticatio
 </div>
 <div class="section" id="cors-cross-origin-resource-sharing">
 <h2>CORS Cross-Origin Resource Sharing<a class="headerlink" href="#cors-cross-origin-resource-sharing" title="Permalink to this headline">¶</a></h2>
-<p>Disabled by default, <a class="reference external" href="http://en.wikipedia.org/wiki/Cross-origin_resource_sharing">CORS</a> allows web pages to work with REST APIs, something
-that is usually restricted by most browsers &#8216;same domain&#8217; security policy.
-Eve-powered APIs can be accessed by the JavaScript contained in web pages.</p>
+<p>Eve-powered APIs can be accessed by the JavaScript contained in web pages.
+Disabled by default, <a class="reference external" href="http://en.wikipedia.org/wiki/Cross-origin_resource_sharing">CORS</a> allows web pages to work with REST APIs, something
+that is usually restricted by most browsers &#8216;same domain&#8217; security policy. The
+<tt class="docutils literal"><span class="pre">X_DOMAINS</span></tt> setting allows to specify which domains are allowed to perform
+CORS requests. Regexes are also allowed, which is useful for websites with
+dynamic ranges of subdomains.</p>
 </div>
 <div class="section" id="jsonp-support">
 <h2>JSONP Support<a class="headerlink" href="#jsonp-support" title="Permalink to this headline">¶</a></h2>
