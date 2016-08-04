@@ -8,7 +8,8 @@ human beings. It allows to effortlessly build and deploy highly customizable,
 fully featured RESTful Web Services.
 
 Eve is powered by Flask_, Redis_, Cerberus_, Events_ and offers support for
-both MongoDB_ and SQL backends [*]_.
+both MongoDB_ and SQL data storage backends [*]_
+as well as Redis_ for rate limiting support.
 
 The codebase is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4 and PyPy.
 
