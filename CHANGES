@@ -77,6 +77,8 @@ Version 0.6.5
   Closes #876 (Carles Bruguera).
 
 - Docs: add Eve-Neo4j to the extensions page (Rodrigo Rodriguez).
+- Docs: stress that alternate backends are supported via community extensions.
+- Docs: clarify that Redis is an optional dependency (Mateusz Łoskot).
 
 Stable
 ------
