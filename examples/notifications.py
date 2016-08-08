@@ -19,7 +19,7 @@ from __future__ import print_function
 """
 from flask import request
 from eve import Eve
-from settings_notifications import SETTINGS
+from notifications_settings import SETTINGS
 
 app = Eve(auth=None, settings=SETTINGS)
 
