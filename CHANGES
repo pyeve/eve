@@ -75,6 +75,8 @@ Version 0.6.5
 
 - Fix: add Support serialization on lists using anyof, oneof, allof, noneof.
   Closes #876 (Carles Bruguera).
+- Fix: ``notifications.py`` example snippet crashes due to lack of ``DOMAIN``
+  setting (Stanislav Filin).
 
 - Docs: add Eve-Neo4j to the extensions page (Rodrigo Rodriguez).
 - Docs: stress that alternate backends are supported via community extensions.
