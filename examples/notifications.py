@@ -19,8 +19,9 @@ from __future__ import print_function
 """
 from flask import request
 from eve import Eve
+from settings_notifications import SETTINGS
 
-app = Eve()
+app = Eve(auth=None, settings=SETTINGS)
 
 
 @app.before_request
@@ -38,4 +39,4 @@ def after(response):
     return response
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
