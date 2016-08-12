@@ -74,7 +74,7 @@ link <http://eve.readthedocs.org/en/stable/>`_.
     changelog
 
 .. note::
-   This documentation is under costant development. Please refer to the links
+   This documentation is under constant development. Please refer to the links
    on the sidebar for more information. 
 
 
