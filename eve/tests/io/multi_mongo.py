@@ -3,7 +3,7 @@ from datetime import datetime
 
 import json
 from bson import ObjectId
-from flask.ext.pymongo import MongoClient
+from flask_pymongo import MongoClient
 
 import eve
 from eve.auth import BasicAuth
