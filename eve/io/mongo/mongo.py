@@ -19,7 +19,7 @@ from bson import ObjectId
 from bson.dbref import DBRef
 from copy import copy
 from flask import abort, request, g
-from flask.ext.pymongo import PyMongo
+from flask_pymongo import PyMongo
 from pymongo import WriteConcern
 from werkzeug.exceptions import HTTPException
 

@@ -73,6 +73,7 @@ Version 0.7
 Version 0.6.5
 ~~~~~~~~~~~~~
 
+- Fix: Deprecation warning from Flask. Closes #898 (George Lestaris).
 - Fix: add Support serialization on lists using anyof, oneof, allof, noneof.
   Closes #876 (Carles Bruguera).
 - Fix: ``notifications.py`` example snippet crashes due to lack of ``DOMAIN``

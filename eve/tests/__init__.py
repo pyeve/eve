@@ -7,7 +7,7 @@ import random
 import os
 import simplejson as json
 from datetime import datetime, timedelta
-from flask.ext.pymongo import MongoClient
+from flask_pymongo import MongoClient
 from bson import ObjectId
 from eve.tests.test_settings import MONGO_PASSWORD, MONGO_USERNAME, \
     MONGO_DBNAME, DOMAIN, MONGO_HOST, MONGO_PORT
