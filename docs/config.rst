@@ -497,6 +497,10 @@ uppercase.
 ``MONGO_URI``                       A `MongoDB URI`_ which is used in preference
                                     of the other configuration variables.
 
+``MONGO_OPTIONS``                   MongoDB keyword arguments to passed to
+                                    MongoClient class ``__init__``.
+                                    Defaults to ``{}``.
+
 ``MONGO_HOST``                      MongoDB server address. Defaults to ``localhost``.
 
 ``MONGO_PORT``                      MongoDB port. Defaults to ``27017``.
