@@ -110,7 +110,7 @@ document being returned. The ``_links`` list provides HATEOAS_ directives.
 Sub Resources
 ~~~~~~~~~~~~~
 Endpoints support sub-resources so you could have something like:
-``people/<contact_id>/invoices``. When setting the ``url`` rule for such and
+``people/<contact_id>/invoices``. When setting the ``url`` rule for such an
 endpoint you would use a regex and assign a field name to it:
 
 .. code-block:: python
@@ -119,14 +119,13 @@ endpoint you would use a regex and assign a field name to it:
         'url': 'people/<regex("[a-f0-9]{24}"):contact_id>/invoices'
         ...
 
-Then this GET to the endpoint, which would roughly translate to *give
-me all the invoices by <contact_id>*:
+Then, a GET to the following endpoint:
 
 ::
 
     people/51f63e0838345b6dcd7eabff/invoices
 
-Would cause the underlying database collection invoices to be queried this way:
+would cause the underlying database to be queried like this:
 
 ::
 
