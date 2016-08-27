@@ -197,19 +197,18 @@ document being returned. The <tt class="docutils literal"><span class="pre">_lin
 <div class="section" id="sub-resources">
 <span id="subresources"></span><h3>Sub Resources<a class="headerlink" href="#sub-resources" title="Permalink to this headline">¶</a></h3>
 <p>Endpoints support sub-resources so you could have something like:
-<tt class="docutils literal"><span class="pre">people/&lt;contact_id&gt;/invoices</span></tt>. When setting the <tt class="docutils literal"><span class="pre">url</span></tt> rule for such and
+<tt class="docutils literal"><span class="pre">people/&lt;contact_id&gt;/invoices</span></tt>. When setting the <tt class="docutils literal"><span class="pre">url</span></tt> rule for such an
 endpoint you would use a regex and assign a field name to it:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">invoices</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;people/&lt;regex(&quot;[a-f0-9]{24}&quot;):contact_id&gt;/invoices&#39;</span>
     <span class="o">...</span>
 </pre></div>
 </div>
-<p>Then this GET to the endpoint, which would roughly translate to <em>give
-me all the invoices by &lt;contact_id&gt;</em>:</p>
+<p>Then, a GET to the following endpoint:</p>
 <div class="highlight-python"><div class="highlight"><pre>people/51f63e0838345b6dcd7eabff/invoices
 </pre></div>
 </div>
-<p>Would cause the underlying database collection invoices to be queried this way:</p>
+<p>would cause the underlying database to be queried like this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;contact_id&#39;</span><span class="p">:</span> <span class="s">&#39;51f63e0838345b6dcd7eabff&#39;</span><span class="p">}</span>
 </pre></div>
 </div>
