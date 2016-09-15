@@ -27,9 +27,8 @@ Get the git checkout in a new virtualenv and run in development mode.
     Initialized empty Git repository in ~/dev/eve/.git/
 
     $ cd eve
-    $ virtualenv venv --distribute
+    $ virtualenv venv
     New python executable in venv/bin/python
-    Installing distribute............done.
 
     $ . venv/bin/activate
     $ python setup.py install
@@ -46,10 +45,9 @@ To just get the development version without git, do this instead:
 
     $ mkdir eve
     $ cd eve
-    $ virtualenv venv --distribute
+    $ virtualenv venv
     $ . venv/bin/activate
     New python executable in venv/bin/python
-    Installing distribute............done.
 
     $ pip install git+git://github.com/nicolaiarocci/eve.git
     ...
