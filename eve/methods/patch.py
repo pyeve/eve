@@ -16,7 +16,7 @@ from werkzeug import exceptions
 from datetime import datetime
 from eve.utils import config, debug_error_message, parse_request
 from eve.auth import requires_auth
-from eve.validation import ValidationError
+from eve.validation import DocumentError
 from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, pre_event, store_media_files, resolve_embedded_fields, \
     build_response_document, marshal_write_response, resolve_document_etag, \
@@ -138,7 +138,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
 
     resource_def = app.config['DOMAIN'][resource]
     schema = resource_def['schema']
-    validator = app.validator(schema, resource)
+    validator = app.validator(schema, resource=resource)
 
     object_id = original[resource_def['id_field']]
     last_modified = None
@@ -223,7 +223,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
                 etag = response[config.ETAG]
         else:
             issues = validator.errors
-    except ValidationError as e:
+    except DocumentError as e:
         # TODO should probably log the error and abort 400 instead (when we
         # got logging)
         issues['validator exception'] = str(e)

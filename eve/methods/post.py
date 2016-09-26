@@ -15,8 +15,7 @@ from datetime import datetime
 from flask import current_app as app, abort
 from eve.utils import config, parse_request, debug_error_message
 from eve.auth import requires_auth
-from eve.defaults import resolve_default_values
-from eve.validation import ValidationError
+from eve.validation import DocumentError
 from eve.methods.common import parse, payload, ratelimit, \
     pre_event, store_media_files, resolve_user_restricted_access, \
     resolve_embedded_fields, build_response_document, marshal_write_response, \
@@ -151,7 +150,8 @@ def post_internal(resource, payl=None, skip_validation=False):
     date_utc = datetime.utcnow().replace(microsecond=0)
     resource_def = app.config['DOMAIN'][resource]
     schema = resource_def['schema']
-    validator = None if skip_validation else app.validator(schema, resource)
+    validator = None if skip_validation \
+        else app.validator(schema, resource=resource)
     documents = []
     results = []
     failures = 0
@@ -205,14 +205,13 @@ def post_internal(resource, payl=None, skip_validation=False):
                     document[config.DELETED] = False
 
                 resolve_user_restricted_access(document, resource)
-                resolve_default_values(document, resource_def['defaults'])
                 store_media_files(document, resource)
                 resolve_document_version(document, resource, 'POST')
             else:
                 # validation errors added to list of document issues
                 doc_issues = validator.errors
-        except ValidationError as e:
-            doc_issues['validator exception'] = str(e)
+        except DocumentError as e:
+            doc_issues['validation exception'] = str(e)
         except Exception as e:
             # most likely a problem with the incoming payload, report back to
             # the client as if it was a validation issue

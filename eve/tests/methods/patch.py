@@ -181,20 +181,28 @@ class TestPatch(TestBase):
         db_value = self.compare_patch_with_get(field, r)
         self.assertEqual(db_value, test_value)
 
-    def test_patch_defaults(self):
+    def test_patch_missing_default(self):
+        """ PATCH an object which is missing a field with a default value.
+
+        This should result in setting the field to its default value, even if
+        the field is not provided in the PATCH's payload. """
         field = "ref"
         test_value = "1234567890123456789012345"
         changes = {field: test_value}
         r = self.perform_patch(changes)
-        self.assertRaises(KeyError, self.compare_patch_with_get, 'title', r)
+        self.assertEqual(self.compare_patch_with_get('title', r), 'Mr.')
 
-    def test_patch_defaults_with_post_override(self):
+    def test_patch_missing_default_with_post_override(self):
+        """ PATCH an object which is missing a field with a default value.
+
+        This should result in setting the field to its default value, even if
+        the field is not provided in the PATCH's payload. """
         field = "ref"
         test_value = "1234567890123456789012345"
         r = self.perform_patch_with_post_override(field, test_value)
         self.assert200(r.status_code)
-        self.assertRaises(KeyError, self.compare_patch_with_get, 'title',
-                          json.loads(r.get_data()))
+        title = self.compare_patch_with_get('title', json.loads(r.get_data()))
+        self.assertEqual(title, 'Mr.')
 
     def test_patch_multiple_fields(self):
         fields = ['ref', 'prog', 'role']
@@ -544,6 +552,7 @@ class TestPatch(TestBase):
                     'name': {'type': 'string'},
                 },
                 'default': None,
+                'nullable': True
             },
             'other': {
                 'type': 'dict',
@@ -586,7 +595,6 @@ class TestPatch(TestBase):
         # this will fail as dependent field is missing even in the
         # document we are trying to update.
         del(self.domain['contacts']['schema']['dependency_field1']['default'])
-        del(self.domain['contacts']['defaults']['dependency_field1'])
         changes = {'dependency_field2': 'value'}
         r, status = self.patch(self.item_id_url, data=changes,
                                headers=[('If-Match', self.item_etag)])

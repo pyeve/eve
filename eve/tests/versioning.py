@@ -901,8 +901,7 @@ class TestVersionedDataRelation(TestNormalVersioning):
         r, status = self.post('/invoices/', data=data)
         self.assertValidationErrorStatus(status)
         self.assertValidationError(
-            r, {'person': {
-                value_field: "value 'bad' cannot be converted to a ObjectId"}})
+            r, {'person': {value_field: "must be of objectid type"}})
 
         # unknown id
         data = {"person": {
