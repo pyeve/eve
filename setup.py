@@ -6,7 +6,7 @@ with open('README.rst') as f:
     LONG_DESCRIPTION = f.read()
 
 install_requires = [
-    'cerberus>=0.9.2,<0.10',
+    'cerberus>=1.0.2.dev0',
     'events>=0.2.1,<0.3',
     'simplejson>=3.3.0,<4.0',
     'werkzeug>=0.9.4,<0.11.4',
@@ -37,6 +37,7 @@ setup(
     platforms=["any"],
     packages=find_packages(),
     test_suite="eve.tests",
+    dependency_links=['https://github.com/dkellner/cerberus/tarball/develop#egg=cerberus-1.0.2.dev0'],
     install_requires=install_requires,
     tests_require=['redis', 'testfixtures'],
     classifiers=[

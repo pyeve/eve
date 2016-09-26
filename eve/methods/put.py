@@ -15,14 +15,13 @@ from flask import current_app as app, abort
 from werkzeug import exceptions
 
 from eve.auth import requires_auth
-from eve.defaults import resolve_default_values
 from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, pre_event, store_media_files, resolve_user_restricted_access, \
     resolve_embedded_fields, build_response_document, marshal_write_response, \
     resolve_sub_resource_path, resolve_document_etag, oplog_push
 from eve.methods.post import post_internal
 from eve.utils import config, debug_error_message, parse_request
-from eve.validation import ValidationError
+from eve.validation import DocumentError
 from eve.versioning import resolve_document_version, \
     insert_versioning_documents, late_versioning_catch
 
@@ -109,7 +108,7 @@ def put_internal(resource, payload=None, concurrency_check=False,
     """
     resource_def = app.config['DOMAIN'][resource]
     schema = resource_def['schema']
-    validator = app.validator(schema, resource)
+    validator = app.validator(schema, resource=resource)
 
     if payload is None:
         payload = payload_()
@@ -172,7 +171,6 @@ def put_internal(resource, payload=None, concurrency_check=False,
                 document[resource_def['id_field']] = object_id
 
             resolve_user_restricted_access(document, resource)
-            resolve_default_values(document, resource_def['defaults'])
             store_media_files(document, resource, original)
             resolve_document_version(document, resource, 'PUT', original)
 
@@ -208,7 +206,7 @@ def put_internal(resource, payload=None, concurrency_check=False,
                 etag = response[config.ETAG]
         else:
             issues = validator.errors
-    except ValidationError as e:
+    except DocumentError as e:
         # TODO should probably log the error and abort 400 instead (when we
         # got logging)
         issues['validator exception'] = str(e)

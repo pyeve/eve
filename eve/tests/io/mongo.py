@@ -100,7 +100,7 @@ class TestMongoValidator(TestCase):
         v = Validator(schema, None)
         self.assertFalse(v.validate(doc))
         self.assertTrue('id' in v.errors)
-        self.assertTrue('ObjectId' in v.errors['id'])
+        self.assertTrue('objectid' in v.errors['id'])
 
     def test_objectid_success(self):
         schema = {'id': {'type': 'objectid'}}
@@ -114,7 +114,7 @@ class TestMongoValidator(TestCase):
         v = Validator(schema, None)
         self.assertFalse(v.validate(doc))
         self.assertTrue('id' in v.errors)
-        self.assertTrue('DBRef' in v.errors['id'])
+        self.assertTrue('dbref' in v.errors['id'])
 
     def test_dbref_success(self):
         schema = {'id': {'type': 'dbref'}}
@@ -123,23 +123,9 @@ class TestMongoValidator(TestCase):
         v = Validator(schema, None)
         self.assertTrue(v.validate(doc))
 
-    def test_transparent_rules(self):
-        schema = {'a_field': {'type': 'string'}}
-        v = Validator(schema)
-        self.assertFalse(v.transparent_schema_rules)
-
     def test_reject_invalid_schema(self):
         schema = {'a_field': {'foo': 'bar'}}
         self.assertRaises(SchemaError, lambda: Validator(schema))
-
-    def test_enable_transparent_rules(self):
-        schema = {'a_field': {'type': 'string'}}
-        v = Validator(schema, transparent_schema_rules=True)
-        self.assertTrue(v.transparent_schema_rules)
-
-    def test_transparent_rules_accept_invalid_schema(self):
-        schema = {'a_field': {'foo': 'bar'}}
-        Validator(schema, transparent_schema_rules=True)
 
     def test_geojson_not_compilant(self):
         schema = {'location': {'type': 'point'}}
@@ -147,7 +133,7 @@ class TestMongoValidator(TestCase):
         v = Validator(schema)
         self.assertFalse(v.validate(doc))
         self.assertTrue('location' in v.errors)
-        self.assertTrue('Point' in v.errors['location'])
+        self.assertTrue('point' in v.errors['location'])
 
     def test_geometry_not_compilant(self):
         schema = {'location': {'type': 'point'}}
@@ -155,7 +141,7 @@ class TestMongoValidator(TestCase):
         v = Validator(schema)
         self.assertFalse(v.validate(doc))
         self.assertTrue('location' in v.errors)
-        self.assertTrue('Point' in v.errors['location'])
+        self.assertTrue('point' in v.errors['location'])
 
     def test_geometrycollection_not_compilant(self):
         schema = {'location': {'type': 'geometrycollection'}}
@@ -164,7 +150,7 @@ class TestMongoValidator(TestCase):
         v = Validator(schema)
         self.assertFalse(v.validate(doc))
         self.assertTrue('location' in v.errors)
-        self.assertTrue('GeometryCollection' in v.errors['location'])
+        self.assertTrue('geometrycollection' in v.errors['location'])
 
     def test_point_success(self):
         schema = {'location': {'type': 'point'}}
@@ -178,7 +164,7 @@ class TestMongoValidator(TestCase):
         v = Validator(schema)
         self.assertFalse(v.validate(doc))
         self.assertTrue('location' in v.errors)
-        self.assertTrue('Point' in v.errors['location'])
+        self.assertTrue('point' in v.errors['location'])
 
     def test_point_integer_success(self):
         schema = {'location': {'type': 'point'}}
@@ -201,7 +187,7 @@ class TestMongoValidator(TestCase):
         v = Validator(schema)
         self.assertFalse(v.validate(doc))
         self.assertTrue('location' in v.errors)
-        self.assertTrue('LineString' in v.errors['location'])
+        self.assertTrue('linestring' in v.errors['location'])
 
     def test_polygon_success(self):
         schema = {'location': {'type': 'polygon'}}
@@ -223,7 +209,7 @@ class TestMongoValidator(TestCase):
         v = Validator(schema)
         self.assertFalse(v.validate(doc))
         self.assertTrue('location' in v.errors)
-        self.assertTrue('Polygon' in v.errors['location'])
+        self.assertTrue('polygon' in v.errors['location'])
 
     def test_multipoint_success(self):
         schema = {'location': {'type': 'multipoint'}}
@@ -288,7 +274,7 @@ class TestMongoValidator(TestCase):
         v = Validator(schema)
         self.assertFalse(v.validate(doc))
         self.assertTrue('locations' in v.errors)
-        self.assertTrue('GeometryCollection' in v.errors['locations'])
+        self.assertTrue('geometrycollection' in v.errors['locations'])
 
     def test_dependencies_with_defaults(self):
         schema = {
