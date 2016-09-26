@@ -97,16 +97,13 @@ code.
 
 .. code-block:: python
 
-    def _validate_type_objectid(self, field, value):
+    def _validate_type_objectid(self, value):
         """ Enables validation for `objectid` schema attribute.
 
-        :param unique: Boolean, whether the field value should be
-                       unique or not.
-        :param field: field name.
         :param value: field value.
         """
-        if not re.match('[a-f0-9]{24}', value):
-            self._error(field, ERROR_BAD_TYPE % 'ObjectId')
+        if isinstance(value, ObjectId):
+            return True
 
 This method enables support for MongoDB ``ObjectId`` type in your schema,
 allowing something like this:
@@ -194,14 +191,8 @@ Schema validation
 By default, schemas are validated to ensure they conform to the structure
 documented in :ref:`schema`.
 
-There are two ways to deal with non-conforming schemas:
-
-1.  Add :ref:`custom_validation_rules` for non-conforming keys used in the
-    schema.
-
-2.  Set the global option ``TRANSPARENT_SCHEMA_RULES`` to disable schema
-    validation globally or the resource option ``transparent_schema_rules``
-    to disable schema validation for a given endpoint.
+In order to deal with non-conforming schemas, add
+:ref:`custom_validation_rules` for non-conforming keys used in the schema.
 
 .. _Cerberus: http://python-cerberus.org
 .. _`source code`: https://github.com/pyeve/eve/blob/master/eve/io/mongo/validation.py

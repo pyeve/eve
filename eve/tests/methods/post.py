@@ -208,7 +208,7 @@ class TestPost(TestBase):
 
         self.assertValidationError(results[1], {'ref': 'required'})
         self.assertValidationError(results[3], {'ref': 'unique'})
-        self.assertValidationError(results[4], {'tid': 'ObjectId'})
+        self.assertValidationError(results[4], {'tid': 'objectid'})
 
         id_field = self.domain[self.known_resource]['id_field']
         self.assertTrue(id_field not in results[0])
@@ -781,21 +781,21 @@ class TestPost(TestBase):
                               data={"valueschema_dict": {"k1": 1}})
         self.assert201(status)
 
-    def test_post_propertyschema_dict(self):
+    def test_post_keyschema_dict(self):
         del(self.domain['contacts']['schema']['ref']['required'])
 
         r, status = self.post(self.known_resource_url,
-                              data={"propertyschema_dict": {"aaa": 1}})
+                              data={"keyschema_dict": {"aaa": 1}})
         self.assert201(status)
 
         r, status = self.post(self.known_resource_url,
-                              data={"propertyschema_dict": {"AAA": "1"}})
+                              data={"keyschema_dict": {"AAA": "1"}})
         self.assertValidationErrorStatus(status)
 
         issues = r[ISSUES]
-        self.assertTrue('propertyschema_dict' in issues)
-        self.assertEqual(issues['propertyschema_dict'],
-                         'propertyschema_dict')
+        self.assertTrue('keyschema_dict' in issues)
+        self.assertEqual(issues['keyschema_dict'],
+                         {'AAA': "value does not match regex '[a-z]+'"})
 
     def test_post_internal(self):
         # test that post_internal is available and working properly.

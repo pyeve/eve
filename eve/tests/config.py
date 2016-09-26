@@ -265,8 +265,6 @@ class TestConfig(TestBase):
                          self.app.config['AUTH_FIELD'])
         self.assertEqual(settings['allow_unknown'],
                          self.app.config['ALLOW_UNKNOWN'])
-        self.assertEqual(settings['transparent_schema_rules'],
-                         self.app.config['TRANSPARENT_SCHEMA_RULES'])
         self.assertEqual(settings['extra_response_fields'],
                          self.app.config['EXTRA_RESPONSE_FIELDS'])
         self.assertEqual(settings['mongo_write_concern'],
@@ -343,24 +341,6 @@ class TestConfig(TestBase):
             self.assertTrue(expected.lower() in str(e).lower())
         else:
             self.fail("SchemaException expected but not raised.")
-
-    def test_schema_defaults(self):
-        self.domain.clear()
-        self.domain['resource'] = {
-            'schema': {
-                'title': {
-                    'type': 'string',
-                    'default': 'Mr.',
-                },
-                'price': {
-                    'type': 'integer',
-                    'default': 100
-                },
-            }
-        }
-        self.app.set_defaults()
-        settings = self.domain['resource']
-        self.assertEqual({'title': 'Mr.', 'price': 100}, settings['defaults'])
 
     def test_url_helpers(self):
         self.assertNotEqual(self.app.config.get('URLS'), None)
