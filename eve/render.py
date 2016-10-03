@@ -376,7 +376,7 @@ def xml_add_links(data):
     ordered_links = OrderedDict(sorted(links.items()))
     for rel, link in ordered_links.items():
         if isinstance(link, list):
-            xml += ''.join([chunk % (rel, utils.escape(d['href']), d['title'])
+            xml += ''.join([chunk % (rel, utils.escape(d['href']), utils.escape(d['title']))
                             for d in link])
         else:
             xml += ''.join(chunk % (rel, utils.escape(link['href']),
