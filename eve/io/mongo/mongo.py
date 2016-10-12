@@ -959,7 +959,8 @@ def create_index(app, resource, name, list_of_keys, index_options):
     collection = app.config['SOURCES'][resource]['source']
 
     if 'MONGO_URI' in app.config and app.config['MONGO_URI']:
-        conn = pymongo.MongoClient(app.config['MONGO_URI'])
+        mongo_options = app.config.get('MONGO_OPTIONS', {})
+        conn = pymongo.MongoClient(app.config['MONGO_URI'], **mongo_options)
         db = conn.get_default_database()
     else:
         config_prefix = app.config['DOMAIN'][resource].get('mongo_prefix',
@@ -983,7 +984,8 @@ def create_index(app, resource, name, list_of_keys, index_options):
         port = app.config[key('PORT')]
         auth = (username, password)
         host_and_port = '%s:%s' % (host, port)
-        conn = pymongo.MongoClient(host_and_port)
+        mongo_options = app.config.get(key('OPTIONS'), {})
+        conn = pymongo.MongoClient(host_and_port, **mongo_options)
         db = conn[db_name]
 
         if any(auth):
