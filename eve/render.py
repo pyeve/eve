@@ -141,6 +141,10 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     """
     if request.method == 'OPTIONS':
         resp = app.make_default_options_response()
+        
+        # return a default response including the allowed_headers (X_HEADERS)
+        allowed_headers =  (", ".join(config.X_HEADERS))
+        resp.headers.add('Access-Control-Allow-Headers', allowed_headers)
     else:
         # obtain the best match between client's request and available mime
         # types, along with the corresponding render function.
