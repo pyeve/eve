@@ -73,9 +73,8 @@ Either way, virtualenv is recommended.</p>
 <span class="go">Initialized empty Git repository in ~/dev/eve/.git/</span>
 
 <span class="gp">$</span> <span class="nb">cd </span>eve
-<span class="gp">$</span> virtualenv venv --distribute
+<span class="gp">$</span> virtualenv venv
 <span class="go">New python executable in venv/bin/python</span>
-<span class="go">Installing distribute............done.</span>
 
 <span class="gp">$</span> . venv/bin/activate
 <span class="gp">$</span> python setup.py install
@@ -89,10 +88,9 @@ version inside the virtualenv.  Then all you have to do is run <tt class="docuti
 <p>To just get the development version without git, do this instead:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> mkdir eve
 <span class="gp">$</span> <span class="nb">cd </span>eve
-<span class="gp">$</span> virtualenv venv --distribute
+<span class="gp">$</span> virtualenv venv
 <span class="gp">$</span> . venv/bin/activate
 <span class="go">New python executable in venv/bin/python</span>
-<span class="go">Installing distribute............done.</span>
 
 <span class="gp">$</span> pip install git+git://github.com/nicolaiarocci/eve.git
 <span class="go">...</span>
