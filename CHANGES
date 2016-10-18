@@ -9,6 +9,8 @@ In Development
 Version 0.7
 ~~~~~~~~~~~
 
+- New: Add Python 3.5 as a supported interpreter (Mattias Lundberg).
+
 - New: ``MONGO_OPTIONS`` allows MongoDB arguments to be passed to the
   MongoClient object. Defaults to ``{}`` (Massimo Scamarcia).
 
