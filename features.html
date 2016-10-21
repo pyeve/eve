@@ -305,22 +305,34 @@ last name, but you get the idea.</p>
 <div class="section" id="filtering">
 <span id="filters"></span><h2>Filtering<a class="headerlink" href="#filtering" title="Permalink to this headline">¶</a></h2>
 <p>Resource endpoints allow consumers to retrieve multiple documents. Query
-strings are supported, allowing for filtering and sorting. Two query syntaxes
-are supported. The mongo query syntax:</p>
+strings are supported, allowing for filtering and sorting. Both native Mongo
+queries and Python conditional expressions are supported.</p>
+<p>Here we are asking for all documents where <tt class="docutils literal"><span class="pre">lastname</span></tt> value is <tt class="docutils literal"><span class="pre">Doe</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre>http://eve-demo.herokuapp.com/people?where={&quot;lastname&quot;: &quot;Doe&quot;}
 </pre></div>
 </div>
-<p>which translates to the following <tt class="docutils literal"><span class="pre">curl</span></tt> request:</p>
+<p>With <tt class="docutils literal"><span class="pre">curl</span></tt> you would go like this:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i -g http://eve-demo.herokuapp.com/people?where<span class="o">={</span>%22lastname%22:%20%22Doe%22<span class="o">}</span>
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
-<p>and the native Python syntax:</p>
+<p>Filtering on embedded document fields is possible:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://eve-demo.herokuapp.com/people?where={&quot;location.city&quot;: &quot;San Francisco&quot;}
+</pre></div>
+</div>
+<p>Date fields are also easy to query on:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://eve-demo.herokuapp.com/people?where={&quot;born&quot;: {&quot;$gte&quot;:&quot;Wed, 25 Feb 1987 17:00:00 GMT&quot;}}
+</pre></div>
+</div>
+<p>Date values should conform to RFC1123. Should you need a different format, you can change the <tt class="docutils literal"><span class="pre">DATE_FORMAT</span></tt> setting.</p>
+<p>In general you will find that most <a class="reference external" href="https://docs.mongodb.com/v3.2/reference/operator/query/">MongoDB queries</a> &#8220;just work&#8221;. Should you
+need it, <tt class="docutils literal"><span class="pre">MONGO_QUERY_BLACKLIST</span></tt> allows you to blacklist unwanted operators.</p>
+<p>Native Python syntax works like this:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people?where<span class="o">=</span><span class="nv">lastname</span><span class="o">==</span><span class="s2">&quot;Doe&quot;</span>
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
-<p>Both query formats allow for conditional and logical And/Or operators, however
+<p>Both syntaxes allow for conditional and logical And/Or operators, however
 nested and combined.</p>
 <p>Filters are enabled by default on all document fields. However, the API
 maintainer can choose to disable them all and/or whitelist allowed ones (see
