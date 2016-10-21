@@ -537,3 +537,39 @@ class TestConfig(TestBase):
 
         challenge = lambda code: self.assertTrue(code in handlers)  # noqa
         map(challenge, codes)
+
+    def test_mongodb_settings(self):
+        # Create custom app with mongodb settings.
+        settings = {
+            'DOMAIN': {'contacts': {}},
+            'MONGO_OPTIONS': {
+                'connect': False
+            }
+        }
+        app = Eve(settings=settings)
+        # Check if settings are set.
+        self.assertEqual(
+            app.config['MONGO_OPTIONS']['connect'],
+            app.config['MONGO_CONNECT']
+        )
+        # Prepare a specific schema with mongo specific settings.
+        settings = {
+            'schema': {
+                'name': {'type': 'string'},
+            },
+            'MONGO_OPTIONS': {
+                'connect': False
+            }
+        }
+        self.app.register_resource('mongodb_settings', settings)
+        # check that settings are set.
+        resource_settings = self.app.config['DOMAIN']['mongodb_settings']
+        self.assertEqual(
+            resource_settings['MONGO_OPTIONS'],
+            settings['MONGO_OPTIONS']
+        )
+        # check that settings are set.
+        self.assertEqual(
+            resource_settings['MONGO_OPTIONS']['connect'],
+            settings['MONGO_OPTIONS']['connect']
+        )
