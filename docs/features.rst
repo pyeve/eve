@@ -245,29 +245,48 @@ As you can see, item endpoints provide their own HATEOAS_ directives.
 Filtering
 ---------
 Resource endpoints allow consumers to retrieve multiple documents. Query
-strings are supported, allowing for filtering and sorting. Two query syntaxes
-are supported. The mongo query syntax:
+strings are supported, allowing for filtering and sorting. Both native Mongo
+queries and Python conditional expressions are supported.
+
+Here we are asking for all documents where ``lastname`` value is ``Doe``:
 
 ::
 
     http://eve-demo.herokuapp.com/people?where={"lastname": "Doe"}
 
-which translates to the following ``curl`` request:
+With ``curl`` you would go like this:
 
 .. code-block:: console
 
     $ curl -i -g http://eve-demo.herokuapp.com/people?where={%22lastname%22:%20%22Doe%22}
     HTTP/1.1 200 OK
 
-and the native Python syntax:
+Filtering on embedded document fields is possible:
+
+::
+
+    http://eve-demo.herokuapp.com/people?where={"location.city": "San Francisco"}
+
+Date fields are also easy to query on:
+
+::
+
+    http://eve-demo.herokuapp.com/people?where={"born": {"$gte":"Wed, 25 Feb 1987 17:00:00 GMT"}}
+
+Date values should conform to RFC1123. Should you need a different format, you can change the ``DATE_FORMAT`` setting.
+
+In general you will find that most `MongoDB queries`_ "just work". Should you
+need it, ``MONGO_QUERY_BLACKLIST`` allows you to blacklist unwanted operators.
+
+Native Python syntax works like this:
 
 .. code-block:: console
 
     $ curl -i http://eve-demo.herokuapp.com/people?where=lastname=="Doe"
     HTTP/1.1 200 OK
 
-Both query formats allow for conditional and logical And/Or operators, however
-nested and combined.
+Both syntaxes allow for conditional and logical And/Or operators, however
+nested and combined. 
 
 Filters are enabled by default on all document fields. However, the API
 maintainer can choose to disable them all and/or whitelist allowed ones (see
@@ -2108,3 +2127,4 @@ for unittesting_ and an `extensive documentation`_.
 .. _`LogRecord attributes`: https://docs.python.org/2/library/logging.html#logrecord-attributes
 .. _`MongoDB Aggregation Framework`: https://docs.mongodb.org/v3.0/applications/aggregation/
 .. _link: https://docs.mongodb.org/manual/reference/operator/aggregation/limit/
+.. _`MongoDB queries`: https://docs.mongodb.com/v3.2/reference/operator/query/

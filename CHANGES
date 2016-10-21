@@ -80,6 +80,8 @@ Version 0.7
 - Docs: remove the deprecated ``--ditribute`` virtualenv option (Eugene
   Prikazchikov).
 
+- Docs: add date and subdocument fields filtering examples. Closes #924.
+
 
 Version 0.6.5
 ~~~~~~~~~~~~~
