@@ -242,6 +242,11 @@ class Eve(Flask, Events):
         if os.environ.get(envvar):
             self.config.from_envvar(envvar)
 
+        # flask-pymongo compatibility
+        self.config['MONGO_CONNECT'] = self.config['MONGO_OPTIONS'].get(
+            'connect', True
+        )
+
     def validate_domain_struct(self):
         """ Validates that Eve configuration settings conform to the
         requirements.
@@ -898,6 +903,13 @@ class Eve(Flask, Events):
                     index_options = {}
 
                 create_index(self, resource, name, list_of_keys, index_options)
+
+        # flask-pymongo compatibility.
+        if 'MONGO_OPTIONS' in self.config['DOMAIN']:
+            connect = self.config['DOMAIN']['MONGO_OPTIONS'].get(
+                'connect', True
+            )
+            self.config['DOMAIN']['MONGO_CONNECT'] = connect
 
     def register_error_handlers(self):
         """ Register custom error handlers so we make sure that all errors
