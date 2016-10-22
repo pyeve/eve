@@ -9,6 +9,9 @@ In Development
 Version 0.7
 ~~~~~~~~~~~
 
+- New: Flask-PyMongo compatibility for for ``MONGO_CONNECT`` config setting
+  (Massimo Scamarcia).
+
 - New: Add Python 3.5 as a supported interpreter (Mattias Lundberg).
 
 - New: ``MONGO_OPTIONS`` allows MongoDB arguments to be passed to the
