@@ -1,5 +1,9 @@
 Eve
 ====
+
+.. image:: https://badges.gitter.im/eve-rest-framework/Lobby.svg
+   :alt: Join the chat at https://gitter.im/eve-rest-framework/Lobby
+   :target: https://gitter.im/eve-rest-framework/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 .. image:: https://secure.travis-ci.org/nicolaiarocci/eve.png?branch=master 
         :target: https://secure.travis-ci.org/nicolaiarocci/eve
 
