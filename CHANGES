@@ -74,6 +74,9 @@ Version 0.7
 - Change: ETag response header now conforms to RFC 7232/2.3 and is surrounded
   by double quotes. Closes #794.
 
+- Fix: Neutral edits (PATCH) should not raise ``412 Precondition Failed`` when
+  ``IF_MATCH`` is disabled. Closes #920.
+
 - Fix: Resource titles are not properly escaped during the XML rendering of the
   root document (Kris Lambrechts).
 

@@ -451,6 +451,10 @@ class Mongo(DataLayer):
     def _change_request(self, resource, id_, changes, original, replace=False):
         """ Performs a change, be it a replace or update.
 
+        .. versionchanged:: 0.7
+           Only raise OriginalChangedError() if IF_MATCH is enabled. Closes
+           #920.
+
         .. versionchanged:: 0.6.1
            Support for PyMongo 3.0.
 
@@ -471,7 +475,9 @@ class Mongo(DataLayer):
             result = coll.replace_one(filter_, changes) if replace else \
                 coll.update_one(filter_, changes)
 
-            if result and result.acknowledged and result.modified_count == 0:
+            print filter_
+            if (result and result.acknowledged and config.IF_MATCH and
+                    result.modified_count == 0):
                 raise self.OriginalChangedError()
         except pymongo.errors.DuplicateKeyError as e:
             abort(400, description=debug_error_message(
