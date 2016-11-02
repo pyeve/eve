@@ -58,6 +58,8 @@
 <div class="section" id="version-0-7">
 <h3>Version 0.7<a class="headerlink" href="#version-0-7" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>New: Flask-PyMongo compatibility for for <tt class="docutils literal"><span class="pre">MONGO_CONNECT</span></tt> config setting
+(Massimo Scamarcia).</li>
 <li>New: Add Python 3.5 as a supported interpreter (Mattias Lundberg).</li>
 <li>New: <tt class="docutils literal"><span class="pre">MONGO_OPTIONS</span></tt> allows MongoDB arguments to be passed to the
 MongoClient object. Defaults to <tt class="docutils literal"><span class="pre">{}</span></tt> (Massimo Scamarcia).</li>
@@ -102,6 +104,8 @@ include changes into the OpLog (mmizotin).</li>
 <span class="pre">Forbidden</span></tt> when the <tt class="docutils literal"><span class="pre">If-Match</span></tt> request header is missing (Arnau Orriols).</li>
 <li>Change: ETag response header now conforms to RFC 7232/2.3 and is surrounded
 by double quotes. Closes #794.</li>
+<li>Fix: Neutral edits (PATCH) should not raise <tt class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></tt> when
+<tt class="docutils literal"><span class="pre">IF_MATCH</span></tt> is disabled. Closes #920.</li>
 <li>Fix: Resource titles are not properly escaped during the XML rendering of the
 root document (Kris Lambrechts).</li>
 <li>Fix: ETag request headers which conform to RFC 7232/2.3 (double quoted value)

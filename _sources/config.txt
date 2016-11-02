@@ -499,7 +499,7 @@ uppercase.
 
 ``MONGO_OPTIONS``                   MongoDB keyword arguments to passed to
                                     MongoClient class ``__init__``.
-                                    Defaults to ``{}``.
+                                    Defaults to ``{'connect': True}``.
 
 ``MONGO_HOST``                      MongoDB server address. Defaults to ``localhost``.
 
