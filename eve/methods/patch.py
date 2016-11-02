@@ -201,13 +201,8 @@ def patch_internal(resource, payload=None, concurrency_check=False,
                 # now storing the (updated) ETAG with every document (#453)
                 updates[config.ETAG] = updated[config.ETAG]
 
-            try:
-                app.data.update(
-                    resource, object_id, updates, original)
-            except app.data.OriginalChangedError:
-                if concurrency_check:
-                    abort(412,
-                          description='Client and server etags don\'t match')
+            app.data.update(
+                resource, object_id, updates, original)
 
             # update oplog if needed
             oplog_push(resource, updates, 'PATCH', object_id)

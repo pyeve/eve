@@ -470,9 +470,6 @@ class Mongo(DataLayer):
         try:
             result = coll.replace_one(filter_, changes) if replace else \
                 coll.update_one(filter_, changes)
-
-            if result and result.acknowledged and result.modified_count == 0:
-                raise self.OriginalChangedError()
         except pymongo.errors.DuplicateKeyError as e:
             abort(400, description=debug_error_message(
                 'pymongo.errors.DuplicateKeyError: %s' % e
