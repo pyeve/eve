@@ -61,15 +61,6 @@ class TestPatch(TestBase):
         self.assert200(status)
         self.assertTrue(ETAG not in r)
 
-    def test_ifmatch_disabled_with_subsequent_neutral_edits(self):
-        # Subsequent, neutral edits shuold not raise 412 when IF_MATCH is
-        # disabled. See #920.
-        self.app.config['IF_MATCH'] = False
-        r, status = self.patch(self.item_id_url, data={'key1': 'value1'})
-        self.assert200(status)
-        r, status = self.patch(self.item_id_url, data={'key1': 'value1'})
-        self.assert200(status)
-
     def test_ifmatch_disabled_enforce_ifmatch_disabled(self):
         self.app.config['ENFORCE_IF_MATCH'] = False
         self.app.config['IF_MATCH'] = False
