@@ -15,6 +15,7 @@ from io import BytesIO
 
 from werkzeug.datastructures import MultiDict
 
+
 class TestPost(TestBase):
     def test_unknown_resource(self):
         _, status = self.post(self.unknown_resource_url, data={})
@@ -265,7 +266,7 @@ class TestPost(TestBase):
         self.assert201(status)
 
         resp = self.test_client.post('/test_res/', data=data,
-                                          content_type='multipart/form-data')
+                                     content_type='multipart/form-data')
         r, status = self.parse_response(resp)
         self.assert201(status)
 
@@ -298,7 +299,8 @@ class TestPost(TestBase):
         self.assertEqual(len(media_ids), 2)
         with self.app.test_request_context():
             for i in [0, 1]:
-                self.assertTrue(self.app.media.exists(media_ids[i], 'test_res'))
+                self.assertTrue(
+                    self.app.media.exists(media_ids[i], 'test_res'))
 
         r, status = self.parse_response(
             self.test_client.get('/test_res/%s' % r[id_field]))
