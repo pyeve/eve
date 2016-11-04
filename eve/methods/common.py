@@ -30,6 +30,7 @@ from flask import current_app as app
 from flask import g
 from flask import request
 from functools import wraps
+from werkzeug.datastructures import MultiDict, CombinedMultiDict
 
 
 def get_document(resource, concurrency_check, **lookup):
@@ -163,7 +164,7 @@ def payload():
     if content_type == 'application/json':
         return request.get_json()
     elif content_type == 'application/x-www-form-urlencoded':
-        return request.form.to_dict() if len(request.form) else \
+        return multidict_to_dict(request.form) if len(request.form) else \
             abort(400, description='No form-urlencoded data supplied')
     elif content_type == 'multipart/form-data':
         # as multipart is also used for file uploads, we let an empty
@@ -173,29 +174,40 @@ def payload():
             # merge form fields and request files, so we get a single payload
             # to be validated against the resource schema.
 
+            formItems = MultiDict(request.form)
+
             if config.MULTIPART_FORM_FIELDS_AS_JSON:
+                for key, lst in formItems.lists():
+                    new_lst = []
+                    for value in lst:
+                        try:
+                            new_lst.append(json.loads(value))
+                        except ValueError:
+                            new_lst.append(json.loads('"{0}"'.format(value)))
+                    formItems.setlist(key, new_lst)
 
-                formItems = dict(list(request.form.to_dict().items()))
-
-                for key in formItems.keys():
-                    try:
-                        formItems[key] = json.loads(formItems[key])
-                    except ValueError:
-                        formItems[key] = json.loads(
-                            '"{0}"'.format(formItems[key]))
-
-                return dict(list(formItems.items()) +
-                            list(request.files.to_dict().items()))
-            else:
-                # list() is needed because Python3 items() returns a
-                # dict_view, not a list as in Python2.
-                return dict(list(request.form.to_dict().items()) +
-                            list(request.files.to_dict().items()))
+            payload = CombinedMultiDict([formItems, request.files])
+            return multidict_to_dict(payload)
 
         else:
             abort(400, description='No multipart/form-data supplied')
     else:
         abort(400, description='Unknown or no Content-Type header supplied')
+
+
+def multidict_to_dict(multidict):
+    """ Convert a MultiDict containing form data into a regular dict. If the
+    config setting AUTO_COLLAPSE_MULTI_KEYS is True, multiple values with the
+    same key get entered as a list. If it is False, the first entry is picked.
+    """
+    if config.AUTO_COLLAPSE_MULTI_KEYS:
+        d = dict(multidict.lists())
+        for key, value in d.items():
+            if len(value) == 1:
+                d[key] = value[0]
+        return d
+    else:
+        return multidict.to_dict()
 
 
 class RateLimit(object):
@@ -788,43 +800,55 @@ def resolve_media_files(document, resource):
     .. versionadded:: 0.4
     """
     for field in resource_media_fields(document, resource):
-        file_id = document[field]
-        _file = app.media.get(file_id, resource)
-
-        if _file:
-            # otherwise we have a valid file and should send extended response
-            # start with the basic file object
-            if config.RETURN_MEDIA_AS_BASE64_STRING:
-                ret_file = base64.encodestring(_file.read())
-            elif config.RETURN_MEDIA_AS_URL:
-                prefix = config.MEDIA_BASE_URL if config.MEDIA_BASE_URL \
-                    is not None else app.api_prefix
-                ret_file = '%s/%s/%s' % (prefix, config.MEDIA_ENDPOINT,
-                                         file_id)
-            else:
-                ret_file = None
-
-            if config.EXTENDED_MEDIA_INFO:
-                document[field] = {
-                    'file': ret_file,
-                }
-
-                # check if we should return any special fields
-                for attribute in config.EXTENDED_MEDIA_INFO:
-                    if hasattr(_file, attribute):
-                        # add extended field if found in the file object
-                        document[field].update({
-                            attribute: getattr(_file, attribute)
-                        })
-                    else:
-                        # tried to select an invalid attribute
-                        abort(500, description=debug_error_message(
-                            'Invalid extended media attribute requested'
-                        ))
-            else:
-                document[field] = ret_file
+        if isinstance(document[field], list):
+            resolved_list = []
+            for file_id in document[field]:
+                resolved_list.append(resolve_one_media(file_id, resource))
+            document[field] = resolved_list
         else:
-            document[field] = None
+            document[field] = resolve_one_media(document[field], resource)
+
+
+def resolve_one_media(file_id, resource):
+    """ Get response for one media file """
+    _file = app.media.get(file_id, resource)
+
+    if _file:
+        # otherwise we have a valid file and should send extended response
+        # start with the basic file object
+        if config.RETURN_MEDIA_AS_BASE64_STRING:
+            ret_file = base64.encodestring(_file.read())
+        elif config.RETURN_MEDIA_AS_URL:
+            prefix = config.MEDIA_BASE_URL if config.MEDIA_BASE_URL \
+                is not None else app.api_prefix
+            ret_file = '%s/%s/%s' % (prefix, config.MEDIA_ENDPOINT,
+                                     file_id)
+        else:
+            ret_file = None
+
+        if config.EXTENDED_MEDIA_INFO:
+            ret = {
+                'file': ret_file,
+            }
+
+            # check if we should return any special fields
+            for attribute in config.EXTENDED_MEDIA_INFO:
+                if hasattr(_file, attribute):
+                    # add extended field if found in the file object
+                    ret.update({
+                        attribute: getattr(_file, attribute)
+                    })
+                else:
+                    # tried to select an invalid attribute
+                    abort(500, description=debug_error_message(
+                        'Invalid extended media attribute requested'
+                    ))
+
+            return ret
+        else:
+            return ret_file
+    else:
+        return None
 
 
 def marshal_write_response(document, resource):
@@ -877,15 +901,27 @@ def store_media_files(document, resource, original=None):
     for field in resource_media_fields(document, resource):
         if original and field in original:
             # since file replacement is not supported by the media storage
-            # system, we first need to delete the file being replaced.
-            app.media.delete(original[field], resource)
+            # system, we first need to delete the files being replaced.
+            if isinstance(original[field], list):
+                for file_id in original[field]:
+                    app.media.delete(file_id, resource)
+            else:
+                app.media.delete(original[field], resource)
 
         if document[field]:
-            # store file and update document with file's unique id/filename
+            # store files and update document with file's unique id/filename
             # also pass in mimetype for use when retrieving the file
-            document[field] = app.media.put(
-                document[field], filename=document[field].filename,
-                content_type=document[field].mimetype, resource=resource)
+            if isinstance(document[field], list):
+                id_lst = []
+                for stor_obj in document[field]:
+                    id_lst.append(app.media.put(
+                        stor_obj, filename=stor_obj.filename,
+                        content_type=stor_obj.mimetype, resource=resource))
+                document[field] = id_lst
+            else:
+                document[field] = app.media.put(
+                    document[field], filename=document[field].filename,
+                    content_type=document[field].mimetype, resource=resource)
 
 
 def resource_media_fields(document, resource):
