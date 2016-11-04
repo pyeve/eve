@@ -701,8 +701,8 @@ class Eve(Flask, Events):
         settings['_media'] = [field for field, definition in schema.items() if
                               definition.get('type') == 'media' or
                               (definition.get('type') == 'list' and
-                               definition.get('schema', {}).get('type')
-                               == 'media')]
+                               definition.get('schema', {}).get('type') ==
+                               'media')]
 
         if settings['_media'] and not self.media:
             raise ConfigException('A media storage class of type '
