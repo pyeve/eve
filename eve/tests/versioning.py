@@ -530,7 +530,8 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertEqualFields(self.item_change, items[1], self.fields)
         changed_fields = self.fields + [
             self.version_field,
-            self.app.config['ETAG']]
+            self.app.config['ETAG'],
+            self.app.config['LINKS']]
         for field in changed_fields:
             self.assertTrue(field in items[1], "%s not in diffs" % field)
         # since the test routine happens so fast, `LAST_UPDATED` may or may not
