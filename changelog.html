@@ -104,6 +104,7 @@ include changes into the OpLog (mmizotin).</li>
 <span class="pre">Forbidden</span></tt> when the <tt class="docutils literal"><span class="pre">If-Match</span></tt> request header is missing (Arnau Orriols).</li>
 <li>Change: ETag response header now conforms to RFC 7232/2.3 and is surrounded
 by double quotes. Closes #794.</li>
+<li>Fix: fix intermittently failing test. Closes #934 (Conrad Burchert).</li>
 <li>Fix: Multiple, fast (within a 1 second window) and neutral (no actual changes)
 PATCH requests should not raise <tt class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></tt>. Closes #920.</li>
 <li>Fix: Resource titles are not properly escaped during the XML rendering of the
