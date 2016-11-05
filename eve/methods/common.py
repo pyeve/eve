@@ -9,6 +9,7 @@
     :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
+import re
 import base64
 import simplejson as json
 import time
@@ -30,6 +31,11 @@ from flask import current_app as app
 from flask import g
 from flask import request
 from functools import wraps
+
+
+# Match `Request` form data list type according to convention ([], [<index>])
+# Compiling regex for optimisation purpose
+RE_LIST_LOOKUP = re.compile(r'(\[[\d]*\])')
 
 
 def get_document(resource, concurrency_check, **lookup):
@@ -158,6 +164,29 @@ def payload():
 
     .. versionadded: 0.0.5
     """
+    def fix_lists(data):
+        """
+        Find all potential list(s) and call the
+        `Flask.Request.form.get_list(<key>)` method
+        with matching dictionary key.
+
+        FormData list shall follows convention ([], [<index>])
+        Note: It will work if convention is followed,
+            otherwise, use `MULTIPART_FORM_FIELDS_AS_JSON`.
+
+        :param dict data: The Request Form (as a dict).
+
+        :return: Initial dict with extracted list(s), if applicable
+        :rtype: dict
+        """
+        for k, v in data.copy().items():
+            if re.findall(RE_LIST_LOOKUP, str(k)):
+                # Setting key as Validation expects
+                data[re.sub(RE_LIST_LOOKUP, '', k)] = request.form.getlist(k)
+                # Deleting old (invalid according to Schema) key
+                del data[k]
+        return data
+
     content_type = request.headers.get('Content-Type', '').split(';')[0]
 
     if content_type == 'application/json':
@@ -189,8 +218,10 @@ def payload():
             else:
                 # list() is needed because Python3 items() returns a
                 # dict_view, not a list as in Python2.
-                return dict(list(request.form.to_dict().items()) +
-                            list(request.files.to_dict().items()))
+                return fix_lists(
+                    dict(list(request.form.to_dict().items()) +
+                         list(request.files.to_dict().items()))
+                )
 
         else:
             abort(400, description='No multipart/form-data supplied')
