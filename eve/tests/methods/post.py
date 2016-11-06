@@ -283,6 +283,7 @@ class TestPost(TestBase):
             }
         })
 
+        # Create a document
         data = MultiDict([('list_field',
                            (BytesIO(b'file_content1'), 'test1.txt')),
                           ('list_field',
@@ -292,6 +293,7 @@ class TestPost(TestBase):
         r, status = self.parse_response(resp)
         self.assert201(status)
 
+        # check that the files were created
         _db = self.connection[MONGO_DBNAME]
         id_field = self.domain['test_res']['id_field']
         obj = _db.test_res.find_one({id_field: ObjectId(r[id_field])})
@@ -302,11 +304,24 @@ class TestPost(TestBase):
                 self.assertTrue(
                     self.app.media.exists(media_ids[i], 'test_res'))
 
+        # GET the document and check the file content is correct
         r, status = self.parse_response(
             self.test_client.get('/test_res/%s' % r[id_field]))
         files = r['list_field']
         self.assertEqual(b64decode(files[0]), b'file_content1')
         self.assertEqual(b64decode(files[1]), b'file_content2')
+
+        # DELETE the document
+        resp = self.test_client.delete('/test_res/%s' % r['_id'],
+                                       headers={'If-Match': r['_etag']})
+        r, status = self.parse_response(resp)
+        self.assert204(status)
+
+        # Check files were deleted
+        with self.app.test_request_context():
+            for i in [0, 1]:
+                self.assertFalse(
+                    self.app.media.exists(media_ids[i], 'test_res'))
 
     def test_post_auto_create_lists(self):
         self.app.config['AUTO_CREATE_LISTS'] = True
