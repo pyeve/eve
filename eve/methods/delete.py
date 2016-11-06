@@ -142,7 +142,12 @@ def deleteitem_internal(
 
         for field in media_fields:
             if field in original:
-                app.media.delete(original[field], resource)
+                media_field = original[field]
+                if isinstance(media_field, list):
+                    for file_id in media_field:
+                        app.media.delete(file_id, resource)
+                else:
+                    app.media.delete(original[field], resource)
 
         id = original[resource_def['id_field']]
         app.data.remove(resource, {resource_def['id_field']: id})
