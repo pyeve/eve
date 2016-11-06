@@ -387,6 +387,10 @@ def serialize(document, resource=None, schema=None, fields=None):
                         for opttype in field_schema.get(x_of_type, []):
                             schema = {field: {'type': opttype}}
                             serialize(document, schema=schema)
+                if config.AUTO_CREATE_LISTS and field_type == 'list':
+                    # Convert single values to lists
+                    if not isinstance(document[field], list):
+                        document[field] = [document[field]]
                 if 'schema' in field_schema:
                     field_schema = field_schema['schema']
                     if 'dict' in (field_type, field_schema.get('type')):
