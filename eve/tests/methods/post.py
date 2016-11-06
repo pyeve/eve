@@ -308,6 +308,26 @@ class TestPost(TestBase):
         self.assertEqual(b64decode(files[0]), b'file_content1')
         self.assertEqual(b64decode(files[1]), b'file_content2')
 
+    def test_post_auto_create_lists(self):
+        self.app.config['AUTO_CREATE_LISTS'] = True
+        self.app.register_resource('test_res', {
+            'schema': {
+                'list_field': {
+                    'type': 'list',
+                    'schema': {
+                        'type': 'string'
+                    }
+                }
+            }
+        })
+
+        data = MultiDict([("list_field", "value1")])
+        resp = self.test_client.post(
+            '/test_res/', data=data,
+            content_type='application/x-www-form-urlencoded')
+        r, status = self.parse_response(resp)
+        self.assert201(status)
+
     def test_post_referential_integrity(self):
         data = {"person": self.unknown_item_id}
         r, status = self.post('/invoices/', data=data)
