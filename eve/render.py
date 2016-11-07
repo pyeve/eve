@@ -163,9 +163,6 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
 
     # cache directives
     if request.method in ('GET', 'HEAD'):
-        # make pretty prints available
-        if 'pretty' in request.args:
-            resp.pretty = True
         if resource:
             cache_control = config.DOMAIN[resource]['cache_control']
             expires = config.DOMAIN[resource]['cache_expires']
@@ -275,10 +272,9 @@ def render_json(data):
     """
     set_indent = None
 
-    print request.args
-
-    set_indent = app.config.get('JSON_INDENT_COUNT') or 4
-
+    # make pretty prints available
+    if 'pretty' in request.args:
+        set_indent = 4
     return json.dumps(data, indent=set_indent, cls=app.data.json_encoder_class,
                       sort_keys=config.JSON_SORT_KEYS)
 
