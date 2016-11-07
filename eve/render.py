@@ -275,7 +275,7 @@ def render_json(data):
     """
     set_indent = None
 
-    print data
+    print request.args
 
     set_indent = app.config.get('JSON_INDENT_COUNT') or 4
 
