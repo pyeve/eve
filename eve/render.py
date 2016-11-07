@@ -270,6 +270,8 @@ def render_json(data):
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
     """
+    set_indent = None
+    
     if app.config.get('JSON_INDENT') is True:
         set_indent = app.config.get('JSON_INDENT_COUNT') or 4
     return json.dumps(data, indent=set_indent, cls=app.data.json_encoder_class,
