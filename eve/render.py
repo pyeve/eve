@@ -273,7 +273,7 @@ def render_json(data):
     set_indent = None
 
     # make pretty prints available
-    if 'pretty' in request.args:
+    if 'GET' in request.method and 'pretty' in request.args:
         set_indent = 4
     return json.dumps(data, indent=set_indent, cls=app.data.json_encoder_class,
                       sort_keys=config.JSON_SORT_KEYS)
