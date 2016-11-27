@@ -755,6 +755,27 @@ correctly. Read more about how the fields
 should be formatted at
 <a class="reference internal" href="features.html#multipart"><em>Note on media files as multipart/data-form</em></a>. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">AUTO_COLLAPSE_MULTI_KEYS</span></tt></td>
+<td><p class="first">If set to <tt class="docutils literal"><span class="pre">True</span></tt>, multiple values sent
+with the same key, submitted using the
+<tt class="docutils literal"><span class="pre">application/x-www-form-urlencoded</span></tt> or
+<tt class="docutils literal"><span class="pre">multipart/form-data</span></tt> content types,
+will automatically be converted to a list of
+values.</p>
+<p>When using this together with
+<tt class="docutils literal"><span class="pre">AUTO_CREATE_LISTS</span></tt> it becomes possible
+to use lists of media fields.</p>
+<p class="last">Defaults to <tt class="docutils literal"><span class="pre">False</span></tt></p>
+</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">AUTO_CREATE_LISTS</span></tt></td>
+<td><p class="first">When submitting a non <tt class="docutils literal"><span class="pre">list</span></tt> type value
+for a field with type <tt class="docutils literal"><span class="pre">list</span></tt>,
+automatically create a one element list
+before running the validators.</p>
+<p class="last">Defaults to <tt class="docutils literal"><span class="pre">False</span></tt></p>
+</td>
+</tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG</span></tt></td>
 <td>Set it to <tt class="docutils literal"><span class="pre">True</span></tt> to enable the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>.
 Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>

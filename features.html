@@ -1647,6 +1647,13 @@ quotes). If ever in doubt if what you are submitting is a valid JSON string
 you can try passing it from the JSON Validator at <a class="reference external" href="http://jsonlint.com/">http://jsonlint.com/</a> to
 be sure that it is correct.</p>
 </div>
+<div class="section" id="using-lists-of-media">
+<span id="media-lists"></span><h3>Using lists of media<a class="headerlink" href="#using-lists-of-media" title="Permalink to this headline">¶</a></h3>
+<p>When using lists of media, there is no way to submit these in the default
+configuration. Enable <tt class="docutils literal"><span class="pre">AUTO_COLLAPSE_MULTI_KEYS</span></tt> and <tt class="docutils literal"><span class="pre">AUTO_CREATE_LISTS</span></tt>
+to make this possible. This allows to send multiple values for one key in
+<tt class="docutils literal"><span class="pre">multipart/form-data</span></tt> requests and in this way upload a list of files.</p>
+</div>
 </div>
 <div class="section" id="geojson">
 <span id="geojson-feature"></span><h2>GeoJSON<a class="headerlink" href="#geojson" title="Permalink to this headline">¶</a></h2>
@@ -2188,6 +2195,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li class="toctree-l3"><a class="reference internal" href="#serving-media-files-at-a-dedicated-endpoint">Serving media files at a dedicated endpoint</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#leveraging-projections-to-optimize-the-handling-of-media-files">Leveraging Projections to optimize the handling of media files</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#note-on-media-files-as-multipart-data-form">Note on media files as <tt class="docutils literal"><span class="pre">multipart/data-form</span></tt></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-lists-of-media">Using lists of media</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#geojson">GeoJSON</a><ul>

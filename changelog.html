@@ -58,6 +58,15 @@
 <div class="section" id="version-0-7">
 <h3>Version 0.7<a class="headerlink" href="#version-0-7" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>New: <tt class="docutils literal"><span class="pre">AUTO_COLLAPSE_MULTI_KEYS</span></tt>. If set to <tt class="docutils literal"><span class="pre">True</span></tt>, multiple values sent
+with the same key, submitted using the <tt class="docutils literal"><span class="pre">application/x-www-form-urlencoded</span></tt>
+or <tt class="docutils literal"><span class="pre">multipart/form-data</span></tt> content types, will automatically be converted to
+a list of values. When using this together with <tt class="docutils literal"><span class="pre">AUTO_CREATE_LISTS</span></tt> it
+becomes possible to use lists of media fields. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>. Closes
+#932 (Conrad Burchert).</li>
+<li>New: <tt class="docutils literal"><span class="pre">AUTO_CREATE_LISTS</span></tt>. When submitting a non <tt class="docutils literal"><span class="pre">list</span></tt> type value for
+a field with type <tt class="docutils literal"><span class="pre">list</span></tt>, automatically create a one element list before
+running the validators. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt> (Conrad Burchert).</li>
 <li>New: Flask-PyMongo compatibility for for <tt class="docutils literal"><span class="pre">MONGO_CONNECT</span></tt> config setting
 (Massimo Scamarcia).</li>
 <li>New: Add Python 3.5 as a supported interpreter (Mattias Lundberg).</li>
