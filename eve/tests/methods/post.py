@@ -1,3 +1,6 @@
+from base64 import b64decode
+from bson import ObjectId
+
 import simplejson as json
 
 from eve.tests import TestBase
@@ -7,6 +10,10 @@ from eve.tests.test_settings import MONGO_DBNAME
 from eve import STATUS_OK, LAST_UPDATED, DATE_CREATED, ISSUES, STATUS, ETAG
 from eve.methods.post import post
 from eve.methods.post import post_internal
+
+from io import BytesIO
+
+from werkzeug.datastructures import MultiDict
 
 
 class TestPost(TestBase):
@@ -236,6 +243,105 @@ class TestPost(TestBase):
         self.assert201(status)
         self.assertTrue('OK' in r[STATUS])
         self.assertPostResponse(r)
+
+    def test_post_auto_collapse_multiple_keys(self):
+        self.app.config['AUTO_COLLAPSE_MULTI_KEYS'] = True
+        self.app.register_resource('test_res', {
+            'schema': {
+                'list_field': {
+                    'type': 'list',
+                    'schema': {
+                        'type': 'string'
+                    }
+                }
+            }
+        })
+
+        data = MultiDict([("list_field", "value1"),
+                          ("list_field", "value2")])
+        resp = self.test_client.post(
+            '/test_res/', data=data,
+            content_type='application/x-www-form-urlencoded')
+        r, status = self.parse_response(resp)
+        self.assert201(status)
+
+        resp = self.test_client.post('/test_res/', data=data,
+                                     content_type='multipart/form-data')
+        r, status = self.parse_response(resp)
+        self.assert201(status)
+
+    def test_post_auto_collapse_media_list(self):
+        self.app.config['AUTO_COLLAPSE_MULTI_KEYS'] = True
+        self.app.register_resource('test_res', {
+            'schema': {
+                'list_field': {
+                    'type': 'list',
+                    'schema': {
+                        'type': 'media'
+                    }
+                }
+            }
+        })
+
+        # Create a document
+        data = MultiDict([('list_field',
+                           (BytesIO(b'file_content1'), 'test1.txt')),
+                          ('list_field',
+                           (BytesIO(b'file_content2'), 'test2.txt'))])
+        resp = self.test_client.post('/test_res/', data=data,
+                                     content_type='multipart/form-data')
+        r, status = self.parse_response(resp)
+        self.assert201(status)
+
+        # check that the files were created
+        _db = self.connection[MONGO_DBNAME]
+        id_field = self.domain['test_res']['id_field']
+        obj = _db.test_res.find_one({id_field: ObjectId(r[id_field])})
+        media_ids = obj['list_field']
+        self.assertEqual(len(media_ids), 2)
+        with self.app.test_request_context():
+            for i in [0, 1]:
+                self.assertTrue(
+                    self.app.media.exists(media_ids[i], 'test_res'))
+
+        # GET the document and check the file content is correct
+        r, status = self.parse_response(
+            self.test_client.get('/test_res/%s' % r[id_field]))
+        files = r['list_field']
+        self.assertEqual(b64decode(files[0]), b'file_content1')
+        self.assertEqual(b64decode(files[1]), b'file_content2')
+
+        # DELETE the document
+        resp = self.test_client.delete('/test_res/%s' % r['_id'],
+                                       headers={'If-Match': r['_etag']})
+        r, status = self.parse_response(resp)
+        self.assert204(status)
+
+        # Check files were deleted
+        with self.app.test_request_context():
+            for i in [0, 1]:
+                self.assertFalse(
+                    self.app.media.exists(media_ids[i], 'test_res'))
+
+    def test_post_auto_create_lists(self):
+        self.app.config['AUTO_CREATE_LISTS'] = True
+        self.app.register_resource('test_res', {
+            'schema': {
+                'list_field': {
+                    'type': 'list',
+                    'schema': {
+                        'type': 'string'
+                    }
+                }
+            }
+        })
+
+        data = MultiDict([("list_field", "value1")])
+        resp = self.test_client.post(
+            '/test_res/', data=data,
+            content_type='application/x-www-form-urlencoded')
+        r, status = self.parse_response(resp)
+        self.assert201(status)
 
     def test_post_referential_integrity(self):
         data = {"person": self.unknown_item_id}

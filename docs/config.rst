@@ -610,6 +610,26 @@ uppercase.
                                     should be formatted at
                                     :ref:`multipart`. Defaults to ``False``.
 
+``AUTO_COLLAPSE_MULTI_KEYS``        If set to ``True``, multiple values sent
+                                    with the same key, submitted using the
+                                    ``application/x-www-form-urlencoded`` or
+                                    ``multipart/form-data`` content types,
+                                    will automatically be converted to a list of
+                                    values.
+
+                                    When using this together with
+                                    ``AUTO_CREATE_LISTS`` it becomes possible
+                                    to use lists of media fields.
+
+                                    Defaults to ``False``
+
+``AUTO_CREATE_LISTS``               When submitting a non ``list`` type value
+                                    for a field with type ``list``,
+                                    automatically create a one element list
+                                    before running the validators.
+
+                                    Defaults to ``False``
+
 ``OPLOG``                           Set it to ``True`` to enable the :ref:`oplog`.
                                     Defaults to ``False``.
 
