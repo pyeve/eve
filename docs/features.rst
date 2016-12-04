@@ -1666,6 +1666,15 @@ quotes). If ever in doubt if what you are submitting is a valid JSON string
 you can try passing it from the JSON Validator at http://jsonlint.com/ to
 be sure that it is correct.
 
+.. _media_lists:
+
+Using lists of media
+~~~~~~~~~~~~~~~~~~~~
+When using lists of media, there is no way to submit these in the default
+configuration. Enable ``AUTO_COLLAPSE_MULTI_KEYS`` and ``AUTO_CREATE_LISTS``
+to make this possible. This allows to send multiple values for one key in
+``multipart/form-data`` requests and in this way upload a list of files.
+
 .. _geojson_feature:
 
 GeoJSON
