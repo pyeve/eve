@@ -34,13 +34,14 @@ class TestResponse(TestBase):
         self.assertTrue(isinstance(meta, dict))
 
     def test_response_pretty(self):
-        # check if pretty printing was successful by checking the length of the response
-        # since pretty printing the respone makes it longer and not type dict
-        # anymore
+        # check if pretty printing was successful by checking the length of the
+        # response since pretty printing the respone makes it longer and not
+        # type dict anymore
         self.r = self.test_client.get('/%s/?pretty' % self.empty_resource)
         response = self.r.get_data().decode()
         self.assertEqual(len(response), 300)
-        self.assertTrue(isinstance(response, unicode))
+        # python2 and python3 compatible (check for unicode or str)
+        self.assertTrue(isinstance(response, basestring))
 
 
 class TestNoHateoas(TestBase):
