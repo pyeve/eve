@@ -421,7 +421,7 @@ class Mongo(DataLayer):
 
         if isinstance(doc_or_docs, dict):
             doc_or_docs = [doc_or_docs]
-
+        doc_or_docs = [self._mongotize(doc, resource) for doc in doc_or_docs]
         try:
             return coll.insert_many(doc_or_docs, ordered=True).inserted_ids
         except pymongo.errors.BulkWriteError as e:
