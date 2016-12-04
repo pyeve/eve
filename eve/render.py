@@ -275,7 +275,12 @@ def render_json(data):
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
     """
-    return json.dumps(data, cls=app.data.json_encoder_class,
+    set_indent = None
+
+    # make pretty prints available
+    if 'GET' in request.method and 'pretty' in request.args:
+        set_indent = 4
+    return json.dumps(data, indent=set_indent, cls=app.data.json_encoder_class,
                       sort_keys=config.JSON_SORT_KEYS)
 
 
@@ -377,7 +382,7 @@ def xml_add_links(data):
     for rel, link in ordered_links.items():
         if isinstance(link, list):
             xml += ''.join([chunk % (rel, utils.escape(d['href']),
-                            utils.escape(d['title'])) for d in link])
+                                     utils.escape(d['title'])) for d in link])
         else:
             xml += ''.join(chunk % (rel, utils.escape(link['href']),
                                     link['title']))
