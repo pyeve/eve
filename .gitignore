@@ -2,6 +2,8 @@
 /.pydevproject
 /.settings
 .ropeproject
+docs/html
+docs/doctrees
 
 # Eve
 run.py
@@ -9,6 +11,8 @@ settings.py
 
 # Python
 *.py[co]
+.venv/
+venv/
 
 # Gedit
 *~
