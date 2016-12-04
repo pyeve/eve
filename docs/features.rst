@@ -298,6 +298,16 @@ You also have the option to validate the incoming filters against the resource's
 schema and refuse to apply the filtering if any filters are invalid, by using the
 ``VALIDATE_FILTERING`` system setting (see :ref:`global`)
 
+Pretty Printing
+---------------
+You can pretty print the response by specifying a query parameter named `pretty`:
+
+.. code-block:: console
+
+    $ curl -i http://eve-demo.herokuapp.com/people?pretty
+    HTTP/1.1 200 OK
+
+Now the response payload will have indentations.
 
 Sorting
 -------
