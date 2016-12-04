@@ -40,8 +40,6 @@ class TestResponse(TestBase):
         self.r = self.test_client.get('/%s/?pretty' % self.empty_resource)
         response = self.r.get_data().decode()
         self.assertEqual(len(response), 300)
-        # python2 and python3 compatible (check for unicode or str)
-        self.assertTrue(isinstance(response, basestring))
 
 
 class TestNoHateoas(TestBase):
