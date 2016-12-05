@@ -33,6 +33,14 @@ class TestResponse(TestBase):
         meta = response.get('_meta')
         self.assertTrue(isinstance(meta, dict))
 
+    def test_response_pretty(self):
+        # check if pretty printing was successful by checking the length of the
+        # response since pretty printing the respone makes it longer and not
+        # type dict anymore
+        self.r = self.test_client.get('/%s/?pretty' % self.empty_resource)
+        response = self.r.get_data().decode()
+        self.assertEqual(len(response), 300)
+
 
 class TestNoHateoas(TestBase):
 
