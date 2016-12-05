@@ -343,6 +343,43 @@ filters is the way to go.</p>
 schema and refuse to apply the filtering if any filters are invalid, by using the
 <tt class="docutils literal"><span class="pre">VALIDATE_FILTERING</span></tt> system setting (see <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a>)</p>
 </div>
+<div class="section" id="pretty-printing">
+<h2>Pretty Printing<a class="headerlink" href="#pretty-printing" title="Permalink to this headline">¶</a></h2>
+<p>You can pretty print the response by specifying a query parameter named
+<tt class="docutils literal"><span class="pre">pretty</span></tt>:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people?pretty
+<span class="go">HTTP/1.1 200 OK</span>
+
+<span class="go">{</span>
+<span class="go">    &quot;_items&quot;: [</span>
+<span class="go">        {</span>
+<span class="go">            &quot;_updated&quot;: &quot;Tue, 19 Apr 2016 08:19:00 GMT&quot;,</span>
+<span class="go">            &quot;firstname&quot;: &quot;John&quot;,</span>
+<span class="go">            &quot;lastname&quot;: &quot;Doe&quot;,</span>
+<span class="go">            &quot;born&quot;: &quot;Thu, 27 Aug 1970 14:37:13 GMT&quot;,</span>
+<span class="go">            &quot;role&quot;: [</span>
+<span class="go">                &quot;author&quot;</span>
+<span class="go">            ],</span>
+<span class="go">            &quot;location&quot;: {</span>
+<span class="go">                &quot;city&quot;: &quot;Auburn&quot;,</span>
+<span class="go">                &quot;address&quot;: &quot;422 South Gay Street&quot;</span>
+<span class="go">            },</span>
+<span class="go">            &quot;_links&quot;: {</span>
+<span class="go">                &quot;self&quot;: {</span>
+<span class="go">                    &quot;href&quot;: &quot;people/5715e9f438345b3510d27eb8&quot;,</span>
+<span class="go">                    &quot;title&quot;: &quot;person&quot;</span>
+<span class="go">                }</span>
+<span class="go">            },</span>
+<span class="go">            &quot;_created&quot;: &quot;Tue, 19 Apr 2016 08:19:00 GMT&quot;,</span>
+<span class="go">            &quot;_id&quot;: &quot;5715e9f438345b3510d27eb8&quot;,</span>
+<span class="go">            &quot;_etag&quot;: &quot;86dc6b45fe7e2f41f1ca53a0e8fda81224229799&quot;</span>
+<span class="go">        },</span>
+<span class="go">        ...</span>
+<span class="go">    ]</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="sorting">
 <h2>Sorting<a class="headerlink" href="#sorting" title="Permalink to this headline">¶</a></h2>
 <p>Sorting is supported as well:</p>
@@ -2130,6 +2167,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#customizable-multiple-item-endpoints">Customizable, multiple item endpoints</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#filtering">Filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty-printing">Pretty Printing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sorting">Sorting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#pagination">Pagination</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#hateoas">HATEOAS</a><ul>

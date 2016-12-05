@@ -298,6 +298,44 @@ You also have the option to validate the incoming filters against the resource's
 schema and refuse to apply the filtering if any filters are invalid, by using the
 ``VALIDATE_FILTERING`` system setting (see :ref:`global`)
 
+Pretty Printing
+---------------
+You can pretty print the response by specifying a query parameter named
+``pretty``:
+
+.. code-block:: console
+
+    $ curl -i http://eve-demo.herokuapp.com/people?pretty
+    HTTP/1.1 200 OK
+
+    {
+        "_items": [
+            {
+                "_updated": "Tue, 19 Apr 2016 08:19:00 GMT",
+                "firstname": "John",
+                "lastname": "Doe",
+                "born": "Thu, 27 Aug 1970 14:37:13 GMT",
+                "role": [
+                    "author"
+                ],
+                "location": {
+                    "city": "Auburn",
+                    "address": "422 South Gay Street"
+                },
+                "_links": {
+                    "self": {
+                        "href": "people/5715e9f438345b3510d27eb8",
+                        "title": "person"
+                    }
+                },
+                "_created": "Tue, 19 Apr 2016 08:19:00 GMT",
+                "_id": "5715e9f438345b3510d27eb8",
+                "_etag": "86dc6b45fe7e2f41f1ca53a0e8fda81224229799"
+            }, 
+            ...
+        ]
+    }
+
 
 Sorting
 -------
