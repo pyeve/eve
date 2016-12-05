@@ -8,6 +8,9 @@ In Development
 
 Version 0.7
 ~~~~~~~~~~~
+- New: Pretty printing.You can pretty print the response by specifying a query
+  parameter named ``?pretty`` (Hasan Pekdemir).
+
 - New: ``AUTO_COLLAPSE_MULTI_KEYS``. If set to ``True``, multiple values sent
   with the same key, submitted using the ``application/x-www-form-urlencoded``
   or ``multipart/form-data`` content types, will automatically be converted to
