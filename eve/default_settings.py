@@ -12,6 +12,7 @@
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.7
+       'OPTIMIZE_PAGINATION_FOR_SPEED' added and set to False.
        'OPLOG_RETURN_EXTRA_FIELD' added and set to False.
        'ENFORCE_IF_MATCH'added and set to True.
 
@@ -223,6 +224,7 @@ QUERY_EMBEDDED = 'embedded'
 QUERY_AGGREGATION = 'aggregate'
 
 HEADER_TOTAL_COUNT = 'X-Total-Count'
+OPTIMIZE_PAGINATION_FOR_SPEED = False
 
 # user-restricted resource access is disabled by default.
 AUTH_FIELD = None

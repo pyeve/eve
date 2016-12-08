@@ -73,6 +73,20 @@ class TestGet(TestBase):
         self.assert200(status)
         self.assertPage(response, status)
 
+    def test_get_perform_count_on_pagination_disabled(self):
+        self.app.config['OPTIMIZE_PAGINATION_FOR_SPEED'] = True
+
+        r = self.test_client.get('%s?page=2' % self.known_resource_url)
+        self.assert200(r.status_code)
+
+        body = json.loads(r.get_data())
+        links = body['_links']
+        self.assertFalse('last' in links)
+        self.assertFalse('total' in body['_meta'])
+        self.assertNextLink(links, 3)
+        self.assertPrevLink(links, 1)
+        self.assertFalse(self.app.config['HEADER_TOTAL_COUNT'] in r.headers)
+
     def test_get_internal_page(self):
         with self.app.test_request_context(self.known_resource_url):
             response, _, _, status, _ = get_internal(self.known_resource)
