@@ -918,10 +918,15 @@ class Eve(Flask, Events):
         """ Register custom error handlers so we make sure that all errors
         return a parseable body.
 
+        .. versionchanged: 0.6.5
+           Replace obsolete app.register_error_handler_spec() with
+           register_error_handler(), which works with Flask>=0.11.1. Closes
+           #904, #945.
+
         .. versionadded:: 0.4
         """
         for code in self.config['STANDARD_ERRORS']:
-            self.error_handler_spec[None][code] = error_endpoint
+            self.register_error_handler(code, error_endpoint)
 
     def _init_oplog(self):
         """ If enabled, configures the OPLOG endpoint.

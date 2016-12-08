@@ -107,6 +107,7 @@ Version 0.7
 Version 0.6.5
 ~~~~~~~~~~~~~
 
+- Flask 0.11.1 is now supported. Closes #945 and #904.
 - Fix: Deprecation warning from Flask. Closes #898 (George Lestaris).
 - Fix: add Support serialization on lists using anyof, oneof, allof, noneof.
   Closes #876 (Carles Bruguera).
