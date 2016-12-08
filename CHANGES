@@ -98,27 +98,25 @@ Version 0.7
 - Fix: ETag request headers which conform to RFC 7232/2.3 (double quoted value)
   are now properly processed. Addresses #794.
 
-- Docs: remove the deprecated ``--ditribute`` virtualenv option (Eugene
-  Prikazchikov).
-
-- Docs: add date and subdocument fields filtering examples. Closes #924.
-
-
-Version 0.6.5
-~~~~~~~~~~~~~
-
-- Flask 0.11.1 is now supported. Closes #945 and #904.
 - Fix: Deprecation warning from Flask. Closes #898 (George Lestaris).
+
 - Fix: add Support serialization on lists using anyof, oneof, allof, noneof.
   Closes #876 (Carles Bruguera).
+
 - Fix: update security example snippets to match with current API (Stanislav
   Filin).
+
 - Fix: ``notifications.py`` example snippet crashes due to lack of ``DOMAIN``
   setting (Stanislav Filin).
 
+- Docs: remove the deprecated ``--ditribute`` virtualenv option (Eugene
+  Prikazchikov).
+- Docs: add date and subdocument fields filtering examples. Closes #924.
 - Docs: add Eve-Neo4j to the extensions page (Rodrigo Rodriguez).
 - Docs: stress that alternate backends are supported via community extensions.
 - Docs: clarify that Redis is an optional dependency (Mateusz Łoskot).
+
+- Update: Flask 0.11.1 is now supported. Closes #945 and #904.
 
 Stable
 ------
