@@ -592,7 +592,11 @@ metadata:
         "_links": {"self": {"href": "people/50ae43339fa12500024def5b", "title": "person"}}
     }
 
-However, in order to reduce the number of loopbacks, a client might also submit
+When a ``201 Created`` is returned following a POST request, the ``Location``
+header is also included with the response. Its value is the URI to the new
+document. 
+
+In order to reduce the number of loopbacks, a client might also submit
 multiple documents with a single request. All it needs to do is enclose the
 documents in a JSON list:
 
@@ -626,9 +630,13 @@ The response will be a list itself, with the state of each document:
     }
 
 When multiple documents are submitted the API takes advantage of MongoDB *bulk
-insert* capabilities which means that not only there's just one single request
-traveling from the client to the remote API, but also that only one loopback is
-performed between the API server and the database.
+insert* capabilities which means that not only there's just one request
+traveling from the client to the remote API, but also that a single loopback is
+performed between the API server and the database. 
+
+In case of successful multiple inserts, keep in mind that the ``Location``
+header only returns the URI of the first created document.
+
 
 Data Validation
 ---------------

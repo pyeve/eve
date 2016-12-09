@@ -633,7 +633,7 @@ class TestPost(TestBase):
     def test_post_alternative_payload(self):
         payl = {"ref": "5432112345678901234567890", "role": ["agent"]}
         with self.app.test_request_context(self.known_resource_url):
-            r, _, _, status = post(self.known_resource, payl=payl)
+            r, _, _, status, _ = post(self.known_resource, payl=payl)
         self.assert201(status)
         self.assertPostResponse(r)
 
@@ -803,7 +803,8 @@ class TestPost(TestBase):
         test_value = "1234567890123456789054321"
         payload = {test_field: test_value}
         with self.app.test_request_context(self.known_resource_url):
-            r, _, _, status = post_internal(self.known_resource, payl=payload)
+            r, _, _, status, _ = post_internal(self.known_resource,
+                                               payl=payload)
         self.assert201(status)
 
     def test_post_internal_skip_validation(self):
@@ -813,8 +814,9 @@ class TestPost(TestBase):
         test_value = "1234567890123456789054321"
         payload = {test_field: test_value}
         with self.app.test_request_context(self.known_resource_url):
-            r, _, _, status = post_internal(self.known_resource, payl=payload,
-                                            skip_validation=True)
+            r, _, _, status, _ = post_internal(self.known_resource,
+                                               payl=payload,
+                                               skip_validation=True)
         self.assert201(status)
 
     def test_post_nested(self):
@@ -854,6 +856,24 @@ class TestPost(TestBase):
         schema['aninteger']['coerce'] = lambda string: int(float(string))
         data = {'ref': '1234567890123456789054321', 'aninteger': '42.3'}
         self.assertPostItem(data, 'aninteger', 42)
+
+    def test_post_location_header_hateoas_on(self):
+        self.app.config['HATEOAS'] = True
+        data = json.dumps({'ref': '1234567890123456789054321'})
+        headers = [('Content-Type', 'application/json')]
+        r = self.test_client.post(self.known_resource_url, data=data,
+                                  headers=headers)
+        self.assertTrue('Location' in r.headers)
+        self.assertTrue(self.known_resource_url in r.headers['Location'])
+
+    def test_post_location_header_hateoas_off(self):
+        self.app.config['HATEOAS'] = False
+        data = json.dumps({'ref': '1234567890123456789054321'})
+        headers = [('Content-Type', 'application/json')]
+        r = self.test_client.post(self.known_resource_url, data=data,
+                                  headers=headers)
+        self.assertTrue('Location' in r.headers)
+        self.assertTrue(self.known_resource_url in r.headers['Location'])
 
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
