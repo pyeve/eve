@@ -8,6 +8,10 @@ In Development
 
 Version 0.7
 ~~~~~~~~~~~
+- New: ``Location`` header is returned on ``201 Created`` POST responses. If
+  will contain the URI to the created document. If bulk inserts are enabled,
+  only the first document URI is returned. Closes #795.
+
 - New: Pretty printing.You can pretty print the response by specifying a query
   parameter named ``?pretty`` (Hasan Pekdemir).
 
