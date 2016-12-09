@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Features &mdash; Eve 0.6.5.dev0 documentation</title>
+    <title>Features &mdash; Eve 0.7.dev0 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.6.5.dev0',
+        VERSION:     '0.7.dev0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.6.5.dev0 documentation" href="index.html" />
+    <link rel="top" title="Eve 0.7.dev0 documentation" href="index.html" />
     <link rel="next" title="Configuration" href="config.html" />
     <link rel="prev" title="Quickstart" href="quickstart.html" />
    
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="quickstart.html" title="Quickstart"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Eve 0.6.5.dev0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Eve 0.7.dev0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -586,7 +586,10 @@ metadata:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>However, in order to reduce the number of loopbacks, a client might also submit
+<p>When a <tt class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></tt> is returned following a POST request, the <tt class="docutils literal"><span class="pre">Location</span></tt>
+header is also included with the response. Its value is the URI to the new
+document.</p>
+<p>In order to reduce the number of loopbacks, a client might also submit
 multiple documents with a single request. All it needs to do is enclose the
 documents in a JSON list:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;[{&quot;firstname&quot;: &quot;barack&quot;, &quot;lastname&quot;: &quot;obama&quot;}, {&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}]&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> http://eve-demo.herokuapp.com/people
@@ -616,9 +619,11 @@ documents in a JSON list:</p>
 </pre></div>
 </div>
 <p>When multiple documents are submitted the API takes advantage of MongoDB <em>bulk
-insert</em> capabilities which means that not only there&#8217;s just one single request
-traveling from the client to the remote API, but also that only one loopback is
+insert</em> capabilities which means that not only there&#8217;s just one request
+traveling from the client to the remote API, but also that a single loopback is
 performed between the API server and the database.</p>
+<p>In case of successful multiple inserts, keep in mind that the <tt class="docutils literal"><span class="pre">Location</span></tt>
+header only returns the URI of the first created document.</p>
 </div>
 <div class="section" id="data-validation">
 <h2>Data Validation<a class="headerlink" href="#data-validation" title="Permalink to this headline">¶</a></h2>
