@@ -305,6 +305,15 @@ class TestSerializer(TestBase):
                     isinstance(serialized['anumber'], expected_type)
                 )
 
+    def test_serialize_boolean(self):
+        schema = {'bool': {'type': 'boolean'}}
+
+        with self.app.app_context():
+            for val in [1, '1', 0, '0', 'true', 'True', 'false', 'False']:
+                doc = {'bool': val}
+                serialized = serialize(doc, schema=schema)
+                self.assertTrue(isinstance(serialized['bool'], bool))
+
     def test_serialize_inside_x_of_rules(self):
         for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
             schema = {
