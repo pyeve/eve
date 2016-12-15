@@ -480,6 +480,56 @@ class TestNormalizeDottedFields(TestBase):
         self.assertTrue(compare_recursive(document, expected_result))
 
 
+class TestNormalizeDottedFields(TestBase):
+    def test_normalize_dotted_fields(self):
+        document = {
+            'a.b': 1,
+            'c.d': {
+                'e.f': {
+                    'g': 1,
+                    'h': 2,
+                },
+                'e.f.i': {
+                    'j.k': 3,
+                },
+            },
+            'l': [
+                {
+                    'm.n': 4,
+                },
+            ],
+        }
+        expected_result = {
+            'a': {
+                'b': 1,
+            },
+            'c': {
+                'd': {
+                    'e': {
+                        'f': {
+                            'g': 1,
+                            'h': 2,
+                            'i': {
+                                'j': {
+                                    'k': 3,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            'l': [
+                {
+                    'm': {
+                        'n': 4,
+                    },
+                },
+            ],
+        }
+        normalize_dotted_fields(document)
+        self.assertTrue(document == expected_result)
+
+
 class TestOpLogBase(TestBase):
     def setUp(self):
         super(TestOpLogBase, self).setUp()
