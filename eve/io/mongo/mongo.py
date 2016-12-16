@@ -80,6 +80,8 @@ class Mongo(DataLayer):
         'integer': lambda value: int(value) if value is not None else None,
         'float': lambda value: float(value) if value is not None else None,
         'number': lambda val: json.loads(val) if val is not None else None,
+        'boolean': lambda v:
+        {'1': True, 'true': True, '0': False, 'false': False}[str(v).lower()],
         'dbref': lambda value:
         DBRef(value['$col'], value['$id'], value['$db']
               if '$db' in value else None) if value is not None else None,
