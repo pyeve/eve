@@ -91,6 +91,8 @@ Version 0.7
 - Change: ETag response header now conforms to RFC 7232/2.3 and is surrounded
   by double quotes. Closes #794.
 
+- Fix: improve serialization of boolean values. Closes #947 (NotSpecial).
+
 - Fix: fix intermittently failing test. Closes #934 (Conrad Burchert).
 
 - Fix: Multiple, fast (within a 1 second window) and neutral (no actual changes)
