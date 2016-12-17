@@ -197,8 +197,12 @@ def _perform_find(resource, lookup):
     last_modified = last_update if last_update > epoch() else None
 
     response[config.ITEMS] = documents
-    count = cursor.count(with_limit_and_skip=False)
-    headers.append((config.HEADER_TOTAL_COUNT, count))
+
+    if config.OPTIMIZE_PAGINATION_FOR_SPEED:
+        count = None
+    else:
+        count = cursor.count(with_limit_and_skip=False)
+        headers.append((config.HEADER_TOTAL_COUNT, count))
 
     if config.DOMAIN[resource]['hateoas']:
         response[config.LINKS] = _pagination_links(resource, req, count)
@@ -454,7 +458,7 @@ def getitem_internal(resource, **lookup):
     return response, last_modified, etag, 200
 
 
-def _pagination_links(resource, req, documents_count, document_id=None):
+def _pagination_links(resource, req, document_count, document_id=None):
     """ Returns the appropriate set of resource links depending on the
     current page and the total number of documents returned by the query.
 
@@ -516,32 +520,30 @@ def _pagination_links(resource, req, documents_count, document_id=None):
                                     % _links['parent']['href']}
 
     # modify the self link to add query params or version number
-    if documents_count:
+    if document_count:
         _links['self']['href'] = '%s%s' % (_links['self']['href'], q)
-    elif not documents_count and version and version not in ('all', 'diffs'):
+    elif not document_count and version and version not in ('all', 'diffs'):
         _links['self'] = document_link(resource, document_id, version)
 
     # create pagination links
-    if documents_count and config.DOMAIN[resource]['pagination']:
+    if config.DOMAIN[resource]['pagination']:
         # strip any queries from the self link if present
         _pagination_link = _links['self']['href'].split('?')[0]
-        if req.page * req.max_results < documents_count:
+
+        if (req.page * req.max_results < document_count or
+                config.OPTIMIZE_PAGINATION_FOR_SPEED):
             q = querydef(req.max_results, req.where, req.sort, version,
                          req.page + 1, other_params)
             _links['next'] = {'title': 'next page', 'href': '%s%s' %
                               (_pagination_link, q)}
 
-            # in python 2.x dividing 2 ints produces an int and that's rounded
-            # before the ceil call. Have to cast one value to float to get
-            # a correct result. Wonder if 2 casts + ceil() call are actually
-            # faster than documents_count // req.max_results and then adding
-            # 1 if the modulo is non-zero...
-            last_page = int(math.ceil(documents_count /
-                                      float(req.max_results)))
-            q = querydef(req.max_results, req.where, req.sort, version,
-                         last_page, other_params)
-            _links['last'] = {'title': 'last page', 'href': '%s%s'
-                              % (_pagination_link, q)}
+            if document_count:
+                last_page = int(math.ceil(document_count / float(
+                    req.max_results)))
+                q = querydef(req.max_results, req.where, req.sort, version,
+                             last_page, other_params)
+                _links['last'] = {'title': 'last page', 'href': '%s%s' % (
+                    _pagination_link, q)}
 
         if req.page > 1:
             q = querydef(req.max_results, req.where, req.sort, version,
@@ -572,8 +574,10 @@ def _meta_links(req, count):
 
     .. versionadded:: 0.5
     """
-    return {
+    meta = {
         config.QUERY_PAGE: req.page,
         config.QUERY_MAX_RESULTS: req.max_results,
-        'total': count
     }
+    if config.OPTIMIZE_PAGINATION_FOR_SPEED is False:
+        meta['total'] = count
+    return meta
