@@ -58,6 +58,15 @@
 <div class="section" id="version-0-7">
 <h3>Version 0.7<a class="headerlink" href="#version-0-7" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>New: <tt class="docutils literal"><span class="pre">OPTIMIZE_PAGINATION_FOR_SPEED</span></tt>. Set this to <tt class="docutils literal"><span class="pre">True</span></tt> to improve
+pagination performance. When optimization is active no count operation, which
+can be slow on large collections, is performed on the database. This does
+have a few consequences. Firstly, no document count is returned. Secondly,
+<tt class="docutils literal"><span class="pre">HATEOAS</span></tt> is less accurate: no last page link is available, and next page
+link is always included, even on last page. On big collections, switching
+this feature on can greatly improve performance. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>
+(slower performance; document count included; accurate <tt class="docutils literal"><span class="pre">HATEOAS</span></tt>). Closes
+#944 and #853.</li>
 <li>New: <tt class="docutils literal"><span class="pre">Location</span></tt> header is returned on <tt class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></tt> POST responses. If
 will contain the URI to the created document. If bulk inserts are enabled,
 only the first document URI is returned. Closes #795.</li>
