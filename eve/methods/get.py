@@ -530,7 +530,7 @@ def _pagination_links(resource, req, document_count, document_id=None):
         # strip any queries from the self link if present
         _pagination_link = _links['self']['href'].split('?')[0]
 
-        if (req.page * req.max_results < document_count or
+        if (req.page * req.max_results < (document_count or 0) or
                 config.OPTIMIZE_PAGINATION_FOR_SPEED):
             q = querydef(req.max_results, req.where, req.sort, version,
                          req.page + 1, other_params)
