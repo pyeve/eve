@@ -1209,16 +1209,16 @@ Let's see an overview of what events are available:
 |Action |What    |When  |Event name / method signature                    |
 +=======+========+======+=================================================+
 |Fetch  |Resource|After || ``on_fetched_resource``                        |
-|       |        |      || ``def event(resource_name, response)``         |
+|       |        |      || ``def event(resource_name, items)``            |
 |       |        |      +-------------------------------------------------+
 |       |        |      || ``on_fetched_resource_<resource_name>``        |
-|       |        |      || ``def event(response)``                        |
+|       |        |      || ``def event(items)``                           |
 |       +--------+------+-------------------------------------------------+
 |       |Item    |After || ``on_fetched_item``                            |
-|       |        |      || ``def event(resource_name, response)``         |
+|       |        |      || ``def event(resource_name, item)``             |
 |       |        |      +-------------------------------------------------+
 |       |        |      || ``on_fetched_item_<resource_name>``            |
-|       |        |      || ``def event(response)``                        |
+|       |        |      || ``def event(item)``                            |
 +-------+--------+------+-------------------------------------------------+
 |Insert |Items   |Before|| ``on_insert``                                  |
 |       |        |      || ``def event(resource_name, items)``            |
@@ -1269,16 +1269,16 @@ Let's see an overview of what events are available:
 |       |        |      || ``def event(item)``                            |
 |       +--------+------+-------------------------------------------------+
 |       |Resource|Before|| ``on_delete_resource``                         |
-|       |        |      || ``def event(resource_name, item)``             |
+|       |        |      || ``def event(resource_name)``                   |
 |       |        |      +-------------------------------------------------+
 |       |        |      || ``on_delete_resource_<resource_name>``         |
-|       |        |      || ``def event(item)``                            |
+|       |        |      || ``def event()``                                |
 |       |        +------+-------------------------------------------------+
 |       |        |After || ``on_deleted_resource``                        |
-|       |        |      || ``def event(resource_name, item)``             |
+|       |        |      || ``def event(resource_name)``                   |
 |       |        |      +-------------------------------------------------+
 |       |        |      || ``on_deleted_resource_<resource_name>``        |
-|       |        |      || ``def event(item)``                            |
+|       |        |      || ``def event()``                                |
 +-------+--------+------+-------------------------------------------------+
 
 
