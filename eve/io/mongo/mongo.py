@@ -482,7 +482,7 @@ class Mongo(DataLayer):
                 self.driver.db.client.server_info()['version'][:3]
             if (
                 (server_version == '2.4' and e.code in (13596, 10148)) or
-                (server_version in ('2.6', '3.0', '3.2') and
+                (server_version in ('2.6', '3.0', '3.2', '3.4') and
                     e.code in (66, 16837))
             ):
                 # attempt to update an immutable field. this usually
