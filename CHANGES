@@ -129,6 +129,9 @@ Version 0.7
 - Fix: ``notifications.py`` example snippet crashes due to lack of ``DOMAIN``
   setting (Stanislav Filin).
 
+- Docs: clarify documentation for custom validators: Cerberus dependency is
+  still pinned to version 0.9.2. Upgrade to Cerberus 1.0+ is planned with v0.8.
+  Closes #796.
 - Docs: remove the deprecated ``--ditribute`` virtualenv option (Eugene
   Prikazchikov).
 - Docs: add date and subdocument fields filtering examples. Closes #924.

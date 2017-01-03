@@ -131,6 +131,10 @@ For more information on
     We have only scratched the surface of data validation. Please make sure
     to check the Cerberus_ documentation for a complete list of available
     validation rules and data types. 
+    
+    Also note that Cerberus requirement is pinned to version 0.9.2, which still
+    supports the ``validate_update`` method used for ``PATCH`` requests.
+    Upgrade to Cerberus 1.0+ is scheduled for Eve version 0.8.
 
 .. _unknown:
 
