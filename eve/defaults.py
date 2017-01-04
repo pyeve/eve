@@ -94,26 +94,51 @@ def resolve_default_values(document, defaults):
     .. versionadded:: 0.2
     """
     todo = [(defaults, document)]
+    circular_dependency_checker = CircularDependencyChecker()
     while len(todo) > 0:
-        defaults, document = todo.pop()
+        circular_dependency_checker.register_todo_list(todo)
+        defaults, document_part = todo.pop(0)
         if isinstance(defaults, list) and len(defaults):
-            todo.extend((defaults[0], item) for item in document)
+            todo.extend((defaults[0], item) for item in document_part)
             continue
         for name, value in defaults.items():
+            if callable(value):
+                try:
+                    value = value(document)
+                except KeyError:
+                    todo.append(({name: value}, document_part))
+                    continue
             if isinstance(value, dict):
                 # default dicts overwrite simple values
-                existing = document.setdefault(name, {})
+                existing = document_part.setdefault(name, {})
                 if not isinstance(existing, dict):
-                    document[name] = {}
-                todo.append((value, document[name]))
-            if isinstance(value, list) and len(value):
-                existing = document.get(name)
+                    document_part[name] = {}
+                todo.append((value, document_part[name]))
+            elif isinstance(value, list) and len(value):
+                existing = document_part.get(name)
                 if not existing:
-                    document.setdefault(name, value)
+                    document_part.setdefault(name, value)
                     continue
                 if all(isinstance(item, (dict, list)) for item in existing):
                     todo.extend((value[0], item) for item in existing)
                 else:
-                    document.setdefault(name, existing)
+                    document_part.setdefault(name, existing)
             else:
-                document.setdefault(name, value)
+                document_part.setdefault(name, value)
+
+
+class CircularDependencyChecker(object):
+    """Raises an error if the same todo list appears twice."""
+
+    def __init__(self):
+        self.known_states = set()
+
+    def register_todo_list(self, todo):
+        # Pickling or similar serializing techniques won't work as there are
+        # lambda functions in `todo`. As we don't need persistance we can just
+        # use a `repr` to detect equal todo lists.
+        state = repr(todo)
+        if state in self.known_states:
+            raise RuntimeError('circular dependency for default values')
+        else:
+            self.known_states.add(state)

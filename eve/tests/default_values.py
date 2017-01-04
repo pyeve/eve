@@ -171,15 +171,19 @@ class TestBuildDefaults(unittest.TestCase):
 
 
 class TestResolveDefaultValues(unittest.TestCase):
-    def test_one_level(self):
+    def _test_one_level(self, defaults):
         document = {'name': 'john'}
-        defaults = {'email': 'noemail'}
         resolve_default_values(document, defaults)
         self.assertEqual({'name': 'john', 'email': 'noemail'}, document)
 
-    def test_multilevel(self):
+    def test_one_level(self):
+        self._test_one_level({'email': 'noemail'})
+
+    def test_one_level_callable(self):
+        self._test_one_level({'email': lambda document: 'noemail'})
+
+    def _test_multilevel(self, defaults):
         document = {'name': 'myname', 'one': {'hey': 'jude'}}
-        defaults = {'one': {'two': {'three': 'banana'}}}
         resolve_default_values(document, defaults)
         expected = {
             'name': 'myname',
@@ -190,20 +194,32 @@ class TestResolveDefaultValues(unittest.TestCase):
         }
         self.assertEqual(expected, document)
 
+    def test_multilevel(self):
+        self._test_multilevel({'one': {'two': {'three': 'banana'}}})
+
+    def test_multilevel_callable(self):
+        self._test_multilevel(
+            {'one': {'two': {'three': lambda document: 'banana'}}})
+
     def test_value_instead_of_dict(self):
         document = {'name': 'john'}
         defaults = {'name': {'first': 'john'}}
         resolve_default_values(document, defaults)
         self.assertEqual(document, defaults)
 
-    def test_lists(self):
+    def _test_lists(self, defaults):
         document = {"one": [{"name": "john"}, {}]}
-        defaults = {"one": [{"title": "M."}]}
         resolve_default_values(document, defaults)
         expected = {"one": [
             {"name": "john", "title": "M."},
             {"title": "M."}]}
         self.assertEqual(expected, document)
+
+    def test_lists(self):
+        self._test_lists({"one": [{"title": "M."}]})
+
+    def test_lists_callable(self):
+        self._test_lists({"one": lambda document: [{"title": "M."}]})
 
     def test_list_of_list_single_value(self):
         document = {'one': [[], []]}
@@ -241,3 +257,49 @@ class TestResolveDefaultValues(unittest.TestCase):
         resolve_default_values(document, defaults)
         expected = {'one': [[{'name': 'banana'}], [{'name': 'banana'}]]}
         assert expected == document
+
+    def test_depending_callables(self):
+        document = {'a': 1}
+        defaults = {
+            'c': lambda document: document['b'] + 1,
+            'd': lambda document: document['c'] + 1,
+            'b': lambda document: document['a'] + 1
+        }
+        resolve_default_values(document, defaults)
+        expected = {'a': 1, 'b': 2, 'c': 3, 'd': 4}
+        self.assertEqual(expected, document)
+
+    def test_depending_and_nested_callables(self):
+        document = {'nested': {'a': 1}, 'outer': 7}
+        defaults = {
+            'foo': lambda document: document['nested']['d'],
+            'nested': {
+                'c': lambda document: document['nested']['b'] + 1,
+                'b': lambda document: document['nested']['a'] + 1,
+                'd': lambda document: document['outer'] + 1
+            }
+        }
+        resolve_default_values(document, defaults)
+        expected = {'nested': {'a': 1, 'b': 2, 'c': 3, 'd': 8},
+                    'outer': 7, 'foo': 8}
+        self.assertEqual(expected, document)
+
+    def test_circular_depending_callables(self):
+        document = {}
+        defaults = {
+            'a': lambda document: document['b'] + 1,
+            'b': lambda document: document['a'] + 1
+        }
+        self.assertRaises(RuntimeError, resolve_default_values, document,
+                          defaults)
+
+    def test_callable_with_multiple_dependencies(self):
+        document = {'a': 1}
+        defaults = {
+            'd': lambda document: document['b'] + document['c'],
+            'c': lambda document: document['b'] * 2,
+            'b': lambda document: document['a'] + 1
+        }
+        resolve_default_values(document, defaults)
+        expected = {'a': 1, 'b': 2, 'c': 4, 'd': 6}
+        self.assertEqual(expected, document)

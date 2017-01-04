@@ -1246,7 +1246,13 @@ defining the field validation rules. Allowed validation rules are:
 
 ``default``                     The default value for the field. When serving
                                 POST and PUT requests, missing fields will be
-                                assigned the configured default values.
+                                assigned the configured default values. If the
+                                default value is a callable, it is evaluated
+                                before assignment.
+
+                                Callables can even depend on one another, but
+                                a ``RuntimeError`` will be raised if there is a
+                                circular dependency.
 
                                 It works also for types ``dict`` and ``list``.
                                 The latter is restricted and works only for
