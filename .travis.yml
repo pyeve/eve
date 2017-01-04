@@ -16,6 +16,8 @@ matrix:
       env: TOX_ENV=flake8
     - python: 3.5
       env: TOX_ENV=py35
+    - python: 3.6-dev
+      env: TOX_ENV=py36
 script:
     - tox -e $TOX_ENV
 services:
