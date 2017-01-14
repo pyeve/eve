@@ -3,13 +3,22 @@
 Configuration
 =============
 Generally Eve configuration is best done with configuration files. The
-configuration files themselves are actual Python files.
+configuration files themselves are actual Python files. However, Eve will
+give precedence to dictionary-based settings first, then it will try to
+locate a file passed in :envvar:`EVE_SETTINGS` environmental variable (if
+set) and finally it will try to locate `settings.py` or a file with filename
+passed to `settings` flag in constructor.
 
-Configuration with Files
+Configuration With Files
 ------------------------
-On startup, Eve will look for a `settings.py` file in the application folder.
-You can choose an alternative filename/path. Just pass it as an argument when
-you instantiate the application.
+On startup, if `settings` flag is omitted in constructor, Eve will try to locate
+file named `settings.py`, first in the application folder and then in one of the
+application's subfolders. You can choose an alternative filename/path, just pass
+it as an argument when you instantiate the application. If the file path is
+relative, Eve will try to locate it recursively in one of the folders in your
+`sys.path`, therefore you have to be sure that your application root is appended
+to it. This is useful, for example, in testing environments, when settings file
+is not necessarily located in the root of your application.
 
 .. code-block:: python
 
@@ -18,11 +27,16 @@ you instantiate the application.
     app = Eve(settings='my_settings.py')
     app.run()
 
-Configuration with a Dictionary
+Configuration With a Dictionary
 -------------------------------
-Alternatively, you can choose to provide a settings dictionary:
+Alternatively, you can choose to provide a settings dictionary. Unlike
+configuring Eve with the settings file, dictionary-based approach will only
+update Eve's default settings with your own values, rather than overwriting
+all the settings.
 
 .. code-block:: python
+
+    from eve import Eve
 
     my_settings = {
         'MONGO_HOST': 'localhost',
@@ -30,8 +44,6 @@ Alternatively, you can choose to provide a settings dictionary:
         'MONGO_DBNAME': 'the_db_name',
         'DOMAIN': {'contacts': {}}
     }
-
-    from eve import Eve
 
     app = Eve(settings=my_settings)
     app.run()

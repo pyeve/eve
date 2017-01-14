@@ -95,6 +95,13 @@ class TestConfig(TestBase):
         # did not reset other defaults
         self.assertEqual(self.app.config['MONGO_WRITE_CONCERN'], {'w': 1})
 
+    def test_existing_env_config(self):
+        env = os.environ
+        os.environ = {'EVE_SETTINGS': 'test_settings_env.py'}
+        self.app = Eve()
+        self.assertTrue('env_domain' in self.app.config['DOMAIN'])
+        os.environ = env
+
     def test_unexisting_env_config(self):
         env = os.environ
         try:

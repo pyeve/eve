@@ -51,6 +51,9 @@ Include
 Lib
 Scripts
 
+#pyenv
+.python-version
+
 #OSX
 .Python
 .DS_Store
@@ -60,3 +63,5 @@ _build
 
 # PyCharm
 .idea
+
+.cache
