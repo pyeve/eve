@@ -95,6 +95,13 @@ class TestConfig(TestBase):
         # did not reset other defaults
         self.assertEqual(self.app.config['MONGO_WRITE_CONCERN'], {'w': 1})
 
+    def test_existing_env_config(self):
+        env = os.environ
+        os.environ = {'EVE_SETTINGS': 'test_settings_env.py'}
+        self.app = Eve()
+        self.assertTrue('env_domain' in self.app.config['DOMAIN'])
+        os.environ = env
+
     def test_unexisting_env_config(self):
         env = os.environ
         try:
@@ -487,7 +494,7 @@ class TestConfig(TestBase):
             'mongo_indexes': {
                 'name': [('name', 1)],
                 'composed': [('name', 1), ('other_field', 1)],
-                'arguments': ([('lat_long', "2d")], {"sparce": True})
+                'arguments': ([('lat_long', "2d")], {"sparse": True})
             }
         }
         self.app.register_resource('mongodb_features', settings)
