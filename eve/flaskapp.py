@@ -9,6 +9,7 @@
     :copyright: (c) 2016 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
+import fnmatch
 import os
 import sys
 
@@ -234,10 +235,12 @@ class Eve(Flask, Events):
                     if os.path.isfile(settings_file):
                         return settings_file
                     else:
-                        # try to find settings.py in some of the paths in sys.path
+                        # try to find settings.py in one of the paths in sys.path
                         for p in sys.path:
-                            if os.path.isfile(os.path.join(p, file_name)):
-                                return os.path.join(p, file_name)
+                            for root, dirs, files in os.walk(p):
+                                for filename in fnmatch.filter(files, file_name):
+                                    if os.path.isfile(os.path.join(root, filename)):
+                                        return os.path.join(root, file_name)
 
                 # try to load file from environment variable or settings.py
                 pyfile = find_settings_file(os.environ.get('EVE_SETTINGS') or self.settings)
