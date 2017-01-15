@@ -487,7 +487,7 @@ class TestConfig(TestBase):
             'mongo_indexes': {
                 'name': [('name', 1)],
                 'composed': [('name', 1), ('other_field', 1)],
-                'arguments': ([('lat_long', "2d")], {"sparce": True})
+                'arguments': ([('lat_long', "2d")], {"sparse": True})
             }
         }
         self.app.register_resource('mongodb_features', settings)
