@@ -6,7 +6,7 @@
 
     Allow API endpoints to be secured via BasicAuth and derivates.
 
-    :copyright: (c) 2016 by Nicola Iarocci.
+    :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 from flask import request, Response, current_app as app, g, abort

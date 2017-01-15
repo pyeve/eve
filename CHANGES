@@ -141,6 +141,7 @@ Version 0.7
 - Docs: stress that alternate backends are supported via community extensions.
 - Docs: clarify that Redis is an optional dependency (Mateusz Łoskot).
 
+- Update license to 2017. Closes #955.
 - Update: Flask 0.11.1 is now supported. Closes #945 and #904.
 
 Stable

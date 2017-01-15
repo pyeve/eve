@@ -6,7 +6,7 @@
 
     This module imlements the PUT method.
 
-    :copyright: (c) 2016 by Nicola Iarocci.
+    :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 from datetime import datetime
