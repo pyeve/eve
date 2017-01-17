@@ -128,6 +128,17 @@ include changes into the OpLog (mmizotin).</li>
 <span class="pre">Forbidden</span></tt> when the <tt class="docutils literal"><span class="pre">If-Match</span></tt> request header is missing (Arnau Orriols).</li>
 <li>Change: ETag response header now conforms to RFC 7232/2.3 and is surrounded
 by double quotes. Closes #794.</li>
+<li>Fix: Better locating of <tt class="docutils literal"><span class="pre">settings.py</span></tt>. On startup, if settings flag is
+omitted in constructor, Eve will try to locate file named settings.py, first
+in the application folder and then in one of the application&#8217;s subfolders.
+You can choose an alternative filename/path, just pass it as an argument when
+you instantiate the application. If the file path is relative, Eve will try
+to locate it recursively in one of the folders in your sys.path, therefore
+you have to be sure that your application root is appended to it. This is
+useful, for example, in testing environments, when settings file is not
+necessarily located in the root of your application. Closes #820 (Mario
+Kralj).</li>
+<li>Fix: <tt class="docutils literal"><span class="pre">test_create_indexes()</span></tt> typo. Closes 960.</li>
 <li>Fix: fix crash when attempting to modify a document <tt class="docutils literal"><span class="pre">_id</span></tt> on MongoDB 3.4
 (Giorgos Margaritis)</li>
 <li>Fix: improve serialization of boolean values. Closes #947 (NotSpecial).</li>
@@ -154,7 +165,9 @@ Prikazchikov).</li>
 <li>Docs: add Eve-Neo4j to the extensions page (Rodrigo Rodriguez).</li>
 <li>Docs: stress that alternate backends are supported via community extensions.</li>
 <li>Docs: clarify that Redis is an optional dependency (Mateusz Łoskot).</li>
-<li>Update: Flask 0.11.1 is now supported. Closes #945 and #904.</li>
+<li>Update license to 2017. Closes #955.</li>
+<li>Update: Flask 0.12. Closes #945, #904 and #963.</li>
+<li>Update: PyMongo 3.4 is now required. Closes #964.</li>
 </ul>
 </div>
 </div>

@@ -57,12 +57,21 @@
   <div class="section" id="configuration">
 <span id="config"></span><h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
 <p>Generally Eve configuration is best done with configuration files. The
-configuration files themselves are actual Python files.</p>
+configuration files themselves are actual Python files. However, Eve will
+give precedence to dictionary-based settings first, then it will try to
+locate a file passed in <span class="target" id="index-0"></span><tt class="xref std std-envvar docutils literal"><span class="pre">EVE_SETTINGS</span></tt> environmental variable (if
+set) and finally it will try to locate <cite>settings.py</cite> or a file with filename
+passed to <cite>settings</cite> flag in constructor.</p>
 <div class="section" id="configuration-with-files">
-<h2>Configuration with Files<a class="headerlink" href="#configuration-with-files" title="Permalink to this headline">¶</a></h2>
-<p>On startup, Eve will look for a <cite>settings.py</cite> file in the application folder.
-You can choose an alternative filename/path. Just pass it as an argument when
-you instantiate the application.</p>
+<h2>Configuration With Files<a class="headerlink" href="#configuration-with-files" title="Permalink to this headline">¶</a></h2>
+<p>On startup, if <cite>settings</cite> flag is omitted in constructor, Eve will try to locate
+file named <cite>settings.py</cite>, first in the application folder and then in one of the
+application&#8217;s subfolders. You can choose an alternative filename/path, just pass
+it as an argument when you instantiate the application. If the file path is
+relative, Eve will try to locate it recursively in one of the folders in your
+<cite>sys.path</cite>, therefore you have to be sure that your application root is appended
+to it. This is useful, for example, in testing environments, when settings file
+is not necessarily located in the root of your application.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="s">&#39;my_settings.py&#39;</span><span class="p">)</span>
@@ -71,16 +80,19 @@ you instantiate the application.</p>
 </div>
 </div>
 <div class="section" id="configuration-with-a-dictionary">
-<h2>Configuration with a Dictionary<a class="headerlink" href="#configuration-with-a-dictionary" title="Permalink to this headline">¶</a></h2>
-<p>Alternatively, you can choose to provide a settings dictionary:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">my_settings</span> <span class="o">=</span> <span class="p">{</span>
+<h2>Configuration With a Dictionary<a class="headerlink" href="#configuration-with-a-dictionary" title="Permalink to this headline">¶</a></h2>
+<p>Alternatively, you can choose to provide a settings dictionary. Unlike
+configuring Eve with the settings file, dictionary-based approach will only
+update Eve&#8217;s default settings with your own values, rather than overwriting
+all the settings.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
+
+<span class="n">my_settings</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s">&#39;MONGO_HOST&#39;</span><span class="p">:</span> <span class="s">&#39;localhost&#39;</span><span class="p">,</span>
     <span class="s">&#39;MONGO_PORT&#39;</span><span class="p">:</span> <span class="mi">27017</span><span class="p">,</span>
     <span class="s">&#39;MONGO_DBNAME&#39;</span><span class="p">:</span> <span class="s">&#39;the_db_name&#39;</span><span class="p">,</span>
     <span class="s">&#39;DOMAIN&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;contacts&#39;</span><span class="p">:</span> <span class="p">{}}</span>
 <span class="p">}</span>
-
-<span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="n">my_settings</span><span class="p">)</span>
 <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
@@ -95,7 +107,7 @@ development. The easiest way to handle this is to use a default configuration
 that is always loaded and part of the version control, and a separate
 configuration that overrides the values as necessary.</p>
 <p>This is the main reason why you can override or extend the settings with the
-contents of the file the <span class="target" id="index-0"></span><tt class="xref std std-envvar docutils literal"><span class="pre">EVE_SETTINGS</span></tt> environment variable points to.
+contents of the file the <span class="target" id="index-1"></span><tt class="xref std std-envvar docutils literal"><span class="pre">EVE_SETTINGS</span></tt> environment variable points to.
 The development/local settings could be stored in <cite>settings.py</cite> and then, in
 production, you could export EVE_SETTINGS=/path/to/production_setting.py, and
 you are done.</p>
@@ -1784,8 +1796,8 @@ read access open to the public.</p>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Configuration</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#configuration-with-files">Configuration with Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#configuration-with-a-dictionary">Configuration with a Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-with-files">Configuration With Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-with-a-dictionary">Configuration With a Dictionary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#development-production">Development / Production</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#global-configuration">Global Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#domain-configuration">Domain Configuration</a><ul>
