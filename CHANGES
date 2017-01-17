@@ -104,6 +104,17 @@ Version 0.7
 - Change: ETag response header now conforms to RFC 7232/2.3 and is surrounded
   by double quotes. Closes #794.
 
+- Fix: Better locating of ``settings.py``. On startup, if settings flag is
+  omitted in constructor, Eve will try to locate file named settings.py, first
+  in the application folder and then in one of the application's subfolders.
+  You can choose an alternative filename/path, just pass it as an argument when
+  you instantiate the application. If the file path is relative, Eve will try
+  to locate it recursively in one of the folders in your sys.path, therefore
+  you have to be sure that your application root is appended to it. This is
+  useful, for example, in testing environments, when settings file is not
+  necessarily located in the root of your application. Closes #820 (Mario
+  Kralj).
+
 - Fix: ``test_create_indexes()`` typo. Closes 960. 
 
 - Fix: fix crash when attempting to modify a document ``_id`` on MongoDB 3.4
