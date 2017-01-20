@@ -120,6 +120,7 @@ def insert_versioning_documents(resource, documents):
 
         # if 'user-restricted resource access' is enabled and there's
         # an Auth request active, inject the username into the document
+        request_auth_value = None
         auth = resource_def['authentication']
         auth_field = resource_def['auth_field']
         if auth and auth_field:
