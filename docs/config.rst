@@ -1133,10 +1133,13 @@ streams.
             'required': True,
             'unique': True,
         },
-        # 'role' is a list, and can only contain values from 'allowed'.
-        'role': {
+        # 'roles' is a list, and can only contain values from 'allowed'.
+        'roles': {
             'type': 'list',
-            'allowed': ["author", "contributor", "copy"],
+            'schema': {
+			    'type': 'string',
+				'allowed': ["author", "contributor", "copy"],
+				},
         },
         # An embedded 'strongly-typed' dictionary.
         'location': {
