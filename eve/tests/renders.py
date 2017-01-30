@@ -187,6 +187,41 @@ class TestRenders(TestBase):
         self.assertFalse('http://wwwxgithub.com' in
                          r.headers['Access-Control-Allow-Origin'])
 
+        # test that X_DOMAINS does not match if the origin contains extra characters (#974)
+        r = self.test_client.get('/', headers=[('Origin', 'http://1of2.com:8000')])
+        self.assert200(r.status_code)
+        self.assertEqual(r.headers['Access-Control-Allow-Origin'], '')
+
+    def test_CORS_regex(self):
+        # test if X_DOMAINS_RE is set with a list of regexes,
+        # origins are matched against this list (#974)
+        self.app.config['X_DOMAINS_RE'] = ['^http://sub-\d{3}\.domain\.com$']
+
+        r = self.test_client.get('/', headers=[('Origin', 'http://sub-123.domain.com')])
+        self.assert200(r.status_code)
+        self.assertEqual(r.headers['Access-Control-Allow-Origin'],
+                         'http://sub-123.domain.com')
+
+        # test that similar domains are not allowed
+        r = self.test_client.get('/', headers=[('Origin', 'http://sub-1234.domain.com')])
+        self.assert200(r.status_code)
+        self.assertEqual(r.headers['Access-Control-Allow-Origin'], '')
+
+        r = self.test_client.get('/', headers=[('Origin', 'http://sub-123.domain.com:8000')])
+        self.assert200(r.status_code)
+        self.assertEqual(r.headers['Access-Control-Allow-Origin'], '')
+
+        r = self.test_client.get('/', headers=[('Origin', 'http://sub-123xdomain.com')])
+        self.assert200(r.status_code)
+        self.assertEqual(r.headers['Access-Control-Allow-Origin'], '')
+
+        # test that invalid regexes are ignored, especially '*'
+        self.app.config['X_DOMAINS_RE'] = ['*']
+        r = self.test_client.get('/', headers=[('Origin', 'http://www.example.com')])
+        self.assert200(r.status_code)
+        self.assertEqual(r.headers['Access-Control-Allow-Origin'], '')
+
+
     def test_CORS_MAX_AGE(self):
         self.app.config['X_DOMAINS'] = '*'
         r = self.test_client.get('/', headers=[('Origin',
