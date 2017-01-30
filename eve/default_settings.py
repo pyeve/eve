@@ -15,6 +15,7 @@
        'OPTIMIZE_PAGINATION_FOR_SPEED' added and set to False.
        'OPLOG_RETURN_EXTRA_FIELD' added and set to False.
        'ENFORCE_IF_MATCH'added and set to True.
+       'X_DOMAINS_RE' added and set to None
 
     .. versionchanged:: 0.6
        'UPSERT_ON_PUT? added and set to True.
@@ -138,6 +139,7 @@ CACHE_CONTROL = ''
 CACHE_EXPIRES = 0
 ITEM_CACHE_CONTROL = ''
 X_DOMAINS = None                # CORS disabled by default.
+X_DOMAINS_RE = None             # CORS disabled by default.
 X_HEADERS = None                # CORS disabled by default.
 X_EXPOSE_HEADERS = None         # CORS disabled by default.
 X_ALLOW_CREDENTIALS = None      # CORS disabled by default.
