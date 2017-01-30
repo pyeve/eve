@@ -280,9 +280,15 @@ uppercase.
                                     domains are allowed to perform CORS
                                     requests. Allowed values are: ``None``,
                                     a list of domains, or ``'*'`` for
-                                    a wide-open API. Regexes are allowed, which
-                                    is useful for websites with dynamic ranges
-                                    of subdomains. Defaults to ``None``.
+                                    a wide-open API. Defaults to ``None``.
+
+``X_DOMAINS_RE``                    The same setting as ``X_DOMAINS``, but a list
+                                    of regexes is allowed. This is useful for
+                                    websites with dynamic ranges of
+                                    subdomains. Make sure to properly anchor and
+                                    escape the regexes. Invalid
+                                    regexes (such as ``'*'``) are ignored.
+                                    Defaults to ``None``.
 
 ``X_HEADERS``                       CORS (Cross-Origin Resource Sharing) support.
                                     Allows API maintainers to specify which
