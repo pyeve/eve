@@ -47,8 +47,8 @@ Version 0.7
 - New: ``MONGO_OPTIONS`` allows MongoDB arguments to be passed to the
   MongoClient object. Defaults to ``{}`` (Massimo Scamarcia).
 
-- New: Regexes are allowed when setting ``X_DOMAINS`` values. This allows CORS
-  to support websites with dynamic ranges of subdomains. Closes #660.
+- New: Regexes are allowed by setting ``X_DOMAINS_RE`` values. This allows CORS
+  to support websites with dynamic ranges of subdomains. Closes #660 and #974.
 
 - New: If ``ENFORCE_IF_MATCH`` option is active, then all requests are expected
   to include the ``If-Match`` or they will be rejected (same as old behavior).

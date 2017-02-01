@@ -789,8 +789,9 @@ Eve-powered APIs can be accessed by the JavaScript contained in web pages.
 Disabled by default, CORS_ allows web pages to work with REST APIs, something
 that is usually restricted by most browsers 'same domain' security policy. The
 ``X_DOMAINS`` setting allows to specify which domains are allowed to perform
-CORS requests. Regexes are also allowed, which is useful for websites with
-dynamic ranges of subdomains. 
+CORS requests. A list of regular expressions may be defined in ``X_DOMAINS_RE``, which is useful for websites with dynamic ranges of subdomains. Make sure to
+anchor and escape the regexes properly, for example
+``X_DOMAINS_RE = ['^http://sub-\d{3}\.example\.com$']``.
 
 JSONP Support
 -------------
