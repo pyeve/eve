@@ -759,8 +759,9 @@ well. For more information see <a class="reference internal" href="authenticatio
 Disabled by default, <a class="reference external" href="http://en.wikipedia.org/wiki/Cross-origin_resource_sharing">CORS</a> allows web pages to work with REST APIs, something
 that is usually restricted by most browsers &#8216;same domain&#8217; security policy. The
 <tt class="docutils literal"><span class="pre">X_DOMAINS</span></tt> setting allows to specify which domains are allowed to perform
-CORS requests. Regexes are also allowed, which is useful for websites with
-dynamic ranges of subdomains.</p>
+CORS requests. A list of regular expressions may be defined in <tt class="docutils literal"><span class="pre">X_DOMAINS_RE</span></tt>, which is useful for websites with dynamic ranges of subdomains. Make sure to
+anchor and escape the regexes properly, for example
+<tt class="docutils literal"><span class="pre">X_DOMAINS_RE</span> <span class="pre">=</span> <span class="pre">['^http://sub-\d{3}\.example\.com$']</span></tt>.</p>
 </div>
 <div class="section" id="jsonp-support">
 <h2>JSONP Support<a class="headerlink" href="#jsonp-support" title="Permalink to this headline">¶</a></h2>

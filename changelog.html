@@ -87,8 +87,8 @@ running the validators. Defaults to <tt class="docutils literal"><span class="pr
 <li>New: Add Python 3.5 as a supported interpreter (Mattias Lundberg).</li>
 <li>New: <tt class="docutils literal"><span class="pre">MONGO_OPTIONS</span></tt> allows MongoDB arguments to be passed to the
 MongoClient object. Defaults to <tt class="docutils literal"><span class="pre">{}</span></tt> (Massimo Scamarcia).</li>
-<li>New: Regexes are allowed when setting <tt class="docutils literal"><span class="pre">X_DOMAINS</span></tt> values. This allows CORS
-to support websites with dynamic ranges of subdomains. Closes #660.</li>
+<li>New: Regexes are allowed by setting <tt class="docutils literal"><span class="pre">X_DOMAINS_RE</span></tt> values. This allows CORS
+to support websites with dynamic ranges of subdomains. Closes #660 and #974.</li>
 <li>New: If <tt class="docutils literal"><span class="pre">ENFORCE_IF_MATCH</span></tt> option is active, then all requests are expected
 to include the <tt class="docutils literal"><span class="pre">If-Match</span></tt> or they will be rejected (same as old behavior).
 However, if <tt class="docutils literal"><span class="pre">ENFORCE_IF_MATCH</span></tt> is disabled, then client determines whether
@@ -138,6 +138,8 @@ you have to be sure that your application root is appended to it. This is
 useful, for example, in testing environments, when settings file is not
 necessarily located in the root of your application. Closes #820 (Mario
 Kralj).</li>
+<li>Fix: Versioning does not work with User Restricted Resource Access. Closes
+#967 (Kris Lambrechts)</li>
 <li>Fix: <tt class="docutils literal"><span class="pre">test_create_indexes()</span></tt> typo. Closes 960.</li>
 <li>Fix: fix crash when attempting to modify a document <tt class="docutils literal"><span class="pre">_id</span></tt> on MongoDB 3.4
 (Giorgos Margaritis)</li>
@@ -1408,7 +1410,7 @@ tags which also caused XML validation issues when processing responses
 <li>Version number in &#8216;Server&#8217; response headers.</li>
 <li>Added support for DELETE at resource endpoints. Expected behavior:
 will delete all items in the collection. Disabled by default.</li>
-<li><tt class="xref py py-class docutils literal"><span class="pre">eve.io.mongo.Validator</span></tt> now supports <a class="reference external" href="http://docs.python-cerberus.org/en/latest/api.html#cerberus.Validator" title="(in Cerberus v1.0.2)"><tt class="xref py py-class docutils literal"><span class="pre">Validator</span></tt></a>
+<li><tt class="xref py py-class docutils literal"><span class="pre">eve.io.mongo.Validator</span></tt> now supports <a class="reference external" href="http://docs.python-cerberus.org/en/latest/api.html#cerberus.Validator" title="(in Cerberus v1.1)"><tt class="xref py py-class docutils literal"><span class="pre">Validator</span></tt></a>
 signature, allowing for further subclassing.</li>
 </ul>
 </div>
