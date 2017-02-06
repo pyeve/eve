@@ -52,34 +52,30 @@ settings.py
     RESOURCE_METHODS = ['GET', 'POST', 'DELETE']
     ITEM_METHODS = ['GET', 'PUT', 'PATCH', 'DELETE']
 
-    lists = {
-        'schema': {
-            'title': {
-                'type': 'string'
+    DOMAIN = {
+        'lists': {
+            'schema': {
+                'title': {
+                    'type': 'string'
+                }
+            }
+        },
+        'items': {
+            'url': 'lists/<regex("[a-f0-9]{24}"):list_id>/items',
+            'schema': {
+                'list_id': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'lists',
+                        'field': '_id'
+                    }
+                },
+                'name': {
+                    'type': 'string',
+                    'required': True
+                }
             }
         }
-    }
-
-    items = {
-        'url': 'lists/<regex("[a-f0-9]{24}"):list_id>/items',
-        'schema': {
-            'list_id': {
-                'type': 'objectid',
-                'required': True,
-                'data_relation': {
-                    'resource': 'lists',
-                    'field': '_id'
-                }
-            },
-            'name': {'type': 'string',
-                     'required': True
-                     }
-        }
-    }
-
-    DOMAIN = {
-        'lists': lists,
-        'items': items
     }
 
 Usage
