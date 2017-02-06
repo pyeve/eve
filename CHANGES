@@ -6,8 +6,14 @@ Here you can see the full list of changes between each Eve release.
 In Development
 --------------
 
+Stable
+------
+
 Version 0.7
 ~~~~~~~~~~~
+
+Released on 6 February, 2017
+
 - New: Add Python 3.6 as a supported interpreter.
 
 - New: ``OPTIMIZE_PAGINATION_FOR_SPEED``. Set this to ``True`` to improve
@@ -160,9 +166,6 @@ Version 0.7
 - Update license to 2017. Closes #955.
 - Update: Flask 0.12. Closes #945, #904 and #963.
 - Update: PyMongo 3.4 is now required. Closes #964.
-
-Stable
-------
 
 Version 0.6.4
 ~~~~~~~~~~~~~
