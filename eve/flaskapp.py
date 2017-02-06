@@ -6,9 +6,10 @@
     This module implements the central WSGI application object as a Flask
     subclass.
 
-    :copyright: (c) 2016 by Nicola Iarocci.
+    :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
+import fnmatch
 import os
 import sys
 
@@ -227,20 +228,38 @@ class Eve(Flask, Events):
             if os.path.isabs(self.settings):
                 pyfile = self.settings
             else:
-                abspath = os.path.abspath(os.path.dirname(sys.argv[0]))
-                pyfile = os.path.join(abspath, self.settings)
+                def find_settings_file(file_name):
+                    # check if we can locate the file from sys.argv[0]
+                    abspath = os.path.abspath(os.path.dirname(sys.argv[0]))
+                    settings_file = os.path.join(abspath, file_name)
+                    if os.path.isfile(settings_file):
+                        return settings_file
+                    else:
+                        # try to find settings.py in one of the
+                        # paths in sys.path
+                        for p in sys.path:
+                            for root, dirs, files in os.walk(p):
+                                for f in fnmatch.filter(files, file_name):
+                                    if os.path.isfile(os.path.join(root, f)):
+                                        return os.path.join(root, file_name)
+
+                # try to load file from environment variable or settings.py
+                pyfile = find_settings_file(
+                    os.environ.get('EVE_SETTINGS') or self.settings
+                )
+
+            if not pyfile:
+                raise IOError('Could not load settings.')
+
             try:
                 self.config.from_pyfile(pyfile)
-            except IOError:
-                # assume envvar is going to be used exclusively
-                pass
             except:
                 raise
 
-        # overwrite settings with custom environment variable
-        envvar = 'EVE_SETTINGS'
-        if os.environ.get(envvar):
-            self.config.from_envvar(envvar)
+        # flask-pymongo compatibility
+        self.config['MONGO_CONNECT'] = self.config['MONGO_OPTIONS'].get(
+            'connect', True
+        )
 
     def validate_domain_struct(self):
         """ Validates that Eve configuration settings conform to the
@@ -600,18 +619,62 @@ class Eve(Flask, Events):
         schema = settings.setdefault('schema', {})
         self.set_schema_defaults(schema, settings['id_field'])
 
-        datasource = {}
-        settings.setdefault('datasource', datasource)
+        # 'defaults' helper set contains the names of fields with default
+        # values in their schema definition.
+
+        # TODO support default values for embedded documents.
+        settings['defaults'] = build_defaults(schema)
+
+        # list of all media fields for the resource
+        settings['_media'] = [field for field, definition in schema.items() if
+                              definition.get('type') == 'media']
+
+        if settings['_media'] and not self.media:
+            raise ConfigException('A media storage class of type '
+                                  ' eve.io.media.MediaStorage but be defined '
+                                  'for "media" fields to be properly stored.')
+
+        self._set_resource_datasource(resource, schema, settings)
+
+    def _set_resource_datasource(self, resource, schema, settings):
+        """ Set the default values for the resource 'datasource' setting.
+
+        .. versionadded:: 0.7
+        """
+
+        settings.setdefault('datasource', {})
 
         ds = settings['datasource']
         ds.setdefault('source', resource)
         ds.setdefault('filter', None)
         ds.setdefault('default_sort', None)
 
+        self._set_resource_projection(ds, schema, settings)
+
+        aggregation = ds.setdefault('aggregation', None)
+        if aggregation:
+            aggregation.setdefault('options', {})
+
+            # endpoints serving aggregation queries are read-only and do not
+            # support item lookup.
+            settings['resource_methods'] = ['GET']
+            settings['item_lookup'] = False
+
+    def _set_resource_projection(self, ds, schema, settings):
+        """ Set datasource projection for a resource
+
+        .. versionchanged:: 0.6.3
+           Fix: If datasource source is specified no fields are included by
+           default. Closes #842.
+
+        .. versionadded:: 0.6.2
+        """
+
         projection = ds.get('projection', {})
 
         # check if any exclusion projection is defined
-        exclusion = any(((k, v) for k, v in projection.items() if v == 0))
+        exclusion = any(((k, v) for k, v in projection.items() if v == 0)) \
+            if projection else None
 
         # If no exclusion projection is defined, enhance the projection
         # with automatic fields. Using both inclusion and exclusion will
@@ -650,11 +713,14 @@ class Eve(Flask, Events):
 
         # list of all media fields for the resource
         settings['_media'] = [field for field, definition in schema.items() if
-                              definition.get('type') == 'media']
+                              definition.get('type') == 'media' or
+                              (definition.get('type') == 'list' and
+                               definition.get('schema', {}).get('type') ==
+                               'media')]
 
         if settings['_media'] and not self.media:
             raise ConfigException('A media storage class of type '
-                                  ' eve.io.media.MediaStorage but be defined '
+                                  ' eve.io.media.MediaStorage must be defined '
                                   'for "media" fields to be properly stored.')
 
     def set_schema_defaults(self, schema, id_field):
@@ -855,24 +921,40 @@ class Eve(Flask, Events):
 
                 create_index(self, resource, name, list_of_keys, index_options)
 
+        # flask-pymongo compatibility.
+        if 'MONGO_OPTIONS' in self.config['DOMAIN']:
+            connect = self.config['DOMAIN']['MONGO_OPTIONS'].get(
+                'connect', True
+            )
+            self.config['DOMAIN']['MONGO_CONNECT'] = connect
+
     def register_error_handlers(self):
         """ Register custom error handlers so we make sure that all errors
         return a parseable body.
 
+        .. versionchanged: 0.6.5
+           Replace obsolete app.register_error_handler_spec() with
+           register_error_handler(), which works with Flask>=0.11.1. Closes
+           #904, #945.
+
         .. versionadded:: 0.4
         """
         for code in self.config['STANDARD_ERRORS']:
-            self.error_handler_spec[None][code] = error_endpoint
+            self.register_error_handler(code, error_endpoint)
 
     def _init_oplog(self):
         """ If enabled, configures the OPLOG endpoint.
 
+        .. versionchanged:: 0.7
+           Add 'u' field to oplog audit schema. See #846.
+
         .. versionadded:: 0.5
         """
-        name, endpoint, audit = (
+        name, endpoint, audit, extra = (
             self.config['OPLOG_NAME'],
             self.config['OPLOG_ENDPOINT'],
-            self.config['OPLOG_AUDIT']
+            self.config['OPLOG_AUDIT'],
+            self.config['OPLOG_RETURN_EXTRA_FIELD']
         )
 
         settings = self.config['DOMAIN'].setdefault(name, {})
@@ -899,11 +981,16 @@ class Eve(Flask, Events):
             'o': {},
             'i': {},
         }
+        if extra:
+            settings['schema'].update(
+                {'extra': {}}
+            )
         if audit:
             settings['schema'].update(
                 {
                     'ip': {},
-                    'c': {}
+                    'c': {},
+                    'u': {},
                 }
             )
 

@@ -113,9 +113,9 @@ class TestBasicAuth(TestBase):
         r = self.test_client.patch(self.item_id_url,
                                    data=json.dumps({"k": "value"}),
                                    headers=self.valid_auth)
-        self.assert403(r.status_code)
+        self.assert428(r.status_code)
         r = self.test_client.delete(self.item_id_url, headers=self.valid_auth)
-        self.assert403(r.status_code)
+        self.assert428(r.status_code)
 
     def test_authorized_schema_access(self):
         self.app.config['SCHEMA_ENDPOINT'] = 'schema'
@@ -275,6 +275,20 @@ class TestTokenAuth(TestBasicAuth):
 
     def test_custom_auth(self):
         self.assertTrue(isinstance(self.app.auth, ValidTokenAuth))
+
+
+class TestBearerTokenAuth(TestTokenAuth):
+    def setUp(self):
+        super(TestBearerTokenAuth, self).setUp()
+        self.valid_auth = [('Authorization', 'Token test_token'),
+                           self.content_type]
+
+    def test_bad_auth_class(self):
+        self.app = Eve(settings=self.settings_file, auth=BadTokenAuth)
+        self.test_client = self.app.test_client()
+        r = self.test_client.get('/', headers=self.valid_auth)
+        # will fail because check_auth() is not implemented in the custom class
+        self.assert500(r.status_code)
 
 
 class TestCustomTokenAuth(TestTokenAuth):

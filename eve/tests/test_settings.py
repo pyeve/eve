@@ -146,6 +146,15 @@ contacts = {
         },
         'anumber': {
             'type': 'number'
+        },
+        'dict_valueschema': {
+            'type': 'dict',
+            'valueschema': {
+                'type': 'dict',
+                'schema': {
+                    'challenge': {'type': 'objectid'}
+                }
+            }
         }
     }
 }
@@ -170,7 +179,11 @@ invoices = {
         'invoicing_contacts': {
             'type': 'list',
             'data_relation': {'resource': 'contacts'}
-        }
+        },
+        'persondbref': {
+            'type': 'dbref',
+            'data_relation': {'resource': 'contacts'}
+        },
     }
 }
 

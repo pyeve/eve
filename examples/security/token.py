@@ -23,9 +23,11 @@
 from eve import Eve
 from eve.auth import TokenAuth
 
+from settings_security import SETTINGS
+
 
 class TokenAuth(TokenAuth):
-    def check_auth(self, token, allowed_roles):
+    def check_auth(self, token, allowed_roles, resource, method):
         """For the purpose of this example the implementation is as simple as
         possible. A 'real' token should probably contain a hash of the
         username/password combo, which sould then validated against the account
@@ -37,5 +39,5 @@ class TokenAuth(TokenAuth):
 
 
 if __name__ == '__main__':
-    app = Eve(auth=TokenAuth)
+    app = Eve(auth=TokenAuth, settings=SETTINGS)
     app.run()

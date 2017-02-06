@@ -7,12 +7,16 @@ import random
 import os
 import simplejson as json
 from datetime import datetime, timedelta
-from flask.ext.pymongo import MongoClient
+from flask_pymongo import MongoClient
 from bson import ObjectId
 from eve.tests.test_settings import MONGO_PASSWORD, MONGO_USERNAME, \
     MONGO_DBNAME, DOMAIN, MONGO_HOST, MONGO_PORT
 from eve import ISSUES, ETAG
 from eve.utils import date_to_str
+try:
+    from urlparse import parse_qs, urlparse
+except ImportError:
+    from urllib.parse import parse_qs, urlparse
 
 
 class ValueStack(object):
@@ -292,6 +296,14 @@ class TestMinimal(unittest.TestCase):
         else:
             self.assertTrue('last' not in links)
 
+    def assertCustomParams(self, link, params):
+        self.assertTrue('href' in link)
+        url_params = parse_qs(urlparse(link['href']).query)
+        for param, values in params.lists():
+            self.assertTrue(param in url_params)
+            for value in values:
+                self.assertTrue(value in url_params[param])
+
     def assert400(self, status):
         self.assertEqual(status, 400)
 
@@ -309,6 +321,9 @@ class TestMinimal(unittest.TestCase):
 
     def assert412(self, status):
         self.assertEqual(status, 412)
+
+    def assert428(self, status):
+        self.assertEqual(status, 428)
 
     def assert500(self, status):
         self.assertEqual(status, 500)

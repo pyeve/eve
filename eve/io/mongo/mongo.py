@@ -6,7 +6,7 @@
 
     The actual implementation of the MongoDB data layer.
 
-    :copyright: (c) 2016 by Nicola Iarocci.
+    :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 import itertools
@@ -16,9 +16,10 @@ import ast
 import pymongo
 import simplejson as json
 from bson import ObjectId
+from bson.dbref import DBRef
 from copy import copy
-from flask import abort, request
-from flask.ext.pymongo import PyMongo
+from flask import abort, request, g
+from flask_pymongo import PyMongo
 from pymongo import WriteConcern
 from werkzeug.exceptions import HTTPException
 
@@ -47,7 +48,11 @@ class MongoJSONEncoder(BaseJSONEncoder):
             # contain a lambda/callable which can't be jSON serialized
             # (and we probably don't want it to be exposed anyway). See #790.
             return "<callable>"
-
+        if isinstance(obj, DBRef):
+            retval = {'$id': str(obj.id), '$ref': obj.collection}
+            if obj.database:
+                retval['$db'] = obj.database
+            return retval
         # delegate rendering to base class method
         return super(MongoJSONEncoder, self).default(obj)
 
@@ -74,7 +79,12 @@ class Mongo(DataLayer):
         'datetime': str_to_date,
         'integer': lambda value: int(value) if value is not None else None,
         'float': lambda value: float(value) if value is not None else None,
-        'number': lambda val: json.loads(val) if val is not None else None
+        'number': lambda val: json.loads(val) if val is not None else None,
+        'boolean': lambda v:
+        {'1': True, 'true': True, '0': False, 'false': False}[str(v).lower()],
+        'dbref': lambda value:
+        DBRef(value['$col'], value['$id'], value['$db']
+              if '$db' in value else None) if value is not None else None,
     }
 
     # JSON serializer is a class attribute. Allows extensions to replace it
@@ -373,6 +383,17 @@ class Mongo(DataLayer):
         )
         return documents
 
+    def aggregate(self, resource, pipeline, options):
+        """
+        .. versionadded:: 0.7
+        """
+        datasource, _, _, _ = self.datasource(resource)
+        challenge = self._mongotize({'key': pipeline}, resource)['key']
+
+        return self.pymongo(resource).db[datasource].aggregate(
+            challenge, **options
+        )
+
     def insert(self, resource, doc_or_docs):
         """ Inserts a document into a resource collection.
 
@@ -449,11 +470,8 @@ class Mongo(DataLayer):
 
         coll = self.get_collection_with_write_concern(datasource, resource)
         try:
-            result = coll.replace_one(filter_, changes) if replace else \
+            coll.replace_one(filter_, changes) if replace else \
                 coll.update_one(filter_, changes)
-
-            if result and result.acknowledged and result.modified_count == 0:
-                raise self.OriginalChangedError()
         except pymongo.errors.DuplicateKeyError as e:
             abort(400, description=debug_error_message(
                 'pymongo.errors.DuplicateKeyError: %s' % e
@@ -464,7 +482,8 @@ class Mongo(DataLayer):
                 self.driver.db.client.server_info()['version'][:3]
             if (
                 (server_version == '2.4' and e.code in (13596, 10148)) or
-                (server_version in ('2.6', '3.0') and e.code in (66, 16837))
+                (server_version in ('2.6', '3.0', '3.2', '3.4') and
+                    e.code in (66, 16837))
             ):
                 # attempt to update an immutable field. this usually
                 # happens when a PATCH or PUT includes a mismatching ID_FIELD.
@@ -809,7 +828,17 @@ class Mongo(DataLayer):
         This allows Auth classes (for instance) to override default settings to
         use a user-reserved db instance.
 
+        Even a standard Flask view can set the mongo_prefix:
+
+            from flask import g
+
+            g.mongo_prefix = 'MONGO2'
+
         :param resource: endpoint for which a mongo prefix is needed.
+
+        ..versionchanged:: 0.7
+          Allow standard Flask views (@app.route) to set the mongo_prefix on
+          their own.
 
         ..versionadded:: 0.6
         """
@@ -829,11 +858,16 @@ class Mongo(DataLayer):
             pass
 
         px = auth.get_mongo_prefix() if auth else None
+
+        if px is None:
+            px = g.get('mongo_prefix', None)
+
         if px is None:
             if resource:
                 px = config.DOMAIN[resource].get('mongo_prefix', 'MONGO')
             else:
                 px = 'MONGO'
+
         return px
 
     def pymongo(self, resource=None, prefix=None):
@@ -925,7 +959,8 @@ def create_index(app, resource, name, list_of_keys, index_options):
     collection = app.config['SOURCES'][resource]['source']
 
     if 'MONGO_URI' in app.config and app.config['MONGO_URI']:
-        conn = pymongo.MongoClient(app.config['MONGO_URI'])
+        mongo_options = app.config.get('MONGO_OPTIONS', {})
+        conn = pymongo.MongoClient(app.config['MONGO_URI'], **mongo_options)
         db = conn.get_default_database()
     else:
         config_prefix = app.config['DOMAIN'][resource].get('mongo_prefix',
@@ -949,7 +984,8 @@ def create_index(app, resource, name, list_of_keys, index_options):
         port = app.config[key('PORT')]
         auth = (username, password)
         host_and_port = '%s:%s' % (host, port)
-        conn = pymongo.MongoClient(host_and_port)
+        mongo_options = app.config.get(key('OPTIONS'), {})
+        conn = pymongo.MongoClient(host_and_port, **mongo_options)
         db = conn[db_name]
 
         if any(auth):

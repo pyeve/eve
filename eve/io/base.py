@@ -6,7 +6,7 @@
 
     Standard interface implemented by Eve data layers.
 
-    :copyright: (c) 2016 by Nicola Iarocci.
+    :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 import datetime
@@ -133,6 +133,21 @@ class DataLayer(object):
 
         .. versionchanged:: 0.3
            Support for sub-resources.
+        """
+        raise NotImplementedError
+
+    def aggregate(self, resource, pipeline, options):
+        """ Perform an aggregation on the resource datasource and returns
+        the result. Only implent this if the underlying db engine supports
+        aggregation operations.
+
+        :param resource: resource being accessed. You should then use
+                         the ``datasource`` helper function to retrieve
+                         the db collection/table consumed by the resource.
+        :param pipeline: aggregation pipeline to be executed.
+        :param options: aggregation options to be considered.
+
+        .. versionadded:: 0.7
         """
         raise NotImplementedError
 

@@ -7,11 +7,16 @@
     This module implements the API 'GET' methods, supported by both the
     resources and single item endpoints.
 
-    :copyright: (c) 2016 by Nicola Iarocci.
+    :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 import math
+
+import copy
+import json
 from flask import current_app as app, abort, request
+from werkzeug import MultiDict
+
 from .common import ratelimit, epoch, pre_event, resolve_embedded_fields, \
     build_response_document, resource_link, document_link, last_updated
 from eve.auth import requires_auth
@@ -24,6 +29,17 @@ from eve.versioning import synthesize_versioned_document, versioned_id_field, \
 @requires_auth('resource')
 @pre_event
 def get(resource, **lookup):
+    """
+    Default function for handling GET requests, it has decorators for
+    rate limiting, authentication and for raising pre-request events. After the
+    decorators are applied forwards to call to :func:`get_internal`
+
+    .. versionadded:: 0.6.2
+    """
+    return get_internal(resource, **lookup)
+
+
+def get_internal(resource, **lookup):
     """ Retrieves the resource documents that match the current request.
 
     :param resource: the name of the resource.
@@ -86,6 +102,73 @@ def get(resource, **lookup):
        JSON formatted.
     """
 
+    datasource = config.DOMAIN[resource]['datasource']
+    aggregation = datasource.get('aggregation')
+
+    if aggregation:
+        return _perform_aggregation(resource, aggregation['pipeline'],
+                                    aggregation['options'])
+    else:
+        return _perform_find(resource, lookup)
+
+
+def _perform_aggregation(resource, pipeline, options):
+    """
+    .. versionadded:: 0.7
+    """
+    # TODO move most of this down to the Mongo layer?
+
+    # TODO experiment with cursor.batch_size as alternative pagination
+    # implementation
+
+    def parse_aggregation_stage(d, key, value):
+        for st_key, st_value in d.items():
+            if isinstance(st_value, dict):
+                parse_aggregation_stage(st_value, key, value)
+            if key == st_value:
+                d[st_key] = value
+
+    response = {}
+    documents = []
+    req = parse_request(resource)
+
+    req_pipeline = copy.deepcopy(pipeline)
+    if req.aggregation:
+        try:
+            query = json.loads(req.aggregation)
+        except ValueError:
+            abort(400, description='Aggregation query could not be parsed.')
+
+        for key, value in query.items():
+            if key[0] != '$':
+                pass
+            for stage in req_pipeline:
+                parse_aggregation_stage(stage, key, value)
+
+    if req.max_results > 1:
+        limit = {"$limit": req.max_results}
+        skip = {"$skip": (req.page - 1) * req.max_results}
+        req_pipeline.append(skip)
+        req_pipeline.append(limit)
+
+    cursor = app.data.aggregate(resource, req_pipeline, options)
+
+    for document in cursor:
+        documents.append(document)
+
+    response[config.ITEMS] = documents
+
+    # PyMongo's CommandCursor does not return a count, so we cannot
+    # provide paination/total count info as we do with a normal (non-aggregate)
+    # GET request.
+
+    return response, None, None, 200, []
+
+
+def _perform_find(resource, lookup):
+    """
+    .. versionadded:: 0.7
+    """
     documents = []
     response = {}
     etag = None
@@ -114,8 +197,12 @@ def get(resource, **lookup):
     last_modified = last_update if last_update > epoch() else None
 
     response[config.ITEMS] = documents
-    count = cursor.count(with_limit_and_skip=False)
-    headers.append((config.HEADER_TOTAL_COUNT, count))
+
+    if config.OPTIMIZE_PAGINATION_FOR_SPEED:
+        count = None
+    else:
+        count = cursor.count(with_limit_and_skip=False)
+        headers.append((config.HEADER_TOTAL_COUNT, count))
 
     if config.DOMAIN[resource]['hateoas']:
         response[config.LINKS] = _pagination_links(resource, req, count)
@@ -144,6 +231,18 @@ def get(resource, **lookup):
 @requires_auth('item')
 @pre_event
 def getitem(resource, **lookup):
+    """
+    Default function for handling GET requests to document endpoints, it has
+    decorators for rate limiting, authentication and for raising pre-request
+    events. After the decorators are applied forwards to call to
+    :func:`getitem_internal`
+
+    .. versionadded:: 0.6.2
+    """
+    return getitem_internal(resource, **lookup)
+
+
+def getitem_internal(resource, **lookup):
     """
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
@@ -233,6 +332,13 @@ def getitem(resource, **lookup):
     build_response_document(document, resource, embedded_fields, latest_doc)
     if config.IF_MATCH:
         etag = document[config.ETAG]
+        if resource_def['versioning'] is True:
+            # In order to keep the LATEST_VERSION field up to date in client
+            # caches, changes to the latest version should invalidate cached
+            # copies of previous verisons. Incorporate the latest version into
+            # versioned document ETags on the fly to ensure 'If-None-Match'
+            # comparisons support this caching behavior.
+            etag += str(document[config.LATEST_VERSION])
 
     # check embedded fields resolved in build_response_document() for more
     # recent last updated timestamps. We don't want to respond 304 if embedded
@@ -250,11 +356,8 @@ def getitem(resource, **lookup):
         cache_valid = (last_modified <= req.if_modified_since)
         cache_validators[cache_valid] += 1
     if req.if_none_match:
-        if (resource_def['versioning'] is False) or \
-           (document[app.config['VERSION']] ==
-                document[app.config['LATEST_VERSION']]):
-            cache_valid = (etag == req.if_none_match)
-            cache_validators[cache_valid] += 1
+        cache_valid = (etag == req.if_none_match)
+        cache_validators[cache_valid] += 1
     # If all cache validators are true, return 304
     if (cache_validators[True] > 0) and (cache_validators[False] == 0):
         return {}, last_modified, etag, 304
@@ -355,7 +458,7 @@ def getitem(resource, **lookup):
     return response, last_modified, etag, 200
 
 
-def _pagination_links(resource, req, documents_count, document_id=None):
+def _pagination_links(resource, req, document_count, document_id=None):
     """ Returns the appropriate set of resource links depending on the
     current page and the total number of documents returned by the query.
 
@@ -390,8 +493,10 @@ def _pagination_links(resource, req, documents_count, document_id=None):
     if config.DOMAIN[resource]['versioning'] is True:
         version = request.args.get(config.VERSION_PARAM)
 
+    other_params = _other_params(req.args)
     # construct the default links
-    q = querydef(req.max_results, req.where, req.sort, version, req.page)
+    q = querydef(req.max_results, req.where, req.sort, version, req.page,
+                 other_params)
     resource_title = config.DOMAIN[resource]['resource_title']
     _links = {'parent': home_link(),
               'self': {'title': resource_title,
@@ -415,40 +520,50 @@ def _pagination_links(resource, req, documents_count, document_id=None):
                                     % _links['parent']['href']}
 
     # modify the self link to add query params or version number
-    if documents_count:
+    if document_count:
         _links['self']['href'] = '%s%s' % (_links['self']['href'], q)
-    elif not documents_count and version and version not in ('all', 'diffs'):
+    elif not document_count and version and version not in ('all', 'diffs'):
         _links['self'] = document_link(resource, document_id, version)
 
     # create pagination links
-    if documents_count and config.DOMAIN[resource]['pagination']:
+    if config.DOMAIN[resource]['pagination']:
         # strip any queries from the self link if present
         _pagination_link = _links['self']['href'].split('?')[0]
-        if req.page * req.max_results < documents_count:
+
+        if (req.page * req.max_results < (document_count or 0) or
+                config.OPTIMIZE_PAGINATION_FOR_SPEED):
             q = querydef(req.max_results, req.where, req.sort, version,
-                         req.page + 1)
+                         req.page + 1, other_params)
             _links['next'] = {'title': 'next page', 'href': '%s%s' %
                               (_pagination_link, q)}
 
-            # in python 2.x dividing 2 ints produces an int and that's rounded
-            # before the ceil call. Have to cast one value to float to get
-            # a correct result. Wonder if 2 casts + ceil() call are actually
-            # faster than documents_count // req.max_results and then adding
-            # 1 if the modulo is non-zero...
-            last_page = int(math.ceil(documents_count /
-                                      float(req.max_results)))
-            q = querydef(req.max_results, req.where, req.sort, version,
-                         last_page)
-            _links['last'] = {'title': 'last page', 'href': '%s%s'
-                              % (_pagination_link, q)}
+            if document_count:
+                last_page = int(math.ceil(document_count / float(
+                    req.max_results)))
+                q = querydef(req.max_results, req.where, req.sort, version,
+                             last_page, other_params)
+                _links['last'] = {'title': 'last page', 'href': '%s%s' % (
+                    _pagination_link, q)}
 
         if req.page > 1:
             q = querydef(req.max_results, req.where, req.sort, version,
-                         req.page - 1)
+                         req.page - 1, other_params)
             _links['prev'] = {'title': 'previous page', 'href': '%s%s' %
                               (_pagination_link, q)}
 
     return _links
+
+
+def _other_params(args):
+    """ Returns a multidict of params that are not used internally by Eve.
+
+    :param args: multidict containing the request parameters
+    """
+    default_params = [config.QUERY_WHERE, config.QUERY_SORT,
+                      config.QUERY_PAGE, config.QUERY_MAX_RESULTS,
+                      config.QUERY_EMBEDDED, config.QUERY_PROJECTION]
+    return MultiDict((key, value) for key, values in args.lists()
+                     for value in values if key not in default_params)
 
 
 def _meta_links(req, count):
@@ -459,8 +574,10 @@ def _meta_links(req, count):
 
     .. versionadded:: 0.5
     """
-    return {
+    meta = {
         config.QUERY_PAGE: req.page,
         config.QUERY_MAX_RESULTS: req.max_results,
-        'total': count
     }
+    if config.OPTIMIZE_PAGINATION_FOR_SPEED is False:
+        meta['total'] = count
+    return meta

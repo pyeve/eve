@@ -8,11 +8,12 @@
     objects incoming via POST/PATCH requests conform to the API domain.
     An extension of Cerberus Validator.
 
-    :copyright: (c) 2016 by Nicola Iarocci.
+    :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 import copy
 from bson import ObjectId
+from bson.dbref import DBRef
 from collections import Mapping
 from flask import current_app as app
 from werkzeug.datastructures import FileStorage
@@ -244,13 +245,15 @@ class Validator(Validator):
 
             data_resource = data_relation['resource']
             for item in value:
-                    query = {data_relation['field']: item}
+                    query = {data_relation['field']: item.id
+                             if isinstance(item, DBRef) else item}
                     if not app.data.find_one(data_resource, None, **query):
                         self._error(
                             field,
                             "value '%s' must exist in resource"
                             " '%s', field '%s'." %
-                            (item, data_resource, data_relation['field']))
+                            (item.id if isinstance(item, DBRef) else item,
+                             data_resource, data_relation['field']))
 
     def _validate_type_objectid(self, field, value):
         """ Enables validation for `objectid` data type.
@@ -267,6 +270,17 @@ class Validator(Validator):
         """
         if not isinstance(value, ObjectId):
             self._error(field, "value '%s' cannot be converted to a ObjectId"
+                        % value)
+
+    def _validate_type_dbref(self, field, value):
+        """ Enables validation for `DBRef` data type.
+
+        :param field: field name.
+        :param value: field value.
+
+        """
+        if not isinstance(value, DBRef):
+            self._error(field, "value '%s' cannot be converted to a DBRef"
                         % value)
 
     def _validate_readonly(self, read_only, field, value):

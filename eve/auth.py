@@ -6,7 +6,7 @@
 
     Allow API endpoints to be secured via BasicAuth and derivates.
 
-    :copyright: (c) 2016 by Nicola Iarocci.
+    :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 from flask import request, Response, current_app as app, g, abort
@@ -85,6 +85,10 @@ class BasicAuth(object):
     """ Implements Basic AUTH logic. Should be subclassed to implement custom
     authentication checking.
 
+    .. versionchanged:: 0.7
+       Add support for get_user_or_token()/set_user_or_token(). This allows for
+       easy retrieval of active user information. See #846.
+
     .. versionchanged:: 0.6
        Add mongo_prefix getter and setter methods.
 
@@ -116,6 +120,12 @@ class BasicAuth(object):
     def get_request_auth_value(self):
         return g.get('auth_value')
 
+    def get_user_or_token(self):
+        return g.get('user')
+
+    def set_user_or_token(self, user):
+        g.user = user
+
     def check_auth(self, username, password, allowed_roles, resource, method):
         """ This function is called to check if a username / password
         combination is valid. Must be overridden with custom logic.
@@ -145,6 +155,8 @@ class BasicAuth(object):
         :param resource: resource being requested.
         """
         auth = request.authorization
+        if auth:
+            self.set_user_or_token(auth.username)
         return auth and self.check_auth(auth.username, auth.password,
                                         allowed_roles, resource, method)
 
@@ -152,6 +164,10 @@ class BasicAuth(object):
 class HMACAuth(BasicAuth):
     """ Hash Message Authentication Code (HMAC) authentication logic. Must be
     subclassed to implement custom authorization checking.
+
+    .. versionchanged:: 0.7
+       Add support for get_user_or_token()/set_user_or_token(). This allows for
+       easy retrieval of active user information. See #846.
 
     .. versionchanged:: 0.4
        Ensure all errors returns a parseable body #366.
@@ -195,6 +211,7 @@ class HMACAuth(BasicAuth):
         auth = request.headers.get('Authorization')
         try:
             userid, hmac_hash = auth.split(':')
+            self.set_user_or_token(userid)
         except:
             auth = None
         return auth and self.check_auth(userid, hmac_hash, request.headers,
@@ -205,6 +222,10 @@ class HMACAuth(BasicAuth):
 class TokenAuth(BasicAuth):
     """ Implements Token AUTH logic. Should be subclassed to implement custom
     authentication checking.
+
+    .. versionchanged:: 0.7
+       Add support for get_user_or_token()/set_user_or_token(). This allows for
+       easy retrieval of active user information. See #846.
 
     .. versionchanged:: 0.4
        Ensure all errors returns a parseable body #366.
@@ -247,13 +268,16 @@ class TokenAuth(BasicAuth):
 
         # Werkzeug parse_authorization does not handle
         # "Authorization: <token>" or
-        # "Authorization: Token <token>"
+        # "Authorization: Token <token>" or
+        # "Authorization: Bearer <token>"
         # headers, therefore they should be explicitly handled
         if not auth and request.headers.get('Authorization'):
-            auth = request.headers.get('Authorization').strip().lower()
-            if auth.startswith('token'):
+            auth = request.headers.get('Authorization').strip()
+            if auth.lower().startswith(('token', 'bearer')):
                 auth = auth.split(' ')[1]
 
+        if auth:
+            self.set_user_or_token(auth)
         return auth and self.check_auth(auth, allowed_roles, resource,
                                         method)
 

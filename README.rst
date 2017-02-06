@@ -10,7 +10,7 @@ RESTful Web Services.
 Eve is powered by Flask, Redis, Cerberus, Events and offers support for both
 MongoDB and SQL backends.
 
-The codebase is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4 and PyPy.
+The codebase is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4, 3.5, 3.6 and PyPy.
 
 Eve is Simple
 -------------
@@ -68,15 +68,15 @@ Features
 * Internal Resources
 * Enhanced Logging
 * Operations Log
+* MongoDB Aggregation Framework
 * MongoDB and SQL Support
 * Powered by Flask
 
 
 License
 -------
-Eve is a `Nicola Iarocci`_ and `Gestionali Amica`_ open source project,
+Eve is a `Nicola Iarocci`_ open source project,
 distributed under the `BSD license
 <https://github.com/nicolaiarocci/eve/blob/master/LICENSE>`_. 
 
 .. _`Nicola Iarocci`: http://nicolaiarocci.com
-.. _`Gestionali Amica`: http://gestionaleamica.com

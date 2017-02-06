@@ -6,7 +6,7 @@
 
     This package implements the HTTP methods supported by Eve.
 
-    :copyright: (c) 2016 by Nicola Iarocci.
+    :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 

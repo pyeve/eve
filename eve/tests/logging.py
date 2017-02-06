@@ -10,6 +10,7 @@ class TestUtils(TestBase):
 
     @log_capture()
     def test_logging_info(self, l):
+        self.app.logger.propagate = True
         self.app.logger.info('test info')
         l.check(
             ('eve', 'INFO', 'test info')

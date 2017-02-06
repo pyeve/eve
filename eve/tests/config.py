@@ -69,20 +69,23 @@ class TestConfig(TestBase):
                                                             'POST',
                                                             'PATCH',
                                                             'PUT'])
-
+        self.assertEqual(self.app.config['OPLOG_CHANGE_METHODS'], ['DELETE',
+                                                                   'PATCH',
+                                                                   'PUT'])
         self.assertEqual(self.app.config['QUERY_WHERE'], 'where')
         self.assertEqual(self.app.config['QUERY_PROJECTION'], 'projection')
         self.assertEqual(self.app.config['QUERY_SORT'], 'sort')
         self.assertEqual(self.app.config['QUERY_PAGE'], 'page')
         self.assertEqual(self.app.config['QUERY_MAX_RESULTS'], 'max_results')
         self.assertEqual(self.app.config['QUERY_EMBEDDED'], 'embedded')
+        self.assertEqual(self.app.config['QUERY_AGGREGATION'], 'aggregate')
 
         self.assertEqual(self.app.config['JSON_SORT_KEYS'], False)
         self.assertEqual(self.app.config['SOFT_DELETE'], False)
         self.assertEqual(self.app.config['DELETED'], '_deleted')
         self.assertEqual(self.app.config['SHOW_DELETED_PARAM'], 'show_deleted')
         self.assertEqual(self.app.config['STANDARD_ERRORS'],
-                         [400, 401, 403, 404, 405, 406, 409, 410, 412, 422])
+                         [400, 401, 404, 405, 406, 409, 410, 412, 422, 428])
         self.assertEqual(self.app.config['UPSERT_ON_PUT'], True)
 
     def test_settings_as_dict(self):
@@ -91,6 +94,13 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.config['API_VERSION'], 'override!')
         # did not reset other defaults
         self.assertEqual(self.app.config['MONGO_WRITE_CONCERN'], {'w': 1})
+
+    def test_existing_env_config(self):
+        env = os.environ
+        os.environ = {'EVE_SETTINGS': 'test_settings_env.py'}
+        self.app = Eve()
+        self.assertTrue('env_domain' in self.app.config['DOMAIN'])
+        os.environ = env
 
     def test_unexisting_env_config(self):
         env = os.environ
@@ -283,6 +293,8 @@ class TestConfig(TestBase):
                          dict((field, 1) for (field) in compare))
         self.assertEqual(datasource['source'], resource)
         self.assertEqual(datasource['filter'], None)
+
+        self.assertEqual(datasource['aggregation'], None)
 
     def test_validate_roles(self):
         for resource in self.domain:
@@ -482,7 +494,7 @@ class TestConfig(TestBase):
             'mongo_indexes': {
                 'name': [('name', 1)],
                 'composed': [('name', 1), ('other_field', 1)],
-                'arguments': ([('lat_long', "2d")], {"sparce": True})
+                'arguments': ([('lat_long', "2d")], {"sparse": True})
             }
         }
         self.app.register_resource('mongodb_features', settings)
@@ -532,3 +544,39 @@ class TestConfig(TestBase):
 
         challenge = lambda code: self.assertTrue(code in handlers)  # noqa
         map(challenge, codes)
+
+    def test_mongodb_settings(self):
+        # Create custom app with mongodb settings.
+        settings = {
+            'DOMAIN': {'contacts': {}},
+            'MONGO_OPTIONS': {
+                'connect': False
+            }
+        }
+        app = Eve(settings=settings)
+        # Check if settings are set.
+        self.assertEqual(
+            app.config['MONGO_OPTIONS']['connect'],
+            app.config['MONGO_CONNECT']
+        )
+        # Prepare a specific schema with mongo specific settings.
+        settings = {
+            'schema': {
+                'name': {'type': 'string'},
+            },
+            'MONGO_OPTIONS': {
+                'connect': False
+            }
+        }
+        self.app.register_resource('mongodb_settings', settings)
+        # check that settings are set.
+        resource_settings = self.app.config['DOMAIN']['mongodb_settings']
+        self.assertEqual(
+            resource_settings['MONGO_OPTIONS'],
+            settings['MONGO_OPTIONS']
+        )
+        # check that settings are set.
+        self.assertEqual(
+            resource_settings['MONGO_OPTIONS']['connect'],
+            settings['MONGO_OPTIONS']['connect']
+        )

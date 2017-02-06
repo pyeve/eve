@@ -7,7 +7,7 @@
     This module imlements the POST method, supported by the resources
     endopints.
 
-    :copyright: (c) 2016 by Nicola Iarocci.
+    :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -20,7 +20,7 @@ from eve.validation import ValidationError
 from eve.methods.common import parse, payload, ratelimit, \
     pre_event, store_media_files, resolve_user_restricted_access, \
     resolve_embedded_fields, build_response_document, marshal_write_response, \
-    resolve_sub_resource_path, resolve_document_etag, oplog_push
+    resolve_sub_resource_path, resolve_document_etag, oplog_push, resource_link
 from eve.versioning import resolve_document_version, \
     insert_versioning_documents
 
@@ -63,6 +63,9 @@ def post_internal(resource, payl=None, skip_validation=False):
                  See https://github.com/nicolaiarocci/eve/issues/74 for a
                  discussion, and a typical use case.
     :param skip_validation: skip payload validation before write (bool)
+
+    .. versionchanged:: 0.7
+       Add support for Location header. Closes #795.
 
     .. versionchanged:: 0.6
        Fix: since v0.6, skip_validation = True causes a 422 response (#726).
@@ -152,6 +155,7 @@ def post_internal(resource, payl=None, skip_validation=False):
     documents = []
     results = []
     failures = 0
+    id_field = resource_def['id_field']
 
     if config.BANDWIDTH_SAVER is True:
         embedded_fields = []
@@ -253,8 +257,8 @@ def post_internal(resource, payl=None, skip_validation=False):
         for document in documents:
             # either return the custom ID_FIELD or the id returned by
             # data.insert().
-            document[resource_def['id_field']] = \
-                document.get(resource_def['id_field'], ids.pop(0))
+            id_ = document.get(id_field, ids.pop(0))
+            document[id_field] = id_
 
             # build the full response document
             result = document
@@ -294,4 +298,7 @@ def post_internal(resource, payl=None, skip_validation=False):
             % failures,
         }
 
-    return response, None, None, return_code
+    location_header = None if return_code != 201 or not documents else \
+        [('Location', '%s/%s' % (resource_link(), documents[0][id_field]))]
+
+    return response, None, None, return_code, location_header
