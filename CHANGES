@@ -3,13 +3,13 @@ Changelog
 
 Here you can see the full list of changes between each Eve release.
 
-Stable
-------
+Development
+-----------
 
-Version 0.6.3
+Version 0.7.1
 ~~~~~~~~~~~~~
 
-- Fix: Since 0.6.2, static projections are not honoured. Closes #837.
+- *hic sunt dracones*
 
 Stable
 ------
