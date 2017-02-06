@@ -135,18 +135,18 @@ yourself with
     
 Continuous Integration
 ----------------------
-Each time code is pushed to either the ``develop`` or the ``master``  branch
-the whole test-suite is executed on Travis-CI. This is also the case for
-pull-requests. When a pull request is submitted and the CI run fails two things
-happen: a 'the build is broken' email is sent to the submitter; the request is
-rejected.  The contributor can then fix the code, add one or more commits as
-needed, and push again.
+Each time code is pushed to the ``master``  branch the whole test-suite is
+executed on Travis-CI. This is also the case for pull-requests. When a pull
+request is submitted and the CI run fails two things happen: a 'the build is
+broken' email is sent to the submitter; the request is rejected.  The
+contributor can then fix the code, add one or more commits as needed, and push
+again.
 
 The CI will also run flake8 so make sure that your code complies to PEP8 before
 submitting a pull request, or be prepared to be mail-spammed by CI.
 
 Please note that in practice you're only supposed to submit pull requests
-against the ``develop`` branch, see :ref:`contributing`.
+against the ``master`` branch, see :ref:`contributing`.
 
 Building documentation
 ----------------------

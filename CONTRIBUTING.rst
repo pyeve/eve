@@ -16,8 +16,7 @@ Making Changes
 --------------
 * Fork_ the repository on GitHub.
 * Create a topic branch from where you want to base your work.
-* This is usually the ``develop`` branch. 
-* Please avoid working directly on the ``develop`` branch.
+* This is usually the ``master`` branch. 
 * Make commits of logical units (if needed rebase your feature branch before
   submitting it).
 * Check for unnecessary whitespace with ``git diff --check`` before committing.
@@ -63,7 +62,7 @@ case, other than GitHub help_ pages, you might want to check this excellent
 `Effective Guide to Pull Requests`_
 
 .. _`the repository`: http://github.com/nicolaiarocci/eve
-.. _AUTHORS: https://github.com/nicolaiarocci/eve/blob/develop/AUTHORS
+.. _AUTHORS: https://github.com/nicolaiarocci/eve/blob/master/AUTHORS
 .. _`open issues`: https://github.com/nicolaiarocci/eve/issues
 .. _`new issue`: https://github.com/nicolaiarocci/eve/issues/new
 .. _GitHub: https://github.com/

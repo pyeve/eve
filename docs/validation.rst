@@ -198,6 +198,6 @@ There are two ways to deal with non-conforming schemas:
     to disable schema validation for a given endpoint.
 
 .. _Cerberus: http://python-cerberus.org
-.. _`source code`: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/mongo/validation.py
+.. _`source code`: https://github.com/nicolaiarocci/eve/blob/master/eve/io/mongo/validation.py
 .. _`function-based validation`: http://docs.python-cerberus.org/en/latest/customize.html#function-validator
 .. _`type coercion`: http://docs.python-cerberus.org/en/latest/usage.html#type-coercion

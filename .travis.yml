@@ -31,4 +31,3 @@ before_script:
 branches:
   only:
     - master
-    - develop

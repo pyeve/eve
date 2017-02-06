@@ -11,6 +11,9 @@ Version 0.7.1
 
 - *hic sunt dracones*
 
+- ``develop`` branch has been dropped. ``master`` is now the default project
+  branch.
+
 Stable
 ------
 
