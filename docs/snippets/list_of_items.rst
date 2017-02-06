@@ -13,23 +13,22 @@ main.py
 .. code-block:: python
 
     from eve import Eve
-    from pymongo import MongoClient
     from bson.objectid import ObjectId
 
     app = Eve()
-
-    client = MongoClient('localhost', 27017)
-    db = client.evedemo
+    mongo = app.data.driver
 
 
     def after_fetching_lists(response):
         list_id = response['_id']
-        response['items'] = list(db.items.find({'list_id': ObjectId(list_id)}))
+        f = {'list_id': ObjectId(list_id)}
+        response['items'] = list(mongo.db.items.find(f))
 
 
     def after_deleting_lists(item):
         list_id = item['_id']
-        db.items.delete_many({'list_id': ObjectId(list_id)})
+        f = {'list_id': ObjectId(list_id)}
+        mongo.db.items.delete_many(f)
 
     app.on_fetched_item_lists += after_fetching_lists
     app.on_deleted_item_lists += after_deleting_lists
