@@ -9,7 +9,9 @@ Development
 Version 0.7.1
 ~~~~~~~~~~~~~
 
+- Docs: update README with svg bade (Sobolev Nikita).
 - Docs: fix typo and dead link to Nicola's website (Dominik Kellner).
+
 - ``develop`` branch has been dropped. ``master`` is now the default project
   branch.
 

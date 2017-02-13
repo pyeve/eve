@@ -1,6 +1,6 @@
 Eve
 ====
-.. image:: https://secure.travis-ci.org/nicolaiarocci/eve.png?branch=master 
+.. image:: https://secure.travis-ci.org/nicolaiarocci/eve.svg?branch=master 
         :target: https://secure.travis-ci.org/nicolaiarocci/eve
 
 Eve is an open source Python REST API framework designed for human beings. It
