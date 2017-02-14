@@ -9,7 +9,7 @@ install_requires = [
     'cerberus>=0.9.2,<0.10',
     'events>=0.2.1,<0.3',
     'simplejson>=3.3.0,<4.0',
-    'werkzeug>=0.9.4,<0.11.15',
+    'werkzeug>=0.9.4,<=0.11.15',
     'markupsafe>=0.23,<1.0',
     'jinja2>=2.8,<3.0',
     'itsdangerous>=0.24,<1.0',
