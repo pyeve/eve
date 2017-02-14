@@ -9,6 +9,9 @@ Development
 Version 0.7.1
 ~~~~~~~~~~~~~
 
+- Fix: "Cannot create a consistent method resolution order" on Python 3.5.2 and
+  3.6 since Eve 0.7. Closes #984.
+
 - Docs: update README with svg bade (Sobolev Nikita).
 - Docs: fix typo and dead link to Nicola's website (Dominik Kellner).
 
