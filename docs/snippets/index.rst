@@ -10,7 +10,7 @@ Available Snippets
 ------------------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    hooks_blueprints
    list_of_items
