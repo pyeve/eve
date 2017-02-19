@@ -1,5 +1,5 @@
-List of Items
-================
+Supporting both list-level and item-level CRUD operations
+=========================================================
 by John Chang
 
 This is an example of how to implement a simple list of items that supports both list-level and item-level CRUD operations.
@@ -9,7 +9,7 @@ Specifically, it should be possible to use a single GET to get the entire list (
 The solution was to database event hooks to inject the embedded child documents (``items``) into the parent list before it's returned to the client and also delete the child items when the parent list is deleted. This works, although it results in two DB queries.
 
 main.py
----------------
+-------
 .. code-block:: python
 
     from eve import Eve
@@ -36,7 +36,7 @@ main.py
     app.run()
 
 settings.py
----------------
+-----------
 .. code-block:: python
 
     import os
@@ -79,7 +79,7 @@ settings.py
     }
 
 Usage
----------------
+-----
 .. code-block:: bash
 
     $ curl -i -X POST http://127.0.0.1:5000/lists -d title="My List"
