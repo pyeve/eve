@@ -9,7 +9,9 @@ Development
 Version 0.7.2
 ~~~~~~~~~~~~~
 
-- *hic sunt dracones*
+- Docs: Add code snippet with an example of how to implement a simple list of
+  items that supports both list-level and item-level CRUD operations (John
+  Chang).
 
 Stable
 ------
