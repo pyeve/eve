@@ -4,16 +4,17 @@ Snippets
 ========
 
 Welcome to the Eve snippet archive. This is the place where anyone can drop
-helpful pieces of code for others to use. 
+helpful pieces of code for others to use.
 
 Available Snippets
 ------------------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    hooks_blueprints
-   
+   list_of_items
+
 
 Add your snippet
 ----------------

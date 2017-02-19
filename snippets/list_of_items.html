@@ -1,0 +1,349 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Supporting both list-level and item-level CRUD operations &mdash; Eve 0.7.2-dev documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.7.2-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="top" title="Eve 0.7.2-dev documentation" href="../index.html" />
+    <link rel="up" title="Snippets" href="index.html" />
+    <link rel="next" title="Snippet Template" href="template.html" />
+    <link rel="prev" title="Using Eve Event Hooks from your Blueprint" href="hooks_blueprints.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="template.html" title="Snippet Template"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="hooks_blueprints.html" title="Using Eve Event Hooks from your Blueprint"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Eve 0.7.2-dev documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Snippets</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="supporting-both-list-level-and-item-level-crud-operations">
+<h1>Supporting both list-level and item-level CRUD operations<a class="headerlink" href="#supporting-both-list-level-and-item-level-crud-operations" title="Permalink to this headline">¶</a></h1>
+<p>by John Chang</p>
+<p>This is an example of how to implement a simple list of items that supports both list-level and item-level CRUD operations.</p>
+<p>Specifically, it should be possible to use a single GET to get the entire list (including all items) but also a single POST to append an item (rather than PATCHing the list).</p>
+<p>The solution was to database event hooks to inject the embedded child documents (<tt class="docutils literal"><span class="pre">items</span></tt>) into the parent list before it&#8217;s returned to the client and also delete the child items when the parent list is deleted. This works, although it results in two DB queries.</p>
+<div class="section" id="main-py">
+<h2>main.py<a class="headerlink" href="#main-py" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
+<span class="kn">from</span> <span class="nn">bson.objectid</span> <span class="kn">import</span> <span class="n">ObjectId</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
+<span class="n">mongo</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span>
+
+
+<span class="k">def</span> <span class="nf">after_fetching_lists</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+    <span class="n">list_id</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s">&#39;_id&#39;</span><span class="p">]</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;list_id&#39;</span><span class="p">:</span> <span class="n">ObjectId</span><span class="p">(</span><span class="n">list_id</span><span class="p">)}</span>
+    <span class="n">response</span><span class="p">[</span><span class="s">&#39;items&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">after_deleting_lists</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+    <span class="n">list_id</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s">&#39;_id&#39;</span><span class="p">]</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;list_id&#39;</span><span class="p">:</span> <span class="n">ObjectId</span><span class="p">(</span><span class="n">list_id</span><span class="p">)}</span>
+    <span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">delete_many</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">on_fetched_item_lists</span> <span class="o">+=</span> <span class="n">after_fetching_lists</span>
+<span class="n">app</span><span class="o">.</span><span class="n">on_deleted_item_lists</span> <span class="o">+=</span> <span class="n">after_deleting_lists</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="settings-py">
+<h2>settings.py<a class="headerlink" href="#settings-py" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">DEBUG</span> <span class="o">=</span> <span class="bp">True</span>
+
+<span class="n">MONGO_HOST</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;MONGO_HOST&#39;</span><span class="p">,</span> <span class="s">&#39;localhost&#39;</span><span class="p">)</span>
+<span class="n">MONGO_PORT</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;MONGO_PORT&#39;</span><span class="p">,</span> <span class="mi">27017</span><span class="p">)</span>
+<span class="n">MONGO_USERNAME</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;MONGO_USERNAME&#39;</span><span class="p">,</span> <span class="s">&#39;user&#39;</span><span class="p">)</span>
+<span class="n">MONGO_PASSWORD</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;MONGO_PASSWORD&#39;</span><span class="p">,</span> <span class="s">&#39;user&#39;</span><span class="p">)</span>
+<span class="n">MONGO_DBNAME</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;MONGO_DBNAME&#39;</span><span class="p">,</span> <span class="s">&#39;listtest&#39;</span><span class="p">)</span>
+
+<span class="n">RESOURCE_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">]</span>
+<span class="n">ITEM_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;PUT&#39;</span><span class="p">,</span> <span class="s">&#39;PATCH&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">]</span>
+
+<span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;lists&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;title&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s">&#39;items&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;lists/&lt;regex(&quot;[a-f0-9]{24}&quot;):list_id&gt;/items&#39;</span><span class="p">,</span>
+        <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;list_id&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;objectid&#39;</span><span class="p">,</span>
+                <span class="s">&#39;data_relation&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s">&#39;resource&#39;</span><span class="p">:</span> <span class="s">&#39;lists&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;field&#39;</span><span class="p">:</span> <span class="s">&#39;_id&#39;</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
+                <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>curl -i -X POST http://127.0.0.1:5000/lists -d <span class="nv">title</span><span class="o">=</span><span class="s2">&quot;My List&quot;</span>
+HTTP/1.0 <span class="m">201</span> CREATED
+
+<span class="o">{</span>
+    <span class="s2">&quot;_id&quot;</span>: <span class="s2">&quot;58960f83a663e2e6746dfa6a&quot;</span>,
+    :
+<span class="o">}</span>
+
+<span class="nv">$ </span>curl -i -X POST http://127.0.0.1:5000/lists/58960f83a663e2e6746dfa6a/items -d <span class="s1">&#39;name=Alice&#39;</span>
+HTTP/1.0 <span class="m">201</span> CREATED
+
+<span class="nv">$ </span>curl -i -X POST http://127.0.0.1:5000/lists/58960f83a663e2e6746dfa6a/items -d <span class="s1">&#39;name=Bob&#39;</span>
+HTTP/1.0 <span class="m">201</span> CREATED
+
+<span class="nv">$ </span>curl -i -X GET http://127.0.0.1:5000/lists/58960f83a663e2e6746dfa6a
+HTTP/1.0 <span class="m">200</span> OK
+
+<span class="o">{</span>
+    <span class="s2">&quot;_created&quot;</span>: <span class="s2">&quot;Sat, 04 Feb 2017 17:29:39 GMT&quot;</span>,
+    <span class="s2">&quot;_etag&quot;</span>: <span class="s2">&quot;01799f6be25a044ab95cfeb2dc0f834d11b796d8&quot;</span>,
+    <span class="s2">&quot;_id&quot;</span>: <span class="s2">&quot;58960f83a663e2e6746dfa6a&quot;</span>,
+    <span class="s2">&quot;_updated&quot;</span>: <span class="s2">&quot;Sat, 04 Feb 2017 17:29:39 GMT&quot;</span>,
+    <span class="s2">&quot;items&quot;</span>: <span class="o">[</span>
+        <span class="o">{</span>
+            <span class="s2">&quot;_created&quot;</span>: <span class="s2">&quot;Sat, 04 Feb 2017 17:30:06 GMT&quot;</span>,
+            <span class="s2">&quot;_etag&quot;</span>: <span class="s2">&quot;72ad9248ad5bf45c7bfe3e03a1b9bc384d94572f&quot;</span>,
+            <span class="s2">&quot;_id&quot;</span>: <span class="s2">&quot;58960f9ea663e2e6746dfa6b&quot;</span>,
+            <span class="s2">&quot;_updated&quot;</span>: <span class="s2">&quot;Sat, 04 Feb 2017 17:30:06 GMT&quot;</span>,
+            <span class="s2">&quot;list_id&quot;</span>: <span class="s2">&quot;58960f83a663e2e6746dfa6a&quot;</span>,
+            <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;Alice&quot;</span>,
+            <span class="s2">&quot;quantity&quot;</span>: 1
+        <span class="o">}</span>,
+        <span class="o">{</span>
+            <span class="s2">&quot;_created&quot;</span>: <span class="s2">&quot;Sat, 04 Feb 2017 17:30:13 GMT&quot;</span>,
+            <span class="s2">&quot;_etag&quot;</span>: <span class="s2">&quot;447f51b057fb5e0a70472e96ff883c64b5e2e308&quot;</span>,
+            <span class="s2">&quot;_id&quot;</span>: <span class="s2">&quot;58960fa5a663e2e6746dfa6c&quot;</span>,
+            <span class="s2">&quot;_updated&quot;</span>: <span class="s2">&quot;Sat, 04 Feb 2017 17:30:13 GMT&quot;</span>,
+            <span class="s2">&quot;list_id&quot;</span>: <span class="s2">&quot;58960f83a663e2e6746dfa6a&quot;</span>,
+            <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;Bob&quot;</span>,
+            <span class="s2">&quot;quantity&quot;</span>: 1
+        <span class="o">}</span>
+    <span class="o">]</span>,
+    <span class="s2">&quot;title&quot;</span>: <span class="s2">&quot;My List&quot;</span>
+<span class="o">}</span>
+
+<span class="nv">$ </span>curl -i -X DELETE http://127.0.0.1:5000/lists/58960f83a663e2e6746dfa6a/items/58960f9ea663e2e6746dfa6b -H <span class="s2">&quot;If-Match: 72ad9248ad5bf45c7bfe3e03a1b9bc384d94572f&quot;</span>
+HTTP/1.0 <span class="m">204</span> NO CONTENT
+
+<span class="nv">$ </span>curl -i -X GET http://127.0.0.1:5000/lists/58960f83a663e2e6746dfa6a
+HTTP/1.0 <span class="m">200</span> OK
+
+<span class="o">{</span>
+    <span class="s2">&quot;_created&quot;</span>: <span class="s2">&quot;Sat, 04 Feb 2017 17:29:39 GMT&quot;</span>,
+    <span class="s2">&quot;_etag&quot;</span>: <span class="s2">&quot;01799f6be25a044ab95cfeb2dc0f834d11b796d8&quot;</span>,
+    <span class="s2">&quot;_id&quot;</span>: <span class="s2">&quot;58960f83a663e2e6746dfa6a&quot;</span>,
+    <span class="s2">&quot;_updated&quot;</span>: <span class="s2">&quot;Sat, 04 Feb 2017 17:29:39 GMT&quot;</span>,
+    <span class="s2">&quot;items&quot;</span>: <span class="o">[</span>
+        <span class="o">{</span>
+            <span class="s2">&quot;_created&quot;</span>: <span class="s2">&quot;Sat, 04 Feb 2017 17:30:13 GMT&quot;</span>,
+            <span class="s2">&quot;_etag&quot;</span>: <span class="s2">&quot;447f51b057fb5e0a70472e96ff883c64b5e2e308&quot;</span>,
+            <span class="s2">&quot;_id&quot;</span>: <span class="s2">&quot;58960fa5a663e2e6746dfa6c&quot;</span>,
+            <span class="s2">&quot;_updated&quot;</span>: <span class="s2">&quot;Sat, 04 Feb 2017 17:30:13 GMT&quot;</span>,
+            <span class="s2">&quot;list_id&quot;</span>: <span class="s2">&quot;58960f83a663e2e6746dfa6a&quot;</span>,
+            <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;Bob&quot;</span>,
+            <span class="s2">&quot;quantity&quot;</span>: 1
+        <span class="o">}</span>
+    <span class="o">]</span>,
+    <span class="s2">&quot;title&quot;</span>: <span class="s2">&quot;My List&quot;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/eve-sidebar.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=nicolaiarocci&repo=eve&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Stay Informed</h3>
+<p>Receive updates on new releases and upcoming projects.</p>
+
+<p><a href="https://twitter.com/nicolaiarocci" class="twitter-follow-button" data-show-count="false">Follow @nicolaiarocci</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></p>
+
+<p><iframe src="http://ghbtns.com/github-btn.html?user=nicolaiarocci&type=follow&count=false"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200" height="20"></iframe></p>
+
+<p><a href="http://tinyletter.com/nicolaiarocci">Join Mailing List</a>.</p>
+
+<h3>Other Projects</h3>
+
+<p>More <a href="http://nicolaiarocci.com/">Nicola Iarocci</a> projects:</p>
+<ul>
+    <li><a href="http://python-cerberus.org/">Cerberus</a></li>
+    <li><a href="https://github.com/nicolaiarocci/events">Events</a></li>
+    <li><a href="https://github.com/nicolaiarocci/flask-sentinel">Flask-Sentinel</a></li>
+    <li><a href="https://github.com/nicolaiarocci/flask-mimerender">Flask-MimeRender</a></li>
+    <li><a href="https://github.com/nicolaiarocci/eve-demo">Eve-Demo</a></li>
+    <li><a href="https://github.com/nicolaiarocci/eve-demo-client">Eve-Demo Client</a></li>
+    <li><a href="https://github.com/nicolaiarocci/eve-swagger">Eve-Swagger</a></li>
+    <li><a href="https://github.com/nicolaiarocci/eve-oauth2">Eve-OAuth2</a></li>
+</ul>
+
+<h3>Useful Links</h3>
+<ul>
+  <li><a href="https://github.com/nicolaiarocci/eve">Eve @ GitHub</a></li>
+  <li><a href="https://stackoverflow.com/questions/tagged/eve">Eve @ Stack Overflow</a></li>
+  <li><a href="https://groups.google.com/forum/?hl=en#!forum/python-eve">Eve @ Google Groups</a></li>
+  <li><a href="irc://irc.freenode.net/python-eve">Eve @ IRC</a>
+  <li><a href="https://pypi.python.org/pypi/eve">Eve @ PyPI</a></li>
+  <li><a href="https://nicolaiarocci.com/tags/eve/">Eve @ Nicola Iarocci</a></li>
+  <li><a href="https://github.com/nicolaiarocci/eve/issues">Issue Tracker</a></li>
+</ul>
+<p>You are looking at the documentation of the development version.</p><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../foreword.html">Foreword</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rest_api_for_humans.html">REST API for Humans</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../validation.html">Data Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authentication.html">Authentication and Authorization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Snippets</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#available-snippets">Available Snippets</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="hooks_blueprints.html">Using Eve Event Hooks from your Blueprint</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="">Supporting both list-level and item-level CRUD operations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#main-py">main.py</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#settings-py">settings.py</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#add-your-snippet">Add your snippet</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../extensions.html">Extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">How to Contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../testing.html">Running the Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../support.html">Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updates.html">Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><p>
+Artwork by <a href="http://kalamun.org">Kalamun</a> © 2013
+</p>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+      &copy;2017. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
+      
+    </div>
+
+    
+    <a href="https://github.com/nicolaiarocci/eve" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="../_static/forkme_right_green_007200.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+         })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-19006041-6', 'auto');
+    ga('send', 'pageview');
+
+</script>
+
+  </body>
+</html>
