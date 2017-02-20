@@ -958,38 +958,10 @@ def create_index(app, resource, name, list_of_keys, index_options):
     # pymongo directly.
     collection = app.config['SOURCES'][resource]['source']
 
-    if 'MONGO_URI' in app.config and app.config['MONGO_URI']:
-        mongo_options = app.config.get('MONGO_OPTIONS', {})
-        conn = pymongo.MongoClient(app.config['MONGO_URI'], **mongo_options)
-        db = conn.get_default_database()
-    else:
-        config_prefix = app.config['DOMAIN'][resource].get('mongo_prefix',
-                                                           'MONGO')
-
-        def key(suffix):
-            return '%s_%s' % (config_prefix, suffix)
-
-        db_name = app.config[key('DBNAME')]
-
-        # just reproduced the same behaviour for username
-        # and password, the other fields come set by Eve by
-        # default.
-        username = app.config[key('USERNAME')] \
-            if key('USERNAME') in app.config else None
-        password = app.config[key('PASSWORD')] \
-            if key('PASSWORD') in app.config else None
-        auth_db_name = app.config[key('AUTHDBNAME')] \
-            if key('AUTHDBNAME') in app.config else None
-        host = app.config[key('HOST')]
-        port = app.config[key('PORT')]
-        auth = (username, password)
-        host_and_port = '%s:%s' % (host, port)
-        mongo_options = app.config.get(key('OPTIONS'), {})
-        conn = pymongo.MongoClient(host_and_port, **mongo_options)
-        db = conn[db_name]
-
-        if any(auth):
-            db.authenticate(username, password, source=auth_db_name)
+    # get db for given prefix
+    px = app.config['DOMAIN'][resource].get('mongo_prefix', 'MONGO')
+    with app.app_context():
+        db = app.data.pymongo(resource, px).db
 
     kw = copy(index_options)
     kw['name'] = name
