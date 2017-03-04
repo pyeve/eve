@@ -34,6 +34,19 @@ All you need to bring your API online is a database, a configuration file
 (defaults to ``settings.py``) and a launch script.  Overall, you will find that
 configuring and fine-tuning your API is a very simple process.
 
+Funding
+-------
+Eve REST framework is a collaboratively funded project. If you run a business
+and is using Eve in a revenue-generating product, it would make business
+sense to sponsor Eve development: it **ensures the project that your product
+relies on stays healthy and actively maintained.** It can also help your exposure
+in the Eve community and makes it easier to attract Eve developers.
+
+Of course, individual users are also welcome to make a recurring pledge if Eve
+has helped you in your work or personal projects :)
+
+Every single sign-up makes a significant impact towards making that possible.
+
 .. _demo:
 
 Live demo
@@ -63,6 +76,7 @@ link <http://eve.readthedocs.org/en/stable/>`_.
     config
     validation
     authentication
+    funding
     tutorials/index
     snippets/index
     extensions
