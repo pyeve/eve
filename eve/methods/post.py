@@ -212,7 +212,7 @@ def post_internal(resource, payl=None, skip_validation=False):
                 # validation errors added to list of document issues
                 doc_issues = validator.errors
         except ValidationError as e:
-            doc_issues['validation exception'] = str(e)
+            doc_issues['validator exception'] = str(e)
         except Exception as e:
             # most likely a problem with the incoming payload, report back to
             # the client as if it was a validation issue

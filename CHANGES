@@ -9,8 +9,10 @@ Development
 Version 0.7.2
 ~~~~~~~~~~~~~
 
-- Fix: When there is ``MONGO_URI`` defined it will be used no matter
-  if the resource is using a prefix or not (Petr Jašek).
+- Fix: Validation exceptions are returned in ``doc_issues['validator
+  exception']`` across all edit methods (POST, PUT, PATCH). Closes #994.
+- Fix: When there is ``MONGO_URI`` defined it will be used no matter if the
+  resource is using a prefix or not (Petr Jašek).
 - Docs: Add code snippet with an example of how to implement a simple list of
   items that supports both list-level and item-level CRUD operations (John
   Chang).
