@@ -58,6 +58,10 @@
 <div class="section" id="version-0-7-2">
 <h3>Version 0.7.2<a class="headerlink" href="#version-0-7-2" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>Fix: Validation exceptions are returned in <tt class="docutils literal"><span class="pre">doc_issues['validator</span>
+<span class="pre">exception']</span></tt> across all edit methods (POST, PUT, PATCH). Closes #994.</li>
+<li>Fix: When there is <tt class="docutils literal"><span class="pre">MONGO_URI</span></tt> defined it will be used no matter if the
+resource is using a prefix or not (Petr Jašek).</li>
 <li>Docs: Add code snippet with an example of how to implement a simple list of
 items that supports both list-level and item-level CRUD operations (John
 Chang).</li>
