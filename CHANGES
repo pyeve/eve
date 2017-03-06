@@ -6,8 +6,15 @@ Here you can see the full list of changes between each Eve release.
 Development
 -----------
 
+- *hic sunt leones*.
+
+Stable
+------
+
 Version 0.7.2
 ~~~~~~~~~~~~~
+
+Released on 6 March, 2017
 
 - Fix: Validation exceptions are returned in ``doc_issues['validator
   exception']`` across all edit methods (POST, PUT, PATCH). Closes #994.
@@ -16,9 +23,6 @@ Version 0.7.2
 - Docs: Add code snippet with an example of how to implement a simple list of
   items that supports both list-level and item-level CRUD operations (John
   Chang).
-
-Stable
-------
 
 Version 0.7.1
 ~~~~~~~~~~~~~
