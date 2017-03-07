@@ -6,7 +6,9 @@ Here you can see the full list of changes between each Eve release.
 Development
 -----------
 
-- *hic sunt leones*.
+- Docs: explain that ``ALLOW_UNKNOWN`` can also be used to expose
+  the whole document as found in the database, with no explicit validation
+  schema. Addresses #995.
 
 Stable
 ------
