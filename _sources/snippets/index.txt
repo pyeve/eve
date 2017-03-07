@@ -27,7 +27,7 @@ source_), and then submit a `pull request`_.
 
    template
 
-.. _template: https://raw.githubusercontent.com/nicolaiarocci/eve/master/docs/snippets/template.rst
-.. _`pull request`: https://github.com/nicolaiarocci/eve/pulls
-.. _`snippets folder`: https://github.com/nicolaiarocci/eve/tree/master/docs/snippets
-.. _source: https://raw.githubusercontent.com/nicolaiarocci/eve/master/docs/snippets/index.rst
+.. _template: https://raw.githubusercontent.com/pyeve/eve/master/docs/snippets/template.rst
+.. _`pull request`: https://github.com/pyeve/eve/pulls
+.. _`snippets folder`: https://github.com/pyeve/eve/tree/master/docs/snippets
+.. _source: https://raw.githubusercontent.com/pyeve/eve/master/docs/snippets/index.rst

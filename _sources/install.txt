@@ -14,7 +14,7 @@ Installing Eve is simple with `pip <http://www.pip-installer.org/>`_:
 Development Version
 --------------------
 Eve is actively developed on GitHub, where the code is `always available
-<https://github.com/nicolaiarocci/eve>`_. If you want to work with the
+<https://github.com/pyeve/eve>`_. If you want to work with the
 development version of Eve, there are two ways: you can either let `pip` pull
 in the development version, or you can tell it to operate on a git checkout.
 Either way, virtualenv is recommended.
@@ -23,7 +23,7 @@ Get the git checkout in a new virtualenv and run in development mode.
 
 .. code-block:: console
 
-    $ git clone http://github.com/nicolaiarocci/eve.git
+    $ git clone http://github.com/pyeve/eve.git
     Initialized empty Git repository in ~/dev/eve/.git/
 
     $ cd eve
@@ -49,7 +49,7 @@ To just get the development version without git, do this instead:
     $ . venv/bin/activate
     New python executable in venv/bin/python
 
-    $ pip install git+git://github.com/nicolaiarocci/eve.git
+    $ pip install git+git://github.com/pyeve/eve.git
     ...
     Cleaning up...
 

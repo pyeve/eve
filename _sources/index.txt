@@ -80,11 +80,11 @@ link <http://eve.readthedocs.org/en/stable/>`_.
 
 
 .. _python-eve.org: http://python-eve.org
-.. _`Eve Demo instructions`: http://github.com/nicolaiarocci/eve-demo#readme
+.. _`Eve Demo instructions`: http://github.com/pyeve/eve-demo#readme
 .. _`live demo`: https://eve-demo.herokuapp.com/people
-.. _`source code`: https://github.com/nicolaiarocci/eve-demo
-.. _`usage examples`: https://github.com/nicolaiarocci/eve-demo#readme
-.. _`client app`: https://github.com/nicolaiarocci/eve-demo-client
+.. _`source code`: https://github.com/pyeve/eve-demo
+.. _`usage examples`: https://github.com/pyeve/eve-demo#readme
+.. _`client app`: https://github.com/pyeve/eve-demo-client
 .. _Postman: https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&ved=0CC0QFjAA&url=https%3A%2F%2Fchrome.google.com%2Fwebstore%2Fdetail%2Fpostman-rest-client%2Ffdmmgilgnpjigdojojpjoooidkmcomcm&ei=dPQ7UpqEBISXtAbPpIGwDg&usg=AFQjCNFL71vN61QG0LKlw7VDJvIZDprjHA&bvm=bv.52434380,d.Yms
 
 .. _Flask: http://flask.pocoo.org/
@@ -92,5 +92,5 @@ link <http://eve.readthedocs.org/en/stable/>`_.
 .. _MongoDB: https://mongodb.org
 .. _Redis: http://redis.io
 .. _Cerberus: http://python-cerberus.org
-.. _events: https://github.com/nicolaiarocci/events
+.. _events: https://github.com/pyeve/events
 .. _extensions: http://python-eve.org/extensions
