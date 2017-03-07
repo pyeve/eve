@@ -194,7 +194,7 @@ can also enable this feature only for certain endpoints by setting the
     <span class="p">}</span>
 </pre></div>
 </div>
-<p>You normally could only add (POST) or edit (PATCH) <cite>firstnames</cite> to the
+<p>Normally you can only add (POST) or edit (PATCH) <cite>firstnames</cite> to the
 <tt class="docutils literal"><span class="pre">/people</span></tt> endpoint. However, since <tt class="docutils literal"><span class="pre">allow_unknown</span></tt> has been enabled, even
 a payload like this will be accepted:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;[{&quot;firstname&quot;: &quot;bill&quot;, &quot;lastname&quot;: &quot;clinton&quot;}, {&quot;firstname&quot;: &quot;bill&quot;, &quot;age&quot;:70}]&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> http://eve-demo.herokuapp.com/people
@@ -207,6 +207,11 @@ a payload like this will be accepted:</p>
 option is enabled, clients will be capable of actually <cite>adding</cite> fields via
 PATCH (edit).</p>
 </div>
+<p><tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt> is also useful for read-only APIs or endpoints that
+need to return the whole document, as found in the underlying database. In this
+scenario you don&#8217;t want to bother with validation schemas. For the whole API
+just set <tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt> to <tt class="docutils literal"><span class="pre">True</span></tt>, then <tt class="docutils literal"><span class="pre">schema:</span> <span class="pre">{}</span></tt> at every endpoint.
+For a single endpoint, use <tt class="docutils literal"><span class="pre">allow_unknown:</span> <span class="pre">True</span></tt> instead.</p>
 </div>
 <div class="section" id="schema-validation">
 <span id="id2"></span><h2>Schema validation<a class="headerlink" href="#schema-validation" title="Permalink to this headline">¶</a></h2>

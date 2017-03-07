@@ -165,7 +165,7 @@ Consider the following domain:
             }
         }
 
-You normally could only add (POST) or edit (PATCH) `firstnames` to the
+Normally you can only add (POST) or edit (PATCH) `firstnames` to the
 ``/people`` endpoint. However, since ``allow_unknown`` has been enabled, even
 a payload like this will be accepted:
 
@@ -179,6 +179,12 @@ a payload like this will be accepted:
     Use this feature with extreme caution. Also be aware that, when this
     option is enabled, clients will be capable of actually `adding` fields via
     PATCH (edit).
+
+``ALLOW_UNKNOWN`` is also useful for read-only APIs or endpoints that 
+need to return the whole document, as found in the underlying database. In this
+scenario you don't want to bother with validation schemas. For the whole API
+just set ``ALLOW_UNKNOWN`` to ``True``, then ``schema: {}`` at every endpoint.
+For a single endpoint, use ``allow_unknown: True`` instead.
 
 .. _schema_validation:
 
