@@ -4,7 +4,7 @@
     eve.methods.put
     ~~~~~~~~~~~~~~~
 
-    This module imlements the PUT method.
+    This module implements the PUT method.
 
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
@@ -49,7 +49,7 @@ def put_internal(resource, payload=None, concurrency_check=False,
     authentication is not checked, pre-request events are not raised, and
     concurrency checking is optional. Performs a document replacement.
     Updates are first validated against the resource schema. If validation
-    passes, the document is repalced and an OK status update is returned.
+    passes, the document is replaced and an OK status update is returned.
     If validation fails a set of validation issues is returned.
 
     :param resource: the name of the resource to which the document belongs.
@@ -70,7 +70,7 @@ def put_internal(resource, payload=None, concurrency_check=False,
        Allow restoring soft deleted documents via PUT
 
     .. versionchanged:: 0.5
-       Back to resolving default values after validaton as now the validator
+       Back to resolving default values after validation as now the validator
        can properly validate dependency even when some have default values. See
        #353.
        Original put() has been split into put() and put_internal().
@@ -81,7 +81,7 @@ def put_internal(resource, payload=None, concurrency_check=False,
        through. Fixes #395.
 
     .. versionchanged:: 0.4
-       Allow abort() to be inoked by callback functions.
+       Allow abort() to be invoked by callback functions.
        Resolve default values before validation is performed. See #353.
        Raise 'on_replace' instead of 'on_insert'. The callback function gets
        the document (as opposed to a list of just 1 document) as an argument.
@@ -97,7 +97,7 @@ def put_internal(resource, payload=None, concurrency_check=False,
        Use the new STATUS setting.
        Use the new ISSUES setting.
        Raise pre_<method> event.
-       explictly resolve default values instead of letting them be resolved
+       explicitly resolve default values instead of letting them be resolved
        by common.parse. This avoids a validation error when a read-only field
        also has a default value.
 

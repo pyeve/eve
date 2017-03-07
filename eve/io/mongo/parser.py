@@ -5,7 +5,7 @@
     ~~~~~~~~~~~~~~~~~~~
 
     This module implements a Python-to-Mongo syntax parser. Allows the MongoDB
-    data-layer to seamlessy respond to a Python-like query.
+    data-layer to seamlessly respond to a Python-like query.
 
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
@@ -66,7 +66,7 @@ class MongoVisitor(ast.NodeVisitor):
         # perform the magic.
         self.generic_visit(node)
 
-        # if we didn't obtain a query, it is likely that an unsopported
+        # if we didn't obtain a query, it is likely that an unsupported
         # python expression has been passed.
         if self.mongo_query == {}:
             raise ParseError("Only conditional statements with boolean "

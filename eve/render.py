@@ -156,7 +156,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
                 callback = request.args.get(jsonp_arg)
                 rendered = "%s(%s)" % (callback, rendered)
 
-        # build the main wsgi rensponse object
+        # build the main wsgi response object
         resp = make_response(rendered, status)
         resp.mimetype = mime
 

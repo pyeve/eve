@@ -84,7 +84,7 @@ class Validator(Validator):
         case we want to perform a full :func:`validate` (the new document is to
         be considered a new insertion and required fields needs validation).
         However, like with validate_update, we also want the current _id
-        not to be checked when validationg 'unique' values.
+        not to be checked when validating 'unique' values.
 
         .. versionadded:: 0.1.0
         """
@@ -133,7 +133,7 @@ class Validator(Validator):
 
         .. versionchanged:: 0.6
            Validates field value uniqueness against the whole datasource,
-           indipendently of the request method. See #646.
+           independently of the request method. See #646.
 
         .. versionchanged:: 0.3
            Support for new 'self._error' signature introduced with Cerberus
@@ -286,7 +286,7 @@ class Validator(Validator):
     def _validate_readonly(self, read_only, field, value):
         """
         .. versionchanged:: 0.5
-           Not taking defaul values in consideration anymore since they are now
+           Not taking default values in consideration anymore since they are now
            being resolved after validation (#353).
            Consider the original value if available (#479).
 

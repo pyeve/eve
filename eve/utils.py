@@ -48,10 +48,10 @@ config = Config()
 class ParsedRequest(object):
     """ This class, by means of its attributes, describes a client request.
 
-    .. versuinchanged;; 9,5
+    .. versionchanged:: 9,5
        'args' keyword.
 
-    .. versonchanged:: 0.1.0
+    .. versionchanged:: 0.1.0
        'embedded' keyword.
 
     .. versionchanged:: 0.0.6
@@ -109,7 +109,7 @@ def parse_request(resource):
        Support for custom query parameters via configuration settings.
        Minor DRY updates.
 
-    .. versionchagend:: 0.1.0
+    .. versionchanged:: 0.1.0
        Support for embedded documents.
 
     .. versionchanged:: 0.0.6

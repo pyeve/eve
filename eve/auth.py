@@ -95,7 +95,7 @@ class BasicAuth(object):
     .. versionchanged:: 0.4
        ensure all errors returns a parseable body #366.
        auth.request_auth_value replaced with getter and setter methods which
-       rely on flask's 'g' object, for enhanced thread-safity.
+       rely on flask's 'g' object, for enhanced thread-safety.
 
     .. versionchanged:: 0.1.1
         auth.request_auth_value is now used to store the auth_field value.

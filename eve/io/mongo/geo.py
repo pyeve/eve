@@ -16,10 +16,10 @@ class GeoJSON(dict):
         try:
             self['type'] = json['type']
         except KeyError:
-            raise TypeError("Not compilant to GeoJSON")
+            raise TypeError("Not compliant to GeoJSON")
         self.update(json)
         if len(self.keys()) != 2:
-            raise TypeError("Not compilant to GeoJSON")
+            raise TypeError("Not compliant to GeoJSON")
 
     def _correct_position(self, position):
         return isinstance(position, list) and \
@@ -35,7 +35,7 @@ class Geometry(GeoJSON):
                     self['type'] != self.__class__.__name__:
                 raise TypeError
         except (KeyError, TypeError):
-            raise TypeError("Geometry not compilant to GeoJSON")
+            raise TypeError("Geometry not compliant to GeoJSON")
 
 
 class GeometryCollection(GeoJSON):
@@ -48,7 +48,7 @@ class GeometryCollection(GeoJSON):
                 factory = factories[geometry["type"]]
                 factory(geometry)
         except (KeyError, TypeError, AttributeError):
-            raise TypeError("Geometry not compilant to GeoJSON")
+            raise TypeError("Geometry not compliant to GeoJSON")
 
 
 class Point(Geometry):

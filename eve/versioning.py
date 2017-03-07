@@ -16,7 +16,7 @@ def resolve_document_version(document, resource, method, latest_doc=None):
 
     :param document: the document in question.
     :param resource: the resource of the request/document.
-    :param method: method coorsponding to the request.
+    :param method: method corresponding to the request.
     :param latest_doc: the most recent version of the document.
 
     .. versionadded:: 0.4
@@ -26,7 +26,7 @@ def resolve_document_version(document, resource, method, latest_doc=None):
     latest_version = app.config['LATEST_VERSION']
 
     if resource_def['versioning'] is True:
-        # especially on collection endpoints, we don't to encure an extra
+        # especially on collection endpoints, we don't to ensure an extra
         # lookup if we are already pulling the latest version
         if method == 'GET' and latest_doc is None:
             if version not in document:
@@ -78,7 +78,7 @@ def late_versioning_catch(document, resource):
     document if it is missing. Intended for PUT and PATCH.
 
     :param resource: the resource of the request/document.
-    :param ids: a list of id number coorsponding to the documents parameter.
+    :param ids: a list of id number corresponding to the documents parameter.
     :param document: the documents be written by POST, PUT, or PATCH.
 
     .. versionadded:: 0.4
