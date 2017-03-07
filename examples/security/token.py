@@ -14,7 +14,7 @@
     made explicitly public (by fiddling with some settings you can open one or
     more resources and/or methods to public access -see docs).
 
-    Checkout Eve at https://github.com/nicolaiarocci/eve
+    Checkout Eve at https://github.com/pyeve/eve
 
     This snippet by Nicola Iarocci can be used freely for anything you like.
     Consider it public domain.

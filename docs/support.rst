@@ -14,7 +14,7 @@ File an Issue
 -------------
 If you notice some unexpected behavior in Eve, or want to see support for a new
 feature, `file an issue on GitHub
-<https://github.com/nicolaiarocci/eve/issues>`_.
+<https://github.com/pyeve/eve/issues>`_.
 
 Send a Tweet
 ------------

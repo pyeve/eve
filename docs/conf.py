@@ -158,7 +158,7 @@ html_sidebars = {
 
 html_theme_options = {
     'logo': 'eve-sidebar.png',
-    'github_user': 'nicolaiarocci',
+    'github_user': 'pyeve',
     'github_repo': 'eve',
     'github_banner': True,
     'github_banner_image': 'forkme_right_green_007200.png',

@@ -15,7 +15,7 @@
     Since we are using werkzeug we don't need any extra import (werkzeug being
     one of Flask/Eve prerequisites).
 
-    Checkout Eve at https://github.com/nicolaiarocci/eve
+    Checkout Eve at https://github.com/pyeve/eve
 
     This snippet by Nicola Iarocci can be used freely for anything you like.
     Consider it public domain.

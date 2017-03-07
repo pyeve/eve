@@ -23,6 +23,6 @@ feedback.
 GitHub
 ------
 Of course the best way to track the development of Eve is through
-`the GitHub repo <https://github.com/nicolaiarocci/eve>`_.
+`the GitHub repo <https://github.com/pyeve/eve>`_.
 
 .. _`mailing list`: https://groups.google.com/forum/#!forum/python-eve

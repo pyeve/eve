@@ -61,10 +61,10 @@ with it (or notice any typo and/or mistake), why not help with that? In any
 case, other than GitHub help_ pages, you might want to check this excellent
 `Effective Guide to Pull Requests`_
 
-.. _`the repository`: http://github.com/nicolaiarocci/eve
-.. _AUTHORS: https://github.com/nicolaiarocci/eve/blob/master/AUTHORS
-.. _`open issues`: https://github.com/nicolaiarocci/eve/issues
-.. _`new issue`: https://github.com/nicolaiarocci/eve/issues/new
+.. _`the repository`: http://github.com/pyeve/eve
+.. _AUTHORS: https://github.com/pyeve/eve/blob/master/AUTHORS
+.. _`open issues`: https://github.com/pyeve/eve/issues
+.. _`new issue`: https://github.com/pyeve/eve/issues/new
 .. _GitHub: https://github.com/
 .. _Fork: https://help.github.com/articles/fork-a-repo
 .. _`proper format`: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html

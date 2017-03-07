@@ -736,6 +736,6 @@ class TestOpLogEndpointEnabled(TestOpLogBase):
 
 class TestTickets(TestBase):
     def test_ticket_681(self):
-        # See https://github.com/nicolaiarocci/eve/issues/681
+        # See https://github.com/pyeve/eve/issues/681
         with self.app.test_request_context('not_an_existing_endpoint'):
             self.app.data.driver.db['again']

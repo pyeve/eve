@@ -168,7 +168,7 @@ Let's define a schema for our ``people`` resource.
 
     schema = {
         # Schema definition, based on Cerberus grammar. Check the Cerberus project
-        # (https://github.com/nicolaiarocci/cerberus) for details.
+        # (https://github.com/pyeve/cerberus) for details.
         'firstname': {
             'type': 'string',
             'minlength': 1,

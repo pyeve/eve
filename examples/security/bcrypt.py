@@ -14,7 +14,7 @@
 
     You will need to install py-bcrypt: ``pip install py-bcrypt``
 
-    Eve @ https://github.com/nicolaiarocci/eve
+    Eve @ https://github.com/pyeve/eve
 
     This snippet by Nicola Iarocci can be used freely for anything you like.
     Consider it public domain.

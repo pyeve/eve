@@ -2156,20 +2156,20 @@ niceties, like a built-in development server and debugger_, integrated support
 for unittesting_ and an `extensive documentation`_.
 
 .. _HATEOAS: http://en.wikipedia.org/wiki/HATEOAS
-.. _Cerberus: https://github.com/nicolaiarocci/cerberus
+.. _Cerberus: https://github.com/pyeve/cerberus
 .. _REST: http://en.wikipedia.org/wiki/Representational_state_transfer
 .. _CRUD: http://en.wikipedia.org/wiki/Create,_read,_update_and_delete
 .. _`CORS`: http://en.wikipedia.org/wiki/Cross-origin_resource_sharing
-.. _`PostgreSQL effort`: https://github.com/nicolaiarocci/eve/issues/17
+.. _`PostgreSQL effort`: https://github.com/pyeve/eve/issues/17
 .. _Flask: http://flask.pocoo.org
 .. _debugger: http://flask.pocoo.org/docs/quickstart/#debug-mode
 .. _unittesting: http://flask.pocoo.org/docs/testing/
 .. _`extensive documentation`: http://flask.pocoo.org/docs/
 .. _`this`: https://speakerdeck.com/nicola/developing-restful-web-apis-with-python-flask-and-mongodb?slide=113
-.. _Events: https://github.com/nicolaiarocci/events
+.. _Events: https://github.com/pyeve/events
 .. _`MongoDB Data Model Design`: http://docs.mongodb.org/manual/core/data-model-design
 .. _GridFS: http://docs.mongodb.org/manual/core/gridfs/
-.. _MediaStorage: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/media.py
+.. _MediaStorage: https://github.com/pyeve/eve/blob/develop/eve/io/media.py
 .. _`driver documentation`: http://api.mongodb.org/python/2.7rc0/api/gridfs/grid_file.html#gridfs.grid_file.GridOut
 .. _GeoJSON: http://geojson.org/
 .. _Point: http://geojson.org/geojson-spec.html#point

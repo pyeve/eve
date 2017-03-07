@@ -177,7 +177,7 @@ and then point your browser at ``localhost:8000``.
     Eve uses a customised Sphinx_ theme based on alabaster_. The easiest way
     to get the right version is by installing the :ref:`test_prerequisites`.
 
-.. _`continuous integration server`: https://travis-ci.org/nicolaiarocci/eve/
+.. _`continuous integration server`: https://travis-ci.org/pyeve/eve/
 .. _tox: http://tox.readthedocs.org/en/latest/
 .. _Redis:  http://redis.io/
 .. _redispy: https://github.com/andymccurdy/redis-py
