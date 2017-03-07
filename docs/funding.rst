@@ -28,8 +28,8 @@ Support Eve development
 -----------------------
 You can support Eve development by pledging on Patreon or donating on PayPal.
 
-- `Become a Backer or Sponsor <https://www.patreon.com/nicolaiarocci>`_ (recurring pledge)
-- `Donate via PayPal <#>`_ (one time)
+- `Become a Backer <https://www.patreon.com/nicolaiarocci>`_ (recurring pledge)
+- `Donate via PayPal <https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7U7G7EWU7EPNW>`_ (one time)
 
 
 Custom Sponsorship and Consulting
@@ -37,6 +37,5 @@ Custom Sponsorship and Consulting
 If you are a business that is building core products using Eve, I am also
 open to conversations regarding custom sponsorship / consulting arrangements.
 Just `get in touch`_ with me.
-
 
 .. _`get in touch`: mailto:nicola@nicolaiarocci.com
