@@ -4,8 +4,8 @@
     eve.methods.post
     ~~~~~~~~~~~~~~~~
 
-    This module imlements the POST method, supported by the resources
-    endopints.
+    This module implements the POST method, supported by the resources
+    endpoints.
 
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
@@ -74,7 +74,7 @@ def post_internal(resource, payl=None, skip_validation=False):
        Initialize DELETED field when soft_delete is enabled.
 
     .. versionchanged:: 0.5
-       Back to resolving default values after validaton as now the validator
+       Back to resolving default values after validation as now the validator
        can properly validate dependency even when some have default values. See
        #353.
        Push updates to the OpLog.
@@ -96,7 +96,7 @@ def post_internal(resource, payl=None, skip_validation=False):
        Use the new STATUS setting.
        Use the new ISSUES setting.
        Raise 'on_pre_<method>' event.
-       Explictly resolve default values instead of letting them be resolved
+       Explicitly resolve default values instead of letting them be resolved
        by common.parse. This avoids a validation error when a read-only field
        also has a default value.
        Added ``on_inserted*`` events after the database insert
@@ -109,7 +109,7 @@ def post_internal(resource, payl=None, skip_validation=False):
        Support for optional HATEOAS.
 
     .. versionchanged: 0.0.9
-       Event hooks renamed to be more robuts and consistent: 'on_posting'
+       Event hooks renamed to be more robust and consistent: 'on_posting'
        renamed to 'on_insert'.
        You can now pass a pre-defined custom payload to the funcion.
 
@@ -171,7 +171,7 @@ def post_internal(resource, payl=None, skip_validation=False):
         payl = [payl]
 
     if not payl:
-        # empty bulkd insert
+        # empty bulk insert
         abort(400, description=debug_error_message(
             'Empty bulk insert'
         ))

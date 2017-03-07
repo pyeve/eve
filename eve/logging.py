@@ -24,7 +24,7 @@ class RequestFilter(logging.Filter):
 
     Note that the app.logger can also be used by callback functions.
 
-    def log_a_get(resoure, request, payload):
+    def log_a_get(resource, request, payload):
         app.logger.info('we just responded to a GET request!')
 
     app = Eve()

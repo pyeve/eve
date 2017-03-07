@@ -4,7 +4,7 @@
     eve.methods.delete
     ~~~~~~~~~~~~~~~~~~
 
-    This module imlements the DELETE method.
+    This module implements the DELETE method.
 
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
@@ -133,7 +133,7 @@ def deleteitem_internal(
         missing_media_fields = [f for f in media_fields if f not in original]
         if len(missing_media_fields):
             # retrieve the whole document so we have all media fields available
-            # Should be very a rare occurence. We can't get rid of the
+            # Should be very a rare occurrence. We can't get rid of the
             # get_document() call since it also deals with etag matching, which
             # is still needed. Also, this lookup should never fail.
             # TODO not happy with this hack. Not at all. Is there a better way?

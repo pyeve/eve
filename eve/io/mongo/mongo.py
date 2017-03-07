@@ -150,7 +150,7 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.3
            Support for new _mongotize() signature.
 
-        .. versionchagend:: 0.2
+        .. versionchanged:: 0.2
            Support for sub-resources.
            Support for 'default_sort'.
 
@@ -550,7 +550,7 @@ class Mongo(DataLayer):
            Custom ID_FIELD lookups would fail. See #203.
 
         .. versionchanged:: 0.2
-           Don't explicitly converto ID_FIELD to ObjectId anymore, so we can
+           Don't explicitly convert ID_FIELD to ObjectId anymore, so we can
            also process different types (UUIDs etc).
 
         .. versionadded:: 0.1.0
@@ -954,7 +954,7 @@ def create_index(app, resource, name, list_of_keys, index_options):
     .. versionadded:: 0.6
     """
     # it doesn't work as a typical mongodb method run in the request
-    # life cicle, it is just called when the app start and it uses
+    # life cycle, it is just called when the app start and it uses
     # pymongo directly.
     collection = app.config['SOURCES'][resource]['source']
 

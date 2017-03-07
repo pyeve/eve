@@ -30,8 +30,8 @@ class TokenAuth(TokenAuth):
     def check_auth(self, token, allowed_roles, resource, method):
         """For the purpose of this example the implementation is as simple as
         possible. A 'real' token should probably contain a hash of the
-        username/password combo, which sould then validated against the account
-        data stored on the DB.
+        username/password combo, which should be then validated against the 
+        account data stored on the DB.
         """
         # use Eve's own db driver; no additional connections/resources are used
         accounts = app.data.driver.db['accounts']

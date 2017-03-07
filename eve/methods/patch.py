@@ -4,7 +4,7 @@
     eve.methods.patch
     ~~~~~~~~~~~~~~~~~
 
-    This module imlements the PATCH method.
+    This module implements the PATCH method.
 
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
@@ -82,7 +82,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
        through. Fixes #395.
 
     .. versionchanged:: 0.4
-       Allow abort() to be inoked by callback functions.
+       Allow abort() to be invoked by callback functions.
        'on_update' raised before performing the update on the database.
        Support for document versioning.
        'on_updated' raised after performing the update on the database.
@@ -120,7 +120,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
        ETag is now computed without the need of an additional db lookup
 
     .. versionchanged:: 0.0.5
-       Support for 'aplication/json' Content-Type.
+       Support for 'application/json' Content-Type.
 
     .. versionchanged:: 0.0.4
        Added the ``requires_auth`` decorator.

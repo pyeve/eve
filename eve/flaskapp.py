@@ -94,7 +94,7 @@ class Eve(Flask, Events):
     .. versionchanged:: 0.2
        Support for additional Flask url converters.
        Support for optional, custom json encoder class.
-       Support for endpoint-level authenticatoin classes.
+       Support for endpoint-level authentication classes.
        New method Eve.register_resource() for registering new resource after
        initialization of Eve object. This is needed for simpler initialization
        API of all ORM/ODM extensions.
@@ -345,7 +345,7 @@ class Eve(Flask, Events):
 
     def validate_roles(self, directive, candidate, resource):
         """ Validates that user role directives are syntactically and formally
-        adeguate.
+        adequate.
 
         :param directive: either 'allowed_[read_|write_]roles' or
                           'allow_item_[read_|write_]roles'.
@@ -552,7 +552,7 @@ class Eve(Flask, Events):
            'resource_title',
            'default_sort',
            'embedded_fields'.
-           Support for endpoint-level authenticatoin classes.
+           Support for endpoint-level authentication classes.
         """
         settings.setdefault('url', resource)
         settings.setdefault('resource_methods',
@@ -799,7 +799,7 @@ class Eve(Flask, Events):
                               view_func=item_endpoint,
                               methods=settings['item_methods'] + ['OPTIONS'])
             if 'PATCH' in settings['item_methods']:
-                # support for POST with X-HTTM-Method-Override header for
+                # support for POST with X-HTTP-Method-Override header for
                 # clients not supporting PATCH. Also see item_endpoint() in
                 # endpoints.py
                 endpoint = resource + "|item_post_override"

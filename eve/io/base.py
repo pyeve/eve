@@ -125,7 +125,7 @@ class DataLayer(object):
         :param req: an instance of ``eve.utils.ParsedRequest``. This contains
                     all the constraints that must be fulfilled in order to
                     satisfy the original request (where and sort parts, paging,
-                    etc). Be warned that `where` and `sort` expresions will
+                    etc). Be warned that `where` and `sort` expressions will
                     need proper parsing, according to the syntax that you want
                     to support with your driver. For example ``eve.io.Mongo``
                     supports both Python and Mongo-like query syntaxes.
@@ -299,7 +299,7 @@ class DataLayer(object):
         """ Returns True if the collection is empty; False otherwise. While
         a user could rely on self.find() method to achieve the same result,
         this method can probably take advantage of specific datastore features
-        to provide better perfomance.
+        to provide better performance.
 
         Don't forget, a 'resource' could have a pre-defined filter. If that is
         the case, it will have to be taken into consideration when performing

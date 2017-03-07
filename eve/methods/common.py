@@ -485,7 +485,7 @@ def normalize_dotted_fields(document):
     """ Normalizes eventual dotted fields so validation can be performed
     seamlessly. For example this document:
 
-        {"location.city": "a nested cisty"}
+        {"location.city": "a nested city"}
 
     would be normalized to:
 
@@ -763,18 +763,18 @@ def resolve_embedded_documents(document, resource, embedded_fields):
     :param resource: the resource name.
     :param embedded_fields: the list of fields we are allowed to embed.
 
-    .. versionchagend:: 0.5
+    .. versionchanged:: 0.5
        Support for embedding documents located in subdocuments.
        Allocated two functions embedded_document and subdocuments.
 
-    .. versionchagend:: 0.4
+    .. versionchanged:: 0.4
         Moved parsing of embedded fields to _resolve_embedded_fields.
         Support for document versioning.
 
-    .. versionchagend:: 0.2
+    .. versionchanged:: 0.2
         Support for 'embedded_fields'.
 
-    .. versonchanged:: 0.1.1
+    .. versionchanged:: 0.1.1
        'collection' key has been renamed to 'resource' (data_relation).
 
     .. versionadded:: 0.1.0
@@ -899,9 +899,9 @@ def store_media_files(document, resource, original=None):
     .. versionadded:: 0.3
     """
     # TODO We're storing media files in advance, before the corresponding
-    # document is also stored. In the rare occurance that the subsequent
+    # document is also stored. In the rare occurrence that the subsequent
     # document update fails we should probably attempt a cleanup on the storage
-    # sytem. Easier said than done though.
+    # system. Easier said than done though.
     for field in resource_media_fields(document, resource):
         if original and field in original:
             # since file replacement is not supported by the media storage
@@ -957,7 +957,7 @@ def resolve_sub_resource_path(document, resource):
 
 
 def resolve_user_restricted_access(document, resource):
-    """ Adds user restricted access medadata to the document if applicable.
+    """ Adds user restricted access metadata to the document if applicable.
 
     :param document: the document being posted or replaced
     :param resource: the resource to which the document belongs
@@ -1068,7 +1068,7 @@ def document_link(resource, document_id, version=None):
 
 def resource_link():
     """ Returns the current resource path relative to the API entry point.
-    Mostly going to be used by hatoeas functions when building
+    Mostly going to be used by hateoas functions when building
     document/resource links. The resource URL stored in the config settings
     might contain regexes and custom variable names, all of which are not
     needed in the response payload.
