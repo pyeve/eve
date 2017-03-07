@@ -286,8 +286,8 @@ class Validator(Validator):
     def _validate_readonly(self, read_only, field, value):
         """
         .. versionchanged:: 0.5
-           Not taking default values in consideration anymore since they are now
-           being resolved after validation (#353).
+           Not taking default values in consideration anymore since they are 
+           now being resolved after validation (#353).
            Consider the original value if available (#479).
 
         .. versionadded:: 0.4
