@@ -159,8 +159,8 @@ def _perform_aggregation(resource, pipeline, options):
     response[config.ITEMS] = documents
 
     # PyMongo's CommandCursor does not return a count, so we cannot
-    # provide pagination/total count info as we do with a normal (non-aggregate)
-    # GET request.
+    # provide pagination/total count info as we do with a normal 
+    # (non-aggregate) GET request.
 
     return response, None, None, 200, []
 
