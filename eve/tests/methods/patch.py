@@ -86,7 +86,7 @@ class TestPatch(TestBase):
         # for the time being we are happy with testing only Eve's custom
         # validation. We rely on Cerberus' own test suite for other validation
         # unit tests. This test also makes sure that response status is
-        # syntatically correct in case of validation issues.
+        # syntactically correct in case of validation issues.
         # We should probably test every single case as well (seems overkill).
         r, status = self.patch(self.item_id_url,
                                data={"ref": "%s" % self.alt_ref},

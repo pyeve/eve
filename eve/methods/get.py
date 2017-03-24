@@ -48,7 +48,7 @@ def get_internal(resource, **lookup):
        Support for HEADER_TOTAL_COUNT returned with response header.
 
     .. versionchanged:: 0.5
-       Support for customisable query parameters.
+       Support for customizable query parameters.
 
     .. versionchanged:: 0.4
        Add pagination info whatever the HATEOAS status.
@@ -77,7 +77,7 @@ def get_internal(resource, **lookup):
        Support for embeddable documents.
 
     .. versionchanged:: 0.0.9
-       Event hooks renamed to be more robuts and consistent: 'on_getting'
+       Event hooks renamed to be more robust and consistent: 'on_getting'
        renamed to 'on_fetch'.
 
     .. versionchanged:: 0.0.8
@@ -159,8 +159,8 @@ def _perform_aggregation(resource, pipeline, options):
     response[config.ITEMS] = documents
 
     # PyMongo's CommandCursor does not return a count, so we cannot
-    # provide paination/total count info as we do with a normal (non-aggregate)
-    # GET request.
+    # provide pagination/total count info as we do with a normal
+    # (non-aggregate) GET request.
 
     return response, None, None, 200, []
 
@@ -256,7 +256,7 @@ def getitem_internal(resource, **lookup):
        Pagination links reflect current query. (#464)
 
     .. versionchanged:: 0.4
-       HATOEAS link for contains the business unit value even when
+       HATEOAS link for contains the business unit value even when
        regexes have been configured for the resource endpoint.
        'on_fetched' now returns the whole response (HATEOAS metafields
        included.)
@@ -268,7 +268,7 @@ def getitem_internal(resource, **lookup):
        When IF_MATCH is disabled, no etag is included in the payload.
 
     .. versionchanged:: 0.1.1
-       Support for Embeded Resource Serialization.
+       Support for Embedded Resource Serialization.
 
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
@@ -473,7 +473,7 @@ def _pagination_links(resource, req, document_count, document_id=None):
        Pagination links reflect current query. (#464)
 
     .. versionchanged:: 0.4
-       HATOEAS link for contains the business unit value even when
+       HATEOAS link for contains the business unit value even when
        regexes have been configured for the resource endpoint.
 
     .. versionchanged:: 0.0.8

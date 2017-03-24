@@ -16,7 +16,7 @@ class MediaStorage(object):
     along with a set of default behaviors that all other storage systems can
     inherit or override as necessary.
 
-    ..versioneadded:: 0.3
+    ..versionadded:: 0.3
     """
 
     def __init__(self, app=None):
