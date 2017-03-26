@@ -40,7 +40,7 @@
 
     The HMACAuth class also supports access roles.
 
-    Checkout Eve at https://github.com/nicolaiarocci/eve
+    Checkout Eve at https://github.com/pyeve/eve
 
     This snippet by Nicola Iarocci can be used freely for anything you like.
     Consider it public domain.

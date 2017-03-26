@@ -1,7 +1,7 @@
 Eve
 ====
-.. image:: https://secure.travis-ci.org/nicolaiarocci/eve.svg?branch=master 
-        :target: https://secure.travis-ci.org/nicolaiarocci/eve
+.. image:: https://secure.travis-ci.org/pyeve/eve.svg?branch=master 
+        :target: https://secure.travis-ci.org/pyeve/eve
 
 Eve is an open source Python REST API framework designed for human beings. It
 allows to effortlessly build and deploy highly customizable, fully featured
@@ -77,6 +77,6 @@ License
 -------
 Eve is a `Nicola Iarocci`_ open source project,
 distributed under the `BSD license
-<https://github.com/nicolaiarocci/eve/blob/master/LICENSE>`_. 
+<https://github.com/pyeve/eve/blob/master/LICENSE>`_. 
 
 .. _`Nicola Iarocci`: http://nicolaiarocci.com

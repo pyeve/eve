@@ -754,7 +754,7 @@ class Mongo(DataLayer):
                         # Convert to unicode because ObjectId() interprets
                         # 12-character strings (but not unicode) as binary
                         # representations of ObjectId's.  See
-                        # https://github.com/nicolaiarocci/eve/issues/508
+                        # https://github.com/pyeve/eve/issues/508
                         try:
                             r = ObjectId(unicode(v))
                         except NameError:

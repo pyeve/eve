@@ -146,13 +146,13 @@ Olivier Poitrey, a long time Eve contributor and sustainer. REST Layer is
 .. _`get in touch`: mailto:eve@nicolaiarocci.com
 .. _Eve-Mongoengine: https://github.com/hellerstanislav/eve-mongoengine
 .. _Eve-Elastic: https://github.com/petrjasek/eve-elastic
-.. _Eve.NET: https://github.com/nicolaiarocci/Eve.NET
+.. _Eve.NET: https://github.com/pyeve/Eve.NET
 .. _Eve-SQLAlchemy: https://github.com/RedTurtle/eve-sqlalchemy
-.. _Eve-OAuth2: https://github.com/nicolaiarocci/eve-oauth2
-.. _Flask-Sentinel: https://github.com/nicolaiarocci/flask-sentinel
+.. _Eve-OAuth2: https://github.com/pyeve/eve-oauth2
+.. _Flask-Sentinel: https://github.com/pyeve/flask-sentinel
 .. _Eve-Auth-JWT: https://github.com/rs/eve-auth-jwt
 .. _`REST Layer`: https://github.com/rs/rest-layer
 .. _EveGenie: https://github.com/newmediadenver/evegenie
-.. _Eve-Swagger: https://github.com/nicolaiarocci/eve-swagger
+.. _Eve-Swagger: https://github.com/pyeve/eve-swagger
 .. _`Meet Eve-Swagger`: http://nicolaiarocci.com/announcing-eve-swagger/
 .. _Eve-Neo4j: https://github.com/Abraxas-Biosystems/eve-neo4j

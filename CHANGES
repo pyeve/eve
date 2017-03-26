@@ -6,6 +6,7 @@ Here you can see the full list of changes between each Eve release.
 Development
 -----------
 
+- Fix: docstrings typos (Martin Fous).
 - Docs: explain that ``ALLOW_UNKNOWN`` can also be used to expose
   the whole document as found in the database, with no explicit validation
   schema. Addresses #995.
@@ -747,7 +748,7 @@ Released on 12 Jan, 2015.
 - Fix: PATCH and PUT don't respect flask.abort() in a pre-update event. Closes
   #395 (Christopher Larsen).
 - Fix: Validating keyschema rules would cause a TypeError since 0.4. Closes
-  nicolaiarocci/cerberus#48.
+  pyeve/cerberus#48.
 - Fix: Crash if client projection is not a dict #390 (Olivier Poitrey).
 - Fix: Server crash in case of invalid "where" syntax #386 (Olivier Poitrey).
 

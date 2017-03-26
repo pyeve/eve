@@ -60,7 +60,7 @@ def post_internal(resource, payl=None, skip_validation=False):
                  Please be advised that in order to successfully use this
                  option, a request context must be available.
 
-                 See https://github.com/nicolaiarocci/eve/issues/74 for a
+                 See https://github.com/pyeve/eve/issues/74 for a
                  discussion, and a typical use case.
     :param skip_validation: skip payload validation before write (bool)
 
