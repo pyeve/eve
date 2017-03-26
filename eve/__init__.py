@@ -53,6 +53,8 @@ ID_FIELD = '_id'
 CACHE_CONTROL = 'max-age=10,must-revalidate'        # TODO confirm this value
 CACHE_EXPIRES = 10
 
+ALLOW_CUSTOM_FIELDS_IN_GEOJSON = False
+
 RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']
 ITEM_LOOKUP = True
