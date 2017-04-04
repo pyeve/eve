@@ -6,6 +6,7 @@ that extend Eve. This list is moderated and updated on a regular basis. If you
 wrote a package for Eve and want it to show up here, just `get in touch`_ and
 show me your tool! 
 
+- Eve-Healthcheck_
 - Eve-Elastic_
 - Eve-Mongoengine_
 - Eve-Swagger_
@@ -20,13 +21,21 @@ show me your tool!
 
 - `REST Layer for Golang`_
 
+Eve-Healthcheck
+---------------
+
+| *by LuisComS*
+
+Eve-Healthcheck_ is project that servers healthcheck urls used to monitor your
+Eve application.
+
 Eve-Elastic
 -----------
 
 | *by Petr Jašek*
 
 Eve-Elastic_ is an elasticsearch data layer for the Eve REST framework.
-Features facets support and the generation of mapping for schema. 
+Features facets support and the generation of mapping for schema.
 
 Eve-Mongoengine
 ---------------
@@ -138,6 +147,7 @@ Olivier Poitrey, a long time Eve contributor and sustainer. REST Layer is
     You can focus on your business logic now.
 
 
+.. _Eve-Healthcheck: https://github.com/ateliedocodigo/eve-healthcheck
 .. _`Mocking tool for Eve APIs`: http://blog.python-eve.org/eve-mocker
 .. _`Auto generate API docs`: http://blog.python-eve.org/eve-docs
 .. _charlesflynn/eve-docs: https://github.com/charlesflynn/eve-docs
