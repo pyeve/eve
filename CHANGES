@@ -6,6 +6,13 @@ Here you can see the full list of changes between each Eve release.
 Development
 -----------
 
+Version 0.8
+~~~~~~~~~~~
+- New: ``ALLOW_CUSTOM_FIELDS_IN_GEOJSON`` allows custom fields in GeoJSON
+  (Martin Fous).
+- New: Support for ``Feature`` and ``FeatureCollection`` GeoJSON objects.
+  Closes #769 (Martin Fous). 
+
 Stable
 ------
 
