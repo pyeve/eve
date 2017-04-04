@@ -1727,15 +1727,8 @@ encoded in GeoJSON_ format. All GeoJSON objects supported by MongoDB_ are availa
     - ``MultiPolygon``
     - ``GeometryCollection``
 
-Eve supports also GeoJSON object Feature and FeatureCollection that are not
-explicitely mentioned in MongoDB_ documentation. All these objects are 
-implemented as native Eve data types (see :ref:`schema`) so they are
-are subject to the proper validation. 
-
-GeoJSON specification allows object to contain any number of members (name/value 
-pairs). Eve validation was implemented to be more strict, allowing only two 
-members. This restriction can be disabled by setting config variable
-ALLOW_CUSTOM_FIELDS_IN_GEOJSON to True.
+All these objects are implemented as native Eve data types (see :ref:`schema`)
+so they are are subject to the proper validation. 
 
 In the example below we are extending the `people` endpoint by adding
 a ``location`` field is of type Point_.
@@ -1756,6 +1749,13 @@ Storing a contact along with its location is pretty straightforward:
 
     $ curl -d '[{"firstname": "barack", "lastname": "obama", "location": {"type":"Point","coordinates":[100.0,10.0]}}]' -H 'Content-Type: application/json'  http://127.0.0.1:5000/people
     HTTP/1.1 201 OK
+
+Eve also supports GeoJSON ``Feature`` and ``FeatureCollection`` objects, which
+are not explicitely mentioned in MongoDB_ documentation. GeoJSON specification
+allows object to contain any number of members (name/value pairs). Eve
+validation was implemented to be more strict, allowing only two members. This
+restriction can be disabled by setting ``ALLOW_CUSTOM_FIELDS_IN_GEOJSON`` to
+``True``.
 
 Querying GeoJSON Data
 ~~~~~~~~~~~~~~~~~~~~~
