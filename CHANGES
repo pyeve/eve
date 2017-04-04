@@ -6,6 +6,7 @@ Here you can see the full list of changes between each Eve release.
 Development
 -----------
 
+- Dev: use official Alabaster theme instead of custom fork.
 - Fix: docstrings typos (Martin Fous).
 - Docs: explain that ``ALLOW_UNKNOWN`` can also be used to expose
   the whole document as found in the database, with no explicit validation
