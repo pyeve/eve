@@ -11,6 +11,7 @@ Development
 - Docs: explain that ``ALLOW_UNKNOWN`` can also be used to expose
   the whole document as found in the database, with no explicit validation
   schema. Addresses #995.
+- Docs: add Eve-Healthcheck to extensions list (Luis Fernando Gomes).
 
 Stable
 ------
