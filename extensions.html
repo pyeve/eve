@@ -28,31 +28,19 @@
     <link rel="next" title="How to Contribute" href="contributing.html" />
     <link rel="prev" title="Snippet Template" href="snippets/template.html" />
    
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
   <body>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="contributing.html" title="How to Contribute"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="snippets/template.html" title="Snippet Template"
-             accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Eve 0.7.2 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="extensions">
 <h1>Extensions<a class="headerlink" href="#extensions" title="Permalink to this headline">¶</a></h1>
@@ -61,19 +49,26 @@ that extend Eve. This list is moderated and updated on a regular basis. If you
 wrote a package for Eve and want it to show up here, just <a class="reference external" href="mailto:eve&#37;&#52;&#48;nicolaiarocci&#46;com">get in touch</a> and
 show me your tool!</p>
 <ul class="simple">
-<li><a class="reference external" href="https://github.com/petrjasek/eve-elastic">Eve-Elastic</a></li>
-<li><a class="reference external" href="https://github.com/hellerstanislav/eve-mongoengine">Eve-Mongoengine</a></li>
-<li><a class="reference external" href="https://github.com/pyeve/eve-swagger">Eve-Swagger</a></li>
-<li><a class="reference external" href="https://github.com/charlesflynn/eve-docs">Eve-Docs</a></li>
-<li><a class="reference external" href="https://github.com/RedTurtle/eve-sqlalchemy">Eve-SQLAlchemy</a></li>
-<li><a class="reference external" href="https://github.com/pyeve/Eve.NET">Eve.NET</a></li>
-<li><a class="reference external" href="https://github.com/pyeve/eve-oauth2">Eve-OAuth2</a> and <a class="reference external" href="https://github.com/pyeve/flask-sentinel">Flask-Sentinel</a></li>
 <li><a class="reference external" href="https://github.com/rs/eve-auth-jwt">Eve-Auth-JWT</a></li>
-<li><a class="reference external" href="https://github.com/newmediadenver/evegenie">EveGenie</a></li>
+<li><a class="reference external" href="https://github.com/petrjasek/eve-elastic">Eve-Elastic</a></li>
+<li><a class="reference external" href="https://github.com/ateliedocodigo/eve-healthcheck">Eve-Healthcheck</a></li>
 <li><a class="reference external" href="https://github.com/tsileo/eve-mocker">Eve-Mocker</a></li>
+<li><a class="reference external" href="https://github.com/hellerstanislav/eve-mongoengine">Eve-Mongoengine</a></li>
 <li><a class="reference external" href="https://github.com/Abraxas-Biosystems/eve-neo4j">Eve-Neo4j</a></li>
+<li><a class="reference external" href="https://github.com/pyeve/eve-oauth2">Eve-OAuth2</a> and <a class="reference external" href="https://github.com/pyeve/flask-sentinel">Flask-Sentinel</a></li>
+<li><a class="reference external" href="https://github.com/RedTurtle/eve-sqlalchemy">Eve-SQLAlchemy</a></li>
+<li><a class="reference external" href="https://github.com/pyeve/eve-swagger">Eve-Swagger</a></li>
+<li><a class="reference external" href="https://github.com/pyeve/Eve.NET">Eve.NET</a></li>
+<li><a class="reference external" href="https://github.com/newmediadenver/evegenie">EveGenie</a></li>
 <li><a class="reference internal" href="#rest-layer-for-golang">REST Layer for Golang</a></li>
 </ul>
+<div class="section" id="eve-auth-jwt">
+<h2>Eve-Auth-JWT<a class="headerlink" href="#eve-auth-jwt" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line"><em>by Olivier Poitrey</em></div>
+</div>
+<p><a class="reference external" href="https://github.com/rs/eve-auth-jwt">Eve-Auth-JWT</a> is An OAuth 2 JWT token validation module for Eve.</p>
+</div>
 <div class="section" id="eve-elastic">
 <h2>Eve-Elastic<a class="headerlink" href="#eve-elastic" title="Permalink to this headline">¶</a></h2>
 <div class="line-block">
@@ -81,6 +76,22 @@ show me your tool!</p>
 </div>
 <p><a class="reference external" href="https://github.com/petrjasek/eve-elastic">Eve-Elastic</a> is an elasticsearch data layer for the Eve REST framework.
 Features facets support and the generation of mapping for schema.</p>
+</div>
+<div class="section" id="eve-healthcheck">
+<h2>Eve-Healthcheck<a class="headerlink" href="#eve-healthcheck" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line"><em>by LuisComS</em></div>
+</div>
+<p><a class="reference external" href="https://github.com/ateliedocodigo/eve-healthcheck">Eve-Healthcheck</a> is project that servers healthcheck urls used to monitor your
+Eve application.</p>
+</div>
+<div class="section" id="eve-mocker">
+<h2>Eve-Mocker<a class="headerlink" href="#eve-mocker" title="Permalink to this headline">¶</a></h2>
+<p><em>by Thomas Sileo</em></p>
+<p><a class="reference external" href="https://github.com/tsileo/eve-mocker">Eve-Mocker</a> is a mocking tool for Eve powered REST APIs, based on the
+excellent HTTPretty, aimed to be used in your unit tests, when you rely on an
+Eve API. Eve-Mocker has been featured on the Eve blog: <a class="reference external" href="http://blog.python-eve.org/eve-mocker">Mocking tool for Eve
+APIs</a></p>
 </div>
 <div class="section" id="eve-mongoengine">
 <h2>Eve-Mongoengine<a class="headerlink" href="#eve-mongoengine" title="Permalink to this headline">¶</a></h2>
@@ -92,6 +103,26 @@ be used as eve schema. If you use mongoengine in your application and
 simultaneously want to use Eve, instead of writing schema again in Cerberus
 format (DRY!), you can use this extension, which takes your mongoengine models
 and auto-transforms them into Cerberus schema under the hood.</p>
+</div>
+<div class="section" id="eve-neo4j">
+<h2>Eve-Neo4j<a class="headerlink" href="#eve-neo4j" title="Permalink to this headline">¶</a></h2>
+<p><em>by Abraxas Biosystems</em></p>
+<p><a class="reference external" href="https://github.com/Abraxas-Biosystems/eve-neo4j">Eve-Neo4j</a> is an Eve extension aiming to enable it&#8217;s users to build and
+deploy highly customizable, fully featured RESTful Web Services using Neo4j
+as backend. Powered by Eve, Py2neo, flask-neo4j and good intentions.</p>
+</div>
+<div class="section" id="eve-oauth2">
+<h2>Eve-OAuth2<a class="headerlink" href="#eve-oauth2" title="Permalink to this headline">¶</a></h2>
+<p><em>by Nicola Iarocci</em></p>
+<p><a class="reference external" href="https://github.com/pyeve/eve-oauth2">Eve-OAuth2</a> is not an extension per-se, but rather an example of how you can
+leverage <a class="reference external" href="https://github.com/pyeve/flask-sentinel">Flask-Sentinel</a>  to protect your API endpoints with OAuth2.</p>
+</div>
+<div class="section" id="eve-sqlalchemy">
+<h2>Eve-SQLAlchemy<a class="headerlink" href="#eve-sqlalchemy" title="Permalink to this headline">¶</a></h2>
+<p><em>by Andrew Mleczko et al.</em></p>
+<p>Powered by Eve, SQLAlchemy and good intentions <a class="reference external" href="https://github.com/RedTurtle/eve-sqlalchemy">Eve-SQLALchemy</a> allows to
+effortlessly build and deploy highly customizable, fully featured RESTful Web
+Services with SQL-based backends.</p>
 </div>
 <div class="section" id="eve-swagger">
 <h2>Eve-Swagger<a class="headerlink" href="#eve-swagger" title="Permalink to this headline">¶</a></h2>
@@ -109,20 +140,6 @@ deployment environment. With a Swagger-enabled API, you get interactive
 documentation, client SDK generation and discoverability.</div></blockquote>
 <p>For more information, see also the <a class="reference external" href="http://nicolaiarocci.com/announcing-eve-swagger/">Meet Eve-Swagger</a> article.</p>
 </div>
-<div class="section" id="eve-docs">
-<h2>Eve-Docs<a class="headerlink" href="#eve-docs" title="Permalink to this headline">¶</a></h2>
-<div class="line-block">
-<div class="line"><em>by Charles Flynn</em></div>
-</div>
-<p><a class="reference external" href="https://github.com/charlesflynn/eve-docs">Eve-docs</a> is a blueprint that generates documentation for Eve APIs in HTML and
-JSON formats. Eve-docs creates the documentation from your existing Eve
-configuration file, with no additional configuration required.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Looks like the Eve-Docs project has been stagnant for a while. You might
-want to consider <a class="reference external" href="https://github.com/pyeve/eve-swagger">Eve-Swagger</a> as an alternative.</p>
-</div>
-</div>
 <div class="section" id="eve-net">
 <h2>Eve.NET<a class="headerlink" href="#eve-net" title="Permalink to this headline">¶</a></h2>
 <p><em>by Nicola Iarocci</em></p>
@@ -134,46 +151,11 @@ as a portable library (PCL) and runs seamlessly on .NET4, Mono, Xamarin.iOS,
 Xamarin.Android, Windows Phone 8 and Windows 8. We use Eve.NET internally to
 power our iOS, Web and Windows applications.</p>
 </div>
-<div class="section" id="eve-sqlalchemy">
-<h2>Eve-SQLAlchemy<a class="headerlink" href="#eve-sqlalchemy" title="Permalink to this headline">¶</a></h2>
-<p><em>by Andrew Mleczko et al.</em></p>
-<p>Powered by Eve, SQLAlchemy and good intentions <a class="reference external" href="https://github.com/RedTurtle/eve-sqlalchemy">Eve-SQLALchemy</a> allows to
-effortlessly build and deploy highly customizable, fully featured RESTful Web
-Services with SQL-based backends.</p>
-</div>
-<div class="section" id="eve-oauth2">
-<h2>Eve-OAuth2<a class="headerlink" href="#eve-oauth2" title="Permalink to this headline">¶</a></h2>
-<p><em>by Nicola Iarocci</em></p>
-<p><a class="reference external" href="https://github.com/pyeve/eve-oauth2">Eve-OAuth2</a> is not an extension per-se, but rather an example of how you can
-leverage <a class="reference external" href="https://github.com/pyeve/flask-sentinel">Flask-Sentinel</a>  to protect your API endpoints with OAuth2.</p>
-</div>
-<div class="section" id="eve-auth-jwt">
-<h2>Eve-Auth-JWT<a class="headerlink" href="#eve-auth-jwt" title="Permalink to this headline">¶</a></h2>
-<div class="line-block">
-<div class="line"><em>by Olivier Poitrey</em></div>
-</div>
-<p><a class="reference external" href="https://github.com/rs/eve-auth-jwt">Eve-Auth-JWT</a> is An OAuth 2 JWT token validation module for Eve.</p>
-</div>
 <div class="section" id="evegenie">
 <h2>EveGenie<a class="headerlink" href="#evegenie" title="Permalink to this headline">¶</a></h2>
 <p><em>by Erin Corson and Matt Tucker</em></p>
 <p><a class="reference external" href="https://github.com/newmediadenver/evegenie">EveGenie</a> is a tool for generating Eve schemas. It accepts a json document of
 one or more resources and provides you with a starting schema definition.</p>
-</div>
-<div class="section" id="eve-mocker">
-<h2>Eve-Mocker<a class="headerlink" href="#eve-mocker" title="Permalink to this headline">¶</a></h2>
-<p><em>by Thomas Sileo</em></p>
-<p><a class="reference external" href="https://github.com/tsileo/eve-mocker">Eve-Mocker</a> is a mocking tool for Eve powered REST APIs, based on the
-excellent HTTPretty, aimed to be used in your unit tests, when you rely on an
-Eve API. Eve-Mocker has been featured on the Eve blog: <a class="reference external" href="http://blog.python-eve.org/eve-mocker">Mocking tool for Eve
-APIs</a></p>
-</div>
-<div class="section" id="eve-neo4j">
-<h2>Eve-Neo4j<a class="headerlink" href="#eve-neo4j" title="Permalink to this headline">¶</a></h2>
-<p><em>by Abraxas Biosystems</em></p>
-<p><a class="reference external" href="https://github.com/Abraxas-Biosystems/eve-neo4j">Eve-Neo4j</a> is an Eve extension aiming to enable it&#8217;s users to build and
-deploy highly customizable, fully featured RESTful Web Services using Neo4j
-as backend. Powered by Eve, Py2neo, flask-neo4j and good intentions.</p>
 </div>
 <div class="section" id="rest-layer-for-golang">
 <h2>REST Layer for Golang<a class="headerlink" href="#rest-layer-for-golang" title="Permalink to this headline">¶</a></h2>
@@ -204,10 +186,14 @@ You can focus on your business logic now.</div></blockquote>
 
 
 
+
 <p>
-<iframe src="http://ghbtns.com/github-btn.html?user=pyeve&repo=eve&type=watch&count=true&size=large"
+<iframe src="https://ghbtns.com/github-btn.html?user=pyeve&repo=eve&type=watch&count=true&size=large&v=2"
   allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
 </p>
+
+
+
 
 
 <h3>Stay Informed</h3>
@@ -257,17 +243,17 @@ You can focus on your business logic now.</div></blockquote>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="snippets/index.html">Snippets</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Extensions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#eve-elastic">Eve-Elastic</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#eve-mongoengine">Eve-Mongoengine</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#eve-swagger">Eve-Swagger</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#eve-docs">Eve-Docs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#eve-net">Eve.NET</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#eve-sqlalchemy">Eve-SQLAlchemy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#eve-oauth2">Eve-OAuth2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#eve-auth-jwt">Eve-Auth-JWT</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#evegenie">EveGenie</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#eve-elastic">Eve-Elastic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#eve-healthcheck">Eve-Healthcheck</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#eve-mocker">Eve-Mocker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#eve-mongoengine">Eve-Mongoengine</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#eve-neo4j">Eve-Neo4j</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#eve-oauth2">Eve-OAuth2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#eve-sqlalchemy">Eve-SQLAlchemy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#eve-swagger">Eve-Swagger</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#eve-net">Eve.NET</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#evegenie">EveGenie</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#rest-layer-for-golang">REST Layer for Golang</a></li>
 </ul>
 </li>
