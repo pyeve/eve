@@ -160,6 +160,7 @@ html_theme_options = {
     'logo': 'eve-sidebar.png',
     'github_user': 'pyeve',
     'github_repo': 'eve',
+    'github_type': 'star',
     'github_banner': 'forkme_right_green_007200.png',
     'show_powered_by': False,
 }
