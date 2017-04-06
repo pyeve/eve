@@ -27,7 +27,7 @@ except ImportError:
 
 setup(
     name='Eve',
-    version='0.7.2',
+    version='0.7.3',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',
