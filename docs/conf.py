@@ -157,7 +157,7 @@ html_sidebars = {
 }
 
 html_theme_options = {
-    'logo': 'eve-sidebar.png',
+    'logo': 'eve_leaf.png',
     'github_user': 'pyeve',
     'github_repo': 'eve',
     'github_type': 'star',

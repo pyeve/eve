@@ -1,18 +1,36 @@
 .. meta::
    :description: Python REST API Framework to effortlessly build and deploy full featured, highly customizable RESTful Web Services.
 
-Python REST API Framework
-=========================
+.. title:: Python REST API Framework: Eve, the Simple Way to REST.
+
+Eve. The Simple Way to REST
+===========================
+
+Version |version|.
+
+.. image:: https://img.shields.io/pypi/v/eve.svg?style=flat-square
+    :target: https://pypi.org/project/eve
+
+.. image:: https://img.shields.io/travis/pyeve/eve.svg?branch=master&style=flat-square
+    :target: https://travis-ci.org/pyeve/eve
+
+.. image:: https://img.shields.io/pypi/pyversions/eve.svg?style=flat-square
+    :target: https://pypi.org/project/eve
+
+.. image:: https://img.shields.io/badge/license-BSD-blue.svg?style=flat-square
+    :target: https://en.wikipedia.org/wiki/BSD_License
+
+-----
+
 Eve is an :doc:`open source <license>` Python REST API framework designed for
 human beings. It allows to effortlessly build and deploy highly customizable,
 fully featured RESTful Web Services.
 
-Eve is powered by Flask_, Cerberus_, Events_ and MongoDB_. Support for
-SQL-Alchemy, Elasticsearch and Neo4js as alternate backends is provided by
+Eve is powered by Flask_ and Cerberus_ and it offers native support for MongoDB_ data
+stores. Support for SQL, Elasticsearch and Neo4js backends is provided by
 community extensions_. 
 
-The codebase is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4, 3.5, 3.6 and
-PyPy.
+The codebase is thoroughly tested under Python 2.6-3.6, and PyPy.
 
 Eve is Simple
 -------------
