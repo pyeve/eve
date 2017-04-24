@@ -49,11 +49,13 @@
 <div class="section" id="version-0-7-3">
 <h3>Version 0.7.3<a class="headerlink" href="#version-0-7-3" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>Fix: Internal resource, oplog enabled: a <tt class="docutils literal"><span class="pre">*_internal</span></tt> method defined in
+<tt class="docutils literal"><span class="pre">OPLOG_METHODS</span></tt> triggers keyerror (Einar Huseby).</li>
 <li>Dev: use official Alabaster theme instead of custom fork.</li>
 <li>Fix: docstrings typos (Martin Fous).</li>
-<li>Docs: explain that <tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt> can also be used to expose
-the whole document as found in the database, with no explicit validation
-schema. Addresses #995.</li>
+<li>Docs: explain that <tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt> can also be used to expose the whole
+document as found in the database, with no explicit validation schema.
+Addresses #995.</li>
 <li>Docs: add Eve-Healthcheck to extensions list (Luis Fernando Gomes).</li>
 </ul>
 </div>
