@@ -1,6 +1,5 @@
 Cerberus==0.9.2
 Events==0.2.1
-Flask-PyMongo==0.4.1
 Flask==0.12
 itsdangerous==0.24
 Jinja2==2.9.4

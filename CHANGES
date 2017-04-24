@@ -6,6 +6,19 @@ Here you can see the full list of changes between each Eve release.
 Development
 -----------
 
+New Version
+~~~~~~~~~~~
+
+- Update: Removed Flask-PyMongo dependency.
+  - Config setting ``MONGO_AUTHDBNAME`` renamed into ``MONGO_AUTH_SOURCE``
+  for naming consistency with PyMongo.
+  - Config options ``MONGO_MAX_POOL_SIZE``, ``MONGO_SOCKET_TIMEOUT_MS``,
+  ``MONGO_CONNECT_TIMEOUT_MS``, ``MONGO_REPLICA_SET``,
+  ``MONGO_READ_PREFERENCE`` removed. Use ``MONGO_OPTIONS`` or ``MONGO_URL``
+   instead.
+   - Config options ``MONGO_AUTH_MECHANISM`` and
+   ``MONGO_AUTH_MECHANISM_PROPERTIES`` added.
+
 Version 0.7.3
 ~~~~~~~~~~~~~
 - Dev: use official Alabaster theme instead of custom fork.
