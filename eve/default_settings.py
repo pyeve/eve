@@ -247,9 +247,6 @@ RATE_LIMIT_POST = None
 RATE_LIMIT_PATCH = None
 RATE_LIMIT_DELETE = None
 
-# MONGO defaults
-MONGO_HOST = 'localhost'
-MONGO_PORT = 27017
 # disallow Mongo's javascript queries as they might be vulnerable to injection
 # attacks ('ReDoS' especially), are probably too complex for the average API
 # end-user and finally can  seriously impact overall performance.
@@ -258,7 +255,6 @@ MONGO_QUERY_BLACKLIST = ['$where', '$regex']
 # aknowledged writes). This is also the current PyMongo/Mongo default setting.
 MONGO_WRITE_CONCERN = {'w': 1}
 MONGO_OPTIONS = {
-    'connect': True
+    'connect': True,
+    'tz_aware': True,
 }
-# Compatibility for flask-pymongo.
-MONGO_CONNECT = MONGO_OPTIONS['connect']
