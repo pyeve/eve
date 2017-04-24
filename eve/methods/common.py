@@ -1124,7 +1124,9 @@ def oplog_push(resource, document, op, id=None):
 
     .. versionadded:: 0.5
     """
-    if not config.OPLOG or op not in config.OPLOG_METHODS:
+    if not config.OPLOG \
+            or op not in config.OPLOG_METHODS\
+            or resource in config.URLS[resource]:
         return
 
     resource_def = config.DOMAIN[resource]

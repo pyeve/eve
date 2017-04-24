@@ -8,11 +8,13 @@ Development
 
 Version 0.7.3
 ~~~~~~~~~~~~~
+- Fix: Internal resource, oplog enabled: a ``*_internal`` method defined in
+  ``OPLOG_METHODS`` triggers keyerror (Einar Huseby).
 - Dev: use official Alabaster theme instead of custom fork.
 - Fix: docstrings typos (Martin Fous).
-- Docs: explain that ``ALLOW_UNKNOWN`` can also be used to expose
-  the whole document as found in the database, with no explicit validation
-  schema. Addresses #995.
+- Docs: explain that ``ALLOW_UNKNOWN`` can also be used to expose the whole
+  document as found in the database, with no explicit validation schema.
+  Addresses #995.
 - Docs: add Eve-Healthcheck to extensions list (Luis Fernando Gomes).
 
 Stable
