@@ -8,6 +8,9 @@ Development
 
 Version 0.7.3
 ~~~~~~~~~~~~~
+
+Eve and Cerberus are now collaboratively funded projects. See: https://nicolaiarocci.com/eve-and-cerberus-funding-campaign/
+
 - Fix: Internal resource, oplog enabled: a ``*_internal`` method defined in
   ``OPLOG_METHODS`` triggers keyerror (Einar Huseby).
 - Dev: use official Alabaster theme instead of custom fork.
