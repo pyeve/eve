@@ -5,12 +5,20 @@ Eve
 
 Eve is an open source Python REST API framework designed for human beings. It
 allows to effortlessly build and deploy highly customizable, fully featured
-RESTful Web Services.
+RESTful Web Services. Eve offers native support for MongoDB, and SQL backends
+via community extensions.
 
-Eve is powered by Flask, Redis, Cerberus, Events and offers support for both
-MongoDB and SQL backends.
+Funding
+-------
+Eve REST framework is a open source, collaboratively funded project. If you run
+a business and are using Eve in a revenue-generating product, it would make
+business sense to sponsor Eve development: it ensures the project that your
+product relies on stays healthy and actively maintained. Individual users are
+also welcome to make a recurring pledge or a one time donation if Eve has
+helped you in your work or personal projects. 
 
-The codebase is thoroughly tested under Python 2.6, 2.7, 3.3, 3.4, 3.5, 3.6 and PyPy.
+Every single sign-up makes a significant impact towards making Eve possible. To
+learn more, check out our `funding page`_.
 
 Eve is Simple
 -------------
@@ -80,3 +88,4 @@ distributed under the `BSD license
 <https://github.com/pyeve/eve/blob/master/LICENSE>`_. 
 
 .. _`Nicola Iarocci`: http://nicolaiarocci.com
+.. _`funding page`: http://python-eve.org/funding
