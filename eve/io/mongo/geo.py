@@ -9,6 +9,7 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
+from eve.utils import config
 
 
 class GeoJSON(dict):
@@ -18,11 +19,13 @@ class GeoJSON(dict):
         except KeyError:
             raise TypeError("Not compliant to GeoJSON")
         self.update(json)
-        if len(self.keys()) != 2:
+        if not config.ALLOW_CUSTOM_FIELDS_IN_GEOJSON and \
+           len(self.keys()) != 2:
             raise TypeError("Not compliant to GeoJSON")
 
     def _correct_position(self, position):
         return isinstance(position, list) and \
+            len(position) > 1 and \
             all(isinstance(pos, int) or isinstance(pos, float)
                 for pos in position)
 
@@ -102,7 +105,31 @@ class MultiPolygon(GeoJSON):
                         raise TypeError
 
 
+class Feature(GeoJSON):
+    def __init__(self, json):
+        super(Feature, self).__init__(json)
+        try:
+            geometry = self["geometry"]
+            factory = factories[geometry["type"]]
+            factory(geometry)
+
+        except (KeyError, TypeError, AttributeError):
+            raise TypeError("Feature not compliant to GeoJSON")
+
+
+class FeatureCollection(GeoJSON):
+    def __init__(self, json):
+        super(FeatureCollection, self).__init__(json)
+        try:
+            if not isinstance(self["features"], list):
+                raise TypeError
+            for feature in self["features"]:
+                Feature(feature)
+        except (KeyError, TypeError, AttributeError):
+            raise TypeError("FeatureCollection not compliant to GeoJSON")
+
+
 factories = dict([(_type.__name__, _type)
                   for _type in
                   [GeometryCollection, Point, MultiPoint, LineString,
-                  MultiLineString, Polygon, MultiPolygon]])
+                   MultiLineString, Polygon, MultiPolygon]])

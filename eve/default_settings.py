@@ -234,6 +234,10 @@ AUTH_FIELD = None
 # don't allow unknown key/value pairs for POST/PATCH payloads.
 ALLOW_UNKNOWN = False
 
+# GeoJSON specs allows any number of key/value pairs
+# http://geojson.org/geojson-spec.html#geojson-objects
+ALLOW_CUSTOM_FIELDS_IN_GEOJSON = False
+
 # don't ignore unknown schema rules (raise SchemaError)
 TRANSPARENT_SCHEMA_RULES = False
 

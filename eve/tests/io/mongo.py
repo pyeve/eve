@@ -180,6 +180,14 @@ class TestMongoValidator(TestCase):
         self.assertTrue('location' in v.errors)
         self.assertTrue('Point' in v.errors['location'])
 
+    def test_point_coordinates_fail(self):
+        schema = {'location': {'type': 'point'}}
+        doc = {'location': {'type': "Point", 'coordinates': [123.0]}}
+        v = Validator(schema)
+        self.assertFalse(v.validate(doc))
+        self.assertTrue('location' in v.errors)
+        self.assertTrue('Point' in v.errors['location'])
+
     def test_point_integer_success(self):
         schema = {'location': {'type': 'point'}}
         doc = {'location': {'type': "Point", 'coordinates': [10, 123.0]}}
@@ -289,6 +297,60 @@ class TestMongoValidator(TestCase):
         self.assertFalse(v.validate(doc))
         self.assertTrue('locations' in v.errors)
         self.assertTrue('GeometryCollection' in v.errors['locations'])
+
+    def test_feature_success(self):
+        schema = {'locations': {'type': 'feature'}}
+        doc = {"locations": {"type": "Feature",
+                             "geometry": {"type": "Polygon",
+                                          "coordinates": [[[100.0, 0.0],
+                                                           [101.0, 0.0],
+                                                           [101.0, 1.0],
+                                                           [100.0, 1.0],
+                                                           [100.0, 0.0]]]}
+                             }
+               }
+        v = Validator(schema)
+        self.assertTrue(v.validate(doc))
+
+    def test_feature_fail(self):
+        schema = {'locations': {'type': 'feature'}}
+        doc = {"locations": {"type": "Feature",
+                             "geometries": [{"type": "Polygon",
+                                             "coordinates": [[[100.0, 0.0],
+                                                              [101.0, 0.0],
+                                                              [101.0, 1.0],
+                                                              [100.0, 0.0]]]}]
+                             }
+               }
+        v = Validator(schema)
+        self.assertFalse(v.validate(doc))
+        self.assertTrue('locations' in v.errors)
+        self.assertTrue('Feature' in v.errors['locations'])
+
+    def test_featurecollection_success(self):
+        schema = {'locations': {'type': 'featurecollection'}}
+        doc = {"locations": {"type": "FeatureCollection",
+                             "features": [
+                                 {"type": "Feature",
+                                  "geometry": {"type": "Point",
+                                               "coordinates": [102.0, 0.5]}
+                                  }]
+                             }
+               }
+        v = Validator(schema)
+        self.assertTrue(v.validate(doc))
+
+    def test_featurecollection_fail(self):
+        schema = {'locations': {'type': 'featurecollection'}}
+        doc = {"locations": {"type": "FeatureCollection",
+                             "geometry": {"type": "Point",
+                                          "coordinates": [100.0, 0.0]}
+                             }
+               }
+        v = Validator(schema)
+        self.assertFalse(v.validate(doc))
+        self.assertTrue('locations' in v.errors)
+        self.assertTrue('FeatureCollection' in v.errors['locations'])
 
     def test_dependencies_with_defaults(self):
         schema = {

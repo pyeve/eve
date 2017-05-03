@@ -1727,8 +1727,15 @@ encoded in GeoJSON_ format. All GeoJSON objects supported by MongoDB_ are availa
     - ``MultiPolygon``
     - ``GeometryCollection``
 
-These are implemented as native Eve data types (see :ref:`schema`) so they are
-are subject to proper validation.
+Eve supports also GeoJSON object Feature and FeatureCollection that are not
+explicitely mentioned in MongoDB_ documentation. All these objects are 
+implemented as native Eve data types (see :ref:`schema`) so they are
+are subject to the proper validation. 
+
+GeoJSON specification allows object to contain any number of members (name/value 
+pairs). Eve validation was implemented to be more strict, allowing only two 
+members. This restriction can be disabled by setting config variable
+ALLOW_CUSTOM_FIELDS_IN_GEOJSON to True.
 
 In the example below we are extending the `people` endpoint by adding
 a ``location`` field is of type Point_.
