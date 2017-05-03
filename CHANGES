@@ -6,11 +6,16 @@ Here you can see the full list of changes between each Eve release.
 Development
 -----------
 
+Stable
+------
+
 Version 0.7.3
 ~~~~~~~~~~~~~
 
-Eve and Cerberus are now collaboratively funded projects. See: https://nicolaiarocci.com/eve-and-cerberus-funding-campaign/
+Released on 3 May, 2017
 
+- Eve and Cerberus are now collaboratively funded projects, see:
+  https://nicolaiarocci.com/eve-and-cerberus-funding-campaign/
 - Fix: Internal resource, oplog enabled: a ``*_internal`` method defined in
   ``OPLOG_METHODS`` triggers keyerror (Einar Huseby).
 - Dev: use official Alabaster theme instead of custom fork.
@@ -19,9 +24,6 @@ Eve and Cerberus are now collaboratively funded projects. See: https://nicolaiar
   document as found in the database, with no explicit validation schema.
   Addresses #995.
 - Docs: add Eve-Healthcheck to extensions list (Luis Fernando Gomes).
-
-Stable
-------
 
 Version 0.7.2
 ~~~~~~~~~~~~~
