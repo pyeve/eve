@@ -1701,8 +1701,8 @@ encoded in <a class="reference external" href="http://geojson.org/">GeoJSON</a> 
 <li><tt class="docutils literal"><span class="pre">GeometryCollection</span></tt></li>
 </ul>
 </div></blockquote>
-<p>These are implemented as native Eve data types (see <a class="reference internal" href="config.html#schema"><em>Schema Definition</em></a>) so they are
-are subject to proper validation.</p>
+<p>All these objects are implemented as native Eve data types (see <a class="reference internal" href="config.html#schema"><em>Schema Definition</em></a>)
+so they are are subject to the proper validation.</p>
 <p>In the example below we are extending the <cite>people</cite> endpoint by adding
 a <tt class="docutils literal"><span class="pre">location</span></tt> field is of type <a class="reference external" href="http://geojson.org/geojson-spec.html#point">Point</a>.</p>
 <div class="highlight-javascript"><div class="highlight"><pre><span class="nx">people</span> <span class="o">=</span> <span class="p">{</span>
@@ -1719,6 +1719,12 @@ a <tt class="docutils literal"><span class="pre">location</span></tt> field is o
 <span class="go">HTTP/1.1 201 OK</span>
 </pre></div>
 </div>
+<p>Eve also supports GeoJSON <tt class="docutils literal"><span class="pre">Feature</span></tt> and <tt class="docutils literal"><span class="pre">FeatureCollection</span></tt> objects, which
+are not explicitely mentioned in <a class="reference external" href="http://docs.mongodb.org/manual/applications/geospatial-indexes/#geojson-objects">MongoDB</a> documentation. GeoJSON specification
+allows object to contain any number of members (name/value pairs). Eve
+validation was implemented to be more strict, allowing only two members. This
+restriction can be disabled by setting <tt class="docutils literal"><span class="pre">ALLOW_CUSTOM_FIELDS_IN_GEOJSON</span></tt> to
+<tt class="docutils literal"><span class="pre">True</span></tt>.</p>
 <div class="section" id="querying-geojson-data">
 <h3>Querying GeoJSON Data<a class="headerlink" href="#querying-geojson-data" title="Permalink to this headline">¶</a></h3>
 <p>As a general rule all MongoDB <a class="reference external" href="http://docs.mongodb.org/manual/reference/operator/query-geospatial/#query-selectors">geospatial query operators</a> and their associated

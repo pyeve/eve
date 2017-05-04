@@ -46,6 +46,29 @@
 <p>Here you can see the full list of changes between each Eve release.</p>
 <div class="section" id="development">
 <h2>Development<a class="headerlink" href="#development" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="version-0-8">
+<h3>Version 0.8<a class="headerlink" href="#version-0-8" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>New: <tt class="docutils literal"><span class="pre">ALLOW_CUSTOM_FIELDS_IN_GEOJSON</span></tt> allows custom fields in GeoJSON
+(Martin Fous).</li>
+<li>New: Support for <tt class="docutils literal"><span class="pre">Feature</span></tt> and <tt class="docutils literal"><span class="pre">FeatureCollection</span></tt> GeoJSON objects.
+Closes #769 (Martin Fous).</li>
+</ul>
+<div class="section" id="breaking-changes">
+<h4>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li>Dropped Flask-PyMongo dependency. Closes #855 (Artem Kolesnikov).</li>
+<li>Config setting <tt class="docutils literal"><span class="pre">MONGO_AUTHDBNAME</span></tt> renamed into <tt class="docutils literal"><span class="pre">MONGO_AUTH_SOURCE</span></tt> for
+naming consistency with PyMongo.</li>
+<li>Config options <tt class="docutils literal"><span class="pre">MONGO_MAX_POOL_SIZE</span></tt>, <tt class="docutils literal"><span class="pre">MONGO_SOCKET_TIMEOUT_MS</span></tt>,
+<tt class="docutils literal"><span class="pre">MONGO_CONNECT_TIMEOUT_MS</span></tt>, <tt class="docutils literal"><span class="pre">MONGO_REPLICA_SET</span></tt>,
+<tt class="docutils literal"><span class="pre">MONGO_READ_PREFERENCE</span></tt> removed. Use <tt class="docutils literal"><span class="pre">MONGO_OPTIONS</span></tt> or <tt class="docutils literal"><span class="pre">MONGO_URL</span></tt>
+instead.</li>
+<li>Config options <tt class="docutils literal"><span class="pre">MONGO_AUTH_MECHANISM</span></tt> and
+<tt class="docutils literal"><span class="pre">MONGO_AUTH_MECHANISM_PROPERTIES</span></tt> added.</li>
+</ul>
+</div>
+</div>
 </div>
 <div class="section" id="stable">
 <h2>Stable<a class="headerlink" href="#stable" title="Permalink to this headline">¶</a></h2>
@@ -1539,7 +1562,13 @@ signature, allowing for further subclassing.</li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#development">Development</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#development">Development</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-8">Version 0.8</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#breaking-changes">Breaking Changes</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#stable">Stable</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#version-0-7-3">Version 0.7.3</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#version-0-7-2">Version 0.7.2</a></li>

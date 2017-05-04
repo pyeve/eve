@@ -530,10 +530,6 @@ uppercase.
 ``MONGO_URI``                       A `MongoDB URI`_ which is used in preference
                                     of the other configuration variables.
 
-``MONGO_OPTIONS``                   MongoDB keyword arguments to passed to
-                                    MongoClient class ``__init__``.
-                                    Defaults to ``{'connect': True}``.
-
 ``MONGO_HOST``                      MongoDB server address. Defaults to ``localhost``.
 
 ``MONGO_PORT``                      MongoDB port. Defaults to ``27017``.
@@ -544,30 +540,19 @@ uppercase.
 
 ``MONGO_DBNAME``                    MongoDB database name.
 
-``MONGO_AUTHDBNAME``                MongoDB authorization database name. Defaults to ``None``.
+``MONGO_OPTIONS``                   MongoDB keyword arguments to passed to
+                                    MongoClient class ``__init__``.
+                                    Defaults to ``{'connect': True, 'tz_aware': True, 'appname': 'flask_app_name'}``.
+                                    See `PyMongo mongo_client`_ for reference.
 
-``MONGO_MAX_POOL_SIZE``             The maximum number of idle connections
-                                    maintained in the PyMongo connection pool.
-                                    Default: PyMongo default.
+``MONGO_AUTH_SOURCE``               MongoDB authorization database. Defaults to ``None``.
 
-``MONGO_SOCKET_TIMEOUT_MS``         How long (in milliseconds) a send or
-                                    receive on a socket can take before timing
-                                    out. Default: PyMongo default.
+``MONGO_AUTH_MECHANISM``            MongoDB authentication mechanism.
+                                    See `PyMongo Authentication Mechanisms`_.
+                                    Defaults to ``None``.
 
-``MONGO_CONNECT_TIMEOUT_MS``        How long (in milliseconds) a connection can
-                                    take to be opened before timing out.
-                                    Default: PyMongo default.
-
-``MONGO_REPLICA_SET``               The name of a replica set to connect to;
-                                    this must match the internal name of the
-                                    replica set (as deteremined by the
-                                    `isMaster <http://www.mongodb.org/display/DOCS/Replica+Set+Commands#ReplicaSetCommands-isMaster>`_
-                                    command). Default: ``None``.
-
-``MONGO_READ_PREFERENCE``           Determines how read queries are routed to
-                                    the replica set members. Must be one of the
-                                    constants defined on PyMongo's ReadPreference_,
-                                    or the string names thereof.
+``MONGO_AUTH_MECHANISM_PROPERTIES`` Specify MongoDB extra authentication mechanism properties
+                                    if required. Defaults to ``None``.
 
 ``MONGO_QUERY_BLACKLIST``           A list of Mongo query operators that are not
                                     allowed to be used in resource filters
@@ -1535,3 +1520,5 @@ read access open to the public.
 .. _`PyMongo Aggregation Examples`: http://api.mongodb.org/python/current/examples/aggregation.html#aggregation-framework
 .. _`MongoDB Aggregation Framework`: https://docs.mongodb.org/v3.0/applications/aggregation/
 .. _`PyMongo aggregation defaults`: http://api.mongodb.org/python/current/api/pymongo/collection.html#pymongo.collection.Collection.aggregate
+.. _`PyMongo Authentication Mechanisms`: https://docs.mongodb.com/v3.0/core/authentication-mechanisms/
+.. _`PyMongo mongo_client`: http://api.mongodb.com/python/current/api/pymongo/mongo_client.html

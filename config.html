@@ -134,8 +134,8 @@ when configuring individual endpoints. Global configuration settings are always
 uppercase.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="26%" />
-<col width="74%" />
+<col width="30%" />
+<col width="70%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">URL_PREFIX</span></tt></td>
@@ -644,58 +644,40 @@ document id will be stored in field
 <td>A <a class="reference external" href="http://docs.mongodb.org/manual/reference/connection-string/#Connections-StandardConnectionStringFormat">MongoDB URI</a> which is used in preference
 of the other configuration variables.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_OPTIONS</span></tt></td>
-<td>MongoDB keyword arguments to passed to
-MongoClient class <tt class="docutils literal"><span class="pre">__init__</span></tt>.
-Defaults to <tt class="docutils literal"><span class="pre">{'connect':</span> <span class="pre">True}</span></tt>.</td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_HOST</span></tt></td>
 <td>MongoDB server address. Defaults to <tt class="docutils literal"><span class="pre">localhost</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_PORT</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_PORT</span></tt></td>
 <td>MongoDB port. Defaults to <tt class="docutils literal"><span class="pre">27017</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_USERNAME</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_USERNAME</span></tt></td>
 <td>MongoDB user name.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_PASSWORD</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_PASSWORD</span></tt></td>
 <td>MongoDB password.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt></td>
 <td>MongoDB database name.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_AUTHDBNAME</span></tt></td>
-<td>MongoDB authorization database name. Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_OPTIONS</span></tt></td>
+<td>MongoDB keyword arguments to passed to
+MongoClient class <tt class="docutils literal"><span class="pre">__init__</span></tt>.
+Defaults to <tt class="docutils literal"><span class="pre">{'connect':</span> <span class="pre">True,</span> <span class="pre">'tz_aware':</span> <span class="pre">True,</span> <span class="pre">'appname':</span> <span class="pre">'flask_app_name'}</span></tt>.
+See <a class="reference external" href="http://api.mongodb.com/python/current/api/pymongo/mongo_client.html">PyMongo mongo_client</a> for reference.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_MAX_POOL_SIZE</span></tt></td>
-<td>The maximum number of idle connections
-maintained in the PyMongo connection pool.
-Default: PyMongo default.</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_AUTH_SOURCE</span></tt></td>
+<td>MongoDB authorization database. Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_SOCKET_TIMEOUT_MS</span></tt></td>
-<td>How long (in milliseconds) a send or
-receive on a socket can take before timing
-out. Default: PyMongo default.</td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_AUTH_MECHANISM</span></tt></td>
+<td>MongoDB authentication mechanism.
+See <a class="reference external" href="https://docs.mongodb.com/v3.0/core/authentication-mechanisms/">PyMongo Authentication Mechanisms</a>.
+Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_CONNECT_TIMEOUT_MS</span></tt></td>
-<td>How long (in milliseconds) a connection can
-take to be opened before timing out.
-Default: PyMongo default.</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_AUTH_MECHANISM_PROPERTIES</span></tt></td>
+<td>Specify MongoDB extra authentication mechanism properties
+if required. Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_REPLICA_SET</span></tt></td>
-<td>The name of a replica set to connect to;
-this must match the internal name of the
-replica set (as deteremined by the
-<a class="reference external" href="http://www.mongodb.org/display/DOCS/Replica+Set+Commands#ReplicaSetCommands-isMaster">isMaster</a>
-command). Default: <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_READ_PREFERENCE</span></tt></td>
-<td>Determines how read queries are routed to
-the replica set members. Must be one of the
-constants defined on PyMongo&#8217;s <a class="reference external" href="http://api.mongodb.org/python/current/api/pymongo/read_preferences.html#pymongo.read_preferences.ReadPreference">ReadPreference</a>,
-or the string names thereof.</td>
-</tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_QUERY_BLACKLIST</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_QUERY_BLACKLIST</span></tt></td>
 <td><p class="first">A list of Mongo query operators that are not
 allowed to be used in resource filters
 (<tt class="docutils literal"><span class="pre">?where=</span></tt>). Defaults to <tt class="docutils literal"><span class="pre">['$where',</span>
@@ -708,7 +690,7 @@ easily replaced with the (very rich) Mongo
 query dialect.</p>
 </td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MONGO_WRITE_CONCERN</span></tt></td>
 <td><p class="first">A dictionary defining MongoDB write concern
 settings. All standard write concern
 settings (w, wtimeout, j, fsync) are
@@ -726,15 +708,15 @@ collection) level. See
 <tt class="docutils literal"><span class="pre">mongo_write_concern</span></tt> below.</p>
 </td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DOMAIN</span></tt></td>
 <td>A dict holding the API domain definition.
 See <a class="reference internal" href="#domain-configuration">Domain Configuration</a>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">EXTENDED_MEDIA_INFO</span></tt></td>
 <td>A list of properties to forward from the file upload
 driver.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_BASE64_STRING</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_BASE64_STRING</span></tt></td>
 <td>Controls the embedding of the media type in
 the endpoint response. This is useful when
 you have other means of getting the binary
@@ -742,12 +724,12 @@ you have other means of getting the binary
 want clients to be able to POST/PATCH it.
 Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt></td>
 <td>Set it to <tt class="docutils literal"><span class="pre">True</span></tt> to enable serving media
 files at a dedicated media endpoint.
 Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MEDIA_BASE_URL</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MEDIA_BASE_URL</span></tt></td>
 <td>Base URL to be used when
 <tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt> is active. Combined
 with <tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt> and <tt class="docutils literal"><span class="pre">MEDIA_URL</span></tt>
@@ -755,17 +737,17 @@ dictates the URL returned for media files.
 If <tt class="docutils literal"><span class="pre">None</span></tt>, which is the default value,
 the API base address will be used instead.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt></td>
 <td>The media endpoint to be used when
 <tt class="docutils literal"><span class="pre">RETURN_MEDIA_AS_URL</span></tt> is enabled.
 Defaults to <tt class="docutils literal"><span class="pre">media</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MEDIA_URL</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MEDIA_URL</span></tt></td>
 <td>Format of a file url served at the
 dedicated media endpoints. Defaults to
 <tt class="docutils literal"><span class="pre">regex(&quot;[a-f0-9]{24}&quot;)</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">MULTIPART_FORM_FIELDS_AS_JSON</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MULTIPART_FORM_FIELDS_AS_JSON</span></tt></td>
 <td>In case you are submitting your resource as
 <tt class="docutils literal"><span class="pre">multipart/form-data</span></tt> all form data fields
 will be submitted as strings, breaking any
@@ -778,7 +760,7 @@ correctly. Read more about how the fields
 should be formatted at
 <a class="reference internal" href="features.html#multipart"><em>Note on media files as multipart/data-form</em></a>. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">AUTO_COLLAPSE_MULTI_KEYS</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">AUTO_COLLAPSE_MULTI_KEYS</span></tt></td>
 <td><p class="first">If set to <tt class="docutils literal"><span class="pre">True</span></tt>, multiple values sent
 with the same key, submitted using the
 <tt class="docutils literal"><span class="pre">application/x-www-form-urlencoded</span></tt> or
@@ -791,7 +773,7 @@ to use lists of media fields.</p>
 <p class="last">Defaults to <tt class="docutils literal"><span class="pre">False</span></tt></p>
 </td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">AUTO_CREATE_LISTS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">AUTO_CREATE_LISTS</span></tt></td>
 <td><p class="first">When submitting a non <tt class="docutils literal"><span class="pre">list</span></tt> type value
 for a field with type <tt class="docutils literal"><span class="pre">list</span></tt>,
 automatically create a one element list
@@ -799,50 +781,50 @@ before running the validators.</p>
 <p class="last">Defaults to <tt class="docutils literal"><span class="pre">False</span></tt></p>
 </td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG</span></tt></td>
 <td>Set it to <tt class="docutils literal"><span class="pre">True</span></tt> to enable the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>.
 Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_NAME</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_NAME</span></tt></td>
 <td>This is the name of the database collection
 where the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a> is stored. Defaults
 to <tt class="docutils literal"><span class="pre">oplog</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_METHODS</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_METHODS</span></tt></td>
 <td>List of HTTP methods which operations
 should be logged in the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>.
 Defaults to <tt class="docutils literal"><span class="pre">['DELETE',</span> <span class="pre">'POST',</span> <span class="pre">'PATCH',</span>
 <span class="pre">'PUT']</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_CHANGE_METHODS</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_CHANGE_METHODS</span></tt></td>
 <td>List of HTTP methods which operations
 will include changes into the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a> entry.
 Defaults to <tt class="docutils literal"><span class="pre">['DELETE','PATCH',</span> <span class="pre">'PUT']</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt></td>
 <td>Name of the <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a> endpoint. If the
 endpoint is enabled it can be configured
 like any other API endpoint. Set it to
 <tt class="docutils literal"><span class="pre">None</span></tt> to disable the endpoint. Defaults
 to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_AUDIT</span></tt></td>
 <td>Set it to <tt class="docutils literal"><span class="pre">True</span></tt> to enable the audit
 feature. When audit is enabled client IP
 and document changes are also logged to the
 <a class="reference internal" href="features.html#oplog"><em>Operations Log</em></a>. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPLOG_RETURN_EXTRA_FIELD</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPLOG_RETURN_EXTRA_FIELD</span></tt></td>
 <td>When enabled, the optional <tt class="docutils literal"><span class="pre">extra</span></tt> field
 will be included in the payload returned by
 the <tt class="docutils literal"><span class="pre">OPLOG_ENDPOINT</span></tt>. Defaults to
 <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SCHEMA_ENDPOINT</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">SCHEMA_ENDPOINT</span></tt></td>
 <td>Name of the <a class="reference internal" href="features.html#schema-endpoint"><em>The Schema Endpoint</em></a>. Defaults
 to <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">HEADER_TOTAL_COUNT</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">HEADER_TOTAL_COUNT</span></tt></td>
 <td>Custom header containing total count of
 items in response payloads for collection
 <tt class="docutils literal"><span class="pre">GET</span></tt> requests. This is handy for <tt class="docutils literal"><span class="pre">HEAD</span></tt>
@@ -853,7 +835,7 @@ of unread posts using <tt class="docutils literal"><span class="pre">where</span
 loading posts themselves. Defaults to
 <tt class="docutils literal"><span class="pre">X-Total-Count</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">JSONP_ARGUMENT</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">JSONP_ARGUMENT</span></tt></td>
 <td>This option will cause the response to be
 wrapped in a JavaScript function call if
 the argument is set in the request. For
@@ -863,27 +845,27 @@ example if you set <tt class="docutils literal"><span class="pre">JSON_ARGUMENT<
 wrapped in a <tt class="docutils literal"><span class="pre">funcname</span></tt> call. Defaults to
 <tt class="docutils literal"><span class="pre">None</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">BULK_ENABLED</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">BULK_ENABLED</span></tt></td>
 <td>Enables bulk insert when set to <tt class="docutils literal"><span class="pre">True</span></tt>.
 See <a class="reference internal" href="features.html#bulk-insert"><em>Bulk Inserts</em></a> for more
 information. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt></td>
 <td>Enables soft delete when set to <tt class="docutils literal"><span class="pre">True</span></tt>.
 See <a class="reference internal" href="features.html#soft-delete"><em>Soft Delete</em></a> for more
 information. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">DELETED</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DELETED</span></tt></td>
 <td>Field name used to indicate if a document
 has been deleted when <tt class="docutils literal"><span class="pre">SOFT_DELETE</span></tt>
 is enabled. Defaults to <tt class="docutils literal"><span class="pre">_deleted</span></tt>.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SHOW_DELETED_PARAM</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">SHOW_DELETED_PARAM</span></tt></td>
 <td>The URL query parameter used to include
 soft deleted items in resource level GET
 responses. Defaults to &#8216;show_deleted&#8217;.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">STANDARD_ERRORS</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">STANDARD_ERRORS</span></tt></td>
 <td>This is a list of HTTP error codes for
 which a standard API response will be
 provided. Canonical error response includes
@@ -893,7 +875,7 @@ you want to disable canonical responses
 altogether. Defaults to <tt class="docutils literal"><span class="pre">[400,</span> <span class="pre">401,</span> <span class="pre">403,</span>
 <span class="pre">404,</span> <span class="pre">405,</span> <span class="pre">406,</span> <span class="pre">409,</span> <span class="pre">410,</span> <span class="pre">412,</span> <span class="pre">422,</span> <span class="pre">428]</span></tt></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VALIDATION_ERROR_AS_STRING</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VALIDATION_ERROR_AS_STRING</span></tt></td>
 <td>If <tt class="docutils literal"><span class="pre">True</span></tt> even single field errors will
 be returned in a list. By default single
 field errors are returned as strings while
@@ -903,7 +885,7 @@ errors output, set this setting to <tt class="docutils literal"><span class="pre
 and you will always get a list of field
 issues. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">UPSERT_ON_PUT</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">UPSERT_ON_PUT</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">PUT</span></tt> attempts to create a document if it
 does not exist. The URL endpoint will be
 used as <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> value (if <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>
