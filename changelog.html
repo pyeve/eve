@@ -53,19 +53,19 @@
 (Martin Fous).</li>
 <li>New: Support for <tt class="docutils literal"><span class="pre">Feature</span></tt> and <tt class="docutils literal"><span class="pre">FeatureCollection</span></tt> GeoJSON objects.
 Closes #769 (Martin Fous).</li>
+<li>Dropped Flask-PyMongo dependency. Closes #855 (Artem Kolesnikov).</li>
+<li>Config options <tt class="docutils literal"><span class="pre">MONGO_AUTH_MECHANISM</span></tt> and
+<tt class="docutils literal"><span class="pre">MONGO_AUTH_MECHANISM_PROPERTIES</span></tt> added.</li>
 </ul>
 <div class="section" id="breaking-changes">
 <h4>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h4>
 <ul class="simple">
-<li>Dropped Flask-PyMongo dependency. Closes #855 (Artem Kolesnikov).</li>
 <li>Config setting <tt class="docutils literal"><span class="pre">MONGO_AUTHDBNAME</span></tt> renamed into <tt class="docutils literal"><span class="pre">MONGO_AUTH_SOURCE</span></tt> for
 naming consistency with PyMongo.</li>
 <li>Config options <tt class="docutils literal"><span class="pre">MONGO_MAX_POOL_SIZE</span></tt>, <tt class="docutils literal"><span class="pre">MONGO_SOCKET_TIMEOUT_MS</span></tt>,
 <tt class="docutils literal"><span class="pre">MONGO_CONNECT_TIMEOUT_MS</span></tt>, <tt class="docutils literal"><span class="pre">MONGO_REPLICA_SET</span></tt>,
 <tt class="docutils literal"><span class="pre">MONGO_READ_PREFERENCE</span></tt> removed. Use <tt class="docutils literal"><span class="pre">MONGO_OPTIONS</span></tt> or <tt class="docutils literal"><span class="pre">MONGO_URL</span></tt>
 instead.</li>
-<li>Config options <tt class="docutils literal"><span class="pre">MONGO_AUTH_MECHANISM</span></tt> and
-<tt class="docutils literal"><span class="pre">MONGO_AUTH_MECHANISM_PROPERTIES</span></tt> added.</li>
 </ul>
 </div>
 </div>
