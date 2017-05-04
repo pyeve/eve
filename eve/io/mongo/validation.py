@@ -21,7 +21,8 @@ from cerberus import Validator
 
 from eve.auth import auth_field_and_value
 from eve.io.mongo.geo import Point, MultiPoint, LineString, Polygon, \
-    MultiLineString, MultiPolygon, GeometryCollection
+    MultiLineString, MultiPolygon, GeometryCollection, Feature, \
+    FeatureCollection
 from eve.utils import config, str_type
 from eve.versioning import get_data_version_relation_document
 
@@ -442,6 +443,28 @@ class Validator(Validator):
             GeometryCollection(value)
         except TypeError:
             self._error(field, "GeometryCollection not correct" % value)
+
+    def _validate_type_feature(self, field, value):
+        """ Enables validation for `feature`data type
+
+        :param field: field name.
+        :param value: field nvalue
+        """
+        try:
+            Feature(value)
+        except TypeError:
+            self._error(field, "Feature not correct" % value)
+
+    def _validate_type_featurecollection(self, field, value):
+        """ Enables validation for `featurecollection`data type
+
+        :param field: field name.
+        :param value: field nvalue
+        """
+        try:
+            FeatureCollection(value)
+        except TypeError:
+            self._error(field, "FeatureCollection not correct" % value)
 
     def _error(self, field, _error):
         """ Change the default behaviour so that, if VALIDATION_ERROR_AS_LIST

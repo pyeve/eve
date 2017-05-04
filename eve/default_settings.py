@@ -234,6 +234,10 @@ AUTH_FIELD = None
 # don't allow unknown key/value pairs for POST/PATCH payloads.
 ALLOW_UNKNOWN = False
 
+# GeoJSON specs allows any number of key/value pairs
+# http://geojson.org/geojson-spec.html#geojson-objects
+ALLOW_CUSTOM_FIELDS_IN_GEOJSON = False
+
 # don't ignore unknown schema rules (raise SchemaError)
 TRANSPARENT_SCHEMA_RULES = False
 
@@ -243,9 +247,6 @@ RATE_LIMIT_POST = None
 RATE_LIMIT_PATCH = None
 RATE_LIMIT_DELETE = None
 
-# MONGO defaults
-MONGO_HOST = 'localhost'
-MONGO_PORT = 27017
 # disallow Mongo's javascript queries as they might be vulnerable to injection
 # attacks ('ReDoS' especially), are probably too complex for the average API
 # end-user and finally can  seriously impact overall performance.
@@ -254,7 +255,6 @@ MONGO_QUERY_BLACKLIST = ['$where', '$regex']
 # aknowledged writes). This is also the current PyMongo/Mongo default setting.
 MONGO_WRITE_CONCERN = {'w': 1}
 MONGO_OPTIONS = {
-    'connect': True
+    'connect': True,
+    'tz_aware': True,
 }
-# Compatibility for flask-pymongo.
-MONGO_CONNECT = MONGO_OPTIONS['connect']

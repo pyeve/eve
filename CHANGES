@@ -6,6 +6,26 @@ Here you can see the full list of changes between each Eve release.
 Development
 -----------
 
+Version 0.8
+~~~~~~~~~~~
+- New: ``ALLOW_CUSTOM_FIELDS_IN_GEOJSON`` allows custom fields in GeoJSON
+  (Martin Fous).
+- New: Support for ``Feature`` and ``FeatureCollection`` GeoJSON objects.
+  Closes #769 (Martin Fous). 
+
+Breaking Changes
+................
+
+- Dropped Flask-PyMongo dependency. Closes #855 (Artem Kolesnikov).
+- Config setting ``MONGO_AUTHDBNAME`` renamed into ``MONGO_AUTH_SOURCE`` for
+  naming consistency with PyMongo.
+- Config options ``MONGO_MAX_POOL_SIZE``, ``MONGO_SOCKET_TIMEOUT_MS``,
+  ``MONGO_CONNECT_TIMEOUT_MS``, ``MONGO_REPLICA_SET``,
+  ``MONGO_READ_PREFERENCE`` removed. Use ``MONGO_OPTIONS`` or ``MONGO_URL``
+  instead.
+- Config options ``MONGO_AUTH_MECHANISM`` and
+  ``MONGO_AUTH_MECHANISM_PROPERTIES`` added.
+
 Stable
 ------
 
