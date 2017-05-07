@@ -28,6 +28,3 @@ before_script:
     # See https://github.com/travis-ci/travis-ci/issues/1967#issuecomment-42008605
   - sleep 15
   - mongo eve_test --eval 'db.addUser("test_user", "test_pw");'
-branches:
-  only:
-    - master
