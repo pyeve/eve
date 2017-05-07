@@ -15,6 +15,10 @@ Version 0.8
 - Dropped Flask-PyMongo dependency. Closes #855 (Artem Kolesnikov).
 - Config options ``MONGO_AUTH_MECHANISM`` and
   ``MONGO_AUTH_MECHANISM_PROPERTIES`` added.
+- Dev: after the latest update (May 4th) travis-ci would not run tests on
+  Python 2.6. 
+- Dev: all branches are now tested on travis-ci. Previously, only 'master' was
+  being tested.
 
 Breaking Changes
 ................
