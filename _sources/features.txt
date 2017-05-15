@@ -1108,10 +1108,10 @@ You can subscribe to these events with multiple callback functions.
 .. code-block:: pycon
 
     >>> def pre_get_callback(resource, request, lookup):
-    ...  print 'A GET request on the "%s" endpoint has just been received!' % resource
+    ...  print('A GET request on the "%s" endpoint has just been received!' % resource)
 
     >>> def pre_contacts_get_callback(request, lookup):
-    ...  print 'A GET request on the contacts endpoint has just been received!'
+    ...  print('A GET request on the contacts endpoint has just been received!')
 
     >>> app = Eve()
 
@@ -1159,10 +1159,10 @@ payload.
 .. code-block:: pycon
 
     >>> def post_get_callback(resource, request, payload):
-    ...  print 'A GET on the "%s" endpoint was just performed!' % resource
+    ...  print('A GET on the "%s" endpoint was just performed!' % resource)
 
     >>> def post_contacts_get_callback(request, payload):
-    ... print 'A get on "contacts" was just performed!'
+    ...  print('A get on "contacts" was just performed!')
 
     >>> app = Eve()
 
@@ -1301,16 +1301,16 @@ the items as needed before they are returned to the client.
 .. code-block:: pycon
 
     >>> def before_returning_items(resource_name, response):
-    ...  print 'About to return items from "%s" ' % resource_name
+    ...  print('About to return items from "%s" ' % resource_name)
 
     >>> def before_returning_contacts(response):
-    ...  print 'About to return contacts'
+    ...  print('About to return contacts')
 
     >>> def before_returning_item(resource_name, response):
-    ...  print 'About to return an item from "%s" ' % resource_name
+    ...  print('About to return an item from "%s" ' % resource_name)
 
     >>> def before_returning_contact(response):
-    ...  print 'About to return a contact'
+    ...  print('About to return a contact')
 
     >>> app = Eve()
     >>> app.on_fetched_resource += before_returning_items
@@ -1360,10 +1360,10 @@ Example:
 .. code-block:: pycon
 
     >>> def before_insert(resource_name, items):
-    ...  print 'About to store items to "%s" ' % resource
+    ...  print('About to store items to "%s" ' % resource)
 
     >>> def after_insert_contacts(items):
-    ...  print 'About to store contacts'
+    ...  print('About to store contacts')
 
     >>> app = Eve()
     >>> app.on_insert += before_insert

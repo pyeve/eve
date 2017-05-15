@@ -1032,10 +1032,10 @@ application is safe, and will maintain documents deleted from that point on.</p>
 a <tt class="docutils literal"><span class="pre">on_pre_&lt;method&gt;</span></tt> and a <tt class="docutils literal"><span class="pre">on_pre_&lt;method&gt;_&lt;resource&gt;</span></tt> event is raised.
 You can subscribe to these events with multiple callback functions.</p>
 <div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">pre_get_callback</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">lookup</span><span class="p">):</span>
-<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;A GET request on the &quot;</span><span class="si">%s</span><span class="s">&quot; endpoint has just been received!&#39;</span> <span class="o">%</span> <span class="n">resource</span>
+<span class="gp">... </span> <span class="k">print</span><span class="p">(</span><span class="s">&#39;A GET request on the &quot;</span><span class="si">%s</span><span class="s">&quot; endpoint has just been received!&#39;</span> <span class="o">%</span> <span class="n">resource</span><span class="p">)</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">pre_contacts_get_callback</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">lookup</span><span class="p">):</span>
-<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;A GET request on the contacts endpoint has just been received!&#39;</span>
+<span class="gp">... </span> <span class="k">print</span><span class="p">(</span><span class="s">&#39;A GET request on the contacts endpoint has just been received!&#39;</span><span class="p">)</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
 
@@ -1079,10 +1079,10 @@ can subscribe to these events with multiple callback functions. Callbacks will
 receive the resource accessed, original <cite>flask.request</cite> object and the response
 payload.</p>
 <div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">post_get_callback</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
-<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;A GET on the &quot;</span><span class="si">%s</span><span class="s">&quot; endpoint was just performed!&#39;</span> <span class="o">%</span> <span class="n">resource</span>
+<span class="gp">... </span> <span class="k">print</span><span class="p">(</span><span class="s">&#39;A GET on the &quot;</span><span class="si">%s</span><span class="s">&quot; endpoint was just performed!&#39;</span> <span class="o">%</span> <span class="n">resource</span><span class="p">)</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">post_contacts_get_callback</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
-<span class="gp">... </span><span class="k">print</span> <span class="s">&#39;A get on &quot;contacts&quot; was just performed!&#39;</span>
+<span class="gp">... </span> <span class="k">print</span><span class="p">(</span><span class="s">&#39;A get on &quot;contacts&quot; was just performed!&#39;</span><span class="p">)</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
 
@@ -1320,16 +1320,16 @@ both. And for each action two events will be fired:</p>
 about to be sent to the client. Registered callback functions can manipulate
 the items as needed before they are returned to the client.</p>
 <div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_items</span><span class="p">(</span><span class="n">resource_name</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
-<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return items from &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource_name</span>
+<span class="gp">... </span> <span class="k">print</span><span class="p">(</span><span class="s">&#39;About to return items from &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource_name</span><span class="p">)</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_contacts</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
-<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return contacts&#39;</span>
+<span class="gp">... </span> <span class="k">print</span><span class="p">(</span><span class="s">&#39;About to return contacts&#39;</span><span class="p">)</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_item</span><span class="p">(</span><span class="n">resource_name</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
-<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return an item from &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource_name</span>
+<span class="gp">... </span> <span class="k">print</span><span class="p">(</span><span class="s">&#39;About to return an item from &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource_name</span><span class="p">)</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_returning_contact</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
-<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to return a contact&#39;</span>
+<span class="gp">... </span> <span class="k">print</span><span class="p">(</span><span class="s">&#39;About to return a contact&#39;</span><span class="p">)</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetched_resource</span> <span class="o">+=</span> <span class="n">before_returning_items</span>
@@ -1374,10 +1374,10 @@ that passed validation are sent.</p>
 </div>
 <p>Example:</p>
 <div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">before_insert</span><span class="p">(</span><span class="n">resource_name</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
-<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to store items to &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource</span>
+<span class="gp">... </span> <span class="k">print</span><span class="p">(</span><span class="s">&#39;About to store items to &quot;</span><span class="si">%s</span><span class="s">&quot; &#39;</span> <span class="o">%</span> <span class="n">resource</span><span class="p">)</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">after_insert_contacts</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
-<span class="gp">... </span> <span class="k">print</span> <span class="s">&#39;About to store contacts&#39;</span>
+<span class="gp">... </span> <span class="k">print</span><span class="p">(</span><span class="s">&#39;About to store contacts&#39;</span><span class="p">)</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_insert</span> <span class="o">+=</span> <span class="n">before_insert</span>
