@@ -1080,8 +1080,6 @@ def resource_link():
     """
     path = request.path.strip('/')
 
-    assert request.routing_exception is None, 'Routing error for %s: %s' % (request.url, request.routing_exception)
-
     if '|item' in request.endpoint:
         path = path[:path.rfind('/')]
 
