@@ -34,6 +34,14 @@ Breaking Changes
 Stable
 ------
 
+Version 0.7.4
+~~~~~~~~~~~~~
+
+Released on 24 May, 2017
+
+- Fix: ``post_internal`` fails when using ``URL_PREFIX`` or ``API_VERSION``.
+  Closes #810.
+
 Version 0.7.3
 ~~~~~~~~~~~~~
 
