@@ -1080,7 +1080,7 @@ def resource_link():
     """
     path = request.path.strip('/')
 
-    if '|item' in request.endpoint:
+    if request.endpoint and '|item' in request.endpoint:
         path = path[:path.rfind('/')]
 
     def strip_prefix(hit):

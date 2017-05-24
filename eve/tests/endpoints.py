@@ -218,6 +218,29 @@ class TestEndPoints(TestBase):
         r = self.test_prefix.get('/prefix/contacts/')
         self.assert200(r.status_code)
 
+        r = self.test_prefix.post('/prefix/contacts/', data='{}',
+                                  content_type='application/json')
+        self.assert201(r.status_code)
+
+    def test_api_prefix_post_internal(self):
+        # https://github.com/pyeve/eve/issues/810
+        from eve.methods.post import post_internal
+
+        settings_file = os.path.join(self.this_directory, 'test_prefix.py')
+        self.app = Eve(settings=settings_file)
+        self.test_prefix = self.app.test_client()
+
+        # This works fine
+        with self.app.test_request_context(
+                method='POST', path='/prefix/contacts'):
+            _, _, _, status_code, _ = post_internal('contacts', {})
+        self.assert201(status_code)
+
+        # This fails unless #810 is fixed
+        with self.app.test_request_context():
+            _, _, _, status_code, _ = post_internal('contacts', {})
+        self.assert201(status_code)
+
     def test_api_prefix_version(self):
         settings_file = os.path.join(self.this_directory,
                                      'test_prefix_version.py')

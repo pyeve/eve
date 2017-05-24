@@ -291,7 +291,7 @@ def auth_field_and_value(resource):
 
     .. versionadded:: 0.3
     """
-    if '|resource' in request.endpoint:
+    if request.endpoint and '|resource' in request.endpoint:
         # We are on a resource endpoint and need to check against
         # `public_methods`
         public_method_list_to_check = 'public_methods'
