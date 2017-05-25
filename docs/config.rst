@@ -370,9 +370,6 @@ uppercase.
                                     :ref:`unknown` for more information.
                                     Defaults to ``False``.
 
-``TRANSPARENT_SCHEMA_RULES``        When ``True``, this option globally disables
-                                    :ref:`schema_validation` for any API endpoint.
-
 ``PROJECTION``                      When ``True``, this option enables the
                                     :ref:`projections` feature. Can be
                                     overridden by resource settings. Defaults
@@ -1302,11 +1299,10 @@ defining the field validation rules. Allowed validation rules are:
                                 for all of which must validate with given
                                 schema. See `valueschema example <http://docs.python-cerberus.org/en/latest/usage.html#valueschema>`_.
 
-``propertyschema``              This is the counterpart to ``valueschema`` that
+``keyschema``                   This is the counterpart to ``valueschema`` that
                                 validates the keys of a dict.   Validation
                                 schema for all values of a ``dict``. See
-                                `propertyschema example
-                                <http://docs.python-cerberus.org/en/latest/usage.html#propertyschema>`_.
+                                `keyschema example <http://docs.python-cerberus.org/en/latest/usage.html#keyschema>`_.
 
 
 ``regex``                       Validation will fail if field value does not

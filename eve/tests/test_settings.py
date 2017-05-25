@@ -130,9 +130,9 @@ contacts = {
         'key1': {
             'type': 'string',
         },
-        'propertyschema_dict': {
+        'keyschema_dict': {
             'type': 'dict',
-            'propertyschema': {'type': 'string', 'regex': '[a-z]+'}
+            'keyschema': {'type': 'string', 'regex': '[a-z]+'}
         },
         'valueschema_dict': {
             'type': 'dict',

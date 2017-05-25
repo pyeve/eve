@@ -238,9 +238,6 @@ ALLOW_UNKNOWN = False
 # http://geojson.org/geojson-spec.html#geojson-objects
 ALLOW_CUSTOM_FIELDS_IN_GEOJSON = False
 
-# don't ignore unknown schema rules (raise SchemaError)
-TRANSPARENT_SCHEMA_RULES = False
-
 # Rate limits are disabled by default. Needs a running redis-server.
 RATE_LIMIT_GET = None
 RATE_LIMIT_POST = None

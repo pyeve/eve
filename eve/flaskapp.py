@@ -20,7 +20,6 @@ from werkzeug.routing import BaseConverter
 from werkzeug.serving import WSGIRequestHandler
 
 import eve
-from eve.defaults import build_defaults
 from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint, \
     error_endpoint, media_endpoint, schema_collection_endpoint, \
     schema_item_endpoint
@@ -605,8 +604,6 @@ class Eve(Flask, Events):
         settings.setdefault('auth_field',
                             self.config['AUTH_FIELD'])
         settings.setdefault('allow_unknown', self.config['ALLOW_UNKNOWN'])
-        settings.setdefault('transparent_schema_rules',
-                            self.config['TRANSPARENT_SCHEMA_RULES'])
         settings.setdefault('extra_response_fields',
                             self.config['EXTRA_RESPONSE_FIELDS'])
         settings.setdefault('mongo_write_concern',
@@ -618,12 +615,6 @@ class Eve(Flask, Events):
         # empty schemas are allowed for read-only access to resources
         schema = settings.setdefault('schema', {})
         self.set_schema_defaults(schema, settings['id_field'])
-
-        # 'defaults' helper set contains the names of fields with default
-        # values in their schema definition.
-
-        # TODO support default values for embedded documents.
-        settings['defaults'] = build_defaults(schema)
 
         # list of all media fields for the resource
         settings['_media'] = [field for field, definition in schema.items() if
@@ -704,12 +695,6 @@ class Eve(Flask, Events):
         if settings['soft_delete'] is True and not exclusion and \
                 ds['projection'] is not None:
             ds['projection'][self.config['DELETED']] = 1
-
-        # 'defaults' helper set contains the names of fields with default
-        # values in their schema definition.
-
-        # TODO support default values for embedded documents.
-        settings['defaults'] = build_defaults(schema)
 
         # list of all media fields for the resource
         settings['_media'] = [field for field, definition in schema.items() if

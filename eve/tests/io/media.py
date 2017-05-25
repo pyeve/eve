@@ -48,7 +48,7 @@ class TestGridFSMediaStorage(TestBase):
         self.assertEqual(STATUS_ERR, r[STATUS])
 
         # validates media fields
-        self.assertTrue('file was expected' in r[ISSUES]['media'])
+        self.assertTrue('must be of media type' in r[ISSUES]['media'])
         # also validates ordinary fields
         self.assertTrue('required' in r[ISSUES][self.test_field])
 
@@ -80,7 +80,7 @@ class TestGridFSMediaStorage(TestBase):
         self.assertEqual(STATUS_ERR, r[STATUS])
 
         # validates media fields
-        self.assertTrue('file was expected' in r[ISSUES]['media'])
+        self.assertTrue('must be of media type' in r[ISSUES]['media'])
         # also validates ordinary fields
         self.assertTrue('required' in r[ISSUES][self.test_field])
 

@@ -12,18 +12,27 @@ Version 0.8
   (Martin Fous).
 - New: Support for ``Feature`` and ``FeatureCollection`` GeoJSON objects.
   Closes #769 (Martin Fous). 
-- Dropped Flask-PyMongo dependency. Closes #855 (Artem Kolesnikov).
 - Config options ``MONGO_AUTH_MECHANISM`` and
   ``MONGO_AUTH_MECHANISM_PROPERTIES`` added.
+- Change: Support for Cerberus 1.0+. Closes #776 (Dominik Kellner, Brad P. Crochet).
+- Change: Drop Flask-PyMongo dependency. Closes #855 (Artem Kolesnikov).
+- Docs: code snippets are now Python 3 compatibile (Pahaz Blinov).
 - Dev: after the latest update (May 4th) travis-ci would not run tests on
   Python 2.6. 
 - Dev: all branches are now tested on travis-ci. Previously, only 'master' was
   being tested.
-- Docs: code snippets are now Python 3 compatibile (Pahaz Blinov).
 
 Breaking Changes
 ................
 
+- Eve now relies on `Cerberus <http://python-cerberus.org>`_ 1.0+, which allows for many new powerful validation and trasformation features (like `schema registries <http://docs.python-cerberus.org/en/stable/schemas.html#registries>`_), improved performance and, in general, a more streamlined API. It also brings some notable breaking changes. 
+    - ``keyschema`` was renamed to ``valueschema``, and ``propertyschema`` to ``keyschema``.
+    - A PATCH on a document which misses a field having a default value will now result in setting this value, even if the field was not provided in the PATCH's payload.
+    - Error messages for ``keyschema`` are now returned as dictionary. Example: ``{'a_dict': {'a_field': "value does not match regex '[a-z]+'"}}``.
+    - Error messages for type validations are `different now <http://docs.python-cerberus.org/en/stable/upgrading.html#data-types>`_.
+    - It is no longer valid to have a field with ``default = None`` and ``nullable = False`` (see patch.py:test_patch_nested_document_nullable_missing).
+    - And more. A complete list of breaking changes  is available `here <http://docs.python-cerberus.org/en/stable/changelog.html#breaking-changes>`_. For detailed upgrade instructions, see Cerberus `upgrade notes <http://python-cerberus.org/en/stable/upgrading.html>`_. An in-depth analysis of changes made to the codebase (useful if you wrote a custom validator which needs to be upgraded) is available with `this commit message <https://github.com/pyeve/eve/pull/1001/commits>`_.
+    - Special thanks to Dominik Kellner and Brad P. Crochet for the amazing job done on this upgrade.
 - Config setting ``MONGO_AUTHDBNAME`` renamed into ``MONGO_AUTH_SOURCE`` for
   naming consistency with PyMongo.
 - Config options ``MONGO_MAX_POOL_SIZE``, ``MONGO_SOCKET_TIMEOUT_MS``,
