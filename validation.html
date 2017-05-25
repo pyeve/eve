@@ -123,16 +123,13 @@ lightweight alternatives to class-based custom validation.</p>
 <p>You can also add new data types by simply adding <tt class="docutils literal"><span class="pre">_validate_type_&lt;typename&gt;</span></tt>
 methods to your subclass. Consider the following snippet from the Eve source
 code.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">_validate_type_objectid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">_validate_type_objectid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Enables validation for `objectid` schema attribute.</span>
 
-<span class="sd">    :param unique: Boolean, whether the field value should be</span>
-<span class="sd">                   unique or not.</span>
-<span class="sd">    :param field: field name.</span>
 <span class="sd">    :param value: field value.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&#39;[a-f0-9]{24}&#39;</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">ERROR_BAD_TYPE</span> <span class="o">%</span> <span class="s">&#39;ObjectId&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">ObjectId</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">True</span>
 </pre></div>
 </div>
 <p>This method enables support for MongoDB <tt class="docutils literal"><span class="pre">ObjectId</span></tt> type in your schema,
@@ -205,14 +202,8 @@ For a single endpoint, use <tt class="docutils literal"><span class="pre">allow_
 <span id="id2"></span><h2>Schema validation<a class="headerlink" href="#schema-validation" title="Permalink to this headline">¶</a></h2>
 <p>By default, schemas are validated to ensure they conform to the structure
 documented in <a class="reference internal" href="config.html#schema"><em>Schema Definition</em></a>.</p>
-<p>There are two ways to deal with non-conforming schemas:</p>
-<ol class="arabic simple">
-<li>Add <a class="reference internal" href="#custom-validation-rules"><em>Custom Validation Rules</em></a> for non-conforming keys used in the
-schema.</li>
-<li>Set the global option <tt class="docutils literal"><span class="pre">TRANSPARENT_SCHEMA_RULES</span></tt> to disable schema
-validation globally or the resource option <tt class="docutils literal"><span class="pre">transparent_schema_rules</span></tt>
-to disable schema validation for a given endpoint.</li>
-</ol>
+<p>In order to deal with non-conforming schemas, add
+<a class="reference internal" href="#custom-validation-rules"><em>Custom Validation Rules</em></a> for non-conforming keys used in the schema.</p>
 </div>
 </div>
 

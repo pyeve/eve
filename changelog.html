@@ -53,24 +53,41 @@
 (Martin Fous).</li>
 <li>New: Support for <tt class="docutils literal"><span class="pre">Feature</span></tt> and <tt class="docutils literal"><span class="pre">FeatureCollection</span></tt> GeoJSON objects.
 Closes #769 (Martin Fous).</li>
-<li>Dropped Flask-PyMongo dependency. Closes #855 (Artem Kolesnikov).</li>
 <li>Config options <tt class="docutils literal"><span class="pre">MONGO_AUTH_MECHANISM</span></tt> and
 <tt class="docutils literal"><span class="pre">MONGO_AUTH_MECHANISM_PROPERTIES</span></tt> added.</li>
+<li>Change: Support for Cerberus 1.0+. Closes #776 (Dominik Kellner, Brad P. Crochet).</li>
+<li>Change: Drop Flask-PyMongo dependency. Closes #855 (Artem Kolesnikov).</li>
+<li>Docs: code snippets are now Python 3 compatibile (Pahaz Blinov).</li>
 <li>Dev: after the latest update (May 4th) travis-ci would not run tests on
 Python 2.6.</li>
 <li>Dev: all branches are now tested on travis-ci. Previously, only &#8216;master&#8217; was
 being tested.</li>
-<li>Docs: code snippets are now Python 3 compatibile (Pahaz Blinov).</li>
 </ul>
 <div class="section" id="breaking-changes">
 <h4>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h4>
-<ul class="simple">
-<li>Config setting <tt class="docutils literal"><span class="pre">MONGO_AUTHDBNAME</span></tt> renamed into <tt class="docutils literal"><span class="pre">MONGO_AUTH_SOURCE</span></tt> for
-naming consistency with PyMongo.</li>
-<li>Config options <tt class="docutils literal"><span class="pre">MONGO_MAX_POOL_SIZE</span></tt>, <tt class="docutils literal"><span class="pre">MONGO_SOCKET_TIMEOUT_MS</span></tt>,
+<ul>
+<li><dl class="first docutils">
+<dt>Eve now relies on <a class="reference external" href="http://python-cerberus.org">Cerberus</a> 1.0+, which allows for many new powerful validation and trasformation features (like <a class="reference external" href="http://docs.python-cerberus.org/en/stable/schemas.html#registries">schema registries</a>), improved performance and, in general, a more streamlined API. It also brings some notable breaking changes.</dt>
+<dd><ul class="first last simple">
+<li><tt class="docutils literal"><span class="pre">keyschema</span></tt> was renamed to <tt class="docutils literal"><span class="pre">valueschema</span></tt>, and <tt class="docutils literal"><span class="pre">propertyschema</span></tt> to <tt class="docutils literal"><span class="pre">keyschema</span></tt>.</li>
+<li>A PATCH on a document which misses a field having a default value will now result in setting this value, even if the field was not provided in the PATCH&#8217;s payload.</li>
+<li>Error messages for <tt class="docutils literal"><span class="pre">keyschema</span></tt> are now returned as dictionary. Example: <tt class="docutils literal"><span class="pre">{'a_dict':</span> <span class="pre">{'a_field':</span> <span class="pre">&quot;value</span> <span class="pre">does</span> <span class="pre">not</span> <span class="pre">match</span> <span class="pre">regex</span> <span class="pre">'[a-z]+'&quot;}}</span></tt>.</li>
+<li>Error messages for type validations are <a class="reference external" href="http://docs.python-cerberus.org/en/stable/upgrading.html#data-types">different now</a>.</li>
+<li>It is no longer valid to have a field with <tt class="docutils literal"><span class="pre">default</span> <span class="pre">=</span> <span class="pre">None</span></tt> and <tt class="docutils literal"><span class="pre">nullable</span> <span class="pre">=</span> <span class="pre">False</span></tt> (see patch.py:test_patch_nested_document_nullable_missing).</li>
+<li>And more. A complete list of breaking changes  is available <a class="reference external" href="http://docs.python-cerberus.org/en/stable/changelog.html#breaking-changes">here</a>. For detailed upgrade instructions, see Cerberus <a class="reference external" href="http://python-cerberus.org/en/stable/upgrading.html">upgrade notes</a>. An in-depth analysis of changes made to the codebase (useful if you wrote a custom validator which needs to be upgraded) is available with <a class="reference external" href="https://github.com/pyeve/eve/pull/1001/commits">this commit message</a>.</li>
+<li>Special thanks to Dominik Kellner and Brad P. Crochet for the amazing job done on this upgrade.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p class="first">Config setting <tt class="docutils literal"><span class="pre">MONGO_AUTHDBNAME</span></tt> renamed into <tt class="docutils literal"><span class="pre">MONGO_AUTH_SOURCE</span></tt> for
+naming consistency with PyMongo.</p>
+</li>
+<li><p class="first">Config options <tt class="docutils literal"><span class="pre">MONGO_MAX_POOL_SIZE</span></tt>, <tt class="docutils literal"><span class="pre">MONGO_SOCKET_TIMEOUT_MS</span></tt>,
 <tt class="docutils literal"><span class="pre">MONGO_CONNECT_TIMEOUT_MS</span></tt>, <tt class="docutils literal"><span class="pre">MONGO_REPLICA_SET</span></tt>,
 <tt class="docutils literal"><span class="pre">MONGO_READ_PREFERENCE</span></tt> removed. Use <tt class="docutils literal"><span class="pre">MONGO_OPTIONS</span></tt> or <tt class="docutils literal"><span class="pre">MONGO_URI</span></tt>
-instead.</li>
+instead.</p>
+</li>
 </ul>
 </div>
 </div>

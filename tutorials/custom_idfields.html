@@ -114,12 +114,11 @@ details on custom validation):</p>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extends the base mongo validator adding support for the uuid data-type</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">_validate_type_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_validate_type_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">UUID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s">&quot;value &#39;</span><span class="si">%s</span><span class="s">&#39; cannot be converted to a UUID&quot;</span> <span class="o">%</span>
-                        <span class="n">value</span><span class="p">)</span>
+            <span class="k">pass</span>
 </pre></div>
 </div>
 </div>
