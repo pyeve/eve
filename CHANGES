@@ -39,6 +39,20 @@ Breaking Changes
   ``MONGO_CONNECT_TIMEOUT_MS``, ``MONGO_REPLICA_SET``,
   ``MONGO_READ_PREFERENCE`` removed. Use ``MONGO_OPTIONS`` or ``MONGO_URI``
   instead.
+- `keyschema` was renamed to `valueschema` and `propertyschema` to
+  `keyschema` (following changes in Cerberus).
+- A PATCH on a document which misses a field having a default value will
+  now result in setting this value, even if the field was not provided
+  in the PATCH's payload.
+- Error messages for `keyschema` are now returned as dictionary.
+  Before: {'propertyschema_dict': 'propertyschema_dict'}
+  Now: {'keyschema_dict': {'AAA': "value does not match regex '[a-z]+'"}}
+- Error messages for `type` validations are different now (following
+  changes in Cerberus).
+- It is no longer valid to have a field with `default` = None and
+  `nullable` = False.
+  (see patch.py:test_patch_nested_document_nullable_missing)
+- See also: `Cerberus changes <https://cerberus.readthedocs.io/en/stable/upgrading.html>_`
 
 Stable
 ------
