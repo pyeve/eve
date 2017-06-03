@@ -7,7 +7,7 @@ with open('README.rst') as f:
 
 install_requires = [
     'cerberus>=1.1',
-    'events>=0.2.1,<0.3',
+    'events>=0.3,<0.4',
     'simplejson>=3.3.0,<4.0',
     'werkzeug>=0.9.4,<=0.11.15',
     'markupsafe>=0.23,<1.0',
