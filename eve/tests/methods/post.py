@@ -875,6 +875,18 @@ class TestPost(TestBase):
         self.assertTrue('Location' in r.headers)
         self.assertTrue(self.known_resource_url in r.headers['Location'])
 
+    def test_post_custom_json_content_type(self):
+        data = {'ref': '1234567890123456789054321'}
+        r, status = self.post(self.known_resource_url, data,
+                              content_type='application/csp-report')
+        self.assert400(status)
+
+        self.app.config['JSON_REQUEST_CONTENT_TYPES'] += \
+            ['application/csp-report']
+        r, status = self.post(self.known_resource_url, data,
+                              content_type='application/csp-report')
+        self.assert201(status)
+
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
