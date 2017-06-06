@@ -8,13 +8,18 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- New: ``JSON_REQUEST_CONTENT_TYPES`` or supported JSON content types. Useful
+  when you need support for vendor-specific json types. Please note: responses
+  will still carry the standard ``application/json`` type. Defaults to
+  ``['application/json']``. Closes #1024.
 - New: ``ALLOW_CUSTOM_FIELDS_IN_GEOJSON`` allows custom fields in GeoJSON
   (Martin Fous).
 - New: Support for ``Feature`` and ``FeatureCollection`` GeoJSON objects.
   Closes #769 (Martin Fous). 
 - Config options ``MONGO_AUTH_MECHANISM`` and
   ``MONGO_AUTH_MECHANISM_PROPERTIES`` added.
-- Change: Support for Cerberus 1.0+. Closes #776 (Dominik Kellner, Brad P. Crochet).
+- Change: Support for Cerberus 1.0+. Closes #776 (Dominik Kellner, Brad P.
+  Crochet).
 - Change: Drop Flask-PyMongo dependency. Closes #855 (Artem Kolesnikov).
 - Docs: code snippets are now Python 3 compatibile (Pahaz Blinov).
 - Dev: after the latest update (May 4th) travis-ci would not run tests on

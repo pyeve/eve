@@ -161,8 +161,8 @@ def payload():
     """
     content_type = request.headers.get('Content-Type', '').split(';')[0]
 
-    if content_type == 'application/json':
-        return request.get_json()
+    if content_type in config.JSON_REQUEST_CONTENT_TYPES:
+        return request.get_json(force=True)
     elif content_type == 'application/x-www-form-urlencoded':
         return multidict_to_dict(request.form) if len(request.form) else \
             abort(400, description='No form-urlencoded data supplied')

@@ -87,6 +87,8 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.config['STANDARD_ERRORS'],
                          [400, 401, 404, 405, 406, 409, 410, 412, 422, 428])
         self.assertEqual(self.app.config['UPSERT_ON_PUT'], True)
+        self.assertEqual(self.app.config['JSON_REQUEST_CONTENT_TYPES'],
+                         ['application/json'])
 
     def test_settings_as_dict(self):
         my_settings = {'API_VERSION': 'override!', 'DOMAIN': {'contacts': {}}}
