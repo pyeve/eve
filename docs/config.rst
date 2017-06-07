@@ -487,6 +487,12 @@ uppercase.
 ``JSON_SORT_KEYS``                  ``True`` to enable JSON key sorting, ``False``
                                     otherwise. Defaults to ``False``.
 
+``JSON_REQUEST_CONTENT_TYPES``      Supported JSON content types. Useful when 
+                                    you need support for vendor-specific json
+                                    types. Please note: responses will still
+                                    carry the standard ``application/json``
+                                    type. Defaults to ``['application/json']``. 
+
 ``VALIDATION_ERROR_STATUS``         The HTTP status code to use for validation errors.
                                     Defaults to ``422``.
 
