@@ -26,6 +26,7 @@ Version 0.8
   Python 2.6. 
 - Dev: all branches are now tested on travis-ci. Previously, only 'master' was
   being tested.
+- Dev: fix insidious bug in ``tests.methods.post.TestPost`` class.
 - Update: Upgrade Events dependency to v0.3.
 
 Breaking Changes
