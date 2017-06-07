@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Changelog &mdash; Eve 0.7.4 documentation</title>
+    <title>Changelog &mdash; Eve 0.8-dev documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.7.4',
+        VERSION:     '0.8-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.7.4 documentation" href="index.html" />
+    <link rel="top" title="Eve 0.8-dev documentation" href="index.html" />
     <link rel="prev" title="Licensing" href="license.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -49,19 +49,26 @@
 <div class="section" id="version-0-8">
 <h3>Version 0.8<a class="headerlink" href="#version-0-8" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>New: <tt class="docutils literal"><span class="pre">JSON_REQUEST_CONTENT_TYPES</span></tt> or supported JSON content types. Useful
+when you need support for vendor-specific json types. Please note: responses
+will still carry the standard <tt class="docutils literal"><span class="pre">application/json</span></tt> type. Defaults to
+<tt class="docutils literal"><span class="pre">['application/json']</span></tt>. Closes #1024.</li>
 <li>New: <tt class="docutils literal"><span class="pre">ALLOW_CUSTOM_FIELDS_IN_GEOJSON</span></tt> allows custom fields in GeoJSON
 (Martin Fous).</li>
 <li>New: Support for <tt class="docutils literal"><span class="pre">Feature</span></tt> and <tt class="docutils literal"><span class="pre">FeatureCollection</span></tt> GeoJSON objects.
 Closes #769 (Martin Fous).</li>
 <li>Config options <tt class="docutils literal"><span class="pre">MONGO_AUTH_MECHANISM</span></tt> and
 <tt class="docutils literal"><span class="pre">MONGO_AUTH_MECHANISM_PROPERTIES</span></tt> added.</li>
-<li>Change: Support for Cerberus 1.0+. Closes #776 (Dominik Kellner, Brad P. Crochet).</li>
+<li>Change: Support for Cerberus 1.0+. Closes #776 (Dominik Kellner, Brad P.
+Crochet).</li>
 <li>Change: Drop Flask-PyMongo dependency. Closes #855 (Artem Kolesnikov).</li>
 <li>Docs: code snippets are now Python 3 compatibile (Pahaz Blinov).</li>
 <li>Dev: after the latest update (May 4th) travis-ci would not run tests on
 Python 2.6.</li>
 <li>Dev: all branches are now tested on travis-ci. Previously, only &#8216;master&#8217; was
 being tested.</li>
+<li>Dev: fix insidious bug in <tt class="docutils literal"><span class="pre">tests.methods.post.TestPost</span></tt> class.</li>
+<li>Update: Upgrade Events dependency to v0.3.</li>
 </ul>
 <div class="section" id="breaking-changes">
 <h4>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h4>
