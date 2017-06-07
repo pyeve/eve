@@ -15,7 +15,6 @@ install_requires = [
     'itsdangerous>=0.24,<1.0',
     'flask>=0.10.1,<=0.12',
     'pymongo>=3.4',
-    'flask-pymongo>=0.4',
 ]
 
 try:
