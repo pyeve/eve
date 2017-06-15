@@ -616,15 +616,6 @@ class Eve(Flask, Events):
         schema = settings.setdefault('schema', {})
         self.set_schema_defaults(schema, settings['id_field'])
 
-        # list of all media fields for the resource
-        settings['_media'] = [field for field, definition in schema.items() if
-                              definition.get('type') == 'media']
-
-        if settings['_media'] and not self.media:
-            raise ConfigException('A media storage class of type '
-                                  ' eve.io.media.MediaStorage but be defined '
-                                  'for "media" fields to be properly stored.')
-
         self._set_resource_datasource(resource, schema, settings)
 
     def _set_resource_datasource(self, resource, schema, settings):
