@@ -146,6 +146,8 @@ class TestEndPoints(TestBase):
         del(self.domain['peoplesearches'])
         del(self.domain['internal_transactions'])
         del(self.domain['child_products'])
+        del(self.domain['products_in_carts'])
+        del(self.domain['carts'])
         for settings in self.domain.values():
             r = self.test_client.get('/%s/' % settings['url'])
             self.assert200(r.status_code)

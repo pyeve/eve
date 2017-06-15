@@ -315,11 +315,11 @@ class Mongo(DataLayer):
                                          .find_one(filter_, projection)
         return document
 
-    def find_one_raw(self, resource, _id):
+    def find_one_raw(self, resource, **lookup):
         """ Retrieves a single raw document.
 
         :param resource: resource name.
-        :param id: unique id.
+        :param **lookup: lookup query.
 
         .. versionchanged:: 0.6
            Support for multiple databases.
@@ -327,11 +327,14 @@ class Mongo(DataLayer):
         .. versionadded:: 0.4
         """
         id_field = config.DOMAIN[resource]['id_field']
+        _id = lookup.get(id_field)
         datasource, filter_, _, _ = self._datasource_ex(resource,
                                                         {id_field: _id},
                                                         None)
 
-        document = self.pymongo(resource).db[datasource].find_one(_id)
+        lookup = self._mongotize(lookup, resource)
+
+        document = self.pymongo(resource).db[datasource].find_one(lookup)
         return document
 
     def find_list_of_ids(self, resource, ids, client_projection=None):

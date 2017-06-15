@@ -2,6 +2,7 @@ from base64 import b64decode
 from bson import ObjectId
 
 import simplejson as json
+import copy
 
 from eve.tests import TestBase
 from eve.tests.utils import DummyEvent
@@ -881,10 +882,15 @@ class TestPost(TestBase):
                               content_type='application/csp-report')
         self.assert400(status)
 
+        # After this test, the parameter are not the default anymore
+        self.assertEqual(self.app.config['JSON_REQUEST_CONTENT_TYPES'],
+                         ['application/json'])
+
         self.app.config['JSON_REQUEST_CONTENT_TYPES'] += \
             ['application/csp-report']
         r, status = self.post(self.known_resource_url, data,
                               content_type='application/csp-report')
+
         self.assert201(status)
 
     def perform_post(self, data, valid_items=[0]):

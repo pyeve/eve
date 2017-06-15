@@ -314,6 +314,40 @@ child_products = copy.deepcopy(products)
 child_products['url'] = 'products/<regex("[A-Z]+"):parent_product>/children'
 child_products['datasource'] = {'source': 'products'}
 
+# This resource is used to test resource-specific id fields with tree structure.
+carts = {
+    'id_field': 'id',
+    'item_lookup_field': 'id',
+    'item_url': 'regex("[A-Z]+")',
+    'schema': {
+        'id': {
+            'type': 'string',
+            'maxlength': 40
+        },
+        'products': {
+            'type': 'list',
+            'schema': {
+                'type': 'string',
+                'data_relation': {
+                        'resource': 'products',
+                        'field': 'sku',
+                        'embeddable': True
+                }
+            }
+        }
+    }
+}
+products_in_carts = copy.deepcopy(products)
+products_in_carts['schema'].update(
+                            {
+                                'cart_id': {
+                                    'type': 'string',
+                                    'maxlength': 40
+                                }
+                            }
+                          )
+products_in_carts['url'] = 'carts/<regex("[A-Z]+"):cart_id>/products'
+
 exclusion = copy.deepcopy(contacts)
 exclusion['url'] = 'exclusion'
 exclusion['soft_delete'] = True
@@ -341,4 +375,6 @@ DOMAIN = {
     'products': products,
     'child_products': child_products,
     'exclusion': exclusion,
+    'carts': carts,
+    'products_in_carts': products_in_carts
 }

@@ -33,7 +33,7 @@ from functools import wraps
 from werkzeug.datastructures import MultiDict, CombinedMultiDict
 
 
-def get_document(resource, concurrency_check, **lookup):
+def get_document(resource, concurrency_check, original=None, **lookup):
     """ Retrieves and return a single document. Since this function is used by
     the editing methods (PUT, PATCH, DELETE), we make sure that the client
     request references the current representation of the document before
@@ -43,6 +43,7 @@ def get_document(resource, concurrency_check, **lookup):
 
     :param resource: the name of the resource to which the document belongs to.
     :param concurrency_check: boolean check for concurrency control
+    :param original: in case the document was already retrieved before
     :param **lookup: document lookup query
 
     .. versionchanged:: 0.6
@@ -65,7 +66,11 @@ def get_document(resource, concurrency_check, **lookup):
         # callers must handle soft deleted documents
         req.show_deleted = True
 
-    document = app.data.find_one(resource, req, **lookup)
+    if original:
+        document = original
+    else:
+        document = app.data.find_one(resource, req, **lookup)
+
     if document:
         e_if_m = config.ENFORCE_IF_MATCH
         if_m = config.IF_MATCH
@@ -673,50 +678,62 @@ def resolve_embedded_fields(resource, req):
     return enabled_embedded_fields
 
 
-def embedded_document(reference, data_relation, field_name):
+def embedded_document(current_document, field, data_relation, field_name):
     """ Returns a document to be embedded by reference using data_relation
     taking into account document versions
 
-    :param reference: reference to the document to be embedded.
+    :param current_document: father of the document to be embedded.
+    :param field: field where to find the reference.
     :param data_relation: the relation schema definition.
     :param field_name: field name used in abort message only
 
     .. versionadded:: 0.5
     """
-    # Retrieve and serialize the requested document
-    if 'version' in data_relation and data_relation['version'] is True:
-        # grab the specific version
-        embedded_doc = get_data_version_relation_document(
-            data_relation, reference)
+    list_embedded_doc = []
+    if not isinstance(current_document[field], list):
+        current_document[field] = [current_document[field]]
+    for reference in current_document[field]:
+        # Retrieve and serialize the requested document
+        if 'version' in data_relation and data_relation['version'] is True:
+            # grab the specific version
+            embedded_doc = get_data_version_relation_document(
+                data_relation, reference)
 
-        # grab the latest version
-        latest_embedded_doc = get_data_version_relation_document(
-            data_relation, reference, latest=True)
+            # grab the latest version
+            latest_embedded_doc = get_data_version_relation_document(
+                data_relation, reference, latest=True)
 
-        # make sure we got the documents
-        if embedded_doc is None or latest_embedded_doc is None:
-            # your database is not consistent!!! that is bad
-            # TODO: we should notify the developers with a log.
-            abort(404, description=debug_error_message(
-                "Unable to locate embedded documents for '%s'" %
-                field_name
-            ))
+            # make sure we got the documents
+            if embedded_doc is None or latest_embedded_doc is None:
+                # your database is not consistent!!! that is bad
+                # TODO: we should notify the developers with a log.
+                abort(404, description=debug_error_message(
+                    "Unable to locate embedded documents for '%s'" %
+                    field_name
+                ))
 
-        build_response_document(embedded_doc, data_relation['resource'],
-                                [], latest_embedded_doc)
-    else:
-        # if reference is DBRef take the referenced collection as subresource
-        subresource = reference.collection if isinstance(reference, DBRef) \
-            else data_relation['resource']
-        id_field = config.DOMAIN[subresource]['id_field']
-        embedded_doc = app.data.find_one(subresource, None,
-                                         **{id_field: reference.id
-                                            if isinstance(reference, DBRef)
-                                            else reference})
-        if embedded_doc:
-            resolve_media_files(embedded_doc, subresource)
+            build_response_document(embedded_doc, data_relation['resource'],
+                                    [], latest_embedded_doc)
+            list_embedded_doc.append(embedded_doc)
+        else:
+            # if reference is DBRef take the referenced collection as subresource
+            subresource = reference.collection if isinstance(reference, DBRef) \
+                else data_relation['resource']
+            id_field = config.DOMAIN[subresource]['id_field']
+            query = \
+                {
+                id_field: reference.id if isinstance(reference, DBRef) else reference
+                }
+            getattr(app, "on_embedding_resolving")(field_name, current_document,
+                                                   data_relation, query)
+            getattr(app, "on_embedding_resolving_%s" % field_name)(current_document,
+                                                                   data_relation, query)
+            embedded_doc = app.data.find_one(subresource, None, **query)
+            list_embedded_doc.append(embedded_doc)
+            if embedded_doc:
+                resolve_media_files(embedded_doc, subresource)
 
-    return embedded_doc
+    return list_embedded_doc
 
 
 def subdocuments(fields_chain, resource, document):
@@ -782,17 +799,21 @@ def resolve_embedded_documents(document, resource, embedded_fields):
     # NOTE(Gonéri): We resolve the embedded documents at the end.
     for field in sorted(embedded_fields, key=lambda a: a.count('.')):
         data_relation = field_definition(resource, field)['data_relation']
-        getter = lambda ref: embedded_document(ref, data_relation, field)  # noqa
+        getter = lambda ref, ref_field: embedded_document(ref, ref_field,
+                                                          data_relation, field)
         fields_chain = field.split('.')
         last_field = fields_chain[-1]
         for subdocument in subdocuments(fields_chain[:-1], resource, document):
             if last_field not in subdocument:
                 continue
             if isinstance(subdocument[last_field], list):
-                subdocument[last_field] = list(map(getter,
-                                                   subdocument[last_field]))
+                subdocument[last_field] = getter(subdocument, last_field)
             else:
-                subdocument[last_field] = getter(subdocument[last_field])
+                last_field_value = getter(subdocument, last_field)
+                if last_field_value:
+                    subdocument[last_field] = last_field_value[0]
+                else:
+                    subdocument[last_field] = None
 
 
 def resolve_media_files(document, resource):

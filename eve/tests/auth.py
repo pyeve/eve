@@ -170,6 +170,8 @@ class TestBasicAuth(TestBase):
         for resource, settings in domain.items():
             del(settings['public_methods'])
         self.app.set_defaults()
+        del(domain['products_in_carts'])
+        del(domain['carts'])
         del(domain['peopleinvoices'])
         del(domain['peoplerequiredinvoices'])
         del(domain['peoplesearches'])
@@ -211,7 +213,7 @@ class TestBasicAuth(TestBase):
             del(settings['public_item_methods'])
         self.app.set_defaults()
         # we're happy with testing just one client endpoint, but for sake of
-        # completeness we shold probably test item endpoints for every resource
+        # completeness we should probably test item endpoints for every resource
         r = self.test_client.get(self.item_id_url)
         self.assert200(r.status_code)
         r = self.test_client.patch(self.item_id_url)

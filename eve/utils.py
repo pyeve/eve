@@ -95,6 +95,9 @@ class ParsedRequest(object):
     # `args` value of the original request. Defaults to None.
     args = None
 
+    # `view_args` value of the original request. Defaults to None.
+    view_args = None
+
 
 def parse_request(resource):
     """ Parses a client request, returning instance of :class:`ParsedRequest`
@@ -119,9 +122,11 @@ def parse_request(resource):
        Support for optional filters, sorting and pagination.
     """
     args = request.args
+    view_args = request.view_args
     headers = request.headers
 
     r = ParsedRequest()
+    r.view_args = view_args
     r.args = args
 
     settings = config.DOMAIN[resource]
