@@ -175,13 +175,13 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
-    def find_one_raw(self, resource, _id):
+    def find_one_raw(self, resource, **lookup):
         """ Retrieves a single, raw document. No projections or datasource
         filters are being applied here. Just looking up the document by unique
         id.
 
         :param resource: resource name.
-        :param id: unique id.
+        :param **lookup: lookup query.
 
         .. versionadded:: 0.4
         """

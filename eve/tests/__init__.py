@@ -424,6 +424,16 @@ class TestBase(TestMinimal):
                                (self.domain['invoices']['url'],
                                 self.invoice_id))
 
+        self.carts = 'carts'
+        self.carts_url = ('/%s' %
+                          self.domain[self.carts]['url'])
+        self.cart_id = self.domain[self.carts]['id_field']
+
+        self.products_in_carts = 'products_in_carts'
+        self.products_in_carts_url = ('/%s' %
+                                      self.domain[self.products_in_carts]['url'])
+        self.products_in_carts_id = self.domain[self.products_in_carts]['id_field']
+
         self.epoch = date_to_str(datetime(1970, 1, 1))
 
     def response_item(self, response, i=0):
@@ -491,17 +501,18 @@ class TestBase(TestMinimal):
             invoices.append(invoice)
         return invoices
 
-    def random_products(self, num):
+    def random_products(self, num, cart_id=None):
         schema = DOMAIN['products']['schema']
         products = []
         for _ in range(num):
-            products.append(
-                {
+            product = {
                     'sku': self.random_string(schema['sku']['maxlength']),
                     'title': ("Hypercube " + self.random_string(2) +
                               str(random.randint(100, 1000)))
                 }
-            )
+            if cart_id:
+                product.update({'cart_id': cart_id})
+            products.append(product)
         return products
 
     def random_string(self, num):
@@ -539,6 +550,21 @@ class TestBase(TestMinimal):
             transactions.append(transaction)
         return transactions
 
+    def generate_carts(self, num_carts):
+        carts = []
+        products_in_carts = []
+        for i in range(num_carts):
+            cart_id = self.random_string(40)
+            products = self.random_products(3, cart_id)
+            products_in_carts.extend(products)
+            skus = [product['sku'] for product in products]
+            carts.append({
+                'id': cart_id,
+                'products': skus
+            })
+        return carts, products_in_carts
+
+
     def bulk_insert(self):
         _db = self.connection[MONGO_DBNAME]
         _db.contacts.insert(self.random_contacts(self.known_resource_count))
@@ -547,4 +573,7 @@ class TestBase(TestMinimal):
         _db.invoices.insert(self.random_invoices(1))
         _db.internal_transactions.insert(self.random_internal_transactions(4))
         _db.products.insert(self.random_products(2))
+        carts, products_in_carts = self.generate_carts(10)
+        _db.products_in_carts.insert(products_in_carts)
+        _db.carts.insert(carts)
         self.connection.close()

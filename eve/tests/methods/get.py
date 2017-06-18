@@ -1807,6 +1807,18 @@ class TestEvents(TestBase):
         self.assertEqual(self.item_id, str(self.devent.called[0][id_field]))
         self.assertEqual(1, len(self.devent.called))
 
+    def test_on_embedding_resolving(self):
+        self.app.on_embedding_resolving += self.devent
+        url = '%s?%s' % (self.carts_url, 'embedded={"products":1}')
+        self.get_item(url)
+        self.assertFalse(self.devent.called is None)
+
+    def test_on_embedding_resolving_products(self):
+        self.app.on_embedding_resolving_products += self.devent
+        url = '%s?%s' % (self.carts_url, 'embedded={"products":1}')
+        self.get_item(url)
+        self.assertFalse(self.devent.called is None)
+
     def get_resource(self):
         return self.test_client.get(self.known_resource_url)
 
