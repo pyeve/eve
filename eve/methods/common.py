@@ -10,31 +10,26 @@
     :license: BSD, see LICENSE for more details.
 """
 import base64
+import time
+from copy import copy
+from datetime import datetime
+from functools import wraps
+
+import simplejson as json
+from bson.dbref import DBRef
+from bson.errors import InvalidId
+from flask import Response, abort, current_app as app, g, request
+from werkzeug.datastructures import MultiDict, CombinedMultiDict
+
+from eve.utils import auto_fields, config, debug_error_message, document_etag, parse_request
+from eve.validation import expand_rule_definition, expand_schema
+from eve.versioning import get_data_version_relation_document, resolve_document_version
+
+
 try:
     from collections import Counter
 except:
     from backport_collections import Counter
-import simplejson as json
-import time
-
-from bson.dbref import DBRef
-from bson.errors import InvalidId
-from copy import copy
-from datetime import datetime
-from eve.utils import auto_fields
-from eve.utils import config
-from eve.utils import debug_error_message
-from eve.utils import document_etag
-from eve.utils import parse_request
-from eve.versioning import get_data_version_relation_document
-from eve.versioning import resolve_document_version
-from flask import Response
-from flask import abort
-from flask import current_app as app
-from flask import g
-from flask import request
-from functools import wraps
-from werkzeug.datastructures import MultiDict, CombinedMultiDict
 
 
 def get_document(resource, concurrency_check, original=None, **lookup):
@@ -378,14 +373,14 @@ def serialize(document, resource=None, schema=None, fields=None):
 
     if app.data.serializers:
         if resource:
-            schema = config.DOMAIN[resource]['schema']
+            schema = expand_schema(config.DOMAIN[resource]['schema'])
         if not fields:
             fields = document.keys()
         for field in fields:
             if document[field] is None:
                 continue
             if field in schema:
-                field_schema = schema[field]
+                field_schema = expand_rule_definition(schema[field])
                 field_type = field_schema.get('type')
                 for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
                     for optschema in field_schema.get(x_of, []):

@@ -16,8 +16,19 @@ import copy
 import cerberus
 import cerberus.errors
 from cerberus import DocumentError, SchemaError  # flake8: noqa
+from cerberus import rules_set_registry, schema_registry
 
 from eve.utils import config
+
+
+def expand_schema(schema):
+    return schema if isinstance(schema, dict) or schema is None \
+        else schema_registry.get(schema)
+
+
+def expand_rule_definition(definition):
+    return definition if isinstance(definition, dict) \
+        else rules_set_registry.get(definition)
 
 
 class Validator(cerberus.Validator):

@@ -9,11 +9,12 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
+import copy
 import fnmatch
 import os
 import sys
 
-import copy
+from cerberus import schema_registry
 from events import Events
 from flask import Flask
 from werkzeug.routing import BaseConverter
@@ -26,7 +27,8 @@ from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint, \
 from eve.exceptions import ConfigException, SchemaException
 from eve.io.mongo import Mongo, Validator, GridFSMediaStorage, create_index
 from eve.logging import RequestFilter
-from eve.utils import api_prefix, extract_key_values
+from eve.utils import api_prefix, extract_key_values, str_type
+from eve.validation import expand_rule_definition, expand_schema
 
 
 class EveWSGIRequestHandler(WSGIRequestHandler):
@@ -302,7 +304,7 @@ class Eve(Flask, Events):
         for resource, settings in self.config['DOMAIN'].items():
             self._validate_resource_settings(resource, settings)
 
-    def _validate_resource_settings(self, resource, settings):
+    def _validate_resource_settings(self, resource, settings, schema=None):
         """ Validates one resource in configuration settings.
 
         :param resource: name of the resource which settings refer to.
@@ -320,11 +322,14 @@ class Eve(Flask, Events):
                               settings['item_methods'],
                               '[%s] item ' % resource)
 
+        if schema is None:
+            schema = settings['schema']
+
         # while a resource schema is optional for read-only access,
         # it is mandatory for write-access to resource/items.
         if 'POST' in settings['resource_methods'] or \
            'PATCH' in settings['item_methods']:
-            if len(settings['schema']) == 0:
+            if len(schema) == 0:
                 raise ConfigException('A resource schema must be provided '
                                       'when POST or PATCH methods are allowed '
                                       'for a resource [%s].' % resource)
@@ -340,7 +345,7 @@ class Eve(Flask, Events):
             raise ConfigException('"%s": auth_field cannot be set to id_field '
                                   '(%s)' % (resource, settings['id_field']))
 
-        self.validate_schema(resource, settings['schema'])
+        self.validate_schema(resource, schema)
 
     def validate_roles(self, directive, candidate, resource):
         """ Validates that user role directives are syntactically and formally
@@ -441,8 +446,10 @@ class Eve(Flask, Events):
 
         for field, ruleset in schema.items():
             validate_field_name(field)
+            ruleset = expand_rule_definition(ruleset)
             if 'dict' in ruleset.get('type', ''):
-                for field in ruleset.get('schema', {}).keys():
+                for field in expand_schema(
+                        ruleset.get('schema', {})).keys():
                     validate_field_name(field)
 
             # check data_relation rules
@@ -523,9 +530,11 @@ class Eve(Flask, Events):
         """
 
         for resource, settings in self.config['DOMAIN'].items():
-            self._set_resource_defaults(resource, settings)
+            self._set_resource_defaults(
+                resource, settings,
+                expand_schema(settings.get('schema')))
 
-    def _set_resource_defaults(self, resource, settings):
+    def _set_resource_defaults(self, resource, settings, schema):
         """ Low-level method which sets default values for one resource.
 
         .. versionchanged:: 0.6.2
@@ -612,10 +621,12 @@ class Eve(Flask, Events):
         settings.setdefault('hateoas',
                             self.config['HATEOAS'])
         settings.setdefault('authentication', self.auth if self.auth else None)
-        # empty schemas are allowed for read-only access to resources
-        schema = settings.setdefault('schema', {})
-        self.set_schema_defaults(schema, settings['id_field'])
 
+        if schema is None:
+            # empty schemas are allowed for read-only access to resources
+            schema = settings.setdefault('schema', {})
+
+        self.set_schema_defaults(schema, settings['id_field'])
         self._set_resource_datasource(resource, schema, settings)
 
     def _set_resource_datasource(self, resource, schema, settings):
@@ -688,11 +699,14 @@ class Eve(Flask, Events):
             ds['projection'][self.config['DELETED']] = 1
 
         # list of all media fields for the resource
-        settings['_media'] = [field for field, definition in schema.items() if
-                              definition.get('type') == 'media' or
-                              (definition.get('type') == 'list' and
-                               definition.get('schema', {}).get('type') ==
-                               'media')]
+        settings['_media'] = []
+        for field, definition in schema.items():
+            definition = expand_rule_definition(definition)
+            type = definition.get('type')
+            if type == 'media' or (
+                    type == 'list' and
+                    definition.get('schema', {}).get('type') == 'media'):
+                settings['_media'].append(field)
 
         if settings['_media'] and not self.media:
             raise ConfigException('A media storage class of type '
@@ -863,9 +877,21 @@ class Eve(Flask, Events):
         # standard Eve setup routine, but it doesn't hurt to still call it
         self.config['DOMAIN'][resource] = settings
 
+        schema_or_name = settings.get('schema')
+        should_refresh_registry = False
+        if isinstance(schema_or_name, str_type):
+            schema = schema_registry.get(schema_or_name)
+            should_refresh_registry = True
+        else:
+            schema = schema_or_name
+
         # set up resource
-        self._set_resource_defaults(resource, settings)
-        self._validate_resource_settings(resource, settings)
+        self._set_resource_defaults(resource, settings, schema)
+        self._validate_resource_settings(resource, settings, schema)
+
+        if should_refresh_registry:
+            schema_registry.add(schema_or_name, schema)
+
         self._add_resource_url_rules(resource, settings)
 
         # add rules for version control collections if appropriate

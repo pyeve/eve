@@ -12,14 +12,16 @@
 """
 
 from datetime import datetime
+
 from flask import current_app as app, abort
-from eve.utils import config, parse_request, debug_error_message
+
 from eve.auth import requires_auth
-from eve.validation import DocumentError
 from eve.methods.common import parse, payload, ratelimit, \
     pre_event, store_media_files, resolve_user_restricted_access, \
     resolve_embedded_fields, build_response_document, marshal_write_response, \
     resolve_sub_resource_path, resolve_document_etag, oplog_push, resource_link
+from eve.utils import config, parse_request, debug_error_message
+from eve.validation import DocumentError
 from eve.versioning import resolve_document_version, \
     insert_versioning_documents
 
