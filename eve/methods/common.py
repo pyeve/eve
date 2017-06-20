@@ -10,6 +10,10 @@
     :license: BSD, see LICENSE for more details.
 """
 import base64
+try:
+    from collections import Counter
+except:
+    from backport_collections import Counter
 import simplejson as json
 import time
 
@@ -673,7 +677,7 @@ def resolve_embedded_fields(resource, req):
     return enabled_embedded_fields
 
 
-def embedded_document(reference, data_relation, field_name):
+def embedded_document(references, data_relation, field_name):
     """ Returns a document to be embedded by reference using data_relation
     taking into account document versions
 
@@ -683,40 +687,156 @@ def embedded_document(reference, data_relation, field_name):
 
     .. versionadded:: 0.5
     """
+    embedded_docs = []
+
+    output_is_list = True
+
+    if not isinstance(references, list):
+        output_is_list = False
+        references = [references]
+
     # Retrieve and serialize the requested document
     if 'version' in data_relation and data_relation['version'] is True:
-        # grab the specific version
-        embedded_doc = get_data_version_relation_document(
-            data_relation, reference)
+        # For the version flow, I keep the as-is logic (flow is too complex to make it bulk)
+        for reference in references:
+            # grab the specific version
+            embedded_doc = get_data_version_relation_document(
+                data_relation, reference)
 
-        # grab the latest version
-        latest_embedded_doc = get_data_version_relation_document(
-            data_relation, reference, latest=True)
+            # grab the latest version
+            latest_embedded_doc = get_data_version_relation_document(
+                data_relation, reference, latest=True)
 
-        # make sure we got the documents
-        if embedded_doc is None or latest_embedded_doc is None:
-            # your database is not consistent!!! that is bad
-            # TODO: we should notify the developers with a log.
-            abort(404, description=debug_error_message(
-                "Unable to locate embedded documents for '%s'" %
-                field_name
-            ))
+            # make sure we got the documents
+            if embedded_doc is None or latest_embedded_doc is None:
+                # your database is not consistent!!! that is bad
+                # TODO: we should notify the developers with a log.
+                abort(404, description=debug_error_message(
+                    "Unable to locate embedded documents for '%s'" %
+                    field_name
+                ))
 
-        build_response_document(embedded_doc, data_relation['resource'],
-                                [], latest_embedded_doc)
+            build_response_document(embedded_doc, data_relation['resource'],
+                                    [], latest_embedded_doc)
+            embedded_docs.append(embedded_doc)
     else:
+        id_value_to_sort, list_of_id_field_name, subresources_query = generate_query_and_sorting_criteria(data_relation,
+                                                                                                          references)
+        for subresource in subresources_query:
+            list_embedded_doc = list(app.data.find(subresource,
+                                                   None,
+                                                   subresources_query[subresource]))
+            if not list_embedded_doc:
+                embedded_docs.extend([None] *
+                                     len(subresources_query[subresource]["$or"]))
+            else:
+                for embedded_doc in list_embedded_doc:
+                    resolve_media_files(embedded_doc, subresource)
+                embedded_docs.extend(list_embedded_doc)
+
+        # After having retrieved my data, I have to be sure that the sorting of the
+        # list is the same in input as in output (this is to support embedding of
+        # sub-documents - only in case the storage is not done via DBref)
+        if embedded_docs:
+            embedded_docs = sort_db_response(embedded_docs, id_value_to_sort, list_of_id_field_name)
+
+    if output_is_list:
+        return embedded_docs
+    elif embedded_docs:
+        return embedded_docs[0]
+    else:
+        return None
+
+
+def sort_db_response(embedded_docs, id_value_to_sort, list_of_id_field_name):
+    """ Sorts the documents fetched from the database
+
+        :param embedded_docs: the documents fetch from the database.
+        :param id_value_to_sort: id_value sort criteria.
+        :param list_of_id_field_name: list of name of fields
+        :return embedded_docs: the list of documents sorted as per input
+        """
+
+    id_field_name_occurrences = Counter(list_of_id_field_name)
+    temp_embedded_docs = []
+    old_occurrence = 0
+
+    for id_field_name in set(list_of_id_field_name):
+        current_occurrence = old_occurrence + int(id_field_name_occurrences[id_field_name])
+        temp_embedded_docs.extend(
+            sort_per_resource(embedded_docs[old_occurrence:current_occurrence],
+                              id_value_to_sort,
+                              id_field_name))
+        old_occurrence = current_occurrence
+
+    return temp_embedded_docs
+
+
+def sort_per_resource(embedded_docs, id_value_to_sort, id_field_name):
+    """ Sorts the documents fetched from the database per single resource
+
+        :param embedded_docs: the documents fetch from the database.
+        :param id_value_to_sort: id_value sort criteria.
+        :param list_of_id_field_name: list of name of fields
+        :return embedded_docs: the list of documents sorted as per input
+        """
+    # Removing None
+    number_of_none = embedded_docs.count(None)
+    if number_of_none:
+        embedded_docs = [x for x in embedded_docs if x is not None]
+    id2dict = dict((d[id_field_name], d) for d in embedded_docs)
+    temporary_embedded_docs = []
+    if number_of_none:
+        for id_value_ in id_value_to_sort:
+            if id_value_ in id2dict:
+                temporary_embedded_docs.append(id2dict[id_value_])
+            else:
+                temporary_embedded_docs.append(None)
+    return embedded_docs
+
+
+def generate_query_and_sorting_criteria(data_relation, references):
+    """ Generate query and sorting critiria
+
+        :param data_relation: data relation for the resource.
+        :param references: DBRef or id to use to embed the document.
+        :returns id_value_to_sort: list of ids to use in the sort
+                 list_of_id_field_name: list of field name (important only for DBRef)
+                 subresources_query: the list of query to perform per resource
+                                     (in case is not DBRef, it will be only one query)
+        """
+    query = {"$or": []}
+    subresources_query = {}
+    old_subresource = ""
+    id_value_to_sort = []
+    # id_field name should be the same for
+    # all the elements in the list
+    list_of_id_field_name = []
+    for counter, reference in enumerate(references):
         # if reference is DBRef take the referenced collection as subresource
+        # NOTE: using DBRef, I can define several resource for each link
         subresource = reference.collection if isinstance(reference, DBRef) \
             else data_relation['resource']
-        id_field = config.DOMAIN[subresource]['id_field']
-        embedded_doc = app.data.find_one(subresource, None,
-                                         **{id_field: reference.id
-                                            if isinstance(reference, DBRef)
-                                            else reference})
-        if embedded_doc:
-            resolve_media_files(embedded_doc, subresource)
+        if old_subresource and old_subresource != subresource:
+            add_query_to_list(query, subresource, subresources_query)
+        # NOTE: in case it is a DBRef link, the id_field_name is always the _id
+        # regardless the Eve set-up
+        id_field_name = "_id" if isinstance(reference, DBRef) \
+            else config.DOMAIN[subresource]['id_field']
+        id_field_value = reference.id \
+            if isinstance(reference, DBRef) else reference
+        query["$or"].append({id_field_name: id_field_value})
+        id_value_to_sort.append(id_field_value)
+        list_of_id_field_name.append(id_field_name)
+        if counter == len(references) - 1:
+            add_query_to_list(query, subresource, subresources_query)
+    return id_value_to_sort, list_of_id_field_name, subresources_query
 
-    return embedded_doc
+
+def add_query_to_list(query, subresource, subresource_query):
+    subresource_query.update({subresource: copy(query)})
+    query.clear()
+    query["$or"] = []
 
 
 def subdocuments(fields_chain, resource, document):
@@ -788,11 +908,7 @@ def resolve_embedded_documents(document, resource, embedded_fields):
         for subdocument in subdocuments(fields_chain[:-1], resource, document):
             if last_field not in subdocument:
                 continue
-            if isinstance(subdocument[last_field], list):
-                subdocument[last_field] = list(map(getter,
-                                                   subdocument[last_field]))
-            else:
-                subdocument[last_field] = getter(subdocument[last_field])
+            subdocument[last_field] = getter(subdocument[last_field])
 
 
 def resolve_media_files(document, resource):
