@@ -178,10 +178,10 @@ class Mongo(DataLayer):
         """
         args = dict()
 
-        if req.max_results:
+        if req and req.max_results:
             args['limit'] = req.max_results
 
-        if req.page > 1:
+        if req and req.page > 1:
             args['skip'] = (req.page - 1) * req.max_results
 
         # TODO sort syntax should probably be coherent with 'where': either
@@ -194,7 +194,7 @@ class Mongo(DataLayer):
         client_sort = {}
         spec = {}
 
-        if req.sort:
+        if req and req.sort:
             try:
                 # assume it's mongo syntax (ie. ?sort=[("name", 1)])
                 client_sort = ast.literal_eval(req.sort)
@@ -213,7 +213,7 @@ class Mongo(DataLayer):
                 self.app.logger.exception(e)
                 abort(400, description=debug_error_message(str(e)))
 
-        if req.where:
+        if req and req.where:
             try:
                 spec = self._sanitize(json.loads(req.where))
             except HTTPException as e:
@@ -235,13 +235,13 @@ class Mongo(DataLayer):
         if sub_resource_lookup:
             spec = self.combine_queries(spec, sub_resource_lookup)
 
-        if config.DOMAIN[resource]['soft_delete'] and not req.show_deleted:
+        if config.DOMAIN[resource]['soft_delete'] \
+                and not (req and req.show_deleted) \
+                and not self.query_contains_field(spec, config.DELETED):
             # Soft delete filtering applied after validate_filters call as
             # querying against the DELETED field must always be allowed when
             # soft_delete is enabled
-            if not self.query_contains_field(spec, config.DELETED):
-                spec = self.combine_queries(
-                    spec, {config.DELETED: {"$ne": True}})
+            spec = self.combine_queries(spec, {config.DELETED: {"$ne": True}})
 
         spec = self._mongotize(spec, resource)
 
@@ -253,7 +253,7 @@ class Mongo(DataLayer):
             client_projection,
             client_sort)
 
-        if req.if_modified_since:
+        if req and req.if_modified_since:
             spec[config.LAST_UPDATED] = \
                 {'$gt': req.if_modified_since}
 
