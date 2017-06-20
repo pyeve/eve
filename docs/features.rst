@@ -174,6 +174,40 @@ a simple resource endpoint the document lookup would happen on a single field:
 
     invoices/<invoice_id>
 
+Endpoints that supports sub-resources will have a specific deletion behaviour
+for the DELETION operations
+Indeed, a DELETE to the following endpoint:
+
+::
+
+    people/51f63e0838345b6dcd7eabff/invoices
+
+would cause the delete all the documents that can be founded with the follow query:
+
+::
+
+    {'contact_id': '51f63e0838345b6dcd7eabff'}
+
+
+Therefore, for sub-resource end-point, not all the collection will be deleted, but
+only the documents that can be find with the same end-point.
+
+Another example, if a DELETE to the following item endpoint:
+
+::
+
+    people/51f63e0838345b6dcd7eabff/invoices/1
+
+would cause the delete all the documents that can be founded with the follow query:
+
+::
+
+    {'contact_id': '51f63e0838345b6dcd7eabff', "<invoice_id>": 1}
+
+This behaviour is to be able to support tree structure where the id of the resource alone
+is not a primary key by itself.
+
+
 .. _custom_item_endpoints:
 
 Customizable, multiple item endpoints
@@ -1000,6 +1034,10 @@ individually configured at the resource level using the domain configuration
 ``soft_delete`` setting. See :ref:`global` and :ref:`domain` for more
 information on enabling and configuring soft delete.
 
+In case the soft deletion is enabled, the callback on_delete_resource_originals
+and on_delete_resource_originals_<resource_name> will receive as originals the
+soft_deleted documents as well with the not deleted ones.
+
 Behavior
 ~~~~~~~~
 With soft delete enabled, DELETE requests to individual items and resources
@@ -1270,10 +1308,16 @@ Let's see an overview of what events are available:
 |       |        |      || ``def event(item)``                            |
 |       +--------+------+-------------------------------------------------+
 |       |Resource|Before|| ``on_delete_resource``                         |
-|       |        |      || ``def event(resource_name, item)``             |
+|       |        |      || ``def event(resource_name)``                   |
 |       |        |      +-------------------------------------------------+
 |       |        |      || ``on_delete_resource_<resource_name>``         |
-|       |        |      || ``def event(item)``                            |
+|       |        |      || ``def event()``                                |
+|       |        |      +-------------------------------------------------+
+|       |        |      || ``on_delete_resource_originals``               |
+|       |        |      || ``def event(resource_name, originals, lookup)``|
+|       |        |      +-------------------------------------------------+
+|       |        |      ||``on_delete_resource_originals_<resource_name>``|
+|       |        |      || ``def event(originals, lookup)``               |
 |       |        +------+-------------------------------------------------+
 |       |        |After || ``on_deleted_resource``                        |
 |       |        |      || ``def event(resource_name, item)``             |
@@ -1441,6 +1485,8 @@ These are the delete events with their method signature:
 - ``on_deleted_item_<resource_name>(item)``
 - ``on_delete_resource(resource_name)``
 - ``on_delete_resource_<resource_name>()``
+- ``on_delete_resource_originals(originals, lookup)``
+- ``on_delete_resource_originals_<resource_name>(originals, lookup)``
 - ``on_deleted_resource(resource_name)``
 - ``on_deleted_resource_<resource_name>()``
 
@@ -1470,6 +1516,12 @@ If you were brave enough to enable the DELETE command on resource endpoints
 notified of such a disastrous occurrence by hooking a callback function to the
 ``on_delete_resource(resource_name)`` or
 ``on_delete_resource_<resource_name>()`` hooks.
+
+- ``on_delete_resource_originals`` for any resource hit by the request after having retrieved the originals documents.
+- ``on_delete_resource_originals_<resource_name>`` for the specific `<resource_name>` resource endpoint
+  hit by the DELETE after having retrieved the original document. NOTE: those two event are useful in order to
+  perform some business logic before the actual remove operation given the look up and the list of originals
+
 
 
 .. admonition:: Please note
