@@ -387,6 +387,27 @@ class TestPost(TestBase):
         self.assert201(status)
         self.assertPostResponse(r)
 
+        # I test the embedded feature on the list of items
+        invoices = self.domain['invoices']
+        # Set field to be embedded
+        invoices['schema']['invoicing_contacts']['data_relation']['embeddable'] = True
+        # Test that global setting applies even if field is set to embedded
+        invoices['embedding'] = True
+        embedded = '{"invoicing_contacts": 1}'
+        r = self.test_client.get('%s/%s' % (invoices['url'],
+                                            '?embedded=%s' % embedded))
+        # Adding callback
+        generic_devent = DummyEvent(lambda: True)
+        self.app.on_embedding_resolving += generic_devent
+        person_devent = DummyEvent(lambda: True)
+        self.app.on_embedding_resolving += person_devent
+
+        # As the feature is not enabled, we should not enter in it
+        self.assertFalse(generic_devent.called is None)
+        self.assertFalse(person_devent.called is None)
+        generic_devent.clear_called_property()
+        person_devent.clear_called_property()
+
     def test_post_allow_unknown(self):
         del(self.domain['contacts']['schema']['ref']['required'])
         data = {"unknown": "unknown"}

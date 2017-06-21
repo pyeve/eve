@@ -699,6 +699,13 @@ class TestGet(TestBase):
         self.assertEqual(base64.decodestring(returned.encode()), asset)
 
     def test_get_embedded(self):
+
+        # Adding callback
+        generic_devent = DummyEvent(lambda: True)
+        self.app.on_embedding_resolving += generic_devent
+        person_devent = DummyEvent(lambda: True)
+        self.app.on_embedding_resolving += person_devent
+
         # We need to assign a `person` to our test invoice
         _db = self.connection[MONGO_DBNAME]
 
@@ -720,6 +727,13 @@ class TestGet(TestBase):
         embedded = '{"person": 1}'
         r = self.test_client.get('%s/%s' % (invoices['url'],
                                             '?embedded=%s' % embedded))
+
+        # As the feature is not enabled, we should not enter in it
+        self.assertTrue(generic_devent.called is None)
+        self.assertTrue(person_devent.called is None)
+        generic_devent.clear_called_property()
+        person_devent.clear_called_property()
+
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
         self.assertEqual(content['_items'][0]['person'], str(fake_contact_id))
@@ -731,6 +745,13 @@ class TestGet(TestBase):
         invoices['embedding'] = False
         r = self.test_client.get('%s/%s' % (invoices['url'],
                                             '?embedded=%s' % embedded))
+
+        # As the feature is not enabled, we should not enter in it
+        self.assertTrue(generic_devent.called is None)
+        self.assertTrue(person_devent.called is None)
+        generic_devent.clear_called_property()
+        person_devent.clear_called_property()
+
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
         self.assertEqual(content['_items'][0]['person'], str(fake_contact_id))
@@ -739,6 +760,13 @@ class TestGet(TestBase):
         invoices['embedding'] = True
         r = self.test_client.get('%s/%s' % (invoices['url'],
                                             '?embedded=%s' % embedded))
+
+        # As the feature is not enabled, we should not enter in it
+        self.assertFalse(generic_devent.called is None)
+        self.assertFalse(person_devent.called is None)
+        generic_devent.clear_called_property()
+        person_devent.clear_called_property()
+
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
         self.assertTrue('location' in content['_items'][0]['person'])
@@ -763,6 +791,13 @@ class TestGet(TestBase):
         r = self.test_client.get('%s/%s/%s' % (invoices['url'],
                                                self.invoice_id,
                                                '?embedded=%s' % embedded))
+
+        # As the feature is not enabled, we should not enter in it
+        self.assertFalse(generic_devent.called is None)
+        self.assertFalse(person_devent.called is None)
+        generic_devent.clear_called_property()
+        person_devent.clear_called_property()
+
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
         self.assertTrue('location' in content['person'])
