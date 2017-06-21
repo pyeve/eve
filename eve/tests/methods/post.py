@@ -387,6 +387,37 @@ class TestPost(TestBase):
         self.assert201(status)
         self.assertPostResponse(r)
 
+        # I test the embedded feature on the list of items
+        invoices = self.domain['invoices']
+        # Set field to be embedded
+        new_invoicing_contacts = {
+            'type': 'list',
+            'schema': {
+                'type': 'objectid',
+                'data_relation': {'resource': 'contacts',
+                                  'field': '_id',
+                                  'embeddable': True
+                                  }
+            }
+        }
+        old_invoicing_contacts = invoices['schema']['invoicing_contacts']
+        invoices['schema']['invoicing_contacts'] = new_invoicing_contacts
+        # Test that global setting applies even if field is set to embedded
+        invoices['embedding'] = True
+        # Adding callback
+        generic_devent = DummyEvent(lambda: True)
+        self.app.on_embedding_resolving += generic_devent
+        person_devent = DummyEvent(lambda: True)
+        self.app.on_embedding_resolving += person_devent
+        embedded = '{"invoicing_contacts": 1}'
+        r = self.test_client.get('%s/%s' % (invoices['url'],
+                                            '?embedded=%s' % embedded))
+        self.assert200(r.status_code)
+        # As the feature is not enabled, we should not enter in it
+        self.assertFalse(generic_devent.called is None)
+        self.assertFalse(person_devent.called is None)
+        invoices['schema']['invoicing_contacts'] = old_invoicing_contacts
+
     def test_post_allow_unknown(self):
         del(self.domain['contacts']['schema']['ref']['required'])
         data = {"unknown": "unknown"}
