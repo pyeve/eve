@@ -8,6 +8,8 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- Performance improved on retrieving a list of embedded documents. Closes
+  #1029 (Amedeo91).
 - New: ``JSON_REQUEST_CONTENT_TYPES`` or supported JSON content types. Useful
   when you need support for vendor-specific json types. Please note: responses
   will still carry the standard ``application/json`` type. Defaults to
@@ -22,6 +24,7 @@ Version 0.8
   Crochet).
 - Change: Drop Flask-PyMongo dependency. Closes #855 (Artem Kolesnikov).
 - Docs: code snippets are now Python 3 compatibile (Pahaz Blinov).
+- Dev: Delete and cleanup of some unnecessary code.
 - Dev: after the latest update (May 4th) travis-ci would not run tests on
   Python 2.6. 
 - Dev: all branches are now tested on travis-ci. Previously, only 'master' was
