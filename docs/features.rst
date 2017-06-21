@@ -965,6 +965,71 @@ that are embedded by default:
     $ curl -i http://example.com/people/?embedded={"author": 0}
     HTTP/1.1 200 OK
 
+Embedded callback Serialization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In order to ease the development of tree structure within Eve, new callback associated
+to the embedding solving of documents have been introduced.
+The callback gives the possibility to add layer of custom business logic, such
+as adding filter or modifying query as per the pre GET/ per fetch events, to the application.
+This callbacks, in particular, can ease the development of the following end-points:
+   1. carts/<cart_id> --> datasource: carts
+   2. carts/<cart_id>/products/<product_id> --> datasource: products
+   3. carts/<cart_id>/products/<product_id>/details/<detail_id> --> datasource: details
+
+Indeed, let's say that carts contains a reference to products and products to details
+within the documents and I want to allow the clients to request them embedded on each
+end-point.
+In this scenario there is nothing that oblige me to have unique id for product_id
+(as I might have the same product across several carts) and detail_id (as I might
+have some details across several product). Therefore, only the combination
+of all the field in the URLs above allow me to find one and only one document.
+Therefore, the consumer of the framework is available to use those callback in order
+to be able to customize this behaviour for his needs.
+
+Here is an example of how events are configured:
+
+.. code-block:: pycon
+
+   >>> def modify_query(field_name, subdocument, data_relation, subresources_query):
+   ...     subresources_query[field_name].update({"custom_id": subdocument["custom_id"]})
+
+   >>> app = Eve()
+   >>> app.on_embedding_resolving += modify_query
+
+You may use want to make the query result no results for a specific end-point:
+
+.. code-block:: pycon
+
+   >>> from flask import abort
+
+   >>> def check_update_access(subdocument, data_relation, subresources_query):
+   ...     if subdocument["some_field"]:
+   ...         subresources_query["products"].update({"unknow_field": 1234})
+
+   >>> app = Eve()
+   >>> app.on_embedding_resolving_products += check_products_constrain
+
+The events are fired for resources and items As per the example above.
+For each action two events will be fired:
+
+- Generic: ``on_embedding_resolving``
+- With the name of the resource: ``on_embedding_resolving_<resource_name>``
+
+Let's see an overview of what events are available:
+
++-------+--------+------+-------------------------------------------------+
+|Action |What    |When  |Event name / method signature                    |
++=======+========+======+=================================================+
+|Fetch  |Resource|Before|| ``on_embedding_resolving``                     |
+|       |        |      || ``def event(field_name, subdocument,           |
+|       |        |      ||             data_relation,subresources_query)``|
+|       +--------+------+-------------------------------------------------+
+|       |Item    |Before|| ``on_embedding_resolving_<resource_name>``     |
+|       |        |      || ``def event(subdocument, data_relation,        |
+|       |        |      ||             subresources_query)``              |
++-------+--------+------+-------------------------------------------------+
+
+
 Limitations
 ~~~~~~~~~~~
 Currently we support embedding of documents by references located in any
