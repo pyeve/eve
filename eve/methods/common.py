@@ -677,7 +677,7 @@ def resolve_embedded_fields(resource, req):
     return enabled_embedded_fields
 
 
-def embedded_document(references, data_relation, field_name):
+def embedded_document(last_field, subdocument, data_relation, field_name):
     """ Returns a document to be embedded by reference using data_relation
     taking into account document versions
 
@@ -690,6 +690,8 @@ def embedded_document(references, data_relation, field_name):
     embedded_docs = []
 
     output_is_list = True
+
+    references = subdocument[last_field]
 
     if not isinstance(references, list):
         output_is_list = False
@@ -720,8 +722,16 @@ def embedded_document(references, data_relation, field_name):
                                     [], latest_embedded_doc)
             embedded_docs.append(embedded_doc)
     else:
-        id_value_to_sort, list_of_id_field_name, subresources_query = generate_query_and_sorting_criteria(data_relation,
-                                                                                                          references)
+        id_value_to_sort, list_of_id_field_name, subresources_query = \
+            generate_query_and_sorting_criteria(data_relation,references)
+
+        # I am adding the callback, so that the framework-user can easily customize
+        # the subresources_query for his purpose
+        getattr(app, "on_embedding_resolving")(field_name, subdocument,
+                                               data_relation, subresources_query)
+        getattr(app, "on_embedding_resolving_%s" % field_name)(subdocument,
+                                                               data_relation,
+                                                               subresources_query)
         for subresource in subresources_query:
             list_embedded_doc = list(app.data.find(subresource,
                                                    None,
@@ -902,13 +912,16 @@ def resolve_embedded_documents(document, resource, embedded_fields):
     # NOTE(Gonéri): We resolve the embedded documents at the end.
     for field in sorted(embedded_fields, key=lambda a: a.count('.')):
         data_relation = field_definition(resource, field)['data_relation']
-        getter = lambda ref: embedded_document(ref, data_relation, field)  # noqa
+        getter = lambda embed_field, father_doc: embedded_document(embed_field,
+                                                                   father_doc,
+                                                                   data_relation,
+                                                                   field)  # noqa
         fields_chain = field.split('.')
         last_field = fields_chain[-1]
         for subdocument in subdocuments(fields_chain[:-1], resource, document):
             if last_field not in subdocument:
                 continue
-            subdocument[last_field] = getter(subdocument[last_field])
+            subdocument[last_field] = getter(last_field, subdocument)
 
 
 def resolve_media_files(document, resource):

@@ -305,3 +305,6 @@ class DummyEvent(object):
             the positional arguments of the last call if called.
         """
         return self.__called
+
+    def clear_called_property(self):
+        self.__called = None
