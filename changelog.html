@@ -49,8 +49,12 @@
 <div class="section" id="version-0-8">
 <h3>Version 0.8<a class="headerlink" href="#version-0-8" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Performance improved on retrieving a list of embedded documents. Closes
-#1029 (Amedeo91).</li>
+<li>New: <tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt> can now be used in conjuction with <tt class="docutils literal"><span class="pre">MONGO_URI</span></tt>.
+Previously, if <tt class="docutils literal"><span class="pre">MONGO_URI</span></tt> was missing the database name, an exception
+would be rised.
+Closes #1037.</li>
+<li>Performance improved on retrieving a list of embedded documents. Closes #1029
+(Amedeo91).</li>
 <li>New: <tt class="docutils literal"><span class="pre">JSON_REQUEST_CONTENT_TYPES</span></tt> or supported JSON content types. Useful
 when you need support for vendor-specific json types. Please note: responses
 will still carry the standard <tt class="docutils literal"><span class="pre">application/json</span></tt> type. Defaults to
