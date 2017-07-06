@@ -38,13 +38,14 @@ def deleteitem(resource, **lookup):
 
 
 def deleteitem_internal(
-        resource, concurrency_check=False, suppress_callbacks=False, **lookup):
+        resource, concurrency_check=False, suppress_callbacks=False, original=None, **lookup):
     """ Intended for internal delete calls, this method is not rate limited,
     authentication is not checked, pre-request events are not raised, and
     concurrency checking is optional. Deletes a resource item.
 
     :param resource: name of the resource to which the item(s) belong.
     :param concurrency_check: concurrency check switch (bool)
+    :param original: original document if already fetched from the database
     :param **lookup: item lookup query.
 
     .. versionchanged:: 0.6
@@ -83,7 +84,7 @@ def deleteitem_internal(
     """
     resource_def = config.DOMAIN[resource]
     soft_delete_enabled = resource_def['soft_delete']
-    original = get_document(resource, concurrency_check, **lookup)
+    original = get_document(resource, concurrency_check, original, **lookup)
     if not original or (soft_delete_enabled and
                         original.get(config.DELETED) is True):
         abort(404)
@@ -137,8 +138,7 @@ def deleteitem_internal(
             # get_document() call since it also deals with etag matching, which
             # is still needed. Also, this lookup should never fail.
             # TODO not happy with this hack. Not at all. Is there a better way?
-            original = app.data.find_one_raw(
-                resource, original[resource_def['id_field']])
+            original = app.data.find_one_raw(resource, **lookup)
 
         for field in media_fields:
             if field in original:
@@ -150,7 +150,7 @@ def deleteitem_internal(
                     app.media.delete(original[field], resource)
 
         id = original[resource_def['id_field']]
-        app.data.remove(resource, {resource_def['id_field']: id})
+        app.data.remove(resource, lookup)
 
         # TODO: should attempt to delete version collection even if setting is
         # off
@@ -193,20 +193,39 @@ def delete(resource, **lookup):
 
     .. versionadded:: 0.0.2
     """
-    getattr(app, "on_delete_resource")(resource)
-    getattr(app, "on_delete_resource_%s" % resource)()
 
     resource_def = config.DOMAIN[resource]
+    getattr(app, "on_delete_resource")(resource)
+    getattr(app, "on_delete_resource_%s" % resource)()
+    default_request = ParsedRequest()
+    if resource_def['soft_delete']:
+        # get_document should always fetch soft deleted documents from the db
+        # callers must handle soft deleted documents
+        default_request.show_deleted = True
+    originals = list(app.data.find(resource, default_request, lookup))
+    if not originals:
+        abort(404)
+    # I add new callback as I want the framework to be retro-compatible
+    getattr(app, "on_delete_resource_originals")(resource,
+                                                 originals,
+                                                 lookup)
+    getattr(app, "on_delete_resource_originals_%s" % resource)(originals,
+                                                               lookup)
+    id_field = resource_def['id_field']
 
     if resource_def['soft_delete']:
-        # Soft delete all items not already marked deleted
-        # (by default, data.find doesn't return soft deleted items)
-        default_request = ParsedRequest()
-        cursor = app.data.find(resource, default_request, lookup)
-        for document in list(cursor):
-            document_id = document[resource_def['id_field']]
+        # I need to check that I have at least some documents not soft_deleted
+        # Otherwise, I should abort 404
+        # I skip all the soft_deleted documents
+        originals = [x for x in originals if x.get(config.DELETED) is not True]
+        if not originals:
+            # Nothing to be deleted
+            abort(404)
+        for document in originals:
+            lookup[id_field] = document[id_field]
             deleteitem_internal(resource, concurrency_check=False,
-                                suppress_callbacks=True, _id=document_id)
+                                suppress_callbacks=True,
+                                original=document, **lookup)
     else:
         # TODO if the resource schema includes media files, these won't be
         # deleted by use of this global method (it should be disabled). Media

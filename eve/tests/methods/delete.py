@@ -21,6 +21,27 @@ class TestDelete(TestBase):
         _, status = self.delete(url)
         self.assert404(status)
 
+    def test_bulk_delete_id_field(self):
+        etag_check = self.app.config["IF_MATCH"]
+        self.app.config["IF_MATCH"] = False
+        products, _ = self.get(self.products)
+        list_products_skus = [product["parent_product"] for product in products["_items"]
+                              if "parent_product" in product]
+        # Deletion of all the product in the first cart
+        url = self.child_products_url.replace('<regex("[A-Z]+"):parent_product>', list_products_skus[0])
+        _, status = self.delete(url)
+        self.assert204(status)
+        _, status = self.get(url)
+        self.assert404(status)
+        products_url = '%s/%s' % (self.products, list_products_skus[0])
+        _, status = self.delete(products_url)
+        self.assert204(status)
+        _, status = self.get(products_url)
+        self.assert404(status)
+        _, status = self.get(self.products)
+        self.assert200(status)
+        self.app.config["IF_MATCH"] = etag_check
+
     def test_delete_from_resource_endpoint(self):
         r, status = self.delete(self.known_resource_url)
         self.assert204(status)
@@ -745,17 +766,23 @@ class TestDeleteEvents(TestBase):
         self.delete_resource()
         self.assertEqual(('contacts',), devent.called)
 
-    def test_on_delete_resource_contacts(self):
-        devent = DummyEvent(self.before_delete)
-        self.app.on_delete_resource_contacts += devent
+    def test_on_delete_resource(self):
+        devent1 = DummyEvent(self.before_delete)
+        self.app.on_delete_resource += devent1
+        devent2 = DummyEvent(self.before_delete)
+        self.app.on_delete_resource_originals += devent2
         self.delete_resource()
-        self.assertEqual(tuple(), devent.called)
+        self.assertEqual(('contacts',), devent1.called)
+        self.assertFalse(devent2.called is None)
 
-    def test_on_deleted_resource(self):
-        devent = DummyEvent(self.after_delete)
-        self.app.on_deleted_resource += devent
+    def test_on_delete_resource_contacts(self):
+        devent1 = DummyEvent(self.before_delete)
+        self.app.on_delete_resource_contacts += devent1
+        devent2 = DummyEvent(self.before_delete)
+        self.app.on_delete_resource_originals_contacts += devent2
         self.delete_resource()
-        self.assertEqual(('contacts',), devent.called)
+        self.assertEqual(tuple(), devent1.called)
+        self.assertFalse(devent2.called is None)
 
     def test_on_deleted_resource_contacts(self):
         devent = DummyEvent(self.after_delete)
