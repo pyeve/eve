@@ -67,7 +67,7 @@ class PyMongo(object):
             mongo_settings = uri_parser.parse_uri(host)
             dbname = mongo_settings.get('database')
             if not dbname:
-                raise ValueError('MongoDB URI does not contain database name')
+                dbname = app.config[key('DBNAME')]
         else:
             dbname = app.config[key('DBNAME')]
             host = app.config[key('HOST')]
