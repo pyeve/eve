@@ -938,7 +938,7 @@ class TestPost(TestBase):
 
     def post(self, url, data, headers=None, content_type='application/json'):
         if not headers:
-            headers=[]
+            headers = []
         headers.append(('Content-Type', content_type))
         r = self.test_client.post(url, data=json.dumps(data), headers=headers)
         return self.parse_response(r)

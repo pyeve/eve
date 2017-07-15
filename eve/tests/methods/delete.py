@@ -25,10 +25,11 @@ class TestDelete(TestBase):
         etag_check = self.app.config["IF_MATCH"]
         self.app.config["IF_MATCH"] = False
         products, _ = self.get(self.products)
-        list_products_skus = [product["parent_product"] for product in products["_items"]
-                              if "parent_product" in product]
+        list_products_skus = [product["parent_product"] for product in
+                              products["_items"] if "parent_product" in product]
         # Deletion of all the product in the first cart
-        url = self.child_products_url.replace('<regex("[A-Z]+"):parent_product>', list_products_skus[0])
+        url = self.child_products_url.replace(
+            '<regex("[A-Z]+"):parent_product>', list_products_skus[0])
         _, status = self.delete(url)
         self.assert204(status)
         _, status = self.get(url)
@@ -759,12 +760,6 @@ class TestDeleteEvents(TestBase):
         self.app.on_post_DELETE_contacts += devent
         self.delete_resource()
         self.assertFalse(devent.called is None)
-
-    def test_on_delete_resource(self):
-        devent = DummyEvent(self.before_delete)
-        self.app.on_delete_resource += devent
-        self.delete_resource()
-        self.assertEqual(('contacts',), devent.called)
 
     def test_on_delete_resource(self):
         devent1 = DummyEvent(self.before_delete)

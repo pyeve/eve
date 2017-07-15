@@ -37,8 +37,8 @@ def deleteitem(resource, **lookup):
     return deleteitem_internal(resource, concurrency_check=True, **lookup)
 
 
-def deleteitem_internal(
-        resource, concurrency_check=False, suppress_callbacks=False, original=None, **lookup):
+def deleteitem_internal(resource, concurrency_check=False,
+                        suppress_callbacks=False, original=None, **lookup):
     """ Intended for internal delete calls, this method is not rate limited,
     authentication is not checked, pre-request events are not raised, and
     concurrency checking is optional. Deletes a resource item.
