@@ -174,38 +174,40 @@ a simple resource endpoint the document lookup would happen on a single field:
 
     invoices/<invoice_id>
 
-Endpoints that supports sub-resources will have a specific deletion behaviour
-for the DELETION operations
-Indeed, a DELETE to the following endpoint:
+
+Endpoints that supports sub-resources will have a specific behavior on
+``DELETE`` operations. A ``DELETE`` to the following endpoint:
 
 ::
 
     people/51f63e0838345b6dcd7eabff/invoices
 
-would cause the delete all the documents that can be founded with the follow query:
+would cause the deletion of all the documents that match follow query:
 
 ::
 
     {'contact_id': '51f63e0838345b6dcd7eabff'}
 
 
-Therefore, for sub-resource end-point, not all the collection will be deleted, but
-only the documents that can be find with the same end-point.
+Therefore, for sub-resource endpoints, only the documents satisfying the
+endpoint semantic will be deleted. This differs from the standard behavior,
+whereas a delete operation on a collection enpoint will cause the deletion of
+all the documents in the collection.
 
-Another example, if a DELETE to the following item endpoint:
+Another example. A ``DELETE`` to the following item endpoint:
 
 ::
 
     people/51f63e0838345b6dcd7eabff/invoices/1
 
-would cause the delete all the documents that can be founded with the follow query:
+would cause the deletion all the documents matched by the follow query:
 
 ::
 
     {'contact_id': '51f63e0838345b6dcd7eabff', "<invoice_id>": 1}
 
-This behaviour is to be able to support tree structure where the id of the resource alone
-is not a primary key by itself.
+This behaviour enables support for typical tree structures, where the id of the
+resource alone is not necessarily a primary key by itself.
 
 
 .. _custom_item_endpoints:
@@ -1034,9 +1036,11 @@ individually configured at the resource level using the domain configuration
 ``soft_delete`` setting. See :ref:`global` and :ref:`domain` for more
 information on enabling and configuring soft delete.
 
-In case the soft deletion is enabled, the callback on_delete_resource_originals
-and on_delete_resource_originals_<resource_name> will receive as originals the
-soft_deleted documents as well with the not deleted ones.
+When soft deletion is enabled, callbacks attached to
+``on_delete_resource_originals`` and
+``on_delete_resource_originals_<resource_name>`` events will receive both
+deleted and not deleted documents via the ``originals`` argument (see
+:ref:`eventhooks`).
 
 Behavior
 ~~~~~~~~
@@ -1244,87 +1248,87 @@ both. And for each action two events will be fired:
 
 Let's see an overview of what events are available:
 
-+-------+--------+------+-------------------------------------------------+
-|Action |What    |When  |Event name / method signature                    |
-+=======+========+======+=================================================+
-|Fetch  |Resource|After || ``on_fetched_resource``                        |
-|       |        |      || ``def event(resource_name, response)``         |
-|       |        |      +-------------------------------------------------+
-|       |        |      || ``on_fetched_resource_<resource_name>``        |
-|       |        |      || ``def event(response)``                        |
-|       +--------+------+-------------------------------------------------+
-|       |Item    |After || ``on_fetched_item``                            |
-|       |        |      || ``def event(resource_name, response)``         |
-|       |        |      +-------------------------------------------------+
-|       |        |      || ``on_fetched_item_<resource_name>``            |
-|       |        |      || ``def event(response)``                        |
-+-------+--------+------+-------------------------------------------------+
-|Insert |Items   |Before|| ``on_insert``                                  |
-|       |        |      || ``def event(resource_name, items)``            |
-|       |        |      +-------------------------------------------------+
-|       |        |      || ``on_insert_<resource_name>``                  |
-|       |        |      || ``def event(items)``                           |
-|       |        +------+-------------------------------------------------+
-|       |        |After || ``on_inserted``                                |
-|       |        |      || ``def event(resource_name, items)``            |
-|       |        |      +-------------------------------------------------+
-|       |        |      || ``on_inserted_<resource_name>``                |
-|       |        |      || ``def event(items)``                           |
-+-------+--------+------+-------------------------------------------------+
-|Replace|Item    |Before|| ``on_replace``                                 |
-|       |        |      || ``def event(resource_name, item, original)``   |
-|       |        |      +-------------------------------------------------+
-|       |        |      || ``on_replace_<resource_name>``                 |
-|       |        |      || ``def event(item, original)``                  |
-|       |        +------+-------------------------------------------------+
-|       |        |After || ``on_replaced``                                |
-|       |        |      || ``def event(resource_name, item, original)``   |
-|       |        |      +-------------------------------------------------+
-|       |        |      || ``on_replaced_<resource_name>``                |
-|       |        |      || ``def event(item, original)``                  |
-+-------+--------+------+-------------------------------------------------+
-|Update |Item    |Before|| ``on_update``                                  |
-|       |        |      || ``def event(resource_name, updates, original)``|
-|       |        |      +-------------------------------------------------+
-|       |        |      || ``on_update_<resource_name>``                  |
-|       |        |      || ``def event(updates, original)``               |
-|       |        +------+-------------------------------------------------+
-|       |        |After || ``on_updated``                                 |
-|       |        |      || ``def event(resource_name, updates, original)``|
-|       |        |      +-------------------------------------------------+
-|       |        |      || ``on_updated_<resource_name>``                 |
-|       |        |      || ``def event(updates, original)``               |
-+-------+--------+------+-------------------------------------------------+
-|Delete |Item    |Before|| ``on_delete_item``                             |
-|       |        |      || ``def event(resource_name, item)``             |
-|       |        |      +-------------------------------------------------+
-|       |        |      || ``on_delete_item_<resource_name>``             |
-|       |        |      || ``def event(item)``                            |
-|       |        +------+-------------------------------------------------+
-|       |        |After || ``on_deleted_item``                            |
-|       |        |      || ``def event(resource_name, item)``             |
-|       |        |      +-------------------------------------------------+
-|       |        |      || ``on_deleted_item_<resource_name>``            |
-|       |        |      || ``def event(item)``                            |
-|       +--------+------+-------------------------------------------------+
-|       |Resource|Before|| ``on_delete_resource``                         |
-|       |        |      || ``def event(resource_name)``                   |
-|       |        |      +-------------------------------------------------+
-|       |        |      || ``on_delete_resource_<resource_name>``         |
-|       |        |      || ``def event()``                                |
-|       |        |      +-------------------------------------------------+
-|       |        |      || ``on_delete_resource_originals``               |
-|       |        |      || ``def event(resource_name, originals, lookup)``|
-|       |        |      +-------------------------------------------------+
-|       |        |      ||``on_delete_resource_originals_<resource_name>``|
-|       |        |      || ``def event(originals, lookup)``               |
-|       |        +------+-------------------------------------------------+
-|       |        |After || ``on_deleted_resource``                        |
-|       |        |      || ``def event(resource_name, item)``             |
-|       |        |      +-------------------------------------------------+
-|       |        |      || ``on_deleted_resource_<resource_name>``        |
-|       |        |      || ``def event(item)``                            |
-+-------+--------+------+-------------------------------------------------+
++-------+--------+------+--------------------------------------------------+
+|Action |What    |When  |Event name / method signature                     |
++=======+========+======+==================================================+
+|Fetch  |Resource|After || ``on_fetched_resource``                         |
+|       |        |      || ``def event(resource_name, response)``          |
+|       |        |      +--------------------------------------------------+
+|       |        |      || ``on_fetched_resource_<resource_name>``         |
+|       |        |      || ``def event(response)``                         |
+|       +--------+------+--------------------------------------------------+
+|       |Item    |After || ``on_fetched_item``                             |
+|       |        |      || ``def event(resource_name, response)``          |
+|       |        |      +--------------------------------------------------+
+|       |        |      || ``on_fetched_item_<resource_name>``             |
+|       |        |      || ``def event(response)``                         |
++-------+--------+------+--------------------------------------------------+
+|Insert |Items   |Before|| ``on_insert``                                   |
+|       |        |      || ``def event(resource_name, items)``             |
+|       |        |      +--------------------------------------------------+
+|       |        |      || ``on_insert_<resource_name>``                   |
+|       |        |      || ``def event(items)``                            |
+|       |        +------+--------------------------------------------------+
+|       |        |After || ``on_inserted``                                 |
+|       |        |      || ``def event(resource_name, items)``             |
+|       |        |      +--------------------------------------------------+
+|       |        |      || ``on_inserted_<resource_name>``                 |
+|       |        |      || ``def event(items)``                            |
++-------+--------+------+--------------------------------------------------+
+|Replace|Item    |Before|| ``on_replace``                                  |
+|       |        |      || ``def event(resource_name, item, original)``    |
+|       |        |      +--------------------------------------------------+
+|       |        |      || ``on_replace_<resource_name>``                  |
+|       |        |      || ``def event(item, original)``                   |
+|       |        +------+--------------------------------------------------+
+|       |        |After || ``on_replaced``                                 |
+|       |        |      || ``def event(resource_name, item, original)``    |
+|       |        |      +--------------------------------------------------+
+|       |        |      || ``on_replaced_<resource_name>``                 |
+|       |        |      || ``def event(item, original)``                   |
++-------+--------+------+--------------------------------------------------+
+|Update |Item    |Before|| ``on_update``                                   |
+|       |        |      || ``def event(resource_name, updates, original)`` |
+|       |        |      +--------------------------------------------------+
+|       |        |      || ``on_update_<resource_name>``                   |
+|       |        |      || ``def event(updates, original)``                |
+|       |        +------+--------------------------------------------------+
+|       |        |After || ``on_updated``                                  |
+|       |        |      || ``def event(resource_name, updates, original)`` |
+|       |        |      +--------------------------------------------------+
+|       |        |      || ``on_updated_<resource_name>``                  |
+|       |        |      || ``def event(updates, original)``                |
++-------+--------+------+--------------------------------------------------+
+|Delete |Item    |Before|| ``on_delete_item``                              |
+|       |        |      || ``def event(resource_name, item)``              |
+|       |        |      +--------------------------------------------------+
+|       |        |      || ``on_delete_item_<resource_name>``              |
+|       |        |      || ``def event(item)``                             |
+|       |        +------+--------------------------------------------------+
+|       |        |After || ``on_deleted_item``                             |
+|       |        |      || ``def event(resource_name, item)``              |
+|       |        |      +--------------------------------------------------+
+|       |        |      || ``on_deleted_item_<resource_name>``             |
+|       |        |      || ``def event(item)``                             |
+|       +--------+------+--------------------------------------------------+
+|       |Resource|Before|| ``on_delete_resource``                          |
+|       |        |      || ``def event(resource_name)``                    |
+|       |        |      +--------------------------------------------------+
+|       |        |      || ``on_delete_resource_<resource_name>``          |
+|       |        |      || ``def event()``                                 |
+|       |        |      +--------------------------------------------------+
+|       |        |      || ``on_delete_resource_originals``                |
+|       |        |      || ``def event(resource_name, originals, lookup)`` |
+|       |        |      +--------------------------------------------------+
+|       |        |      || ``on_delete_resource_originals_<resource_name>``|
+|       |        |      || ``def event(originals, lookup)``                |
+|       |        +------+--------------------------------------------------+
+|       |        |After || ``on_deleted_resource``                         |
+|       |        |      || ``def event(resource_name, item)``              |
+|       |        |      +--------------------------------------------------+
+|       |        |      || ``on_deleted_resource_<resource_name>``         |
+|       |        |      || ``def event(item)``                             |
++-------+--------+------+--------------------------------------------------+
 
 
 
