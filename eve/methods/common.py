@@ -37,7 +37,7 @@ from functools import wraps
 from werkzeug.datastructures import MultiDict, CombinedMultiDict
 
 
-def get_document(resource, concurrency_check, **lookup):
+def get_document(resource, concurrency_check, original=None, **lookup):
     """ Retrieves and return a single document. Since this function is used by
     the editing methods (PUT, PATCH, DELETE), we make sure that the client
     request references the current representation of the document before
@@ -47,6 +47,7 @@ def get_document(resource, concurrency_check, **lookup):
 
     :param resource: the name of the resource to which the document belongs to.
     :param concurrency_check: boolean check for concurrency control
+    :param original: in case the document was already retrieved before
     :param **lookup: document lookup query
 
     .. versionchanged:: 0.6
@@ -69,7 +70,11 @@ def get_document(resource, concurrency_check, **lookup):
         # callers must handle soft deleted documents
         req.show_deleted = True
 
-    document = app.data.find_one(resource, req, **lookup)
+    if original:
+        document = original
+    else:
+        document = app.data.find_one(resource, req, **lookup)
+
     if document:
         e_if_m = config.ENFORCE_IF_MATCH
         if_m = config.IF_MATCH

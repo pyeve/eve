@@ -311,15 +311,14 @@ class Mongo(DataLayer):
             filter_ = self.combine_queries(
                 filter_, {config.DELETED: {"$ne": True}})
 
-        document = self.pymongo(resource).db[datasource] \
-                                         .find_one(filter_, projection)
-        return document
+        return self.pymongo(resource).db[datasource] \
+                                     .find_one(filter_, projection)
 
-    def find_one_raw(self, resource, _id):
+    def find_one_raw(self, resource, **lookup):
         """ Retrieves a single raw document.
 
         :param resource: resource name.
-        :param id: unique id.
+        :param **lookup: lookup query.
 
         .. versionchanged:: 0.6
            Support for multiple databases.
@@ -327,12 +326,14 @@ class Mongo(DataLayer):
         .. versionadded:: 0.4
         """
         id_field = config.DOMAIN[resource]['id_field']
+        _id = lookup.get(id_field)
         datasource, filter_, _, _ = self._datasource_ex(resource,
                                                         {id_field: _id},
                                                         None)
 
-        document = self.pymongo(resource).db[datasource].find_one(_id)
-        return document
+        lookup = self._mongotize(lookup, resource)
+
+        return self.pymongo(resource).db[datasource].find_one(lookup)
 
     def find_list_of_ids(self, resource, ids, client_projection=None):
         """ Retrieves a list of documents from the collection given
