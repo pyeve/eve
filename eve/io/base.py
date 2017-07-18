@@ -439,6 +439,11 @@ class DataLayer(object):
                 # there's no standard projection so we assume we are in a
                 # allow_unknown = True
                 fields = client_projection
+        elif projection_ is not None:
+            # in case of mixed projection, only keep the exclusions
+            projection_vals = projection_.values()
+            if 0 in projection_vals and 1 in projection_vals:
+                fields = dict((k, v) for k, v in projection_.items() if not v)
 
         # If the current HTTP method is in `public_methods` or
         # `public_item_methods`, skip the `auth_field` check
