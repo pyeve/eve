@@ -4,6 +4,7 @@ from datetime import datetime
 import simplejson as json
 from bson import ObjectId
 from bson.dbref import DBRef
+from collections import OrderedDict
 
 from eve.methods.common import serialize, normalize_dotted_fields
 from eve.tests import TestBase
@@ -328,6 +329,39 @@ class TestSerializer(TestBase):
             with self.app.app_context():
                 serialized = serialize(doc, schema=schema)
                 self.assertTrue(isinstance(serialized['x_of-field'], ObjectId))
+
+    def test_serialize_alongside_x_of_rules(self):
+        for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+            schema = OrderedDict([
+                ('x_of-field', {
+                    x_of: [
+                        {'type': 'objectid'},
+                        {'required': True}
+                    ]
+                }),
+                ('oid-field', {'type': 'objectid'})
+            ])
+            doc = OrderedDict([('x_of-field', '50656e4538345b39dd0414f0'), ('oid-field', '50656e4538345b39dd0414f0')])
+            with self.app.app_context():
+                serialized = serialize(doc, schema=schema)
+                self.assertTrue(isinstance(serialized['x_of-field'], ObjectId))
+                self.assertTrue(isinstance(serialized['oid-field'], ObjectId))
+
+    def test_serialize_list_alongside_x_of_rules(self):
+        for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+            schema = {
+                'x_of-field': {
+                    "type": "list",
+                    x_of: [
+                        {"schema": {'type': 'objectid'}},
+                        {"schema": {'type': 'datetime'}}
+                    ]
+                }
+            }
+            doc = {'x_of-field': ['50656e4538345b39dd0414f0']}
+            with self.app.app_context():
+                serialized = serialize(doc, schema=schema)
+                self.assertTrue(isinstance(serialized['x_of-field'][0], ObjectId))
 
     def test_serialize_inside_nested_x_of_rules(self):
         schema = {

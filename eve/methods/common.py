@@ -387,15 +387,16 @@ def serialize(document, resource=None, schema=None, fields=None):
             if field in schema:
                 field_schema = schema[field]
                 field_type = field_schema.get('type')
-                if field_type is None:
-                    for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
-                        for optschema in field_schema.get(x_of, []):
-                            schema = {field: optschema}
-                            serialize(document, schema=schema)
-                        x_of_type = '{0}_type'.format(x_of)
-                        for opttype in field_schema.get(x_of_type, []):
-                            schema = {field: {'type': opttype}}
-                            serialize(document, schema=schema)
+                for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+                    for optschema in field_schema.get(x_of, []):
+                        optschema = dict(field_schema, **optschema)
+                        optschema.pop(x_of, None)
+                        serialize(document, schema={field: optschema})
+                    x_of_type = '{0}_type'.format(x_of)
+                    for opttype in field_schema.get(x_of_type, []):
+                        optschema = dict(field_schema, type=opttype)
+                        optschema.pop(x_of_type, None)
+                        serialize(document, schema={field: optschema})
                 if config.AUTO_CREATE_LISTS and field_type == 'list':
                     # Convert single values to lists
                     if not isinstance(document[field], list):
@@ -432,16 +433,14 @@ def serialize(document, resource=None, schema=None, fields=None):
                         # a list of items determined by *of rules
                         for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
                             for optschema in field_schema.get(x_of, []):
-                                schema = {field: {
-                                    'type': field_type,
-                                    'schema': optschema}}
-                                serialize(document, schema=schema)
+                                serialize(document,
+                                          schema={field: {'type': field_type,
+                                                          'schema': optschema}})
                             x_of_type = '{0}_type'.format(x_of)
                             for opttype in field_schema.get(x_of_type, []):
-                                schema = {field: {
-                                    'type': field_type,
-                                    'schema': {'type': opttype}}}
-                                serialize(document, schema=schema)
+                                serialize(document,
+                                          schema={field: {'type': field_type,
+                                                          'schema': {'type': opttype}}})
                     else:
                         # a list of one type, arbitrary length
                         field_type = field_schema.get('type')
