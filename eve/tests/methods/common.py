@@ -354,14 +354,14 @@ class TestSerializer(TestBase):
                     "type": "list",
                     x_of: [
                         {"schema": {'type': 'objectid'}},
-                        {"schema": {'required': True}}
+                        {"schema": {'type': 'datetime'}}
                     ]
                 }
             }
-            doc = {'x_of-field': '50656e4538345b39dd0414f0'}
+            doc = {'x_of-field': ['50656e4538345b39dd0414f0']}
             with self.app.app_context():
                 serialized = serialize(doc, schema=schema)
-                self.assertTrue(isinstance(serialized['x_of-field'], ObjectId))
+                self.assertTrue(isinstance(serialized['x_of-field'][0], ObjectId))
 
     def test_serialize_inside_nested_x_of_rules(self):
         schema = {
