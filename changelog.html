@@ -49,12 +49,15 @@
 <div class="section" id="version-0-8">
 <h3>Version 0.8<a class="headerlink" href="#version-0-8" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>Fix: serialization bug that randomly skips fields if &#8220;x_of&#8221; is encountered
+(Raychee).</li>
+<li>New: <tt class="docutils literal"><span class="pre">on_delete_resource_originals</span></tt> fired when soft deletion occurs (Amedeo
+Bussi).</li>
 <li>New: <tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt> can now be used in conjuction with <tt class="docutils literal"><span class="pre">MONGO_URI</span></tt>.
 Previously, if <tt class="docutils literal"><span class="pre">MONGO_URI</span></tt> was missing the database name, an exception
-would be rised.
-Closes #1037.</li>
+would be rised. Closes #1037.</li>
 <li>Performance improved on retrieving a list of embedded documents. Closes #1029
-(Amedeo91).</li>
+(Amedeo Bussi).</li>
 <li>New: <tt class="docutils literal"><span class="pre">JSON_REQUEST_CONTENT_TYPES</span></tt> or supported JSON content types. Useful
 when you need support for vendor-specific json types. Please note: responses
 will still carry the standard <tt class="docutils literal"><span class="pre">application/json</span></tt> type. Defaults to
@@ -68,6 +71,8 @@ Closes #769 (Martin Fous).</li>
 <li>Change: Support for Cerberus 1.0+. Closes #776 (Dominik Kellner, Brad P.
 Crochet).</li>
 <li>Change: Drop Flask-PyMongo dependency. Closes #855 (Artem Kolesnikov).</li>
+<li>Change: <tt class="docutils literal"><span class="pre">DELETE</span></tt> on sub-resource endpoints will only delete the documents.
+that match the endpoint semantics. Addresses #1010 (Amedeo Bussi).</li>
 <li>Docs: code snippets are now Python 3 compatibile (Pahaz Blinov).</li>
 <li>Dev: Delete and cleanup of some unnecessary code.</li>
 <li>Dev: after the latest update (May 4th) travis-ci would not run tests on
@@ -101,6 +106,11 @@ naming consistency with PyMongo.</p>
 <tt class="docutils literal"><span class="pre">MONGO_CONNECT_TIMEOUT_MS</span></tt>, <tt class="docutils literal"><span class="pre">MONGO_REPLICA_SET</span></tt>,
 <tt class="docutils literal"><span class="pre">MONGO_READ_PREFERENCE</span></tt> removed. Use <tt class="docutils literal"><span class="pre">MONGO_OPTIONS</span></tt> or <tt class="docutils literal"><span class="pre">MONGO_URI</span></tt>
 instead.</p>
+</li>
+<li><p class="first">Be aware that <tt class="docutils literal"><span class="pre">DELETE</span></tt> on sub-resource endpoint will now only delete the
+documents matching endpoint semantics. A delete operation on
+<tt class="docutils literal"><span class="pre">people/51f63e0838345b6dcd7eabff/invoices</span></tt> will delete all documents
+matching the followig query: <tt class="docutils literal"><span class="pre">{'contact_id':</span> <span class="pre">'51f63e0838345b6dcd7eabff'}</span></tt></p>
 </li>
 </ul>
 </div>

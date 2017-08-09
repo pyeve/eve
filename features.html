@@ -231,6 +231,29 @@ a simple resource endpoint the document lookup would happen on a single field:</
 <div class="highlight-python"><div class="highlight"><pre>invoices/&lt;invoice_id&gt;
 </pre></div>
 </div>
+<p>Endpoints that supports sub-resources will have a specific behavior on
+<tt class="docutils literal"><span class="pre">DELETE</span></tt> operations. A <tt class="docutils literal"><span class="pre">DELETE</span></tt> to the following endpoint:</p>
+<div class="highlight-python"><div class="highlight"><pre>people/51f63e0838345b6dcd7eabff/invoices
+</pre></div>
+</div>
+<p>would cause the deletion of all the documents that match follow query:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;contact_id&#39;</span><span class="p">:</span> <span class="s">&#39;51f63e0838345b6dcd7eabff&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Therefore, for sub-resource endpoints, only the documents satisfying the
+endpoint semantic will be deleted. This differs from the standard behavior,
+whereas a delete operation on a collection enpoint will cause the deletion of
+all the documents in the collection.</p>
+<p>Another example. A <tt class="docutils literal"><span class="pre">DELETE</span></tt> to the following item endpoint:</p>
+<div class="highlight-python"><div class="highlight"><pre>people/51f63e0838345b6dcd7eabff/invoices/1
+</pre></div>
+</div>
+<p>would cause the deletion all the documents matched by the follow query:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;contact_id&#39;</span><span class="p">:</span> <span class="s">&#39;51f63e0838345b6dcd7eabff&#39;</span><span class="p">,</span> <span class="s">&quot;&lt;invoice_id&gt;&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>This behaviour enables support for typical tree structures, where the id of the
+resource alone is not necessarily a primary key by itself.</p>
 </div>
 </div>
 <div class="section" id="customizable-multiple-item-endpoints">
@@ -935,6 +958,11 @@ but can be enabled globally using the <tt class="docutils literal"><span class="
 individually configured at the resource level using the domain configuration
 <tt class="docutils literal"><span class="pre">soft_delete</span></tt> setting. See <a class="reference internal" href="config.html#global"><em>Global Configuration</em></a> and <a class="reference internal" href="config.html#domain"><em>Domain Configuration</em></a> for more
 information on enabling and configuring soft delete.</p>
+<p>When soft deletion is enabled, callbacks attached to
+<tt class="docutils literal"><span class="pre">on_delete_resource_originals</span></tt> and
+<tt class="docutils literal"><span class="pre">on_delete_resource_originals_&lt;resource_name&gt;</span></tt> events will receive both
+deleted and not deleted documents via the <tt class="docutils literal"><span class="pre">originals</span></tt> argument (see
+<a class="reference internal" href="#eventhooks"><em>Event Hooks</em></a>).</p>
 <div class="section" id="behavior">
 <h3>Behavior<a class="headerlink" href="#behavior" title="Permalink to this headline">¶</a></h3>
 <p>With soft delete enabled, DELETE requests to individual items and resources
@@ -1126,7 +1154,7 @@ both. And for each action two events will be fired:</p>
 <colgroup>
 <col width="10%" />
 <col width="11%" />
-<col width="9%" />
+<col width="8%" />
 <col width="70%" />
 </colgroup>
 <thead valign="bottom">
@@ -1250,7 +1278,7 @@ both. And for each action two events will be fired:</p>
 </div>
 </td>
 </tr>
-<tr class="row-even"><td rowspan="8">Delete</td>
+<tr class="row-even"><td rowspan="10">Delete</td>
 <td rowspan="4">Item</td>
 <td rowspan="2">Before</td>
 <td><div class="first last line-block">
@@ -1278,17 +1306,29 @@ both. And for each action two events will be fired:</p>
 </div>
 </td>
 </tr>
-<tr class="row-even"><td rowspan="4">Resource</td>
-<td rowspan="2">Before</td>
+<tr class="row-even"><td rowspan="6">Resource</td>
+<td rowspan="4">Before</td>
 <td><div class="first last line-block">
 <div class="line"><tt class="docutils literal"><span class="pre">on_delete_resource</span></tt></div>
-<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">item)</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name)</span></tt></div>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
 <div class="line"><tt class="docutils literal"><span class="pre">on_delete_resource_&lt;resource_name&gt;</span></tt></div>
-<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(item)</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event()</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_delete_resource_originals</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">originals,</span> <span class="pre">lookup)</span></tt></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">on_delete_resource_originals_&lt;resource_name&gt;</span></tt></div>
+<div class="line"><tt class="docutils literal"><span class="pre">def</span> <span class="pre">event(originals,</span> <span class="pre">lookup)</span></tt></div>
 </div>
 </td>
 </tr>
@@ -1453,6 +1493,8 @@ updated to reflect changes eventually applied by the callback functions).</p>
 <li><tt class="docutils literal"><span class="pre">on_deleted_item_&lt;resource_name&gt;(item)</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">on_delete_resource(resource_name)</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">on_delete_resource_&lt;resource_name&gt;()</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_delete_resource_originals(originals,</span> <span class="pre">lookup)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">on_delete_resource_originals_&lt;resource_name&gt;(originals,</span> <span class="pre">lookup)</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">on_deleted_resource(resource_name)</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">on_deleted_resource_&lt;resource_name&gt;()</span></tt></li>
 </ul>
@@ -1479,6 +1521,12 @@ the delete operation at this point (you should probably look at
 notified of such a disastrous occurrence by hooking a callback function to the
 <tt class="docutils literal"><span class="pre">on_delete_resource(resource_name)</span></tt> or
 <tt class="docutils literal"><span class="pre">on_delete_resource_&lt;resource_name&gt;()</span></tt> hooks.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">on_delete_resource_originals</span></tt> for any resource hit by the request after having retrieved the originals documents.</li>
+<li><tt class="docutils literal"><span class="pre">on_delete_resource_originals_&lt;resource_name&gt;</span></tt> for the specific <cite>&lt;resource_name&gt;</cite> resource endpoint
+hit by the DELETE after having retrieved the original document. NOTE: those two event are useful in order to
+perform some business logic before the actual remove operation given the look up and the list of originals</li>
+</ul>
 <div class="admonition-please-note admonition">
 <p class="first admonition-title">Please note</p>
 <p class="last">To provide seamless event handling features Eve relies on the <a class="reference external" href="https://github.com/pyeve/events">Events</a> package.</p>
