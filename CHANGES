@@ -8,8 +8,8 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
-- Fix: serialization bug that randomly skips fields if "x_of" is encountered
-  (Raychee).
+- Fix: serialization bug that randomly skips fields if "x_of" is encountered.
+  See PR #1042 for details (Raychee).
 - New: ``on_delete_resource_originals`` fired when soft deletion occurs (Amedeo
   Bussi).
 - New: ``MONGO_DBNAME`` can now be used in conjuction with ``MONGO_URI``.
