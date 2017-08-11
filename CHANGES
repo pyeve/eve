@@ -8,8 +8,15 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
-- Performance improved on retrieving a list of embedded documents. Closes
-  #1029 (Amedeo91).
+- Fix: serialization bug that randomly skips fields if "x_of" is encountered.
+  See PR #1042 for details (Raychee).
+- New: ``on_delete_resource_originals`` fired when soft deletion occurs (Amedeo
+  Bussi).
+- New: ``MONGO_DBNAME`` can now be used in conjuction with ``MONGO_URI``.
+  Previously, if ``MONGO_URI`` was missing the database name, an exception
+  would be rised. Closes #1037.
+- Performance improved on retrieving a list of embedded documents. Closes #1029
+  (Amedeo Bussi).
 - New: ``JSON_REQUEST_CONTENT_TYPES`` or supported JSON content types. Useful
   when you need support for vendor-specific json types. Please note: responses
   will still carry the standard ``application/json`` type. Defaults to
@@ -23,6 +30,8 @@ Version 0.8
 - Change: Support for Cerberus 1.0+. Closes #776 (Dominik Kellner, Brad P.
   Crochet).
 - Change: Drop Flask-PyMongo dependency. Closes #855 (Artem Kolesnikov).
+- Change: ``DELETE`` on sub-resource endpoints will only delete the documents.
+  that match the endpoint semantics. Addresses #1010 (Amedeo Bussi). 
 - Docs: code snippets are now Python 3 compatibile (Pahaz Blinov).
 - Dev: Delete and cleanup of some unnecessary code.
 - Dev: after the latest update (May 4th) travis-ci would not run tests on
@@ -49,6 +58,10 @@ Breaking Changes
   ``MONGO_CONNECT_TIMEOUT_MS``, ``MONGO_REPLICA_SET``,
   ``MONGO_READ_PREFERENCE`` removed. Use ``MONGO_OPTIONS`` or ``MONGO_URI``
   instead.
+- Be aware that ``DELETE`` on sub-resource endpoint will now only delete the
+  documents matching endpoint semantics. A delete operation on
+  ``people/51f63e0838345b6dcd7eabff/invoices`` will delete all documents 
+  matching the followig query: ``{'contact_id': '51f63e0838345b6dcd7eabff'}``
 
 Stable
 ------

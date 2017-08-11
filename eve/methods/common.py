@@ -37,7 +37,7 @@ from functools import wraps
 from werkzeug.datastructures import MultiDict, CombinedMultiDict
 
 
-def get_document(resource, concurrency_check, **lookup):
+def get_document(resource, concurrency_check, original=None, **lookup):
     """ Retrieves and return a single document. Since this function is used by
     the editing methods (PUT, PATCH, DELETE), we make sure that the client
     request references the current representation of the document before
@@ -47,6 +47,7 @@ def get_document(resource, concurrency_check, **lookup):
 
     :param resource: the name of the resource to which the document belongs to.
     :param concurrency_check: boolean check for concurrency control
+    :param original: in case the document was already retrieved before
     :param **lookup: document lookup query
 
     .. versionchanged:: 0.6
@@ -69,7 +70,11 @@ def get_document(resource, concurrency_check, **lookup):
         # callers must handle soft deleted documents
         req.show_deleted = True
 
-    document = app.data.find_one(resource, req, **lookup)
+    if original:
+        document = original
+    else:
+        document = app.data.find_one(resource, req, **lookup)
+
     if document:
         e_if_m = config.ENFORCE_IF_MATCH
         if_m = config.IF_MATCH
@@ -382,15 +387,16 @@ def serialize(document, resource=None, schema=None, fields=None):
             if field in schema:
                 field_schema = schema[field]
                 field_type = field_schema.get('type')
-                if field_type is None:
-                    for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
-                        for optschema in field_schema.get(x_of, []):
-                            schema = {field: optschema}
-                            serialize(document, schema=schema)
-                        x_of_type = '{0}_type'.format(x_of)
-                        for opttype in field_schema.get(x_of_type, []):
-                            schema = {field: {'type': opttype}}
-                            serialize(document, schema=schema)
+                for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+                    for optschema in field_schema.get(x_of, []):
+                        optschema = dict(field_schema, **optschema)
+                        optschema.pop(x_of, None)
+                        serialize(document, schema={field: optschema})
+                    x_of_type = '{0}_type'.format(x_of)
+                    for opttype in field_schema.get(x_of_type, []):
+                        optschema = dict(field_schema, type=opttype)
+                        optschema.pop(x_of_type, None)
+                        serialize(document, schema={field: optschema})
                 if config.AUTO_CREATE_LISTS and field_type == 'list':
                     # Convert single values to lists
                     if not isinstance(document[field], list):
@@ -427,16 +433,14 @@ def serialize(document, resource=None, schema=None, fields=None):
                         # a list of items determined by *of rules
                         for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
                             for optschema in field_schema.get(x_of, []):
-                                schema = {field: {
-                                    'type': field_type,
-                                    'schema': optschema}}
-                                serialize(document, schema=schema)
+                                serialize(document,
+                                          schema={field: {'type': field_type,
+                                                          'schema': optschema}})
                             x_of_type = '{0}_type'.format(x_of)
                             for opttype in field_schema.get(x_of_type, []):
-                                schema = {field: {
-                                    'type': field_type,
-                                    'schema': {'type': opttype}}}
-                                serialize(document, schema=schema)
+                                serialize(document,
+                                          schema={field: {'type': field_type,
+                                                          'schema': {'type': opttype}}})
                     else:
                         # a list of one type, arbitrary length
                         field_type = field_schema.get('type')

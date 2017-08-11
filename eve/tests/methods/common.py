@@ -11,6 +11,12 @@ from eve.tests.auth import ValidBasicAuth, ValidTokenAuth, ValidHMACAuth
 from eve.tests.test_settings import MONGO_DBNAME
 from eve.utils import config
 
+try:
+    from collections import OrderedDict  # noqa
+except ImportError:
+    # Python 2.6 needs this back-port
+    from ordereddict import OrderedDict
+
 
 class TestSerializer(TestBase):
     def test_serialize_subdocument(self):
@@ -328,6 +334,39 @@ class TestSerializer(TestBase):
             with self.app.app_context():
                 serialized = serialize(doc, schema=schema)
                 self.assertTrue(isinstance(serialized['x_of-field'], ObjectId))
+
+    def test_serialize_alongside_x_of_rules(self):
+        for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+            schema = OrderedDict([
+                ('x_of-field', {
+                    x_of: [
+                        {'type': 'objectid'},
+                        {'required': True}
+                    ]
+                }),
+                ('oid-field', {'type': 'objectid'})
+            ])
+            doc = OrderedDict([('x_of-field', '50656e4538345b39dd0414f0'), ('oid-field', '50656e4538345b39dd0414f0')])
+            with self.app.app_context():
+                serialized = serialize(doc, schema=schema)
+                self.assertTrue(isinstance(serialized['x_of-field'], ObjectId))
+                self.assertTrue(isinstance(serialized['oid-field'], ObjectId))
+
+    def test_serialize_list_alongside_x_of_rules(self):
+        for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+            schema = {
+                'x_of-field': {
+                    "type": "list",
+                    x_of: [
+                        {"schema": {'type': 'objectid'}},
+                        {"schema": {'type': 'datetime'}}
+                    ]
+                }
+            }
+            doc = {'x_of-field': ['50656e4538345b39dd0414f0']}
+            with self.app.app_context():
+                serialized = serialize(doc, schema=schema)
+                self.assertTrue(isinstance(serialized['x_of-field'][0], ObjectId))
 
     def test_serialize_inside_nested_x_of_rules(self):
         schema = {

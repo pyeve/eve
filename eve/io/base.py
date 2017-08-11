@@ -175,13 +175,13 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
-    def find_one_raw(self, resource, _id):
+    def find_one_raw(self, resource, **lookup):
         """ Retrieves a single, raw document. No projections or datasource
-        filters are being applied here. Just looking up the document by unique
-        id.
+        filters are being applied here. Just looking up the document using the
+        same lookup.
 
         :param resource: resource name.
-        :param id: unique id.
+        :param ** lookup: lookup query.
 
         .. versionadded:: 0.4
         """
@@ -249,7 +249,7 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
-    def remove(self, resource, lookup={}):
+    def remove(self, resource, lookup):
         """ Removes a document/row or an entire set of documents/rows from a
         database collection/table.
 

@@ -1148,7 +1148,7 @@ class TestGet(TestBase):
         self.assertHomeLink(links)
         self.assertResourceLink(links, 'products')
         items = response['_items']
-        self.assertEqual(2, len(items))
+        self.assertEqual(10, len(items))
         for item in items:
             self.assertItem(item, 'products')
 

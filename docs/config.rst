@@ -152,7 +152,7 @@ uppercase.
 ``PAGINATION_DEFAULT``              Default value for QUERY_MAX_RESULTS.
                                     Defaults to 25.
 
-``OPTMIMIZE_PAGINATION_FOR_SPEED``  Set this to ``True`` to improve pagination
+``OPTIMIZE_PAGINATION_FOR_SPEED``   Set this to ``True`` to improve pagination
                                     performance. When optimization is active no
                                     count operation, which can be slow on large
                                     collections, is performed on the database.
