@@ -11,7 +11,7 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-from bson import ObjectId
+from bson import ObjectId, decimal128
 from bson.dbref import DBRef
 from flask import current_app as app
 from werkzeug.datastructures import FileStorage
@@ -165,6 +165,10 @@ class Validator(Validator):
 
     def _validate_type_objectid(self, value):
         if isinstance(value, ObjectId):
+            return True
+
+    def _validate_type_decimal(self, value):
+        if isinstance(value, decimal128.Decimal128):
             return True
 
     def _validate_type_dbref(self, value):

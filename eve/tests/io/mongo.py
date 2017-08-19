@@ -2,7 +2,7 @@
 from datetime import datetime
 
 import simplejson as json
-from bson import ObjectId
+from bson import ObjectId, decimal128
 from bson.dbref import DBRef
 from cerberus import SchemaError
 from unittest import TestCase
@@ -93,6 +93,20 @@ class TestMongoValidator(TestCase):
         """ relying on POST and PATCH tests since we don't have an active
         app_context running here """
         pass
+
+    def test_decimal_fail(self):
+        schema = {'decimal': {'type': 'decimal'}}
+        doc = {'decimal': 'not_a_decimal'}
+        v = Validator(schema, None)
+        self.assertFalse(v.validate(doc))
+        self.assertTrue('decimal' in v.errors)
+        self.assertTrue('decimal' in v.errors['decimal'])
+
+    def test_decimal_success(self):
+        schema = {'decimal': {'type': 'decimal'}}
+        doc = {'decimal': decimal128.Decimal128('123.123')}
+        v = Validator(schema, None)
+        self.assertTrue(v.validate(doc))
 
     def test_objectid_fail(self):
         schema = {'id': {'type': 'objectid'}}

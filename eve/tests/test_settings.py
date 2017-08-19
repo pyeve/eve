@@ -184,6 +184,7 @@ invoices = {
             'type': 'dbref',
             'data_relation': {'resource': 'contacts'}
         },
+        'decimal_number': {'type': 'decimal'},
     }
 }
 
