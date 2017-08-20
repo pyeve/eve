@@ -1768,6 +1768,28 @@ configuration. Enable ``AUTO_COLLAPSE_MULTI_KEYS`` and ``AUTO_CREATE_LISTS``
 to make this possible. This allows to send multiple values for one key in
 ``multipart/form-data`` requests and in this way upload a list of files.
 
+.. _partial_request:
+
+Partial request for media resource
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The partial request provides an ability to download a part of a file. 
+You can also pause and resume when you are downloading without restarting 
+your download. To use it, make sure you have ``Range`` in your request header.
+
+    .. code-block:: console
+
+        $ curl http://localhost/media/yourfilename -i -H "Range: bytes=0-10"
+        HTTP/1.1 206 PARTIAL CONTENT
+        Date: Sun, 20 Aug 2017 14:26:42 GMT
+        Content-Type: audio/mp4
+        Content-Length: 11
+        Connection: keep-alive
+        Content-Range: bytes 0-10/23671
+        Last-Modified: Sat, 19 Aug 2017 03:25:36 GMT
+        Accept-Ranges: bytes
+
+        ftypmp4%
+
 .. _geojson_feature:
 
 GeoJSON
