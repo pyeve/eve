@@ -11,6 +11,8 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
+import re
+
 from bson import tz_util
 from flask import abort, request, current_app as app, Response
 
@@ -175,28 +177,76 @@ def media_endpoint(_id):
 
     .. versionadded:: 0.6
     """
-    file_ = app.media.get(_id)
-    if file_ is None:
-        return abort(404)
+    range_header = request.headers.get('Range', None)
+    if not range_header:
+        file_ = app.media.get(_id)
+        if file_ is None:
+            return abort(404)
 
-    if_modified_since = weak_date(request.headers.get('If-Modified-Since'))
-    if if_modified_since is not None:
-        if if_modified_since.tzinfo is None:
-            if_modified_since = if_modified_since.replace(
-                tzinfo=tz_util.utc)
+        if_modified_since = weak_date(request.headers.get('If-Modified-Since'))
+        if if_modified_since is not None:
+            if if_modified_since.tzinfo is None:
+                if_modified_since = if_modified_since.replace(
+                    tzinfo=tz_util.utc)
 
-        if if_modified_since > file_.upload_date:
-            return Response(status=304)
+            if if_modified_since > file_.upload_date:
+                return Response(status=304)
 
-    headers = {
-        'Last-Modified': date_to_rfc1123(file_.upload_date),
-        'Content-Length': file_.length,
-    }
+        headers = {
+            'Last-Modified': date_to_rfc1123(file_.upload_date),
+            'Content-Length': file_.length,
+            'Accept-Ranges': 'bytes',
+        }
 
-    response = Response(file_, headers=headers, mimetype=file_.content_type,
-                        direct_passthrough=True)
+        response = Response(
+            file_,
+            status=200,
+            headers=headers,
+            mimetype=file_.content_type,
+            direct_passthrough=True
+        )
 
-    return response
+        return response
+    else:
+        file_ = app.media.get(_id)
+        size = file_.length
+        byte1, byte2 = 0, None
+
+        m = re.search('(\d+)-(\d*)', range_header)
+        g = m.groups()
+
+        if g[0]:
+            byte1 = int(g[0])
+        if g[1]:
+            byte2 = int(g[1])
+
+        length = size - byte1
+        if byte2 is not None:
+            length = byte2 - byte1 + 1
+
+        data = None
+        file_.seek(byte1)
+        data = file_.read(length)
+
+        headers = {
+            'Last-Modified': date_to_rfc1123(file_.upload_date),
+            'Content-Length': file_.length,
+            'Accept-Ranges': 'bytes',
+            'Content-Range': 'bytes {0}-{1}/{2}'.format(
+                byte1,
+                byte1 + length - 1,
+                size
+            ),
+        }
+
+        response = Response(
+            data,
+            206,
+            headers=headers,
+            mimetype=file_.content_type,
+            direct_passthrough=True)
+
+        return response
 
 
 @requires_auth('resource')
