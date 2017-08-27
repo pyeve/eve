@@ -579,7 +579,7 @@ OAuth2.
     The snippets in this page can also be found in the `examples/security`
     folder of the Eve `repository`_.
 
-.. _`repository`: https://github.com/nicolaiarocci/eve
+.. _`repository`: https://github.com/pyeve/eve
 .. _bcrypt: http://en.wikipedia.org/wiki/Bcrypt
-.. _`Eve-OAuth2`: https://github.com/nicolaiarocci/eve-oauth2
-.. _`Flask-Sentinel`: https://github.com/nicolaiarocci/flask-sentinel
+.. _`Eve-OAuth2`: https://github.com/pyeve/eve-oauth2
+.. _`Flask-Sentinel`: https://github.com/pyeve/flask-sentinel

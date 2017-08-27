@@ -4,16 +4,17 @@ Snippets
 ========
 
 Welcome to the Eve snippet archive. This is the place where anyone can drop
-helpful pieces of code for others to use. 
+helpful pieces of code for others to use.
 
 Available Snippets
 ------------------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    hooks_blueprints
-   
+   list_of_items
+
 
 Add your snippet
 ----------------
@@ -26,7 +27,7 @@ source_), and then submit a `pull request`_.
 
    template
 
-.. _template: https://raw.githubusercontent.com/nicolaiarocci/eve/develop/docs/snippets/template.rst
-.. _`pull request`: https://github.com/nicolaiarocci/eve/pulls
-.. _`snippets folder`: https://github.com/nicolaiarocci/eve/tree/develop/docs/snippets
-.. _source: https://raw.githubusercontent.com/nicolaiarocci/eve/develop/docs/snippets/index.rst
+.. _template: https://raw.githubusercontent.com/pyeve/eve/master/docs/snippets/template.rst
+.. _`pull request`: https://github.com/pyeve/eve/pulls
+.. _`snippets folder`: https://github.com/pyeve/eve/tree/master/docs/snippets
+.. _source: https://raw.githubusercontent.com/pyeve/eve/master/docs/snippets/index.rst

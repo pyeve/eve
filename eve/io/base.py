@@ -6,7 +6,7 @@
 
     Standard interface implemented by Eve data layers.
 
-    :copyright: (c) 2016 by Nicola Iarocci.
+    :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 import datetime
@@ -125,7 +125,7 @@ class DataLayer(object):
         :param req: an instance of ``eve.utils.ParsedRequest``. This contains
                     all the constraints that must be fulfilled in order to
                     satisfy the original request (where and sort parts, paging,
-                    etc). Be warned that `where` and `sort` expresions will
+                    etc). Be warned that `where` and `sort` expressions will
                     need proper parsing, according to the syntax that you want
                     to support with your driver. For example ``eve.io.Mongo``
                     supports both Python and Mongo-like query syntaxes.
@@ -133,6 +133,21 @@ class DataLayer(object):
 
         .. versionchanged:: 0.3
            Support for sub-resources.
+        """
+        raise NotImplementedError
+
+    def aggregate(self, resource, pipeline, options):
+        """ Perform an aggregation on the resource datasource and returns
+        the result. Only implent this if the underlying db engine supports
+        aggregation operations.
+
+        :param resource: resource being accessed. You should then use
+                         the ``datasource`` helper function to retrieve
+                         the db collection/table consumed by the resource.
+        :param pipeline: aggregation pipeline to be executed.
+        :param options: aggregation options to be considered.
+
+        .. versionadded:: 0.7
         """
         raise NotImplementedError
 
@@ -160,13 +175,13 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
-    def find_one_raw(self, resource, _id):
+    def find_one_raw(self, resource, **lookup):
         """ Retrieves a single, raw document. No projections or datasource
-        filters are being applied here. Just looking up the document by unique
-        id.
+        filters are being applied here. Just looking up the document using the
+        same lookup.
 
         :param resource: resource name.
-        :param id: unique id.
+        :param ** lookup: lookup query.
 
         .. versionadded:: 0.4
         """
@@ -234,7 +249,7 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
-    def remove(self, resource, lookup={}):
+    def remove(self, resource, lookup):
         """ Removes a document/row or an entire set of documents/rows from a
         database collection/table.
 
@@ -284,7 +299,7 @@ class DataLayer(object):
         """ Returns True if the collection is empty; False otherwise. While
         a user could rely on self.find() method to achieve the same result,
         this method can probably take advantage of specific datastore features
-        to provide better perfomance.
+        to provide better performance.
 
         Don't forget, a 'resource' could have a pre-defined filter. If that is
         the case, it will have to be taken into consideration when performing

@@ -1,13 +1,21 @@
-from datetime import datetime
 import time
+from datetime import datetime
 
 import simplejson as json
 from bson import ObjectId
+from bson.dbref import DBRef
 
 from eve.methods.common import serialize, normalize_dotted_fields
 from eve.tests import TestBase
+from eve.tests.auth import ValidBasicAuth, ValidTokenAuth, ValidHMACAuth
 from eve.tests.test_settings import MONGO_DBNAME
 from eve.utils import config
+
+try:
+    from collections import OrderedDict  # noqa
+except ImportError:
+    # Python 2.6 needs this back-port
+    from ordereddict import OrderedDict
 
 
 class TestSerializer(TestBase):
@@ -35,7 +43,8 @@ class TestSerializer(TestBase):
             'average': {'type': 'float'},
             'dict_valueschema': {
                 'valueschema': {'type': 'objectid'}
-            }
+            },
+            'refobj': {'type': 'dbref'}
         }
         with self.app.app_context():
             # Success
@@ -48,6 +57,10 @@ class TestSerializer(TestBase):
                     'dict_valueschema': {
                         'foo1': '50656e4538345b39dd0414f0',
                         'foo2': '50656e4538345b39dd0414f0',
+                    },
+                    'refobj': {
+                        '$id': '50656e4538345b39dd0414f0',
+                        '$col': 'SomeCollection'
                     }
                 },
                 schema=schema
@@ -60,6 +73,7 @@ class TestSerializer(TestBase):
             ks = res['dict_valueschema']
             self.assertTrue(isinstance(ks['foo1'], ObjectId))
             self.assertTrue(isinstance(ks['foo2'], ObjectId))
+            self.assertTrue(isinstance(res['refobj'], DBRef))
 
     def test_non_blocking_on_simple_field_serialization_exception(self):
         schema = {
@@ -145,6 +159,79 @@ class TestSerializer(TestBase):
             for item in sublist:
                 self.assertTrue(isinstance(item['_id'], ObjectId))
 
+    def test_dbref_serialize_lists_of_lists(self):
+        # serialize should handle list of lists of basic types
+        schema = {
+            'l_of_l': {
+                'type': 'list',
+                'schema': {
+                    'type': 'list',
+                    'schema': {
+                        'type': 'dbref'
+                    }
+                }
+            }
+        }
+        doc = {
+            'l_of_l': [
+                [{'$col': 'SomeCollection', '$id': '50656e4538345b39dd0414f0'},
+                 {'$col': 'SomeCollection', '$id': '50656e4538345b39dd0414f0'}
+                 ],
+                [{'$col': 'SomeCollection', '$id': '50656e4538345b39dd0414f0'},
+                 {'$col': 'SomeCollection', '$id': '50656e4538345b39dd0414f0'}
+                 ]
+            ]
+        }
+
+        with self.app.app_context():
+            serialized = serialize(doc, schema=schema)
+        for sublist in serialized['l_of_l']:
+            for item in sublist:
+                self.assertTrue(isinstance(item, DBRef))
+
+        # serialize should handle list of lists of dicts
+        schema = {
+            'l_of_l': {
+                'type': 'list',
+                'schema': {
+                    'type': 'list',
+                    'schema': {
+                        'type': 'dict',
+                        'schema': {
+                            '_id': {
+                                'type': 'dbref'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        doc = {
+            'l_of_l': [
+                [
+                    {'_id': {'$col': 'SomeCollection',
+                             '$id': '50656e4538345b39dd0414f0'}
+                     },
+                    {'_id': {'$col': 'SomeCollection',
+                             '$id': '50656e4538345b39dd0414f0'}
+                     }
+                ],
+                [
+                    {'_id': {'$col': 'SomeCollection',
+                             '$id': '50656e4538345b39dd0414f0'}
+                     },
+                    {'_id': {'$col': 'SomeCollection',
+                             '$id': '50656e4538345b39dd0414f0'}
+                     }
+                ],
+            ]
+        }
+        with self.app.app_context():
+            serialized = serialize(doc, schema=schema)
+        for sublist in serialized['l_of_l']:
+            for item in sublist:
+                self.assertTrue(isinstance(item['_id'], DBRef))
+
     def test_serialize_null_dictionary(self):
         # Serialization should continue after encountering a null value dict
         # field. Field may be nullable, or error will be caught in validation.
@@ -189,6 +276,25 @@ class TestSerializer(TestBase):
                 self.fail('Serializing null lists'
                           ' should not raise an exception')
 
+        schema = {
+            'nullable_list': {
+                'type': 'list',
+                'nullable': True,
+                'schema': {
+                    'type': 'dbref'
+                }
+            }
+        }
+        doc = {
+            'nullable_list': None
+        }
+        with self.app.app_context():
+            try:
+                serialize(doc, schema=schema)
+            except Exception:
+                self.fail('Serializing null lists'
+                          ' should not raise an exception')
+
     def test_serialize_number(self):
         schema = {
             'anumber': {
@@ -205,6 +311,15 @@ class TestSerializer(TestBase):
                     isinstance(serialized['anumber'], expected_type)
                 )
 
+    def test_serialize_boolean(self):
+        schema = {'bool': {'type': 'boolean'}}
+
+        with self.app.app_context():
+            for val in [1, '1', 0, '0', 'true', 'True', 'false', 'False']:
+                doc = {'bool': val}
+                serialized = serialize(doc, schema=schema)
+                self.assertTrue(isinstance(serialized['bool'], bool))
+
     def test_serialize_inside_x_of_rules(self):
         for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
             schema = {
@@ -219,6 +334,39 @@ class TestSerializer(TestBase):
             with self.app.app_context():
                 serialized = serialize(doc, schema=schema)
                 self.assertTrue(isinstance(serialized['x_of-field'], ObjectId))
+
+    def test_serialize_alongside_x_of_rules(self):
+        for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+            schema = OrderedDict([
+                ('x_of-field', {
+                    x_of: [
+                        {'type': 'objectid'},
+                        {'required': True}
+                    ]
+                }),
+                ('oid-field', {'type': 'objectid'})
+            ])
+            doc = OrderedDict([('x_of-field', '50656e4538345b39dd0414f0'), ('oid-field', '50656e4538345b39dd0414f0')])
+            with self.app.app_context():
+                serialized = serialize(doc, schema=schema)
+                self.assertTrue(isinstance(serialized['x_of-field'], ObjectId))
+                self.assertTrue(isinstance(serialized['oid-field'], ObjectId))
+
+    def test_serialize_list_alongside_x_of_rules(self):
+        for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+            schema = {
+                'x_of-field': {
+                    "type": "list",
+                    x_of: [
+                        {"schema": {'type': 'objectid'}},
+                        {"schema": {'type': 'datetime'}}
+                    ]
+                }
+            }
+            doc = {'x_of-field': ['50656e4538345b39dd0414f0']}
+            with self.app.app_context():
+                serialized = serialize(doc, schema=schema)
+                self.assertTrue(isinstance(serialized['x_of-field'][0], ObjectId))
 
     def test_serialize_inside_nested_x_of_rules(self):
         schema = {
@@ -257,6 +405,70 @@ class TestSerializer(TestBase):
             with self.app.app_context():
                 serialized = serialize(doc, schema=schema)
                 self.assertTrue(isinstance(serialized['x_of-field'], ObjectId))
+
+    def test_serialize_inside_list_of_x_of_rules(self):
+        for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+            schema = {
+                'list-field': {
+                    'type': 'list',
+                    'schema': {
+                        x_of: [
+                            {
+                                'type': 'objectid',
+                                'required': True}
+                        ]
+                    }
+                }
+            }
+            doc = {'list-field': ['50656e4538345b39dd0414f0']}
+            with self.app.app_context():
+                serialized = serialize(doc, schema=schema)
+                serialized_oid = serialized['list-field'][0]
+                self.assertTrue(isinstance(serialized_oid, ObjectId))
+
+    def test_serialize_inside_list_of_schema_of_x_of_rules(self):
+        for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+            schema = {
+                'list-field': {
+                    'type': 'list',
+                    'schema': {
+                        x_of: [
+                            {
+                                'type': 'dict',
+                                'schema': {
+                                    'x_of-field': {
+                                        'type': 'objectid',
+                                        'required': True
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+            doc = {'list-field': [{'x_of-field': '50656e4538345b39dd0414f0'}]}
+            with self.app.app_context():
+                serialized = serialize(doc, schema=schema)
+                serialized_oid = serialized['list-field'][0]['x_of-field']
+                self.assertTrue(isinstance(serialized_oid, ObjectId))
+
+    def test_serialize_inside_list_of_x_of_typesavers(self):
+        for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+            schema = {
+                'list-field': {
+                    'type': 'list',
+                    'schema': {
+                        '{0}_type'.format(x_of): [
+                            'objectid', 'float', 'boolean'
+                        ]
+                    }
+                }
+            }
+            doc = {'list-field': ['50656e4538345b39dd0414f0']}
+            with self.app.app_context():
+                serialized = serialize(doc, schema=schema)
+                serialized_oid = serialized['list-field'][0]
+                self.assertTrue(isinstance(serialized_oid, ObjectId))
 
 
 class TestNormalizeDottedFields(TestBase):
@@ -328,11 +540,17 @@ class TestOpLogBase(TestBase):
         self.app._init_oplog()
         self.app.register_resource('oplog', self.domain['oplog'])
 
+        settings = self.app.config['DOMAIN']['oplog']
+        datasource = settings['datasource']
+        schema = settings['schema']
+        datasource['projection'] = {}
+        self.app._set_resource_projection(datasource, schema, settings)
+
     def oplog_get(self, url='/oplog'):
         r = self.test_client.get(url)
         return self.parse_response(r)
 
-    def assertOpLogEntry(self, entry, op):
+    def assertOpLogEntry(self, entry, op, user=None):
         self.assertTrue('r' in entry)
         self.assertTrue('i' in entry)
         self.assertTrue(config.LAST_UPDATED in entry)
@@ -340,8 +558,13 @@ class TestOpLogBase(TestBase):
         self.assertTrue('o' in entry)
         self.assertEqual(entry['o'], op)
         self.assertTrue('127.0.0.1' in entry['ip'])
-        if op in ('PATCH', 'PUT', 'DELETE'):
+        if op in self.app.config['OPLOG_CHANGE_METHODS']:
             self.assertTrue('c' in entry)
+        self.assertTrue('u' in entry)
+        if user:
+            self.assertTrue(user in entry['u'])
+        else:
+            self.assertTrue('n/a' in entry['u'])
 
 
 class TestOpLogEndpointDisabled(TestOpLogBase):
@@ -349,6 +572,8 @@ class TestOpLogEndpointDisabled(TestOpLogBase):
         super(TestOpLogEndpointDisabled, self).setUp()
 
         self.app.config['OPLOG'] = True
+        from eve.default_settings import OPLOG_CHANGE_METHODS
+        self.app.config['OPLOG_CHANGE_METHODS'] = OPLOG_CHANGE_METHODS
         self.oplog_reset()
 
     def test_post_oplog(self):
@@ -376,6 +601,47 @@ class TestOpLogEndpointEnabled(TestOpLogBase):
         self.app.config['OPLOG_ENDPOINT'] = 'oplog'
         self.oplog_reset()
 
+    def test_oplog_hook(self):
+        def oplog_callback(resource, entries):
+            for entry in entries:
+                entry['extra'] = {'customfield': 'customvalue'}
+
+        self.app.on_oplog_push += oplog_callback
+
+        r = self.test_client.post(self.known_resource_url,
+                                  data=json.dumps(self.data),
+                                  headers=self.headers,
+                                  environ_base={'REMOTE_ADDR': '127.0.0.1'})
+
+        # oplog enpoint does not expose the 'extra' field
+        r, status = self.oplog_get()
+        self.assert200(status)
+        self.assertEqual(len(r['_items']), 1)
+        oplog_entry = r['_items'][0]
+        self.assertOpLogEntry(oplog_entry, 'POST')
+        self.assertTrue('extra' not in oplog_entry)
+
+        # however the oplog collection has the field.
+        db = self.connection[MONGO_DBNAME]
+        cursor = db.oplog.find()
+        self.assertEqual(cursor.count(), 1)
+        oplog_entry = cursor[0]
+        self.assertTrue('extra' in oplog_entry)
+        self.assertTrue('customvalue' in oplog_entry['extra']['customfield'])
+
+        # enable 'extra' field for the endpoint
+        self.app.config['OPLOG_RETURN_EXTRA_FIELD'] = True
+        self.oplog_reset()
+
+        # now the oplog endpoint includes the 'extra' field
+        r, status = self.oplog_get()
+        self.assert200(status)
+        self.assertEqual(len(r['_items']), 1)
+        oplog_entry = r['_items'][0]
+        self.assertOpLogEntry(oplog_entry, 'POST')
+        self.assertTrue('extra' in oplog_entry)
+        self.assertTrue('customvalue' in oplog_entry['extra']['customfield'])
+
     def test_post_oplog(self):
         r = self.test_client.post(self.known_resource_url,
                                   data=json.dumps(self.data),
@@ -386,6 +652,7 @@ class TestOpLogEndpointEnabled(TestOpLogBase):
         self.assertEqual(len(r['_items']), 1)
         oplog_entry = r['_items'][0]
         self.assertOpLogEntry(oplog_entry, 'POST')
+        self.assertTrue('extra' not in oplog_entry)
 
     def test_patch_oplog(self):
         self.headers.append(('If-Match', self.item_etag))
@@ -454,6 +721,45 @@ class TestOpLogEndpointEnabled(TestOpLogBase):
         self.assertOpLogEntry(oplog_entry, 'DELETE')
         self.assertTrue(doc_date != oplog_entry[config.LAST_UPDATED])
 
+    def test_post_oplog_with_basic_auth(self):
+        self.domain['contacts']['authentication'] = ValidBasicAuth
+        self.headers.append(('Authorization', 'Basic YWRtaW46c2VjcmV0'))
+        r = self.test_client.post(self.known_resource_url,
+                                  data=json.dumps(self.data),
+                                  headers=self.headers,
+                                  environ_base={'REMOTE_ADDR': '127.0.0.1'})
+        r, status = self.oplog_get()
+        self.assert200(status)
+        self.assertEqual(len(r['_items']), 1)
+        oplog_entry = r['_items'][0]
+        self.assertOpLogEntry(oplog_entry, 'POST', 'admin')
+
+    def test_post_oplog_with_token_auth(self):
+        self.domain['contacts']['authentication'] = ValidTokenAuth
+        self.headers.append(('Authorization', 'Basic dGVzdF90b2tlbjo='))
+        r = self.test_client.post(self.known_resource_url,
+                                  data=json.dumps(self.data),
+                                  headers=self.headers,
+                                  environ_base={'REMOTE_ADDR': '127.0.0.1'})
+        r, status = self.oplog_get()
+        self.assert200(status)
+        self.assertEqual(len(r['_items']), 1)
+        oplog_entry = r['_items'][0]
+        self.assertOpLogEntry(oplog_entry, 'POST', 'test_token')
+
+    def test_post_oplog_with_hmac_auth(self):
+        self.domain['contacts']['authentication'] = ValidHMACAuth
+        self.headers.append(('Authorization', 'admin:secret'))
+        r = self.test_client.post(self.known_resource_url,
+                                  data=json.dumps(self.data),
+                                  headers=self.headers,
+                                  environ_base={'REMOTE_ADDR': '127.0.0.1'})
+        r, status = self.oplog_get()
+        self.assert200(status)
+        self.assertEqual(len(r['_items']), 1)
+        oplog_entry = r['_items'][0]
+        self.assertOpLogEntry(oplog_entry, 'POST', 'admin')
+
     def patch(self, url, data, headers=[], content_type='application/json'):
         headers.append(('Content-Type', content_type))
         headers.append(('If-Match', self.item_etag))
@@ -469,6 +775,6 @@ class TestOpLogEndpointEnabled(TestOpLogBase):
 
 class TestTickets(TestBase):
     def test_ticket_681(self):
-        # See https://github.com/nicolaiarocci/eve/issues/681
+        # See https://github.com/pyeve/eve/issues/681
         with self.app.test_request_context('not_an_existing_endpoint'):
             self.app.data.driver.db['again']

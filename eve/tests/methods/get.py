@@ -2,13 +2,16 @@ import base64
 import time
 from io import BytesIO
 import simplejson as json
-from datetime import datetime
+from datetime import datetime, timedelta
 from bson import ObjectId
+from bson.son import SON
 from werkzeug.datastructures import ImmutableMultiDict
 from eve.tests import TestBase
 from eve.tests.utils import DummyEvent
 from eve.tests.test_settings import MONGO_DBNAME
 from eve.utils import str_to_date, date_to_rfc1123
+from werkzeug import MultiDict
+from eve.methods.get import get_internal, getitem_internal
 
 
 class TestGet(TestBase):
@@ -49,10 +52,47 @@ class TestGet(TestBase):
         resource = response['_items']
         self.assertEqual(len(resource), maxr)
 
+    def test_get_custom_params(self):
+        page = 2
+        custom_params = MultiDict([('my_param', 'value1'),
+                                   ('my_param', 'value2')])
+        custom_query = '&'.join('%s=%s' % (param, value) for param, values
+                                in custom_params.lists() for value in values)
+        response, status = self.get(self.known_resource,
+                                    '?%s&page=%d' % (custom_query, page))
+        self.assert200(status)
+
+        links = response['_links']
+        self.assertCustomParams(links['prev'], custom_params)
+        self.assertCustomParams(links['next'], custom_params)
+        self.assertCustomParams(links['self'], custom_params)
+        self.assertCustomParams(links['last'], custom_params)
+
     def test_get_page(self):
         response, status = self.get(self.known_resource)
         self.assert200(status)
+        self.assertPage(response, status)
 
+    def test_get_perform_count_on_pagination_disabled(self):
+        self.app.config['OPTIMIZE_PAGINATION_FOR_SPEED'] = True
+
+        r = self.test_client.get('%s?page=2' % self.known_resource_url)
+        self.assert200(r.status_code)
+
+        body = json.loads(r.get_data())
+        links = body['_links']
+        self.assertFalse('last' in links)
+        self.assertFalse('total' in body['_meta'])
+        self.assertNextLink(links, 3)
+        self.assertPrevLink(links, 1)
+        self.assertFalse(self.app.config['HEADER_TOTAL_COUNT'] in r.headers)
+
+    def test_get_internal_page(self):
+        with self.app.test_request_context(self.known_resource_url):
+            response, _, _, status, _ = get_internal(self.known_resource)
+        self.assertPage(response, status)
+
+    def assertPage(self, response, status):
         links = response['_links']
         self.assertNextLink(links, 2)
         self.assertLastLink(links, 5)
@@ -271,6 +311,28 @@ class TestGet(TestBase):
             self.assertFalse('prog' in r)
             self.assertTrue('location' in r)
             self.assertTrue('role' in r)
+            self.assertTrue(self.domain[self.known_resource]['id_field'] in r)
+            self.assertTrue(self.app.config['ETAG'] in r)
+            self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+            self.assertTrue(self.app.config['DATE_CREATED'] in r)
+            self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+            self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
+
+    def test_get_static_projection(self):
+        """ Test that static projections are honoured """
+        response, status = self.get(self.different_resource)
+        self.assert200(status)
+
+        resource = response['_items']
+
+        # 'users' has a static inclusive projection with 'username' and 'ref'
+        # fields, so other document fields should be excluded.
+        for r in resource:
+            self.assertFalse('location' in r)
+            self.assertFalse('role' in r)
+            self.assertFalse('prog' in r)
+            self.assertTrue('username' in r)
+            self.assertTrue('ref' in r)
             self.assertTrue(self.domain[self.known_resource]['id_field'] in r)
             self.assertTrue(self.app.config['ETAG'] in r)
             self.assertTrue(self.app.config['LAST_UPDATED'] in r)
@@ -500,6 +562,82 @@ class TestGet(TestBase):
             self.assertTrue('_updated_on' in document)
             self.assertTrue('_created_on' in document)
             self.assertTrue('_the_etag' in document)
+
+    def test_get_embedded_media_validate_rest_of_fields(self):
+        """ test multipart/form-data resource fields that are JSON
+             encoded are validated correctly. #806
+        """
+
+        self.app.config['MULTIPART_FORM_FIELDS_AS_JSON'] = True
+        resource_with_media = {
+            'image_file': {
+                'type': 'media'
+            },
+            'some_text': {
+                'type': 'string'
+            },
+            'some_boolean': {
+                'type': 'boolean'
+            },
+            'some_number': {
+                'type': 'number'
+            },
+            'some_list': {
+                'type': 'list',
+                'schema': {'type': 'string'}
+            }
+        }
+        self.app.register_resource('res_img', {'schema': resource_with_media})
+
+        img = b'some_image'
+
+        # fail on boolean validate
+        data = {'image_file': (BytesIO(img), 'test.txt'),
+                'some_boolean': '123'
+                }
+        response, status = self.parse_response(
+            self.test_client.post("res_img",
+                                  data=data,
+                                  headers=[('Content-Type',
+                                            'multipart/form-data')]))
+        self.assert422(status)
+
+        # fail on number validattion
+        data = {'image_file': (BytesIO(img), 'test.txt'),
+                'some_number': 'xyz'
+                }
+        response, status = self.parse_response(
+            self.test_client.post("res_img",
+                                  data=data,
+                                  headers=[('Content-Type',
+                                            'multipart/form-data')]))
+        self.assert422(status)
+
+        # fail on list validation
+        data = {'image_file': (BytesIO(img), 'test.txt'),
+                'some_list': "true"
+                }
+        response, status = self.parse_response(
+            self.test_client.post("res_img",
+                                  data=data,
+                                  headers=[('Content-Type',
+                                            'multipart/form-data')]))
+        self.assert422(status)
+
+        # validate all fields correctly
+        data = {'image_file': (BytesIO(img), 'test.txt'),
+                'some_text': '"abc"',
+                'some_boolean': 'true',
+                'some_number': '123',
+                'some_list': "[\"abc\", \"xyz\"]"
+                }
+        response, status = self.parse_response(
+            self.test_client.post("res_img",
+                                  data=data,
+                                  headers=[('Content-Type',
+                                            'multipart/form-data')]))
+        self.assert201(status)
+        self.app.config['MULTIPART_FORM_FIELDS_AS_JSON'] = False
 
     def test_get_embedded_media(self):
         """ test that embeedded images are properly rendered and #305 is fixed.
@@ -975,7 +1113,7 @@ class TestGet(TestBase):
         self.assertHomeLink(links)
         self.assertResourceLink(links, 'products')
         items = response['_items']
-        self.assertEqual(2, len(items))
+        self.assertEqual(10, len(items))
         for item in items:
             self.assertItem(item, 'products')
 
@@ -995,6 +1133,186 @@ class TestGet(TestBase):
         self.assertEqual(len(response['_links']), 2)
         self.assertEqual(response['_items'][0]['parent_product'],
                          parent_product_sku)
+
+    def test_get_aggregation_endpoint(self):
+
+        _db = self.connection[MONGO_DBNAME]
+        _db.aggregate_test.insert_many(
+            [
+                {"x": 1, "tags": ["dog", "cat"]},
+                {"x": 2, "tags": ["cat"]},
+                {"x": 2, "tags": ["mouse", "cat", "dog"]},
+                {"x": 3, "tags": []}
+            ]
+        )
+
+        self.app.register_resource(
+            'aggregate_test', {
+                'datasource': {
+                    'aggregation': {
+                        'pipeline': [
+                            {"$unwind": "$tags"},
+                            {"$group": {"_id": "$tags", "count": {"$sum":
+                                                                  "$field1"}}},
+                            {"$sort": SON([("count", -1), ("_id", -1)])}
+                        ],
+                    }
+                }
+            }
+        )
+
+        response, status = self.get('aggregate_test?aggregate=ciao')
+        self.assert400(status)
+
+        def assertOutput(doc, count, id):
+            self.assertEqual(doc['count'], count)
+            self.assertEqual(doc['_id'], id)
+
+        response, status = self.get('aggregate_test?aggregate={"$field1":1}')
+        self.assert200(status)
+        docs = response['_items']
+        self.assertEqual(len(docs), 3)
+        assertOutput(docs[0], 3, 'cat')
+        assertOutput(docs[1], 2, 'dog')
+        assertOutput(docs[2], 1, 'mouse')
+
+        response, status = self.get('aggregate_test?aggregate={"$field1":2}')
+        self.assert200(status)
+        docs = response['_items']
+        self.assertEqual(len(docs), 3)
+        assertOutput(docs[0], 6, 'cat')
+        assertOutput(docs[1], 4, 'dog')
+        assertOutput(docs[2], 2, 'mouse')
+
+        # this will return 0 for all documents 'count' fields as no $field1
+        # will be gien with the query (actually, no query will be there at all)
+        response, status = self.get('aggregate_test')
+        self.assert200(status)
+        docs = response['_items']
+        self.assertEqual(len(docs), 3)
+        self.assertEqual(docs[0]['count'], 0)
+        self.assertEqual(docs[1]['count'], 0)
+        self.assertEqual(docs[2]['count'], 0)
+
+        # malformed field name is ignored
+        response, status = self.get('aggregate_test?aggregate={"field1":1}')
+        self.assert200(status)
+
+        # unknown field is ignored
+        response, status = self.get('aggregate_test?aggregate={"$unknown":1}')
+        self.assert200(status)
+
+    def test_get_aggregation_parsing(self):
+
+        date = datetime.utcnow()
+
+        _db = self.connection[MONGO_DBNAME]
+        _db.aggregate_test.insert_many(
+            [
+                {"x": 1, "date": date},
+                {"x": 2, "date": date},
+                {"x": 3, "date": date},
+                {"x": 4, "date": date + timedelta(days=-1)},
+            ]
+        )
+
+        self.app.register_resource(
+            'aggregate_test', {
+                'datasource': {
+                    'aggregation': {
+                        'pipeline': [
+                            {"$match": {"date": {"$gte": "$date"}}}
+                        ],
+                    }
+                }
+            }
+        )
+
+        challenge = date.strftime(self.app.config['DATE_FORMAT'])
+        response, status = self.get('aggregate_test?aggregate={"$date": "%s"}'
+                                    % challenge)
+        self.assert200(status)
+        docs = response['_items']
+        self.assertEqual(len(docs), 3)
+
+        challenge = (date + timedelta(days=-1)).strftime(
+            self.app.config['DATE_FORMAT'])
+        response, status = self.get('aggregate_test?aggregate={"$date": "%s"}'
+                                    % challenge)
+        self.assert200(status)
+        docs = response['_items']
+        self.assertEqual(len(docs), 4)
+
+    def test_get_aggregation_pagination(self):
+        _db = self.connection[MONGO_DBNAME]
+
+        num = 75
+        _db.aggregate_test.insert_many([{'x': x} for x in range(num)])
+
+        self.app.register_resource(
+            'aggregate_test', {
+                'datasource': {
+                    'aggregation': {
+                        'pipeline': [
+                            {"$sort": SON([("x", -1)])}
+                        ],
+                    }
+                }
+            }
+        )
+
+        # first page
+        response, status = self.get('aggregate_test')
+        self.assert200(status)
+
+        items = response['_items']
+        expected_length = self.app.config['PAGINATION_DEFAULT']
+        self.assertEqual(len(items), expected_length)
+
+        item, value = 0, num - 1
+        self.assertEqual(items[item]['x'], value)
+        item, value = expected_length - 1, num - expected_length
+        self.assertEqual(items[item]['x'], value)
+
+        # second page
+        response, status = self.get('aggregate_test?page=2')
+        self.assert200(status)
+
+        items = response['_items']
+        expected_length = self.app.config['PAGINATION_DEFAULT']
+        self.assertEqual(len(items), expected_length)
+
+        item, value = 0, num - 1 - self.app.config['PAGINATION_DEFAULT']
+        self.assertEqual(items[item]['x'], value)
+        item, value = expected_length - 1, num - expected_length * 2
+        self.assertEqual(items[item]['x'], value)
+
+        # third page
+        response, status = self.get('aggregate_test?page=3')
+        self.assert200(status)
+
+        items = response['_items']
+        expected_length = num - self.app.config['PAGINATION_DEFAULT'] * 2
+        self.assertEqual(len(items), expected_length)
+
+        item, value = 0, expected_length - 1
+        self.assertEqual(items[item]['x'], value)
+
+        item, value = expected_length - 1, 0
+        self.assertEqual(items[item]['x'], 0)
+
+        # pagination is disabled for the endpoint
+        self.domain['aggregate_test']['pagination'] = False
+        # hence we get all documents with a single request
+        response, status = self.get('aggregate_test')
+        self.assert200(status)
+        items = response['_items']
+        self.assertEqual(len(items), num)
+        # and pagination requests are ignored
+        response, status = self.get('aggregate_test?page=2')
+        self.assert200(status)
+        items = response['_items']
+        self.assertEqual(len(items), num)
 
     def assertGet(self, response, status, resource=None):
         self.assert200(status)
@@ -1041,6 +1359,11 @@ class TestGetItem(TestBase):
                                     item=self.unknown_item_id)
         self.assert404(status)
 
+    def test_getitem_internal_by_id(self):
+        with self.app.test_request_context(self.known_resource_url):
+            response, _, _, status = getitem_internal(self.known_resource)
+        self.assert200(status)
+
     def test_getitem_noschema(self):
         self.app.config['DOMAIN'][self.known_resource]['schema'] = {}
         response, status = self.get(self.known_resource, item=self.item_id)
@@ -1083,8 +1406,28 @@ class TestGetItem(TestBase):
         r = self.test_client.get(self.item_id_url)
         etag = r.headers.get('ETag')
         self.assertTrue(etag is not None)
+
+        # test that ETag is compliant to RFC 7232-2.3 and #794 is fixed.
+        self.assertTrue(etag[0] == '"')
+        self.assertTrue(etag[-1] == '"')
+
         r = self.test_client.get(self.item_id_url,
                                  headers=[('If-None-Match', etag)])
+        self.assert304(r.status_code)
+        self.assertTrue(not r.get_data())
+
+        # test that we also support doublequote-less etags, for legacy
+        # reasons. See #794.
+        r = self.test_client.get(self.item_id_url,
+                                 headers=[('If-None-Match',
+                                           etag.replace('"', ''))])
+        self.assert304(r.status_code)
+        self.assertTrue(not r.get_data())
+
+        # test that we support weak etags
+        weak_etag = 'W/' + etag
+        r = self.test_client.get(self.item_id_url,
+                                 headers=[('If-None-Match', weak_etag)])
         self.assert304(r.status_code)
         self.assertTrue(not r.get_data())
 
@@ -1346,6 +1689,7 @@ class TestHead(TestBase):
 
 
 class TestEvents(TestBase):
+
     def setUp(self):
         super(TestEvents, self).setUp()
         self.devent = DummyEvent(lambda: True)

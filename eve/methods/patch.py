@@ -4,9 +4,9 @@
     eve.methods.patch
     ~~~~~~~~~~~~~~~~~
 
-    This module imlements the PATCH method.
+    This module implements the PATCH method.
 
-    :copyright: (c) 2016 by Nicola Iarocci.
+    :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -16,7 +16,7 @@ from werkzeug import exceptions
 from datetime import datetime
 from eve.utils import config, debug_error_message, parse_request
 from eve.auth import requires_auth
-from eve.validation import ValidationError
+from eve.validation import DocumentError
 from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, pre_event, store_media_files, resolve_embedded_fields, \
     build_response_document, marshal_write_response, resolve_document_etag, \
@@ -82,7 +82,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
        through. Fixes #395.
 
     .. versionchanged:: 0.4
-       Allow abort() to be inoked by callback functions.
+       Allow abort() to be invoked by callback functions.
        'on_update' raised before performing the update on the database.
        Support for document versioning.
        'on_updated' raised after performing the update on the database.
@@ -120,7 +120,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
        ETag is now computed without the need of an additional db lookup
 
     .. versionchanged:: 0.0.5
-       Support for 'aplication/json' Content-Type.
+       Support for 'application/json' Content-Type.
 
     .. versionchanged:: 0.0.4
        Added the ``requires_auth`` decorator.
@@ -138,7 +138,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
 
     resource_def = app.config['DOMAIN'][resource]
     schema = resource_def['schema']
-    validator = app.validator(schema, resource)
+    validator = app.validator(schema, resource=resource)
 
     object_id = original[resource_def['id_field']]
     last_modified = None
@@ -201,13 +201,8 @@ def patch_internal(resource, payload=None, concurrency_check=False,
                 # now storing the (updated) ETAG with every document (#453)
                 updates[config.ETAG] = updated[config.ETAG]
 
-            try:
-                app.data.update(
-                    resource, object_id, updates, original)
-            except app.data.OriginalChangedError:
-                if concurrency_check:
-                    abort(412,
-                          description='Client and server etags don\'t match')
+            app.data.update(
+                resource, object_id, updates, original)
 
             # update oplog if needed
             oplog_push(resource, updates, 'PATCH', object_id)
@@ -228,7 +223,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
                 etag = response[config.ETAG]
         else:
             issues = validator.errors
-    except ValidationError as e:
+    except DocumentError as e:
         # TODO should probably log the error and abort 400 instead (when we
         # got logging)
         issues['validator exception'] = str(e)

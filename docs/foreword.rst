@@ -41,12 +41,6 @@ number of use cases. I could then release it as an open source project. Well
 it turned out to be slightly more complex than that but finally here it is, and
 of course it's called Eve.
 
-It still has a long way to go before it becomes the fully featured open source,
-out-of-the-box API solution I envision (see the Roadmap below), but
-I feel that at this point the codebase is ready for a public preview.
-This will hopefully allow for some constructive feedback and maybe, for some
-contributors to join the ranks.
-
 REST, Flask and MongoDB
 -----------------------
 The slides from my EuroPython talk, *Developing RESTful Web APIs with Flask and

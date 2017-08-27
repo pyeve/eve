@@ -3,13 +3,14 @@ from datetime import datetime
 
 import json
 from bson import ObjectId
-from flask.ext.pymongo import MongoClient
+from pymongo import MongoClient
 
 import eve
 from eve.auth import BasicAuth
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO1_PASSWORD, MONGO1_USERNAME, \
-    MONGO1_DBNAME, MONGO_DBNAME
+    MONGO1_DBNAME, MONGO_DBNAME, \
+    MONGO_HOST, MONGO_PORT
 
 
 class TestMultiMongo(TestBase):
@@ -185,6 +186,35 @@ class TestMethodsAcrossMultiMongo(TestMultiMongo):
         lost = db.contacts.find_one({id_field: ObjectId(self.item_id)})
         self.assertEqual(lost, None)
         self.connection.close()
+
+    def test_create_index_with_mongo_uri_and_prefix(self):
+        self.app.config['MONGO_URI'] = 'mongodb://%s:%s/%s' % (
+            MONGO_HOST, MONGO_PORT, MONGO_DBNAME)
+        self.app.config['MONGO1_URI'] = 'mongodb://%s:%s/%s' % (
+            MONGO_HOST, MONGO_PORT, MONGO1_DBNAME)
+        settings = {
+            'schema': {
+                'name': {'type': 'string'},
+                'other_field': {'type': 'string'},
+                'lat_long': {'type': 'list'}
+            },
+            'mongo_indexes': {
+                'name': [('name', 1)],
+                'composed': [('name', 1), ('other_field', 1)],
+                'arguments': ([('lat_long', "2d")], {"sparse": True})
+            },
+            'mongo_prefix': 'MONGO1',
+        }
+        self.app.register_resource('mongodb_features', settings)
+
+        # check if index was created using MONGO1 prefix
+        db = self.connection[MONGO1_DBNAME]
+        self.assertTrue('mongodb_features' in db.collection_names())
+        coll = db['mongodb_features']
+        indexes = coll.index_information()
+
+        # at least there is an index for the _id field plus the indexes
+        self.assertTrue(len(indexes) > len(settings['mongo_indexes']))
 
     def _save_work(self):
         work = {'author': 'john doe', 'title': 'Eve for Dummies'}

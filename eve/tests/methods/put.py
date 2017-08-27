@@ -1,12 +1,16 @@
-from bson import ObjectId
 import simplejson as json
 
+from bson import ObjectId
+from bson.dbref import DBRef
+from eve import ETAG
+from eve import ISSUES
+from eve import LAST_UPDATED
+from eve import STATUS
+from eve import STATUS_OK
+from eve.methods.put import put_internal
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
 from eve.tests.utils import DummyEvent
-
-from eve import STATUS_OK, LAST_UPDATED, ISSUES, STATUS, ETAG
-from eve.methods.put import put_internal
 
 
 class TestPut(TestBase):
@@ -25,7 +29,10 @@ class TestPut(TestBase):
 
     def test_ifmatch_missing(self):
         _, status = self.put(self.item_id_url, data={'key1': 'value1'})
-        self.assert403(status)
+        self.assert428(status)
+
+    def test_ifmatch_missing_enforce_ifmatch_disabled(self):
+        self.app.config['ENFORCE_IF_MATCH'] = False
 
     def test_ifmatch_disabled(self):
         self.app.config['IF_MATCH'] = False
@@ -34,10 +41,29 @@ class TestPut(TestBase):
         self.assert200(status)
         self.assertTrue(ETAG not in r)
 
+    def test_ifmatch_disabled_enforce_ifmatch_disabled(self):
+        self.app.config['IF_MATCH'] = False
+        self.app.config['ENFORCE_IF_MATCH'] = False
+        r, status = self.put(
+            self.item_id_url,
+            data={'ref': '1234567890123456789012345'}
+        )
+        self.assert200(status)
+        self.assertTrue(ETAG not in r)
+
     def test_ifmatch_bad_etag(self):
         _, status = self.put(self.item_id_url,
                              data={'key1': 'value1'},
                              headers=[('If-Match', 'not-quite-right')])
+        self.assert412(status)
+
+    def test_ifmatch_bad_etag_enforce_ifmatch_disabled(self):
+        self.app.config['ENFORCE_IF_MATCH'] = False
+        _, status = self.put(
+            self.item_id_url,
+            data={'key1': 'value1'},
+            headers=[('If-Match', 'not-quite-right')]
+        )
         self.assert412(status)
 
     def test_unique_value(self):
@@ -205,6 +231,41 @@ class TestPut(TestBase):
         self.assertPutResponse(response, self.invoice_id, 'peopleinvoices')
         self.assertEqual(response.get('person'), str(fake_contact_id))
 
+    def test_put_dbref_subresource(self):
+        _db = self.connection[MONGO_DBNAME]
+        self.app.config['BANDWIDTH_SAVER'] = False
+
+        # create random contact
+        fake_contact = self.random_contacts(1)
+        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+
+        # update first invoice to reference the new contact
+        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
+                            {'$set': {
+                                'person': fake_contact_id,
+                                'persondbref':
+                                    DBRef("contacts",
+                                          ObjectId(fake_contact_id))}
+                             })
+
+        # GET all invoices by new contact
+        response, status = self.get('users/%s/invoices/%s' %
+                                    (fake_contact_id, self.invoice_id))
+
+        self.assertEqual(response.get('persondbref')['$id'],
+                         str(fake_contact_id))
+
+        etag = response[ETAG]
+
+        data = {"inv_number": "new_number"}
+        headers = [('If-Match', etag)]
+        response, status = self.put('users/%s/invoices/%s' %
+                                    (fake_contact_id, self.invoice_id),
+                                    data=data, headers=headers)
+
+        self.assert200(status)
+        self.assertPutResponse(response, self.invoice_id, 'peopleinvoices')
+
     def test_put_bandwidth_saver(self):
         changes = {'ref': '1234567890123456789012345'}
 
@@ -287,6 +348,25 @@ class TestPut(TestBase):
                                  data=json.dumps(changes),
                                  headers=headers)
         self.assertTrue('Etag' in r.headers)
+
+        # test that ETag is compliant to RFC 7232-2.3 and #794 is fixed.
+        etag = r.headers['ETag']
+
+        self.assertTrue(etag[0] == '"')
+        self.assertTrue(etag[-1] == '"')
+
+    def test_put_etag_header_enforce_ifmatch_disabled(self):
+        self.app.config['ENFORCE_IF_MATCH'] = False
+        changes = {'ref': '1234567890123456789012345'}
+        headers = [('Content-Type', 'application/json'),
+                   ('If-Match', self.item_etag)]
+        r, status = self.put(
+            self.item_id_url,
+            data=json.dumps(changes),
+            headers=headers
+        )
+        self.assertTrue(ETAG in r)
+        self.assertTrue(self.item_etag != r[ETAG])
 
     def test_put_nested(self):
         changes = {
@@ -375,7 +455,7 @@ class TestPut(TestBase):
         raw_r = self.test_client.get(self.item_id_url)
         r, status = self.parse_response(raw_r)
         self.assert200(status)
-        self.assertEqual(raw_r.headers.get('ETag'),
+        self.assertEqual(raw_r.headers.get('ETag').replace('"', ''),
                          put_response[ETAG])
         if isinstance(fields, str):
             return r[fields]

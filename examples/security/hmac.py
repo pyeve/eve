@@ -40,20 +40,23 @@
 
     The HMACAuth class also supports access roles.
 
-    Checkout Eve at https://github.com/nicolaiarocci/eve
+    Checkout Eve at https://github.com/pyeve/eve
 
     This snippet by Nicola Iarocci can be used freely for anything you like.
     Consider it public domain.
 """
+import hmac
 
 from eve import Eve
 from eve.auth import HMACAuth
 from hashlib import sha1
-import hmac
+
+from settings_security import SETTINGS
 
 
 class HMACAuth(HMACAuth):
-    def check_auth(self, userid, hmac_hash, headers, data, allowed_roles):
+    def check_auth(self, userid, hmac_hash, headers, data, allowed_roles,
+                   resource, method):
         # use Eve's own db driver; no additional connections/resources are used
         accounts = app.data.driver.db['accounts']
         user = accounts.find_one({'userid': userid})
@@ -66,5 +69,5 @@ class HMACAuth(HMACAuth):
 
 
 if __name__ == '__main__':
-    app = Eve(auth=HMACAuth)
+    app = Eve(auth=HMACAuth, settings=SETTINGS)
     app.run()

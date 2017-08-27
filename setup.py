@@ -6,16 +6,16 @@ with open('README.rst') as f:
     LONG_DESCRIPTION = f.read()
 
 install_requires = [
-    'cerberus>=0.9.2,<0.10',
-    'events>=0.2.1,<0.3',
+    'cerberus>=1.1',
+    'events>=0.3,<0.4',
     'simplejson>=3.3.0,<4.0',
-    'werkzeug>=0.9.4,<0.11.4',
+    'werkzeug>=0.9.4,<=0.11.15',
     'markupsafe>=0.23,<1.0',
-    'jinja2>=2.7.2,<3.0',
-    'itsdangerous>=0.22,<1.0',
-    'flask>=0.10.1,<0.11',
-    'pymongo>=3.2',
-    'flask-pymongo>=0.4',
+    'jinja2>=2.8,<3.0',
+    'itsdangerous>=0.24,<1.0',
+    'flask>=0.10.1,<=0.12',
+    'pymongo>=3.4',
+    'backport_collections>=0.1',
 ]
 
 try:
@@ -27,7 +27,7 @@ except ImportError:
 
 setup(
     name='Eve',
-    version='0.6.2',
+    version='0.8-dev',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',
@@ -52,6 +52,8 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
 )

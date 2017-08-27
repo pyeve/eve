@@ -6,7 +6,7 @@
 
     The actual implementation of the MongoDB data layer.
 
-    :copyright: (c) 2016 by Nicola Iarocci.
+    :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 import itertools
@@ -16,9 +16,10 @@ import ast
 import pymongo
 import simplejson as json
 from bson import ObjectId
+from bson.dbref import DBRef
 from copy import copy
-from flask import abort, request
-from flask.ext.pymongo import PyMongo
+from flask import abort, request, g
+from .flask_pymongo import PyMongo
 from pymongo import WriteConcern
 from werkzeug.exceptions import HTTPException
 
@@ -47,7 +48,11 @@ class MongoJSONEncoder(BaseJSONEncoder):
             # contain a lambda/callable which can't be jSON serialized
             # (and we probably don't want it to be exposed anyway). See #790.
             return "<callable>"
-
+        if isinstance(obj, DBRef):
+            retval = {'$id': str(obj.id), '$ref': obj.collection}
+            if obj.database:
+                retval['$db'] = obj.database
+            return retval
         # delegate rendering to base class method
         return super(MongoJSONEncoder, self).default(obj)
 
@@ -74,7 +79,12 @@ class Mongo(DataLayer):
         'datetime': str_to_date,
         'integer': lambda value: int(value) if value is not None else None,
         'float': lambda value: float(value) if value is not None else None,
-        'number': lambda val: json.loads(val) if val is not None else None
+        'number': lambda val: json.loads(val) if val is not None else None,
+        'boolean': lambda v:
+        {'1': True, 'true': True, '0': False, 'false': False}[str(v).lower()],
+        'dbref': lambda value:
+        DBRef(value['$col'], value['$id'], value['$db']
+              if '$db' in value else None) if value is not None else None,
     }
 
     # JSON serializer is a class attribute. Allows extensions to replace it
@@ -140,7 +150,7 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.3
            Support for new _mongotize() signature.
 
-        .. versionchagend:: 0.2
+        .. versionchanged:: 0.2
            Support for sub-resources.
            Support for 'default_sort'.
 
@@ -168,10 +178,10 @@ class Mongo(DataLayer):
         """
         args = dict()
 
-        if req.max_results:
+        if req and req.max_results:
             args['limit'] = req.max_results
 
-        if req.page > 1:
+        if req and req.page > 1:
             args['skip'] = (req.page - 1) * req.max_results
 
         # TODO sort syntax should probably be coherent with 'where': either
@@ -184,7 +194,7 @@ class Mongo(DataLayer):
         client_sort = {}
         spec = {}
 
-        if req.sort:
+        if req and req.sort:
             try:
                 # assume it's mongo syntax (ie. ?sort=[("name", 1)])
                 client_sort = ast.literal_eval(req.sort)
@@ -203,7 +213,7 @@ class Mongo(DataLayer):
                 self.app.logger.exception(e)
                 abort(400, description=debug_error_message(str(e)))
 
-        if req.where:
+        if req and req.where:
             try:
                 spec = self._sanitize(json.loads(req.where))
             except HTTPException as e:
@@ -225,13 +235,13 @@ class Mongo(DataLayer):
         if sub_resource_lookup:
             spec = self.combine_queries(spec, sub_resource_lookup)
 
-        if config.DOMAIN[resource]['soft_delete'] and not req.show_deleted:
+        if config.DOMAIN[resource]['soft_delete'] \
+                and not (req and req.show_deleted) \
+                and not self.query_contains_field(spec, config.DELETED):
             # Soft delete filtering applied after validate_filters call as
             # querying against the DELETED field must always be allowed when
             # soft_delete is enabled
-            if not self.query_contains_field(spec, config.DELETED):
-                spec = self.combine_queries(
-                    spec, {config.DELETED: {"$ne": True}})
+            spec = self.combine_queries(spec, {config.DELETED: {"$ne": True}})
 
         spec = self._mongotize(spec, resource)
 
@@ -243,7 +253,7 @@ class Mongo(DataLayer):
             client_projection,
             client_sort)
 
-        if req.if_modified_since:
+        if req and req.if_modified_since:
             spec[config.LAST_UPDATED] = \
                 {'$gt': req.if_modified_since}
 
@@ -301,15 +311,14 @@ class Mongo(DataLayer):
             filter_ = self.combine_queries(
                 filter_, {config.DELETED: {"$ne": True}})
 
-        document = self.pymongo(resource).db[datasource] \
-                                         .find_one(filter_, projection)
-        return document
+        return self.pymongo(resource).db[datasource] \
+                                     .find_one(filter_, projection)
 
-    def find_one_raw(self, resource, _id):
+    def find_one_raw(self, resource, **lookup):
         """ Retrieves a single raw document.
 
         :param resource: resource name.
-        :param id: unique id.
+        :param **lookup: lookup query.
 
         .. versionchanged:: 0.6
            Support for multiple databases.
@@ -317,12 +326,14 @@ class Mongo(DataLayer):
         .. versionadded:: 0.4
         """
         id_field = config.DOMAIN[resource]['id_field']
+        _id = lookup.get(id_field)
         datasource, filter_, _, _ = self._datasource_ex(resource,
                                                         {id_field: _id},
                                                         None)
 
-        document = self.pymongo(resource).db[datasource].find_one(_id)
-        return document
+        lookup = self._mongotize(lookup, resource)
+
+        return self.pymongo(resource).db[datasource].find_one(lookup)
 
     def find_list_of_ids(self, resource, ids, client_projection=None):
         """ Retrieves a list of documents from the collection given
@@ -372,6 +383,17 @@ class Mongo(DataLayer):
             filter=spec, projection=projection
         )
         return documents
+
+    def aggregate(self, resource, pipeline, options):
+        """
+        .. versionadded:: 0.7
+        """
+        datasource, _, _, _ = self.datasource(resource)
+        challenge = self._mongotize({'key': pipeline}, resource)['key']
+
+        return self.pymongo(resource).db[datasource].aggregate(
+            challenge, **options
+        )
 
     def insert(self, resource, doc_or_docs):
         """ Inserts a document into a resource collection.
@@ -449,11 +471,8 @@ class Mongo(DataLayer):
 
         coll = self.get_collection_with_write_concern(datasource, resource)
         try:
-            result = coll.replace_one(filter_, changes) if replace else \
+            coll.replace_one(filter_, changes) if replace else \
                 coll.update_one(filter_, changes)
-
-            if result and result.acknowledged and result.modified_count == 0:
-                raise self.OriginalChangedError()
         except pymongo.errors.DuplicateKeyError as e:
             abort(400, description=debug_error_message(
                 'pymongo.errors.DuplicateKeyError: %s' % e
@@ -464,7 +483,8 @@ class Mongo(DataLayer):
                 self.driver.db.client.server_info()['version'][:3]
             if (
                 (server_version == '2.4' and e.code in (13596, 10148)) or
-                (server_version in ('2.6', '3.0') and e.code in (66, 16837))
+                (server_version in ('2.6', '3.0', '3.2', '3.4') and
+                    e.code in (66, 16837))
             ):
                 # attempt to update an immutable field. this usually
                 # happens when a PATCH or PUT includes a mismatching ID_FIELD.
@@ -531,7 +551,7 @@ class Mongo(DataLayer):
            Custom ID_FIELD lookups would fail. See #203.
 
         .. versionchanged:: 0.2
-           Don't explicitly converto ID_FIELD to ObjectId anymore, so we can
+           Don't explicitly convert ID_FIELD to ObjectId anymore, so we can
            also process different types (UUIDs etc).
 
         .. versionadded:: 0.1.0
@@ -735,7 +755,7 @@ class Mongo(DataLayer):
                         # Convert to unicode because ObjectId() interprets
                         # 12-character strings (but not unicode) as binary
                         # representations of ObjectId's.  See
-                        # https://github.com/nicolaiarocci/eve/issues/508
+                        # https://github.com/pyeve/eve/issues/508
                         try:
                             r = ObjectId(unicode(v))
                         except NameError:
@@ -809,7 +829,17 @@ class Mongo(DataLayer):
         This allows Auth classes (for instance) to override default settings to
         use a user-reserved db instance.
 
+        Even a standard Flask view can set the mongo_prefix:
+
+            from flask import g
+
+            g.mongo_prefix = 'MONGO2'
+
         :param resource: endpoint for which a mongo prefix is needed.
+
+        ..versionchanged:: 0.7
+          Allow standard Flask views (@app.route) to set the mongo_prefix on
+          their own.
 
         ..versionadded:: 0.6
         """
@@ -829,11 +859,16 @@ class Mongo(DataLayer):
             pass
 
         px = auth.get_mongo_prefix() if auth else None
+
+        if px is None:
+            px = g.get('mongo_prefix', None)
+
         if px is None:
             if resource:
                 px = config.DOMAIN[resource].get('mongo_prefix', 'MONGO')
             else:
                 px = 'MONGO'
+
         return px
 
     def pymongo(self, resource=None, prefix=None):
@@ -920,40 +955,14 @@ def create_index(app, resource, name, list_of_keys, index_options):
     .. versionadded:: 0.6
     """
     # it doesn't work as a typical mongodb method run in the request
-    # life cicle, it is just called when the app start and it uses
+    # life cycle, it is just called when the app start and it uses
     # pymongo directly.
     collection = app.config['SOURCES'][resource]['source']
 
-    if 'MONGO_URI' in app.config and app.config['MONGO_URI']:
-        conn = pymongo.MongoClient(app.config['MONGO_URI'])
-        db = conn.get_default_database()
-    else:
-        config_prefix = app.config['DOMAIN'][resource].get('mongo_prefix',
-                                                           'MONGO')
-
-        def key(suffix):
-            return '%s_%s' % (config_prefix, suffix)
-
-        db_name = app.config[key('DBNAME')]
-
-        # just reproduced the same behaviour for username
-        # and password, the other fields come set by Eve by
-        # default.
-        username = app.config[key('USERNAME')] \
-            if key('USERNAME') in app.config else None
-        password = app.config[key('PASSWORD')] \
-            if key('PASSWORD') in app.config else None
-        auth_db_name = app.config[key('AUTHDBNAME')] \
-            if key('AUTHDBNAME') in app.config else None
-        host = app.config[key('HOST')]
-        port = app.config[key('PORT')]
-        auth = (username, password)
-        host_and_port = '%s:%s' % (host, port)
-        conn = pymongo.MongoClient(host_and_port)
-        db = conn[db_name]
-
-        if any(auth):
-            db.authenticate(username, password, source=auth_db_name)
+    # get db for given prefix
+    px = app.config['DOMAIN'][resource].get('mongo_prefix', 'MONGO')
+    with app.app_context():
+        db = app.data.pymongo(resource, px).db
 
     kw = copy(index_options)
     kw['name'] = name

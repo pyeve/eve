@@ -48,7 +48,7 @@ by running ::
 Testing with other python versions
 ----------------------------------
 Before you submit a pull request, make sure your tests and changes run in
-all supported python versions: 2.6, 2.7, 3.3, 3.4 and PyPy. Instead of creating all
+all supported python versions: 2.6, 2.7, 3.3, 3.4, 3.5 and PyPy. Instead of creating all
 those environments by hand, Eve uses tox_.
 
 Make sure you have all required python versions installed and run:
@@ -69,6 +69,7 @@ the following:
     py27: commands succeeded
     py33: commands succeeded
     py34: commands succeeded
+    py35: commands succeeded
     pypy: commands succeeded
     flake8: commands succeeded
     congratulations :)
@@ -134,18 +135,18 @@ yourself with
     
 Continuous Integration
 ----------------------
-Each time code is pushed to either the ``develop`` or the ``master``  branch
-the whole test-suite is executed on Travis-CI. This is also the case for
-pull-requests. When a pull request is submitted and the CI run fails two things
-happen: a 'the build is broken' email is sent to the submitter; the request is
-rejected.  The contributor can then fix the code, add one or more commits as
-needed, and push again.
+Each time code is pushed to the ``master``  branch the whole test-suite is
+executed on Travis-CI. This is also the case for pull-requests. When a pull
+request is submitted and the CI run fails two things happen: a 'the build is
+broken' email is sent to the submitter; the request is rejected.  The
+contributor can then fix the code, add one or more commits as needed, and push
+again.
 
 The CI will also run flake8 so make sure that your code complies to PEP8 before
 submitting a pull request, or be prepared to be mail-spammed by CI.
 
 Please note that in practice you're only supposed to submit pull requests
-against the ``develop`` branch, see :ref:`contributing`.
+against the ``master`` branch, see :ref:`contributing`.
 
 Building documentation
 ----------------------
@@ -176,7 +177,7 @@ and then point your browser at ``localhost:8000``.
     Eve uses a customised Sphinx_ theme based on alabaster_. The easiest way
     to get the right version is by installing the :ref:`test_prerequisites`.
 
-.. _`continuous integration server`: https://travis-ci.org/nicolaiarocci/eve/
+.. _`continuous integration server`: https://travis-ci.org/pyeve/eve/
 .. _tox: http://tox.readthedocs.org/en/latest/
 .. _Redis:  http://redis.io/
 .. _redispy: https://github.com/andymccurdy/redis-py

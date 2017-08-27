@@ -8,8 +8,14 @@
     appropriately, by using a custom settings module (see the optional
     'settings' argument or the EVE_SETTING environment variable).
 
-    :copyright: (c) 2016 by Nicola Iarocci.
+    :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
+
+    .. versionchanged:: 0.7
+       'OPTIMIZE_PAGINATION_FOR_SPEED' added and set to False.
+       'OPLOG_RETURN_EXTRA_FIELD' added and set to False.
+       'ENFORCE_IF_MATCH'added and set to True.
+       'X_DOMAINS_RE' added and set to None
 
     .. versionchanged:: 0.6
        'UPSERT_ON_PUT? added and set to True.
@@ -116,7 +122,7 @@ VALIDATION_ERROR_AS_LIST = False
 
 # codes for which we want to return a standard response which includes
 # a JSON body with the status, code, and description.
-STANDARD_ERRORS = [400, 401, 403, 404, 405, 406, 409, 410, 412, 422]
+STANDARD_ERRORS = [400, 401, 404, 405, 406, 409, 410, 412, 422, 428]
 
 # field returned on GET requests so we know if we have the latest copy even if
 # we access a specific version
@@ -133,12 +139,14 @@ CACHE_CONTROL = ''
 CACHE_EXPIRES = 0
 ITEM_CACHE_CONTROL = ''
 X_DOMAINS = None                # CORS disabled by default.
+X_DOMAINS_RE = None             # CORS disabled by default.
 X_HEADERS = None                # CORS disabled by default.
 X_EXPOSE_HEADERS = None         # CORS disabled by default.
 X_ALLOW_CREDENTIALS = None      # CORS disabled by default.
 X_MAX_AGE = 21600               # Access-Control-Max-Age when CORS is enabled
 HATEOAS = True                  # HATEOAS enabled by default.
 IF_MATCH = True                 # IF_MATCH (ETag match) enabled by default.
+ENFORCE_IF_MATCH = True         # ENFORCE_IF_MATCH enabled by default.
 
 ALLOWED_FILTERS = ['*']         # filtering enabled by default
 VALIDATE_FILTERS = False
@@ -166,6 +174,10 @@ OPLOG_METHODS = ['DELETE',
                  'POST',
                  'PATCH',
                  'PUT']         # oplog logs all operations by default.
+OPLOG_CHANGE_METHODS = ['DELETE',
+                        'PATCH',
+                        'PUT']  # methods which write changes to the oplog
+OPLOG_RETURN_EXTRA_FIELD = False    # oplog does not return the 'extra' field.
 
 RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']
@@ -192,6 +204,11 @@ MEDIA_ENDPOINT = 'media'
 MEDIA_URL = 'regex("[a-f0-9]{24}")'
 MEDIA_BASE_URL = None
 
+MULTIPART_FORM_FIELDS_AS_JSON = False
+AUTO_COLLAPSE_MULTI_KEYS = False
+AUTO_CREATE_LISTS = False
+JSON_REQUEST_CONTENT_TYPES = ['application/json']
+
 SCHEMA_ENDPOINT = None
 
 # list of extra fields to be included with every POST response. This list
@@ -207,8 +224,10 @@ QUERY_SORT = 'sort'
 QUERY_PAGE = 'page'
 QUERY_MAX_RESULTS = 'max_results'
 QUERY_EMBEDDED = 'embedded'
+QUERY_AGGREGATION = 'aggregate'
 
 HEADER_TOTAL_COUNT = 'X-Total-Count'
+OPTIMIZE_PAGINATION_FOR_SPEED = False
 
 # user-restricted resource access is disabled by default.
 AUTH_FIELD = None
@@ -216,8 +235,9 @@ AUTH_FIELD = None
 # don't allow unknown key/value pairs for POST/PATCH payloads.
 ALLOW_UNKNOWN = False
 
-# don't ignore unknown schema rules (raise SchemaError)
-TRANSPARENT_SCHEMA_RULES = False
+# GeoJSON specs allows any number of key/value pairs
+# http://geojson.org/geojson-spec.html#geojson-objects
+ALLOW_CUSTOM_FIELDS_IN_GEOJSON = False
 
 # Rate limits are disabled by default. Needs a running redis-server.
 RATE_LIMIT_GET = None
@@ -225,9 +245,6 @@ RATE_LIMIT_POST = None
 RATE_LIMIT_PATCH = None
 RATE_LIMIT_DELETE = None
 
-# MONGO defaults
-MONGO_HOST = 'localhost'
-MONGO_PORT = 27017
 # disallow Mongo's javascript queries as they might be vulnerable to injection
 # attacks ('ReDoS' especially), are probably too complex for the average API
 # end-user and finally can  seriously impact overall performance.
@@ -235,3 +252,7 @@ MONGO_QUERY_BLACKLIST = ['$where', '$regex']
 # Explicitly set default write_concern to 'safe' (do regular
 # aknowledged writes). This is also the current PyMongo/Mongo default setting.
 MONGO_WRITE_CONCERN = {'w': 1}
+MONGO_OPTIONS = {
+    'connect': True,
+    'tz_aware': True,
+}

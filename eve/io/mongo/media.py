@@ -4,7 +4,7 @@
 
     GridFS media storage for Eve-powered APIs.
 
-    :copyright: (c) 2016 by Nicola Iarocci.
+    :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 from bson import ObjectId
@@ -67,7 +67,7 @@ class GridFSMediaStorage(MediaStorage):
         """ Returns the file given by unique id. Returns None if no file was
         found.
 
-        .. vesionchanged: 0.6
+        .. versionchanged: 0.6
            Support for _id as string.
         """
         if isinstance(_id, str_type):

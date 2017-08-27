@@ -1,13 +1,13 @@
-from eve.tests import TestBase
-from eve.tests.utils import DummyEvent
-from eve.tests.test_settings import MONGO_DBNAME
-from eve import ETAG
-from bson import ObjectId
-from eve.utils import ParsedRequest
-import simplejson as json
 import copy
+import simplejson as json
 
+from bson import ObjectId
+from eve import ETAG
 from eve.methods.delete import deleteitem_internal
+from eve.tests import TestBase
+from eve.tests.test_settings import MONGO_DBNAME
+from eve.tests.utils import DummyEvent
+from eve.utils import ParsedRequest
 
 
 class TestDelete(TestBase):
@@ -20,6 +20,28 @@ class TestDelete(TestBase):
         url = '%s%s/' % (self.unknown_resource_url, self.item_id)
         _, status = self.delete(url)
         self.assert404(status)
+
+    def test_bulk_delete_id_field(self):
+        etag_check = self.app.config["IF_MATCH"]
+        self.app.config["IF_MATCH"] = False
+        products, _ = self.get(self.products)
+        list_products_skus = [product["parent_product"] for product in
+                              products["_items"] if "parent_product" in product]
+        # Deletion of all the product in the first cart
+        url = self.child_products_url.replace(
+            '<regex("[A-Z]+"):parent_product>', list_products_skus[0])
+        _, status = self.delete(url)
+        self.assert204(status)
+        _, status = self.get(url)
+        self.assert404(status)
+        products_url = '%s/%s' % (self.products, list_products_skus[0])
+        _, status = self.delete(products_url)
+        self.assert204(status)
+        _, status = self.get(products_url)
+        self.assert404(status)
+        _, status = self.get(self.products)
+        self.assert200(status)
+        self.app.config["IF_MATCH"] = etag_check
 
     def test_delete_from_resource_endpoint(self):
         r, status = self.delete(self.known_resource_url)
@@ -71,16 +93,41 @@ class TestDelete(TestBase):
 
     def test_delete_ifmatch_missing(self):
         _, status = self.delete(self.item_id_url)
-        self.assert403(status)
+        self.assert428(status)
+
+    def test_ifmatch_missing_enforce_ifmatch_disabled(self):
+        self.app.config['ENFORCE_IF_MATCH'] = False
+        r, status = self.delete(self.item_id_url)
+        self.assert204(status)
+
+        r = self.test_client.get(self.item_id_url)
+        self.assert404(r.status_code)
 
     def test_delete_ifmatch_disabled(self):
         self.app.config['IF_MATCH'] = False
         _, status = self.delete(self.item_id_url)
         self.assert204(status)
 
+    def test_ifmatch_disabled_enforce_ifmatch_disabled(self):
+        self.app.config['ENFORCE_IF_MATCH'] = False
+        self.app.config['IF_MATCH'] = False
+        r, status = self.delete(self.item_id_url)
+        self.assert204(status)
+
+        r = self.test_client.get(self.item_id_url)
+        self.assert404(r.status_code)
+
     def test_delete_ifmatch_bad_etag(self):
         _, status = self.delete(self.item_id_url,
                                 headers=[('If-Match', 'not-quite-right')])
+        self.assert412(status)
+
+    def test_ifmatch_bad_etag_enforce_ifmatch_disabled(self):
+        self.app.config['ENFORCE_IF_MATCH'] = False
+        _, status = self.delete(
+            self.item_id_url,
+            headers=[('If-Match', 'not-quite-right')]
+        )
         self.assert412(status)
 
     def test_delete(self):
@@ -715,22 +762,22 @@ class TestDeleteEvents(TestBase):
         self.assertFalse(devent.called is None)
 
     def test_on_delete_resource(self):
-        devent = DummyEvent(self.before_delete)
-        self.app.on_delete_resource += devent
+        devent1 = DummyEvent(self.before_delete)
+        self.app.on_delete_resource += devent1
+        devent2 = DummyEvent(self.before_delete)
+        self.app.on_delete_resource_originals += devent2
         self.delete_resource()
-        self.assertEqual(('contacts',), devent.called)
+        self.assertEqual(('contacts',), devent1.called)
+        self.assertFalse(devent2.called is None)
 
     def test_on_delete_resource_contacts(self):
-        devent = DummyEvent(self.before_delete)
-        self.app.on_delete_resource_contacts += devent
+        devent1 = DummyEvent(self.before_delete)
+        self.app.on_delete_resource_contacts += devent1
+        devent2 = DummyEvent(self.before_delete)
+        self.app.on_delete_resource_originals_contacts += devent2
         self.delete_resource()
-        self.assertEqual(tuple(), devent.called)
-
-    def test_on_deleted_resource(self):
-        devent = DummyEvent(self.after_delete)
-        self.app.on_deleted_resource += devent
-        self.delete_resource()
-        self.assertEqual(('contacts',), devent.called)
+        self.assertEqual(tuple(), devent1.called)
+        self.assertFalse(devent2.called is None)
 
     def test_on_deleted_resource_contacts(self):
         devent = DummyEvent(self.after_delete)

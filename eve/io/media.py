@@ -6,7 +6,7 @@
 
     Media storage for Eve-powered APIs.
 
-    :copyright: (c) 2016 by Nicola Iarocci.
+    :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -16,7 +16,7 @@ class MediaStorage(object):
     along with a set of default behaviors that all other storage systems can
     inherit or override as necessary.
 
-    ..versioneadded:: 0.3
+    ..versionadded:: 0.3
     """
 
     def __init__(self, app=None):

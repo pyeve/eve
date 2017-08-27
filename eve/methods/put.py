@@ -4,9 +4,9 @@
     eve.methods.put
     ~~~~~~~~~~~~~~~
 
-    This module imlements the PUT method.
+    This module implements the PUT method.
 
-    :copyright: (c) 2016 by Nicola Iarocci.
+    :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 from datetime import datetime
@@ -15,14 +15,13 @@ from flask import current_app as app, abort
 from werkzeug import exceptions
 
 from eve.auth import requires_auth
-from eve.defaults import resolve_default_values
 from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, pre_event, store_media_files, resolve_user_restricted_access, \
     resolve_embedded_fields, build_response_document, marshal_write_response, \
     resolve_sub_resource_path, resolve_document_etag, oplog_push
 from eve.methods.post import post_internal
 from eve.utils import config, debug_error_message, parse_request
-from eve.validation import ValidationError
+from eve.validation import DocumentError
 from eve.versioning import resolve_document_version, \
     insert_versioning_documents, late_versioning_catch
 
@@ -49,7 +48,7 @@ def put_internal(resource, payload=None, concurrency_check=False,
     authentication is not checked, pre-request events are not raised, and
     concurrency checking is optional. Performs a document replacement.
     Updates are first validated against the resource schema. If validation
-    passes, the document is repalced and an OK status update is returned.
+    passes, the document is replaced and an OK status update is returned.
     If validation fails a set of validation issues is returned.
 
     :param resource: the name of the resource to which the document belongs.
@@ -70,7 +69,7 @@ def put_internal(resource, payload=None, concurrency_check=False,
        Allow restoring soft deleted documents via PUT
 
     .. versionchanged:: 0.5
-       Back to resolving default values after validaton as now the validator
+       Back to resolving default values after validation as now the validator
        can properly validate dependency even when some have default values. See
        #353.
        Original put() has been split into put() and put_internal().
@@ -81,7 +80,7 @@ def put_internal(resource, payload=None, concurrency_check=False,
        through. Fixes #395.
 
     .. versionchanged:: 0.4
-       Allow abort() to be inoked by callback functions.
+       Allow abort() to be invoked by callback functions.
        Resolve default values before validation is performed. See #353.
        Raise 'on_replace' instead of 'on_insert'. The callback function gets
        the document (as opposed to a list of just 1 document) as an argument.
@@ -97,7 +96,7 @@ def put_internal(resource, payload=None, concurrency_check=False,
        Use the new STATUS setting.
        Use the new ISSUES setting.
        Raise pre_<method> event.
-       explictly resolve default values instead of letting them be resolved
+       explicitly resolve default values instead of letting them be resolved
        by common.parse. This avoids a validation error when a read-only field
        also has a default value.
 
@@ -109,7 +108,7 @@ def put_internal(resource, payload=None, concurrency_check=False,
     """
     resource_def = app.config['DOMAIN'][resource]
     schema = resource_def['schema']
-    validator = app.validator(schema, resource)
+    validator = app.validator(schema, resource=resource)
 
     if payload is None:
         payload = payload_()
@@ -172,7 +171,6 @@ def put_internal(resource, payload=None, concurrency_check=False,
                 document[resource_def['id_field']] = object_id
 
             resolve_user_restricted_access(document, resource)
-            resolve_default_values(document, resource_def['defaults'])
             store_media_files(document, resource, original)
             resolve_document_version(document, resource, 'PUT', original)
 
@@ -208,7 +206,7 @@ def put_internal(resource, payload=None, concurrency_check=False,
                 etag = response[config.ETAG]
         else:
             issues = validator.errors
-    except ValidationError as e:
+    except DocumentError as e:
         # TODO should probably log the error and abort 400 instead (when we
         # got logging)
         issues['validator exception'] = str(e)

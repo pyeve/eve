@@ -1,3 +1,6 @@
+from base64 import b64decode
+from bson import ObjectId
+
 import simplejson as json
 
 from eve.tests import TestBase
@@ -7,6 +10,10 @@ from eve.tests.test_settings import MONGO_DBNAME
 from eve import STATUS_OK, LAST_UPDATED, DATE_CREATED, ISSUES, STATUS, ETAG
 from eve.methods.post import post
 from eve.methods.post import post_internal
+
+from io import BytesIO
+
+from werkzeug.datastructures import MultiDict
 
 
 class TestPost(TestBase):
@@ -201,7 +208,7 @@ class TestPost(TestBase):
 
         self.assertValidationError(results[1], {'ref': 'required'})
         self.assertValidationError(results[3], {'ref': 'unique'})
-        self.assertValidationError(results[4], {'tid': 'ObjectId'})
+        self.assertValidationError(results[4], {'tid': 'objectid'})
 
         id_field = self.domain[self.known_resource]['id_field']
         self.assertTrue(id_field not in results[0])
@@ -237,6 +244,105 @@ class TestPost(TestBase):
         self.assertTrue('OK' in r[STATUS])
         self.assertPostResponse(r)
 
+    def test_post_auto_collapse_multiple_keys(self):
+        self.app.config['AUTO_COLLAPSE_MULTI_KEYS'] = True
+        self.app.register_resource('test_res', {
+            'schema': {
+                'list_field': {
+                    'type': 'list',
+                    'schema': {
+                        'type': 'string'
+                    }
+                }
+            }
+        })
+
+        data = MultiDict([("list_field", "value1"),
+                          ("list_field", "value2")])
+        resp = self.test_client.post(
+            '/test_res/', data=data,
+            content_type='application/x-www-form-urlencoded')
+        r, status = self.parse_response(resp)
+        self.assert201(status)
+
+        resp = self.test_client.post('/test_res/', data=data,
+                                     content_type='multipart/form-data')
+        r, status = self.parse_response(resp)
+        self.assert201(status)
+
+    def test_post_auto_collapse_media_list(self):
+        self.app.config['AUTO_COLLAPSE_MULTI_KEYS'] = True
+        self.app.register_resource('test_res', {
+            'schema': {
+                'list_field': {
+                    'type': 'list',
+                    'schema': {
+                        'type': 'media'
+                    }
+                }
+            }
+        })
+
+        # Create a document
+        data = MultiDict([('list_field',
+                           (BytesIO(b'file_content1'), 'test1.txt')),
+                          ('list_field',
+                           (BytesIO(b'file_content2'), 'test2.txt'))])
+        resp = self.test_client.post('/test_res/', data=data,
+                                     content_type='multipart/form-data')
+        r, status = self.parse_response(resp)
+        self.assert201(status)
+
+        # check that the files were created
+        _db = self.connection[MONGO_DBNAME]
+        id_field = self.domain['test_res']['id_field']
+        obj = _db.test_res.find_one({id_field: ObjectId(r[id_field])})
+        media_ids = obj['list_field']
+        self.assertEqual(len(media_ids), 2)
+        with self.app.test_request_context():
+            for i in [0, 1]:
+                self.assertTrue(
+                    self.app.media.exists(media_ids[i], 'test_res'))
+
+        # GET the document and check the file content is correct
+        r, status = self.parse_response(
+            self.test_client.get('/test_res/%s' % r[id_field]))
+        files = r['list_field']
+        self.assertEqual(b64decode(files[0]), b'file_content1')
+        self.assertEqual(b64decode(files[1]), b'file_content2')
+
+        # DELETE the document
+        resp = self.test_client.delete('/test_res/%s' % r['_id'],
+                                       headers={'If-Match': r['_etag']})
+        r, status = self.parse_response(resp)
+        self.assert204(status)
+
+        # Check files were deleted
+        with self.app.test_request_context():
+            for i in [0, 1]:
+                self.assertFalse(
+                    self.app.media.exists(media_ids[i], 'test_res'))
+
+    def test_post_auto_create_lists(self):
+        self.app.config['AUTO_CREATE_LISTS'] = True
+        self.app.register_resource('test_res', {
+            'schema': {
+                'list_field': {
+                    'type': 'list',
+                    'schema': {
+                        'type': 'string'
+                    }
+                }
+            }
+        })
+
+        data = MultiDict([("list_field", "value1")])
+        resp = self.test_client.post(
+            '/test_res/', data=data,
+            content_type='application/x-www-form-urlencoded')
+        r, status = self.parse_response(resp)
+        self.assert201(status)
+
     def test_post_referential_integrity(self):
         data = {"person": self.unknown_item_id}
         r, status = self.post('/invoices/', data=data)
@@ -247,6 +353,22 @@ class TestPost(TestBase):
         self.assertValidationError(r, {'person': expected})
 
         data = {"person": self.item_id}
+        r, status = self.post('/invoices/', data=data)
+        self.assert201(status)
+        self.assertPostResponse(r)
+
+    def test_dbref_post_referential_integrity(self):
+        data = {"persondbref": {"$col": "contacts",
+                                "$id": self.unknown_item_id}}
+        r, status = self.post('/invoices/', data=data)
+        self.assertValidationErrorStatus(status)
+        expected = ("value '%s' must exist in resource '%s', field '%s'" %
+                    (self.unknown_item_id, 'contacts',
+                     self.domain['contacts']['id_field']))
+
+        self.assertValidationError(r, {'persondbref': expected})
+
+        data = {"persondbref": {"$col": "contacts", "$id": self.item_id}}
         r, status = self.post('/invoices/', data=data)
         self.assert201(status)
         self.assertPostResponse(r)
@@ -374,6 +496,13 @@ class TestPost(TestBase):
         self.assertTrue(len(r), 1)
         self.assertTrue('%s' % objectid in
                         r['_items'][0]['id_list_of_dict'][0]['id'])
+
+    def test_post_valueschema_with_objectid(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        data = {'dict_valueschema': {'id': {'challenge':
+                                            '50656e4538345b39dd0414f0'}}}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert201(status)
 
     def test_post_list_fixed_len(self):
         objectid = '50656e4538345b39dd0414f0'
@@ -504,7 +633,7 @@ class TestPost(TestBase):
     def test_post_alternative_payload(self):
         payl = {"ref": "5432112345678901234567890", "role": ["agent"]}
         with self.app.test_request_context(self.known_resource_url):
-            r, _, _, status = post(self.known_resource, payl=payl)
+            r, _, _, status, _ = post(self.known_resource, payl=payl)
         self.assert201(status)
         self.assertPostResponse(r)
 
@@ -652,21 +781,21 @@ class TestPost(TestBase):
                               data={"valueschema_dict": {"k1": 1}})
         self.assert201(status)
 
-    def test_post_propertyschema_dict(self):
+    def test_post_keyschema_dict(self):
         del(self.domain['contacts']['schema']['ref']['required'])
 
         r, status = self.post(self.known_resource_url,
-                              data={"propertyschema_dict": {"aaa": 1}})
+                              data={"keyschema_dict": {"aaa": 1}})
         self.assert201(status)
 
         r, status = self.post(self.known_resource_url,
-                              data={"propertyschema_dict": {"AAA": "1"}})
+                              data={"keyschema_dict": {"AAA": "1"}})
         self.assertValidationErrorStatus(status)
 
         issues = r[ISSUES]
-        self.assertTrue('propertyschema_dict' in issues)
-        self.assertEqual(issues['propertyschema_dict'],
-                         'propertyschema_dict')
+        self.assertTrue('keyschema_dict' in issues)
+        self.assertEqual(issues['keyschema_dict'],
+                         {'AAA': "value does not match regex '[a-z]+'"})
 
     def test_post_internal(self):
         # test that post_internal is available and working properly.
@@ -674,7 +803,8 @@ class TestPost(TestBase):
         test_value = "1234567890123456789054321"
         payload = {test_field: test_value}
         with self.app.test_request_context(self.known_resource_url):
-            r, _, _, status = post_internal(self.known_resource, payl=payload)
+            r, _, _, status, _ = post_internal(self.known_resource,
+                                               payl=payload)
         self.assert201(status)
 
     def test_post_internal_skip_validation(self):
@@ -684,8 +814,9 @@ class TestPost(TestBase):
         test_value = "1234567890123456789054321"
         payload = {test_field: test_value}
         with self.app.test_request_context(self.known_resource_url):
-            r, _, _, status = post_internal(self.known_resource, payl=payload,
-                                            skip_validation=True)
+            r, _, _, status, _ = post_internal(self.known_resource,
+                                               payl=payload,
+                                               skip_validation=True)
         self.assert201(status)
 
     def test_post_nested(self):
@@ -725,6 +856,36 @@ class TestPost(TestBase):
         schema['aninteger']['coerce'] = lambda string: int(float(string))
         data = {'ref': '1234567890123456789054321', 'aninteger': '42.3'}
         self.assertPostItem(data, 'aninteger', 42)
+
+    def test_post_location_header_hateoas_on(self):
+        self.app.config['HATEOAS'] = True
+        data = json.dumps({'ref': '1234567890123456789054321'})
+        headers = [('Content-Type', 'application/json')]
+        r = self.test_client.post(self.known_resource_url, data=data,
+                                  headers=headers)
+        self.assertTrue('Location' in r.headers)
+        self.assertTrue(self.known_resource_url in r.headers['Location'])
+
+    def test_post_location_header_hateoas_off(self):
+        self.app.config['HATEOAS'] = False
+        data = json.dumps({'ref': '1234567890123456789054321'})
+        headers = [('Content-Type', 'application/json')]
+        r = self.test_client.post(self.known_resource_url, data=data,
+                                  headers=headers)
+        self.assertTrue('Location' in r.headers)
+        self.assertTrue(self.known_resource_url in r.headers['Location'])
+
+    def test_post_custom_json_content_type(self):
+        data = {'ref': '1234567890123456789054321'}
+        r, status = self.post(self.known_resource_url, data,
+                              content_type='application/csp-report')
+        self.assert400(status)
+
+        self.app.config['JSON_REQUEST_CONTENT_TYPES'] += \
+            ['application/csp-report']
+        r, status = self.post(self.known_resource_url, data,
+                              content_type='application/csp-report')
+        self.assert201(status)
 
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
@@ -775,7 +936,9 @@ class TestPost(TestBase):
         else:
             return item[fields]
 
-    def post(self, url, data, headers=[], content_type='application/json'):
+    def post(self, url, data, headers=None, content_type='application/json'):
+        if not headers:
+            headers = []
         headers.append(('Content-Type', content_type))
         r = self.test_client.post(url, data=json.dumps(data), headers=headers)
         return self.parse_response(r)

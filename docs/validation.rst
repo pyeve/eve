@@ -97,16 +97,13 @@ code.
 
 .. code-block:: python
 
-    def _validate_type_objectid(self, field, value):
+    def _validate_type_objectid(self, value):
         """ Enables validation for `objectid` schema attribute.
 
-        :param unique: Boolean, whether the field value should be
-                       unique or not.
-        :param field: field name.
         :param value: field value.
         """
-        if not re.match('[a-f0-9]{24}', value):
-            self._error(field, ERROR_BAD_TYPE % 'ObjectId')
+        if isinstance(value, ObjectId):
+            return True
 
 This method enables support for MongoDB ``ObjectId`` type in your schema,
 allowing something like this:
@@ -131,6 +128,10 @@ For more information on
     We have only scratched the surface of data validation. Please make sure
     to check the Cerberus_ documentation for a complete list of available
     validation rules and data types. 
+    
+    Also note that Cerberus requirement is pinned to version 0.9.2, which still
+    supports the ``validate_update`` method used for ``PATCH`` requests.
+    Upgrade to Cerberus 1.0+ is scheduled for Eve version 0.8.
 
 .. _unknown:
 
@@ -161,7 +162,7 @@ Consider the following domain:
             }
         }
 
-You normally could only add (POST) or edit (PATCH) `firstnames` to the
+Normally you can only add (POST) or edit (PATCH) `firstnames` to the
 ``/people`` endpoint. However, since ``allow_unknown`` has been enabled, even
 a payload like this will be accepted:
 
@@ -176,6 +177,12 @@ a payload like this will be accepted:
     option is enabled, clients will be capable of actually `adding` fields via
     PATCH (edit).
 
+``ALLOW_UNKNOWN`` is also useful for read-only APIs or endpoints that 
+need to return the whole document, as found in the underlying database. In this
+scenario you don't want to bother with validation schemas. For the whole API
+just set ``ALLOW_UNKNOWN`` to ``True``, then ``schema: {}`` at every endpoint.
+For a single endpoint, use ``allow_unknown: True`` instead.
+
 .. _schema_validation:
 
 Schema validation
@@ -184,16 +191,10 @@ Schema validation
 By default, schemas are validated to ensure they conform to the structure
 documented in :ref:`schema`.
 
-There are two ways to deal with non-conforming schemas:
-
-1.  Add :ref:`custom_validation_rules` for non-conforming keys used in the
-    schema.
-
-2.  Set the global option ``TRANSPARENT_SCHEMA_RULES`` to disable schema
-    validation globally or the resource option ``transparent_schema_rules``
-    to disable schema validation for a given endpoint.
+In order to deal with non-conforming schemas, add
+:ref:`custom_validation_rules` for non-conforming keys used in the schema.
 
 .. _Cerberus: http://python-cerberus.org
-.. _`source code`: https://github.com/nicolaiarocci/eve/blob/develop/eve/io/mongo/validation.py
+.. _`source code`: https://github.com/pyeve/eve/blob/master/eve/io/mongo/validation.py
 .. _`function-based validation`: http://docs.python-cerberus.org/en/latest/customize.html#function-validator
 .. _`type coercion`: http://docs.python-cerberus.org/en/latest/usage.html#type-coercion

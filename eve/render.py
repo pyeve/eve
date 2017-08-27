@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-)
+# -*- coding: utf-8 -*-
 
 """
     eve.render
@@ -6,10 +6,11 @@
 
     Implements proper, automated rendering for Eve responses.
 
-    :copyright: (c) 2016 by Nicola Iarocci.
+    :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
+import re
 import time
 import datetime
 import simplejson as json
@@ -107,6 +108,10 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     :param etag: ETag header value.
     :param status: response status.
 
+    .. versionchanged:: 0.7
+       Add support for regexes in X_DOMAINS_RE. Closes #660, #974.
+       ETag value now surrounded by double quotes. Closes #794.
+
     .. versionchanged:: 0.6
        JSONP Support.
 
@@ -151,7 +156,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
                 callback = request.args.get(jsonp_arg)
                 rendered = "%s(%s)" % (callback, rendered)
 
-        # build the main wsgi rensponse object
+        # build the main wsgi response object
         resp = make_response(rendered, status)
         resp.mimetype = mime
 
@@ -176,17 +181,34 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
 
     # etag and last-modified
     if etag:
-        resp.headers.add('ETag', etag)
+        resp.headers.add('ETag', '"' + etag + '"')
     if last_modified:
         resp.headers.add('Last-Modified', date_to_rfc1123(last_modified))
 
     # CORS
     origin = request.headers.get('Origin')
-    if origin and config.X_DOMAINS:
-        if isinstance(config.X_DOMAINS, str):
+    if origin and (config.X_DOMAINS or config.X_DOMAINS_RE):
+        if config.X_DOMAINS is None:
+            domains = []
+        elif isinstance(config.X_DOMAINS, str):
             domains = [config.X_DOMAINS]
         else:
             domains = config.X_DOMAINS
+
+        if config.X_DOMAINS_RE is None:
+            domains_re = []
+        elif isinstance(config.X_DOMAINS_RE, str):
+            domains_re = [config.X_DOMAINS_RE]
+        else:
+            domains_re = config.X_DOMAINS_RE
+
+        # precompile regexes and ignore invalids
+        domains_re_compiled = []
+        for domain_re in domains_re:
+            try:
+                domains_re_compiled.append(re.compile(domain_re))
+            except re.error:
+                continue
 
         if config.X_HEADERS is None:
             headers = []
@@ -211,7 +233,9 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         if '*' in domains:
             resp.headers.add('Access-Control-Allow-Origin', origin)
             resp.headers.add('Vary', 'Origin')
-        elif origin in domains:
+        elif any(origin == domain for domain in domains):
+            resp.headers.add('Access-Control-Allow-Origin', origin)
+        elif any(domain.match(origin) for domain in domains_re_compiled):
             resp.headers.add('Access-Control-Allow-Origin', origin)
         else:
             resp.headers.add('Access-Control-Allow-Origin', '')
@@ -270,7 +294,12 @@ def render_json(data):
     .. versionchanged:: 0.1.0
        Support for optional HATEOAS.
     """
-    return json.dumps(data, cls=app.data.json_encoder_class,
+    set_indent = None
+
+    # make pretty prints available
+    if 'GET' in request.method and 'pretty' in request.args:
+        set_indent = 4
+    return json.dumps(data, indent=set_indent, cls=app.data.json_encoder_class,
                       sort_keys=config.JSON_SORT_KEYS)
 
 
@@ -371,8 +400,8 @@ def xml_add_links(data):
     ordered_links = OrderedDict(sorted(links.items()))
     for rel, link in ordered_links.items():
         if isinstance(link, list):
-            xml += ''.join([chunk % (rel, utils.escape(d['href']), d['title'])
-                            for d in link])
+            xml += ''.join([chunk % (rel, utils.escape(d['href']),
+                                     utils.escape(d['title'])) for d in link])
         else:
             xml += ''.join(chunk % (rel, utils.escape(link['href']),
                                     link['title']))

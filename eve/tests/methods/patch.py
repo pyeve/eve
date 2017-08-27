@@ -1,12 +1,15 @@
-from bson import ObjectId
 import simplejson as json
 
+from bson import ObjectId
+from eve import ETAG
+from eve import ISSUES
+from eve import LAST_UPDATED
+from eve import STATUS
+from eve import STATUS_OK
+from eve.methods.patch import patch_internal
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
 from eve.tests.utils import DummyEvent
-
-from eve import STATUS_OK, LAST_UPDATED, ISSUES, STATUS, ETAG
-from eve.methods.patch import patch_internal
 
 
 class TestPatch(TestBase):
@@ -43,10 +46,23 @@ class TestPatch(TestBase):
         self.assert405(status)
 
     def test_ifmatch_missing(self):
-        _, status = self.patch(self.item_id_url, data={'key1': 'value1'})
-        self.assert403(status)
+        res, status = self.patch(self.item_id_url, data={'key1': 'value1'})
+        self.assert428(status)
+
+    def test_ifmatch_missing_enforce_ifmatch_disabled(self):
+        self.app.config['ENFORCE_IF_MATCH'] = False
+        r, status = self.patch(self.item_id_url, data={'key1': 'value1'})
+        self.assert200(status)
+        self.assertTrue(ETAG in r)
 
     def test_ifmatch_disabled(self):
+        self.app.config['IF_MATCH'] = False
+        r, status = self.patch(self.item_id_url, data={'key1': 'value1'})
+        self.assert200(status)
+        self.assertTrue(ETAG not in r)
+
+    def test_ifmatch_disabled_enforce_ifmatch_disabled(self):
+        self.app.config['ENFORCE_IF_MATCH'] = False
         self.app.config['IF_MATCH'] = False
         r, status = self.patch(self.item_id_url, data={'key1': 'value1'})
         self.assert200(status)
@@ -58,12 +74,19 @@ class TestPatch(TestBase):
                                headers=[('If-Match', 'not-quite-right')])
         self.assert412(status)
 
+    def test_ifmatch_bad_etag_enforce_ifmatch_disabled(self):
+        self.app.config['ENFORCE_IF_MATCH'] = False
+        _, status = self.patch(self.item_id_url,
+                               data={'key1': 'value1'},
+                               headers=[('If-Match', 'not-quite-right')])
+        self.assert412(status)
+
     def test_unique_value(self):
         # TODO
         # for the time being we are happy with testing only Eve's custom
         # validation. We rely on Cerberus' own test suite for other validation
         # unit tests. This test also makes sure that response status is
-        # syntatically correcy in case of validation issues.
+        # syntactically correct in case of validation issues.
         # We should probably test every single case as well (seems overkill).
         r, status = self.patch(self.item_id_url,
                                data={"ref": "%s" % self.alt_ref},
@@ -158,20 +181,28 @@ class TestPatch(TestBase):
         db_value = self.compare_patch_with_get(field, r)
         self.assertEqual(db_value, test_value)
 
-    def test_patch_defaults(self):
+    def test_patch_missing_default(self):
+        """ PATCH an object which is missing a field with a default value.
+
+        This should result in setting the field to its default value, even if
+        the field is not provided in the PATCH's payload. """
         field = "ref"
         test_value = "1234567890123456789012345"
         changes = {field: test_value}
         r = self.perform_patch(changes)
-        self.assertRaises(KeyError, self.compare_patch_with_get, 'title', r)
+        self.assertEqual(self.compare_patch_with_get('title', r), 'Mr.')
 
-    def test_patch_defaults_with_post_override(self):
+    def test_patch_missing_default_with_post_override(self):
+        """ PATCH an object which is missing a field with a default value.
+
+        This should result in setting the field to its default value, even if
+        the field is not provided in the PATCH's payload. """
         field = "ref"
         test_value = "1234567890123456789012345"
         r = self.perform_patch_with_post_override(field, test_value)
         self.assert200(r.status_code)
-        self.assertRaises(KeyError, self.compare_patch_with_get, 'title',
-                          json.loads(r.get_data()))
+        title = self.compare_patch_with_get('title', json.loads(r.get_data()))
+        self.assertEqual(title, 'Mr.')
 
     def test_patch_multiple_fields(self):
         fields = ['ref', 'prog', 'role']
@@ -202,7 +233,7 @@ class TestPatch(TestBase):
         self.assert200(status)
 
     def test_patch_etag_header(self):
-        # test that Etag is always includer with response header. See #562.
+        # test that Etag is always included with response header. See #562.
         changes = {"ref": "1234567890123456789012345"}
         headers = [('Content-Type', 'application/json'),
                    ('If-Match', self.item_etag)]
@@ -210,6 +241,26 @@ class TestPatch(TestBase):
                                    data=json.dumps(changes),
                                    headers=headers)
         self.assertTrue('Etag' in r.headers)
+
+        # test that ETag is compliant to RFC 7232-2.3 and #794 is fixed.
+        etag = r.headers['ETag']
+
+        self.assertTrue(etag[0] == '"')
+        self.assertTrue(etag[-1] == '"')
+
+    def test_patch_etag_header_enforce_ifmatch_disabled(self):
+        self.app.config['ENFORCE_IF_MATCH'] = False
+        changes = {'ref': '1234567890123456789012345'}
+        headers = [('Content-Type', 'application/json'),
+                   ('If-Match', self.item_etag)]
+        r, status = self.patch(
+            self.item_id_url,
+            data=json.dumps(changes),
+            headers=headers
+        )
+
+        self.assertTrue(ETAG in r)
+        self.assertTrue(self.item_etag != r[ETAG])
 
     def test_patch_nested(self):
         changes = {'location.city': 'a nested city',
@@ -239,7 +290,7 @@ class TestPatch(TestBase):
         raw_r = self.test_client.get(self.item_id_url)
         r, status = self.parse_response(raw_r)
         self.assert200(status)
-        self.assertEqual(raw_r.headers.get('ETag'),
+        self.assertEqual(raw_r.headers.get('ETag').replace('"', ''),
                          patch_response[ETAG])
         if isinstance(fields, str):
             return r[fields]
@@ -501,6 +552,7 @@ class TestPatch(TestBase):
                     'name': {'type': 'string'},
                 },
                 'default': None,
+                'nullable': True
             },
             'other': {
                 'type': 'dict',
@@ -543,7 +595,6 @@ class TestPatch(TestBase):
         # this will fail as dependent field is missing even in the
         # document we are trying to update.
         del(self.domain['contacts']['schema']['dependency_field1']['default'])
-        del(self.domain['contacts']['defaults']['dependency_field1'])
         changes = {'dependency_field2': 'value'}
         r, status = self.patch(self.item_id_url, data=changes,
                                headers=[('If-Match', self.item_etag)])

@@ -4,10 +4,10 @@
     eve.methods.post
     ~~~~~~~~~~~~~~~~
 
-    This module imlements the POST method, supported by the resources
-    endopints.
+    This module implements the POST method, supported by the resources
+    endpoints.
 
-    :copyright: (c) 2016 by Nicola Iarocci.
+    :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -15,12 +15,11 @@ from datetime import datetime
 from flask import current_app as app, abort
 from eve.utils import config, parse_request, debug_error_message
 from eve.auth import requires_auth
-from eve.defaults import resolve_default_values
-from eve.validation import ValidationError
+from eve.validation import DocumentError
 from eve.methods.common import parse, payload, ratelimit, \
     pre_event, store_media_files, resolve_user_restricted_access, \
     resolve_embedded_fields, build_response_document, marshal_write_response, \
-    resolve_sub_resource_path, resolve_document_etag, oplog_push
+    resolve_sub_resource_path, resolve_document_etag, oplog_push, resource_link
 from eve.versioning import resolve_document_version, \
     insert_versioning_documents
 
@@ -60,9 +59,12 @@ def post_internal(resource, payl=None, skip_validation=False):
                  Please be advised that in order to successfully use this
                  option, a request context must be available.
 
-                 See https://github.com/nicolaiarocci/eve/issues/74 for a
+                 See https://github.com/pyeve/eve/issues/74 for a
                  discussion, and a typical use case.
     :param skip_validation: skip payload validation before write (bool)
+
+    .. versionchanged:: 0.7
+       Add support for Location header. Closes #795.
 
     .. versionchanged:: 0.6
        Fix: since v0.6, skip_validation = True causes a 422 response (#726).
@@ -71,7 +73,7 @@ def post_internal(resource, payl=None, skip_validation=False):
        Initialize DELETED field when soft_delete is enabled.
 
     .. versionchanged:: 0.5
-       Back to resolving default values after validaton as now the validator
+       Back to resolving default values after validation as now the validator
        can properly validate dependency even when some have default values. See
        #353.
        Push updates to the OpLog.
@@ -93,7 +95,7 @@ def post_internal(resource, payl=None, skip_validation=False):
        Use the new STATUS setting.
        Use the new ISSUES setting.
        Raise 'on_pre_<method>' event.
-       Explictly resolve default values instead of letting them be resolved
+       Explicitly resolve default values instead of letting them be resolved
        by common.parse. This avoids a validation error when a read-only field
        also has a default value.
        Added ``on_inserted*`` events after the database insert
@@ -106,7 +108,7 @@ def post_internal(resource, payl=None, skip_validation=False):
        Support for optional HATEOAS.
 
     .. versionchanged: 0.0.9
-       Event hooks renamed to be more robuts and consistent: 'on_posting'
+       Event hooks renamed to be more robust and consistent: 'on_posting'
        renamed to 'on_insert'.
        You can now pass a pre-defined custom payload to the funcion.
 
@@ -148,10 +150,12 @@ def post_internal(resource, payl=None, skip_validation=False):
     date_utc = datetime.utcnow().replace(microsecond=0)
     resource_def = app.config['DOMAIN'][resource]
     schema = resource_def['schema']
-    validator = None if skip_validation else app.validator(schema, resource)
+    validator = None if skip_validation \
+        else app.validator(schema, resource=resource)
     documents = []
     results = []
     failures = 0
+    id_field = resource_def['id_field']
 
     if config.BANDWIDTH_SAVER is True:
         embedded_fields = []
@@ -167,7 +171,7 @@ def post_internal(resource, payl=None, skip_validation=False):
         payl = [payl]
 
     if not payl:
-        # empty bulkd insert
+        # empty bulk insert
         abort(400, description=debug_error_message(
             'Empty bulk insert'
         ))
@@ -201,13 +205,12 @@ def post_internal(resource, payl=None, skip_validation=False):
                     document[config.DELETED] = False
 
                 resolve_user_restricted_access(document, resource)
-                resolve_default_values(document, resource_def['defaults'])
                 store_media_files(document, resource)
                 resolve_document_version(document, resource, 'POST')
             else:
                 # validation errors added to list of document issues
                 doc_issues = validator.errors
-        except ValidationError as e:
+        except DocumentError as e:
             doc_issues['validation exception'] = str(e)
         except Exception as e:
             # most likely a problem with the incoming payload, report back to
@@ -253,8 +256,8 @@ def post_internal(resource, payl=None, skip_validation=False):
         for document in documents:
             # either return the custom ID_FIELD or the id returned by
             # data.insert().
-            document[resource_def['id_field']] = \
-                document.get(resource_def['id_field'], ids.pop(0))
+            id_ = document.get(id_field, ids.pop(0))
+            document[id_field] = id_
 
             # build the full response document
             result = document
@@ -294,4 +297,7 @@ def post_internal(resource, payl=None, skip_validation=False):
             % failures,
         }
 
-    return response, None, None, return_code
+    location_header = None if return_code != 201 or not documents else \
+        [('Location', '%s/%s' % (resource_link(), documents[0][id_field]))]
+
+    return response, None, None, return_code, location_header

@@ -6,7 +6,7 @@
 
     An out-of-the-box REST Web API that's as dangerous as you want it to be.
 
-    :copyright: (c) 2016 by Nicola Iarocci.
+    :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
     .. versionchanged:: 0.5
@@ -38,7 +38,7 @@
 
 """
 
-__version__ = '0.6.2'
+__version__ = '0.8-dev'
 
 # RFC 1123 (ex RFC 822)
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
@@ -52,6 +52,8 @@ PAGINATION_DEFAULT = 25
 ID_FIELD = '_id'
 CACHE_CONTROL = 'max-age=10,must-revalidate'        # TODO confirm this value
 CACHE_EXPIRES = 10
+
+ALLOW_CUSTOM_FIELDS_IN_GEOJSON = False
 
 RESOURCE_METHODS = ['GET']
 ITEM_METHODS = ['GET']

@@ -12,15 +12,16 @@ from __future__ import print_function
     you want to inspect the `request` object you have to explicitly import it
     from flask.
 
-    Checkout Eve at https://github.com/nicolaiarocci/eve
+    Checkout Eve at https://github.com/pyeve/eve
 
     This snippet by Nicola Iarocci can be used freely for anything you like.
     Consider it public domain.
 """
 from flask import request
 from eve import Eve
+from notifications_settings import SETTINGS
 
-app = Eve()
+app = Eve(auth=None, settings=SETTINGS)
 
 
 @app.before_request
@@ -38,4 +39,4 @@ def after(response):
     return response
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()

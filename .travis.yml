@@ -1,16 +1,17 @@
+sudo: false
 language: python
-python: 2.7
-env:
-  - TOX_ENV=py26
-  - TOX_ENV=py27
-  - TOX_ENV=py33
-  - TOX_ENV=py34
-  - TOX_ENV=pypy
-  - TOX_ENV=flake8
-install: pip install tox
-script: 
-  - tox -e $TOX_ENV
-services: 
+cache: pip
+script: tox
+python:
+  - 2.6
+  - 2.7
+  - 3.3
+  - 3.4
+  - 3.5
+  - 3.6
+  - pypy
+install: travis_retry pip install tox-travis
+services:
   - mongodb
   - redis-server
 before_script:
@@ -18,7 +19,3 @@ before_script:
     # See https://github.com/travis-ci/travis-ci/issues/1967#issuecomment-42008605
   - sleep 15
   - mongo eve_test --eval 'db.addUser("test_user", "test_pw");'
-branches:
-  only:
-    - master
-    - develop
