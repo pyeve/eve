@@ -2,7 +2,7 @@ import time
 from datetime import datetime
 
 import simplejson as json
-from bson import ObjectId
+from bson import ObjectId, decimal128
 from bson.dbref import DBRef
 
 from eve.methods.common import serialize, normalize_dotted_fields
@@ -44,7 +44,9 @@ class TestSerializer(TestBase):
             'dict_valueschema': {
                 'valueschema': {'type': 'objectid'}
             },
-            'refobj': {'type': 'dbref'}
+            'refobj': {'type': 'dbref'},
+            'decobjstring': {'type': 'decimal'},
+            'decobjnumber': {'type': 'decimal'}
         }
         with self.app.app_context():
             # Success
@@ -61,7 +63,9 @@ class TestSerializer(TestBase):
                     'refobj': {
                         '$id': '50656e4538345b39dd0414f0',
                         '$col': 'SomeCollection'
-                    }
+                    },
+                    'decobjstring': "200.0",
+                    'decobjnumber': 200.0
                 },
                 schema=schema
             )
@@ -74,6 +78,8 @@ class TestSerializer(TestBase):
             self.assertTrue(isinstance(ks['foo1'], ObjectId))
             self.assertTrue(isinstance(ks['foo2'], ObjectId))
             self.assertTrue(isinstance(res['refobj'], DBRef))
+            self.assertTrue(isinstance(res['decobjstring'], decimal128.Decimal128))
+            self.assertTrue(isinstance(res['decobjnumber'], decimal128.Decimal128))
 
     def test_non_blocking_on_simple_field_serialization_exception(self):
         schema = {

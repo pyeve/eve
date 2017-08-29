@@ -22,6 +22,8 @@ from flask import abort, request, g
 from .flask_pymongo import PyMongo
 from pymongo import WriteConcern
 from werkzeug.exceptions import HTTPException
+import decimal
+from bson import decimal128
 
 from eve.auth import resource_auth
 from eve.io.base import DataLayer, ConnectionException, BaseJSONEncoder
@@ -53,6 +55,8 @@ class MongoJSONEncoder(BaseJSONEncoder):
             if obj.database:
                 retval['$db'] = obj.database
             return retval
+        if isinstance(obj, decimal128.Decimal128):
+            return str(obj)
         # delegate rendering to base class method
         return super(MongoJSONEncoder, self).default(obj)
 
@@ -85,6 +89,9 @@ class Mongo(DataLayer):
         'dbref': lambda value:
         DBRef(value['$col'], value['$id'], value['$db']
               if '$db' in value else None) if value is not None else None,
+        'decimal': lambda value:
+        decimal128.Decimal128(decimal.Decimal(str(value)))
+        if value is not None else None,
     }
 
     # JSON serializer is a class attribute. Allows extensions to replace it

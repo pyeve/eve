@@ -12,10 +12,19 @@ python:
   - pypy
 install: travis_retry pip install tox-travis
 services:
-  - mongodb
+  #- mongodb
   - redis-server
 before_script:
+  # work-around to make travis-ci working with mongod 3.4
+  # https://github.com/travis-ci/travis-ci/issues/3694
+  # https://github.com/travis-ci/apt-package-whitelist/issues/516
+  - wget http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.7.tgz -O /tmp/mongodb.tgz
+  - tar -xvf /tmp/mongodb.tgz
+  - mkdir /tmp/data
+  - ${PWD}/mongodb-linux-x86_64-3.4.7/bin/mongod --dbpath /tmp/data --bind_ip 127.0.0.1 --noauth &> /dev/null &
+  - until nc -z localhost 27017; do echo Waiting for MongoDB; sleep 1; done
+  - sleep 15
     # timer is needed in order to get mongo to properly initialize on travis-ci
     # See https://github.com/travis-ci/travis-ci/issues/1967#issuecomment-42008605
-  - sleep 15
-  - mongo eve_test --eval 'db.addUser("test_user", "test_pw");'
+  - "${PWD}/mongodb-linux-x86_64-3.4.7/bin/mongo eve_test --eval 'db.createUser({\"user\": \"test_user\", \"pwd\": \"test_pw\", \"roles\": [\"readWrite\", \"dbAdmin\"]},{\"w\": \"majority\" , \"wtimeout\": 5000 })'"
+  #- mongo eve_test --eval 'db.addUser("test_user", "test_pw");'
