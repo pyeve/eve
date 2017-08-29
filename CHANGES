@@ -8,8 +8,9 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
-- Supporting new mongodb decimal data-type (bson.decimal128.Decimal128)
-- Updating to pymongo 3.5
+- New: support fpr MongoDB decimal type ``bson.decimal128.Decimal128`` (Amedeo
+  Bussi).
+- Update: upgrade PyMongo dependency to v3.5 (Amedeo Bussi).
 - Fix: serialization bug that randomly skips fields if "x_of" is encountered.
   See PR #1042 for details (Raychee).
 - New: ``on_delete_resource_originals`` fired when soft deletion occurs (Amedeo
