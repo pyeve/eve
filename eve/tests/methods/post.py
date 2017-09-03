@@ -1,5 +1,5 @@
 from base64 import b64decode
-from bson import ObjectId
+from bson import ObjectId, decimal128
 
 import simplejson as json
 
@@ -10,6 +10,7 @@ from eve.tests.test_settings import MONGO_DBNAME
 from eve import STATUS_OK, LAST_UPDATED, DATE_CREATED, ISSUES, STATUS, ETAG
 from eve.methods.post import post
 from eve.methods.post import post_internal
+from eve.utils import str_type
 
 from io import BytesIO
 
@@ -342,6 +343,22 @@ class TestPost(TestBase):
             content_type='application/x-www-form-urlencoded')
         r, status = self.parse_response(resp)
         self.assert201(status)
+
+    def test_post_decimal_number_success(self):
+        data = {"decimal_number": 100}
+        r, status = self.post('/invoices/', data=data)
+        self.assert201(status)
+        self.assertPostResponse(r)
+        id_field = self.domain['invoices']['id_field']
+        unique_id = r[id_field]
+        r, status = self.get('invoices/%s' % unique_id)
+        self.assert200(status)
+        assert isinstance(r["decimal_number"], str_type)
+
+    def test_post_decimal_number_fail(self):
+        data = {"decimal_number": "100.0.0"}
+        r, status = self.post('/invoices/', data=data)
+        self.assert422(status)
 
     def test_post_referential_integrity(self):
         data = {"person": self.unknown_item_id}
