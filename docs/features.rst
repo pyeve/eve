@@ -9,7 +9,7 @@ Emphasis on REST
 The Eve project aims to provide the best possible REST-compliant API
 implementation. Fundamental REST_ principles like *separation of concerns*,
 *stateless and layered system*, *cacheability*, *uniform interface* have been
-kept into consideration while designing the core API.
+kept into consideration while designing the core API. Edits Made to Eve here. Mispelled wrd.
 
 Full range of CRUD operations
 -----------------------------
