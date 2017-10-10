@@ -15,14 +15,13 @@ install_requires = [
     'itsdangerous>=0.24,<1.0',
     'flask>=0.10.1,<=0.12',
     'pymongo>=3.5',
-    'backport_collections>=0.1',
 ]
 
 try:
-    from collections import OrderedDict  # noqa
+    from collections import Counter, OrderedDict  # noqa
 except ImportError:
-    # Python 2.6 needs this back-port
-    install_requires.append('ordereddict')
+    # Python 2.6
+    install_requires.append('backport_collections')
 
 
 setup(
