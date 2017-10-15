@@ -8,6 +8,8 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- Fix: Removed OrderedDict dependency; use ``OrderedDict`` from
+  ``backport_collections`` instead (Carl George).
 - New: support fpr MongoDB decimal type ``bson.decimal128.Decimal128`` (Amedeo
   Bussi).
 - Update: upgrade PyMongo dependency to v3.5 (Amedeo Bussi).
