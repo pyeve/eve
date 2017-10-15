@@ -122,11 +122,19 @@ def _perform_aggregation(resource, pipeline, options):
     # implementation
 
     def parse_aggregation_stage(d, key, value):
-        for st_key, st_value in d.items():
-            if isinstance(st_value, dict):
-                parse_aggregation_stage(st_value, key, value)
-            if key == st_value:
-                d[st_key] = value
+        is_collection = lambda item: isinstance(item, (list, dict))
+        if isinstance(d, dict):
+            for st_key, st_value in d.items():
+                if key == st_value:
+                    d[st_key] = value
+                elif is_collection(st_value):
+                    parse_aggregation_stage(st_value, key, value)
+        elif isinstance(d, list):
+            for st_idx, st_value in enumerate(d):
+                if key == st_value:
+                    d[st_idx] = value
+                elif is_collection(st_value):
+                    parse_aggregation_stage(st_value, key, value)
 
     response = {}
     documents = []
