@@ -1,4 +1,4 @@
-Cerberus==1.1
+-e git+https://github.com/pyeve/cerberus.git#egg=Cerberus
 Events==0.3
 Flask==0.12
 itsdangerous==0.24
