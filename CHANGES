@@ -8,6 +8,8 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- Fix: Aggregation query parameter does not replace keys in the lists. Closes 
+  #1025 (Serge Kir).
 - Fix: Removed OrderedDict dependency; use ``OrderedDict`` from
   ``backport_collections`` instead (Carl George).
 - New: support fpr MongoDB decimal type ``bson.decimal128.Decimal128`` (Amedeo

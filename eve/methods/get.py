@@ -121,12 +121,27 @@ def _perform_aggregation(resource, pipeline, options):
     # TODO experiment with cursor.batch_size as alternative pagination
     # implementation
 
-    def parse_aggregation_stage(d, key, value):
-        for st_key, st_value in d.items():
-            if isinstance(st_value, dict):
+    def parse_aggregation_stage(st_item, key, value):
+        def parse_again(st_value, key, value):
+            """
+            If stage value is list or dict then parse recursively
+            """
+            if isinstance(st_value, (list, dict)):
                 parse_aggregation_stage(st_value, key, value)
-            if key == st_value:
-                d[st_key] = value
+
+        if isinstance(st_item, dict):
+            for st_key, st_value in st_item.items():
+                if key == st_value:
+                    st_item[st_key] = value
+                else:
+                    parse_again(st_value, key, value)
+
+        elif isinstance(st_item, list):
+            for st_i, st_value in enumerate(st_item):
+                if key == st_value:
+                    st_item[st_i] = value
+                else:
+                    parse_again(st_value, key, value)
 
     response = {}
     documents = []
