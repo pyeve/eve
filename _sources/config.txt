@@ -1176,6 +1176,7 @@ defining the field validation rules. Allowed validation rules are:
                                 - ``polygon``
                                 - ``multipolygon``
                                 - ``geometrycollection``
+                                - ``decimal``
 
                                 See :ref:`GeoJSON <geojson_feature>` for more
                                 informations geo fields.

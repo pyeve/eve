@@ -49,6 +49,15 @@
 <div class="section" id="version-0-8">
 <h3>Version 0.8<a class="headerlink" href="#version-0-8" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>New: Add support for MongoDB bitwise query operators <tt class="docutils literal"><span class="pre">$bitsAllClear</span></tt>,
+<tt class="docutils literal"><span class="pre">bitsAllSet</span></tt>, <tt class="docutils literal"><span class="pre">bitsAnyClear</span></tt>, <tt class="docutils literal"><span class="pre">bitsAnySet</span></tt>. Closes 1053 (Qiang Zhang).</li>
+<li>Fix: Aggregation query parameter does not replace keys in the lists. Closes
+#1025 (Serge Kir).</li>
+<li>Fix: Removed OrderedDict dependency; use <tt class="docutils literal"><span class="pre">OrderedDict</span></tt> from
+<tt class="docutils literal"><span class="pre">backport_collections</span></tt> instead (Carl George).</li>
+<li>New: support fpr MongoDB decimal type <tt class="docutils literal"><span class="pre">bson.decimal128.Decimal128</span></tt> (Amedeo
+Bussi).</li>
+<li>Update: upgrade PyMongo dependency to v3.5 (Amedeo Bussi).</li>
 <li>Fix: serialization bug that randomly skips fields if &#8220;x_of&#8221; is encountered.
 See PR #1042 for details (Raychee).</li>
 <li>New: <tt class="docutils literal"><span class="pre">on_delete_resource_originals</span></tt> fired when soft deletion occurs (Amedeo
