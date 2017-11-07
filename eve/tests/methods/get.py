@@ -1361,6 +1361,30 @@ class TestGet(TestBase):
         items = response['_items']
         self.assertEqual(len(items), num)
 
+    def test_get_query_bitwise_query_operators(self):
+        del(self.domain['contacts']['schema']['ref']['required'])
+        response, status = self.delete(self.known_resource_url)
+        self.assert204(status)
+
+        data = {'prog': 20}  # 00010100
+        response, status = self.post(self.known_resource_url, data=data)
+        self.assert201(status)
+
+        where = '?where={"prog": {"$bitsAllClear": [1, 5]}}'
+        response, status = self.get(self.known_resource, where)
+        self.assert200(status)
+        items = response['_items']
+        self.assertEqual(1, len(items))
+
+        response, status = self.delete(self.known_resource_url)
+        self.assert204(status)
+
+        where = '?where={"prog": {"$bitsAllClear": [2, 5]}}'
+        response, status = self.get(self.known_resource, where)
+        self.assert200(status)
+        items = response['_items']
+        self.assertEqual(0, len(items))
+
     def assertGet(self, response, status, resource=None):
         self.assert200(status)
 
@@ -1696,7 +1720,7 @@ class TestGetItem(TestBase):
         # treated as a string when 'query_objectid_as_string' is set to True.
         # See PR #552.
         data = {'id': '507c7f79bcf86cd7994f6c0e', 'name': 'john'}
-        response, status = self.post('ids', data=data)
+        response, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
         response, status = self.get('ids', item='507c7f79bcf86cd7994f6c0e')
         self.assert200(status)
