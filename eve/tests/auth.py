@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
+import json
+
 from bson import ObjectId
 
 import eve
-import json
 from eve import Eve
 from eve.auth import BasicAuth, TokenAuth, HMACAuth
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
+from io import BytesIO
 
 
 class ValidBasicAuth(BasicAuth):
@@ -57,6 +59,8 @@ class TestBasicAuth(TestBase):
                            self.content_type]
         self.invalid_auth = [('Authorization', 'Basic IDontThinkSo'),
                              self.content_type]
+        self.valid_media_auth = [('Authorization', 'Basic YWRtaW46c2VjcmV0'),
+                                 ('Content-Type', 'multipart/form-data')]
         self.setUpRoles()
         self.app.set_defaults()
 
@@ -116,6 +120,25 @@ class TestBasicAuth(TestBase):
         self.assert428(r.status_code)
         r = self.test_client.delete(self.item_id_url, headers=self.valid_auth)
         self.assert428(r.status_code)
+
+    def test_authorized_media_access(self):
+        self.app.config['RETURN_MEDIA_AS_BASE64_STRING'] = False
+        self.app.config['RETURN_MEDIA_AS_URL'] = True
+        self.app.config['BANDWIDTH_SAVER'] = False
+        self.app._init_media_endpoint()
+
+        clean = b'my new file contents'
+        test_field, test_value = 'ref', "9234567890123456789054321"
+        data = {'media': (BytesIO(clean), 'test.txt'), test_field: test_value}
+        r, s = self.parse_response(self.test_client.post(
+            self.known_resource_url, data=data, headers=self.valid_media_auth))
+        self.assert201(s)
+
+        file_url = r['media']
+        r = self.test_client.get(file_url, headers=self.invalid_auth)
+        self.assert401(r.status_code)
+        r = self.test_client.get(file_url, headers=self.valid_auth)
+        self.assert200(r.status_code)
 
     def test_authorized_schema_access(self):
         self.app.config['SCHEMA_ENDPOINT'] = 'schema'
@@ -271,6 +294,8 @@ class TestTokenAuth(TestBasicAuth):
         self.test_client = self.app.test_client()
         self.valid_auth = [('Authorization', 'Basic dGVzdF90b2tlbjo='),
                            self.content_type]
+        self.valid_media_auth = [('Authorization', 'Basic dGVzdF90b2tlbjo='),
+                                 ('Content-Type', 'multipart/form-data')]
         self.setUpRoles()
 
     def test_custom_auth(self):
@@ -282,6 +307,8 @@ class TestBearerTokenAuth(TestTokenAuth):
         super(TestBearerTokenAuth, self).setUp()
         self.valid_auth = [('Authorization', 'Token test_token'),
                            self.content_type]
+        self.valid_media_auth = [('Authorization', 'Token test_token'),
+                                 ('Content-Type', 'multipart/form-data')]
 
     def test_bad_auth_class(self):
         self.app = Eve(settings=self.settings_file, auth=BadTokenAuth)
@@ -296,6 +323,8 @@ class TestCustomTokenAuth(TestTokenAuth):
         super(TestCustomTokenAuth, self).setUp()
         self.valid_auth = [('Authorization', 'Token test_token'),
                            self.content_type]
+        self.valid_media_auth = [('Authorization', 'Token test_token'),
+                                 ('Content-Type', 'multipart/form-data')]
 
     def test_bad_auth_class(self):
         self.app = Eve(settings=self.settings_file, auth=BadTokenAuth)
@@ -312,6 +341,8 @@ class TestHMACAuth(TestBasicAuth):
         self.test_client = self.app.test_client()
         self.valid_auth = [('Authorization', 'admin:secret'),
                            self.content_type]
+        self.valid_media_auth = [('Authorization', 'admin:secret'),
+                                 ('Content-Type', 'multipart/form-data')]
         self.setUpRoles()
 
     def test_custom_auth(self):

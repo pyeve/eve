@@ -34,7 +34,6 @@ def requires_auth(endpoint_class):
         @wraps(f)
         def decorated(*args, **kwargs):
             if endpoint_class == 'resource' or endpoint_class == 'item':
-                # find resource name in f's args
                 if args:
                     resource_name = args[0]
                 elif kwargs.get('resource'):
@@ -64,7 +63,7 @@ def requires_auth(endpoint_class):
                         roles += resource['allowed_item_write_roles']
                 auth = resource_auth(resource_name)
             else:
-                # home
+                # home or media endpoints
                 resource_name = resource = None
                 public = app.config['PUBLIC_METHODS'] + ['OPTIONS']
                 roles = list(app.config['ALLOWED_ROLES'])
