@@ -168,6 +168,7 @@ def _resource():
     return request.endpoint.split('|')[0]
 
 
+@requires_auth('media')
 def media_endpoint(_id):
     """ This endpoint is active when RETURN_MEDIA_AS_URL is True. It retrieves
     a media file and streams it to the client.

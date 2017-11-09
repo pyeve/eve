@@ -8,6 +8,8 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- New: when the media endpoint is enabled, the default authentication class
+  will be used to secure  it. Closes #1083.
 - New: Add support for MongoDB bitwise query operators ``$bitsAllClear``,
   ``bitsAllSet``, ``bitsAnyClear``, ``bitsAnySet``. Closes 1053 (Qiang Zhang).
 - Fix: Aggregation query parameter does not replace keys in the lists. Closes
