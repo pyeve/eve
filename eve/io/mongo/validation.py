@@ -164,7 +164,7 @@ class Validator(Validator):
                              data_resource, data_relation['field']))
 
     def _validate_type_objectid(self, value):
-        if isinstance(value, ObjectId):
+        if ObjectId.is_valid(value):
             return True
 
     def _validate_type_decimal(self, value):
