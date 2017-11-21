@@ -439,32 +439,34 @@ class Eve(Flask, Events):
                                   '(they will be handled automatically).'
                                   % (', '.join(offenders), resource))
 
-        if isinstance(schema, dict):
-            for field, ruleset in schema.items():
-                validate_field_name(field)
-                if isinstance(ruleset, dict) and 'dict' in ruleset.get('type', ''):
-                    for field in ruleset.get('schema', {}).keys():
-                        validate_field_name(field)
+        if not isinstance(schema, dict):
+            return
 
-                # check data_relation rules
-                if 'data_relation' in ruleset:
-                    if 'resource' not in ruleset['data_relation']:
-                        raise SchemaException("'resource' key is mandatory for "
-                                            "the 'data_relation' rule in "
-                                            "'%s: %s'" % (resource, field))
-                    if ruleset['data_relation'].get('embeddable', False):
+        for field, ruleset in schema.items():
+            validate_field_name(field)
+            if isinstance(ruleset, dict) and 'dict' in ruleset.get('type', ''):
+                for field in ruleset.get('schema', {}).keys():
+                    validate_field_name(field)
 
-                        # special care for data_relations with a version
-                        value_field = ruleset['data_relation']['field']
-                        if ruleset['data_relation'].get('version', False):
-                            if 'schema' not in ruleset or \
-                                    value_field not in ruleset['schema'] or \
-                                    'type' not in ruleset['schema'][value_field]:
-                                raise SchemaException(
-                                    "Must defined type for '%s' in schema when "
-                                    "declaring an embedded data_relation with"
-                                    " version." % value_field
-                                )
+            # check data_relation rules
+            if 'data_relation' in ruleset:
+                if 'resource' not in ruleset['data_relation']:
+                    raise SchemaException("'resource' key is mandatory for "
+                                          "the 'data_relation' rule in "
+                                          "'%s: %s'" % (resource, field))
+                if ruleset['data_relation'].get('embeddable', False):
+
+                    # special care for data_relations with a version
+                    value_field = ruleset['data_relation']['field']
+                    if ruleset['data_relation'].get('version', False):
+                        if 'schema' not in ruleset or \
+                                value_field not in ruleset['schema'] or \
+                                'type' not in ruleset['schema'][value_field]:
+                            raise SchemaException(
+                                "Must defined type for '%s' in schema when "
+                                "declaring an embedded data_relation with"
+                                " version." % value_field
+                            )
 
         # TODO are there other mandatory settings? Validate them here
 
@@ -690,15 +692,14 @@ class Eve(Flask, Events):
 
         # list of all media fields for the resource
         if isinstance(schema, dict):
-            settings['_media'] = [field for field, definition in schema.items() if
-                                isinstance(definition, dict) and
-                                (definition.get('type') == 'media' or
-                                (definition.get('type') == 'list' and
-                                definition.get('schema', {}).get('type') ==
-                                'media'))]
+            settings['_media'] = [field for field, definition in schema.items()
+                                  if isinstance(definition, dict) and
+                                  (definition.get('type') == 'media' or
+                                   (definition.get('type') == 'list' and
+                                    definition.get('schema', {}).get('type') ==
+                                    'media'))]
         else:
             settings['_media'] = []
-
 
         if settings['_media'] and not self.media:
             raise ConfigException('A media storage class of type '

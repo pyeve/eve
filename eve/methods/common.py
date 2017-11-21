@@ -434,13 +434,16 @@ def serialize(document, resource=None, schema=None, fields=None):
                         for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
                             for optschema in field_schema.get(x_of, []):
                                 serialize(document,
-                                          schema={field: {'type': field_type,
-                                                          'schema': optschema}})
+                                          schema={
+                                              field: {'type': field_type,
+                                                      'schema': optschema}})
                             x_of_type = '{0}_type'.format(x_of)
                             for opttype in field_schema.get(x_of_type, []):
-                                serialize(document,
-                                          schema={field: {'type': field_type,
-                                                          'schema': {'type': opttype}}})
+                                serialize(
+                                    document,
+                                    schema={field: {'type': field_type,
+                                                    'schema': {'type':
+                                                               opttype}}})
                     else:
                         # a list of one type, arbitrary length
                         field_type = field_schema.get('type')
@@ -701,7 +704,8 @@ def embedded_document(references, data_relation, field_name):
 
     # Retrieve and serialize the requested document
     if 'version' in data_relation and data_relation['version'] is True:
-        # For the version flow, I keep the as-is logic (flow is too complex to make it bulk)
+        # For the version flow, I keep the as-is logic (flow is too complex to
+        # make it bulk)
         for reference in references:
             # grab the specific version
             embedded_doc = get_data_version_relation_document(
@@ -724,25 +728,28 @@ def embedded_document(references, data_relation, field_name):
                                     [], latest_embedded_doc)
             embedded_docs.append(embedded_doc)
     else:
-        id_value_to_sort, list_of_id_field_name, subresources_query = generate_query_and_sorting_criteria(data_relation,
-                                                                                                          references)
+        id_value_to_sort, list_of_id_field_name, subresources_query = \
+            generate_query_and_sorting_criteria(data_relation, references)
         for subresource in subresources_query:
-            list_embedded_doc = list(app.data.find(subresource,
-                                                   None,
-                                                   subresources_query[subresource]))
+            list_embedded_doc = list(
+                app.data.find(subresource, None,
+                              subresources_query[subresource]))
+
             if not list_embedded_doc:
-                embedded_docs.extend([None] *
-                                     len(subresources_query[subresource]["$or"]))
+                embedded_docs.extend(
+                    [None] * len(subresources_query[subresource]["$or"]))
             else:
                 for embedded_doc in list_embedded_doc:
                     resolve_media_files(embedded_doc, subresource)
                 embedded_docs.extend(list_embedded_doc)
 
-        # After having retrieved my data, I have to be sure that the sorting of the
-        # list is the same in input as in output (this is to support embedding of
-        # sub-documents - only in case the storage is not done via DBref)
+        # After having retrieved my data, I have to be sure that the sorting of
+        # the list is the same in input as in output (this is to support
+        # embedding of sub-documents - only in case the storage is not done via
+        # DBref)
         if embedded_docs:
-            embedded_docs = sort_db_response(embedded_docs, id_value_to_sort, list_of_id_field_name)
+            embedded_docs = sort_db_response(embedded_docs, id_value_to_sort,
+                                             list_of_id_field_name)
 
     if output_is_list:
         return embedded_docs
@@ -766,7 +773,8 @@ def sort_db_response(embedded_docs, id_value_to_sort, list_of_id_field_name):
     old_occurrence = 0
 
     for id_field_name in set(list_of_id_field_name):
-        current_occurrence = old_occurrence + int(id_field_name_occurrences[id_field_name])
+        current_occurrence = old_occurrence + int(id_field_name_occurrences[
+            id_field_name])
         temp_embedded_docs.extend(
             sort_per_resource(embedded_docs[old_occurrence:current_occurrence],
                               id_value_to_sort,
@@ -805,9 +813,11 @@ def generate_query_and_sorting_criteria(data_relation, references):
         :param data_relation: data relation for the resource.
         :param references: DBRef or id to use to embed the document.
         :returns id_value_to_sort: list of ids to use in the sort
-                 list_of_id_field_name: list of field name (important only for DBRef)
+                 list_of_id_field_name: list of field name (important only for
+                                        DBRef)
                  subresources_query: the list of query to perform per resource
-                                     (in case is not DBRef, it will be only one query)
+                                     (in case is not DBRef, it will be only one
+                                     query)
         """
     query = {"$or": []}
     subresources_query = {}
