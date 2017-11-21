@@ -347,7 +347,7 @@ def extract_key_values(key, d):
     if key in d:
         yield d[key]
     for k in d:
-        if isinstance(d[k], dict):
+        if isinstance(d, dict) and isinstance(d[k], dict):
             for j in extract_key_values(key, d[k]):
                 yield j
 

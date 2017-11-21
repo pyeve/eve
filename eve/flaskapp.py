@@ -439,31 +439,32 @@ class Eve(Flask, Events):
                                   '(they will be handled automatically).'
                                   % (', '.join(offenders), resource))
 
-        for field, ruleset in schema.items():
-            validate_field_name(field)
-            if 'dict' in ruleset.get('type', ''):
-                for field in ruleset.get('schema', {}).keys():
-                    validate_field_name(field)
+        if isinstance(schema, dict):
+            for field, ruleset in schema.items():
+                validate_field_name(field)
+                if isinstance(ruleset, dict) and 'dict' in ruleset.get('type', ''):
+                    for field in ruleset.get('schema', {}).keys():
+                        validate_field_name(field)
 
-            # check data_relation rules
-            if 'data_relation' in ruleset:
-                if 'resource' not in ruleset['data_relation']:
-                    raise SchemaException("'resource' key is mandatory for "
-                                          "the 'data_relation' rule in "
-                                          "'%s: %s'" % (resource, field))
-                if ruleset['data_relation'].get('embeddable', False):
+                # check data_relation rules
+                if 'data_relation' in ruleset:
+                    if 'resource' not in ruleset['data_relation']:
+                        raise SchemaException("'resource' key is mandatory for "
+                                            "the 'data_relation' rule in "
+                                            "'%s: %s'" % (resource, field))
+                    if ruleset['data_relation'].get('embeddable', False):
 
-                    # special care for data_relations with a version
-                    value_field = ruleset['data_relation']['field']
-                    if ruleset['data_relation'].get('version', False):
-                        if 'schema' not in ruleset or \
-                                value_field not in ruleset['schema'] or \
-                                'type' not in ruleset['schema'][value_field]:
-                            raise SchemaException(
-                                "Must defined type for '%s' in schema when "
-                                "declaring an embedded data_relation with"
-                                " version." % value_field
-                            )
+                        # special care for data_relations with a version
+                        value_field = ruleset['data_relation']['field']
+                        if ruleset['data_relation'].get('version', False):
+                            if 'schema' not in ruleset or \
+                                    value_field not in ruleset['schema'] or \
+                                    'type' not in ruleset['schema'][value_field]:
+                                raise SchemaException(
+                                    "Must defined type for '%s' in schema when "
+                                    "declaring an embedded data_relation with"
+                                    " version." % value_field
+                                )
 
         # TODO are there other mandatory settings? Validate them here
 
@@ -688,11 +689,16 @@ class Eve(Flask, Events):
             ds['projection'][self.config['DELETED']] = 1
 
         # list of all media fields for the resource
-        settings['_media'] = [field for field, definition in schema.items() if
-                              definition.get('type') == 'media' or
-                              (definition.get('type') == 'list' and
-                               definition.get('schema', {}).get('type') ==
-                               'media')]
+        if isinstance(schema, dict):
+            settings['_media'] = [field for field, definition in schema.items() if
+                                isinstance(definition, dict) and
+                                (definition.get('type') == 'media' or
+                                (definition.get('type') == 'list' and
+                                definition.get('schema', {}).get('type') ==
+                                'media'))]
+        else:
+            settings['_media'] = []
+
 
         if settings['_media'] and not self.media:
             raise ConfigException('A media storage class of type '
@@ -721,7 +727,8 @@ class Eve(Flask, Events):
         # DuplicateKeyConflict in the mongo layer. This also
         # avoids a performance hit (with 'unique' rule set, we would
         # end up with an extra db loopback on every insert).
-        schema.setdefault(id_field, {'type': 'objectid'})
+        if isinstance(schema, dict):
+            schema.setdefault(id_field, {'type': 'objectid'})
 
         # set default 'field' value for all 'data_relation' rulesets, however
         # nested
