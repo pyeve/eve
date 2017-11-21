@@ -10,7 +10,6 @@ python:
   - 3.5
   - 3.6
   - pypy
-  - flake8
 install: travis_retry pip install tox-travis
 services:
   #- mongodb
