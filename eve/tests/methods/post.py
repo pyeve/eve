@@ -1,5 +1,5 @@
 from base64 import b64decode
-from bson import ObjectId, decimal128
+from bson import ObjectId
 
 import simplejson as json
 
