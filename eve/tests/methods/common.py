@@ -78,8 +78,10 @@ class TestSerializer(TestBase):
             self.assertTrue(isinstance(ks['foo1'], ObjectId))
             self.assertTrue(isinstance(ks['foo2'], ObjectId))
             self.assertTrue(isinstance(res['refobj'], DBRef))
-            self.assertTrue(isinstance(res['decobjstring'], decimal128.Decimal128))
-            self.assertTrue(isinstance(res['decobjnumber'], decimal128.Decimal128))
+            self.assertTrue(isinstance(res['decobjstring'],
+                                       decimal128.Decimal128))
+            self.assertTrue(isinstance(res['decobjnumber'],
+                                       decimal128.Decimal128))
 
     def test_non_blocking_on_simple_field_serialization_exception(self):
         schema = {
@@ -352,7 +354,8 @@ class TestSerializer(TestBase):
                 }),
                 ('oid-field', {'type': 'objectid'})
             ])
-            doc = OrderedDict([('x_of-field', '50656e4538345b39dd0414f0'), ('oid-field', '50656e4538345b39dd0414f0')])
+            doc = OrderedDict([('x_of-field', '50656e4538345b39dd0414f0'),
+                               ('oid-field', '50656e4538345b39dd0414f0')])
             with self.app.app_context():
                 serialized = serialize(doc, schema=schema)
                 self.assertTrue(isinstance(serialized['x_of-field'], ObjectId))
@@ -372,7 +375,8 @@ class TestSerializer(TestBase):
             doc = {'x_of-field': ['50656e4538345b39dd0414f0']}
             with self.app.app_context():
                 serialized = serialize(doc, schema=schema)
-                self.assertTrue(isinstance(serialized['x_of-field'][0], ObjectId))
+                self.assertTrue(isinstance(serialized['x_of-field'][0],
+                                           ObjectId))
 
     def test_serialize_inside_nested_x_of_rules(self):
         schema = {

@@ -26,7 +26,8 @@ class TestDelete(TestBase):
         self.app.config["IF_MATCH"] = False
         products, _ = self.get(self.products)
         list_products_skus = [product["parent_product"] for product in
-                              products["_items"] if "parent_product" in product]
+                              products["_items"] if "parent_product" in
+                              product]
         # Deletion of all the product in the first cart
         url = self.child_products_url.replace(
             '<regex("[A-Z]+"):parent_product>', list_products_skus[0])
