@@ -817,10 +817,14 @@ class Mongo(DataLayer):
                     'Query contains operators banned in MONGO_QUERY_BLACKLIST'
                 ))
 
-        sanitize_keys(spec)
-        for value in spec.values():
-            if isinstance(value, dict):
-                sanitize_keys(value)
+        if isinstance(spec, dict):
+            sanitize_keys(spec)
+            for value in spec.values():
+                self._sanitize(value)
+        if isinstance(spec, list):
+            for value in spec:
+                self._sanitize(value)
+
         return spec
 
     def _wc(self, resource):
