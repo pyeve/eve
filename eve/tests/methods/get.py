@@ -205,6 +205,15 @@ class TestGet(TestBase):
         _, status = self.get(self.known_resource, '?where=%s' % where)
         self.assert400(status)
 
+    def test_get_mongo_query_blacklist_nested(self):
+        where = '{"$or": [{"$where": "this.ref == ''%s''"}]}' % self.item_name
+        _, status = self.get(self.known_resource, '?where=%s' % where)
+        self.assert400(status)
+
+        where = '{"$or": [{"ref": {"$regex": "%s"}}]}' % self.item_name
+        _, status = self.get(self.known_resource, '?where=%s' % where)
+        self.assert400(status)
+
     def test_get_where_mongo_objectid_as_string(self):
         where = '{"tid": "%s"}' % self.item_tid
         response, status = self.get(self.known_resource, '?where=%s' % where)
