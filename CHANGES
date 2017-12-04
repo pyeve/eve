@@ -11,6 +11,9 @@ Version 0.7.5
 
 Not yet released.
 
+- Fix: A query was not fully traversed in the sanitization. Therefore the
+  blacklist for mongo wueries could be bypassed, allowing for dangerous
+  ``$where`` queries (Moritz Schneider).
 
 Stable
 ------
