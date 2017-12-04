@@ -77,6 +77,15 @@ Breaking Changes
 Stable
 ------
 
+Version 0.7.5
+~~~~~~~~~~~~~
+
+Released on 4 December, 2017
+
+- Fix: A query was not fully traversed in the sanitization. Therefore the
+  blacklist for mongo wueries could be bypassed, allowing for dangerous
+  ``$where`` queries (Moritz Schneider).
+
 Version 0.7.4
 ~~~~~~~~~~~~~
 
