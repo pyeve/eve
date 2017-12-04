@@ -8,6 +8,7 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- Fix: add sphinxcontrib-embedly to dev-requirements.txt.
 - New: when the media endpoint is enabled, the default authentication class
   will be used to secure  it. Closes #1083.
 - New: Add support for MongoDB bitwise query operators ``$bitsAllClear``,
