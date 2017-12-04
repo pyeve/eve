@@ -129,6 +129,15 @@ matching the followig query: <tt class="docutils literal"><span class="pre">{'co
 </div>
 <div class="section" id="stable">
 <h2>Stable<a class="headerlink" href="#stable" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="version-0-7-5">
+<h3>Version 0.7.5<a class="headerlink" href="#version-0-7-5" title="Permalink to this headline">¶</a></h3>
+<p>Released on 4 December, 2017</p>
+<ul class="simple">
+<li>Fix: A query was not fully traversed in the sanitization. Therefore the
+blacklist for mongo wueries could be bypassed, allowing for dangerous
+<tt class="docutils literal"><span class="pre">$where</span></tt> queries (Moritz Schneider).</li>
+</ul>
+</div>
 <div class="section" id="version-0-7-4">
 <h3>Version 0.7.4<a class="headerlink" href="#version-0-7-4" title="Permalink to this headline">¶</a></h3>
 <p>Released on 24 May, 2017</p>
@@ -625,7 +634,7 @@ document. For example, <tt class="docutils literal"><span class="pre">['a.b.c',<
 <li><p class="first">Fix: add handling of sub-resource resolving for PUT method (Olivier Poitrey).</p>
 </li>
 <li><p class="first">Fix: <tt class="docutils literal"><span class="pre">dependencies</span></tt> rule would mistakenly validate documents when target
-fields happened to also have a <a href="#id2"><span class="problematic" id="id3">``</span></a>default``&nbsp;value.</p>
+fields happened to also have a <tt class="docutils literal"><span class="pre">default</span></tt>&nbsp;value.</p>
 </li>
 <li><p class="first">Fix: According to RFC2617 the separator should be (=) instead of (:). This
 caused at least Chrome not to prompt user for the credentials, and not to
@@ -1635,6 +1644,7 @@ signature, allowing for further subclassing.</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#stable">Stable</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-7-5">Version 0.7.5</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#version-0-7-4">Version 0.7.4</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#version-0-7-3">Version 0.7.3</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#version-0-7-2">Version 0.7.2</a></li>

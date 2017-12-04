@@ -1546,9 +1546,9 @@ is enabled, appropriate <tt class="docutils literal"><span class="pre">X-RateLim
 response.  Suppose that the rate limit has been set to 300 requests every 15
 minutes, this is what a user would get after hitting a endpoint with a single
 request:</p>
-<div class="highlight-python"><div class="highlight"><pre>X-RateLimit-Remaining: 299
-X-RateLimit-Limit: 300
-X-RateLimit-Reset: 1370940300
+<div class="highlight-python"><div class="highlight"><pre><span class="n">X</span><span class="o">-</span><span class="n">RateLimit</span><span class="o">-</span><span class="n">Remaining</span><span class="p">:</span> <span class="mi">299</span>
+<span class="n">X</span><span class="o">-</span><span class="n">RateLimit</span><span class="o">-</span><span class="n">Limit</span><span class="p">:</span> <span class="mi">300</span>
+<span class="n">X</span><span class="o">-</span><span class="n">RateLimit</span><span class="o">-</span><span class="n">Reset</span><span class="p">:</span> <span class="mi">1370940300</span>
 </pre></div>
 </div>
 <p>You can set different limits for each one of the supported methods (GET, POST,
