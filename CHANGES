@@ -8,6 +8,12 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- New: Refactor index creation. We now have a new 
+  ``eve.io.mongo.ensure_mongo_indexes()`` function which ensures that eventual
+  ``mongo_indexes`` defined for a resource are created on the active
+  database. The function can be imported and invoked, for example in
+  multi-db workflows where a db is activated based on the
+  authenticated user performing the request (via custom auth classes).
 - Fix: add sphinxcontrib-embedly to dev-requirements.txt.
 - New: when the media endpoint is enabled, the default authentication class
   will be used to secure  it. Closes #1083.
