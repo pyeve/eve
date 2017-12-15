@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from eve.tests import TestBase
 from eve.utils import parse_request, str_to_date, config, weak_date, \
     date_to_str, querydef, document_etag, extract_key_values, \
-    debug_error_message, validate_filters
+    debug_error_message, validate_filters, import_from_string
 
 
 class TestUtils(TestBase):
@@ -260,6 +260,10 @@ class TestUtils(TestBase):
             self.assertTrue(validate_filters(
                 {'$or': [{'key': 'val1'}, {'key': 'val2'}]},
                 self.known_resource) is None)
+
+    def test_import_from_string(self):
+        dt = import_from_string('datetime.datetime')
+        self.assertEqual(dt, datetime)
 
 
 class DummyEvent(object):

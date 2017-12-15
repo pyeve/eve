@@ -11,6 +11,8 @@
 """
 
 import sys
+from importlib import import_module
+
 import eve
 import hashlib
 import werkzeug.exceptions
@@ -448,3 +450,15 @@ def auto_fields(resource):
 
 # Base string type that is compatible with both Python 2.x and 3.x.
 str_type = str if sys.version_info[0] == 3 else basestring
+
+
+def import_from_string(module_name):
+    """ Imports module using string
+
+    """
+    try:
+        modules = module_name.split('.')
+        module_path, attr = '.'.join(modules[:-1]), modules[-1]
+        return getattr(import_module(module_path), attr)
+    except (ImportError, AttributeError):
+        raise ImportError('Cannot import {}'.format(module_name))
