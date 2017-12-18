@@ -301,8 +301,8 @@ class JSONRenderer(Renderer):
         :param data: the data stream to be rendered as json.
 
         .. versionchanged:: 0.2
-           Json encoder class is now inferred by the active data layer, allowing
-           for customized, data-aware JSON encoding.
+           Json encoder class is now inferred by the active data layer,
+           allowing for customized, data-aware JSON encoding.
 
         .. versionchanged:: 0.1.0
            Support for optional HATEOAS.
