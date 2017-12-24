@@ -210,22 +210,20 @@ def media_endpoint(_id):
     else:
         file_ = app.media.get(_id)
         size = file_.length
-        byte1, byte2 = 0, None
+        try:
+            m = re.search('(\d+)-(\d*)', range_header)
+            begin, end = m.groups()
+            begin = int(begin)
+            end = int(end)
+        except:
+            begin, end = 0, None
 
-        m = re.search('(\d+)-(\d*)', range_header)
-        g = m.groups()
-
-        if g[0]:
-            byte1 = int(g[0])
-        if g[1]:
-            byte2 = int(g[1])
-
-        length = size - byte1
-        if byte2 is not None:
-            length = byte2 - byte1 + 1
+        length = size - begin
+        if end is not None:
+            length = end - begin + 1
 
         data = None
-        file_.seek(byte1)
+        file_.seek(begin)
         data = file_.read(length)
 
         headers = {
@@ -233,8 +231,8 @@ def media_endpoint(_id):
             'Content-Length': file_.length,
             'Accept-Ranges': 'bytes',
             'Content-Range': 'bytes {0}-{1}/{2}'.format(
-                byte1,
-                byte1 + length - 1,
+                begin,
+                begin + length - 1,
                 size
             ),
         }
