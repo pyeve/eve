@@ -1260,7 +1260,7 @@ def oplog_push(resource, document, op, id=None):
     """
     if not config.OPLOG \
             or op not in config.OPLOG_METHODS\
-            or resource in config.URLS[resource]:
+            or resource not in config.URLS[resource]:
         return
 
     resource_def = config.DOMAIN[resource]
