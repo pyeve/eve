@@ -152,10 +152,10 @@ ALLOWED_FILTERS = ['*']         # filtering enabled by default
 VALIDATE_FILTERS = False
 SORTING = True                  # sorting enabled by default.
 JSON_SORT_KEYS = False          # json key sorting
-RENDERERS = (
+RENDERERS = [
     'eve.render.JSONRenderer',
     'eve.render.XMLRenderer'
-)
+]
 EMBEDDING = True                # embedding enabled by default
 PROJECTION = True               # projection enabled by default
 PAGINATION = True               # pagination enabled by default.
