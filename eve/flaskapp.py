@@ -266,12 +266,12 @@ class Eve(Flask, Events):
         self.check_deprecated_features()
 
     def check_deprecated_features(self):
-        """ Method check for usage of deprecated features.
+        """ Method checks for usage of deprecated features.
         """
 
         def deprecated_renderers_settings():
             """ Checks if JSON or XML setting is still being used instead of
-            RENDERERS and if so, compose new settings.
+            RENDERERS and if so, composes new settings.
             """
             msg = '{} setting is deprecated and will be removed' \
                   ' in future release. Please use RENDERERS instead.'
