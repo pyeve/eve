@@ -49,6 +49,12 @@
 <div class="section" id="version-0-8">
 <h3>Version 0.8<a class="headerlink" href="#version-0-8" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>New: Refactor index creation. We now have a new
+<tt class="docutils literal"><span class="pre">eve.io.mongo.ensure_mongo_indexes()</span></tt> function which ensures that eventual
+<tt class="docutils literal"><span class="pre">mongo_indexes</span></tt> defined for a resource are created on the active
+database. The function can be imported and invoked, for example in
+multi-db workflows where a db is activated based on the
+authenticated user performing the request (via custom auth classes).</li>
 <li>Fix: add sphinxcontrib-embedly to dev-requirements.txt.</li>
 <li>New: when the media endpoint is enabled, the default authentication class
 will be used to secure  it. Closes #1083.</li>
@@ -1703,7 +1709,7 @@ Artwork by <a href="http://kalamun.org">Kalamun</a> © 2013
     </div>
 
     <div class="footer">
-      &copy;2017. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
+      &copy;2018. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
       
     </div>
 
