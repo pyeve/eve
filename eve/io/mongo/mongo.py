@@ -943,7 +943,27 @@ class PyMongos(dict):
         return self.mongo.pymongo().db
 
 
-def create_index(app, resource, name, list_of_keys, index_options):
+def ensure_mongo_indexes(app, resource):
+    """ Make sure 'mongo_indexes' is respected and mongo indexes are created on
+    the current database.
+
+    .. versionaddded:: 0.8
+    """
+    mongo_indexes = app.config['DOMAIN'][resource]['mongo_indexes']
+    if not mongo_indexes:
+        return
+
+    for name, value in mongo_indexes.items():
+        if isinstance(value, tuple):
+            list_of_keys, index_options = value
+        else:
+            list_of_keys = value
+            index_options = {}
+
+        _create_index(app, resource, name, list_of_keys, index_options)
+
+
+def _create_index(app, resource, name, list_of_keys, index_options):
     """ Create a specific index composed of the `list_of_keys` for the
     mongo collection behind the `resource` using the `app.config`
     to retrieve all data needed to find out the mongodb configuration.
@@ -965,6 +985,7 @@ def create_index(app, resource, name, list_of_keys, index_options):
         {"sparse": True}
 
     .. versionadded:: 0.6
+
     """
     # it doesn't work as a typical mongodb method run in the request
     # life cycle, it is just called when the app start and it uses
@@ -972,7 +993,12 @@ def create_index(app, resource, name, list_of_keys, index_options):
     collection = app.config['SOURCES'][resource]['source']
 
     # get db for given prefix
-    px = app.config['DOMAIN'][resource].get('mongo_prefix', 'MONGO')
+    try:
+        # mongo_prefix might have been set by Auth class instance
+        px = g.get('mongo_prefix')
+    except:
+        px = app.config['DOMAIN'][resource].get('mongo_prefix', 'MONGO')
+
     with app.app_context():
         db = app.data.pymongo(resource, px).db
 
@@ -989,8 +1015,9 @@ def create_index(app, resource, name, list_of_keys, index_options):
         except pymongo.errors.OperationFailure as e:
             if e.code == 85:
                 # This error is raised when the definition of the index has
-                # been changed, we didn't found any spec out there but we think
-                # that this error is not going to change and we can trust.
+                # been changed, we didn't find any spec out there but we
+                # think that this error is not going to change and we can
+                # trust.
 
                 # by default, drop the old index with old configuration and
                 # create the index again with the new configuration.

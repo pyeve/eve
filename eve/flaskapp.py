@@ -24,7 +24,8 @@ from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint, \
     error_endpoint, media_endpoint, schema_collection_endpoint, \
     schema_item_endpoint
 from eve.exceptions import ConfigException, SchemaException
-from eve.io.mongo import Mongo, Validator, GridFSMediaStorage, create_index
+from eve.io.mongo import Mongo, Validator, GridFSMediaStorage, \
+    ensure_mongo_indexes
 from eve.logging import RequestFilter
 from eve.utils import api_prefix, extract_key_values
 
@@ -894,16 +895,7 @@ class Eve(Flask, Events):
             )
 
         # create the mongo db indexes
-        mongo_indexes = self.config['DOMAIN'][resource]['mongo_indexes']
-        if mongo_indexes:
-            for name, value in mongo_indexes.items():
-                if isinstance(value, tuple):
-                    list_of_keys, index_options = value
-                else:
-                    list_of_keys = value
-                    index_options = {}
-
-                create_index(self, resource, name, list_of_keys, index_options)
+        ensure_mongo_indexes(self, resource)
 
         # flask-pymongo compatibility.
         if 'MONGO_OPTIONS' in self.config['DOMAIN']:
