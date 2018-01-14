@@ -6,6 +6,17 @@ Here you can see the full list of changes between each Eve release.
 Development
 -----------
 
+
+Stable
+------
+
+Version 0.7.6
+~~~~~~~~~~~~~
+
+Released on 14 January, 2018
+
+- Improve query parsing robustness.
+
 Version 0.7.5
 ~~~~~~~~~~~~~
 
@@ -15,8 +26,6 @@ Released on 4 December, 2017
   blacklist for mongo wueries could be bypassed, allowing for dangerous
   ``$where`` queries (Moritz Schneider).
 
-Stable
-------
 
 Version 0.7.4
 ~~~~~~~~~~~~~
