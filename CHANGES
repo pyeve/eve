@@ -84,6 +84,13 @@ Breaking Changes
 Stable
 ------
 
+Version 0.7.6
+~~~~~~~~~~~~~
+
+Released on 14 January, 2018
+
+- Improve query parsing robustness.
+
 Version 0.7.5
 ~~~~~~~~~~~~~
 
