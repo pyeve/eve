@@ -122,16 +122,19 @@ class MongoVisitor(ast.NodeVisitor):
         datetime().
         """
         if isinstance(node.func, ast.Name):
-            expr = None
             if node.func.id == 'ObjectId':
-                expr = "('" + node.args[0].s + "')"
+                try:
+                    self.current_value = ObjectId(node.args[0].s)
+                except:
+                    pass
             elif node.func.id == 'datetime':
                 values = []
                 for arg in node.args:
-                    values.append(str(arg.n))
-                expr = "(" + ", ".join(values) + ")"
-            if expr:
-                self.current_value = eval(node.func.id + expr)
+                    values.append(arg.n)
+                try:
+                    self.current_value = datetime(*values)
+                except:
+                    pass
 
     def visit_Attribute(self, node):
         """ Attribute handler ('Contact.Id').
