@@ -256,6 +256,10 @@ def _best_mime():
     ones supported by Eve. Along with the mime, also the corresponding
     render function is returns.
 
+    .. versionchanged:: 0.8
+       Support for optional renderers via RENDERERS. XML and JSON
+       configuration keywords removed.
+
     .. versionchanged:: 0.3
        Support for optional renderers via XML and JSON configuration keywords.
     """
@@ -278,8 +282,8 @@ def _best_mime():
 
 
 class Renderer(object):
-    """ Base class for all the renderers. Renderer should set valid `mime` attr
-    and have `.render()` method implemented.
+    """ Base class for all the renderers. Renderer should set valid `mime`
+    attr and have `.render()` method implemented.
 
     """
     mime = tuple()
@@ -290,7 +294,7 @@ class Renderer(object):
 
 
 class JSONRenderer(Renderer):
-    """ JSON renderer class
+    """ JSON renderer class based on `simplejson` package.
 
     """
     mime = ('application/json',)
@@ -318,7 +322,7 @@ class JSONRenderer(Renderer):
 
 
 class XMLRenderer(Renderer):
-    """ XML renderer class
+    """ XML renderer class.
 
     """
     mime = ('application/xml', 'text/xml', 'application/x-xml',)
