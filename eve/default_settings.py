@@ -11,6 +11,11 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.8
+        'RENDERERS' added with XML and JSON renderers.
+        'JSON' removed.
+        'XML' removed.
+
     .. versionchanged:: 0.7
        'OPTIMIZE_PAGINATION_FOR_SPEED' added and set to False.
        'OPLOG_RETURN_EXTRA_FIELD' added and set to False.
