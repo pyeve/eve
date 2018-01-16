@@ -473,6 +473,7 @@ uppercase.
 
 ``ENFORCE_IF_MATCH``                ``True`` to always enforce concurrency control when
                                     it is enabled, ``False`` otherwise. Defaults to
+                                    ``True``. See :ref:`concurrency`.
 
 ``RENDERERS``                       Allows to change enabled renderers. Defaults to
                                     ``['eve.render.JSONRenderer', 'eve.render.XMLRenderer']``.
