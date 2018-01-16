@@ -488,9 +488,9 @@ want to turn HATEOAS off? Well, if you know that your client application is not
 going to use the feature, then you might want to save on both bandwidth and
 performance.
 
-.. _jsonxml:
+.. _rendering:
 
-JSON and XML Rendering
+Rendering
 ----------------------
 Eve responses are automatically rendered as JSON (the default) or XML,
 depending on the request ``Accept`` header. Inbound documents (for inserts and
@@ -510,10 +510,18 @@ edits) are in JSON format.
         <link rel="child" href="works" title="works" />
     </resource>
 
-XML support can be disabled by setting ``XML`` to ``False`` in the settings
-file. JSON support can be disabled by setting ``JSON`` to ``False``.  Please
-note that at least one mime type must always be enabled, either implicitly or
-explicitly. By default, both are supported.
+Default renderers might be changed by editing ``RENDERERS`` value in the settings file.
+
+.. code-block:: python
+
+    RENDERERS = [
+        'eve.render.JSONRenderer',
+        'eve.render.XMLRenderer'
+    ]
+
+You can create your own renderer by subclassing ``eve.render.Renderer``. Each
+renderer should set valid ``mime`` attr and have ``.render()`` method implemented.
+Please note that at least one renderer must always be enabled.
 
 .. _conditional_requests:
 
