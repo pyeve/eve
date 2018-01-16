@@ -453,7 +453,6 @@ uppercase.
 
 ``META``                            Allows to customize the meta field. Defaults
                                     to ``_meta``
-                                    to ``_meta``.
 
 ``INFO``                            String value to include an info section, with the
                                     given INFO name, at the Eve homepage (suggested
@@ -474,15 +473,9 @@ uppercase.
 
 ``ENFORCE_IF_MATCH``                ``True`` to always enforce concurrency control when
                                     it is enabled, ``False`` otherwise. Defaults to
-                                    ``True``. See :ref:`concurrency`.
 
-``XML``                             ``True`` to enable XML support, ``False``
-                                    otherwise. See :ref:`jsonxml`. Defaults to
-                                    ``True``.
-
-``JSON``                            ``True`` to enable JSON support, ``False``
-                                    otherwise. See :ref:`jsonxml`. Defaults to
-                                    ``True``.
+``RENDERERS``                       Allows to change enabled renderers. Defaults to
+                                    ``['eve.render.JSONRenderer', 'eve.render.XMLRenderer']``.
 
 ``JSON_SORT_KEYS``                  ``True`` to enable JSON key sorting, ``False``
                                     otherwise. Defaults to ``False``.
