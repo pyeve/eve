@@ -18,7 +18,7 @@ from werkzeug import utils
 from functools import wraps
 from eve.methods.common import get_rate_limit
 from eve.utils import date_to_str, date_to_rfc1123, config, \
-    debug_error_message
+    debug_error_message, import_from_string
 from flask import make_response, request, Response, current_app as app, abort
 
 try:
@@ -26,12 +26,6 @@ try:
 except ImportError:
     # Python 2.6 needs this back-port
     from backport_collections import OrderedDict
-
-# mapping between supported mime types and render functions.
-_MIME_TYPES = [
-    {'mime': ('application/json',), 'renderer': 'render_json', 'tag': 'JSON'},
-    {'mime': ('application/xml', 'text/xml', 'application/x-xml',),
-     'renderer': 'render_xml', 'tag': 'XML'}]
 
 
 def raise_event(f):
@@ -144,10 +138,10 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     else:
         # obtain the best match between client's request and available mime
         # types, along with the corresponding render function.
-        mime, renderer = _best_mime()
+        mime, renderer_cls = _best_mime()
 
         # invoke the render function and obtain the corresponding rendered item
-        rendered = globals()[renderer](dct)
+        rendered = renderer_cls().render(dct)
 
         # JSONP
         if config.JSONP_ARGUMENT:
@@ -262,17 +256,20 @@ def _best_mime():
     ones supported by Eve. Along with the mime, also the corresponding
     render function is returns.
 
+    .. versionchanged:: 0.8
+       Support for optional renderers via RENDERERS. XML and JSON
+       configuration keywords removed.
+
     .. versionchanged:: 0.3
        Support for optional renderers via XML and JSON configuration keywords.
     """
     supported = []
     renders = {}
-    for mime in _MIME_TYPES:
-        # only mime types that have not been disabled via configuration
-        if app.config.get(mime['tag'], True):
-            for mime_type in mime['mime']:
-                supported.append(mime_type)
-                renders[mime_type] = mime['renderer']
+    for renderer_cls in app.config.get('RENDERERS'):
+        renderer = import_from_string(renderer_cls)
+        for mime_type in renderer.mime:
+            supported.append(mime_type)
+            renders[mime_type] = renderer
 
     if len(supported) == 0:
         abort(500, description=debug_error_message(
@@ -284,197 +281,227 @@ def _best_mime():
     return best_match, renders[best_match]
 
 
-def render_json(data):
-    """ JSON render function
+class Renderer(object):
+    """ Base class for all the renderers. Renderer should set valid `mime`
+    attr and have `.render()` method implemented.
 
-    .. versionchanged:: 0.2
-       Json encoder class is now inferred by the active data layer, allowing
-       for customized, data-aware JSON encoding.
-
-    .. versionchanged:: 0.1.0
-       Support for optional HATEOAS.
     """
-    set_indent = None
+    mime = tuple()
 
-    # make pretty prints available
-    if 'GET' in request.method and 'pretty' in request.args:
-        set_indent = 4
-    return json.dumps(data, indent=set_indent, cls=app.data.json_encoder_class,
-                      sort_keys=config.JSON_SORT_KEYS)
+    def render(self, data):
+        raise NotImplementedError('Renderer .render() method is not '
+                                  'implemented')
 
 
-def render_xml(data):
-    """ XML render function.
+class JSONRenderer(Renderer):
+    """ JSON renderer class based on `simplejson` package.
 
-    :param data: the data stream to be rendered as xml.
-
-    .. versionchanged:: 0.4
-       Support for pagination info (_meta).
-
-    .. versionchanged:: 0.2
-       Use the new ITEMS configuration setting.
-
-    .. versionchanged:: 0.1.0
-       Support for optional HATEOAS.
-
-    .. versionchanged:: 0.0.3
-       Support for HAL-like hyperlinks and resource descriptors.
     """
-    if isinstance(data, list):
-        data = {config.ITEMS: data}
+    mime = ('application/json',)
 
-    xml = ''
-    if data:
-        xml += xml_root_open(data)
-        xml += xml_add_links(data)
-        xml += xml_add_meta(data)
-        xml += xml_add_items(data)
-        xml += xml_root_close()
-    return xml
+    def render(self, data):
+        """ JSON render function
+
+        :param data: the data stream to be rendered as json.
+
+        .. versionchanged:: 0.2
+           Json encoder class is now inferred by the active data layer,
+           allowing for customized, data-aware JSON encoding.
+
+        .. versionchanged:: 0.1.0
+           Support for optional HATEOAS.
+        """
+        set_indent = None
+
+        # make pretty prints available
+        if 'GET' in request.method and 'pretty' in request.args:
+            set_indent = 4
+        return json.dumps(data, indent=set_indent,
+                          cls=app.data.json_encoder_class,
+                          sort_keys=config.JSON_SORT_KEYS)
 
 
-def xml_root_open(data):
-    """ Returns the opening tag for the XML root node. If the datastream
-    includes informations about resource endpoints (href, title), they will
-    be added as node attributes. The resource endpoint is then removed to allow
-    for further processing of the datastream.
+class XMLRenderer(Renderer):
+    """ XML renderer class.
 
-    :param data: the data stream to be rendered as xml.
-
-    .. versionchanged:: 0.1.0
-       Support for optional HATEOAS.
-
-    .. versionchanged:: 0.0.6
-       Links are now properly escaped.
-
-    .. versionadded:: 0.0.3
     """
-    links = data.get(config.LINKS)
-    href = title = ''
-    if links and 'self' in links:
-        self_ = links.pop('self')
-        href = ' href="%s" ' % utils.escape(self_['href'])
-        if 'title' in self_:
-            title = ' title="%s" ' % self_['title']
-    return '<resource%s%s>' % (href, title)
+    mime = ('application/xml', 'text/xml', 'application/x-xml',)
+    tag = 'XML'
 
+    def render(self, data):
+        """ XML render function.
 
-def xml_add_meta(data):
-    """ Returns a meta node with page, total, max_results fields.
+        :param data: the data stream to be rendered as xml.
 
-    :param data: the data stream to be rendered as xml.
+        .. versionchanged:: 0.4
+           Support for pagination info (_meta).
 
-    .. versionchanged:: 0.5
-       Always return ordered items (#441).
+        .. versionchanged:: 0.2
+           Use the new ITEMS configuration setting.
 
-    .. versionadded:: 0.4
-    """
-    xml = ''
-    meta = []
-    if data.get(config.META):
-        ordered_meta = OrderedDict(sorted(data[config.META].items()))
-        for name, value in ordered_meta.items():
-            meta.append('<%s>%d</%s>' % (name, value, name))
-    if meta:
-        xml = '<%s>%s</%s>' % (config.META, ''.join(meta), config.META)
-    return xml
+        .. versionchanged:: 0.1.0
+           Support for optional HATEOAS.
 
+        .. versionchanged:: 0.0.3
+           Support for HAL-like hyperlinks and resource descriptors.
+        """
+        if isinstance(data, list):
+            data = {config.ITEMS: data}
 
-def xml_add_links(data):
-    """ Returns as many <link> nodes as there are in the datastream. The links
-    are then removed from the datastream to allow for further processing.
+        xml = ''
+        if data:
+            xml += self.xml_root_open(data)
+            xml += self.xml_add_links(data)
+            xml += self.xml_add_meta(data)
+            xml += self.xml_add_items(data)
+            xml += self.xml_root_close()
+        return xml
 
-    :param data: the data stream to be rendered as xml.
+    @classmethod
+    def xml_root_open(cls, data):
+        """ Returns the opening tag for the XML root node. If the datastream
+        includes informations about resource endpoints (href, title), they will
+        be added as node attributes. The resource endpoint is then removed to
+        allow for further processing of the datastream.
 
-    .. versionchanged:: 0.5
-       Always return ordered items (#441).
+        :param data: the data stream to be rendered as xml.
 
-    .. versionchanged:: 0.0.6
-       Links are now properly escaped.
+        .. versionchanged:: 0.1.0
+           Support for optional HATEOAS.
 
-    .. versionadded:: 0.0.3
-    """
-    xml = ''
-    chunk = '<link rel="%s" href="%s" title="%s" />'
-    links = data.pop(config.LINKS, {})
-    ordered_links = OrderedDict(sorted(links.items()))
-    for rel, link in ordered_links.items():
-        if isinstance(link, list):
-            xml += ''.join([chunk % (rel, utils.escape(d['href']),
-                                     utils.escape(d['title'])) for d in link])
-        else:
-            xml += ''.join(chunk % (rel, utils.escape(link['href']),
-                                    link['title']))
-    return xml
+        .. versionchanged:: 0.0.6
+           Links are now properly escaped.
 
+        .. versionadded:: 0.0.3
+        """
+        links = data.get(config.LINKS)
+        href = title = ''
+        if links and 'self' in links:
+            self_ = links.pop('self')
+            href = ' href="%s" ' % utils.escape(self_['href'])
+            if 'title' in self_:
+                title = ' title="%s" ' % self_['title']
+        return '<resource%s%s>' % (href, title)
 
-def xml_add_items(data):
-    """ When this function is called the datastream can only contain a `_items`
-    list, or a dictionary. If a list, each item is a resource which rendered as
-    XML. If a dictionary, it will be rendered as XML.
+    @classmethod
+    def xml_add_meta(cls, data):
+        """ Returns a meta node with page, total, max_results fields.
 
-    :param data: the data stream to be rendered as xml.
+        :param data: the data stream to be rendered as xml.
 
-    .. versionadded:: 0.0.3
-    """
-    try:
-        xml = ''.join([xml_item(item) for item in data[config.ITEMS]])
-    except:
-        xml = xml_dict(data)
-    return xml
+        .. versionchanged:: 0.5
+           Always return ordered items (#441).
 
+        .. versionadded:: 0.4
+        """
+        xml = ''
+        meta = []
+        if data.get(config.META):
+            ordered_meta = OrderedDict(sorted(data[config.META].items()))
+            for name, value in ordered_meta.items():
+                meta.append('<%s>%d</%s>' % (name, value, name))
+        if meta:
+            xml = '<%s>%s</%s>' % (config.META, ''.join(meta), config.META)
+        return xml
 
-def xml_item(item):
-    """ Represents a single resource (member of a collection) as XML.
+    @classmethod
+    def xml_add_links(cls, data):
+        """ Returns as many <link> nodes as there are in the datastream. The
+        links are then removed from the datastream to allow for further
+        processing.
 
-    :param data: the data stream to be rendered as xml.
+        :param data: the data stream to be rendered as xml.
 
-    .. versionadded:: 0.0.3
-    """
-    xml = xml_root_open(item)
-    xml += xml_add_links(item)
-    xml += xml_dict(item)
-    xml += xml_root_close()
-    return xml
+        .. versionchanged:: 0.5
+           Always return ordered items (#441).
 
+        .. versionchanged:: 0.0.6
+           Links are now properly escaped.
 
-def xml_root_close():
-    """ Returns the closing tag of the XML root node.
-
-    .. versionadded:: 0.0.3
-    """
-    return '</resource>'
-
-
-def xml_dict(data):
-    """ Renders a dict as XML.
-
-    :param data: the data stream to be rendered as xml.
-
-    .. versionchanged:: 0.5
-       Always return ordered items (#441).
-
-    .. versionchanged:: 0.2
-       Leaf values are now properly escaped.
-
-    .. versionadded:: 0.0.3
-    """
-    xml = ''
-    ordered_items = OrderedDict(sorted(data.items()))
-    for k, v in ordered_items.items():
-        if isinstance(v, datetime.datetime):
-            v = date_to_str(v)
-        elif isinstance(v, (datetime.time, datetime.date)):
-            v = v.isoformat()
-        if not isinstance(v, list):
-            v = [v]
-        for value in v:
-            if isinstance(value, dict):
-                links = xml_add_links(value)
-                xml += "<%s>" % k
-                xml += xml_dict(value)
-                xml += links
-                xml += "</%s>" % k
+        .. versionadded:: 0.0.3
+        """
+        xml = ''
+        chunk = '<link rel="%s" href="%s" title="%s" />'
+        links = data.pop(config.LINKS, {})
+        ordered_links = OrderedDict(sorted(links.items()))
+        for rel, link in ordered_links.items():
+            if isinstance(link, list):
+                xml += ''.join([chunk % (rel, utils.escape(d['href']),
+                                         utils.escape(d['title']))
+                                for d in link])
             else:
-                xml += "<%s>%s</%s>" % (k, utils.escape(value), k)
-    return xml
+                xml += ''.join(chunk % (rel, utils.escape(link['href']),
+                                        link['title']))
+        return xml
+
+    @classmethod
+    def xml_add_items(cls, data):
+        """ When this function is called the datastream can only contain
+         a `_items` list, or a dictionary. If a list, each item is a resource
+        which rendered as XML. If a dictionary, it will be rendered as XML.
+
+        :param data: the data stream to be rendered as xml.
+
+        .. versionadded:: 0.0.3
+        """
+        try:
+            xml = ''.join([cls.xml_item(item) for item in data[config.ITEMS]])
+        except:
+            xml = cls.xml_dict(data)
+        return xml
+
+    @classmethod
+    def xml_item(cls, item):
+        """ Represents a single resource (member of a collection) as XML.
+
+        :param data: the data stream to be rendered as xml.
+
+        .. versionadded:: 0.0.3
+        """
+        xml = cls.xml_root_open(item)
+        xml += cls.xml_add_links(item)
+        xml += cls.xml_dict(item)
+        xml += cls.xml_root_close()
+        return xml
+
+    @classmethod
+    def xml_root_close(cls):
+        """ Returns the closing tag of the XML root node.
+
+        .. versionadded:: 0.0.3
+        """
+        return '</resource>'
+
+    @classmethod
+    def xml_dict(cls, data):
+        """ Renders a dict as XML.
+
+        :param data: the data stream to be rendered as xml.
+
+        .. versionchanged:: 0.5
+           Always return ordered items (#441).
+
+        .. versionchanged:: 0.2
+           Leaf values are now properly escaped.
+
+        .. versionadded:: 0.0.3
+        """
+        xml = ''
+        ordered_items = OrderedDict(sorted(data.items()))
+        for k, v in ordered_items.items():
+            if isinstance(v, datetime.datetime):
+                v = date_to_str(v)
+            elif isinstance(v, (datetime.time, datetime.date)):
+                v = v.isoformat()
+            if not isinstance(v, list):
+                v = [v]
+            for value in v:
+                if isinstance(value, dict):
+                    links = cls.xml_add_links(value)
+                    xml += "<%s>" % k
+                    xml += cls.xml_dict(value)
+                    xml += links
+                    xml += "</%s>" % k
+                else:
+                    xml += "<%s>%s</%s>" % (k, utils.escape(value), k)
+        return xml

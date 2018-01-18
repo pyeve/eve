@@ -11,6 +11,11 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.8
+        'RENDERERS' added with XML and JSON renderers.
+        'JSON' removed.
+        'XML' removed.
+
     .. versionchanged:: 0.7
        'OPTIMIZE_PAGINATION_FOR_SPEED' added and set to False.
        'OPLOG_RETURN_EXTRA_FIELD' added and set to False.
@@ -152,6 +157,10 @@ ALLOWED_FILTERS = ['*']         # filtering enabled by default
 VALIDATE_FILTERS = False
 SORTING = True                  # sorting enabled by default.
 JSON_SORT_KEYS = False          # json key sorting
+RENDERERS = [
+    'eve.render.JSONRenderer',
+    'eve.render.XMLRenderer'
+]
 EMBEDDING = True                # embedding enabled by default
 PROJECTION = True               # projection enabled by default
 PAGINATION = True               # pagination enabled by default.

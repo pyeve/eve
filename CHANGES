@@ -8,6 +8,14 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- New: Renderer classes. ``RENDERER`` allows to change enabled renderers.
+  Defaults to ``['eve.render.JSONRenderer', 'eve.render.XMLRenderer']``. You
+  can create your own renderer by subclassing ``eve.render.Renderer``. Each
+  renderer should set valid mime attr and have ``.render()`` method
+  implemented. Please note that at least one renderer must always be enabled
+  (Marcin Puhacz).
+- Chane: ``JSON`` and ``XML`` settings are deprecated and will be removed in
+  a future update. Use ``RENDERERS`` instead (Marcin Puhacz).
 - New: Refactor index creation. We now have a new 
   ``eve.io.mongo.ensure_mongo_indexes()`` function which ensures that eventual
   ``mongo_indexes`` defined for a resource are created on the active
