@@ -486,8 +486,8 @@ going to use the feature, then you might want to save on both bandwidth and
 performance.</p>
 </div>
 </div>
-<div class="section" id="json-and-xml-rendering">
-<span id="jsonxml"></span><h2>JSON and XML Rendering<a class="headerlink" href="#json-and-xml-rendering" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="rendering">
+<span id="id2"></span><h2>Rendering<a class="headerlink" href="#rendering" title="Permalink to this headline">¶</a></h2>
 <p>Eve responses are automatically rendered as JSON (the default) or XML,
 depending on the request <tt class="docutils literal"><span class="pre">Accept</span></tt> header. Inbound documents (for inserts and
 edits) are in JSON format.</p>
@@ -503,13 +503,19 @@ edits) are in JSON format.</p>
 <span class="nt">&lt;/resource&gt;</span>
 </pre></div>
 </div>
-<p>XML support can be disabled by setting <tt class="docutils literal"><span class="pre">XML</span></tt> to <tt class="docutils literal"><span class="pre">False</span></tt> in the settings
-file. JSON support can be disabled by setting <tt class="docutils literal"><span class="pre">JSON</span></tt> to <tt class="docutils literal"><span class="pre">False</span></tt>.  Please
-note that at least one mime type must always be enabled, either implicitly or
-explicitly. By default, both are supported.</p>
+<p>Default renderers might be changed by editing <tt class="docutils literal"><span class="pre">RENDERERS</span></tt> value in the settings file.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">RENDERERS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">&#39;eve.render.JSONRenderer&#39;</span><span class="p">,</span>
+    <span class="s">&#39;eve.render.XMLRenderer&#39;</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>You can create your own renderer by subclassing <tt class="docutils literal"><span class="pre">eve.render.Renderer</span></tt>. Each
+renderer should set valid <tt class="docutils literal"><span class="pre">mime</span></tt> attr and have <tt class="docutils literal"><span class="pre">.render()</span></tt> method implemented.
+Please note that at least one renderer must always be enabled.</p>
 </div>
 <div class="section" id="conditional-requests">
-<span id="id2"></span><h2>Conditional Requests<a class="headerlink" href="#conditional-requests" title="Permalink to this headline">¶</a></h2>
+<span id="id3"></span><h2>Conditional Requests<a class="headerlink" href="#conditional-requests" title="Permalink to this headline">¶</a></h2>
 <p>Each resource representation provides information on the last time it was
 updated (<tt class="docutils literal"><span class="pre">Last-Modified</span></tt>), along with an hash value computed on the
 representation itself (<tt class="docutils literal"><span class="pre">ETag</span></tt>). These headers allow clients to perform
@@ -562,7 +568,7 @@ currently stored on the server, so we got a <tt class="docutils literal"><span c
 </div>
 <p>This time we got our patch in, and the server returned the new <tt class="docutils literal"><span class="pre">ETag</span></tt>.  We
 also get the new <tt class="docutils literal"><span class="pre">_updated</span></tt> value, which eventually will allow us to perform
-subsequent <a class="reference internal" href="#id2">conditional requests</a>.</p>
+subsequent <a class="reference internal" href="#id3">conditional requests</a>.</p>
 <p>Concurrency control applies to all edition methods: <tt class="docutils literal"><span class="pre">PATCH</span></tt> (edit), <tt class="docutils literal"><span class="pre">PUT</span></tt>
 (replace), <tt class="docutils literal"><span class="pre">DELETE</span></tt> (delete).</p>
 <div class="section" id="disabling-concurrency-control">
@@ -709,7 +715,7 @@ between versions: caching, URIs, schemas, validation, and so on. URI versioning
 (<a class="reference external" href="http://api.example.com/v1/">http://api.example.com/v1/</a>...) is supported.</p>
 </div>
 <div class="section" id="document-versioning">
-<span id="id3"></span><h2>Document Versioning<a class="headerlink" href="#document-versioning" title="Permalink to this headline">¶</a></h2>
+<span id="id4"></span><h2>Document Versioning<a class="headerlink" href="#document-versioning" title="Permalink to this headline">¶</a></h2>
 <p>Eve supports automatic version control of documents. By default, this setting
 is turned off, but it can be turned globally or configured individually for
 each resource. When enabled, Eve begins automatically tracking changes to
@@ -821,7 +827,7 @@ hypothetical <tt class="docutils literal"><span class="pre">people</span></tt> c
 </div>
 </div>
 <div class="section" id="projections">
-<span id="id4"></span><h2>Projections<a class="headerlink" href="#projections" title="Permalink to this headline">¶</a></h2>
+<span id="id5"></span><h2>Projections<a class="headerlink" href="#projections" title="Permalink to this headline">¶</a></h2>
 <p>This feature allows you to create dynamic views of collections and documents,
 or more precisely, to decide what fields should or should not be returned,
 using a &#8216;projection&#8217;. Put another way, Projections are conditional queries
@@ -950,7 +956,7 @@ which can easily lead to performance issues.</p>
 </div>
 </div>
 <div class="section" id="soft-delete">
-<span id="id5"></span><h2>Soft Delete<a class="headerlink" href="#soft-delete" title="Permalink to this headline">¶</a></h2>
+<span id="id6"></span><h2>Soft Delete<a class="headerlink" href="#soft-delete" title="Permalink to this headline">¶</a></h2>
 <p>Eve provides an optional &#8220;soft delete&#8221; mode in which deleted documents continue
 to be stored in the database and are able to be restored, but still act as
 removed items in response to API requests. Soft delete is disabled by default,
@@ -1378,7 +1384,7 @@ the items as needed before they are returned to the client.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetched_item_contact</span> <span class="o">+=</span> <span class="n">before_returning_contact</span>
 </pre></div>
 </div>
-<p>It is important to note that fetch events will work with <a class="reference internal" href="#id3">Document
+<p>It is important to note that fetch events will work with <a class="reference internal" href="#id4">Document
 Versioning</a> for specific document versions or accessing all document
 versions with <tt class="docutils literal"><span class="pre">?version=all</span></tt>, but they <em>will not</em> work when acessing diffs
 of all versions with <tt class="docutils literal"><span class="pre">?version=diffs</span></tt>.</p>
@@ -1786,7 +1792,7 @@ a certain point:</p>
 </div>
 </div>
 <div class="section" id="internal-resources">
-<span id="id6"></span><h2>Internal Resources<a class="headerlink" href="#internal-resources" title="Permalink to this headline">¶</a></h2>
+<span id="id7"></span><h2>Internal Resources<a class="headerlink" href="#internal-resources" title="Permalink to this headline">¶</a></h2>
 <p>By default responses to GET requests to the home endpoint will include all the
 resources. The <tt class="docutils literal"><span class="pre">internal_resource</span></tt> setting keyword, however, allows you to
 make an endpoint internal, available only for internal data manipulation: no
@@ -2094,8 +2100,8 @@ field/value pairs. Like with all other keywords, you can change <tt class="docut
 to a keyword of your liking, just set <tt class="docutils literal"><span class="pre">QUERY_AGGREGATION</span></tt> in your settings.</p>
 <p>You can also set all options natively supported by PyMongo. For more
 informations on aggregation see <a class="reference internal" href="config.html#datasource"><em>Advanced Datasource Patterns</em></a>.</p>
-<div class="section" id="id7">
-<h3>Limitations<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id8">
+<h3>Limitations<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
 <p><tt class="docutils literal"><span class="pre">HATEOAS</span></tt> is not available at aggregation endpoints. This should not
 be surprising as documents returned by these endpoints are aggregation results
 and do not reside on the database, so there is no static link available for them.</p>
@@ -2226,7 +2232,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li class="toctree-l3"><a class="reference internal" href="#disabling-hateoas">Disabling HATEOAS</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#json-and-xml-rendering">JSON and XML Rendering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rendering">Rendering</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#conditional-requests">Conditional Requests</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#data-integrity-and-concurrency-control">Data Integrity and Concurrency Control</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#disabling-concurrency-control">Disabling concurrency control</a></li>
@@ -2302,7 +2308,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#the-schema-endpoint">The Schema Endpoint</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mongodb-aggregation-framework">MongoDB Aggregation Framework</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id7">Limitations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Limitations</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#mongodb-and-sql-support">MongoDB and SQL Support</a></li>
