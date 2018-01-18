@@ -64,8 +64,7 @@ class TestRenders(TestBase):
         self.assertEqual(r.content_type, 'application/json')
 
     def test_json_xml_disabled(self):
-        self.app.config['JSON'] = False
-        self.app.config['XML'] = False
+        self.app.config['RENDERERS'] = tuple()
         r = self.test_client.get(self.known_resource_url,
                                  headers=[('Accept', 'application/json')])
         self.assert500(r.status_code)
@@ -76,7 +75,7 @@ class TestRenders(TestBase):
         self.assert500(r.status_code)
 
     def test_json_disabled(self):
-        self.app.config['JSON'] = False
+        self.app.config['RENDERERS'] = ('eve.render.XMLRenderer',)
         r = self.test_client.get(self.known_resource_url,
                                  headers=[('Accept', 'application/json')])
         self.assertTrue('application/xml' in r.content_type)
@@ -87,7 +86,7 @@ class TestRenders(TestBase):
         self.assertTrue('application/xml' in r.content_type)
 
     def test_xml_disabled(self):
-        self.app.config['XML'] = False
+        self.app.config['RENDERERS'] = ('eve.render.JSONRenderer',)
         r = self.test_client.get(self.known_resource_url,
                                  headers=[('Accept', 'application/xml')])
         self.assertEqual(r.content_type, 'application/json')
