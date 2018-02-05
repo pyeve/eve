@@ -105,6 +105,7 @@ class Mongo(DataLayer):
         ['$options', '$search', '$language'] +
         ['$exists', '$type'] +
         ['$geoWithin', '$geoIntersects', '$near', '$nearSphere'] +
+        ['$geometry', '$maxDistance'] +
         ['$all', '$elemMatch', '$size'] +
         ['$bitsAllClear', '$bitsAllSet', '$bitsAnyClear', '$bitsAnySet']
     )
