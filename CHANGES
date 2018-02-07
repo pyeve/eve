@@ -10,6 +10,14 @@ Development
 Stable
 ------
 
+Version 0.7.7
+~~~~~~~~~~~~~
+
+Released on 7 February, 2018
+
+- Fix: geo queries now properly support ``$geometry`` and ``$maxDistance``
+  operators. Closes #1103.
+
 Version 0.7.6
 ~~~~~~~~~~~~~
 
