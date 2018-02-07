@@ -99,7 +99,7 @@ class Mongo(DataLayer):
         ['$exists', '$type'] +
         ['$geoWithin', '$geoIntersects', '$near', '$nearSphere'] +
         ['$geometry', '$maxDistance'] +
-        ['$all', '$elemMatch', '$size'] +
+        ['$all', '$elemMatch', '$size']
     )
 
     def init_app(self, app):
