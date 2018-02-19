@@ -1298,43 +1298,43 @@ defining the field validation rules. Allowed validation rules are:
 ``valueschema``                 Validation schema for all values of a ``dict``.
                                 The dict can have arbitrary keys, the values
                                 for all of which must validate with given
-                                schema. See `valueschema example <http://docs.python-cerberus.org/en/latest/usage.html#valueschema>`_.
+                                schema. See `valueschema <http://docs.python-cerberus.org/en/latest/validation-rules.html#valueschema>`_ in Cerberus docs.
 
 ``keyschema``                   This is the counterpart to ``valueschema`` that
                                 validates the keys of a dict.   Validation
                                 schema for all values of a ``dict``. See
-                                `keyschema example <http://docs.python-cerberus.org/en/latest/usage.html#keyschema>`_.
+                                `keyschema <http://docs.python-cerberus.org/en/latest/validation-rules.html#keyschema>`_ in Cerberus docs.
 
 
 ``regex``                       Validation will fail if field value does not
                                 match the provided regex rule. Only applies to
-                                string fields. See `email validation example <http://docs.python-cerberus.org/en/latest/usage.html#regex>`_
+                                string fields. See `regex <http://docs.python-cerberus.org/en/latest/validation-rules.html#regex>`_ in Cerberus docs.
 
 
 ``dependencies``                This rule allows a list of fields that must be
                                 present in order for the target field to be
-                                allowed. See `dependencies example <http://docs.python-cerberus.org/en/latest/usage.html#dependencies>`_
+                                allowed. See `dependencies <http://docs.python-cerberus.org/en/latest/validation-rules.html#dependencies>`_  in Cerberus docs.
 
 ``anyof``                       This rule allows you to list multiple sets of
                                 rules to validate against. The field will be
                                 considered valid if it validates against one
-                                set in the list. See `anyof example <http://docs.python-cerberus.org/en/latest/usage.html#anyof>`_
+                                set in the list. See `*of-rules <http://docs.python-cerberus.org/en/latest/validation-rules.html#of-rules>`_ in Cerberus docs.
 
 ``allof``                       Same as ``anyof``, except that all rule
-                                collections in the list must validate.
+                                collections in the list must validate. 
 
 ``noneof``                      Same as ``anyof``, except that it requires no
                                 rule collections in the list to validate.
 
 ``oneof``                       Same as ``anyof``, except that only one rule
-                                collections in the list can validate.
+                                collections in the list can validate. 
 
 ``coerce``                      Type coercion allows you to apply a callable to
                                 a value before any other validators run. The
                                 return value of the callable replaces the new
                                 value in the document. This can be used to
                                 convert values or sanitize data before it is
-                                validated. See `type coercion example <http://docs.python-cerberus.org/en/latest/usage.html#type-coercion>`_
+                                validated. See `value coercion <http://docs.python-cerberus.org/en/latest/normalization-rules.html#value-coercion>`_ in Cerberus docs.
 
 =============================== ==============================================
 
