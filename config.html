@@ -1319,8 +1319,8 @@ streams.</p>
 defining the field validation rules. Allowed validation rules are:</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="21%" />
-<col width="79%" />
+<col width="19%" />
+<col width="81%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">type</span></tt></td>
@@ -1494,29 +1494,29 @@ versioned history of each document when
 <td>Validation schema for all values of a <tt class="docutils literal"><span class="pre">dict</span></tt>.
 The dict can have arbitrary keys, the values
 for all of which must validate with given
-schema. See <a class="reference external" href="http://docs.python-cerberus.org/en/latest/usage.html#valueschema">valueschema example</a>.</td>
+schema. See <a class="reference external" href="http://docs.python-cerberus.org/en/latest/validation-rules.html#valueschema">valueschema</a> in Cerberus docs.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">keyschema</span></tt></td>
 <td>This is the counterpart to <tt class="docutils literal"><span class="pre">valueschema</span></tt> that
 validates the keys of a dict.   Validation
 schema for all values of a <tt class="docutils literal"><span class="pre">dict</span></tt>. See
-<a class="reference external" href="http://docs.python-cerberus.org/en/latest/usage.html#keyschema">keyschema example</a>.</td>
+<a class="reference external" href="http://docs.python-cerberus.org/en/latest/validation-rules.html#keyschema">keyschema</a> in Cerberus docs.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">regex</span></tt></td>
 <td>Validation will fail if field value does not
 match the provided regex rule. Only applies to
-string fields. See <a class="reference external" href="http://docs.python-cerberus.org/en/latest/usage.html#regex">email validation example</a></td>
+string fields. See <a class="reference external" href="http://docs.python-cerberus.org/en/latest/validation-rules.html#regex">regex</a> in Cerberus docs.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">dependencies</span></tt></td>
 <td>This rule allows a list of fields that must be
 present in order for the target field to be
-allowed. See <a class="reference external" href="http://docs.python-cerberus.org/en/latest/usage.html#dependencies">dependencies example</a></td>
+allowed. See <a class="reference external" href="http://docs.python-cerberus.org/en/latest/validation-rules.html#dependencies">dependencies</a>  in Cerberus docs.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">anyof</span></tt></td>
 <td>This rule allows you to list multiple sets of
 rules to validate against. The field will be
 considered valid if it validates against one
-set in the list. See <a class="reference external" href="http://docs.python-cerberus.org/en/latest/usage.html#anyof">anyof example</a></td>
+set in the list. See <a class="reference external" href="http://docs.python-cerberus.org/en/latest/validation-rules.html#of-rules">*of-rules</a> in Cerberus docs.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">allof</span></tt></td>
 <td>Same as <tt class="docutils literal"><span class="pre">anyof</span></tt>, except that all rule
@@ -1536,7 +1536,7 @@ a value before any other validators run. The
 return value of the callable replaces the new
 value in the document. This can be used to
 convert values or sanitize data before it is
-validated. See <a class="reference external" href="http://docs.python-cerberus.org/en/latest/usage.html#type-coercion">type coercion example</a></td>
+validated. See <a class="reference external" href="http://docs.python-cerberus.org/en/latest/normalization-rules.html#value-coercion">value coercion</a> in Cerberus docs.</td>
 </tr>
 </tbody>
 </table>
