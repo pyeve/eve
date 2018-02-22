@@ -1372,7 +1372,7 @@ the items as needed before they are returned to the client.
     >>> app.on_fetched_resource += before_returning_items
     >>> app.on_fetched_resource_contacts += before_returning_contacts
     >>> app.on_fetched_item += before_returning_item
-    >>> app.on_fetched_item_contact += before_returning_contact
+    >>> app.on_fetched_item_contacts += before_returning_contact
 
 It is important to note that fetch events will work with `Document
 Versioning`_ for specific document versions or accessing all document
