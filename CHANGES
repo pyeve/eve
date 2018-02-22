@@ -8,6 +8,7 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- Update: bump Flask requirement to <=0.13. Closes #1111.
 - Fix: broken documentation links to Cerberus validation rules.
 - New: Renderer classes. ``RENDERER`` allows to change enabled renderers.
   Defaults to ``['eve.render.JSONRenderer', 'eve.render.XMLRenderer']``. You
