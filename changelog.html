@@ -49,6 +49,7 @@
 <div class="section" id="version-0-8">
 <h3>Version 0.8<a class="headerlink" href="#version-0-8" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>Fix a changelog typo (kreynen).</li>
 <li>Update: bump Flask requirement to &lt;=0.13. Closes #1111.</li>
 <li>Fix: broken documentation links to Cerberus validation rules.</li>
 <li>New: Renderer classes. <tt class="docutils literal"><span class="pre">RENDERER</span></tt> allows to change enabled renderers.
@@ -57,7 +58,7 @@ can create your own renderer by subclassing <tt class="docutils literal"><span c
 renderer should set valid mime attr and have <tt class="docutils literal"><span class="pre">.render()</span></tt> method
 implemented. Please note that at least one renderer must always be enabled
 (Marcin Puhacz).</li>
-<li>Chane: <tt class="docutils literal"><span class="pre">JSON</span></tt> and <tt class="docutils literal"><span class="pre">XML</span></tt> settings are deprecated and will be removed in
+<li>Change: <tt class="docutils literal"><span class="pre">JSON</span></tt> and <tt class="docutils literal"><span class="pre">XML</span></tt> settings are deprecated and will be removed in
 a future update. Use <tt class="docutils literal"><span class="pre">RENDERERS</span></tt> instead (Marcin Puhacz).</li>
 <li>New: Refactor index creation. We now have a new
 <tt class="docutils literal"><span class="pre">eve.io.mongo.ensure_mongo_indexes()</span></tt> function which ensures that eventual
@@ -1579,7 +1580,7 @@ tags which also caused XML validation issues when processing responses
 <li>Version number in &#8216;Server&#8217; response headers.</li>
 <li>Added support for DELETE at resource endpoints. Expected behavior:
 will delete all items in the collection. Disabled by default.</li>
-<li><tt class="xref py py-class docutils literal"><span class="pre">eve.io.mongo.Validator</span></tt> now supports <a class="reference external" href="http://docs.python-cerberus.org/en/latest/api.html#cerberus.Validator" title="(in Cerberus v1.1)"><tt class="xref py py-class docutils literal"><span class="pre">Validator</span></tt></a>
+<li><tt class="xref py py-class docutils literal"><span class="pre">eve.io.mongo.Validator</span></tt> now supports <tt class="xref py py-class docutils literal"><span class="pre">Validator</span></tt>
 signature, allowing for further subclassing.</li>
 </ul>
 </div>
