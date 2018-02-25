@@ -8,6 +8,7 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- Fix documentation typos (Olof Johansson)
 - Fix a changelog typo (kreynen).
 - Update: bump Flask requirement to <=0.13. Closes #1111.
 - Fix: broken documentation links to Cerberus validation rules.
@@ -1039,7 +1040,7 @@ Released on 14 February, 2014.
 - [new] media files (images, pdf, etc.) can be uploaded as ``media`` document
   fields. When a document is requested, eventual media files will be returned
   as Base64 strings. Upload is done via ``POST``, ``PUT`` and ``PATCH`` using
-  the ``multipart/data-form`` content-type. For optmized performance, by
+  the ``multipart/form-data`` content-type. For optmized performance, by
   default files are stored in GridFS, however custom ``MediaStorage`` classes
   can be provided to support alternative storage systems. Clients and API
   maintainers can exploit the projections feature to include/exclude media
