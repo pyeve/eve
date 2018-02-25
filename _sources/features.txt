@@ -1578,7 +1578,7 @@ File Storage
 ------------
 Media files (images, pdf, etc.) can be uploaded as ``media`` document
 fields. Upload is done via ``POST``, ``PUT`` and
-``PATCH`` as usual, but using the ``multipart/data-form`` content-type.
+``PATCH`` as usual, but using the ``multipart/form-data`` content-type.
 
 Let us assume that the ``accounts`` endpoint has a schema like this:
 
@@ -1741,9 +1741,9 @@ response payloads by sending requests like this one:
 
 .. _multipart:
 
-Note on media files as ``multipart/data-form``
+Note on media files as ``multipart/form-data``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-If you are uploading media files as ``multipart/data-form`` all the
+If you are uploading media files as ``multipart/form-data`` all the
 additional fields except the file fields will be treated as ``strings``
 for all field validation purposes.  If you have already defined some of
 the resource fields to be of different type (boolean, number, list etc)

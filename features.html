@@ -1575,7 +1575,7 @@ default ObjectIds as unique document identifiers.</p>
 <h2>File Storage<a class="headerlink" href="#file-storage" title="Permalink to this headline">¶</a></h2>
 <p>Media files (images, pdf, etc.) can be uploaded as <tt class="docutils literal"><span class="pre">media</span></tt> document
 fields. Upload is done via <tt class="docutils literal"><span class="pre">POST</span></tt>, <tt class="docutils literal"><span class="pre">PUT</span></tt> and
-<tt class="docutils literal"><span class="pre">PATCH</span></tt> as usual, but using the <tt class="docutils literal"><span class="pre">multipart/data-form</span></tt> content-type.</p>
+<tt class="docutils literal"><span class="pre">PATCH</span></tt> as usual, but using the <tt class="docutils literal"><span class="pre">multipart/form-data</span></tt> content-type.</p>
 <p>Let us assume that the <tt class="docutils literal"><span class="pre">accounts</span></tt> endpoint has a schema like this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">accounts</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">},</span>
@@ -1709,9 +1709,9 @@ response payloads by sending requests like this one:</p>
 <p class="last">for details on the <tt class="docutils literal"><span class="pre">datasource</span></tt> setting.</p>
 </div>
 </div>
-<div class="section" id="note-on-media-files-as-multipart-data-form">
-<span id="multipart"></span><h3>Note on media files as <tt class="docutils literal"><span class="pre">multipart/data-form</span></tt><a class="headerlink" href="#note-on-media-files-as-multipart-data-form" title="Permalink to this headline">¶</a></h3>
-<p>If you are uploading media files as <tt class="docutils literal"><span class="pre">multipart/data-form</span></tt> all the
+<div class="section" id="note-on-media-files-as-multipart-form-data">
+<span id="multipart"></span><h3>Note on media files as <tt class="docutils literal"><span class="pre">multipart/form-data</span></tt><a class="headerlink" href="#note-on-media-files-as-multipart-form-data" title="Permalink to this headline">¶</a></h3>
+<p>If you are uploading media files as <tt class="docutils literal"><span class="pre">multipart/form-data</span></tt> all the
 additional fields except the file fields will be treated as <tt class="docutils literal"><span class="pre">strings</span></tt>
 for all field validation purposes.  If you have already defined some of
 the resource fields to be of different type (boolean, number, list etc)
@@ -2290,7 +2290,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li class="toctree-l3"><a class="reference internal" href="#serving-media-files-as-base64-strings">Serving media files as Base64 strings</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#serving-media-files-at-a-dedicated-endpoint">Serving media files at a dedicated endpoint</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#leveraging-projections-to-optimize-the-handling-of-media-files">Leveraging Projections to optimize the handling of media files</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#note-on-media-files-as-multipart-data-form">Note on media files as <tt class="docutils literal"><span class="pre">multipart/data-form</span></tt></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#note-on-media-files-as-multipart-form-data">Note on media files as <tt class="docutils literal"><span class="pre">multipart/form-data</span></tt></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#using-lists-of-media">Using lists of media</a></li>
 </ul>
 </li>

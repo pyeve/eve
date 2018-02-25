@@ -49,6 +49,7 @@
 <div class="section" id="version-0-8">
 <h3>Version 0.8<a class="headerlink" href="#version-0-8" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>Fix documentation typos (Olof Johansson)</li>
 <li>Fix a changelog typo (kreynen).</li>
 <li>Update: bump Flask requirement to &lt;=0.13. Closes #1111.</li>
 <li>Fix: broken documentation links to Cerberus validation rules.</li>
@@ -1098,7 +1099,7 @@ Deng).</li>
 <li>[new] media files (images, pdf, etc.) can be uploaded as <tt class="docutils literal"><span class="pre">media</span></tt> document
 fields. When a document is requested, eventual media files will be returned
 as Base64 strings. Upload is done via <tt class="docutils literal"><span class="pre">POST</span></tt>, <tt class="docutils literal"><span class="pre">PUT</span></tt> and <tt class="docutils literal"><span class="pre">PATCH</span></tt> using
-the <tt class="docutils literal"><span class="pre">multipart/data-form</span></tt> content-type. For optmized performance, by
+the <tt class="docutils literal"><span class="pre">multipart/form-data</span></tt> content-type. For optmized performance, by
 default files are stored in GridFS, however custom <tt class="docutils literal"><span class="pre">MediaStorage</span></tt> classes
 can be provided to support alternative storage systems. Clients and API
 maintainers can exploit the projections feature to include/exclude media
