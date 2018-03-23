@@ -1099,6 +1099,36 @@ class TestGet(TestBase):
         response, status = self.get(self.known_resource, where)
         self.assert200(status)
 
+        # test for nested resource field validating correctly
+        # (location is dict)
+        where = '?where={"location.address": "str 1"}'
+        response, status = self.get(self.known_resource, where)
+        self.assert200(status)
+
+        # test for nested resource field validating correctly
+        # (rows is list of dicts)
+        where = '?where={"rows.price": 10}'
+        response, status = self.get(self.known_resource, where)
+        self.assert200(status)
+
+        # test for nested resource field validating correctly
+        # (dict_list_fixed_len is a fixed-size list of dicts)
+        where = '?where={"dict_list_fixed_len.key2": 1}'
+        response, status = self.get(self.known_resource, where)
+        self.assert200(status)
+
+        # test for nested resource field not validating correctly
+        # (bad_base_key doesn't exist in the base resource schema)
+        where = '?where={"bad_base_key.sub": 1}'
+        response, status = self.get(self.known_resource, where)
+        self.assert400(status)
+
+        # test for nested resource field not validating correctly
+        # (bad_sub_key doesn't exist in the dict_list_fixed_len schema)
+        where = '?where={"dict_list_fixed_len.bad_sub_key": 1}'
+        response, status = self.get(self.known_resource, where)
+        self.assert400(status)
+
     def test_get_lookup_field_as_string(self):
         # Test that a resource where 'item_lookup_field' is set to a field
         # of string type and which value is castable to a ObjectId is still

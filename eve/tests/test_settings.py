@@ -100,6 +100,19 @@ contacts = {
             'type': 'list',
             'items': [{'type': 'objectid'}]
         },
+        'dict_list_fixed_len': {
+            'type': 'list',
+            'items': [
+                {
+                    'type': 'dict',
+                    'schema': {'key1': {'type': 'string'}}
+                },
+                {
+                    'type': 'dict',
+                    'schema': {'key2': {'type': 'integer'}}
+                }
+            ]
+        },
         'dependency_field1': {
             'type': 'string',
             'default': 'default'
