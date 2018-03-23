@@ -388,15 +388,20 @@ def validate_filters(where, resource):
         for key, value in filter.items():
             if '*' not in allowed:
                 def recursive_check_allowed(filter_key, allowed_filters):
-                    # Filter key can be a plain key (e.g. "foo") or a dotted key (e.g. "dict.sub_dict.bar").
-                    # Starting from a dotted key, this function recursively checks `allowed_filters` for the key
-                    # itself and for all its parent keys.
-                    # This means that, for instance, "dict.sub_dict.bar" is an allowed filter key if `allowed_filters`
-                    # contains any of "dict.sub_dict.bar", "dict.sub_dict" or "dict".
-                    # Instead "dict" is an allowed filter key IFF `allowed_filters` contains "dict".
+                    # Filter key can be a plain key (e.g. "foo") or a dotted
+                    # key (e.g. "dict.sub_dict.bar").
+                    # Starting from a dotted key, this function recursively
+                    # checks `allowed_filters` for the key itself and for all
+                    # its parent keys.
+                    # This means that, for instance, "dict.sub_dict.bar" is
+                    # an allowed filter key if `allowed_filters` contains any
+                    # of "dict.sub_dict.bar", "dict.sub_dict" or "dict".
+                    # Instead "dict" is an allowed filter key IFF
+                    # `allowed_filters` contains "dict".
                     if filter_key not in allowed_filters:
                         base_composed_key, _, _ = filter_key.rpartition('.')
-                        return base_composed_key and recursive_check_allowed(base_composed_key, allowed_filters)
+                        return base_composed_key and recursive_check_allowed(
+                            base_composed_key, allowed_filters)
 
                     return True
 
@@ -424,11 +429,13 @@ def validate_filters(where, resource):
 
                         if base_schema.get('type') == 'list':
                             if 'schema' in base_schema:
-                                # Try to get dict sub-schema for arbitrary sized list
+                                # Try to get dict sub-schema for arbitrary
+                                # sized list
                                 sub = dict_sub_schema(base_schema['schema'])
                                 return [sub] if sub is not None else []
                             elif 'items' in base_schema:
-                                # Try to get dict sub-schema(s) for fixed-size list
+                                # Try to get dict sub-schema(s) for
+                                # fixed-size list
                                 items = base_schema['items']
                                 sub_schemas = []
                                 for item in items:
@@ -445,9 +452,13 @@ def validate_filters(where, resource):
                         if key not in schema:
                             base_key, _, sub_keys = key.partition('.')
                             if sub_keys and base_key in schema:
-                                # key is the composition of base field and sub-fields
-                                for sub_schema in get_sub_schemas(schema[base_key]):
-                                    if recursive_validate_filter(sub_keys, value, sub_schema):
+                                # key is the composition of base field and
+                                # sub-fields
+                                sub_schemas = get_sub_schemas(schema[base_key])
+                                for sub_schema in sub_schemas:
+                                    if recursive_validate_filter(sub_keys,
+                                                                 value,
+                                                                 sub_schema):
                                         return True
 
                             return False

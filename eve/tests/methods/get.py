@@ -535,7 +535,8 @@ class TestGet(TestBase):
                                            '?where=%s' % where))
         self.assert200(r.status_code)
 
-        # `allowed_filters` contains "rows" --> filter key "rows.price" must be allowed
+        # `allowed_filters` contains "rows" --> filter key "rows.price"
+        # must be allowed
         self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
             ['rows']
         where = '{"rows.price": 10}'
@@ -543,14 +544,16 @@ class TestGet(TestBase):
                                            '?where=%s' % where))
         self.assert200(r.status_code)
 
-        # `allowed_filters` contains "rows.price" --> filter key "rows.price" must be allowed
+        # `allowed_filters` contains "rows.price" --> filter key "rows.price"
+        # must be allowed
         self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
             ['rows.price']
         r = self.test_client.get('%s%s' % (self.known_resource_url,
                                            '?where=%s' % where))
         self.assert200(r.status_code)
 
-        # `allowed_filters` contains "rows.price" --> filter key "rows" must NOT be allowed
+        # `allowed_filters` contains "rows.price" --> filter key "rows"
+        # must NOT be allowed
         where = '{"rows": {"sku": "value", "price": 10}}'
         r = self.test_client.get('%s%s' % (self.known_resource_url,
                                            '?where=%s' % where))
