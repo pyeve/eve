@@ -95,8 +95,8 @@ class Mongo(DataLayer):
         ['$gt', '$gte', '$in', '$lt', '$lte', '$ne', '$nin'] +
         ['$or', '$and', '$not', '$nor'] +
         ['$mod', '$regex', '$text', '$where'] +
-        ['$options', '$search', '$language'] +
-        ['$exists', '$type'] +
+        ['$options', '$search', '$language', '$caseSensitive'] +
+        ['$diacriticSensitive', '$exists', '$type'] +
         ['$geoWithin', '$geoIntersects', '$near', '$nearSphere'] +
         ['$all', '$elemMatch', '$size']
     )
