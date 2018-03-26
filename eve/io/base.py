@@ -392,7 +392,6 @@ class DataLayer(object):
         """
 
         datasource, filter_, projection_, sort_ = self.datasource(resource)
-
         if client_sort:
             sort = client_sort
         else:
@@ -439,7 +438,12 @@ class DataLayer(object):
                 # there's no standard projection so we assume we are in a
                 # allow_unknown = True
                 fields = client_projection
-
+        elif fields is not None:
+            # drop exclusion projection
+            fields = dict([(field, 1) for field, value in fields.items() if
+                           value])
+        # if fields == {}:
+        #     fields = None
         # If the current HTTP method is in `public_methods` or
         # `public_item_methods`, skip the `auth_field` check
 

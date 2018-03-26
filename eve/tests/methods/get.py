@@ -349,6 +349,112 @@ class TestGet(TestBase):
             self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
             self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
 
+    def test_get_server_include_projection_can_exclude(self):
+        """ Test that static projection only expose fields included
+        and support client projection on these fields.
+        """
+        # exclude `ref` by client side
+        projection = '{"ref": 0}'
+        response, status = self.get(self.different_resource,
+                                    '?projection=%s' %
+                                    projection)
+        self.assert200(status)
+
+        resource = response['_items']
+
+        # 'users' has a static inclusive projection with 'username' and 'ref'
+        # fields, so other document fields should be excluded.
+        # and client can further exclude 'ref' or 'username'.
+        for r in resource:
+            self.assertFalse('location' in r)
+            self.assertFalse('role' in r)
+            self.assertFalse('prog' in r)
+            self.assertTrue('username' in r)
+            self.assertFalse('ref' in r)
+            self.assertTrue(self.domain[self.known_resource]['id_field'] in r)
+            self.assertTrue(self.app.config['ETAG'] in r)
+            self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+            self.assertTrue(self.app.config['DATE_CREATED'] in r)
+            self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+            self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
+
+    def test_get_server_include_projection_block_sniff(self):
+        """ Test that static projection only expose fields included
+        and client projection on other fields will fail.
+        """
+        # shouldn't work when including `prog` (excluded) by client side
+        projection = '{"prog": 1}'
+        response, status = self.get(self.different_resource,
+                                    '?projection=%s' %
+                                    projection)
+        self.assert200(status)
+
+        resource = response['_items']
+        for r in resource:
+            self.assertFalse('location' in r)
+            self.assertFalse('role' in r)
+            # shouldn't work
+            self.assertFalse('prog' in r)
+            self.assertFalse('username' in r)
+            self.assertFalse('ref' in r)
+            self.assertTrue(self.domain[self.known_resource]['id_field'] in r)
+            self.assertTrue(self.app.config['ETAG'] in r)
+            self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+            self.assertTrue(self.app.config['DATE_CREATED'] in r)
+            self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+            self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
+
+    def test_get_server_exclude_projection_can_project_others(self):
+        """ Test that static projection expose fields other than excluded
+        and support client projection on exposed fields.
+        """
+        projection = '{"prog": 1, "location":1}'
+        response, status = self.get(self.different_resource_exclude,
+                                    '?projection=%s' %
+                                    projection)
+        self.assert200(status)
+
+        resource = response['_items']
+
+        # 'users' has a static inclusive projection with 'username' and 'ref'
+        # fields, so other document fields should be excluded.
+        # and client can further exclude 'ref' or 'username'.
+        for r in resource:
+            self.assertTrue('location' in r)
+            self.assertFalse('role' in r)
+            self.assertTrue('prog' in r)
+            self.assertFalse('born' in r)
+            self.assertTrue(self.domain[self.known_resource]['id_field'] in r)
+            self.assertTrue(self.app.config['ETAG'] in r)
+            self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+            self.assertTrue(self.app.config['DATE_CREATED'] in r)
+            self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+            self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
+
+    def test_get_server_exlcude_projection_can_sniff(self):
+        """ Test that static projection expose fields other than excluded
+        and client projection on excluded **will work**.
+        """
+        projection = '{"born": 1}'
+        response, status = self.get(self.different_resource_exclude,
+                                    '?projection=%s' %
+                                    projection)
+        self.assert200(status)
+
+        resource = response['_items']
+        for r in resource:
+            self.assertFalse('location' in r)
+            self.assertFalse('role' in r)
+            self.assertFalse('prog' in r)
+            # should work
+            self.assertTrue('born' in r)
+            self.assertTrue(self.domain[self.known_resource]['id_field'] in r)
+            self.assertTrue(self.app.config['ETAG'] in r)
+            self.assertTrue(self.app.config['LAST_UPDATED'] in r)
+            self.assertTrue(self.app.config['DATE_CREATED'] in r)
+            self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+            self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
+
     def test_get_custom_projection(self):
         self.app.config['QUERY_PROJECTION'] = 'view'
         projection = '{"prog": 1}'

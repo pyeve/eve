@@ -169,6 +169,16 @@ users['resource_methods'] = ['DELETE', 'POST', 'GET']
 users['item_title'] = 'user'
 users['additional_lookup']['field'] = 'username'
 
+contacts_hide_born = copy.deepcopy(contacts)
+contacts_hide_born['url'] = 'contacts/hide_born'
+contacts_hide_born['datasource']['source'] = 'contacts'
+contacts_hide_born['datasource']['projection'] = {'born': 0}
+
+contacts_hide_media = copy.deepcopy(contacts)
+contacts_hide_media['url'] = 'contacts/hide_media'
+contacts_hide_media['datasource']['source'] = 'contacts'
+contacts_hide_media['datasource']['projection'] = {'media': 0, 'born': 0}
+
 invoices = {
     'schema': {
         'inv_number': {'type': 'string'},
@@ -326,6 +336,8 @@ DOMAIN = {
     'contacts': contacts,
     'users': users,
     'users_overseas': users_overseas,
+    'contacts_hide_born': contacts_hide_born,
+    'contacts_hide_media': contacts_hide_media,
     'invoices': invoices,
     'versioned_invoices': versioned_invoices,
     'required_invoices': required_invoices,

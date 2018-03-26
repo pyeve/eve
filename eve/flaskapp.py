@@ -666,7 +666,6 @@ class Eve(Flask, Events):
         ds.setdefault('default_sort', None)
 
         self._set_resource_projection(ds, schema, settings)
-
         aggregation = ds.setdefault('aggregation', None)
         if aggregation:
             aggregation.setdefault('options', {})
@@ -688,18 +687,27 @@ class Eve(Flask, Events):
 
         projection = ds.get('projection', {})
 
-        # check if any exclusion projection is defined
-        exclusion = any(((k, v) for k, v in projection.items() if v == 0)) \
-            if projection else None
-
-        # If no exclusion projection is defined, enhance the projection
-        # with automatic fields. Using both inclusion and exclusion will
-        # be rejected by Mongo
-        if not exclusion and len(schema) and \
-           settings['allow_unknown'] is False:
+        # If exclusion projections are defined, they are use for
+        # concealing fields (rather than actual mongo exlusions).
+        # If inclusion projections are defined, exclusion projections are
+        # just ignored.
+        # Enhance the projection with automatic fields.
+        if len(schema) and settings['allow_unknown'] is False:
+            exclusion_projection = dict([(k, v) for k, v in projection.items()
+                                         if v == 0])
+            inclusion_projection = dict([(k, v) for k, v in projection.items()
+                                         if v == 1])
+            if exclusion_projection or inclusion_projection:
+                projection = inclusion_projection
+                ds['projection'] = projection
+            # use all fields not excluded
             if not projection:
-                projection.update(dict((field, 1) for (field) in schema))
-
+                projection.update(
+                    dict((field, 1) for (field) in schema
+                         if field not in exclusion_projection))
+            # add back exclusion projection, and deal with them together with
+            # client projection later in 'io/base.py'
+            projection.update(exclusion_projection)
             # enable retrieval of actual schema fields only. Eventual db
             # fields not included in the schema won't be returned.
             # despite projection, automatic fields are always included.
@@ -717,7 +725,7 @@ class Eve(Flask, Events):
             projection = None
         ds.setdefault('projection', projection)
 
-        if settings['soft_delete'] is True and not exclusion and \
+        if settings['soft_delete'] is True and \
                 ds['projection'] is not None:
             ds['projection'][self.config['DELETED']] = 1
 
