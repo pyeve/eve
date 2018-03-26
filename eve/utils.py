@@ -388,16 +388,6 @@ def validate_filters(where, resource):
         for key, value in filter.items():
             if '*' not in allowed:
                 def recursive_check_allowed(filter_key, allowed_filters):
-                    # Filter key can be a plain key (e.g. "foo") or a dotted
-                    # key (e.g. "dict.sub_dict.bar").
-                    # Starting from a dotted key, this function recursively
-                    # checks `allowed_filters` for the key itself and for all
-                    # its parent keys.
-                    # This means that, for instance, "dict.sub_dict.bar" is
-                    # an allowed filter key if `allowed_filters` contains any
-                    # of "dict.sub_dict.bar", "dict.sub_dict" or "dict".
-                    # Instead "dict" is an allowed filter key IFF
-                    # `allowed_filters` contains "dict".
                     if filter_key not in allowed_filters:
                         base_composed_key, _, _ = filter_key.rpartition('.')
                         return base_composed_key and recursive_check_allowed(
