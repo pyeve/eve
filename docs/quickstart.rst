@@ -3,9 +3,10 @@
 Quickstart
 ==========
 
-Eager to get started?  This page gives a good introduction to Eve.  It
-assumes that:
+Eager to get started?  This page gives a first introduction to Eve.  
 
+Prerequisites
+-------------
 - You already have Eve installed. If you do not, head over to the
   :ref:`install` section.
 - MongoDB is installed_. 
@@ -95,7 +96,9 @@ Try requesting ``people`` now:
 
 This time we also got an ``_items`` list. The ``_links`` are relative to the
 resource being accessed, so you get a link to the parent resource (the home
-page) and to the resource itself. 
+page) and to the resource itself. If you got a timeout error from pymongo, make
+sure the prerequistes are met. Chances are that the ``mongod`` server process
+is not runnig.
 
 By default Eve APIs are read-only: 
 
