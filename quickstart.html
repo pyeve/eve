@@ -44,14 +44,16 @@
             
   <div class="section" id="quickstart">
 <span id="id1"></span><h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
-<p>Eager to get started?  This page gives a good introduction to Eve.  It
-assumes that:</p>
+<p>Eager to get started?  This page gives a first introduction to Eve.</p>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>You already have Eve installed. If you do not, head over to the
 <a class="reference internal" href="install.html#install"><em>Installation</em></a> section.</li>
 <li>MongoDB is <a class="reference external" href="http://docs.mongodb.org/manual/installation/">installed</a>.</li>
 <li>An instance of MongoDB is <a class="reference external" href="http://docs.mongodb.org/manual/tutorial/manage-mongodb-processes/">running</a>.</li>
 </ul>
+</div>
 <div class="section" id="a-minimal-application">
 <h2>A Minimal Application<a class="headerlink" href="#a-minimal-application" title="Permalink to this headline">¶</a></h2>
 <p>A minimal Eve application looks something like this:</p>
@@ -122,7 +124,9 @@ there&#8217;s only one child resource available, that being <tt class="docutils 
 </div>
 <p>This time we also got an <tt class="docutils literal"><span class="pre">_items</span></tt> list. The <tt class="docutils literal"><span class="pre">_links</span></tt> are relative to the
 resource being accessed, so you get a link to the parent resource (the home
-page) and to the resource itself.</p>
+page) and to the resource itself. If you got a timeout error from pymongo, make
+sure the prerequistes are met. Chances are that the <tt class="docutils literal"><span class="pre">mongod</span></tt> server process
+is not runnig.</p>
 <p>By default Eve APIs are read-only:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -X DELETE http://127.0.0.1:5000/people
 <span class="go">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 3.2 Final//EN&quot;&gt;</span>
@@ -371,6 +375,7 @@ and/or reset the database).</p>
 <li class="toctree-l1"><a class="reference internal" href="rest_api_for_humans.html">REST API for Humans</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#a-minimal-application">A Minimal Application</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#database-interlude">Database Interlude</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#a-more-complex-application">A More Complex Application</a></li>
