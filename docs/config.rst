@@ -114,6 +114,14 @@ uppercase.
                                     ``/v1/<endpoint>``). Defaults to ``''``.
 
 ``ALLOWED_FILTERS``                 List of fields on which filtering is allowed.
+                                    Entries in this list work in a hierarchical
+                                    way. This means that, for instance, filtering
+                                    on ``'dict.sub_dict.foo'`` is allowed if
+                                    ``ALLOWED_FILTERS`` contains any of
+                                    ``'dict.sub_dict.foo``, ``'dict.sub_dict'``
+                                    or ``'dict'``. Instead filtering on
+                                    ``'dict'`` is allowed if ``ALLOWED_FILTERS``
+                                    contains ``'dict'``.
                                     Can be set to ``[]`` (no filters allowed)
                                     or ``['*']`` (filters allowed on every
                                     field). Unless your API is comprised of
@@ -798,6 +806,14 @@ always lowercase.
                                 :ref:`subresources`.
 
 ``allowed_filters``             List of fields on which filtering is allowed.
+                                Entries in this list work in a hierarchical
+                                way. This means that, for instance, filtering
+                                on ``'dict.sub_dict.foo'`` is allowed if
+                                ``allowed_filters`` contains any of
+                                ``'dict.sub_dict.foo``, ``'dict.sub_dict'``
+                                or ``'dict'``. Instead filtering on
+                                ``'dict'`` is allowed if ``allowed_filters``
+                                contains ``'dict'``.
                                 Can be set to ``[]`` (no filters allowed), or
                                 ``['*']`` (fields allowed on every field).
                                 Defaults to ``['*']``.

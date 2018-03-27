@@ -386,8 +386,17 @@ def validate_filters(where, resource):
 
     def validate_filter(filter):
         for key, value in filter.items():
-            if '*' not in allowed and key not in allowed:
-                return "filter on '%s' not allowed" % key
+            if '*' not in allowed:
+                def recursive_check_allowed(filter_key, allowed_filters):
+                    if filter_key not in allowed_filters:
+                        base_composed_key, _, _ = filter_key.rpartition('.')
+                        return base_composed_key and recursive_check_allowed(
+                            base_composed_key, allowed_filters)
+
+                    return True
+
+                if not recursive_check_allowed(key, allowed):
+                    return "filter on '%s' not allowed" % key
 
             if key in ('$or', '$and', '$nor'):
                 if not isinstance(value, list):
@@ -401,16 +410,58 @@ def validate_filters(where, resource):
                         return r
             else:
                 if config.VALIDATE_FILTERS:
-                    res_schema = config.DOMAIN[resource]['schema']
-                    if key not in res_schema:
-                        return "filter on '%s' is invalid"
-                    else:
-                        field_schema = res_schema.get(key)
-                        v = Validator({key: field_schema})
-                        if not v.validate({key: value}):
-                            return "filter on '%s' is invalid"
-                        else:
+                    def get_sub_schemas(base_schema):
+                        def dict_sub_schema(base):
+                            if base.get('type') == 'dict':
+                                return base.get('schema')
+
                             return None
+
+                        if base_schema.get('type') == 'list':
+                            if 'schema' in base_schema:
+                                # Try to get dict sub-schema for arbitrary
+                                # sized list
+                                sub = dict_sub_schema(base_schema['schema'])
+                                return [sub] if sub is not None else []
+                            elif 'items' in base_schema:
+                                # Try to get dict sub-schema(s) for
+                                # fixed-size list
+                                items = base_schema['items']
+                                sub_schemas = []
+                                for item in items:
+                                    sub = dict_sub_schema(item)
+                                    if sub is not None:
+                                        sub_schemas.append(sub)
+
+                                return sub_schemas
+                        else:
+                            sub = dict_sub_schema(base_schema)
+                            return [sub] if sub is not None else []
+
+                    def recursive_validate_filter(key, value, schema):
+                        if key not in schema:
+                            base_key, _, sub_keys = key.partition('.')
+                            if sub_keys and base_key in schema:
+                                # key is the composition of base field and
+                                # sub-fields
+                                sub_schemas = get_sub_schemas(schema[base_key])
+                                for sub_schema in sub_schemas:
+                                    if recursive_validate_filter(sub_keys,
+                                                                 value,
+                                                                 sub_schema):
+                                        return True
+
+                            return False
+                        else:
+                            field_schema = schema.get(key)
+                            v = Validator({key: field_schema})
+                            return v.validate({key: value})
+
+                    res_schema = config.DOMAIN[resource]['schema']
+                    if not recursive_validate_filter(key, value, res_schema):
+                        return "filter on '%s' is invalid"
+
+                    return None
 
     if '*' in allowed and not config.VALIDATE_FILTERS:
         return None

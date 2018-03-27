@@ -535,6 +535,31 @@ class TestGet(TestBase):
                                            '?where=%s' % where))
         self.assert200(r.status_code)
 
+        # `allowed_filters` contains "rows" --> filter key "rows.price"
+        # must be allowed
+        self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
+            ['rows']
+        where = '{"rows.price": 10}'
+        r = self.test_client.get('%s%s' % (self.known_resource_url,
+                                           '?where=%s' % where))
+        self.assert200(r.status_code)
+
+        # `allowed_filters` contains "rows.price" --> filter key "rows.price"
+        # must be allowed
+        self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = \
+            ['rows.price']
+        r = self.test_client.get('%s%s' % (self.known_resource_url,
+                                           '?where=%s' % where))
+        self.assert200(r.status_code)
+
+        # `allowed_filters` contains "rows.price" --> filter key "rows"
+        # must NOT be allowed
+        where = '{"rows": {"sku": "value", "price": 10}}'
+        r = self.test_client.get('%s%s' % (self.known_resource_url,
+                                           '?where=%s' % where))
+        self.assert400(r.status_code)
+        self.assertTrue(b"'rows' not allowed" in r.get_data())
+
     def test_get_with_post_override(self):
         # POST request with GET override turns into a GET
         headers = [('X-HTTP-Method-Override', 'GET')]
@@ -1098,6 +1123,36 @@ class TestGet(TestBase):
         where = '?where={"location":{"address":"str 1","city":"SomeCity"}}'
         response, status = self.get(self.known_resource, where)
         self.assert200(status)
+
+        # test for nested resource field validating correctly
+        # (location is dict)
+        where = '?where={"location.address": "str 1"}'
+        response, status = self.get(self.known_resource, where)
+        self.assert200(status)
+
+        # test for nested resource field validating correctly
+        # (rows is list of dicts)
+        where = '?where={"rows.price": 10}'
+        response, status = self.get(self.known_resource, where)
+        self.assert200(status)
+
+        # test for nested resource field validating correctly
+        # (dict_list_fixed_len is a fixed-size list of dicts)
+        where = '?where={"dict_list_fixed_len.key2": 1}'
+        response, status = self.get(self.known_resource, where)
+        self.assert200(status)
+
+        # test for nested resource field not validating correctly
+        # (bad_base_key doesn't exist in the base resource schema)
+        where = '?where={"bad_base_key.sub": 1}'
+        response, status = self.get(self.known_resource, where)
+        self.assert400(status)
+
+        # test for nested resource field not validating correctly
+        # (bad_sub_key doesn't exist in the dict_list_fixed_len schema)
+        where = '?where={"dict_list_fixed_len.bad_sub_key": 1}'
+        response, status = self.get(self.known_resource, where)
+        self.assert400(status)
 
     def test_get_lookup_field_as_string(self):
         # Test that a resource where 'item_lookup_field' is set to a field
