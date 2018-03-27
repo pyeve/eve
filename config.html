@@ -153,6 +153,14 @@ to <tt class="docutils literal"><span class="pre">''</span></tt>.</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ALLOWED_FILTERS</span></tt></td>
 <td><p class="first">List of fields on which filtering is allowed.
+Entries in this list work in a hierarchical
+way. This means that, for instance, filtering
+on <tt class="docutils literal"><span class="pre">'dict.sub_dict.foo'</span></tt> is allowed if
+<tt class="docutils literal"><span class="pre">ALLOWED_FILTERS</span></tt> contains any of
+<tt class="docutils literal"><span class="pre">'dict.sub_dict.foo</span></tt>, <tt class="docutils literal"><span class="pre">'dict.sub_dict'</span></tt>
+or <tt class="docutils literal"><span class="pre">'dict'</span></tt>. Instead filtering on
+<tt class="docutils literal"><span class="pre">'dict'</span></tt> is allowed if <tt class="docutils literal"><span class="pre">ALLOWED_FILTERS</span></tt>
+contains <tt class="docutils literal"><span class="pre">'dict'</span></tt>.
 Can be set to <tt class="docutils literal"><span class="pre">[]</span></tt> (no filters allowed)
 or <tt class="docutils literal"><span class="pre">['*']</span></tt> (filters allowed on every
 field). Unless your API is comprised of
@@ -754,7 +762,7 @@ have to activate this setting. In that case
 field validation will continue working
 correctly. Read more about how the fields
 should be formatted at
-<a class="reference internal" href="features.html#multipart"><em>Note on media files as multipart/data-form</em></a>. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
+<a class="reference internal" href="features.html#multipart"><em>Note on media files as multipart/form-data</em></a>. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">AUTO_COLLAPSE_MULTI_KEYS</span></tt></td>
 <td><p class="first">If set to <tt class="docutils literal"><span class="pre">True</span></tt>, multiple values sent
@@ -943,6 +951,14 @@ subresource-like endpoints. See
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">allowed_filters</span></tt></td>
 <td><p class="first">List of fields on which filtering is allowed.
+Entries in this list work in a hierarchical
+way. This means that, for instance, filtering
+on <tt class="docutils literal"><span class="pre">'dict.sub_dict.foo'</span></tt> is allowed if
+<tt class="docutils literal"><span class="pre">allowed_filters</span></tt> contains any of
+<tt class="docutils literal"><span class="pre">'dict.sub_dict.foo</span></tt>, <tt class="docutils literal"><span class="pre">'dict.sub_dict'</span></tt>
+or <tt class="docutils literal"><span class="pre">'dict'</span></tt>. Instead filtering on
+<tt class="docutils literal"><span class="pre">'dict'</span></tt> is allowed if <tt class="docutils literal"><span class="pre">allowed_filters</span></tt>
+contains <tt class="docutils literal"><span class="pre">'dict'</span></tt>.
 Can be set to <tt class="docutils literal"><span class="pre">[]</span></tt> (no filters allowed), or
 <tt class="docutils literal"><span class="pre">['*']</span></tt> (fields allowed on every field).
 Defaults to <tt class="docutils literal"><span class="pre">['*']</span></tt>.</p>
