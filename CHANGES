@@ -8,6 +8,8 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- New: Add support for mongo's ``$caseSensitive`` and ``$diactricSensitive``
+  query operators (Artem Kolesnikov).
 - Fix: ``VALIDATE_FILTERS`` and ``ALLOWED_FILTERS`` do not work with
   sub-document fields. Closes #1123 (Luca Moretto).
 - Fix documentation typos (Olof Johansson)
