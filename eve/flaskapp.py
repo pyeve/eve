@@ -684,7 +684,7 @@ class Eve(Flask, Events):
 
         .. versionadded:: 0.6.2
         """
-
+        # get existing or empty projection setting
         projection = ds.get('projection', {})
 
         # If exclusion projections are defined, they are use for
@@ -693,21 +693,15 @@ class Eve(Flask, Events):
         # just ignored.
         # Enhance the projection with automatic fields.
         if len(schema) and settings['allow_unknown'] is False:
-            exclusion_projection = dict([(k, v) for k, v in projection.items()
-                                         if v == 0])
             inclusion_projection = dict([(k, v) for k, v in projection.items()
                                          if v == 1])
-            if exclusion_projection or inclusion_projection:
-                projection = inclusion_projection
-                ds['projection'] = projection
-            # use all fields not excluded
-            if not projection:
+            exclusion_projection = dict([(k, v) for k, v in projection.items()
+                                         if v == 0])
+            # if inclusion project is empty, add all fields not excluded
+            if not inclusion_projection:
                 projection.update(
                     dict((field, 1) for (field) in schema
                          if field not in exclusion_projection))
-            # add back exclusion projection, and deal with them together with
-            # client projection later in 'io/base.py'
-            projection.update(exclusion_projection)
             # enable retrieval of actual schema fields only. Eventual db
             # fields not included in the schema won't be returned.
             # despite projection, automatic fields are always included.
@@ -720,14 +714,14 @@ class Eve(Flask, Events):
                 projection[
                     settings['id_field'] +
                     self.config['VERSION_ID_SUFFIX']] = 1
-        else:
-            # all fields are returned.
-            projection = None
+
         ds.setdefault('projection', projection)
 
-        if settings['soft_delete'] is True and \
-                ds['projection'] is not None:
-            ds['projection'][self.config['DELETED']] = 1
+        if settings['soft_delete'] is True and projection:
+            projection[self.config['DELETED']] = 1
+
+        # set projection and projection is always a dictionary
+        ds['projection'] = projection
 
         # list of all media fields for the resource
         if isinstance(schema, dict):

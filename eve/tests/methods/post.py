@@ -416,7 +416,7 @@ class TestPost(TestBase):
         # don't have to re-initialize the whole app.)
         settings = self.app.config['DOMAIN'][self.known_resource]
         settings['allow_unknown'] = True
-        settings['datasource']['projection'] = None
+        settings['datasource']['projection'] = {}
 
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
