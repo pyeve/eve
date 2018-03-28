@@ -423,7 +423,7 @@ class DataLayer(object):
                 # projection for the resource (avoid sniffing of private
                 # fields)
                 keep_fields = auto_fields(resource)
-                if 0 not in client_projection.values():
+                if 1 in client_projection.values():
                     # inclusive projection - all values are 0 unless spec. or
                     # auto
                     fields = dict([(field, field in keep_fields) for field in
@@ -432,18 +432,15 @@ class DataLayer(object):
                     field_base = field.split('.')[0]
                     if field_base not in keep_fields and field_base in fields:
                         fields[field] = value
-                fields = dict([(field, 1) for field, value in fields.items() if
-                               value])
             else:
                 # there's no standard projection so we assume we are in a
                 # allow_unknown = True
                 fields = client_projection
-        elif fields is not None:
-            # drop exclusion projection
-            fields = dict([(field, 1) for field, value in fields.items() if
-                           value])
-        # if fields == {}:
-        #     fields = None
+        # always drop exclusion projection, thus avoid mixed projection not
+        # supported by db driver
+        fields = dict([(field, 1) for field, value in fields.items() if
+                       value])
+
         # If the current HTTP method is in `public_methods` or
         # `public_item_methods`, skip the `auth_field` check
 
