@@ -24,6 +24,7 @@ except ImportError:
     # Python 2.6
     install_requires.append('backport_collections')
     install_requires.append('importlib==1.0.4')
+    install_requires.append('testfixtures<6.0.0')
 
 
 setup(
