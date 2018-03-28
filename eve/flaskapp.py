@@ -666,7 +666,6 @@ class Eve(Flask, Events):
         ds.setdefault('default_sort', None)
 
         self._set_resource_projection(ds, schema, settings)
-
         aggregation = ds.setdefault('aggregation', None)
         if aggregation:
             aggregation.setdefault('options', {})
@@ -685,21 +684,24 @@ class Eve(Flask, Events):
 
         .. versionadded:: 0.6.2
         """
-
+        # get existing or empty projection setting
         projection = ds.get('projection', {})
 
-        # check if any exclusion projection is defined
-        exclusion = any(((k, v) for k, v in projection.items() if v == 0)) \
-            if projection else None
-
-        # If no exclusion projection is defined, enhance the projection
-        # with automatic fields. Using both inclusion and exclusion will
-        # be rejected by Mongo
-        if not exclusion and len(schema) and \
-           settings['allow_unknown'] is False:
-            if not projection:
-                projection.update(dict((field, 1) for (field) in schema))
-
+        # If exclusion projections are defined, they are use for
+        # concealing fields (rather than actual mongo exlusions).
+        # If inclusion projections are defined, exclusion projections are
+        # just ignored.
+        # Enhance the projection with automatic fields.
+        if len(schema) and settings['allow_unknown'] is False:
+            inclusion_projection = dict([(k, v) for k, v in projection.items()
+                                         if v == 1])
+            exclusion_projection = dict([(k, v) for k, v in projection.items()
+                                         if v == 0])
+            # if inclusion project is empty, add all fields not excluded
+            if not inclusion_projection:
+                projection.update(
+                    dict((field, 1) for (field) in schema
+                         if field not in exclusion_projection))
             # enable retrieval of actual schema fields only. Eventual db
             # fields not included in the schema won't be returned.
             # despite projection, automatic fields are always included.
@@ -712,14 +714,14 @@ class Eve(Flask, Events):
                 projection[
                     settings['id_field'] +
                     self.config['VERSION_ID_SUFFIX']] = 1
-        else:
-            # all fields are returned.
-            projection = None
+
         ds.setdefault('projection', projection)
 
-        if settings['soft_delete'] is True and not exclusion and \
-                ds['projection'] is not None:
-            ds['projection'][self.config['DELETED']] = 1
+        if settings['soft_delete'] is True and projection:
+            projection[self.config['DELETED']] = 1
+
+        # set projection and projection is always a dictionary
+        ds['projection'] = projection
 
         # list of all media fields for the resource
         if isinstance(schema, dict):

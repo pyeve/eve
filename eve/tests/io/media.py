@@ -275,6 +275,50 @@ class TestGridFSMediaStorage(TestBase):
                                                                    _id)))
         self.assert404(s)
 
+    def test_get_media_can_leverage_projection(self):
+        """ Test that static projection expose fields other than media
+        and client projection on media will work.
+        """
+        # post a document with *hiding media*
+        r, s = self._post_hide_media()
+
+        _id = r[self.id_field]
+
+        projection = '{"media": 1}'
+        response, status = self.parse_response(self.test_client.get(
+            '%s/%s?projection=%s' %
+            (self.resource_exclude_media_url, _id, projection))
+        )
+        self.assert200(status)
+
+        self.assertFalse('title' in response)
+        self.assertFalse('ref' in response)
+        # client-side projection should work
+        self.assertTrue('media' in response)
+        self.assertTrue(self.domain[self.known_resource]['id_field']
+                        in response)
+        self.assertTrue(self.app.config['ETAG'] in response)
+        self.assertTrue(self.app.config['LAST_UPDATED'] in response)
+        self.assertTrue(self.app.config['DATE_CREATED'] in response)
+        self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+        self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
+
+        response, status = self.parse_response(self.test_client.get(
+            '%s/%s' % (self.resource_exclude_media_url, _id)))
+        self.assert200(status)
+
+        self.assertTrue('title' in response)
+        self.assertTrue('ref' in response)
+        # not shown without projection
+        self.assertFalse('media' in response)
+        self.assertTrue(self.domain[self.known_resource]['id_field']
+                        in response)
+        self.assertTrue(self.app.config['ETAG'] in response)
+        self.assertTrue(self.app.config['LAST_UPDATED'] in response)
+        self.assertTrue(self.app.config['DATE_CREATED'] in response)
+        self.assertTrue(r[self.app.config['LAST_UPDATED']] != self.epoch)
+        self.assertTrue(r[self.app.config['DATE_CREATED']] != self.epoch)
+
     def test_gridfs_media_storage_delete_projection(self):
         """ test that #284 is fixed: If you have a media field, and set
         datasource projection to 0 for that field, the media will not be
@@ -396,3 +440,10 @@ class TestGridFSMediaStorage(TestBase):
                 self.test_value}
         return self.parse_response(self.test_client.post(
             self.url, data=data, headers=self.headers))
+
+    def _post_hide_media(self):
+        # send a file and a required, ordinary field with no issues
+        data = {'media': (BytesIO(self.clean), 'test.txt'), self.test_field:
+                self.test_value}
+        return self.parse_response(self.test_client.post(
+            self.resource_exclude_media_url, data=data, headers=self.headers))

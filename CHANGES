@@ -8,6 +8,8 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- Fix: Cannot define default projection and request specific field. Closes
+  #1036 (DHuan).
 - Dev: pin testfixtures to v5.x as latest releases break on Python 2.6.
   Addresses #1128.
 - New: Add support for mongo's ``$caseSensitive`` and ``$diactricSensitive``
