@@ -1688,6 +1688,12 @@ the same <cite>people</cite> collection on the database.</p>
 <p>By default API responses to GET requests will include all fields defined by the
 corresponding resource <a class="reference internal" href="#schema">schema</a>. The <tt class="docutils literal"><span class="pre">projection</span></tt> setting of the <cite>datasource</cite>
 resource keyword allows you to redefine the fieldset.</p>
+<p>When you want to hide some <em>secret fields</em> from client, you should use
+inclusive projection setting and include all fields should be exposed. While,
+when you want to limit default responsesto certain fields but still allow them
+to be accessible through client-side projections, you should use exclusive
+projection setting and exclude fields should be omitted.</p>
+<p>The following is an example for inclusive projection setting:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s">&#39;projection&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
@@ -1696,8 +1702,16 @@ resource keyword allows you to redefine the fieldset.</p>
 </pre></div>
 </div>
 <p>The above setting will expose only the <cite>username</cite> field to GET requests, no
-matter the <a class="reference internal" href="#schema">schema</a> defined for the resource.</p>
-<p>Likewise, you can exclude fields from API responses:</p>
+matter the <a class="reference internal" href="#schema">schema</a> defined for the resource. And other fields <strong>will not</strong> be
+exposed even by client-side projection. The following API call will not return
+<cite>lastname</cite> or <cite>born</cite>.</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people?projection<span class="o">={</span><span class="s2">&quot;lastname&quot;</span>: 1, <span class="s2">&quot;born&quot;</span>: 1<span class="o">}</span>
+<span class="go">HTTP/1.1 200 OK</span>
+</pre></div>
+</div>
+<p>You can also exclude fields from API responses. But this time, the excluded
+fields <strong>will be</strong> exposed to client-side projection. The following is an
+example for exclusive projection setting:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s">&#39;projection&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
@@ -1705,7 +1719,16 @@ matter the <a class="reference internal" href="#schema">schema</a> defined for t
     <span class="p">}</span>
 </pre></div>
 </div>
-<p>The above will include all document fields but <cite>username</cite>.</p>
+<p>The above will include all document fields but <cite>username</cite>. However, the
+following API call will return <cite>username</cite> this time. Thus, you can exploit this
+behaviour to serve media fields or other expensive fields.</p>
+<p>In most cases, none or inclusive projection setting is more preferred. With
+inclusive projection, secret fields are taken care from server side, and default
+fields returned can be defined by short-cut functions from client-side.</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people?projection<span class="o">={</span><span class="s2">&quot;username&quot;</span>: 1<span class="o">}</span>
+<span class="go">HTTP/1.1 200 OK</span>
+</pre></div>
+</div>
 <p>Please note that POST and PATCH methods will still allow the whole schema to be
 manipulated. This feature can come in handy when, for example, you want to
 protect insertion and modification behind an <a class="reference internal" href="authentication.html#auth"><em>Authentication and Authorization</em></a> scheme while leaving

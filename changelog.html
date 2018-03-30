@@ -49,6 +49,11 @@
 <div class="section" id="version-0-8">
 <h3>Version 0.8<a class="headerlink" href="#version-0-8" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>Fix: OPLOG skipped even if <tt class="docutils literal"><span class="pre">OPLOG</span> <span class="pre">=</span> <span class="pre">True</span></tt>. Closes #1074 (Hung Le).</li>
+<li>Fix: Cannot define default projection and request specific field. Closes
+#1036 (DHuan).</li>
+<li>Dev: pin testfixtures to v5.x as latest releases break on Python 2.6.
+Addresses #1128.</li>
 <li>New: Add support for mongo&#8217;s <tt class="docutils literal"><span class="pre">$caseSensitive</span></tt> and <tt class="docutils literal"><span class="pre">$diactricSensitive</span></tt>
 query operators (Artem Kolesnikov).</li>
 <li>Fix: <tt class="docutils literal"><span class="pre">VALIDATE_FILTERS</span></tt> and <tt class="docutils literal"><span class="pre">ALLOWED_FILTERS</span></tt> do not work with

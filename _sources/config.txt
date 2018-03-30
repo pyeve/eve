@@ -489,11 +489,11 @@ uppercase.
 ``JSON_SORT_KEYS``                  ``True`` to enable JSON key sorting, ``False``
                                     otherwise. Defaults to ``False``.
 
-``JSON_REQUEST_CONTENT_TYPES``      Supported JSON content types. Useful when 
+``JSON_REQUEST_CONTENT_TYPES``      Supported JSON content types. Useful when
                                     you need support for vendor-specific json
                                     types. Please note: responses will still
                                     carry the standard ``application/json``
-                                    type. Defaults to ``['application/json']``. 
+                                    type. Defaults to ``['application/json']``.
 
 ``VALIDATION_ERROR_STATUS``         The HTTP status code to use for validation errors.
                                     Defaults to ``422``.
@@ -1337,13 +1337,13 @@ defining the field validation rules. Allowed validation rules are:
                                 set in the list. See `*of-rules <http://docs.python-cerberus.org/en/latest/validation-rules.html#of-rules>`_ in Cerberus docs.
 
 ``allof``                       Same as ``anyof``, except that all rule
-                                collections in the list must validate. 
+                                collections in the list must validate.
 
 ``noneof``                      Same as ``anyof``, except that it requires no
                                 rule collections in the list to validate.
 
 ``oneof``                       Same as ``anyof``, except that only one rule
-                                collections in the list can validate. 
+                                collections in the list can validate.
 
 ``coerce``                      Type coercion allows you to apply a callable to
                                 a value before any other validators run. The
@@ -1493,6 +1493,14 @@ By default API responses to GET requests will include all fields defined by the
 corresponding resource schema_. The ``projection`` setting of the `datasource`
 resource keyword allows you to redefine the fieldset.
 
+When you want to hide some *secret fields* from client, you should use
+inclusive projection setting and include all fields should be exposed. While,
+when you want to limit default responsesto certain fields but still allow them
+to be accessible through client-side projections, you should use exclusive
+projection setting and exclude fields should be omitted.
+
+The following is an example for inclusive projection setting:
+
 ::
 
     people = {
@@ -1502,9 +1510,18 @@ resource keyword allows you to redefine the fieldset.
         }
 
 The above setting will expose only the `username` field to GET requests, no
-matter the schema_ defined for the resource.
+matter the schema_ defined for the resource. And other fields **will not** be
+exposed even by client-side projection. The following API call will not return
+`lastname` or `born`.
 
-Likewise, you can exclude fields from API responses:
+.. code-block:: console
+
+    $ curl -i http://eve-demo.herokuapp.com/people?projection={"lastname": 1, "born": 1}
+    HTTP/1.1 200 OK
+
+You can also exclude fields from API responses. But this time, the excluded
+fields **will be** exposed to client-side projection. The following is an
+example for exclusive projection setting:
 
 ::
 
@@ -1514,7 +1531,19 @@ Likewise, you can exclude fields from API responses:
             }
         }
 
-The above will include all document fields but `username`.
+The above will include all document fields but `username`. However, the
+following API call will return `username` this time. Thus, you can exploit this
+behaviour to serve media fields or other expensive fields.
+
+In most cases, none or inclusive projection setting is more preferred. With
+inclusive projection, secret fields are taken care from server side, and default
+fields returned can be defined by short-cut functions from client-side.
+
+.. code-block:: console
+
+    $ curl -i http://eve-demo.herokuapp.com/people?projection={"username": 1}
+    HTTP/1.1 200 OK
+
 
 Please note that POST and PATCH methods will still allow the whole schema to be
 manipulated. This feature can come in handy when, for example, you want to
