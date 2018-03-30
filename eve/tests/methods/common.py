@@ -656,7 +656,7 @@ class TestOpLogEndpointEnabled(TestOpLogBase):
         r = self.test_client.post(
             self.different_resource_url,
             data=json.dumps({'username': 'test', 'ref':
-                             '1234567890123456789012345' }),
+                             '1234567890123456789012345'}),
             headers=self.headers, environ_base={'REMOTE_ADDR': '127.0.0.1'})
 
         r, status = self.oplog_get()
