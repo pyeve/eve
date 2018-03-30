@@ -1234,7 +1234,7 @@ def oplog_push(resource, document, op, id=None):
         'r' = resource endpoint,
         'o' = operation performed,
         'i' = unique id of the document involved,
-        'pi' = client IP,
+        'ip' = client IP,
         'c' = changes
 
     config.LAST_UPDATED, config.LAST_CREATED and AUTH_FIELD are not being
@@ -1258,9 +1258,10 @@ def oplog_push(resource, document, op, id=None):
 
     .. versionadded:: 0.5
     """
+
     if not config.OPLOG \
             or op not in config.OPLOG_METHODS\
-            or resource in config.URLS[resource]:
+            or resource not in config.URLS:
         return
 
     resource_def = config.DOMAIN[resource]
