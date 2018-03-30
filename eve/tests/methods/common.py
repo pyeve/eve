@@ -653,10 +653,12 @@ class TestOpLogEndpointEnabled(TestOpLogBase):
         self.assertTrue('customvalue' in oplog_entry['extra']['customfield'])
 
     def test_post_oplog(self):
-        r = self.test_client.post(self.known_resource_url,
-                                  data=json.dumps(self.data),
-                                  headers=self.headers,
-                                  environ_base={'REMOTE_ADDR': '127.0.0.1'})
+        r = self.test_client.post(
+            self.different_resource_url,
+            data=json.dumps({'username': 'test', 'ref':
+                             '1234567890123456789012345' }),
+            headers=self.headers, environ_base={'REMOTE_ADDR': '127.0.0.1'})
+
         r, status = self.oplog_get()
         self.assert200(status)
         self.assertEqual(len(r['_items']), 1)
