@@ -34,7 +34,9 @@ except:
     from backport_collections import Counter
 
 
-def get_document(resource, concurrency_check, original=None, **lookup):
+def get_document(resource, concurrency_check, original=None,
+                 check_auth_value=True, force_auth_field_projection=False,
+                 **lookup):
     """ Retrieves and return a single document. Since this function is used by
     the editing methods (PUT, PATCH, DELETE), we make sure that the client
     request references the current representation of the document before
@@ -45,6 +47,14 @@ def get_document(resource, concurrency_check, original=None, **lookup):
     :param resource: the name of the resource to which the document belongs to.
     :param concurrency_check: boolean check for concurrency control
     :param original: in case the document was already retrieved before
+    :param check_auth_value: a boolean flag indicating if the find operation
+                             should consider user-restricted resource
+                             access. Defaults to ``True``.
+    :param force_auth_field_projection: a boolean flag indicating if the
+                                        find operation should always include
+                                        the user-restricted resource access
+                                        field (if configured). Defaults to
+                                        ``False``.
     :param **lookup: document lookup query
 
     .. versionchanged:: 0.6
@@ -70,7 +80,9 @@ def get_document(resource, concurrency_check, original=None, **lookup):
     if original:
         document = original
     else:
-        document = app.data.find_one(resource, req, **lookup)
+        document = app.data.find_one(resource, req, check_auth_value,
+                                     force_auth_field_projection,
+                                     **lookup)
 
     if document:
         e_if_m = config.ENFORCE_IF_MATCH
