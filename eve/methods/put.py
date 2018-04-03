@@ -14,7 +14,7 @@ from datetime import datetime
 from flask import current_app as app, abort
 from werkzeug import exceptions
 
-from eve.auth import requires_auth
+from eve.auth import auth_field_and_value, requires_auth
 from eve.methods.common import get_document, parse, payload as payload_, \
     ratelimit, pre_event, store_media_files, resolve_user_restricted_access, \
     resolve_embedded_fields, build_response_document, marshal_write_response, \
@@ -113,7 +113,13 @@ def put_internal(resource, payload=None, concurrency_check=False,
     if payload is None:
         payload = payload_()
 
-    original = get_document(resource, concurrency_check, **lookup)
+    # Retrieve the original document without checking user-restricted access,
+    # but returning the document owner in the projection. This allows us to
+    # prevent PUT if the document exists, but is owned by a different user
+    # than the currently authenticated one.
+    original = get_document(resource, concurrency_check,
+                            check_auth_value=False,
+                            force_auth_field_projection=True, **lookup)
     if not original:
         if config.UPSERT_ON_PUT:
             id = lookup[resource_def['id_field']]
@@ -125,6 +131,12 @@ def put_internal(resource, payload=None, concurrency_check=False,
             return post_internal(resource, payl=payload)
         else:
             abort(404)
+
+    # If the document exists, but is owned by someone else, return
+    # 403 Forbidden
+    auth_field, request_auth_value = auth_field_and_value(resource)
+    if auth_field and original.get(auth_field) != request_auth_value:
+        abort(403)
 
     last_modified = None
     etag = None

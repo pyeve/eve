@@ -643,8 +643,28 @@ class TestUserRestrictedAccess(TestBase):
                                  headers=headers,
                                  content_type='application/json'))
         self.assert200(status)
+        etag = '"%s"' % response['_etag']
 
         # document still accessible with same auth
+        data, status = self.parse_response(
+            self.test_client.get(url, headers=self.valid_auth))
+        self.assert200(status)
+        self.assertEqual(data['ref'], new_ref)
+
+        # put on same item with different auth fails
+        original_auth_val = self.resource['authentication'].request_auth_value
+        self.resource['authentication'].request_auth_value = 'alt'
+        alt_auth = ('Authorization', 'Basic YWx0OnNlY3JldA==')
+        alt_changes = {"ref": "1111111111111111111111111"}
+        headers = [('If-Match', etag), alt_auth]
+        response, status = self.parse_response(
+            self.test_client.put(url, data=json.dumps(alt_changes),
+                                 headers=headers,
+                                 content_type='application/json'))
+        self.assert403(status)
+
+        # document still accessible with original auth
+        self.resource['authentication'].request_auth_value = original_auth_val
         data, status = self.parse_response(
             self.test_client.get(url, headers=self.valid_auth))
         self.assert200(status)
@@ -680,8 +700,28 @@ class TestUserRestrictedAccess(TestBase):
                                        headers=headers,
                                        content_type='application/json'))
         self.assert200(status)
+        etag = '"%s"' % response['_etag']
 
         # document still accessible with same auth
+        data, status = self.parse_response(
+            self.app.test_client().get(url, headers=self.valid_auth))
+        self.assert200(status)
+        self.assertEqual(data['ref'], new_ref)
+
+        # put on same item with different auth fails
+        original_auth_val = resource_def['authentication'].request_auth_value
+        resource_def['authentication'].request_auth_value = 'alt'
+        alt_auth = ('Authorization', 'Basic YWx0OnNlY3JldA==')
+        alt_changes = {"ref": "1111111111111111111111111"}
+        headers = [('If-Match', etag), alt_auth]
+        response, status = self.parse_response(
+            self.app.test_client().put(url, data=json.dumps(alt_changes),
+                                       headers=headers,
+                                       content_type='application/json'))
+        self.assert403(status)
+
+        # document still accessible with original auth
+        resource_def['authentication'].request_auth_value = original_auth_val
         data, status = self.parse_response(
             self.app.test_client().get(url, headers=self.valid_auth))
         self.assert200(status)

@@ -277,7 +277,8 @@ class Mongo(DataLayer):
 
         return self.pymongo(resource).db[datasource].find(**args)
 
-    def find_one(self, resource, req, **lookup):
+    def find_one(self, resource, req, check_auth_value=True,
+                 force_auth_field_projection=False, **lookup):
         """ Retrieves a single document.
 
         :param resource: resource name.
@@ -312,7 +313,9 @@ class Mongo(DataLayer):
         datasource, filter_, projection, _ = self._datasource_ex(
             resource,
             lookup,
-            client_projection)
+            client_projection,
+            check_auth_value=check_auth_value,
+            force_auth_field_projection=force_auth_field_projection)
 
         if (config.DOMAIN[resource]['soft_delete']) and \
                 (not req or not req.show_deleted) and \

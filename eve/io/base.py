@@ -151,7 +151,8 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
-    def find_one(self, resource, req, **lookup):
+    def find_one(self, resource, req, check_auth_value=True,
+                 force_auth_field_projection=False, **lookup):
         """ Retrieves a single document/record. Consumed when a request hits an
         item endpoint (`/people/id/`).
 
@@ -164,6 +165,14 @@ class DataLayer(object):
                     etc). As we are going to only look for one document here,
                     the only req attribute that you want to process here is
                     ``req.projection``.
+        :param check_auth_value: a boolean flag indicating if the find
+                                 operation should consider user-restricted
+                                 resource access. Defaults to ``True``.
+        :param force_auth_field_projection: a boolean flag indicating if the
+                                            find operation should always
+                                            include the user-restricted
+                                            resource access field (if
+                                            configured). Defaults to ``False``.
 
         :param **lookup: the lookup fields. This will most likely be a record
                          id or, if alternate lookup is supported by the API,
@@ -343,7 +352,8 @@ class DataLayer(object):
         return source, filter_, projection, sort,
 
     def _datasource_ex(self, resource, query=None, client_projection=None,
-                       client_sort=None):
+                       client_sort=None, check_auth_value=True,
+                       force_auth_field_projection=False):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to.
 
@@ -446,35 +456,34 @@ class DataLayer(object):
 
         # Only inject the auth_field in the query when not creating new
         # documents.
-        if request and request.method not in ('POST', 'PUT'):
+        if request and request.method != 'POST' and (
+            check_auth_value or force_auth_field_projection
+        ):
             auth_field, request_auth_value = auth_field_and_value(resource)
-            if auth_field and request_auth_value:
-                if query:
-                    # If the auth_field *replaces* a field in the query,
-                    # and the values are /different/, deny the request
-                    # This prevents the auth_field condition from
-                    # overwriting the query (issue #77)
-                    auth_field_in_query = \
-                        self.app.data.query_contains_field(query, auth_field)
-                    if auth_field_in_query and \
+            if auth_field:
+                if request_auth_value and check_auth_value:
+                    if query:
+                        # If the auth_field *replaces* a field in the query,
+                        # and the values are /different/, deny the request
+                        # This prevents the auth_field condition from
+                        # overwriting the query (issue #77)
+                        auth_field_in_query = \
+                            self.app.data.query_contains_field(query,
+                                                               auth_field)
+                        if auth_field_in_query and \
                             self.app.data.get_value_from_query(
                                 query, auth_field) != request_auth_value:
-                        abort(401, description='Incompatible User-Restricted '
-                              'Resource request. '
-                              'Request was for "%s"="%s" but `auth_field` '
-                              'requires "%s"="%s".' % (
-                                  auth_field,
-                                  self.app.data.get_value_from_query(
-                                      query, auth_field),
-                                  auth_field,
-                                  request_auth_value)
-                              )
+                            desc = 'Incompatible User-Restricted Resource ' \
+                                   'request.'
+                            abort(401, description=desc)
+                        else:
+                            query = self.app.data.combine_queries(
+                                query, {auth_field: request_auth_value}
+                            )
                     else:
-                        query = self.app.data.combine_queries(
-                            query, {auth_field: request_auth_value}
-                        )
-                else:
-                    query = {auth_field: request_auth_value}
+                        query = {auth_field: request_auth_value}
+                if force_auth_field_projection:
+                    fields[auth_field] = 1
         return datasource, query, fields, sort
 
     def _client_projection(self, req):

@@ -8,6 +8,9 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- Fix: PUT behavior with User Restricted Resource Access. Ensure that, under
+  every circumstance, users are unable to overwrite items owned by other users
+  (Luca Moretto).
 - Fix: OPLOG skipped even if ``OPLOG = True``. Closes #1074 (Hung Le).
 - Fix: Cannot define default projection and request specific field. Closes
   #1036 (DHuan).
