@@ -49,6 +49,9 @@
 <div class="section" id="version-0-8">
 <h3>Version 0.8<a class="headerlink" href="#version-0-8" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>Fix: PUT behavior with User Restricted Resource Access. Ensure that, under
+every circumstance, users are unable to overwrite items owned by other users
+(Luca Moretto).</li>
 <li>Fix: OPLOG skipped even if <tt class="docutils literal"><span class="pre">OPLOG</span> <span class="pre">=</span> <span class="pre">True</span></tt>. Closes #1074 (Hung Le).</li>
 <li>Fix: Cannot define default projection and request specific field. Closes
 #1036 (DHuan).</li>
