@@ -41,6 +41,7 @@ setup(
     test_suite="eve.tests",
     install_requires=install_requires,
     tests_require=['redis', 'testfixtures'],
+    python_requires='>=2.6',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',

@@ -8,6 +8,8 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- Python 2.6 is deprecated. This is the last release supporting Python 2.6, and
+  you should upgrade to Python 3 as soon as possible. Closes #1129.
 - Fix: PUT behavior with User Restricted Resource Access. Ensure that, under
   every circumstance, users are unable to overwrite items owned by other users
   (Luca Moretto).
