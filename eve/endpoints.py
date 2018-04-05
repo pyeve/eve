@@ -11,6 +11,8 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
+import re
+
 from bson import tz_util
 from flask import abort, request, current_app as app, Response
 
@@ -179,22 +181,57 @@ def media_endpoint(_id):
     if file_ is None:
         return abort(404)
 
-    if_modified_since = weak_date(request.headers.get('If-Modified-Since'))
-    if if_modified_since is not None:
-        if if_modified_since.tzinfo is None:
-            if_modified_since = if_modified_since.replace(
-                tzinfo=tz_util.utc)
-
-        if if_modified_since > file_.upload_date:
-            return Response(status=304)
-
     headers = {
         'Last-Modified': date_to_rfc1123(file_.upload_date),
         'Content-Length': file_.length,
+        'Accept-Ranges': 'bytes',
     }
 
-    response = Response(file_, headers=headers, mimetype=file_.content_type,
-                        direct_passthrough=True)
+    range_header = request.headers.get('Range')
+    if range_header:
+        status = 206
+
+        size = file_.length
+        try:
+            m = re.search('(\d+)-(\d*)', range_header)
+            begin, end = m.groups()
+            begin = int(begin)
+            end = int(end)
+        except:
+            begin, end = 0, None
+
+        length = size - begin
+        if end is not None:
+            length = end - begin + 1
+
+        file_.seek(begin)
+
+        data = file_.read(length)
+        headers['Content-Range'] = 'bytes {0}-{1}/{2}'.format(
+            begin,
+            begin + length - 1,
+            size
+        )
+    else:
+        if_modified_since = weak_date(request.headers.get('If-Modified-Since'))
+        if if_modified_since:
+            if not if_modified_since.tzinfo:
+                if_modified_since = if_modified_since.replace(
+                    tzinfo=tz_util.utc)
+
+            if if_modified_since > file_.upload_date:
+                return Response(status=304)
+
+        data = file_
+        status = 200
+
+    response = Response(
+        data,
+        status=status,
+        headers=headers,
+        mimetype=file_.content_type,
+        direct_passthrough=True
+    )
 
     return response
 

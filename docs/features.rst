@@ -1690,6 +1690,31 @@ set your media endpoint like so:
 Setting ``MEDIA_BASE_URL`` is optional. If no value is set, then
 the API base address will be used when building the URL for ``MEDIA_ENDPOINT``.
 
+.. _partial_request:
+
+Partial media downloads
+~~~~~~~~~~~~~~~~~~~~~~~
+When files are served at a dedicated endpoint, clients can request partial
+downloads. This allows them to provide features such as optimized
+pause/resume (with no need to restart the download). To perform a partial
+download, make sure the ``Range`` header is added the the client request.
+
+    .. code-block:: console
+
+        $ curl http://localhost/media/yourfile -i -H "Range: bytes=0-10"
+        HTTP/1.1 206 PARTIAL CONTENT
+        Date: Sun, 20 Aug 2017 14:26:42 GMT
+        Content-Type: audio/mp4
+        Content-Length: 11
+        Connection: keep-alive
+        Content-Range: bytes 0-10/23671
+        Last-Modified: Sat, 19 Aug 2017 03:25:36 GMT
+        Accept-Ranges: bytes
+
+        abcdefghilm
+
+In the snippet above, we see curl requesting the first chunk of a file.
+
 .. _projection_filestorage:
 
 Leveraging Projections to optimize the handling of media files
