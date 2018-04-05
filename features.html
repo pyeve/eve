@@ -1668,6 +1668,29 @@ set your media endpoint like so:</p>
 <p>Setting <tt class="docutils literal"><span class="pre">MEDIA_BASE_URL</span></tt> is optional. If no value is set, then
 the API base address will be used when building the URL for <tt class="docutils literal"><span class="pre">MEDIA_ENDPOINT</span></tt>.</p>
 </div>
+<div class="section" id="partial-media-downloads">
+<span id="partial-request"></span><h3>Partial media downloads<a class="headerlink" href="#partial-media-downloads" title="Permalink to this headline">¶</a></h3>
+<p>When files are served at a dedicated endpoint, clients can request partial
+downloads. This allows them to provide features such as optimized
+pause/resume (with no need to restart the download). To perform a partial
+download, make sure the <tt class="docutils literal"><span class="pre">Range</span></tt> header is added the the client request.</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl http://localhost/media/yourfile -i -H <span class="s2">&quot;Range: bytes=0-10&quot;</span>
+<span class="go">HTTP/1.1 206 PARTIAL CONTENT</span>
+<span class="go">Date: Sun, 20 Aug 2017 14:26:42 GMT</span>
+<span class="go">Content-Type: audio/mp4</span>
+<span class="go">Content-Length: 11</span>
+<span class="go">Connection: keep-alive</span>
+<span class="go">Content-Range: bytes 0-10/23671</span>
+<span class="go">Last-Modified: Sat, 19 Aug 2017 03:25:36 GMT</span>
+<span class="go">Accept-Ranges: bytes</span>
+
+<span class="go">abcdefghilm</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>In the snippet above, we see curl requesting the first chunk of a file.</p>
+</div>
 <div class="section" id="leveraging-projections-to-optimize-the-handling-of-media-files">
 <span id="projection-filestorage"></span><h3>Leveraging Projections to optimize the handling of media files<a class="headerlink" href="#leveraging-projections-to-optimize-the-handling-of-media-files" title="Permalink to this headline">¶</a></h3>
 <p>Clients and API maintainers can exploit the <a class="reference internal" href="#projections"><em>Projections</em></a> feature to
@@ -2289,6 +2312,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li class="toctree-l2"><a class="reference internal" href="#file-storage">File Storage</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#serving-media-files-as-base64-strings">Serving media files as Base64 strings</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#serving-media-files-at-a-dedicated-endpoint">Serving media files at a dedicated endpoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#partial-media-downloads">Partial media downloads</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#leveraging-projections-to-optimize-the-handling-of-media-files">Leveraging Projections to optimize the handling of media files</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#note-on-media-files-as-multipart-form-data">Note on media files as <tt class="docutils literal"><span class="pre">multipart/form-data</span></tt></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#using-lists-of-media">Using lists of media</a></li>
