@@ -177,38 +177,20 @@ def media_endpoint(_id):
 
     .. versionadded:: 0.6
     """
-    range_header = request.headers.get('Range', None)
-    if not range_header:
-        file_ = app.media.get(_id)
-        if file_ is None:
-            return abort(404)
+    file_ = app.media.get(_id)
+    if file_ is None:
+        return abort(404)
 
-        if_modified_since = weak_date(request.headers.get('If-Modified-Since'))
-        if if_modified_since is not None:
-            if if_modified_since.tzinfo is None:
-                if_modified_since = if_modified_since.replace(
-                    tzinfo=tz_util.utc)
+    headers = {
+        'Last-Modified': date_to_rfc1123(file_.upload_date),
+        'Content-Length': file_.length,
+        'Accept-Ranges': 'bytes',
+    }
 
-            if if_modified_since > file_.upload_date:
-                return Response(status=304)
+    range_header = request.headers.get('Range')
+    if range_header:
+        status = 206
 
-        headers = {
-            'Last-Modified': date_to_rfc1123(file_.upload_date),
-            'Content-Length': file_.length,
-            'Accept-Ranges': 'bytes',
-        }
-
-        response = Response(
-            file_,
-            status=200,
-            headers=headers,
-            mimetype=file_.content_type,
-            direct_passthrough=True
-        )
-
-        return response
-    else:
-        file_ = app.media.get(_id)
         size = file_.length
         try:
             m = re.search('(\d+)-(\d*)', range_header)
@@ -222,29 +204,36 @@ def media_endpoint(_id):
         if end is not None:
             length = end - begin + 1
 
-        data = None
         file_.seek(begin)
+
         data = file_.read(length)
+        headers['Content-Range'] = 'bytes {0}-{1}/{2}'.format(
+            begin,
+            begin + length - 1,
+            size
+        )
+    else:
+        if_modified_since = weak_date(request.headers.get('If-Modified-Since'))
+        if if_modified_since:
+            if not if_modified_since.tzinfo:
+                if_modified_since = if_modified_since.replace(
+                    tzinfo=tz_util.utc)
 
-        headers = {
-            'Last-Modified': date_to_rfc1123(file_.upload_date),
-            'Content-Length': file_.length,
-            'Accept-Ranges': 'bytes',
-            'Content-Range': 'bytes {0}-{1}/{2}'.format(
-                begin,
-                begin + length - 1,
-                size
-            ),
-        }
+            if if_modified_since > file_.upload_date:
+                return Response(status=304)
 
-        response = Response(
-            data,
-            206,
-            headers=headers,
-            mimetype=file_.content_type,
-            direct_passthrough=True)
+        data = file_
+        status = 200
 
-        return response
+    response = Response(
+        data,
+        status=status,
+        headers=headers,
+        mimetype=file_.content_type,
+        direct_passthrough=True
+    )
+
+    return response
 
 
 @requires_auth('resource')
