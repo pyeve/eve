@@ -378,6 +378,28 @@ class TestGridFSMediaStorage(TestBase):
         response = self.test_client.get(url)
         self.assertEqual(self.clean, response.get_data())
 
+    def test_gridfs_partial_media(self):
+        self.app._init_media_endpoint()
+        self.app.config['RETURN_MEDIA_AS_BASE64_STRING'] = False
+        self.app.config['RETURN_MEDIA_AS_URL'] = True
+
+        r, s = self._post()
+        _id = r[self.id_field]
+        where = 'where={"%s": "%s"}' % (self.id_field, _id)
+        r, s = self.parse_response(
+            self.test_client.get('%s?%s' % (self.url, where)))
+        url = r['_items'][0]['media']
+
+        headers = {'Range': 'bytes=0-5'}
+        response = self.test_client.get(url, headers=headers)
+        self.assertEqual(self.clean[:6], response.get_data())
+        headers = {'Range': 'bytes=5-10'}
+        response = self.test_client.get(url, headers=headers)
+        self.assertEqual(self.clean[5:11], response.get_data())
+        headers = {'Range': 'bytes=0-999'}
+        response = self.test_client.get(url, headers=headers)
+        self.assertEqual(self.clean, response.get_data())
+
     def test_gridfs_media_storage_base_url(self):
         self.app._init_media_endpoint()
         self.app.config['RETURN_MEDIA_AS_BASE64_STRING'] = False
