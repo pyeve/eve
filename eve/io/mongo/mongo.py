@@ -105,7 +105,7 @@ class Mongo(DataLayer):
         ['$options', '$search', '$language', '$caseSensitive'] +
         ['$diacriticSensitive', '$exists', '$type'] +
         ['$geoWithin', '$geoIntersects', '$near', '$nearSphere'] +
-        ['$geometry', '$maxDistance'] +
+        ['$geometry', '$maxDistance', '$box'] +
         ['$all', '$elemMatch', '$size'] +
         ['$bitsAllClear', '$bitsAllSet', '$bitsAnyClear', '$bitsAnySet']
     )

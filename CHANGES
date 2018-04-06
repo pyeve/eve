@@ -8,6 +8,7 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- New: Add suport for mongo's ``$box`` geo query operator. Closes #1122.
 - New: support for partial media requests. Clients can request partial file
   downloads by adding a ``Range`` header to their media request (Marsch Huynh).
 - Python 2.6 is deprecated. This is the last release supporting Python 2.6, and
@@ -46,7 +47,8 @@ Version 0.8
 - New: when the media endpoint is enabled, the default authentication class
   will be used to secure  it. Closes #1083.
 - New: Add support for MongoDB bitwise query operators ``$bitsAllClear``,
-  ``bitsAllSet``, ``bitsAnyClear``, ``bitsAnySet``. Closes 1053 (Qiang Zhang).
+  ``$bitsAllSet``, ``$bitsAnyClear``, ``$bitsAnySet``. Closes 1053 (Qiang
+  Zhang).
 - Fix: Aggregation query parameter does not replace keys in the lists. Closes
   #1025 (Serge Kir).
 - Fix: Removed OrderedDict dependency; use ``OrderedDict`` from
