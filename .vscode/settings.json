@@ -1,8 +1,0 @@
-{
-    "python.pythonPath": "/Users/nicola/.virtualenvs/eve/bin/python3",
-    "python.linting.flake8Enabled": true,
-    "python.linting.flake8Args": [
-        "--ignore=E731,E722,F821",
-    ],
-    "python.linting.pylintEnabled": false,
-}

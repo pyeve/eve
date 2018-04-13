@@ -65,3 +65,4 @@ _build
 .idea
 
 .cache
+.vscode
