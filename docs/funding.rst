@@ -31,6 +31,13 @@ You can support Eve development by pledging on Patreon or donating on PayPal.
 - `Become a Backer <https://www.patreon.com/nicolaiarocci>`_ (recurring pledge)
 - `Donate via PayPal <https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7U7G7EWU7EPNW>`_ (one time)
 
+Eve Course at TalkPython Training
+---------------------------------
+There is a 5 hours-long Eve course available for you at the fine TalkPython
+Training website. The teacher is Nicola, Eve author and maintainer. Taking this
+course will directly support the project.
+
+- `Take the Eve Course at TalkPython Training <https://training.talkpython.fm/courses/explore_eve/eve-building-restful-mongodb-backed-apis-course>`_
 
 Custom Sponsorship and Consulting
 ---------------------------------
@@ -39,3 +46,4 @@ open to conversations regarding custom sponsorship / consulting arrangements.
 Just `get in touch`_ with me.
 
 .. _`get in touch`: mailto:nicola@nicolaiarocci.com
+.. _`Eve course`: https://training.talkpython.fm/courses/explore_eve/eve-building-restful-mongodb-backed-apis-course

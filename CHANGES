@@ -8,6 +8,8 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- Docs: Add link to the Eve course. It was authored by the project author, and
+  it is hosted by TalkPython Training.
 - New: Add suport for mongo's ``$box`` geo query operator. Closes #1122.
 - New: support for partial media requests. Clients can request partial file
   downloads by adding a ``Range`` header to their media request (Marsch Huynh).
