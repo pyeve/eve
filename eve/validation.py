@@ -79,7 +79,7 @@ class Validator(cerberus.Validator):
                                                              field)
 
     def _validate_dependencies(self, dependencies, field, value):
-        """ {'type': ['dict', 'hashable', 'hashables']} """
+        """ {'type': ['dict', 'hashable', 'list']} """
         persisted = self._filter_persisted_fields_not_in_document(dependencies)
         if persisted:
             dcopy = copy.copy(self.document)
