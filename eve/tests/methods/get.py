@@ -1316,6 +1316,9 @@ class TestGet(TestBase):
             ]
         )
 
+        self.devent = DummyEvent(lambda: True)
+        self.app.before_aggregation += self.devent
+
         self.app.register_resource(
             'aggregate_test', {
                 'datasource': {
@@ -1333,6 +1336,7 @@ class TestGet(TestBase):
 
         response, status = self.get('aggregate_test?aggregate=ciao')
         self.assert400(status)
+        self.assertTrue(self.devent.called is None)
 
         def assertOutput(doc, count, id):
             self.assertEqual(doc['count'], count)
@@ -1345,6 +1349,7 @@ class TestGet(TestBase):
         assertOutput(docs[0], 3, 'cat')
         assertOutput(docs[1], 2, 'dog')
         assertOutput(docs[2], 1, 'mouse')
+        self.assertEqual('aggregate_test', self.devent.called[0])
 
         response, status = self.get('aggregate_test?aggregate={"$field1":2}')
         self.assert200(status)
@@ -1353,6 +1358,7 @@ class TestGet(TestBase):
         assertOutput(docs[0], 6, 'cat')
         assertOutput(docs[1], 4, 'dog')
         assertOutput(docs[2], 2, 'mouse')
+        self.assertEqual('aggregate_test', self.devent.called[0])
 
         # this will return 0 for all documents 'count' fields as no $field1
         # will be gien with the query (actually, no query will be there at all)
@@ -1363,10 +1369,12 @@ class TestGet(TestBase):
         self.assertEqual(docs[0]['count'], 0)
         self.assertEqual(docs[1]['count'], 0)
         self.assertEqual(docs[2]['count'], 0)
+        self.assertEqual('aggregate_test', self.devent.called[0])
 
         # malformed field name is ignored
         response, status = self.get('aggregate_test?aggregate={"field1":1}')
         self.assert200(status)
+        self.assertEqual('aggregate_test', self.devent.called[0])
 
         # unknown field is ignored
         response, status = self.get('aggregate_test?aggregate={"$unknown":1}')
@@ -2044,6 +2052,76 @@ class TestEvents(TestBase):
         id_field = self.domain[self.known_resource]['id_field']
         self.assertEqual(self.item_id, str(self.devent.called[0][id_field]))
         self.assertEqual(1, len(self.devent.called))
+
+    def test_get_before_aggregation_hook(self):
+        _db = self.connection[MONGO_DBNAME]
+        _db.aggregate_test.insert_many(
+            [
+                {"x": 1, "tags": ["dog", "cat"]},
+                {"x": 2, "tags": ["cat"]},
+                {"x": 2, "tags": ["mouse", "cat", "dog"]},
+                {"x": 3, "tags": []}
+            ]
+        )
+
+        self.app.before_aggregation += self.devent
+
+        self.app.register_resource(
+            'aggregate_test', {
+                'datasource': {
+                    'aggregation': {
+                        'pipeline': [
+                            {"$unwind": "$tags"},
+                            {"$group": {"_id": "$tags", "count": {"$sum":
+                                                                  "$field1"}}},
+                        ],
+                    }
+                }
+            }
+        )
+
+        response, status = self.get('aggregate_test?aggregate=ciao')
+        self.assert400(status)
+        self.assertTrue(self.devent.called is None)
+
+        response, status = self.get('aggregate_test?aggregate={"$field1":1}')
+        self.assert200(status)
+        self.assertEqual('aggregate_test', self.devent.called[0])
+
+    def test_get_after_aggregation_hook(self):
+        _db = self.connection[MONGO_DBNAME]
+        _db.aggregate_test.insert_many(
+            [
+                {"x": 1, "tags": ["dog", "cat"]},
+                {"x": 2, "tags": ["cat"]},
+                {"x": 2, "tags": ["mouse", "cat", "dog"]},
+                {"x": 3, "tags": []}
+            ]
+        )
+
+        self.app.after_aggregation += self.devent
+
+        self.app.register_resource(
+            'aggregate_test', {
+                'datasource': {
+                    'aggregation': {
+                        'pipeline': [
+                            {"$unwind": "$tags"},
+                            {"$group": {"_id": "$tags", "count": {"$sum":
+                                                                  "$field1"}}},
+                        ],
+                    }
+                }
+            }
+        )
+
+        response, status = self.get('aggregate_test?aggregate=ciao')
+        self.assert400(status)
+        self.assertTrue(self.devent.called is None)
+
+        response, status = self.get('aggregate_test?aggregate={"$field1":1}')
+        self.assert200(status)
+        self.assertEqual('aggregate_test', self.devent.called[0])
 
     def get_resource(self):
         return self.test_client.get(self.known_resource_url)
