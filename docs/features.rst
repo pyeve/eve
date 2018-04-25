@@ -1534,6 +1534,38 @@ notified of such a disastrous occurrence by hooking a callback function to the
   hit by the DELETE after having retrieved the original document. NOTE: those two event are useful in order to
   perform some business logic before the actual remove operation given the look up and the list of originals
 
+.. _aggregation_hooks:
+
+Aggregation event hooks
+~~~~~~~~~~~~~~~~~~~~~~~
+You can also attach one or more callbacks to your aggregation endpoints. The
+``before_aggregation`` event is fired when an aggregation is about to be
+performed. Any attached callback function will receive both the endpoint name
+and the aggregation pipeline as arguments. The pipeline can then be altered if
+needed.
+
+.. code-block:: pycon
+
+    >>> def on_aggregate(endpoint, pipeline):
+    ...   pipeline.append({"$unwind": "$tags"})
+
+    >>> app = Eve()
+    >>> app.before_aggregation += on_aggregate
+
+The ``after_aggregation`` event is fired when the aggregation has been
+performed. An attached callback function could leverage this event to modify
+the documents before they are returned to the client.
+
+.. code-block:: pycon
+
+   >>> def alter_documents(endpoint, documents):
+   ...   for document in documents:
+   ...     document['hello'] = 'well, hello!'
+
+   >>> app = Eve()
+   >>> app.after_aggregation += alter_documents
+
+For more information on aggregation support, see :ref:`aggregation`
 
 
 .. admonition:: Please note
@@ -2204,6 +2236,8 @@ to a keyword of your liking, just set ``QUERY_AGGREGATION`` in your settings.
 You can also set all options natively supported by PyMongo. For more
 informations on aggregation see :ref:`datasource`.
 
+Custom callback functions can be attached to the ``before_aggregation`` and ``after_aggregation`` event hooks. For more information, see :ref:`aggregation_hooks`.
+
 Limitations
 ~~~~~~~~~~~
 ``HATEOAS`` is not available at aggregation endpoints. This should not
@@ -2236,6 +2270,7 @@ pipeline, then the resulting combined pipeline should be optimized.
 A single endpoint cannot serve both regular and aggregation results. However,
 since it is possible to setup multiple endpoints all serving from the same
 datasource (see :ref:`source`), similar functionality can be easily achieved.
+
 
 MongoDB and SQL Support
 ------------------------

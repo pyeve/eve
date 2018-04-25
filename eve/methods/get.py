@@ -166,10 +166,14 @@ def _perform_aggregation(resource, pipeline, options):
         req_pipeline.append(skip)
         req_pipeline.append(limit)
 
+    getattr(app, "before_aggregation")(resource, req_pipeline)
+
     cursor = app.data.aggregate(resource, req_pipeline, options)
 
     for document in cursor:
         documents.append(document)
+
+    getattr(app, "after_aggregation")(resource, documents)
 
     response[config.ITEMS] = documents
 
