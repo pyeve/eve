@@ -1533,11 +1533,38 @@ notified of such a disastrous occurrence by hooking a callback function to the
 hit by the DELETE after having retrieved the original document. NOTE: those two event are useful in order to
 perform some business logic before the actual remove operation given the look up and the list of originals</li>
 </ul>
+</div>
+</div>
+</div>
+<div class="section" id="aggregation-event-hooks">
+<span id="aggregation-hooks"></span><h3>Aggregation event hooks<a class="headerlink" href="#aggregation-event-hooks" title="Permalink to this headline">¶</a></h3>
+<p>You can also attach one or more callbacks to your aggregation endpoints. The
+<tt class="docutils literal"><span class="pre">before_aggregation</span></tt> event is fired when an aggregation is about to be
+performed. Any attached callback function will receive both the endpoint name
+and the aggregation pipeline as arguments. The pipeline can then be altered if
+needed.</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">on_aggregate</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">):</span>
+<span class="gp">... </span>  <span class="n">pipeline</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s">&quot;$unwind&quot;</span><span class="p">:</span> <span class="s">&quot;$tags&quot;</span><span class="p">})</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">before_aggregation</span> <span class="o">+=</span> <span class="n">on_aggregate</span>
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">after_aggregation</span></tt> event is fired when the aggregation has been
+performed. An attached callback function could leverage this event to modify
+the documents before they are returned to the client.</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">alter_documents</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">documents</span><span class="p">):</span>
+<span class="gp">... </span>  <span class="k">for</span> <span class="n">document</span> <span class="ow">in</span> <span class="n">documents</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">document</span><span class="p">[</span><span class="s">&#39;hello&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;well, hello!&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">after_aggregation</span> <span class="o">+=</span> <span class="n">alter_documents</span>
+</pre></div>
+</div>
+<p>For more information on aggregation support, see <a class="reference internal" href="#aggregation"><em>MongoDB Aggregation Framework</em></a></p>
 <div class="admonition-please-note admonition">
 <p class="first admonition-title">Please note</p>
 <p class="last">To provide seamless event handling features Eve relies on the <a class="reference external" href="https://github.com/pyeve/events">Events</a> package.</p>
-</div>
-</div>
 </div>
 </div>
 </div>
@@ -2123,6 +2150,7 @@ field/value pairs. Like with all other keywords, you can change <tt class="docut
 to a keyword of your liking, just set <tt class="docutils literal"><span class="pre">QUERY_AGGREGATION</span></tt> in your settings.</p>
 <p>You can also set all options natively supported by PyMongo. For more
 informations on aggregation see <a class="reference internal" href="config.html#datasource"><em>Advanced Datasource Patterns</em></a>.</p>
+<p>Custom callback functions can be attached to the <tt class="docutils literal"><span class="pre">before_aggregation</span></tt> and <tt class="docutils literal"><span class="pre">after_aggregation</span></tt> event hooks. For more information, see <a class="reference internal" href="#aggregation-hooks"><em>Aggregation event hooks</em></a>.</p>
 <div class="section" id="id8">
 <h3>Limitations<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
 <p><tt class="docutils literal"><span class="pre">HATEOAS</span></tt> is not available at aggregation endpoints. This should not
@@ -2313,6 +2341,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 </li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#aggregation-event-hooks">Aggregation event hooks</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#rate-limiting">Rate Limiting</a></li>
