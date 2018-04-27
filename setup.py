@@ -38,6 +38,7 @@ setup(
     packages=find_packages(),
     test_suite="eve.tests",
     install_requires=install_requires,
+    python_requires='>=2.6,!=3.0.*,!=3.1.*,!=3.2.*',
     tests_require=['redis', 'testfixtures'],
     classifiers=[
         'Development Status :: 4 - Beta',
