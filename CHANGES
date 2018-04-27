@@ -8,6 +8,7 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- Python 2.6 and Python 3.3 are no longer supported.
 - Tests: finally acknowledge the existence of modern APIs for both Mongo and
   Python (get rid of most deprecation warnings).
 - New: ``before_aggregation`` and ``after_aggregation`` event hooks allow to
@@ -18,7 +19,6 @@ Version 0.8
 - New: Add suport for mongo's ``$box`` geo query operator. Closes #1122.
 - New: support for partial media requests. Clients can request partial file
   downloads by adding a ``Range`` header to their media request (Marsch Huynh).
-- Python 2.6 is deprecated. This is the last release supporting Python 2.6, and
   you should upgrade to Python 3 as soon as possible. Closes #1129.
 - Fix: PUT behavior with User Restricted Resource Access. Ensure that, under
   every circumstance, users are unable to overwrite items owned by other users
@@ -34,7 +34,7 @@ Version 0.8
   sub-document fields. Closes #1123 (Luca Moretto).
 - Fix documentation typos (Olof Johansson)
 - Fix a changelog typo (kreynen).
-- Update: bump Flask requirement to <=1.0. Closes #1111.
+- Update: bump Flask requirement to <1.0. Closes #1111.
 - Fix: broken documentation links to Cerberus validation rules.
 - New: Renderer classes. ``RENDERER`` allows to change enabled renderers.
   Defaults to ``['eve.render.JSONRenderer', 'eve.render.XMLRenderer']``. You

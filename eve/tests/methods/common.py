@@ -11,11 +11,7 @@ from eve.tests.auth import ValidBasicAuth, ValidTokenAuth, ValidHMACAuth
 from eve.tests.test_settings import MONGO_DBNAME
 from eve.utils import config
 
-try:
-    from collections import OrderedDict  # noqa
-except ImportError:
-    # Python 2.6 needs this back-port
-    from backport_collections import OrderedDict
+from collections import OrderedDict  # noqa
 
 
 class TestSerializer(TestBase):
