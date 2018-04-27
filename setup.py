@@ -35,6 +35,11 @@ setup(
     author='Nicola Iarocci',
     author_email='eve@nicolaiarocci.com',
     url='http://python-eve.org',
+    project_urls={
+        'Documentation': 'http://python-eve.org',
+        'Code': 'https://github.com/pyeve/eve',
+        'Issue tracker': 'https://github.com/pyeve/eve/issues',
+    },
     license='BSD',
     platforms=["any"],
     packages=find_packages(),
