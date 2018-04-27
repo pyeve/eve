@@ -13,7 +13,7 @@ install_requires = [
     'markupsafe>=0.23,<1.0',
     'jinja2>=2.8,<3.0',
     'itsdangerous>=0.24,<1.0',
-    'flask>=0.10.1,<=0.13',
+    'flask>=0.10.1,<1.0',
     'pymongo>=3.5',
 ]
 

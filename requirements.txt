@@ -1,6 +1,6 @@
 Cerberus==1.1
 Events==0.3
-Flask==0.12.2
+Flask==0.12.3
 itsdangerous==0.24
 Jinja2==2.10
 MarkupSafe==0.23
