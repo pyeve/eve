@@ -8,6 +8,7 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- Flask requirement set to >=1.0. Closes #1111.
 - Python 2.6 and Python 3.3 are no longer supported.
 - Tests: finally acknowledge the existence of modern APIs for both Mongo and
   Python (get rid of most deprecation warnings).
@@ -34,7 +35,6 @@ Version 0.8
   sub-document fields. Closes #1123 (Luca Moretto).
 - Fix documentation typos (Olof Johansson)
 - Fix a changelog typo (kreynen).
-- Update: bump Flask requirement to <1.0. Closes #1111.
 - Fix: broken documentation links to Cerberus validation rules.
 - New: Renderer classes. ``RENDERER`` allows to change enabled renderers.
   Defaults to ``['eve.render.JSONRenderer', 'eve.render.XMLRenderer']``. You
