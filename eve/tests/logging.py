@@ -13,7 +13,7 @@ class TestUtils(TestBase):
         self.app.logger.propagate = True
         self.app.logger.info('test info')
         l.check(
-            ('eve', 'INFO', 'test info')
+            ('flask.app', 'INFO', 'test info')
         )
 
         log_record = l.records[0]
