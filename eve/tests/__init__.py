@@ -332,8 +332,10 @@ class TestMinimal(unittest.TestCase):
         self.connection = MongoClient(MONGO_HOST, MONGO_PORT)
         self.connection.drop_database(MONGO_DBNAME)
         if MONGO_USERNAME:
-            self.connection[MONGO_DBNAME].add_user(MONGO_USERNAME,
-                                                   MONGO_PASSWORD)
+            db = self.connection[MONGO_DBNAME]
+            db.command('dropUser', MONGO_USERNAME)
+            db.command('createUser', MONGO_USERNAME, pwd=MONGO_PASSWORD,
+                       roles=['dbAdmin'])
         self.bulk_insert()
 
     def bulk_insert(self):
@@ -564,11 +566,13 @@ class TestBase(TestMinimal):
 
     def bulk_insert(self):
         _db = self.connection[MONGO_DBNAME]
-        _db.contacts.insert(self.random_contacts(self.known_resource_count))
-        _db.contacts.insert(self.random_users(2))
-        _db.payments.insert(self.random_payments(10))
-        _db.invoices.insert(self.random_invoices(1))
-        _db.internal_transactions.insert(self.random_internal_transactions(4))
+        _db.contacts.insert_many(self.random_contacts(
+            self.known_resource_count))
+        _db.contacts.insert_many(self.random_users(2))
+        _db.payments.insert_many(self.random_payments(10))
+        _db.invoices.insert_many(self.random_invoices(1))
+        _db.internal_transactions.insert_many(
+            self.random_internal_transactions(4))
         products = self.generate_products()
-        _db.products.insert(products)
+        _db.products.insert_many(products)
         self.connection.close()

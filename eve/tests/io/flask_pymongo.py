@@ -26,14 +26,14 @@ class TestPyMongo(TestBase):
                                        MONGO_HOST, MONGO_PORT)
         with self.app.app_context():
             db = PyMongo(self.app, 'MONGO1').db
-        self.assertEquals(0, db.works.count())
+        self.assertEqual(0, db.works.count())
 
     def test_auth_params_provided_in_config(self):
         self.app.config['MONGO1_USERNAME'] = MONGO1_USERNAME
         self.app.config['MONGO1_PASSWORD'] = MONGO1_PASSWORD
         with self.app.app_context():
             db = PyMongo(self.app, 'MONGO1').db
-        self.assertEquals(0, db.works.count())
+        self.assertEqual(0, db.works.count())
 
     def test_invalid_auth_params_provided(self):
         # if bad username and/or password is provided in MONGO_URL and mongo
@@ -56,13 +56,18 @@ class TestPyMongo(TestBase):
         self.app.config['MONGO1_PORT'] = 27017
         with self.app.app_context():
             db = PyMongo(self.app, 'MONGO1').db
-        self.assertEquals(0, db.works.count())
+        self.assertEqual(0, db.works.count())
 
     def _setupdb(self):
         self.connection = MongoClient()
         self.connection.drop_database(MONGO1_DBNAME)
-        self.connection[MONGO1_DBNAME].add_user(MONGO1_USERNAME,
-                                                MONGO1_PASSWORD)
+        db = self.connection[MONGO1_DBNAME]
+        try:
+            db.command('dropUser', MONGO1_USERNAME)
+        except OperationFailure:
+            pass
+        db.command('createUser', MONGO1_USERNAME, pwd=MONGO1_PASSWORD,
+                   roles=['dbAdmin'])
 
     def _pymongo_instance(self):
         with self.app.app_context():

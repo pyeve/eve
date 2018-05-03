@@ -8,6 +8,8 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- Tests: finally acknowledge the existence of modern APIs for both Mongo and
+  Python (get rid of most deprecation warnings).
 - New: ``before_aggregation`` and ``after_aggregation`` event hooks allow to
   attach custom callbacks to aggregation endpoints. Closes #1057.
 - Fix: Crash with Cerberus 1.2. Closes #1137.

@@ -617,7 +617,7 @@ class TestGet(TestBase):
         ref = 'test_update_field'
         contacts[0]['ref'] = ref
         _db = self.connection[MONGO_DBNAME]
-        _db.contacts.insert(contacts)
+        _db.contacts.insert_one(contacts[0])
         where = '{"ref": "%s"}' % ref
         response, status = self.get(self.known_resource,
                                     '?where=%s' % where)
@@ -842,10 +842,10 @@ class TestGet(TestBase):
         # We need to assign a `person` to our test invoice
         _db = self.connection[MONGO_DBNAME]
 
-        fake_contact = self.random_contacts(1)
-        fake_contact_id = _db.contacts.insert(fake_contact)[0]
-        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
-                            {'$set': {'person': fake_contact_id}})
+        fake_contact = self.random_contacts(1)[0]
+        fake_contact_id = _db.contacts.insert_one(fake_contact).inserted_id
+        _db.invoices.update_one({'_id': ObjectId(self.invoice_id)},
+                                {'$set': {'person': fake_contact_id}})
 
         invoices = self.domain['invoices']
 
@@ -941,10 +941,10 @@ class TestGet(TestBase):
         # We need to assign a `person` to our test invoice
         _db = self.connection[MONGO_DBNAME]
 
-        fake_contact = self.random_contacts(1)
-        fake_contact_id = _db.contacts.insert(fake_contact)[0]
-        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
-                            {'$set': {'person': fake_contact_id}})
+        fake_contact = self.random_contacts(1)[0]
+        fake_contact_id = _db.contacts.insert_one(fake_contact).inserted_id
+        _db.invoices.update_one({'_id': ObjectId(self.invoice_id)},
+                                {'$set': {'person': fake_contact_id}})
 
         invoices = self.domain['invoices']
         invoices['schema']['person']['data_relation']['embeddable'] = True
@@ -963,19 +963,20 @@ class TestGet(TestBase):
         _db = self.connection[MONGO_DBNAME]
 
         holding_contacts = self.random_contacts(2)
-        holding_contact_ids = _db.contacts.insert(holding_contacts)
+        holding_contact_ids = \
+            _db.contacts.insert_many(holding_contacts).inserted_ids
         contacts = self.random_contacts(2)
-        contact_ids = _db.contacts.insert(contacts)
+        contact_ids = _db.contacts.insert_many(contacts).inserted_ids
         holding = {'departments': [{'title': 'managment',
                                     'members': holding_contact_ids}]}
-        holding_id = _db.companies.insert(holding)
+        holding_id = _db.companies.insert_one(holding).inserted_id
         company = {'holding': holding_id,
                    'departments': [{'title': 'development',
                                     'members': contact_ids}]}
-        company_id = _db.companies.insert(company)
+        company_id = _db.companies.insert_one(company).inserted_id
         # Add a documents with no reference that should be ignored
-        _db.companies.insert({})
-        _db.companies.insert({'departments': []})
+        _db.companies.insert_one({})
+        _db.companies.insert_one({'departments': []})
 
         companies = self.domain['companies']
         contact_ids = list(map(str, contact_ids))
@@ -1093,11 +1094,11 @@ class TestGet(TestBase):
         _db = self.connection[MONGO_DBNAME]
 
         # create random contact
-        fake_contact = self.random_contacts(1)
-        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+        fake_contact = self.random_contacts(1)[0]
+        fake_contact_id = _db.contacts.insert_one(fake_contact).inserted_id
         # update first invoice to reference the new contact
-        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
-                            {'$set': {'person': fake_contact_id}})
+        _db.invoices.update_one({'_id': ObjectId(self.invoice_id)},
+                                {'$set': {'person': fake_contact_id}})
 
         # GET all invoices by new contact
         response, status = self.get('users/%s/invoices' % fake_contact_id)
@@ -1295,7 +1296,7 @@ class TestGet(TestBase):
             'title': 'Child product',
             'parent_product': parent_product_sku
         }
-        db.products.insert(product)
+        db.products.insert_one(product)
         response, status = self.get('products/%s/children' %
                                     parent_product_sku)
         self.assert200(status)
@@ -1708,7 +1709,7 @@ class TestGetItem(TestBase):
         ref = 'test_update_field'
         contacts[0]['ref'] = ref
         _db = self.connection[MONGO_DBNAME]
-        _db.contacts.insert(contacts)
+        _db.contacts.insert_one(contacts[0])
         response, status = self.get(self.known_resource, item=ref)
         self.assertItemResponse(response, status)
 
@@ -1723,10 +1724,10 @@ class TestGetItem(TestBase):
         # We need to assign a `person` to our test invoice
         _db = self.connection[MONGO_DBNAME]
 
-        fake_contact = self.random_contacts(1)
-        fake_contact_id = _db.contacts.insert(fake_contact)[0]
-        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
-                            {'$set': {'person': fake_contact_id}})
+        fake_contact = self.random_contacts(1)[0]
+        fake_contact_id = _db.contacts.insert_one(fake_contact).inserted_id
+        _db.invoices.update_one({'_id': ObjectId(self.invoice_id)},
+                                {'$set': {'person': fake_contact_id}})
 
         invoices = self.domain['invoices']
 
@@ -1819,11 +1820,11 @@ class TestGetItem(TestBase):
         _db = self.connection[MONGO_DBNAME]
 
         # create random contact
-        fake_contact = self.random_contacts(1)
-        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+        fake_contact = self.random_contacts(1)[0]
+        fake_contact_id = _db.contacts.insert_one(fake_contact).inserted_id
         # update first invoice to reference the new contact
-        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
-                            {'$set': {'person': fake_contact_id}})
+        _db.invoices.update_one({'_id': ObjectId(self.invoice_id)},
+                                {'$set': {'person': fake_contact_id}})
 
         # GET all invoices by new contact
         response, status = self.get('users/%s/invoices/%s' % (fake_contact_id,

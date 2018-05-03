@@ -210,12 +210,12 @@ class TestPut(TestBase):
         self.app.config['BANDWIDTH_SAVER'] = False
 
         # create random contact
-        fake_contact = self.random_contacts(1)
-        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+        fake_contact = self.random_contacts(1)[0]
+        fake_contact_id = _db.contacts.insert_one(fake_contact).inserted_id
 
         # update first invoice to reference the new contact
-        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
-                            {'$set': {'person': fake_contact_id}})
+        _db.invoices.update_one({'_id': ObjectId(self.invoice_id)},
+                                {'$set': {'person': fake_contact_id}})
 
         # GET all invoices by new contact
         response, status = self.get('users/%s/invoices/%s' %
@@ -236,17 +236,16 @@ class TestPut(TestBase):
         self.app.config['BANDWIDTH_SAVER'] = False
 
         # create random contact
-        fake_contact = self.random_contacts(1)
-        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+        fake_contact = self.random_contacts(1)[0]
+        fake_contact_id = _db.contacts.insert_one(fake_contact).inserted_id
 
         # update first invoice to reference the new contact
-        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
-                            {'$set': {
-                                'person': fake_contact_id,
-                                'persondbref':
-                                    DBRef("contacts",
-                                          ObjectId(fake_contact_id))}
-                             })
+        _db.invoices.update_one(
+            {'_id': ObjectId(self.invoice_id)},
+            {'$set': {
+                'person': fake_contact_id,
+                'persondbref': DBRef("contacts",
+                                     ObjectId(fake_contact_id))}})
 
         # GET all invoices by new contact
         response, status = self.get('users/%s/invoices/%s' %
