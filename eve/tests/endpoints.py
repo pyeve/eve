@@ -91,8 +91,7 @@ class TestCustomConverters(TestMinimal):
         # create a document which has a id field of UUID type and store it
         # into the database
         _db = self.connection[MONGO_DBNAME]
-        fake = {'_id': UUID(self.uuid_valid), }
-        _db.uuids.insert(fake)
+        _db.uuids.insert_one({'_id': UUID(self.uuid_valid)})
 
     def _get_etag(self):
         r = self.test_client.get(self.url)
@@ -294,7 +293,7 @@ class TestEndPoints(TestBase):
                 config.LAST_UPDATED: dt,
                 config.DATE_CREATED: dt,
             }
-            self.app.data.insert('internal_transactions', [transaction])
+            self.app.data.insert('internal_transactions', transaction)
 
     def test_internal_endpoint(self):
         self.app.on_inserted -= self.on_generic_inserted

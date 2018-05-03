@@ -34,7 +34,7 @@ contacts = {
     'cache_expires': 20,
     'item_title': 'contact',
     'additional_lookup': {
-        'url': 'regex("[\w]+")',   # to be unique field
+        'url': r'regex("[\w]+")',   # to be unique field
         'field': 'ref'
     },
     'datasource': {'filter': {'username': {'$exists': False}}},

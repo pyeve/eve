@@ -450,7 +450,7 @@ class TestUserRestrictedAccess(TestBase):
         new_user = self.random_contacts(1)[0]
         new_user['username'] = 'admin'
         _db = self.connection[self.app.config['MONGO_DBNAME']]
-        _db.contacts.insert(new_user)
+        _db.contacts.insert_one(new_user)
 
         # Verify that we can retrieve it
         data2, status2 = self.parse_response(
@@ -511,7 +511,7 @@ class TestUserRestrictedAccess(TestBase):
         new_user['_id'] = _id
         new_user['username'] = 'admin'
         _db = self.connection[self.app.config['MONGO_DBNAME']]
-        _db.contacts.insert(new_user)
+        _db.contacts.insert_one(new_user)
 
         # Retrieving /the same/ user by id returns OK
         filter_query_2 = filter_by_id % 'deadbeefdeadbeefdeadbeef'

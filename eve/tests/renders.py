@@ -30,9 +30,9 @@ class TestRenders(TestBase):
 
         # We need to assign a `person` to our test invoice
         _db = self.connection[MONGO_DBNAME]
-        fake_contact = self.random_contacts(1)
-        fake_contact[0]['ref'] = "12345 & 67890"
-        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+        fake_contact = self.random_contacts(1)[0]
+        fake_contact['ref'] = "12345 & 67890"
+        fake_contact_id = _db.contacts.insert_one(fake_contact).inserted_id
 
         r = self.test_client.get('%s/%s' %
                                  (self.known_resource_url, fake_contact_id),

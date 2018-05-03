@@ -380,7 +380,7 @@ class TestPatch(TestBase):
         ref = 'test_update_field'
         contacts[0]['ref'] = ref
         _db = self.connection[MONGO_DBNAME]
-        _db.contacts.insert(contacts)
+        _db.contacts.insert_one(contacts[0])
 
         # now retrieve same document via API and get its etag, which is
         # supposed to be computed on default DATE_CREATED and LAST_UPDATAED
@@ -401,12 +401,12 @@ class TestPatch(TestBase):
         _db = self.connection[MONGO_DBNAME]
 
         # create random contact
-        fake_contact = self.random_contacts(1)
-        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+        fake_contact = self.random_contacts(1)[0]
+        fake_contact_id = _db.contacts.insert_one(fake_contact).inserted_id
 
         # update first invoice to reference the new contact
-        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
-                            {'$set': {'person': fake_contact_id}})
+        _db.invoices.update_one({'_id': ObjectId(self.invoice_id)},
+                                {'$set': {'person': fake_contact_id}})
 
         # GET all invoices by new contact
         response, status = self.get('users/%s/invoices/%s' %

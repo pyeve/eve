@@ -4,6 +4,7 @@ from datetime import datetime
 import json
 from bson import ObjectId
 from pymongo import MongoClient
+from pymongo.errors import OperationFailure
 
 import eve
 from eve.auth import BasicAuth
@@ -37,8 +38,13 @@ class TestMultiMongo(TestBase):
     def setupDB2(self):
         self.connection = MongoClient()
         self.connection.drop_database(MONGO1_DBNAME)
-        self.connection[MONGO1_DBNAME].add_user(MONGO1_USERNAME,
-                                                MONGO1_PASSWORD)
+        db = self.connection[MONGO1_DBNAME]
+        try:
+            db.command('dropUser', MONGO1_USERNAME)
+        except OperationFailure:
+            pass
+        db.command('createUser', MONGO1_USERNAME, pwd=MONGO1_PASSWORD,
+                   roles=['dbAdmin'])
         self.bulk_insert2()
 
     def dropDB2(self):
@@ -49,7 +55,7 @@ class TestMultiMongo(TestBase):
     def bulk_insert2(self):
         _db = self.connection[MONGO1_DBNAME]
         works = self.random_works(self.known_resource_count)
-        _db.works.insert(works)
+        _db.works.insert_many(works)
         self.work = _db.works.find_one()
         self.connection.close()
 

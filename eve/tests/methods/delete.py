@@ -169,20 +169,20 @@ class TestDelete(TestBase):
         _db = self.connection[MONGO_DBNAME]
 
         # create random contact
-        fake_contact = self.random_contacts(1)
-        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+        fake_contact = self.random_contacts(1)[0]
+        fake_contact_id = _db.contacts.insert_one(fake_contact).inserted_id
 
         # grab parent collection count; we will use this later to make sure we
         # didn't delete all the users in the datanase. We add one extra invoice
         # to make sure that the actual count will never be 1 (which would
         # invalidate the test)
-        _db.invoices.insert({'inv_number': 1})
+        _db.invoices.insert_one({'inv_number': 1})
         response, status = self.get('invoices')
         invoices = len(response[self.app.config['ITEMS']])
 
         # update first invoice to reference the new contact
-        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
-                            {'$set': {'person': fake_contact_id}})
+        _db.invoices.update_one({'_id': ObjectId(self.invoice_id)},
+                                {'$set': {'person': fake_contact_id}})
 
         # verify that the only document retrieved is referencing the correct
         # parent document
@@ -207,12 +207,12 @@ class TestDelete(TestBase):
         _db = self.connection[MONGO_DBNAME]
 
         # create random contact
-        fake_contact = self.random_contacts(1)
-        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+        fake_contact = self.random_contacts(1)[0]
+        fake_contact_id = _db.contacts.insert_one(fake_contact).inserted_id
 
         # update first invoice to reference the new contact
-        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
-                            {'$set': {'person': fake_contact_id}})
+        _db.invoices.update_one({'_id': ObjectId(self.invoice_id)},
+                                {'$set': {'person': fake_contact_id}})
 
         # GET all invoices by new contact
         response, status = self.get('users/%s/invoices/%s' %
@@ -426,11 +426,11 @@ class TestSoftDelete(TestDelete):
         """
         # Set up and confirm embedded document
         _db = self.connection[MONGO_DBNAME]
-        fake_contact = self.random_contacts(1)
-        fake_contact_id = _db.contacts.insert(fake_contact)[0]
+        fake_contact = self.random_contacts(1)[0]
+        fake_contact_id = _db.contacts.insert_one(fake_contact).inserted_id
         fake_contact_url = self.known_resource_url + "/" + str(fake_contact_id)
-        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
-                            {'$set': {'person': fake_contact_id}})
+        _db.invoices.update_one({'_id': ObjectId(self.invoice_id)},
+                                {'$set': {'person': fake_contact_id}})
 
         invoices = self.domain['invoices']
         invoices['embedding'] = True
@@ -467,10 +467,10 @@ class TestSoftDelete(TestDelete):
         """
         # Confirm embedded document works before delete
         _db = self.connection[MONGO_DBNAME]
-        fake_contact = self.random_contacts(1)
-        fake_contact_id = _db.contacts.insert(fake_contact)[0]
-        _db.invoices.update({'_id': ObjectId(self.invoice_id)},
-                            {'$set': {'person': fake_contact_id}})
+        fake_contact = self.random_contacts(1)[0]
+        fake_contact_id = _db.contacts.insert_one(fake_contact).inserted_id
+        _db.invoices.update_one({'_id': ObjectId(self.invoice_id)},
+                                {'$set': {'person': fake_contact_id}})
 
         invoices = self.domain['invoices']
         invoices['embedding'] = True
