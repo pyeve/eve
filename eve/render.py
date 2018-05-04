@@ -20,12 +20,7 @@ from eve.methods.common import get_rate_limit
 from eve.utils import date_to_str, date_to_rfc1123, config, \
     debug_error_message, import_from_string
 from flask import make_response, request, Response, current_app as app, abort
-
-try:
-    from collections import OrderedDict  # noqa
-except ImportError:
-    # Python 2.6 needs this back-port
-    from backport_collections import OrderedDict
+from collections import OrderedDict  # noqa
 
 
 def raise_event(f):

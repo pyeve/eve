@@ -1,3 +1,0 @@
--r requirements.txt
-backport_collections==0.1
-importlib==1.0.4

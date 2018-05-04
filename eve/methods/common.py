@@ -26,12 +26,7 @@ from eve.utils import auto_fields, config, debug_error_message, \
     document_etag, parse_request
 from eve.versioning import get_data_version_relation_document, \
     resolve_document_version
-
-
-try:
-    from collections import Counter
-except:
-    from backport_collections import Counter
+from collections import Counter
 
 
 def get_document(resource, concurrency_check, original=None,
