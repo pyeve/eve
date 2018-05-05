@@ -544,6 +544,49 @@ class TestPatch(TestBase):
         self.assertEqual(test, 'default')
         self.assertEqual(int, 99)
 
+    def test_patch_nested_document_no_merge(self):
+        """ Test that nested documents are not merged, but overwritten,
+        if configured."""
+        domain = {
+            'merge_nested_documents': False,
+            'schema': {
+                'nested': {
+                    'type': 'dict',
+                }
+            }
+        }
+        self.app.config['BANDWIDTH_SAVER'] = False
+        self.app.register_resource('nomerge', domain)
+
+        original = {
+            'nested': {
+                'key1': 'value1',
+                'key2': 'value2',
+            }
+        }
+        changes = {
+            'nested': {
+                'key2': 'value2',
+                'key3': 'value3',
+            }
+        }
+
+        r, status = self.post("nomerge", data=original)
+        self.assert201(status)
+
+        id = r['_id']
+        etag = r['_etag']
+
+        r, status = self.patch(
+            "/%s/%s" % ('nomerge', id),
+            data=changes,
+            headers=[('If-Match', etag)]
+        )
+        self.assert200(status)
+
+        # Assert that nested document was completely overwritten
+        self.assertEqual(r['nested'], changes['nested'])
+
     def test_patch_nested_document_nullable_missing(self):
         schema = {
             'sensor': {
