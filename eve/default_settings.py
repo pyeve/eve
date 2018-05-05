@@ -204,6 +204,7 @@ ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
 ITEM_URL = 'regex("[a-f0-9]{24}")'
 UPSERT_ON_PUT = True            # insert unexisting documents on PUT.
+MERGE_NESTED_DOCUMENTS = True
 
 # use a simple file response format by default
 EXTENDED_MEDIA_INFO = []
