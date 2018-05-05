@@ -44,8 +44,8 @@
             
   <div class="section" id="running-the-tests">
 <h1>Running the Tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h1>
-<p>Eve runs under Python 2.6, Python 2.7, Python 3.3 and PyPy. Therefore tests
-will be run in those four platforms in our <a class="reference external" href="https://travis-ci.org/pyeve/eve/">continuous integration server</a>.</p>
+<p>Eve runs under Python 2.7, 3.4+, and PyPy. Therefore tests will be run in those
+four platforms in our <a class="reference external" href="https://travis-ci.org/pyeve/eve/">continuous integration server</a>.</p>
 <p>The easiest way to get started is to run the tests in your local environment
 with:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py <span class="nb">test</span>
@@ -78,8 +78,8 @@ by running</p>
 <div class="section" id="testing-with-other-python-versions">
 <h2>Testing with other python versions<a class="headerlink" href="#testing-with-other-python-versions" title="Permalink to this headline">¶</a></h2>
 <p>Before you submit a pull request, make sure your tests and changes run in
-all supported python versions: 2.6, 2.7, 3.3, 3.4, 3.5 and PyPy. Instead of creating all
-those environments by hand, Eve uses <a class="reference external" href="http://tox.readthedocs.org/en/latest/">tox</a>.</p>
+all supported python versions: 2.7, 3.4, 3.5, 3.6, and PyPy. Instead of
+creating all those environments by hand, Eve uses <a class="reference external" href="http://tox.readthedocs.org/en/latest/">tox</a>.</p>
 <p>Make sure you have all required python versions installed and run:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> pip install tox  <span class="c"># First time only</span>
 <span class="gp">$</span> tox
@@ -89,11 +89,10 @@ those environments by hand, Eve uses <a class="reference external" href="http://
 are created and dependencies are installed. If everything is ok, you will see
 the following:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="go">_________ summary _________</span>
-<span class="go">py26: commands succeeded</span>
 <span class="go">py27: commands succeeded</span>
-<span class="go">py33: commands succeeded</span>
 <span class="go">py34: commands succeeded</span>
 <span class="go">py35: commands succeeded</span>
+<span class="go">py36: commands succeeded</span>
 <span class="go">pypy: commands succeeded</span>
 <span class="go">flake8: commands succeeded</span>
 <span class="go">congratulations :)</span>

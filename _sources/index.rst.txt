@@ -30,7 +30,7 @@ Eve is powered by Flask_ and Cerberus_ and it offers native support for MongoDB_
 stores. Support for SQL, Elasticsearch and Neo4js backends is provided by
 community extensions_. 
 
-The codebase is thoroughly tested under Python 2.7, 3.4+, and PyPy.
+The codebase is thoroughly tested under Python 2.6-3.6, and PyPy.
 
 Eve is Simple
 -------------
