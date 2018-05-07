@@ -1,40 +1,30 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Running the Tests &mdash; Eve 0.8-dev documentation</title>
-    
+    <title>Running the Tests &#8212; Eve 0.8-dev documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.8-dev',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.8-dev documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Support" href="support.html" />
-    <link rel="prev" title="How to Contribute" href="contributing.html" />
+    <link rel="prev" title="How to contribute" href="contributing.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
@@ -48,30 +38,41 @@
 four platforms in our <a class="reference external" href="https://travis-ci.org/pyeve/eve/">continuous integration server</a>.</p>
 <p>The easiest way to get started is to run the tests in your local environment
 with:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py <span class="nb">test</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pytest</span>
 </pre></div>
 </div>
-<p>If you want you can run a single module, say the <tt class="docutils literal"><span class="pre">methods</span></tt> suite:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py <span class="nb">test</span> -s eve.tests.methods
+<p>If you want you can run a single module, say the <code class="docutils literal notranslate"><span class="pre">methods</span></code> suite:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pytest</span> <span class="n">eve</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">methods</span><span class="o">/</span>
 </pre></div>
 </div>
-<p>Or, to run only the <tt class="docutils literal"><span class="pre">get</span></tt> tests:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py <span class="nb">test</span> -s eve.tests.methods.get
+<p>Or, to run only the <code class="docutils literal notranslate"><span class="pre">get</span></code> tests:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pytest</span> <span class="n">eve</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">methods</span><span class="o">/</span><span class="n">get</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
 <p>You can also choose to just run a single class:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py <span class="nb">test</span> -s eve.tests.methods.get.TestGetItem
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pytest</span> <span class="n">eve</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">methods</span><span class="o">/</span><span class="n">get</span><span class="o">.</span><span class="n">py</span><span class="p">::</span><span class="n">TestGet</span>
 </pre></div>
 </div>
-<p>Or even a single class function:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py <span class="nb">test</span> -s eve.tests.methods.get.TestGetItem.test_expires
+<p>Or even a single test:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pytest</span> <span class="n">eve</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">methods</span><span class="o">/</span><span class="n">get</span><span class="o">.</span><span class="n">py</span><span class="p">::</span><span class="n">TestGet</span><span class="p">::</span><span class="n">test_get_emtpy_resource</span>
 </pre></div>
 </div>
+<p>You can also collect tests by keyword:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pytest</span> <span class="o">-</span><span class="n">k</span> <span class="n">auth</span>
+</pre></div>
+</div>
+<p>If you are a <a class="reference external" href="http://en.wikipedia.org/wiki/Vim_(text_editor)">Vim</a> user (you should), you might want to check out the awesome
+<a class="reference external" href="https://github.com/alfredodeza/pytest.vim">pytest.vim</a> plugin.</p>
 <div class="section" id="prerequisites">
 <span id="test-prerequisites"></span><h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
 <p>Install the required dependencies for running tests and building documentation
-by running</p>
-<div class="highlight-python"><div class="highlight"><pre>$ pip install -r dev-requirements.txt
+by running:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="s2">&quot;.[tests]&quot;</span>
+</pre></div>
+</div>
+<p>However, you probably want to install for development, which also installs the
+tests requirements:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="s2">&quot;.[dev]&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -79,114 +80,67 @@ by running</p>
 <h2>Testing with other python versions<a class="headerlink" href="#testing-with-other-python-versions" title="Permalink to this headline">¶</a></h2>
 <p>Before you submit a pull request, make sure your tests and changes run in
 all supported python versions: 2.7, 3.4, 3.5, 3.6, and PyPy. Instead of
-creating all those environments by hand, Eve uses <a class="reference external" href="http://tox.readthedocs.org/en/latest/">tox</a>.</p>
-<p>Make sure you have all required python versions installed and run:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> pip install tox  <span class="c"># First time only</span>
-<span class="gp">$</span> tox
+creating all those environments by hand, Eve uses <a class="reference external" href="http://tox.readthedocs.org/en/latest/">tox</a>.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tox</span>
 </pre></div>
 </div>
 <p>This might take some time the first run as the different virtual environments
 are created and dependencies are installed. If everything is ok, you will see
 the following:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="go">_________ summary _________</span>
-<span class="go">py27: commands succeeded</span>
-<span class="go">py34: commands succeeded</span>
-<span class="go">py35: commands succeeded</span>
-<span class="go">py36: commands succeeded</span>
-<span class="go">pypy: commands succeeded</span>
-<span class="go">flake8: commands succeeded</span>
-<span class="go">congratulations :)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_________</span> <span class="n">summary</span> <span class="n">_________</span>
+<span class="n">py27</span><span class="p">:</span> <span class="n">commands</span> <span class="n">succeeded</span>
+<span class="n">py34</span><span class="p">:</span> <span class="n">commands</span> <span class="n">succeeded</span>
+<span class="n">py35</span><span class="p">:</span> <span class="n">commands</span> <span class="n">succeeded</span>
+<span class="n">py36</span><span class="p">:</span> <span class="n">commands</span> <span class="n">succeeded</span>
+<span class="n">pypy</span><span class="p">:</span> <span class="n">commands</span> <span class="n">succeeded</span>
+<span class="n">flake8</span><span class="p">:</span> <span class="n">commands</span> <span class="n">succeeded</span>
+<span class="n">congratulations</span> <span class="p">:)</span>
 </pre></div>
 </div>
-<p>If something goes <strong>wrong</strong> and one test fails, you might need to run that test
+<p>If something goes wrong and one test fails, you might need to run that test
 in the specific python version. You can use the created environments to run
 some specific tests. For example, if a test suite fails in Python 3.4:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">#</span> From the project folder
-<span class="gp">$</span> tox -e py34 -- -s eve.tests.methods.get.TestGetItem
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> tox -e py34 -- -k auth
+<span class="gp">#</span> from the project folder
 </pre></div>
 </div>
 </div>
-<div class="section" id="using-pytest">
-<h2>Using Pytest<a class="headerlink" href="#using-pytest" title="Permalink to this headline">¶</a></h2>
-<p>You also choose to run the whole test suite using <a class="reference external" href="http://pytest.org">pytest</a>:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">#</span> Run the whole <span class="nb">test </span>suite
-<span class="gp">$</span> py.test
-
-<span class="gp">#</span> Run all tests in the <span class="s1">&#39;methods&#39;</span> folder
-<span class="gp">$</span> py.test eve/tests/methods
-
-<span class="gp">#</span> Run all the tests named <span class="s1">&#39;TestEvents&#39;</span>
-<span class="gp">$</span> py.test -k TestEvents
-
-<span class="gp">#</span> Run the specific <span class="nb">test </span>class
-<span class="gp">$</span> py.test eve/tests/methods/get.py::TestEvents
-
-<span class="gp">#</span> Run the specific <span class="nb">test</span>
-<span class="gp">$</span><span class="nb"> </span>py.test eve/tests/auth.py::TestBasicAuth::test_custom_auth
-</pre></div>
-</div>
-<p>You can use <a class="reference external" href="http://pytest.org">pytest</a> from <a class="reference external" href="http://tox.readthedocs.org/en/latest/">tox</a>, but you will need to install it in the tox
-environments before using it.</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> .tox/py26/bin/pip install pytest
-<span class="gp">$</span> .tox/py26/bin/py.test
-</pre></div>
-</div>
-<p>Please note that, just for my own convenience, the <tt class="docutils literal"><span class="pre">pytest.ini</span></tt> file is
-currently set up in such a way that any test run will abort after two failures.
-Also, if you are a <a class="reference external" href="http://en.wikipedia.org/wiki/Vim_(text_editor)">Vim</a> user (you should), you might want to check out the awesome
-<a class="reference external" href="https://github.com/alfredodeza/pytest.vim">pytest.vim</a> plugin.</p>
-</div>
-<div class="section" id="ratelimiting-and-redis">
-<h2>RateLimiting and Redis<a class="headerlink" href="#ratelimiting-and-redis" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="rate-limiting-and-redis">
+<h2>Rate limiting and Redis<a class="headerlink" href="#rate-limiting-and-redis" title="Permalink to this headline">¶</a></h2>
 <p>While there are no test requirements for most of the suite, please be advised
-that in order to execute the <a class="reference internal" href="features.html#ratelimiting"><em>Rate Limiting</em></a> tests you need a running
+that in order to execute the <a class="reference internal" href="features.html#ratelimiting"><span class="std std-ref">Rate Limiting</span></a> tests you need a running
 <a class="reference external" href="http://redis.io/">Redis</a> server, and <a class="reference external" href="https://github.com/andymccurdy/redis-py">redispy</a> must be installed. The Rate-Limiting tests are
 silently skipped if any of the two conditions are not met.</p>
-<p>Redispy will install automatically on the first test run, or you can install it
-yourself with</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> pip install redis
-</pre></div>
-</div>
 </div>
 <div class="section" id="continuous-integration">
 <h2>Continuous Integration<a class="headerlink" href="#continuous-integration" title="Permalink to this headline">¶</a></h2>
-<p>Each time code is pushed to the <tt class="docutils literal"><span class="pre">master</span></tt>  branch the whole test-suite is
+<p>Each time code is pushed to the <code class="docutils literal notranslate"><span class="pre">master</span></code>  branch the whole test-suite is
 executed on Travis-CI. This is also the case for pull-requests. When a pull
-request is submitted and the CI run fails two things happen: a &#8216;the build is
-broken&#8217; email is sent to the submitter; the request is rejected.  The
+request is submitted and the CI run fails two things happen: a ‘the build is
+broken’ email is sent to the submitter; the request is rejected.  The
 contributor can then fix the code, add one or more commits as needed, and push
 again.</p>
 <p>The CI will also run flake8 so make sure that your code complies to PEP8 before
 submitting a pull request, or be prepared to be mail-spammed by CI.</p>
-<p>Please note that in practice you&#8217;re only supposed to submit pull requests
-against the <tt class="docutils literal"><span class="pre">master</span></tt> branch, see <a class="reference internal" href="contributing.html#contributing"><em>How to Contribute</em></a>.</p>
+<p>Please note that in practice you’re only supposed to submit pull requests
+against the <code class="docutils literal notranslate"><span class="pre">master</span></code> branch, see <a class="reference internal" href="contributing.html#contributing"><span class="std std-ref">How to contribute</span></a>.</p>
 </div>
 <div class="section" id="building-documentation">
 <h2>Building documentation<a class="headerlink" href="#building-documentation" title="Permalink to this headline">¶</a></h2>
 <p>Eve uses <a class="reference external" href="http://sphinx-doc.org">Sphinx</a> for its documentation. To build the documentation locally,
-switch to the <tt class="docutils literal"><span class="pre">docs</span></tt> folder and run</p>
-<div class="highlight-python"><div class="highlight"><pre>$ make html
+switch to the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder and run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">html</span> <span class="n">BUILDDIR</span><span class="o">=/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">docs</span>
 </pre></div>
 </div>
-<p>This will generate html documentation in the folder <tt class="docutils literal"><span class="pre">~/code/eve.docs/html</span></tt>,
-which can be overridden with the <tt class="docutils literal"><span class="pre">BUILDDIR</span></tt> make variable</p>
-<div class="highlight-python"><div class="highlight"><pre>$ make html BUILDDIR=/path/to/docs
+<p>Make sure <a class="reference external" href="http://sphinx-doc.org">Sphinx</a> reports no errors or warnings when running the above. To
+preview the documentation open <code class="docutils literal notranslate"><span class="pre">index.html</span></code> in the build directory</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ open /path/to/docs/index.html
 </pre></div>
 </div>
-<p>Make sure <a class="reference external" href="http://sphinx-doc.org">Sphinx</a> reports no errors or warnings when running the above.</p>
-<p>To preview the documentation open <tt class="docutils literal"><span class="pre">index.html</span></tt> in the build directory</p>
-<div class="highlight-python"><div class="highlight"><pre>$ open /path/to/docs/index.html
-</pre></div>
-</div>
-<p>Alternatively switch to the build directory, start a local webserver</p>
-<div class="highlight-python"><div class="highlight"><pre>$ python3 -m http.server
-</pre></div>
-</div>
-<p>and then point your browser at <tt class="docutils literal"><span class="pre">localhost:8000</span></tt>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Eve uses a customised <a class="reference external" href="http://sphinx-doc.org">Sphinx</a> theme based on <a class="reference external" href="https://pypi.python.org/pypi/alabaster">alabaster</a>. The easiest way
-to get the right version is by installing the <a class="reference internal" href="#test-prerequisites"><em>Prerequisites</em></a>.</p>
+to get the right version is by installing the <a class="reference internal" href="#test-prerequisites"><span class="std std-ref">Prerequisites</span></a>.</p>
 </div>
 </div>
 </div>
@@ -195,7 +149,7 @@ to get the right version is by installing the <a class="reference internal" href
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="index.html">
@@ -274,12 +228,11 @@ to get the right version is by installing the <a class="reference internal" href
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="snippets/index.html">Snippets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extensions.html">Extensions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">How to Contribute</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Running the Tests</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">How to contribute</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Running the Tests</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#testing-with-other-python-versions">Testing with other python versions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#using-pytest">Using Pytest</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#ratelimiting-and-redis">RateLimiting and Redis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rate-limiting-and-redis">Rate limiting and Redis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#continuous-integration">Continuous Integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#building-documentation">Building documentation</a></li>
 </ul>
@@ -292,17 +245,16 @@ to get the right version is by installing the <a class="reference internal" href
 </ul>
 
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script><p>
 Artwork by <a href="http://kalamun.org">Kalamun</a> © 2013

@@ -98,7 +98,6 @@ link <http://eve.readthedocs.org/en/stable/>`_.
     snippets/index
     extensions
     contributing
-    testing
     support
     updates
     authors

@@ -1,39 +1,35 @@
 Running the Tests 
 =================
-Eve runs under Python 2.6, Python 2.7, Python 3.3 and PyPy. Therefore tests
-will be run in those four platforms in our `continuous integration server`_.
+Eve runs under Python 2.7, 3.4+, and PyPy. Therefore tests will be run in those
+four platforms in our `continuous integration server`_.
 
 The easiest way to get started is to run the tests in your local environment
-with:
+with::
 
-.. code-block:: console
+   pytest
 
-   $ python setup.py test 
+If you want you can run a single module, say the ``methods`` suite::
 
-If you want you can run a single module, say the ``methods`` suite:
+   pytest eve/tests/methods/
 
-.. code-block:: console
+Or, to run only the ``get`` tests::
 
-   $ python setup.py test -s eve.tests.methods
+   pytest eve/tests/methods/get.py
 
-Or, to run only the ``get`` tests:
+You can also choose to just run a single class::
 
-.. code-block:: console
+    pytest eve/tests/methods/get.py::TestGet
 
-   $ python setup.py test -s eve.tests.methods.get
+Or even a single test::
 
-You can also choose to just run a single class:
+   pytest eve/tests/methods/get.py::TestGet::test_get_emtpy_resource
 
-.. code-block:: console
+You can also collect tests by keyword::
 
-   $ python setup.py test -s eve.tests.methods.get.TestGetItem
+   pytest -k auth
 
-Or even a single class function:
-
-.. code-block:: console
-
-   $ python setup.py test -s eve.tests.methods.get.TestGetItem.test_expires
-
+If you are a Vim_ user (you should), you might want to check out the awesome
+pytest.vim_ plugin.
 
 .. _test_prerequisites:
 
@@ -41,98 +37,52 @@ Prerequisites
 -------------
 
 Install the required dependencies for running tests and building documentation
-by running ::
+by running::
 
-    $ pip install -r dev-requirements.txt
+    pip install -e ".[tests]"
+
+However, you probably want to install for development, which also installs the
+tests requirements::
+
+    pip install -e ".[dev]"
 
 Testing with other python versions
 ----------------------------------
 Before you submit a pull request, make sure your tests and changes run in
-all supported python versions: 2.6, 2.7, 3.3, 3.4, 3.5 and PyPy. Instead of creating all
-those environments by hand, Eve uses tox_.
+all supported python versions: 2.7, 3.4, 3.5, 3.6, and PyPy. Instead of
+creating all those environments by hand, Eve uses tox_.::
 
-Make sure you have all required python versions installed and run:
-
-.. code-block:: console
-
-   $ pip install tox  # First time only
-   $ tox
+   tox
 
 This might take some time the first run as the different virtual environments
 are created and dependencies are installed. If everything is ok, you will see
-the following:
-
-.. code-block:: console
+the following::
 
     _________ summary _________
-    py26: commands succeeded
     py27: commands succeeded
-    py33: commands succeeded
     py34: commands succeeded
     py35: commands succeeded
+    py36: commands succeeded
     pypy: commands succeeded
     flake8: commands succeeded
     congratulations :)
 
-If something goes **wrong** and one test fails, you might need to run that test
+If something goes wrong and one test fails, you might need to run that test
 in the specific python version. You can use the created environments to run
 some specific tests. For example, if a test suite fails in Python 3.4:
 
 .. code-block:: console
 
-    # From the project folder
-    $ tox -e py34 -- -s eve.tests.methods.get.TestGetItem
+    $ tox -e py34 -- -k auth
+    # from the project folder
 
-Using Pytest
--------------
-You also choose to run the whole test suite using pytest_:
-
-.. code-block:: console
-    
-    # Run the whole test suite
-    $ py.test                
-
-    # Run all tests in the 'methods' folder
-    $ py.test eve/tests/methods       
-
-    # Run all the tests named 'TestEvents'
-    $ py.test -k TestEvents   
-
-    # Run the specific test class
-    $ py.test eve/tests/methods/get.py::TestEvents 
-
-    # Run the specific test
-    $ py.test eve/tests/auth.py::TestBasicAuth::test_custom_auth
-
-
-You can use pytest_ from tox_, but you will need to install it in the tox
-environments before using it.
-
-.. code-block:: console
-
-    $ .tox/py26/bin/pip install pytest
-    $ .tox/py26/bin/py.test
-
-Please note that, just for my own convenience, the ``pytest.ini`` file is
-currently set up in such a way that any test run will abort after two failures.
-Also, if you are a Vim_ user (you should), you might want to check out the awesome
-pytest.vim_ plugin.
-
-
-RateLimiting and Redis
-----------------------
+Rate limiting and Redis
+-----------------------
 While there are no test requirements for most of the suite, please be advised
 that in order to execute the :ref:`ratelimiting` tests you need a running
 Redis_ server, and redispy_ must be installed. The Rate-Limiting tests are
 silently skipped if any of the two conditions are not met. 
 
-Redispy will install automatically on the first test run, or you can install it
-yourself with 
-
-.. code-block:: console
-
-    $ pip install redis
-    
 Continuous Integration
 ----------------------
 Each time code is pushed to the ``master``  branch the whole test-suite is
@@ -151,26 +101,14 @@ against the ``master`` branch, see :ref:`contributing`.
 Building documentation
 ----------------------
 Eve uses Sphinx_ for its documentation. To build the documentation locally,
-switch to the ``docs`` folder and run ::
+switch to the ``docs`` folder and run::
 
-    $ make html
+    make html BUILDDIR=/path/to/docs
 
-This will generate html documentation in the folder ``~/code/eve.docs/html``,
-which can be overridden with the ``BUILDDIR`` make variable ::
-
-    $ make html BUILDDIR=/path/to/docs
-
-Make sure Sphinx_ reports no errors or warnings when running the above.
-
-To preview the documentation open ``index.html`` in the build directory ::
+Make sure Sphinx_ reports no errors or warnings when running the above. To
+preview the documentation open ``index.html`` in the build directory ::
 
     $ open /path/to/docs/index.html
-
-Alternatively switch to the build directory, start a local webserver ::
-
-    $ python3 -m http.server
-
-and then point your browser at ``localhost:8000``.
 
 .. note::
 

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>How to Contribute &mdash; Eve 0.8-dev documentation</title>
+    <title>How to contribute &mdash; Eve 0.8-dev documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="top" title="Eve 0.8-dev documentation" href="index.html" />
-    <link rel="next" title="Running the Tests" href="testing.html" />
+    <link rel="next" title="Support" href="support.html" />
     <link rel="prev" title="Extensions" href="extensions.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -43,55 +43,159 @@
           <div class="body" role="main">
             
   <div class="section" id="how-to-contribute">
-<span id="contributing"></span><h1>How to Contribute<a class="headerlink" href="#how-to-contribute" title="Permalink to this headline">¶</a></h1>
+<span id="contributing"></span><h1>How to contribute<a class="headerlink" href="#how-to-contribute" title="Permalink to this headline">¶</a></h1>
 <p>Contributions are welcome! Not familiar with the codebase yet? No problem!
 There are many ways to contribute to open source projects: reporting bugs,
 helping with the documentation, spreading the word and of course, adding
 new features and patches.</p>
-<div class="section" id="getting-started">
-<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
-<ol class="arabic simple">
-<li>Make sure you have a <a class="reference external" href="https://github.com/">GitHub</a> account.</li>
-<li>Open a <a class="reference external" href="https://github.com/pyeve/eve/issues/new">new issue</a>, assuming one does not already exist.</li>
-<li>Clearly describe the issue including steps to reproduce when it is a bug.</li>
-</ol>
-</div>
-<div class="section" id="making-changes">
-<h2>Making Changes<a class="headerlink" href="#making-changes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="support-questions">
+<h2>Support questions<a class="headerlink" href="#support-questions" title="Permalink to this headline">¶</a></h2>
+<p>Please, don&#8217;t use the issue tracker for this. Use one of the following
+resources for questions about your own code:</p>
 <ul class="simple">
-<li><a class="reference external" href="https://help.github.com/articles/fork-a-repo">Fork</a> the repository on GitHub.</li>
-<li>Create a topic branch from where you want to base your work.</li>
-<li>This is usually the <tt class="docutils literal"><span class="pre">master</span></tt> branch.</li>
-<li>Make commits of logical units (if needed rebase your feature branch before
-submitting it).</li>
-<li>Check for unnecessary whitespace with <tt class="docutils literal"><span class="pre">git</span> <span class="pre">diff</span> <span class="pre">--check</span></tt> before committing.</li>
-<li>Make sure your commit messages are in the <a class="reference external" href="http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html">proper format</a>.</li>
-<li>If your commit fixes an open issue, reference it in the commit message (#15).</li>
-<li>Make sure your code conforms to <a class="reference external" href="http://www.python.org/dev/peps/pep-0008/">PEP8</a> (we&#8217;re using <a class="reference external" href="http://flake8.readthedocs.org/en/latest/">flake8</a> for PEP8 and extra checks).</li>
-<li>Make sure you have added the necessary tests for your changes.</li>
-<li>Run all the tests to assure nothing else was accidentally broken.</li>
-<li>Run again the entire suite via <a class="reference external" href="http://tox.readthedocs.org/en/latest/">tox</a> to check your changes against multiple
-python versions. <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">tox;</span> <span class="pre">tox</span></tt></li>
-<li>Don&#8217;t forget to add yourself to <a class="reference external" href="https://github.com/pyeve/eve/blob/master/AUTHORS">AUTHORS</a>.</li>
-</ul>
-<p>These guidelines also apply when helping with documentation (actually,
-for typos and minor additions you might choose to <a class="reference external" href="https://github.com/blog/844-forking-with-the-edit-button">fork and
-edit</a>). See also the <a class="reference external" href="http://python-eve.org/testing#running-the-tests">running the tests</a> section in the official
-documentation.</p>
-</div>
-<div class="section" id="submitting-changes">
-<h2>Submitting Changes<a class="headerlink" href="#submitting-changes" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li>Push your changes to a topic branch in your fork of the repository.</li>
-<li>Submit a <a class="reference external" href="https://help.github.com/articles/creating-a-pull-request">Pull Request</a>.</li>
-<li>Wait for maintainer feedback.</li>
+<li>Ask on <a class="reference external" href="https://stackoverflow.com/questions/tagged/eve?sort=linked">Stack Overflow</a>. Search with Google first using: <tt class="docutils literal"><span class="pre">site:stackoverflow.com</span> <span class="pre">eve</span> <span class="pre">{search</span> <span class="pre">term,</span> <span class="pre">exception</span> <span class="pre">message,</span> <span class="pre">etc.}</span></tt></li>
+<li>The <a class="reference external" href="https://groups.google.com/forum/#!forum/python-eve">mailing list</a> is intended to be a low traffic resource for both developers/contributors and API maintainers looking for help or requesting feedback.</li>
+<li>The IRC channel <tt class="docutils literal"><span class="pre">#python-eve</span></tt> on FreeNode.</li>
 </ul>
 </div>
-<div class="section" id="join-us-on-irc">
-<h2>Join us on IRC<a class="headerlink" href="#join-us-on-irc" title="Permalink to this headline">¶</a></h2>
-<p>If you&#8217;re interested in contributing to the Eve project or have questions
-about it come join us in our little #python-eve channel on irc.freenode.net.
-It&#8217;s comfy and cozy over there.</p>
+<div class="section" id="reporting-issues">
+<h2>Reporting issues<a class="headerlink" href="#reporting-issues" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Describe what you expected to happen.</li>
+<li>If possible, include a <a class="reference external" href="https://stackoverflow.com/help/mcve">minimal, complete, and verifiable example</a> to help
+us identify the issue. This also helps check that the issue is not with your
+own code.</li>
+<li>Describe what actually happened. Include the full traceback if there was an
+exception.</li>
+<li>List your Python and Eve versions. If possible, check if this issue is
+already fixed in the repository.</li>
+</ul>
+</div>
+<div class="section" id="submitting-patches">
+<h2>Submitting patches<a class="headerlink" href="#submitting-patches" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Include tests if your patch is supposed to solve a bug, and explain
+clearly under which circumstances the bug happens. Make sure the test fails
+without your patch.</li>
+<li>Follow <a class="reference external" href="https://pep8.org/">PEP8</a>. CI will reject a change that does not conform to the
+guidelines.</li>
+</ul>
+<div class="section" id="first-time-setup">
+<h3>First time setup<a class="headerlink" href="#first-time-setup" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p class="first">Download and install the <a class="reference external" href="https://git-scm.com/downloads">latest version of git</a>.</p>
+</li>
+<li><p class="first">Configure git with your <a class="reference external" href="https://help.github.com/articles/setting-your-username-in-git/">username</a> and <a class="reference external" href="https://help.github.com/articles/setting-your-email-in-git/">email</a>:</p>
+<div class="highlight-python"><div class="highlight"><pre>git config --global user.name &#39;your name&#39;
+git config --global user.email &#39;your email&#39;
+</pre></div>
+</div>
+</li>
+<li><p class="first">Make sure you have a <a class="reference external" href="https://github.com/join">GitHub account</a>.</p>
+</li>
+<li><p class="first">Fork Eve to your GitHub account by clicking the <a class="reference external" href="https://github.com/pallets/flask/fork">Fork</a> button.</p>
+</li>
+<li><p class="first"><a class="reference external" href="https://help.github.com/articles/fork-a-repo/#step-2-create-a-local-clone-of-your-fork">Clone</a> your GitHub fork locally:</p>
+<div class="highlight-python"><div class="highlight"><pre>git clone https://github.com/{username}/eve
+cd eve
+</pre></div>
+</div>
+</li>
+<li><p class="first">Add the main repository as a remote to update later:</p>
+<div class="highlight-python"><div class="highlight"><pre>git remote add pyeve https://github.com/pyeve/eve
+git fetch pyeve
+</pre></div>
+</div>
+</li>
+<li><p class="first">Create a virtualenv:</p>
+<div class="highlight-python"><div class="highlight"><pre>python3 -m venv env
+. env/bin/activate
+# or &quot;env\Scripts\activate&quot; on Windows
+</pre></div>
+</div>
+</li>
+<li><p class="first">Install Eve in editable mode with development dependencies:</p>
+<div class="highlight-python"><div class="highlight"><pre>pip install -e &quot;.[dev]&quot;
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="start-coding">
+<h3>Start coding<a class="headerlink" href="#start-coding" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Create a branch to identify the issue you would like to work on (e.g.
+<tt class="docutils literal"><span class="pre">fix_for_#1280</span></tt>)</li>
+<li>Using your favorite editor, make your changes, <a class="reference external" href="http://dont-be-afraid-to-commit.readthedocs.io/en/latest/git/commandlinegit.html#commit-your-changes">committing as you go</a>.</li>
+<li>Follow <a class="reference external" href="https://pep8.org/">PEP8</a>.</li>
+<li>Include tests that cover any code changes you make. Make sure the test fails
+without your patch. <a class="reference internal" href="#contributing-testsuite">Run the tests.</a>.</li>
+<li>Push your commits to GitHub and <a class="reference external" href="https://help.github.com/articles/creating-a-pull-request/">create a pull request</a>.</li>
+<li>Celebrate 🎉</li>
+</ul>
+</div>
+<div class="section" id="running-the-tests">
+<span id="contributing-testsuite"></span><h3>Running the tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h3>
+<p>Run the basic test suite with:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pytest</span>
+</pre></div>
+</div>
+<p>If you want you can run a single module, say the <tt class="docutils literal"><span class="pre">methods</span></tt> suite:</p>
+<div class="highlight-python"><div class="highlight"><pre>pytest eve/tests/methods/
+</pre></div>
+</div>
+<p>Or, to run only the <tt class="docutils literal"><span class="pre">get</span></tt> tests:</p>
+<div class="highlight-python"><div class="highlight"><pre>pytest eve/tests/methods/get.py
+</pre></div>
+</div>
+<p>You can also choose to just run a single class:</p>
+<div class="highlight-python"><div class="highlight"><pre>pytest eve/tests/methods/get.py::TestGet
+</pre></div>
+</div>
+<p>Or even a single test:</p>
+<div class="highlight-python"><div class="highlight"><pre>pytest eve/tests/methods/get.py::TestGet::test_get_emtpy_resource
+</pre></div>
+</div>
+<p>You can also collect tests by keyword:</p>
+<div class="highlight-python"><div class="highlight"><pre>pytest -k auth
+</pre></div>
+</div>
+<p>These only runs the tests for the current environment. Whether this is relevant
+depends on which part of Eve you&#8217;re working on. Travis-CI will run the full
+suite when you submit your pull request.</p>
+<p>The full test suite takes a long time to run because it tests multiple
+combinations of Python and dependencies. You need to have Python 2.7, 3.4,
+3.5, 3.6, and PyPy installed to run all of the environments. Then run:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">tox</span>
+</pre></div>
+</div>
+<p>Or, if you want to only run your tests against a specific Python environment:</p>
+<div class="highlight-python"><div class="highlight"><pre>tox -e py36
+# py27 = Python 2.7
+# py34 = Python 3.4
+# py35 = Python 3.5
+# py36 = Python 3.6
+# pypy + PyPy
+</pre></div>
+</div>
+</div>
+<div class="section" id="rate-limiting-tests">
+<h3>Rate limiting tests<a class="headerlink" href="#rate-limiting-tests" title="Permalink to this headline">¶</a></h3>
+<p>While there are no test requirements for most of the suite, please be advised
+that in order to execute the <a class="reference internal" href="features.html#ratelimiting"><em>Rate Limiting</em></a> tests you need a running
+<a class="reference external" href="https://redis.io">Redis</a> server. The Rate-Limiting tests are silently skipped if any of the two
+conditions are not met.</p>
+</div>
+<div class="section" id="building-the-docs">
+<h3>Building the docs<a class="headerlink" href="#building-the-docs" title="Permalink to this headline">¶</a></h3>
+<p>Build the docs in the <tt class="docutils literal"><span class="pre">docs</span></tt> directory using Sphinx:</p>
+<div class="highlight-python"><div class="highlight"><pre>cd docs
+make html BUILDDIR=_build
+</pre></div>
+</div>
+<p>Open <tt class="docutils literal"><span class="pre">_build/html/index.html</span></tt> in your browser to view the docs.</p>
+<p>Read more about <a class="reference external" href="http://www.sphinx-doc.org">Sphinx</a>.</p>
+</div>
 </div>
 <div class="section" id="first-time-contributor">
 <h2>First time contributor?<a class="headerlink" href="#first-time-contributor" title="Permalink to this headline">¶</a></h2>
@@ -101,12 +205,11 @@ It&#8217;s comfy and cozy over there.</p>
 <h2>Don&#8217;t know where to start?<a class="headerlink" href="#don-t-know-where-to-start" title="Permalink to this headline">¶</a></h2>
 <p>There are usually several TODO comments scattered around the codebase, maybe
 check them out and see if you have ideas, or can help with them. Also, check
-the <a class="reference external" href="https://github.com/pyeve/eve/issues">open issues</a> in case there&#8217;s something that sparks your interest (there&#8217;s
-also a special <tt class="docutils literal"><span class="pre">contributor</span> <span class="pre">friendly</span></tt> label flagging some interesting feature
-requests). And what about documentation?  I suck at English so if you&#8217;re fluent
-with it (or notice any typo and/or mistake), why not help with that? In any
-case, other than GitHub <a class="reference external" href="https://help.github.com/">help</a> pages, you might want to check this excellent
-<a class="reference external" href="http://codeinthehole.com/writing/pull-requests-and-other-good-practices-for-teams-using-github/">Effective Guide to Pull Requests</a></p>
+the <a class="reference external" href="https://github.com/pyeve/eve/issues">open issues</a> in case there&#8217;s something that sparks your interest. And
+what about documentation? I suck at English, so if you&#8217;re fluent with it (or
+notice any typo and/or mistake), why not help with that? In any case, other
+than GitHub <a class="reference external" href="https://help.github.com/">help</a> pages, you might want to check this excellent <a class="reference external" href="http://codeinthehole.com/writing/pull-requests-and-other-good-practices-for-teams-using-github/">Effective
+Guide to Pull Requests</a></p>
 </div>
 </div>
 
@@ -193,16 +296,21 @@ case, other than GitHub <a class="reference external" href="https://help.github.
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="snippets/index.html">Snippets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extensions.html">Extensions</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">How to Contribute</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#making-changes">Making Changes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#submitting-changes">Submitting Changes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#join-us-on-irc">Join us on IRC</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">How to contribute</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#support-questions">Support questions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reporting-issues">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#submitting-patches">Submitting patches</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#first-time-setup">First time setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#start-coding">Start coding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-the-tests">Running the tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rate-limiting-tests">Rate limiting tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#building-the-docs">Building the docs</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#first-time-contributor">First time contributor?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#don-t-know-where-to-start">Don&#8217;t know where to start?</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="testing.html">Running the Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
 <li class="toctree-l1"><a class="reference internal" href="updates.html">Updates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>

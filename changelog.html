@@ -49,6 +49,12 @@
 <div class="section" id="version-0-8">
 <h3>Version 0.8<a class="headerlink" href="#version-0-8" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>Dev: Switch to pytest as the standard testing tool.</li>
+<li>Dev: Drop <tt class="docutils literal"><span class="pre">requiments.txt</span></tt> and <tt class="docutils literal"><span class="pre">dev-requirements.txt</span></tt>. Use <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span>
+<span class="pre">-e</span> <span class="pre">.[dev|tests|docs]</span></tt> instead.</li>
+<li>Docs: Comprehensive rewrite of the Contributing page.</li>
+<li>Docs: Drop the testing page; merge its contents with the Contributing
+page.</li>
 <li>Flask requirement set to &gt;=1.0. Closes #1111.</li>
 <li>Python 2.6 and Python 3.3 are no longer supported.</li>
 <li>Tests: finally acknowledge the existence of modern APIs for both Mongo and
@@ -1703,8 +1709,7 @@ signature, allowing for further subclassing.</li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="snippets/index.html">Snippets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extensions.html">Extensions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">How to Contribute</a></li>
-<li class="toctree-l1"><a class="reference internal" href="testing.html">Running the Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">How to contribute</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
 <li class="toctree-l1"><a class="reference internal" href="updates.html">Updates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
