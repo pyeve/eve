@@ -190,22 +190,11 @@ conditions are not met.</p>
 <h3>Building the docs<a class="headerlink" href="#building-the-docs" title="Permalink to this headline">¶</a></h3>
 <p>Build the docs in the <tt class="docutils literal"><span class="pre">docs</span></tt> directory using Sphinx:</p>
 <div class="highlight-python"><div class="highlight"><pre>cd docs
-make html
+make html BUILDDIR=_build
 </pre></div>
 </div>
 <p>Open <tt class="docutils literal"><span class="pre">_build/html/index.html</span></tt> in your browser to view the docs.</p>
 <p>Read more about <a class="reference external" href="http://www.sphinx-doc.org">Sphinx</a>.</p>
-</div>
-<div class="section" id="make-targets">
-<h3>make targets<a class="headerlink" href="#make-targets" title="Permalink to this headline">¶</a></h3>
-<p>Eve provides a <tt class="docutils literal"><span class="pre">Makefile</span></tt> with various shortcuts. They will ensure that
-all dependencies are installed.</p>
-<ul class="simple">
-<li><tt class="docutils literal"><span class="pre">make</span> <span class="pre">test</span></tt> runs the basic test suite with <tt class="docutils literal"><span class="pre">pytest</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">make</span> <span class="pre">test-all</span></tt> runs the full test suite with <tt class="docutils literal"><span class="pre">tox</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">make</span> <span class="pre">docs</span></tt> builds the HTML documentation</li>
-<li><tt class="docutils literal"><span class="pre">make</span> <span class="pre">install-dev</span></tt> install Eve in editable mode with all development dependencies.</li>
-</ul>
 </div>
 </div>
 <div class="section" id="first-time-contributor">
@@ -316,7 +305,6 @@ Guide to Pull Requests</a></p>
 <li class="toctree-l3"><a class="reference internal" href="#running-the-tests">Running the tests</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#rate-limiting-tests">Rate limiting tests</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#building-the-docs">Building the docs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#make-targets">make targets</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#first-time-contributor">First time contributor?</a></li>
