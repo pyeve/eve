@@ -153,15 +153,24 @@ conditions are not met.
 
 Building the docs
 ~~~~~~~~~~~~~~~~~
-
 Build the docs in the ``docs`` directory using Sphinx::
 
     cd docs
-    make html BUILDDIR=_build
+    make html 
 
 Open ``_build/html/index.html`` in your browser to view the docs.
 
 Read more about `Sphinx <http://www.sphinx-doc.org>`_.
+
+make targets
+~~~~~~~~~~~~
+Eve provides a ``Makefile`` with various shortcuts. They will ensure that
+all dependencies are installed.
+
+- ``make test`` runs the basic test suite with ``pytest``
+- ``make test-all`` runs the full test suite with ``tox``
+- ``make docs`` builds the HTML documentation
+- ``make install-dev`` install Eve in editable mode with all development dependencies.
 
 First time contributor?
 -----------------------
