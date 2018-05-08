@@ -8,12 +8,13 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- Dev: Add a Makefile with shortcuts for testing, docs building, and
+  development install.
 - Dev: Switch to pytest as the standard testing tool.
 - Dev: Drop ``requiments.txt`` and ``dev-requirements.txt``. Use ``pip install
   -e .[dev|tests|docs]`` instead.
 - Docs: Comprehensive rewrite of the Contributing page. 
-- Docs: Drop the testing page; merge its contents with the Contributing
-  page.
+- Docs: Drop the testing page; merge its contents with the Contributing page.
 - Flask requirement set to >=1.0. Closes #1111.
 - Python 2.6 and Python 3.3 are no longer supported.
 - Tests: finally acknowledge the existence of modern APIs for both Mongo and
