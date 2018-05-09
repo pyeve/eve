@@ -646,6 +646,8 @@ class Eve(Flask, Events):
         settings.setdefault('hateoas',
                             self.config['HATEOAS'])
         settings.setdefault('authentication', self.auth if self.auth else None)
+        settings.setdefault('merge_nested_documents',
+                            self.config['MERGE_NESTED_DOCUMENTS'])
         # empty schemas are allowed for read-only access to resources
         schema = settings.setdefault('schema', {})
         self.set_schema_defaults(schema, settings['id_field'])

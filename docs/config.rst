@@ -754,6 +754,11 @@ uppercase.
                                     disable this feature, and a ``404`` will be
                                     returned instead. Defaults to ``True``.
 
+``MERGE_NESTED_DOCUMENTS``          If ``True``, updates to nested fields are
+                                    merged with the current data on ``PATCH``.
+                                    If ``False``, the updates overwrite the
+                                    current data. Defaults to ``True``.
+
 =================================== =========================================
 
 .. _domain:
@@ -1083,6 +1088,12 @@ always lowercase.
 ``soft_delete``                 When ``True`` this option enables the
                                 :ref:`soft_delete` feature for this resource.
                                 Locally overrides ``SOFT_DELETE``.
+
+``merge_nested_documents``      If ``True``, updates to nested fields are
+                                merged with the current data on ``PATCH``.
+                                If ``False``, the updates overwrite the
+                                current data. Locally overrides
+                                ``MERGE_NESTED_DOCUMENTS``.
 
 =============================== ===============================================
 

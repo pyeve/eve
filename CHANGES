@@ -8,6 +8,10 @@ Development
 
 Version 0.8
 ~~~~~~~~~~~
+- New: ``MERGE_NESTED_DOCUMENTS``. If ``True``, updates to nested fields are
+  merged with the current data on ``PATCH``. If ``False``, the updates
+  overwrite the current data. Defaults to ``True``. Addresses #519 (Alexander
+  Dietmüller).
 - Dev: Add a Makefile with shortcuts for testing, docs building, and
   development install.
 - Dev: Switch to pytest as the standard testing tool.
