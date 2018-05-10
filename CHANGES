@@ -13,8 +13,9 @@ Stable
 Version 0.7.9
 ~~~~~~~~~~~~~
 
-- Python 2.6 and Python 3.3 are deprecated. Closes #1129.
+Released on May 10, 2018
 
+- Python 2.6 and Python 3.3 are deprecated. Closes #1129.
 
 Version 0.7.8
 ~~~~~~~~~~~~~
