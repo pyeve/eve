@@ -8,18 +8,6 @@ allows to effortlessly build and deploy highly customizable, fully featured
 RESTful Web Services. Eve offers native support for MongoDB, and SQL backends
 via community extensions.
 
-Funding
--------
-Eve REST framework is a open source, collaboratively funded project. If you run
-a business and are using Eve in a revenue-generating product, it would make
-business sense to sponsor Eve development: it ensures the project that your
-product relies on stays healthy and actively maintained. Individual users are
-also welcome to make a recurring pledge or a one time donation if Eve has
-helped you in your work or personal projects. 
-
-Every single sign-up makes a significant impact towards making Eve possible. To
-learn more, check out our `funding page`_.
-
 Eve is Simple
 -------------
 .. code-block:: python
@@ -80,6 +68,17 @@ Features
 * MongoDB and SQL Support
 * Powered by Flask
 
+Funding
+-------
+Eve REST framework is a open source, collaboratively funded project. If you run
+a business and are using Eve in a revenue-generating product, it would make
+business sense to sponsor Eve development: it ensures the project that your
+product relies on stays healthy and actively maintained. Individual users are
+also welcome to make a recurring pledge or a one time donation if Eve has
+helped you in your work or personal projects. 
+
+Every single sign-up makes a significant impact towards making Eve possible. To
+learn more, check out our `funding page`_.
 
 License
 -------
