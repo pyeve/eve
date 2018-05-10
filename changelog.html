@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Changelog &mdash; Eve 0.8-dev documentation</title>
+    <title>Changelog &mdash; Eve 0.8 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.8-dev',
+        VERSION:     '0.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.8-dev documentation" href="index.html" />
+    <link rel="top" title="Eve 0.8 documentation" href="index.html" />
     <link rel="prev" title="Licensing" href="license.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -46,95 +46,96 @@
 <p>Here you can see the full list of changes between each Eve release.</p>
 <div class="section" id="development">
 <h2>Development<a class="headerlink" href="#development" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="stable">
+<h2>Stable<a class="headerlink" href="#stable" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="version-0-8">
 <h3>Version 0.8<a class="headerlink" href="#version-0-8" title="Permalink to this headline">¶</a></h3>
+<p>Released on May 10, 2018.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Make sure you read the <a class="reference internal" href="#breaking-changes">Breaking Changes</a> section below.</p>
+</div>
 <ul class="simple">
-<li>Dev: Add a Makefile with shortcuts for testing, docs building, and
-development install.</li>
-<li>Dev: Switch to pytest as the standard testing tool.</li>
-<li>Dev: Drop <tt class="docutils literal"><span class="pre">requiments.txt</span></tt> and <tt class="docutils literal"><span class="pre">dev-requirements.txt</span></tt>. Use <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span>
-<span class="pre">-e</span> <span class="pre">.[dev|tests|docs]</span></tt> instead.</li>
-<li>Docs: Comprehensive rewrite of the Contributing page.</li>
-<li>Docs: Drop the testing page; merge its contents with the Contributing page.</li>
-<li>Flask requirement set to &gt;=1.0. Closes #1111.</li>
-<li>Python 2.6 and Python 3.3 are no longer supported.</li>
-<li>Tests: finally acknowledge the existence of modern APIs for both Mongo and
-Python (get rid of most deprecation warnings).</li>
-<li>New: <tt class="docutils literal"><span class="pre">before_aggregation</span></tt> and <tt class="docutils literal"><span class="pre">after_aggregation</span></tt> event hooks allow to
-attach custom callbacks to aggregation endpoints. Closes #1057.</li>
-<li>Fix: Crash with Cerberus 1.2. Closes #1137.</li>
-<li>Docs: Add link to the Eve course. It was authored by the project author, and
-it is hosted by TalkPython Training.</li>
-<li>New: Add suport for mongo&#8217;s <tt class="docutils literal"><span class="pre">$box</span></tt> geo query operator. Closes #1122.</li>
-<li>New: support for partial media requests. Clients can request partial file
-downloads by adding a <tt class="docutils literal"><span class="pre">Range</span></tt> header to their media request (Marsch Huynh).
-you should upgrade to Python 3 as soon as possible. Closes #1129.</li>
-<li>Fix: PUT behavior with User Restricted Resource Access. Ensure that, under
-every circumstance, users are unable to overwrite items owned by other users
-(Luca Moretto).</li>
-<li>Fix: OPLOG skipped even if <tt class="docutils literal"><span class="pre">OPLOG</span> <span class="pre">=</span> <span class="pre">True</span></tt>. Closes #1074 (Hung Le).</li>
-<li>Fix: Cannot define default projection and request specific field. Closes
-#1036 (DHuan).</li>
-<li>Dev: pin testfixtures to v5.x as latest releases break on Python 2.6.
-Addresses #1128.</li>
-<li>New: Add support for mongo&#8217;s <tt class="docutils literal"><span class="pre">$caseSensitive</span></tt> and <tt class="docutils literal"><span class="pre">$diactricSensitive</span></tt>
-query operators (Artem Kolesnikov).</li>
-<li>Fix: <tt class="docutils literal"><span class="pre">VALIDATE_FILTERS</span></tt> and <tt class="docutils literal"><span class="pre">ALLOWED_FILTERS</span></tt> do not work with
-sub-document fields. Closes #1123 (Luca Moretto).</li>
-<li>Fix documentation typos (Olof Johansson)</li>
-<li>Fix a changelog typo (kreynen).</li>
-<li>Fix: broken documentation links to Cerberus validation rules.</li>
-<li>New: Renderer classes. <tt class="docutils literal"><span class="pre">RENDERER</span></tt> allows to change enabled renderers.
+<li>New: support for <a class="reference external" href="http://python-eve.org/features.html#partial-media-downloads">partial media requests</a>. Clients can request partial file
+downloads by adding a <tt class="docutils literal"><span class="pre">Range</span></tt> header to their media request (<a class="reference external" href="https://github.com/pyeve/eve/pull/1050">#1050</a>).</li>
+<li>New: <a class="reference external" href="http://python-eve.org/features.html#rendering">Renderer classes</a>. <tt class="docutils literal"><span class="pre">RENDERER</span></tt> allows to change enabled renderers.
 Defaults to <tt class="docutils literal"><span class="pre">['eve.render.JSONRenderer',</span> <span class="pre">'eve.render.XMLRenderer']</span></tt>. You
 can create your own renderer by subclassing <tt class="docutils literal"><span class="pre">eve.render.Renderer</span></tt>. Each
 renderer should set valid mime attr and have <tt class="docutils literal"><span class="pre">.render()</span></tt> method
 implemented. Please note that at least one renderer must always be enabled
-(Marcin Puhacz).</li>
-<li>Change: <tt class="docutils literal"><span class="pre">JSON</span></tt> and <tt class="docutils literal"><span class="pre">XML</span></tt> settings are deprecated and will be removed in
-a future update. Use <tt class="docutils literal"><span class="pre">RENDERERS</span></tt> instead (Marcin Puhacz).</li>
-<li>New: Refactor index creation. We now have a new
+(<a class="reference external" href="https://github.com/pyeve/eve/pull/1092">#1092</a>).</li>
+<li>New: <tt class="docutils literal"><span class="pre">on_delete_resource_originals</span></tt> fired when soft deletion occurs
+(<a class="reference external" href="https://github.com/pyeve/eve/pull/1030">#1030</a>).</li>
+<li>New: <tt class="docutils literal"><span class="pre">before_aggregation</span></tt> and <tt class="docutils literal"><span class="pre">after_aggregation</span></tt> event hooks allow to
+attach <a class="reference external" href="http://python-eve.org/features.html#aggregation-event-hooks">custom callbacks to aggregation endpoints</a> (<a class="reference external" href="https://github.com/pyeve/eve/issues/1057">#1057</a>).</li>
+<li>New: <tt class="docutils literal"><span class="pre">JSON_REQUEST_CONTENT_TYPES</span></tt> or supported JSON content types. Useful
+when you need support for vendor-specific json types. Please note: responses
+will still carry the standard <tt class="docutils literal"><span class="pre">application/json</span></tt> type. Defaults to
+<tt class="docutils literal"><span class="pre">['application/json']</span></tt> (<a class="reference external" href="https://github.com/pyeve/eve/issues/1024">#1024</a>).</li>
+<li>New: when the media endpoint is enabled, the default authentication class
+will be used to secure  it. (<a class="reference external" href="https://github.com/pyeve/eve/issues/1083">#1083</a>; <a class="reference external" href="https://github.com/pyeve/eve/issues/1049">#1049</a>).</li>
+<li>New: <tt class="docutils literal"><span class="pre">MERGE_NESTED_DOCUMENTS</span></tt>. If <tt class="docutils literal"><span class="pre">True</span></tt>, updates to nested fields are
+merged with the current data on <tt class="docutils literal"><span class="pre">PATCH</span></tt>. If <tt class="docutils literal"><span class="pre">False</span></tt>, the updates
+overwrite the current data. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt> (<a class="reference external" href="https://github.com/pyeve/eve/pull/1140">#1140</a>).</li>
+<li>New: support for MongoDB decimal type <tt class="docutils literal"><span class="pre">bson.decimal128.Decimal128</span></tt>
+(<a class="reference external" href="https://github.com/pyeve/eve/issues/1045">#1045</a>).</li>
+<li>New: Support for <tt class="docutils literal"><span class="pre">Feature</span></tt> and <tt class="docutils literal"><span class="pre">FeatureCollection</span></tt> GeoJSON objects
+(<a class="reference external" href="https://github.com/pyeve/eve/issues/769">#769</a>).</li>
+<li>New: Add support for MongoDB <tt class="docutils literal"><span class="pre">$box</span></tt> geo query operator (<a class="reference external" href="https://github.com/pyeve/eve/issues/1122">#1122</a>).</li>
+<li>New: <tt class="docutils literal"><span class="pre">ALLOW_CUSTOM_FIELDS_IN_GEOJSON</span></tt> allows custom fields in GeoJSON
+(<a class="reference external" href="https://github.com/pyeve/eve/issues/1004">#1004</a>).</li>
+<li>New: Add support for MongoDB <tt class="docutils literal"><span class="pre">$caseSensitive</span></tt> and <tt class="docutils literal"><span class="pre">$diactricSensitive</span></tt>
+query operators (<a class="reference external" href="https://github.com/pyeve/eve/pull/1126">#1126</a>).</li>
+<li>New: Add support for MongoDB bitwise query operators <tt class="docutils literal"><span class="pre">$bitsAllClear</span></tt>,
+<tt class="docutils literal"><span class="pre">$bitsAllSet</span></tt>, <tt class="docutils literal"><span class="pre">$bitsAnyClear</span></tt>, <tt class="docutils literal"><span class="pre">$bitsAnySet</span></tt> (<a class="reference external" href="https://github.com/pyeve/eve/issues/1053">#1053</a>).</li>
+<li>New: support for <tt class="docutils literal"><span class="pre">MONGO_AUTH_MECHANISM</span></tt> and
+<tt class="docutils literal"><span class="pre">MONGO_AUTH_MECHANISM_PROPERTIES</span></tt>.</li>
+<li>New: <tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt> can now be used in conjuction with <tt class="docutils literal"><span class="pre">MONGO_URI</span></tt>.
+Previously, if <tt class="docutils literal"><span class="pre">MONGO_URI</span></tt> was missing the database name, an exception
+would be rised (<a class="reference external" href="https://github.com/pyeve/eve/issues/1037">#1037</a>).</li>
+<li>Fix: OPLOG skipped even if <tt class="docutils literal"><span class="pre">OPLOG</span> <span class="pre">=</span> <span class="pre">True</span></tt> (<a class="reference external" href="https://github.com/pyeve/eve/issues/1074">#1074</a>).</li>
+<li>Fix: Cannot define default projection and request specific field. (<a class="reference external" href="https://github.com/pyeve/eve/issues/1036">#1036</a>).</li>
+<li>Fix: <tt class="docutils literal"><span class="pre">VALIDATE_FILTERS</span></tt> and <tt class="docutils literal"><span class="pre">ALLOWED_FILTERS</span></tt> do not work with
+sub-document fields. (<a class="reference external" href="https://github.com/pyeve/eve/issues/1123">#1123</a>).</li>
+<li>Fix: Aggregation query parameter does not replace keys in the lists
+(<a class="reference external" href="https://github.com/pyeve/eve/issues/1025">#1025</a>).</li>
+<li>Fix: serialization bug that randomly skips fields if &#8220;x_of&#8221; is encountered
+(<a class="reference external" href="https://github.com/pyeve/eve/pull/1042">#1042</a>)</li>
+<li>Fix: PUT behavior with User Restricted Resource Access. Ensure that, under
+every circumstance, users are unable to overwrite items owned by other users
+(<a class="reference external" href="https://github.com/pyeve/eve/pull/1130">#1130</a>).</li>
+<li>Fix: Crash with Cerberus 1.2 (<a class="reference external" href="https://github.com/pyeve/eve/issues/1137">#1137</a>).</li>
+<li>Fix documentation typos (<a class="reference external" href="https://github.com/pyeve/eve/pull/1114">#1114</a>, <a class="reference external" href="https://github.com/pyeve/eve/pull/1102">#1102</a>)</li>
+<li>Fix: broken documentation links to Cerberus validation rules.</li>
+<li>Fix: add sphinxcontrib-embedly to dev-requirements.txt.</li>
+<li>Fix: Removed OrderedDict dependency; use <tt class="docutils literal"><span class="pre">OrderedDict</span></tt> from
+<tt class="docutils literal"><span class="pre">backport_collections</span></tt> instead (<a class="reference external" href="https://github.com/pyeve/eve/pull/1070">#1070</a>).</li>
+<li>Performance improved on retrieving a list of embedded documents (<a class="reference external" href="https://github.com/pyeve/eve/issues/1029">#1029</a>).</li>
+<li>Dev: Refactor index creation. We now have a new
 <tt class="docutils literal"><span class="pre">eve.io.mongo.ensure_mongo_indexes()</span></tt> function which ensures that eventual
 <tt class="docutils literal"><span class="pre">mongo_indexes</span></tt> defined for a resource are created on the active database.
 The function can be imported and invoked, for example in multi-db workflows
 where a db is activated based on the authenticated user performing the
 request (via custom auth classes).</li>
-<li>Fix: add sphinxcontrib-embedly to dev-requirements.txt.</li>
-<li>New: when the media endpoint is enabled, the default authentication class
-will be used to secure  it. Closes #1083.</li>
-<li>New: Add support for MongoDB bitwise query operators <tt class="docutils literal"><span class="pre">$bitsAllClear</span></tt>,
-<tt class="docutils literal"><span class="pre">$bitsAllSet</span></tt>, <tt class="docutils literal"><span class="pre">$bitsAnyClear</span></tt>, <tt class="docutils literal"><span class="pre">$bitsAnySet</span></tt>. Closes 1053 (Qiang
-Zhang).</li>
-<li>Fix: Aggregation query parameter does not replace keys in the lists. Closes
-#1025 (Serge Kir).</li>
-<li>Fix: Removed OrderedDict dependency; use <tt class="docutils literal"><span class="pre">OrderedDict</span></tt> from
-<tt class="docutils literal"><span class="pre">backport_collections</span></tt> instead (Carl George).</li>
-<li>New: support fpr MongoDB decimal type <tt class="docutils literal"><span class="pre">bson.decimal128.Decimal128</span></tt> (Amedeo
-Bussi).</li>
-<li>Update: upgrade PyMongo dependency to v3.5 (Amedeo Bussi).</li>
-<li>Fix: serialization bug that randomly skips fields if &#8220;x_of&#8221; is encountered.
-See PR #1042 for details (Raychee).</li>
-<li>New: <tt class="docutils literal"><span class="pre">on_delete_resource_originals</span></tt> fired when soft deletion occurs (Amedeo
-Bussi).</li>
-<li>New: <tt class="docutils literal"><span class="pre">MONGO_DBNAME</span></tt> can now be used in conjuction with <tt class="docutils literal"><span class="pre">MONGO_URI</span></tt>.
-Previously, if <tt class="docutils literal"><span class="pre">MONGO_URI</span></tt> was missing the database name, an exception
-would be rised. Closes #1037.</li>
-<li>Performance improved on retrieving a list of embedded documents. Closes #1029
-(Amedeo Bussi).</li>
-<li>New: <tt class="docutils literal"><span class="pre">JSON_REQUEST_CONTENT_TYPES</span></tt> or supported JSON content types. Useful
-when you need support for vendor-specific json types. Please note: responses
-will still carry the standard <tt class="docutils literal"><span class="pre">application/json</span></tt> type. Defaults to
-<tt class="docutils literal"><span class="pre">['application/json']</span></tt>. Closes #1024.</li>
-<li>New: <tt class="docutils literal"><span class="pre">ALLOW_CUSTOM_FIELDS_IN_GEOJSON</span></tt> allows custom fields in GeoJSON
-(Martin Fous).</li>
-<li>New: Support for <tt class="docutils literal"><span class="pre">Feature</span></tt> and <tt class="docutils literal"><span class="pre">FeatureCollection</span></tt> GeoJSON objects.
-Closes #769 (Martin Fous).</li>
-<li>Config options <tt class="docutils literal"><span class="pre">MONGO_AUTH_MECHANISM</span></tt> and
-<tt class="docutils literal"><span class="pre">MONGO_AUTH_MECHANISM_PROPERTIES</span></tt> added.</li>
-<li>Change: Support for Cerberus 1.0+. Closes #776 (Dominik Kellner, Brad P.
-Crochet).</li>
-<li>Change: Drop Flask-PyMongo dependency. Closes #855 (Artem Kolesnikov).</li>
-<li>Change: <tt class="docutils literal"><span class="pre">DELETE</span></tt> on sub-resource endpoints will only delete the documents.
-that match the endpoint semantics. Addresses #1010 (Amedeo Bussi).</li>
+<li>Dev: Add a <a class="reference external" href="http://python-eve.org/contributing.html#make-targets">Makefile with shortcuts</a> for testing, docs building, and
+development install.</li>
+<li>Dev: Switch to pytest as the standard testing tool.</li>
+<li>Dev: Drop <tt class="docutils literal"><span class="pre">requiments.txt</span></tt> and <tt class="docutils literal"><span class="pre">dev-requirements.txt</span></tt>. Use <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span>
+<span class="pre">-e</span> <span class="pre">.[dev|tests|docs]</span></tt> instead.</li>
+<li>Tests: finally acknowledge the existence of modern APIs for both Mongo and
+Python (get rid of most deprecation warnings).</li>
+<li>Change: Support for Cerberus 1.0+ (<a class="reference external" href="https://github.com/pyeve/eve/issues/776">#776</a>).</li>
+<li>Change: <tt class="docutils literal"><span class="pre">JSON</span></tt> and <tt class="docutils literal"><span class="pre">XML</span></tt> settings are deprecated and will be removed in
+a future update. Use <tt class="docutils literal"><span class="pre">RENDERERS</span></tt> instead (<a class="reference external" href="https://github.com/pyeve/eve/pull/1092">#1092</a>).</li>
+<li>Flask dependency set to &gt;=1.0 (<a class="reference external" href="https://github.com/pyeve/eve/issues/1111">#1111</a>).</li>
+<li>PyMongo dependency set to &gt;=3.5.</li>
+<li>Events dependency set to &gt;=v0.3.</li>
+<li>Drop Flask-PyMongo dependency, use custom code instead (<a class="reference external" href="https://github.com/pyeve/eve/issues/855">#855</a>).</li>
+<li>Docs: Comprehensive rewrite of the <a class="reference external" href="http://python-eve.org/contributing.html">How to contribute</a> page.</li>
+<li>Docs: Drop the testing page; merge its contents with <a class="reference external" href="http://python-eve.org/contributing.html">How to contribute</a>.</li>
+<li>Docs: Add link to the <a class="reference external" href="https://training.talkpython.fm/courses/explore_eve/eve-building-restful-mongodb-backed-apis-course">Eve course</a>. It was authored by the project author,
+and it is hosted by TalkPython Training.</li>
 <li>Docs: code snippets are now Python 3 compatibile (Pahaz Blinov).</li>
 <li>Dev: Delete and cleanup of some unnecessary code.</li>
 <li>Dev: after the latest update (May 4th) travis-ci would not run tests on
@@ -142,24 +143,38 @@ Python 2.6.</li>
 <li>Dev: all branches are now tested on travis-ci. Previously, only &#8216;master&#8217; was
 being tested.</li>
 <li>Dev: fix insidious bug in <tt class="docutils literal"><span class="pre">tests.methods.post.TestPost</span></tt> class.</li>
-<li>Update: Upgrade Events dependency to v0.3.</li>
 </ul>
 <div class="section" id="breaking-changes">
 <h4>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h4>
 <ul>
-<li><dl class="first docutils">
-<dt>Eve now relies on <a class="reference external" href="http://python-cerberus.org">Cerberus</a> 1.0+, which allows for many new powerful validation and trasformation features (like <a class="reference external" href="http://docs.python-cerberus.org/en/stable/schemas.html#registries">schema registries</a>), improved performance and, in general, a more streamlined API. It also brings some notable breaking changes.</dt>
-<dd><ul class="first last simple">
-<li><tt class="docutils literal"><span class="pre">keyschema</span></tt> was renamed to <tt class="docutils literal"><span class="pre">valueschema</span></tt>, and <tt class="docutils literal"><span class="pre">propertyschema</span></tt> to <tt class="docutils literal"><span class="pre">keyschema</span></tt>.</li>
-<li>A PATCH on a document which misses a field having a default value will now result in setting this value, even if the field was not provided in the PATCH&#8217;s payload.</li>
-<li>Error messages for <tt class="docutils literal"><span class="pre">keyschema</span></tt> are now returned as dictionary. Example: <tt class="docutils literal"><span class="pre">{'a_dict':</span> <span class="pre">{'a_field':</span> <span class="pre">&quot;value</span> <span class="pre">does</span> <span class="pre">not</span> <span class="pre">match</span> <span class="pre">regex</span> <span class="pre">'[a-z]+'&quot;}}</span></tt>.</li>
+<li><p class="first">Python 2.6 and Python 3.3 are no longer supported (<a class="reference external" href="https://github.com/pyeve/eve/issues/1129">#1129</a>).</p>
+</li>
+<li><p class="first">Eve now relies on <a class="reference external" href="http://python-cerberus.org">Cerberus</a> 1.1+  (<a class="reference external" href="https://github.com/pyeve/eve/issues/776">#776</a>). It allows for many new
+powerful validation and trasformation features (like <a class="reference external" href="http://docs.python-cerberus.org/en/stable/schemas.html#registries">schema registries</a>),
+improved performance and, in general, a more streamlined API. It also brings
+some notable breaking changes.</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">keyschema</span></tt> was renamed to <tt class="docutils literal"><span class="pre">valueschema</span></tt>, and <tt class="docutils literal"><span class="pre">propertyschema</span></tt> to
+<tt class="docutils literal"><span class="pre">keyschema</span></tt>.</li>
+<li>A PATCH on a document which misses a field having a default value will
+now result in setting this value, even if the field was not provided in
+the PATCH&#8217;s payload.</li>
+<li>Error messages for <tt class="docutils literal"><span class="pre">keyschema</span></tt> are now returned as dictionary. Example:
+<tt class="docutils literal"><span class="pre">{'a_dict':</span> <span class="pre">{'a_field':</span> <span class="pre">&quot;value</span> <span class="pre">does</span> <span class="pre">not</span> <span class="pre">match</span> <span class="pre">regex</span> <span class="pre">'[a-z]+'&quot;}}</span></tt>.</li>
 <li>Error messages for type validations are <a class="reference external" href="http://docs.python-cerberus.org/en/stable/upgrading.html#data-types">different now</a>.</li>
-<li>It is no longer valid to have a field with <tt class="docutils literal"><span class="pre">default</span> <span class="pre">=</span> <span class="pre">None</span></tt> and <tt class="docutils literal"><span class="pre">nullable</span> <span class="pre">=</span> <span class="pre">False</span></tt> (see patch.py:test_patch_nested_document_nullable_missing).</li>
-<li>And more. A complete list of breaking changes  is available <a class="reference external" href="http://docs.python-cerberus.org/en/stable/changelog.html#breaking-changes">here</a>. For detailed upgrade instructions, see Cerberus <a class="reference external" href="http://python-cerberus.org/en/stable/upgrading.html">upgrade notes</a>. An in-depth analysis of changes made to the codebase (useful if you wrote a custom validator which needs to be upgraded) is available with <a class="reference external" href="https://github.com/pyeve/eve/pull/1001/commits">this commit message</a>.</li>
-<li>Special thanks to Dominik Kellner and Brad P. Crochet for the amazing job done on this upgrade.</li>
+<li>It is no longer valid to have a field with <tt class="docutils literal"><span class="pre">default</span> <span class="pre">=</span> <span class="pre">None</span></tt> and
+<tt class="docutils literal"><span class="pre">nullable</span> <span class="pre">=</span> <span class="pre">False</span></tt> (see
+<em>patch.py:test_patch_nested_document_nullable_missing</em>).</li>
+<li>And more. A complete list of breaking changes  is available <a class="reference external" href="http://docs.python-cerberus.org/en/stable/changelog.html#breaking-changes">here</a>. For
+detailed upgrade instructions, see Cerberus <a class="reference external" href="http://python-cerberus.org/en/stable/upgrading.html">upgrade notes</a>. An in-depth
+analysis of changes made to the codebase (useful if you wrote a custom
+validator which needs to be upgraded) is available with <a class="reference external" href="https://github.com/pyeve/eve/pull/1001/commits/1110f807b478efa9f13ad1d217d22ceaa2a9e42d">this commit
+message</a>.</li>
+<li>Special thanks to Dominik Kellner and Brad P. Crochet for the amazing job
+done on this upgrade.</li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </li>
 <li><p class="first">Config setting <tt class="docutils literal"><span class="pre">MONGO_AUTHDBNAME</span></tt> renamed into <tt class="docutils literal"><span class="pre">MONGO_AUTH_SOURCE</span></tt> for
 naming consistency with PyMongo.</p>
@@ -172,14 +187,19 @@ instead.</p>
 <li><p class="first">Be aware that <tt class="docutils literal"><span class="pre">DELETE</span></tt> on sub-resource endpoint will now only delete the
 documents matching endpoint semantics. A delete operation on
 <tt class="docutils literal"><span class="pre">people/51f63e0838345b6dcd7eabff/invoices</span></tt> will delete all documents
-matching the followig query: <tt class="docutils literal"><span class="pre">{'contact_id':</span> <span class="pre">'51f63e0838345b6dcd7eabff'}</span></tt></p>
+matching the followig query: <tt class="docutils literal"><span class="pre">{'contact_id':</span> <span class="pre">'51f63e0838345b6dcd7eabff'}</span></tt>
+(<a class="reference external" href="https://github.com/pyeve/eve/issues/1010">#1010</a>).</p>
 </li>
 </ul>
 </div>
 </div>
+<div class="section" id="version-0-7-9">
+<h3>Version 0.7.9<a class="headerlink" href="#version-0-7-9" title="Permalink to this headline">¶</a></h3>
+<p>Released on May 10, 2018</p>
+<ul class="simple">
+<li>Python 2.6 and Python 3.3 are deprecated. Closes #1129.</li>
+</ul>
 </div>
-<div class="section" id="stable">
-<h2>Stable<a class="headerlink" href="#stable" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="version-0-7-8">
 <h3>Version 0.7.8<a class="headerlink" href="#version-0-7-8" title="Permalink to this headline">¶</a></h3>
 <p>Released on 7 February, 2018</p>
@@ -1716,14 +1736,13 @@ signature, allowing for further subclassing.</li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#development">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#development">Development</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stable">Stable</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#version-0-8">Version 0.8</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#breaking-changes">Breaking Changes</a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#stable">Stable</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#version-0-7-9">Version 0.7.9</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#version-0-7-8">Version 0.7.8</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#version-0-7-7">Version 0.7.7</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#version-0-7-6">Version 0.7.6</a></li>
