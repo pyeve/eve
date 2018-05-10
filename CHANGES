@@ -6,8 +6,13 @@ Here you can see the full list of changes between each Eve release.
 Development
 -----------
 
+Stable
+------
+
 Version 0.8
 ~~~~~~~~~~~
+
+Released on May 10, 2018.
 
 .. note::
 
@@ -184,9 +189,6 @@ Breaking Changes
 .. _`makefile with shortcuts`: http://python-eve.org/contributing.html#make-targets
 .. _`How to contribute`: http://python-eve.org/contributing.html
 .. _`Eve course`: https://training.talkpython.fm/courses/explore_eve/eve-building-restful-mongodb-backed-apis-course
-
-Stable
-------
 
 Version 0.7.9
 ~~~~~~~~~~~~~

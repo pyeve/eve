@@ -33,7 +33,7 @@ EXTRAS_REQUIRE["dev"] = EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["docs"]
 
 setup(
     name='Eve',
-    version='0.8-dev',
+    version='0.8',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',
