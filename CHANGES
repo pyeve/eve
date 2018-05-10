@@ -6,98 +6,97 @@ Here you can see the full list of changes between each Eve release.
 Development
 -----------
 
+Stable
+------
+
 Version 0.8
 ~~~~~~~~~~~
-- New: ``MERGE_NESTED_DOCUMENTS``. If ``True``, updates to nested fields are
-  merged with the current data on ``PATCH``. If ``False``, the updates
-  overwrite the current data. Defaults to ``True``. Addresses #519 (Alexander
-  Dietmüller).
-- Dev: Add a Makefile with shortcuts for testing, docs building, and
-  development install.
-- Dev: Switch to pytest as the standard testing tool.
-- Dev: Drop ``requiments.txt`` and ``dev-requirements.txt``. Use ``pip install
-  -e .[dev|tests|docs]`` instead.
-- Docs: Comprehensive rewrite of the Contributing page. 
-- Docs: Drop the testing page; merge its contents with the Contributing page.
-- Flask requirement set to >=1.0. Closes #1111.
-- Python 2.6 and Python 3.3 are no longer supported.
-- Tests: finally acknowledge the existence of modern APIs for both Mongo and
-  Python (get rid of most deprecation warnings).
-- New: ``before_aggregation`` and ``after_aggregation`` event hooks allow to
-  attach custom callbacks to aggregation endpoints. Closes #1057.
-- Fix: Crash with Cerberus 1.2. Closes #1137.
-- Docs: Add link to the Eve course. It was authored by the project author, and
-  it is hosted by TalkPython Training.
-- New: Add suport for mongo's ``$box`` geo query operator. Closes #1122.
-- New: support for partial media requests. Clients can request partial file
-  downloads by adding a ``Range`` header to their media request (Marsch Huynh).
-  you should upgrade to Python 3 as soon as possible. Closes #1129.
-- Fix: PUT behavior with User Restricted Resource Access. Ensure that, under
-  every circumstance, users are unable to overwrite items owned by other users
-  (Luca Moretto).
-- Fix: OPLOG skipped even if ``OPLOG = True``. Closes #1074 (Hung Le).
-- Fix: Cannot define default projection and request specific field. Closes
-  #1036 (DHuan).
-- Dev: pin testfixtures to v5.x as latest releases break on Python 2.6.
-  Addresses #1128.
-- New: Add support for mongo's ``$caseSensitive`` and ``$diactricSensitive``
-  query operators (Artem Kolesnikov).
-- Fix: ``VALIDATE_FILTERS`` and ``ALLOWED_FILTERS`` do not work with
-  sub-document fields. Closes #1123 (Luca Moretto).
-- Fix documentation typos (Olof Johansson)
-- Fix a changelog typo (kreynen).
-- Fix: broken documentation links to Cerberus validation rules.
-- New: Renderer classes. ``RENDERER`` allows to change enabled renderers.
+
+Released on May 10, 2018.
+
+.. note::
+
+    Make sure you read the `Breaking Changes`_ section below.
+
+- New: support for `partial media requests`_. Clients can request partial file
+  downloads by adding a ``Range`` header to their media request (`#1050`_).
+- New: `Renderer classes`_. ``RENDERER`` allows to change enabled renderers.
   Defaults to ``['eve.render.JSONRenderer', 'eve.render.XMLRenderer']``. You
   can create your own renderer by subclassing ``eve.render.Renderer``. Each
   renderer should set valid mime attr and have ``.render()`` method
   implemented. Please note that at least one renderer must always be enabled
-  (Marcin Puhacz).
-- Change: ``JSON`` and ``XML`` settings are deprecated and will be removed in
-  a future update. Use ``RENDERERS`` instead (Marcin Puhacz).
-- New: Refactor index creation. We now have a new
+  (`#1092`_).
+- New: ``on_delete_resource_originals`` fired when soft deletion occurs
+  (`#1030`_).
+- New: ``before_aggregation`` and ``after_aggregation`` event hooks allow to
+  attach `custom callbacks to aggregation endpoints`_ (`#1057`_).
+- New: ``JSON_REQUEST_CONTENT_TYPES`` or supported JSON content types. Useful
+  when you need support for vendor-specific json types. Please note: responses
+  will still carry the standard ``application/json`` type. Defaults to
+  ``['application/json']`` (`#1024`_).
+- New: when the media endpoint is enabled, the default authentication class
+  will be used to secure  it. (`#1083`_; `#1049`_).
+- New: ``MERGE_NESTED_DOCUMENTS``. If ``True``, updates to nested fields are
+  merged with the current data on ``PATCH``. If ``False``, the updates
+  overwrite the current data. Defaults to ``True`` (`#1140`_).
+- New: support for MongoDB decimal type ``bson.decimal128.Decimal128``
+  (`#1045`_).
+- New: Support for ``Feature`` and ``FeatureCollection`` GeoJSON objects
+  (`#769`_).
+- New: Add support for MongoDB ``$box`` geo query operator (`#1122`_).
+- New: ``ALLOW_CUSTOM_FIELDS_IN_GEOJSON`` allows custom fields in GeoJSON
+  (`#1004`_).
+- New: Add support for MongoDB ``$caseSensitive`` and ``$diactricSensitive``
+  query operators (`#1126`_).
+- New: Add support for MongoDB bitwise query operators ``$bitsAllClear``,
+  ``$bitsAllSet``, ``$bitsAnyClear``, ``$bitsAnySet`` (`#1053`_). 
+- New: support for ``MONGO_AUTH_MECHANISM`` and
+  ``MONGO_AUTH_MECHANISM_PROPERTIES``.
+- New: ``MONGO_DBNAME`` can now be used in conjuction with ``MONGO_URI``.
+  Previously, if ``MONGO_URI`` was missing the database name, an exception
+  would be rised (`#1037`_).
+- Fix: OPLOG skipped even if ``OPLOG = True`` (`#1074`_).
+- Fix: Cannot define default projection and request specific field. (`#1036`_).
+- Fix: ``VALIDATE_FILTERS`` and ``ALLOWED_FILTERS`` do not work with
+  sub-document fields. (`#1123`_).
+- Fix: Aggregation query parameter does not replace keys in the lists
+  (`#1025`_).
+- Fix: serialization bug that randomly skips fields if "x_of" is encountered
+  (`#1042`_)
+- Fix: PUT behavior with User Restricted Resource Access. Ensure that, under
+  every circumstance, users are unable to overwrite items owned by other users
+  (`#1130`_).
+- Fix: Crash with Cerberus 1.2 (`#1137`_).
+- Fix documentation typos (`#1114`_, `#1102`_)
+- Fix: broken documentation links to Cerberus validation rules.
+- Fix: add sphinxcontrib-embedly to dev-requirements.txt.
+- Fix: Removed OrderedDict dependency; use ``OrderedDict`` from
+  ``backport_collections`` instead (`#1070`_).
+- Performance improved on retrieving a list of embedded documents (`#1029`_).
+- Dev: Refactor index creation. We now have a new
   ``eve.io.mongo.ensure_mongo_indexes()`` function which ensures that eventual
   ``mongo_indexes`` defined for a resource are created on the active database.
   The function can be imported and invoked, for example in multi-db workflows
   where a db is activated based on the authenticated user performing the
   request (via custom auth classes).
-- Fix: add sphinxcontrib-embedly to dev-requirements.txt.
-- New: when the media endpoint is enabled, the default authentication class
-  will be used to secure  it. Closes #1083.
-- New: Add support for MongoDB bitwise query operators ``$bitsAllClear``,
-  ``$bitsAllSet``, ``$bitsAnyClear``, ``$bitsAnySet``. Closes 1053 (Qiang
-  Zhang).
-- Fix: Aggregation query parameter does not replace keys in the lists. Closes
-  #1025 (Serge Kir).
-- Fix: Removed OrderedDict dependency; use ``OrderedDict`` from
-  ``backport_collections`` instead (Carl George).
-- New: support fpr MongoDB decimal type ``bson.decimal128.Decimal128`` (Amedeo
-  Bussi).
-- Update: upgrade PyMongo dependency to v3.5 (Amedeo Bussi).
-- Fix: serialization bug that randomly skips fields if "x_of" is encountered.
-  See PR #1042 for details (Raychee).
-- New: ``on_delete_resource_originals`` fired when soft deletion occurs (Amedeo
-  Bussi).
-- New: ``MONGO_DBNAME`` can now be used in conjuction with ``MONGO_URI``.
-  Previously, if ``MONGO_URI`` was missing the database name, an exception
-  would be rised. Closes #1037.
-- Performance improved on retrieving a list of embedded documents. Closes #1029
-  (Amedeo Bussi).
-- New: ``JSON_REQUEST_CONTENT_TYPES`` or supported JSON content types. Useful
-  when you need support for vendor-specific json types. Please note: responses
-  will still carry the standard ``application/json`` type. Defaults to
-  ``['application/json']``. Closes #1024.
-- New: ``ALLOW_CUSTOM_FIELDS_IN_GEOJSON`` allows custom fields in GeoJSON
-  (Martin Fous).
-- New: Support for ``Feature`` and ``FeatureCollection`` GeoJSON objects.
-  Closes #769 (Martin Fous). 
-- Config options ``MONGO_AUTH_MECHANISM`` and
-  ``MONGO_AUTH_MECHANISM_PROPERTIES`` added.
-- Change: Support for Cerberus 1.0+. Closes #776 (Dominik Kellner, Brad P.
-  Crochet).
-- Change: Drop Flask-PyMongo dependency. Closes #855 (Artem Kolesnikov).
-- Change: ``DELETE`` on sub-resource endpoints will only delete the documents.
-  that match the endpoint semantics. Addresses #1010 (Amedeo Bussi). 
+- Dev: Add a `Makefile with shortcuts`_ for testing, docs building, and
+  development install.
+- Dev: Switch to pytest as the standard testing tool.
+- Dev: Drop ``requiments.txt`` and ``dev-requirements.txt``. Use ``pip install
+  -e .[dev|tests|docs]`` instead.
+- Tests: finally acknowledge the existence of modern APIs for both Mongo and
+  Python (get rid of most deprecation warnings).
+- Change: Support for Cerberus 1.0+ (`#776`_).
+- Change: ``JSON`` and ``XML`` settings are deprecated and will be removed in
+  a future update. Use ``RENDERERS`` instead (`#1092`_).
+- Flask dependency set to >=1.0 (`#1111`_).
+- PyMongo dependency set to >=3.5.
+- Events dependency set to >=v0.3.
+- Drop Flask-PyMongo dependency, use custom code instead (`#855`_).
+- Docs: Comprehensive rewrite of the `How to contribute`_ page. 
+- Docs: Drop the testing page; merge its contents with `How to contribute`_.
+- Docs: Add link to the `Eve course`_. It was authored by the project author,
+  and it is hosted by TalkPython Training.
 - Docs: code snippets are now Python 3 compatibile (Pahaz Blinov).
 - Dev: Delete and cleanup of some unnecessary code.
 - Dev: after the latest update (May 4th) travis-ci would not run tests on
@@ -105,19 +104,35 @@ Version 0.8
 - Dev: all branches are now tested on travis-ci. Previously, only 'master' was
   being tested.
 - Dev: fix insidious bug in ``tests.methods.post.TestPost`` class.
-- Update: Upgrade Events dependency to v0.3.
 
 Breaking Changes
 ................
 
-- Eve now relies on `Cerberus <http://python-cerberus.org>`_ 1.0+, which allows for many new powerful validation and trasformation features (like `schema registries <http://docs.python-cerberus.org/en/stable/schemas.html#registries>`_), improved performance and, in general, a more streamlined API. It also brings some notable breaking changes. 
-    - ``keyschema`` was renamed to ``valueschema``, and ``propertyschema`` to ``keyschema``.
-    - A PATCH on a document which misses a field having a default value will now result in setting this value, even if the field was not provided in the PATCH's payload.
-    - Error messages for ``keyschema`` are now returned as dictionary. Example: ``{'a_dict': {'a_field': "value does not match regex '[a-z]+'"}}``.
-    - Error messages for type validations are `different now <http://docs.python-cerberus.org/en/stable/upgrading.html#data-types>`_.
-    - It is no longer valid to have a field with ``default = None`` and ``nullable = False`` (see patch.py:test_patch_nested_document_nullable_missing).
-    - And more. A complete list of breaking changes  is available `here <http://docs.python-cerberus.org/en/stable/changelog.html#breaking-changes>`_. For detailed upgrade instructions, see Cerberus `upgrade notes <http://python-cerberus.org/en/stable/upgrading.html>`_. An in-depth analysis of changes made to the codebase (useful if you wrote a custom validator which needs to be upgraded) is available with `this commit message <https://github.com/pyeve/eve/pull/1001/commits>`_.
-    - Special thanks to Dominik Kellner and Brad P. Crochet for the amazing job done on this upgrade.
+- Python 2.6 and Python 3.3 are no longer supported (`#1129`_).
+- Eve now relies on `Cerberus`_ 1.1+  (`#776`_). It allows for many new
+  powerful validation and trasformation features (like `schema registries`_),
+  improved performance and, in general, a more streamlined API. It also brings
+  some notable breaking changes. 
+
+    - ``keyschema`` was renamed to ``valueschema``, and ``propertyschema`` to
+      ``keyschema``.
+    - A PATCH on a document which misses a field having a default value will
+      now result in setting this value, even if the field was not provided in
+      the PATCH's payload.
+    - Error messages for ``keyschema`` are now returned as dictionary. Example:
+      ``{'a_dict': {'a_field': "value does not match regex '[a-z]+'"}}``.
+    - Error messages for type validations are `different now`_.
+    - It is no longer valid to have a field with ``default = None`` and
+      ``nullable = False`` (see
+      *patch.py:test_patch_nested_document_nullable_missing*).
+    - And more. A complete list of breaking changes  is available here_. For
+      detailed upgrade instructions, see Cerberus `upgrade notes`_. An in-depth
+      analysis of changes made to the codebase (useful if you wrote a custom
+      validator which needs to be upgraded) is available with `this commit
+      message`_.
+    - Special thanks to Dominik Kellner and Brad P. Crochet for the amazing job
+      done on this upgrade.
+
 - Config setting ``MONGO_AUTHDBNAME`` renamed into ``MONGO_AUTH_SOURCE`` for
   naming consistency with PyMongo.
 - Config options ``MONGO_MAX_POOL_SIZE``, ``MONGO_SOCKET_TIMEOUT_MS``,
@@ -126,11 +141,61 @@ Breaking Changes
   instead.
 - Be aware that ``DELETE`` on sub-resource endpoint will now only delete the
   documents matching endpoint semantics. A delete operation on
-  ``people/51f63e0838345b6dcd7eabff/invoices`` will delete all documents 
+  ``people/51f63e0838345b6dcd7eabff/invoices`` will delete all documents
   matching the followig query: ``{'contact_id': '51f63e0838345b6dcd7eabff'}``
+  (`#1010`_).
 
-Stable
-------
+.. _#1140: https://github.com/pyeve/eve/pull/1140
+.. _#1111: https://github.com/pyeve/eve/issues/1111
+.. _#1129: https://github.com/pyeve/eve/issues/1129
+.. _#1057: https://github.com/pyeve/eve/issues/1057
+.. _#1137: https://github.com/pyeve/eve/issues/1137
+.. _#1122: https://github.com/pyeve/eve/issues/1122
+.. _#1050: https://github.com/pyeve/eve/pull/1050
+.. _#1130: https://github.com/pyeve/eve/pull/1130
+.. _#1074: https://github.com/pyeve/eve/issues/1074
+.. _#1036: https://github.com/pyeve/eve/issues/1036
+.. _#1128: https://github.com/pyeve/eve/pull/1128
+.. _#1126: https://github.com/pyeve/eve/pull/1126
+.. _#1123: https://github.com/pyeve/eve/issues/1123
+.. _#1102: https://github.com/pyeve/eve/pull/1102
+.. _#1114: https://github.com/pyeve/eve/pull/1114
+.. _#1092: https://github.com/pyeve/eve/pull/1092
+.. _#1083: https://github.com/pyeve/eve/issues/1083
+.. _#1049: https://github.com/pyeve/eve/issues/1049
+.. _#1053: https://github.com/pyeve/eve/issues/1053
+.. _#1070: https://github.com/pyeve/eve/pull/1070
+.. _#1045: https://github.com/pyeve/eve/issues/1045
+.. _#1042: https://github.com/pyeve/eve/pull/1042
+.. _#1030: https://github.com/pyeve/eve/pull/1030
+.. _#1037: https://github.com/pyeve/eve/issues/1037
+.. _#1029: https://github.com/pyeve/eve/issues/1029
+.. _#1024: https://github.com/pyeve/eve/issues/1024
+.. _#769: https://github.com/pyeve/eve/issues/769
+.. _#1004: https://github.com/pyeve/eve/issues/1004
+.. _#776: https://github.com/pyeve/eve/issues/776
+.. _#855: https://github.com/pyeve/eve/issues/855
+.. _#1010: https://github.com/pyeve/eve/issues/1010
+.. _#1025: https://github.com/pyeve/eve/issues/1025
+.. _Cerberus: http://python-cerberus.org
+.. _`schema registries`: http://docs.python-cerberus.org/en/stable/schemas.html#registries
+.. _`different now`: http://docs.python-cerberus.org/en/stable/upgrading.html#data-types
+.. _here: http://docs.python-cerberus.org/en/stable/changelog.html#breaking-changes
+.. _`upgrade notes`: http://python-cerberus.org/en/stable/upgrading.html
+.. _`this commit message`: https://github.com/pyeve/eve/pull/1001/commits/1110f807b478efa9f13ad1d217d22ceaa2a9e42d
+.. _`partial media requests`: http://python-eve.org/features.html#partial-media-downloads
+.. _`custom callbacks to aggregation endpoints`: http://python-eve.org/features.html#aggregation-event-hooks
+.. _`Renderer classes`: http://python-eve.org/features.html#rendering
+.. _`makefile with shortcuts`: http://python-eve.org/contributing.html#make-targets
+.. _`How to contribute`: http://python-eve.org/contributing.html
+.. _`Eve course`: https://training.talkpython.fm/courses/explore_eve/eve-building-restful-mongodb-backed-apis-course
+
+Version 0.7.9
+~~~~~~~~~~~~~
+
+Released on May 10, 2018
+
+- Python 2.6 and Python 3.3 are deprecated. Closes #1129.
 
 Version 0.7.8
 ~~~~~~~~~~~~~
