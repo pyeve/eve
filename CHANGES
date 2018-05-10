@@ -11,7 +11,9 @@ Version 0.8.1
 
 Not released yet
 
-- hic sunt leones.
+- Fix: Only set the package version in ``__init__.py`` (`#1142`_)
+
+.. _`#1142`: https://github.com/pyeve/eve/issues/1142
 
 Stable
 ------
