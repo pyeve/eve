@@ -1,31 +1,29 @@
-Changelog
-=========
+Eve Changelog
+=============
 
 Here you can see the full list of changes between each Eve release.
 
-Development
------------
-
 Version 0.8.1
-~~~~~~~~~~~~~
+-------------
 
-Not released yet
+Unreleased
 
-- Fix: Only set the package version in ``__init__.py`` (`#1142`_)
+Improved
+~~~~~~~~
+- Improve changelog format to reduce noise and increase readability. (`#1143`_)
+- Only set the package version in ``__init__.py``. (`#1142`_)
 
 .. _`#1142`: https://github.com/pyeve/eve/issues/1142
-
-Stable
-------
+.. _`#1143`: https://github.com/pyeve/eve/issues/1143
 
 Version 0.8
-~~~~~~~~~~~
+-----------
 
 Released on May 10, 2018.
 
 .. note::
 
-    Make sure you read the `Breaking Changes`_ section below.
+    Make sure you read the :ref:`Breaking Changes <breaking_changes>` section below.
 
 - New: support for `partial media requests`_. Clients can request partial file
   downloads by adding a ``Range`` header to their media request (`#1050`_).
@@ -114,9 +112,10 @@ Released on May 10, 2018.
   being tested.
 - Dev: fix insidious bug in ``tests.methods.post.TestPost`` class.
 
-Breaking Changes
-................
+.. _breaking_changes:
 
+Breaking Changes
+~~~~~~~~~~~~~~~~
 - Python 2.6 and Python 3.3 are no longer supported (`#1129`_).
 - Eve now relies on `Cerberus`_ 1.1+  (`#776`_). It allows for many new
   powerful validation and trasformation features (like `schema registries`_),

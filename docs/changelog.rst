@@ -1,5 +1,5 @@
 .. _changelog:
 
-.. include:: ../CHANGES
+.. include:: ../CHANGES.rst
 
 
