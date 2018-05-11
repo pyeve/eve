@@ -8,6 +8,11 @@ Version 0.8.1
 
 Unreleased
 
+Fixed
+~~~~~
+- Replace the broken ``make audit`` shortcut with ``make check``, then add the
+  command to ``CONTRIBUTING.rst`` where it is missing.  (`#1144`_)
+
 Improved
 ~~~~~~~~
 - Improve changelog format to reduce noise and increase readability. (`#1143`_)
@@ -15,6 +20,7 @@ Improved
 
 .. _`#1142`: https://github.com/pyeve/eve/issues/1142
 .. _`#1143`: https://github.com/pyeve/eve/issues/1143
+.. _`#1144`: https://github.com/pyeve/eve/issues/1144
 
 Version 0.8
 -----------

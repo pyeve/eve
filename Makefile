@@ -15,8 +15,8 @@ BUILDDIR = _build
 docs: install-dev
 	$(MAKE) -C docs html BUILDDIR=$(BUILDDIR)
 
-audit:
-	python setup.py audit
+check:
+	python setup.py check -r -s
 
 clean-pyc:
 	@find . -name '*.pyc' -exec rm -f {} +
