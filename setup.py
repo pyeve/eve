@@ -1,12 +1,17 @@
 #!/usr/bin/env python
-from collections import Counter, OrderedDict  # noqa
+import io
+import re
 import importlib
 
-
 from setuptools import setup, find_packages
+
 DESCRIPTION = ("Python REST API for Humans.")
 with open('README.rst') as f:
     LONG_DESCRIPTION = f.read()
+
+with io.open('eve/__init__.py', 'rt', encoding='utf8') as f:
+    VERSION = re.search(r'__version__ = \'(.*?)\'', f.read()).group(1)
+
 
 INSTALL_REQUIRES = [
     'cerberus>=1.1',
@@ -33,7 +38,7 @@ EXTRAS_REQUIRE["dev"] = EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["docs"]
 
 setup(
     name='Eve',
-    version='0.8.1.dev0',
+    version=VERSION,
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     author='Nicola Iarocci',
