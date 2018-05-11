@@ -170,6 +170,7 @@ all dependencies are installed.
 - ``make test`` runs the basic test suite with ``pytest``
 - ``make test-all`` runs the full test suite with ``tox``
 - ``make docs`` builds the HTML documentation
+- ``make check`` performs some checks on the package
 - ``make install-dev`` install Eve in editable mode with all development dependencies.
 
 First time contributor?
