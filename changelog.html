@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Changelog &mdash; Eve 0.8 documentation</title>
+    <title>Eve Changelog &mdash; Eve 0.8.1.dev0 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.8',
+        VERSION:     '0.8.1.dev0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.8 documentation" href="index.html" />
+    <link rel="top" title="Eve 0.8.1.dev0 documentation" href="index.html" />
     <link rel="prev" title="Licensing" href="license.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -41,20 +41,33 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="changelog">
-<span id="id1"></span><h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="eve-changelog">
+<span id="changelog"></span><h1>Eve Changelog<a class="headerlink" href="#eve-changelog" title="Permalink to this headline">¶</a></h1>
 <p>Here you can see the full list of changes between each Eve release.</p>
-<div class="section" id="development">
-<h2>Development<a class="headerlink" href="#development" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="version-0-8-1">
+<h2>Version 0.8.1<a class="headerlink" href="#version-0-8-1" title="Permalink to this headline">¶</a></h2>
+<p>Unreleased</p>
+<div class="section" id="fixed">
+<h3>Fixed<a class="headerlink" href="#fixed" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Replace the broken <tt class="docutils literal"><span class="pre">make</span> <span class="pre">audit</span></tt> shortcut with <tt class="docutils literal"><span class="pre">make</span> <span class="pre">check</span></tt>, then add the
+command to <tt class="docutils literal"><span class="pre">CONTRIBUTING.rst</span></tt> where it is missing.  (<a class="reference external" href="https://github.com/pyeve/eve/issues/1144">#1144</a>)</li>
+</ul>
 </div>
-<div class="section" id="stable">
-<h2>Stable<a class="headerlink" href="#stable" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="improved">
+<h3>Improved<a class="headerlink" href="#improved" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Improve changelog format to reduce noise and increase readability. (<a class="reference external" href="https://github.com/pyeve/eve/issues/1143">#1143</a>)</li>
+<li>Only set the package version in <tt class="docutils literal"><span class="pre">__init__.py</span></tt>. (<a class="reference external" href="https://github.com/pyeve/eve/issues/1142">#1142</a>)</li>
+</ul>
+</div>
+</div>
 <div class="section" id="version-0-8">
-<h3>Version 0.8<a class="headerlink" href="#version-0-8" title="Permalink to this headline">¶</a></h3>
+<h2>Version 0.8<a class="headerlink" href="#version-0-8" title="Permalink to this headline">¶</a></h2>
 <p>Released on May 10, 2018.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Make sure you read the <a class="reference internal" href="#breaking-changes">Breaking Changes</a> section below.</p>
+<p class="last">Make sure you read the <a class="reference internal" href="#breaking-changes"><em>Breaking Changes</em></a> section below.</p>
 </div>
 <ul class="simple">
 <li>New: support for <a class="reference external" href="http://python-eve.org/features.html#partial-media-downloads">partial media requests</a>. Clients can request partial file
@@ -145,7 +158,7 @@ being tested.</li>
 <li>Dev: fix insidious bug in <tt class="docutils literal"><span class="pre">tests.methods.post.TestPost</span></tt> class.</li>
 </ul>
 <div class="section" id="breaking-changes">
-<h4>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h4>
+<span id="id4"></span><h3>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h3>
 <ul>
 <li><p class="first">Python 2.6 and Python 3.3 are no longer supported (<a class="reference external" href="https://github.com/pyeve/eve/issues/1129">#1129</a>).</p>
 </li>
@@ -191,7 +204,6 @@ matching the followig query: <tt class="docutils literal"><span class="pre">{'co
 (<a class="reference external" href="https://github.com/pyeve/eve/issues/1010">#1010</a>).</p>
 </li>
 </ul>
-</div>
 </div>
 <div class="section" id="version-0-7-9">
 <h3>Version 0.7.9<a class="headerlink" href="#version-0-7-9" title="Permalink to this headline">¶</a></h3>
@@ -1735,13 +1747,14 @@ signature, allowing for further subclassing.</li>
 <li class="toctree-l1"><a class="reference internal" href="updates.html">Updates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#development">Development</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#stable">Stable</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#version-0-8">Version 0.8</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#breaking-changes">Breaking Changes</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Eve Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-8-1">Version 0.8.1</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fixed">Fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#improved">Improved</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-8">Version 0.8</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#breaking-changes">Breaking Changes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#version-0-7-9">Version 0.7.9</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#version-0-7-8">Version 0.7.8</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#version-0-7-7">Version 0.7.7</a></li>
