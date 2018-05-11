@@ -15,12 +15,14 @@ Fixed
 
 Improved
 ~~~~~~~~
+- Add a stale-bot to automatically close stale issues and pull requests (`#1145`_)
 - Improve changelog format to reduce noise and increase readability. (`#1143`_)
 - Only set the package version in ``__init__.py``. (`#1142`_)
 
 .. _`#1142`: https://github.com/pyeve/eve/issues/1142
 .. _`#1143`: https://github.com/pyeve/eve/issues/1143
 .. _`#1144`: https://github.com/pyeve/eve/issues/1144
+.. _`#1145`: https://github.com/pyeve/eve/issues/1145
 
 Version 0.8
 -----------
