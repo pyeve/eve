@@ -15,7 +15,8 @@ Fixed
 
 Improved
 ~~~~~~~~
-- Add a stale-bot to automatically close stale issues and pull requests (`#1145`_)
+- Add a ``ISSUE_TEMPLATE.md`` GitHub template file. (`#1146`_)
+- Install a bot that automatically flags and then closes stale issues and pull requests (`#1145`_)
 - Improve changelog format to reduce noise and increase readability. (`#1143`_)
 - Only set the package version in ``__init__.py``. (`#1142`_)
 
@@ -23,6 +24,7 @@ Improved
 .. _`#1143`: https://github.com/pyeve/eve/issues/1143
 .. _`#1144`: https://github.com/pyeve/eve/issues/1144
 .. _`#1145`: https://github.com/pyeve/eve/issues/1145
+.. _`#1146`: https://github.com/pyeve/eve/issues/1146
 
 Version 0.8
 -----------
