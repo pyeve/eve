@@ -13,7 +13,7 @@
 import math
 
 import copy
-import json
+import simplejson as json
 from flask import current_app as app, abort, request
 from werkzeug import MultiDict
 
