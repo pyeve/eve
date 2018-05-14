@@ -16,7 +16,7 @@ Fixed
 Improved
 ~~~~~~~~
 - Add a ``ISSUE_TEMPLATE.md`` GitHub template file. (`#1146`_)
-- Install a bot that automatically flags and then closes stale issues and pull requests (`#1145`_)
+- Install a bot that flags and closes stale issues/pull requests (`#1145`_)
 - Improve changelog format to reduce noise and increase readability. (`#1143`_)
 - Only set the package version in ``__init__.py``. (`#1142`_)
 
