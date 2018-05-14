@@ -1,0 +1,4 @@
+python:
+    pip_install: true
+    extra_requirements:
+        - docs
