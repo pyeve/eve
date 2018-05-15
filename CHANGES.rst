@@ -15,6 +15,7 @@ Fixed
 
 Improved
 ~~~~~~~~
+- Use ``simplejson`` everywhere in the codebase. (`#1148`_)
 - Fix documentation builds on Read the Docs. (`#1147`_)
 - Add a ``ISSUE_TEMPLATE.md`` GitHub template file. (`#1146`_)
 - Install a bot that flags and closes stale issues/pull requests (`#1145`_)
@@ -27,6 +28,7 @@ Improved
 .. _`#1145`: https://github.com/pyeve/eve/issues/1145
 .. _`#1146`: https://github.com/pyeve/eve/issues/1146
 .. _`#1147`: https://github.com/pyeve/eve/issues/1147
+.. _`#1148`: https://github.com/pyeve/eve/issues/1148
 
 Version 0.8
 -----------
