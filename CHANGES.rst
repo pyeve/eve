@@ -10,6 +10,7 @@ Unreleased
 
 Fixed
 ~~~~~
+- Only display the version number on the docs homepage (`#1151`_)
 - Replace the broken ``make audit`` shortcut with ``make check``, then add the
   command to ``CONTRIBUTING.rst`` where it is missing.  (`#1144`_)
 
@@ -29,6 +30,7 @@ Improved
 .. _`#1146`: https://github.com/pyeve/eve/issues/1146
 .. _`#1147`: https://github.com/pyeve/eve/issues/1147
 .. _`#1148`: https://github.com/pyeve/eve/issues/1148
+.. _`#1151`: https://github.com/pyeve/eve/issues/1151
 
 Version 0.8
 -----------
