@@ -15,6 +15,7 @@ Fixed
 
 Improved
 ~~~~~~~~
+- Fix broken link to the Postman app. (`#1150`_)
 - Update obsolete PyPI link in docs sidebar. (`#1152`_)
 - Only display the version number on the docs homepage. (`#1151`_)
 - Use ``simplejson`` everywhere in the codebase. (`#1148`_)
@@ -33,6 +34,7 @@ Improved
 .. _`#1148`: https://github.com/pyeve/eve/issues/1148
 .. _`#1151`: https://github.com/pyeve/eve/issues/1151
 .. _`#1152`: https://github.com/pyeve/eve/issues/1152
+.. _`#1150`: https://github.com/pyeve/eve/issues/1150
 
 Version 0.8
 -----------
