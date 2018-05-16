@@ -10,16 +10,17 @@ Unreleased
 
 Fixed
 ~~~~~
-- Only display the version number on the docs homepage (`#1151`_)
-- Replace the broken ``make audit`` shortcut with ``make check``, then add the
-  command to ``CONTRIBUTING.rst`` where it is missing.  (`#1144`_)
+- Replace the broken ``make audit`` shortcut with ``make check``, add the
+  command to ``CONTRIBUTING.rst`` it was missing.  (`#1144`_)
 
 Improved
 ~~~~~~~~
+- Update obsolete PyPI link in docs sidebar. (`#1152`_)
+- Only display the version number on the docs homepage. (`#1151`_)
 - Use ``simplejson`` everywhere in the codebase. (`#1148`_)
 - Fix documentation builds on Read the Docs. (`#1147`_)
 - Add a ``ISSUE_TEMPLATE.md`` GitHub template file. (`#1146`_)
-- Install a bot that flags and closes stale issues/pull requests (`#1145`_)
+- Install a bot that flags and closes stale issues/pull requests. (`#1145`_)
 - Improve changelog format to reduce noise and increase readability. (`#1143`_)
 - Only set the package version in ``__init__.py``. (`#1142`_)
 
@@ -31,6 +32,7 @@ Improved
 .. _`#1147`: https://github.com/pyeve/eve/issues/1147
 .. _`#1148`: https://github.com/pyeve/eve/issues/1148
 .. _`#1151`: https://github.com/pyeve/eve/issues/1151
+.. _`#1152`: https://github.com/pyeve/eve/issues/1152
 
 Version 0.8
 -----------
