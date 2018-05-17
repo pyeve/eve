@@ -15,6 +15,30 @@ from collections import OrderedDict  # noqa
 
 
 class TestSerializer(TestBase):
+    def test_serialize_array_of_tipes(self):
+        # see #1112.
+        schema = {
+            'val': {
+                'type': 'dict',
+                'schema': {
+                    'x': {'type': ['string', 'number']},
+                    'timestamp': {'type': 'datetime'}
+                }
+            }
+        }
+
+        doc = {'val':{'x': '1', 'timestamp': 'Tue, 06 Nov 2012 10:33:31 GMT'}}
+        with self.app.app_context():
+            serialized = serialize(doc, schema=schema)
+        self.assertEqual(serialized['val']['x'], 1)
+        self.assertTrue(isinstance(serialized['val']['timestamp'], datetime))
+
+        doc = {'val':{'x': 's', 'timestamp': 'Tue, 06 Nov 2012 10:33:31 GMT'}}
+        with self.app.app_context():
+            serialized = serialize(doc, schema=schema)
+        self.assertEqual(serialized['val']['x'], 's')
+        self.assertTrue(isinstance(serialized['val']['timestamp'], datetime))
+
     def test_serialize_subdocument(self):
         # tests fix for #244, serialization of sub-documents.
         schema = {'personal': {'type': 'dict',
