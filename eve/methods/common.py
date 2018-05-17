@@ -396,97 +396,100 @@ def serialize(document, resource=None, schema=None, fields=None):
                 field_schema = schema[field]
                 if not isinstance(field_schema, dict):
                     field_schema = rules_set_registry.get(field_schema)
-                field_type = field_schema.get('type')
-                for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
-                    for optschema in field_schema.get(x_of, []):
-                        optschema = dict(field_schema, **optschema)
-                        optschema.pop(x_of, None)
-                        serialize(document, schema={field: optschema})
-                    x_of_type = '{0}_type'.format(x_of)
-                    for opttype in field_schema.get(x_of_type, []):
-                        optschema = dict(field_schema, type=opttype)
-                        optschema.pop(x_of_type, None)
-                        serialize(document, schema={field: optschema})
-                if config.AUTO_CREATE_LISTS and field_type == 'list':
-                    # Convert single values to lists
-                    if not isinstance(document[field], list):
-                        document[field] = [document[field]]
-                if 'schema' in field_schema:
-                    field_schema = resolve_schema(field_schema['schema'])
-                    if 'dict' in (field_type, field_schema.get('type')):
-                        # either a dict or a list of dicts
-                        embedded = [document[field]] if field_type == 'dict' \
-                            else document[field]
-                        for subdocument in embedded:
-                            if type(subdocument) is not dict:
-                                # value is not a dict - continue serialization
-                                # error will be reported by validation if
-                                # appropriate
-                                continue
-                            elif 'schema' in field_schema:
-                                serialize(subdocument,
-                                          schema=field_schema['schema'])
-                            else:
-                                serialize(subdocument, schema=field_schema)
-                    elif field_schema.get('type') == 'list':
-                        # a list of lists
-                        sublist_schema = resolve_schema(
-                            field_schema.get('schema'))
-                        item_type = sublist_schema.get('type')
-                        for sublist in document[field]:
-                            for i, v in enumerate(sublist):
-                                if item_type == 'dict':
-                                    serialize(sublist[i],
-                                              schema=sublist_schema['schema'])
-                                elif item_type in app.data.serializers:
-                                    sublist[i] = serialize_value(item_type, v)
-                    elif field_schema.get('type') is None:
-                        # a list of items determined by *of rules
-                        for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
-                            for optschema in field_schema.get(x_of, []):
-                                serialize(document,
-                                          schema={
-                                              field: {'type': field_type,
-                                                      'schema': optschema}})
-                            x_of_type = '{0}_type'.format(x_of)
-                            for opttype in field_schema.get(x_of_type, []):
-                                serialize(
-                                    document,
-                                    schema={field: {'type': field_type,
-                                                    'schema': {'type':
-                                                               opttype}}})
-                    else:
-                        # a list of one type, arbitrary length
-                        field_type = field_schema.get('type')
-                        if field_type in app.data.serializers:
-                            for i, v in enumerate(document[field]):
+                field_types = field_schema.get('type')
+                if not isinstance(field_types, list):
+                    field_types = [field_types]
+                for field_type in field_types:
+                    for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+                        for optschema in field_schema.get(x_of, []):
+                            optschema = dict(field_schema, **optschema)
+                            optschema.pop(x_of, None)
+                            serialize(document, schema={field: optschema})
+                        x_of_type = '{0}_type'.format(x_of)
+                        for opttype in field_schema.get(x_of_type, []):
+                            optschema = dict(field_schema, type=opttype)
+                            optschema.pop(x_of_type, None)
+                            serialize(document, schema={field: optschema})
+                    if config.AUTO_CREATE_LISTS and field_type == 'list':
+                        # Convert single values to lists
+                        if not isinstance(document[field], list):
+                            document[field] = [document[field]]
+                    if 'schema' in field_schema:
+                        field_schema = resolve_schema(field_schema['schema'])
+                        if 'dict' in (field_type, field_schema.get('type')):
+                            # either a dict or a list of dicts
+                            embedded = [document[field]] if field_type == 'dict' \
+                                else document[field]
+                            for subdocument in embedded:
+                                if type(subdocument) is not dict:
+                                    # value is not a dict - continue serialization
+                                    # error will be reported by validation if
+                                    # appropriate
+                                    continue
+                                elif 'schema' in field_schema:
+                                    serialize(subdocument,
+                                            schema=field_schema['schema'])
+                                else:
+                                    serialize(subdocument, schema=field_schema)
+                        elif field_schema.get('type') == 'list':
+                            # a list of lists
+                            sublist_schema = resolve_schema(
+                                field_schema.get('schema'))
+                            item_type = sublist_schema.get('type')
+                            for sublist in document[field]:
+                                for i, v in enumerate(sublist):
+                                    if item_type == 'dict':
+                                        serialize(sublist[i],
+                                                schema=sublist_schema['schema'])
+                                    elif item_type in app.data.serializers:
+                                        sublist[i] = serialize_value(item_type, v)
+                        elif field_schema.get('type') is None:
+                            # a list of items determined by *of rules
+                            for x_of in ['allof', 'anyof', 'oneof', 'noneof']:
+                                for optschema in field_schema.get(x_of, []):
+                                    serialize(document,
+                                            schema={
+                                                field: {'type': field_type,
+                                                        'schema': optschema}})
+                                x_of_type = '{0}_type'.format(x_of)
+                                for opttype in field_schema.get(x_of_type, []):
+                                    serialize(
+                                        document,
+                                        schema={field: {'type': field_type,
+                                                        'schema': {'type':
+                                                                opttype}}})
+                        else:
+                            # a list of one type, arbitrary length
+                            field_type = field_schema.get('type')
+                            if field_type in app.data.serializers:
+                                for i, v in enumerate(document[field]):
+                                    document[field][i] = \
+                                        serialize_value(field_type, v)
+                    elif 'items' in field_schema:
+                        # a list of multiple types, fixed length
+                        for i, (s, v) in enumerate(zip(field_schema['items'],
+                                                    document[field])):
+                            field_type = s.get('type')
+                            if field_type in app.data.serializers:
                                 document[field][i] = \
-                                    serialize_value(field_type, v)
-                elif 'items' in field_schema:
-                    # a list of multiple types, fixed length
-                    for i, (s, v) in enumerate(zip(field_schema['items'],
-                                                   document[field])):
-                        field_type = s.get('type')
-                        if field_type in app.data.serializers:
-                            document[field][i] = \
-                                serialize_value(field_type, document[field][i])
-                elif 'valueschema' in field_schema:
-                    # a valueschema
-                    field_type = field_schema['valueschema']['type']
-                    if field_type == 'objectid':
-                        target = document[field]
-                        for field in target:
-                            target[field] = \
-                                serialize_value(field_type, target[field])
-                    elif field_type == 'dict':
-                        for subdocument in document[field].values():
-                            serialize(
-                                subdocument,
-                                schema=field_schema['valueschema']['schema'])
-                elif field_type in app.data.serializers:
-                    # a simple field
-                    document[field] = \
-                        serialize_value(field_type, document[field])
+                                    serialize_value(field_type, document[field][i])
+                    elif 'valueschema' in field_schema:
+                        # a valueschema
+                        field_type = field_schema['valueschema']['type']
+                        if field_type == 'objectid':
+                            target = document[field]
+                            for field in target:
+                                target[field] = \
+                                    serialize_value(field_type, target[field])
+                        elif field_type == 'dict':
+                            for subdocument in document[field].values():
+                                serialize(
+                                    subdocument,
+                                    schema=field_schema['valueschema']['schema'])
+                    elif field_type in app.data.serializers:
+                        # a simple field
+                        document[field] = \
+                            serialize_value(field_type, document[field])
 
     return document
 
