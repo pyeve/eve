@@ -27,13 +27,13 @@ class TestSerializer(TestBase):
             }
         }
 
-        doc = {'val':{'x': '1', 'timestamp': 'Tue, 06 Nov 2012 10:33:31 GMT'}}
+        doc = {'val': {'x': '1', 'timestamp': 'Tue, 06 Nov 2012 10:33:31 GMT'}}
         with self.app.app_context():
             serialized = serialize(doc, schema=schema)
         self.assertEqual(serialized['val']['x'], 1)
         self.assertTrue(isinstance(serialized['val']['timestamp'], datetime))
 
-        doc = {'val':{'x': 's', 'timestamp': 'Tue, 06 Nov 2012 10:33:31 GMT'}}
+        doc = {'val': {'x': 's', 'timestamp': 'Tue, 06 Nov 2012 10:33:31 GMT'}}
         with self.app.app_context():
             serialized = serialize(doc, schema=schema)
         self.assertEqual(serialized['val']['x'], 's')
