@@ -16,7 +16,6 @@ from importlib import import_module
 import eve
 import hashlib
 import werkzeug.exceptions
-from cerberus import Validator
 from copy import copy
 from flask import request
 from flask import current_app as app
@@ -454,12 +453,12 @@ def validate_filters(where, resource):
                             return False
                         else:
                             field_schema = schema.get(key)
-                            v = Validator({key: field_schema})
+                            v = app.validator({key: field_schema})
                             return v.validate({key: value})
 
                     res_schema = config.DOMAIN[resource]['schema']
                     if not recursive_validate_filter(key, value, res_schema):
-                        return "filter on '%s' is invalid"
+                        return "filter on '%s' is invalid" % key
 
                     return None
 

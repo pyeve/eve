@@ -10,6 +10,7 @@ Unreleased
 
 Fixed
 ~~~~~
+- ``cerberus.schema.SchemaError`` when ``VALIDATE_FILTERS = True``. (`#1154`_)
 - Serializers fails when array of types is in schema. (`#1112`_)
 - Replace the broken ``make audit`` shortcut with ``make check``, add the
   command to ``CONTRIBUTING.rst`` it was missing.  (`#1144`_)
@@ -37,6 +38,7 @@ Improved
 .. _`#1152`: https://github.com/pyeve/eve/issues/1152
 .. _`#1150`: https://github.com/pyeve/eve/issues/1150
 .. _`#1112`: https://github.com/pyeve/eve/issues/1112
+.. _`#1154`: https://github.com/pyeve/eve/issues/1154
 
 Version 0.8
 -----------
