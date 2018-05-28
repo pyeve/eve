@@ -176,9 +176,18 @@ ones at the local level is the way to go.</p>
 </td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">VALIDATE_FILTERS</span></tt></td>
-<td>Whether to validate the filters against the
+<td><p class="first">Whether to validate the filters against the
 resource schema. Invalid filters will throw
-an exception. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
+an exception. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</p>
+<p class="last">Word of caution: validation on filter
+expressions involving fields with custom
+rules or types might have a considerable
+impact on performance. This is the case,
+for example, with <tt class="docutils literal"><span class="pre">data_relation</span></tt>-rule
+fields. Consider excluding heavy-duty
+fields from filters (see
+<tt class="docutils literal"><span class="pre">ALLOWED_FILTERS</span></tt>).</p>
+</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SORTING</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">True</span></tt> if sorting is supported for <tt class="docutils literal"><span class="pre">GET</span></tt>
