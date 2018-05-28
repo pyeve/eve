@@ -220,6 +220,21 @@ class TestUtils(TestBase):
             self.assertEqual(debug_error_message('An error message'),
                              'An error message')
 
+    def test_validate_filters_when_custom_types_are_used(self):
+        # Filters validation should operate on the active validator instance,
+        # not on Cerberus' standard one. See #1154.
+        self.app.config['VALIDATE_FILTERS'] = True
+        response, status = self.get(self.known_resource,
+                                    query='?where={"tid":"1234"}')
+        self.assert400(status)
+        self.assertTrue("filter on 'tid' is invalid" in
+                        response['_error']['message'])
+
+        response, status = self.get(
+            self.known_resource,
+            query='?where={"tid":"5a1154523a6bcc1d245e143d"}')
+        self.assert200(status)
+
     def test_validate_filters(self):
         self.app.config['DOMAIN'][self.known_resource]['allowed_filters'] = []
         with self.app.test_request_context():

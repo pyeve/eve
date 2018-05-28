@@ -140,6 +140,15 @@ uppercase.
                                     resource schema. Invalid filters will throw
                                     an exception. Defaults to ``False``.
 
+                                    Word of caution: validation on filter
+                                    expressions involving fields with custom
+                                    rules or types might have a considerable
+                                    impact on performance. This is the case,
+                                    for example, with ``data_relation``-rule
+                                    fields. Consider excluding heavy-duty
+                                    fields from filters (see
+                                    ``ALLOWED_FILTERS``).
+
 ``SORTING``                         ``True`` if sorting is supported for ``GET``
                                     requests, otherwise ``False``. Can be
                                     overridden by resource settings. Defaults
