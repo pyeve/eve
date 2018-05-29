@@ -1,7 +1,10 @@
 sudo: false
 language: python
+stages:
+    - linting
+    - test
 cache: pip
-script: tox
+script: tox --recreate
 python:
   - 2.7
   - 3.4
@@ -15,3 +18,16 @@ services:
 before_script:
   - sleep 15
   - mongo eve_test --eval 'db.createUser({user:"test_user",pwd:"test_pw",roles:["readWrite"]});'
+
+jobs:
+    include:
+    - stage: linting
+      python: '3.6'
+      env:
+      install:
+      - pip install pre-commit
+      - pre-commit install-hooks
+      before_script:
+      services:
+      script:
+      - pre-commit run --all-files
