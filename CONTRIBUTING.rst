@@ -39,8 +39,10 @@ Submitting patches
 - Include tests if your patch is supposed to solve a bug, and explain
   clearly under which circumstances the bug happens. Make sure the test fails
   without your patch.
-- Follow `PEP8`_. CI will reject a change that does not conform to the
-  guidelines.
+- Enable and install pre-commit_ to ensure styleguides and codechecks are
+  followed. CI will reject a change that does not conform to the guidelines.
+
+.. _pre-commit: https://pre-commit.com/
 
 First time setup
 ~~~~~~~~~~~~~~~~
@@ -73,6 +75,14 @@ First time setup
 
         pip install -e ".[dev]"
 
+- Install pre-commit_ and then activate its hooks. pre-commit is a framework for managing and maintaining multi-language pre-commit hooks. Eve uses pre-commit to ensure code-style and code formatting is the same::
+
+    $ pip install --user pre-commit
+    $ pre-commit install
+
+  Afterwards, pre-commit will run whenever you commit.
+
+
 .. _GitHub account: https://github.com/join
 .. _latest version of git: https://git-scm.com/downloads
 .. _username: https://help.github.com/articles/setting-your-username-in-git/
@@ -101,55 +111,35 @@ Start coding
 Running the tests
 ~~~~~~~~~~~~~~~~~
 
-Run the basic test suite with::
+You should have both Python 2.7 and 3.6 available in your system. Now
+running tests is as simple as issuing this command::
 
-    pytest
+    $ tox -e linting,py27,py36
 
-If you want you can run a single module, say the ``methods`` suite::
+This command will run tests via the "tox" tool against Python 2.7 and 3.6 and
+also perform "lint" coding-style checks.
 
-   pytest eve/tests/methods/
+You can pass different options to ``tox``. For example, to run tests on Python
+2.7 and pass options to pytest (e.g. enter pdb on failure) to pytest you can
+do::
 
-Or, to run only the ``get`` tests::
+    $ tox -e py27 -- --pdb
 
-   pytest eve/tests/methods/get.py
+Or to only run tests in a particular test module on Python 3.6::
 
-You can also choose to just run a single class::
+    $ tox -e py36 -- -k TestGet
 
-    pytest eve/tests/methods/get.py::TestGet
-
-Or even a single test::
-
-   pytest eve/tests/methods/get.py::TestGet::test_get_emtpy_resource
-
-You can also collect tests by keyword::
-
-   pytest -k auth
-
-These only runs the tests for the current environment. Whether this is relevant
-depends on which part of Eve you're working on. Travis-CI will run the full
-suite when you submit your pull request.
-
-The full test suite takes a long time to run because it tests multiple
-combinations of Python and dependencies. You need to have Python 2.7, 3.4,
-3.5, 3.6, and PyPy installed to run all of the environments. Then run::
+Travis-CI will run the full suite when you submit your pull request. The full
+test suite takes a long time to run because it tests multiple combinations of
+Python and dependencies. You need to have Python 2.7, 3.4, 3.5, 3.6, and PyPy
+installed to run all of the environments. Then run::
 
     tox
 
-Or, if you want to only run your tests against a specific Python environment::
-
-    tox -e py36
-    # py27 = Python 2.7
-    # py34 = Python 3.4
-    # py35 = Python 3.5
-    # py36 = Python 3.6
-    # pypy + PyPy
-
-Rate limiting tests
-~~~~~~~~~~~~~~~~~~~
-While there are no test requirements for most of the suite, please be advised
-that in order to execute the :ref:`ratelimiting` tests you need a running
-Redis_ server. The Rate-Limiting tests are silently skipped if any of the two
-conditions are not met.
+Please note that you need an active MongoDB instance running on localhost in
+order for the tests run. Also, be advived that in order to execute the
+:ref:`ratelimiting` tests you need a running Redis_ server. The Rate-Limiting
+tests are silently skipped if any of the two conditions are not met.
 
 Building the docs
 ~~~~~~~~~~~~~~~~~
