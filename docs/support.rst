@@ -9,13 +9,13 @@ are several options:
 Stack Overflow
 --------------
 `Stack Overflow`_ has a eve tag. It is generally followed by Eve developers
-and users. 
+and users.
 
 Mailing List
 ------------
 The `mailing list`_ is intended to be a low traffic resource for both
 developers/contributors and API maintainers looking for help or requesting
-feedback. 
+feedback.
 
 IRC
 ---

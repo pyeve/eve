@@ -9,11 +9,11 @@ you configure a ``/invoices`` endpoint, which will allow clients to query the
 underlying `invoices` database collection. The ``/invoices/<ObjectId>``
 endpoint will be made available by the framework, and will be used by clients to
 retrieve and/or edit individual documents. By default, Eve provides this feature
-seamlessly when ``ID_FIELD`` fields are of ``ObjectId`` type. 
+seamlessly when ``ID_FIELD`` fields are of ``ObjectId`` type.
 
 However, you might have collections where your unique identifier is not and
 ``ObjectId``, and you still want individual document endpoints to work
-properly. Don't worry, it's doable, it only requires a little tinkering. 
+properly. Don't worry, it's doable, it only requires a little tinkering.
 
 Handling ``UUID`` fields
 ------------------------
@@ -63,7 +63,7 @@ serialization magic:
                 # will properly render ObjectIds, datetimes, etc.)
                 return super(UUIDEncoder, self).default(obj)
 
- 
+
 ``UUID`` Validation
 ~~~~~~~~~~~~~~~~~~~
 By default Eve creates a unique identifier for each newly inserted document,
@@ -91,7 +91,7 @@ details on custom validation):
 ``UUID`` URLs
 ~~~~~~~~~~~~~
 Now Eve is capable of rendering and validating UUID values but it still doesn't know
-which resources are going to use these features. We also need to set 
+which resources are going to use these features. We also need to set
 ``item_url`` so uuid formed urls can be properly parsed. Let's pick our
 ``settings.py`` module and update the API domain accordingly:
 
@@ -117,7 +117,7 @@ regex in order to avoid setting it for every single resource endpoint.
 Passing the ``UUID`` juice to Eve
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Now all the missing pieces are there we only need to instruct Eve on how to
-use them. Eve needs to know about the new data type when its building the 
+use them. Eve needs to know about the new data type when its building the
 URL map, so we need to pass our custom classes right at the beginning, when we
 are instancing the application:
 

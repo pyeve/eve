@@ -41,10 +41,10 @@ class GridFSMediaStorage(MediaStorage):
         instance.
         """
         if self.app is None:
-            raise TypeError('Application object cannot be None')
+            raise TypeError("Application object cannot be None")
 
         if not isinstance(self.app, Flask):
-            raise TypeError('Application object must be a Eve application')
+            raise TypeError("Application object must be a Eve application")
 
     def fs(self, resource=None):
         """ Provides the instance-level GridFS instance, instantiating it if
@@ -55,8 +55,7 @@ class GridFSMediaStorage(MediaStorage):
         """
         driver = self.app.data
         if driver is None or not isinstance(driver, Mongo):
-            raise TypeError("Application data object must be of eve.io.Mongo "
-                            "type.")
+            raise TypeError("Application data object must be of eve.io.Mongo " "type.")
 
         px = driver.current_mongo_prefix(resource)
         if px not in self._fs:
@@ -89,8 +88,9 @@ class GridFSMediaStorage(MediaStorage):
         """ Saves a new file in GridFS. Returns the unique id of the stored
         file. Also stores content type of the file.
         """
-        return self.fs(resource).put(content, filename=filename,
-                                     content_type=content_type)
+        return self.fs(resource).put(
+            content, filename=filename, content_type=content_type
+        )
 
     def delete(self, _id, resource=None):
         """ Deletes the file referenced by unique id.

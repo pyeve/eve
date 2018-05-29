@@ -10,7 +10,7 @@ should not be using it.
 Philosophy
 ----------
 You have data stored somewhere and you want to expose it to your users
-through a RESTful Web API. Eve is the tool that allows you to do so. 
+through a RESTful Web API. Eve is the tool that allows you to do so.
 
 Eve provides a robust, feature rich, REST-centered API implementation,
 and you just need to configure your API settings and behavior, plug in your
@@ -48,7 +48,7 @@ MongoDB*, are `available online`_. You might want to check them out to understan
 why and how certain design decisions were made, especially with regards to REST
 implementation.
 
-BSD License 
+BSD License
 -----------
 A large number of open source projects you find today are GPL Licensed. While
 the GPL has its time and place, it should most certainly not be your go-to

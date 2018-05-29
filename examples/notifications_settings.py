@@ -1,5 +1,2 @@
 # -*- coding: utf-8 -*-
-SETTINGS = {
-    'DEBUG': True,
-    'DOMAIN': {'test': {}}
-}
+SETTINGS = {"DEBUG": True, "DOMAIN": {"test": {}}}

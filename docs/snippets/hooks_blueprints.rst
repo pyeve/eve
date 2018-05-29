@@ -47,7 +47,7 @@ properly MongoDB collection.
             {"$set": {"user": None}},
             multi=True
         )
-        
+
     app = Eve()
     # register the blueprint to the main Eve application
     app.register_blueprint(blueprint)

@@ -22,6 +22,7 @@ class BaseJSONEncoder(json.JSONEncoder):
     """ Proprietary JSONEconder subclass used by the json render function.
     This is needed to address the encoding of special values.
     """
+
     def default(self, obj):
         if isinstance(obj, datetime.datetime):
             # convert any datetime to RFC 1123 format
@@ -43,12 +44,15 @@ class ConnectionException(Exception):
     :param driver_exception: the original exception raised by the source db
                              driver
     """
+
     def __init__(self, driver_exception=None):
         self.driver_exception = driver_exception
 
     def __str__(self):
-        msg = ("Error initializing the driver. Make sure the database server"
-               "is running. ")
+        msg = (
+            "Error initializing the driver. Make sure the database server"
+            "is running. "
+        )
         if self.driver_exception:
             msg += "Driver exception: %s" % repr(self.driver_exception)
         return msg
@@ -151,8 +155,14 @@ class DataLayer(object):
         """
         raise NotImplementedError
 
-    def find_one(self, resource, req, check_auth_value=True,
-                 force_auth_field_projection=False, **lookup):
+    def find_one(
+        self,
+        resource,
+        req,
+        check_auth_value=True,
+        force_auth_field_projection=False,
+        **lookup
+    ):
         """ Retrieves a single document/record. Consumed when a request hits an
         item endpoint (`/people/id/`).
 
@@ -344,16 +354,22 @@ class DataLayer(object):
         """
         dsource = config.SOURCES[resource]
 
-        source = copy(dsource['source'])
-        filter_ = copy(dsource['filter'])
-        sort = copy(dsource['default_sort'])
-        projection = copy(dsource['projection'])
+        source = copy(dsource["source"])
+        filter_ = copy(dsource["filter"])
+        sort = copy(dsource["default_sort"])
+        projection = copy(dsource["projection"])
 
-        return source, filter_, projection, sort,
+        return source, filter_, projection, sort
 
-    def _datasource_ex(self, resource, query=None, client_projection=None,
-                       client_sort=None, check_auth_value=True,
-                       force_auth_field_projection=False):
+    def _datasource_ex(
+        self,
+        resource,
+        query=None,
+        client_projection=None,
+        client_sort=None,
+        check_auth_value=True,
+        force_auth_field_projection=False,
+    ):
         """ Returns both db collection and exact query (base filter included)
         to which an API resource refers to.
 
@@ -408,8 +424,7 @@ class DataLayer(object):
             # default sort is activated only if 'sorting' is enabled for the
             # resource.
             # TODO Consider raising a validation error on startup instead?
-            sort = sort_ if sort_ and config.DOMAIN[resource]['sorting'] else \
-                None
+            sort = sort_ if sort_ and config.DOMAIN[resource]["sorting"] else None
 
         if filter_:
             if query:
@@ -436,10 +451,11 @@ class DataLayer(object):
                 if 1 in client_projection.values():
                     # inclusive projection - all values are 0 unless spec. or
                     # auto
-                    fields = dict([(field, field in keep_fields) for field in
-                                   fields.keys()])
+                    fields = dict(
+                        [(field, field in keep_fields) for field in fields.keys()]
+                    )
                 for field, value in client_projection.items():
-                    field_base = field.split('.')[0]
+                    field_base = field.split(".")[0]
                     if field_base not in keep_fields and field_base in fields:
                         fields[field] = value
             else:
@@ -448,16 +464,17 @@ class DataLayer(object):
                 fields = client_projection
         # always drop exclusion projection, thus avoid mixed projection not
         # supported by db driver
-        fields = dict([(field, 1) for field, value in fields.items() if
-                       value])
+        fields = dict([(field, 1) for field, value in fields.items() if value])
 
         # If the current HTTP method is in `public_methods` or
         # `public_item_methods`, skip the `auth_field` check
 
         # Only inject the auth_field in the query when not creating new
         # documents.
-        if request and request.method != 'POST' and (
-            check_auth_value or force_auth_field_projection
+        if (
+            request
+            and request.method != "POST"
+            and (check_auth_value or force_auth_field_projection)
         ):
             auth_field, request_auth_value = auth_field_and_value(resource)
             if auth_field:
@@ -467,14 +484,15 @@ class DataLayer(object):
                         # and the values are /different/, deny the request
                         # This prevents the auth_field condition from
                         # overwriting the query (issue #77)
-                        auth_field_in_query = \
-                            self.app.data.query_contains_field(query,
-                                                               auth_field)
-                        if auth_field_in_query and \
-                            self.app.data.get_value_from_query(
-                                query, auth_field) != request_auth_value:
-                            desc = 'Incompatible User-Restricted Resource ' \
-                                   'request.'
+                        auth_field_in_query = self.app.data.query_contains_field(
+                            query, auth_field
+                        )
+                        if (
+                            auth_field_in_query
+                            and self.app.data.get_value_from_query(query, auth_field)
+                            != request_auth_value
+                        ):
+                            desc = "Incompatible User-Restricted Resource " "request."
                             abort(401, description=desc)
                         else:
                             query = self.app.data.combine_queries(
@@ -501,10 +519,12 @@ class DataLayer(object):
             try:
                 client_projection = json.loads(req.projection)
                 if not isinstance(client_projection, dict):
-                    raise Exception('The projection parameter has to be a '
-                                    'dict')
+                    raise Exception("The projection parameter has to be a " "dict")
             except:
-                abort(400, description=debug_error_message(
-                    'Unable to parse `projection` clause'
-                ))
+                abort(
+                    400,
+                    description=debug_error_message(
+                        "Unable to parse `projection` clause"
+                    ),
+                )
         return client_projection

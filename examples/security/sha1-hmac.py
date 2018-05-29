@@ -31,12 +31,11 @@ from settings_security import SETTINGS
 class Sha1Auth(BasicAuth):
     def check_auth(self, username, password, allowed_roles, resource, method):
         # use Eve's own db driver; no additional connections/resources are used
-        accounts = app.data.driver.db['accounts']
-        account = accounts.find_one({'username': username})
-        return account and \
-            check_password_hash(account['password'], password)
+        accounts = app.data.driver.db["accounts"]
+        account = accounts.find_one({"username": username})
+        return account and check_password_hash(account["password"], password)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app = Eve(auth=Sha1Auth, settings=SETTINGS)
     app.run()

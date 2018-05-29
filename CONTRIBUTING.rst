@@ -4,7 +4,7 @@ How to contribute
 Contributions are welcome! Not familiar with the codebase yet? No problem!
 There are many ways to contribute to open source projects: reporting bugs,
 helping with the documentation, spreading the word and of course, adding
-new features and patches. 
+new features and patches.
 
 Support questions
 -----------------
@@ -13,7 +13,7 @@ Please, don't use the issue tracker for this. Use one of the following
 resources for questions about your own code:
 
 * Ask on `Stack Overflow`_. Search with Google first using: ``site:stackoverflow.com eve {search term, exception message, etc.}``
-* The `mailing list`_ is intended to be a low traffic resource for both developers/contributors and API maintainers looking for help or requesting feedback. 
+* The `mailing list`_ is intended to be a low traffic resource for both developers/contributors and API maintainers looking for help or requesting feedback.
 * The IRC channel ``#python-eve`` on FreeNode.
 
 .. _Stack Overflow: https://stackoverflow.com/questions/tagged/eve?sort=linked
@@ -149,14 +149,14 @@ Rate limiting tests
 While there are no test requirements for most of the suite, please be advised
 that in order to execute the :ref:`ratelimiting` tests you need a running
 Redis_ server. The Rate-Limiting tests are silently skipped if any of the two
-conditions are not met. 
+conditions are not met.
 
 Building the docs
 ~~~~~~~~~~~~~~~~~
 Build the docs in the ``docs`` directory using Sphinx::
 
     cd docs
-    make html 
+    make html
 
 Open ``_build/html/index.html`` in your browser to view the docs.
 
@@ -177,7 +177,7 @@ First time contributor?
 -----------------------
 It's alright. We've all been there. See next chapter.
 
-Don't know where to start? 
+Don't know where to start?
 --------------------------
 There are usually several TODO comments scattered around the codebase, maybe
 check them out and see if you have ideas, or can help with them. Also, check
@@ -201,5 +201,3 @@ Guide to Pull Requests`_
 .. _`Pull Request`: https://help.github.com/articles/creating-a-pull-request
 .. _`running the tests`: http://python-eve.org/testing#running-the-tests
 .. _Redis: https://redis.io
-
-

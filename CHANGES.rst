@@ -80,7 +80,7 @@ Released on May 10, 2018.
 - New: Add support for MongoDB ``$caseSensitive`` and ``$diactricSensitive``
   query operators (`#1126`_).
 - New: Add support for MongoDB bitwise query operators ``$bitsAllClear``,
-  ``$bitsAllSet``, ``$bitsAnyClear``, ``$bitsAnySet`` (`#1053`_). 
+  ``$bitsAllSet``, ``$bitsAnyClear``, ``$bitsAnySet`` (`#1053`_).
 - New: support for ``MONGO_AUTH_MECHANISM`` and
   ``MONGO_AUTH_MECHANISM_PROPERTIES``.
 - New: ``MONGO_DBNAME`` can now be used in conjuction with ``MONGO_URI``.
@@ -124,14 +124,14 @@ Released on May 10, 2018.
 - PyMongo dependency set to >=3.5.
 - Events dependency set to >=v0.3.
 - Drop Flask-PyMongo dependency, use custom code instead (`#855`_).
-- Docs: Comprehensive rewrite of the `How to contribute`_ page. 
+- Docs: Comprehensive rewrite of the `How to contribute`_ page.
 - Docs: Drop the testing page; merge its contents with `How to contribute`_.
 - Docs: Add link to the `Eve course`_. It was authored by the project author,
   and it is hosted by TalkPython Training.
 - Docs: code snippets are now Python 3 compatibile (Pahaz Blinov).
 - Dev: Delete and cleanup of some unnecessary code.
 - Dev: after the latest update (May 4th) travis-ci would not run tests on
-  Python 2.6. 
+  Python 2.6.
 - Dev: all branches are now tested on travis-ci. Previously, only 'master' was
   being tested.
 - Dev: fix insidious bug in ``tests.methods.post.TestPost`` class.
@@ -144,7 +144,7 @@ Breaking Changes
 - Eve now relies on `Cerberus`_ 1.1+  (`#776`_). It allows for many new
   powerful validation and trasformation features (like `schema registries`_),
   improved performance and, in general, a more streamlined API. It also brings
-  some notable breaking changes. 
+  some notable breaking changes.
 
     - ``keyschema`` was renamed to ``valueschema``, and ``propertyschema`` to
       ``keyschema``.
@@ -327,7 +327,7 @@ Released on 6 February, 2017
   this feature on can greatly improve performance. Defaults to ``False``
   (slower performance; document count included; accurate ``HATEOAS``). Closes
   #944 and #853.
- 
+
 
 - New: ``Location`` header is returned on ``201 Created`` POST responses. If
   will contain the URI to the created document. If bulk inserts are enabled,
@@ -426,7 +426,7 @@ Released on 6 February, 2017
 - Fix: Versioning does not work with User Restricted Resource Access. Closes
   #967 (Kris Lambrechts)
 
-- Fix: ``test_create_indexes()`` typo. Closes 960. 
+- Fix: ``test_create_indexes()`` typo. Closes 960.
 
 - Fix: fix crash when attempting to modify a document ``_id`` on MongoDB 3.4
   (Giorgos Margaritis)

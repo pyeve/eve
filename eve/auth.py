@@ -30,53 +30,57 @@ def requires_auth(endpoint_class):
 
     .. versionadded:: 0.0.4
     """
+
     def fdec(f):
         @wraps(f)
         def decorated(*args, **kwargs):
-            if endpoint_class == 'resource' or endpoint_class == 'item':
+            if endpoint_class == "resource" or endpoint_class == "item":
                 if args:
                     resource_name = args[0]
-                elif kwargs.get('resource'):
-                    resource_name = kwargs.get('resource')
+                elif kwargs.get("resource"):
+                    resource_name = kwargs.get("resource")
                 else:
-                    raise ValueError("'requires_auth(%s)' decorated functions "
-                                     "must include resource in args or kwargs"
-                                     % endpoint_class)
+                    raise ValueError(
+                        "'requires_auth(%s)' decorated functions "
+                        "must include resource in args or kwargs" % endpoint_class
+                    )
 
                 # fetch resource or item auth configuration
-                resource = app.config['DOMAIN'].get(resource_name)
+                resource = app.config["DOMAIN"].get(resource_name)
                 if resource is None:
                     abort(404)
-                if endpoint_class == 'resource':
-                    public = resource['public_methods']
-                    roles = list(resource['allowed_roles'])
-                    if request.method in ['GET', 'HEAD', 'OPTIONS']:
-                        roles += resource['allowed_read_roles']
+                if endpoint_class == "resource":
+                    public = resource["public_methods"]
+                    roles = list(resource["allowed_roles"])
+                    if request.method in ["GET", "HEAD", "OPTIONS"]:
+                        roles += resource["allowed_read_roles"]
                     else:
-                        roles += resource['allowed_write_roles']
-                elif endpoint_class == 'item':
-                    public = resource['public_item_methods']
-                    roles = list(resource['allowed_item_roles'])
-                    if request.method in ['GET', 'HEAD', 'OPTIONS']:
-                        roles += resource['allowed_item_read_roles']
+                        roles += resource["allowed_write_roles"]
+                elif endpoint_class == "item":
+                    public = resource["public_item_methods"]
+                    roles = list(resource["allowed_item_roles"])
+                    if request.method in ["GET", "HEAD", "OPTIONS"]:
+                        roles += resource["allowed_item_read_roles"]
                     else:
-                        roles += resource['allowed_item_write_roles']
+                        roles += resource["allowed_item_write_roles"]
                 auth = resource_auth(resource_name)
             else:
                 # home or media endpoints
                 resource_name = resource = None
-                public = app.config['PUBLIC_METHODS'] + ['OPTIONS']
-                roles = list(app.config['ALLOWED_ROLES'])
-                if request.method in ['GET', 'OPTIONS']:
-                    roles += app.config['ALLOWED_READ_ROLES']
+                public = app.config["PUBLIC_METHODS"] + ["OPTIONS"]
+                roles = list(app.config["ALLOWED_ROLES"])
+                if request.method in ["GET", "OPTIONS"]:
+                    roles += app.config["ALLOWED_READ_ROLES"]
                 else:
-                    roles += app.config['ALLOWED_WRITE_ROLES']
+                    roles += app.config["ALLOWED_WRITE_ROLES"]
                 auth = app.auth
             if auth and request.method not in public:
                 if not auth.authorized(roles, resource_name, request.method):
                     return auth.authenticate()
             return f(*args, **kwargs)
+
         return decorated
+
     return fdec
 
 
@@ -107,20 +111,21 @@ class BasicAuth(object):
 
     .. versionadded:: 0.0.4
     """
+
     def set_mongo_prefix(self, value):
         g.mongo_prefix = value
 
     def get_mongo_prefix(self):
-        return g.get('mongo_prefix')
+        return g.get("mongo_prefix")
 
     def set_request_auth_value(self, value):
         g.auth_value = value
 
     def get_request_auth_value(self):
-        return g.get('auth_value')
+        return g.get("auth_value")
 
     def get_user_or_token(self):
-        return g.get('user')
+        return g.get("user")
 
     def set_user_or_token(self, user):
         g.user = user
@@ -141,10 +146,10 @@ class BasicAuth(object):
         """ Returns a standard a 401 response that enables basic auth.
         Override if you want to change the response and/or the realm.
         """
-        resp = Response(None, 401, {'WWW-Authenticate': 'Basic realm="%s"' %
-                                    __package__})
-        abort(401, description='Please provide proper credentials',
-              response=resp)
+        resp = Response(
+            None, 401, {"WWW-Authenticate": 'Basic realm="%s"' % __package__}
+        )
+        abort(401, description="Please provide proper credentials", response=resp)
 
     def authorized(self, allowed_roles, resource, method):
         """ Validates the the current request is allowed to pass through.
@@ -156,8 +161,9 @@ class BasicAuth(object):
         auth = request.authorization
         if auth:
             self.set_user_or_token(auth.username)
-        return auth and self.check_auth(auth.username, auth.password,
-                                        allowed_roles, resource, method)
+        return auth and self.check_auth(
+            auth.username, auth.password, allowed_roles, resource, method
+        )
 
 
 class HMACAuth(BasicAuth):
@@ -179,8 +185,10 @@ class HMACAuth(BasicAuth):
 
     .. versionadded:: 0.0.5
     """
-    def check_auth(self, userid, hmac_hash, headers, data, allowed_roles,
-                   resource, method):
+
+    def check_auth(
+        self, userid, hmac_hash, headers, data, allowed_roles, resource, method
+    ):
         """ This function is called to check if a token is valid. Must be
         overridden with custom logic.
 
@@ -198,7 +206,7 @@ class HMACAuth(BasicAuth):
         """ Returns a standard a 401. Override if you want to change the
         response.
         """
-        abort(401, description='Please provide proper credentials')
+        abort(401, description="Please provide proper credentials")
 
     def authorized(self, allowed_roles, resource, method):
         """ Validates the the current request is allowed to pass through.
@@ -207,15 +215,21 @@ class HMACAuth(BasicAuth):
                               string or a list of roles.
         :param resource: resource being requested.
         """
-        auth = request.headers.get('Authorization')
+        auth = request.headers.get("Authorization")
         try:
-            userid, hmac_hash = auth.split(':')
+            userid, hmac_hash = auth.split(":")
             self.set_user_or_token(userid)
         except:
             auth = None
-        return auth and self.check_auth(userid, hmac_hash, request.headers,
-                                        request.get_data(), allowed_roles,
-                                        resource, method)
+        return auth and self.check_auth(
+            userid,
+            hmac_hash,
+            request.headers,
+            request.get_data(),
+            allowed_roles,
+            resource,
+            method,
+        )
 
 
 class TokenAuth(BasicAuth):
@@ -234,6 +248,7 @@ class TokenAuth(BasicAuth):
 
     .. versionadded:: 0.0.5
     """
+
     def check_auth(self, token, allowed_roles, resource, method):
         """ This function is called to check if a token is valid. Must be
         overridden with custom logic.
@@ -249,10 +264,10 @@ class TokenAuth(BasicAuth):
         """ Returns a standard a 401. Override if you want to change the
         response.
         """
-        resp = Response(None, 401, {'WWW-Authenticate': 'Basic realm="%s"' %
-                                    __package__})
-        abort(401, description='Please provide proper credentials',
-              response=resp)
+        resp = Response(
+            None, 401, {"WWW-Authenticate": 'Basic realm="%s"' % __package__}
+        )
+        abort(401, description="Please provide proper credentials", response=resp)
 
     def authorized(self, allowed_roles, resource, method):
         """ Validates the the current request is allowed to pass through.
@@ -262,7 +277,7 @@ class TokenAuth(BasicAuth):
         :param resource: resource being requested.
         """
         auth = None
-        if hasattr(request.authorization, 'username'):
+        if hasattr(request.authorization, "username"):
             auth = request.authorization.username
 
         # Werkzeug parse_authorization does not handle
@@ -270,15 +285,14 @@ class TokenAuth(BasicAuth):
         # "Authorization: Token <token>" or
         # "Authorization: Bearer <token>"
         # headers, therefore they should be explicitly handled
-        if not auth and request.headers.get('Authorization'):
-            auth = request.headers.get('Authorization').strip()
-            if auth.lower().startswith(('token', 'bearer')):
-                auth = auth.split(' ')[1]
+        if not auth and request.headers.get("Authorization"):
+            auth = request.headers.get("Authorization").strip()
+            if auth.lower().startswith(("token", "bearer")):
+                auth = auth.split(" ")[1]
 
         if auth:
             self.set_user_or_token(auth)
-        return auth and self.check_auth(auth, allowed_roles, resource,
-                                        method)
+        return auth and self.check_auth(auth, allowed_roles, resource, method)
 
 
 def auth_field_and_value(resource):
@@ -290,21 +304,24 @@ def auth_field_and_value(resource):
 
     .. versionadded:: 0.3
     """
-    if request.endpoint and '|resource' in request.endpoint:
+    if request.endpoint and "|resource" in request.endpoint:
         # We are on a resource endpoint and need to check against
         # `public_methods`
-        public_method_list_to_check = 'public_methods'
+        public_method_list_to_check = "public_methods"
     else:
         # We are on an item endpoint and need to check against
         # `public_item_methods`
-        public_method_list_to_check = 'public_item_methods'
+        public_method_list_to_check = "public_item_methods"
 
-    resource_dict = app.config['DOMAIN'][resource]
+    resource_dict = app.config["DOMAIN"][resource]
     auth = resource_auth(resource)
 
     request_auth_value = auth.get_request_auth_value() if auth else None
-    auth_field = resource_dict.get('auth_field', None) if request.method not \
-        in resource_dict[public_method_list_to_check] else None
+    auth_field = (
+        resource_dict.get("auth_field", None)
+        if request.method not in resource_dict[public_method_list_to_check]
+        else None
+    )
 
     return auth_field, request_auth_value
 
@@ -318,7 +335,7 @@ def resource_auth(resource):
 
     .. versionadded:: 0.5.2
     """
-    resource_def = app.config['DOMAIN'][resource]
-    if callable(resource_def['authentication']):
-        resource_def['authentication'] = resource_def['authentication']()
-    return resource_def['authentication']
+    resource_def = app.config["DOMAIN"][resource]
+    if callable(resource_def["authentication"]):
+        resource_def["authentication"] = resource_def["authentication"]()
+    return resource_def["authentication"]
