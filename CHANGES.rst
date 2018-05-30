@@ -17,6 +17,11 @@ Fixed
 
 Improved
 ~~~~~~~~
+- Perform lint checks and fixes on staged files, as a pre-commit hook.
+  (`#1157`_)
+- On CI, perform linting checks first. If linting checks are successful,
+  execute the test suite on the whole matrix. (`#1156`_)
+- Reformat code to match Black code-style. (`#1155`_)
 - Fix broken link to the Postman app. (`#1150`_)
 - Update obsolete PyPI link in docs sidebar. (`#1152`_)
 - Only display the version number on the docs homepage. (`#1151`_)
@@ -39,6 +44,9 @@ Improved
 .. _`#1150`: https://github.com/pyeve/eve/issues/1150
 .. _`#1112`: https://github.com/pyeve/eve/issues/1112
 .. _`#1154`: https://github.com/pyeve/eve/issues/1154
+.. _`#1155`: https://github.com/pyeve/eve/issues/1155
+.. _`#1156`: https://github.com/pyeve/eve/issues/1156
+.. _`#1157`: https://github.com/pyeve/eve/issues/1157
 
 Version 0.8
 -----------
