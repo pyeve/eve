@@ -322,7 +322,7 @@ Native Python syntax works like this:
     HTTP/1.1 200 OK
 
 Both syntaxes allow for conditional and logical And/Or operators, however
-nested and combined. 
+nested and combined.
 
 Filters are enabled by default on all document fields. However, the API
 maintainer can choose to disable them all and/or whitelist allowed ones (see
@@ -367,7 +367,7 @@ You can pretty print the response by specifying a query parameter named
                 "_created": "Tue, 19 Apr 2016 08:19:00 GMT",
                 "_id": "5715e9f438345b3510d27eb8",
                 "_etag": "86dc6b45fe7e2f41f1ca53a0e8fda81224229799"
-            }, 
+            },
             ...
         ]
     }
@@ -638,7 +638,7 @@ metadata:
 
 When a ``201 Created`` is returned following a POST request, the ``Location``
 header is also included with the response. Its value is the URI to the new
-document. 
+document.
 
 In order to reduce the number of loopbacks, a client might also submit
 multiple documents with a single request. All it needs to do is enclose the
@@ -676,7 +676,7 @@ The response will be a list itself, with the state of each document:
 When multiple documents are submitted the API takes advantage of MongoDB *bulk
 insert* capabilities which means that not only there's just one request
 traveling from the client to the remote API, but also that a single loopback is
-performed between the API server and the database. 
+performed between the API server and the database.
 
 In case of successful multiple inserts, keep in mind that the ``Location``
 header only returns the URI of the first created document.
@@ -1849,7 +1849,7 @@ encoded in GeoJSON_ format. All GeoJSON objects supported by MongoDB_ are availa
     - ``GeometryCollection``
 
 All these objects are implemented as native Eve data types (see :ref:`schema`)
-so they are are subject to the proper validation. 
+so they are are subject to the proper validation.
 
 In the example below we are extending the `people` endpoint by adding
 a ``location`` field is of type Point_.

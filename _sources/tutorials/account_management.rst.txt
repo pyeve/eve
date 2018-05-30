@@ -17,11 +17,11 @@ consumed by the accounts themselves?
 In the following paragraphs we'll see a couple of possible Account Management
 implementations, both making intensive use of a host of Eve features such as
 :ref:`endpointsec`, :ref:`roleaccess`, :ref:`user-restricted`,
-:ref:`eventhooks`. 
+:ref:`eventhooks`.
 
 We assume that SSL/TLS is enabled, which means that our transport layer is
 encrypted, making both :ref:`basic` and :ref:`token` valid options to secure API
-endpoints. 
+endpoints.
 
 Let's say we're upgrading the API we defined in the :ref:`quickstart` tutorial.
 
@@ -32,7 +32,7 @@ Accounts with Basic Authentication
 Our tasks are as follows:
 
 1. Make an endpoint available for all account management activities
-   (``/accounts``). 
+   (``/accounts``).
 2. Secure the endpoint, so that it is only accessible to clients
    that we control: our own website, mobile apps with account
    management capabilities, etc.
@@ -66,8 +66,8 @@ Then, let's define the endpoint.
 
     accounts = {
         # the standard account entry point is defined as
-        # '/accounts/<ObjectId>'. We define  an additional read-only entry 
-        # point accessible at '/accounts/<username>'. 
+        # '/accounts/<ObjectId>'. We define  an additional read-only entry
+        # point accessible at '/accounts/<username>'.
         'additional_lookup': {
             'url': 'regex("[\w]+")',
             'field': 'username',
@@ -136,7 +136,7 @@ with simple POST requests, of course authenticating itself as a `superuser` by
 means of the `Authorization` header. The script assumes that stored passwords
 are encrypted with `bcrypt` (storing passwords as plain text is *never* a good
 idea). See :ref:`basic` for an alternative, faster but less secure SHA1/MAC
-example. 
+example.
 
 2b. User Roles Access Control
 '''''''''''''''''''''''''''''
@@ -170,7 +170,7 @@ Let's start by updating our resource schema.
         },
 
 We just added a new ``roles`` field which is a required list. From now on, one
-or more roles will have to be assigned on account creation. 
+or more roles will have to be assigned on account creation.
 
 Now we need to restrict endpoint access to `superuser` and `admin` accounts
 only so let's update the endpoint definition accordingly.
@@ -180,8 +180,8 @@ only so let's update the endpoint definition accordingly.
 
     accounts = {
         # the standard account entry point is defined as
-        # '/accounts/<ObjectId>'. We define  an additional read-only entry 
-        # point accessible at '/accounts/<username>'. 
+        # '/accounts/<ObjectId>'. We define  an additional read-only entry
+        # point accessible at '/accounts/<username>'.
         'additional_lookup': {
             'url': 'regex("[\w]+")',
             'field': 'username',
@@ -194,7 +194,7 @@ only so let's update the endpoint definition accordingly.
 
         # Only allow superusers and admins.
         'allowed_roles': ['superuser', 'admin'],
-        
+
         # Finally, let's add the schema definition for this endpoint.
         'schema': schema,
     }
@@ -274,7 +274,7 @@ value:
 
 .. code-block:: python
    :emphasize-lines: 15-17
-   
+
 
     from eve import Eve
     from eve.auth import BasicAuth
@@ -290,7 +290,7 @@ value:
                 # only retrieve a user if his roles match ``allowed_roles``
                 lookup['roles'] = {'$in': allowed_roles}
             account = accounts.find_one(lookup)
-            # set 'AUTH_FIELD' value to the account's ObjectId 
+            # set 'AUTH_FIELD' value to the account's ObjectId
             # (instead of _Id, you might want to use ID_FIELD)
             self.set_request_auth_value(account['_id'])
             return account and check_password_hash(account['password'], password)
@@ -316,12 +316,12 @@ the token, and the password field is not provided (if included, it is ignored).
 Consequently, handling accounts with Token Authentication is very similar to
 what we saw in :ref:`accounts_basic`, but there's one little caveat: tokens
 need to be generated and stored along with the account, and eventually returned
-to the client. 
+to the client.
 
 In light of this, let's review our updated task list:
-  
+
 1. Make an endpoint available for all account management activities
-   (``/accounts``). 
+   (``/accounts``).
 2. Secure the endpoint so that it is only accessible to clients (tokens) that
    we control.
 3. On account creation, generate and store its token.
@@ -362,7 +362,7 @@ need to add the `token` field to our schema:
 2. Securing the ``/accounts/`` endpoint
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 We defined the `roles` field for the `accounts` schema in the previous step.
-We also need to define the endpoint, making sure that we set the allowed 
+We also need to define the endpoint, making sure that we set the allowed
 user roles.
 
 .. code-block:: python
@@ -370,8 +370,8 @@ user roles.
 
     accounts = {
         # the standard account entry point is defined as
-        # '/accounts/<ObjectId>'. We define  an additional read-only entry 
-        # point accessible at '/accounts/<username>'. 
+        # '/accounts/<ObjectId>'. We define  an additional read-only entry
+        # point accessible at '/accounts/<username>'.
         'additional_lookup': {
             'url': 'regex("[\w]+")',
             'field': 'username',
@@ -384,7 +384,7 @@ user roles.
 
         # Only allow superusers and admins.
         'allowed_roles': ['superuser', 'admin'],
-        
+
         # Finally, let's add the schema definition for this endpoint.
         'schema': schema,
     }
@@ -448,7 +448,7 @@ to be stored to the database.
         # Don't use this in production:
         # You should at least make sure that the token is unique.
         for document in documents:
-            document["token"] = (''.join(random.choice(string.ascii_uppercase) 
+            document["token"] = (''.join(random.choice(string.ascii_uppercase)
                                          for x in range(10)))
 
 
@@ -485,8 +485,8 @@ definition accordingly:
 
     accounts = {
         # the standard account entry point is defined as
-        # '/accounts/<ObjectId>'. We define  an additional read-only entry 
-        # point accessible at '/accounts/<username>'. 
+        # '/accounts/<ObjectId>'. We define  an additional read-only entry
+        # point accessible at '/accounts/<username>'.
         'additional_lookup': {
             'url': 'regex("[\w]+")',
             'field': 'username',
@@ -502,7 +502,7 @@ definition accordingly:
 
         # Allow 'token' to be returned with POST responses
         'extra_response_fields': ['token'],
-        
+
         # Finally, let's add the schema definition for this endpoint.
         'schema': schema,
     }
@@ -531,7 +531,7 @@ Despite being a little more tricky to set up on the server side, Token
 Authentication offers significant advantages. First, you don't have passwords
 stored on the client and  being sent over the wire with every request. If
 you're sending your tokens out-of-band, and you're on SSL/TLS, that's quite
-a lot of additional security. 
+a lot of additional security.
 
 .. _SSL/TLS: http://en.wikipedia.org/wiki/Transport_Layer_Security
 .. _`Event Hooks`: http://python-eve.org/features.html#event-hooks

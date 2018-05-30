@@ -140,6 +140,15 @@ uppercase.
                                     resource schema. Invalid filters will throw
                                     an exception. Defaults to ``False``.
 
+                                    Word of caution: validation on filter
+                                    expressions involving fields with custom
+                                    rules or types might have a considerable
+                                    impact on performance. This is the case,
+                                    for example, with ``data_relation``-rule
+                                    fields. Consider excluding heavy-duty
+                                    fields from filters (see
+                                    ``ALLOWED_FILTERS``).
+
 ``SORTING``                         ``True`` if sorting is supported for ``GET``
                                     requests, otherwise ``False``. Can be
                                     overridden by resource settings. Defaults
@@ -754,6 +763,11 @@ uppercase.
                                     disable this feature, and a ``404`` will be
                                     returned instead. Defaults to ``True``.
 
+``MERGE_NESTED_DOCUMENTS``          If ``True``, updates to nested fields are
+                                    merged with the current data on ``PATCH``.
+                                    If ``False``, the updates overwrite the
+                                    current data. Defaults to ``True``.
+
 =================================== =========================================
 
 .. _domain:
@@ -1083,6 +1097,12 @@ always lowercase.
 ``soft_delete``                 When ``True`` this option enables the
                                 :ref:`soft_delete` feature for this resource.
                                 Locally overrides ``SOFT_DELETE``.
+
+``merge_nested_documents``      If ``True``, updates to nested fields are
+                                merged with the current data on ``PATCH``.
+                                If ``False``, the updates overwrite the
+                                current data. Locally overrides
+                                ``MERGE_NESTED_DOCUMENTS``.
 
 =============================== ===============================================
 

@@ -16,10 +16,10 @@ Eve REST API for Humans™ has been presented at the following events so far:
 - PiterPy 2016, St. Petersburg
 - Percona Live 2015, Amsterdam
 - EuroPython 2014, Berlin
-- Python Meetup, Helsinki 
-- PyCon Italy 2014, Florence 
-- PyCon Sweden 2014, Stockholm 
-- FOSDEM 2014, Brussels 
+- Python Meetup, Helsinki
+- PyCon Italy 2014, Florence
+- PyCon Sweden 2014, Stockholm
+- FOSDEM 2014, Brussels
 
 Want this talk delivered at your conference? Get in touch_!
 

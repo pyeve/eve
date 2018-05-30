@@ -18,7 +18,7 @@ If you run a business and is using Eve in a revenue-generating product, it
 would make business sense to sponsor Eve development: it ensures the project
 that your product relies on stays healthy and actively maintained. It can also
 help your exposure in the Eve community and makes it easier to attract Eve
-developers. 
+developers.
 
 Of course, individual users are also welcome to make a recurring pledge if Eve
 has helped you in your work or personal projects. Alternatively, consider

@@ -1,31 +1,21 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Handling custom ID fields &mdash; Eve 0.8.1.dev0 documentation</title>
-    
+    <title>Handling custom ID fields &#8212; Eve 0.8.1.dev0 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.8.1.dev0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.8.1.dev0 documentation" href="../index.html" />
-    <link rel="up" title="Tutorials" href="index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Snippets" href="../snippets/index.html" />
     <link rel="prev" title="RESTful Account Management" href="account_management.html" />
    
@@ -34,8 +24,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
@@ -45,27 +34,27 @@
             
   <div class="section" id="handling-custom-id-fields">
 <span id="custom-ids"></span><h1>Handling custom ID fields<a class="headerlink" href="#handling-custom-id-fields" title="Permalink to this headline">¶</a></h1>
-<p>When it comes to individual document endpoints, in most cases you don&#8217;t have
-anything to do besides defining the parent resource endpoint. So let&#8217;s say that
-you configure a <tt class="docutils literal"><span class="pre">/invoices</span></tt> endpoint, which will allow clients to query the
-underlying <cite>invoices</cite> database collection. The <tt class="docutils literal"><span class="pre">/invoices/&lt;ObjectId&gt;</span></tt>
+<p>When it comes to individual document endpoints, in most cases you don’t have
+anything to do besides defining the parent resource endpoint. So let’s say that
+you configure a <code class="docutils literal notranslate"><span class="pre">/invoices</span></code> endpoint, which will allow clients to query the
+underlying <cite>invoices</cite> database collection. The <code class="docutils literal notranslate"><span class="pre">/invoices/&lt;ObjectId&gt;</span></code>
 endpoint will be made available by the framework, and will be used by clients to
 retrieve and/or edit individual documents. By default, Eve provides this feature
-seamlessly when <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> fields are of <tt class="docutils literal"><span class="pre">ObjectId</span></tt> type.</p>
+seamlessly when <code class="docutils literal notranslate"><span class="pre">ID_FIELD</span></code> fields are of <code class="docutils literal notranslate"><span class="pre">ObjectId</span></code> type.</p>
 <p>However, you might have collections where your unique identifier is not and
-<tt class="docutils literal"><span class="pre">ObjectId</span></tt>, and you still want individual document endpoints to work
-properly. Don&#8217;t worry, it&#8217;s doable, it only requires a little tinkering.</p>
+<code class="docutils literal notranslate"><span class="pre">ObjectId</span></code>, and you still want individual document endpoints to work
+properly. Don’t worry, it’s doable, it only requires a little tinkering.</p>
 <div class="section" id="handling-uuid-fields">
-<h2>Handling <tt class="docutils literal"><span class="pre">UUID</span></tt> fields<a class="headerlink" href="#handling-uuid-fields" title="Permalink to this headline">¶</a></h2>
+<h2>Handling <code class="docutils literal notranslate"><span class="pre">UUID</span></code> fields<a class="headerlink" href="#handling-uuid-fields" title="Permalink to this headline">¶</a></h2>
 <p>In this tutorial we will consider a scenario in which one of our database
 collections (invoices) uses UUID fields as unique identifiers. We want our API to
-expose a document endpoint like <tt class="docutils literal"><span class="pre">/invoices/uuid</span></tt>, which translates to something like:</p>
-<p><tt class="docutils literal"><span class="pre">/invoices/48c00ee9-4dbe-413f-9fc3-d5f12a91de1c</span></tt>.</p>
+expose a document endpoint like <code class="docutils literal notranslate"><span class="pre">/invoices/uuid</span></code>, which translates to something like:</p>
+<p><code class="docutils literal notranslate"><span class="pre">/invoices/48c00ee9-4dbe-413f-9fc3-d5f12a91de1c</span></code>.</p>
 <p>These are the steps we need to follow:</p>
 <ol class="arabic simple">
 <li>Craft a custom JSONEncoder that is capable of serializing UUIDs as strings
 and pass it to our Eve application.</li>
-<li>Add support for a new <tt class="docutils literal"><span class="pre">uuid</span></tt> data type so we can properly validate
+<li>Add support for a new <code class="docutils literal notranslate"><span class="pre">uuid</span></code> data type so we can properly validate
 incoming uuid values.</li>
 <li>Configure our invoices endpoint so Eve knows how to properly parse UUID
 urls.</li>
@@ -73,14 +62,14 @@ urls.</li>
 <div class="section" id="custom-jsonencoder">
 <h3>Custom JSONEncoder<a class="headerlink" href="#custom-jsonencoder" title="Permalink to this headline">¶</a></h3>
 <p>The Eve default JSON serializer is perfectly capable of serializing common data
-types like <tt class="docutils literal"><span class="pre">datetime</span></tt> (serialized to a RFC1123 string, like <tt class="docutils literal"><span class="pre">Sat,</span> <span class="pre">23</span> <span class="pre">Feb</span> <span class="pre">1985</span>
-<span class="pre">12:00:00</span> <span class="pre">GMT</span></tt>) and <tt class="docutils literal"><span class="pre">ObjectId</span></tt> values (also serialized to strings).</p>
+types like <code class="docutils literal notranslate"><span class="pre">datetime</span></code> (serialized to a RFC1123 string, like <code class="docutils literal notranslate"><span class="pre">Sat,</span> <span class="pre">23</span> <span class="pre">Feb</span> <span class="pre">1985</span>
+<span class="pre">12:00:00</span> <span class="pre">GMT</span></code>) and <code class="docutils literal notranslate"><span class="pre">ObjectId</span></code> values (also serialized to strings).</p>
 <p>Since we are adding support for an unknown data type, we also need to instruct
 our Eve instance on how to properly serialize it. This is as easy as
-subclassing a standard <tt class="docutils literal"><span class="pre">JSONEncoder</span></tt> or, even better, Eve&#8217;s own
-<tt class="docutils literal"><span class="pre">BaseJSONEncoder</span></tt>, so our custom serializer will preserve all of Eve&#8217;s
+subclassing a standard <code class="docutils literal notranslate"><span class="pre">JSONEncoder</span></code> or, even better, Eve’s own
+<code class="docutils literal notranslate"><span class="pre">BaseJSONEncoder</span></code>, so our custom serializer will preserve all of Eve’s
 serialization magic:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve.io.base</span> <span class="kn">import</span> <span class="n">BaseJSONEncoder</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">eve.io.base</span> <span class="kn">import</span> <span class="n">BaseJSONEncoder</span>
 <span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
 
 <span class="k">class</span> <span class="nc">UUIDEncoder</span><span class="p">(</span><span class="n">BaseJSONEncoder</span><span class="p">):</span>
@@ -93,21 +82,21 @@ serialization magic:</p>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">UUID</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c"># delegate rendering to base class method (the base class</span>
-            <span class="c"># will properly render ObjectIds, datetimes, etc.)</span>
+            <span class="c1"># delegate rendering to base class method (the base class</span>
+            <span class="c1"># will properly render ObjectIds, datetimes, etc.)</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">UUIDEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="uuid-validation">
-<h3><tt class="docutils literal"><span class="pre">UUID</span></tt> Validation<a class="headerlink" href="#uuid-validation" title="Permalink to this headline">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">UUID</span></code> Validation<a class="headerlink" href="#uuid-validation" title="Permalink to this headline">¶</a></h3>
 <p>By default Eve creates a unique identifier for each newly inserted document,
-and that is of <tt class="docutils literal"><span class="pre">ObjectId</span></tt> type. This is not what we want to happen at this
+and that is of <code class="docutils literal notranslate"><span class="pre">ObjectId</span></code> type. This is not what we want to happen at this
 endpoint. Here we want the client itself to provide the unique identifiers, and
 we also want to validate that they are of UUID type. In order to achieve that,
-we first need to extend our data validation layer (see <a class="reference internal" href="../validation.html#validation"><em>Data Validation</em></a> for
+we first need to extend our data validation layer (see <a class="reference internal" href="../validation.html#validation"><span class="std std-ref">Data Validation</span></a> for
 details on custom validation):</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve.io.mongo</span> <span class="kn">import</span> <span class="n">Validator</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">eve.io.mongo</span> <span class="kn">import</span> <span class="n">Validator</span>
 <span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
 
 <span class="k">class</span> <span class="nc">UUIDValidator</span><span class="p">(</span><span class="n">Validator</span><span class="p">):</span>
@@ -123,43 +112,43 @@ details on custom validation):</p>
 </div>
 </div>
 <div class="section" id="uuid-urls">
-<h3><tt class="docutils literal"><span class="pre">UUID</span></tt> URLs<a class="headerlink" href="#uuid-urls" title="Permalink to this headline">¶</a></h3>
-<p>Now Eve is capable of rendering and validating UUID values but it still doesn&#8217;t know
+<h3><code class="docutils literal notranslate"><span class="pre">UUID</span></code> URLs<a class="headerlink" href="#uuid-urls" title="Permalink to this headline">¶</a></h3>
+<p>Now Eve is capable of rendering and validating UUID values but it still doesn’t know
 which resources are going to use these features. We also need to set
-<tt class="docutils literal"><span class="pre">item_url</span></tt> so uuid formed urls can be properly parsed. Let&#8217;s pick our
-<tt class="docutils literal"><span class="pre">settings.py</span></tt> module and update the API domain accordingly:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">invoices</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c"># this resource item endpoint (/invoices/&lt;id&gt;) will match a UUID regex.</span>
-    <span class="s">&#39;item_url&#39;</span><span class="p">:</span> <span class="s">&#39;regex(&quot;[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}&quot;)&#39;</span><span class="p">,</span>
-    <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="c"># set our _id field of our custom uuid type.</span>
-        <span class="s">&#39;_id&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;uuid&#39;</span><span class="p">},</span>
+<code class="docutils literal notranslate"><span class="pre">item_url</span></code> so uuid formed urls can be properly parsed. Let’s pick our
+<code class="docutils literal notranslate"><span class="pre">settings.py</span></code> module and update the API domain accordingly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">invoices</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># this resource item endpoint (/invoices/&lt;id&gt;) will match a UUID regex.</span>
+    <span class="s1">&#39;item_url&#39;</span><span class="p">:</span> <span class="s1">&#39;regex(&quot;[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}&quot;)&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="c1"># set our _id field of our custom uuid type.</span>
+        <span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;uuid&#39;</span><span class="p">},</span>
     <span class="p">},</span>
 <span class="p">}</span>
 
 <span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s">&#39;invoices&#39;</span><span class="p">:</span> <span class="n">invoices</span>
+    <span class="s1">&#39;invoices&#39;</span><span class="p">:</span> <span class="n">invoices</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>If all your API resources are going to support uuid as unique document
-identifiers then you might just want to set the global <tt class="docutils literal"><span class="pre">ITEM_URL</span></tt> to the uuid
+identifiers then you might just want to set the global <code class="docutils literal notranslate"><span class="pre">ITEM_URL</span></code> to the uuid
 regex in order to avoid setting it for every single resource endpoint.</p>
 </div>
 <div class="section" id="passing-the-uuid-juice-to-eve">
-<h3>Passing the <tt class="docutils literal"><span class="pre">UUID</span></tt> juice to Eve<a class="headerlink" href="#passing-the-uuid-juice-to-eve" title="Permalink to this headline">¶</a></h3>
+<h3>Passing the <code class="docutils literal notranslate"><span class="pre">UUID</span></code> juice to Eve<a class="headerlink" href="#passing-the-uuid-juice-to-eve" title="Permalink to this headline">¶</a></h3>
 <p>Now all the missing pieces are there we only need to instruct Eve on how to
 use them. Eve needs to know about the new data type when its building the
 URL map, so we need to pass our custom classes right at the beginning, when we
 are instancing the application:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">json_encoder</span><span class="o">=</span><span class="n">UUIDEncoder</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">UUIDValidator</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">json_encoder</span><span class="o">=</span><span class="n">UUIDEncoder</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">UUIDValidator</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Remember, if you are using custom <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> values then you should not rely
-on MongoDB (and Eve) to auto-generate the <tt class="docutils literal"><span class="pre">ID_FIELD</span></tt> for you. You are
+<p>Remember, if you are using custom <code class="docutils literal notranslate"><span class="pre">ID_FIELD</span></code> values then you should not rely
+on MongoDB (and Eve) to auto-generate the <code class="docutils literal notranslate"><span class="pre">ID_FIELD</span></code> for you. You are
 supposed to pass the value, like so:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">POST</span>
-<span class="p">{</span><span class="s">&quot;name&quot;</span><span class="p">:</span><span class="s">&quot;bill&quot;</span><span class="p">,</span> <span class="s">&quot;_id&quot;</span><span class="p">:</span><span class="s">&quot;48c00ee9-4dbe-413f-9fc3-d5f12a91de1c&quot;</span><span class="p">}</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">POST</span>
+<span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;bill&quot;</span><span class="p">,</span> <span class="s2">&quot;_id&quot;</span><span class="p">:</span><span class="s2">&quot;48c00ee9-4dbe-413f-9fc3-d5f12a91de1c&quot;</span><span class="p">}</span>
 </pre></div>
 </div>
 </div>
@@ -170,7 +159,7 @@ supposed to pass the value, like so:</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../index.html">
@@ -248,12 +237,12 @@ supposed to pass the value, like so:</p>
 <li class="toctree-l1"><a class="reference internal" href="../funding.html">Funding</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="account_management.html">RESTful Account Management</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">Handling custom ID fields</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#handling-uuid-fields">Handling <tt class="docutils literal"><span class="pre">UUID</span></tt> fields</a><ul>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Handling custom ID fields</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#handling-uuid-fields">Handling <code class="docutils literal notranslate"><span class="pre">UUID</span></code> fields</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#custom-jsonencoder">Custom JSONEncoder</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#uuid-validation"><tt class="docutils literal"><span class="pre">UUID</span></tt> Validation</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#uuid-urls"><tt class="docutils literal"><span class="pre">UUID</span></tt> URLs</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#passing-the-uuid-juice-to-eve">Passing the <tt class="docutils literal"><span class="pre">UUID</span></tt> juice to Eve</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uuid-validation"><code class="docutils literal notranslate"><span class="pre">UUID</span></code> Validation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uuid-urls"><code class="docutils literal notranslate"><span class="pre">UUID</span></code> URLs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#passing-the-uuid-juice-to-eve">Passing the <code class="docutils literal notranslate"><span class="pre">UUID</span></code> juice to Eve</a></li>
 </ul>
 </li>
 </ul>
@@ -272,22 +261,20 @@ supposed to pass the value, like so:</p>
 </ul>
 
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script><p>
 Artwork by <a href="http://kalamun.org">Kalamun</a> © 2013
 </p>
-
         </div>
       </div>
       <div class="clearer"></div>
