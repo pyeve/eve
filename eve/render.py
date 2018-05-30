@@ -17,8 +17,13 @@ import simplejson as json
 from werkzeug import utils
 from functools import wraps
 from eve.methods.common import get_rate_limit
-from eve.utils import date_to_str, date_to_rfc1123, config, \
-    debug_error_message, import_from_string
+from eve.utils import (
+    date_to_str,
+    date_to_rfc1123,
+    config,
+    debug_error_message,
+    import_from_string,
+)
 from flask import make_response, request, Response, current_app as app, abort
 from collections import OrderedDict  # noqa
 
@@ -41,19 +46,21 @@ def raise_event(f):
 
     .. versionadded:: 0.0.6
     """
+
     @wraps(f)
     def decorated(*args, **kwargs):
         r = f(*args, **kwargs)
         method = request.method
-        if method in ('GET', 'POST', 'PATCH', 'DELETE', 'PUT'):
-            event_name = 'on_post_' + method
+        if method in ("GET", "POST", "PATCH", "DELETE", "PUT"):
+            event_name = "on_post_" + method
             resource = args[0] if args else None
             # general hook
             getattr(app, event_name)(resource, request, r)
             if resource:
                 # resource hook
-                getattr(app, event_name + '_' + resource)(request, r)
+                getattr(app, event_name + "_" + resource)(request, r)
         return r
+
     return decorated
 
 
@@ -85,8 +92,9 @@ def send_response(resource, response):
         return _prepare_response(resource, *response if response else [None])
 
 
-def _prepare_response(resource, dct, last_modified=None, etag=None,
-                      status=200, headers=None):
+def _prepare_response(
+    resource, dct, last_modified=None, etag=None, status=200, headers=None
+):
     """ Prepares the response object according to the client request and
     available renderers, making sure that all accessory directives (caching,
     etag, last-modified) are present.
@@ -128,7 +136,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
 
     .. versionadded:: 0.0.4
     """
-    if request.method == 'OPTIONS':
+    if request.method == "OPTIONS":
         resp = app.make_default_options_response()
     else:
         # obtain the best match between client's request and available mime
@@ -141,7 +149,7 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         # JSONP
         if config.JSONP_ARGUMENT:
             jsonp_arg = config.JSONP_ARGUMENT
-            if jsonp_arg in request.args and 'json' in mime:
+            if jsonp_arg in request.args and "json" in mime:
                 callback = request.args.get(jsonp_arg)
                 rendered = "%s(%s)" % (callback, rendered)
 
@@ -152,30 +160,30 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
     # extra headers
     if headers:
         for header, value in headers:
-            if header != 'Content-Type':
+            if header != "Content-Type":
                 resp.headers.add(header, value)
 
     # cache directives
-    if request.method in ('GET', 'HEAD'):
+    if request.method in ("GET", "HEAD"):
         if resource:
-            cache_control = config.DOMAIN[resource]['cache_control']
-            expires = config.DOMAIN[resource]['cache_expires']
+            cache_control = config.DOMAIN[resource]["cache_control"]
+            expires = config.DOMAIN[resource]["cache_expires"]
         else:
             cache_control = config.CACHE_CONTROL
             expires = config.CACHE_EXPIRES
         if cache_control:
-            resp.headers.add('Cache-Control', cache_control)
+            resp.headers.add("Cache-Control", cache_control)
         if expires:
             resp.expires = time.time() + expires
 
     # etag and last-modified
     if etag:
-        resp.headers.add('ETag', '"' + etag + '"')
+        resp.headers.add("ETag", '"' + etag + '"')
     if last_modified:
-        resp.headers.add('Last-Modified', date_to_rfc1123(last_modified))
+        resp.headers.add("Last-Modified", date_to_rfc1123(last_modified))
 
     # CORS
-    origin = request.headers.get('Origin')
+    origin = request.headers.get("Origin")
     if origin and (config.X_DOMAINS or config.X_DOMAINS_RE):
         if config.X_DOMAINS is None:
             domains = []
@@ -217,31 +225,30 @@ def _prepare_response(resource, dct, last_modified=None, etag=None,
         # is "true"
         allow_credentials = config.X_ALLOW_CREDENTIALS is True
 
-        methods = app.make_default_options_response().headers.get('allow', '')
+        methods = app.make_default_options_response().headers.get("allow", "")
 
-        if '*' in domains:
-            resp.headers.add('Access-Control-Allow-Origin', origin)
-            resp.headers.add('Vary', 'Origin')
+        if "*" in domains:
+            resp.headers.add("Access-Control-Allow-Origin", origin)
+            resp.headers.add("Vary", "Origin")
         elif any(origin == domain for domain in domains):
-            resp.headers.add('Access-Control-Allow-Origin', origin)
+            resp.headers.add("Access-Control-Allow-Origin", origin)
         elif any(domain.match(origin) for domain in domains_re_compiled):
-            resp.headers.add('Access-Control-Allow-Origin', origin)
+            resp.headers.add("Access-Control-Allow-Origin", origin)
         else:
-            resp.headers.add('Access-Control-Allow-Origin', '')
-        resp.headers.add('Access-Control-Allow-Headers', ', '.join(headers))
-        resp.headers.add('Access-Control-Expose-Headers',
-                         ', '.join(expose_headers))
-        resp.headers.add('Access-Control-Allow-Methods', methods)
-        resp.headers.add('Access-Control-Max-Age', config.X_MAX_AGE)
+            resp.headers.add("Access-Control-Allow-Origin", "")
+        resp.headers.add("Access-Control-Allow-Headers", ", ".join(headers))
+        resp.headers.add("Access-Control-Expose-Headers", ", ".join(expose_headers))
+        resp.headers.add("Access-Control-Allow-Methods", methods)
+        resp.headers.add("Access-Control-Max-Age", config.X_MAX_AGE)
         if allow_credentials:
-            resp.headers.add('Access-Control-Allow-Credentials', "true")
+            resp.headers.add("Access-Control-Allow-Credentials", "true")
 
     # Rate-Limiting
     limit = get_rate_limit()
     if limit and limit.send_x_headers:
-        resp.headers.add('X-RateLimit-Remaining', str(limit.remaining))
-        resp.headers.add('X-RateLimit-Limit', str(limit.limit))
-        resp.headers.add('X-RateLimit-Reset', str(limit.reset))
+        resp.headers.add("X-RateLimit-Remaining", str(limit.remaining))
+        resp.headers.add("X-RateLimit-Limit", str(limit.limit))
+        resp.headers.add("X-RateLimit-Reset", str(limit.reset))
 
     return resp
 
@@ -260,19 +267,21 @@ def _best_mime():
     """
     supported = []
     renders = {}
-    for renderer_cls in app.config.get('RENDERERS'):
+    for renderer_cls in app.config.get("RENDERERS"):
         renderer = import_from_string(renderer_cls)
         for mime_type in renderer.mime:
             supported.append(mime_type)
             renders[mime_type] = renderer
 
     if len(supported) == 0:
-        abort(500, description=debug_error_message(
-            'Configuration error: no supported mime types')
+        abort(
+            500,
+            description=debug_error_message(
+                "Configuration error: no supported mime types"
+            ),
         )
 
-    best_match = request.accept_mimetypes.best_match(supported) or \
-        supported[0]
+    best_match = request.accept_mimetypes.best_match(supported) or supported[0]
     return best_match, renders[best_match]
 
 
@@ -281,18 +290,19 @@ class Renderer(object):
     attr and have `.render()` method implemented.
 
     """
+
     mime = tuple()
 
     def render(self, data):
-        raise NotImplementedError('Renderer .render() method is not '
-                                  'implemented')
+        raise NotImplementedError("Renderer .render() method is not " "implemented")
 
 
 class JSONRenderer(Renderer):
     """ JSON renderer class based on `simplejson` package.
 
     """
-    mime = ('application/json',)
+
+    mime = ("application/json",)
 
     def render(self, data):
         """ JSON render function
@@ -309,19 +319,23 @@ class JSONRenderer(Renderer):
         set_indent = None
 
         # make pretty prints available
-        if 'GET' in request.method and 'pretty' in request.args:
+        if "GET" in request.method and "pretty" in request.args:
             set_indent = 4
-        return json.dumps(data, indent=set_indent,
-                          cls=app.data.json_encoder_class,
-                          sort_keys=config.JSON_SORT_KEYS)
+        return json.dumps(
+            data,
+            indent=set_indent,
+            cls=app.data.json_encoder_class,
+            sort_keys=config.JSON_SORT_KEYS,
+        )
 
 
 class XMLRenderer(Renderer):
     """ XML renderer class.
 
     """
-    mime = ('application/xml', 'text/xml', 'application/x-xml',)
-    tag = 'XML'
+
+    mime = ("application/xml", "text/xml", "application/x-xml")
+    tag = "XML"
 
     def render(self, data):
         """ XML render function.
@@ -343,7 +357,7 @@ class XMLRenderer(Renderer):
         if isinstance(data, list):
             data = {config.ITEMS: data}
 
-        xml = ''
+        xml = ""
         if data:
             xml += self.xml_root_open(data)
             xml += self.xml_add_links(data)
@@ -370,13 +384,13 @@ class XMLRenderer(Renderer):
         .. versionadded:: 0.0.3
         """
         links = data.get(config.LINKS)
-        href = title = ''
-        if links and 'self' in links:
-            self_ = links.pop('self')
-            href = ' href="%s" ' % utils.escape(self_['href'])
-            if 'title' in self_:
-                title = ' title="%s" ' % self_['title']
-        return '<resource%s%s>' % (href, title)
+        href = title = ""
+        if links and "self" in links:
+            self_ = links.pop("self")
+            href = ' href="%s" ' % utils.escape(self_["href"])
+            if "title" in self_:
+                title = ' title="%s" ' % self_["title"]
+        return "<resource%s%s>" % (href, title)
 
     @classmethod
     def xml_add_meta(cls, data):
@@ -389,14 +403,14 @@ class XMLRenderer(Renderer):
 
         .. versionadded:: 0.4
         """
-        xml = ''
+        xml = ""
         meta = []
         if data.get(config.META):
             ordered_meta = OrderedDict(sorted(data[config.META].items()))
             for name, value in ordered_meta.items():
-                meta.append('<%s>%d</%s>' % (name, value, name))
+                meta.append("<%s>%d</%s>" % (name, value, name))
         if meta:
-            xml = '<%s>%s</%s>' % (config.META, ''.join(meta), config.META)
+            xml = "<%s>%s</%s>" % (config.META, "".join(meta), config.META)
         return xml
 
     @classmethod
@@ -415,18 +429,20 @@ class XMLRenderer(Renderer):
 
         .. versionadded:: 0.0.3
         """
-        xml = ''
+        xml = ""
         chunk = '<link rel="%s" href="%s" title="%s" />'
         links = data.pop(config.LINKS, {})
         ordered_links = OrderedDict(sorted(links.items()))
         for rel, link in ordered_links.items():
             if isinstance(link, list):
-                xml += ''.join([chunk % (rel, utils.escape(d['href']),
-                                         utils.escape(d['title']))
-                                for d in link])
+                xml += "".join(
+                    [
+                        chunk % (rel, utils.escape(d["href"]), utils.escape(d["title"]))
+                        for d in link
+                    ]
+                )
             else:
-                xml += ''.join(chunk % (rel, utils.escape(link['href']),
-                                        link['title']))
+                xml += "".join(chunk % (rel, utils.escape(link["href"]), link["title"]))
         return xml
 
     @classmethod
@@ -440,7 +456,7 @@ class XMLRenderer(Renderer):
         .. versionadded:: 0.0.3
         """
         try:
-            xml = ''.join([cls.xml_item(item) for item in data[config.ITEMS]])
+            xml = "".join([cls.xml_item(item) for item in data[config.ITEMS]])
         except:
             xml = cls.xml_dict(data)
         return xml
@@ -465,7 +481,7 @@ class XMLRenderer(Renderer):
 
         .. versionadded:: 0.0.3
         """
-        return '</resource>'
+        return "</resource>"
 
     @classmethod
     def xml_dict(cls, data):
@@ -481,7 +497,7 @@ class XMLRenderer(Renderer):
 
         .. versionadded:: 0.0.3
         """
-        xml = ''
+        xml = ""
         ordered_items = OrderedDict(sorted(data.items()))
         for k, v in ordered_items.items():
             if isinstance(v, datetime.datetime):

@@ -52,13 +52,13 @@ def collections_endpoint(**lookup):
     resource = _resource()
     response = None
     method = request.method
-    if method in ('GET', 'HEAD'):
+    if method in ("GET", "HEAD"):
         response = get(resource, lookup)
-    elif method == 'POST':
+    elif method == "POST":
         response = post(resource)
-    elif method == 'DELETE':
+    elif method == "DELETE":
         response = delete(resource, lookup)
-    elif method == 'OPTIONS':
+    elif method == "OPTIONS":
         send_response(resource, response)
     else:
         abort(405)
@@ -90,15 +90,15 @@ def item_endpoint(**lookup):
     resource = _resource()
     response = None
     method = request.method
-    if method in ('GET', 'HEAD'):
+    if method in ("GET", "HEAD"):
         response = getitem(resource, **lookup)
-    elif method == 'PATCH':
+    elif method == "PATCH":
         response = patch(resource, **lookup)
-    elif method == 'PUT':
+    elif method == "PUT":
         response = put(resource, **lookup)
-    elif method == 'DELETE':
+    elif method == "DELETE":
         response = deleteitem(resource, **lookup)
-    elif method == 'OPTIONS':
+    elif method == "OPTIONS":
         send_response(resource, response)
     else:
         abort(405)
@@ -106,7 +106,7 @@ def item_endpoint(**lookup):
 
 
 @ratelimit()
-@requires_auth('home')
+@requires_auth("home")
 def home_endpoint():
     """ Home/API entry point. Will provide links to each available resource
 
@@ -126,26 +126,33 @@ def home_endpoint():
     response = {}
     if config.INFO:
         info = {}
-        info['server'] = 'Eve'
-        info['version'] = eve.__version__
+        info["server"] = "Eve"
+        info["version"] = eve.__version__
         if config.API_VERSION:
-            info['api_version'] = config.API_VERSION
+            info["api_version"] = config.API_VERSION
         response[config.INFO] = info
 
     if config.HATEOAS:
         links = []
         for resource in config.DOMAIN.keys():
-            internal = config.DOMAIN[resource]['internal_resource']
+            internal = config.DOMAIN[resource]["internal_resource"]
             if not resource.endswith(config.VERSIONS):
                 if not bool(internal):
-                    links.append({'href': '%s' % config.URLS[resource],
-                                  'title': '%s' %
-                                  config.DOMAIN[resource]['resource_title']})
+                    links.append(
+                        {
+                            "href": "%s" % config.URLS[resource],
+                            "title": "%s" % config.DOMAIN[resource]["resource_title"],
+                        }
+                    )
         if config.SCHEMA_ENDPOINT is not None:
-            links.append({'href': '%s' % config.SCHEMA_ENDPOINT,
-                          'title': '%s' % config.SCHEMA_ENDPOINT})
+            links.append(
+                {
+                    "href": "%s" % config.SCHEMA_ENDPOINT,
+                    "title": "%s" % config.SCHEMA_ENDPOINT,
+                }
+            )
 
-        response[config.LINKS] = {'child': links}
+        response[config.LINKS] = {"child": links}
         return send_response(None, (response,))
     else:
         return send_response(None, (response,))
@@ -162,15 +169,16 @@ def error_endpoint(error):
         headers = error.response.headers
     response = {
         config.STATUS: config.STATUS_ERR,
-        config.ERROR: {'code': error.code, 'message': error.description}}
+        config.ERROR: {"code": error.code, "message": error.description},
+    }
     return send_response(None, (response, None, None, error.code, headers))
 
 
 def _resource():
-    return request.endpoint.split('|')[0]
+    return request.endpoint.split("|")[0]
 
 
-@requires_auth('media')
+@requires_auth("media")
 def media_endpoint(_id):
     """ This endpoint is active when RETURN_MEDIA_AS_URL is True. It retrieves
     a media file and streams it to the client.
@@ -182,18 +190,18 @@ def media_endpoint(_id):
         return abort(404)
 
     headers = {
-        'Last-Modified': date_to_rfc1123(file_.upload_date),
-        'Content-Length': file_.length,
-        'Accept-Ranges': 'bytes',
+        "Last-Modified": date_to_rfc1123(file_.upload_date),
+        "Content-Length": file_.length,
+        "Accept-Ranges": "bytes",
     }
 
-    range_header = request.headers.get('Range')
+    range_header = request.headers.get("Range")
     if range_header:
         status = 206
 
         size = file_.length
         try:
-            m = re.search('(\d+)-(\d*)', range_header)
+            m = re.search("(\d+)-(\d*)", range_header)
             begin, end = m.groups()
             begin = int(begin)
             end = int(end)
@@ -207,17 +215,14 @@ def media_endpoint(_id):
         file_.seek(begin)
 
         data = file_.read(length)
-        headers['Content-Range'] = 'bytes {0}-{1}/{2}'.format(
-            begin,
-            begin + length - 1,
-            size
+        headers["Content-Range"] = "bytes {0}-{1}/{2}".format(
+            begin, begin + length - 1, size
         )
     else:
-        if_modified_since = weak_date(request.headers.get('If-Modified-Since'))
+        if_modified_since = weak_date(request.headers.get("If-Modified-Since"))
         if if_modified_since:
             if not if_modified_since.tzinfo:
-                if_modified_since = if_modified_since.replace(
-                    tzinfo=tz_util.utc)
+                if_modified_since = if_modified_since.replace(tzinfo=tz_util.utc)
 
             if if_modified_since > file_.upload_date:
                 return Response(status=304)
@@ -230,47 +235,47 @@ def media_endpoint(_id):
         status=status,
         headers=headers,
         mimetype=file_.content_type,
-        direct_passthrough=True
+        direct_passthrough=True,
     )
 
     return response
 
 
-@requires_auth('resource')
+@requires_auth("resource")
 def schema_item_endpoint(resource):
     """ This endpoint is active when SCHEMA_ENDPOINT != None. It returns the
     requested resource's schema definition in JSON format.
     """
-    resource_config = app.config['DOMAIN'].get(resource)
-    if not resource_config or resource_config.get('internal_resource') is True:
+    resource_config = app.config["DOMAIN"].get(resource)
+    if not resource_config or resource_config.get("internal_resource") is True:
         return abort(404)
 
-    return send_response(None, (resource_config['schema'],))
+    return send_response(None, (resource_config["schema"],))
 
 
-@requires_auth('home')
+@requires_auth("home")
 def schema_collection_endpoint():
     """ This endpoint is active when SCHEMA_ENDPOINT != None. It returns the
     schema definition for all public or request authenticated resources in
     JSON format.
     """
     schemas = {}
-    for resource_name, resource_config in app.config['DOMAIN'].items():
+    for resource_name, resource_config in app.config["DOMAIN"].items():
         # skip versioned shadow collections
         if resource_name.endswith(config.VERSIONS):
             continue
         # skip internal resources
-        internal = resource_config.get('internal_resource', False)
+        internal = resource_config.get("internal_resource", False)
         if internal:
             continue
         # skip resources for which request does not have read authorization
         auth = resource_auth(resource_name)
-        if auth and request.method not in resource_config['public_methods']:
-            roles = list(resource_config['allowed_roles'])
-            roles += resource_config['allowed_read_roles']
+        if auth and request.method not in resource_config["public_methods"]:
+            roles = list(resource_config["allowed_roles"])
+            roles += resource_config["allowed_read_roles"]
             if not auth.authorized(roles, resource_name, request.method):
                 continue
         # otherwise include this resource in domain wide schema response
-        schemas[resource_name] = resource_config['schema']
+        schemas[resource_name] = resource_config["schema"]
 
     return send_response(None, (schemas,))

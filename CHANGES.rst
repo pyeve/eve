@@ -17,6 +17,11 @@ Fixed
 
 Improved
 ~~~~~~~~
+- Perform lint checks and fixes on staged files, as a pre-commit hook.
+  (`#1157`_)
+- On CI, perform linting checks first. If linting checks are successful,
+  execute the test suite on the whole matrix. (`#1156`_)
+- Reformat code to match Black code-style. (`#1155`_)
 - Fix broken link to the Postman app. (`#1150`_)
 - Update obsolete PyPI link in docs sidebar. (`#1152`_)
 - Only display the version number on the docs homepage. (`#1151`_)
@@ -39,6 +44,9 @@ Improved
 .. _`#1150`: https://github.com/pyeve/eve/issues/1150
 .. _`#1112`: https://github.com/pyeve/eve/issues/1112
 .. _`#1154`: https://github.com/pyeve/eve/issues/1154
+.. _`#1155`: https://github.com/pyeve/eve/issues/1155
+.. _`#1156`: https://github.com/pyeve/eve/issues/1156
+.. _`#1157`: https://github.com/pyeve/eve/issues/1157
 
 Version 0.8
 -----------
@@ -80,7 +88,7 @@ Released on May 10, 2018.
 - New: Add support for MongoDB ``$caseSensitive`` and ``$diactricSensitive``
   query operators (`#1126`_).
 - New: Add support for MongoDB bitwise query operators ``$bitsAllClear``,
-  ``$bitsAllSet``, ``$bitsAnyClear``, ``$bitsAnySet`` (`#1053`_). 
+  ``$bitsAllSet``, ``$bitsAnyClear``, ``$bitsAnySet`` (`#1053`_).
 - New: support for ``MONGO_AUTH_MECHANISM`` and
   ``MONGO_AUTH_MECHANISM_PROPERTIES``.
 - New: ``MONGO_DBNAME`` can now be used in conjuction with ``MONGO_URI``.
@@ -124,14 +132,14 @@ Released on May 10, 2018.
 - PyMongo dependency set to >=3.5.
 - Events dependency set to >=v0.3.
 - Drop Flask-PyMongo dependency, use custom code instead (`#855`_).
-- Docs: Comprehensive rewrite of the `How to contribute`_ page. 
+- Docs: Comprehensive rewrite of the `How to contribute`_ page.
 - Docs: Drop the testing page; merge its contents with `How to contribute`_.
 - Docs: Add link to the `Eve course`_. It was authored by the project author,
   and it is hosted by TalkPython Training.
 - Docs: code snippets are now Python 3 compatibile (Pahaz Blinov).
 - Dev: Delete and cleanup of some unnecessary code.
 - Dev: after the latest update (May 4th) travis-ci would not run tests on
-  Python 2.6. 
+  Python 2.6.
 - Dev: all branches are now tested on travis-ci. Previously, only 'master' was
   being tested.
 - Dev: fix insidious bug in ``tests.methods.post.TestPost`` class.
@@ -144,7 +152,7 @@ Breaking Changes
 - Eve now relies on `Cerberus`_ 1.1+  (`#776`_). It allows for many new
   powerful validation and trasformation features (like `schema registries`_),
   improved performance and, in general, a more streamlined API. It also brings
-  some notable breaking changes. 
+  some notable breaking changes.
 
     - ``keyschema`` was renamed to ``valueschema``, and ``propertyschema`` to
       ``keyschema``.
@@ -327,7 +335,7 @@ Released on 6 February, 2017
   this feature on can greatly improve performance. Defaults to ``False``
   (slower performance; document count included; accurate ``HATEOAS``). Closes
   #944 and #853.
- 
+
 
 - New: ``Location`` header is returned on ``201 Created`` POST responses. If
   will contain the URI to the created document. If bulk inserts are enabled,
@@ -426,7 +434,7 @@ Released on 6 February, 2017
 - Fix: Versioning does not work with User Restricted Resource Access. Closes
   #967 (Kris Lambrechts)
 
-- Fix: ``test_create_indexes()`` typo. Closes 960. 
+- Fix: ``test_create_indexes()`` typo. Closes 960.
 
 - Fix: fix crash when attempting to modify a document ``_id`` on MongoDB 3.4
   (Giorgos Margaritis)

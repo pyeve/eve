@@ -13,8 +13,8 @@
 
 import ast
 import sys
-from datetime import datetime   # noqa
-from bson import ObjectId       # noqa
+from datetime import datetime  # noqa
+from bson import ObjectId  # noqa
 
 
 def parse(expression):
@@ -45,15 +45,16 @@ class MongoVisitor(ast.NodeVisitor):
     Supported compare operators: ==, >, <, !=, >=, <=
     Supported boolean operators: And, Or
     """
+
     op_mapper = {
-        ast.Eq: '',
-        ast.Gt: '$gt',
-        ast.GtE: '$gte',
-        ast.Lt: '$lt',
-        ast.LtE: '$lte',
-        ast.NotEq: '$ne',
-        ast.Or: '$or',
-        ast.And: '$and'
+        ast.Eq: "",
+        ast.Gt: "$gt",
+        ast.GtE: "$gte",
+        ast.Lt: "$lt",
+        ast.LtE: "$lte",
+        ast.NotEq: "$ne",
+        ast.Or: "$or",
+        ast.And: "$and",
     }
 
     def visit_Module(self, node):
@@ -69,15 +70,18 @@ class MongoVisitor(ast.NodeVisitor):
         # if we didn't obtain a query, it is likely that an unsupported
         # python expression has been passed.
         if self.mongo_query == {}:
-            raise ParseError("Only conditional statements with boolean "
-                             "(and, or) and comparison operators are "
-                             "supported.")
+            raise ParseError(
+                "Only conditional statements with boolean "
+                "(and, or) and comparison operators are "
+                "supported."
+            )
 
     def visit_Expr(self, node):
         """ Make sure that we are parsing compare or boolean operators
         """
-        if not (isinstance(node.value, ast.Compare) or
-                isinstance(node.value, ast.BoolOp)):
+        if not (
+            isinstance(node.value, ast.Compare) or isinstance(node.value, ast.BoolOp)
+        ):
             raise ParseError("Will only parse conditional statements")
         self.generic_visit(node)
 
@@ -93,7 +97,7 @@ class MongoVisitor(ast.NodeVisitor):
             comparator = node.comparators[0]
             self.visit(comparator)
 
-        if operator != '':
+        if operator != "":
             value = {operator: self.current_value}
         else:
             value = self.current_value
@@ -122,12 +126,12 @@ class MongoVisitor(ast.NodeVisitor):
         datetime().
         """
         if isinstance(node.func, ast.Name):
-            if node.func.id == 'ObjectId':
+            if node.func.id == "ObjectId":
                 try:
                     self.current_value = ObjectId(node.args[0].s)
                 except:
                     pass
-            elif node.func.id == 'datetime':
+            elif node.func.id == "datetime":
                 values = []
                 for arg in node.args:
                     values.append(arg.n)
