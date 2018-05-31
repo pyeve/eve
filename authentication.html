@@ -1,21 +1,30 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Authentication and Authorization &#8212; Eve 0.8.1.dev0 documentation</title>
+    
+    <title>Authentication and Authorization &mdash; Eve 0.8.1.dev0 documentation</title>
+    
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.8.1.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="Eve 0.8.1.dev0 documentation" href="index.html" />
     <link rel="next" title="Funding" href="funding.html" />
     <link rel="prev" title="Data Validation" href="validation.html" />
    
@@ -24,7 +33,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
+  </head>
+  <body>
   
 
     <div class="document">
@@ -46,26 +56,26 @@ controlled by the system. In Eve, you can restrict access to all API endpoints,
 or only some of them. You can protect some HTTP verbs while leaving others
 open. For example, you can allow public read-only access while leaving item
 creation and edition restricted to authorized users only. You can also allow
-<code class="docutils literal notranslate"><span class="pre">GET</span></code> access for certain requests and <code class="docutils literal notranslate"><span class="pre">POST</span></code> access for others by checking
+<tt class="docutils literal"><span class="pre">GET</span></tt> access for certain requests and <tt class="docutils literal"><span class="pre">POST</span></tt> access for others by checking
 the method parameter. There is also support for role-based access control.</p>
 <p>Security is one of those areas where customization is very important. This is
 why you are provided with a handful of base authentication classes. They
 implement the basic authentication mechanism and must be subclassed in order
 to implement authorization logic. No matter which authentication scheme you
 pick the only thing that you need to do in your subclass is override the
-<code class="docutils literal notranslate"><span class="pre">check_auth()</span></code> method.</p>
+<tt class="docutils literal"><span class="pre">check_auth()</span></tt> method.</p>
 </div>
 <div class="section" id="global-authentication">
 <h2>Global Authentication<a class="headerlink" href="#global-authentication" title="Permalink to this headline">¶</a></h2>
 <p>To enable authentication for your API just pass the custom auth class on
-app instantiation. In our example we’re going to use the <code class="docutils literal notranslate"><span class="pre">BasicAuth</span></code> base
-class, which implements the <a class="reference internal" href="#basic"><span class="std std-ref">Basic Authentication</span></a> scheme:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">BasicAuth</span>
+app instantiation. In our example we&#8217;re going to use the <tt class="docutils literal"><span class="pre">BasicAuth</span></tt> base
+class, which implements the <a class="reference internal" href="#basic"><em>Basic Authentication</em></a> scheme:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">BasicAuth</span>
 
 <span class="k">class</span> <span class="nc">MyBasicAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span>
                    <span class="n">method</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">username</span> <span class="o">==</span> <span class="s1">&#39;admin&#39;</span> <span class="ow">and</span> <span class="n">password</span> <span class="o">==</span> <span class="s1">&#39;secret&#39;</span>
+        <span class="k">return</span> <span class="n">username</span> <span class="o">==</span> <span class="s">&#39;admin&#39;</span> <span class="ow">and</span> <span class="n">password</span> <span class="o">==</span> <span class="s">&#39;secret&#39;</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">MyBasicAuth</span><span class="p">)</span>
 <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
@@ -73,7 +83,7 @@ class, which implements the <a class="reference internal" href="#basic"><span cl
 </div>
 <p>All your API endpoints are now secured, which means that a client will need
 to provide the correct credentials in order to consume the API:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> curl -i http://example.com
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://example.com
 <span class="go">HTTP/1.1 401 UNAUTHORIZED</span>
 <span class="go">Please provide proper credentials.</span>
 
@@ -87,27 +97,27 @@ to provide the correct credentials in order to consume the API:</p>
 secure some endpoints or apply different logics depending on the
 endpoint being consumed? You could get away with just adding logic to your
 authentication class, maybe with something like this:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyBasicAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyBasicAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">resource</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;zipcodes&#39;</span><span class="p">,</span> <span class="s1">&#39;countries&#39;</span><span class="p">):</span>
-            <span class="c1"># &#39;zipcodes&#39; and &#39;countries&#39; are public</span>
+        <span class="k">if</span> <span class="n">resource</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;zipcodes&#39;</span><span class="p">,</span> <span class="s">&#39;countries&#39;</span><span class="p">):</span>
+            <span class="c"># &#39;zipcodes&#39; and &#39;countries&#39; are public</span>
             <span class="k">return</span> <span class="bp">True</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># all the other resources are secured</span>
-            <span class="k">return</span> <span class="n">username</span> <span class="o">==</span> <span class="s1">&#39;admin&#39;</span> <span class="ow">and</span> <span class="n">password</span> <span class="o">==</span> <span class="s1">&#39;secret&#39;</span>
+            <span class="c"># all the other resources are secured</span>
+            <span class="k">return</span> <span class="n">username</span> <span class="o">==</span> <span class="s">&#39;admin&#39;</span> <span class="ow">and</span> <span class="n">password</span> <span class="o">==</span> <span class="s">&#39;secret&#39;</span>
 </pre></div>
 </div>
-<p>If needed, this approach also allows to take the request <code class="docutils literal notranslate"><span class="pre">method</span></code> into
-consideration, for example to allow <code class="docutils literal notranslate"><span class="pre">GET</span></code> requests for everyone while forcing
-validation on edits (<code class="docutils literal notranslate"><span class="pre">POST</span></code>, <code class="docutils literal notranslate"><span class="pre">PUT</span></code>, <code class="docutils literal notranslate"><span class="pre">PATCH</span></code>, <code class="docutils literal notranslate"><span class="pre">DELETE</span></code>).</p>
+<p>If needed, this approach also allows to take the request <tt class="docutils literal"><span class="pre">method</span></tt> into
+consideration, for example to allow <tt class="docutils literal"><span class="pre">GET</span></tt> requests for everyone while forcing
+validation on edits (<tt class="docutils literal"><span class="pre">POST</span></tt>, <tt class="docutils literal"><span class="pre">PUT</span></tt>, <tt class="docutils literal"><span class="pre">PATCH</span></tt>, <tt class="docutils literal"><span class="pre">DELETE</span></tt>).</p>
 </div>
 <div class="section" id="endpoint-level-authentication">
 <h2>Endpoint-level Authentication<a class="headerlink" href="#endpoint-level-authentication" title="Permalink to this headline">¶</a></h2>
 <p>The <em>one class to bind them all</em> approach seen above is probably good for most
 use cases but as soon as authorization logic gets more complicated it could
-easily lead to complex and unmanageable code, something you don’t really want
+easily lead to complex and unmanageable code, something you don&#8217;t really want
 to have when dealing with security.</p>
-<p>Wouldn’t it be nice if we could have specialized auth classes that we could
+<p>Wouldn&#8217;t it be nice if we could have specialized auth classes that we could
 freely apply to selected endpoints? This way the global level auth class, the
 one passed to the Eve constructor as seen above, would still be active on all
 endpoints except those where different authorization logic is needed.
@@ -117,19 +127,19 @@ With a system like this we could even choose to have some endpoints protected
 with, say, Basic Authentication while others are secured with Token, or HMAC
 Authentication!</p>
 <p>Well, turns out this is actually possible by simply enabling the
-resource-level <code class="docutils literal notranslate"><span class="pre">authentication</span></code> setting when we are defining the API
-<a class="reference internal" href="config.html#domain"><span class="std std-ref">domain</span></a>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;people&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s1">&#39;authentication&#39;</span><span class="p">:</span> <span class="n">MySuperCoolAuth</span><span class="p">,</span>
+resource-level <tt class="docutils literal"><span class="pre">authentication</span></tt> setting when we are defining the API
+<a class="reference internal" href="config.html#domain"><em>domain</em></a>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;people&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;authentication&#39;</span><span class="p">:</span> <span class="n">MySuperCoolAuth</span><span class="p">,</span>
         <span class="o">...</span>
         <span class="p">},</span>
-    <span class="s1">&#39;invoices&#39;</span><span class="p">:</span> <span class="o">...</span>
+    <span class="s">&#39;invoices&#39;</span><span class="p">:</span> <span class="o">...</span>
     <span class="p">}</span>
 </pre></div>
 </div>
-<p>And that’s it. The <cite>people</cite> endpoint will now be using the <code class="docutils literal notranslate"><span class="pre">MySuperCoolAuth</span></code>
-class for authentication, while the <code class="docutils literal notranslate"><span class="pre">invoices</span></code> endpoint  will be using the
+<p>And that&#8217;s it. The <cite>people</cite> endpoint will now be using the <tt class="docutils literal"><span class="pre">MySuperCoolAuth</span></tt>
+class for authentication, while the <tt class="docutils literal"><span class="pre">invoices</span></tt> endpoint  will be using the
 general-purpose auth class if provided or else it will just be open to the
 public.</p>
 <p>There are other features and options that you can use to reduce complexity in
@@ -139,44 +149,44 @@ authentication system. Lets review them.</p>
 <div class="section" id="global-endpoint-security">
 <h2>Global Endpoint Security<a class="headerlink" href="#global-endpoint-security" title="Permalink to this headline">¶</a></h2>
 <p>You might want a public read-only API where only authorized users can write,
-edit and delete. You can achieve that by using the <code class="docutils literal notranslate"><span class="pre">PUBLIC_METHODS</span></code> and
-<code class="docutils literal notranslate"><span class="pre">PUBLIC_ITEM_METHODS</span></code> <a class="reference internal" href="config.html#global"><span class="std std-ref">global settings</span></a>. Add the following to
+edit and delete. You can achieve that by using the <tt class="docutils literal"><span class="pre">PUBLIC_METHODS</span></tt> and
+<tt class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></tt> <a class="reference internal" href="config.html#global"><em>global settings</em></a>. Add the following to
 your <cite>settings.py</cite>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PUBLIC_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">]</span>
-<span class="n">PUBLIC_ITEM_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">]</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">PUBLIC_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">]</span>
+<span class="n">PUBLIC_ITEM_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>And run your API. POST, PATCH and DELETE are still restricted, while GET is
-publicly available at all API endpoints. <code class="docutils literal notranslate"><span class="pre">PUBLIC_METHODS</span></code> refers to resource
-endpoints, like <code class="docutils literal notranslate"><span class="pre">/people</span></code>, while <code class="docutils literal notranslate"><span class="pre">PUBLIC_ITEM_METHODS</span></code> refers to individual
-items like <code class="docutils literal notranslate"><span class="pre">/people/id</span></code>.</p>
+publicly available at all API endpoints. <tt class="docutils literal"><span class="pre">PUBLIC_METHODS</span></tt> refers to resource
+endpoints, like <tt class="docutils literal"><span class="pre">/people</span></tt>, while <tt class="docutils literal"><span class="pre">PUBLIC_ITEM_METHODS</span></tt> refers to individual
+items like <tt class="docutils literal"><span class="pre">/people/id</span></tt>.</p>
 </div>
 <div class="section" id="custom-endpoint-security">
 <span id="endpointsec"></span><h2>Custom Endpoint Security<a class="headerlink" href="#custom-endpoint-security" title="Permalink to this headline">¶</a></h2>
 <p>Suppose that you want to allow public read access to only certain resources.
 You do that by declaring public methods at resource level, while declaring the
-API <a class="reference internal" href="config.html#domain"><span class="std std-ref">domain</span></a>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;people&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s1">&#39;public_methods&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">],</span>
-        <span class="s1">&#39;public_item_methods&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">],</span>
+API <a class="reference internal" href="config.html#domain"><em>domain</em></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;people&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;public_methods&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">],</span>
+        <span class="s">&#39;public_item_methods&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">],</span>
         <span class="p">},</span>
     <span class="p">}</span>
 </pre></div>
 </div>
-<p>Be aware that, when present, <a class="reference internal" href="config.html#local"><span class="std std-ref">resource settings</span></a> override global
+<p>Be aware that, when present, <a class="reference internal" href="config.html#local"><em>resource settings</em></a> override global
 settings. You can use this to your advantage. Suppose that you want to grant
-read access to all endpoints with the only exception of <code class="docutils literal notranslate"><span class="pre">/invoices</span></code>.  You
+read access to all endpoints with the only exception of <tt class="docutils literal"><span class="pre">/invoices</span></tt>.  You
 first open read access for all endpoints:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PUBLIC_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">]</span>
-<span class="n">PUBLIC_ITEM_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">]</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">PUBLIC_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">]</span>
+<span class="n">PUBLIC_ITEM_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>Then you protect the private endpoint:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;invoices&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s1">&#39;public_methods&#39;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="s1">&#39;public_item_methods&#39;</span><span class="p">:</span> <span class="p">[],</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;invoices&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;public_methods&#39;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s">&#39;public_item_methods&#39;</span><span class="p">:</span> <span class="p">[],</span>
         <span class="p">}</span>
     <span class="p">}</span>
 </pre></div>
@@ -185,13 +195,13 @@ first open read access for all endpoints:</p>
 </div>
 <div class="section" id="basic-authentication">
 <span id="basic"></span><h2>Basic Authentication<a class="headerlink" href="#basic-authentication" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">eve.auth.BasicAuth</span></code> class allows the implementation of Basic
+<p>The <tt class="docutils literal"><span class="pre">eve.auth.BasicAuth</span></tt> class allows the implementation of Basic
 Authentication (RFC2617). It should be subclassed in order to implement custom
 authentication.</p>
 <div class="section" id="basic-authentication-with-bcrypt">
 <h3>Basic Authentication with bcrypt<a class="headerlink" href="#basic-authentication-with-bcrypt" title="Permalink to this headline">¶</a></h3>
 <p>Encoding passwords with <a class="reference external" href="http://en.wikipedia.org/wiki/Bcrypt">bcrypt</a> is a great idea. It comes at the cost of
-performance, but that’s precisely the point, as slow encoding means very good
+performance, but that&#8217;s precisely the point, as slow encoding means very good
 resistance to brute-force attacks. For a faster (and less safe) alternative, see
 the SHA1/MAC snippet further below.</p>
 <p>This script assumes that user accounts are stored in an <cite>accounts</cite> MongoDB
@@ -201,7 +211,7 @@ resources/methods will be secured unless they are made explicitly public.</p>
 <p class="first admonition-title">Please note</p>
 <p class="last">You will need to install <cite>py-bcrypt</cite> for this to work.</p>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># -*- coding: utf-8 -*-</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Auth-BCrypt</span>
@@ -222,14 +232,14 @@ resources/methods will be secured unless they are made explicitly public.</p>
 
 <span class="k">class</span> <span class="nc">BCryptAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
-        <span class="c1"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
-        <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;accounts&#39;</span><span class="p">]</span>
-        <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">})</span>
+        <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
+        <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
+        <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">account</span> <span class="ow">and</span> \
-            <span class="n">bcrypt</span><span class="o">.</span><span class="n">hashpw</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">account</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="n">account</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">]</span>
+            <span class="n">bcrypt</span><span class="o">.</span><span class="n">hashpw</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">account</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="n">account</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">]</span>
 
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">BCryptAuth</span><span class="p">)</span>
     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
@@ -240,7 +250,7 @@ resources/methods will be secured unless they are made explicitly public.</p>
 <p>This script assumes that user accounts are stored in an <cite>accounts</cite> MongoDB
 collection, and that passwords are stored as SHA1/HMAC hashes. All API
 resources/methods will be secured unless they are made explicitly public.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># -*- coding: utf-8 -*-</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Auth-SHA1/HMAC</span>
@@ -262,14 +272,14 @@ resources/methods will be secured unless they are made explicitly public.</p>
 
 <span class="k">class</span> <span class="nc">Sha1Auth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
-        <span class="c1"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
-        <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;accounts&#39;</span><span class="p">]</span>
-        <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">})</span>
+        <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
+        <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
+        <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">account</span> <span class="ow">and</span> \
-            <span class="n">check_password_hash</span><span class="p">(</span><span class="n">account</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">],</span> <span class="n">password</span><span class="p">)</span>
+            <span class="n">check_password_hash</span><span class="p">(</span><span class="n">account</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">],</span> <span class="n">password</span><span class="p">)</span>
 
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">Sha1Auth</span><span class="p">)</span>
     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
@@ -285,7 +295,7 @@ username, and no password.</p>
 collection. All API resources/methods will be secured unless they are made
 explicitly public (by fiddling with some settings you can open one or more
 resources and/or methods to public access -see docs).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># -*- coding: utf-8 -*-</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Auth-Token</span>
@@ -308,12 +318,12 @@ resources and/or methods to public access -see docs).</p>
 <span class="sd">        username/password combo, which sould then validated against the account</span>
 <span class="sd">        data stored on the DB.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
-        <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;accounts&#39;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;token&#39;</span><span class="p">:</span> <span class="n">token</span><span class="p">})</span>
+        <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
+        <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s">&#39;token&#39;</span><span class="p">:</span> <span class="n">token</span><span class="p">})</span>
 
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">TokenAuth</span><span class="p">)</span>
     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
@@ -321,7 +331,7 @@ resources and/or methods to public access -see docs).</p>
 </div>
 <div class="section" id="hmac-authentication">
 <h2>HMAC Authentication<a class="headerlink" href="#hmac-authentication" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">eve.auth.HMACAuth</span></code> class allows for custom, Amazon S3-like, HMAC (Hash
+<p>The <tt class="docutils literal"><span class="pre">eve.auth.HMACAuth</span></tt> class allows for custom, Amazon S3-like, HMAC (Hash
 Message Authentication Code) authentication, which is basically a very secure
 custom authentication scheme built around the <cite>Authorization</cite> header.</p>
 <div class="section" id="how-hmac-authentication-works">
@@ -335,7 +345,7 @@ then, using the secret key, computes a hash over the complete message body (and
 optionally some of the message headers if required)</p>
 <p>Next, the client adds the computed hash and his userid to the message in the
 Authorization header:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Authorization</span><span class="p">:</span> <span class="n">johndoe</span><span class="p">:</span><span class="n">uCMfSzkjue</span><span class="o">+</span><span class="n">HSDygYB5aEg</span><span class="o">==</span>
+<div class="highlight-python"><div class="highlight"><pre>Authorization: johndoe:uCMfSzkjue+HSDygYB5aEg==
 </pre></div>
 </div>
 <p>and sends it to the service. The service retrieves the userid from the
@@ -350,13 +360,13 @@ with a limited life time so you can give the key to a third party to
 temporarily work on your behalf. This is also the reason why the secret key
 is generally provided through out-of-band channels (often a webpage or, as
 said above, an email or plain old paper).</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">eve.auth.HMACAuth</span></code>  class also support access roles.</p>
+<p>The <tt class="docutils literal"><span class="pre">eve.auth.HMACAuth</span></tt>  class also support access roles.</p>
 </div>
 <div class="section" id="hmac-example">
 <h3>HMAC Example<a class="headerlink" href="#hmac-example" title="Permalink to this headline">¶</a></h3>
 <p>The snippet below can also be found in the <cite>examples/security</cite> folder of the
 Eve <a class="reference external" href="https://github.com/pyeve/eve">repository</a>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
 <span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">HMACAuth</span>
 <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">current_app</span> <span class="k">as</span> <span class="n">app</span>
 <span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">sha1</span>
@@ -366,20 +376,20 @@ Eve <a class="reference external" href="https://github.com/pyeve/eve">repository
 <span class="k">class</span> <span class="nc">HMACAuth</span><span class="p">(</span><span class="n">HMACAuth</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userid</span><span class="p">,</span> <span class="n">hmac_hash</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span>
                    <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
-        <span class="c1"># use Eve&#39;s own db driver; no additional connections/resources are</span>
-        <span class="c1"># used</span>
-        <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;accounts&#39;</span><span class="p">]</span>
-        <span class="n">user</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;userid&#39;</span><span class="p">:</span> <span class="n">userid</span><span class="p">})</span>
+        <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are</span>
+        <span class="c"># used</span>
+        <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s">&#39;userid&#39;</span><span class="p">:</span> <span class="n">userid</span><span class="p">})</span>
         <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
-            <span class="n">secret_key</span> <span class="o">=</span> <span class="n">user</span><span class="p">[</span><span class="s1">&#39;secret_key&#39;</span><span class="p">]</span>
-        <span class="c1"># in this implementation we only hash request data, ignoring the</span>
-        <span class="c1"># headers.</span>
+            <span class="n">secret_key</span> <span class="o">=</span> <span class="n">user</span><span class="p">[</span><span class="s">&#39;secret_key&#39;</span><span class="p">]</span>
+        <span class="c"># in this implementation we only hash request data, ignoring the</span>
+        <span class="c"># headers.</span>
         <span class="k">return</span> <span class="n">user</span> <span class="ow">and</span> \
             <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">secret_key</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">sha1</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span> <span class="o">==</span> \
                 <span class="n">hmac_hash</span>
 
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">HMACAuth</span><span class="p">)</span>
     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
@@ -388,22 +398,22 @@ Eve <a class="reference external" href="https://github.com/pyeve/eve">repository
 </div>
 <div class="section" id="role-based-access-control">
 <span id="roleaccess"></span><h2>Role Based Access Control<a class="headerlink" href="#role-based-access-control" title="Permalink to this headline">¶</a></h2>
-<p>The code snippets above deliberately ignore the <code class="docutils literal notranslate"><span class="pre">allowed_roles</span></code> parameter.
+<p>The code snippets above deliberately ignore the <tt class="docutils literal"><span class="pre">allowed_roles</span></tt> parameter.
 You can use this parameter to restrict access to authenticated users who also
 have been assigned specific roles.</p>
-<p>First, you would use the new <code class="docutils literal notranslate"><span class="pre">ALLOWED_ROLES</span></code> and <code class="docutils literal notranslate"><span class="pre">ALLOWED_ITEM_ROLES</span></code> <a class="reference internal" href="config.html#global"><span class="std std-ref">global
-settings</span></a> (or the corresponding <code class="docutils literal notranslate"><span class="pre">allowed_roles</span></code> and <code class="docutils literal notranslate"><span class="pre">allowed_item_roles</span></code>
-<a class="reference internal" href="config.html#local"><span class="std std-ref">resource settings</span></a>).</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ALLOWED_ROLES</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;admin&#39;</span><span class="p">]</span>
+<p>First, you would use the new <tt class="docutils literal"><span class="pre">ALLOWED_ROLES</span></tt> and <tt class="docutils literal"><span class="pre">ALLOWED_ITEM_ROLES</span></tt> <a class="reference internal" href="config.html#global"><em>global
+settings</em></a> (or the corresponding <tt class="docutils literal"><span class="pre">allowed_roles</span></tt> and <tt class="docutils literal"><span class="pre">allowed_item_roles</span></tt>
+<a class="reference internal" href="config.html#local"><em>resource settings</em></a>).</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">ALLOWED_ROLES</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;admin&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>Then your subclass would implement the authorization logic by making good use
-of the aforementioned <code class="docutils literal notranslate"><span class="pre">allowed_roles</span></code> parameter.</p>
+of the aforementioned <tt class="docutils literal"><span class="pre">allowed_roles</span></tt> parameter.</p>
 <p>The snippet below assumes that user accounts are stored in an <cite>accounts</cite>
 MongoDB collection, that passwords are stored as SHA1/HMAC hashes and that user
-roles are stored in a ‘roles’ array. All API resources/methods will be secured
+roles are stored in a &#8216;roles&#8217; array. All API resources/methods will be secured
 unless they are made explicitly public.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># -*- coding: utf-8 -*-</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Auth-SHA1/HMAC-Roles</span>
@@ -426,17 +436,17 @@ unless they are made explicitly public.</p>
 
 <span class="k">class</span> <span class="nc">RolesAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
-        <span class="c1"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
-        <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;accounts&#39;</span><span class="p">]</span>
-        <span class="n">lookup</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">}</span>
+        <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
+        <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
+        <span class="n">lookup</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">allowed_roles</span><span class="p">:</span>
-            <span class="c1"># only retrieve a user if his roles match ``allowed_roles``</span>
-            <span class="n">lookup</span><span class="p">[</span><span class="s1">&#39;roles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;$in&#39;</span><span class="p">:</span> <span class="n">allowed_roles</span><span class="p">}</span>
+            <span class="c"># only retrieve a user if his roles match ``allowed_roles``</span>
+            <span class="n">lookup</span><span class="p">[</span><span class="s">&#39;roles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;$in&#39;</span><span class="p">:</span> <span class="n">allowed_roles</span><span class="p">}</span>
         <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">(</span><span class="n">lookup</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">account</span> <span class="ow">and</span> <span class="n">check_password_hash</span><span class="p">(</span><span class="n">account</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">],</span> <span class="n">password</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">account</span> <span class="ow">and</span> <span class="n">check_password_hash</span><span class="p">(</span><span class="n">account</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">],</span> <span class="n">password</span><span class="p">)</span>
 
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">RolesAuth</span><span class="p">)</span>
     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
@@ -449,17 +459,17 @@ account that created it. This allows the API to transparently serve only
 account-created documents on all kinds of requests: read, edit, delete and of
 course create.  User authentication needs to be enabled for this to work
 properly.</p>
-<p>At the global level this feature is enabled by setting <code class="docutils literal notranslate"><span class="pre">AUTH_FIELD</span></code> and locally
-(at the endpoint level) by setting <code class="docutils literal notranslate"><span class="pre">auth_field</span></code>. These properties define the name
+<p>At the global level this feature is enabled by setting <tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt> and locally
+(at the endpoint level) by setting <tt class="docutils literal"><span class="pre">auth_field</span></tt>. These properties define the name
 of the field used to store the id of the user who created the document.  So for
-example by setting <code class="docutils literal notranslate"><span class="pre">AUTH_FIELD</span></code> to <code class="docutils literal notranslate"><span class="pre">user_id</span></code>, you are effectively (and
-transparently to the user) adding a <code class="docutils literal notranslate"><span class="pre">user_id</span></code> field to every stored
+example by setting <tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt> to <tt class="docutils literal"><span class="pre">user_id</span></tt>, you are effectively (and
+transparently to the user) adding a <tt class="docutils literal"><span class="pre">user_id</span></tt> field to every stored
 document. This will then be used to retrieve/edit/delete documents stored by
 the user.</p>
-<p>But how do you set the <code class="docutils literal notranslate"><span class="pre">auth_field</span></code> value? By invoking the
-<code class="docutils literal notranslate"><span class="pre">set_request_auth_value()</span></code> class method. Let us revise our
+<p>But how do you set the <tt class="docutils literal"><span class="pre">auth_field</span></tt> value? By invoking the
+<tt class="docutils literal"><span class="pre">set_request_auth_value()</span></tt> class method. Let us revise our
 BCrypt-authentication example from above:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="c1"># -*- coding: utf-8 -*-</span>
+<div class="highlight-python"><div class="highlight"><pre> <span class="c"># -*- coding: utf-8 -*-</span>
 
  <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">     Auth-BCrypt</span>
@@ -480,18 +490,18 @@ BCrypt-authentication example from above:</p>
 
  <span class="k">class</span> <span class="nc">BCryptAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
      <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
-         <span class="c1"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
-         <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;accounts&#39;</span><span class="p">]</span>
-         <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">})</span>
-<span class="hll">         <span class="c1"># set &#39;auth_field&#39; value to the account&#39;s ObjectId</span>
-</span><span class="hll">         <span class="c1"># (instead of _id, you might want to use ID_FIELD)</span>
-</span><span class="hll">         <span class="k">if</span> <span class="n">account</span> <span class="ow">and</span> <span class="s1">&#39;_id&#39;</span> <span class="ow">in</span> <span class="n">account</span><span class="p">:</span>
-</span><span class="hll">             <span class="bp">self</span><span class="o">.</span><span class="n">set_request_auth_value</span><span class="p">(</span><span class="n">account</span><span class="p">[</span><span class="s1">&#39;_id&#39;</span><span class="p">])</span>
+         <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
+         <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
+         <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">})</span>
+<span class="hll">         <span class="c"># set &#39;auth_field&#39; value to the account&#39;s ObjectId</span>
+</span><span class="hll">         <span class="c"># (instead of _id, you might want to use ID_FIELD)</span>
+</span><span class="hll">         <span class="k">if</span> <span class="n">account</span> <span class="ow">and</span> <span class="s">&#39;_id&#39;</span> <span class="ow">in</span> <span class="n">account</span><span class="p">:</span>
+</span><span class="hll">             <span class="bp">self</span><span class="o">.</span><span class="n">set_request_auth_value</span><span class="p">(</span><span class="n">account</span><span class="p">[</span><span class="s">&#39;_id&#39;</span><span class="p">])</span>
 </span>         <span class="k">return</span> <span class="n">account</span> <span class="ow">and</span> \
-             <span class="n">bcrypt</span><span class="o">.</span><span class="n">hashpw</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">account</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="n">account</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">]</span>
+             <span class="n">bcrypt</span><span class="o">.</span><span class="n">hashpw</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">account</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="n">account</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">]</span>
 
 
- <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+ <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
      <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">BCryptAuth</span><span class="p">)</span>
      <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
@@ -502,36 +512,36 @@ BCrypt-authentication example from above:</p>
 <p>Custom authentication classes can also set the database that should be used
 when serving the active request.</p>
 <p>Normally you either use a single database for the whole API or you configure
-which database each endpoint consumes by setting <code class="docutils literal notranslate"><span class="pre">mongo_prefix</span></code> to the
-desired value (see <a class="reference internal" href="config.html#local"><span class="std std-ref">Resource / Item Endpoints</span></a>).</p>
+which database each endpoint consumes by setting <tt class="docutils literal"><span class="pre">mongo_prefix</span></tt> to the
+desired value (see <a class="reference internal" href="config.html#local"><em>Resource / Item Endpoints</em></a>).</p>
 <p>However, you might opt to select the target database based on the active token,
 user or client. This is handy if your use-case includes user-dedicated database
-instances. All you have to do is set invoke the <code class="docutils literal notranslate"><span class="pre">set_mongo_prefix()</span></code> method
+instances. All you have to do is set invoke the <tt class="docutils literal"><span class="pre">set_mongo_prefix()</span></tt> method
 when authenticating the request.</p>
 <p>A trivial example would be:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">BasicAuth</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">BasicAuth</span>
 
 <span class="k">class</span> <span class="nc">MyBasicAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">username</span> <span class="o">==</span> <span class="s1">&#39;user1&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_mongo_prefix</span><span class="p">(</span><span class="s1">&#39;MONGO1&#39;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">username</span> <span class="o">==</span> <span class="s1">&#39;user2&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_mongo_prefix</span><span class="p">(</span><span class="s1">&#39;MONGO2&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">username</span> <span class="o">==</span> <span class="s">&#39;user1&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_mongo_prefix</span><span class="p">(</span><span class="s">&#39;MONGO1&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">username</span> <span class="o">==</span> <span class="s">&#39;user2&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_mongo_prefix</span><span class="p">(</span><span class="s">&#39;MONGO2&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># serve all other users from the default db.</span>
+            <span class="c"># serve all other users from the default db.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_mongo_prefix</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">username</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">password</span> <span class="o">==</span> <span class="s1">&#39;secret&#39;</span>
+        <span class="k">return</span> <span class="n">username</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">password</span> <span class="o">==</span> <span class="s">&#39;secret&#39;</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">MyBasicAuth</span><span class="p">)</span>
 <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>The above class will serve <code class="docutils literal notranslate"><span class="pre">user1</span></code> with data coming from the database which
-configuration settings are prefixed by <code class="docutils literal notranslate"><span class="pre">MONGO1</span></code> in <code class="docutils literal notranslate"><span class="pre">settings.py</span></code>. Same
-happens with <code class="docutils literal notranslate"><span class="pre">user2</span></code> and <code class="docutils literal notranslate"><span class="pre">MONGO2</span></code> while all other users are served with
+<p>The above class will serve <tt class="docutils literal"><span class="pre">user1</span></tt> with data coming from the database which
+configuration settings are prefixed by <tt class="docutils literal"><span class="pre">MONGO1</span></tt> in <tt class="docutils literal"><span class="pre">settings.py</span></tt>. Same
+happens with <tt class="docutils literal"><span class="pre">user2</span></tt> and <tt class="docutils literal"><span class="pre">MONGO2</span></tt> while all other users are served with
 the default database.</p>
-<p>Since values set by <code class="docutils literal notranslate"><span class="pre">set_mongo_prefix()</span></code> have precedence over both default
-and endpoint-level <code class="docutils literal notranslate"><span class="pre">mongo_prefix</span></code> settings, what happens here is that the two
+<p>Since values set by <tt class="docutils literal"><span class="pre">set_mongo_prefix()</span></tt> have precedence over both default
+and endpoint-level <tt class="docutils literal"><span class="pre">mongo_prefix</span></tt> settings, what happens here is that the two
 users will always be served from their reserved databases, no matter the
 eventual database configuration for the endpoint.</p>
 </div>
@@ -554,7 +564,7 @@ folder of the Eve <a class="reference external" href="https://github.com/pyeve/e
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="index.html">
@@ -628,7 +638,7 @@ folder of the Eve <a class="reference external" href="https://github.com/pyeve/e
 <li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="config.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="validation.html">Data Validation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Authentication and Authorization</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Authentication and Authorization</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#introduction-to-security">Introduction to Security</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#global-authentication">Global Authentication</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#endpoint-level-authentication">Endpoint-level Authentication</a></li>
@@ -664,16 +674,17 @@ folder of the Eve <a class="reference external" href="https://github.com/pyeve/e
 </ul>
 
 
-<div id="searchbox" style="display: none" role="search">
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script><p>
 Artwork by <a href="http://kalamun.org">Kalamun</a> © 2013

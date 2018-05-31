@@ -32,7 +32,7 @@ request:
     ]
 
 In the example above, the first document did not validate so the whole request
-has been rejected. 
+has been rejected.
 
 When all documents pass validation and are inserted correctly the response
 status is ``201 Created``. If any document fails validation the response status
@@ -40,7 +40,7 @@ is ``422 Unprocessable Entity``, or any other error code defined by
 ``VALIDATION_ERROR_STATUS`` configuration.
 
 For information on how to define documents schema and standard validation
-rules, see :ref:`schema`. 
+rules, see :ref:`schema`.
 
 Extending Data Validation
 -------------------------
@@ -82,7 +82,7 @@ can now do something like:
 
     'schema': {
         'oddity': {
-            'isodd': True, 
+            'isodd': True,
             'type': 'integer'
           }
     }
@@ -120,7 +120,7 @@ allowing something like this:
 
 You can also check the `source code`_ for Eve custom validation, where you will
 find more advanced use cases, such as the implementation of the ``unique`` and
-``data_relation`` constraints. 
+``data_relation`` constraints.
 
 For more information on
 
@@ -128,8 +128,8 @@ For more information on
 
     We have only scratched the surface of data validation. Please make sure
     to check the Cerberus_ documentation for a complete list of available
-    validation rules and data types. 
-    
+    validation rules and data types.
+
     Also note that Cerberus requirement is pinned to version 0.9.2, which still
     supports the ``validate_update`` method used for ``PATCH`` requests.
     Upgrade to Cerberus 1.0+ is scheduled for Eve version 0.8.
@@ -178,7 +178,7 @@ a payload like this will be accepted:
     option is enabled, clients will be capable of actually `adding` fields via
     PATCH (edit).
 
-``ALLOW_UNKNOWN`` is also useful for read-only APIs or endpoints that 
+``ALLOW_UNKNOWN`` is also useful for read-only APIs or endpoints that
 need to return the whole document, as found in the underlying database. In this
 scenario you don't want to bother with validation schemas. For the whole API
 just set ``ALLOW_UNKNOWN`` to ``True``, then ``schema: {}`` at every endpoint.

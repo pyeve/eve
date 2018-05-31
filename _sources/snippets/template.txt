@@ -14,4 +14,4 @@ experience. Make your code snippet follow, like so:
     app = Eve()
     app.run()
 
-Add closing comments as needed. 
+Add closing comments as needed.

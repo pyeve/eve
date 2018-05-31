@@ -6,7 +6,7 @@ rundown on Eve features, along with a few code snippets and examples. Hopefully
 it will do a good job in letting you decide whether Eve is valid solution for
 your use case.
 
-.. embedly:: http://speakerdeck.com/nicola/eve-rest-api-for-humans
+.. embedly:: https://speakerdeck.com/nicola/eve-rest-api-for-humans
 
 Conferences
 ------------
@@ -16,10 +16,10 @@ Eve REST API for Humans™ has been presented at the following events so far:
 - PiterPy 2016, St. Petersburg
 - Percona Live 2015, Amsterdam
 - EuroPython 2014, Berlin
-- Python Meetup, Helsinki 
-- PyCon Italy 2014, Florence 
-- PyCon Sweden 2014, Stockholm 
-- FOSDEM 2014, Brussels 
+- Python Meetup, Helsinki
+- PyCon Italy 2014, Florence
+- PyCon Sweden 2014, Stockholm
+- FOSDEM 2014, Brussels
 
 Want this talk delivered at your conference? Get in touch_!
 

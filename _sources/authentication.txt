@@ -23,7 +23,7 @@ why you are provided with a handful of base authentication classes. They
 implement the basic authentication mechanism and must be subclassed in order
 to implement authorization logic. No matter which authentication scheme you
 pick the only thing that you need to do in your subclass is override the
-``check_auth()`` method. 
+``check_auth()`` method.
 
 Global Authentication
 ---------------------
@@ -56,7 +56,7 @@ to provide the correct credentials in order to consume the API:
     HTTP/1.1 200 OK
 
 By default access is restricted to all endpoints for all HTTP verbs
-(methods), effectively locking down the whole API. 
+(methods), effectively locking down the whole API.
 
 But what if your authorization logic is more complex, and you only want to
 secure some endpoints or apply different logics depending on the
@@ -76,14 +76,14 @@ authentication class, maybe with something like this:
 
 If needed, this approach also allows to take the request ``method`` into
 consideration, for example to allow ``GET`` requests for everyone while forcing
-validation on edits (``POST``, ``PUT``, ``PATCH``, ``DELETE``). 
+validation on edits (``POST``, ``PUT``, ``PATCH``, ``DELETE``).
 
 Endpoint-level Authentication
 -----------------------------
 The *one class to bind them all* approach seen above is probably good for most
 use cases but as soon as authorization logic gets more complicated it could
 easily lead to complex and unmanageable code, something you don't really want
-to have when dealing with security. 
+to have when dealing with security.
 
 Wouldn't it be nice if we could have specialized auth classes that we could
 freely apply to selected endpoints? This way the global level auth class, the
@@ -93,7 +93,7 @@ Alternatively, we could even choose to *not* provide a global auth class,
 effectively making all endpoints public, except the ones we want protected.
 With a system like this we could even choose to have some endpoints protected
 with, say, Basic Authentication while others are secured with Token, or HMAC
-Authentication! 
+Authentication!
 
 Well, turns out this is actually possible by simply enabling the
 resource-level ``authentication`` setting when we are defining the API
@@ -106,7 +106,7 @@ resource-level ``authentication`` setting when we are defining the API
             'authentication': MySuperCoolAuth,
             ...
             },
-        'invoices': ... 
+        'invoices': ...
         }
 
 And that's it. The `people` endpoint will now be using the ``MySuperCoolAuth``
@@ -118,7 +118,7 @@ There are other features and options that you can use to reduce complexity in
 your auth classes, especially (but not only) when using the global level
 authentication system. Lets review them.
 
-Global Endpoint Security 
+Global Endpoint Security
 ------------------------
 You might want a public read-only API where only authorized users can write,
 edit and delete. You can achieve that by using the ``PUBLIC_METHODS`` and
@@ -127,7 +127,7 @@ your `settings.py`:
 
 ::
 
-    PUBLIC_METHODS = ['GET'] 
+    PUBLIC_METHODS = ['GET']
     PUBLIC_ITEM_METHODS = ['GET']
 
 And run your API. POST, PATCH and DELETE are still restricted, while GET is
@@ -159,7 +159,7 @@ first open read access for all endpoints:
 
 ::
 
-    PUBLIC_METHODS = ['GET'] 
+    PUBLIC_METHODS = ['GET']
     PUBLIC_ITEM_METHODS = ['GET']
 
 Then you protect the private endpoint:
@@ -188,7 +188,7 @@ Basic Authentication with bcrypt
 Encoding passwords with bcrypt_ is a great idea. It comes at the cost of
 performance, but that's precisely the point, as slow encoding means very good
 resistance to brute-force attacks. For a faster (and less safe) alternative, see
-the SHA1/MAC snippet further below. 
+the SHA1/MAC snippet further below.
 
 This script assumes that user accounts are stored in an `accounts` MongoDB
 collection, and that passwords are stored as bcrypt hashes. All API
@@ -327,7 +327,7 @@ HMAC Authentication
 The ``eve.auth.HMACAuth`` class allows for custom, Amazon S3-like, HMAC (Hash
 Message Authentication Code) authentication, which is basically a very secure
 custom authentication scheme built around the `Authorization` header.
-  
+
 How HMAC Authentication Works
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The server provides the client with a user id and a secret key through some
@@ -337,7 +337,7 @@ secret key to sign all requests.
 
 When the client wants to send a request, he builds the complete request and
 then, using the secret key, computes a hash over the complete message body (and
-optionally some of the message headers if required) 
+optionally some of the message headers if required)
 
 Next, the client adds the computed hash and his userid to the message in the
 Authorization header:
@@ -360,7 +360,7 @@ temporarily work on your behalf. This is also the reason why the secret key
 is generally provided through out-of-band channels (often a webpage or, as
 said above, an email or plain old paper).
 
-The ``eve.auth.HMACAuth``  class also support access roles. 
+The ``eve.auth.HMACAuth``  class also support access roles.
 
 HMAC Example
 ~~~~~~~~~~~~
@@ -379,7 +379,7 @@ Eve `repository`_.
     class HMACAuth(HMACAuth):
         def check_auth(self, userid, hmac_hash, headers, data, allowed_roles,
                        resource, method):
-            # use Eve's own db driver; no additional connections/resources are 
+            # use Eve's own db driver; no additional connections/resources are
             # used
             accounts = app.data.driver.db['accounts']
             user = accounts.find_one({'userid': userid})
@@ -413,7 +413,7 @@ settings <global>` (or the corresponding ``allowed_roles`` and ``allowed_item_ro
     ALLOWED_ROLES = ['admin']
 
 Then your subclass would implement the authorization logic by making good use
-of the aforementioned ``allowed_roles`` parameter. 
+of the aforementioned ``allowed_roles`` parameter.
 
 The snippet below assumes that user accounts are stored in an `accounts`
 MongoDB collection, that passwords are stored as SHA1/HMAC hashes and that user
@@ -458,7 +458,7 @@ unless they are made explicitly public.
     if __name__ == '__main__':
         app = Eve(auth=RolesAuth)
         app.run()
-  
+
 .. _user-restricted:
 
 User-Restricted Resource Access
@@ -508,7 +508,7 @@ BCrypt-authentication example from above:
             # use Eve's own db driver; no additional connections/resources are used
             accounts = app.data.driver.db['accounts']
             account = accounts.find_one({'username': username})
-            # set 'auth_field' value to the account's ObjectId 
+            # set 'auth_field' value to the account's ObjectId
             # (instead of _id, you might want to use ID_FIELD)
             if account and '_id' in account:
                 self.set_request_auth_value(account['_id'])
@@ -525,7 +525,7 @@ BCrypt-authentication example from above:
 Auth-driven Database Access
 ---------------------------
 Custom authentication classes can also set the database that should be used
-when serving the active request. 
+when serving the active request.
 
 Normally you either use a single database for the whole API or you configure
 which database each endpoint consumes by setting ``mongo_prefix`` to the
@@ -559,7 +559,7 @@ A trivial example would be:
 The above class will serve ``user1`` with data coming from the database which
 configuration settings are prefixed by ``MONGO1`` in ``settings.py``. Same
 happens with ``user2`` and ``MONGO2`` while all other users are served with
-the default database. 
+the default database.
 
 Since values set by ``set_mongo_prefix()`` have precedence over both default
 and endpoint-level ``mongo_prefix`` settings, what happens here is that the two

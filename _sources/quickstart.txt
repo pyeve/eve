@@ -3,13 +3,13 @@
 Quickstart
 ==========
 
-Eager to get started?  This page gives a first introduction to Eve.  
+Eager to get started?  This page gives a first introduction to Eve.
 
 Prerequisites
 -------------
 - You already have Eve installed. If you do not, head over to the
   :ref:`install` section.
-- MongoDB is installed_. 
+- MongoDB is installed_.
 - An instance of MongoDB is running_.
 
 A Minimal Application
@@ -34,7 +34,7 @@ Save it as settings.py in the same directory where run.py is stored. This
 is the Eve configuration file, a standard Python module, and it is telling Eve
 that your API is comprised of just one accessible resource, ``people``.
 
-Now your are ready to launch your API. 
+Now your are ready to launch your API.
 
 .. code-block:: console
 
@@ -61,7 +61,7 @@ payload:
       "_links": {
         "child": [
           {
-            "href": "people", 
+            "href": "people",
             "title": "people"
           }
         ]
@@ -81,14 +81,14 @@ Try requesting ``people`` now:
 ::
 
     {
-      "_items": [], 
+      "_items": [],
       "_links": {
         "self": {
-          "href": "people", 
+          "href": "people",
           "title": "people"
-        }, 
+        },
         "parent": {
-          "href": "/", 
+          "href": "/",
           "title": "home"
         }
       }
@@ -100,7 +100,7 @@ page) and to the resource itself. If you got a timeout error from pymongo, make
 sure the prerequistes are met. Chances are that the ``mongod`` server process
 is not runnig.
 
-By default Eve APIs are read-only: 
+By default Eve APIs are read-only:
 
 .. code-block:: console
 
@@ -204,10 +204,10 @@ Let's define a schema for our ``people`` resource.
         },
     }
 
-For more information on validation see :ref:`validation`. 
+For more information on validation see :ref:`validation`.
 
 Now let's say that we want to further customize the ``people`` endpoint. We want
-to: 
+to:
 
 - set the item title to ``person``
 - add an extra :ref:`custom item endpoint <custom_item_endpoints>` at ``/people/<lastname>``
@@ -226,7 +226,7 @@ file:
 
         # by default the standard item entry point is defined as
         # '/people/<ObjectId>'. We leave it untouched, and we also enable an
-        # additional read-only entry point. This way consumers can also perform 
+        # additional read-only entry point. This way consumers can also perform
         # GET requests at '/people/<lastname>'.
         'additional_lookup': {
             'url': 'regex("[\w]+")',
@@ -268,10 +268,10 @@ endpoint:
     $ curl -i http://127.0.0.1:5000/people/obama
     HTTP/1.0 200 OK
     Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
-    Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT 
+    Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT
     Cache-Control: 'max-age=10,must-revalidate'
     Expires: 10
-    ... 
+    ...
 
 .. code-block:: javascript
 

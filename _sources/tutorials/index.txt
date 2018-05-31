@@ -8,7 +8,7 @@ Tutorials
 
    account_management
    custom_idfields
- 
+
 Learn Eve at TalkPython Training
 --------------------------------
 There is a 5 hours-long Eve course available for you at the fine TalkPython

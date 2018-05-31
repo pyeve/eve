@@ -1,21 +1,31 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>RESTful Account Management &#8212; Eve 0.8.1.dev0 documentation</title>
+    
+    <title>RESTful Account Management &mdash; Eve 0.8.1.dev0 documentation</title>
+    
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="../_static/documentation_options.js"></script>
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.8.1.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="Eve 0.8.1.dev0 documentation" href="../index.html" />
+    <link rel="up" title="Tutorials" href="index.html" />
     <link rel="next" title="Handling custom ID fields" href="custom_idfields.html" />
     <link rel="prev" title="Tutorials" href="index.html" />
    
@@ -24,7 +34,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
+  </head>
+  <body>
   
 
     <div class="document">
@@ -36,8 +47,8 @@
 <h1>RESTful Account Management<a class="headerlink" href="#restful-account-management" title="Permalink to this headline">¶</a></h1>
 <div class="admonition-please-note admonition">
 <p class="first admonition-title">Please note</p>
-<p class="last">This tutorial assumes that you’ve read the <a class="reference internal" href="../quickstart.html#quickstart"><span class="std std-ref">Quickstart</span></a> and the
-<a class="reference internal" href="../authentication.html#auth"><span class="std std-ref">Authentication and Authorization</span></a> guides.</p>
+<p class="last">This tutorial assumes that you&#8217;ve read the <a class="reference internal" href="../quickstart.html#quickstart"><em>Quickstart</em></a> and the
+<a class="reference internal" href="../authentication.html#auth"><em>Authentication and Authorization</em></a> guides.</p>
 </div>
 <p>Except for the relatively rare occurence of open (and generally read-only) public
 APIs, most services are only accessible to authenticated users.  A common
@@ -47,20 +58,20 @@ APIs. This is the model followed by most social networks and service providers
 (Twitter, Facebook, Netflix, etc.) So how do you, the service provider, manage
 to create, edit and delete accounts while using the same API that is being
 consumed by the accounts themselves?</p>
-<p>In the following paragraphs we’ll see a couple of possible Account Management
+<p>In the following paragraphs we&#8217;ll see a couple of possible Account Management
 implementations, both making intensive use of a host of Eve features such as
-<a class="reference internal" href="../authentication.html#endpointsec"><span class="std std-ref">Custom Endpoint Security</span></a>, <a class="reference internal" href="../authentication.html#roleaccess"><span class="std std-ref">Role Based Access Control</span></a>, <a class="reference internal" href="../authentication.html#user-restricted"><span class="std std-ref">User-Restricted Resource Access</span></a>,
-<a class="reference internal" href="../features.html#eventhooks"><span class="std std-ref">Event Hooks</span></a>.</p>
+<a class="reference internal" href="../authentication.html#endpointsec"><em>Custom Endpoint Security</em></a>, <a class="reference internal" href="../authentication.html#roleaccess"><em>Role Based Access Control</em></a>, <a class="reference internal" href="../authentication.html#user-restricted"><em>User-Restricted Resource Access</em></a>,
+<a class="reference internal" href="../features.html#eventhooks"><em>Event Hooks</em></a>.</p>
 <p>We assume that SSL/TLS is enabled, which means that our transport layer is
-encrypted, making both <a class="reference internal" href="../authentication.html#basic"><span class="std std-ref">Basic Authentication</span></a> and <a class="reference internal" href="../authentication.html#token"><span class="std std-ref">Token-Based Authentication</span></a> valid options to secure API
+encrypted, making both <a class="reference internal" href="../authentication.html#basic"><em>Basic Authentication</em></a> and <a class="reference internal" href="../authentication.html#token"><em>Token-Based Authentication</em></a> valid options to secure API
 endpoints.</p>
-<p>Let’s say we’re upgrading the API we defined in the <a class="reference internal" href="../quickstart.html#quickstart"><span class="std std-ref">Quickstart</span></a> tutorial.</p>
+<p>Let&#8217;s say we&#8217;re upgrading the API we defined in the <a class="reference internal" href="../quickstart.html#quickstart"><em>Quickstart</em></a> tutorial.</p>
 <div class="section" id="accounts-with-basic-authentication">
 <span id="accounts-basic"></span><h2>Accounts with Basic Authentication<a class="headerlink" href="#accounts-with-basic-authentication" title="Permalink to this headline">¶</a></h2>
 <p>Our tasks are as follows:</p>
 <ol class="arabic simple">
 <li>Make an endpoint available for all account management activities
-(<code class="docutils literal notranslate"><span class="pre">/accounts</span></code>).</li>
+(<tt class="docutils literal"><span class="pre">/accounts</span></tt>).</li>
 <li>Secure the endpoint, so that it is only accessible to clients
 that we control: our own website, mobile apps with account
 management capabilities, etc.</li>
@@ -69,92 +80,92 @@ accounts (created by means of the above mentioned endpoint).</li>
 <li>Allow authenticated users to only access resources created by themselves.</li>
 </ol>
 <div class="section" id="the-accounts-endpoint">
-<h3>1. The <code class="docutils literal notranslate"><span class="pre">/accounts</span></code> endpoint<a class="headerlink" href="#the-accounts-endpoint" title="Permalink to this headline">¶</a></h3>
+<h3>1. The <tt class="docutils literal"><span class="pre">/accounts</span></tt> endpoint<a class="headerlink" href="#the-accounts-endpoint" title="Permalink to this headline">¶</a></h3>
 <p>The account management endpoint is no different than any other API endpoint.
-It is just a matter of declaring it in our settings file. Let’s declare the
+It is just a matter of declaring it in our settings file. Let&#8217;s declare the
 resource schema first.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">schema</span> <span class="o">=</span>  <span class="p">{</span>
-    <span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="s1">&#39;unique&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">schema</span> <span class="o">=</span>  <span class="p">{</span>
+    <span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
+        <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s">&#39;unique&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
         <span class="p">},</span>
-    <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s">&#39;password&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
+        <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">},</span>
 </pre></div>
 </div>
-<p>Then, let’s define the endpoint.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">accounts</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1"># the standard account entry point is defined as</span>
-    <span class="c1"># &#39;/accounts/&lt;ObjectId&gt;&#39;. We define  an additional read-only entry</span>
-    <span class="c1"># point accessible at &#39;/accounts/&lt;username&gt;&#39;.</span>
-    <span class="s1">&#39;additional_lookup&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="s1">&#39;regex(&quot;[\w]+&quot;)&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;field&#39;</span><span class="p">:</span> <span class="s1">&#39;username&#39;</span><span class="p">,</span>
+<p>Then, let&#8217;s define the endpoint.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">accounts</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c"># the standard account entry point is defined as</span>
+    <span class="c"># &#39;/accounts/&lt;ObjectId&gt;&#39;. We define  an additional read-only entry</span>
+    <span class="c"># point accessible at &#39;/accounts/&lt;username&gt;&#39;.</span>
+    <span class="s">&#39;additional_lookup&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;regex(&quot;[\w]+&quot;)&#39;</span><span class="p">,</span>
+        <span class="s">&#39;field&#39;</span><span class="p">:</span> <span class="s">&#39;username&#39;</span><span class="p">,</span>
     <span class="p">},</span>
 
-    <span class="c1"># We also disable endpoint caching as we don&#39;t want client apps to</span>
-    <span class="c1"># cache account data.</span>
-    <span class="s1">&#39;cache_control&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;cache_expires&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="c"># We also disable endpoint caching as we don&#39;t want client apps to</span>
+    <span class="c"># cache account data.</span>
+    <span class="s">&#39;cache_control&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+    <span class="s">&#39;cache_expires&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
 
-    <span class="c1"># Finally, let&#39;s add the schema definition for this endpoint.</span>
-    <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="n">schema</span><span class="p">,</span>
+    <span class="c"># Finally, let&#39;s add the schema definition for this endpoint.</span>
+    <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="n">schema</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>We defined an additional read-only entry point at <code class="docutils literal notranslate"><span class="pre">/accounts/&lt;username&gt;</span></code>.
-This isn’t really a necessity, but it can come in handy to easily verify if
+<p>We defined an additional read-only entry point at <tt class="docutils literal"><span class="pre">/accounts/&lt;username&gt;</span></tt>.
+This isn&#8217;t really a necessity, but it can come in handy to easily verify if
 a username has been taken already, or to retrieve an account without knowing
-its <code class="docutils literal notranslate"><span class="pre">ObjectId</span></code> beforehand. Of course, both pieces of information can also be
-found by querying the resource endpoint (<code class="docutils literal notranslate"><span class="pre">/accounts?where={&quot;username&quot;:</span>
-<span class="pre">&quot;johndoe&quot;}</span></code>), but then we would need to parse the response payload, whereas by
+its <tt class="docutils literal"><span class="pre">ObjectId</span></tt> beforehand. Of course, both pieces of information can also be
+found by querying the resource endpoint (<tt class="docutils literal"><span class="pre">/accounts?where={&quot;username&quot;:</span>
+<span class="pre">&quot;johndoe&quot;}</span></tt>), but then we would need to parse the response payload, whereas by
 hitting our new endpoint with a GET request we will obtain the bare account
-data, or a <code class="docutils literal notranslate"><span class="pre">404</span> <span class="pre">Not</span> <span class="pre">Found</span></code> if the account does not exist.</p>
+data, or a <tt class="docutils literal"><span class="pre">404</span> <span class="pre">Not</span> <span class="pre">Found</span></tt> if the account does not exist.</p>
 <p>Once the endpoint has been configured, we need to add it to the API domain:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DOMAIN</span><span class="p">[</span><span class="s1">&#39;accounts&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">accounts</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">DOMAIN</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">accounts</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="securing-the-accounts-endpoint">
-<h3>2. Securing the <code class="docutils literal notranslate"><span class="pre">/accounts/</span></code> endpoint<a class="headerlink" href="#securing-the-accounts-endpoint" title="Permalink to this headline">¶</a></h3>
+<h3>2. Securing the <tt class="docutils literal"><span class="pre">/accounts/</span></tt> endpoint<a class="headerlink" href="#securing-the-accounts-endpoint" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="a-hard-coding-our-way-in">
 <h4>2a. Hard-coding our way in<a class="headerlink" href="#a-hard-coding-our-way-in" title="Permalink to this headline">¶</a></h4>
 <p>Securing the endpoint can be achieved by allowing only well-known <cite>superusers</cite>
 to operate on it. Our authentication class, which is defined in the launch
 script, can be hard-coded to handle the case:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">bcrypt</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">bcrypt</span>
 <span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
 <span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">BasicAuth</span>
 
 
 <span class="k">class</span> <span class="nc">BCryptAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">resource</span> <span class="o">==</span> <span class="s1">&#39;accounts&#39;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">username</span> <span class="o">==</span> <span class="s1">&#39;superuser&#39;</span> <span class="ow">and</span> <span class="n">password</span> <span class="o">==</span> <span class="s1">&#39;password&#39;</span>
+        <span class="k">if</span> <span class="n">resource</span> <span class="o">==</span> <span class="s">&#39;accounts&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">username</span> <span class="o">==</span> <span class="s">&#39;superuser&#39;</span> <span class="ow">and</span> <span class="n">password</span> <span class="o">==</span> <span class="s">&#39;password&#39;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
-            <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;accounts&#39;</span><span class="p">]</span>
-            <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">})</span>
+            <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
+            <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
+            <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">})</span>
             <span class="k">return</span> <span class="n">account</span> <span class="ow">and</span> \
-                <span class="n">bcrypt</span><span class="o">.</span><span class="n">hashpw</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">account</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="n">account</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">]</span>
+                <span class="n">bcrypt</span><span class="o">.</span><span class="n">hashpw</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">account</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="n">account</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">]</span>
 
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">BCryptAuth</span><span class="p">)</span>
     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Thus, only the <code class="docutils literal notranslate"><span class="pre">superuser</span></code> account will be allowed to consume the
-<code class="docutils literal notranslate"><span class="pre">accounts</span></code> endpoint, while standard authentication logic will apply to all
+<p>Thus, only the <tt class="docutils literal"><span class="pre">superuser</span></tt> account will be allowed to consume the
+<tt class="docutils literal"><span class="pre">accounts</span></tt> endpoint, while standard authentication logic will apply to all
 other endpoints. Our mobile app (say) will add accounts by hitting the endpoint
 with simple POST requests, of course authenticating itself as a <cite>superuser</cite> by
 means of the <cite>Authorization</cite> header. The script assumes that stored passwords
 are encrypted with <cite>bcrypt</cite> (storing passwords as plain text is <em>never</em> a good
-idea). See <a class="reference internal" href="../authentication.html#basic"><span class="std std-ref">Basic Authentication</span></a> for an alternative, faster but less secure SHA1/MAC
+idea). See <a class="reference internal" href="../authentication.html#basic"><em>Basic Authentication</em></a> for an alternative, faster but less secure SHA1/MAC
 example.</p>
 </div>
 <div class="section" id="b-user-roles-access-control">
@@ -162,81 +173,81 @@ example.</p>
 <p>Hard-coding usernames and passwords might very well do the job, but it is
 hardly the best approach that we can take here. What if another <cite>superurser</cite>
 account needs access to the endpoint? Updating the script each time
-a privileged user joins the ranks does not seem appropriate (it isn’t).
-Fortunately, the <a class="reference internal" href="../authentication.html#roleaccess"><span class="std std-ref">Role Based Access Control</span></a> feature can help us here. You see where we
+a privileged user joins the ranks does not seem appropriate (it isn&#8217;t).
+Fortunately, the <a class="reference internal" href="../authentication.html#roleaccess"><em>Role Based Access Control</em></a> feature can help us here. You see where we
 are going with this: the idea is that only accounts with <cite>superuser</cite> and
 <cite>admin</cite> roles will be granted access to the endpoint.</p>
-<p>Let’s start by updating our resource schema.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>     <span class="n">schema</span> <span class="o">=</span>  <span class="p">{</span>
-         <span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="p">{</span>
-             <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
-             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+<p>Let&#8217;s start by updating our resource schema.</p>
+<div class="highlight-python"><div class="highlight"><pre>     <span class="n">schema</span> <span class="o">=</span>  <span class="p">{</span>
+         <span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="p">{</span>
+             <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
+             <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
              <span class="p">},</span>
-         <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="p">{</span>
-             <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
-             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+         <span class="s">&#39;password&#39;</span><span class="p">:</span> <span class="p">{</span>
+             <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
+             <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
          <span class="p">},</span>
-<span class="hll">         <span class="s1">&#39;roles&#39;</span><span class="p">:</span> <span class="p">{</span>
-</span><span class="hll">             <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span>
-</span><span class="hll">             <span class="s1">&#39;allowed&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;superuser&#39;</span><span class="p">,</span> <span class="s1">&#39;admin&#39;</span><span class="p">],</span>
-</span><span class="hll">             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+<span class="hll">         <span class="s">&#39;roles&#39;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class="hll">             <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+</span><span class="hll">             <span class="s">&#39;allowed&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;user&#39;</span><span class="p">,</span> <span class="s">&#39;superuser&#39;</span><span class="p">,</span> <span class="s">&#39;admin&#39;</span><span class="p">],</span>
+</span><span class="hll">             <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
 </span><span class="hll">         <span class="p">}</span>
 </span>     <span class="p">},</span>
 </pre></div>
 </div>
-<p>We just added a new <code class="docutils literal notranslate"><span class="pre">roles</span></code> field which is a required list. From now on, one
+<p>We just added a new <tt class="docutils literal"><span class="pre">roles</span></tt> field which is a required list. From now on, one
 or more roles will have to be assigned on account creation.</p>
 <p>Now we need to restrict endpoint access to <cite>superuser</cite> and <cite>admin</cite> accounts
-only so let’s update the endpoint definition accordingly.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="n">accounts</span> <span class="o">=</span> <span class="p">{</span>
-     <span class="c1"># the standard account entry point is defined as</span>
-     <span class="c1"># &#39;/accounts/&lt;ObjectId&gt;&#39;. We define  an additional read-only entry</span>
-     <span class="c1"># point accessible at &#39;/accounts/&lt;username&gt;&#39;.</span>
-     <span class="s1">&#39;additional_lookup&#39;</span><span class="p">:</span> <span class="p">{</span>
-         <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="s1">&#39;regex(&quot;[\w]+&quot;)&#39;</span><span class="p">,</span>
-         <span class="s1">&#39;field&#39;</span><span class="p">:</span> <span class="s1">&#39;username&#39;</span><span class="p">,</span>
+only so let&#8217;s update the endpoint definition accordingly.</p>
+<div class="highlight-python"><div class="highlight"><pre> <span class="n">accounts</span> <span class="o">=</span> <span class="p">{</span>
+     <span class="c"># the standard account entry point is defined as</span>
+     <span class="c"># &#39;/accounts/&lt;ObjectId&gt;&#39;. We define  an additional read-only entry</span>
+     <span class="c"># point accessible at &#39;/accounts/&lt;username&gt;&#39;.</span>
+     <span class="s">&#39;additional_lookup&#39;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;regex(&quot;[\w]+&quot;)&#39;</span><span class="p">,</span>
+         <span class="s">&#39;field&#39;</span><span class="p">:</span> <span class="s">&#39;username&#39;</span><span class="p">,</span>
      <span class="p">},</span>
 
-     <span class="c1"># We also disable endpoint caching as we don&#39;t want client apps to</span>
-     <span class="c1"># cache account data.</span>
-     <span class="s1">&#39;cache_control&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-     <span class="s1">&#39;cache_expires&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+     <span class="c"># We also disable endpoint caching as we don&#39;t want client apps to</span>
+     <span class="c"># cache account data.</span>
+     <span class="s">&#39;cache_control&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+     <span class="s">&#39;cache_expires&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
 
-     <span class="c1"># Only allow superusers and admins.</span>
-<span class="hll">     <span class="s1">&#39;allowed_roles&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;superuser&#39;</span><span class="p">,</span> <span class="s1">&#39;admin&#39;</span><span class="p">],</span>
+     <span class="c"># Only allow superusers and admins.</span>
+<span class="hll">     <span class="s">&#39;allowed_roles&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;superuser&#39;</span><span class="p">,</span> <span class="s">&#39;admin&#39;</span><span class="p">],</span>
 </span>
-     <span class="c1"># Finally, let&#39;s add the schema definition for this endpoint.</span>
-     <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="n">schema</span><span class="p">,</span>
+     <span class="c"># Finally, let&#39;s add the schema definition for this endpoint.</span>
+     <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="n">schema</span><span class="p">,</span>
  <span class="p">}</span>
 </pre></div>
 </div>
 <p>Finally, a rewrite of our authentication class is in order.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
 <span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">BasicAuth</span>
 <span class="kn">from</span> <span class="nn">werkzeug.security</span> <span class="kn">import</span> <span class="n">check_password_hash</span>
 
 
 <span class="k">class</span> <span class="nc">RolesAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
-        <span class="c1"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
-        <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;accounts&#39;</span><span class="p">]</span>
-        <span class="n">lookup</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">}</span>
+        <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
+        <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
+        <span class="n">lookup</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">allowed_roles</span><span class="p">:</span>
-            <span class="c1"># only retrieve a user if his roles match ``allowed_roles``</span>
-            <span class="n">lookup</span><span class="p">[</span><span class="s1">&#39;roles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;$in&#39;</span><span class="p">:</span> <span class="n">allowed_roles</span><span class="p">}</span>
+            <span class="c"># only retrieve a user if his roles match ``allowed_roles``</span>
+            <span class="n">lookup</span><span class="p">[</span><span class="s">&#39;roles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;$in&#39;</span><span class="p">:</span> <span class="n">allowed_roles</span><span class="p">}</span>
         <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">(</span><span class="n">lookup</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">account</span> <span class="ow">and</span> <span class="n">check_password_hash</span><span class="p">(</span><span class="n">account</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">],</span> <span class="n">password</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">account</span> <span class="ow">and</span> <span class="n">check_password_hash</span><span class="p">(</span><span class="n">account</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">],</span> <span class="n">password</span><span class="p">)</span>
 
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">RolesAuth</span><span class="p">)</span>
     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>What the above snippet does is secure all API endpoints with role-base access
-control. It is, in fact, the same snippet seen in <a class="reference internal" href="../authentication.html#roleaccess"><span class="std std-ref">Role Based Access Control</span></a>. This
+control. It is, in fact, the same snippet seen in <a class="reference internal" href="../authentication.html#roleaccess"><em>Role Based Access Control</em></a>. This
 technique allows us to keep the code untouched as we add more <cite>superuser</cite> or
-<cite>admin</cite> accounts (and we’ll probably be adding them by accessing our very own
+<cite>admin</cite> accounts (and we&#8217;ll probably be adding them by accessing our very own
 API). Also, should the need arise, we could easily restrict access to more
 endpoints just by updating the settings file, again without touching the
 authentication class.</p>
@@ -246,18 +257,18 @@ authentication class.</p>
 <h3>3. Securing other API endpoints<a class="headerlink" href="#securing-other-api-endpoints" title="Permalink to this headline">¶</a></h3>
 <p>This will be quick, as both the <cite>hard-coding</cite> and the <cite>role-based</cite> access
 control approaches above effectively secure all API endpoints already.  Passing
-an authentication class to the <code class="docutils literal notranslate"><span class="pre">Eve</span></code> object enables authentication for the
+an authentication class to the <tt class="docutils literal"><span class="pre">Eve</span></tt> object enables authentication for the
 whole API: every time an endpoint is hit with a request, the class instance is
 invoked.</p>
 <p>Of course, you can still fine-tune security, for example by allowing public
-access to certain endpoints, or to certain HTTP methods. See <a class="reference internal" href="../authentication.html#auth"><span class="std std-ref">Authentication and Authorization</span></a> for
+access to certain endpoints, or to certain HTTP methods. See <a class="reference internal" href="../authentication.html#auth"><em>Authentication and Authorization</em></a> for
 more details.</p>
 </div>
 <div class="section" id="only-allowing-access-to-account-resources">
 <h3>4. Only allowing access to account resources<a class="headerlink" href="#only-allowing-access-to-account-resources" title="Permalink to this headline">¶</a></h3>
 <p>Most of the time when you allow Authenticated users to store data, you only
 want them to access their own data. This can be convenientely achieved by
-using the <a class="reference internal" href="../authentication.html#user-restricted"><span class="std std-ref">User-Restricted Resource Access</span></a> feature. When enabled, each stored document is
+using the <a class="reference internal" href="../authentication.html#user-restricted"><em>User-Restricted Resource Access</em></a> feature. When enabled, each stored document is
 associated with the account that created it. This allows the API to transparently
 serve only account-created documents on all kind of requests: read, edit, delete
 and of course create.</p>
@@ -267,60 +278,60 @@ and of course create.</p>
 document;</li>
 <li>Set the document owner on each incoming POST request.</li>
 </ol>
-<p>Since we want to enable this feature for all of our API endpoints we’ll just
-update our <code class="docutils literal notranslate"><span class="pre">settings.py</span></code> file by setting a proper <code class="docutils literal notranslate"><span class="pre">AUTH_FIELD</span></code> value:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Name of the field used to store the owner of each document</span>
-<span class="n">AUTH_FIELD</span> <span class="o">=</span> <span class="s1">&#39;user_id&#39;</span>
+<p>Since we want to enable this feature for all of our API endpoints we&#8217;ll just
+update our <tt class="docutils literal"><span class="pre">settings.py</span></tt> file by setting a proper <tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt> value:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Name of the field used to store the owner of each document</span>
+<span class="n">AUTH_FIELD</span> <span class="o">=</span> <span class="s">&#39;user_id&#39;</span>
 </pre></div>
 </div>
-<p>Then, we want to update our authentication class to properly update the field’s
+<p>Then, we want to update our authentication class to properly update the field&#8217;s
 value:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
+<div class="highlight-python"><div class="highlight"><pre> <span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
  <span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">BasicAuth</span>
  <span class="kn">from</span> <span class="nn">werkzeug.security</span> <span class="kn">import</span> <span class="n">check_password_hash</span>
 
 
  <span class="k">class</span> <span class="nc">RolesAuth</span><span class="p">(</span><span class="n">BasicAuth</span><span class="p">):</span>
      <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
-         <span class="c1"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
-         <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;accounts&#39;</span><span class="p">]</span>
-         <span class="n">lookup</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">}</span>
+         <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
+         <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
+         <span class="n">lookup</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">}</span>
          <span class="k">if</span> <span class="n">allowed_roles</span><span class="p">:</span>
-             <span class="c1"># only retrieve a user if his roles match ``allowed_roles``</span>
-             <span class="n">lookup</span><span class="p">[</span><span class="s1">&#39;roles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;$in&#39;</span><span class="p">:</span> <span class="n">allowed_roles</span><span class="p">}</span>
+             <span class="c"># only retrieve a user if his roles match ``allowed_roles``</span>
+             <span class="n">lookup</span><span class="p">[</span><span class="s">&#39;roles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;$in&#39;</span><span class="p">:</span> <span class="n">allowed_roles</span><span class="p">}</span>
          <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">(</span><span class="n">lookup</span><span class="p">)</span>
-<span class="hll">         <span class="c1"># set &#39;AUTH_FIELD&#39; value to the account&#39;s ObjectId</span>
-</span><span class="hll">         <span class="c1"># (instead of _Id, you might want to use ID_FIELD)</span>
-</span><span class="hll">         <span class="bp">self</span><span class="o">.</span><span class="n">set_request_auth_value</span><span class="p">(</span><span class="n">account</span><span class="p">[</span><span class="s1">&#39;_id&#39;</span><span class="p">])</span>
-</span>         <span class="k">return</span> <span class="n">account</span> <span class="ow">and</span> <span class="n">check_password_hash</span><span class="p">(</span><span class="n">account</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">],</span> <span class="n">password</span><span class="p">)</span>
+<span class="hll">         <span class="c"># set &#39;AUTH_FIELD&#39; value to the account&#39;s ObjectId</span>
+</span><span class="hll">         <span class="c"># (instead of _Id, you might want to use ID_FIELD)</span>
+</span><span class="hll">         <span class="bp">self</span><span class="o">.</span><span class="n">set_request_auth_value</span><span class="p">(</span><span class="n">account</span><span class="p">[</span><span class="s">&#39;_id&#39;</span><span class="p">])</span>
+</span>         <span class="k">return</span> <span class="n">account</span> <span class="ow">and</span> <span class="n">check_password_hash</span><span class="p">(</span><span class="n">account</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">],</span> <span class="n">password</span><span class="p">)</span>
 
 
- <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+ <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
      <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">RolesAuth</span><span class="p">)</span>
      <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>This is all we need to do. Now when a client hits say the <code class="docutils literal notranslate"><span class="pre">/invoices</span></code>
+<p>This is all we need to do. Now when a client hits say the <tt class="docutils literal"><span class="pre">/invoices</span></tt>
 endpoint with a GET request, it will only be served with invoices created by
 its own account. The same will happen with DELETE and PATCH, making it
 impossible for an authenticated user to accidentally retrieve, edit or delete
-other people’s data.</p>
+other people&#8217;s data.</p>
 </div>
 </div>
 <div class="section" id="accounts-with-token-authentication">
 <h2>Accounts with Token Authentication<a class="headerlink" href="#accounts-with-token-authentication" title="Permalink to this headline">¶</a></h2>
-<p>As seen in <a class="reference internal" href="../authentication.html#token"><span class="std std-ref">Token-Based Authentication</span></a>, token authentication is just a specialized version of
+<p>As seen in <a class="reference internal" href="../authentication.html#token"><em>Token-Based Authentication</em></a>, token authentication is just a specialized version of
 Basic Authentication. It is actually executed as a standard Basic
 Authentication request where the value of the <em>username</em> field is used for
 the token, and the password field is not provided (if included, it is ignored).</p>
 <p>Consequently, handling accounts with Token Authentication is very similar to
-what we saw in <a class="reference internal" href="#accounts-basic"><span class="std std-ref">Accounts with Basic Authentication</span></a>, but there’s one little caveat: tokens
+what we saw in <a class="reference internal" href="#accounts-basic"><em>Accounts with Basic Authentication</em></a>, but there&#8217;s one little caveat: tokens
 need to be generated and stored along with the account, and eventually returned
 to the client.</p>
-<p>In light of this, let’s review our updated task list:</p>
+<p>In light of this, let&#8217;s review our updated task list:</p>
 <ol class="arabic simple">
 <li>Make an endpoint available for all account management activities
-(<code class="docutils literal notranslate"><span class="pre">/accounts</span></code>).</li>
+(<tt class="docutils literal"><span class="pre">/accounts</span></tt>).</li>
 <li>Secure the endpoint so that it is only accessible to clients (tokens) that
 we control.</li>
 <li>On account creation, generate and store its token.</li>
@@ -330,78 +341,78 @@ tokens.</li>
 <li>Allow authenticated users to only access resources created by themselves</li>
 </ol>
 <div class="section" id="id1">
-<h3>1. The <code class="docutils literal notranslate"><span class="pre">/accounts/</span></code> endpoint<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
-<p>This isn’t any different than what we did in <a class="reference internal" href="#accounts-basic"><span class="std std-ref">Accounts with Basic Authentication</span></a>. We just
+<h3>1. The <tt class="docutils literal"><span class="pre">/accounts/</span></tt> endpoint<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>This isn&#8217;t any different than what we did in <a class="reference internal" href="#accounts-basic"><em>Accounts with Basic Authentication</em></a>. We just
 need to add the <cite>token</cite> field to our schema:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>     <span class="n">schema</span> <span class="o">=</span>  <span class="p">{</span>
-         <span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="p">{</span>
-             <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
-             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-             <span class="s1">&#39;unique&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+<div class="highlight-python"><div class="highlight"><pre>     <span class="n">schema</span> <span class="o">=</span>  <span class="p">{</span>
+         <span class="s">&#39;username&#39;</span><span class="p">:</span> <span class="p">{</span>
+             <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
+             <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+             <span class="s">&#39;unique&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
              <span class="p">},</span>
-         <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="p">{</span>
-             <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
-             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+         <span class="s">&#39;password&#39;</span><span class="p">:</span> <span class="p">{</span>
+             <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
+             <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
          <span class="p">},</span>
-         <span class="s1">&#39;roles&#39;</span><span class="p">:</span> <span class="p">{</span>
-             <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span>
-             <span class="s1">&#39;allowed&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;superuser&#39;</span><span class="p">,</span> <span class="s1">&#39;admin&#39;</span><span class="p">],</span>
-             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+         <span class="s">&#39;roles&#39;</span><span class="p">:</span> <span class="p">{</span>
+             <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+             <span class="s">&#39;allowed&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;user&#39;</span><span class="p">,</span> <span class="s">&#39;superuser&#39;</span><span class="p">,</span> <span class="s">&#39;admin&#39;</span><span class="p">],</span>
+             <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
          <span class="p">},</span>
-<span class="hll">         <span class="s1">&#39;token&#39;</span><span class="p">:</span> <span class="p">{</span>
-</span><span class="hll">             <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
-</span><span class="hll">             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+<span class="hll">         <span class="s">&#39;token&#39;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class="hll">             <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
+</span><span class="hll">             <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
 </span><span class="hll">         <span class="p">}</span>
 </span>     <span class="p">}</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="id2">
-<h3>2. Securing the <code class="docutils literal notranslate"><span class="pre">/accounts/</span></code> endpoint<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<h3>2. Securing the <tt class="docutils literal"><span class="pre">/accounts/</span></tt> endpoint<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <p>We defined the <cite>roles</cite> field for the <cite>accounts</cite> schema in the previous step.
 We also need to define the endpoint, making sure that we set the allowed
 user roles.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="n">accounts</span> <span class="o">=</span> <span class="p">{</span>
-     <span class="c1"># the standard account entry point is defined as</span>
-     <span class="c1"># &#39;/accounts/&lt;ObjectId&gt;&#39;. We define  an additional read-only entry</span>
-     <span class="c1"># point accessible at &#39;/accounts/&lt;username&gt;&#39;.</span>
-     <span class="s1">&#39;additional_lookup&#39;</span><span class="p">:</span> <span class="p">{</span>
-         <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="s1">&#39;regex(&quot;[\w]+&quot;)&#39;</span><span class="p">,</span>
-         <span class="s1">&#39;field&#39;</span><span class="p">:</span> <span class="s1">&#39;username&#39;</span><span class="p">,</span>
+<div class="highlight-python"><div class="highlight"><pre> <span class="n">accounts</span> <span class="o">=</span> <span class="p">{</span>
+     <span class="c"># the standard account entry point is defined as</span>
+     <span class="c"># &#39;/accounts/&lt;ObjectId&gt;&#39;. We define  an additional read-only entry</span>
+     <span class="c"># point accessible at &#39;/accounts/&lt;username&gt;&#39;.</span>
+     <span class="s">&#39;additional_lookup&#39;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;regex(&quot;[\w]+&quot;)&#39;</span><span class="p">,</span>
+         <span class="s">&#39;field&#39;</span><span class="p">:</span> <span class="s">&#39;username&#39;</span><span class="p">,</span>
      <span class="p">},</span>
 
-     <span class="c1"># We also disable endpoint caching as we don&#39;t want client apps to</span>
-     <span class="c1"># cache account data.</span>
-     <span class="s1">&#39;cache_control&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-     <span class="s1">&#39;cache_expires&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+     <span class="c"># We also disable endpoint caching as we don&#39;t want client apps to</span>
+     <span class="c"># cache account data.</span>
+     <span class="s">&#39;cache_control&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+     <span class="s">&#39;cache_expires&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
 
-     <span class="c1"># Only allow superusers and admins.</span>
-<span class="hll">     <span class="s1">&#39;allowed_roles&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;superuser&#39;</span><span class="p">,</span> <span class="s1">&#39;admin&#39;</span><span class="p">],</span>
+     <span class="c"># Only allow superusers and admins.</span>
+<span class="hll">     <span class="s">&#39;allowed_roles&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;superuser&#39;</span><span class="p">,</span> <span class="s">&#39;admin&#39;</span><span class="p">],</span>
 </span>
-     <span class="c1"># Finally, let&#39;s add the schema definition for this endpoint.</span>
-     <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="n">schema</span><span class="p">,</span>
+     <span class="c"># Finally, let&#39;s add the schema definition for this endpoint.</span>
+     <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="n">schema</span><span class="p">,</span>
  <span class="p">}</span>
 </pre></div>
 </div>
-<p>And finally, here is our launch script which is, of course, using a <code class="docutils literal notranslate"><span class="pre">TokenAuth</span></code>
+<p>And finally, here is our launch script which is, of course, using a <tt class="docutils literal"><span class="pre">TokenAuth</span></tt>
 subclass this time around:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
 <span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">TokenAuth</span>
 
 
 <span class="k">class</span> <span class="nc">RolesAuth</span><span class="p">(</span><span class="n">TokenAuth</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span>  <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
-        <span class="c1"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
-        <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;accounts&#39;</span><span class="p">]</span>
-        <span class="n">lookup</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;token&#39;</span><span class="p">:</span> <span class="n">token</span><span class="p">}</span>
+        <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
+        <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
+        <span class="n">lookup</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;token&#39;</span><span class="p">:</span> <span class="n">token</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">allowed_roles</span><span class="p">:</span>
-            <span class="c1"># only retrieve a user if his roles match ``allowed_roles``</span>
-            <span class="n">lookup</span><span class="p">[</span><span class="s1">&#39;roles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;$in&#39;</span><span class="p">:</span> <span class="n">allowed_roles</span><span class="p">}</span>
+            <span class="c"># only retrieve a user if his roles match ``allowed_roles``</span>
+            <span class="n">lookup</span><span class="p">[</span><span class="s">&#39;roles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;$in&#39;</span><span class="p">:</span> <span class="n">allowed_roles</span><span class="p">}</span>
         <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">(</span><span class="n">lookup</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">account</span>
 
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">RolesAuth</span><span class="p">)</span>
     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
@@ -409,13 +420,13 @@ subclass this time around:</p>
 </div>
 <div class="section" id="building-custom-tokens-on-account-creation">
 <h3>3. Building custom tokens on account creation<a class="headerlink" href="#building-custom-tokens-on-account-creation" title="Permalink to this headline">¶</a></h3>
-<p>The code above has a problem: it won’t authenticate anybody, as we aren’t
-generating any token yet. Consequently, clients aren’t getting their auth tokens
-back so they don’t really know how to authenticate. Let’s fix that by using the
-awesome <a class="reference internal" href="../features.html#eventhooks"><span class="std std-ref">Event Hooks</span></a> feature.  We’ll update our launch script by
+<p>The code above has a problem: it won&#8217;t authenticate anybody, as we aren&#8217;t
+generating any token yet. Consequently, clients aren&#8217;t getting their auth tokens
+back so they don&#8217;t really know how to authenticate. Let&#8217;s fix that by using the
+awesome <a class="reference internal" href="../features.html#eventhooks"><em>Event Hooks</em></a> feature.  We&#8217;ll update our launch script by
 registering a callback function that will be called when a new account is about
 to be stored to the database.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
+<div class="highlight-python"><div class="highlight"><pre> <span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
  <span class="kn">from</span> <span class="nn">eve.auth</span> <span class="kn">import</span> <span class="n">TokenAuth</span>
 <span class="hll"> <span class="kn">import</span> <span class="nn">random</span>
 </span><span class="hll"> <span class="kn">import</span> <span class="nn">string</span>
@@ -423,101 +434,101 @@ to be stored to the database.</p>
 
  <span class="k">class</span> <span class="nc">RolesAuth</span><span class="p">(</span><span class="n">TokenAuth</span><span class="p">):</span>
      <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span>  <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
-         <span class="c1"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
-         <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;accounts&#39;</span><span class="p">]</span>
-         <span class="n">lookup</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;token&#39;</span><span class="p">:</span> <span class="n">token</span><span class="p">}</span>
+         <span class="c"># use Eve&#39;s own db driver; no additional connections/resources are used</span>
+         <span class="n">accounts</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="s">&#39;accounts&#39;</span><span class="p">]</span>
+         <span class="n">lookup</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;token&#39;</span><span class="p">:</span> <span class="n">token</span><span class="p">}</span>
          <span class="k">if</span> <span class="n">allowed_roles</span><span class="p">:</span>
-             <span class="c1"># only retrieve a user if his roles match ``allowed_roles``</span>
-             <span class="n">lookup</span><span class="p">[</span><span class="s1">&#39;roles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;$in&#39;</span><span class="p">:</span> <span class="n">allowed_roles</span><span class="p">}</span>
+             <span class="c"># only retrieve a user if his roles match ``allowed_roles``</span>
+             <span class="n">lookup</span><span class="p">[</span><span class="s">&#39;roles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;$in&#39;</span><span class="p">:</span> <span class="n">allowed_roles</span><span class="p">}</span>
          <span class="n">account</span> <span class="o">=</span> <span class="n">accounts</span><span class="o">.</span><span class="n">find_one</span><span class="p">(</span><span class="n">lookup</span><span class="p">)</span>
          <span class="k">return</span> <span class="n">account</span>
 
 
 <span class="hll"> <span class="k">def</span> <span class="nf">add_token</span><span class="p">(</span><span class="n">documents</span><span class="p">):</span>
-</span><span class="hll">     <span class="c1"># Don&#39;t use this in production:</span>
-</span><span class="hll">     <span class="c1"># You should at least make sure that the token is unique.</span>
+</span><span class="hll">     <span class="c"># Don&#39;t use this in production:</span>
+</span><span class="hll">     <span class="c"># You should at least make sure that the token is unique.</span>
 </span><span class="hll">     <span class="k">for</span> <span class="n">document</span> <span class="ow">in</span> <span class="n">documents</span><span class="p">:</span>
-</span><span class="hll">         <span class="n">document</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span><span class="p">)</span>
+</span><span class="hll">         <span class="n">document</span><span class="p">[</span><span class="s">&quot;token&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span><span class="p">)</span>
 </span><span class="hll">                                      <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)))</span>
 </span>
 
- <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+ <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
      <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">RolesAuth</span><span class="p">)</span>
 <span class="hll">     <span class="n">app</span><span class="o">.</span><span class="n">on_insert_accounts</span> <span class="o">+=</span> <span class="n">add_token</span>
 </span>     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>As you can see, we are subscribing to the <code class="docutils literal notranslate"><span class="pre">on_insert</span></code> event of the <cite>accounts</cite>
-endpoint with our <code class="docutils literal notranslate"><span class="pre">add_token</span></code> function. This callback will receive
+<p>As you can see, we are subscribing to the <tt class="docutils literal"><span class="pre">on_insert</span></tt> event of the <cite>accounts</cite>
+endpoint with our <tt class="docutils literal"><span class="pre">add_token</span></tt> function. This callback will receive
 <cite>documents</cite> as an argument, which is a list of validated documents accepted for
 database insertion. We simply add (or replace in the unlikely case that the
-request contained it already) a token to every document, and we’re done! For
+request contained it already) a token to every document, and we&#8217;re done! For
 more information on callbacks, see <a class="reference external" href="http://python-eve.org/features.html#event-hooks">Event Hooks</a>.</p>
 </div>
 <div class="section" id="returning-the-token-with-the-response">
 <h3>4. Returning the token with the response<a class="headerlink" href="#returning-the-token-with-the-response" title="Permalink to this headline">¶</a></h3>
 <p>Optionally, you might want to return the tokens with the response. Truth be
-told, this isn’t a very good idea. You generally want to send access
-information out-of-band, with an email for example. However we’re assuming that
+told, this isn&#8217;t a very good idea. You generally want to send access
+information out-of-band, with an email for example. However we&#8217;re assuming that
 we are on SSL, and there are cases where sending the auth token just makes
 sense, like when the client is a mobile application and we want the user to use
 the service right away.</p>
-<p>Normally, only automatically handled fields (<code class="docutils literal notranslate"><span class="pre">ID_FIELD</span></code>, <code class="docutils literal notranslate"><span class="pre">LAST_UPDATED</span></code>,
-<code class="docutils literal notranslate"><span class="pre">DATE_CREATED</span></code>, <code class="docutils literal notranslate"><span class="pre">ETAG</span></code>) are included with POST response payloads.
-Fortunately, there’s a setting which allows us to inject additional fields in
-responses, and that is <code class="docutils literal notranslate"><span class="pre">EXTRA_RESPONSE_FIELDS</span></code>, with its endpoint-level
-equivalent, <code class="docutils literal notranslate"><span class="pre">extra_response_fields</span></code>. All we need to do is update our endpoint
+<p>Normally, only automatically handled fields (<tt class="docutils literal"><span class="pre">ID_FIELD</span></tt>, <tt class="docutils literal"><span class="pre">LAST_UPDATED</span></tt>,
+<tt class="docutils literal"><span class="pre">DATE_CREATED</span></tt>, <tt class="docutils literal"><span class="pre">ETAG</span></tt>) are included with POST response payloads.
+Fortunately, there&#8217;s a setting which allows us to inject additional fields in
+responses, and that is <tt class="docutils literal"><span class="pre">EXTRA_RESPONSE_FIELDS</span></tt>, with its endpoint-level
+equivalent, <tt class="docutils literal"><span class="pre">extra_response_fields</span></tt>. All we need to do is update our endpoint
 definition accordingly:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="n">accounts</span> <span class="o">=</span> <span class="p">{</span>
-     <span class="c1"># the standard account entry point is defined as</span>
-     <span class="c1"># &#39;/accounts/&lt;ObjectId&gt;&#39;. We define  an additional read-only entry</span>
-     <span class="c1"># point accessible at &#39;/accounts/&lt;username&gt;&#39;.</span>
-     <span class="s1">&#39;additional_lookup&#39;</span><span class="p">:</span> <span class="p">{</span>
-         <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="s1">&#39;regex(&quot;[\w]+&quot;)&#39;</span><span class="p">,</span>
-         <span class="s1">&#39;field&#39;</span><span class="p">:</span> <span class="s1">&#39;username&#39;</span><span class="p">,</span>
+<div class="highlight-python"><div class="highlight"><pre> <span class="n">accounts</span> <span class="o">=</span> <span class="p">{</span>
+     <span class="c"># the standard account entry point is defined as</span>
+     <span class="c"># &#39;/accounts/&lt;ObjectId&gt;&#39;. We define  an additional read-only entry</span>
+     <span class="c"># point accessible at &#39;/accounts/&lt;username&gt;&#39;.</span>
+     <span class="s">&#39;additional_lookup&#39;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;regex(&quot;[\w]+&quot;)&#39;</span><span class="p">,</span>
+         <span class="s">&#39;field&#39;</span><span class="p">:</span> <span class="s">&#39;username&#39;</span><span class="p">,</span>
      <span class="p">},</span>
 
-     <span class="c1"># We also disable endpoint caching as we don&#39;t want client apps to</span>
-     <span class="c1"># cache account data.</span>
-     <span class="s1">&#39;cache_control&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-     <span class="s1">&#39;cache_expires&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+     <span class="c"># We also disable endpoint caching as we don&#39;t want client apps to</span>
+     <span class="c"># cache account data.</span>
+     <span class="s">&#39;cache_control&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+     <span class="s">&#39;cache_expires&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
 
-     <span class="c1"># Only allow superusers and admins.</span>
-     <span class="s1">&#39;allowed_roles&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;superuser&#39;</span><span class="p">,</span> <span class="s1">&#39;admin&#39;</span><span class="p">],</span>
+     <span class="c"># Only allow superusers and admins.</span>
+     <span class="s">&#39;allowed_roles&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;superuser&#39;</span><span class="p">,</span> <span class="s">&#39;admin&#39;</span><span class="p">],</span>
 
-     <span class="c1"># Allow &#39;token&#39; to be returned with POST responses</span>
-<span class="hll">     <span class="s1">&#39;extra_response_fields&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">],</span>
+     <span class="c"># Allow &#39;token&#39; to be returned with POST responses</span>
+<span class="hll">     <span class="s">&#39;extra_response_fields&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;token&#39;</span><span class="p">],</span>
 </span>
-     <span class="c1"># Finally, let&#39;s add the schema definition for this endpoint.</span>
-     <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="n">schema</span><span class="p">,</span>
+     <span class="c"># Finally, let&#39;s add the schema definition for this endpoint.</span>
+     <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="n">schema</span><span class="p">,</span>
  <span class="p">}</span>
 </pre></div>
 </div>
-<p>From now on responses to POST requests aimed at the <code class="docutils literal notranslate"><span class="pre">/accounts</span></code> endpoint
+<p>From now on responses to POST requests aimed at the <tt class="docutils literal"><span class="pre">/accounts</span></tt> endpoint
 will include the newly generated auth token, allowing the client to consume
 other API endpoints right away.</p>
 </div>
 <div class="section" id="id3">
 <h3>5. Securing other API endpoints<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
-<p>As we’ve seen before, passing an authentication class to the <code class="docutils literal notranslate"><span class="pre">Eve</span></code> object
+<p>As we&#8217;ve seen before, passing an authentication class to the <tt class="docutils literal"><span class="pre">Eve</span></tt> object
 enables authentication for all API endpoints. Again, you can still fine-tune
 security by allowing public access to certain endpoints or to certain HTTP
-methods. See <a class="reference internal" href="../authentication.html#auth"><span class="std std-ref">Authentication and Authorization</span></a> for more details.</p>
+methods. See <a class="reference internal" href="../authentication.html#auth"><em>Authentication and Authorization</em></a> for more details.</p>
 </div>
 <div class="section" id="id4">
 <h3>6. Only allowing access to account resources<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
-<p>This is achieved with the <a class="reference internal" href="../authentication.html#user-restricted"><span class="std std-ref">User-Restricted Resource Access</span></a> feature, as seen in
-<a class="reference internal" href="#accounts-basic"><span class="std std-ref">Accounts with Basic Authentication</span></a>. You might want to store the user token as your
-<code class="docutils literal notranslate"><span class="pre">AUTH_FIELD</span></code> value, but if you want user tokens to be easily revocable, then
+<p>This is achieved with the <a class="reference internal" href="../authentication.html#user-restricted"><em>User-Restricted Resource Access</em></a> feature, as seen in
+<a class="reference internal" href="#accounts-basic"><em>Accounts with Basic Authentication</em></a>. You might want to store the user token as your
+<tt class="docutils literal"><span class="pre">AUTH_FIELD</span></tt> value, but if you want user tokens to be easily revocable, then
 your best option is to use the account unique id for this.</p>
 </div>
 </div>
 <div class="section" id="basic-vs-token-final-considerations">
 <h2>Basic vs Token: Final Considerations<a class="headerlink" href="#basic-vs-token-final-considerations" title="Permalink to this headline">¶</a></h2>
 <p>Despite being a little more tricky to set up on the server side, Token
-Authentication offers significant advantages. First, you don’t have passwords
+Authentication offers significant advantages. First, you don&#8217;t have passwords
 stored on the client and  being sent over the wire with every request. If
-you’re sending your tokens out-of-band, and you’re on SSL/TLS, that’s quite
+you&#8217;re sending your tokens out-of-band, and you&#8217;re on SSL/TLS, that&#8217;s quite
 a lot of additional security.</p>
 </div>
 </div>
@@ -526,7 +537,7 @@ a lot of additional security.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../index.html">
@@ -603,10 +614,10 @@ a lot of additional security.</p>
 <li class="toctree-l1"><a class="reference internal" href="../authentication.html">Authentication and Authorization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../funding.html">Funding</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">RESTful Account Management</a><ul>
+<li class="toctree-l2 current"><a class="current reference internal" href="">RESTful Account Management</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#accounts-with-basic-authentication">Accounts with Basic Authentication</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#the-accounts-endpoint">1. The <code class="docutils literal notranslate"><span class="pre">/accounts</span></code> endpoint</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#securing-the-accounts-endpoint">2. Securing the <code class="docutils literal notranslate"><span class="pre">/accounts/</span></code> endpoint</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#the-accounts-endpoint">1. The <tt class="docutils literal"><span class="pre">/accounts</span></tt> endpoint</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#securing-the-accounts-endpoint">2. Securing the <tt class="docutils literal"><span class="pre">/accounts/</span></tt> endpoint</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="#a-hard-coding-our-way-in">2a. Hard-coding our way in</a></li>
 <li class="toctree-l5"><a class="reference internal" href="#b-user-roles-access-control">2b. User Roles Access Control</a></li>
 </ul>
@@ -616,8 +627,8 @@ a lot of additional security.</p>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#accounts-with-token-authentication">Accounts with Token Authentication</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id1">1. The <code class="docutils literal notranslate"><span class="pre">/accounts/</span></code> endpoint</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id2">2. Securing the <code class="docutils literal notranslate"><span class="pre">/accounts/</span></code> endpoint</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id1">1. The <tt class="docutils literal"><span class="pre">/accounts/</span></tt> endpoint</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">2. Securing the <tt class="docutils literal"><span class="pre">/accounts/</span></tt> endpoint</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#building-custom-tokens-on-account-creation">3. Building custom tokens on account creation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#returning-the-token-with-the-response">4. Returning the token with the response</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id3">5. Securing other API endpoints</a></li>
@@ -642,16 +653,17 @@ a lot of additional security.</p>
 </ul>
 
 
-<div id="searchbox" style="display: none" role="search">
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script><p>
 Artwork by <a href="http://kalamun.org">Kalamun</a> © 2013
