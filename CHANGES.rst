@@ -22,15 +22,19 @@ Improved
 - On CI, perform linting checks first. If linting checks are successful,
   execute the test suite on the whole matrix. (`#1156`_)
 - Reformat code to match Black code-style. (`#1155`_)
+- Use ``simplejson`` everywhere in the codebase. (`#1148`_)
+- Install a bot that flags and closes stale issues/pull requests. (`#1145`_)
+- Only set the package version in ``__init__.py``. (`#1142`_)
+
+Docs
+~~~~
+- Fix Sphinx-embedly error when embedding speakerdeck.com slide deck. (`#1158`_)
 - Fix broken link to the Postman app. (`#1150`_)
 - Update obsolete PyPI link in docs sidebar. (`#1152`_)
 - Only display the version number on the docs homepage. (`#1151`_)
-- Use ``simplejson`` everywhere in the codebase. (`#1148`_)
 - Fix documentation builds on Read the Docs. (`#1147`_)
 - Add a ``ISSUE_TEMPLATE.md`` GitHub template file. (`#1146`_)
-- Install a bot that flags and closes stale issues/pull requests. (`#1145`_)
 - Improve changelog format to reduce noise and increase readability. (`#1143`_)
-- Only set the package version in ``__init__.py``. (`#1142`_)
 
 .. _`#1142`: https://github.com/pyeve/eve/issues/1142
 .. _`#1143`: https://github.com/pyeve/eve/issues/1143
@@ -47,6 +51,7 @@ Improved
 .. _`#1155`: https://github.com/pyeve/eve/issues/1155
 .. _`#1156`: https://github.com/pyeve/eve/issues/1156
 .. _`#1157`: https://github.com/pyeve/eve/issues/1157
+.. _`#1158`: https://github.com/pyeve/eve/issues/1158
 
 Version 0.8
 -----------
