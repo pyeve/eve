@@ -128,6 +128,9 @@ class Validator(Validator):
                 'embeddable': {'type': 'boolean', 'default': False},
                 'version': {'type': 'boolean', 'default': False}
              }} """
+        if not value and self.schema[field].get("nullable"):
+            return
+
         if "version" in data_relation and data_relation["version"] is True:
             value_field = data_relation["field"]
             version_field = app.config["VERSION"]
