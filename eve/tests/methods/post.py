@@ -888,6 +888,31 @@ class TestPost(TestBase):
         )
         self.assert201(status)
 
+    def test_post_updating_a_document_with_nullable_data_relation_does_not_fail(self):
+        # See #1159.
+        del (self.domain["contacts"]["schema"]["ref"]["required"])
+
+        employee = {
+            "employer": {
+                "type": "objectid",
+                "nullable": True,
+                "data_relation": {"resource": self.known_resource},
+            }
+        }
+        self.app.register_resource("employee", {"schema": employee})
+
+        data = {"employer": None}
+        r, s = self.post("employee", data=data)
+        self.assert201(s)
+
+        employee["employer"]["nullable"] = False
+        r, s = self.post("employee", data=data)
+        self.assert422(s)
+
+        del (employee["employer"]["nullable"])
+        r, s = self.post("employee", data=data)
+        self.assert422(s)
+
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
