@@ -420,6 +420,21 @@ class TestPost(TestBase):
         self.assertTrue("unknown" in r_data)
         self.assertEqual("unknown", r_data["unknown"])
 
+    def test_post_mapping_allow_unknown_allowed(self):
+        schema = {
+            "data": {
+                "type": "dict",
+                "allow_unknown": True,
+                "schema": {"prop": {"type": "string"}},
+            }
+        }
+        settings = {"RESOURCE_METHODS": ["GET", "POST", "DELETE"], "schema": schema}
+        self.app.register_resource("endpoint", settings)
+
+        data = {"data": {"prop": "test prop", "test": "test"}}
+        r, status = self.post("endpoint", data=data)
+        self.assert201(status)
+
     def test_post_with_content_type_charset(self):
         test_field = "ref"
         test_value = "1234567890123456789054321"

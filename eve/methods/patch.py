@@ -152,7 +152,9 @@ def patch_internal(
 
     resource_def = app.config["DOMAIN"][resource]
     schema = resource_def["schema"]
-    validator = app.validator(schema, resource=resource)
+    validator = app.validator(
+        schema, resource=resource, allow_unknown=resource_def["allow_unknown"]
+    )
 
     object_id = original[resource_def["id_field"]]
     last_modified = None
