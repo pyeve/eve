@@ -124,7 +124,9 @@ def put_internal(
     """
     resource_def = app.config["DOMAIN"][resource]
     schema = resource_def["schema"]
-    validator = app.validator(schema, resource=resource)
+    validator = app.validator(
+        schema, resource=resource, allow_unknown=resource_def["allow_unknown"]
+    )
 
     if payload is None:
         payload = payload_()

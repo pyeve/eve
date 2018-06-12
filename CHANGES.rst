@@ -10,6 +10,7 @@ Unreleased
 
 Fixed
 ~~~~~
+- ``allow_unknown`` validation rule fails with nested dict fields (`#1163`_)
 - Updating a field with a nullable data relation fails when value is null (`#1159`_)
 - ``cerberus.schema.SchemaError`` when ``VALIDATE_FILTERS = True``. (`#1154`_)
 - Serializers fails when array of types is in schema. (`#1112`_)
@@ -54,6 +55,7 @@ Docs
 .. _`#1157`: https://github.com/pyeve/eve/issues/1157
 .. _`#1158`: https://github.com/pyeve/eve/issues/1158
 .. _`#1159`: https://github.com/pyeve/eve/issues/1159
+.. _`#1163`: https://github.com/pyeve/eve/issues/1163
 
 Version 0.8
 -----------
