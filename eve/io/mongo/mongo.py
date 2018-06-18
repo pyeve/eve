@@ -25,6 +25,8 @@ from werkzeug.exceptions import HTTPException
 import decimal
 from bson import decimal128
 
+from eve.versioning import versioned_id_field
+
 from eve.auth import resource_auth
 from eve.io.base import DataLayer, ConnectionException, BaseJSONEncoder
 from eve.io.mongo.parser import parse, ParseError
@@ -787,14 +789,20 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.0.4
         """
-        schema = config.DOMAIN[resource]
-        skip_objectid = schema.get("query_objectid_as_string", False)
+        resource_def = config.DOMAIN[resource]
+        schema = resource_def["schema"]
+        id_field = resource_def["id_field"]
+        id_field_versioned = versioned_id_field(resource_def)
+        skip_objectid = resource_def.get("query_objectid_as_string", False)
+        type = None
 
-        def try_cast(v):
+        def try_cast(k, v):
             try:
                 return datetime.strptime(v, config.DATE_FORMAT)
             except:
-                if not skip_objectid:
+                if k in (id_field, id_field_versioned) or (
+                    type == "objectid" and not skip_objectid
+                ):
                     try:
                         # Convert to unicode because ObjectId() interprets
                         # 12-character strings (but not unicode) as binary
@@ -803,15 +811,15 @@ class Mongo(DataLayer):
                         try:
                             r = ObjectId(unicode(v))
                         except NameError:
-                            # We're on Python 3 so it's all unicode # already.
+                            # We're on Python 3 so it's all unicode already.
                             r = ObjectId(v)
                         return r
                     except:
                         return v
-                else:
-                    return v
+                return v
 
         for k, v in source.items():
+            type = schema[k].get("type") if k in schema else None
             if isinstance(v, dict):
                 self._mongotize(v, resource)
             elif isinstance(v, list):
@@ -819,9 +827,9 @@ class Mongo(DataLayer):
                     if isinstance(v1, dict):
                         source[k][i] = self._mongotize(v1, resource)
                     else:
-                        source[k][i] = try_cast(v1)
+                        source[k][i] = try_cast(k, v1)
             elif isinstance(v, str_type):
-                source[k] = try_cast(v)
+                source[k] = try_cast(k, v)
 
         return source
 
