@@ -12,6 +12,8 @@ Conferences
 ------------
 Eve REST API for Humans™ has been presented at the following events so far:
 
+- PyConWeb 2018, Munich
+- PyCon Belarus 2018, Kiev
 - Codemotion 2017, Rome
 - PiterPy 2016, St. Petersburg
 - Percona Live 2015, Amsterdam
