@@ -13,6 +13,8 @@ Stable
 Version 0.7.10
 ~~~~~~~~~~~~~~
 
+Released on July 15, 2018.
+
 - Fix: Pin Flask-PyMongo dependency to avoid crash with Flask-PyMongo 2. Closes #1172.
 
 Version 0.7.9
