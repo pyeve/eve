@@ -241,6 +241,11 @@ Breaking Changes
 .. _`How to contribute`: http://python-eve.org/contributing.html
 .. _`Eve course`: https://training.talkpython.fm/courses/explore_eve/eve-building-restful-mongodb-backed-apis-course
 
+Version 0.7.10
+~~~~~~~~~~~~~~
+
+- Fix: Pin Flask-PyMongo dependency to avoid crash with Flask-PyMongo 2. Closes #1172.
+
 Version 0.7.9
 ~~~~~~~~~~~~~
 

@@ -11,7 +11,6 @@ with open("README.rst") as f:
 with io.open("eve/__init__.py", "rt", encoding="utf8") as f:
     VERSION = re.search(r"__version__ = \"(.*?)\"", f.read()).group(1)
 
-
 INSTALL_REQUIRES = [
     "cerberus>=1.1",
     "events>=0.3,<0.4",
