@@ -339,3 +339,11 @@ class TestRenders(TestBase):
         self.app._init_schema_endpoint()
         methods = ["GET", "OPTIONS"]
         self.test_CORS_OPTIONS("schema", methods)
+
+    def test_deprecated_renderers_supports_py27(self):
+        """ Make sure #1175 is fixed """
+        self.app.config["JSON"] = False
+        try:
+            self.app.check_deprecated_features()
+        except AttributeError:
+            self.fail("AttributeError raised unexpectedly.")

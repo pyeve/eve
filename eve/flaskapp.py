@@ -294,7 +294,7 @@ class Eve(Flask, Events):
             msg = "{} setting is deprecated and will be removed" " in future release. Please use RENDERERS instead."
 
             if "JSON" in self.config or "XML" in self.config:
-                self.config["RENDERERS"] = default_settings.RENDERERS.copy()
+                self.config["RENDERERS"] = default_settings.RENDERERS[:]
 
             if "JSON" in self.config:
                 warnings.warn(msg.format("JSON"))
