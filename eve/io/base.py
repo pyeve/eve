@@ -464,7 +464,7 @@ class DataLayer(object):
                 fields = client_projection
         # always drop exclusion projection, thus avoid mixed projection not
         # supported by db driver
-        fields = dict([(field, 1) for field, value in fields.items() if value])
+        fields = dict([(field, value) for field, value in fields.items() if value])
 
         # If the current HTTP method is in `public_methods` or
         # `public_item_methods`, skip the `auth_field` check
