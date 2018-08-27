@@ -768,6 +768,15 @@ uppercase.
                                     If ``False``, the updates overwrite the
                                     current data. Defaults to ``True``.
 
+``NORMALIZE_DOTTED_FIELDS``         If ``True``, dotted fields are parsed
+                                    and processed as subdocument fields. If
+                                    ``False``, dotted fields are left unparsed
+                                    and unprocessed, and the payload is passed
+                                    to the underlying data-layer as-is. Please
+                                    note that with the default Mongo layer,
+                                    setting this to ``False`` will result in an
+                                    error. Defaults to ``True``.
+
 =================================== =========================================
 
 .. _domain:
@@ -1103,6 +1112,14 @@ always lowercase.
                                 If ``False``, the updates overwrite the
                                 current data. Locally overrides
                                 ``MERGE_NESTED_DOCUMENTS``.
+``normalize_dotted_fields``     If ``True``, dotted fields are parsed and
+                                processed as subdocument fields. If ``False``,
+                                dotted fields are left unparsed and
+                                unprocessed, and the payload is passed to the
+                                underlying data-layer as-is. Please note that
+                                with the default Mongo layer, setting this to
+                                ``False`` will result in an error. Defaults to
+                                ``True``.
 
 =============================== ===============================================
 

@@ -928,6 +928,22 @@ class TestPost(TestBase):
         r, s = self.post("employee", data=data)
         self.assert422(s)
 
+    def test_post_dont_normalize_dotted_fields(self):
+        # Allow skipping of default dotted field normalization, mostly useful
+        # for custom data layers such as eve_elastic. See #1173.
+        self.app.register_resource(
+            "test",
+            {"normalize_dotted_fields": False, "schema": {"a_dict": {"type": "dict"}}},
+        )
+
+        data = {"a_dict": {"dotted.field": True}}
+        headers = [("Content-Type", "application/json")]
+        resp = self.test_client.post("test/", data=json.dumps(data), headers=headers)
+        _, status = self.parse_response(resp)
+        # mongo returns bson.errors.InvalidDocument:
+        # key 'dotted.fields' must not contain '.'
+        self.assertEqual(500, status)
+
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)

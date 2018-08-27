@@ -8,6 +8,16 @@ Version 0.8.1
 
 Unreleased
 
+New
+~~~
+- ``NORMALIZE_DOTTED_FIELDS``. If ``True``, dotted fields are parsed and
+  processed as subdocument fields. If ``False``, dotted fields are left
+  unparsed and unprocessed and the payload is passed to the underlying
+  data-layer as-is. Please note that with the default Mongo layer, setting this
+  to ``False`` will result in an error. Defaults to ``True``. (`#1173`_)
+- ``normalize_dotted_fields``. Endpoint-level override
+  for ``NORMALIZE_DOTTED_FIELDS``. (`#1173`_)
+
 Fixed
 ~~~~~
 - v0.8: ``OperationFailure`` performing MongoDB full text searches (`#1176`_)
@@ -43,6 +53,7 @@ Docs
 
 .. _`#1176`: https://github.com/pyeve/eve/issues/1176
 .. _`#1175`: https://github.com/pyeve/eve/issues/1175
+.. _`#1173`: https://github.com/pyeve/eve/issues/1173
 .. _`#1142`: https://github.com/pyeve/eve/issues/1142
 .. _`#1143`: https://github.com/pyeve/eve/issues/1143
 .. _`#1144`: https://github.com/pyeve/eve/issues/1144
