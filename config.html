@@ -918,6 +918,16 @@ merged with the current data on <tt class="docutils literal"><span class="pre">P
 If <tt class="docutils literal"><span class="pre">False</span></tt>, the updates overwrite the
 current data. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">NORMALIZE_DOTTED_FIELDS</span></tt></td>
+<td>If <tt class="docutils literal"><span class="pre">True</span></tt>, dotted fields are parsed
+and processed as subdocument fields. If
+<tt class="docutils literal"><span class="pre">False</span></tt>, dotted fields are left unparsed
+and unprocessed, and the payload is passed
+to the underlying data-layer as-is. Please
+note that with the default Mongo layer,
+setting this to <tt class="docutils literal"><span class="pre">False</span></tt> will result in an
+error. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -1285,6 +1295,16 @@ merged with the current data on <tt class="docutils literal"><span class="pre">P
 If <tt class="docutils literal"><span class="pre">False</span></tt>, the updates overwrite the
 current data. Locally overrides
 <tt class="docutils literal"><span class="pre">MERGE_NESTED_DOCUMENTS</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">normalize_dotted_fields</span></tt></td>
+<td>If <tt class="docutils literal"><span class="pre">True</span></tt>, dotted fields are parsed and
+processed as subdocument fields. If <tt class="docutils literal"><span class="pre">False</span></tt>,
+dotted fields are left unparsed and
+unprocessed, and the payload is passed to the
+underlying data-layer as-is. Please note that
+with the default Mongo layer, setting this to
+<tt class="docutils literal"><span class="pre">False</span></tt> will result in an error. Defaults to
+<tt class="docutils literal"><span class="pre">True</span></tt>.</td>
 </tr>
 </tbody>
 </table>
