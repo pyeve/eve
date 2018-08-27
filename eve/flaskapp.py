@@ -675,6 +675,9 @@ class Eve(Flask, Events):
         settings.setdefault(
             "merge_nested_documents", self.config["MERGE_NESTED_DOCUMENTS"]
         )
+        settings.setdefault(
+            "normalize_dotted_fields", self.config["NORMALIZE_DOTTED_FIELDS"]
+        )
         # empty schemas are allowed for read-only access to resources
         schema = settings.setdefault("schema", {})
         self.set_schema_defaults(schema, settings["id_field"])

@@ -90,6 +90,7 @@ class TestConfig(TestBase):
         self.assertEqual(
             self.app.config["JSON_REQUEST_CONTENT_TYPES"], ["application/json"]
         )
+        self.assertEqual(self.app.config["NORMALIZE_DOTTED_FIELDS"], True)
 
     def test_settings_as_dict(self):
         my_settings = {"API_VERSION": "override!", "DOMAIN": {"contacts": {}}}

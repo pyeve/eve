@@ -377,6 +377,9 @@ def serialize(document, resource=None, schema=None, fields=None):
     """ Recursively handles field values that require data-aware serialization.
     Relies on the app.data.serializers dictionary.
 
+    .. versionchanged: 0.8.1
+       Normalize dotted fields according to normalized_dotted_fields. See #1173.
+
     .. versionchanged:: 0.7
        Add support for normalizing anyof-like rules inside lists. See #876.
 
@@ -402,7 +405,11 @@ def serialize(document, resource=None, schema=None, fields=None):
     def resolve_schema(schema):
         return schema if isinstance(schema, dict) else schema_registry.get(schema)
 
-    normalize_dotted_fields(document)
+    if (
+        resource not in config.DOMAIN
+        or config.DOMAIN[resource]["normalize_dotted_fields"]
+    ):
+        normalize_dotted_fields(document)
 
     if app.data.serializers:
         if resource:

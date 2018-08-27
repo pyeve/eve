@@ -120,6 +120,7 @@ DELETED = "_deleted"  # field to store soft delete status
 META = "_meta"
 INFO = None
 VALIDATION_ERROR_STATUS = 422
+NORMALIZE_DOTTED_FIELDS = True
 
 # return a single field validation error as a list (by default a single error
 # is retuned as string, while multiple errors are returned as a list).
