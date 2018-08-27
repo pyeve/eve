@@ -20,12 +20,13 @@ New
 
 Fixed
 ~~~~~
-- v0.8: ``OperationFailure`` performing MongoDB full text searches (`#1176`_)
-- ``AttributeError`` on Python 2.7 when obsolete ``JSON`` or ``XML`` settings are used (`#1175`_).
-- ``TypeError argument of type 'NoneType' is not iterable`` error when using document embedding in conjuction with soft deletes (`#1120`_)
+- ``mongo_indexes``: "OperationFailure" when changing the keys of an existing index (`#1180`_)
+- v0.8: "OperationFailure" performing MongoDB full text searches (`#1176`_)
+- "AttributeError" on Python 2.7 when obsolete ``JSON`` or ``XML`` settings are used (`#1175`_).
+- "TypeError argument of type 'NoneType' is not iterable" error when using document embedding in conjuction with soft deletes (`#1120`_)
 - ``allow_unknown`` validation rule fails with nested dict fields (`#1163`_)
 - Updating a field with a nullable data relation fails when value is null (`#1159`_)
-- ``cerberus.schema.SchemaError`` when ``VALIDATE_FILTERS = True``. (`#1154`_)
+- "cerberus.schema.SchemaError" when ``VALIDATE_FILTERS = True``. (`#1154`_)
 - Serializers fails when array of types is in schema. (`#1112`_)
 - Replace the broken ``make audit`` shortcut with ``make check``, add the
   command to ``CONTRIBUTING.rst`` it was missing.  (`#1144`_)
@@ -51,6 +52,7 @@ Docs
 - Add a ``ISSUE_TEMPLATE.md`` GitHub template file. (`#1146`_)
 - Improve changelog format to reduce noise and increase readability. (`#1143`_)
 
+.. _`#1180`: https://github.com/pyeve/eve/issues/1180
 .. _`#1176`: https://github.com/pyeve/eve/issues/1176
 .. _`#1175`: https://github.com/pyeve/eve/issues/1175
 .. _`#1173`: https://github.com/pyeve/eve/issues/1173
