@@ -113,7 +113,7 @@ class Mongo(DataLayer):
         + ["$mod", "$regex", "$text", "$where"]
         + ["$options", "$search", "$language", "$caseSensitive"]
         + ["$diacriticSensitive", "$exists", "$type"]
-        + ["$geoWithin", "$geoIntersects", "$near", "$nearSphere"]
+        + ["$geoWithin", "$geoIntersects", "$near", "$nearSphere", "$centerSphere"]
         + ["$geometry", "$maxDistance", "$box"]
         + ["$all", "$elemMatch", "$size"]
         + ["$bitsAllClear", "$bitsAllSet", "$bitsAnyClear", "$bitsAnySet"]
