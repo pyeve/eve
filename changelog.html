@@ -50,6 +50,7 @@
 <div class="section" id="new">
 <h3>New<a class="headerlink" href="#new" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>Add support for Mongo <tt class="docutils literal"><span class="pre">$centerSphere</span></tt> query operator (<a class="reference external" href="https://github.com/pyeve/eve/issues/1181">#1181</a>)</li>
 <li><tt class="docutils literal"><span class="pre">NORMALIZE_DOTTED_FIELDS</span></tt>. If <tt class="docutils literal"><span class="pre">True</span></tt>, dotted fields are parsed and
 processed as subdocument fields. If <tt class="docutils literal"><span class="pre">False</span></tt>, dotted fields are left
 unparsed and unprocessed and the payload is passed to the underlying
@@ -195,7 +196,7 @@ being tested.</li>
 <li>Dev: fix insidious bug in <tt class="docutils literal"><span class="pre">tests.methods.post.TestPost</span></tt> class.</li>
 </ul>
 <div class="section" id="breaking-changes">
-<span id="id23"></span><h3>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h3>
+<span id="id24"></span><h3>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h3>
 <ul>
 <li><p class="first">Python 2.6 and Python 3.3 are no longer supported (<a class="reference external" href="https://github.com/pyeve/eve/issues/1129">#1129</a>).</p>
 </li>
