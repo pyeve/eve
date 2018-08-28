@@ -10,6 +10,7 @@ Unreleased
 
 New
 ~~~
+- Add support for Mongo ``$centerSphere`` query operator (`#1181`_)
 - ``NORMALIZE_DOTTED_FIELDS``. If ``True``, dotted fields are parsed and
   processed as subdocument fields. If ``False``, dotted fields are left
   unparsed and unprocessed and the payload is passed to the underlying
@@ -51,6 +52,7 @@ Docs
 - Add a ``ISSUE_TEMPLATE.md`` GitHub template file. (`#1146`_)
 - Improve changelog format to reduce noise and increase readability. (`#1143`_)
 
+.. _`#1181`: https://github.com/pyeve/eve/issues/1181
 .. _`#1176`: https://github.com/pyeve/eve/issues/1176
 .. _`#1175`: https://github.com/pyeve/eve/issues/1175
 .. _`#1173`: https://github.com/pyeve/eve/issues/1173
