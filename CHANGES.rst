@@ -44,6 +44,7 @@ Improved
 
 Docs
 ~~~~
+- Add ``MONGO_AUTH_SOURCE`` to Quickstart. (`#1168`_)
 - Fix Sphinx-embedly error when embedding speakerdeck.com slide deck. (`#1158`_)
 - Fix broken link to the Postman app. (`#1150`_)
 - Update obsolete PyPI link in docs sidebar. (`#1152`_)
@@ -56,6 +57,7 @@ Docs
 .. _`#1176`: https://github.com/pyeve/eve/issues/1176
 .. _`#1175`: https://github.com/pyeve/eve/issues/1175
 .. _`#1173`: https://github.com/pyeve/eve/issues/1173
+.. _`#1168`: https://github.com/pyeve/eve/issues/1168
 .. _`#1142`: https://github.com/pyeve/eve/issues/1142
 .. _`#1143`: https://github.com/pyeve/eve/issues/1143
 .. _`#1144`: https://github.com/pyeve/eve/issues/1144
