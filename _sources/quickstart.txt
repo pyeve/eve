@@ -131,6 +131,7 @@ Let's connect to a database by adding the following lines to settings.py:
     # Skip these if your db has no auth. But it really should.
     MONGO_USERNAME = '<your username>'
     MONGO_PASSWORD = '<your password>'
+    MONGO_AUTH_SOURCE = 'admin'  # needed if --auth mode is enabled
 
     MONGO_DBNAME = 'apitest'
 
