@@ -1425,7 +1425,7 @@ of the database collection. It is a dictionary with four allowed keys:
 
 ``filter``                      Database query used to retrieve and validate
                                 data. If omitted, by default the whole
-                                collection is retrievied. See :ref:`filter`.
+                                collection is retrieved. See :ref:`filter`.
 
 ``projection``                  Fieldset exposed by the endpoint. If omitted,
                                 by default all fields will be returned to the
@@ -1532,7 +1532,7 @@ resource keyword allows you to redefine the fieldset.
 
 When you want to hide some *secret fields* from client, you should use
 inclusive projection setting and include all fields should be exposed. While,
-when you want to limit default responsesto certain fields but still allow them
+when you want to limit default responses to certain fields but still allow them
 to be accessible through client-side projections, you should use exclusive
 projection setting and exclude fields should be omitted.
 
