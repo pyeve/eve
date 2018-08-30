@@ -1532,9 +1532,10 @@ notified of such a disastrous occurrence by hooking a callback function to the
 - ``on_delete_resource_originals`` for any resource hit by the request after having retrieved the originals documents.
 - ``on_delete_resource_originals_<resource_name>`` for the specific `<resource_name>` resource endpoint
   hit by the DELETE after having retrieved the original document.
-  
-NOTE: those two event are useful in order to perform some business logic before the actual remove operation given the 
-look up and the list of originals
+
+NOTE: those two event are useful in order to perform some business
+logic before the actual remove operation given the look up and the
+list of originals
 
 .. _aggregation_hooks:
 
