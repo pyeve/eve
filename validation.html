@@ -1,30 +1,21 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Data Validation &mdash; Eve 0.8.1.dev0 documentation</title>
-    
+    <title>Data Validation &#8212; Eve 0.8.1.dev0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.8.1.dev0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.8.1.dev0 documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Authentication and Authorization" href="authentication.html" />
     <link rel="prev" title="Configuration" href="config.html" />
    
@@ -33,13 +24,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="data-validation">
@@ -48,13 +40,13 @@
 a schema definition for every resource managed by the API. Data sent to the API
 to be inserted/updated will be validated against the schema, and a resource
 will only be updated if validation passes.</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;[{&quot;firstname&quot;: &quot;bill&quot;, &quot;lastname&quot;: &quot;clinton&quot;}, {&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}]&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> http://eve-demo.herokuapp.com/people
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> curl -d <span class="s1">&#39;[{&quot;firstname&quot;: &quot;bill&quot;, &quot;lastname&quot;: &quot;clinton&quot;}, {&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}]&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> http://eve-demo.herokuapp.com/people
 <span class="go">HTTP/1.1 201 OK</span>
 </pre></div>
 </div>
 <p>The response will contain a success/error state for each item provided in the
 request:</p>
-<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="s2">&quot;_status&quot;</span><span class="o">:</span> <span class="s2">&quot;ERR&quot;</span><span class="p">,</span>
     <span class="s2">&quot;_error&quot;</span><span class="o">:</span> <span class="s2">&quot;Some documents contains errors&quot;</span><span class="p">,</span>
     <span class="s2">&quot;_items&quot;</span><span class="o">:</span> <span class="p">[</span>
@@ -72,46 +64,46 @@ request:</p>
 <p>In the example above, the first document did not validate so the whole request
 has been rejected.</p>
 <p>When all documents pass validation and are inserted correctly the response
-status is <tt class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></tt>. If any document fails validation the response status
-is <tt class="docutils literal"><span class="pre">422</span> <span class="pre">Unprocessable</span> <span class="pre">Entity</span></tt>, or any other error code defined by
-<tt class="docutils literal"><span class="pre">VALIDATION_ERROR_STATUS</span></tt> configuration.</p>
+status is <code class="docutils literal notranslate"><span class="pre">201</span> <span class="pre">Created</span></code>. If any document fails validation the response status
+is <code class="docutils literal notranslate"><span class="pre">422</span> <span class="pre">Unprocessable</span> <span class="pre">Entity</span></code>, or any other error code defined by
+<code class="docutils literal notranslate"><span class="pre">VALIDATION_ERROR_STATUS</span></code> configuration.</p>
 <p>For information on how to define documents schema and standard validation
-rules, see <a class="reference internal" href="config.html#schema"><em>Schema Definition</em></a>.</p>
+rules, see <a class="reference internal" href="config.html#schema"><span class="std std-ref">Schema Definition</span></a>.</p>
 <div class="section" id="extending-data-validation">
 <h2>Extending Data Validation<a class="headerlink" href="#extending-data-validation" title="Permalink to this headline">¶</a></h2>
 <p>Data validation is based on the <a class="reference external" href="http://python-cerberus.org">Cerberus</a> validation system and it is therefore
-extensible. As a matter of fact, Eve&#8217;s MongoDB data-layer itself extends
-Cerberus validation, implementing the <tt class="docutils literal"><span class="pre">unique</span></tt> and <tt class="docutils literal"><span class="pre">data_relation</span></tt>
-constraints, the <tt class="docutils literal"><span class="pre">ObjectId</span></tt> data type and the <tt class="docutils literal"><span class="pre">decimal128</span></tt> on top of
+extensible. As a matter of fact, Eve’s MongoDB data-layer itself extends
+Cerberus validation, implementing the <code class="docutils literal notranslate"><span class="pre">unique</span></code> and <code class="docutils literal notranslate"><span class="pre">data_relation</span></code>
+constraints, the <code class="docutils literal notranslate"><span class="pre">ObjectId</span></code> data type and the <code class="docutils literal notranslate"><span class="pre">decimal128</span></code> on top of
 the standard rules.</p>
 </div>
 <div class="section" id="custom-validation-rules">
 <span id="id1"></span><h2>Custom Validation Rules<a class="headerlink" href="#custom-validation-rules" title="Permalink to this headline">¶</a></h2>
 <p>Suppose that in your specific and very peculiar use case, a certain value can
 only be expressed as an odd integer. You decide to add support for a new
-<tt class="docutils literal"><span class="pre">isodd</span></tt> rule to our validation schema. This is how you would implement
+<code class="docutils literal notranslate"><span class="pre">isodd</span></code> rule to our validation schema. This is how you would implement
 that:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve.io.mongo</span> <span class="kn">import</span> <span class="n">Validator</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">eve.io.mongo</span> <span class="kn">import</span> <span class="n">Validator</span>
 
 <span class="k">class</span> <span class="nc">MyValidator</span><span class="p">(</span><span class="n">Validator</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">_validate_isodd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isodd</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">isodd</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="n">value</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s">&quot;Value must be an odd number&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s2">&quot;Value must be an odd number&quot;</span><span class="p">)</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">validator</span><span class="o">=</span><span class="n">MyValidator</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>By subclassing the base Mongo validator class and then adding a custom
-<tt class="docutils literal"><span class="pre">_validate_&lt;rulename&gt;</span></tt> method, you extended the available <a class="reference internal" href="config.html#schema"><em>Schema Definition</em></a>
-grammar and now the new custom rule <tt class="docutils literal"><span class="pre">isodd</span></tt> is available in your schema. You
+<code class="docutils literal notranslate"><span class="pre">_validate_&lt;rulename&gt;</span></code> method, you extended the available <a class="reference internal" href="config.html#schema"><span class="std std-ref">Schema Definition</span></a>
+grammar and now the new custom rule <code class="docutils literal notranslate"><span class="pre">isodd</span></code> is available in your schema. You
 can now do something like:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s">&#39;oddity&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;isodd&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;integer&#39;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;oddity&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;isodd&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;integer&#39;</span>
       <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -121,10 +113,10 @@ lightweight alternatives to class-based custom validation.</p>
 </div>
 <div class="section" id="custom-data-types">
 <h2>Custom Data Types<a class="headerlink" href="#custom-data-types" title="Permalink to this headline">¶</a></h2>
-<p>You can also add new data types by simply adding <tt class="docutils literal"><span class="pre">_validate_type_&lt;typename&gt;</span></tt>
+<p>You can also add new data types by simply adding <code class="docutils literal notranslate"><span class="pre">_validate_type_&lt;typename&gt;</span></code>
 methods to your subclass. Consider the following snippet from the Eve source
 code.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">_validate_type_objectid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">_validate_type_objectid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Enables validation for `objectid` schema attribute.</span>
 
 <span class="sd">    :param value: field value.</span>
@@ -133,19 +125,19 @@ code.</p>
         <span class="k">return</span> <span class="bp">True</span>
 </pre></div>
 </div>
-<p>This method enables support for MongoDB <tt class="docutils literal"><span class="pre">ObjectId</span></tt> type in your schema,
+<p>This method enables support for MongoDB <code class="docutils literal notranslate"><span class="pre">ObjectId</span></code> type in your schema,
 allowing something like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s">&#39;owner&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;objectid&#39;</span><span class="p">,</span>
-        <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;owner&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;objectid&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>You can also check the <a class="reference external" href="https://github.com/pyeve/eve/blob/master/eve/io/mongo/validation.py">source code</a> for Eve custom validation, where you will
-find more advanced use cases, such as the implementation of the <tt class="docutils literal"><span class="pre">unique</span></tt> and
-<tt class="docutils literal"><span class="pre">data_relation</span></tt> constraints.</p>
+find more advanced use cases, such as the implementation of the <code class="docutils literal notranslate"><span class="pre">unique</span></code> and
+<code class="docutils literal notranslate"><span class="pre">data_relation</span></code> constraints.</p>
 <p>For more information on</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -153,37 +145,37 @@ find more advanced use cases, such as the implementation of the <tt class="docut
 to check the <a class="reference external" href="http://python-cerberus.org">Cerberus</a> documentation for a complete list of available
 validation rules and data types.</p>
 <p class="last">Also note that Cerberus requirement is pinned to version 0.9.2, which still
-supports the <tt class="docutils literal"><span class="pre">validate_update</span></tt> method used for <tt class="docutils literal"><span class="pre">PATCH</span></tt> requests.
+supports the <code class="docutils literal notranslate"><span class="pre">validate_update</span></code> method used for <code class="docutils literal notranslate"><span class="pre">PATCH</span></code> requests.
 Upgrade to Cerberus 1.0+ is scheduled for Eve version 0.8.</p>
 </div>
 </div>
 <div class="section" id="allowing-the-unknown">
 <span id="unknown"></span><h2>Allowing the Unknown<a class="headerlink" href="#allowing-the-unknown" title="Permalink to this headline">¶</a></h2>
-<p>Normally you don&#8217;t want clients to inject unknown fields in your documents.
+<p>Normally you don’t want clients to inject unknown fields in your documents.
 However, there might be circumstances where this is desirable. During the
 development cycle, for example, or when you are dealing with very heterogeneous
 data. After all, not forcing normalized information is one of the selling
 points of MongoDB and many other NoSQL data stores.</p>
-<p>In Eve, you achieve this by setting the <tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt> option to <tt class="docutils literal"><span class="pre">True</span></tt>.
+<p>In Eve, you achieve this by setting the <code class="docutils literal notranslate"><span class="pre">ALLOW_UNKNOWN</span></code> option to <code class="docutils literal notranslate"><span class="pre">True</span></code>.
 Once this option is enabled, fields matching the schema will be validated
 normally, while unknown fields will be quietly stored without a glitch. You
 can also enable this feature only for certain endpoints by setting the
-<tt class="docutils literal"><span class="pre">allow_unknown</span></tt> local option.</p>
+<code class="docutils literal notranslate"><span class="pre">allow_unknown</span></code> local option.</p>
 <p>Consider the following domain:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">DOMAIN</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s">&#39;people&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;allow_unknown&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-        <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s">&#39;firstname&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">},</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">DOMAIN</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;people&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;allow_unknown&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;firstname&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">},</span>
             <span class="p">}</span>
         <span class="p">}</span>
     <span class="p">}</span>
 </pre></div>
 </div>
 <p>Normally you can only add (POST) or edit (PATCH) <cite>firstnames</cite> to the
-<tt class="docutils literal"><span class="pre">/people</span></tt> endpoint. However, since <tt class="docutils literal"><span class="pre">allow_unknown</span></tt> has been enabled, even
+<code class="docutils literal notranslate"><span class="pre">/people</span></code> endpoint. However, since <code class="docutils literal notranslate"><span class="pre">allow_unknown</span></code> has been enabled, even
 a payload like this will be accepted:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;[{&quot;firstname&quot;: &quot;bill&quot;, &quot;lastname&quot;: &quot;clinton&quot;}, {&quot;firstname&quot;: &quot;bill&quot;, &quot;age&quot;:70}]&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> http://eve-demo.herokuapp.com/people
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> curl -d <span class="s1">&#39;[{&quot;firstname&quot;: &quot;bill&quot;, &quot;lastname&quot;: &quot;clinton&quot;}, {&quot;firstname&quot;: &quot;bill&quot;, &quot;age&quot;:70}]&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> http://eve-demo.herokuapp.com/people
 <span class="go">HTTP/1.1 201 OK</span>
 </pre></div>
 </div>
@@ -193,26 +185,27 @@ a payload like this will be accepted:</p>
 option is enabled, clients will be capable of actually <cite>adding</cite> fields via
 PATCH (edit).</p>
 </div>
-<p><tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt> is also useful for read-only APIs or endpoints that
+<p><code class="docutils literal notranslate"><span class="pre">ALLOW_UNKNOWN</span></code> is also useful for read-only APIs or endpoints that
 need to return the whole document, as found in the underlying database. In this
-scenario you don&#8217;t want to bother with validation schemas. For the whole API
-just set <tt class="docutils literal"><span class="pre">ALLOW_UNKNOWN</span></tt> to <tt class="docutils literal"><span class="pre">True</span></tt>, then <tt class="docutils literal"><span class="pre">schema:</span> <span class="pre">{}</span></tt> at every endpoint.
-For a single endpoint, use <tt class="docutils literal"><span class="pre">allow_unknown:</span> <span class="pre">True</span></tt> instead.</p>
+scenario you don’t want to bother with validation schemas. For the whole API
+just set <code class="docutils literal notranslate"><span class="pre">ALLOW_UNKNOWN</span></code> to <code class="docutils literal notranslate"><span class="pre">True</span></code>, then <code class="docutils literal notranslate"><span class="pre">schema:</span> <span class="pre">{}</span></code> at every endpoint.
+For a single endpoint, use <code class="docutils literal notranslate"><span class="pre">allow_unknown:</span> <span class="pre">True</span></code> instead.</p>
 </div>
 <div class="section" id="schema-validation">
 <span id="id2"></span><h2>Schema validation<a class="headerlink" href="#schema-validation" title="Permalink to this headline">¶</a></h2>
 <p>By default, schemas are validated to ensure they conform to the structure
-documented in <a class="reference internal" href="config.html#schema"><em>Schema Definition</em></a>.</p>
+documented in <a class="reference internal" href="config.html#schema"><span class="std std-ref">Schema Definition</span></a>.</p>
 <p>In order to deal with non-conforming schemas, add
-<a class="reference internal" href="#custom-validation-rules"><em>Custom Validation Rules</em></a> for non-conforming keys used in the schema.</p>
+<a class="reference internal" href="#custom-validation-rules"><span class="std std-ref">Custom Validation Rules</span></a> for non-conforming keys used in the schema.</p>
 </div>
 </div>
 
 
           </div>
+          
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="index.html">
@@ -285,7 +278,7 @@ documented in <a class="reference internal" href="config.html#schema"><em>Schema
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="config.html">Configuration</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Data Validation</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data Validation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#extending-data-validation">Extending Data Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#custom-validation-rules">Custom Validation Rules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#custom-data-types">Custom Data Types</a></li>
@@ -307,17 +300,16 @@ documented in <a class="reference internal" href="config.html#schema"><em>Schema
 </ul>
 
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script><p>
 Artwork by <a href="http://kalamun.org">Kalamun</a> © 2013
