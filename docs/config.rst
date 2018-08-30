@@ -1284,7 +1284,7 @@ defining the field validation rules. Allowed validation rules are:
 
 ``data_relation``               Allows to specify a referential integrity rule
                                 that the value must satisfy in order to
-                                validate. It is a dict with three keys:
+                                validate. It is a dict with four keys:
 
                                 - ``resource``: the name of the resource being referenced;
                                 - ``field``: the field name in the foreign resource;
