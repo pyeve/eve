@@ -1572,7 +1572,7 @@ The above will include all document fields but `username`. However, the
 following API call will return `username` this time. Thus, you can exploit this
 behaviour to serve media fields or other expensive fields.
 
-In most cases, none or inclusive projection setting is more preferred. With
+In most cases, none or inclusive projection setting is preferred. With
 inclusive projection, secret fields are taken care from server side, and default
 fields returned can be defined by short-cut functions from client-side.
 
