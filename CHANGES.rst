@@ -790,7 +790,7 @@ Released on 28 September, 2015
 - Fix: Replace the Cerberus rule ``keyschema``, now deprecated, with the new
   ``propertyschema`` (Julian Hille).
 - Fix: some error message are not filtered out of debug mode anymore, as they
-  are useful for users and do not leak informations. Closes #671 (Sebastien
+  are useful for users and do not leak information. Closes #671 (Sebastien
   Estienne).
 - Fix: reinforce Content-Type Header handling to avoid possible crash when it
   is missing (Sebastien Estienne).

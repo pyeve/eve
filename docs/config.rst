@@ -1086,7 +1086,7 @@ always lowercase.
                                 the endpoint, which is still accessible from
                                 the Eve data layer. See
                                 :ref:`internal_resources` for more
-                                informations. Defaults to ``False``.
+                                information. Defaults to ``False``.
 
 ``etag_ignore_fields``          List of fields that
                                 should not be used to compute the ETag value.
@@ -1226,7 +1226,7 @@ defining the field validation rules. Allowed validation rules are:
                                 - ``decimal``
 
                                 See :ref:`GeoJSON <geojson_feature>` for more
-                                informations geo fields.
+                                information geo fields.
 
 ``required``                    If ``True``, the field is mandatory on
                                 insertion.
@@ -1439,7 +1439,7 @@ of the database collection. It is a dictionary with four allowed keys:
                                 ``'datasource': {'default_sort': [('name',
                                 1)]}``
 
-                                For more informations on sort and filters see
+                                For more information on sort and filters see
                                 :ref:`filters`.
 
 ``aggregation``                 Aggregation pipeline and options. When used all
@@ -1453,7 +1453,7 @@ of the database collection. It is a dictionary with four allowed keys:
 
                                 - ``pipeline``. The aggregation pipeline.
                                   Syntax must match the one supported by
-                                  PyMongo. For more informations see `PyMongo
+                                  PyMongo. For more information see `PyMongo
                                   Aggregation Examples`_ and the official
                                   `MongoDB Aggregation Framework`_
                                   documentation.

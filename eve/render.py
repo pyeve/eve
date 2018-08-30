@@ -369,7 +369,7 @@ class XMLRenderer(Renderer):
     @classmethod
     def xml_root_open(cls, data):
         """ Returns the opening tag for the XML root node. If the datastream
-        includes informations about resource endpoints (href, title), they will
+        includes information about resource endpoints (href, title), they will
         be added as node attributes. The resource endpoint is then removed to
         allow for further processing of the datastream.
 
