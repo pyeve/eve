@@ -1027,6 +1027,9 @@ def _create_index(app, resource, name, list_of_keys, index_options):
     For example:
         {"sparse": True}
 
+    .. versionchanged:: 0.8.1
+       Add support for IndexKeySpecsConflict error. See #1180.
+
     .. versionadded:: 0.6
 
     """
@@ -1056,11 +1059,9 @@ def _create_index(app, resource, name, list_of_keys, index_options):
         try:
             coll.create_index(list_of_keys, **kw)
         except pymongo.errors.OperationFailure as e:
-            if e.code == 85:
-                # This error is raised when the definition of the index has
-                # been changed, we didn't find any spec out there but we
-                # think that this error is not going to change and we can
-                # trust.
+            if e.code in (85, 86):
+                # raised when the definition of the index has been changed.
+                # (https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.err#L87)
 
                 # by default, drop the old index with old configuration and
                 # create the index again with the new configuration.
