@@ -98,7 +98,7 @@ This time we also got an ``_items`` list. The ``_links`` are relative to the
 resource being accessed, so you get a link to the parent resource (the home
 page) and to the resource itself. If you got a timeout error from pymongo, make
 sure the prerequistes are met. Chances are that the ``mongod`` server process
-is not runnig.
+is not running.
 
 By default Eve APIs are read-only:
 
