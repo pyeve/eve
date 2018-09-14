@@ -19,7 +19,9 @@ INSTALL_REQUIRES = [
     "simplejson>=3.3.0,<4.0",
 ]
 
-DEPENDENCY_LINKS = ["git+git://github.com/cri-dev/cerberus@master#egg=Cerberus-1.2.cri"]
+DEPENDENCY_LINKS = [
+    "git+https://github.com/cri-dev/cerberus@master#egg=Cerberus-1.2.cri"
+]
 
 EXTRAS_REQUIRE = {
     "docs": ["sphinx", "alabaster", "sphinxcontrib-embedly"],
