@@ -1,7 +1,7 @@
 .PHONY: all install-dev test test-all tox docs audit clean-pyc docs-upload
 
 install-dev:
-	pip install -q -e .[dev]
+	pip install -q -e .[dev] --process-dependency-links
 
 test: clean-pyc install-dev
 	pytest
