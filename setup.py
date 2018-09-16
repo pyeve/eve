@@ -12,14 +12,16 @@ with io.open("eve/__init__.py", "rt", encoding="utf8") as f:
     VERSION = re.search(r"__version__ = \"(.*?)\"", f.read()).group(1)
 
 INSTALL_REQUIRES = [
-    "cerberus>=1.2.cri.1.0",
+    "cerberus>=1.2+cri.1.0",
     "events>=0.3,<0.4",
     "flask>=1.0",
     "pymongo>=3.5",
     "simplejson>=3.3.0,<4.0",
 ]
 
-DEPENDENCY_LINKS = ["git+https://github.com/cri-dev/cerberus@1.2.cri.1.0"]
+DEPENDENCY_LINKS = [
+    "git+https://github.com/cri-dev/cerberus@1.2+cri.1.0#egg=Cerberus==1.2+cri.1.0"
+]
 
 EXTRAS_REQUIRE = {
     "docs": ["sphinx", "alabaster", "sphinxcontrib-embedly"],
