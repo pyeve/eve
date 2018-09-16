@@ -25,6 +25,11 @@ class Validator(cerberus.Validator):
         if not config.VALIDATION_ERROR_AS_LIST:
             kwargs["error_handler"] = SingleErrorAsStringErrorHandler
 
+        resource = kwargs.get("resource", None)
+        if resource:
+            resource_def = config.DOMAIN[resource]
+            kwargs["document_validations"] = resource_def.get("document_validations")
+
         super(Validator, self).__init__(*args, **kwargs)
 
     def validate_update(self, document, document_id, persisted_document=None):
