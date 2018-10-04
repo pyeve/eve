@@ -55,7 +55,7 @@ Docs
 - Add a ``ISSUE_TEMPLATE.md`` GitHub template file. (`#1146`_)
 - Improve changelog format to reduce noise and increase readability. (`#1143`_)
 
-.. _`1183`: https://github.com/pyeve/eve/pull/1183
+.. _`#1183`: https://github.com/pyeve/eve/pull/1183
 .. _`#1181`: https://github.com/pyeve/eve/issues/1181
 .. _`#1180`: https://github.com/pyeve/eve/issues/1180
 .. _`#1176`: https://github.com/pyeve/eve/issues/1176
