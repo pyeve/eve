@@ -45,7 +45,7 @@ Improved
 
 Docs
 ~~~~
-- Typos (`#1183`_, `#1184`_)
+- Typos (`#1183`_, `#1184`_, `#1185`_)
 - Add ``MONGO_AUTH_SOURCE`` to Quickstart. (`#1168`_)
 - Fix Sphinx-embedly error when embedding speakerdeck.com slide deck. (`#1158`_)
 - Fix broken link to the Postman app. (`#1150`_)
@@ -55,6 +55,7 @@ Docs
 - Add a ``ISSUE_TEMPLATE.md`` GitHub template file. (`#1146`_)
 - Improve changelog format to reduce noise and increase readability. (`#1143`_)
 
+.. _`#1185`: https://github.com/pyeve/eve/pull/1185
 .. _`#1184`: https://github.com/pyeve/eve/pull/1184
 .. _`#1183`: https://github.com/pyeve/eve/pull/1183
 .. _`#1181`: https://github.com/pyeve/eve/issues/1181
@@ -790,7 +791,7 @@ Released on 28 September, 2015
 - Fix: Replace the Cerberus rule ``keyschema``, now deprecated, with the new
   ``propertyschema`` (Julian Hille).
 - Fix: some error message are not filtered out of debug mode anymore, as they
-  are useful for users and do not leak informations. Closes #671 (Sebastien
+  are useful for users and do not leak information. Closes #671 (Sebastien
   Estienne).
 - Fix: reinforce Content-Type Header handling to avoid possible crash when it
   is missing (Sebastien Estienne).
