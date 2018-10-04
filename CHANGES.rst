@@ -6,7 +6,7 @@ Here you can see the full list of changes between each Eve release.
 Version 0.8.1
 -------------
 
-Unreleased
+Released on October 4, 2018.
 
 New
 ~~~
