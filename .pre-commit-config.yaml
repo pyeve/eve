@@ -3,7 +3,6 @@ repos:
     rev: stable
     hooks:
     - id: black
-      args: [--quiet, --safe]
       python_version: python3.6
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v1.3.0

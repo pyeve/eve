@@ -291,7 +291,10 @@ class Eve(Flask, Events):
             """ Checks if JSON or XML setting is still being used instead of
             RENDERERS and if so, composes new settings.
             """
-            msg = "{} setting is deprecated and will be removed" " in future release. Please use RENDERERS instead."
+            msg = (
+                "{} setting is deprecated and will be removed"
+                " in future release. Please use RENDERERS instead."
+            )
 
             if "JSON" in self.config or "XML" in self.config:
                 self.config["RENDERERS"] = default_settings.RENDERERS[:]
