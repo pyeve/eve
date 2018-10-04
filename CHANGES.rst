@@ -3,6 +3,11 @@ Eve Changelog
 
 Here you can see the full list of changes between each Eve release.
 
+Version 0.8.2
+-------------
+
+- hic sunt leones
+
 Version 0.8.1
 -------------
 
