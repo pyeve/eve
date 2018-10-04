@@ -1,0 +1,3 @@
+[tool.black]
+safe = true
+quiet = true
