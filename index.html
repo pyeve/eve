@@ -1,22 +1,31 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><meta content="Python REST API Framework to effortlessly build and deploy full featured, highly customizable RESTful Web Services." name="description" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta content="Python REST API Framework to effortlessly build and deploy full featured, highly customizable RESTful Web Services." name="description" />
 
-    <title>Python REST API Framework: Eve, the Simple Way to REST. &#8212; Eve 0.8.1.dev0 documentation</title>
+    <title>Python REST API Framework: Eve, the Simple Way to REST. &mdash; Eve 0.8.1.dev0 documentation</title>
+    
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.8.1.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="Eve 0.8.1.dev0 documentation" href="#" />
     <link rel="next" title="Foreword" href="foreword.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -24,14 +33,13 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
+  </head>
+  <body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
   <div class="section" id="eve-the-simple-way-to-rest">
@@ -41,9 +49,9 @@
 <a class="reference external image-reference" href="https://travis-ci.org/pyeve/eve"><img alt="https://img.shields.io/travis/pyeve/eve.svg?branch=master&amp;style=flat-square" src="https://img.shields.io/travis/pyeve/eve.svg?branch=master&amp;style=flat-square" /></a>
 <a class="reference external image-reference" href="https://pypi.org/project/eve"><img alt="https://img.shields.io/pypi/pyversions/eve.svg?style=flat-square" src="https://img.shields.io/pypi/pyversions/eve.svg?style=flat-square" /></a>
 <a class="reference external image-reference" href="https://en.wikipedia.org/wiki/BSD_License"><img alt="https://img.shields.io/badge/license-BSD-blue.svg?style=flat-square" src="https://img.shields.io/badge/license-BSD-blue.svg?style=flat-square" /></a>
-<a class="reference external image-reference" href="https://github.com/ambv/black"><img alt="https://img.shields.io/badge/code%20style-black-000000.svg" src="https://img.shields.io/badge/code%20style-black-000000.svg" /></a>
+<a class="reference external image-reference" href="https://github.com/ambv/black"><img src="https://img.shields.io/badge/code%20style-black-000000.svg" /></a>
 <hr class="docutils" />
-<p>Eve is an <a class="reference internal" href="license.html"><span class="doc">open source</span></a> Python REST API framework designed for
+<p>Eve is an <a class="reference internal" href="license.html"><em>open source</em></a> Python REST API framework designed for
 human beings. It allows to effortlessly build and deploy highly customizable,
 fully featured RESTful Web Services.</p>
 <p>Eve is powered by <a class="reference external" href="http://flask.pocoo.org/">Flask</a> and <a class="reference external" href="http://python-cerberus.org">Cerberus</a> and it offers native support for <a class="reference external" href="https://mongodb.org">MongoDB</a> data
@@ -52,24 +60,24 @@ community <a class="reference external" href="http://python-eve.org/extensions">
 <p>The codebase is thoroughly tested under Python 2.7, 3.4+, and PyPy.</p>
 <div class="section" id="eve-is-simple">
 <h2>Eve is Simple<a class="headerlink" href="#eve-is-simple" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
 <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>The API is now live, ready to be consumed:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> curl -i http://example.com/people
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://example.com/people
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
 <p>All you need to bring your API online is a database, a configuration file
-(defaults to <code class="docutils literal notranslate"><span class="pre">settings.py</span></code>) and a launch script.  Overall, you will find that
+(defaults to <tt class="docutils literal"><span class="pre">settings.py</span></tt>) and a launch script.  Overall, you will find that
 configuring and fine-tuning your API is a very simple process.</p>
 </div>
 <div class="section" id="funding-eve">
 <h2>Funding Eve<a class="headerlink" href="#funding-eve" title="Permalink to this headline">¶</a></h2>
-<p>Eve REST framework is a <a class="reference internal" href="funding.html"><span class="doc">collaboratively funded project</span></a>. If you
+<p>Eve REST framework is a <a class="reference internal" href="funding.html"><em>collaboratively funded project</em></a>. If you
 run a business and are using Eve in a revenue-generating product, it would make
 business sense to sponsor Eve development: it ensures the project that your
 product relies on stays healthy and actively maintained. Individual users are
@@ -82,8 +90,8 @@ a significant impact towards making Eve possible.</p>
 <span id="demo"></span><h2>Live demo<a class="headerlink" href="#live-demo" title="Permalink to this headline">¶</a></h2>
 <p>Check out the <a class="reference external" href="https://eve-demo.herokuapp.com/people">live demo</a>. If using a browser you will get XML back. For JSON
 in the browser, you might want to install <a class="reference external" href="https://www.getpostman.com">Postman</a> or similar extension and
-then set the <code class="docutils literal notranslate"><span class="pre">Accept</span></code> request header to <code class="docutils literal notranslate"><span class="pre">application/json</span></code>. If you are
-a CLI user (and you should), <code class="docutils literal notranslate"><span class="pre">curl</span></code> is your friend. The <a class="reference external" href="https://github.com/pyeve/eve-demo">source code</a> will
+then set the <tt class="docutils literal"><span class="pre">Accept</span></tt> request header to <tt class="docutils literal"><span class="pre">application/json</span></tt>. If you are
+a CLI user (and you should), <tt class="docutils literal"><span class="pre">curl</span></tt> is your friend. The <a class="reference external" href="https://github.com/pyeve/eve-demo">source code</a> will
 show you how easy it is to run an API with Eve. You will also find <a class="reference external" href="https://github.com/pyeve/eve-demo#readme">usage
 examples</a> for all common use cases (GET, POST, PATCH, DELETE and more). There
 is also a simple <a class="reference external" href="https://github.com/pyeve/eve-demo-client">client app</a> available.</p>
@@ -105,10 +113,9 @@ on the sidebar for more information.</p>
 
 
           </div>
-          
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="#">
@@ -196,16 +203,17 @@ on the sidebar for more information.</p>
 </ul>
 
 
-<div id="searchbox" style="display: none" role="search">
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script><p>
 Artwork by <a href="http://kalamun.org">Kalamun</a> © 2013

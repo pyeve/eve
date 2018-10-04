@@ -491,7 +491,7 @@ performance.
 .. _rendering:
 
 Rendering
-----------------------
+---------
 Eve responses are automatically rendered as JSON (the default) or XML,
 depending on the request ``Accept`` header. Inbound documents (for inserts and
 edits) are in JSON format.
@@ -608,7 +608,7 @@ control is disabled no ETag is provided with responses. You should be careful
 about disabling this feature, as you would effectively open your API to the
 risk of older versions replacing your documents. Alternatively, ETag match
 checks can be made optional by the client if ``ENFORCE_IF_MATCH`` is disabled.
-When concurrenncy check enforcement is disabled, requests with the ``If-Match``
+When concurrency check enforcement is disabled, requests with the ``If-Match``
 header will be processed as conditional requests, and requests made without
 the ``If-Match`` header will not be processed as conditional.
 
@@ -871,7 +871,7 @@ Default and Nullable Values
 ---------------------------
 Fields can have default values and nullable types. When serving POST (create)
 requests, missing fields will be assigned the configured default values. See
-``default`` and ``nullable`` keywords in :ref:`schema` for more informations.
+``default`` and ``nullable`` keywords in :ref:`schema` for more information.
 
 Predefined Database Filters
 ---------------------------
@@ -1376,7 +1376,7 @@ the items as needed before they are returned to the client.
 
 It is important to note that fetch events will work with `Document
 Versioning`_ for specific document versions or accessing all document
-versions with ``?version=all``, but they *will not* work when acessing diffs
+versions with ``?version=all``, but they *will not* work when accessing diffs
 of all versions with ``?version=diffs``.
 
 
@@ -1391,7 +1391,7 @@ These are the insert events with their method signature:
 - ``on_inserted_<resource_name>(items)``
 
 When a POST requests hits the API and new items are about to be stored in
-the database, these vents are fired:
+the database, these events are fired:
 
 - ``on_insert`` for every resource endpoint.
 - ``on_insert_<resource_name>`` for the specific `<resource_name>` resource
@@ -1450,7 +1450,7 @@ accessory action.
 After the item has been replaced, these other two events are fired:
 
 - ``on_replaced`` for any resource item endpoint.
-- ``on_replaced_<resource_name>`` for the specific resource endpont.
+- ``on_replaced_<resource_name>`` for the specific resource endpoint.
 
 Update Events
 ^^^^^^^^^^^^^
@@ -1531,8 +1531,11 @@ notified of such a disastrous occurrence by hooking a callback function to the
 
 - ``on_delete_resource_originals`` for any resource hit by the request after having retrieved the originals documents.
 - ``on_delete_resource_originals_<resource_name>`` for the specific `<resource_name>` resource endpoint
-  hit by the DELETE after having retrieved the original document. NOTE: those two event are useful in order to
-  perform some business logic before the actual remove operation given the look up and the list of originals
+  hit by the DELETE after having retrieved the original document.
+
+NOTE: those two event are useful in order to perform some business
+logic before the actual remove operation given the look up and the
+list of originals
 
 .. _aggregation_hooks:
 
@@ -1805,7 +1808,7 @@ additional fields except the file fields will be treated as ``strings``
 for all field validation purposes.  If you have already defined some of
 the resource fields to be of different type (boolean, number, list etc)
 the validation rules for these fields would fail, preventing you to
-succesffully submit your resource.
+successffully submit your resource.
 
 If you still want to be able to perform field validation in this case, you
 will have to turn on ``MULTIPART_FORM_FIELDS_AS_JSON`` in your settings
@@ -1852,7 +1855,7 @@ All these objects are implemented as native Eve data types (see :ref:`schema`)
 so they are are subject to the proper validation.
 
 In the example below we are extending the `people` endpoint by adding
-a ``location`` field is of type Point_.
+a ``location`` field of type Point_.
 
 .. code-block:: javascript
 
@@ -2005,7 +2008,7 @@ time a custom function is invoked.
             'url: %(url)s, method:%(method)s'))
 
         # the default log level is set to WARNING, so
-        # we have to explictly set the logging level
+        # we have to explicitly set the logging level
         # to INFO to get our custom message logged.
         app.logger.setLevel(logging.INFO)
 
@@ -2030,7 +2033,7 @@ oplog is simply a server log. What makes it a little bit different is that it
 can be exposed as a read-only endpoint, thus allowing clients to query it as
 they would with any other API endpoint.
 
-Every oplog entry contains informations about the document and the operation:
+Every oplog entry contains information about the document and the operation:
 
 - Operation performed
 - Unique ID of the document
@@ -2086,12 +2089,12 @@ more on this later).
 
 Please note that by default the ``c`` (changes) field is not included for
 ``POST`` operations. You can add ``POST`` to the ``OPLOG_CHANGE_METHODS``
-setting (see :ref:`global`) if you whish the whole document to be included on
+setting (see :ref:`global`) if you wish the whole document to be included on
 every insertion.
 
 How is the oplog operated?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-Six settings are dedicated to the OpLog:
+Seven settings are dedicated to the OpLog:
 
 - ``OPLOG`` switches the oplog feature on and off. Defaults to ``False``.
 - ``OPLOG_NAME`` is the name of the oplog collection on the database. Defaults to ``oplog``.
@@ -2104,7 +2107,7 @@ Six settings are dedicated to the OpLog:
 
 As you can see the oplog feature is turned off by default. Also, since
 ``OPLOG_ENDPOINT`` defaults to ``None``, even if you switch the feature on no
-public oplog endpoint will be available. You will have to explictly set the
+public oplog endpoint will be available. You will have to explicitly set the
 endpoint name in order to expose your oplog to the public.
 
 The Oplog endpoint
@@ -2152,13 +2155,13 @@ each entry:
     app.on_oplog_push += oplog_extras
     app.run()
 
-Please note that unless you explictly set ``OPLOG_RETURN_EXTRA_FIELD`` to
+Please note that unless you explicitly set ``OPLOG_RETURN_EXTRA_FIELD`` to
 ``True``, the ``extra`` field will *not* be returned by the ``OPLOG_ENDPOINT``.
 
 .. note::
 
     Are you on MongoDB? Consider making the oplog a `capped collection`_. Also,
-    in case you are wondering yes, the Eve oplog is blatantly inpsired by the
+    in case you are wondering yes, the Eve oplog is blatantly inspired by the
     awesome `Replica Set Oplog`_.
 
 .. _schema_endpoint:
@@ -2169,7 +2172,7 @@ Resource schema can be exposed to API clients by enabling Eve's schema
 endpoint. To do so, set the ``SCHEMA_ENDPOINT`` configuration option to the API
 endpoint name from which you want to serve schema data. Once enabled, Eve will
 treat the endpoint as a read only resource containing JSON encoded Cerberus
-schema definitons, indexed by resource name. Resource visibility and
+schema definitions, indexed by resource name. Resource visibility and
 authorization settings are honored, so internal resources or resources for
 which a request does not have read authentication will not be accessible at the
 schema endpoint. By default, ``SCHEMA_ENDPOINT`` is set to ``None``.
@@ -2221,7 +2224,7 @@ Let's update the pipeline a little bit:
     }
 
 As you can see the `count` field is now going to sum the value of ``$value``,
-which will be set by the client upon perfoming the request:
+which will be set by the client upon performing the request:
 
 ::
 
@@ -2234,7 +2237,7 @@ field/value pairs. Like with all other keywords, you can change ``aggregate``
 to a keyword of your liking, just set ``QUERY_AGGREGATION`` in your settings.
 
 You can also set all options natively supported by PyMongo. For more
-informations on aggregation see :ref:`datasource`.
+information on aggregation see :ref:`datasource`.
 
 Custom callback functions can be attached to the ``before_aggregation`` and ``after_aggregation`` event hooks. For more information, see :ref:`aggregation_hooks`.
 

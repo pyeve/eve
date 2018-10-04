@@ -1,21 +1,30 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Installation &#8212; Eve 0.8.1.dev0 documentation</title>
+    
+    <title>Installation &mdash; Eve 0.8.1.dev0 documentation</title>
+    
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.8.1.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="Eve 0.8.1.dev0 documentation" href="index.html" />
     <link rel="next" title="Quickstart" href="quickstart.html" />
     <link rel="prev" title="REST API for Humans" href="rest_api_for_humans.html" />
    
@@ -24,14 +33,13 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
+  </head>
+  <body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
   <div class="section" id="installation">
@@ -39,7 +47,7 @@
 <p>This part of the documentation covers the installation of Eve. The first step
 to using any software package is getting it properly installed.</p>
 <p>Installing Eve is simple with <a class="reference external" href="http://www.pip-installer.org/">pip</a>:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> pip install eve
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> pip install eve
 </pre></div>
 </div>
 <div class="section" id="development-version">
@@ -49,10 +57,10 @@ development version of Eve, there are two ways: you can either let <cite>pip</ci
 in the development version, or you can tell it to operate on a git checkout.
 Either way, virtualenv is recommended.</p>
 <p>Get the git checkout in a new virtualenv and run in development mode.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> git clone http://github.com/pyeve/eve.git
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> git clone http://github.com/pyeve/eve.git
 <span class="go">Initialized empty Git repository in ~/dev/eve/.git/</span>
 
-<span class="gp">$</span> <span class="nb">cd</span> eve
+<span class="gp">$</span> <span class="nb">cd </span>eve
 <span class="gp">$</span> virtualenv venv
 <span class="go">New python executable in venv/bin/python</span>
 
@@ -63,11 +71,11 @@ Either way, virtualenv is recommended.</p>
 </pre></div>
 </div>
 <p>This will pull in the dependencies and activate the git head as the current
-version inside the virtualenv.  Then all you have to do is run <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span>
-<span class="pre">origin</span></code> to update to the latest version.</p>
+version inside the virtualenv.  Then all you have to do is run <tt class="docutils literal"><span class="pre">git</span> <span class="pre">pull</span>
+<span class="pre">origin</span></tt> to update to the latest version.</p>
 <p>To just get the development version without git, do this instead:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> mkdir eve
-<span class="gp">$</span> <span class="nb">cd</span> eve
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> mkdir eve
+<span class="gp">$</span> <span class="nb">cd </span>eve
 <span class="gp">$</span> virtualenv venv
 <span class="gp">$</span> . venv/bin/activate
 <span class="go">New python executable in venv/bin/python</span>
@@ -77,16 +85,15 @@ version inside the virtualenv.  Then all you have to do is run <code class="docu
 <span class="go">Cleaning up...</span>
 </pre></div>
 </div>
-<p>And you’re done!</p>
+<p>And you&#8217;re done!</p>
 </div>
 </div>
 
 
           </div>
-          
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="index.html">
@@ -155,7 +162,7 @@ version inside the virtualenv.  Then all you have to do is run <code class="docu
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="foreword.html">Foreword</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rest_api_for_humans.html">REST API for Humans</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#development-version">Development Version</a></li>
 </ul>
 </li>
@@ -177,16 +184,17 @@ version inside the virtualenv.  Then all you have to do is run <code class="docu
 </ul>
 
 
-<div id="searchbox" style="display: none" role="search">
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script><p>
 Artwork by <a href="http://kalamun.org">Kalamun</a> © 2013
