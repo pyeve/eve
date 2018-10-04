@@ -491,7 +491,7 @@ performance.
 .. _rendering:
 
 Rendering
-----------------------
+---------
 Eve responses are automatically rendered as JSON (the default) or XML,
 depending on the request ``Accept`` header. Inbound documents (for inserts and
 edits) are in JSON format.
@@ -608,7 +608,7 @@ control is disabled no ETag is provided with responses. You should be careful
 about disabling this feature, as you would effectively open your API to the
 risk of older versions replacing your documents. Alternatively, ETag match
 checks can be made optional by the client if ``ENFORCE_IF_MATCH`` is disabled.
-When concurrenncy check enforcement is disabled, requests with the ``If-Match``
+When concurrency check enforcement is disabled, requests with the ``If-Match``
 header will be processed as conditional requests, and requests made without
 the ``If-Match`` header will not be processed as conditional.
 
