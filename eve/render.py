@@ -258,6 +258,9 @@ def _best_mime():
     ones supported by Eve. Along with the mime, also the corresponding
     render function is returns.
 
+    .. versionchanged:: 0.8.2
+       Support for resource extension endpoints like .xml and .json
+
     .. versionchanged:: 0.8
        Support for optional renderers via RENDERERS. XML and JSON
        configuration keywords removed.
@@ -270,6 +273,12 @@ def _best_mime():
     for renderer_cls in app.config.get("RENDERERS"):
         renderer = import_from_string(renderer_cls)
         for mime_type in renderer.mime:
+            if request.base_url.endswith('.{}'.format(getattr(renderer, "tag", "json").lower())):
+                supported = []
+                renders = {}
+                supported.append(mime_type)
+                renders[mime_type] = renderer
+                break
             supported.append(mime_type)
             renders[mime_type] = renderer
 
