@@ -273,7 +273,9 @@ def _best_mime():
     for renderer_cls in app.config.get("RENDERERS"):
         renderer = import_from_string(renderer_cls)
         for mime_type in renderer.mime:
-            if request.base_url.endswith('.{}'.format(getattr(renderer, "tag", "json").lower())):
+            if request.base_url.endswith(
+                ".{}".format(getattr(renderer, "tag", "json").lower())
+            ):
                 supported = []
                 renders = {}
                 supported.append(mime_type)
