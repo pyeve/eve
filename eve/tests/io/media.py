@@ -426,6 +426,33 @@ class TestGridFSMediaStorage(TestBase):
             url,
         )
 
+    def test_media_endpoint_supports_CORS(self):
+        self.app._init_media_endpoint()
+        self.app.config["RETURN_MEDIA_AS_BASE64_STRING"] = False
+        self.app.config["RETURN_MEDIA_AS_URL"] = True
+        self.app.config["X_DOMAINS"] = "*"
+
+        r, s = self._post()
+        self.assertEqual(STATUS_OK, r[STATUS])
+        _id = r[self.id_field]
+
+        with self.app.test_request_context():
+            media_id = self.assertMediaStored(_id)
+
+        methods = ["GET", "OPTIONS"]
+        for method in methods:
+            r = self.test_client.get(
+                "/media/%s" % media_id,
+                method=method,
+                headers=[("Origin", "http://example.com")],
+            )
+            self.assert200(r.status_code)
+            self.assertEqual(
+                r.headers["Access-Control-Allow-Origin"], "http://example.com"
+            )
+            self.assertEqual(r.headers["Vary"], "Origin")
+            self.assertTrue(method in r.headers["Access-Control-Allow-Methods"])
+
     def assertMediaField(self, _id, encoded, clean):
         # GET the file at the item endpoint
         r, s = self.parse_response(self.test_client.get("%s/%s" % (self.url, _id)))

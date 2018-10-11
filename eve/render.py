@@ -138,6 +138,8 @@ def _prepare_response(
     """
     if request.method == "OPTIONS":
         resp = app.make_default_options_response()
+    elif isinstance(dct, Response):
+        resp = dct
     else:
         # obtain the best match between client's request and available mime
         # types, along with the corresponding render function.

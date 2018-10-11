@@ -6,7 +6,11 @@ Here you can see the full list of changes between each Eve release.
 Version 0.8.2
 -------------
 
-- hic sunt leones
+Fixed
+~~~~~
+- CORS response headers missing for media endpoint (`#1197`_)
+
+.. _`#1197`: https://github.com/pyeve/eve/issues/1197
 
 Version 0.8.1
 -------------
