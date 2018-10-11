@@ -185,6 +185,9 @@ def media_endpoint(_id):
 
     .. versionadded:: 0.6
     """
+    if request.method == "OPTIONS":
+        return send_response(None, (None))
+
     file_ = app.media.get(_id)
     if file_ is None:
         return abort(404)
@@ -238,7 +241,7 @@ def media_endpoint(_id):
         direct_passthrough=True,
     )
 
-    return response
+    return send_response(None, (response,))
 
 
 @requires_auth("resource")
