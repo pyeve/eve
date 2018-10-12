@@ -638,6 +638,9 @@ def build_response_document(document, resource, embedded_fields, latest_doc=None
         elif "self" not in document[config.LINKS]:
             document[config.LINKS].update(self_dict)
 
+        # add data relation links if hateoas enabled
+        resolve_data_relation_links(document, resource)
+
     # add version numbers
     resolve_document_version(document, resource, "GET", latest_doc)
 
@@ -681,10 +684,67 @@ def field_definition(resource, chained_fields):
         definition = definition["schema"][field]
         field_type = definition.get("type")
         if field_type == "list":
-            definition = definition["schema"]
+            # the list can be 1) a list of allowed values for string and list types
+            #                 2) a list of references that have schema
+            # we want to resolve field definition deeper for the second one
+            definition = definition.get("schema", definition)
         elif field_type == "objectid":
             pass
     return definition
+
+
+def resolve_data_relation_links(document, resource):
+    """ Resolves all fields in a document that has data relation to other resources
+
+    :param document: the document to include data relation link.
+    :param resource: the resource name.
+
+    .. versionadded:: 0.8.2
+    """
+    resource_def = config.DOMAIN[resource]
+    related_dict = {}
+
+    for field in resource_def.get("schema", {}):
+
+        field_def = field_definition(resource, field)
+        if "data_relation" not in field_def:
+            continue
+
+        if field in document and document[field] is not None:
+            # Get the resource endpoint string for the linked relation
+            related_resource = (
+                document[field].collection
+                if isinstance(document[field], DBRef)
+                else field_def["data_relation"]["resource"]
+            )
+
+            # Get the item endpoint id for the linked relation
+            related_document_id = document[field]
+            if isinstance(related_document_id, DBRef):
+                related_document_id = related_document_id.id
+            if isinstance(related_document_id, dict):
+                related_resource_field = field_definition(resource, field)[
+                    "data_relation"
+                ]["field"]
+                related_document_id = related_document_id[related_resource_field]
+
+            # Get the version for the endpoint
+            related_version = (
+                document[field].get("_version")
+                if isinstance(document[field], dict)
+                else None
+            )
+
+            related_dict.update(
+                {
+                    field: document_link(
+                        related_resource, related_document_id, related_version
+                    )
+                }
+            )
+
+    if related_dict != {}:
+        document[config.LINKS].update({"related": related_dict})
 
 
 def resolve_embedded_fields(resource, req):
