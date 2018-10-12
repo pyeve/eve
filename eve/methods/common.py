@@ -668,6 +668,9 @@ def field_definition(resource, chained_fields):
     :param resource: the resource name whose field to be accepted.
     :param chained_fields: query string to retrieve field definition
 
+    .. versionchanged:: 0.8.2
+       fix field definition of list without a schema. See #1204.
+
     .. versionadded 0.5
     """
     definition = config.DOMAIN[resource]
@@ -696,7 +699,7 @@ def field_definition(resource, chained_fields):
 def resolve_data_relation_links(document, resource):
     """ Resolves all fields in a document that has data relation to other resources
 
-    :param document: the document to include data relation link.
+    :param document: the document to include data relation links.
     :param resource: the resource name.
 
     .. versionadded:: 0.8.2
@@ -711,37 +714,47 @@ def resolve_data_relation_links(document, resource):
             continue
 
         if field in document and document[field] is not None:
-            # Get the resource endpoint string for the linked relation
-            related_resource = (
-                document[field].collection
-                if isinstance(document[field], DBRef)
-                else field_def["data_relation"]["resource"]
-            )
+            related_links = []
 
-            # Get the item endpoint id for the linked relation
-            related_document_id = document[field]
-            if isinstance(related_document_id, DBRef):
-                related_document_id = related_document_id.id
-            if isinstance(related_document_id, dict):
-                related_resource_field = field_definition(resource, field)[
-                    "data_relation"
-                ]["field"]
-                related_document_id = related_document_id[related_resource_field]
+            # Make the code DRY for list of linked relation and single linked relation
+            for related_document_id in (
+                document[field]
+                if isinstance(document[field], list)
+                else [document[field]]
+            ):
+                # Get the resource endpoint string for the linked relation
+                related_resource = (
+                    related_document_id.collection
+                    if isinstance(related_document_id, DBRef)
+                    else field_def["data_relation"]["resource"]
+                )
 
-            # Get the version for the endpoint
-            related_version = (
-                document[field].get("_version")
-                if isinstance(document[field], dict)
-                else None
-            )
+                # Get the item endpoint id for the linked relation
+                if isinstance(related_document_id, DBRef):
+                    related_document_id = related_document_id.id
+                if isinstance(related_document_id, dict):
+                    related_resource_field = field_definition(resource, field)[
+                        "data_relation"
+                    ]["field"]
+                    related_document_id = related_document_id[related_resource_field]
 
-            related_dict.update(
-                {
-                    field: document_link(
+                # Get the version for the item endpoint id
+                related_version = (
+                    related_document_id.get("_version")
+                    if isinstance(related_document_id, dict)
+                    else None
+                )
+
+                related_links.append(
+                    document_link(
                         related_resource, related_document_id, related_version
                     )
-                }
-            )
+                )
+
+            if isinstance(document[field], list):
+                related_dict.update({field: related_links})
+            else:
+                related_dict.update({field: related_links[0]})
 
     if related_dict != {}:
         document[config.LINKS].update({"related": related_dict})
