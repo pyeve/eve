@@ -279,6 +279,10 @@ def getitem_internal(resource, **lookup):
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
 
+    .. versionchanged:: 0.8.2
+       Prevent extra hateoas links from overwriting
+       already existed data relation hateoas links.
+
     .. versionchanged:: 0.6
        Handle soft deleted documents
 
@@ -464,8 +468,10 @@ def getitem_internal(resource, **lookup):
             if config.DOMAIN[resource]["pagination"]:
                 response[config.META] = _meta_links(req, count)
         else:
-            response[config.LINKS] = _pagination_links(
-                resource, req, None, response[resource_def["id_field"]]
+            response[config.LINKS].update(
+                _pagination_links(
+                    resource, req, None, response[resource_def["id_field"]]
+                )
             )
 
     # callbacks not supported on version diffs because of partial documents

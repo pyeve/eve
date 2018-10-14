@@ -311,6 +311,19 @@ class TestMinimal(unittest.TestCase):
         else:
             self.assertTrue("last" not in links)
 
+    def assertRelatedLink(self, links, field):
+        self.assertTrue("related" in links)
+        data_relation_links = links["related"]
+        self.assertTrue(field in data_relation_links)
+        related_field_links = data_relation_links[field]
+        for related_field_link in (
+            related_field_links
+            if isinstance(related_field_links, list)
+            else [related_field_links]
+        ):
+            self.assertTrue("title" in related_field_link)
+            self.assertTrue("href" in related_field_link)
+
     def assertCustomParams(self, link, params):
         self.assertTrue("href" in link)
         url_params = parse_qs(urlparse(link["href"]).query)

@@ -4,6 +4,7 @@ from io import BytesIO
 import simplejson as json
 from datetime import datetime, timedelta
 from bson import ObjectId
+from bson.dbref import DBRef
 from bson.son import SON
 from werkzeug.datastructures import ImmutableMultiDict
 from eve.tests import TestBase
@@ -1579,7 +1580,7 @@ class TestGetItem(TestBase):
         self.assert200(status)
         self.assertTrue(self.app.config["ETAG"] in response)
         links = response["_links"]
-        self.assertEqual(len(links), 3)
+        self.assertTrue(len(links) == 3 or len(links) == 4)
         self.assertHomeLink(links)
         self.assertCollectionLink(links, resource or self.known_resource)
         self.assertItem(response, resource or self.known_resource)
@@ -1817,6 +1818,62 @@ class TestGetItem(TestBase):
         self.assert200(status)
         self.assertEqual(response["person"], str(fake_contact_id))
         self.assertEqual(response["_id"], self.invoice_id)
+
+    def test_getitem_data_relation_hateoas(self):
+        # We need to assign a `person` to our test invoice
+        _db = self.connection[MONGO_DBNAME]
+
+        fake_contact = self.random_contacts(1)[0]
+        fake_contact_id = _db.contacts.insert_one(fake_contact).inserted_id
+        url = self.domain[self.known_resource]["url"]
+        item_title = self.domain[self.known_resource]["item_title"]
+        invoices = self.domain["invoices"]
+
+        # Test nullable data relation fields
+        _db.invoices.update_one(
+            {"_id": ObjectId(self.invoice_id)}, {"$set": {"person": None}}
+        )
+
+        response, status = self.get("%s/%s" % (invoices["url"], self.invoice_id))
+        self.assertTrue("related" not in response["_links"])
+
+        # Test object id data relation fields
+        _db.invoices.update_one(
+            {"_id": ObjectId(self.invoice_id)}, {"$set": {"person": fake_contact_id}}
+        )
+
+        response, status = self.get("%s/%s" % (invoices["url"], self.invoice_id))
+        self.assertRelatedLink(response["_links"], "person")
+        related_links = response["_links"]["related"]
+        self.assertEqual(related_links["person"]["title"], item_title)
+        self.assertEqual(
+            related_links["person"]["href"], "%s/%s" % (url, fake_contact_id)
+        )
+
+        # Test DBRef data relation fields
+        _db.invoices.update_one(
+            {"_id": ObjectId(self.invoice_id)},
+            {"$set": {"persondbref": DBRef("contacts", fake_contact_id)}},
+        )
+
+        response, status = self.get("%s/%s" % (invoices["url"], self.invoice_id))
+        self.assertRelatedLink(response["_links"], "persondbref")
+        related_links = response["_links"]["related"]
+        self.assertEqual(related_links["persondbref"]["title"], item_title)
+        self.assertEqual(
+            related_links["persondbref"]["href"], "%s/%s" % (url, fake_contact_id)
+        )
+
+        # Test list of object id data relation fields
+        _db.invoices.update_one(
+            {"_id": ObjectId(self.invoice_id)},
+            {"$set": {"invoicing_contacts": [fake_contact_id] * 5}},
+        )
+
+        response, status = self.get("%s/%s" % (invoices["url"], self.invoice_id))
+        self.assertRelatedLink(response["_links"], "invoicing_contacts")
+        related_links = response["_links"]["related"]
+        self.assertEqual(len(related_links["invoicing_contacts"]), 5)
 
     def test_getitem_ifmatch_disabled(self):
         # when IF_MATCH is disabled no etag is present in payload
