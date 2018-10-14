@@ -9,6 +9,7 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
+import re
 import base64
 import time
 from copy import copy
@@ -603,6 +604,9 @@ def build_response_document(document, resource, embedded_fields, latest_doc=None
     :param embedded_fields: the list of fields we are allowed to embed.
     :param document: the latest version of document.
 
+    .. versionchanged:: 0.8.2
+       Add data relation fields hateoas support (#1204).
+
     .. versionchanged:: 0.5
        Only compute ETAG if necessary (#369).
        Add version support (#475).
@@ -669,7 +673,7 @@ def field_definition(resource, chained_fields):
     :param chained_fields: query string to retrieve field definition
 
     .. versionchanged:: 0.8.2
-       fix field definition of list without a schema. See #1204.
+       fix field definition for list without a schema. See #1204.
 
     .. versionadded 0.5
     """
@@ -1334,6 +1338,9 @@ def document_link(resource, document_id, version=None):
     :param document_id: the document unique identifier.
     :param version: the document version. Defaults to None.
 
+    .. versionchanged:: 0.8.2
+       Support document link for data relation resources. See #1204.
+
     .. versionchanged:: 0.5
        Add version support (#475).
 
@@ -1349,16 +1356,22 @@ def document_link(resource, document_id, version=None):
     version_part = "?version=%s" % version if version else ""
     return {
         "title": "%s" % config.DOMAIN[resource]["item_title"],
-        "href": "%s/%s%s" % (resource_link(), document_id, version_part),
+        "href": "%s/%s%s" % (resource_link(resource), document_id, version_part),
     }
 
 
-def resource_link():
+def resource_link(resource=None):
     """ Returns the current resource path relative to the API entry point.
     Mostly going to be used by hateoas functions when building
     document/resource links. The resource URL stored in the config settings
     might contain regexes and custom variable names, all of which are not
     needed in the response payload.
+
+    :param resource: the resource name if not using the resource from request.path
+
+    .. versionchanged:: 0.8.2
+       Support resource link for data relation resources
+       which may be different from request.path resource. See #1204.
 
     .. versionchanged:: 0.5
        URL is relative to API root.
@@ -1377,7 +1390,13 @@ def resource_link():
         path = strip_prefix(config.URL_PREFIX + "/")
     if config.API_VERSION:
         path = strip_prefix(config.API_VERSION + "/")
-    return path
+
+    # If request path does not match resource URL regex definition
+    # We are creating a path for data relation resources
+    if resource and not re.search(config.DOMAIN[resource]["url"], path):
+        return config.DOMAIN[resource]["url"]
+    else:
+        return path
 
 
 def oplog_push(resource, document, op, id=None):

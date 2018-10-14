@@ -478,7 +478,7 @@ HATEOAS links are always relative to the API entry point, so if your API home
 is at ``examples.com/api/v1``, the ``self`` link in the above example would
 mean that the *people* endpoint is located at ``examples.com/api/v1/people``.
 
-Please note that ``next``, ``previous`` and ``last`` items will only be
+Please note that ``next``, ``previous``, ``last`` and ``related`` items will only be
 included when appropriate.
 
 Disabling HATEOAS

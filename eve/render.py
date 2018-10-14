@@ -548,13 +548,13 @@ class XMLRenderer(Renderer):
             if isinstance(related_links[field], list):
                 return '<%s href="%s" title="%s">' % (
                     field,
-                    related_links[field][idx]["href"],
+                    utils.escape(related_links[field][idx]["href"]),
                     related_links[field][idx]["title"],
                 )
             else:
                 return '<%s href="%s" title="%s">' % (
                     field,
-                    related_links[field]["href"],
+                    utils.escape(related_links[field]["href"]),
                     related_links[field]["title"],
                 )
         else:
