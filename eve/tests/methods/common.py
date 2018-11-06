@@ -604,6 +604,23 @@ class TestOpLogEndpointEnabled(TestOpLogBase):
         self.assertOpLogEntry(oplog_entry, "POST")
         self.assertTrue("extra" not in oplog_entry)
 
+    def test_post_oplog_does_not_alter_document(self):
+        """ Make sure we don't alter document ETag when performing an
+        oplog_push. See #590 and #1206. """
+        self.app.config["OPLOG_CHANGE_METHODS"].append("POST")
+        r = self.test_client.post(
+            self.different_resource_url,
+            data=json.dumps({"username": "test", "ref": "1234567890123456789012345"}),
+            headers=self.headers,
+            environ_base={"REMOTE_ADDR": "127.0.0.1"},
+        )
+
+        item_id = json.loads(r.get_data())["_id"]
+        etag1 = json.loads(r.get_data())["_etag"]
+        item, _ = self.get(self.different_resource, item=item_id)
+        etag2 = item["_etag"]
+        self.assertEqual(etag1, etag2)
+
     def test_patch_oplog(self):
         self.headers.append(("If-Match", self.item_etag))
         r = self.test_client.patch(

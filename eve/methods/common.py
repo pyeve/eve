@@ -1379,13 +1379,12 @@ def oplog_push(resource, document, op, id=None):
             entry["u"] = auth.get_user_or_token() if auth else "n/a"
 
             if op in config.OPLOG_CHANGE_METHODS:
-                # these fields are already contained in 'entry'.
-                del (update[config.LAST_UPDATED])
-                # legacy documents (v0.4 or less) could be missing the etag
-                # field
-                if config.ETAG in update:
-                    del (update[config.ETAG])
-                entry["c"] = update
+                entry["c"] = {
+                    key: value
+                    for key, value in update.items()
+                    # these fields are already contained in 'entry'.
+                    if key not in [config.ETAG, config.LAST_UPDATED]
+                }
             else:
                 pass
 
