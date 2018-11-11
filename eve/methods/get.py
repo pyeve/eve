@@ -203,7 +203,11 @@ def _perform_aggregation(resource, pipeline, options):
 
     response[config.ITEMS] = documents
 
-    count = cursor["total_count"][0]["count"]
+    if cursor["total_count"]:
+        # IndexError: list index out of range
+        count = cursor["total_count"][0]["count"]
+    else:
+        count = 0
 
     # add pagination info
     if config.DOMAIN[resource]["pagination"]:
