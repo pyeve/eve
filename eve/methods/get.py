@@ -173,26 +173,44 @@ def _perform_aggregation(resource, pipeline, options):
             for stage in req_pipeline:
                 parse_aggregation_stage(stage, key, value)
 
+    paginated_results = []
     if req.max_results > 1:
         limit = {"$limit": req.max_results}
         skip = {"$skip": (req.page - 1) * req.max_results}
-        req_pipeline.append(skip)
-        req_pipeline.append(limit)
+        paginated_results.append(skip)
+        paginated_results.append(limit)
+    else:
+        # sub-pipeline in $facet stage cannot be empty
+        skip = {"$skip": 0}
+        paginated_results.append(skip)
+
+    facet_pipelines = {}
+    facet_pipelines["paginated_results"] = paginated_results
+    facet_pipelines["total_count"] = [{"$count": "count"}]
+
+    facet = {"$facet": facet_pipelines}
+
+    req_pipeline.append(facet)
 
     getattr(app, "before_aggregation")(resource, req_pipeline)
 
-    cursor = app.data.aggregate(resource, req_pipeline, options)
+    cursor = app.data.aggregate(resource, req_pipeline, options).next()
 
-    for document in cursor:
+    for document in cursor["paginated_results"]:
         documents.append(document)
 
     getattr(app, "after_aggregation")(resource, documents)
 
     response[config.ITEMS] = documents
 
-    # PyMongo's CommandCursor does not return a count, so we cannot
-    # provide pagination/total count info as we do with a normal
-    # (non-aggregate) GET request.
+    count = cursor["total_count"][0]["count"]
+
+    # add pagination info
+    if config.DOMAIN[resource]["pagination"]:
+        response[config.META] = _meta_links(req, count)
+
+    if config.DOMAIN[resource]["hateoas"]:
+        response[config.LINKS] = _pagination_links(resource, req, count)
 
     return response, None, None, 200, []
 
