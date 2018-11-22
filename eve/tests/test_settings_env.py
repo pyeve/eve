@@ -4,4 +4,4 @@
 # to try to load with environmental variable in
 # test_existing_env_config() test case
 
-DOMAIN = {'env_domain': {}}
+DOMAIN = {"env_domain": {}}

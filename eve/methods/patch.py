@@ -17,16 +17,28 @@ from datetime import datetime
 from eve.utils import config, debug_error_message, parse_request
 from eve.auth import requires_auth
 from eve.validation import DocumentError
-from eve.methods.common import get_document, parse, payload as payload_, \
-    ratelimit, pre_event, store_media_files, resolve_embedded_fields, \
-    build_response_document, marshal_write_response, resolve_document_etag, \
-    oplog_push
-from eve.versioning import resolve_document_version, \
-    insert_versioning_documents, late_versioning_catch
+from eve.methods.common import (
+    get_document,
+    parse,
+    payload as payload_,
+    ratelimit,
+    pre_event,
+    store_media_files,
+    resolve_embedded_fields,
+    build_response_document,
+    marshal_write_response,
+    resolve_document_etag,
+    oplog_push,
+)
+from eve.versioning import (
+    resolve_document_version,
+    insert_versioning_documents,
+    late_versioning_catch,
+)
 
 
 @ratelimit()
-@requires_auth('item')
+@requires_auth("item")
 @pre_event
 def patch(resource, payload=None, **lookup):
     """
@@ -37,12 +49,14 @@ def patch(resource, payload=None, **lookup):
     .. versionchanged:: 0.5
        Split into patch() and patch_internal().
     """
-    return patch_internal(resource, payload, concurrency_check=True,
-                          skip_validation=False, **lookup)
+    return patch_internal(
+        resource, payload, concurrency_check=True, skip_validation=False, **lookup
+    )
 
 
-def patch_internal(resource, payload=None, concurrency_check=False,
-                   skip_validation=False, **lookup):
+def patch_internal(
+    resource, payload=None, concurrency_check=False, skip_validation=False, **lookup
+):
     """ Intended for internal patch calls, this method is not rate limited,
     authentication is not checked, pre-request events are not raised, and
     concurrency checking is optional. Performs a document patch/update.
@@ -136,11 +150,13 @@ def patch_internal(resource, payload=None, concurrency_check=False,
         # not found
         abort(404)
 
-    resource_def = app.config['DOMAIN'][resource]
-    schema = resource_def['schema']
-    validator = app.validator(schema, resource=resource)
+    resource_def = app.config["DOMAIN"][resource]
+    schema = resource_def["schema"]
+    validator = app.validator(
+        schema, resource=resource, allow_unknown=resource_def["allow_unknown"]
+    )
 
-    object_id = original[resource_def['id_field']]
+    object_id = original[resource_def["id_field"]]
     last_modified = None
     etag = None
 
@@ -158,8 +174,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
         if skip_validation:
             validation = True
         else:
-            validation = validator.validate_update(updates, object_id,
-                                                   original)
+            validation = validator.validate_update(updates, object_id, original)
             updates = validator.document
 
         if validation:
@@ -169,13 +184,12 @@ def patch_internal(resource, payload=None, concurrency_check=False,
             late_versioning_catch(original, resource)
 
             store_media_files(updates, resource, original)
-            resolve_document_version(updates, resource, 'PATCH', original)
+            resolve_document_version(updates, resource, "PATCH", original)
 
             # some datetime precision magic
-            updates[config.LAST_UPDATED] = \
-                datetime.utcnow().replace(microsecond=0)
+            updates[config.LAST_UPDATED] = datetime.utcnow().replace(microsecond=0)
 
-            if resource_def['soft_delete'] is True:
+            if resource_def["soft_delete"] is True:
                 # PATCH with soft delete enabled should always set the DELETED
                 # field to False. We are either carrying through un-deleted
                 # status, or restoring a soft deleted document
@@ -193,19 +207,19 @@ def patch_internal(resource, payload=None, concurrency_check=False,
             getattr(app, "on_update")(resource, updates, original)
             getattr(app, "on_update_%s" % resource)(updates, original)
 
-            updates = resolve_nested_documents(updates, updated)
-            updated.update(updates)
+            if resource_def["merge_nested_documents"]:
+                updates = resolve_nested_documents(updates, updated)
+                updated.update(updates)
 
             if config.IF_MATCH:
                 resolve_document_etag(updated, resource)
                 # now storing the (updated) ETAG with every document (#453)
                 updates[config.ETAG] = updated[config.ETAG]
 
-            app.data.update(
-                resource, object_id, updates, original)
+            app.data.update(resource, object_id, updates, original)
 
             # update oplog if needed
-            oplog_push(resource, updates, 'PATCH', object_id)
+            oplog_push(resource, updates, "PATCH", object_id)
 
             insert_versioning_documents(resource, updated)
 
@@ -216,8 +230,7 @@ def patch_internal(resource, payload=None, concurrency_check=False,
             updated.update(updates)
 
             # build the full response document
-            build_response_document(
-                updated, resource, embedded_fields, updated)
+            build_response_document(updated, resource, embedded_fields, updated)
             response = updated
             if config.IF_MATCH:
                 etag = response[config.ETAG]
@@ -226,15 +239,13 @@ def patch_internal(resource, payload=None, concurrency_check=False,
     except DocumentError as e:
         # TODO should probably log the error and abort 400 instead (when we
         # got logging)
-        issues['validator exception'] = str(e)
+        issues["validator exception"] = str(e)
     except exceptions.HTTPException as e:
         raise e
     except Exception as e:
         # consider all other exceptions as Bad Requests
         app.logger.exception(e)
-        abort(400, description=debug_error_message(
-            'An exception occurred: %s' % e
-        ))
+        abort(400, description=debug_error_message("An exception occurred: %s" % e))
 
     if len(issues):
         response[config.ISSUES] = issues

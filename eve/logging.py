@@ -8,6 +8,7 @@ from flask import request
 # add support for some INFO and maybe DEBUG level logging (like, log each time
 # a endpoint is hit, etc.)
 
+
 class RequestFilter(logging.Filter):
     """ Adds Flask's request metadata to the log record so handlers can log
     this information too.
@@ -33,6 +34,7 @@ class RequestFilter(logging.Filter):
     .. versionadded:: 0.6
 
     """
+
     def filter(self, record):
         if request:
             record.clientip = request.remote_addr

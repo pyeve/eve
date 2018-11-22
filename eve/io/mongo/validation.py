@@ -17,9 +17,17 @@ from flask import current_app as app
 from werkzeug.datastructures import FileStorage
 
 from eve.auth import auth_field_and_value
-from eve.io.mongo.geo import Point, MultiPoint, LineString, Polygon, \
-    MultiLineString, MultiPolygon, GeometryCollection, Feature, \
-    FeatureCollection
+from eve.io.mongo.geo import (
+    Point,
+    MultiPoint,
+    LineString,
+    Polygon,
+    MultiLineString,
+    MultiPolygon,
+    GeometryCollection,
+    Feature,
+    FeatureCollection,
+)
 from eve.utils import config
 from eve.validation import Validator
 from eve.versioning import get_data_version_relation_document
@@ -51,6 +59,7 @@ class Validator(Validator):
        Support for 'transparent_schema_rules' introduced with Cerberus 0.0.3,
        which allows for insertion of 'default' values in POST requests.
     """
+
     def _validate_versioned(self, unique, field, value):
         """ {'type': 'boolean'} """
         pass
@@ -83,7 +92,7 @@ class Validator(Validator):
             resource_config = config.DOMAIN[self.resource]
 
             # exclude soft deleted documents if applicable
-            if resource_config['soft_delete']:
+            if resource_config["soft_delete"]:
                 # be aware that, should a previously (soft) deleted document be
                 # restored, and because we explicitly ignore soft deleted
                 # documents while validating 'unique' fields, there is a chance
@@ -95,12 +104,12 @@ class Validator(Validator):
                 # we make sure to also include documents which are missing the
                 # DELETED field. This happens when soft deletes are enabled on
                 # an a resource with existing documents.
-                query[config.DELETED] = {'$ne': True}
+                query[config.DELETED] = {"$ne": True}
 
             # exclude current document
             if self.document_id:
-                id_field = resource_config['id_field']
-                query[id_field] = {'$ne': self.document_id}
+                id_field = resource_config["id_field"]
+                query[id_field] = {"$ne": self.document_id}
 
             # we perform the check on the native mongo driver (and not on
             # app.data.find_one()) because in this case we don't want the usual
@@ -119,52 +128,71 @@ class Validator(Validator):
                 'embeddable': {'type': 'boolean', 'default': False},
                 'version': {'type': 'boolean', 'default': False}
              }} """
-        if 'version' in data_relation and data_relation['version'] is True:
-            value_field = data_relation['field']
-            version_field = app.config['VERSION']
+        if not value and self.schema[field].get("nullable"):
+            return
+
+        if "version" in data_relation and data_relation["version"] is True:
+            value_field = data_relation["field"]
+            version_field = app.config["VERSION"]
 
             # check value format
-            if isinstance(value, dict) and value_field in value \
-                    and version_field in value:
-                resource_def = config.DOMAIN[data_relation['resource']]
-                if resource_def['versioning'] is False:
+            if (
+                isinstance(value, dict)
+                and value_field in value
+                and version_field in value
+            ):
+                resource_def = config.DOMAIN[data_relation["resource"]]
+                if resource_def["versioning"] is False:
                     self._error(
-                        field, "can't save a version with"
-                        " data_relation if '%s' isn't versioned" %
-                        data_relation['resource'])
+                        field,
+                        "can't save a version with"
+                        " data_relation if '%s' isn't versioned"
+                        % data_relation["resource"],
+                    )
                 else:
-                    search = get_data_version_relation_document(
-                        data_relation, value)
+                    search = get_data_version_relation_document(data_relation, value)
 
                     if not search:
                         self._error(
-                            field, "value '%s' must exist in resource"
-                            " '%s', field '%s' at version '%s'." % (
-                                value[value_field], data_relation['resource'],
-                                data_relation['field'], value[version_field]))
+                            field,
+                            "value '%s' must exist in resource"
+                            " '%s', field '%s' at version '%s'."
+                            % (
+                                value[value_field],
+                                data_relation["resource"],
+                                data_relation["field"],
+                                value[version_field],
+                            ),
+                        )
             else:
                 self._error(
-                    field, "versioned data_relation must be a dict"
-                    " with fields '%s' and '%s'" %
-                    (value_field, version_field))
+                    field,
+                    "versioned data_relation must be a dict"
+                    " with fields '%s' and '%s'" % (value_field, version_field),
+                )
         else:
             if not isinstance(value, list):
                 value = [value]
 
-            data_resource = data_relation['resource']
+            data_resource = data_relation["resource"]
             for item in value:
-                    query = {data_relation['field']: item.id
-                             if isinstance(item, DBRef) else item}
-                    if not app.data.find_one(data_resource, None, **query):
-                        self._error(
-                            field,
-                            "value '%s' must exist in resource"
-                            " '%s', field '%s'." %
-                            (item.id if isinstance(item, DBRef) else item,
-                             data_resource, data_relation['field']))
+                query = {
+                    data_relation["field"]: item.id if isinstance(item, DBRef) else item
+                }
+                if not app.data.find_one(data_resource, None, **query):
+                    self._error(
+                        field,
+                        "value '%s' must exist in resource"
+                        " '%s', field '%s'."
+                        % (
+                            item.id if isinstance(item, DBRef) else item,
+                            data_resource,
+                            data_relation["field"],
+                        ),
+                    )
 
     def _validate_type_objectid(self, value):
-        if isinstance(value, ObjectId):
+        if ObjectId.is_valid(value):
             return True
 
     def _validate_type_decimal(self, value):

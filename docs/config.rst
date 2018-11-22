@@ -114,6 +114,14 @@ uppercase.
                                     ``/v1/<endpoint>``). Defaults to ``''``.
 
 ``ALLOWED_FILTERS``                 List of fields on which filtering is allowed.
+                                    Entries in this list work in a hierarchical
+                                    way. This means that, for instance, filtering
+                                    on ``'dict.sub_dict.foo'`` is allowed if
+                                    ``ALLOWED_FILTERS`` contains any of
+                                    ``'dict.sub_dict.foo``, ``'dict.sub_dict'``
+                                    or ``'dict'``. Instead filtering on
+                                    ``'dict'`` is allowed if ``ALLOWED_FILTERS``
+                                    contains ``'dict'``.
                                     Can be set to ``[]`` (no filters allowed)
                                     or ``['*']`` (filters allowed on every
                                     field). Unless your API is comprised of
@@ -131,6 +139,15 @@ uppercase.
 ``VALIDATE_FILTERS``                Whether to validate the filters against the
                                     resource schema. Invalid filters will throw
                                     an exception. Defaults to ``False``.
+
+                                    Word of caution: validation on filter
+                                    expressions involving fields with custom
+                                    rules or types might have a considerable
+                                    impact on performance. This is the case,
+                                    for example, with ``data_relation``-rule
+                                    fields. Consider excluding heavy-duty
+                                    fields from filters (see
+                                    ``ALLOWED_FILTERS``).
 
 ``SORTING``                         ``True`` if sorting is supported for ``GET``
                                     requests, otherwise ``False``. Can be
@@ -453,7 +470,6 @@ uppercase.
 
 ``META``                            Allows to customize the meta field. Defaults
                                     to ``_meta``
-                                    to ``_meta``.
 
 ``INFO``                            String value to include an info section, with the
                                     given INFO name, at the Eve homepage (suggested
@@ -476,22 +492,17 @@ uppercase.
                                     it is enabled, ``False`` otherwise. Defaults to
                                     ``True``. See :ref:`concurrency`.
 
-``XML``                             ``True`` to enable XML support, ``False``
-                                    otherwise. See :ref:`jsonxml`. Defaults to
-                                    ``True``.
-
-``JSON``                            ``True`` to enable JSON support, ``False``
-                                    otherwise. See :ref:`jsonxml`. Defaults to
-                                    ``True``.
+``RENDERERS``                       Allows to change enabled renderers. Defaults to
+                                    ``['eve.render.JSONRenderer', 'eve.render.XMLRenderer']``.
 
 ``JSON_SORT_KEYS``                  ``True`` to enable JSON key sorting, ``False``
                                     otherwise. Defaults to ``False``.
 
-``JSON_REQUEST_CONTENT_TYPES``      Supported JSON content types. Useful when 
+``JSON_REQUEST_CONTENT_TYPES``      Supported JSON content types. Useful when
                                     you need support for vendor-specific json
                                     types. Please note: responses will still
                                     carry the standard ``application/json``
-                                    type. Defaults to ``['application/json']``. 
+                                    type. Defaults to ``['application/json']``.
 
 ``VALIDATION_ERROR_STATUS``         The HTTP status code to use for validation errors.
                                     Defaults to ``422``.
@@ -752,6 +763,20 @@ uppercase.
                                     disable this feature, and a ``404`` will be
                                     returned instead. Defaults to ``True``.
 
+``MERGE_NESTED_DOCUMENTS``          If ``True``, updates to nested fields are
+                                    merged with the current data on ``PATCH``.
+                                    If ``False``, the updates overwrite the
+                                    current data. Defaults to ``True``.
+
+``NORMALIZE_DOTTED_FIELDS``         If ``True``, dotted fields are parsed
+                                    and processed as subdocument fields. If
+                                    ``False``, dotted fields are left unparsed
+                                    and unprocessed, and the payload is passed
+                                    to the underlying data-layer as-is. Please
+                                    note that with the default Mongo layer,
+                                    setting this to ``False`` will result in an
+                                    error. Defaults to ``True``.
+
 =================================== =========================================
 
 .. _domain:
@@ -804,6 +829,14 @@ always lowercase.
                                 :ref:`subresources`.
 
 ``allowed_filters``             List of fields on which filtering is allowed.
+                                Entries in this list work in a hierarchical
+                                way. This means that, for instance, filtering
+                                on ``'dict.sub_dict.foo'`` is allowed if
+                                ``allowed_filters`` contains any of
+                                ``'dict.sub_dict.foo``, ``'dict.sub_dict'``
+                                or ``'dict'``. Instead filtering on
+                                ``'dict'`` is allowed if ``allowed_filters``
+                                contains ``'dict'``.
                                 Can be set to ``[]`` (no filters allowed), or
                                 ``['*']`` (fields allowed on every field).
                                 Defaults to ``['*']``.
@@ -1053,7 +1086,7 @@ always lowercase.
                                 the endpoint, which is still accessible from
                                 the Eve data layer. See
                                 :ref:`internal_resources` for more
-                                informations. Defaults to ``False``.
+                                information. Defaults to ``False``.
 
 ``etag_ignore_fields``          List of fields that
                                 should not be used to compute the ETag value.
@@ -1073,6 +1106,20 @@ always lowercase.
 ``soft_delete``                 When ``True`` this option enables the
                                 :ref:`soft_delete` feature for this resource.
                                 Locally overrides ``SOFT_DELETE``.
+
+``merge_nested_documents``      If ``True``, updates to nested fields are
+                                merged with the current data on ``PATCH``.
+                                If ``False``, the updates overwrite the
+                                current data. Locally overrides
+                                ``MERGE_NESTED_DOCUMENTS``.
+``normalize_dotted_fields``     If ``True``, dotted fields are parsed and
+                                processed as subdocument fields. If ``False``,
+                                dotted fields are left unparsed and
+                                unprocessed, and the payload is passed to the
+                                underlying data-layer as-is. Please note that
+                                with the default Mongo layer, setting this to
+                                ``False`` will result in an error. Defaults to
+                                ``True``.
 
 =============================== ===============================================
 
@@ -1179,7 +1226,7 @@ defining the field validation rules. Allowed validation rules are:
                                 - ``decimal``
 
                                 See :ref:`GeoJSON <geojson_feature>` for more
-                                informations geo fields.
+                                information geo fields.
 
 ``required``                    If ``True``, the field is mandatory on
                                 insertion.
@@ -1237,7 +1284,7 @@ defining the field validation rules. Allowed validation rules are:
 
 ``data_relation``               Allows to specify a referential integrity rule
                                 that the value must satisfy in order to
-                                validate. It is a dict with three keys:
+                                validate. It is a dict with four keys:
 
                                 - ``resource``: the name of the resource being referenced;
                                 - ``field``: the field name in the foreign resource;
@@ -1304,27 +1351,27 @@ defining the field validation rules. Allowed validation rules are:
 ``valueschema``                 Validation schema for all values of a ``dict``.
                                 The dict can have arbitrary keys, the values
                                 for all of which must validate with given
-                                schema. See `valueschema example <http://docs.python-cerberus.org/en/latest/usage.html#valueschema>`_.
+                                schema. See `valueschema <http://docs.python-cerberus.org/en/latest/validation-rules.html#valueschema>`_ in Cerberus docs.
 
 ``keyschema``                   This is the counterpart to ``valueschema`` that
                                 validates the keys of a dict.   Validation
                                 schema for all values of a ``dict``. See
-                                `keyschema example <http://docs.python-cerberus.org/en/latest/usage.html#keyschema>`_.
+                                `keyschema <http://docs.python-cerberus.org/en/latest/validation-rules.html#keyschema>`_ in Cerberus docs.
 
 
 ``regex``                       Validation will fail if field value does not
                                 match the provided regex rule. Only applies to
-                                string fields. See `email validation example <http://docs.python-cerberus.org/en/latest/usage.html#regex>`_
+                                string fields. See `regex <http://docs.python-cerberus.org/en/latest/validation-rules.html#regex>`_ in Cerberus docs.
 
 
 ``dependencies``                This rule allows a list of fields that must be
                                 present in order for the target field to be
-                                allowed. See `dependencies example <http://docs.python-cerberus.org/en/latest/usage.html#dependencies>`_
+                                allowed. See `dependencies <http://docs.python-cerberus.org/en/latest/validation-rules.html#dependencies>`_  in Cerberus docs.
 
 ``anyof``                       This rule allows you to list multiple sets of
                                 rules to validate against. The field will be
                                 considered valid if it validates against one
-                                set in the list. See `anyof example <http://docs.python-cerberus.org/en/latest/usage.html#anyof>`_
+                                set in the list. See `*of-rules <http://docs.python-cerberus.org/en/latest/validation-rules.html#of-rules>`_ in Cerberus docs.
 
 ``allof``                       Same as ``anyof``, except that all rule
                                 collections in the list must validate.
@@ -1340,7 +1387,7 @@ defining the field validation rules. Allowed validation rules are:
                                 return value of the callable replaces the new
                                 value in the document. This can be used to
                                 convert values or sanitize data before it is
-                                validated. See `type coercion example <http://docs.python-cerberus.org/en/latest/usage.html#type-coercion>`_
+                                validated. See `value coercion <http://docs.python-cerberus.org/en/latest/normalization-rules.html#value-coercion>`_ in Cerberus docs.
 
 =============================== ==============================================
 
@@ -1378,7 +1425,7 @@ of the database collection. It is a dictionary with four allowed keys:
 
 ``filter``                      Database query used to retrieve and validate
                                 data. If omitted, by default the whole
-                                collection is retrievied. See :ref:`filter`.
+                                collection is retrieved. See :ref:`filter`.
 
 ``projection``                  Fieldset exposed by the endpoint. If omitted,
                                 by default all fields will be returned to the
@@ -1392,7 +1439,7 @@ of the database collection. It is a dictionary with four allowed keys:
                                 ``'datasource': {'default_sort': [('name',
                                 1)]}``
 
-                                For more informations on sort and filters see
+                                For more information on sort and filters see
                                 :ref:`filters`.
 
 ``aggregation``                 Aggregation pipeline and options. When used all
@@ -1406,7 +1453,7 @@ of the database collection. It is a dictionary with four allowed keys:
 
                                 - ``pipeline``. The aggregation pipeline.
                                   Syntax must match the one supported by
-                                  PyMongo. For more informations see `PyMongo
+                                  PyMongo. For more information see `PyMongo
                                   Aggregation Examples`_ and the official
                                   `MongoDB Aggregation Framework`_
                                   documentation.
@@ -1483,6 +1530,14 @@ By default API responses to GET requests will include all fields defined by the
 corresponding resource schema_. The ``projection`` setting of the `datasource`
 resource keyword allows you to redefine the fieldset.
 
+When you want to hide some *secret fields* from client, you should use
+inclusive projection setting and include all fields should be exposed. While,
+when you want to limit default responses to certain fields but still allow them
+to be accessible through client-side projections, you should use exclusive
+projection setting and exclude fields should be omitted.
+
+The following is an example for inclusive projection setting:
+
 ::
 
     people = {
@@ -1492,9 +1547,18 @@ resource keyword allows you to redefine the fieldset.
         }
 
 The above setting will expose only the `username` field to GET requests, no
-matter the schema_ defined for the resource.
+matter the schema_ defined for the resource. And other fields **will not** be
+exposed even by client-side projection. The following API call will not return
+`lastname` or `born`.
 
-Likewise, you can exclude fields from API responses:
+.. code-block:: console
+
+    $ curl -i http://eve-demo.herokuapp.com/people?projection={"lastname": 1, "born": 1}
+    HTTP/1.1 200 OK
+
+You can also exclude fields from API responses. But this time, the excluded
+fields **will be** exposed to client-side projection. The following is an
+example for exclusive projection setting:
 
 ::
 
@@ -1504,7 +1568,19 @@ Likewise, you can exclude fields from API responses:
             }
         }
 
-The above will include all document fields but `username`.
+The above will include all document fields but `username`. However, the
+following API call will return `username` this time. Thus, you can exploit this
+behaviour to serve media fields or other expensive fields.
+
+In most cases, none or inclusive projection setting is preferred. With
+inclusive projection, secret fields are taken care from server side, and default
+fields returned can be defined by short-cut functions from client-side.
+
+.. code-block:: console
+
+    $ curl -i http://eve-demo.herokuapp.com/people?projection={"username": 1}
+    HTTP/1.1 200 OK
+
 
 Please note that POST and PATCH methods will still allow the whole schema to be
 manipulated. This feature can come in handy when, for example, you want to

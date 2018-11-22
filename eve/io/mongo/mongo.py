@@ -28,8 +28,13 @@ from bson import decimal128
 from eve.auth import resource_auth
 from eve.io.base import DataLayer, ConnectionException, BaseJSONEncoder
 from eve.io.mongo.parser import parse, ParseError
-from eve.utils import config, debug_error_message, validate_filters, \
-    str_to_date, str_type
+from eve.utils import (
+    config,
+    debug_error_message,
+    validate_filters,
+    str_to_date,
+    str_type,
+)
 
 
 class MongoJSONEncoder(BaseJSONEncoder):
@@ -41,6 +46,7 @@ class MongoJSONEncoder(BaseJSONEncoder):
 
     .. versionadded:: 0.2
     """
+
     def default(self, obj):
         if isinstance(obj, ObjectId):
             # BSON/Mongo ObjectId is rendered as a string
@@ -51,9 +57,9 @@ class MongoJSONEncoder(BaseJSONEncoder):
             # (and we probably don't want it to be exposed anyway). See #790.
             return "<callable>"
         if isinstance(obj, DBRef):
-            retval = {'$id': str(obj.id), '$ref': obj.collection}
+            retval = {"$id": str(obj.id), "$ref": obj.collection}
             if obj.database:
-                retval['$db'] = obj.database
+                retval["$db"] = obj.database
             return retval
         if isinstance(obj, decimal128.Decimal128):
             return str(obj)
@@ -79,19 +85,22 @@ class Mongo(DataLayer):
     """
 
     serializers = {
-        'objectid': lambda value: ObjectId(value) if value else None,
-        'datetime': str_to_date,
-        'integer': lambda value: int(value) if value is not None else None,
-        'float': lambda value: float(value) if value is not None else None,
-        'number': lambda val: json.loads(val) if val is not None else None,
-        'boolean': lambda v:
-        {'1': True, 'true': True, '0': False, 'false': False}[str(v).lower()],
-        'dbref': lambda value:
-        DBRef(value['$col'], value['$id'], value['$db']
-              if '$db' in value else None) if value is not None else None,
-        'decimal': lambda value:
-        decimal128.Decimal128(decimal.Decimal(str(value)))
-        if value is not None else None,
+        "objectid": lambda value: ObjectId(value) if value else None,
+        "datetime": str_to_date,
+        "integer": lambda value: int(value) if value is not None else None,
+        "float": lambda value: float(value) if value is not None else None,
+        "number": lambda val: json.loads(val) if val is not None else None,
+        "boolean": lambda v: {"1": True, "true": True, "0": False, "false": False}[
+            str(v).lower()
+        ],
+        "dbref": lambda value: DBRef(
+            value["$col"], value["$id"], value["$db"] if "$db" in value else None
+        )
+        if value is not None
+        else None,
+        "decimal": lambda value: decimal128.Decimal128(decimal.Decimal(str(value)))
+        if value is not None
+        else None,
     }
 
     # JSON serializer is a class attribute. Allows extensions to replace it
@@ -99,13 +108,15 @@ class Mongo(DataLayer):
     json_encoder_class = MongoJSONEncoder
 
     operators = set(
-        ['$gt', '$gte', '$in', '$lt', '$lte', '$ne', '$nin'] +
-        ['$or', '$and', '$not', '$nor'] +
-        ['$mod', '$regex', '$text', '$where'] +
-        ['$options', '$search', '$language'] +
-        ['$exists', '$type'] +
-        ['$geoWithin', '$geoIntersects', '$near', '$nearSphere'] +
-        ['$all', '$elemMatch', '$size']
+        ["$gt", "$gte", "$in", "$lt", "$lte", "$ne", "$nin"]
+        + ["$or", "$and", "$not", "$nor"]
+        + ["$mod", "$regex", "$text", "$where"]
+        + ["$options", "$search", "$language", "$caseSensitive"]
+        + ["$diacriticSensitive", "$exists", "$type"]
+        + ["$geoWithin", "$geoIntersects", "$near", "$nearSphere", "$centerSphere"]
+        + ["$geometry", "$maxDistance", "$box"]
+        + ["$all", "$elemMatch", "$size"]
+        + ["$bitsAllClear", "$bitsAllSet", "$bitsAnyClear", "$bitsAnySet"]
     )
 
     def init_app(self, app):
@@ -186,10 +197,10 @@ class Mongo(DataLayer):
         args = dict()
 
         if req and req.max_results:
-            args['limit'] = req.max_results
+            args["limit"] = req.max_results
 
         if req and req.page > 1:
-            args['skip'] = (req.page - 1) * req.max_results
+            args["skip"] = (req.page - 1) * req.max_results
 
         # TODO sort syntax should probably be coherent with 'where': either
         # mongo-like # or python-like. Currently accepts only mongo-like sort
@@ -231,9 +242,12 @@ class Mongo(DataLayer):
                 try:
                     spec = parse(req.where)
                 except ParseError:
-                    abort(400, description=debug_error_message(
-                        'Unable to parse `where` clause'
-                    ))
+                    abort(
+                        400,
+                        description=debug_error_message(
+                            "Unable to parse `where` clause"
+                        ),
+                    )
 
         bad_filter = validate_filters(spec, resource)
         if bad_filter:
@@ -242,9 +256,11 @@ class Mongo(DataLayer):
         if sub_resource_lookup:
             spec = self.combine_queries(spec, sub_resource_lookup)
 
-        if config.DOMAIN[resource]['soft_delete'] \
-                and not (req and req.show_deleted) \
-                and not self.query_contains_field(spec, config.DELETED):
+        if (
+            config.DOMAIN[resource]["soft_delete"]
+            and not (req and req.show_deleted)
+            and not self.query_contains_field(spec, config.DELETED)
+        ):
             # Soft delete filtering applied after validate_filters call as
             # querying against the DELETED field must always be allowed when
             # soft_delete is enabled
@@ -255,27 +271,31 @@ class Mongo(DataLayer):
         client_projection = self._client_projection(req)
 
         datasource, spec, projection, sort = self._datasource_ex(
-            resource,
-            spec,
-            client_projection,
-            client_sort)
+            resource, spec, client_projection, client_sort
+        )
 
         if req and req.if_modified_since:
-            spec[config.LAST_UPDATED] = \
-                {'$gt': req.if_modified_since}
+            spec[config.LAST_UPDATED] = {"$gt": req.if_modified_since}
 
         if len(spec) > 0:
-            args['filter'] = spec
+            args["filter"] = spec
 
         if sort is not None:
-            args['sort'] = sort
+            args["sort"] = sort
 
-        if projection is not None:
-            args['projection'] = projection
+        if projection:
+            args["projection"] = projection
 
         return self.pymongo(resource).db[datasource].find(**args)
 
-    def find_one(self, resource, req, **lookup):
+    def find_one(
+        self,
+        resource,
+        req,
+        check_auth_value=True,
+        force_auth_field_projection=False,
+        **lookup
+    ):
         """ Retrieves a single document.
 
         :param resource: resource name.
@@ -310,16 +330,21 @@ class Mongo(DataLayer):
         datasource, filter_, projection, _ = self._datasource_ex(
             resource,
             lookup,
-            client_projection)
+            client_projection,
+            check_auth_value=check_auth_value,
+            force_auth_field_projection=force_auth_field_projection,
+        )
 
-        if (config.DOMAIN[resource]['soft_delete']) and \
-                (not req or not req.show_deleted) and \
-                (not self.query_contains_field(lookup, config.DELETED)):
-            filter_ = self.combine_queries(
-                filter_, {config.DELETED: {"$ne": True}})
-
-        return self.pymongo(resource).db[datasource] \
-                                     .find_one(filter_, projection)
+        if (
+            (config.DOMAIN[resource]["soft_delete"])
+            and (not req or not req.show_deleted)
+            and (not self.query_contains_field(lookup, config.DELETED))
+        ):
+            filter_ = self.combine_queries(filter_, {config.DELETED: {"$ne": True}})
+        # Here, we feed pymongo with `None` if projection is empty.
+        return (
+            self.pymongo(resource).db[datasource].find_one(filter_, projection or None)
+        )
 
     def find_one_raw(self, resource, **lookup):
         """ Retrieves a single raw document.
@@ -332,11 +357,9 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.4
         """
-        id_field = config.DOMAIN[resource]['id_field']
+        id_field = config.DOMAIN[resource]["id_field"]
         _id = lookup.get(id_field)
-        datasource, filter_, _, _ = self._datasource_ex(resource,
-                                                        {id_field: _id},
-                                                        None)
+        datasource, filter_, _, _ = self._datasource_ex(resource, {id_field: _id}, None)
 
         lookup = self._mongotize(lookup, resource)
 
@@ -377,17 +400,19 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.1.0
         """
-        id_field = config.DOMAIN[resource]['id_field']
-        query = {'$or': [
-            {id_field: id_} for id_ in ids
-        ]}
+        id_field = config.DOMAIN[resource]["id_field"]
+        query = {"$or": [{id_field: id_} for id_ in ids]}
 
         datasource, spec, projection, _ = self._datasource_ex(
             resource, query=query, client_projection=client_projection
         )
-
-        documents = self.pymongo(resource).db[datasource].find(
-            filter=spec, projection=projection
+        # projection of {} return all fields in MongoDB, but
+        # pymongo will only return `_id`. It's a design flaw upstream.
+        # Here, we feed pymongo with `None` if projection is empty.
+        documents = (
+            self.pymongo(resource)
+            .db[datasource]
+            .find(filter=spec, projection=(projection or None))
         )
         return documents
 
@@ -396,11 +421,9 @@ class Mongo(DataLayer):
         .. versionadded:: 0.7
         """
         datasource, _, _, _ = self.datasource(resource)
-        challenge = self._mongotize({'key': pipeline}, resource)['key']
+        challenge = self._mongotize({"key": pipeline}, resource)["key"]
 
-        return self.pymongo(resource).db[datasource].aggregate(
-            challenge, **options
-        )
+        return self.pymongo(resource).db[datasource].aggregate(challenge, **options)
 
     def insert(self, resource, doc_or_docs):
         """ Inserts a document into a resource collection.
@@ -445,18 +468,24 @@ class Mongo(DataLayer):
 
             # report a duplicate key error since this can probably be
             # handled by the client.
-            for error in e.details['writeErrors']:
+            for error in e.details["writeErrors"]:
                 # amazingly enough, pymongo does not appear to be exposing
                 # error codes as constants.
-                if error['code'] == 11000:
-                    abort(409, description=debug_error_message(
-                        'Duplicate key error at index: %s, message: %s' % (
-                            error['index'], error['errmsg'])
-                    ))
+                if error["code"] == 11000:
+                    abort(
+                        409,
+                        description=debug_error_message(
+                            "Duplicate key error at index: %s, message: %s"
+                            % (error["index"], error["errmsg"])
+                        ),
+                    )
 
-            abort(500, description=debug_error_message(
-                'pymongo.errors.BulkWriteError: %s' % e
-            ))
+            abort(
+                500,
+                description=debug_error_message(
+                    "pymongo.errors.BulkWriteError: %s" % e
+                ),
+            )
 
     def _change_request(self, resource, id_, changes, original, replace=False):
         """ Performs a change, be it a replace or update.
@@ -468,48 +497,52 @@ class Mongo(DataLayer):
            Return 400 if an attempt is made to update/replace an immutable
            field.
         """
-        id_field = config.DOMAIN[resource]['id_field']
+        id_field = config.DOMAIN[resource]["id_field"]
         query = {id_field: id_}
         if config.ETAG in original:
             query[config.ETAG] = original[config.ETAG]
 
-        datasource, filter_, _, _ = self._datasource_ex(
-            resource, query)
+        datasource, filter_, _, _ = self._datasource_ex(resource, query)
 
         coll = self.get_collection_with_write_concern(datasource, resource)
         try:
-            coll.replace_one(filter_, changes) if replace else \
-                coll.update_one(filter_, changes)
+            coll.replace_one(filter_, changes) if replace else coll.update_one(
+                filter_, changes
+            )
         except pymongo.errors.DuplicateKeyError as e:
-            abort(400, description=debug_error_message(
-                'pymongo.errors.DuplicateKeyError: %s' % e
-            ))
+            abort(
+                400,
+                description=debug_error_message(
+                    "pymongo.errors.DuplicateKeyError: %s" % e
+                ),
+            )
         except pymongo.errors.OperationFailure as e:
             # server error codes and messages changed between 2.4 and 2.6/3.0.
-            server_version = \
-                self.driver.db.client.server_info()['version'][:3]
-            if (
-                (server_version == '2.4' and e.code in (13596, 10148)) or
-                (server_version in ('2.6', '3.0', '3.2', '3.4') and
-                    e.code in (66, 16837))
+            server_version = self.driver.db.client.server_info()["version"][:3]
+            if (server_version == "2.4" and e.code in (13596, 10148)) or (
+                server_version in ("2.6", "3.0", "3.2", "3.4") and e.code in (66, 16837)
             ):
                 # attempt to update an immutable field. this usually
                 # happens when a PATCH or PUT includes a mismatching ID_FIELD.
-                self.app.logger.warn(e)
-                description = debug_error_message(
-                    'pymongo.errors.OperationFailure: %s' % e) or \
-                    "Attempt to update an immutable field. Usually happens " \
-                    "when PATCH or PUT include a '%s' field, " \
-                    "which is immutable (PUT can include it as long as " \
+                self.app.logger.warning(e)
+                description = (
+                    debug_error_message("pymongo.errors.OperationFailure: %s" % e)
+                    or "Attempt to update an immutable field. Usually happens "
+                    "when PATCH or PUT include a '%s' field, "
+                    "which is immutable (PUT can include it as long as "
                     "it is unchanged)." % id_field
+                )
 
                 abort(400, description=description)
             else:
                 # see comment in :func:`insert()`.
                 self.app.logger.exception(e)
-                abort(500, description=debug_error_message(
-                    'pymongo.errors.OperationFailure: %s' % e
-                ))
+                abort(
+                    500,
+                    description=debug_error_message(
+                        "pymongo.errors.OperationFailure: %s" % e
+                    ),
+                )
 
     def update(self, resource, id_, updates, original):
         """ Updates a collection document.
@@ -564,8 +597,7 @@ class Mongo(DataLayer):
         .. versionadded:: 0.1.0
         """
 
-        return self._change_request(resource, id_, document, original,
-                                    replace=True)
+        return self._change_request(resource, id_, document, original, replace=True)
 
     def remove(self, resource, lookup):
         """ Removes a document or the entire set of documents from a
@@ -612,9 +644,12 @@ class Mongo(DataLayer):
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
             self.app.logger.exception(e)
-            abort(500, description=debug_error_message(
-                'pymongo.errors.OperationFailure: %s' % e
-            ))
+            abort(
+                500,
+                description=debug_error_message(
+                    "pymongo.errors.OperationFailure: %s" % e
+                ),
+            )
 
     # TODO: The next three methods could be pulled out to form the basis
     # of a separate MonqoQuery class
@@ -651,9 +686,8 @@ class Mongo(DataLayer):
         """
         # Chain the operations with the $and operator
         return {
-            '$and': [
-                {k: v} for k, v in itertools.chain(query_a.items(),
-                                                   query_b.items())
+            "$and": [
+                {k: v} for k, v in itertools.chain(query_a.items(), query_b.items())
             ]
         }
 
@@ -677,8 +711,8 @@ class Mongo(DataLayer):
         """
         if field_name in query:
             return query[field_name]
-        elif '$and' in query:
-            for condition in query['$and']:
+        elif "$and" in query:
+            for condition in query["$and"]:
                 if field_name in condition:
                     return condition[field_name]
         raise KeyError
@@ -726,9 +760,12 @@ class Mongo(DataLayer):
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
             self.app.logger.exception(e)
-            abort(500, description=debug_error_message(
-                'pymongo.errors.OperationFailure: %s' % e
-            ))
+            abort(
+                500,
+                description=debug_error_message(
+                    "pymongo.errors.OperationFailure: %s" % e
+                ),
+            )
 
     def _mongotize(self, source, resource):
         """ Recursively iterates a JSON dictionary, turning RFC-1123 strings
@@ -751,7 +788,7 @@ class Mongo(DataLayer):
         .. versionadded:: 0.0.4
         """
         schema = config.DOMAIN[resource]
-        skip_objectid = schema.get('query_objectid_as_string', False)
+        skip_objectid = schema.get("query_objectid_as_string", False)
 
         def try_cast(v):
             try:
@@ -802,24 +839,35 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.0.7
         """
+
         def sanitize_keys(spec):
-            ops = set([op for op in spec.keys() if op[0] == '$'])
+            ops = set([op for op in spec.keys() if op[0] == "$"])
             unknown = ops - Mongo.operators
             if unknown:
-                abort(400, description=debug_error_message(
-                    'Query contains unknown or unsupported operators: %s' %
-                    ', '.join(unknown)
-                ))
+                abort(
+                    400,
+                    description=debug_error_message(
+                        "Query contains unknown or unsupported operators: %s"
+                        % ", ".join(unknown)
+                    ),
+                )
 
             if set(spec.keys()) & set(config.MONGO_QUERY_BLACKLIST):
-                abort(400, description=debug_error_message(
-                    'Query contains operators banned in MONGO_QUERY_BLACKLIST'
-                ))
+                abort(
+                    400,
+                    description=debug_error_message(
+                        "Query contains operators banned in MONGO_QUERY_BLACKLIST"
+                    ),
+                )
 
-        sanitize_keys(spec)
-        for value in spec.values():
-            if isinstance(value, dict):
-                sanitize_keys(value)
+        if isinstance(spec, dict):
+            sanitize_keys(spec)
+            for value in spec.values():
+                self._sanitize(value)
+        if isinstance(spec, list):
+            for value in spec:
+                self._sanitize(value)
+
         return spec
 
     def _wc(self, resource):
@@ -827,7 +875,7 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.0.8
         """
-        return config.DOMAIN[resource]['mongo_write_concern']
+        return config.DOMAIN[resource]["mongo_write_concern"]
 
     def current_mongo_prefix(self, resource=None):
         """ Returns the active mongo_prefix that should be used to retrieve
@@ -859,7 +907,7 @@ class Mongo(DataLayer):
         auth = None
         try:
             if resource is None and request and request.endpoint:
-                resource = request.endpoint[:request.endpoint.index('|')]
+                resource = request.endpoint[: request.endpoint.index("|")]
             if request and request.endpoint:
                 auth = resource_auth(resource)
         except ValueError:
@@ -868,13 +916,13 @@ class Mongo(DataLayer):
         px = auth.get_mongo_prefix() if auth else None
 
         if px is None:
-            px = g.get('mongo_prefix', None)
+            px = g.get("mongo_prefix", None)
 
         if px is None:
             if resource:
-                px = config.DOMAIN[resource].get('mongo_prefix', 'MONGO')
+                px = config.DOMAIN[resource].get("mongo_prefix", "MONGO")
             else:
-                px = 'MONGO'
+                px = "MONGO"
 
         return px
 
@@ -913,9 +961,8 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.6.1
         """
-        wc = WriteConcern(config.DOMAIN[resource]['mongo_write_concern']['w'])
-        return self.pymongo(resource).db[datasource].with_options(
-            write_concern=wc)
+        wc = WriteConcern(config.DOMAIN[resource]["mongo_write_concern"]["w"])
+        return self.pymongo(resource).db[datasource].with_options(write_concern=wc)
 
 
 class PyMongos(dict):
@@ -924,6 +971,7 @@ class PyMongos(dict):
 
     .. versionadded:: 0.6
     """
+
     def __init__(self, mongo, *args):
         self.mongo = mongo
         dict.__init__(self, args)
@@ -938,7 +986,27 @@ class PyMongos(dict):
         return self.mongo.pymongo().db
 
 
-def create_index(app, resource, name, list_of_keys, index_options):
+def ensure_mongo_indexes(app, resource):
+    """ Make sure 'mongo_indexes' is respected and mongo indexes are created on
+    the current database.
+
+    .. versionaddded:: 0.8
+    """
+    mongo_indexes = app.config["DOMAIN"][resource]["mongo_indexes"]
+    if not mongo_indexes:
+        return
+
+    for name, value in mongo_indexes.items():
+        if isinstance(value, tuple):
+            list_of_keys, index_options = value
+        else:
+            list_of_keys = value
+            index_options = {}
+
+        _create_index(app, resource, name, list_of_keys, index_options)
+
+
+def _create_index(app, resource, name, list_of_keys, index_options):
     """ Create a specific index composed of the `list_of_keys` for the
     mongo collection behind the `resource` using the `app.config`
     to retrieve all data needed to find out the mongodb configuration.
@@ -959,33 +1027,41 @@ def create_index(app, resource, name, list_of_keys, index_options):
     For example:
         {"sparse": True}
 
+    .. versionchanged:: 0.8.1
+       Add support for IndexKeySpecsConflict error. See #1180.
+
     .. versionadded:: 0.6
+
     """
     # it doesn't work as a typical mongodb method run in the request
     # life cycle, it is just called when the app start and it uses
     # pymongo directly.
-    collection = app.config['SOURCES'][resource]['source']
+    collection = app.config["SOURCES"][resource]["source"]
 
     # get db for given prefix
-    px = app.config['DOMAIN'][resource].get('mongo_prefix', 'MONGO')
+    try:
+        # mongo_prefix might have been set by Auth class instance
+        px = g.get("mongo_prefix")
+    except:
+        px = app.config["DOMAIN"][resource].get("mongo_prefix", "MONGO")
+
     with app.app_context():
         db = app.data.pymongo(resource, px).db
 
     kw = copy(index_options)
-    kw['name'] = name
+    kw["name"] = name
 
     colls = [db[collection]]
-    if app.config['DOMAIN'][resource]['versioning']:
-        colls.append(db['%s_versions' % collection])
+    if app.config["DOMAIN"][resource]["versioning"]:
+        colls.append(db["%s_versions" % collection])
 
     for coll in colls:
         try:
             coll.create_index(list_of_keys, **kw)
         except pymongo.errors.OperationFailure as e:
-            if e.code == 85:
-                # This error is raised when the definition of the index has
-                # been changed, we didn't found any spec out there but we think
-                # that this error is not going to change and we can trust.
+            if e.code in (85, 86):
+                # raised when the definition of the index has been changed.
+                # (https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.err#L87)
 
                 # by default, drop the old index with old configuration and
                 # create the index again with the new configuration.

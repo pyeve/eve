@@ -65,3 +65,5 @@ _build
 .idea
 
 .cache
+.vscode
+.pytest_cache

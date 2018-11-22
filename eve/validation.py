@@ -21,15 +21,10 @@ from eve.utils import config
 
 
 class Validator(cerberus.Validator):
-
     def __init__(self, *args, **kwargs):
         if not config.VALIDATION_ERROR_AS_LIST:
-            kwargs['error_handler'] = SingleErrorAsStringErrorHandler
+            kwargs["error_handler"] = SingleErrorAsStringErrorHandler
 
-        resource = kwargs.get('resource', None)
-        if resource:
-            resource_def = config.DOMAIN[resource]
-            kwargs['allow_unknown'] = resource_def['allow_unknown']
         super(Validator, self).__init__(*args, **kwargs)
 
     def validate_update(self, document, document_id, persisted_document=None):
@@ -64,8 +59,7 @@ class Validator(cerberus.Validator):
 
     def _normalize_default(self, mapping, schema, field):
         """ {'nullable': True} """
-        if not self.persisted_document or \
-           field not in self.persisted_document:
+        if not self.persisted_document or field not in self.persisted_document:
             super(Validator, self)._normalize_default(mapping, schema, field)
 
     def _normalize_default_setter(self, mapping, schema, field):
@@ -73,13 +67,11 @@ class Validator(cerberus.Validator):
                 {'type': 'callable'},
                 {'type': 'string'}
                 ]} """
-        if not self.persisted_document or \
-           field not in self.persisted_document:
-            super(Validator, self)._normalize_default_setter(mapping, schema,
-                                                             field)
+        if not self.persisted_document or field not in self.persisted_document:
+            super(Validator, self)._normalize_default_setter(mapping, schema, field)
 
     def _validate_dependencies(self, dependencies, field, value):
-        """ {'type': ['dict', 'hashable', 'hashables']} """
+        """ {'type': ['dict', 'hashable', 'list']} """
         persisted = self._filter_persisted_fields_not_in_document(dependencies)
         if persisted:
             dcopy = copy.copy(self.document)
@@ -89,47 +81,49 @@ class Validator(cerberus.Validator):
             validator.validate(dcopy, update=self.update)
             self._error(validator._errors)
         else:
-            super(Validator, self)._validate_dependencies(dependencies, field,
-                                                          value)
+            super(Validator, self)._validate_dependencies(dependencies, field, value)
 
     def _filter_persisted_fields_not_in_document(self, fields):
         def persisted_but_not_in_document(field):
-            return field not in self.document and \
-                self.persisted_document and \
-                field in self.persisted_document
-        return [field for field in fields if
-                persisted_but_not_in_document(field)]
+            return (
+                field not in self.document
+                and self.persisted_document
+                and field in self.persisted_document
+            )
+
+        return [field for field in fields if persisted_but_not_in_document(field)]
 
     def _validate_readonly(self, read_only, field, value):
         """ {'type': 'boolean'} """
-        persisted_value = self.persisted_document.get(field) \
-            if self.persisted_document else None
+        persisted_value = (
+            self.persisted_document.get(field) if self.persisted_document else None
+        )
         if value != persisted_value:
             super(Validator, self)._validate_readonly(read_only, field, value)
 
     @property
     def resource(self):
-        return self._config.get('resource', None)
+        return self._config.get("resource", None)
 
     @resource.setter
     def resource(self, value):
-        self._config['resource'] = value
+        self._config["resource"] = value
 
     @property
     def document_id(self):
-        return self._config.get('document_id', None)
+        return self._config.get("document_id", None)
 
     @document_id.setter
     def document_id(self, value):
-        self._config['document_id'] = value
+        self._config["document_id"] = value
 
     @property
     def persisted_document(self):
-        return self._config.get('persisted_document', None)
+        return self._config.get("persisted_document", None)
 
     @persisted_document.setter
     def persisted_document(self, value):
-        self._config['persisted_document'] = value
+        self._config["persisted_document"] = value
 
 
 class SingleErrorAsStringErrorHandler(cerberus.errors.BasicErrorHandler):

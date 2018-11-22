@@ -38,49 +38,49 @@
 
 """
 
-__version__ = '0.8-dev'
+__version__ = "0.8.2.dev0"
 
 # RFC 1123 (ex RFC 822)
-DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
-RFC1123_DATE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
+DATE_FORMAT = "%a, %d %b %Y %H:%M:%S GMT"
+RFC1123_DATE_FORMAT = "%a, %d %b %Y %H:%M:%S GMT"
 
-URL_PREFIX = ''
-API_VERSION = ''
+URL_PREFIX = ""
+API_VERSION = ""
 PAGINATION = True
 PAGINATION_LIMIT = 50
 PAGINATION_DEFAULT = 25
-ID_FIELD = '_id'
-CACHE_CONTROL = 'max-age=10,must-revalidate'        # TODO confirm this value
+ID_FIELD = "_id"
+CACHE_CONTROL = "max-age=10,must-revalidate"  # TODO confirm this value
 CACHE_EXPIRES = 10
 
 ALLOW_CUSTOM_FIELDS_IN_GEOJSON = False
 
-RESOURCE_METHODS = ['GET']
-ITEM_METHODS = ['GET']
+RESOURCE_METHODS = ["GET"]
+ITEM_METHODS = ["GET"]
 ITEM_LOOKUP = True
 ITEM_LOOKUP_FIELD = ID_FIELD
 ITEM_URL = 'regex("[a-f0-9]{24}")'
 
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"
-LAST_UPDATED = '_updated'
-DATE_CREATED = '_created'
-ISSUES = '_issues'
-STATUS = '_status'
-ERROR = '_error'
-ITEMS = '_items'
-LINKS = '_links'
-ETAG = '_etag'
-VERSION = '_version'
-META = '_meta'
+LAST_UPDATED = "_updated"
+DATE_CREATED = "_created"
+ISSUES = "_issues"
+STATUS = "_status"
+ERROR = "_error"
+ITEMS = "_items"
+LINKS = "_links"
+ETAG = "_etag"
+VERSION = "_version"
+META = "_meta"
 INFO = None
 
-QUERY_WHERE = 'where'
-QUERY_SORT = 'sort'
-QUERY_PAGE = 'page'
-QUERY_MAX_RESULTS = 'max_results'
-QUERY_EMBEDDED = 'embedded'
-QUERY_PROJECTION = 'projection'
+QUERY_WHERE = "where"
+QUERY_SORT = "sort"
+QUERY_PAGE = "page"
+QUERY_MAX_RESULTS = "max_results"
+QUERY_EMBEDDED = "embedded"
+QUERY_PROJECTION = "projection"
 
 VALIDATION_ERROR_STATUS = 422
 VALIDATION_ERROR_AS_LIST = False

@@ -13,20 +13,32 @@
 import math
 
 import copy
-import json
+import simplejson as json
 from flask import current_app as app, abort, request
 from werkzeug import MultiDict
 
-from .common import ratelimit, epoch, pre_event, resolve_embedded_fields, \
-    build_response_document, resource_link, document_link, last_updated
+from .common import (
+    ratelimit,
+    epoch,
+    pre_event,
+    resolve_embedded_fields,
+    build_response_document,
+    resource_link,
+    document_link,
+    last_updated,
+)
 from eve.auth import requires_auth
 from eve.utils import parse_request, home_link, querydef, config
-from eve.versioning import synthesize_versioned_document, versioned_id_field, \
-    get_old_document, diff_document
+from eve.versioning import (
+    synthesize_versioned_document,
+    versioned_id_field,
+    get_old_document,
+    diff_document,
+)
 
 
 @ratelimit()
-@requires_auth('resource')
+@requires_auth("resource")
 @pre_event
 def get(resource, **lookup):
     """
@@ -102,12 +114,13 @@ def get_internal(resource, **lookup):
        JSON formatted.
     """
 
-    datasource = config.DOMAIN[resource]['datasource']
-    aggregation = datasource.get('aggregation')
+    datasource = config.DOMAIN[resource]["datasource"]
+    aggregation = datasource.get("aggregation")
 
     if aggregation:
-        return _perform_aggregation(resource, aggregation['pipeline'],
-                                    aggregation['options'])
+        return _perform_aggregation(
+            resource, aggregation["pipeline"], aggregation["options"]
+        )
     else:
         return _perform_find(resource, lookup)
 
@@ -121,12 +134,27 @@ def _perform_aggregation(resource, pipeline, options):
     # TODO experiment with cursor.batch_size as alternative pagination
     # implementation
 
-    def parse_aggregation_stage(d, key, value):
-        for st_key, st_value in d.items():
-            if isinstance(st_value, dict):
+    def parse_aggregation_stage(st_item, key, value):
+        def parse_again(st_value, key, value):
+            """
+            If stage value is list or dict then parse recursively
+            """
+            if isinstance(st_value, (list, dict)):
                 parse_aggregation_stage(st_value, key, value)
-            if key == st_value:
-                d[st_key] = value
+
+        if isinstance(st_item, dict):
+            for st_key, st_value in st_item.items():
+                if key == st_value:
+                    st_item[st_key] = value
+                else:
+                    parse_again(st_value, key, value)
+
+        elif isinstance(st_item, list):
+            for st_i, st_value in enumerate(st_item):
+                if key == st_value:
+                    st_item[st_i] = value
+                else:
+                    parse_again(st_value, key, value)
 
     def prune_aggregation_stage(d):
         """
@@ -154,10 +182,10 @@ def _perform_aggregation(resource, pipeline, options):
         try:
             query = json.loads(req.aggregation)
         except ValueError:
-            abort(400, description='Aggregation query could not be parsed.')
+            abort(400, description="Aggregation query could not be parsed.")
 
         for key, value in query.items():
-            if key[0] != '$':
+            if key[0] != "$":
                 pass
             for stage in req_pipeline:
                 parse_aggregation_stage(stage, key, value)
@@ -175,10 +203,14 @@ def _perform_aggregation(resource, pipeline, options):
         req_pipeline_pruned.append(skip)
         req_pipeline_pruned.append(limit)
 
-    cursor = app.data.aggregate(resource, req_pipeline_pruned, options)
+    getattr(app, "before_aggregation")(resource, req_pipeline)
+
+    cursor = app.data.aggregate(resource, req_pipeline, options)
 
     for document in cursor:
         documents.append(document)
+
+    getattr(app, "after_aggregation")(resource, documents)
 
     response[config.ITEMS] = documents
 
@@ -228,11 +260,11 @@ def _perform_find(resource, lookup):
         count = cursor.count(with_limit_and_skip=False)
         headers.append((config.HEADER_TOTAL_COUNT, count))
 
-    if config.DOMAIN[resource]['hateoas']:
+    if config.DOMAIN[resource]["hateoas"]:
         response[config.LINKS] = _pagination_links(resource, req, count)
 
     # add pagination info
-    if config.DOMAIN[resource]['pagination']:
+    if config.DOMAIN[resource]["pagination"]:
         response[config.META] = _meta_links(req, count)
 
     # notify registered callback functions. Please note that, should the
@@ -245,14 +277,14 @@ def _perform_find(resource, lookup):
     # the 'extra' cursor field, if present, will be added to the response.
     # Can be used by Eve extensions to add extra, custom data to any
     # response.
-    if hasattr(cursor, 'extra'):
-        getattr(cursor, 'extra')(response)
+    if hasattr(cursor, "extra"):
+        getattr(cursor, "extra")(response)
 
     return response, last_modified, etag, status, headers
 
 
 @ratelimit()
-@requires_auth('item')
+@requires_auth("item")
 @pre_event
 def getitem(resource, **lookup):
     """
@@ -326,7 +358,7 @@ def getitem_internal(resource, **lookup):
     resource_def = config.DOMAIN[resource]
     embedded_fields = resolve_embedded_fields(resource, req)
 
-    soft_delete_enabled = config.DOMAIN[resource]['soft_delete']
+    soft_delete_enabled = config.DOMAIN[resource]["soft_delete"]
     if soft_delete_enabled:
         # GET requests should always fetch soft deleted documents from the db
         # They are handled and included in 404 responses below.
@@ -347,16 +379,15 @@ def getitem_internal(resource, **lookup):
     last_modified = last_updated(document)
 
     # synthesize old document version(s)
-    if resource_def['versioning'] is True:
+    if resource_def["versioning"] is True:
         latest_doc = document
-        document = get_old_document(
-            resource, req, lookup, document, version)
+        document = get_old_document(resource, req, lookup, document, version)
 
     # meld into response document
     build_response_document(document, resource, embedded_fields, latest_doc)
     if config.IF_MATCH:
         etag = document[config.ETAG]
-        if resource_def['versioning'] is True:
+        if resource_def["versioning"] is True:
             # In order to keep the LATEST_VERSION field up to date in client
             # caches, changes to the latest version should invalidate cached
             # copies of previous verisons. Incorporate the latest version into
@@ -377,21 +408,20 @@ def getitem_internal(resource, **lookup):
     # facilitate client caching by returning a 304 when appropriate
     cache_validators = {True: 0, False: 0}
     if req.if_modified_since:
-        cache_valid = (last_modified <= req.if_modified_since)
+        cache_valid = last_modified <= req.if_modified_since
         cache_validators[cache_valid] += 1
     if req.if_none_match:
-        cache_valid = (etag == req.if_none_match)
+        cache_valid = etag == req.if_none_match
         cache_validators[cache_valid] += 1
     # If all cache validators are true, return 304
     if (cache_validators[True] > 0) and (cache_validators[False] == 0):
         return {}, last_modified, etag, 304
 
-    if version == 'all' or version == 'diffs':
+    if version == "all" or version == "diffs":
         # find all versions
-        lookup[versioned_id_field(resource_def)] \
-            = lookup[resource_def['id_field']]
-        del lookup[resource_def['id_field']]
-        if version == 'diffs' or req.sort is None:
+        lookup[versioned_id_field(resource_def)] = lookup[resource_def["id_field"]]
+        del lookup[resource_def["id_field"]]
+        if version == "diffs" or req.sort is None:
             # default sort for 'all', required sort for 'diffs'
             req.sort = '[("%s", 1)]' % config.VERSION
         req.if_modified_since = None  # we always want the full history here
@@ -407,70 +437,72 @@ def getitem_internal(resource, **lookup):
             last_document = {}
 
             # if we aren't starting on page 1, then we need to init last_doc
-            if version == 'diffs' and req.page > 1:
+            if version == "diffs" and req.page > 1:
                 # grab the last document on the previous page to diff from
-                last_version = cursor[0][app.config['VERSION']] - 1
+                last_version = cursor[0][app.config["VERSION"]] - 1
                 last_document = get_old_document(
-                    resource, req, lookup, latest_doc, last_version)
+                    resource, req, lookup, latest_doc, last_version
+                )
 
             for i, document in enumerate(cursor):
                 document = synthesize_versioned_document(
-                    latest_doc, document, resource_def)
-                build_response_document(
-                    document, resource, embedded_fields, latest_doc)
-                if version == 'diffs':
+                    latest_doc, document, resource_def
+                )
+                build_response_document(document, resource, embedded_fields, latest_doc)
+                if version == "diffs":
                     if i == 0:
                         documents.append(document)
                     else:
-                        documents.append(diff_document(
-                            resource_def, last_document, document))
+                        documents.append(
+                            diff_document(resource_def, last_document, document)
+                        )
                     last_document = document
                 else:
                     documents.append(document)
 
         # add documents to response
-        if config.DOMAIN[resource]['hateoas']:
+        if config.DOMAIN[resource]["hateoas"]:
             response[config.ITEMS] = documents
         else:
             response = documents
     elif soft_delete_enabled and document.get(config.DELETED) is True:
         # This document was soft deleted. Respond with 404 and the deleted
         # version of the document.
-        document[config.STATUS] = config.STATUS_ERR,
+        document[config.STATUS] = (config.STATUS_ERR,)
         document[config.ERROR] = {
-            'code': 404,
-            'message': 'The requested URL was not found on this server.'
+            "code": 404,
+            "message": "The requested URL was not found on this server.",
         }
         return document, last_modified, etag, 404
     else:
         response = document
 
     # extra hateoas links
-    if config.DOMAIN[resource]['hateoas']:
+    if config.DOMAIN[resource]["hateoas"]:
         # use the id of the latest document for multi-document requests
         if cursor:
             count = cursor.count(with_limit_and_skip=False)
-            response[config.LINKS] = \
-                _pagination_links(resource, req, count,
-                                  latest_doc[resource_def['id_field']])
-            if config.DOMAIN[resource]['pagination']:
+            response[config.LINKS] = _pagination_links(
+                resource, req, count, latest_doc[resource_def["id_field"]]
+            )
+            if config.DOMAIN[resource]["pagination"]:
                 response[config.META] = _meta_links(req, count)
         else:
-            response[config.LINKS] = \
-                _pagination_links(resource, req, None,
-                                  response[resource_def['id_field']])
+            response[config.LINKS] = _pagination_links(
+                resource, req, None, response[resource_def["id_field"]]
+            )
 
     # callbacks not supported on version diffs because of partial documents
-    if version != 'diffs':
+    if version != "diffs":
         # TODO: callbacks not currently supported with ?version=all
 
         # notify registered callback functions. Please note that, should
         # the functions modify the document, last_modified and etag
         # won't be updated to reflect the changes (they always reflect the
         # documents state on the database).
-        if resource_def['versioning'] is True and version == 'all':
+        if resource_def["versioning"] is True and version == "all":
             versions = response
-            if config.DOMAIN[resource]['hateoas']:
+            if config.DOMAIN[resource]["hateoas"]:
                 versions = response[config.ITEMS]
             for version_item in versions:
                 getattr(app, "on_fetched_item")(resource, version_item)
@@ -514,66 +546,93 @@ def _pagination_links(resource, req, document_count, document_id=None):
        JSON links
     """
     version = None
-    if config.DOMAIN[resource]['versioning'] is True:
+    if config.DOMAIN[resource]["versioning"] is True:
         version = request.args.get(config.VERSION_PARAM)
 
     other_params = _other_params(req.args)
     # construct the default links
-    q = querydef(req.max_results, req.where, req.sort, version, req.page,
-                 other_params)
-    resource_title = config.DOMAIN[resource]['resource_title']
-    _links = {'parent': home_link(),
-              'self': {'title': resource_title,
-                       'href': resource_link()}}
+    q = querydef(req.max_results, req.where, req.sort, version, req.page, other_params)
+    resource_title = config.DOMAIN[resource]["resource_title"]
+    _links = {
+        "parent": home_link(),
+        "self": {"title": resource_title, "href": resource_link()},
+    }
 
     # change links if document ID is given
     if document_id:
-        _links['self'] = document_link(resource, document_id)
-        _links['collection'] = {'title': resource_title,
-                                'href': '%s%s' % (resource_link(), q)}
+        _links["self"] = document_link(resource, document_id)
+        _links["collection"] = {
+            "title": resource_title,
+            "href": "%s%s" % (resource_link(), q),
+        }
 
         # make more specific links for versioned requests
-        if version in ('all', 'diffs'):
-            _links['parent'] = {'title': resource_title,
-                                'href': resource_link()}
-            _links['collection'] = document_link(resource, document_id)
+        if version in ("all", "diffs"):
+            _links["parent"] = {"title": resource_title, "href": resource_link()}
+            _links["collection"] = document_link(resource, document_id)
         elif version:
-            _links['parent'] = document_link(resource, document_id)
-            _links['collection'] = {'title': resource_title,
-                                    'href': '%s?version=all'
-                                    % _links['parent']['href']}
+            _links["parent"] = document_link(resource, document_id)
+            _links["collection"] = {
+                "title": resource_title,
+                "href": "%s?version=all" % _links["parent"]["href"],
+            }
 
     # modify the self link to add query params or version number
     if document_count:
-        _links['self']['href'] = '%s%s' % (_links['self']['href'], q)
-    elif not document_count and version and version not in ('all', 'diffs'):
-        _links['self'] = document_link(resource, document_id, version)
+        _links["self"]["href"] = "%s%s" % (_links["self"]["href"], q)
+    elif not document_count and version and version not in ("all", "diffs"):
+        _links["self"] = document_link(resource, document_id, version)
 
     # create pagination links
-    if config.DOMAIN[resource]['pagination']:
+    if config.DOMAIN[resource]["pagination"]:
         # strip any queries from the self link if present
-        _pagination_link = _links['self']['href'].split('?')[0]
+        _pagination_link = _links["self"]["href"].split("?")[0]
 
-        if (req.page * req.max_results < (document_count or 0) or
-                config.OPTIMIZE_PAGINATION_FOR_SPEED):
-            q = querydef(req.max_results, req.where, req.sort, version,
-                         req.page + 1, other_params)
-            _links['next'] = {'title': 'next page', 'href': '%s%s' %
-                              (_pagination_link, q)}
+        if (
+            req.page * req.max_results < (document_count or 0)
+            or config.OPTIMIZE_PAGINATION_FOR_SPEED
+        ):
+            q = querydef(
+                req.max_results,
+                req.where,
+                req.sort,
+                version,
+                req.page + 1,
+                other_params,
+            )
+            _links["next"] = {
+                "title": "next page",
+                "href": "%s%s" % (_pagination_link, q),
+            }
 
             if document_count:
-                last_page = int(math.ceil(document_count / float(
-                    req.max_results)))
-                q = querydef(req.max_results, req.where, req.sort, version,
-                             last_page, other_params)
-                _links['last'] = {'title': 'last page', 'href': '%s%s' % (
-                    _pagination_link, q)}
+                last_page = int(math.ceil(document_count / float(req.max_results)))
+                q = querydef(
+                    req.max_results,
+                    req.where,
+                    req.sort,
+                    version,
+                    last_page,
+                    other_params,
+                )
+                _links["last"] = {
+                    "title": "last page",
+                    "href": "%s%s" % (_pagination_link, q),
+                }
 
         if req.page > 1:
-            q = querydef(req.max_results, req.where, req.sort, version,
-                         req.page - 1, other_params)
-            _links['prev'] = {'title': 'previous page', 'href': '%s%s' %
-                              (_pagination_link, q)}
+            q = querydef(
+                req.max_results,
+                req.where,
+                req.sort,
+                version,
+                req.page - 1,
+                other_params,
+            )
+            _links["prev"] = {
+                "title": "previous page",
+                "href": "%s%s" % (_pagination_link, q),
+            }
 
     return _links
 
@@ -583,11 +642,20 @@ def _other_params(args):
 
     :param args: multidict containing the request parameters
     """
-    default_params = [config.QUERY_WHERE, config.QUERY_SORT,
-                      config.QUERY_PAGE, config.QUERY_MAX_RESULTS,
-                      config.QUERY_EMBEDDED, config.QUERY_PROJECTION]
-    return MultiDict((key, value) for key, values in args.lists()
-                     for value in values if key not in default_params)
+    default_params = [
+        config.QUERY_WHERE,
+        config.QUERY_SORT,
+        config.QUERY_PAGE,
+        config.QUERY_MAX_RESULTS,
+        config.QUERY_EMBEDDED,
+        config.QUERY_PROJECTION,
+    ]
+    return MultiDict(
+        (key, value)
+        for key, values in args.lists()
+        for value in values
+        if key not in default_params
+    )
 
 
 def _meta_links(req, count):
@@ -598,10 +666,7 @@ def _meta_links(req, count):
 
     .. versionadded:: 0.5
     """
-    meta = {
-        config.QUERY_PAGE: req.page,
-        config.QUERY_MAX_RESULTS: req.max_results,
-    }
+    meta = {config.QUERY_PAGE: req.page, config.QUERY_MAX_RESULTS: req.max_results}
     if config.OPTIMIZE_PAGINATION_FOR_SPEED is False:
-        meta['total'] = count
+        meta["total"] = count
     return meta

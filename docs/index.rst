@@ -20,6 +20,9 @@ Version |version|.
 .. image:: https://img.shields.io/badge/license-BSD-blue.svg?style=flat-square
     :target: https://en.wikipedia.org/wiki/BSD_License
 
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/ambv/black
+
 -----
 
 Eve is an :doc:`open source <license>` Python REST API framework designed for
@@ -28,9 +31,9 @@ fully featured RESTful Web Services.
 
 Eve is powered by Flask_ and Cerberus_ and it offers native support for MongoDB_ data
 stores. Support for SQL, Elasticsearch and Neo4js backends is provided by
-community extensions_. 
+community extensions_.
 
-The codebase is thoroughly tested under Python 2.6-3.6, and PyPy.
+The codebase is thoroughly tested under Python 2.7, 3.4+, and PyPy.
 
 Eve is Simple
 -------------
@@ -60,7 +63,7 @@ business sense to sponsor Eve development: it ensures the project that your
 product relies on stays healthy and actively maintained. Individual users are
 also welcome to make either a recurring pledge or a one time donation if Eve
 has helped you in your work or personal projects. Every single sign-up makes
-a significant impact towards making Eve possible. 
+a significant impact towards making Eve possible.
 
 To join the backer ranks, check out `Eve campaign on Patreon`_.
 
@@ -98,7 +101,6 @@ link <http://eve.readthedocs.org/en/stable/>`_.
     snippets/index
     extensions
     contributing
-    testing
     support
     updates
     authors
@@ -107,7 +109,7 @@ link <http://eve.readthedocs.org/en/stable/>`_.
 
 .. note::
    This documentation is under constant development. Please refer to the links
-   on the sidebar for more information. 
+   on the sidebar for more information.
 
 
 .. _python-eve.org: http://python-eve.org
@@ -116,8 +118,7 @@ link <http://eve.readthedocs.org/en/stable/>`_.
 .. _`source code`: https://github.com/pyeve/eve-demo
 .. _`usage examples`: https://github.com/pyeve/eve-demo#readme
 .. _`client app`: https://github.com/pyeve/eve-demo-client
-.. _Postman: https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&ved=0CC0QFjAA&url=https%3A%2F%2Fchrome.google.com%2Fwebstore%2Fdetail%2Fpostman-rest-client%2Ffdmmgilgnpjigdojojpjoooidkmcomcm&ei=dPQ7UpqEBISXtAbPpIGwDg&usg=AFQjCNFL71vN61QG0LKlw7VDJvIZDprjHA&bvm=bv.52434380,d.Yms
-
+.. _Postman: https://www.getpostman.com
 .. _Flask: http://flask.pocoo.org/
 .. _eve-sqlalchemy: https://github.com/RedTurtle/eve-sqlalchemy
 .. _MongoDB: https://mongodb.org

@@ -11,10 +11,11 @@
 """
 
 import sys
+from importlib import import_module
+
 import eve
 import hashlib
 import werkzeug.exceptions
-from cerberus import Validator
 from copy import copy
 from flask import request
 from flask import current_app as app
@@ -30,6 +31,7 @@ class Config(object):
     setting in the eve __init__.py module, otherwise returns the flaskapp
     config value (which value might override the static defaults).
     """
+
     def __getattr__(self, name):
         try:
             # will return 'working outside of application context' if the
@@ -57,6 +59,7 @@ class ParsedRequest(object):
     .. versionchanged:: 0.0.6
        Projection queries ('?projection={"name": 1}')
     """
+
     # `where` value of the query string (?where). Defaults to None.
     where = None
 
@@ -125,29 +128,27 @@ def parse_request(resource):
     r.args = args
 
     settings = config.DOMAIN[resource]
-    if settings['allowed_filters']:
+    if settings["allowed_filters"]:
         r.where = args.get(config.QUERY_WHERE)
-    if settings['projection']:
+    if settings["projection"]:
         r.projection = args.get(config.QUERY_PROJECTION)
-    if settings['sorting']:
+    if settings["sorting"]:
         r.sort = args.get(config.QUERY_SORT)
-    if settings['embedding']:
+    if settings["embedding"]:
         r.embedded = args.get(config.QUERY_EMBEDDED)
-    if settings['datasource']['aggregation']:
+    if settings["datasource"]["aggregation"]:
         r.aggregation = args.get(config.QUERY_AGGREGATION)
 
     r.show_deleted = config.SHOW_DELETED_PARAM in args
 
-    max_results_default = config.PAGINATION_DEFAULT if \
-        settings['pagination'] else 0
+    max_results_default = config.PAGINATION_DEFAULT if settings["pagination"] else 0
     try:
         r.max_results = int(float(args[config.QUERY_MAX_RESULTS]))
         assert r.max_results > 0
-    except (ValueError, werkzeug.exceptions.BadRequestKeyError,
-            AssertionError):
+    except (ValueError, werkzeug.exceptions.BadRequestKeyError, AssertionError):
         r.max_results = max_results_default
 
-    if settings['pagination']:
+    if settings["pagination"]:
         # TODO should probably return a 400 if 'page' is < 1 or non-numeric
         if config.QUERY_PAGE in args:
             try:
@@ -164,18 +165,18 @@ def parse_request(resource):
         if challenge in headers:
             etag = headers[challenge]
             # allow weak etags (Eve does not support byte-range requests)
-            if etag.startswith('W/\"'):
-                etag = etag.lstrip('W/')
+            if etag.startswith('W/"'):
+                etag = etag.lstrip("W/")
             # remove double quotes from challenge etag format to allow direct
             # string comparison with stored values
-            return etag.replace('\"', '')
+            return etag.replace('"', "")
         else:
             return None
 
     if headers:
-        r.if_modified_since = weak_date(headers.get('If-Modified-Since'))
-        r.if_none_match = etag_parse('If-None-Match')
-        r.if_match = etag_parse('If-Match')
+        r.if_modified_since = weak_date(headers.get("If-Modified-Since"))
+        r.if_none_match = etag_parse("If-None-Match")
+        r.if_match = etag_parse("If-Match")
 
     return r
 
@@ -188,8 +189,11 @@ def weak_date(date):
 
     :param date: the date to be adjusted.
     """
-    return datetime.strptime(date, RFC1123_DATE_FORMAT) + \
-        timedelta(seconds=1) if date else None
+    return (
+        datetime.strptime(date, RFC1123_DATE_FORMAT) + timedelta(seconds=1)
+        if date
+        else None
+    )
 
 
 def str_to_date(string):
@@ -226,7 +230,7 @@ def home_link():
     .. versionchanged:: 0.0.3
        Now returning a JSON link.
     """
-    return {'title': 'home', 'href': '/'}
+    return {"title": "home", "href": "/"}
 
 
 def api_prefix(url_prefix=None, api_version=None):
@@ -252,13 +256,19 @@ def api_prefix(url_prefix=None, api_version=None):
     if api_version is None:
         api_version = config.API_VERSION
 
-    prefix = '/%s' % url_prefix if url_prefix else ''
-    version = '/%s' % api_version if api_version else ''
+    prefix = "/%s" % url_prefix if url_prefix else ""
+    version = "/%s" % api_version if api_version else ""
     return prefix + version
 
 
-def querydef(max_results=config.PAGINATION_DEFAULT, where=None, sort=None,
-             version=None, page=None, other_params=MultiDict()):
+def querydef(
+    max_results=config.PAGINATION_DEFAULT,
+    where=None,
+    sort=None,
+    version=None,
+    page=None,
+    other_params=MultiDict(),
+):
     """ Returns a valid query string.
 
     :param max_results: `max_result` part of the query string. Defaults to
@@ -274,25 +284,42 @@ def querydef(max_results=config.PAGINATION_DEFAULT, where=None, sort=None,
        Support for customizable query parameters.
        Add version to query string (#475).
     """
-    where_part = '&%s=%s' % (config.QUERY_WHERE, where) if where else ''
-    sort_part = '&%s=%s' % (config.QUERY_SORT, sort) if sort else ''
-    page_part = '&%s=%s' % (config.QUERY_PAGE, page) if page and page > 1 \
-        else ''
-    version_part = '&%s=%s' % (config.VERSION_PARAM, version) if version \
-        else ''
-    max_results_part = '%s=%s' % (config.QUERY_MAX_RESULTS, max_results) \
-        if max_results != config.PAGINATION_DEFAULT else ''
-    other_params_part = ''.join('&%s=%s' % (param, value) for param, values
-                                in other_params.lists() for value in values)
+    where_part = "&%s=%s" % (config.QUERY_WHERE, where) if where else ""
+    sort_part = "&%s=%s" % (config.QUERY_SORT, sort) if sort else ""
+    page_part = "&%s=%s" % (config.QUERY_PAGE, page) if page and page > 1 else ""
+    version_part = "&%s=%s" % (config.VERSION_PARAM, version) if version else ""
+    max_results_part = (
+        "%s=%s" % (config.QUERY_MAX_RESULTS, max_results)
+        if max_results != config.PAGINATION_DEFAULT
+        else ""
+    )
+    other_params_part = "".join(
+        "&%s=%s" % (param, value)
+        for param, values in other_params.lists()
+        for value in values
+    )
 
     # remove sort set by Eve if version is set
     if version and sort is not None:
-        sort_part = '&%s=%s' % (config.QUERY_SORT, sort) \
-            if sort != '[("%s", 1)]' % config.VERSION else ''
+        sort_part = (
+            "&%s=%s" % (config.QUERY_SORT, sort)
+            if sort != '[("%s", 1)]' % config.VERSION
+            else ""
+        )
 
-    return ('?' + ''.join([max_results_part, where_part, sort_part,
-                           version_part, page_part, other_params_part])
-            .lstrip('&')).rstrip('?')
+    return (
+        "?"
+        + "".join(
+            [
+                max_results_part,
+                where_part,
+                sort_part,
+                version_part,
+                page_part,
+                other_params_part,
+            ]
+        ).lstrip("&")
+    ).rstrip("?")
 
 
 def document_etag(value, ignore_fields=None):
@@ -310,6 +337,7 @@ def document_etag(value, ignore_fields=None):
        consistent between different runs and/or server instances (#16).
     """
     if ignore_fields:
+
         def filter_ignore_fields(d, fields):
             # recursive function to remove the fields that they are in d,
             # field is a list of fields to skip or dotted fields to look up
@@ -331,8 +359,9 @@ def document_etag(value, ignore_fields=None):
 
     h = hashlib.sha1()
     json_encoder = app.data.json_encoder_class()
-    h.update(dumps(value_, sort_keys=True,
-                   default=json_encoder.default).encode('utf-8'))
+    h.update(
+        dumps(value_, sort_keys=True, default=json_encoder.default).encode("utf-8")
+    )
     return h.hexdigest()
 
 
@@ -347,7 +376,7 @@ def extract_key_values(key, d):
     if key in d:
         yield d[key]
     for k in d:
-        if isinstance(d[k], dict):
+        if isinstance(d, dict) and isinstance(d[k], dict):
             for j in extract_key_values(key, d[k]):
                 yield j
 
@@ -361,7 +390,7 @@ def debug_error_message(msg):
 
     .. versionadded: 0.0.9
     """
-    if getattr(config, 'DEBUG', False):
+    if getattr(config, "DEBUG", False):
         return msg
     return None
 
@@ -379,38 +408,91 @@ def validate_filters(where, resource):
 
     .. versionadded: 0.0.9
     """
-    operators = getattr(app.data, 'operators', set())
-    allowed = config.DOMAIN[resource]['allowed_filters'] + list(operators)
+    operators = getattr(app.data, "operators", set())
+    allowed = config.DOMAIN[resource]["allowed_filters"] + list(operators)
 
     def validate_filter(filter):
         for key, value in filter.items():
-            if '*' not in allowed and key not in allowed:
-                return "filter on '%s' not allowed" % key
+            if "*" not in allowed:
 
-            if key in ('$or', '$and', '$nor'):
+                def recursive_check_allowed(filter_key, allowed_filters):
+                    if filter_key not in allowed_filters:
+                        base_composed_key, _, _ = filter_key.rpartition(".")
+                        return base_composed_key and recursive_check_allowed(
+                            base_composed_key, allowed_filters
+                        )
+
+                    return True
+
+                if not recursive_check_allowed(key, allowed):
+                    return "filter on '%s' not allowed" % key
+
+            if key in ("$or", "$and", "$nor"):
                 if not isinstance(value, list):
                     return "operator '%s' expects a list of sub-queries" % key
                 for v in value:
                     if not isinstance(v, dict):
-                        return "operator '%s' expects a list of sub-queries" \
-                            % key
+                        return "operator '%s' expects a list of sub-queries" % key
                     r = validate_filter(v)
                     if r:
                         return r
             else:
                 if config.VALIDATE_FILTERS:
-                    res_schema = config.DOMAIN[resource]['schema']
-                    if key not in res_schema:
-                        return "filter on '%s' is invalid"
-                    else:
-                        field_schema = res_schema.get(key)
-                        v = Validator({key: field_schema})
-                        if not v.validate({key: value}):
-                            return "filter on '%s' is invalid"
-                        else:
+
+                    def get_sub_schemas(base_schema):
+                        def dict_sub_schema(base):
+                            if base.get("type") == "dict":
+                                return base.get("schema")
+
                             return None
 
-    if '*' in allowed and not config.VALIDATE_FILTERS:
+                        if base_schema.get("type") == "list":
+                            if "schema" in base_schema:
+                                # Try to get dict sub-schema for arbitrary
+                                # sized list
+                                sub = dict_sub_schema(base_schema["schema"])
+                                return [sub] if sub is not None else []
+                            elif "items" in base_schema:
+                                # Try to get dict sub-schema(s) for
+                                # fixed-size list
+                                items = base_schema["items"]
+                                sub_schemas = []
+                                for item in items:
+                                    sub = dict_sub_schema(item)
+                                    if sub is not None:
+                                        sub_schemas.append(sub)
+
+                                return sub_schemas
+                        else:
+                            sub = dict_sub_schema(base_schema)
+                            return [sub] if sub is not None else []
+
+                    def recursive_validate_filter(key, value, schema):
+                        if key not in schema:
+                            base_key, _, sub_keys = key.partition(".")
+                            if sub_keys and base_key in schema:
+                                # key is the composition of base field and
+                                # sub-fields
+                                sub_schemas = get_sub_schemas(schema[base_key])
+                                for sub_schema in sub_schemas:
+                                    if recursive_validate_filter(
+                                        sub_keys, value, sub_schema
+                                    ):
+                                        return True
+
+                            return False
+                        else:
+                            field_schema = schema.get(key)
+                            v = app.validator({key: field_schema})
+                            return v.validate({key: value})
+
+                    res_schema = config.DOMAIN[resource]["schema"]
+                    if not recursive_validate_filter(key, value, res_schema):
+                        return "filter on '%s' is invalid" % key
+
+                    return None
+
+    if "*" in allowed and not config.VALIDATE_FILTERS:
         return None
 
     return validate_filter(where)
@@ -429,18 +511,22 @@ def auto_fields(resource):
     resource_def = config.DOMAIN[resource]
 
     # preserved meta data
-    fields = [resource_def['id_field'], config.LAST_UPDATED,
-              config.DATE_CREATED, config.ETAG]
+    fields = [
+        resource_def["id_field"],
+        config.LAST_UPDATED,
+        config.DATE_CREATED,
+        config.ETAG,
+    ]
 
     # on-the-fly meta data (not in data store)
     fields += [config.ISSUES, config.STATUS, config.LINKS]
 
-    if resource_def['versioning'] is True:
+    if resource_def["versioning"] is True:
         fields.append(config.VERSION)
         fields.append(config.LATEST_VERSION)  # on-the-fly meta data
-        fields.append(resource_def['id_field'] + config.VERSION_ID_SUFFIX)
+        fields.append(resource_def["id_field"] + config.VERSION_ID_SUFFIX)
 
-    if resource_def['soft_delete'] is True:
+    if resource_def["soft_delete"] is True:
         fields.append(config.DELETED)
 
     return fields
@@ -448,3 +534,15 @@ def auto_fields(resource):
 
 # Base string type that is compatible with both Python 2.x and 3.x.
 str_type = str if sys.version_info[0] == 3 else basestring
+
+
+def import_from_string(module_name):
+    """ Imports module using string
+
+    """
+    try:
+        modules = module_name.split(".")
+        module_path, attr = ".".join(modules[:-1]), modules[-1]
+        return getattr(import_module(module_path), attr)
+    except (ImportError, AttributeError):
+        raise ImportError("Cannot import {}".format(module_name))

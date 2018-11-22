@@ -16,16 +16,26 @@ from flask import current_app as app, abort
 from eve.utils import config, parse_request, debug_error_message
 from eve.auth import requires_auth
 from eve.validation import DocumentError
-from eve.methods.common import parse, payload, ratelimit, \
-    pre_event, store_media_files, resolve_user_restricted_access, \
-    resolve_embedded_fields, build_response_document, marshal_write_response, \
-    resolve_sub_resource_path, resolve_document_etag, oplog_push, resource_link
-from eve.versioning import resolve_document_version, \
-    insert_versioning_documents
+from eve.methods.common import (
+    parse,
+    payload,
+    ratelimit,
+    pre_event,
+    store_media_files,
+    resolve_user_restricted_access,
+    resolve_embedded_fields,
+    build_response_document,
+    marshal_write_response,
+    resolve_sub_resource_path,
+    resolve_document_etag,
+    oplog_push,
+    resource_link,
+)
+from eve.versioning import resolve_document_version, insert_versioning_documents
 
 
 @ratelimit()
-@requires_auth('resource')
+@requires_auth("resource")
 @pre_event
 def post(resource, payl=None):
     """
@@ -148,14 +158,20 @@ def post_internal(resource, payl=None, skip_validation=False):
     """
 
     date_utc = datetime.utcnow().replace(microsecond=0)
-    resource_def = app.config['DOMAIN'][resource]
-    schema = resource_def['schema']
-    validator = None if skip_validation \
-        else app.validator(schema, resource=resource)
+    resource_def = app.config["DOMAIN"][resource]
+    schema = resource_def["schema"]
+    validator = (
+        None
+        if skip_validation
+        else app.validator(
+            schema, resource=resource, allow_unknown=resource_def["allow_unknown"]
+        )
+    )
+
     documents = []
     results = []
     failures = 0
-    id_field = resource_def['id_field']
+    id_field = resource_def["id_field"]
 
     if config.BANDWIDTH_SAVER is True:
         embedded_fields = []
@@ -172,14 +188,10 @@ def post_internal(resource, payl=None, skip_validation=False):
 
     if not payl:
         # empty bulk insert
-        abort(400, description=debug_error_message(
-            'Empty bulk insert'
-        ))
+        abort(400, description=debug_error_message("Empty bulk insert"))
 
-    if len(payl) > 1 and not config.DOMAIN[resource]['bulk_enabled']:
-        abort(400, description=debug_error_message(
-            'Bulk insert not allowed'
-        ))
+    if len(payl) > 1 and not config.DOMAIN[resource]["bulk_enabled"]:
+        abort(400, description=debug_error_message("Bulk insert not allowed"))
 
     for value in payl:
         document = []
@@ -198,31 +210,27 @@ def post_internal(resource, payl=None, skip_validation=False):
                     document = validator.document
 
                 # Populate meta and default fields
-                document[config.LAST_UPDATED] = \
-                    document[config.DATE_CREATED] = date_utc
+                document[config.LAST_UPDATED] = document[config.DATE_CREATED] = date_utc
 
-                if config.DOMAIN[resource]['soft_delete'] is True:
+                if config.DOMAIN[resource]["soft_delete"] is True:
                     document[config.DELETED] = False
 
                 resolve_user_restricted_access(document, resource)
                 store_media_files(document, resource)
-                resolve_document_version(document, resource, 'POST')
+                resolve_document_version(document, resource, "POST")
             else:
                 # validation errors added to list of document issues
                 doc_issues = validator.errors
         except DocumentError as e:
-            doc_issues['validation exception'] = str(e)
+            doc_issues["validation exception"] = str(e)
         except Exception as e:
             # most likely a problem with the incoming payload, report back to
             # the client as if it was a validation issue
             app.logger.exception(e)
-            doc_issues['exception'] = str(e)
+            doc_issues["exception"] = str(e)
 
         if len(doc_issues):
-            document = {
-                config.STATUS: config.STATUS_ERR,
-                config.ISSUES: doc_issues,
-            }
+            document = {config.STATUS: config.STATUS_ERR, config.ISSUES: doc_issues}
             failures += 1
 
         documents.append(document)
@@ -231,8 +239,10 @@ def post_internal(resource, payl=None, skip_validation=False):
         # If at least one document got issues, the whole request fails and a
         # ``422 Bad Request`` status is return.
         for document in documents:
-            if config.STATUS in document \
-               and document[config.STATUS] == config.STATUS_ERR:
+            if (
+                config.STATUS in document
+                and document[config.STATUS] == config.STATUS_ERR
+            ):
                 results.append(document)
             else:
                 results.append({config.STATUS: config.STATUS_OK})
@@ -250,7 +260,7 @@ def post_internal(resource, payl=None, skip_validation=False):
         ids = app.data.insert(resource, documents)
 
         # update oplog if needed
-        oplog_push(resource, documents, 'POST')
+        oplog_push(resource, documents, "POST")
 
         # assign document ids
         for document in documents:
@@ -261,8 +271,7 @@ def post_internal(resource, payl=None, skip_validation=False):
 
             # build the full response document
             result = document
-            build_response_document(
-                result, resource, embedded_fields, document)
+            build_response_document(result, resource, embedded_fields, document)
 
             # add extra write meta data
             result[config.STATUS] = config.STATUS_OK
@@ -297,7 +306,10 @@ def post_internal(resource, payl=None, skip_validation=False):
             % failures,
         }
 
-    location_header = None if return_code != 201 or not documents else \
-        [('Location', '%s/%s' % (resource_link(), documents[0][id_field]))]
+    location_header = (
+        None
+        if return_code != 201 or not documents
+        else [("Location", "%s/%s" % (resource_link(), documents[0][id_field]))]
+    )
 
     return response, None, None, return_code, location_header

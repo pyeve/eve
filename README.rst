@@ -1,24 +1,24 @@
 Eve
 ====
-.. image:: https://secure.travis-ci.org/pyeve/eve.svg?branch=master 
-        :target: https://secure.travis-ci.org/pyeve/eve
+.. image:: https://img.shields.io/pypi/v/eve.svg?style=flat-square
+    :target: https://pypi.org/project/eve
+
+.. image:: https://img.shields.io/travis/pyeve/eve.svg?branch=master&style=flat-square
+    :target: https://travis-ci.org/pyeve/eve
+
+.. image:: https://img.shields.io/pypi/pyversions/eve.svg?style=flat-square
+    :target: https://pypi.org/project/eve
+
+.. image:: https://img.shields.io/badge/license-BSD-blue.svg?style=flat-square
+    :target: https://en.wikipedia.org/wiki/BSD_License
+
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/ambv/black
 
 Eve is an open source Python REST API framework designed for human beings. It
 allows to effortlessly build and deploy highly customizable, fully featured
 RESTful Web Services. Eve offers native support for MongoDB, and SQL backends
 via community extensions.
-
-Funding
--------
-Eve REST framework is a open source, collaboratively funded project. If you run
-a business and are using Eve in a revenue-generating product, it would make
-business sense to sponsor Eve development: it ensures the project that your
-product relies on stays healthy and actively maintained. Individual users are
-also welcome to make a recurring pledge or a one time donation if Eve has
-helped you in your work or personal projects. 
-
-Every single sign-up makes a significant impact towards making Eve possible. To
-learn more, check out our `funding page`_.
 
 Eve is Simple
 -------------
@@ -80,12 +80,23 @@ Features
 * MongoDB and SQL Support
 * Powered by Flask
 
+Funding
+-------
+Eve REST framework is a open source, collaboratively funded project. If you run
+a business and are using Eve in a revenue-generating product, it would make
+business sense to sponsor Eve development: it ensures the project that your
+product relies on stays healthy and actively maintained. Individual users are
+also welcome to make a recurring pledge or a one time donation if Eve has
+helped you in your work or personal projects.
+
+Every single sign-up makes a significant impact towards making Eve possible. To
+learn more, check out our `funding page`_.
 
 License
 -------
 Eve is a `Nicola Iarocci`_ open source project,
 distributed under the `BSD license
-<https://github.com/pyeve/eve/blob/master/LICENSE>`_. 
+<https://github.com/pyeve/eve/blob/master/LICENSE>`_.
 
 .. _`Nicola Iarocci`: http://nicolaiarocci.com
 .. _`funding page`: http://python-eve.org/funding

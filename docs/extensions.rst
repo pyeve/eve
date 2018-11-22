@@ -4,7 +4,7 @@ Extensions
 Welcome to the Eve extensions registry. Here you can find a list of packages
 that extend Eve. This list is moderated and updated on a regular basis. If you
 wrote a package for Eve and want it to show up here, just `get in touch`_ and
-show me your tool! 
+show me your tool!
 
 - Eve-Auth-JWT_
 - Eve-Elastic_
@@ -60,14 +60,14 @@ Eve-Mongoengine_ is an Eve extension, which enables Mongoengine ORM models to
 be used as eve schema. If you use mongoengine in your application and
 simultaneously want to use Eve, instead of writing schema again in Cerberus
 format (DRY!), you can use this extension, which takes your mongoengine models
-and auto-transforms them into Cerberus schema under the hood. 
+and auto-transforms them into Cerberus schema under the hood.
 
 Eve-Neo4j
 ---------
 *by Abraxas Biosystems*
 
-Eve-Neo4j_ is an Eve extension aiming to enable it's users to build and 
-deploy highly customizable, fully featured RESTful Web Services using Neo4j 
+Eve-Neo4j_ is an Eve extension aiming to enable it's users to build and
+deploy highly customizable, fully featured RESTful Web Services using Neo4j
 as backend. Powered by Eve, Py2neo, flask-neo4j and good intentions.
 
 Eve-OAuth2
@@ -75,7 +75,7 @@ Eve-OAuth2
 *by Nicola Iarocci*
 
 Eve-OAuth2_ is not an extension per-se, but rather an example of how you can
-leverage Flask-Sentinel_  to protect your API endpoints with OAuth2. 
+leverage Flask-Sentinel_  to protect your API endpoints with OAuth2.
 
 Eve-SQLAlchemy
 --------------
