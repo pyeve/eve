@@ -15,7 +15,6 @@
 import copy
 import cerberus
 import cerberus.errors
-from cerberus import DocumentError, SchemaError  # flake8: noqa
 
 from eve.utils import config
 
