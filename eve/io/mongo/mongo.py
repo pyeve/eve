@@ -234,7 +234,7 @@ class Mongo(DataLayer):
         if req and req.where:
             try:
                 spec = self._sanitize(json.loads(req.where))
-            except HTTPException as _:
+            except HTTPException as e:  # noqa: F841
                 # _sanitize() is raising an HTTP exception; let it fire.
                 raise
             except:
