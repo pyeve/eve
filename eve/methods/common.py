@@ -39,7 +39,7 @@ def get_document(
     original=None,
     check_auth_value=True,
     force_auth_field_projection=False,
-    **lookup
+    **lookup,
 ):
     """ Retrieves and return a single document. Since this function is used by
     the editing methods (PUT, PATCH, DELETE), we make sure that the client

@@ -235,7 +235,7 @@ class TestPatch(TestBase):
                 self.known_resource,
                 data,
                 concurrency_check=False,
-                **{"_id": self.item_id}
+                **{"_id": self.item_id},
             )
         db_value = self.compare_patch_with_get(test_field, r)
         self.assertEqual(db_value, test_value)
