@@ -142,7 +142,7 @@ class Eve(Flask, Events):
         url_converters=None,
         json_encoder=None,
         media=GridFSMediaStorage,
-        **kwargs,
+        **kwargs
     ):
         """ Eve main WSGI app is implemented as a Flask subclass. Since we want
         to be able to launch our API by simply invoking Flask's run() method,

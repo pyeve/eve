@@ -257,7 +257,7 @@ class Mongo(DataLayer):
         req,
         check_auth_value=True,
         force_auth_field_projection=False,
-        **lookup,
+        **lookup
     ):
         """ Retrieves a single document.
 
