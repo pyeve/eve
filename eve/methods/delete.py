@@ -234,7 +234,7 @@ def delete(resource, **lookup):
                 concurrency_check=False,
                 suppress_callbacks=True,
                 original=document,
-                **lookup,
+                **lookup
             )
     else:
         # TODO if the resource schema includes media files, these won't be
