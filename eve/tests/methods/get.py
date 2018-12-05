@@ -1510,7 +1510,7 @@ class TestGet(TestBase):
         # look  for date = yesterday, which shall return all four results
         challenge = (date + timedelta(days=-1)).strftime(self.app.config["DATE_FORMAT"])
         response, status = self.get(
-            'aggregate_test?aggregate={"$date": "%s"}' % challenge
+            'aggregate_test?aggregate={"$date": "%s", "$x": {}}' % challenge
         )
 
         self.assert200(status)
@@ -1518,7 +1518,7 @@ class TestGet(TestBase):
         self.assertEqual(len(docs), 4)
 
         # look  for x = 3, which shall return only one result
-        response, status = self.get('aggregate_test?aggregate={"x": 3}')
+        response, status = self.get('aggregate_test?aggregate={"$x": 3, "$date": {}}')
 
         self.assert200(status)
         docs = response["_items"]
