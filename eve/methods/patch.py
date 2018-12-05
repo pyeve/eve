@@ -16,7 +16,7 @@ from werkzeug import exceptions
 from datetime import datetime
 from eve.utils import config, debug_error_message, parse_request
 from eve.auth import requires_auth
-from eve.validation import DocumentError
+from cerberus.validator import DocumentError
 from eve.methods.common import (
     get_document,
     parse,
