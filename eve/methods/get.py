@@ -161,7 +161,7 @@ def _perform_aggregation(resource, pipeline, options):
         Remove the stages whose parameters are not set.
 
         For example, we have endpoint with a stage like {'$lookup': {'$userId': '$a', '$name': '$b'}}, $a is provided
-        but $b is not provided. Then the stage will be pruned as {'$lookup': {'$userId': '$a'}}
+        but $b is provided as {}. Then the stage will be pruned as {'$lookup': {'$userId': '$a'}}
         """
         for st_key, st_value in d.items():
             if isinstance(st_value, dict):
@@ -169,9 +169,6 @@ def _perform_aggregation(resource, pipeline, options):
                 if len(st_value.keys()) == 0:
                     # remove the key: value when value is an empty dict
                     del d[st_key]
-            if st_value[0] == "$":
-                # remove the key: value when value is not replaced
-                del d[st_key]
 
     response = {}
     documents = []
