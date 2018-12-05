@@ -169,7 +169,7 @@ def _perform_aggregation(resource, pipeline, options):
                 if len(st_value.keys()) == 0:
                     # remove the key: value when value is an empty dict
                     del d[st_key]
-            if st_value[0] == '$':
+            if st_value[0] == "$":
                 # remove the key: value when value is not replaced
                 del d[st_key]
 

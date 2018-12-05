@@ -161,7 +161,7 @@ class DataLayer(object):
         req,
         check_auth_value=True,
         force_auth_field_projection=False,
-        **lookup
+        **lookup,
     ):
         """ Retrieves a single document/record. Consumed when a request hits an
         item endpoint (`/people/id/`).

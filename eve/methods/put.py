@@ -140,7 +140,7 @@ def put_internal(
         concurrency_check,
         check_auth_value=False,
         force_auth_field_projection=True,
-        **lookup
+        **lookup,
     )
     if not original:
         if config.UPSERT_ON_PUT:
