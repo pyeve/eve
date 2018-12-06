@@ -163,7 +163,8 @@ def _perform_aggregation(resource, pipeline, options):
         For example, we have endpoint with a stage like {'$lookup': {'$userId': '$a', '$name': '$b'}}, $a is provided
         but $b is provided as {}. Then the stage will be pruned as {'$lookup': {'$userId': '$a'}}
         """
-        for st_key, st_value in d.items():
+        items = [(st_key, st_value) for st_key, st_value in d.items()]
+        for (st_key, st_value) in items:
             if isinstance(st_value, dict):
                 prune_aggregation_stage(st_value)
                 if len(st_value.keys()) == 0:
