@@ -1,5 +1,20 @@
+dist: trusty
 sudo: false
 language: python
+
+# Python 3.7+ needs a newer version of openssl than is available in trusty,
+# so these must run on a newer platform (and since travis doesn't yet have
+# containers for xenial, those must use VMs).
+# YAML magic from https://github.com/travis-ci/travis-ci/issues/9069#issuecomment-401924248
+.mixins:
+- &xenial-mixin
+  dist: xenial
+  sudo: true
+  addons:
+    apt:
+      packages:
+        - libgnutls-dev
+
 stages:
     - linting
     - test
@@ -31,3 +46,6 @@ jobs:
       services:
       script:
       - pre-commit run --all-files
+    - stage: test
+      <<: *xenial-mixin
+      python: '3.7'
