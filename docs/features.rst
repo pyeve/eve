@@ -2239,6 +2239,37 @@ to a keyword of your liking, just set ``QUERY_AGGREGATION`` in your settings.
 You can also set all options natively supported by PyMongo. For more
 information on aggregation see :ref:`datasource`.
 
+You can pass ``{}`` to fields which you want to ignore. Considering the following pipelines:
+
+::
+
+    posts = {
+        'datasource': {
+            'aggregation': {
+                'pipeline': [
+                    {"$match": { "name": "$name", "time": "$time"}}
+                    {"$unwind": "$tags"},
+                    {"$group": {"_id": "$tags", "count": {"$sum": 1}}},
+                ]
+            }
+        }
+    }
+
+If performing the following request:
+
+::
+
+    $ curl -i http://example.com/posts?aggregate={"$name": {"$regex": "Apple"}, "$time": {}}
+
+The stage ``{"$match": { "name": "$name", "time": "$time"}}`` in the pipeline will be executed as ``{"$match": { "name": {"$regex": "Apple"}}}``. And for the following request:
+
+::
+
+    $ curl -i http://example.com/posts?aggregate={"$name": {}, "$time": {}}
+
+The stage ``{"$match": { "name": "$name", "time": "$time"}}`` in the pipeline will be completely skipped.
+
+The request above will ignore ``"count": {"$sum": "$value"}}``. A
 Custom callback functions can be attached to the ``before_aggregation`` and ``after_aggregation`` event hooks. For more information, see :ref:`aggregation_hooks`.
 
 Limitations
