@@ -201,9 +201,9 @@ def _perform_aggregation(resource, pipeline, options):
         req_pipeline_pruned.append(skip)
         req_pipeline_pruned.append(limit)
 
-    getattr(app, "before_aggregation")(resource, req_pipeline)
+    getattr(app, "before_aggregation")(resource, req_pipeline_pruned)
 
-    cursor = app.data.aggregate(resource, req_pipeline, options)
+    cursor = app.data.aggregate(resource, req_pipeline_pruned, options)
 
     for document in cursor:
         documents.append(document)
