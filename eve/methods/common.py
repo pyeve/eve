@@ -951,27 +951,25 @@ def sort_db_response(embedded_docs, id_value_to_sort, list_of_id_field_name):
     return temp_embedded_docs
 
 
-def sort_per_resource(embedded_docs, id_value_to_sort, id_field_name):
+def sort_per_resource(embedded_docs, id_values_to_sort, id_field_name):
     """ Sorts the documents fetched from the database per single resource
 
-        :param embedded_docs: the documents fetch from the database.
-        :param id_value_to_sort: id_value sort criteria.
+        :param embedded_docs: list of the documents fetched from the database.
+        :param id_values_to_sort: list of the id_values sort criteria.
         :param list_of_id_field_name: list of name of fields
+        :param id_field_name: key name of the id field; `_id`
         :return embedded_docs: the list of documents sorted as per input
         """
-    # Removing None
-    number_of_none = embedded_docs.count(None)
-    if number_of_none:
-        embedded_docs = [x for x in embedded_docs if x is not None]
+    if isinstance(id_values_to_sort, list) and id_values_to_sort is None:
+        id_values_to_sort = []
+    embedded_docs = [x for x in embedded_docs if x is not None]
     id2dict = dict((d[id_field_name], d) for d in embedded_docs)
     temporary_embedded_docs = []
-    if number_of_none:
-        for id_value_ in id_value_to_sort:
-            if id_value_ in id2dict:
-                temporary_embedded_docs.append(id2dict[id_value_])
-            else:
-                temporary_embedded_docs.append(None)
-    return embedded_docs
+    for id_value_ in id_values_to_sort:
+        if id_value_ in id2dict:
+            temporary_embedded_docs.append(id2dict[id_value_])
+
+    return temporary_embedded_docs
 
 
 def generate_query_and_sorting_criteria(data_relation, references):
