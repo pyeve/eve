@@ -743,3 +743,11 @@ class TestTickets(TestBase):
         # See https://github.com/pyeve/eve/issues/681
         with self.app.test_request_context("not_an_existing_endpoint"):
             self.app.data.driver.db["again"]
+
+
+class TestEmbeddedDocuments(TestBase):
+    def setUp(self, url_converters=None):
+        super(TestEmbeddedDocuments, self).setUp()
+
+    def test_sort_per_resource_embedded_docs(self):
+        pass
