@@ -11,7 +11,7 @@ endpoint will be made available by the framework, and will be used by clients to
 retrieve and/or edit individual documents. By default, Eve provides this feature
 seamlessly when ``ID_FIELD`` fields are of ``ObjectId`` type.
 
-However, you might have collections where your unique identifier is not and
+However, you might have collections where your unique identifier is not an
 ``ObjectId``, and you still want individual document endpoints to work
 properly. Don't worry, it's doable, it only requires a little tinkering.
 
