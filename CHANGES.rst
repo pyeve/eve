@@ -15,7 +15,7 @@ Improved
 - Make the parsing of ``req.sort`` and ``req.where`` easily reusable by moving
   their logic to dedicated methods (`#1194`_)
 
-.. _`1194`: https://github.com/pyeve/eve/pull/1194
+.. _`#1194`: https://github.com/pyeve/eve/pull/1194
 .. _`#1197`: https://github.com/pyeve/eve/issues/1197
 
 Version 0.8.1
