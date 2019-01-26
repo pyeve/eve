@@ -204,7 +204,7 @@ def media_endpoint(_id):
 
         size = file_.length
         try:
-            m = re.search("(\d+)-(\d*)", range_header)
+            m = re.search(r"(\d+)-(\d*)", range_header)
             begin, end = m.groups()
             begin = int(begin)
             end = int(end)

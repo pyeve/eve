@@ -198,7 +198,7 @@ class TestRenders(TestBase):
     def test_CORS_regex(self):
         # test if X_DOMAINS_RE is set with a list of regexes,
         # origins are matched against this list (#974)
-        self.app.config["X_DOMAINS_RE"] = ["^http://sub-\d{3}\.domain\.com$"]
+        self.app.config["X_DOMAINS_RE"] = [r"^http://sub-\d{3}\.domain\.com$"]
 
         r = self.test_client.get("/", headers=[("Origin", "http://sub-123.domain.com")])
         self.assert200(r.status_code)
