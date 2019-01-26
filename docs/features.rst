@@ -1375,9 +1375,11 @@ the items as needed before they are returned to the client.
     >>> app.on_fetched_item_contacts += before_returning_contact
 
 It is important to note that fetch events will work with `Document
-Versioning`_ for specific document versions or accessing all document
-versions with ``?version=all``, but they *will not* work when accessing diffs
-of all versions with ``?version=diffs``.
+Versioning`_ for specific document versions like ``?version=5``, accessing all
+document versions with ``?version=all``, and accessing diffs of all versions
+with ``?version=diffs``. When working with versioning, care should be taken in
+the registered callback to handle possible schema differences or partial
+documents. Diffs by design is partial documents.
 
 
 Insert Events
