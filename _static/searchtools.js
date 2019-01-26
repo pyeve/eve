@@ -1,229 +1,51 @@
 /*
- * searchtools.js_t
+ * searchtools.js
  * ~~~~~~~~~~~~~~~~
  *
- * Sphinx JavaScript utilties for the full-text search.
+ * Sphinx JavaScript utilities for the full-text search.
  *
- * :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
 
+if (!Scorer) {
+  /**
+   * Simple result scoring code.
+   */
+  var Scorer = {
+    // Implement the following function to further tweak the score for each result
+    // The function takes a result array [filename, title, anchor, descr, score]
+    // and returns the new score.
+    /*
+    score: function(result) {
+      return result[4];
+    },
+    */
 
-/**
- * Porter Stemmer
- */
-var Stemmer = function() {
+    // query matches the full name of an object
+    objNameMatch: 11,
+    // or matches in the last dotted part of the object name
+    objPartialMatch: 6,
+    // Additive scores depending on the priority of the object
+    objPrio: {0:  15,   // used to be importantResults
+              1:  5,   // used to be objectResults
+              2: -5},  // used to be unimportantResults
+    //  Used when the priority is not in the mapping.
+    objPrioDefault: 0,
 
-  var step2list = {
-    ational: 'ate',
-    tional: 'tion',
-    enci: 'ence',
-    anci: 'ance',
-    izer: 'ize',
-    bli: 'ble',
-    alli: 'al',
-    entli: 'ent',
-    eli: 'e',
-    ousli: 'ous',
-    ization: 'ize',
-    ation: 'ate',
-    ator: 'ate',
-    alism: 'al',
-    iveness: 'ive',
-    fulness: 'ful',
-    ousness: 'ous',
-    aliti: 'al',
-    iviti: 'ive',
-    biliti: 'ble',
-    logi: 'log'
+    // query found in title
+    title: 15,
+    // query found in terms
+    term: 5
   };
-
-  var step3list = {
-    icate: 'ic',
-    ative: '',
-    alize: 'al',
-    iciti: 'ic',
-    ical: 'ic',
-    ful: '',
-    ness: ''
-  };
-
-  var c = "[^aeiou]";          // consonant
-  var v = "[aeiouy]";          // vowel
-  var C = c + "[^aeiouy]*";    // consonant sequence
-  var V = v + "[aeiou]*";      // vowel sequence
-
-  var mgr0 = "^(" + C + ")?" + V + C;                      // [C]VC... is m>0
-  var meq1 = "^(" + C + ")?" + V + C + "(" + V + ")?$";    // [C]VC[V] is m=1
-  var mgr1 = "^(" + C + ")?" + V + C + V + C;              // [C]VCVC... is m>1
-  var s_v   = "^(" + C + ")?" + v;                         // vowel in stem
-
-  this.stemWord = function (w) {
-    var stem;
-    var suffix;
-    var firstch;
-    var origword = w;
-
-    if (w.length < 3)
-      return w;
-
-    var re;
-    var re2;
-    var re3;
-    var re4;
-
-    firstch = w.substr(0,1);
-    if (firstch == "y")
-      w = firstch.toUpperCase() + w.substr(1);
-
-    // Step 1a
-    re = /^(.+?)(ss|i)es$/;
-    re2 = /^(.+?)([^s])s$/;
-
-    if (re.test(w))
-      w = w.replace(re,"$1$2");
-    else if (re2.test(w))
-      w = w.replace(re2,"$1$2");
-
-    // Step 1b
-    re = /^(.+?)eed$/;
-    re2 = /^(.+?)(ed|ing)$/;
-    if (re.test(w)) {
-      var fp = re.exec(w);
-      re = new RegExp(mgr0);
-      if (re.test(fp[1])) {
-        re = /.$/;
-        w = w.replace(re,"");
-      }
-    }
-    else if (re2.test(w)) {
-      var fp = re2.exec(w);
-      stem = fp[1];
-      re2 = new RegExp(s_v);
-      if (re2.test(stem)) {
-        w = stem;
-        re2 = /(at|bl|iz)$/;
-        re3 = new RegExp("([^aeiouylsz])\\1$");
-        re4 = new RegExp("^" + C + v + "[^aeiouwxy]$");
-        if (re2.test(w))
-          w = w + "e";
-        else if (re3.test(w)) {
-          re = /.$/;
-          w = w.replace(re,"");
-        }
-        else if (re4.test(w))
-          w = w + "e";
-      }
-    }
-
-    // Step 1c
-    re = /^(.+?)y$/;
-    if (re.test(w)) {
-      var fp = re.exec(w);
-      stem = fp[1];
-      re = new RegExp(s_v);
-      if (re.test(stem))
-        w = stem + "i";
-    }
-
-    // Step 2
-    re = /^(.+?)(ational|tional|enci|anci|izer|bli|alli|entli|eli|ousli|ization|ation|ator|alism|iveness|fulness|ousness|aliti|iviti|biliti|logi)$/;
-    if (re.test(w)) {
-      var fp = re.exec(w);
-      stem = fp[1];
-      suffix = fp[2];
-      re = new RegExp(mgr0);
-      if (re.test(stem))
-        w = stem + step2list[suffix];
-    }
-
-    // Step 3
-    re = /^(.+?)(icate|ative|alize|iciti|ical|ful|ness)$/;
-    if (re.test(w)) {
-      var fp = re.exec(w);
-      stem = fp[1];
-      suffix = fp[2];
-      re = new RegExp(mgr0);
-      if (re.test(stem))
-        w = stem + step3list[suffix];
-    }
-
-    // Step 4
-    re = /^(.+?)(al|ance|ence|er|ic|able|ible|ant|ement|ment|ent|ou|ism|ate|iti|ous|ive|ize)$/;
-    re2 = /^(.+?)(s|t)(ion)$/;
-    if (re.test(w)) {
-      var fp = re.exec(w);
-      stem = fp[1];
-      re = new RegExp(mgr1);
-      if (re.test(stem))
-        w = stem;
-    }
-    else if (re2.test(w)) {
-      var fp = re2.exec(w);
-      stem = fp[1] + fp[2];
-      re2 = new RegExp(mgr1);
-      if (re2.test(stem))
-        w = stem;
-    }
-
-    // Step 5
-    re = /^(.+?)e$/;
-    if (re.test(w)) {
-      var fp = re.exec(w);
-      stem = fp[1];
-      re = new RegExp(mgr1);
-      re2 = new RegExp(meq1);
-      re3 = new RegExp("^" + C + v + "[^aeiouwxy]$");
-      if (re.test(stem) || (re2.test(stem) && !(re3.test(stem))))
-        w = stem;
-    }
-    re = /ll$/;
-    re2 = new RegExp(mgr1);
-    if (re.test(w) && re2.test(w)) {
-      re = /.$/;
-      w = w.replace(re,"");
-    }
-
-    // and turn initial Y back to y
-    if (firstch == "y")
-      w = firstch.toLowerCase() + w.substr(1);
-    return w;
-  }
 }
 
-
-
-/**
- * Simple result scoring code.
- */
-var Scorer = {
-  // Implement the following function to further tweak the score for each result
-  // The function takes a result array [filename, title, anchor, descr, score]
-  // and returns the new score.
-  /*
-  score: function(result) {
-    return result[4];
-  },
-  */
-
-  // query matches the full name of an object
-  objNameMatch: 11,
-  // or matches in the last dotted part of the object name
-  objPartialMatch: 6,
-  // Additive scores depending on the priority of the object
-  objPrio: {0:  15,   // used to be importantResults
-            1:  5,   // used to be objectResults
-            2: -5},  // used to be unimportantResults
-  //  Used when the priority is not in the mapping.
-  objPrioDefault: 0,
-
-  // query found in title
-  title: 15,
-  // query found in terms
-  term: 5
-};
-
+if (!splitQuery) {
+  function splitQuery(query) {
+    return query.split(/\s+/);
+  }
+}
 
 /**
  * Search Module
@@ -316,14 +138,13 @@ var Search = {
    */
   query : function(query) {
     var i;
-    var stopwords = ["a","and","are","as","at","be","but","by","for","if","in","into","is","it","near","no","not","of","on","or","such","that","the","their","then","there","these","they","this","to","was","will","with"];
 
     // stem the searchterms and add them to the correct list
     var stemmer = new Stemmer();
     var searchterms = [];
     var excluded = [];
     var hlterms = [];
-    var tmp = query.split(/\s+/);
+    var tmp = splitQuery(query);
     var objectterms = [];
     for (i = 0; i < tmp.length; i++) {
       if (tmp[i] !== "") {
@@ -337,6 +158,10 @@ var Search = {
       }
       // stem the word
       var word = stemmer.stemWord(tmp[i].toLowerCase());
+      // prevent stemmer from cutting word smaller than two chars
+      if(word.length < 3 && tmp[i].length >= 3) {
+        word = tmp[i];
+      }
       var toAppend;
       // select the correct list
       if (word[0] == '-') {
@@ -373,8 +198,7 @@ var Search = {
     }
 
     // lookup as search terms in fulltext
-    results = results.concat(this.performTermsSearch(searchterms, excluded, terms, Scorer.term))
-                     .concat(this.performTermsSearch(searchterms, excluded, titleterms, Scorer.title));
+    results = results.concat(this.performTermsSearch(searchterms, excluded, terms, titleterms));
 
     // let the scorer override scores with a custom scoring function
     if (Scorer.score) {
@@ -435,11 +259,15 @@ var Search = {
             displayNextItem();
           });
         } else if (DOCUMENTATION_OPTIONS.HAS_SOURCE) {
-          $.ajax({url: DOCUMENTATION_OPTIONS.URL_ROOT + '_sources/' + item[0] + '.txt',
+          var suffix = DOCUMENTATION_OPTIONS.SOURCELINK_SUFFIX;
+          if (suffix === undefined) {
+            suffix = '.txt';
+          }
+          $.ajax({url: DOCUMENTATION_OPTIONS.URL_ROOT + '_sources/' + item[5] + (item[5].slice(-suffix.length) === suffix ? '' : suffix),
                   dataType: "text",
                   complete: function(jqxhr, textstatus) {
                     var data = jqxhr.responseText;
-                    if (data !== '') {
+                    if (data !== '' && data !== undefined) {
                       listItem.append(Search.makeSearchSummary(data, searchterms, hlterms));
                     }
                     Search.output.append(listItem);
@@ -474,6 +302,7 @@ var Search = {
    */
   performObjectSearch : function(object, otherterms) {
     var filenames = this._index.filenames;
+    var docnames = this._index.docnames;
     var objects = this._index.objects;
     var objnames = this._index.objnames;
     var titles = this._index.titles;
@@ -527,7 +356,7 @@ var Search = {
           } else {
             score += Scorer.objPrioDefault;
           }
-          results.push([filenames[match[0]], fullname, '#'+anchor, descr, score]);
+          results.push([docnames[match[0]], fullname, '#'+anchor, descr, score, filenames[match[0]]]);
         }
       }
     }
@@ -538,23 +367,48 @@ var Search = {
   /**
    * search for full-text terms in the index
    */
-  performTermsSearch : function(searchterms, excluded, terms, score) {
+  performTermsSearch : function(searchterms, excluded, terms, titleterms) {
+    var docnames = this._index.docnames;
     var filenames = this._index.filenames;
     var titles = this._index.titles;
 
-    var i, j, file, files;
+    var i, j, file;
     var fileMap = {};
+    var scoreMap = {};
     var results = [];
 
     // perform the search on the required terms
     for (i = 0; i < searchterms.length; i++) {
       var word = searchterms[i];
+      var files = [];
+      var _o = [
+        {files: terms[word], score: Scorer.term},
+        {files: titleterms[word], score: Scorer.title}
+      ];
+
       // no match but word was a required one
-      if ((files = terms[word]) === undefined)
+      if ($u.every(_o, function(o){return o.files === undefined;})) {
         break;
-      if (files.length === undefined) {
-        files = [files];
       }
+      // found search word in contents
+      $u.each(_o, function(o) {
+        var _files = o.files;
+        if (_files === undefined)
+          return
+
+        if (_files.length === undefined)
+          _files = [_files];
+        files = files.concat(_files);
+
+        // set score for the word in each file to Scorer.term
+        for (j = 0; j < _files.length; j++) {
+          file = _files[j];
+          if (!(file in scoreMap))
+            scoreMap[file] = {}
+          scoreMap[file][word] = o.score;
+        }
+      });
+
       // create the mapping
       for (j = 0; j < files.length; j++) {
         file = files[j];
@@ -576,7 +430,9 @@ var Search = {
       // ensure that none of the excluded terms is in the search result
       for (i = 0; i < excluded.length; i++) {
         if (terms[excluded[i]] == file ||
-          $u.contains(terms[excluded[i]] || [], file)) {
+            titleterms[excluded[i]] == file ||
+            $u.contains(terms[excluded[i]] || [], file) ||
+            $u.contains(titleterms[excluded[i]] || [], file)) {
           valid = false;
           break;
         }
@@ -584,7 +440,10 @@ var Search = {
 
       // if we have still a valid result we can add it to the result list
       if (valid) {
-        results.push([filenames[file], titles[file], '', null, score]);
+        // select one (max) score for the file.
+        // for better ranking, we should calculate ranking by using words statistics like basic tf-idf...
+        var score = $u.max($u.map(fileMap[file], function(w){return scoreMap[file][w]}));
+        results.push([docnames[file], titles[file], '', null, score, filenames[file]]);
       }
     }
     return results;
@@ -594,7 +453,7 @@ var Search = {
    * helper function to return a node containing the
    * search summary for a given text. keywords is a list
    * of stemmed words, hlwords is the list of normal, unstemmed
-   * words. the first one is used to find the occurance, the
+   * words. the first one is used to find the occurrence, the
    * latter for highlighting it.
    */
   makeSearchSummary : function(text, keywords, hlwords) {

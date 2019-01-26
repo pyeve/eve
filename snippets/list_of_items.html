@@ -1,31 +1,22 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Supporting both list-level and item-level CRUD operations &mdash; Eve 0.8.1.dev0 documentation</title>
-    
+    <title>Supporting both list-level and item-level CRUD operations &#8212; Eve 0.8.2.dev0 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.8.1.dev0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.8.1.dev0 documentation" href="../index.html" />
-    <link rel="up" title="Snippets" href="index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Snippet Template" href="template.html" />
     <link rel="prev" title="Using Eve Event Hooks from your Blueprint" href="hooks_blueprints.html" />
    
@@ -34,13 +25,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="supporting-both-list-level-and-item-level-crud-operations">
@@ -48,10 +40,10 @@
 <p>by John Chang</p>
 <p>This is an example of how to implement a simple list of items that supports both list-level and item-level CRUD operations.</p>
 <p>Specifically, it should be possible to use a single GET to get the entire list (including all items) but also a single POST to append an item (rather than PATCHing the list).</p>
-<p>The solution was to database event hooks to inject the embedded child documents (<tt class="docutils literal"><span class="pre">items</span></tt>) into the parent list before it&#8217;s returned to the client and also delete the child items when the parent list is deleted. This works, although it results in two DB queries.</p>
+<p>The solution was to database event hooks to inject the embedded child documents (<code class="docutils literal notranslate"><span class="pre">items</span></code>) into the parent list before it’s returned to the client and also delete the child items when the parent list is deleted. This works, although it results in two DB queries.</p>
 <div class="section" id="main-py">
 <h2>main.py<a class="headerlink" href="#main-py" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
 <span class="kn">from</span> <span class="nn">bson.objectid</span> <span class="kn">import</span> <span class="n">ObjectId</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
@@ -59,14 +51,14 @@
 
 
 <span class="k">def</span> <span class="nf">after_fetching_lists</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
-    <span class="n">list_id</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s">&#39;_id&#39;</span><span class="p">]</span>
-    <span class="n">f</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;list_id&#39;</span><span class="p">:</span> <span class="n">ObjectId</span><span class="p">(</span><span class="n">list_id</span><span class="p">)}</span>
-    <span class="n">response</span><span class="p">[</span><span class="s">&#39;items&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
+    <span class="n">list_id</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;_id&#39;</span><span class="p">]</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;list_id&#39;</span><span class="p">:</span> <span class="n">ObjectId</span><span class="p">(</span><span class="n">list_id</span><span class="p">)}</span>
+    <span class="n">response</span><span class="p">[</span><span class="s1">&#39;items&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
 
 
 <span class="k">def</span> <span class="nf">after_deleting_lists</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
-    <span class="n">list_id</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s">&#39;_id&#39;</span><span class="p">]</span>
-    <span class="n">f</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;list_id&#39;</span><span class="p">:</span> <span class="n">ObjectId</span><span class="p">(</span><span class="n">list_id</span><span class="p">)}</span>
+    <span class="n">list_id</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;_id&#39;</span><span class="p">]</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;list_id&#39;</span><span class="p">:</span> <span class="n">ObjectId</span><span class="p">(</span><span class="n">list_id</span><span class="p">)}</span>
     <span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">delete_many</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
 <span class="n">app</span><span class="o">.</span><span class="n">on_fetched_item_lists</span> <span class="o">+=</span> <span class="n">after_fetching_lists</span>
@@ -78,40 +70,40 @@
 </div>
 <div class="section" id="settings-py">
 <h2>settings.py<a class="headerlink" href="#settings-py" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 
 <span class="n">DEBUG</span> <span class="o">=</span> <span class="bp">True</span>
 
-<span class="n">MONGO_HOST</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;MONGO_HOST&#39;</span><span class="p">,</span> <span class="s">&#39;localhost&#39;</span><span class="p">)</span>
-<span class="n">MONGO_PORT</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;MONGO_PORT&#39;</span><span class="p">,</span> <span class="mi">27017</span><span class="p">)</span>
-<span class="n">MONGO_USERNAME</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;MONGO_USERNAME&#39;</span><span class="p">,</span> <span class="s">&#39;user&#39;</span><span class="p">)</span>
-<span class="n">MONGO_PASSWORD</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;MONGO_PASSWORD&#39;</span><span class="p">,</span> <span class="s">&#39;user&#39;</span><span class="p">)</span>
-<span class="n">MONGO_DBNAME</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;MONGO_DBNAME&#39;</span><span class="p">,</span> <span class="s">&#39;listtest&#39;</span><span class="p">)</span>
+<span class="n">MONGO_HOST</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;MONGO_HOST&#39;</span><span class="p">,</span> <span class="s1">&#39;localhost&#39;</span><span class="p">)</span>
+<span class="n">MONGO_PORT</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;MONGO_PORT&#39;</span><span class="p">,</span> <span class="mi">27017</span><span class="p">)</span>
+<span class="n">MONGO_USERNAME</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;MONGO_USERNAME&#39;</span><span class="p">,</span> <span class="s1">&#39;user&#39;</span><span class="p">)</span>
+<span class="n">MONGO_PASSWORD</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;MONGO_PASSWORD&#39;</span><span class="p">,</span> <span class="s1">&#39;user&#39;</span><span class="p">)</span>
+<span class="n">MONGO_DBNAME</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;MONGO_DBNAME&#39;</span><span class="p">,</span> <span class="s1">&#39;listtest&#39;</span><span class="p">)</span>
 
-<span class="n">RESOURCE_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">]</span>
-<span class="n">ITEM_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;PUT&#39;</span><span class="p">,</span> <span class="s">&#39;PATCH&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">]</span>
+<span class="n">RESOURCE_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="s1">&#39;DELETE&#39;</span><span class="p">]</span>
+<span class="n">ITEM_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;PUT&#39;</span><span class="p">,</span> <span class="s1">&#39;PATCH&#39;</span><span class="p">,</span> <span class="s1">&#39;DELETE&#39;</span><span class="p">]</span>
 
 <span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s">&#39;lists&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s">&#39;title&#39;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span>
+    <span class="s1">&#39;lists&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span>
             <span class="p">}</span>
         <span class="p">}</span>
     <span class="p">},</span>
-    <span class="s">&#39;items&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;lists/&lt;regex(&quot;[a-f0-9]{24}&quot;):list_id&gt;/items&#39;</span><span class="p">,</span>
-        <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s">&#39;list_id&#39;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;objectid&#39;</span><span class="p">,</span>
-                <span class="s">&#39;data_relation&#39;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s">&#39;resource&#39;</span><span class="p">:</span> <span class="s">&#39;lists&#39;</span><span class="p">,</span>
-                    <span class="s">&#39;field&#39;</span><span class="p">:</span> <span class="s">&#39;_id&#39;</span>
+    <span class="s1">&#39;items&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="s1">&#39;lists/&lt;regex(&quot;[a-f0-9]{24}&quot;):list_id&gt;/items&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;list_id&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;objectid&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;data_relation&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;resource&#39;</span><span class="p">:</span> <span class="s1">&#39;lists&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;field&#39;</span><span class="p">:</span> <span class="s1">&#39;_id&#39;</span>
                 <span class="p">}</span>
             <span class="p">},</span>
-            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
-                <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span>
             <span class="p">}</span>
         <span class="p">}</span>
     <span class="p">}</span>
@@ -121,7 +113,7 @@
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>curl -i -X POST http://127.0.0.1:5000/lists -d <span class="nv">title</span><span class="o">=</span><span class="s2">&quot;My List&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -i -X POST http://127.0.0.1:5000/lists -d <span class="nv">title</span><span class="o">=</span><span class="s2">&quot;My List&quot;</span>
 HTTP/1.0 <span class="m">201</span> CREATED
 
 <span class="o">{</span>
@@ -129,13 +121,13 @@ HTTP/1.0 <span class="m">201</span> CREATED
     :
 <span class="o">}</span>
 
-<span class="nv">$ </span>curl -i -X POST http://127.0.0.1:5000/lists/58960f83a663e2e6746dfa6a/items -d <span class="s1">&#39;name=Alice&#39;</span>
+$ curl -i -X POST http://127.0.0.1:5000/lists/58960f83a663e2e6746dfa6a/items -d <span class="s1">&#39;name=Alice&#39;</span>
 HTTP/1.0 <span class="m">201</span> CREATED
 
-<span class="nv">$ </span>curl -i -X POST http://127.0.0.1:5000/lists/58960f83a663e2e6746dfa6a/items -d <span class="s1">&#39;name=Bob&#39;</span>
+$ curl -i -X POST http://127.0.0.1:5000/lists/58960f83a663e2e6746dfa6a/items -d <span class="s1">&#39;name=Bob&#39;</span>
 HTTP/1.0 <span class="m">201</span> CREATED
 
-<span class="nv">$ </span>curl -i -X GET http://127.0.0.1:5000/lists/58960f83a663e2e6746dfa6a
+$ curl -i -X GET http://127.0.0.1:5000/lists/58960f83a663e2e6746dfa6a
 HTTP/1.0 <span class="m">200</span> OK
 
 <span class="o">{</span>
@@ -151,7 +143,7 @@ HTTP/1.0 <span class="m">200</span> OK
             <span class="s2">&quot;_updated&quot;</span>: <span class="s2">&quot;Sat, 04 Feb 2017 17:30:06 GMT&quot;</span>,
             <span class="s2">&quot;list_id&quot;</span>: <span class="s2">&quot;58960f83a663e2e6746dfa6a&quot;</span>,
             <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;Alice&quot;</span>,
-            <span class="s2">&quot;quantity&quot;</span>: 1
+            <span class="s2">&quot;quantity&quot;</span>: <span class="m">1</span>
         <span class="o">}</span>,
         <span class="o">{</span>
             <span class="s2">&quot;_created&quot;</span>: <span class="s2">&quot;Sat, 04 Feb 2017 17:30:13 GMT&quot;</span>,
@@ -160,16 +152,16 @@ HTTP/1.0 <span class="m">200</span> OK
             <span class="s2">&quot;_updated&quot;</span>: <span class="s2">&quot;Sat, 04 Feb 2017 17:30:13 GMT&quot;</span>,
             <span class="s2">&quot;list_id&quot;</span>: <span class="s2">&quot;58960f83a663e2e6746dfa6a&quot;</span>,
             <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;Bob&quot;</span>,
-            <span class="s2">&quot;quantity&quot;</span>: 1
+            <span class="s2">&quot;quantity&quot;</span>: <span class="m">1</span>
         <span class="o">}</span>
     <span class="o">]</span>,
     <span class="s2">&quot;title&quot;</span>: <span class="s2">&quot;My List&quot;</span>
 <span class="o">}</span>
 
-<span class="nv">$ </span>curl -i -X DELETE http://127.0.0.1:5000/lists/58960f83a663e2e6746dfa6a/items/58960f9ea663e2e6746dfa6b -H <span class="s2">&quot;If-Match: 72ad9248ad5bf45c7bfe3e03a1b9bc384d94572f&quot;</span>
+$ curl -i -X DELETE http://127.0.0.1:5000/lists/58960f83a663e2e6746dfa6a/items/58960f9ea663e2e6746dfa6b -H <span class="s2">&quot;If-Match: 72ad9248ad5bf45c7bfe3e03a1b9bc384d94572f&quot;</span>
 HTTP/1.0 <span class="m">204</span> NO CONTENT
 
-<span class="nv">$ </span>curl -i -X GET http://127.0.0.1:5000/lists/58960f83a663e2e6746dfa6a
+$ curl -i -X GET http://127.0.0.1:5000/lists/58960f83a663e2e6746dfa6a
 HTTP/1.0 <span class="m">200</span> OK
 
 <span class="o">{</span>
@@ -185,7 +177,7 @@ HTTP/1.0 <span class="m">200</span> OK
             <span class="s2">&quot;_updated&quot;</span>: <span class="s2">&quot;Sat, 04 Feb 2017 17:30:13 GMT&quot;</span>,
             <span class="s2">&quot;list_id&quot;</span>: <span class="s2">&quot;58960f83a663e2e6746dfa6a&quot;</span>,
             <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;Bob&quot;</span>,
-            <span class="s2">&quot;quantity&quot;</span>: 1
+            <span class="s2">&quot;quantity&quot;</span>: <span class="m">1</span>
         <span class="o">}</span>
     <span class="o">]</span>,
     <span class="s2">&quot;title&quot;</span>: <span class="s2">&quot;My List&quot;</span>
@@ -197,9 +189,10 @@ HTTP/1.0 <span class="m">200</span> OK
 
 
           </div>
+          
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../index.html">
@@ -279,7 +272,7 @@ HTTP/1.0 <span class="m">200</span> OK
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Snippets</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#available-snippets">Available Snippets</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="hooks_blueprints.html">Using Eve Event Hooks from your Blueprint</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="">Supporting both list-level and item-level CRUD operations</a><ul>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Supporting both list-level and item-level CRUD operations</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#main-py">main.py</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#settings-py">settings.py</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a></li>
@@ -300,17 +293,16 @@ HTTP/1.0 <span class="m">200</span> OK
 </ul>
 
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script><p>
 Artwork by <a href="http://kalamun.org">Kalamun</a> © 2013
@@ -321,7 +313,7 @@ Artwork by <a href="http://kalamun.org">Kalamun</a> © 2013
     </div>
 
     <div class="footer">
-      &copy;2018. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
+      &copy;2019. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
       
     </div>
 

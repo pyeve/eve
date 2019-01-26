@@ -1,30 +1,22 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Quickstart &mdash; Eve 0.8.1.dev0 documentation</title>
-    
+    <title>Quickstart &#8212; Eve 0.8.2.dev0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.8.1.dev0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="Eve 0.8.1.dev0 documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Features" href="features.html" />
     <link rel="prev" title="Installation" href="install.html" />
    
@@ -33,13 +25,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="quickstart">
@@ -49,7 +42,7 @@
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>You already have Eve installed. If you do not, head over to the
-<a class="reference internal" href="install.html#install"><em>Installation</em></a> section.</li>
+<a class="reference internal" href="install.html#install"><span class="std std-ref">Installation</span></a> section.</li>
 <li>MongoDB is <a class="reference external" href="http://docs.mongodb.org/manual/installation/">installed</a>.</li>
 <li>An instance of MongoDB is <a class="reference external" href="http://docs.mongodb.org/manual/tutorial/manage-mongodb-processes/">running</a>.</li>
 </ul>
@@ -57,28 +50,28 @@
 <div class="section" id="a-minimal-application">
 <h2>A Minimal Application<a class="headerlink" href="#a-minimal-application" title="Permalink to this headline">¶</a></h2>
 <p>A minimal Eve application looks something like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">eve</span> <span class="k">import</span> <span class="n">Eve</span>
 <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Just save it as run.py. Next, create a new text file with the following
 content:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;people&#39;</span><span class="p">:</span> <span class="p">{}}</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;people&#39;</span><span class="p">:</span> <span class="p">{}}</span>
 </pre></div>
 </div>
 <p>Save it as settings.py in the same directory where run.py is stored. This
 is the Eve configuration file, a standard Python module, and it is telling Eve
-that your API is comprised of just one accessible resource, <tt class="docutils literal"><span class="pre">people</span></tt>.</p>
+that your API is comprised of just one accessible resource, <code class="docutils literal notranslate"><span class="pre">people</span></code>.</p>
 <p>Now your are ready to launch your API.</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python run.py
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> python run.py
 <span class="go"> * Running on http://127.0.0.1:5000/</span>
 </pre></div>
 </div>
 <p>Now you can consume the API:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://127.0.0.1:5000
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> curl -i http://127.0.0.1:5000
 <span class="go">HTTP/1.0 200 OK</span>
 <span class="go">Content-Type: application/json</span>
 <span class="go">Content-Length: 82</span>
@@ -86,195 +79,195 @@ that your API is comprised of just one accessible resource, <tt class="docutils 
 <span class="go">Date: Wed, 27 Mar 2013 16:06:44 GMT</span>
 </pre></div>
 </div>
-<p>Congratulations, your GET request got a nice response back. Let&#8217;s look at the
+<p>Congratulations, your GET request got a nice response back. Let’s look at the
 payload:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
-  <span class="s">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s">&quot;child&quot;</span><span class="p">:</span> <span class="p">[</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;child&quot;</span><span class="p">:</span> <span class="p">[</span>
       <span class="p">{</span>
-        <span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span><span class="p">,</span>
-        <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span>
+        <span class="s2">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;people&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;people&quot;</span>
       <span class="p">}</span>
     <span class="p">]</span>
   <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>API entry points adhere to the <a class="reference internal" href="features.html#hateoas-feature"><em>HATEOAS</em></a> principle and provide
+<p>API entry points adhere to the <a class="reference internal" href="features.html#hateoas-feature"><span class="std std-ref">HATEOAS</span></a> principle and provide
 information about the resources accessible through the API. In our case
-there&#8217;s only one child resource available, that being <tt class="docutils literal"><span class="pre">people</span></tt>.</p>
-<p>Try requesting <tt class="docutils literal"><span class="pre">people</span></tt> now:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl http://127.0.0.1:5000/people
+there’s only one child resource available, that being <code class="docutils literal notranslate"><span class="pre">people</span></code>.</p>
+<p>Try requesting <code class="docutils literal notranslate"><span class="pre">people</span></code> now:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> curl http://127.0.0.1:5000/people
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
-  <span class="s">&quot;_items&quot;</span><span class="p">:</span> <span class="p">[],</span>
-  <span class="s">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span><span class="p">,</span>
-      <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;people&quot;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;_items&quot;</span><span class="p">:</span> <span class="p">[],</span>
+  <span class="s2">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;people&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;people&quot;</span>
     <span class="p">},</span>
-    <span class="s">&quot;parent&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s">&quot;href&quot;</span><span class="p">:</span> <span class="s">&quot;/&quot;</span><span class="p">,</span>
-      <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;home&quot;</span>
+    <span class="s2">&quot;parent&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;home&quot;</span>
     <span class="p">}</span>
   <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>This time we also got an <tt class="docutils literal"><span class="pre">_items</span></tt> list. The <tt class="docutils literal"><span class="pre">_links</span></tt> are relative to the
+<p>This time we also got an <code class="docutils literal notranslate"><span class="pre">_items</span></code> list. The <code class="docutils literal notranslate"><span class="pre">_links</span></code> are relative to the
 resource being accessed, so you get a link to the parent resource (the home
 page) and to the resource itself. If you got a timeout error from pymongo, make
-sure the prerequistes are met. Chances are that the <tt class="docutils literal"><span class="pre">mongod</span></tt> server process
+sure the prerequistes are met. Chances are that the <code class="docutils literal notranslate"><span class="pre">mongod</span></code> server process
 is not running.</p>
 <p>By default Eve APIs are read-only:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -X DELETE http://127.0.0.1:5000/people
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> curl -X DELETE http://127.0.0.1:5000/people
 <span class="go">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 3.2 Final//EN&quot;&gt;</span>
 <span class="go">&lt;title&gt;405 Method Not Allowed&lt;/title&gt;</span>
 <span class="go">&lt;h1&gt;Method Not Allowed&lt;/h1&gt;</span>
 <span class="go">&lt;p&gt;The method DELETE is not allowed for the requested URL.&lt;/p&gt;</span>
 </pre></div>
 </div>
-<p>Since we didn&#8217;t provide any database detail in settings.py, Eve has no clue
-about the real content of the <tt class="docutils literal"><span class="pre">people</span></tt> collection (it might even be
-non-existent) and seamlessly serves an empty resource, as we don&#8217;t want to let
+<p>Since we didn’t provide any database detail in settings.py, Eve has no clue
+about the real content of the <code class="docutils literal notranslate"><span class="pre">people</span></code> collection (it might even be
+non-existent) and seamlessly serves an empty resource, as we don’t want to let
 API users down.</p>
 </div>
 <div class="section" id="database-interlude">
 <h2>Database Interlude<a class="headerlink" href="#database-interlude" title="Permalink to this headline">¶</a></h2>
-<p>Let&#8217;s connect to a database by adding the following lines to settings.py:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># Let&#39;s just use the local mongod instance. Edit as needed.</span>
+<p>Let’s connect to a database by adding the following lines to settings.py:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Let&#39;s just use the local mongod instance. Edit as needed.</span>
 
-<span class="c"># Please note that MONGO_HOST and MONGO_PORT could very well be left</span>
-<span class="c"># out as they already default to a bare bones local &#39;mongod&#39; instance.</span>
-<span class="n">MONGO_HOST</span> <span class="o">=</span> <span class="s">&#39;localhost&#39;</span>
+<span class="c1"># Please note that MONGO_HOST and MONGO_PORT could very well be left</span>
+<span class="c1"># out as they already default to a bare bones local &#39;mongod&#39; instance.</span>
+<span class="n">MONGO_HOST</span> <span class="o">=</span> <span class="s1">&#39;localhost&#39;</span>
 <span class="n">MONGO_PORT</span> <span class="o">=</span> <span class="mi">27017</span>
 
-<span class="c"># Skip these if your db has no auth. But it really should.</span>
-<span class="n">MONGO_USERNAME</span> <span class="o">=</span> <span class="s">&#39;&lt;your username&gt;&#39;</span>
-<span class="n">MONGO_PASSWORD</span> <span class="o">=</span> <span class="s">&#39;&lt;your password&gt;&#39;</span>
-<span class="n">MONGO_AUTH_SOURCE</span> <span class="o">=</span> <span class="s">&#39;admin&#39;</span>  <span class="c"># needed if --auth mode is enabled</span>
+<span class="c1"># Skip these if your db has no auth. But it really should.</span>
+<span class="n">MONGO_USERNAME</span> <span class="o">=</span> <span class="s1">&#39;&lt;your username&gt;&#39;</span>
+<span class="n">MONGO_PASSWORD</span> <span class="o">=</span> <span class="s1">&#39;&lt;your password&gt;&#39;</span>
+<span class="n">MONGO_AUTH_SOURCE</span> <span class="o">=</span> <span class="s1">&#39;admin&#39;</span>  <span class="c1"># needed if --auth mode is enabled</span>
 
-<span class="n">MONGO_DBNAME</span> <span class="o">=</span> <span class="s">&#39;apitest&#39;</span>
+<span class="n">MONGO_DBNAME</span> <span class="o">=</span> <span class="s1">&#39;apitest&#39;</span>
 </pre></div>
 </div>
-<p>Due to MongoDB <em>laziness</em>, we don&#8217;t really need to create the database
-collections. Actually we don&#8217;t even need to create the database: GET requests
-on an empty/non-existent DB will be served correctly (<tt class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></tt> with an empty
-collection); DELETE/PATCH/PUT will receive appropriate responses (<tt class="docutils literal"><span class="pre">404</span> <span class="pre">Not</span>
-<span class="pre">Found</span></tt> ), and POST requests will create database and collections as needed.
+<p>Due to MongoDB <em>laziness</em>, we don’t really need to create the database
+collections. Actually we don’t even need to create the database: GET requests
+on an empty/non-existent DB will be served correctly (<code class="docutils literal notranslate"><span class="pre">200</span> <span class="pre">OK</span></code> with an empty
+collection); DELETE/PATCH/PUT will receive appropriate responses (<code class="docutils literal notranslate"><span class="pre">404</span> <span class="pre">Not</span>
+<span class="pre">Found</span></code> ), and POST requests will create database and collections as needed.
 However, such an auto-managed database will perform very poorly since it lacks
 indexes and any sort of optimization.</p>
 </div>
 <div class="section" id="a-more-complex-application">
 <h2>A More Complex Application<a class="headerlink" href="#a-more-complex-application" title="Permalink to this headline">¶</a></h2>
-<p>So far our API has been read-only. Let&#8217;s enable the full spectrum of CRUD
+<p>So far our API has been read-only. Let’s enable the full spectrum of CRUD
 operations:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># Enable reads (GET), inserts (POST) and DELETE for resources/collections</span>
-<span class="c"># (if you omit this line, the API will default to [&#39;GET&#39;] and provide</span>
-<span class="c"># read-only access to the endpoint).</span>
-<span class="n">RESOURCE_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enable reads (GET), inserts (POST) and DELETE for resources/collections</span>
+<span class="c1"># (if you omit this line, the API will default to [&#39;GET&#39;] and provide</span>
+<span class="c1"># read-only access to the endpoint).</span>
+<span class="n">RESOURCE_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="s1">&#39;DELETE&#39;</span><span class="p">]</span>
 
-<span class="c"># Enable reads (GET), edits (PATCH), replacements (PUT) and deletes of</span>
-<span class="c"># individual items  (defaults to read-only item access).</span>
-<span class="n">ITEM_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;PATCH&#39;</span><span class="p">,</span> <span class="s">&#39;PUT&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">]</span>
+<span class="c1"># Enable reads (GET), edits (PATCH), replacements (PUT) and deletes of</span>
+<span class="c1"># individual items  (defaults to read-only item access).</span>
+<span class="n">ITEM_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;PATCH&#39;</span><span class="p">,</span> <span class="s1">&#39;PUT&#39;</span><span class="p">,</span> <span class="s1">&#39;DELETE&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p><tt class="docutils literal"><span class="pre">RESOURCE_METHODS</span></tt> lists methods allowed at resource endpoints (<tt class="docutils literal"><span class="pre">/people</span></tt>)
-while <tt class="docutils literal"><span class="pre">ITEM_METHODS</span></tt> lists the methods enabled at item endpoints
-(<tt class="docutils literal"><span class="pre">/people/&lt;ObjectId&gt;</span></tt>). Both settings have a global scope and will apply to
+<p><code class="docutils literal notranslate"><span class="pre">RESOURCE_METHODS</span></code> lists methods allowed at resource endpoints (<code class="docutils literal notranslate"><span class="pre">/people</span></code>)
+while <code class="docutils literal notranslate"><span class="pre">ITEM_METHODS</span></code> lists the methods enabled at item endpoints
+(<code class="docutils literal notranslate"><span class="pre">/people/&lt;ObjectId&gt;</span></code>). Both settings have a global scope and will apply to
 all endpoints.  You can then enable or disable HTTP methods at individual
 endpoint level, as we will soon see.</p>
 <p>Since we are enabling editing we also want to enable proper data validation.
-Let&#8217;s define a schema for our <tt class="docutils literal"><span class="pre">people</span></tt> resource.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">schema</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c"># Schema definition, based on Cerberus grammar. Check the Cerberus project</span>
-    <span class="c"># (https://github.com/pyeve/cerberus) for details.</span>
-    <span class="s">&#39;firstname&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
-        <span class="s">&#39;minlength&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s">&#39;maxlength&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+Let’s define a schema for our <code class="docutils literal notranslate"><span class="pre">people</span></code> resource.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Schema definition, based on Cerberus grammar. Check the Cerberus project</span>
+    <span class="c1"># (https://github.com/pyeve/cerberus) for details.</span>
+    <span class="s1">&#39;firstname&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;minlength&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s1">&#39;maxlength&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s">&#39;lastname&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
-        <span class="s">&#39;minlength&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s">&#39;maxlength&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
-        <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-        <span class="c"># talk about hard constraints! For the purpose of the demo</span>
-        <span class="c"># &#39;lastname&#39; is an API entry-point, so we need it to be unique.</span>
-        <span class="s">&#39;unique&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+    <span class="s1">&#39;lastname&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;minlength&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s1">&#39;maxlength&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+        <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="c1"># talk about hard constraints! For the purpose of the demo</span>
+        <span class="c1"># &#39;lastname&#39; is an API entry-point, so we need it to be unique.</span>
+        <span class="s1">&#39;unique&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="c"># &#39;role&#39; is a list, and can only contain values from &#39;allowed&#39;.</span>
-    <span class="s">&#39;role&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
-        <span class="s">&#39;allowed&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;author&quot;</span><span class="p">,</span> <span class="s">&quot;contributor&quot;</span><span class="p">,</span> <span class="s">&quot;copy&quot;</span><span class="p">],</span>
+    <span class="c1"># &#39;role&#39; is a list, and can only contain values from &#39;allowed&#39;.</span>
+    <span class="s1">&#39;role&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;allowed&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;author&quot;</span><span class="p">,</span> <span class="s2">&quot;contributor&quot;</span><span class="p">,</span> <span class="s2">&quot;copy&quot;</span><span class="p">],</span>
     <span class="p">},</span>
-    <span class="c"># An embedded &#39;strongly-typed&#39; dictionary.</span>
-    <span class="s">&#39;location&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;dict&#39;</span><span class="p">,</span>
-        <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s">&#39;address&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">},</span>
-            <span class="s">&#39;city&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">}</span>
+    <span class="c1"># An embedded &#39;strongly-typed&#39; dictionary.</span>
+    <span class="s1">&#39;location&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;dict&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;address&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">},</span>
+            <span class="s1">&#39;city&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">}</span>
         <span class="p">},</span>
     <span class="p">},</span>
-    <span class="s">&#39;born&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;datetime&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;born&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;datetime&#39;</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>For more information on validation see <a class="reference internal" href="validation.html#validation"><em>Data Validation</em></a>.</p>
-<p>Now let&#8217;s say that we want to further customize the <tt class="docutils literal"><span class="pre">people</span></tt> endpoint. We want
+<p>For more information on validation see <a class="reference internal" href="validation.html#validation"><span class="std std-ref">Data Validation</span></a>.</p>
+<p>Now let’s say that we want to further customize the <code class="docutils literal notranslate"><span class="pre">people</span></code> endpoint. We want
 to:</p>
 <ul class="simple">
-<li>set the item title to <tt class="docutils literal"><span class="pre">person</span></tt></li>
-<li>add an extra <a class="reference internal" href="features.html#custom-item-endpoints"><em>custom item endpoint</em></a> at <tt class="docutils literal"><span class="pre">/people/&lt;lastname&gt;</span></tt></li>
-<li>override the default <a class="reference internal" href="features.html#cache-control"><em>cache control directives</em></a></li>
-<li>disable DELETE for the <tt class="docutils literal"><span class="pre">/people</span></tt> endpoint (we enabled it globally)</li>
+<li>set the item title to <code class="docutils literal notranslate"><span class="pre">person</span></code></li>
+<li>add an extra <a class="reference internal" href="features.html#custom-item-endpoints"><span class="std std-ref">custom item endpoint</span></a> at <code class="docutils literal notranslate"><span class="pre">/people/&lt;lastname&gt;</span></code></li>
+<li>override the default <a class="reference internal" href="features.html#cache-control"><span class="std std-ref">cache control directives</span></a></li>
+<li>disable DELETE for the <code class="docutils literal notranslate"><span class="pre">/people</span></code> endpoint (we enabled it globally)</li>
 </ul>
-<p>Here is how the complete <tt class="docutils literal"><span class="pre">people</span></tt> definition looks in our updated settings.py
+<p>Here is how the complete <code class="docutils literal notranslate"><span class="pre">people</span></code> definition looks in our updated settings.py
 file:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c"># &#39;title&#39; tag used in item links. Defaults to the resource title minus</span>
-    <span class="c"># the final, plural &#39;s&#39; (works fine in most cases but not for &#39;people&#39;)</span>
-    <span class="s">&#39;item_title&#39;</span><span class="p">:</span> <span class="s">&#39;person&#39;</span><span class="p">,</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">people</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># &#39;title&#39; tag used in item links. Defaults to the resource title minus</span>
+    <span class="c1"># the final, plural &#39;s&#39; (works fine in most cases but not for &#39;people&#39;)</span>
+    <span class="s1">&#39;item_title&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
 
-    <span class="c"># by default the standard item entry point is defined as</span>
-    <span class="c"># &#39;/people/&lt;ObjectId&gt;&#39;. We leave it untouched, and we also enable an</span>
-    <span class="c"># additional read-only entry point. This way consumers can also perform</span>
-    <span class="c"># GET requests at &#39;/people/&lt;lastname&gt;&#39;.</span>
-    <span class="s">&#39;additional_lookup&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;regex(&quot;[\w]+&quot;)&#39;</span><span class="p">,</span>
-        <span class="s">&#39;field&#39;</span><span class="p">:</span> <span class="s">&#39;lastname&#39;</span>
+    <span class="c1"># by default the standard item entry point is defined as</span>
+    <span class="c1"># &#39;/people/&lt;ObjectId&gt;&#39;. We leave it untouched, and we also enable an</span>
+    <span class="c1"># additional read-only entry point. This way consumers can also perform</span>
+    <span class="c1"># GET requests at &#39;/people/&lt;lastname&gt;&#39;.</span>
+    <span class="s1">&#39;additional_lookup&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="s1">&#39;regex(&quot;[\w]+&quot;)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;field&#39;</span><span class="p">:</span> <span class="s1">&#39;lastname&#39;</span>
     <span class="p">},</span>
 
-    <span class="c"># We choose to override global cache-control directives for this resource.</span>
-    <span class="s">&#39;cache_control&#39;</span><span class="p">:</span> <span class="s">&#39;max-age=10,must-revalidate&#39;</span><span class="p">,</span>
-    <span class="s">&#39;cache_expires&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="c1"># We choose to override global cache-control directives for this resource.</span>
+    <span class="s1">&#39;cache_control&#39;</span><span class="p">:</span> <span class="s1">&#39;max-age=10,must-revalidate&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;cache_expires&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
 
-    <span class="c"># most global settings can be overridden at resource level</span>
-    <span class="s">&#39;resource_methods&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">],</span>
+    <span class="c1"># most global settings can be overridden at resource level</span>
+    <span class="s1">&#39;resource_methods&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">],</span>
 
-    <span class="s">&#39;schema&#39;</span><span class="p">:</span> <span class="n">schema</span>
+    <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="n">schema</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>Finally we update our domain definition:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s">&#39;people&#39;</span><span class="p">:</span> <span class="n">people</span><span class="p">,</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DOMAIN</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;people&#39;</span><span class="p">:</span> <span class="n">people</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>Save settings.py and launch run.py. We can now insert documents at the
-<tt class="docutils literal"><span class="pre">people</span></tt> endpoint:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -d <span class="s1">&#39;[{&quot;firstname&quot;: &quot;barack&quot;, &quot;lastname&quot;: &quot;obama&quot;}, {&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}]&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span>  http://127.0.0.1:5000/people
+<code class="docutils literal notranslate"><span class="pre">people</span></code> endpoint:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> curl -d <span class="s1">&#39;[{&quot;firstname&quot;: &quot;barack&quot;, &quot;lastname&quot;: &quot;obama&quot;}, {&quot;firstname&quot;: &quot;mitt&quot;, &quot;lastname&quot;: &quot;romney&quot;}]&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span>  http://127.0.0.1:5000/people
 <span class="go">HTTP/1.0 201 OK</span>
 </pre></div>
 </div>
 <p>We can also update and delete items (but not the whole resource since we
-disabled that). We can also perform GET requests against the new <tt class="docutils literal"><span class="pre">lastname</span></tt>
+disabled that). We can also perform GET requests against the new <code class="docutils literal notranslate"><span class="pre">lastname</span></code>
 endpoint:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -i http://127.0.0.1:5000/people/obama
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> curl -i http://127.0.0.1:5000/people/obama
 <span class="go">HTTP/1.0 200 OK</span>
 <span class="go">Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc</span>
 <span class="go">Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT</span>
@@ -283,7 +276,7 @@ endpoint:</p>
 <span class="go">...</span>
 </pre></div>
 </div>
-<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="s2">&quot;firstname&quot;</span><span class="o">:</span> <span class="s2">&quot;barack&quot;</span><span class="p">,</span>
     <span class="s2">&quot;lastname&quot;</span><span class="o">:</span> <span class="s2">&quot;obama&quot;</span><span class="p">,</span>
     <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;50acfba938345b0978fccad7&quot;</span>
@@ -297,11 +290,11 @@ endpoint:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Cache directives and item title match our new settings. See <a class="reference internal" href="features.html"><em>Features</em></a> for
+<p>Cache directives and item title match our new settings. See <a class="reference internal" href="features.html"><span class="doc">Features</span></a> for
 a complete list of features available and more usage examples.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">All examples and code snippets are from the <a class="reference internal" href="index.html#demo"><em>Live demo</em></a>, which is a fully
+<p class="last">All examples and code snippets are from the <a class="reference internal" href="index.html#demo"><span class="std std-ref">Live demo</span></a>, which is a fully
 functional API that you can use to experiment on your own, either on the
 live instance or locally (you can use the sample client app to populate
 and/or reset the database).</p>
@@ -311,9 +304,10 @@ and/or reset the database).</p>
 
 
           </div>
+          
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="index.html">
@@ -383,7 +377,7 @@ and/or reset the database).</p>
 <li class="toctree-l1"><a class="reference internal" href="foreword.html">Foreword</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rest_api_for_humans.html">REST API for Humans</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Quickstart</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#a-minimal-application">A Minimal Application</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#database-interlude">Database Interlude</a></li>
@@ -407,17 +401,16 @@ and/or reset the database).</p>
 </ul>
 
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script><p>
 Artwork by <a href="http://kalamun.org">Kalamun</a> © 2013
@@ -428,7 +421,7 @@ Artwork by <a href="http://kalamun.org">Kalamun</a> © 2013
     </div>
 
     <div class="footer">
-      &copy;2018. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
+      &copy;2019. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
       
     </div>
 
