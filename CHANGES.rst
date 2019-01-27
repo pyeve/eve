@@ -12,9 +12,15 @@ Fixed
 
 Improved
 ~~~~~~~~
+- HATEOAS: now the ``_links`` dictionary may have a ``related`` dictionary
+  inside, and each key-value pair yields the related links for a data relation
+  field (`#1204`_)
+- XML renderer now supports data field tag attributes such as ``href`` and
+  ``title`` (`#1204`_)
 - Make the parsing of ``req.sort`` and ``req.where`` easily reusable by moving
   their logic to dedicated methods (`#1194`_)
 
+.. _`#1204`: https://github.com/pyeve/eve/pull/1204
 .. _`#1194`: https://github.com/pyeve/eve/pull/1194
 .. _`#1197`: https://github.com/pyeve/eve/issues/1197
 
