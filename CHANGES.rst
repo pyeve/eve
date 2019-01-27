@@ -8,6 +8,7 @@ Version 0.8.2
 
 Fixed
 ~~~~~
+- Do not alter ETag when performing an oplog_push (`#1206`_)
 - CORS response headers missing for media endpoint (`#1197`_)
 
 Improved
@@ -20,6 +21,7 @@ Improved
 - Make the parsing of ``req.sort`` and ``req.where`` easily reusable by moving
   their logic to dedicated methods (`#1194`_)
 
+.. _`#1206`: https://github.com/pyeve/eve/issues/1206
 .. _`#1204`: https://github.com/pyeve/eve/pull/1204
 .. _`#1194`: https://github.com/pyeve/eve/pull/1194
 .. _`#1197`: https://github.com/pyeve/eve/issues/1197
