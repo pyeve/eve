@@ -48,6 +48,11 @@
 <div class="section" id="improved">
 <h3>Improved<a class="headerlink" href="#improved" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>HATEOAS: now the <code class="docutils literal notranslate"><span class="pre">_links</span></code> dictionary may have a <code class="docutils literal notranslate"><span class="pre">related</span></code> dictionary
+inside, and each key-value pair yields the related links for a data relation
+field (<a class="reference external" href="https://github.com/pyeve/eve/pull/1204">#1204</a>)</li>
+<li>XML renderer now supports data field tag attributes such as <code class="docutils literal notranslate"><span class="pre">href</span></code> and
+<code class="docutils literal notranslate"><span class="pre">title</span></code> (<a class="reference external" href="https://github.com/pyeve/eve/pull/1204">#1204</a>)</li>
 <li>Make the parsing of <code class="docutils literal notranslate"><span class="pre">req.sort</span></code> and <code class="docutils literal notranslate"><span class="pre">req.where</span></code> easily reusable by moving
 their logic to dedicated methods (<a class="reference external" href="https://github.com/pyeve/eve/pull/1194">#1194</a>)</li>
 </ul>
@@ -69,8 +74,8 @@ to <code class="docutils literal notranslate"><span class="pre">False</span></co
 for <code class="docutils literal notranslate"><span class="pre">NORMALIZE_DOTTED_FIELDS</span></code>. (<a class="reference external" href="https://github.com/pyeve/eve/issues/1173">#1173</a>)</li>
 </ul>
 </div>
-<div class="section" id="id3">
-<h3>Fixed<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id4">
+<h3>Fixed<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><code class="docutils literal notranslate"><span class="pre">mongo_indexes</span></code>: “OperationFailure” when changing the keys of an existing index (<a class="reference external" href="https://github.com/pyeve/eve/issues/1180">#1180</a>)</li>
 <li>v0.8: “OperationFailure” performing MongoDB full text searches (<a class="reference external" href="https://github.com/pyeve/eve/issues/1176">#1176</a>)</li>
@@ -84,8 +89,8 @@ for <code class="docutils literal notranslate"><span class="pre">NORMALIZE_DOTTE
 command to <code class="docutils literal notranslate"><span class="pre">CONTRIBUTING.rst</span></code> it was missing.  (<a class="reference external" href="https://github.com/pyeve/eve/issues/1144">#1144</a>)</li>
 </ul>
 </div>
-<div class="section" id="id4">
-<h3>Improved<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id5">
+<h3>Improved<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Perform lint checks and fixes on staged files, as a pre-commit hook.
 (<a class="reference external" href="https://github.com/pyeve/eve/issues/1157">#1157</a>)</li>
@@ -208,7 +213,7 @@ being tested.</li>
 <li>Dev: fix insidious bug in <code class="docutils literal notranslate"><span class="pre">tests.methods.post.TestPost</span></code> class.</li>
 </ul>
 <div class="section" id="breaking-changes">
-<span id="id33"></span><h3>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h3>
+<span id="id34"></span><h3>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h3>
 <ul>
 <li><p class="first">Python 2.6 and Python 3.3 are no longer supported (<a class="reference external" href="https://github.com/pyeve/eve/issues/1129">#1129</a>).</p>
 </li>
@@ -1813,8 +1818,8 @@ signature, allowing for further subclassing.</li>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-8-1">Version 0.8.1</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#new">New</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id3">Fixed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id4">Improved</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Improved</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#docs">Docs</a></li>
 </ul>
 </li>
