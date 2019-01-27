@@ -512,63 +512,59 @@ class TestCompleteVersioning(TestNormalVersioning):
         # TODO: also test with HATEOS off
 
     def test_on_fetched_diffs(self):
-        """ Verify that on_fetched_item events are fired for versioned
-        requests.
+        """ Verify that on_fetched_item events are fired for
+        version=diffs requests.
         """
         devent = DummyEvent(lambda: True)
-        self.app.on_fetched_item += devent
+        self.app.on_fetched_diffs += devent
         response, status = self.get(
             self.known_resource, item=self.item_id, query="?version=1"
         )
-        self.assertEqual(self.known_resource, devent.called[0])
-        self.assertEqual(self.item_id, str(devent.called[1][self.id_field]))
         self.assertEqual(None, devent.called)
 
         # check for ?version=all requests
         devent = DummyEvent(lambda: True)
-        self.app.on_fetched_item += devent
+        self.app.on_fetched_diffs += devent
         response, status = self.get(
             self.known_resource, item=self.item_id, query="?version=all"
         )
-        self.assertEqual(self.known_resource, devent.called[0])
-        self.assertEqual(self.item_id, str(devent.called[1][self.id_field]))
         self.assertEqual(None, devent.called)
 
         # check for ?version=diffs requests
         devent = DummyEvent(lambda: True)
-        self.app.on_fetched_item += devent
+        self.app.on_fetched_diffs += devent
         response, status = self.get(
             self.known_resource, item=self.item_id, query="?version=diffs"
         )
+        self.assertEqual(self.known_resource, devent.called[0])
         self.assertEqual(2, len(devent.called))
 
     def test_on_fetched_diffs_contacts(self):
-        """ Verify that on_fetched_item_contacts events are fired for versioned
-        requests.
+        """ Verify that on_fetched_diffs_contacts events are fired for
+        version=diffs requests.
         """
         devent = DummyEvent(lambda: True)
-        self.app.on_fetched_item_contacts += devent
+        self.app.on_fetched_diffs_contacts += devent
         response, status = self.get(
             self.known_resource, item=self.item_id, query="?version=1"
         )
-        self.assertEqual(self.item_id, str(devent.called[0][self.id_field]))
         self.assertEqual(None, devent.called)
 
         # check for ?version=all requests
         devent = DummyEvent(lambda: True)
-        self.app.on_fetched_item_contacts += devent
+        self.app.on_fetched_diffs_contacts += devent
         response, status = self.get(
             self.known_resource, item=self.item_id, query="?version=all"
         )
-        self.assertEqual(self.item_id, str(devent.called[0][self.id_field]))
         self.assertEqual(None, devent.called)
 
         # check for ?version=diffs requests
         devent = DummyEvent(lambda: True)
-        self.app.on_fetched_item_contacts += devent
+        self.app.on_fetched_diffs_contacts += devent
         response, status = self.get(
             self.known_resource, item=self.item_id, query="?version=diffs"
         )
+        self.assertEqual(self.known_resource, devent.called[0])
         self.assertEqual(1, len(devent.called))
 
         # TODO: also test with HATEOS off
