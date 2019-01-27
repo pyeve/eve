@@ -478,7 +478,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         response, status = self.get(
             self.known_resource, item=self.item_id, query="?version=diffs"
         )
-        self.assertEqual(None, devent.called)
+        self.assertEqual(2, len(devent.called))
 
     def test_on_fetched_item_contacts(self):
         """ Verify that on_fetched_item_contacts events are fired for versioned
@@ -507,7 +507,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         response, status = self.get(
             self.known_resource, item=self.item_id, query="?version=diffs"
         )
-        self.assertEqual(None, devent.called)
+        self.assertEqual(1, len(devent.called))
 
         # TODO: also test with HATEOS off
 
