@@ -564,7 +564,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         response, status = self.get(
             self.known_resource, item=self.item_id, query="?version=diffs"
         )
-        self.assertEqual(self.known_resource, devent.called[0])
+        self.assertEqual(self.item_id, str(devent.called[0][self.id_field]))
         self.assertEqual(1, len(devent.called))
 
         # TODO: also test with HATEOS off
