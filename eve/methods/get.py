@@ -508,8 +508,12 @@ def getitem_internal(resource, **lookup):
         if config.DOMAIN[resource]["hateoas"]:
             versions = response[config.ITEMS]
         for version_item in versions:
-            getattr(app, "on_fetched_item")(resource, version_item)
-            getattr(app, "on_fetched_item_%s" % resource)(version_item)
+            if version == "diffs":
+                getattr(app, "on_fetched_diffs")(resource, version_item)
+                getattr(app, "on_fetched_diffs_%s" % resource)(version_item)
+            else:
+                getattr(app, "on_fetched_item")(resource, version_item)
+                getattr(app, "on_fetched_item_%s" % resource)(version_item)
     else:
         getattr(app, "on_fetched_item")(resource, response)
         getattr(app, "on_fetched_item_%s" % resource)(response)
