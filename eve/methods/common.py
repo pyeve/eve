@@ -984,7 +984,8 @@ def generate_query_and_sorting_criteria(data_relation, references):
         id_field_name = (
             "_id"
             if isinstance(reference, DBRef)
-            else config.DOMAIN[subresource]["id_field"]
+            else data_relation.get("field", False)
+            or config.DOMAIN[subresource]["id_field"]
         )
         id_field_value = reference.id if isinstance(reference, DBRef) else reference
         query["$or"].append({id_field_name: id_field_value})
