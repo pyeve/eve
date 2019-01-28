@@ -129,6 +129,7 @@ def _perform_aggregation(resource, pipeline, options):
     """
     .. versionadded:: 0.7
     """
+
     # TODO move most of this down to the Mongo layer?
 
     # TODO experiment with cursor.batch_size as alternative pagination
@@ -479,9 +480,14 @@ def getitem_internal(resource, **lookup):
         versions = response
         if config.DOMAIN[resource]["hateoas"]:
             versions = response[config.ITEMS]
-        for version_item in versions:
-            getattr(app, "on_fetched_item")(resource, version_item)
-            getattr(app, "on_fetched_item_%s" % resource)(version_item)
+
+        if version == "diffs":
+            getattr(app, "on_fetched_diffs")(resource, versions)
+            getattr(app, "on_fetched_diffs_%s" % resource)(versions)
+        else:
+            for version_item in versions:
+                getattr(app, "on_fetched_item")(resource, version_item)
+                getattr(app, "on_fetched_item_%s" % resource)(version_item)
     else:
         getattr(app, "on_fetched_item")(resource, response)
         getattr(app, "on_fetched_item_%s" % resource)(response)
