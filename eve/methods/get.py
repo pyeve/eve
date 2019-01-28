@@ -213,7 +213,7 @@ def _perform_find(resource, lookup):
     # If-Modified-Since disabled on collections (#334)
     req.if_modified_since = None
 
-    cursor = app.data.find(resource, req, lookup)
+    count, cursor = app.data.find(resource, req, lookup)
     # If soft delete is enabled, data.find will not include items marked
     # deleted unless req.show_deleted is True
     for document in cursor:
@@ -230,10 +230,13 @@ def _perform_find(resource, lookup):
 
     response[config.ITEMS] = documents
 
+    """
     if config.OPTIMIZE_PAGINATION_FOR_SPEED:
         count = None
     else:
         count = cursor.count(with_limit_and_skip=False)
+    """
+    if count is not None:
         headers.append((config.HEADER_TOTAL_COUNT, count))
 
     if config.DOMAIN[resource]["hateoas"]:

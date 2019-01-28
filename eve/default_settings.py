@@ -167,7 +167,13 @@ PAGINATION = True  # pagination enabled by default.
 PAGINATION_LIMIT = 50
 PAGINATION_DEFAULT = 25
 HEADER_TOTAL_COUNT = "X-Total-Count"
+
+# http://api.mongodb.com/python/current/api/pymongo/collection.html
+# full=count_documents(filter, session=None, **kwargs) interesting options are hint=index name or index spec and maxTimeMS
+# estimated=estimated_document_count(**kwargs) also maxTimeMS can be given!
+# None=None
 PAGINATION_STRATEGY = "full"
+
 OPTIMIZE_PAGINATION_FOR_SPEED = False
 VERSIONING = False  # turn document versioning on or off.
 VERSIONS = "_versions"  # suffix for parallel collection w/old versions

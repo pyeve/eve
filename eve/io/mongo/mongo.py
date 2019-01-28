@@ -254,19 +254,43 @@ class Mongo(DataLayer):
             args["projection"] = projection
 
         # PAGINATION STRATEGY for resource
-        if config.DOMAIN[resource]["pagination_strategy"] is not None:
+        if config.DOMAIN[resource].get("pagination_strategy", None) is not None:
             pagination_strategy = config.DOMAIN[resource]["pagination_strategy"]
         elif config.PAGINATION_STRATEGY is not None:
             pagination_strategy = config.PAGINATION_STRATEGY
+        else:
+            pagination_strategy = None
+
+        if pagination_strategy is not None:
+            args_count = args.copy()
+            args_count.pop("sort", None)
+            args_count.pop("projection", None)
+            args_count.pop("limit", None)
+            if "filter" not in args_count:
+                args_count["filter"] = {}
+
+            # Operator    Replacement
+            # $where    $expr
+            # $near    $geoWithin with $center
+            # $nearSphere    $geoWithin with $centerSphere
+            # args_count["filter"] = args_count["filter"].replace("$where", "$expr", 1)
+            # args_count["filter"].replace("$geoWithin", "$center")
+            # args_count["filter"].replace("$where", "$expr")
+
+            print("COUNT", args_count)
+            print("ARGS ", args)
+            # args_count.pop("sort", None)
 
         if pagination_strategy == "full":
             return (
-                self.pymongo(resource).db[datasource].count_documents(**args),
+                self.pymongo(resource).db[datasource].count_documents(**args_count),
                 self.pymongo(resource).db[datasource].find(**args),
             )
         elif pagination_strategy == "estimated":
             return (
-                self.pymongo(resource).db[datasource].estimated_document_count(**args),
+                self.pymongo(resource)
+                .db[datasource]
+                .estimated_document_count(**args_count),
                 self.pymongo(resource).db[datasource].find(**args),
             )
         else:
