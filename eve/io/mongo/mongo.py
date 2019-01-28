@@ -294,7 +294,7 @@ class Mongo(DataLayer):
                 self.pymongo(resource).db[datasource].find(**args),
             )
         else:
-            return (None, self.pymongo(resource).db[datasource].find(**args))
+            return None, self.pymongo(resource).db[datasource].find(**args)
 
     def find_one(
         self,
