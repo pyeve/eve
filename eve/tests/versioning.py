@@ -564,7 +564,8 @@ class TestCompleteVersioning(TestNormalVersioning):
         response, status = self.get(
             self.known_resource, item=self.item_id, query="?version=diffs"
         )
-        self.assertEqual(self.item_id, str(devent.called[0][self.id_field]))
+        # Verify first document has id_field
+        self.assertEqual(self.item_id, str(devent.called[0][0][self.id_field]))
         self.assertEqual(1, len(devent.called))
 
         # TODO: also test with HATEOS off
