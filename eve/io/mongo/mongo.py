@@ -149,6 +149,10 @@ class Mongo(DataLayer):
         :param req: a :class:`ParsedRequest`instance.
         :param sub_resource_lookup: sub-resource lookup from the endpoint url.
 
+        .. versionchanged:: 0.8.2
+           Datalayer breaking changes for count using PyMongo>=3.7
+           Support for PAGINATION_STRATEGY
+
         .. versionchanged:: 0.6
            Support for multiple databases.
            Filter soft deleted documents by default
@@ -249,7 +253,24 @@ class Mongo(DataLayer):
         if projection:
             args["projection"] = projection
 
-        return self.pymongo(resource).db[datasource].find(**args)
+        # PAGINATION STRATEGY for resource
+        if config.DOMAIN[resource]["pagination_strategy"] is not None:
+            pagination_strategy = config.DOMAIN[resource]["pagination_strategy"]
+        elif config.PAGINATION_STRATEGY is not None:
+            pagination_strategy = config.PAGINATION_STRATEGY
+
+        if pagination_strategy == "full":
+            return (
+                self.pymongo(resource).db[datasource].count_documents(**args),
+                self.pymongo(resource).db[datasource].find(**args),
+            )
+        elif pagination_strategy == "estimated":
+            return (
+                self.pymongo(resource).db[datasource].estimated_document_count(**args),
+                self.pymongo(resource).db[datasource].find(**args),
+            )
+        else:
+            return (None, self.pymongo(resource).db[datasource].find(**args))
 
     def find_one(
         self,

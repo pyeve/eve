@@ -11,6 +11,8 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 0.8.2
+        'PAGINATION_STRATEGY' options are None, full and estimate and set to full.
     .. versionchanged:: 0.8
         'RENDERERS' added with XML and JSON renderers.
         'JSON' removed.
@@ -164,6 +166,9 @@ PROJECTION = True  # projection enabled by default
 PAGINATION = True  # pagination enabled by default.
 PAGINATION_LIMIT = 50
 PAGINATION_DEFAULT = 25
+HEADER_TOTAL_COUNT = "X-Total-Count"
+PAGINATION_STRATEGY = "full"
+OPTIMIZE_PAGINATION_FOR_SPEED = False
 VERSIONING = False  # turn document versioning on or off.
 VERSIONS = "_versions"  # suffix for parallel collection w/old versions
 VERSION_PARAM = "version"  # URL param for specific version of a document.
@@ -237,9 +242,6 @@ QUERY_PAGE = "page"
 QUERY_MAX_RESULTS = "max_results"
 QUERY_EMBEDDED = "embedded"
 QUERY_AGGREGATION = "aggregate"
-
-HEADER_TOTAL_COUNT = "X-Total-Count"
-OPTIMIZE_PAGINATION_FOR_SPEED = False
 
 # user-restricted resource access is disabled by default.
 AUTH_FIELD = None

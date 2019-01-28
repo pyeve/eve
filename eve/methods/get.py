@@ -405,11 +405,11 @@ def getitem_internal(resource, **lookup):
             # default sort for 'all', required sort for 'diffs'
             req.sort = '[("%s", 1)]' % config.VERSION
         req.if_modified_since = None  # we always want the full history here
-        cursor = app.data.find(resource + config.VERSIONS, req, lookup)
+        count, cursor = app.data.find(resource + config.VERSIONS, req, lookup)
 
         # build all versions
         documents = []
-        if cursor.count() == 0:
+        if count == 0:
             # this is the scenario when the document existed before
             # document versioning got turned on
             documents.append(latest_doc)
@@ -461,7 +461,6 @@ def getitem_internal(resource, **lookup):
     if config.DOMAIN[resource]["hateoas"]:
         # use the id of the latest document for multi-document requests
         if cursor:
-            count = cursor.count(with_limit_and_skip=False)
             response[config.LINKS] = _pagination_links(
                 resource, req, count, latest_doc[resource_def["id_field"]]
             )
