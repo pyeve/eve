@@ -263,11 +263,11 @@ class Mongo(DataLayer):
             pagination_strategy = None
 
         # Execute strategy
-        if pagination_strategy == "full":
+        if pagination_strategy == "full" or (
+            pagination_strategy == "estimated" and len(spec) > 0
+        ):
             return (
-                self.pymongo(resource)
-                .db[datasource]
-                .count_documents(filter=args["filter"]),
+                self.pymongo(resource).db[datasource].count_documents(filter=spec),
                 self.pymongo(resource).db[datasource].find(**args),
             )
         elif pagination_strategy == "estimated":
