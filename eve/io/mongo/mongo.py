@@ -272,9 +272,7 @@ class Mongo(DataLayer):
             )
         elif pagination_strategy == "estimated":
             return (
-                self.pymongo(resource)
-                .db[datasource]
-                .estimated_document_count(filter=args["filter"]),
+                self.pymongo(resource).db[datasource].estimated_document_count(),
                 self.pymongo(resource).db[datasource].find(**args),
             )
         else:
