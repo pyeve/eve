@@ -265,14 +265,16 @@ class Mongo(DataLayer):
         # Execute strategy
         if pagination_strategy == "full":
             return (
-                self.pymongo(resource).db[datasource].count_documents(**args["filter"]),
+                self.pymongo(resource)
+                .db[datasource]
+                .count_documents(filter=args["filter"]),
                 self.pymongo(resource).db[datasource].find(**args),
             )
         elif pagination_strategy == "estimated":
             return (
                 self.pymongo(resource)
                 .db[datasource]
-                .estimated_document_count(**args["filter"]),
+                .estimated_document_count(filter=args["filter"]),
                 self.pymongo(resource).db[datasource].find(**args),
             )
         else:
