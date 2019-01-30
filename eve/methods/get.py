@@ -631,6 +631,7 @@ def _other_params(args):
         config.QUERY_MAX_RESULTS,
         config.QUERY_EMBEDDED,
         config.QUERY_PROJECTION,
+        config.VERSION_PARAM,
     ]
     return MultiDict(
         (key, value)
