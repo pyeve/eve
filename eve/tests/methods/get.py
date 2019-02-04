@@ -1465,7 +1465,6 @@ class TestGet(TestBase):
         docs = response["_items"]
         self.assertEqual(len(docs), 1)
 
-
     def test_get_aggregation_pruning(self):
 
         date = datetime.utcnow()
@@ -1477,6 +1476,9 @@ class TestGet(TestBase):
                 {"x": 2, "date": date},
                 {"x": 3, "date": date},
                 {"x": 4, "date": date + timedelta(days=-1)},
+            ]
+        )
+
         self.app.register_resource(
             "aggregate_test",
             {
@@ -1523,52 +1525,7 @@ class TestGet(TestBase):
         self.assert200(status)
         docs = response["_items"]
         self.assertEqual(len(docs), 1)
-        self.assertEqual(docs[0]['x'], 3)
-
-    def test_get_aggregation_with_lists(self):
-        _db = self.connection[MONGO_DBNAME]
-        _db.aggregate_test.insert_many(
-            [
-                {"x": 1, "tags": ["a", "b", "c"]},
-                {"x": 2, "tags": ["a"]},
-                {"x": 3, "tags": ["a", "b"]},
-                {"x": [4], "tags": []},
-            ]
-        )
-
-        self.app.register_resource(
-            "aggregate_test",
-            {
-                "datasource": {
-                    "aggregation": {
-                        "pipeline": [
-                            {
-                                "$match": {
-                                    "$or": [{"tags": "$match_tags"}, {"x": ["$x"]}]
-                                }
-                            }
-                        ]
-                    }
-                }
-            },
-        )
-
-        response, status = self.get('aggregate_test?aggregate={"$match_tags": "a"}')
-        self.assert200(status)
-        docs = response["_items"]
-        self.assertEqual(len(docs), 3)
-
-        response, status = self.get(
-            'aggregate_test?aggregate={"$match_tags": ["a", "b"]}'
-        )
-        self.assert200(status)
-        docs = response["_items"]
-        self.assertEqual(len(docs), 1)
-
-        response, status = self.get('aggregate_test?aggregate={"$x": 4}')
-        self.assert200(status)
-        docs = response["_items"]
-        self.assertEqual(len(docs), 1)
+        self.assertEqual(docs[0]["x"], 3)
 
     def test_get_aggregation_pagination(self):
         _db = self.connection[MONGO_DBNAME]
