@@ -32,7 +32,7 @@ from eve.methods.common import (
 )
 from eve.methods.post import post_internal
 from eve.utils import config, debug_error_message, parse_request
-from eve.validation import DocumentError
+from cerberus.validator import DocumentError
 from eve.versioning import (
     resolve_document_version,
     insert_versioning_documents,
