@@ -13,6 +13,7 @@ Fixed
 
 Improved
 ~~~~~~~~
+- Option to omit the aggregation stage when its parameter is empty/unset (`#1209`_)
 - HATEOAS: now the ``_links`` dictionary may have a ``related`` dictionary
   inside, and each key-value pair yields the related links for a data relation
   field (`#1204`_)
@@ -21,6 +22,7 @@ Improved
 - Make the parsing of ``req.sort`` and ``req.where`` easily reusable by moving
   their logic to dedicated methods (`#1194`_)
 
+.. _`#1209`: https://github.com/pyeve/eve/issues/1209
 .. _`#1206`: https://github.com/pyeve/eve/issues/1206
 .. _`#1204`: https://github.com/pyeve/eve/pull/1204
 .. _`#1194`: https://github.com/pyeve/eve/pull/1194
