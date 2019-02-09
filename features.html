@@ -1164,7 +1164,7 @@ both. And for each action two events will be fired:</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td rowspan="4">Fetch</td>
+<tr class="row-even"><td rowspan="6">Fetch</td>
 <td rowspan="2">Resource</td>
 <td rowspan="2">After</td>
 <td><div class="first last line-block">
@@ -1189,6 +1189,20 @@ both. And for each action two events will be fired:</p>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">on_fetched_item_&lt;resource_name&gt;</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">event(response)</span></code></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td rowspan="2">Diffs</td>
+<td rowspan="2">After</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">on_fetched_diffs</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">event(resource_name,</span> <span class="pre">response)</span></code></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">on_fetched_diffs_&lt;resource_name&gt;</span></code></div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">event(response)</span></code></div>
 </div>
 </td>
@@ -1354,6 +1368,8 @@ both. And for each action two events will be fired:</p>
 <li><code class="docutils literal notranslate"><span class="pre">on_fetched_resource_&lt;resource_name&gt;(response)</span></code></li>
 <li><code class="docutils literal notranslate"><span class="pre">on_fetched_item(resource_name,</span> <span class="pre">response)</span></code></li>
 <li><code class="docutils literal notranslate"><span class="pre">on_fetched_item_&lt;resource_name&gt;(response)</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">on_fetched_diffs(resource_name,</span> <span class="pre">response)</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">on_fetched_diffs_&lt;resource_name&gt;(response)</span></code></li>
 </ul>
 <p>They are raised when items have just been read from the database and are
 about to be sent to the client. Registered callback functions can manipulate
@@ -1377,10 +1393,12 @@ the items as needed before they are returned to the client.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">on_fetched_item_contacts</span> <span class="o">+=</span> <span class="n">before_returning_contact</span>
 </pre></div>
 </div>
-<p>It is important to note that fetch events will work with <a class="reference internal" href="#id4">Document
-Versioning</a> for specific document versions or accessing all document
-versions with <code class="docutils literal notranslate"><span class="pre">?version=all</span></code>, but they <em>will not</em> work when accessing diffs
-of all versions with <code class="docutils literal notranslate"><span class="pre">?version=diffs</span></code>.</p>
+<p>It is important to note that item fetch events will work with <a class="reference internal" href="#id4">Document
+Versioning</a> for specific document versions like <code class="docutils literal notranslate"><span class="pre">?version=5</span></code> and all
+document versions with <code class="docutils literal notranslate"><span class="pre">?version=all</span></code>. Accessing diffs of all versions
+with <code class="docutils literal notranslate"><span class="pre">?version=diffs</span></code> will only work with the diffs fetch events. Note
+that diffs returns partial documents which should be handled in the
+callback.</p>
 </div>
 <div class="section" id="insert-events">
 <h4>Insert Events<a class="headerlink" href="#insert-events" title="Permalink to this headline">¶</a></h4>
@@ -2145,7 +2163,31 @@ field/value pairs. Like with all other keywords, you can change <code class="doc
 to a keyword of your liking, just set <code class="docutils literal notranslate"><span class="pre">QUERY_AGGREGATION</span></code> in your settings.</p>
 <p>You can also set all options natively supported by PyMongo. For more
 information on aggregation see <a class="reference internal" href="config.html#datasource"><span class="std std-ref">Advanced Datasource Patterns</span></a>.</p>
-<p>Custom callback functions can be attached to the <code class="docutils literal notranslate"><span class="pre">before_aggregation</span></code> and <code class="docutils literal notranslate"><span class="pre">after_aggregation</span></code> event hooks. For more information, see <a class="reference internal" href="#aggregation-hooks"><span class="std std-ref">Aggregation event hooks</span></a>.</p>
+<p>You can pass <code class="docutils literal notranslate"><span class="pre">{}</span></code> to fields which you want to ignore. Considering the following pipelines:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">posts</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;aggregation&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;pipeline&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;$match&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;$name&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="s2">&quot;$time&quot;</span><span class="p">}}</span>
+                <span class="p">{</span><span class="s2">&quot;$unwind&quot;</span><span class="p">:</span> <span class="s2">&quot;$tags&quot;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;$group&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;_id&quot;</span><span class="p">:</span> <span class="s2">&quot;$tags&quot;</span><span class="p">,</span> <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;$sum&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}}},</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If performing the following request:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -i http://example.com/posts?aggregate={&quot;$name&quot;: {&quot;$regex&quot;: &quot;Apple&quot;}, &quot;$time&quot;: {}}
+</pre></div>
+</div>
+<p>The stage <code class="docutils literal notranslate"><span class="pre">{&quot;$match&quot;:</span> <span class="pre">{</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;$name&quot;,</span> <span class="pre">&quot;time&quot;:</span> <span class="pre">&quot;$time&quot;}}</span></code> in the pipeline will be executed as <code class="docutils literal notranslate"><span class="pre">{&quot;$match&quot;:</span> <span class="pre">{</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">{&quot;$regex&quot;:</span> <span class="pre">&quot;Apple&quot;}}}</span></code>. And for the following request:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -i http://example.com/posts?aggregate={&quot;$name&quot;: {}, &quot;$time&quot;: {}}
+</pre></div>
+</div>
+<p>The stage <code class="docutils literal notranslate"><span class="pre">{&quot;$match&quot;:</span> <span class="pre">{</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;$name&quot;,</span> <span class="pre">&quot;time&quot;:</span> <span class="pre">&quot;$time&quot;}}</span></code> in the pipeline will be completely skipped.</p>
+<p>The request above will ignore <code class="docutils literal notranslate"><span class="pre">&quot;count&quot;:</span> <span class="pre">{&quot;$sum&quot;:</span> <span class="pre">&quot;$value&quot;}}</span></code>. A
+Custom callback functions can be attached to the <code class="docutils literal notranslate"><span class="pre">before_aggregation</span></code> and <code class="docutils literal notranslate"><span class="pre">after_aggregation</span></code> event hooks. For more information, see <a class="reference internal" href="#aggregation-hooks"><span class="std std-ref">Aggregation event hooks</span></a>.</p>
 <div class="section" id="id8">
 <h3>Limitations<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">HATEOAS</span></code> is not available at aggregation endpoints. This should not
