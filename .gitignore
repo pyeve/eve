@@ -67,3 +67,4 @@ _build
 .cache
 .vscode
 .pytest_cache
+pip-wheel-metadata/
