@@ -6,6 +6,10 @@ Here you can see the full list of changes between each Eve release.
 Version 0.8.2
 -------------
 
+New
+~~~
+- ``on_fetched_diffs`` event hooks (`#1224`_)
+
 Fixed
 ~~~~~
 - HATEOAS ``_links`` seems to get an extra ``&version=diffs`` (`#1228`_)
@@ -24,6 +28,7 @@ Improved
 - Make the parsing of ``req.sort`` and ``req.where`` easily reusable by moving
   their logic to dedicated methods (`#1194`_)
 
+.. _`#1224`: https://github.com/pyeve/eve/pull/1224
 .. _`#1228`: https://github.com/pyeve/eve/pull/1228
 .. _`#1218`: https://github.com/pyeve/eve/pull/1218
 .. _`#1209`: https://github.com/pyeve/eve/issues/1209

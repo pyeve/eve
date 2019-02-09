@@ -129,6 +129,7 @@ def _perform_aggregation(resource, pipeline, options):
     """
     .. versionadded:: 0.7
     """
+
     # TODO move most of this down to the Mongo layer?
 
     # TODO experiment with cursor.batch_size as alternative pagination
@@ -496,24 +497,28 @@ def getitem_internal(resource, **lookup):
                 )
             )
 
-    # callbacks not supported on version diffs because of partial documents
-    if version != "diffs":
-        # TODO: callbacks not currently supported with ?version=all
+    # callbacks supported on all version methods - even for diffs with partial documents
+    # partial documents should be handled properly in the callback
+    #
+    # notify registered callback functions. Please note that, should
+    # the functions modify the document, last_modified and etag
+    # won't be updated to reflect the changes (they always reflect the
+    # documents state on the database).
+    if resource_def["versioning"] is True and version in ["all", "diffs"]:
+        versions = response
+        if config.DOMAIN[resource]["hateoas"]:
+            versions = response[config.ITEMS]
 
-        # notify registered callback functions. Please note that, should
-        # the functions modify the document, last_modified and etag
-        # won't be updated to reflect the changes (they always reflect the
-        # documents state on the database).
-        if resource_def["versioning"] is True and version == "all":
-            versions = response
-            if config.DOMAIN[resource]["hateoas"]:
-                versions = response[config.ITEMS]
+        if version == "diffs":
+            getattr(app, "on_fetched_diffs")(resource, versions)
+            getattr(app, "on_fetched_diffs_%s" % resource)(versions)
+        else:
             for version_item in versions:
                 getattr(app, "on_fetched_item")(resource, version_item)
                 getattr(app, "on_fetched_item_%s" % resource)(version_item)
-        else:
-            getattr(app, "on_fetched_item")(resource, response)
-            getattr(app, "on_fetched_item_%s" % resource)(response)
+    else:
+        getattr(app, "on_fetched_item")(resource, response)
+        getattr(app, "on_fetched_item_%s" % resource)(response)
 
     return response, last_modified, etag, 200
 

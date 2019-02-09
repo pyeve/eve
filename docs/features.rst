@@ -1270,6 +1270,12 @@ Let's see an overview of what events are available:
 |       |        |      +--------------------------------------------------+
 |       |        |      || ``on_fetched_item_<resource_name>``             |
 |       |        |      || ``def event(response)``                         |
+|       +--------+------+--------------------------------------------------+
+|       |Diffs   |After || ``on_fetched_diffs``                            |
+|       |        |      || ``def event(resource_name, response)``          |
+|       |        |      +--------------------------------------------------+
+|       |        |      || ``on_fetched_diffs_<resource_name>``            |
+|       |        |      || ``def event(response)``                         |
 +-------+--------+------+--------------------------------------------------+
 |Insert |Items   |Before|| ``on_insert``                                   |
 |       |        |      || ``def event(resource_name, items)``             |
@@ -1349,6 +1355,8 @@ These are the fetch events with their method signature:
 - ``on_fetched_resource_<resource_name>(response)``
 - ``on_fetched_item(resource_name, response)``
 - ``on_fetched_item_<resource_name>(response)``
+- ``on_fetched_diffs(resource_name, response)``
+- ``on_fetched_diffs_<resource_name>(response)``
 
 They are raised when items have just been read from the database and are
 about to be sent to the client. Registered callback functions can manipulate
@@ -1374,10 +1382,12 @@ the items as needed before they are returned to the client.
     >>> app.on_fetched_item += before_returning_item
     >>> app.on_fetched_item_contacts += before_returning_contact
 
-It is important to note that fetch events will work with `Document
-Versioning`_ for specific document versions or accessing all document
-versions with ``?version=all``, but they *will not* work when accessing diffs
-of all versions with ``?version=diffs``.
+It is important to note that item fetch events will work with `Document
+Versioning`_ for specific document versions like ``?version=5`` and all
+document versions with ``?version=all``. Accessing diffs of all versions
+with ``?version=diffs`` will only work with the diffs fetch events. Note
+that diffs returns partial documents which should be handled in the
+callback.
 
 
 Insert Events
