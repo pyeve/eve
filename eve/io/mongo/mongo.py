@@ -469,9 +469,18 @@ class Mongo(DataLayer):
 
         coll = self.get_collection_with_write_concern(datasource, resource)
         try:
-            coll.replace_one(filter_, changes) if replace else coll.update_one(
-                filter_, changes
+            result = (
+                coll.replace_one(filter_, changes)
+                if replace
+                else coll.update_one(filter_, changes)
             )
+            if (
+                config.ETAG in original
+                and result
+                and result.acknowledged
+                and result.modified_count == 0
+            ):
+                raise self.OriginalChangedError()
         except pymongo.errors.DuplicateKeyError as e:
             abort(
                 400,
