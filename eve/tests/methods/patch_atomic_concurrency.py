@@ -27,7 +27,7 @@ intentionally wrong ETag.
 
 
 def get_document_simulate_concurrent_update(*args, **kwargs):
-    """ 
+    """
     Hostile version of get_document
 
     This simluates another process updating MongoDB (and ETag) in
