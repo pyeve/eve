@@ -209,45 +209,8 @@ class Mongo(DataLayer):
         # TODO should validate on unknown sort fields (mongo driver doesn't
         # return an error)
 
-        client_sort = {}
-        spec = {}
-
-        if req and req.sort:
-            try:
-                # assume it's mongo syntax (ie. ?sort=[("name", 1)])
-                client_sort = ast.literal_eval(req.sort)
-            except ValueError:
-                # it's not mongo so let's see if it's a comma delimited string
-                # instead (ie. "?sort=-age, name").
-                sort = []
-                for sort_arg in [s.strip() for s in req.sort.split(",")]:
-                    if sort_arg[0] == "-":
-                        sort.append((sort_arg[1:], -1))
-                    else:
-                        sort.append((sort_arg, 1))
-                if len(sort) > 0:
-                    client_sort = sort
-            except Exception as e:
-                self.app.logger.exception(e)
-                abort(400, description=debug_error_message(str(e)))
-
-        if req and req.where:
-            try:
-                spec = self._sanitize(json.loads(req.where))
-            except HTTPException as e:  # noqa: F841
-                # _sanitize() is raising an HTTP exception; let it fire.
-                raise
-            except:
-                # couldn't parse as mongo query; give the python parser a shot.
-                try:
-                    spec = parse(req.where)
-                except ParseError:
-                    abort(
-                        400,
-                        description=debug_error_message(
-                            "Unable to parse `where` clause"
-                        ),
-                    )
+        client_sort = self._convert_sort_request_to_dict(req)
+        spec = self._convert_where_request_to_dict(req)
 
         bad_filter = validate_filters(spec, resource)
         if bad_filter:
@@ -869,6 +832,55 @@ class Mongo(DataLayer):
                 self._sanitize(value)
 
         return spec
+
+    def _convert_sort_request_to_dict(self, req):
+        """ Converts the contents of a `ParsedRequest`'s `sort` property to
+        a dict
+        """
+        client_sort = {}
+        if req and req.sort:
+            try:
+                # assume it's mongo syntax (ie. ?sort=[("name", 1)])
+                client_sort = ast.literal_eval(req.sort)
+            except ValueError:
+                # it's not mongo so let's see if it's a comma delimited string
+                # instead (ie. "?sort=-age, name").
+                sort = []
+                for sort_arg in [s.strip() for s in req.sort.split(",")]:
+                    if sort_arg[0] == "-":
+                        sort.append((sort_arg[1:], -1))
+                    else:
+                        sort.append((sort_arg, 1))
+                if len(sort) > 0:
+                    client_sort = sort
+            except Exception as e:
+                self.app.logger.exception(e)
+                abort(400, description=debug_error_message(str(e)))
+        return client_sort
+
+    def _convert_where_request_to_dict(self, req):
+        """ Converts the contents of a `ParsedRequest`'s `where` property to
+        a dict
+        """
+        query = {}
+        if req and req.where:
+            try:
+                query = self._sanitize(json.loads(req.where))
+            except HTTPException:
+                # _sanitize() is raising an HTTP exception; let it fire.
+                raise
+            except:
+                # couldn't parse as mongo query; give the python parser a shot.
+                try:
+                    query = parse(req.where)
+                except ParseError:
+                    abort(
+                        400,
+                        description=debug_error_message(
+                            "Unable to parse `where` clause"
+                        ),
+                    )
+        return query
 
     def _wc(self, resource):
         """ Syntactic sugar for the current collection write_concern setting.

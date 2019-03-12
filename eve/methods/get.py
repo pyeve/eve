@@ -129,6 +129,7 @@ def _perform_aggregation(resource, pipeline, options):
     """
     .. versionadded:: 0.7
     """
+
     # TODO move most of this down to the Mongo layer?
 
     # TODO experiment with cursor.batch_size as alternative pagination
@@ -300,6 +301,10 @@ def getitem_internal(resource, **lookup):
     """
     :param resource: the name of the resource to which the document belongs.
     :param **lookup: the lookup query.
+
+    .. versionchanged:: 0.8.2
+       Prevent extra hateoas links from overwriting
+       already existed data relation hateoas links.
 
     .. versionchanged:: 0.6
        Handle soft deleted documents
@@ -486,28 +491,34 @@ def getitem_internal(resource, **lookup):
             if config.DOMAIN[resource]["pagination"]:
                 response[config.META] = _meta_links(req, count)
         else:
-            response[config.LINKS] = _pagination_links(
-                resource, req, None, response[resource_def["id_field"]]
+            response[config.LINKS].update(
+                _pagination_links(
+                    resource, req, None, response[resource_def["id_field"]]
+                )
             )
 
-    # callbacks not supported on version diffs because of partial documents
-    if version != "diffs":
-        # TODO: callbacks not currently supported with ?version=all
+    # callbacks supported on all version methods - even for diffs with partial documents
+    # partial documents should be handled properly in the callback
+    #
+    # notify registered callback functions. Please note that, should
+    # the functions modify the document, last_modified and etag
+    # won't be updated to reflect the changes (they always reflect the
+    # documents state on the database).
+    if resource_def["versioning"] is True and version in ["all", "diffs"]:
+        versions = response
+        if config.DOMAIN[resource]["hateoas"]:
+            versions = response[config.ITEMS]
 
-        # notify registered callback functions. Please note that, should
-        # the functions modify the document, last_modified and etag
-        # won't be updated to reflect the changes (they always reflect the
-        # documents state on the database).
-        if resource_def["versioning"] is True and version == "all":
-            versions = response
-            if config.DOMAIN[resource]["hateoas"]:
-                versions = response[config.ITEMS]
+        if version == "diffs":
+            getattr(app, "on_fetched_diffs")(resource, versions)
+            getattr(app, "on_fetched_diffs_%s" % resource)(versions)
+        else:
             for version_item in versions:
                 getattr(app, "on_fetched_item")(resource, version_item)
                 getattr(app, "on_fetched_item_%s" % resource)(version_item)
-        else:
-            getattr(app, "on_fetched_item")(resource, response)
-            getattr(app, "on_fetched_item_%s" % resource)(response)
+    else:
+        getattr(app, "on_fetched_item")(resource, response)
+        getattr(app, "on_fetched_item_%s" % resource)(response)
 
     return response, last_modified, etag, 200
 
@@ -647,6 +658,7 @@ def _other_params(args):
         config.QUERY_MAX_RESULTS,
         config.QUERY_EMBEDDED,
         config.QUERY_PROJECTION,
+        config.VERSION_PARAM,
     ]
     return MultiDict(
         (key, value)
