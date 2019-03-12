@@ -1527,68 +1527,6 @@ class TestGet(TestBase):
         docs = response["_items"]
         self.assertEqual(len(docs), 1)
 
-    def test_get_aggregation_pruning(self):
-
-        date = datetime.utcnow()
-
-        _db = self.connection[MONGO_DBNAME]
-        _db.aggregate_test.insert_many(
-            [
-                {"x": 1, "date": date},
-                {"x": 2, "date": date},
-                {"x": 3, "date": date},
-                {"x": 4, "date": date + timedelta(days=-1)},
-            ]
-        )
-
-        self.app.register_resource(
-            "aggregate_test",
-            {
-                "datasource": {
-                    "aggregation": {
-                        "pipeline": [{"$match": {"date": {"$gte": "$date"}, "x": "$x"}}]
-                    }
-                }
-            },
-        )
-
-        # look for date = now, x = 4, which shall return empty result
-        challenge = date.strftime(self.app.config["DATE_FORMAT"])
-        response, status = self.get(
-            'aggregate_test?aggregate={"$date": "%s", "$x": 4}' % challenge
-        )
-        self.assert200(status)
-        docs = response["_items"]
-        self.assertEqual(len(docs), 0)
-
-        # look for date = yesterday, x = 4, which shall return only one result
-        challenge = (date + timedelta(days=-1)).strftime(self.app.config["DATE_FORMAT"])
-        response, status = self.get(
-            'aggregate_test?aggregate={"$date": "%s", "$x": 4}' % challenge
-        )
-        self.assert200(status)
-        docs = response["_items"]
-        self.assertEqual(len(docs), 1)
-        self.assertEqual(docs[0]["x"], 4)
-
-        # look  for date = yesterday, which shall return all four results
-        challenge = (date + timedelta(days=-1)).strftime(self.app.config["DATE_FORMAT"])
-        response, status = self.get(
-            'aggregate_test?aggregate={"$date": "%s", "$x": {}}' % challenge
-        )
-
-        self.assert200(status)
-        docs = response["_items"]
-        self.assertEqual(len(docs), 4)
-
-        # look  for x = 3, which shall return only one result
-        response, status = self.get('aggregate_test?aggregate={"$x": 3, "$date": {}}')
-
-        self.assert200(status)
-        docs = response["_items"]
-        self.assertEqual(len(docs), 1)
-        self.assertEqual(docs[0]["x"], 3)
-
     def test_get_aggregation_pagination(self):
         _db = self.connection[MONGO_DBNAME]
 
