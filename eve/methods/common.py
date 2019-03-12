@@ -9,6 +9,7 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
+import re
 import base64
 import time
 from copy import copy
@@ -603,6 +604,9 @@ def build_response_document(document, resource, embedded_fields, latest_doc=None
     :param embedded_fields: the list of fields we are allowed to embed.
     :param document: the latest version of document.
 
+    .. versionchanged:: 0.8.2
+       Add data relation fields hateoas support (#1204).
+
     .. versionchanged:: 0.5
        Only compute ETAG if necessary (#369).
        Add version support (#475).
@@ -638,6 +642,9 @@ def build_response_document(document, resource, embedded_fields, latest_doc=None
         elif "self" not in document[config.LINKS]:
             document[config.LINKS].update(self_dict)
 
+        # add data relation links if hateoas enabled
+        resolve_data_relation_links(document, resource)
+
     # add version numbers
     resolve_document_version(document, resource, "GET", latest_doc)
 
@@ -665,6 +672,9 @@ def field_definition(resource, chained_fields):
     :param resource: the resource name whose field to be accepted.
     :param chained_fields: query string to retrieve field definition
 
+    .. versionchanged:: 0.8.2
+       fix field definition for list without a schema. See #1204.
+
     .. versionadded 0.5
     """
     definition = config.DOMAIN[resource]
@@ -681,10 +691,77 @@ def field_definition(resource, chained_fields):
         definition = definition["schema"][field]
         field_type = definition.get("type")
         if field_type == "list":
-            definition = definition["schema"]
+            # the list can be 1) a list of allowed values for string and list types
+            #                 2) a list of references that have schema
+            # we want to resolve field definition deeper for the second one
+            definition = definition.get("schema", definition)
         elif field_type == "objectid":
             pass
     return definition
+
+
+def resolve_data_relation_links(document, resource):
+    """ Resolves all fields in a document that has data relation to other resources
+
+    :param document: the document to include data relation links.
+    :param resource: the resource name.
+
+    .. versionadded:: 0.8.2
+    """
+    resource_def = config.DOMAIN[resource]
+    related_dict = {}
+
+    for field in resource_def.get("schema", {}):
+
+        field_def = field_definition(resource, field)
+        if "data_relation" not in field_def:
+            continue
+
+        if field in document and document[field] is not None:
+            related_links = []
+
+            # Make the code DRY for list of linked relation and single linked relation
+            for related_document_id in (
+                document[field]
+                if isinstance(document[field], list)
+                else [document[field]]
+            ):
+                # Get the resource endpoint string for the linked relation
+                related_resource = (
+                    related_document_id.collection
+                    if isinstance(related_document_id, DBRef)
+                    else field_def["data_relation"]["resource"]
+                )
+
+                # Get the item endpoint id for the linked relation
+                if isinstance(related_document_id, DBRef):
+                    related_document_id = related_document_id.id
+                if isinstance(related_document_id, dict):
+                    related_resource_field = field_definition(resource, field)[
+                        "data_relation"
+                    ]["field"]
+                    related_document_id = related_document_id[related_resource_field]
+
+                # Get the version for the item endpoint id
+                related_version = (
+                    related_document_id.get("_version")
+                    if isinstance(related_document_id, dict)
+                    else None
+                )
+
+                related_links.append(
+                    document_link(
+                        related_resource, related_document_id, related_version
+                    )
+                )
+
+            if isinstance(document[field], list):
+                related_dict.update({field: related_links})
+            else:
+                related_dict.update({field: related_links[0]})
+
+    if related_dict != {}:
+        document[config.LINKS].update({"related": related_dict})
 
 
 def resolve_embedded_fields(resource, req):
@@ -907,7 +984,8 @@ def generate_query_and_sorting_criteria(data_relation, references):
         id_field_name = (
             "_id"
             if isinstance(reference, DBRef)
-            else config.DOMAIN[subresource]["id_field"]
+            else data_relation.get("field", False)
+            or config.DOMAIN[subresource]["id_field"]
         )
         id_field_value = reference.id if isinstance(reference, DBRef) else reference
         query["$or"].append({id_field_name: id_field_value})
@@ -1261,6 +1339,9 @@ def document_link(resource, document_id, version=None):
     :param document_id: the document unique identifier.
     :param version: the document version. Defaults to None.
 
+    .. versionchanged:: 0.8.2
+       Support document link for data relation resources. See #1204.
+
     .. versionchanged:: 0.5
        Add version support (#475).
 
@@ -1276,16 +1357,22 @@ def document_link(resource, document_id, version=None):
     version_part = "?version=%s" % version if version else ""
     return {
         "title": "%s" % config.DOMAIN[resource]["item_title"],
-        "href": "%s/%s%s" % (resource_link(), document_id, version_part),
+        "href": "%s/%s%s" % (resource_link(resource), document_id, version_part),
     }
 
 
-def resource_link():
+def resource_link(resource=None):
     """ Returns the current resource path relative to the API entry point.
     Mostly going to be used by hateoas functions when building
     document/resource links. The resource URL stored in the config settings
     might contain regexes and custom variable names, all of which are not
     needed in the response payload.
+
+    :param resource: the resource name if not using the resource from request.path
+
+    .. versionchanged:: 0.8.2
+       Support resource link for data relation resources
+       which may be different from request.path resource. See #1204.
 
     .. versionchanged:: 0.5
        URL is relative to API root.
@@ -1304,7 +1391,13 @@ def resource_link():
         path = strip_prefix(config.URL_PREFIX + "/")
     if config.API_VERSION:
         path = strip_prefix(config.API_VERSION + "/")
-    return path
+
+    # If request path does not match resource URL regex definition
+    # We are creating a path for data relation resources
+    if resource and not re.search(config.DOMAIN[resource]["url"], path):
+        return config.DOMAIN[resource]["url"]
+    else:
+        return path
 
 
 def oplog_push(resource, document, op, id=None):
@@ -1379,13 +1472,12 @@ def oplog_push(resource, document, op, id=None):
             entry["u"] = auth.get_user_or_token() if auth else "n/a"
 
             if op in config.OPLOG_CHANGE_METHODS:
-                # these fields are already contained in 'entry'.
-                del (update[config.LAST_UPDATED])
-                # legacy documents (v0.4 or less) could be missing the etag
-                # field
-                if config.ETAG in update:
-                    del (update[config.ETAG])
-                entry["c"] = update
+                entry["c"] = {
+                    key: value
+                    for key, value in update.items()
+                    # these fields are already contained in 'entry'.
+                    if key not in [config.ETAG, config.LAST_UPDATED]
+                }
             else:
                 pass
 

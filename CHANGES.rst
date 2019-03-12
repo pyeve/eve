@@ -6,10 +6,37 @@ Here you can see the full list of changes between each Eve release.
 Version 0.8.2
 -------------
 
+New
+~~~
+- ``on_fetched_diffs`` event hooks (`#1224`_)
+
 Fixed
 ~~~~~
+- Embedding only does not follow ``data_relation.field`` (`#1069`_)
+- HATEOAS ``_links`` seems to get an extra ``&version=diffs`` (`#1228`_)
+- Do not alter ETag when performing an oplog_push (`#1206`_)
 - CORS response headers missing for media endpoint (`#1197`_)
+- Documentation typos (`#1218`_)
 
+Improved
+~~~~~~~~
+- Option to omit the aggregation stage when its parameter is empty/unset (`#1209`_)
+- HATEOAS: now the ``_links`` dictionary may have a ``related`` dictionary
+  inside, and each key-value pair yields the related links for a data relation
+  field (`#1204`_)
+- XML renderer now supports data field tag attributes such as ``href`` and
+  ``title`` (`#1204`_)
+- Make the parsing of ``req.sort`` and ``req.where`` easily reusable by moving
+  their logic to dedicated methods (`#1194`_)
+
+.. _`#1069`: https://github.com/pyeve/eve/issues/1069
+.. _`#1224`: https://github.com/pyeve/eve/pull/1224
+.. _`#1228`: https://github.com/pyeve/eve/pull/1228
+.. _`#1218`: https://github.com/pyeve/eve/pull/1218
+.. _`#1209`: https://github.com/pyeve/eve/issues/1209
+.. _`#1206`: https://github.com/pyeve/eve/issues/1206
+.. _`#1204`: https://github.com/pyeve/eve/pull/1204
+.. _`#1194`: https://github.com/pyeve/eve/pull/1194
 .. _`#1197`: https://github.com/pyeve/eve/issues/1197
 
 Version 0.8.1

@@ -15,6 +15,7 @@
 import copy
 import cerberus
 import cerberus.errors
+from cerberus import DocumentError, SchemaError  # noqa
 
 from eve.utils import config
 

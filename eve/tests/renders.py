@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from bson import ObjectId
 from eve.tests import TestBase
 from eve.utils import api_prefix
 from eve.tests.test_settings import MONGO_DBNAME
@@ -62,6 +63,32 @@ class TestRenders(TestBase):
         idx2 = data.index(b"next")
         idx3 = data.index(b"parent")
         self.assertTrue(idx1 < idx2 < idx3)
+
+    def test_xml_data_relation_hateoas(self):
+        # We need to assign a `person` to our test invoice
+        _db = self.connection[MONGO_DBNAME]
+
+        fake_contact = self.random_contacts(1)[0]
+        fake_contact_id = _db.contacts.insert_one(fake_contact).inserted_id
+        url = self.domain[self.known_resource]["url"]
+        item_title = self.domain[self.known_resource]["item_title"]
+        invoices = self.domain["invoices"]
+
+        # Test object id data relation fields
+        _db.invoices.update_one(
+            {"_id": ObjectId(self.invoice_id)}, {"$set": {"person": fake_contact_id}}
+        )
+
+        r = self.test_client.get(
+            "%s/%s" % (invoices["url"], self.invoice_id),
+            headers=[("Accept", "application/xml")],
+        )
+        data_relation_opening_tag = '<person href="%s/%s" title="%s">' % (
+            url,
+            fake_contact_id,
+            item_title,
+        )
+        self.assertTrue(data_relation_opening_tag in r.data.decode())
 
     def test_unknown_render(self):
         r = self.test_client.get("/", headers=[("Accept", "application/html")])
