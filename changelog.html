@@ -48,6 +48,10 @@
 <div class="section" id="fixed">
 <h3>Fixed<a class="headerlink" href="#fixed" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>Multiple concurrent patches to the same record, from different processes,
+should result in at least one patch failing with a 412 error (Precondition
+Failed) (<a class="reference external" href="https://github.com/pyeve/eve/issues/1231">#1231</a>)</li>
+<li>Embedding only does not follow <code class="docutils literal notranslate"><span class="pre">data_relation.field</span></code> (<a class="reference external" href="https://github.com/pyeve/eve/issues/1069">#1069</a>)</li>
 <li>HATEOAS <code class="docutils literal notranslate"><span class="pre">_links</span></code> seems to get an extra <code class="docutils literal notranslate"><span class="pre">&amp;version=diffs</span></code> (<a class="reference external" href="https://github.com/pyeve/eve/pull/1228">#1228</a>)</li>
 <li>Do not alter ETag when performing an oplog_push (<a class="reference external" href="https://github.com/pyeve/eve/issues/1206">#1206</a>)</li>
 <li>CORS response headers missing for media endpoint (<a class="reference external" href="https://github.com/pyeve/eve/issues/1197">#1197</a>)</li>
@@ -71,8 +75,8 @@ their logic to dedicated methods (<a class="reference external" href="https://gi
 <div class="section" id="version-0-8-1">
 <h2>Version 0.8.1<a class="headerlink" href="#version-0-8-1" title="Permalink to this headline">¶</a></h2>
 <p>Released on October 4, 2018.</p>
-<div class="section" id="id9">
-<h3>New<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id11">
+<h3>New<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Add support for Mongo <code class="docutils literal notranslate"><span class="pre">$centerSphere</span></code> query operator (<a class="reference external" href="https://github.com/pyeve/eve/issues/1181">#1181</a>)</li>
 <li><code class="docutils literal notranslate"><span class="pre">NORMALIZE_DOTTED_FIELDS</span></code>. If <code class="docutils literal notranslate"><span class="pre">True</span></code>, dotted fields are parsed and
@@ -84,8 +88,8 @@ to <code class="docutils literal notranslate"><span class="pre">False</span></co
 for <code class="docutils literal notranslate"><span class="pre">NORMALIZE_DOTTED_FIELDS</span></code>. (<a class="reference external" href="https://github.com/pyeve/eve/issues/1173">#1173</a>)</li>
 </ul>
 </div>
-<div class="section" id="id10">
-<h3>Fixed<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id12">
+<h3>Fixed<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><code class="docutils literal notranslate"><span class="pre">mongo_indexes</span></code>: “OperationFailure” when changing the keys of an existing index (<a class="reference external" href="https://github.com/pyeve/eve/issues/1180">#1180</a>)</li>
 <li>v0.8: “OperationFailure” performing MongoDB full text searches (<a class="reference external" href="https://github.com/pyeve/eve/issues/1176">#1176</a>)</li>
@@ -99,8 +103,8 @@ for <code class="docutils literal notranslate"><span class="pre">NORMALIZE_DOTTE
 command to <code class="docutils literal notranslate"><span class="pre">CONTRIBUTING.rst</span></code> it was missing.  (<a class="reference external" href="https://github.com/pyeve/eve/issues/1144">#1144</a>)</li>
 </ul>
 </div>
-<div class="section" id="id11">
-<h3>Improved<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id13">
+<h3>Improved<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Perform lint checks and fixes on staged files, as a pre-commit hook.
 (<a class="reference external" href="https://github.com/pyeve/eve/issues/1157">#1157</a>)</li>
@@ -223,7 +227,7 @@ being tested.</li>
 <li>Dev: fix insidious bug in <code class="docutils literal notranslate"><span class="pre">tests.methods.post.TestPost</span></code> class.</li>
 </ul>
 <div class="section" id="breaking-changes">
-<span id="id40"></span><h3>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h3>
+<span id="id42"></span><h3>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h3>
 <ul>
 <li><p class="first">Python 2.6 and Python 3.3 are no longer supported (<a class="reference external" href="https://github.com/pyeve/eve/issues/1129">#1129</a>).</p>
 </li>
@@ -1828,9 +1832,9 @@ signature, allowing for further subclassing.</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-8-1">Version 0.8.1</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id9">New</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id10">Fixed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id11">Improved</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id11">New</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">Fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id13">Improved</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#docs">Docs</a></li>
 </ul>
 </li>
