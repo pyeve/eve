@@ -12,6 +12,9 @@ New
 
 Fixed
 ~~~~~
+- Multiple concurrent patches to the same record, from different processes,
+  should result in at least one patch failing with a 412 error (Precondition
+  Failed) (`#1231`_)
 - Embedding only does not follow ``data_relation.field`` (`#1069`_)
 - HATEOAS ``_links`` seems to get an extra ``&version=diffs`` (`#1228`_)
 - Do not alter ETag when performing an oplog_push (`#1206`_)
@@ -29,6 +32,7 @@ Improved
 - Make the parsing of ``req.sort`` and ``req.where`` easily reusable by moving
   their logic to dedicated methods (`#1194`_)
 
+.. _`#1231`: https://github.com/pyeve/eve/issues/1231
 .. _`#1069`: https://github.com/pyeve/eve/issues/1069
 .. _`#1224`: https://github.com/pyeve/eve/pull/1224
 .. _`#1228`: https://github.com/pyeve/eve/pull/1228
