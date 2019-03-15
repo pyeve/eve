@@ -353,6 +353,9 @@ class TestMinimal(unittest.TestCase):
     def assert428(self, status):
         self.assertEqual(status, 428)
 
+    def assert429(self, status):
+        self.assertEqual(status, 429)
+
     def assert500(self, status):
         self.assertEqual(status, 500)
 

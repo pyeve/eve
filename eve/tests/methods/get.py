@@ -1596,7 +1596,7 @@ class TestGet(TestBase):
         self.assertEqual(len(items), num)
 
     def test_get_query_bitwise_query_operators(self):
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         response, status = self.delete(self.known_resource_url)
         self.assert204(status)
 

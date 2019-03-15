@@ -74,63 +74,63 @@ class TestPost(TestBase):
         self.assertEqual(status, 409)
 
     def test_post_integer(self):
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         test_field = "prog"
         test_value = 1
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 
     def test_post_list_as_array(self):
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         test_field = "role"
         test_value = ["vendor", "client"]
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 
     def test_post_rows(self):
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         test_field = "rows"
         test_value = [{"sku": "AT1234", "price": 99}, {"sku": "XF9876", "price": 9999}]
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 
     def test_post_list(self):
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         test_field = "alist"
         test_value = ["a_string", 99]
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 
     def test_post_integer_zero(self):
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         test_field = "aninteger"
         test_value = 0
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 
     def test_post_float_zero(self):
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         test_field = "afloat"
         test_value = 0.0
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 
     def test_post_dict(self):
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         test_field = "location"
         test_value = {"address": "an address", "city": "a city"}
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 
     def test_post_datetime(self):
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         test_field = "born"
         test_value = "Tue, 06 Nov 2012 10:33:31 GMT"
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 
     def test_post_objectid(self):
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         test_field = "tid"
         test_value = "50656e4538345b39dd0414f0"
         data = {test_field: test_value}
@@ -138,7 +138,7 @@ class TestPost(TestBase):
 
     def test_post_null_objectid(self):
         # verify that #341 is fixed.
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         test_field = "tid"
         test_value = None
         data = {test_field: test_value}
@@ -234,7 +234,7 @@ class TestPost(TestBase):
         self.assertPostResponse(r)
 
     def test_post_x_www_form_urlencoded_number_serialization(self):
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         test_field = "anumber"
         test_value = 34
         data = {test_field: test_value}
@@ -395,7 +395,7 @@ class TestPost(TestBase):
         self.assertPostResponse(r)
 
     def test_post_allow_unknown(self):
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         data = {"unknown": "unknown"}
         r, status = self.post(self.known_resource_url, data=data)
         self.assertValidationErrorStatus(status)
@@ -497,7 +497,7 @@ class TestPost(TestBase):
 
     def test_post_list_of_objectid(self):
         objectid = "50656e4538345b39dd0414f0"
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         data = {"id_list": ["%s" % objectid]}
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
@@ -510,7 +510,7 @@ class TestPost(TestBase):
 
     def test_post_nested_dict_objectid(self):
         objectid = "50656e4538345b39dd0414f0"
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         data = {"id_list_of_dict": [{"id": "%s" % objectid}]}
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
@@ -521,14 +521,14 @@ class TestPost(TestBase):
         self.assertTrue("%s" % objectid in r["_items"][0]["id_list_of_dict"][0]["id"])
 
     def test_post_valueschema_with_objectid(self):
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         data = {"dict_valueschema": {"id": {"challenge": "50656e4538345b39dd0414f0"}}}
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
 
     def test_post_list_fixed_len(self):
         objectid = "50656e4538345b39dd0414f0"
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         data = {"id_list_fixed_len": ["%s" % objectid]}
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
@@ -664,14 +664,14 @@ class TestPost(TestBase):
 
     def test_post_dependency_fields_with_default(self):
         # test that default values are resolved before validation. See #353.
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         test_field = "dependency_field2"
         test_value = "a value"
         data = {test_field: test_value}
         self.assertPostItem(data, test_field, test_value)
 
     def test_post_dependency_required_fields(self):
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         schema = self.domain["contacts"]["schema"]
         schema["dependency_field3"]["required"] = True
 
@@ -694,7 +694,7 @@ class TestPost(TestBase):
 
     def test_post_dependency_fields_with_values(self):
         # test that dependencies values are validated correctly. See #547.
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
 
         schema = {
             "field1": {"required": False, "default": "one"},
@@ -726,7 +726,7 @@ class TestPost(TestBase):
     def test_post_dependency_fields_with_subdocuments(self):
         # test that dependencies with sub-document fields are properly
         # validated. See #706.
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
 
         schema = {
             "field1": {"type": "dict", "schema": {"address": {"type": "string"}}},
@@ -754,7 +754,7 @@ class TestPost(TestBase):
     def test_post_readonly_field_with_default(self):
         # test that a read only field with a 'default' setting is correctly
         # validated now that we resolve field values before validation.
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         test_field = "read_only_field"
         # thou shalt not pass.
         test_value = "a random value"
@@ -771,7 +771,7 @@ class TestPost(TestBase):
     def test_post_readonly_in_dict(self):
         # Test that a post with a readonly field inside a dict is properly
         # validated (even if it has a defult value)
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         test_field = "dict_with_read_only"
         test_value = {"read_only_in_dict": "default"}
         data = {test_field: test_value}
@@ -780,7 +780,7 @@ class TestPost(TestBase):
 
     def test_post_valueschema_dict(self):
         """ make sure Cerberus#48 is fixed """
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         r, status = self.post(
             self.known_resource_url, data={"valueschema_dict": {"k1": "1"}}
         )
@@ -795,7 +795,7 @@ class TestPost(TestBase):
         self.assert201(status)
 
     def test_post_keyschema_dict(self):
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
 
         r, status = self.post(
             self.known_resource_url, data={"keyschema_dict": {"aaa": 1}}
@@ -835,7 +835,7 @@ class TestPost(TestBase):
         self.assert201(status)
 
     def test_post_nested(self):
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         data = {
             "location.city": "a nested city",
             "location.address": "a nested address",
@@ -849,7 +849,7 @@ class TestPost(TestBase):
         self.assertEqual(values["address"], "a nested address")
 
     def test_post_error_as_list(self):
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         self.app.config["VALIDATION_ERROR_AS_LIST"] = True
         data = {"unknown_field": "a value"}
         r, status = self.post(self.known_resource_url, data=data)
@@ -905,7 +905,7 @@ class TestPost(TestBase):
 
     def test_post_updating_a_document_with_nullable_data_relation_does_not_fail(self):
         # See #1159.
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
 
         employee = {
             "employer": {
@@ -924,7 +924,7 @@ class TestPost(TestBase):
         r, s = self.post("employee", data=data)
         self.assert422(s)
 
-        del (employee["employer"]["nullable"])
+        del employee["employer"]["nullable"]
         r, s = self.post("employee", data=data)
         self.assert422(s)
 

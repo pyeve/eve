@@ -202,13 +202,13 @@ class TestBasicAuth(TestBase):
         self.app.config["PUBLIC_METHODS"] = ["GET"]
         domain = self.app.config["DOMAIN"]
         for resource, settings in domain.items():
-            del (settings["public_methods"])
+            del settings["public_methods"]
         self.app.set_defaults()
-        del (domain["peopleinvoices"])
-        del (domain["peoplerequiredinvoices"])
-        del (domain["peoplesearches"])
-        del (domain["internal_transactions"])
-        del (domain["child_products"])
+        del domain["peopleinvoices"]
+        del domain["peoplerequiredinvoices"]
+        del domain["peoplesearches"]
+        del domain["internal_transactions"]
+        del domain["child_products"]
         for resource in domain:
             url = self.app.config["URLS"][resource]
             r = self.test_client.get(url)
@@ -223,7 +223,7 @@ class TestBasicAuth(TestBase):
         self.app.config["PUBLIC_METHODS"] = ["GET"]
         domain = self.app.config["DOMAIN"]
         for _, settings in domain.items():
-            del (settings["public_methods"])
+            del settings["public_methods"]
         self.app.set_defaults()
         domain[self.known_resource]["public_methods"] = []
         r = self.test_client.get(self.known_resource_url)
@@ -233,7 +233,7 @@ class TestBasicAuth(TestBase):
         self.app.config["PUBLIC_ITEM_METHODS"] = ["GET"]
         domain = self.app.config["DOMAIN"]
         for _, settings in domain.items():
-            del (settings["public_item_methods"])
+            del settings["public_item_methods"]
         self.app.set_defaults()
         domain[self.known_resource]["public_item_methods"] = []
         r = self.test_client.get(self.item_id_url)
@@ -242,7 +242,7 @@ class TestBasicAuth(TestBase):
     def test_public_methods_item(self):
         self.app.config["PUBLIC_ITEM_METHODS"] = ["GET"]
         for _, settings in self.app.config["DOMAIN"].items():
-            del (settings["public_item_methods"])
+            del settings["public_item_methods"]
         self.app.set_defaults()
         # we're happy with testing just one client endpoint, but for sake of
         # completeness we shold probably test item endpoints for every resource

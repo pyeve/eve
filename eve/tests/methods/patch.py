@@ -333,7 +333,7 @@ class TestPatch(TestBase):
         self.assertTrue("OK" in r[STATUS])
 
     def test_patch_x_www_form_urlencoded_number_serialization(self):
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         field = "anumber"
         test_value = 3.5
         changes = {field: test_value}
@@ -462,7 +462,7 @@ class TestPatch(TestBase):
 
     def test_patch_readonly_field_with_previous_document(self):
         schema = self.domain["contacts"]["schema"]
-        del (schema["ref"]["required"])
+        del schema["ref"]["required"]
 
         # disable read-only on the field so we can store a value which is
         # also different form its default value.
@@ -617,7 +617,7 @@ class TestPatch(TestBase):
         """
         # this will fail as dependent field is missing even in the
         # document we are trying to update.
-        del (self.domain["contacts"]["schema"]["dependency_field1"]["default"])
+        del self.domain["contacts"]["schema"]["dependency_field1"]["default"]
         changes = {"dependency_field2": "value"}
         r, status = self.patch(
             self.item_id_url, data=changes, headers=[("If-Match", self.item_etag)]
