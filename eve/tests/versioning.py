@@ -30,14 +30,12 @@ class TestVersioningBase(TestBase):
         self.connection.close()
 
     def enableVersioning(self, partial=False):
-        del (self.domain["contacts"]["schema"]["title"]["default"])
-        del (self.domain["contacts"]["schema"]["dependency_field1"]["default"])
-        del (self.domain["contacts"]["schema"]["read_only_field"]["default"])
-        del (
-            self.domain["contacts"]["schema"]["dict_with_read_only"]["schema"][
-                "read_only_in_dict"
-            ]["default"]
-        )
+        del self.domain["contacts"]["schema"]["title"]["default"]
+        del self.domain["contacts"]["schema"]["dependency_field1"]["default"]
+        del self.domain["contacts"]["schema"]["read_only_field"]["default"]
+        del self.domain["contacts"]["schema"]["dict_with_read_only"]["schema"][
+            "read_only_in_dict"
+        ]["default"]
         if partial is True:
             contact_schema = self.domain["contacts"]["schema"]
             contact_schema[self.unversioned_field]["versioned"] = False

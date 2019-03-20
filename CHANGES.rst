@@ -12,6 +12,7 @@ New
 
 Fixed
 ~~~~~
+- Expecting JSON response for rate limit exceeded scenario (`#1227`_)
 - Multiple concurrent patches to the same record, from different processes,
   should result in at least one patch failing with a 412 error (Precondition
   Failed) (`#1231`_)
@@ -32,6 +33,7 @@ Improved
 - Make the parsing of ``req.sort`` and ``req.where`` easily reusable by moving
   their logic to dedicated methods (`#1194`_)
 
+.. _`#1227`: https://github.com/pyeve/eve/issues/1227
 .. _`#1231`: https://github.com/pyeve/eve/issues/1231
 .. _`#1069`: https://github.com/pyeve/eve/issues/1069
 .. _`#1224`: https://github.com/pyeve/eve/pull/1224

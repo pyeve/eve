@@ -137,11 +137,11 @@ class TestEndPoints(TestBase):
         self.assertEqual(r.status_code, 200)
 
     def test_resource_endpoint(self):
-        del (self.domain["peopleinvoices"])
-        del (self.domain["peoplerequiredinvoices"])
-        del (self.domain["peoplesearches"])
-        del (self.domain["internal_transactions"])
-        del (self.domain["child_products"])
+        del self.domain["peopleinvoices"]
+        del self.domain["peoplerequiredinvoices"]
+        del self.domain["peoplesearches"]
+        del self.domain["internal_transactions"]
+        del self.domain["child_products"]
         for settings in self.domain.values():
             r = self.test_client.get("/%s/" % settings["url"])
             self.assert200(r.status_code)
@@ -292,7 +292,7 @@ class TestEndPoints(TestBase):
     def test_internal_endpoint(self):
         self.app.on_inserted -= self.on_generic_inserted
         self.app.on_inserted += self.on_generic_inserted
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         test_field = "rows"
         test_value = [{"sku": "AT1234", "price": 99}, {"sku": "XF9876", "price": 9999}]
         data = {test_field: test_value}

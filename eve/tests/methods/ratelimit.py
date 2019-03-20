@@ -51,8 +51,7 @@ class TestRateLimit(TestBase):
                 if t1 != t2:
                     time.sleep(1)
             self.assertRateLimit(r1)
-            self.assertEqual(r2.status_code, 429)
-            self.assertTrue(b"Rate limit exceeded" in r2.get_data())
+            self.assert429(r2.status_code)
 
             time.sleep(1)
             self.assertRateLimit(self.test_client.get(url))

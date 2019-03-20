@@ -20,7 +20,7 @@ import simplejson as json
 from bson.dbref import DBRef
 from bson.errors import InvalidId
 from cerberus import schema_registry, rules_set_registry
-from flask import Response, abort, current_app as app, g, request
+from flask import abort, current_app as app, g, request
 from werkzeug.datastructures import MultiDict, CombinedMultiDict
 
 from eve.utils import (
@@ -309,7 +309,7 @@ def ratelimit():
                 )
                 rlimit = RateLimit(key, limit, period, True)
                 if rlimit.over_limit:
-                    return Response("Rate limit exceeded", 429)
+                    abort(429, "Rate limit exceeded")
                 # store the rate limit for further processing by
                 # send_response
                 g._rate_limit = rlimit
@@ -1159,7 +1159,7 @@ def marshal_write_response(document, resource):
         auth_field = resource_def.get("auth_field")
         if auth_field and auth_field not in resource_def["schema"]:
             try:
-                del (document[auth_field])
+                del document[auth_field]
             except:
                 # 'auth_field' value has not been set by the auth class.
                 pass
