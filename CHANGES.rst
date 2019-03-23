@@ -20,7 +20,7 @@ Fixed
 - HATEOAS ``_links`` seems to get an extra ``&version=diffs`` (`#1228`_)
 - Do not alter ETag when performing an oplog_push (`#1206`_)
 - CORS response headers missing for media endpoint (`#1197`_)
-- Documentation typos (`#1218`_)
+- Documentation typos (`#1218`_, `#1240`_)
 
 Improved
 ~~~~~~~~
@@ -33,6 +33,7 @@ Improved
 - Make the parsing of ``req.sort`` and ``req.where`` easily reusable by moving
   their logic to dedicated methods (`#1194`_)
 
+.. _`#1240`: https://github.com/pyeve/eve/issues/1240
 .. _`#1227`: https://github.com/pyeve/eve/issues/1227
 .. _`#1231`: https://github.com/pyeve/eve/issues/1231
 .. _`#1069`: https://github.com/pyeve/eve/issues/1069
