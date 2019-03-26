@@ -12,6 +12,7 @@ New
 
 Fixed
 ~~~~~
+- DeprecationWarning on PyMongo 3.7+ (`#1202`_)
 - Expecting JSON response for rate limit exceeded scenario (`#1227`_)
 - Multiple concurrent patches to the same record, from different processes,
   should result in at least one patch failing with a 412 error (Precondition
@@ -24,6 +25,7 @@ Fixed
 
 Improved
 ~~~~~~~~
+- Bump PyMongo version to v3.7+ (`#1202`_)
 - Option to omit the aggregation stage when its parameter is empty/unset (`#1209`_)
 - HATEOAS: now the ``_links`` dictionary may have a ``related`` dictionary
   inside, and each key-value pair yields the related links for a data relation
@@ -33,6 +35,7 @@ Improved
 - Make the parsing of ``req.sort`` and ``req.where`` easily reusable by moving
   their logic to dedicated methods (`#1194`_)
 
+.. _`#1202`: https://github.com/pyeve/eve/issues/1202
 .. _`#1240`: https://github.com/pyeve/eve/issues/1240
 .. _`#1227`: https://github.com/pyeve/eve/issues/1227
 .. _`#1231`: https://github.com/pyeve/eve/issues/1231

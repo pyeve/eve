@@ -256,7 +256,7 @@ def _perform_find(resource, lookup):
     if config.OPTIMIZE_PAGINATION_FOR_SPEED:
         count = None
     else:
-        count = cursor.count(with_limit_and_skip=False)
+        count = app.data.last_documents_count
         headers.append((config.HEADER_TOTAL_COUNT, count))
 
     if config.DOMAIN[resource]["hateoas"]:
@@ -432,7 +432,7 @@ def getitem_internal(resource, **lookup):
 
         # build all versions
         documents = []
-        if cursor.count() == 0:
+        if app.data.last_documents_count == 0:
             # this is the scenario when the document existed before
             # document versioning got turned on
             documents.append(latest_doc)
@@ -484,7 +484,7 @@ def getitem_internal(resource, **lookup):
     if config.DOMAIN[resource]["hateoas"]:
         # use the id of the latest document for multi-document requests
         if cursor:
-            count = cursor.count(with_limit_and_skip=False)
+            count = app.data.last_documents_count
             response[config.LINKS] = _pagination_links(
                 resource, req, count, latest_doc[resource_def["id_field"]]
             )

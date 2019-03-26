@@ -117,6 +117,7 @@ class Mongo(DataLayer):
         + ["$geometry", "$maxDistance", "$box"]
         + ["$all", "$elemMatch", "$size"]
         + ["$bitsAllClear", "$bitsAllSet", "$bitsAnyClear", "$bitsAnySet"]
+        + ["$center", "$expr"]
     )
 
     def init_app(self, app):
@@ -249,7 +250,29 @@ class Mongo(DataLayer):
         if projection:
             args["projection"] = projection
 
-        return self.pymongo(resource).db[datasource].find(**args)
+        result = self.pymongo(resource).db[datasource].find(**args)
+
+        try:
+            self.last_documents_count = (
+                self.pymongo(resource).db[datasource].count_documents(spec)
+            )
+        except:
+            # fallback to deprecated method. this might happen when the query
+            # includes operators not supported by count_documents(). one
+            # documented use-case is when we're running on mongo 3.4 and below,
+            # which does not support $expr ($expr must replace $where # in
+            # count_documents()).
+
+            # 1. Mongo 3.6+; $expr: pass
+            # 2. Mongo 3.6+; $where: pass (via fallback)
+            # 3. Mongo 3.4; $where: pass (via fallback)
+            # 4. Mongo 3.4; $expr: fail (operator not supported by db)
+
+            # See: http://api.mongodb.com/python/current/api/pymongo/collection.html#pymongo.collection.Collection.count
+
+            self.last_documents_count = result.count()
+
+        return result
 
     def find_one(
         self,
@@ -703,10 +726,11 @@ class Mongo(DataLayer):
         return True
 
     def is_empty(self, resource):
-        """ Returns True if resource is empty; False otherwise. If there is no
-        predefined filter on the resource we're relying on the
-        db.collection.count(). However, if we do have a predefined filter we
-        have to fallback on the find() method, which can be much slower.
+        """ Returns True if resource is empty; False otherwise. If there is
+        no predefined filter on the resource we're relying on the
+        db.collection.count_documents. However, if we do have a predefined
+        filter we have to fallback on the find() method, which can be much
+        slower.
 
         .. versionchanged:: 0.6
            Support for multiple databases.
@@ -719,7 +743,7 @@ class Mongo(DataLayer):
             if not filter_:
                 # faster, but we can only afford it if there's now predefined
                 # filter on the datasource.
-                return coll.count() == 0
+                return coll.count_documents({}) == 0
             else:
                 # fallback on find() since we have a filter to apply.
                 try:
@@ -728,7 +752,7 @@ class Mongo(DataLayer):
                     del filter_[config.LAST_UPDATED]
                 except:
                     pass
-                return coll.find(filter_).count() == 0
+                return coll.count_documents(filter_) == 0
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
             self.app.logger.exception(e)

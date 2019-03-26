@@ -477,7 +477,7 @@ class TestMongoDriver(TestBase):
 
     def test_delete_returns_status(self):
         db = self.connection[MONGO_DBNAME]
-        count = db.contacts.count()
+        count = db.contacts.count_documents({})
         result = db.contacts.delete_many({})
         self.assertEqual(count, result.deleted_count)
         self.assertEqual(True, result.acknowledged)
