@@ -9,6 +9,8 @@ Version 0.8.2
 New
 ~~~
 - ``on_fetched_diffs`` event hooks (`#1224`_)
+- Support for Mongo 3.6+ ``$expr`` query operator.
+- Support for Mongo 3.6+ ``$center`` query operator.
 
 Fixed
 ~~~~~
