@@ -105,16 +105,14 @@ class TestVersioningBase(TestBase):
         if _id is not None:
             query[self.id_field] = ObjectId(_id)
 
-        documents = self._db[self.known_resource].find(query)
-        return documents.count()
+        return self._db[self.known_resource].count_documents(query)
 
     def countShadowDocuments(self, _id=None):
         query = {}
         if _id is not None:
             query[self.document_id_field] = ObjectId(_id)
 
-        documents = self._db[self.known_resource_shadow].find(query)
-        return documents.count()
+        return self._db[self.known_resource_shadow].count_documents(query)
 
     def assertGoodPutPatch(self, response, status):
         self.assert200(status)

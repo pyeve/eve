@@ -29,14 +29,14 @@ class TestPyMongo(TestBase):
         )
         with self.app.app_context():
             db = PyMongo(self.app, "MONGO1").db
-        self.assertEqual(0, db.works.count())
+        self.assertEqual(0, db.works.count_documents({}))
 
     def test_auth_params_provided_in_config(self):
         self.app.config["MONGO1_USERNAME"] = MONGO1_USERNAME
         self.app.config["MONGO1_PASSWORD"] = MONGO1_PASSWORD
         with self.app.app_context():
             db = PyMongo(self.app, "MONGO1").db
-        self.assertEqual(0, db.works.count())
+        self.assertEqual(0, db.works.count_documents({}))
 
     def test_invalid_auth_params_provided(self):
         # if bad username and/or password is provided in MONGO_URL and mongo
@@ -57,7 +57,7 @@ class TestPyMongo(TestBase):
         self.app.config["MONGO1_PORT"] = 27017
         with self.app.app_context():
             db = PyMongo(self.app, "MONGO1").db
-        self.assertEqual(0, db.works.count())
+        self.assertEqual(0, db.works.count_documents({}))
 
     def _setupdb(self):
         self.connection = MongoClient()

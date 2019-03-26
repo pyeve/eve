@@ -185,9 +185,9 @@ class TestPost(TestBase):
 
         with self.app.test_request_context():
             contacts = self.app.data.driver.db["contacts"]
-            r = contacts.find({"ref": "9234567890123456789054321"}).count()
+            r = contacts.count_documents({"ref": "9234567890123456789054321"})
             self.assertTrue(r == 1)
-            r = contacts.find({"ref": "5432112345678901234567890"}).count()
+            r = contacts.count_documents({"ref": "5432112345678901234567890"})
             self.assertTrue(r == 1)
 
     def test_multi_post_invalid(self):
@@ -217,9 +217,9 @@ class TestPost(TestBase):
 
         with self.app.test_request_context():
             contacts = self.app.data.driver.db["contacts"]
-            r = contacts.find({"prog": 9999}).count()
+            r = contacts.count_documents({"prog": 9999})
             self.assertTrue(r == 0)
-            r = contacts.find({"ref": "9234567890123456789054321"}).count()
+            r = contacts.count_documents({"ref": "9234567890123456789054321"})
             self.assertTrue(r == 0)
 
     def test_post_x_www_form_urlencoded(self):

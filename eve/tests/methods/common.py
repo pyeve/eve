@@ -533,9 +533,8 @@ class TestOpLogEndpointDisabled(TestOpLogBase):
 
         # however the oplog collection has been updated.
         db = self.connection[MONGO_DBNAME]
-        cursor = db.oplog.find()
-        self.assertEqual(cursor.count(), 1)
-        self.assertOpLogEntry(cursor[0], "POST")
+        self.assertEqual(db.oplog.count_documents({}), 1)
+        self.assertOpLogEntry(db.oplog.find()[0], "POST")
 
 
 class TestOpLogEndpointEnabled(TestOpLogBase):
@@ -570,9 +569,9 @@ class TestOpLogEndpointEnabled(TestOpLogBase):
 
         # however the oplog collection has the field.
         db = self.connection[MONGO_DBNAME]
-        cursor = db.oplog.find()
-        self.assertEqual(cursor.count(), 1)
-        oplog_entry = cursor[0]
+        db.oplog.find()
+        self.assertEqual(db.oplog.count_documents({}), 1)
+        oplog_entry = db.oplog.find()[0]
         self.assertTrue("extra" in oplog_entry)
         self.assertTrue("customvalue" in oplog_entry["extra"]["customfield"])
 

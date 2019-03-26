@@ -836,8 +836,8 @@ class TestUserRestrictedAccess(TestBase):
         _db = self.connection[MONGO_DBNAME]
 
         # make sure that other documents in the collections are untouched.
-        cursor = _db.contacts.find()
-        docs_num = cursor.count()
+        _db.contacts.find()
+        docs_num = _db.contacts.count_documents({})
 
         _, _ = self.post()
 
@@ -865,15 +865,13 @@ class TestUserRestrictedAccess(TestBase):
         self.assertEqual(len(response[self.app.config["ITEMS"]]), 0)
 
         # make sure no other document has been deleted.
-        cursor = _db.contacts.find()
-        self.assertEqual(cursor.count(), docs_num)
+        self.assertEqual(_db.contacts.count_documents({}), docs_num)
 
     def test_delete_item(self):
         _db = self.connection[MONGO_DBNAME]
 
         # make sure that other documents in the collections are untouched.
-        cursor = _db.contacts.find()
-        docs_num = cursor.count()
+        docs_num = _db.contacts.count_documents({})
 
         data, _ = self.post()
 
@@ -890,8 +888,7 @@ class TestUserRestrictedAccess(TestBase):
         self.assert204(status)
 
         # make sure no other document has been deleted.
-        cursor = _db.contacts.find()
-        self.assertEqual(cursor.count(), docs_num)
+        self.assertEqual(_db.contacts.count_documents({}), docs_num)
 
     def post(self):
         r = self.test_client.post(
