@@ -14,7 +14,8 @@ New
 
 Fixed
 ~~~~~
-- DeprecationWarning on PyMongo 3.7+ (`#1202`_)
+- DeprecationWarning: decodestring is deprecated, use decodebytes (`#1242`_)
+- DeprecationWarning: count is deprecated. Use Collection.count_documents instead (`#1202`_)
 - Expecting JSON response for rate limit exceeded scenario (`#1227`_)
 - Multiple concurrent patches to the same record, from different processes,
   should result in at least one patch failing with a 412 error (Precondition
@@ -37,6 +38,7 @@ Improved
 - Make the parsing of ``req.sort`` and ``req.where`` easily reusable by moving
   their logic to dedicated methods (`#1194`_)
 
+.. _`#1242`: https://github.com/pyeve/eve/issues/1242
 .. _`#1202`: https://github.com/pyeve/eve/issues/1202
 .. _`#1240`: https://github.com/pyeve/eve/issues/1240
 .. _`#1227`: https://github.com/pyeve/eve/issues/1227

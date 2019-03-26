@@ -1101,7 +1101,7 @@ def resolve_one_media(file_id, resource):
         # otherwise we have a valid file and should send extended response
         # start with the basic file object
         if config.RETURN_MEDIA_AS_BASE64_STRING:
-            ret_file = base64.encodestring(_file.read())
+            ret_file = base64.b64encode(_file.read())
         elif config.RETURN_MEDIA_AS_URL:
             prefix = (
                 config.MEDIA_BASE_URL

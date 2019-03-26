@@ -819,9 +819,9 @@ class TestGet(TestBase):
         returned = response["image_file"]["file"]
         # encodedstring will raise a DeprecationWarning under Python3.3, but
         # the alternative encodebytes is not available in Python 2.
-        encoded = base64.encodestring(asset).decode("utf-8")
+        encoded = base64.b64encode(asset).decode("utf-8")
         self.assertEqual(returned, encoded)
-        self.assertEqual(base64.decodestring(returned.encode()), asset)
+        self.assertEqual(base64.b64decode(returned.encode()), asset)
 
     def test_get_embedded(self):
         # We need to assign a `person` to our test invoice
