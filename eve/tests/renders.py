@@ -369,7 +369,7 @@ class TestRenders(TestBase):
 
     def test_deprecated_renderers_supports_py27(self):
         """ Make sure #1175 is fixed """
-        self.app.config["JSON"] = False
+        self.app.config["RENDERES"] = False
         try:
             self.app.check_deprecated_features()
         except AttributeError:
