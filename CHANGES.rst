@@ -14,6 +14,7 @@ New
 
 Fixed
 ~~~~~
+- On Mongo 3.6+, we don't return 400 'immutable field' on PATCH and PUT (`#1243`_)
 - UserWarning: JSON setting is deprecated. Use RENDERERS instead (`#1241`_).
 - DeprecationWarning: decodestring is deprecated, use decodebytes (`#1242`_)
 - DeprecationWarning: count is deprecated. Use Collection.count_documents instead (`#1202`_)
@@ -39,6 +40,7 @@ Improved
 - Make the parsing of ``req.sort`` and ``req.where`` easily reusable by moving
   their logic to dedicated methods (`#1194`_)
 
+.. _`#1243`: https://github.com/pyeve/eve/issues/1243
 .. _`#1241`: https://github.com/pyeve/eve/issues/1241
 .. _`#1242`: https://github.com/pyeve/eve/issues/1242
 .. _`#1202`: https://github.com/pyeve/eve/issues/1202
