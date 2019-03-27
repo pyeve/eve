@@ -890,6 +890,33 @@ class TestUserRestrictedAccess(TestBase):
         # make sure no other document has been deleted.
         self.assertEqual(_db.contacts.count_documents({}), docs_num)
 
+    def test_delete_item_soft_delete_enabled(self):
+        self.app.config["DOMAIN"]["restricted"]["soft_delete"] = True
+        _db = self.connection[MONGO_DBNAME]
+        docs_num = _db.contacts.count_documents({})
+
+        data, _ = self.post()
+
+        url = "%s/%s" % (self.url, data["_id"])
+        response = self.test_client.get(url, headers=self.valid_auth)
+        etag = response.headers["ETag"]
+        headers = [("If-Match", etag), ("Authorization", "Basic YWRtaW46c2VjcmV0")]
+
+        # delete the document
+        response, status = self.parse_response(
+            self.test_client.delete(url, headers=headers)
+        )
+        self.assert204(status)
+
+        # make sure no other document has been deleted.
+        self.assertEqual(
+            _db.contacts.count_documents({"_deleted": {"$ne": True}}), docs_num
+        )
+        self.assertEqual(_db.contacts.count_documents({"_deleted": True}), 1)
+
+        challenge = _db.contacts.find_one({"_deleted": True})
+        self.assertEqual(challenge["username"], "admin")
+
     def post(self):
         r = self.test_client.post(
             self.url,

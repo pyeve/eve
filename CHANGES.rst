@@ -15,6 +15,7 @@ New
 
 Fixed
 ~~~~~
+- Soft delete removes ``auth_field`` from document (`#1188`_)
 - On Mongo 3.6+, we don't return 400 'immutable field' on PATCH and PUT (`#1243`_)
 - UserWarning: JSON setting is deprecated. Use RENDERERS instead (`#1241`_).
 - DeprecationWarning: decodestring is deprecated, use decodebytes (`#1242`_)
@@ -42,6 +43,7 @@ Improved
   their logic to dedicated methods (`#1194`_)
 - Add a "Python 3 is highly preferred" note on the homepage (`#1198`_)
 
+.. _`#1188`: https://github.com/pyeve/eve/issues/1188
 .. _`#1198`: https://github.com/pyeve/eve/issues/1198
 .. _`#1199`: https://github.com/pyeve/eve/issues/1199
 .. _`#1243`: https://github.com/pyeve/eve/issues/1243
