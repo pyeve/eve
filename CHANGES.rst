@@ -11,6 +11,7 @@ New
 - ``on_fetched_diffs`` event hooks (`#1224`_)
 - Support for Mongo 3.6+ ``$expr`` query operator.
 - Support for Mongo 3.6+ ``$center`` query operator.
+- Python 3.7 added to the CI matrix (`#1199`_)
 
 Fixed
 ~~~~~
@@ -40,6 +41,7 @@ Improved
 - Make the parsing of ``req.sort`` and ``req.where`` easily reusable by moving
   their logic to dedicated methods (`#1194`_)
 
+.. _`#1199`: https://github.com/pyeve/eve/issues/1199
 .. _`#1243`: https://github.com/pyeve/eve/issues/1243
 .. _`#1241`: https://github.com/pyeve/eve/issues/1241
 .. _`#1242`: https://github.com/pyeve/eve/issues/1242
