@@ -250,12 +250,19 @@ class Mongo(DataLayer):
         if projection:
             args["projection"] = projection
 
-        result = self.pymongo(resource).db[datasource].find(**args)
+        self.__last_target = self.pymongo(resource).db[datasource], spec
+        self.__last_cursor = self.pymongo(resource).db[datasource].find(**args)
+
+        return self.__last_cursor
+
+    @property
+    def last_documents_count(self):
+        if not self.__last_target:
+            return None
 
         try:
-            self.last_documents_count = (
-                self.pymongo(resource).db[datasource].count_documents(spec)
-            )
+            target, spec = self.__last_target
+            return target.count_documents(spec)
         except:
             # fallback to deprecated method. this might happen when the query
             # includes operators not supported by count_documents(). one
@@ -269,10 +276,7 @@ class Mongo(DataLayer):
             # 4. Mongo 3.4; $expr: fail (operator not supported by db)
 
             # See: http://api.mongodb.com/python/current/api/pymongo/collection.html#pymongo.collection.Collection.count
-
-            self.last_documents_count = result.count()
-
-        return result
+            return self.__last_cursor.count()
 
     def find_one(
         self,
