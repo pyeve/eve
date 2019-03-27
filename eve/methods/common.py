@@ -615,6 +615,8 @@ def build_response_document(document, resource, embedded_fields, latest_doc=None
     """
     resource_def = config.DOMAIN[resource]
 
+    resolve_resource_projection(document, resource)
+
     # need to update the document field since the etag must be computed on the
     # same document representation that might have been used in the collection
     # 'get' method
@@ -662,6 +664,28 @@ def build_response_document(document, resource, embedded_fields, latest_doc=None
 
     # resolve embedded documents
     resolve_embedded_documents(document, resource, embedded_fields)
+
+
+def resolve_resource_projection(document, resource):
+    """ Purges a document of fields that are not included in its resource
+    projecton.
+
+    :param document: the original document.
+    :param resource: the resource name.
+    """
+
+    if config.BANDWIDTH_SAVER:
+        return
+
+    resource_def = config.DOMAIN[resource]
+    projection = resource_def["datasource"]["projection"]
+    fields = {
+        field for field, value in projection.items() if value and field in document
+    }
+    fields.add(resource_def["id_field"])
+
+    for field in set(document.keys()) - fields:
+        del (document[field])
 
 
 def field_definition(resource, chained_fields):

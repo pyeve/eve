@@ -9,12 +9,13 @@ Version 0.8.2
 New
 ~~~
 - ``on_fetched_diffs`` event hooks (`#1224`_)
+- Python 3.7 added to the CI matrix (`#1199`_)
 - Support for Mongo 3.6+ ``$expr`` query operator.
 - Support for Mongo 3.6+ ``$center`` query operator.
-- Python 3.7 added to the CI matrix (`#1199`_)
 
 Fixed
 ~~~~~
+- Datasource projection is not respected for POST requests (`#1189`_)
 - Soft delete removes ``auth_field`` from document (`#1188`_)
 - On Mongo 3.6+, we don't return 400 'immutable field' on PATCH and PUT (`#1243`_)
 - UserWarning: JSON setting is deprecated. Use RENDERERS instead (`#1241`_).
@@ -43,6 +44,7 @@ Improved
   their logic to dedicated methods (`#1194`_)
 - Add a "Python 3 is highly preferred" note on the homepage (`#1198`_)
 
+.. _`#1189`: https://github.com/pyeve/eve/issues/1189
 .. _`#1188`: https://github.com/pyeve/eve/issues/1188
 .. _`#1198`: https://github.com/pyeve/eve/issues/1198
 .. _`#1199`: https://github.com/pyeve/eve/issues/1199
