@@ -40,7 +40,9 @@ Improved
   ``title`` (`#1204`_)
 - Make the parsing of ``req.sort`` and ``req.where`` easily reusable by moving
   their logic to dedicated methods (`#1194`_)
+- Add a "Python 3 is highly preferred" note on the homepage (`#1198`_)
 
+.. _`#1198`: https://github.com/pyeve/eve/issues/1198
 .. _`#1199`: https://github.com/pyeve/eve/issues/1199
 .. _`#1243`: https://github.com/pyeve/eve/issues/1243
 .. _`#1241`: https://github.com/pyeve/eve/issues/1241
