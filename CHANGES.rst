@@ -18,9 +18,6 @@ Fixed
 - Datasource projection is not respected for POST requests (`#1189`_)
 - Soft delete removes ``auth_field`` from document (`#1188`_)
 - On Mongo 3.6+, we don't return 400 'immutable field' on PATCH and PUT (`#1243`_)
-- UserWarning: JSON setting is deprecated. Use RENDERERS instead (`#1241`_).
-- DeprecationWarning: decodestring is deprecated, use decodebytes (`#1242`_)
-- DeprecationWarning: count is deprecated. Use Collection.count_documents instead (`#1202`_)
 - Expecting JSON response for rate limit exceeded scenario (`#1227`_)
 - Multiple concurrent patches to the same record, from different processes,
   should result in at least one patch failing with a 412 error (Precondition
@@ -29,6 +26,10 @@ Fixed
 - HATEOAS ``_links`` seems to get an extra ``&version=diffs`` (`#1228`_)
 - Do not alter ETag when performing an oplog_push (`#1206`_)
 - CORS response headers missing for media endpoint (`#1197`_)
+- Warning: Unexpected keys present on black: ``python_version`` (`#1244`_)
+- UserWarning: JSON setting is deprecated. Use RENDERERS instead (`#1241`_).
+- DeprecationWarning: decodestring is deprecated, use decodebytes (`#1242`_)
+- DeprecationWarning: count is deprecated. Use Collection.count_documents instead (`#1202`_)
 - Documentation typos (`#1218`_, `#1240`_)
 
 Improved
@@ -44,6 +45,7 @@ Improved
   their logic to dedicated methods (`#1194`_)
 - Add a "Python 3 is highly preferred" note on the homepage (`#1198`_)
 
+.. _`#1244`: https://github.com/pyeve/eve/issues/1244
 .. _`#1189`: https://github.com/pyeve/eve/issues/1189
 .. _`#1188`: https://github.com/pyeve/eve/issues/1188
 .. _`#1198`: https://github.com/pyeve/eve/issues/1198
