@@ -944,6 +944,17 @@ class TestPost(TestBase):
         # key 'dotted.fields' must not contain '.'
         self.assertEqual(500, status)
 
+    def test_post_projection_is_honored(self):
+        data = {"ref": "1234567890123456789054321", "aninteger": 100}
+        self.app.config["BANDWIDTH_SAVER"] = False
+        self.domain["contacts"]["datasource"]["projection"] = {"ref": 1}
+
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert201(status)
+        self.assertPostResponse(r)
+        self.assertTrue("ref" in r)
+        self.assertTrue("aninteger" not in r)
+
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)
