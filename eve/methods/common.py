@@ -685,7 +685,7 @@ def resolve_resource_projection(document, resource):
     fields.add(resource_def["id_field"])
 
     for field in set(document.keys()) - fields:
-        del (document[field])
+        del document[field]
 
 
 def field_definition(resource, chained_fields):
