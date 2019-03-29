@@ -37,7 +37,7 @@ class Validator(cerberus.Validator):
         """
         self.document_id = document_id
         self.persisted_document = persisted_document
-        return super(Validator, self).validate(document, update=True)
+        return super(Validator, self).validate(document, update=True, normalize=True)
 
     def validate_replace(self, document, document_id, persisted_document=None):
         """ Validation method to be invoked when performing a document
