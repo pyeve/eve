@@ -13,6 +13,45 @@ from eve.tests.utils import DummyEvent
 
 
 class TestPatch(TestBase):
+    def test_patch_not_override_other_fields(self):
+        self.app.config["ENFORCE_IF_MATCH"] = False
+        # create a data
+        r, status = self.post(self.test_patch_url, data={"name": "name", "contact": {}})
+        self.assert201(status)
+        # check the data is created correctly
+        data, status = self.get(self.test_patch, item=r["_id"])
+        self.assert200(status)
+        self.assertEqual(data.get("name", None), "name")
+        self.assertTrue("contact" in data)
+        self.assertEqual(data["contact"].get("phone", None), "default_phone")
+        self.assertEqual(data["contact"].get("email", None), "default_email")
+
+        # patch the data
+        _, status = self.patch(
+            self.test_patch_url + "/" + data["_id"], data={"contact.phone": "new_phone"}
+        )
+        self.assert200(status)
+        # other fields should not be touched
+        data, status = self.get(self.test_patch, item=r["_id"])
+        self.assert200(status)
+        self.assertEqual(data.get("name", None), "name")
+        self.assertTrue("contact" in data)
+        self.assertEqual(data["contact"].get("phone", None), "new_phone")
+        self.assertEqual(data["contact"].get("email", None), "default_email")
+
+        # patch other field of the data
+        _, status = self.patch(
+            self.test_patch_url + "/" + data["_id"], data={"contact.email": "new_email"}
+        )
+        self.assert200(status)
+        # other fields should not be touched
+        data, status = self.get(self.test_patch, item=r["_id"])
+        self.assert200(status)
+        self.assertEqual(data.get("name", None), "name")
+        self.assertTrue("contact" in data)
+        self.assertEqual(data["contact"].get("phone", None), "new_phone")
+        self.assertEqual(data["contact"].get("email", None), "new_email")
+
     def test_patch_to_resource_endpoint(self):
         _, status = self.patch(self.known_resource_url, data={})
         self.assert405(status)
