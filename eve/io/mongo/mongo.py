@@ -94,7 +94,9 @@ class Mongo(DataLayer):
             str(v).lower()
         ],
         "dbref": lambda value: DBRef(
-            value["$col"], value["$id"], value["$db"] if "$db" in value else None
+            value["$col"] if "$col" in value else value["$ref"],
+            value["$id"],
+            value["$db"] if "$db" in value else None,
         )
         if value is not None
         else None,
