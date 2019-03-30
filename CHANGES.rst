@@ -15,6 +15,7 @@ New
 
 Fixed
 ~~~~~
+- Insertion failure when replacing a same document containing dbref (`#1216`_)
 - Datasource projection is not respected for POST requests (`#1189`_)
 - Soft delete removes ``auth_field`` from document (`#1188`_)
 - On Mongo 3.6+, we don't return 400 'immutable field' on PATCH and PUT (`#1243`_)
@@ -45,6 +46,7 @@ Improved
   their logic to dedicated methods (`#1194`_)
 - Add a "Python 3 is highly preferred" note on the homepage (`#1198`_)
 
+.. _`#1216`: https://github.com/pyeve/eve/issues/1216
 .. _`#1244`: https://github.com/pyeve/eve/issues/1244
 .. _`#1189`: https://github.com/pyeve/eve/issues/1189
 .. _`#1188`: https://github.com/pyeve/eve/issues/1188
