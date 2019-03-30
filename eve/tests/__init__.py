@@ -477,6 +477,9 @@ class TestBase(TestMinimal):
         self.child_products = "child_products"
         self.child_products_url = "/%s" % self.domain[self.child_products]["url"]
 
+        self.test_patch = "test_patch"
+        self.test_patch_url = "/%s" % self.domain[self.test_patch]["url"]
+
     def response_item(self, response, i=0):
         if self.app.config["HATEOAS"]:
             return response["_items"][i]
