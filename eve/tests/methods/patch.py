@@ -26,7 +26,9 @@ class TestPatch(TestBase):
         self.assertEqual(data["email"].get("email", None), "default_email")
 
         # patch the data
-        _, status = self.patch(self.test_patch_url + "/" + data._id, data={"contact.phone": "new_phone"})
+        _, status = self.patch(
+            self.test_patch_url + "/" + data._id, data={"contact.phone": "new_phone"}
+        )
         self.assert200(status)
         # other fields should not be touched
         data, status = self.get(self.test_patch_url, item=r._id)
@@ -37,7 +39,9 @@ class TestPatch(TestBase):
         self.assertEqual(data["email"].get("email", None), "default_email")
 
         # patch other field of the data
-        _, status = self.patch(self.test_patch_url + "/" + data._id, data={"contact.email": "new_email"})
+        _, status = self.patch(
+            self.test_patch_url + "/" + data._id, data={"contact.email": "new_email"}
+        )
         self.assert200(status)
         # other fields should not be touched
         data, status = self.get(self.test_patch_url, item=r._id)
